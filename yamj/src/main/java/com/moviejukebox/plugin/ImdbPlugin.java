@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
@@ -17,9 +17,6 @@ import static com.moviejukebox.tools.StringTools.isValidString;
 import static com.moviejukebox.tools.StringTools.trimToLength;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -50,6 +47,7 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
@@ -275,10 +273,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         } catch (Exception error) {
             logger.error("Failed retreiving IMDb data for movie : " + movie.getId(IMDB_PLUGIN_ID));
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         return returnStatus;
     }
@@ -609,7 +604,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        // RELEASE DATE 
+        // RELEASE DATE
         if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
             // Load the release page from IMDb
             if (releaseInfoXML.equals(Movie.UNKNOWN)) {
@@ -1102,7 +1097,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Get the fanart for the movie from the FanartScanner
-     * 
+     *
      * @param movie
      * @return
      */
@@ -1153,7 +1148,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Get the TV show information from IMDb
-     * 
+     *
      * @throws IOException
      * @throws MalformedURLException
      */
@@ -1163,7 +1158,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Retrieves the long plot description from IMDB if it exists, else "UNKNOWN"
-     * 
+     *
      * @param movie
      * @return long plot
      */
@@ -1386,10 +1381,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             returnStatus = updateInfoNew(person, xml);
         } catch (Exception error) {
             logger.error("Failed retreiving IMDb data for person : " + imdbID);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         return returnStatus;
     }

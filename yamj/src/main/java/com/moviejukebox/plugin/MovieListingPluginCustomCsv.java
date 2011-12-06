@@ -1,22 +1,19 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -39,6 +36,7 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.CSVWriter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * User: nmn Date: Aug 15, 2010
@@ -65,7 +63,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
 
     /**
      * Take a comma-separated list of field names and split them into separate fields
-     * 
+     *
      * @param aFields
      *            Text to split
      * @return Number of fields found
@@ -99,7 +97,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
 
     /**
      * Check if a header filed matches a known type
-     * 
+     *
      * @param field The text we are checking
      * @param knownType  The type to match
      * @return true if we got a match
@@ -414,10 +412,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
             }
             writer.close();
         } catch (IOException error) {
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
 
         // move to configured (default) location

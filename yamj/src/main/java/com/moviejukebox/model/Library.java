@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.model;
 
@@ -17,9 +17,6 @@ import static com.moviejukebox.tools.FileTools.createPrefix;
 import static com.moviejukebox.tools.FileTools.makeSafeFilename;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,9 +53,7 @@ public class Library implements Map<String, Movie> {
 
     public static final String TV_SERIES = "TVSeries";
     public static final String SET = "Set";
-
     private Collection<IndexInfo> generatedIndexes = Collections.synchronizedCollection(new ArrayList<IndexInfo>());
-
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static boolean filterGenres;
     private static boolean filterCertificationn;
@@ -100,12 +95,10 @@ public class Library implements Map<String, Movie> {
     private static boolean isDirty = false;
     private static boolean peopleScan = false;
     private static boolean completePerson = true;
-
     // Static values for the year indexes
     private static final int currentYear = Calendar.getInstance().get(Calendar.YEAR);
     private static final int finalYear = currentYear - 2;
     private static final int currentDecade = (finalYear / 10) * 10;
-    
     // Index Names
     public static final String INDEX_OTHER = "Other";
     public static final String INDEX_GENRES = "Genres";
@@ -152,12 +145,12 @@ public class Library implements Map<String, Movie> {
         singleSeriesPage = PropertiesUtil.getBooleanProperty("mjb.singleSeriesPage", "false");
         indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
         splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
-        processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process","true");
+        processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", "true");
         hideWatched = PropertiesUtil.getBooleanProperty("mjb.Library.hideWatched", "true");
         enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", "true");
         filterGenres = PropertiesUtil.getBooleanProperty("mjb.filter.genres", "false");
         fillGenreMap(PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres-default.xml"));
-        
+
         filterCertificationn = PropertiesUtil.getBooleanProperty("mjb.filter.certification", "false");
         fillCertificationMap(PropertiesUtil.getProperty("mjb.xmlCertificationFile", "certification-default.xml"));
 
@@ -183,42 +176,43 @@ public class Library implements Map<String, Movie> {
         getNewCategoryProperties();
     }
 
-    public Library() {}
-    
+    public Library() {
+    }
+
     /**
      * Calculate the Movie and TV New category properties
      */
     private static void getNewCategoryProperties() {
         String defaultDays = "7";
         String defaultCount = "0";
-        
+
         //newDays  = PropertiesUtil.getLongProperty("mjb.newdays", defaultDays);
         //newCount = PropertiesUtil.getIntProperty("mjb.newcount", defaultCount);
-            
+
         newMovieDays = PropertiesUtil.getLongProperty("mjb.newdays.movie", "-1");
         if (newMovieDays == -1) {
             // Use the old default, if the new property isn't found
             newMovieDays = PropertiesUtil.getLongProperty("mjb.newdays", defaultDays);
         }
-        
+
         newMovieCount = PropertiesUtil.getIntProperty("mjb.newcount.movie", "-1");
         if (newMovieCount == -1) {
             // Use the old default, if the new property isn't found
             newMovieCount = PropertiesUtil.getIntProperty("mjb.newcount", defaultCount);
         }
-        
+
         newTvDays = PropertiesUtil.getLongProperty("mjb.newdays.tv", "-1");
         if (newTvDays == -1) {
             // Use the old default, if the new property isn't found
             newTvDays = PropertiesUtil.getLongProperty("mjb.newdays", defaultDays);
         }
-        
+
         newTvCount = PropertiesUtil.getIntProperty("mjb.newcount.tv", "-1");
         if (newTvCount == -1) {
             // Use the old default, if the new property isn't found
             newTvCount = PropertiesUtil.getIntProperty("mjb.newcount", defaultCount);
         }
-        
+
         if (newMovieDays > 0) {
             logger.debug("New Movie category will have " + (newMovieCount > 0 ? ("the " + newMovieCount) : "all of the") + " most recent movies in the last " + newMovieDays + " days");
             // Convert newDays from DAYS to MILLISECONDS for comparison purposes
@@ -234,7 +228,7 @@ public class Library implements Map<String, Movie> {
         } else {
             logger.debug("New category is disabled");
         }
-}
+    }
 
     public static String getMovieKey(IMovieBasicInformation movie) {
         // Issue 190
@@ -264,7 +258,7 @@ public class Library implements Map<String, Movie> {
         } else {
             MovieFile firstMovieFile = movie.getFirstFile();
             // Take care of TV-Show (order by episode). Issue 535 - Not sure it's the best place do to this.
-            if (existingMovie.isTVShow() || existingMovie.getMovieFiles().size()>1) {
+            if (existingMovie.isTVShow() || existingMovie.getMovieFiles().size() > 1) {
                 // The lower episode have to be the main movie.
                 int newEpisodeNumber = firstMovieFile.getFirstPart();
                 int oldEpisodesFirstNumber = Integer.MAX_VALUE;
@@ -340,7 +334,7 @@ public class Library implements Map<String, Movie> {
             // We can't clone the movie because of the Collection objects in there, so we'll have to copy it
             Movie indexMaster = Movie.newInstance(indexMovieList.get(setIndex));
             indexMaster.setDirty(false);
-            
+
             indexMaster.setSetMaster(true);
             indexMaster.setSetSize(indexMovieList.size());
             indexMaster.setTitle(indexName);
@@ -348,7 +342,7 @@ public class Library implements Map<String, Movie> {
             indexMaster.setOriginalTitle(indexName);
             indexMaster.setBaseFilename(createPrefix(prefix, createCategoryKey(indexName)) + "1");
             indexMaster.setBaseName(makeSafeFilename(indexMaster.getBaseFilename()));
-            
+
             // set TV and HD properties of the master
             int cntTV = 0;
             int cntHD = 0;
@@ -365,14 +359,14 @@ public class Library implements Map<String, Movie> {
                 if (movie.isTVShow()) {
                     ++cntTV;
                 }
-                
+
                 if (movie.isHD()) {
                     ++cntHD;
                 }
 
                 // If watched is false for any part, then set the master to unwatched
                 watched &= movie.isWatched();
-                
+
                 int mTop250 = movie.getTop250();
                 if (mTop250 > 0 && (top250 < 0 || mTop250 < top250)) {
                     top250 = mTop250;
@@ -390,7 +384,7 @@ public class Library implements Map<String, Movie> {
                 if (movieFileCollection != null) {
                     masterMovieFileCollection.addAll(movieFileCollection);
                 }
-                
+
                 // Update the master fileDate to be the latest of all the members so this indexes correctly in the New category
                 indexMaster.addFileDate(movie.getFileDate());
             }
@@ -401,13 +395,13 @@ public class Library implements Map<String, Movie> {
             indexMaster.setTop250(top250);
             if (setsRating.equalsIgnoreCase("max") || (setsRating.equalsIgnoreCase("average") && (indexMovieList.size() > 0))) {
                 HashMap<String, Integer> ratings = new HashMap<String, Integer>();
-                ratings.put("setrating", setsRating.equalsIgnoreCase("max")?maxRating:(sumRating/indexMovieList.size()));
+                ratings.put("setrating", setsRating.equalsIgnoreCase("max") ? maxRating : (sumRating / indexMovieList.size()));
                 indexMaster.setRatings(ratings);
             }
             indexMaster.setMovieFiles(masterMovieFileCollection);
-            
+
             masters.put(indexName, indexMaster);
-            
+
             StringBuilder sb = new StringBuilder("Setting index master '");
             sb.append(indexMaster.getTitle());
             sb.append("' - isTV: ").append(indexMaster.isTVShow());
@@ -418,7 +412,7 @@ public class Library implements Map<String, Movie> {
             sb.append(" - watched: ").append(indexMaster.isWatched());
             sb.append(" - rating: ").append(indexMaster.getRating());
             logger.debug(sb.toString());
-            
+
         }
 
         return masters;
@@ -469,6 +463,7 @@ public class Library implements Map<String, Movie> {
 
             for (final String indexStr : indexList.split(",")) {
                 tasks.submit(new Callable<Void>() {
+
                     @Override
                     public Void call() {
                         SystemTools.showMemory();
@@ -506,7 +501,7 @@ public class Library implements Map<String, Movie> {
             }
             tasks.waitFor();
             SystemTools.showMemory();
-            
+
             // Make a "copy" of uncompressed index
             this.keepUncompressedIndexes();
 
@@ -542,12 +537,13 @@ public class Library implements Map<String, Movie> {
             }
             SystemTools.showMemory();
             tasks.restart();
-            
+
             // OK, now that all the index masters are in-place, sort everything.
             logger.info("  Sorting Indexes ...");
             for (final Map.Entry<String, Index> indexesEntry : indexes.entrySet()) {
                 for (final Map.Entry<String, List<Movie>> indexEntry : indexesEntry.getValue().entrySet()) {
                     tasks.submit(new Callable<Void>() {
+
                         @Override
                         public Void call() {
                             Comparator<Movie> comp = getComparator(indexesEntry.getKey(), indexEntry.getKey());
@@ -567,16 +563,16 @@ public class Library implements Map<String, Movie> {
             // Cut off the Other/New lists if they're too long AND add them to the NEW category if required
             boolean trimNewTvOK = trimNewCategory(INDEX_NEW_TV, newTvCount);
             boolean trimNewMovieOK = trimNewCategory(INDEX_NEW_MOVIE, newMovieCount);
-            
+
             // Merge the two categories into the Master "New" category
-            
+
             if (categoriesMap.get(INDEX_NEW) != null) {
                 Index otherIndexes = indexes.get(INDEX_OTHER);
                 List<Movie> newList = new ArrayList<Movie>();
                 int newMovies = 0;
                 int newTVShows = 0;
-                
-                if (trimNewMovieOK && (categoriesMap.get(INDEX_NEW_MOVIE) != null)  && (otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)) != null)){
+
+                if (trimNewMovieOK && (categoriesMap.get(INDEX_NEW_MOVIE) != null) && (otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)) != null)) {
                     newList.addAll(otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)));
                     newMovies = otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)).size();
                 } else {
@@ -585,8 +581,8 @@ public class Library implements Map<String, Movie> {
                         otherIndexes.remove(categoriesMap.get(INDEX_NEW_MOVIE));
                     }
                 }
-                
-                if (trimNewTvOK && (categoriesMap.get(INDEX_NEW_TV) != null)  && (otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)) != null)){
+
+                if (trimNewTvOK && (categoriesMap.get(INDEX_NEW_TV) != null) && (otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)) != null)) {
                     newList.addAll(otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)));
                     newTVShows = otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)).size();
                 } else {
@@ -595,24 +591,24 @@ public class Library implements Map<String, Movie> {
                         otherIndexes.remove(categoriesMap.get(INDEX_NEW_TV));
                     }
                 }
-                
+
                 // If we have new videos, then create the super "New" category
                 if ((newMovies + newTVShows) > 0) {
                     StringBuilder logMessage = new StringBuilder("Creating new category with ");
                     if (newMovies > 0) {
-                        logMessage.append(newMovies).append(" new movie").append(newMovies > 1?"s":"");
+                        logMessage.append(newMovies).append(" new movie").append(newMovies > 1 ? "s" : "");
                     }
                     if (newTVShows > 0) {
-                        logMessage.append(newMovies > 0?" & ":"");
-                        logMessage.append(newTVShows).append(" new TV Show").append(newTVShows > 1?"s":"");
+                        logMessage.append(newMovies > 0 ? " & " : "");
+                        logMessage.append(newTVShows).append(" new TV Show").append(newTVShows > 1 ? "s" : "");
                     }
-                    
+
                     logger.debug(logMessage.toString());
                     otherIndexes.put(categoriesMap.get(INDEX_NEW), newList);
                     Collections.sort(otherIndexes.get(categoriesMap.get(INDEX_NEW)), cmpLast);
                 }
             }
-            
+
             // Now set up the index masters' posters
             for (Map.Entry<String, Map<String, Movie>> dynamicIndexMastersEntry : dynamicIndexMasters.entrySet()) {
                 for (Map.Entry<String, Movie> mastersEntry : dynamicIndexMastersEntry.getValue().entrySet()) {
@@ -626,12 +622,12 @@ public class Library implements Map<String, Movie> {
             SystemTools.showMemory();
         }
     }
-    
+
     /**
      * Trim the new category to the required length, add the trimmed video list to the NEW category
      * @param catName   The name of the category: "New-TV" or "New-Movie"
      * @param catCount  The maximum size of the category
-     * @return 
+     * @return
      */
     private boolean trimNewCategory(String catName, int catCount) {
         boolean trimOK = true;
@@ -642,16 +638,16 @@ public class Library implements Map<String, Movie> {
             if (otherIndexes != null) {
                 List<Movie> newList = otherIndexes.get(category);
                 //logger.info("Current size of '" + catName + "' ('" + category + "') is " + (newList != null ? newList.size() : "NULL"));
-                if ((newList != null)  && (newList.size() > catCount)) {
-                        newList = newList.subList(0, catCount);
-                        otherIndexes.put(category, newList);
+                if ((newList != null) && (newList.size() > catCount)) {
+                    newList = newList.subList(0, catCount);
+                    otherIndexes.put(category, newList);
                 }
             } else {
                 logger.warn("Warning : You need to enable index 'Other' to get '" + catName + "' ('" + category + "') category");
                 trimOK = false;
             }
         }
-        
+
         return trimOK;
     }
 
@@ -822,7 +818,7 @@ public class Library implements Map<String, Movie> {
 
     /**
      * Index the videos by the property values
-     * This is slightly different from the other indexes as there may be multiple entries for each of the videos 
+     * This is slightly different from the other indexes as there may be multiple entries for each of the videos
      * @param moviesList
      * @return
      */
@@ -874,14 +870,14 @@ public class Library implements Map<String, Movie> {
                         movie.addIndex(INDEX_TOP250, categoriesMap.get(INDEX_TOP250));
                     }
                 }
-                
+
                 if (movie.getRating() > 0) {
                     if (categoriesMap.get(INDEX_RATING) != null) {
                         index.addMovie(categoriesMap.get(INDEX_RATING), movie);
                         movie.addIndex(INDEX_RATING, categoriesMap.get(INDEX_RATING));
                     }
                 }
-                
+
                 if (enableWatchScanner) { // Issue 1938 don't create watched/unwatched indexes if scanner is disabled
                     // Add to the Watched or Unwatched category
                     if (movie.isWatched()) {
@@ -892,7 +888,7 @@ public class Library implements Map<String, Movie> {
                         movie.addIndex(INDEX_UNWATCHED, categoriesMap.get(INDEX_UNWATCHED));
                     }
                 }
-                
+
                 // Add to the New Movie category
                 if (!movie.isTVShow() && (newMovieDays > 0) && (now - movie.getLastModifiedTimestamp() <= newMovieDays) && !(movie.isWatched() && hideWatched && enableWatchScanner)) {
                     if (categoriesMap.get(INDEX_NEW_MOVIE) != null) {
@@ -900,7 +896,7 @@ public class Library implements Map<String, Movie> {
                         movie.addIndex(INDEX_NEW_MOVIE, categoriesMap.get(INDEX_NEW_MOVIE));
                     }
                 }
-                
+
                 // Add to the New TV category
                 if (movie.isTVShow() && (newTvDays > 0) && (now - movie.getLastModifiedTimestamp() <= newTvDays) && !(movie.isWatched() && hideWatched && enableWatchScanner)) {
                     if (categoriesMap.get(INDEX_NEW_TV) != null) {
@@ -1089,7 +1085,7 @@ public class Library implements Map<String, Movie> {
         Index index = new Index(true);
         for (Movie movie : list) {
             if (!movie.isExtra() && (movie.getRating() > 0)) {
-                String rating = Integer.toString((int)Math.floor(movie.getRating()/10));
+                String rating = Integer.toString((int) Math.floor(movie.getRating() / 10));
                 rating = rating + ".0-" + rating + ".9";
                 logger.debug("Adding " + movie.getTitle() + " to ratings list for " + rating);
                 index.addMovie(rating, movie);
@@ -1102,13 +1098,13 @@ public class Library implements Map<String, Movie> {
 
     public int getMovieCountForIndex(String indexName, String category) {
         Index index = unCompressedIndexes.get(indexName);
-        
+
         if (index == null) {
             index = indexes.get(indexName);
         }
-        
+
         List<Movie> categoryList = index.get(category);
-        
+
         if (categoryList != null) {
             return categoryList.size();
         } else {
@@ -1118,7 +1114,7 @@ public class Library implements Map<String, Movie> {
 
     /**
      * Checks if there is a master (will be shown in the index) genre for the specified one.
-     * 
+     *
      * @param genre
      *            Genre to find the master for
      * @return Genre itself or master if available.
@@ -1138,7 +1134,7 @@ public class Library implements Map<String, Movie> {
 
     /**
      * Checks if there is a master (will be shown in the index) Certification for the specified one.
-     * 
+     *
      * @param certification
      *            Certification to find the master for
      * @return Certification itself or master if available.
@@ -1227,7 +1223,7 @@ public class Library implements Map<String, Movie> {
         }
         return m;
     }
-    
+
     public Movie remove(Movie m) {
         String key = keys.get(m);
         return library.remove(key);
@@ -1293,10 +1289,7 @@ public class Library implements Map<String, Movie> {
                 }
             } catch (Exception error) {
                 logger.error("Failed parsing moviejukebox genre input file: " + xmlGenreFile.getName());
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.error(eResult.toString());
+                logger.error(SystemTools.getStackTrace(error));
             }
         } else {
             logger.error("The moviejukebox genre input file you specified is invalid: " + xmlGenreFile.getName());
@@ -1325,10 +1318,7 @@ public class Library implements Map<String, Movie> {
                 }
             } catch (Exception error) {
                 logger.error("Failed parsing moviejukebox certification input file: " + xmlCertificationFile.getName());
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.error(eResult.toString());
+                logger.error(SystemTools.getStackTrace(error));
             }
         } else {
             logger.error("The moviejukebox certification input file you specified is invalid: " + xmlCertificationFile.getName());
@@ -1356,16 +1346,13 @@ public class Library implements Map<String, Movie> {
                 }
             } catch (Exception error) {
                 logger.error("Failed parsing moviejukebox category input file: " + xmlFile.getName());
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.error(eResult.toString());
+                logger.error(SystemTools.getStackTrace(error));
             }
         } else {
             logger.error("The moviejukebox category input file you specified is invalid: " + xmlFile.getName());
         }
     }
-    
+
     public Map<String, String> getCategoriesMap() {
         return categoriesMap;
     }
@@ -1384,7 +1371,6 @@ public class Library implements Map<String, Movie> {
         }
         return null;
     }
-
     static LastModifiedComparator cmpLast = new LastModifiedComparator();
     static Top250Comparator cmp250 = new Top250Comparator();
     static RatingComparator cmpRating = new RatingComparator();
@@ -1392,13 +1378,13 @@ public class Library implements Map<String, Movie> {
 
     protected static Comparator<Movie> getComparator(String category, String key) {
         Comparator<Movie> cmpMovie = null;
-        
+
         if (category.equals(SET)) {
             cmpMovie = new MovieSetComparator(key);
         } else if (category.equals(INDEX_OTHER)) {
-            if (key.equals(categoriesMap.get(INDEX_NEW)) || 
-                    key.equals(categoriesMap.get(INDEX_NEW_TV)) || 
-                    key.equals(categoriesMap.get(INDEX_NEW_MOVIE))) {
+            if (key.equals(categoriesMap.get(INDEX_NEW))
+                    || key.equals(categoriesMap.get(INDEX_NEW_TV))
+                    || key.equals(categoriesMap.get(INDEX_NEW_MOVIE))) {
                 cmpMovie = cmpLast;
             } else if (key.equals(categoriesMap.get(INDEX_TOP250))) {
                 cmpMovie = cmp250;
@@ -1411,7 +1397,7 @@ public class Library implements Map<String, Movie> {
 
         return cmpMovie;
     }
-    
+
     /**
      * Find the un-modified category name.
      * The Category name could be changed by the use of the Category XML file.
@@ -1425,10 +1411,10 @@ public class Library implements Map<String, Movie> {
                 return singleCategory.getKey();
             }
         }
-        
+
         return Movie.UNKNOWN;
     }
-    
+
     /**
      * Find the renamed category name from the original name
      * The Category name could be changed by the use of the Category XML file.
@@ -1439,7 +1425,7 @@ public class Library implements Map<String, Movie> {
     public static String getRenamedCategory(String newCategory) {
         return categoriesMap.get(newCategory);
     }
-    
+
     public static boolean isFilterGenres() {
         return filterGenres;
     }
@@ -1457,25 +1443,25 @@ public class Library implements Map<String, Movie> {
     }
 
     public static Collection<String> getPrefixes() {
-        return Arrays.asList(new String[] { INDEX_OTHER.toUpperCase(), 
-                        INDEX_CERTIFICATION.toUpperCase(), 
-                        INDEX_TITLE.toUpperCase(), 
-                        INDEX_YEAR.toUpperCase(), 
-                        INDEX_GENRES.toUpperCase(), 
-                        INDEX_SET.toUpperCase(), 
-                        INDEX_LIBRARY.toUpperCase(), 
-                        INDEX_CAST.toUpperCase(), 
-                        INDEX_DIRECTOR.toUpperCase(), 
-                        INDEX_COUNTRY.toUpperCase(), 
-                        INDEX_CATEGORIES.toUpperCase(), 
-                        INDEX_AWARD.toUpperCase(), 
-                        INDEX_PERSON.toUpperCase(), 
-                        INDEX_RATINGS.toUpperCase() });
+        return Arrays.asList(new String[]{INDEX_OTHER.toUpperCase(),
+                    INDEX_CERTIFICATION.toUpperCase(),
+                    INDEX_TITLE.toUpperCase(),
+                    INDEX_YEAR.toUpperCase(),
+                    INDEX_GENRES.toUpperCase(),
+                    INDEX_SET.toUpperCase(),
+                    INDEX_LIBRARY.toUpperCase(),
+                    INDEX_CAST.toUpperCase(),
+                    INDEX_DIRECTOR.toUpperCase(),
+                    INDEX_COUNTRY.toUpperCase(),
+                    INDEX_CATEGORIES.toUpperCase(),
+                    INDEX_AWARD.toUpperCase(),
+                    INDEX_PERSON.toUpperCase(),
+                    INDEX_RATINGS.toUpperCase()});
     }
 
     /**
      * Determine the year banding for the category. If the year is this year or last year, return those, otherwise return the decade the year resides in
-     * 
+     *
      * @param filmYear
      *            The year to check
      * @return "This Year", "Last Year" or the decade range (1990-1999)
@@ -1600,5 +1586,4 @@ public class Library implements Map<String, Movie> {
     public boolean isDirtyLibrary(String name) {
         return StringTools.isValidString(name) && dirtyLibraries.contains(name);
     }
-
 }

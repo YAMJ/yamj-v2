@@ -23,9 +23,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -42,6 +39,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * @author ilgizar
@@ -505,10 +503,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             movie.setTitle(originalTitle);
         } catch (Exception error) {
             logger.error("Failed retreiving movie data from Animator : " + animatorId);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         return true;
     }

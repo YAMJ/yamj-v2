@@ -20,9 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map.Entry;
@@ -50,6 +48,7 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.XMLWriter;
 
@@ -65,7 +64,6 @@ public class MovieJukeboxHTMLWriter {
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";
     private static final String EXT_XSL = ".xsl";
-
     private boolean forceHTMLOverwrite;
     private int nbMoviesPerPage;
     private int nbTvShowsPerPage;
@@ -151,10 +149,7 @@ public class MovieJukeboxHTMLWriter {
             }
         } catch (Exception error) {
             logger.error("HTMLWriter: Failed generating HTML for movie " + movie.getBaseFilename());
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -202,10 +197,7 @@ public class MovieJukeboxHTMLWriter {
             }
         } catch (Exception error) {
             logger.error("HTMLWriter: Failed generating HTML for person " + person.getName());
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -275,10 +267,7 @@ public class MovieJukeboxHTMLWriter {
             }
         } catch (Exception error) {
             logger.error("HTMLWriter: Failed generating playlist for movie " + movie);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
 
         // if the multi part playlists are not required
@@ -291,10 +280,7 @@ public class MovieJukeboxHTMLWriter {
                 }
             } catch (Exception error) {
                 logger.error("HTMLWriter: Failed generating playlist for movie " + movie);
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.error(eResult.toString());
+                logger.error(SystemTools.getStackTrace(error));
             }
         }
 
@@ -329,10 +315,7 @@ public class MovieJukeboxHTMLWriter {
 
         } catch (Exception error) {
             logger.debug("HTMLWriter: Failed deleting blank lines from " + filename);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         } finally {
             try {
                 if (outFile != null) {
@@ -465,10 +448,7 @@ public class MovieJukeboxHTMLWriter {
             doTransform(transformer, xmlSource, xmlResult, "Jukebox index");
         } catch (Exception error) {
             logger.error("HTMLWriter: Failed generating jukebox index.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -523,10 +503,7 @@ public class MovieJukeboxHTMLWriter {
             fos.close();
         } catch (Exception error) {
             logger.error("HTMLWriter: Failed generating HTML library index.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -564,10 +541,7 @@ public class MovieJukeboxHTMLWriter {
 
         } catch (Exception error) {
             logger.error("HTMLWriter: Failed generating HTML library category index.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -646,10 +620,7 @@ public class MovieJukeboxHTMLWriter {
             }
         } catch (Exception error) {
             logger.error("HTMLWriter: Failed generating HTML library index for Category: " + idx.categoryName + ", Key: " + idx.key + ", Page: " + page);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
     }
 

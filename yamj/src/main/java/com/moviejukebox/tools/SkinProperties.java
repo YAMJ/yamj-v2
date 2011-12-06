@@ -1,21 +1,18 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.tools;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,27 +30,27 @@ import com.moviejukebox.model.Movie;
 public class SkinProperties {
     private final static Logger logger = Logger.getLogger("moviejukebox");
     private final static String skinVersionFilename = "version.xml";
-    
+
     private static String skinName          = Movie.UNKNOWN;
     private static String skinVersion       = Movie.UNKNOWN;
     private static String skinDate          = Movie.UNKNOWN;
     private static long   fileDate          = -1;
     private static List<String> skinMessage = new ArrayList<String>();
-    
+
     /**
      * Read the skin information from skinVersionFilename in the skin directory
      */
     public static void readSkinVersion() {
         String skinVersionPath = StringTools.appendToPath(PropertiesUtil.getProperty("mjb.skin.dir", ""), skinVersionFilename);
         File xmlFile = new File(skinVersionPath);
-        
+
         if (xmlFile.exists()) {
             logger.debug("SkinProperties: Scanning file " + xmlFile.getAbsolutePath());
         } else {
             logger.debug("SkinProperties: " + xmlFile.getAbsolutePath() + " does not exist, skipping");
             return;
         }
-        
+
         try {
             XMLConfiguration xmlConfig = new XMLConfiguration(xmlFile);
             setSkinName(xmlConfig.getString("name"));
@@ -62,23 +59,17 @@ public class SkinProperties {
             setSkinMessage(StringTools.castList(String.class, xmlConfig.getList("message")));
             setFileDate(xmlFile.lastModified());
         } catch (ConfigurationException error) {
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
             logger.error("SkinProperties: Failed reading version information file (" + skinVersionFilename + ")");
-            logger.debug(eResult.toString());
+            logger.warn(SystemTools.getStackTrace(error));
             return;
         } catch (Exception error) {
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
             logger.error("SkinProperties: Failed processing version information file (" + skinVersionFilename + ")");
-            logger.debug(eResult.toString());
+            logger.warn(SystemTools.getStackTrace(error));
             return;
         }
 
     }
-    
+
     /**
      * Output the skin information
      */
@@ -86,7 +77,7 @@ public class SkinProperties {
         if (StringTools.isValidString(getSkinName())) {
             logger.info("");
             logger.info("Skin Name   : " + getSkinName());
-            
+
             if (StringTools.isValidString(getSkinDate())) {
                 logger.info("Skin Version: " + getSkinVersion() + " (" + getSkinDate() + ")");
             } else {
@@ -148,7 +139,7 @@ public class SkinProperties {
             SkinProperties.skinMessage = new ArrayList<String>();
         }
     }
-    
+
     public static void addSkinMessage(String messageLine) {
         if (StringTools.isValidString(messageLine)) {
             SkinProperties.skinMessage.add(messageLine);

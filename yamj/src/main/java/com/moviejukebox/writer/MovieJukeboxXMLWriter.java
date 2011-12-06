@@ -17,9 +17,6 @@ import static com.moviejukebox.tools.XMLHelper.parseCData;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,6 +74,7 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
 
 /**
@@ -211,31 +209,19 @@ public class MovieJukeboxXMLWriter {
             xmlDoc = DOMHelper.getEventDocFromUrl(xmlFile);
         } catch (MalformedURLException error) {
             logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return false;
         } catch (IOException error) {
             logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return false;
         } catch (ParserConfigurationException error) {
             logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return false;
         } catch (SAXException error) {
             logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return false;
         }
 
@@ -790,31 +776,19 @@ public class MovieJukeboxXMLWriter {
             xmlDoc = DOMHelper.getEventDocFromUrl(xmlFile);
         } catch (MalformedURLException error) {
             logger.error("Failed parsing XML (" + xmlFile.getName() + ") for set. Please fix it or remove it.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return sets;
         } catch (IOException error) {
             logger.error("Failed parsing XML (" + xmlFile.getName() + ") for set. Please fix it or remove it.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return sets;
         } catch (ParserConfigurationException error) {
             logger.error("Failed parsing XML (" + xmlFile.getName() + ") for set. Please fix it or remove it.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return sets;
         } catch (SAXException error) {
             logger.error("Failed parsing XML (" + xmlFile.getName() + ") for set. Please fix it or remove it.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return sets;
         }
 
@@ -885,10 +859,7 @@ public class MovieJukeboxXMLWriter {
 
         } catch (Exception error) {
             logger.error("Failed parsing " + xmlSetFile.getAbsolutePath() + ": please fix it or remove it.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return false;
         }
 
@@ -1033,10 +1004,7 @@ public class MovieJukeboxXMLWriter {
             person.setFilename();
         } catch (Exception error) {
             logger.error("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return false;
         }
 
@@ -1418,10 +1386,7 @@ public class MovieJukeboxXMLWriter {
             xmlDoc = DOMHelper.createDocument();
         } catch (ParserConfigurationException error) {
             logger.error("Failed writing index page: " + xmlFile.getName());
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return;
         }
 
@@ -1706,7 +1671,7 @@ public class MovieJukeboxXMLWriter {
      * @param doc
      * @param movie
      * @param library
-     * @return 
+     * @return
      */
     private Element writeMovie(Document doc, Movie movie, Library library) {
         Element eMovie = doc.createElement("movie");
@@ -2148,10 +2113,7 @@ public class MovieJukeboxXMLWriter {
                 xmlDoc = DOMHelper.createDocument();
             } catch (ParserConfigurationException error) {
                 logger.error("Failed writing " + tempXmlFile.getAbsolutePath());
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.error(eResult.toString());
+                logger.error(SystemTools.getStackTrace(error));
                 return;
             }
 
@@ -2251,10 +2213,7 @@ public class MovieJukeboxXMLWriter {
                 DOMHelper.writeDocumentToFile(personDoc, tempXmlFile);
             } catch (ParserConfigurationException error) {
                 logger.error("Failed writing person XML for " + tempXmlFile.getName());
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.error(eResult.toString());
+                logger.error(SystemTools.getStackTrace(error));
                 return;
             }
         }
@@ -2279,10 +2238,7 @@ public class MovieJukeboxXMLWriter {
             docNFO = DOMHelper.createDocument();
         } catch (ParserConfigurationException error) {
             logger.warn("Failed to create NFO file for " + movie.getBaseFilename());
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return;
         }
 

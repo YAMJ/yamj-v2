@@ -1,20 +1,17 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +22,7 @@ import org.apache.log4j.Logger;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  *
@@ -35,14 +33,14 @@ public class DatabasePluginController {
     private static final Logger logger = Logger.getLogger("moviejukebox");
     private static boolean autoDetect = false;
     private static ArrayList<String> autoDetectList = new ArrayList<String>();
-
     /**
      * @author Gabriel Corneanu:
      * Store the map in a thread local field to make it thread safe
      */
-    private static ThreadLocal<Map<String, MovieDatabasePlugin>> 
-      PluginMap = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
-        @Override protected Map<String, MovieDatabasePlugin> initialValue() {
+    private static ThreadLocal<Map<String, MovieDatabasePlugin>> PluginMap = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
+
+        @Override
+        protected Map<String, MovieDatabasePlugin> initialValue() {
             HashMap<String, MovieDatabasePlugin> movieDatabasePlugin = new HashMap<String, MovieDatabasePlugin>(2);
 
             movieDatabasePlugin.put(Movie.TYPE_MOVIE, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin").trim()));
@@ -71,7 +69,7 @@ public class DatabasePluginController {
             return movieDatabasePlugin;
         }
     };
-    
+
     public static void scan(Movie movie) {
         boolean ignore = false;
 
@@ -156,10 +154,7 @@ public class DatabasePluginController {
             movieDB = new ImdbPlugin();
             logger.error("Failed instantiating MovieDatabasePlugin: " + className);
             logger.error("Default IMDb plugin will be used instead.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         return movieDB;
     }

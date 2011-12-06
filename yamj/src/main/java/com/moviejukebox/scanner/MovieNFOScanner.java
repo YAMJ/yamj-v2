@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.scanner;
 
@@ -18,9 +18,6 @@ import static com.moviejukebox.tools.StringTools.isValidString;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,13 +49,14 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GenericFileFilter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.XMLHelper;
 
 /**
  * NFO file parser.
- * 
+ *
  * Search a NFO file for IMDb URL.
- * 
+ *
  * @author jjulien
  */
 public class MovieNFOScanner {
@@ -81,9 +79,12 @@ public class MovieNFOScanner {
     private static String NFO_PLUGIN_ID = "NFO";
     private static boolean archiveScanRar;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
-    private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", " / ");;
-    private static String subtitleDelimiter= PropertiesUtil.getProperty("mjb.subtitle.delimiter", " / ");;
-    
+    private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", " / ");
+    ;
+    private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", " / ");
+
+    ;
+
     static {
         skipNfoUrl = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", "true");
         skipNfoTrailer = PropertiesUtil.getBooleanProperty("filename.nfo.skipTrailer", "false");
@@ -131,7 +132,7 @@ public class MovieNFOScanner {
 
     /**
      * Search the IMDBb id of the specified movie in the NFO file if it exists.
-     * 
+     *
      * @param movie
      * @param movieDB
      */
@@ -195,7 +196,7 @@ public class MovieNFOScanner {
 
     /**
      * Search for the NFO file in the library structure
-     * 
+     *
      * @param movie
      *            The movie bean to locate the NFO for
      * @return A List structure of all the relevant NFO files
@@ -350,7 +351,7 @@ public class MovieNFOScanner {
 
     /**
      * Check to see if the passed filename exists with nfo extensions
-     * 
+     *
      * @param checkNFOfilename
      *            (NO EXTENSION)
      * @return blank string if not found, filename if found
@@ -389,7 +390,7 @@ public class MovieNFOScanner {
 
     /**
      * Create an XML reader for file. Use forced encoding if specified.
-     * 
+     *
      * @param nfoFile
      *            File to read.
      * @param nfo
@@ -417,7 +418,7 @@ public class MovieNFOScanner {
 
     /**
      * Used to parse out the XBMC NFO XML data for movies The specification is here: http://xbmc.org/wiki/?title=Import_-_Export_Library
-     * 
+     *
      * @param xmlFile
      * @param movie
      */
@@ -505,10 +506,7 @@ public class MovieNFOScanner {
                                 } catch (Exception error) {
                                     logger.error("NFOScanner: Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
                                     logger.error("NFOScanner: premiered or releasedate does not contain a valid date.");
-                                    final Writer eResult = new StringWriter();
-                                    final PrintWriter printWriter = new PrintWriter(eResult);
-                                    error.printStackTrace(printWriter);
-                                    logger.error(eResult.toString());
+                                    logger.error(SystemTools.getStackTrace(error));
                                 }
                             }
                         } else if (tag.equalsIgnoreCase("quote")) {
@@ -709,7 +707,7 @@ public class MovieNFOScanner {
                              *     <role>Character Name</role>
                              *     <name>Actor Name</name>
                              *     <role>Character Name</role>
-                             * </actor>     
+                             * </actor>
                              */
                             while (!event.equalsIgnoreCase("</actor>")) {
                                 if (event.equalsIgnoreCase("<name>")) {
@@ -833,9 +831,9 @@ public class MovieNFOScanner {
                                                 tmpLanguage = val;
                                                 //if (isNotValidString(tmpTVCodec)) {
                                                 //    tmpTVCodec = "(" + val + ")";
-                                                //}  
-                                                // reasons for inactivation above: 
-                                                // 1. If NFO has language data but no audiocodec data, YAMJ will not look for audioCodec (by Mediainfo scan) anymore since the field is already occupied!     
+                                                //}
+                                                // reasons for inactivation above:
+                                                // 1. If NFO has language data but no audiocodec data, YAMJ will not look for audioCodec (by Mediainfo scan) anymore since the field is already occupied!
                                                 // 2. Problems if NFO already says eg. "en / de / fr" -> we would get as result: "AC3 (en / de / fr) / AC3 / AC3"!
                                                 if (isValidString(tmpCodec) && !val.contains("/")) {
                                                     tmpCodec += " (" + val + ")";
@@ -872,7 +870,7 @@ public class MovieNFOScanner {
                                         // in case language has format like "ENG / GER / ESP" process it now
                                         String[] tmpLanguages = tmpLanguage.split("/");
                                         for (int i = 0; i < tmpLanguages.length; i++) {
-                                            String subLanguage = tmpLanguages[i].trim();                                         
+                                            String subLanguage = tmpLanguages[i].trim();
                                             if (isNotValidString(finalLanguage)) {
                                                 finalLanguage = MovieFilenameScanner.determineLanguage(subLanguage);
                                             } else {
@@ -900,14 +898,13 @@ public class MovieNFOScanner {
                                                 // in case subtitle has format like "ENG / GER / ESP" process it now
                                                 String[] tmpSubtitleLanguages = val.split("/");
                                                 for (int i = 0; i < tmpSubtitleLanguages.length; i++) {
-                                                    String subval = tmpSubtitleLanguages[i].trim();                                         
+                                                    String subval = tmpSubtitleLanguages[i].trim();
                                                     if (isNotValidString(tmpSubtitleLanguage)) {
                                                         tmpSubtitleLanguage = MovieFilenameScanner.determineLanguage(subval);
-                                                        }
-                                                    else {
+                                                    } else {
                                                         tmpSubtitleLanguage = tmpSubtitleLanguage + subtitleDelimiter + MovieFilenameScanner.determineLanguage(subval);
-                                                        }
-                                                 }
+                                                    }
+                                                }
                                             }
                                             // Unused
                                         }
@@ -998,10 +995,7 @@ public class MovieNFOScanner {
             return isMovieTag;
         } catch (Exception error) {
             logger.error("NFOScanner: Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
 
         return false;
@@ -1009,7 +1003,7 @@ public class MovieNFOScanner {
 
     /**
      * Used to parse out the XBMC nfo xml data for tv series
-     * 
+     *
      * @param xmlFile
      * @param movie
      */
@@ -1318,9 +1312,9 @@ public class MovieNFOScanner {
                                                 tmpTVLanguage = val;
                                                 //if (isNotValidString(tmpTVCodec)) {
                                                 //    tmpTVCodec = "(" + val + ")";
-                                                //}  
-                                                // reasons for inactivation above: 
-                                                // 1. If NFO has language data but no audiocodec data, YAMJ will not look for audioCodec (by Mediainfo scan) anymore since the field is already occupied!     
+                                                //}
+                                                // reasons for inactivation above:
+                                                // 1. If NFO has language data but no audiocodec data, YAMJ will not look for audioCodec (by Mediainfo scan) anymore since the field is already occupied!
                                                 // 2. Problems if NFO already says eg. "en / de / fr" -> we would get as result: "AC3 (en / de / fr) / AC3 / AC3"!
                                                 if (isValidString(tmpTVCodec) && !val.contains("/")) {
                                                     tmpTVCodec += " (" + val + ")";
@@ -1354,10 +1348,10 @@ public class MovieNFOScanner {
 
                                     if (isValidString(tmpTVLanguage)) {
                                         // First one.
-                                        // in case language has format like "ENG / GER / ESP" process it now 
+                                        // in case language has format like "ENG / GER / ESP" process it now
                                         String[] tmpTVLanguages = tmpTVLanguage.split("/");
                                         for (int i = 0; i < tmpTVLanguages.length; i++) {
-                                            String subTVLanguage = tmpTVLanguages[i].trim();                                         
+                                            String subTVLanguage = tmpTVLanguages[i].trim();
                                             if (isNotValidString(finalTVLanguage)) {
                                                 finalTVLanguage = MovieFilenameScanner.determineLanguage(subTVLanguage);
                                             } else {
@@ -1386,14 +1380,13 @@ public class MovieNFOScanner {
                                                 // in case subtitle has format like "ENG / GER / ESP" process it now
                                                 String[] tmpSubtitleLanguages = val.split("/");
                                                 for (int i = 0; i < tmpSubtitleLanguages.length; i++) {
-                                                    String subval = tmpSubtitleLanguages[i].trim();                                         
+                                                    String subval = tmpSubtitleLanguages[i].trim();
                                                     if (isNotValidString(tmpSubtitleLanguage)) {
                                                         tmpSubtitleLanguage = MovieFilenameScanner.determineLanguage(subval);
-                                                        }
-                                                    else {
+                                                    } else {
                                                         tmpSubtitleLanguage = tmpSubtitleLanguage + subtitleDelimiter + MovieFilenameScanner.determineLanguage(subval);
-                                                        }
-                                                 }
+                                                    }
+                                                }
                                             }
 
                                         }
@@ -1446,8 +1439,8 @@ public class MovieNFOScanner {
 
                     /************************************************************
                      * Process the episode details section
-                     * 
-                     * These details should be added to the movie file and 
+                     *
+                     * These details should be added to the movie file and
                      * not the movie itself
                      */
                     if (isEpisode) {
@@ -1548,10 +1541,7 @@ public class MovieNFOScanner {
             return isOK;
         } catch (Exception error) {
             logger.error("NFOScanner: Failed parsing NFO file: " + nfoFile.getAbsolutePath() + ". Please fix or remove it.");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
 
         return false;

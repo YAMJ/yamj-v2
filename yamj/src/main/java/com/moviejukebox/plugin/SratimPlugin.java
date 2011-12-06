@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
@@ -19,7 +19,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.*;
-import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -35,6 +34,7 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 public class SratimPlugin extends ImdbPlugin {
 
@@ -312,14 +312,14 @@ public class SratimPlugin extends ImdbPlugin {
 
         /*
          * - European Numbers (FOR ES,ET,CS)
-         * 
+         *
          * EN,ES,EN -> EN,EN,EN EN,CS,EN -> EN,EN,EN
-         * 
+         *
          * EN,ET -> EN,EN ET,EN -> EN,EN ->>>>> ET=EN
-         * 
-         * 
+         *
+         *
          * else for ES,ET,CS (??)
-         * 
+         *
          * L,??,EN -> L,N,EN
          */
     }
@@ -395,7 +395,7 @@ public class SratimPlugin extends ImdbPlugin {
 
         /*
          * R N R -> R R R L N L -> L L L
-         * 
+         *
          * L N R -> L e R (e=default) R N L -> R e L (e=default)
          */
     }
@@ -663,8 +663,8 @@ public class SratimPlugin extends ImdbPlugin {
             }
 
             String tmpPlot = removeHtmlTags(extractTag(xml, "<meta name=\"description\" content=\"", "\""));
-            
-            if (tmpPlot.length()>30) { //Set Hebrew plot only if it contains substantial nubmetr of characters, otherwise IMDB plot will be used. 
+
+            if (tmpPlot.length()>30) { //Set Hebrew plot only if it contains substantial nubmetr of characters, otherwise IMDB plot will be used.
                 movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax));
             }
 
@@ -681,10 +681,7 @@ public class SratimPlugin extends ImdbPlugin {
 
         } catch (Exception error) {
             logger.error("Sratim Plugin: Failed retrieving information for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         return true;
     }
@@ -799,10 +796,8 @@ public class SratimPlugin extends ImdbPlugin {
 
         } catch (Exception error) {
             logger.error("Sratim Plugin: Failed retreiving information for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
+
             if (mainXML == null) {
                 return;
             }
@@ -1357,7 +1352,7 @@ public class SratimPlugin extends ImdbPlugin {
 
     @Override
     public boolean scanNFO(String nfo, Movie movie) {
-        boolean found=super.scanNFO(nfo, movie); 
+        boolean found=super.scanNFO(nfo, movie);
         if (found){
             return true; // IMDB nfo found, no need of further scanning.
         }
@@ -1393,7 +1388,7 @@ public class SratimPlugin extends ImdbPlugin {
 
     protected String extractMovieTitle(String xml) {
         String result;
-        
+
         int start = xml.indexOf("<h1 class=\"subtext_view\">");
         int end = xml.indexOf("</h1>", start);
         String partialT = xml.substring(start + 25, end);
@@ -1416,7 +1411,7 @@ public class SratimPlugin extends ImdbPlugin {
             File srtIndex = new File(bdFolder + "BDMV//index.srt");
             return subIndex.exists() || srtIndex.exists();
         }
-        
+
         // Check if this movie already has subtitles for it
         File subtitleFile = FileTools.findSubtitles(mf.getFile());
         return subtitleFile.exists();

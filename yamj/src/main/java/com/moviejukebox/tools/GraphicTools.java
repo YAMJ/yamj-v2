@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.tools;
 
@@ -23,9 +23,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URL;
 import java.util.Iterator;
 
@@ -41,11 +38,11 @@ import org.apache.log4j.Logger;
 import com.jhlabs.image.PerspectiveFilter;
 
 public class GraphicTools {
+
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static float quality;
     private static int jpegQuality;
 
-    
     /**
      * Load a JPG image from a file (input stream)
      * @param fis
@@ -58,37 +55,25 @@ public class GraphicTools {
             bi = ImageIO.read(fis);
         } catch (IIOException error) {
             logger.warn("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + error.getMessage());
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.warn(eResult.toString());
+            logger.warn(SystemTools.getStackTrace(error));
             return null;
         } catch (OutOfMemoryError error) {
             logger.error("GraphicsTools: Error processing image file - Out of memory. Please run YAMJ again to fix.");
             return null;
         } catch (IllegalArgumentException error) {
-            logger.error("GraphicsTools: Error processing image file - Raster bands error");
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.warn(eResult.toString());
+            logger.warn("GraphicsTools: Error processing image file - Raster bands error");
+            logger.warn(SystemTools.getStackTrace(error));
             return null;
         } catch (Exception error) {
             logger.warn("GraphicsTools: Error processing image file. Possibly corrupt image, please try another image. " + error.getMessage());
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.warn(eResult.toString());
+            logger.warn(SystemTools.getStackTrace(error));
             return null;
         } finally {
             if (fis != null) {
                 try {
                     fis.close();
                 } catch (Exception error) {
-                    final Writer eResult = new StringWriter();
-                    final PrintWriter printWriter = new PrintWriter(eResult);
-                    error.printStackTrace(printWriter);
-                    logger.warn(eResult.toString());
+                    logger.warn(SystemTools.getStackTrace(error));
                 }
             }
         }
@@ -139,8 +124,8 @@ public class GraphicTools {
             return;
         }
 
-        jpegQuality  = PropertiesUtil.getIntProperty("mjb.jpeg.quality", "75");
-        quality = (float)jpegQuality / 100;
+        jpegQuality = PropertiesUtil.getIntProperty("mjb.jpeg.quality", "75");
+        quality = (float) jpegQuality / 100;
         // save image as JPEG
         try {
             BufferedImage bufImage = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
@@ -150,7 +135,7 @@ public class GraphicTools {
             //ori: ImageIO.write(bufImage, "jpg", outputFile);
             @SuppressWarnings("rawtypes")
             Iterator iter = ImageIO.getImageWritersByFormatName("jpeg");
-            ImageWriter writer = (ImageWriter)iter.next();
+            ImageWriter writer = (ImageWriter) iter.next();
 
             ImageWriteParam iwp = writer.getDefaultWriteParam();
             iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
@@ -166,10 +151,7 @@ public class GraphicTools {
 
         } catch (Exception error) {
             logger.error("GraphicsTools: Failed Saving thumbnail file: " + filename);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -189,10 +171,7 @@ public class GraphicTools {
             ImageIO.write(bi, "png", outputFile);
         } catch (Exception error) {
             logger.error("GraphicsTools: Failed Saving thumbnail file: " + filename);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -240,7 +219,7 @@ public class GraphicTools {
         bi.createGraphics().drawImage(temp1, 0, y, null);
         return bi;
     }
-    
+
     public static BufferedImage scaleToSizeStretch(int nMaxWidth, int nMaxHeight, BufferedImage imgSrc) {
         /* determine thumbnail size from WIDTH and HEIGHT */
 
@@ -283,7 +262,7 @@ public class GraphicTools {
 
         int tempWidth;
         int tempHeight;
-        
+
         if (imageRatio > thumbnailRatio) {
             tempWidth = nMaxWidth;
             tempHeight = (int) (((double) imageHeight * (double) nMaxWidth) / (double) imageWidth);
@@ -327,17 +306,17 @@ public class GraphicTools {
 
     /*
      * Reflection effect
-     * graphicType should be "posters", "thumbnails" or "videoimage" and is used 
+     * graphicType should be "posters", "thumbnails" or "videoimage" and is used
      * to determine the settings that are extracted from the skin.properties file.
      */
     public static BufferedImage createReflectedPicture(BufferedImage avatar, String graphicType) {
         int avatarWidth = avatar.getWidth();
         int avatarHeight = avatar.getHeight();
-        
+
         float reflectionHeight = 12.5f;
-        
+
         reflectionHeight = PropertiesUtil.getFloatProperty(graphicType + ".reflectionHeight", "12.5");
-        
+
         BufferedImage gradient = createGradientMask(avatarWidth, avatarHeight, reflectionHeight, graphicType);
         BufferedImage buffer = createReflection(avatar, avatarWidth, avatarHeight, reflectionHeight);
 
@@ -352,16 +331,16 @@ public class GraphicTools {
     public static BufferedImage createGradientMask(int avatarWidth, int avatarHeight, float reflectionHeight, String graphicType) {
         BufferedImage gradient = new BufferedImage(avatarWidth, avatarHeight, BufferedImage.TYPE_4BYTE_ABGR_PRE);
         Graphics2D g = gradient.createGraphics();
-        
+
 //      GradientPaint painter = new GradientPaint(0.0f, 0.0f, new Color(1.0f, 1.0f, 1.0f, 0.3f), 0.0f, avatarHeight * (reflectionHeight / 100), new Color(1.0f, 1.0f, 1.0f, 1.0f));
-        
+
         float reflectionStart, reflectionEnd, opacityStart, opacityEnd;
         float reflectionHeightAbsolute = avatarHeight * (reflectionHeight / 100);
 
         reflectionStart = (PropertiesUtil.getFloatProperty(graphicType + ".reflectionStart", "0.0") / 100) * reflectionHeightAbsolute;
-        reflectionEnd   = (PropertiesUtil.getFloatProperty(graphicType + ".reflectionEnd", "100.0") / 100) * reflectionHeightAbsolute;
-        opacityStart    =  PropertiesUtil.getFloatProperty(graphicType + ".opacityStart",   "30.0") / 100;
-        opacityEnd      =  PropertiesUtil.getFloatProperty(graphicType + ".opacityEnd",    "100.0") / 100;
+        reflectionEnd = (PropertiesUtil.getFloatProperty(graphicType + ".reflectionEnd", "100.0") / 100) * reflectionHeightAbsolute;
+        opacityStart = PropertiesUtil.getFloatProperty(graphicType + ".opacityStart", "30.0") / 100;
+        opacityEnd = PropertiesUtil.getFloatProperty(graphicType + ".opacityEnd", "100.0") / 100;
 
         GradientPaint painter = new GradientPaint(0.0f, reflectionStart, new Color(1.0f, 1.0f, 1.0f, opacityStart), 0.0f, reflectionEnd, new Color(1.0f, 1.0f, 1.0f, opacityEnd));
         g.setPaint(painter);
@@ -372,14 +351,14 @@ public class GraphicTools {
 
         return gradient;
     }
-    
+
     /*
      * Create the reflection effect for the image
      */
     public static BufferedImage createReflection(BufferedImage avatar, int avatarWidth, int avatarHeight, float reflectionHeight) {
         // Increase the height of the image to cater for the reflection.
-        int newHeight = (int) (avatarHeight * (1 + (reflectionHeight / 100) ));
-  
+        int newHeight = (int) (avatarHeight * (1 + (reflectionHeight / 100)));
+
         BufferedImage buffer = new BufferedImage(avatarWidth, newHeight, BufferedImage.TYPE_4BYTE_ABGR_PRE);
         Graphics2D g = buffer.createGraphics();
 
@@ -404,8 +383,8 @@ public class GraphicTools {
 
     /*
      * 3D effect
-     * graphicType should be "posters", "thumbnails" or "videoimage" and is used 
-     * to determine the settings that are extracted from the skin.properties file. 
+     * graphicType should be "posters", "thumbnails" or "videoimage" and is used
+     * to determine the settings that are extracted from the skin.properties file.
      */
     public static BufferedImage create3DPicture(BufferedImage bi, String graphicType, String perspectiveDirection) {
         int w = bi.getWidth();
@@ -423,14 +402,14 @@ public class GraphicTools {
             perspectiveBottom = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveBottom", "3"));
         } catch (NumberFormatException nfe) {
             logger.error("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveBottom");
-        }        
+        }
 
         int Top3d = (int) (h * perspectiveTop / 100);
         int Bot3d = (int) (h * perspectiveBottom / 100);
-        
+
         PerspectiveFilter perspectiveFilter = new PerspectiveFilter();
         // Top Left (x/y), Top Right (x/y), Bottom Right (x/y), Bottom Left (x/y)
-        
+
         if (perspectiveDirection.equalsIgnoreCase("right")) {
             perspectiveFilter.setCorners(0, 0, w, Top3d, w, h - Bot3d, 0, h);
         } else {
@@ -438,5 +417,4 @@ public class GraphicTools {
         }
         return perspectiveFilter.filter(bi, null);
     }
-
 }

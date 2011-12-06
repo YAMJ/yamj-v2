@@ -1,34 +1,31 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 
 /* FilmKatalogus plugin
- * 
- * Contains code for an alternate plugin for fetching information on 
+ *
+ * Contains code for an alternate plugin for fetching information on
  * movies in Hungarian
- * 
+ *
  */
 package com.moviejukebox.plugin;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * Film Katalogus Plugin for Hungarian language
@@ -60,9 +57,9 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
         if (preferredPlotLength < 50) {
             preferredPlotLength = 500;
         }
-        
+
         preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "150");
-        
+
         gettitle = PropertiesUtil.getBooleanProperty("filmkatalogus.gettitle", "true");
         getplot = PropertiesUtil.getBooleanProperty("filmkatalogus.getplot", "true");
     }
@@ -74,7 +71,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
         if (!mediaFile.getPlot().equals(Movie.UNKNOWN)) {
             getplot = false;
         }
-        
+
         result = super.scan(mediaFile); // use IMDB as basis
         if (result == false && mediaFile.isTVShow()) {
             result = tvdb.scan(mediaFile);
@@ -91,9 +88,9 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
     private String getHunPlot(Movie movie) {
         try {
             //logger.info("Running getHunPlot");
-            
+
             String filmKatURL;
-            
+
             if (StringTools.isNotValidString(movie.getId(FILMKAT_PLUGIN_ID))) {
                 filmKatURL = "http://filmkatalogus.hu/kereses?keres0=1&szo0=";
                 filmKatURL = filmKatURL.concat(URLEncoder.encode(movie.getTitle(), "ISO-8859-2"));
@@ -168,11 +165,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
 
         } catch (Exception error) {
             logger.error("FilmKatalogusPlugin: Failed retreiving information for " + movie.getTitle());
-            
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return null;
         }
     }

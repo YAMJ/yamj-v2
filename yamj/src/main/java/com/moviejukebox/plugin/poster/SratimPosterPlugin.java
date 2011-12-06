@@ -1,20 +1,17 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin.poster;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
@@ -22,21 +19,21 @@ import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.plugin.SratimPlugin;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 
 public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
-    protected static Logger logger = Logger.getLogger("moviejukebox");
     private WebBrowser webBrowser;
     private SratimPlugin sratimPlugin;
 
     public SratimPosterPlugin() {
         super();
-        
+
         // Check to see if we are needed
         if (!isNeeded()) {
             return;
         }
-        
+
         webBrowser = new WebBrowser();
         sratimPlugin = new SratimPlugin();
     }
@@ -58,10 +55,7 @@ public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITv
             }
         } catch (Exception error) {
             logger.error("sratim: Failed retreiving poster for movie : " + id);
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
             return new Image(posterURL);

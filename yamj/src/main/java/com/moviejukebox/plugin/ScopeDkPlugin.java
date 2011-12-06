@@ -1,21 +1,19 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.tools.SystemTools;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.text.ParseException;
@@ -82,10 +80,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
 
         } catch (IOException error) {
             logger.error("Failed retreiving ScopeDk infos for movie : " + movie.getId(SCOPEDK_PLUGIN_ID));
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         return true;
     }
@@ -95,17 +90,17 @@ public class ScopeDkPlugin extends ImdbPlugin {
         boolean retval = false;
         try {
             String scopeDkId = mediaFile.getId(SCOPEDK_PLUGIN_ID);
-            
+
             if (StringTools.isNotValidString(scopeDkId)) {
                 scopeDkId = getScopeDkId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile);
             }
-            
+
             // we also get imdb Id for extra infos
             if (StringTools.isNotValidString(mediaFile.getId(IMDB_PLUGIN_ID))) {
                 mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getTitle(), mediaFile.getYear()));
                 logger.debug("Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
-            
+
             if (StringTools.isValidString(scopeDkId)) {
                 mediaFile.setId(SCOPEDK_PLUGIN_ID, scopeDkId);
                 logger.debug("Scope.dk Id available (" + scopeDkId + "), updating media info");
@@ -123,7 +118,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
 
     /**
      * retrieve the Scope.dk id matching the specified movie name. This routine is base on a Scope.dk search.
-     * 
+     *
      * @throws ParseException
      */
     private String getScopeDkId(String movieName, String year, Identifiable mediaFile) throws ParseException {

@@ -18,9 +18,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -32,6 +29,7 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * The MovieMeterPluginSession communicates with XML-RPC webservice of www.moviemeter.nl.
@@ -67,10 +65,7 @@ public final class MovieMeterPluginSession {
             client = new XmlRpcClient();
             client.setConfig(config);
         } catch (MalformedURLException error) {
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error("MovieMeterPluginSession: " + eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -181,10 +176,7 @@ public final class MovieMeterPluginSession {
                 result = (HashMap) films[0];
             }
         } catch (XmlRpcException error) {
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error("MovieMeterPluginSession: " + eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
 
         return result;
@@ -224,10 +216,7 @@ public final class MovieMeterPluginSession {
                 result = (HashMap) films[0];
             }
         } catch (XmlRpcException error) {
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error("MovieMeterPluginSession: " + eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
 
         return result;
@@ -270,10 +259,7 @@ public final class MovieMeterPluginSession {
             result = (HashMap) client.execute("film.retrieveDetails", params);
             increaseCounter();
         } catch (XmlRpcException error) {
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error("MovieMeterPluginSession: " + eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
 
         return result;
@@ -312,10 +298,7 @@ public final class MovieMeterPluginSession {
             logger.debug("MovieMeterPluginSession: " + error.getMessage());
             return false;
         } catch (MalformedURLException error) {
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error("MovieMeterPluginSession: " + eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
         return false;
     }

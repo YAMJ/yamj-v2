@@ -1,22 +1,19 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.tools;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -35,6 +32,7 @@ import org.apache.log4j.Logger;
  * @author altman.matthew
  */
 public class XMLHelper {
+
     protected static Logger logger = Logger.getLogger("moviejukebox");
 
     public static XMLEventReader getEventReader(String url) throws IOException, XMLStreamException {
@@ -49,10 +47,7 @@ public class XMLHelper {
                 reader.close();
             } catch (XMLStreamException error) {
                 logger.error("Failed closing the event reader.");
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.error(eResult.toString());
+                logger.error(SystemTools.getStackTrace(error));
             }
         }
     }
@@ -95,5 +90,4 @@ public class XMLHelper {
         }
         return HTMLTools.decodeHtml(sb.toString());
     }
-    
 }

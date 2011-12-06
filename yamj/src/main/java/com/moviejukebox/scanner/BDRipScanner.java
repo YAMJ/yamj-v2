@@ -1,24 +1,22 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.scanner;
 
+import com.moviejukebox.tools.SystemTools;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
-import java.io.PrintWriter;
 import java.io.RandomAccessFile;
-import java.io.StringWriter;
-import java.io.Writer;
 import org.apache.log4j.Logger;
 
 /**
@@ -169,12 +167,12 @@ public class BDRipScanner {
 
                     // Go over the playlist file names
                     for (int j = 0; j < longestFiles.length; j++) {
-    
+
                         if (!"MTS,M2TS".contains(FilenameUtils.getExtension(list[i].getName()).toUpperCase())) {
                             // Only check the MTS & M2TS file types, skip everything else
                             continue;
                         }
-                        
+
                         // extensions may differ: MTS (AVCHD), m2ts (Blu-ray)
                         if (FilenameUtils.removeExtension(list[i].getName()).equalsIgnoreCase(FilenameUtils.removeExtension(longestFiles[j]))) {
                             ret.fileList[j] = list[i];
@@ -190,10 +188,7 @@ public class BDRipScanner {
 
         } catch (Exception error) {
             logger.warn("BDRip Scanner: Error processing file " + mediaRep.getName());
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error(eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
             return null;
         }
     }

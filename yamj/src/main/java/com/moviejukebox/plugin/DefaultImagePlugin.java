@@ -22,9 +22,6 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,6 +41,7 @@ import com.moviejukebox.model.Comparator.ValueComparator;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 public class DefaultImagePlugin implements MovieImagePlugin {
 
@@ -892,10 +890,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 g2d.dispose();
             } catch (IOException error) {
                 logger.warn("Failed drawing TV logo to thumbnail file: Please check that tv.png is in the resources directory.");
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.error(eResult.toString());
+                logger.error(SystemTools.getStackTrace(error));
             }
         }
 
@@ -950,10 +945,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             return returnBI;
         } catch (IOException error) {
             logger.warn("Failed drawing overlay to " + movie.getBaseName() + ". Please check that " + source + "_overlay_" + imageType + ".png is in the resources directory.");
-            // final Writer eResult = new StringWriter();
-            // final PrintWriter printWriter = new PrintWriter(eResult);
-            // error.printStackTrace(printWriter);
-            // logger.error(eResult.toString());
+//            logger.error(SystemTools.getStackTrace(error));
         }
 
         return bi;
@@ -1530,10 +1522,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
             } catch (Exception error) {
                 logger.error("Failed parsing moviejukebox overlay configuration file: " + xmlOverlayFile.getName());
-                final Writer eResult = new StringWriter();
-                final PrintWriter printWriter = new PrintWriter(eResult);
-                error.printStackTrace(printWriter);
-                logger.error(eResult.toString());
+                logger.error(SystemTools.getStackTrace(error));
             }
         } else {
             logger.error("The moviejukebox overlay configuration file you specified is invalid: " + xmlOverlayFile.getName());

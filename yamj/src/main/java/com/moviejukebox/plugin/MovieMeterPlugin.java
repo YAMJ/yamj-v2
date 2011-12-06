@@ -1,20 +1,17 @@
 /*
  *      Copyright (c) 2004-2011 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.StringTokenizer;
@@ -25,16 +22,17 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * The MovieMeterPlugin uses the XML-RPC API of www.moviemeter.nl (http://wiki.moviemeter.nl/index.php/API).
- * 
+ *
  * Version 0.1 : Initial release Version 0.2 : Fixed google search Version 0.3 : Fixed a problem when the moviemeter webservice returned no movie duration
  * (Issue 676) Version 0.4 : Fixed a problem when the moviemeter webservice returned no actors (Issue 677) Added extra checks if values returned from the
  * webservice doesn't exist Version 0.5 : Added Fanart download based on imdb id returned from moviemeter
- * 
+ *
  * @author RdeTuinman
- * 
+ *
  */
 public class MovieMeterPlugin extends ImdbPlugin {
 
@@ -52,10 +50,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
         try {
             session = new MovieMeterPluginSession();
         } catch (XmlRpcException error) {
-            final Writer eResult = new StringWriter();
-            final PrintWriter printWriter = new PrintWriter(eResult);
-            error.printStackTrace(printWriter);
-            logger.error("MovieMeterPlugin: " + eResult.toString());
+            logger.error(SystemTools.getStackTrace(error));
         }
 
     }
@@ -211,9 +206,9 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
     /**
      * Searches www.google.nl for the moviename and retreives the movie id for www.moviemeter.nl.
-     * 
+     *
      * Only used when moviemeter.id.search=google
-     * 
+     *
      * @param movieName
      * @param year
      * @return
