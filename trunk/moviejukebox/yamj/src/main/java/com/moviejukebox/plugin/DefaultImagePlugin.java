@@ -144,10 +144,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     public DefaultImagePlugin() {
         // Generic properties
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-        boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.xmlOverlay.skinroot", "false");
-        overlayRoot = PropertiesUtil.getProperty("mjb.xmlOverlay.dir", Movie.UNKNOWN);
+        boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", "true");
+        overlayRoot = PropertiesUtil.getProperty("mjb.overlay.dir", Movie.UNKNOWN);
         overlayRoot = (skinRoot ? (skinHome + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
-        overlayResources = overlayRoot + PropertiesUtil.getProperty("mjb.xmlOverlay.resources", "resources") + File.separator;
+        overlayResources = overlayRoot + PropertiesUtil.getProperty("mjb.overlay.resources", "resources") + File.separator;
         highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
     }
 
@@ -1181,7 +1181,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      * @return path to the resource directory
      */
     protected String getResourcesPath() {
-        return skinHome + File.separator + "resources" + File.separator;
+        return overlayResources;
     }
 
     protected BufferedImage drawPerspective(Identifiable movie, BufferedImage bi) {

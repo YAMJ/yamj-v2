@@ -312,7 +312,9 @@ public class MovieJukebox {
         setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/skin-user.properties", false);
 
         // Load the overlay.properties file (ignore the error)
-        setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/overlay.properties", false);
+        String overlayRoot = getProperty("mjb.overlay.dir", Movie.UNKNOWN);
+        overlayRoot = (PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", "true")?(getProperty("mjb.skin.dir", "./skins/default") + File.separator):"") + (StringTools.isValidString(overlayRoot)?(overlayRoot + File.separator):"");
+        setPropertiesStreamName(overlayRoot + "overlay.properties", false);
 
         // Load the apikeys.properties file
         if (!setPropertiesStreamName("./properties/apikeys.properties", true)) {
