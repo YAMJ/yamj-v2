@@ -712,7 +712,7 @@ public class MovieJukeboxXMLWriter {
                             if (eFileInfo != null) {
                                 String part = eFileInfo.getAttribute("part");
                                 if (StringUtils.isNumeric(part)) {
-                                    movieFile.setVideoImageFilename(Integer.parseInt(part), eFileInfo.getTextContent());
+                                    movieFile.setVideoImageFilename(Integer.parseInt(part), HTMLTools.decodeUrl(eFileInfo.getTextContent()));
                                 }
                             }
 
