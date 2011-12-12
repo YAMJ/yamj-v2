@@ -43,6 +43,8 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     private boolean addPerspective;
     private boolean addOverlay;
     private String skinHome;
+    private String overlayRoot;
+    private String overlayResources;
     private boolean highdefDiff;
     private boolean roundCorners;
     private int cornerRadius;
@@ -59,6 +61,10 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         // These are the default values for the width and height.
         // Each plugin should determine their own values
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+        boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", "false");
+        overlayRoot = PropertiesUtil.getProperty("mjb.overlay.dir", Movie.UNKNOWN);
+        overlayRoot = (skinRoot?(skinHome + File.separator):"") + (StringTools.isValidString(overlayRoot)?(overlayRoot + File.separator):"");
+        overlayResources = overlayRoot + PropertiesUtil.getProperty("mjb.overlay.resources", "resources") + File.separator;
         highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
     }
 
@@ -250,7 +256,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
      * @return path to the resource directory
      */
     protected String getResourcesPath() {
-        return skinHome + File.separator + "resources" + File.separator;
+        return overlayResources;
     }
 
     
