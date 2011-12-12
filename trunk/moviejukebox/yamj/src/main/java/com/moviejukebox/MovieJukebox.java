@@ -146,13 +146,13 @@ public class MovieJukebox {
     private static String thumbnailExtension;
     private static String bannerExtension;
     private static String fanartExtension;
-    private static String footerExtension;
 
     private static Integer footerCount;
     private static ArrayList<String> footerName = new ArrayList<String>();
     private static ArrayList<Boolean> footerEnable = new ArrayList<Boolean>();
     private static ArrayList<Integer> footerWidth = new ArrayList<Integer>();
     private static ArrayList<Integer> footerHeight = new ArrayList<Integer>();
+    private static ArrayList<String> footerExtension = new ArrayList<String>();
 
     private static boolean fanartMovieDownload;
     private static boolean fanartTvDownload;
@@ -722,7 +722,6 @@ public class MovieJukebox {
         thumbnailExtension = getProperty("thumbnails.format", "png");
         bannerExtension = getProperty("banners.format", "jpg");
         fanartExtension = getProperty("fanart.format", "jpg");
-        footerExtension = getProperty("footer.format", "png");
 
         footerCount = PropertiesUtil.getIntProperty("mjb.footer.count", "0");
         for (int i = 0; i < MovieJukebox.footerCount; i++) {
@@ -731,6 +730,7 @@ public class MovieJukebox {
             footerName.add(fName);
             footerWidth.add(PropertiesUtil.getIntProperty(fName + ".width", "400"));
             footerHeight.add(PropertiesUtil.getIntProperty(fName + ".height", "80"));
+            footerExtension.add(getProperty(fName + ".format", "png"));
         }
 
         trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
@@ -1384,7 +1384,7 @@ public class MovieJukebox {
 
                         for (int i = 0; i < footerCount; i++) {
                             if (footerEnable.get(i)) {
-                                movie.setFooterFilename(safeSetMasterBaseName + (footerName.get(i).contains("[")?(footerToken + "_" + i):("." + footerName.get(i))) + "." + footerExtension, i);
+                                movie.setFooterFilename(safeSetMasterBaseName + (footerName.get(i).contains("[")?(footerToken + "_" + i):("." + footerName.get(i))) + "." + footerExtension.get(i), i);
                                 updateFooter(jukebox, movie, tools.imagePlugin, i);
                             }
                         }
@@ -1908,7 +1908,7 @@ public class MovieJukebox {
         // Update footer format if needed
         for (int i = 0; i < footerCount; i++) {
             if (footerEnable.get(i)) {
-                movie.setFooterFilename(movie.getBaseName() + (footerName.get(i).contains("[")?(footerToken + "_" + i):("." + footerName.get(i))) + "." + footerExtension, i);
+                movie.setFooterFilename(movie.getBaseName() + (footerName.get(i).contains("[")?(footerToken + "_" + i):("." + footerName.get(i))) + "." + footerExtension.get(i), i);
             }
         }
 
