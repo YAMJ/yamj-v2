@@ -230,7 +230,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (movie.getGenres().isEmpty()) {
-                for (String genre : HTMLTools.extractTags(xml, "gatunek:", "</table>", "<a ", "</a>")) {
+                for (String genre : HTMLTools.extractTags(xml, "gatunek:", "premiera:", "<a ", "</a>")) {
                     if (!genre.isEmpty()) {
                         movie.addGenre(Library.getIndexingGenre(genre));
                     }
