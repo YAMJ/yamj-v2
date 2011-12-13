@@ -31,6 +31,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2210 No poster from Caratulasdecine when FilmAffinity plugin is used
  - Enhancement  #2205 Additional footer images
  - Fixed defect #2226 Footer extension format cannot be set
+ - Fixed defect #2231 Filmweb.pl genres are now correctly scraped
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------
@@ -161,10 +162,10 @@ MovieJukebox 2.5 (24-Oct-2011)
  - Fixed defect #2109 Explode Set by items of category Other
  - Fixed defect #2112 Failed grab multiFPS value
  - Enhancement  #2124 URL from NFO define movie scanner plugin
- - Fixed defect #2126 ComingSoon plugin code refactoring 
+ - Fixed defect #2126 ComingSoon plugin code refactoring
  - Fixed defect #2127 Recheck and Top250 not updating
  - Fixed defect #2128 Out a large amount of error codes while scanning
- - Enhancement  #2132 Trailer plugin for www.trailersland.com  
+ - Enhancement  #2132 Trailer plugin for www.trailersland.com
 
 MovieJukebox 2.4
 ----------------
@@ -215,7 +216,7 @@ MovieJukebox 2.3
  - Fixed defect #1629 Rating problem with Allocine plugin
  - Fixed defect #1604 Set poster is not picked up correctly for series with ":" in the name
  - Fixed defect #1634 SratimPlugin - download subtitles does not work due to website redesign
- - Enhancement  #1634 Removed properties sratim.username, sratim.password, sratim.code as they are no longer required for subtitles download. 
+ - Enhancement  #1634 Removed properties sratim.username, sratim.password, sratim.code as they are no longer required for subtitles download.
  - Fixed defect #1655 ComingSoon plugin not run properly
  - Enhancement  #1671 Add New:TV and New:Movies categories
  - Enhancement  #1687 Only load the required poster scanner plugins
@@ -223,7 +224,7 @@ MovieJukebox 2.3
  - Fixed defect #1700 Local fanart in root directory not being used
  - Fixed defect #1702 ComingSoon plot and outline have TRAMA LUNGA & TRAMA BREVA in them
  - Fixed defect #1705 Apple Trailers URL is wrong, trailers don't download
- - Enhancement  #1706 Adding a property to toggle logical\visual Hebrew for new 200 series firmwares 
+ - Enhancement  #1706 Adding a property to toggle logical\visual Hebrew for new 200 series firmwares
  - Fixed defect #1707 SET XML not correct (Looks like a movie XML)
  - Enhancement  #1710 Ability to use tvdbid field in NFO files
  - Enhancement  #1713 Better output for method file size
@@ -254,7 +255,7 @@ MovieJukebox 2.3
  - Fixed defect #1795 mucommanderlight contains old version of commons-logging
  - Enhancement  #1796 Native RAR support
  - Fixed defect #1800 Enable or Disable scan trailers ...function not clear
- - Enhancement  #1802 Configurable overlay and configurable border for thumbnails/posters 
+ - Enhancement  #1802 Configurable overlay and configurable border for thumbnails/posters
  - Enhancement  #1803 Scan Directory name for Names of movies/tv shows with regex expressions
  - Enhancement  #1804 Adding a property to toggle IMDDB\Sratim cast source.
  - Fixed defect #1810 old-RAR format compatibility fixed
@@ -291,7 +292,7 @@ MovieJukebox 2.2
   - Fixed defect #1639 CdonPosterPlugin not working after site restructure
   - Fixed defect #1641 HDDVDs are identified incorrectly in <videoSouce> tag in XML
   - Fixed defect #1643 No director info in XML file
-  - Fixed defect #1645 Mediainfo not scraping codec info for .m2ts files but ok with .mkv files 
+  - Fixed defect #1645 Mediainfo not scraping codec info for .m2ts files but ok with .mkv files
   - Fixed defect #1646 IMDb NFO not being read correctly
   - Fixed defect #1648 Problem with MovieDbPosterPlugin
   - Fixed defect #1649 TheMovieDb Plugin: Plot & Director aren't displayed
@@ -301,7 +302,7 @@ MovieJukebox 2.2
   - Enhancement  #1675 Recheck now checks for missing poster and banner artwork
   - Fixed defect #1678 ComingSoon not found movie and not read file NFO
   - Fixed defect #1679 The New Category Should Sort DVD Rips based on Video_TS folder modified date
-  - Fixed defect #1686 BluRay NFO Files not picked up 
+  - Fixed defect #1686 BluRay NFO Files not picked up
 
 MovieJukebox 2.1
 ----------------
@@ -343,8 +344,8 @@ MovieJukebox 2.1
   - Fixed defect #1601 Bugs in FilmDeltaSEPlugin and CdonPosterPlugin
   - Fixed defect #1602 TV recheck causes unknown episode name
   - Fixed defect #1605 New IMDb site format breaks IMDb scanner
-  - Enhancement  #1607 Add Credits info from XML NFO files to YAMJ 
-  
+  - Enhancement  #1607 Add Credits info from XML NFO files to YAMJ
+
 MovieJukebox 2.0
 ----------------
   - Enhancement   #118 Exclude strings for files/folders to support regex
@@ -383,7 +384,7 @@ MovieJukebox 2.0
   - Fixed defect #1435 ComingSoon.IT Plugin needs changes due to new website format
   - Fixed defect #1436 Scraping of nfo-file fails for year
   - Fixed defect #1438 Proper parsing of MPAA rating by Kinopoisk plugin
-  - Fixed defect #1443 Aliens(1986).avi parsed incorrectly  
+  - Fixed defect #1443 Aliens(1986).avi parsed incorrectly
   - Enhancement  #1444 Property to turn off case sensitivity for skip keywords
   - Fixed defect #1447 NFO NullPointerException error for sets with no order
   - Fixed defect #1450 Some DVDs don't have subtitle language info in mediainfo output resulting in blank lang. info
@@ -432,50 +433,50 @@ MovieJukebox 1.9 (r1500)
   - Fixed defect #1323 Posters not picked up from NFO file
   - Enhancement  #1326 Support 'blank' banners with custom generated text
   - Fixed defect #1329 FilmAffinity-Plugin not working properly
-  - Enhancement  #1334 Remove unneeded country information and ratings from NFO Certification field 
+  - Enhancement  #1334 Remove unneeded country information and ratings from NFO Certification field
   - Fixed defect #1337 Problem with AllocinePlugin
-  - Fixed defect #1338 Genre is displaying 1 genre then then words "See More >>" 
+  - Fixed defect #1338 Genre is displaying 1 genre then then words "See More >>"
   - Fixed defect #1342 Moviejukebox does not complete - stuck on Sratim plugin (similar to 1152)
-  
+
 MovieJukebox 1.8 (r1402)
 ------------------------
   - Enhancement   #145 Dual Language-Flag for DVDs
-  - Enhancement   #274 Danish Plugin  
+  - Enhancement   #274 Danish Plugin
   - Enhancement   #400 Option to trim plot length for TheTVDB plots
   - Enhancement   #503 Simplify skins by figuring out the vod/vcd/playlist attributes in YAMJ itself (updated)
   - Fixed defect  #535 Appears the order of libraries in the XML makes a difference on output.
-  - Fixed defect  #779 1x00 files lastPart is incorrect    
+  - Fixed defect  #779 1x00 files lastPart is incorrect
   - Fixed defect  #794 NFO parsing problem for IMDb link
   - Fixed defect  #797 r965: OfdbPlugin ignores Plot from NFO
-  - Fixed defect  #832 Indexing of Cast, Director, etc is not performed when the movie is in a set  
+  - Fixed defect  #832 Indexing of Cast, Director, etc is not performed when the movie is in a set
   - Fixed defect  #945 imdb.getCertificationFromMPAA setting is ignored if MPAA tag is present in the NFO
-  - Fixed defect  #985 filename.scanner.skip.keywords has issues  
-  - Fixed defect  #998 NFO files not read correctly with FilmAffinity plugin  
-  - Fixed defect #1004 Unable to scan tv series or movies since enabling index for cast and director  
+  - Fixed defect  #985 filename.scanner.skip.keywords has issues
+  - Fixed defect  #998 NFO files not read correctly with FilmAffinity plugin
+  - Fixed defect #1004 Unable to scan tv series or movies since enabling index for cast and director
   - Fixed defect #1006 Wrong fanart file name if NFO <fanart> field filled in link
-  - Enhancement  #1013 Support for localised IMDB, e.g. (ES, FR, DE, etc)  
-  - Fixed issue  #1018 Null pointer in main if you remove Title index from moviejukebox.properties.  
+  - Enhancement  #1013 Support for localised IMDB, e.g. (ES, FR, DE, etc)
+  - Fixed issue  #1018 Null pointer in main if you remove Title index from moviejukebox.properties.
   - Fixed defect #1022 ofdb.plugin overwrites nfo information
-  - Enhancement  #1148 Categories.xml list ordering  
-  - Fixed defect #1152 Moviejukebox does not complete - stuck on Sratim plugin  
-  - Fixed defect #1156 Bad form date with plugin mjb.internet.plugin=com.moviejukebox.plugin.FilmUpITPlugin  
-  - Enhancement  #1175 Also detect PGS subtitles  
-  - Fixed defect #1176 Use of runtime element in NFO  
+  - Enhancement  #1148 Categories.xml list ordering
+  - Fixed defect #1152 Moviejukebox does not complete - stuck on Sratim plugin
+  - Fixed defect #1156 Bad form date with plugin mjb.internet.plugin=com.moviejukebox.plugin.FilmUpITPlugin
+  - Enhancement  #1175 Also detect PGS subtitles
+  - Fixed defect #1176 Use of runtime element in NFO
   - Fixed defect #1187 Trailing '|' character in IMDB plots
-  - Enhancement  #1188 Add support for Danish language tag in the filename  
+  - Enhancement  #1188 Add support for Danish language tag in the filename
   - Fixed defect #1190 IMDb parser gets wrong title for movie with parentheses
   - Fixed defect #1194 NFO fileinfo streamdetails are not overriding the MediaInfo scraped information
-  - Fixed defect #1195 Problems with a Trailer file and a Trailer link in condition with [Disc],[Part].. in file name  
-  - Enhancement  #1199 Hebrew plot for episodes using Sratim plugin 
+  - Fixed defect #1195 Problems with a Trailer file and a Trailer link in condition with [Disc],[Part].. in file name
+  - Enhancement  #1199 Hebrew plot for episodes using Sratim plugin
   - Fixed defect #1202 Standardised plot length across plugins
   - Fixed defect #1204 Video output in the YAMJ generated XML file is always 'UNKNOWN 60Hz'
   - Fixed defect #1205 Video Output does not use MediaInfo information
   - Fixed defect #1211 Audio channels always UNKNOWN
-  - Fixed defect #1214 Tv Episode title not used from filename if plugin times out  
+  - Fixed defect #1214 Tv Episode title not used from filename if plugin times out
   - Fixed defect #1221 Audio information defect in XML files
   - Fixed defect #1224 Google/Yahoo thread defaults too high, reduced to 5 each
   - Enhancement  #1225 Add fanart to default & SD skins
-  - Fixed defect #1227 Audio information in XML files are still defect with r1315  
+  - Fixed defect #1227 Audio information in XML files are still defect with r1315
   - Fixed defect #1229 CSV listing fields may have quotes inside them
   - Fixed defect #1230 Add fanart detection to FilmUpIT plugin
   - Fixed defect #1232 Subtitle field incorrect for MKV embedded subs
@@ -487,14 +488,14 @@ MovieJukebox 1.8 (r1402)
   - Fixed defect #1250 getting poster from MovieCovers not correct
   - Fixed defect #1251 NFOs with multiple audio section
   - Fixed defect #1255 VIDEO_TS.IFO incorrectly added for ISO movies (PoHD)
-  - Fixed defect #1258 index XML Files are broken  
+  - Fixed defect #1258 index XML Files are broken
   - Fixed defect #1259 Multipart videos cause playlink null pointer
   - Fixed defect #1261 Director field blank with Italian IMDB and two directors in a movie
-  - Fixed defect #1263 Indexing of Cast, Director, etc is not performed when the movie is in a set (again)  
+  - Fixed defect #1263 Indexing of Cast, Director, etc is not performed when the movie is in a set (again)
   - Fixed defect #1265 Allocine adds HTML tags to the year of films
-  - Fixed defect #1270 Movies don't get proper rating from IMDB  
+  - Fixed defect #1270 Movies don't get proper rating from IMDB
   - Fixed defect #1273 Add a filename.scanner.codec.detection properties
-  
+
 MovieJukebox 1.7 (r1242)
 ------------------------
   - Enhancement   #358 Intuitive movie highlight when surfing up/down pages in the movies index (default skin)
@@ -532,11 +533,11 @@ MovieJukebox 1.7 (r1242)
   - Enhancement  #1173 Studio Field added to NFO format
   - Fixed defect #1177 IMDb Rating not detected
   - Enhancement        Default skin: Highlighting of current category
-  - Enhancement        Default skin: "T9"-navigation over title first letters  
+  - Enhancement        Default skin: "T9"-navigation over title first letters
 
 MovieJukebox 1.6 (r1205)
 ------------------------
-  - Enhancement   #777 Override file for moviejukebox.properties 
+  - Enhancement   #777 Override file for moviejukebox.properties
   - Fixed defect  #881 Custom image always picking season 1 for the "BOX set" image for escaped series names.
   - Enhancement   #955 Option to download SERIES banners instead of SEASON
   - Enhancement   #970 Updated/improved threading functionality to increase stability & throttle downloads on a per site basis
@@ -678,7 +679,7 @@ MovieJukebox 1.0.17 beta (r1003)
   - Enhancement  #701 Additional videoimage properties
   - Enhancement  #703 Index by library description (if present)
   - Enhancement  #705 Speed up XSLT processing
-  - Fixed defect #706 Fanart in NFO used as poster if no thumb present. 
+  - Fixed defect #706 Fanart in NFO used as poster if no thumb present.
   - Enhancement  #712 Patch for Kinopoisk plugin
                         1. Extract original movie name from Kinopoisk page.
                         2. Extract IMDB rating from Kinopoisk page if needed.
@@ -803,7 +804,7 @@ MovieJukebox 1.0.16 beta r(850)
 MovieJukebox 1.0.15 beta (r665)
 -------------------------------
   - Enhancement   #72 Support for multi-episode files and folders
-  - Enhancement   #90 Skins now have the ability to wrap around from the last index page to the first and vice versa 
+  - Enhancement   #90 Skins now have the ability to wrap around from the last index page to the first and vice versa
   - Enhancement  #225 Improved sorting of movies (by IMdB rating and by year)
   - Enhancement  #250 So how do we customize the categories?
   - Enhancement  #254 Use XBMC tvshow nfo layout to override scraper info
@@ -840,7 +841,7 @@ MovieJukebox 1.0.15 beta (r665)
   - Fixed defect #377 Scanner does not recognise changed local Fanart file
   - Fixed defect #381 Year in part title breaks multipart video scanner
   - Fixed defect #385 BD Rip scanner does not close files
-  - Fixed defect #388 MyIHome does not support foreign language links 
+  - Fixed defect #388 MyIHome does not support foreign language links
   - Fixed defect #389 Part Title issues with VIDEO_TS / BDMV folders
   - Fixed defect #391 OpenSubtitles Plugin hits the server on every scan
   - Enhancement  #398 Ability to turn off internet scraping for a video file
@@ -850,7 +851,7 @@ MovieJukebox 1.0.15 beta (r665)
   - Fixed defect #415 Exclude files from the Recycle Bin (In example library.xml file)
   - Fixed defect #417 Sratim plugin poster fix
   - Fixed defect #419 Re-run of YAMJ causes jpg/png files to always be re-created
-  - Fixed defect #423 Broken navigation on first and last movies. Details page. 
+  - Fixed defect #423 Broken navigation on first and last movies. Details page.
   - Fixed defect #430 typo on line 24 of detail.xsl
 
 MovieJukebox 1.0.14 beta (r556)
@@ -1075,7 +1076,7 @@ MovieJukebox 1.0.9 beta
   - Fixed defect #39 No media info with DVD rips (VIDEO_TS...)
   - Fixed defect #48 Scroll buttons don't work
   - Fixed defect #53 File name at the bottom of the index page
-    
+
 
 MovieJukebox 1.0.8 beta
 -----------------------
