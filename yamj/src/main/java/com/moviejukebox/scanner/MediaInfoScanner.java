@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +41,8 @@ import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
 import com.mucommander.file.FileFactory;
 import com.mucommander.file.impl.iso.IsoArchiveFile;
+import java.util.Arrays;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * @author Grael
@@ -53,40 +54,63 @@ public class MediaInfoScanner {
     // mediaInfo repository
     private static final File mediaInfoPath = new File(PropertiesUtil.getProperty("mediainfo.home", "./mediaInfo/"));
     // mediaInfo command line, depend on OS
-    private static String[] mediaInfoExe;
-    private static final String[] mediaInfoExeWindows = {"cmd.exe", "/E:1900", "/C", "MediaInfo.exe", "-f"};
-    private static final String[] mediaInfoExeLinux = {"./mediainfo", "-f"};
-    public final static String OS_NAME = System.getProperty("os.name");
-    public final static String OS_VERSION = System.getProperty("os.version");
-    public final static String OS_ARCH = System.getProperty("os.arch");
-    private static boolean activated;
+    private static final ArrayList<String> mediaInfoExe = new ArrayList<String>();
+    private static final String mediaInfoFilenameWindows = "MediaInfo.exe";
+    private static final String mediaInfoRarFilenameWindows = "MediaInfo-rar.exe";
+    private static final String mediaInfoFilenameLinux = "mediainfo";
+    private static final String mediaInfoRarFilenameLinux = "mediainfo-rar";
+    private static boolean isMediaInfoRar = false;
+    public static final String OS_NAME = System.getProperty("os.name");
+    public static final String OS_VERSION = System.getProperty("os.version");
+    public static final String OS_ARCH = System.getProperty("os.arch");
+    private static boolean isActivated;
     private static boolean enableMetadata = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", "false");
     private String randomDirName;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
-    private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", " / ");;
-    private static String subtitleDelimiter= PropertiesUtil.getProperty("mjb.subtitle.delimiter", " / ");;
+    private static final String SPACE_SLASH_SPACE = " / ";
+    private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", SPACE_SLASH_SPACE);
+
+    private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", SPACE_SLASH_SPACE);
+    private static final ArrayList<String> mediaInfoDiskImages = new ArrayList<String>();
 
     static {
         logger.debug("Operating System Name   : " + OS_NAME);
         logger.debug("Operating System Version: " + OS_VERSION);
         logger.debug("Operating System Type   : " + OS_ARCH);
 
-        File checkMediainfo = null;
+        File checkMediainfo = findMediaInfo();
 
         if (OS_NAME.contains("Windows")) {
-            mediaInfoExe = mediaInfoExeWindows;
-            checkMediainfo = new File(mediaInfoPath.getAbsolutePath() + File.separator + "MediaInfo.exe");
+            if (mediaInfoExe.isEmpty()) {
+                mediaInfoExe.add("cmd.exe");
+                mediaInfoExe.add("/E:1900");
+                mediaInfoExe.add("/C");
+                mediaInfoExe.add(checkMediainfo.getName());
+                mediaInfoExe.add("-f");
+            }
         } else {
-            mediaInfoExe = mediaInfoExeLinux;
-            checkMediainfo = new File(mediaInfoPath.getAbsolutePath() + File.separator + "mediainfo");
+            if (mediaInfoExe.isEmpty()) {
+                mediaInfoExe.add("./" + checkMediainfo.getName());
+                mediaInfoExe.add("-f");
+            }
         }
+
         // System.out.println(checkMediainfo.getAbsolutePath());
         if (!checkMediainfo.canExecute()) {
-            logger.info("Couldn't find CLI mediaInfo executable tool : Video files data won't be extracted");
-            activated = false;
+            logger.info("Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
+            isActivated = false;
         } else {
-            logger.info("MediaInfo tool will be used to extract video data");
-            activated = true;
+            if (isMediaInfoRar) {
+                logger.info("MediaInfo-rar tool found, additional scanning functions enabled.");
+            } else {
+                logger.info("MediaInfo tool will be used to extract video data.");
+            }
+            isActivated = true;
+        }
+
+        // Add a list of supported extensions
+        for (String ext : PropertiesUtil.getProperty("mediainfo.rar.diskExtensions", "iso,img").split(",")) {
+            mediaInfoDiskImages.add(ext.toLowerCase());
         }
     }
     // DVD rip infos Scanner
@@ -109,7 +133,8 @@ public class MediaInfoScanner {
                     currentMovie.setRuntime(StringTools.formatDuration(mainMovieIFO.getDuration()));
                 }
             }
-        } else if ((currentMovie.getFile().getName().toLowerCase().endsWith(".iso")) || (currentMovie.getFile().getName().toLowerCase().endsWith(".img"))) {
+        } else if (!isMediaInfoRar && (mediaInfoDiskImages.contains(FilenameUtils.getExtension(currentMovie.getFile().getName())))) {
+//        } else if (!isMediaInfoRar && ((currentMovie.getFile().getName().toLowerCase().endsWith(".iso")) || (currentMovie.getFile().getName().toLowerCase().endsWith(".img")))) {
             // extracting IFO files from ISO file
             AbstractFile abstractIsoFile = null;
 
@@ -157,19 +182,22 @@ public class MediaInfoScanner {
             // Clean up
             FileTools.deleteDir(randomDirName);
         } else {
+            if (isMediaInfoRar && mediaInfoDiskImages.contains(FilenameUtils.getExtension(currentMovie.getFile().getName()))) {
+                logger.debug("MediaInfoScanner: Using MediaInfo-rar to scan " + currentMovie.getFile().getName());
+            }
             scan(currentMovie, currentMovie.getFile().getAbsolutePath());
         }
 
     }
 
     public void scan(Movie currentMovie, String movieFilePath) {
-        if (!activated) {
+        if (!isActivated) {
             return;
         }
 
         try {
             // Create the command line
-            ArrayList<String> commandMedia = new ArrayList<String>(Arrays.asList(mediaInfoExe));
+            ArrayList<String> commandMedia = new ArrayList<String>(mediaInfoExe);
             commandMedia.add(movieFilePath);
 
             ProcessBuilder pb = new ProcessBuilder(commandMedia);
@@ -430,7 +458,7 @@ public class MediaInfoScanner {
             // Frames per second
             infoValue = infosMainVideo.get("Frame rate");
             if (infoValue != null) {
-                int inxDiv = infoValue.indexOf(" / ");
+                int inxDiv = infoValue.indexOf(SPACE_SLASH_SPACE);
                 if (inxDiv > -1) {
                     infoValue = infoValue.substring(0, inxDiv);
                 }
@@ -543,7 +571,7 @@ public class MediaInfoScanner {
                 if (StringTools.isNotValidString(tmpAudioCodec)) {
                     tmpAudioCodec = infoValue + infoLanguage;
                 } else {
-                    tmpAudioCodec = tmpAudioCodec + " / " + infoValue + infoLanguage;
+                    tmpAudioCodec = tmpAudioCodec + SPACE_SLASH_SPACE + infoValue + infoLanguage;
                 }
             }
 
@@ -553,7 +581,7 @@ public class MediaInfoScanner {
                 if (StringTools.isNotValidString(tmpAudioChannels)) {
                     tmpAudioChannels = infoValue;
                 } else {
-                    tmpAudioChannels = tmpAudioChannels + " / " + infoValue;
+                    tmpAudioChannels = tmpAudioChannels + SPACE_SLASH_SPACE + infoValue;
                 }
             }
         }
@@ -659,5 +687,37 @@ public class MediaInfoScanner {
         codec.setCodecLanguage(codecInfos.get(Codec.MI_CODEC_LANGUAGE));
 
         return codec;
+    }
+
+    /**
+     * Look for the mediaInfo filename and return it.
+     * Will check first for the mediainfo-rar file and then mediainfo
+     * @param osName
+     * @return
+     */
+    protected static File findMediaInfo() {
+        File mediaInfoFile = null;
+
+        if (OS_NAME.contains("Windows")) {
+            mediaInfoFile = new File(mediaInfoPath.getAbsolutePath() + File.separator + mediaInfoRarFilenameWindows);
+            if (!mediaInfoFile.exists()) {
+                // Fall back to the normal filename
+                mediaInfoFile = new File(mediaInfoPath.getAbsolutePath() + File.separator + mediaInfoFilenameWindows);
+            } else {
+                // Enable the extra mediainfo-rar features
+                isMediaInfoRar = true;
+            }
+        } else {
+            mediaInfoFile = new File(mediaInfoPath.getAbsolutePath() + File.separator + mediaInfoRarFilenameLinux);
+            if (!mediaInfoFile.exists()) {
+                // Fall back to the normal filename
+                mediaInfoFile = new File(mediaInfoPath.getAbsolutePath() + File.separator + mediaInfoFilenameLinux);
+            } else {
+                // Enable the extra mediainfo-rar features
+                isMediaInfoRar = true;
+            }
+        }
+
+        return mediaInfoFile;
     }
 }
