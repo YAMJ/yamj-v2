@@ -440,24 +440,33 @@ public class MovieJukeboxXMLWriter {
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
                         nElement = nlElements.item(looper);
                         if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                            Element eCodec = (Element) nElement;
-                            Codec codec;
-                            if (Codec.CodecType.VIDEO.toString().equalsIgnoreCase(eCodec.getNodeName())) {
-                                codec = new Codec(Codec.CodecType.VIDEO);
-                            } else {
-                                codec = new Codec(Codec.CodecType.AUDIO);
-                            }
-                            codec.setCodecId(eCodec.getAttribute("codecId"));
-                            codec.setCodecIdHint(eCodec.getAttribute("codecIdHint"));
-                            codec.setCodecFormat(eCodec.getAttribute("format"));
-                            codec.setCodecFormatProfile(eCodec.getAttribute("formatProfile"));
-                            codec.setCodecFormatVersion(eCodec.getAttribute("formatVersion"));
-                            codec.setCodecLanguage(eCodec.getAttribute("language"));
-                            codec.setCodec(eCodec.getTextContent().trim());
 
-                            movie.addCodec(codec);
-                        }
-                    }
+                            if (nElement.getChildNodes().getLength() > 0) {
+                                for (int cLooper = 0; cLooper < nElement.getChildNodes().getLength(); cLooper++) {
+                                    Node nCodec = nElement.getChildNodes().item(cLooper);
+                                    if (nCodec.getNodeType() == Node.ELEMENT_NODE) {
+                                        Element eCodec = (Element) nCodec;
+
+                                        Codec codec;
+                                        if (Codec.CodecType.VIDEO.toString().equalsIgnoreCase(eCodec.getNodeName())) {
+                                            codec = new Codec(Codec.CodecType.VIDEO);
+                                        } else {
+                                            codec = new Codec(Codec.CodecType.AUDIO);
+                                        }
+                                        codec.setCodecId(eCodec.getAttribute("codecId"));
+                                        codec.setCodecIdHint(eCodec.getAttribute("codecIdHint"));
+                                        codec.setCodecFormat(eCodec.getAttribute("format"));
+                                        codec.setCodecFormatProfile(eCodec.getAttribute("formatProfile"));
+                                        codec.setCodecFormatVersion(eCodec.getAttribute("formatVersion"));
+                                        codec.setCodecLanguage(eCodec.getAttribute("language"));
+                                        codec.setCodec(eCodec.getTextContent().trim());
+
+                                        movie.addCodec(codec);
+                                    }
+                                }   // END of codec information for audio/video
+                            }
+                        }   // END of audio/video codec
+                    }   // END of codecs loop
                 }   // END of codecs
 
                 // get the audio channels
@@ -1786,31 +1795,37 @@ public class MovieJukeboxXMLWriter {
 
         // Write codec information
         Element eCodecs = doc.createElement("codecs");
+        {
+            Element eCodecAudio = doc.createElement("audio");
+            Element eCodecVideo = doc.createElement("video");
+            int countAudio = 0;
+            int countVideo = 0;
 
-        Element eCodecAudio = doc.createElement("audio");
-        Element eCodecVideo = doc.createElement("video");
+            HashMap<String, String> codecAttribs = new HashMap<String, String>();
 
-        HashMap<String, String> codecAttribs = new HashMap<String, String>();
+            for (Codec codec : movie.getCodecs()) {
+                codecAttribs.clear();
 
-        for (Codec codec : movie.getCodecs()) {
-            codecAttribs.clear();
+                codecAttribs.put("format", codec.getCodecFormat());
+                codecAttribs.put("formatProfile", codec.getCodecFormatProfile());
+                codecAttribs.put("formatVersion", codec.getCodecFormatVersion());
+                codecAttribs.put("codecId", codec.getCodecId());
+                codecAttribs.put("codecIdHint", codec.getCodecIdHint());
+                codecAttribs.put("language", codec.getCodecLanguage());
 
-            codecAttribs.put("format", codec.getCodecFormat());
-            codecAttribs.put("formatProfile", codec.getCodecFormatProfile());
-            codecAttribs.put("formatVersion", codec.getCodecFormatVersion());
-            codecAttribs.put("codecId", codec.getCodecId());
-            codecAttribs.put("codecIdHint", codec.getCodecIdHint());
-            codecAttribs.put("language", codec.getCodecLanguage());
-
-            if (codec.getCodecType() == Codec.CodecType.AUDIO) {
-                DOMHelper.appendChild(doc, eCodecAudio, "codec", codec.getCodec(), codecAttribs);
-            } else {
-                DOMHelper.appendChild(doc, eCodecVideo, "codec", codec.getCodec(), codecAttribs);
+                if (codec.getCodecType() == Codec.CodecType.AUDIO) {
+                    DOMHelper.appendChild(doc, eCodecAudio, "codec", codec.getCodec(), codecAttribs);
+                    countAudio++;
+                } else {
+                    DOMHelper.appendChild(doc, eCodecVideo, "codec", codec.getCodec(), codecAttribs);
+                    countVideo++;
+                }
             }
+            eCodecAudio.setAttribute("count", String.valueOf(countAudio));
+            eCodecVideo.setAttribute("count", String.valueOf(countVideo));
+            eCodecs.appendChild(eCodecAudio);
+            eCodecs.appendChild(eCodecVideo);
         }
-        eCodecs.appendChild(eCodecAudio);
-        eCodecs.appendChild(eCodecVideo);
-
         eMovie.appendChild(eCodecs);
 
         DOMHelper.appendChild(doc, eMovie, "audioChannels", movie.getAudioChannels());
