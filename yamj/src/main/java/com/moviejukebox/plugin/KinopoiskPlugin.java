@@ -93,6 +93,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
     boolean companyAll = PropertiesUtil.getProperty("kinopoisk.company", "first").equalsIgnoreCase("all");
     boolean countryAll = PropertiesUtil.getProperty("kinopoisk.country", "first").equalsIgnoreCase("all");
     boolean clearAward = PropertiesUtil.getBooleanProperty("kinopoisk.clear.award", "false");
+    boolean clearTrivia = PropertiesUtil.getBooleanProperty("kinopoisk.clear.trivia", "false");
 
     String etalonId = PropertiesUtil.getProperty("kinopoisk.etalon", "251733");
 
@@ -694,7 +695,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Fanart
             String fanURL = movie.getFanartURL();
-            if (StringTools.isNotValidString(fanURL) || (!NFOfanart && fanArt) || etalonFlag) {
+            if (StringTools.isNotValidString(fanURL) || (!NFOfanart && (fanArt || kadr)) || etalonFlag) {
                 valueFounded = false;
                 try {
                     String previousURL = fanURL;
@@ -783,6 +784,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Awards
             if ((scrapeAwards && !NFOawards) || etalonFlag) {
+                if (clearAward) {
+                    movie.clearAwards();
+                }
                 xml = webBrowser.request("http://www.kinopoisk.ru/level/94/film/" + kinopoiskId);
                 Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
                 if (StringTools.isValidString(xml)) {
@@ -840,7 +844,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
                 }
-                if ((awards.size() > 0) || clearAward) {
+                if (awards.size() > 0) {
                     movie.setAwards(awards);
                 } else if (etalonFlag) {
                     logger.error("KinopoiskPlugin: Site design changed - failed get award!");
@@ -925,6 +929,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Did You Know
             if (scrapeTrivia || etalonFlag) {
+                if (clearTrivia) {
+                    movie.clearDidYouKnow();
+                }
                 if (etalonFlag && triviaMax == 0) {
                     triviaMax = 1;
                 }
@@ -934,9 +941,6 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         int i = 0;
                         for (String tmp : HTMLTools.extractTags(xml, ">Знаете ли вы, что...<", "</ul>", "<li class='trivia", "</li>")) {
                             if (i < triviaMax || triviaMax == -1) {
-                                if (i == 0) {
-                                    movie.clearDidYouKnow();
-                                }
                                 movie.addDidYouKnow(tmp);
                                 valueFounded = true;
                                 i++;
