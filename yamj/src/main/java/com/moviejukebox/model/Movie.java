@@ -1015,6 +1015,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         setDirty(DIRTY_INFO, true);
     }
 
+    public void clearAwards() {
+        awards.clear();
+        setDirty(DIRTY_INFO, true);
+    }
+
     public void addActor(String actor) {
         if (StringTools.isNotValidString(actor)) {
             return;
