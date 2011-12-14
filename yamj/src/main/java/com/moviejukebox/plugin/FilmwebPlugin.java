@@ -32,7 +32,8 @@ import com.moviejukebox.tools.SystemTools;
 public class FilmwebPlugin extends ImdbPlugin {
 
     public static String FILMWEB_PLUGIN_ID = "filmweb";
-    private static Pattern googlePattern = Pattern.compile(">(http://[^\"/?&]*filmweb.pl[^<\\s]*)");
+//    private static Pattern googlePattern = Pattern.compile(">(http://[^\"/?&]*filmweb.pl[^<\\s]*)");
+    private static Pattern googlePattern =  Pattern.compile("(http://[^\"/?&]*filmweb.pl[^\"&<\\s]*)");
     private static Pattern yahooPattern = Pattern.compile("http%3a(//[^\"/?&]*filmweb.pl[^\"]*)\"");
     private static Pattern filmwebPattern = Pattern.compile("searchResultTitle\"? href=\"([^\"]*)\"");
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
@@ -110,7 +111,11 @@ public class FilmwebPlugin extends ImdbPlugin {
             String xml = webBrowser.request(sb.toString());
             Matcher m = yahooPattern.matcher(xml);
             if (m.find()) {
-                return "http:" + m.group(1);
+                String id = "http:" + m.group(1);
+                if (id.endsWith("/cast")) {
+                    return id.substring(0, id.length() - 5);
+                }
+                return id;
             } else {
                 return Movie.UNKNOWN;
             }
@@ -176,7 +181,7 @@ public class FilmwebPlugin extends ImdbPlugin {
     }
 
     /**
-     * Scan IMDB html page for the specified movie
+     * Scan web page for the specified movie
      */
     protected boolean updateMediaInfo(Movie movie) {
         try {
@@ -222,11 +227,17 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (Movie.UNKNOWN.equals(movie.getRuntime())) {
-                movie.setRuntime(HTMLTools.getTextAfterElem(xml, "class=time"));
+                String runtime = HTMLTools.getTextAfterElem(xml, "czas trwania:");
+                movie.setRuntime(String.valueOf(StringTools.processRuntime(runtime)));
             }
 
             if (Movie.UNKNOWN.equals(movie.getCountry())) {
-                movie.setCountry(StringUtils.join(HTMLTools.extractTags(xml, "produkcja:", "gatunek", "<a ", "</a>"), ", "));
+                String country = StringUtils.join(HTMLTools.extractTags(xml, "kraje:", "</div", "<a ", "</a>"), ", ");
+                if (country.endsWith(", ")) {
+                    movie.setCountry(country.substring(0, country.length() - 2));
+                } else {
+                    movie.setCountry(country);
+                }
             }
 
             if (movie.getGenres().isEmpty()) {
@@ -296,6 +307,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         return imdbId;
     }
 
+    @Override
     public void scanTVShowTitles(Movie movie) {
         scanTVShowTitles(movie, null);
     }
@@ -357,6 +369,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         scanTVShowTitles(movie, mainXML);
     }
 
+    @Override
     public boolean scanNFO(String nfo, Movie movie) {
         super.scanNFO(nfo, movie); // use IMDB if filmweb doesn't know movie
         logger.debug("Scanning NFO for filmweb url");
