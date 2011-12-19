@@ -488,10 +488,10 @@ public class MovieJukeboxXMLWriter {
                 movie.setFps(Float.parseFloat(DOMHelper.getValueFromElement(eMovie, "fps")));
 
                 // Get navigation info
-                movie.setFirst(DOMHelper.getValueFromElement(eMovie, "first"));
-                movie.setPrevious(DOMHelper.getValueFromElement(eMovie, "previous"));
-                movie.setNext(DOMHelper.getValueFromElement(eMovie, "next"));
-                movie.setLast(DOMHelper.getValueFromElement(eMovie, "last"));
+                movie.setFirst(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "first")));
+                movie.setPrevious(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "previous")));
+                movie.setNext(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "next")));
+                movie.setLast(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "last")));
 
                 // Get the library description
                 movie.setLibraryDescription(DOMHelper.getValueFromElement(eMovie, "libraryDescription"));
