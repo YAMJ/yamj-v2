@@ -535,6 +535,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * 
      * @see com.moviejukebox.model.IMovieBasicInformation#getBaseName()
      */
+    @Override
     public String getBaseName() {
         return baseName;
     }
@@ -728,6 +729,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * 
      * @see com.moviejukebox.model.IMovieBasicInformation#getLanguage()
      */
+    @Override
     public String getLanguage() {
         return language;
     }
@@ -786,6 +788,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * 
      * @see com.moviejukebox.model.IMovieBasicInformation#getSeason()
      */
+    @Override
     public int getSeason() {
         // Return the first season as the whole season
         // This could be changed later to allow multi season movie objects
@@ -802,6 +805,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * 
      * @see com.moviejukebox.model.IMovieBasicInformation#getTitle()
      */
+    @Override
     public String getTitle() {
         return title;
     }
@@ -814,6 +818,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     /**
      * Return the correct sort title based on the mjb.sortTitle parameter
      */
+    @Override
     public String getTitleSort() {
         // If we have a titleSort, return that
         if (StringTools.isValidString(titleSort)) {
@@ -850,6 +855,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return titleSort;
     }
 
+    @Override
     public String getOriginalTitle() {
         return originalTitle;
     }
@@ -871,6 +877,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * 
      * @see com.moviejukebox.model.IMovieBasicInformation#getYear()
      */
+    @Override
     public String getYear() {
         return year;
     }
@@ -930,6 +937,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * @see com.moviejukebox.model.IMovieBasicInformation#isTVShow()
      */
     @XmlAttribute(name = "isTV")
+    @Override
     public boolean isTVShow() {
         return (this.movieType.equals(TYPE_TVSHOW) || getSeason() != -1);
     }
@@ -1306,6 +1314,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * 
      * @see com.moviejukebox.model.Identifiable#setId(java.lang.String, java.lang.String)
      */
+    @Override
     public void setId(String key, String id) {
         if (StringTools.isValidString(key) && StringTools.isValidString(id) && !id.equalsIgnoreCase(this.getId(key))) {
             setDirty(DIRTY_INFO, true);
@@ -1818,6 +1827,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * @see com.moviejukebox.model.IMovieBasicInformation#isTrailerExchange()
      */
     @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
+    @Override
     public Boolean isTrailerExchange() {
         return trailerExchange;
     }
@@ -2045,6 +2055,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * @see com.moviejukebox.model.IMovieBasicInformation#isSetMaster()
      */
     @XmlAttribute(name = "isSet")
+    @Override
     public boolean isSetMaster() {
         return isSetMaster;
     }
@@ -2380,9 +2391,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public Collection<Artwork> getArtwork(ArtworkType artworkType) {
         Collection<Artwork> artworkList = new LinkedHashSet<Artwork>();
 
-        for (Artwork artwork : this.artwork) {
-            if (artwork.getType() == artworkType) {
-                artworkList.add(artwork);
+        for (Artwork tempArtwork : this.artwork) {
+            if (tempArtwork.getType() == artworkType) {
+                artworkList.add(tempArtwork);
             }
         }
 

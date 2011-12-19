@@ -41,7 +41,6 @@ import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
 import com.mucommander.file.FileFactory;
 import com.mucommander.file.impl.iso.IsoArchiveFile;
-import java.util.Arrays;
 import org.apache.commons.io.FilenameUtils;
 
 /**
