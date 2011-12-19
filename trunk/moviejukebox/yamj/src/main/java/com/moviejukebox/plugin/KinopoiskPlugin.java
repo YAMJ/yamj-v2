@@ -186,9 +186,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             kinopoiskId = getKinopoiskId(mediaFile, name, year, mediaFile.getSeason());
             mediaFile.setId(KINOPOISK_PLUGIN_ID, kinopoiskId);
-        } else {
+//        } else {
             // If ID is specified in NFO, set original title to unknown
-            mediaFile.setTitle(Movie.UNKNOWN);
+//            mediaFile.setTitle(Movie.UNKNOWN);
         }
 
         if (StringTools.isValidString(kinopoiskId)) {

@@ -33,6 +33,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2226 Footer extension format cannot be set
  - Fixed defect #2231 Filmweb.pl genres are now correctly scraped
  - Enhancement  #2232 Support for MediaInfo-rar with BD ISOs
+ - Fixed defect #2236 When use kinopoisk plugin and title in nfo, title in xml = UNKNOWN
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------
