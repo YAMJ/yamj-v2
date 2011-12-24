@@ -76,6 +76,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
+import java.util.Set;
 
 /**
  * Parse/Write XML files for movie details and library indexes
@@ -1794,39 +1795,7 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "audioCodec", movie.getAudioCodec());
 
         // Write codec information
-        Element eCodecs = doc.createElement("codecs");
-        {
-            Element eCodecAudio = doc.createElement("audio");
-            Element eCodecVideo = doc.createElement("video");
-            int countAudio = 0;
-            int countVideo = 0;
-
-            HashMap<String, String> codecAttribs = new HashMap<String, String>();
-
-            for (Codec codec : movie.getCodecs()) {
-                codecAttribs.clear();
-
-                codecAttribs.put("format", codec.getCodecFormat());
-                codecAttribs.put("formatProfile", codec.getCodecFormatProfile());
-                codecAttribs.put("formatVersion", codec.getCodecFormatVersion());
-                codecAttribs.put("codecId", codec.getCodecId());
-                codecAttribs.put("codecIdHint", codec.getCodecIdHint());
-                codecAttribs.put("language", codec.getCodecLanguage());
-
-                if (codec.getCodecType() == Codec.CodecType.AUDIO) {
-                    DOMHelper.appendChild(doc, eCodecAudio, "codec", codec.getCodec(), codecAttribs);
-                    countAudio++;
-                } else {
-                    DOMHelper.appendChild(doc, eCodecVideo, "codec", codec.getCodec(), codecAttribs);
-                    countVideo++;
-                }
-            }
-            eCodecAudio.setAttribute("count", String.valueOf(countAudio));
-            eCodecVideo.setAttribute("count", String.valueOf(countVideo));
-            eCodecs.appendChild(eCodecAudio);
-            eCodecs.appendChild(eCodecVideo);
-        }
-        eMovie.appendChild(eCodecs);
+        eMovie.appendChild(createCodecsElement(doc, movie.getCodecs()));
 
         DOMHelper.appendChild(doc, eMovie, "audioChannels", movie.getAudioChannels());
         DOMHelper.appendChild(doc, eMovie, "resolution", movie.getResolution());
@@ -2112,6 +2081,47 @@ public class MovieJukeboxXMLWriter {
     }
 
     /**
+     * Create an element with the codec information in it.
+     * @param doc
+     * @param movieCodecs
+     * @return 
+     */
+    private Element createCodecsElement(Document doc, Set<Codec> movieCodecs) {
+        Element eCodecs = doc.createElement("codecs");
+        Element eCodecAudio = doc.createElement("audio");
+        Element eCodecVideo = doc.createElement("video");
+        int countAudio = 0;
+        int countVideo = 0;
+
+        HashMap<String, String> codecAttribs = new HashMap<String, String>();
+
+        for (Codec codec : movieCodecs) {
+            codecAttribs.clear();
+
+            codecAttribs.put("format", codec.getCodecFormat());
+            codecAttribs.put("formatProfile", codec.getCodecFormatProfile());
+            codecAttribs.put("formatVersion", codec.getCodecFormatVersion());
+            codecAttribs.put("codecId", codec.getCodecId());
+            codecAttribs.put("codecIdHint", codec.getCodecIdHint());
+            codecAttribs.put("language", codec.getCodecLanguage());
+
+            if (codec.getCodecType() == Codec.CodecType.AUDIO) {
+                DOMHelper.appendChild(doc, eCodecAudio, "codec", codec.getCodec(), codecAttribs);
+                countAudio++;
+            } else {
+                DOMHelper.appendChild(doc, eCodecVideo, "codec", codec.getCodec(), codecAttribs);
+                countVideo++;
+            }
+        }
+        eCodecAudio.setAttribute("count", String.valueOf(countAudio));
+        eCodecVideo.setAttribute("count", String.valueOf(countVideo));
+        eCodecs.appendChild(eCodecAudio);
+        eCodecs.appendChild(eCodecVideo);
+
+        return eCodecs;
+    }
+
+    /**
      * Persist a movie into an XML file. Doesn't overwrite an already existing XML file for the specified movie unless, movie's data has changed or
      * forceXMLOverwrite is true.
      */
@@ -2375,7 +2385,41 @@ public class MovieJukeboxXMLWriter {
                 eRoot.appendChild(eActors);
             }
 
-        }
+            // Add the fileinfo format
+            {
+                Element eFileinfo = docNFO.createElement("fileinfo");
+                Element eStreamDetails = docNFO.createElement("streamdetails");
+
+                Element eCodec;
+                for (Codec codec : movie.getCodecs()) {
+                    if (codec.getCodecType() == Codec.CodecType.AUDIO) {
+                        eCodec = docNFO.createElement("audio");
+                        if (StringTools.isValidString(codec.getCodecLanguage())) {
+                            DOMHelper.appendChild(docNFO, eCodec, "language", codec.getCodecLanguage());
+                        }
+                    } else {
+                        eCodec = docNFO.createElement("video");
+                        DOMHelper.appendChild(docNFO, eCodec, "aspect", movie.getAspectRatio());
+                        String movieResolution = movie.getResolution();
+                        if (StringTools.isValidString(movieResolution) && movieResolution.contains("x")) {
+                            int locX = movieResolution.indexOf("x");
+                            if (locX > 0) {
+                                DOMHelper.appendChild(docNFO, eCodec, "width", movieResolution.substring(0, locX));
+                                DOMHelper.appendChild(docNFO, eCodec, "height", movieResolution.substring(locX + 1));
+                            }
+                        }
+                    }
+                    DOMHelper.appendChild(docNFO, eCodec, "codec", codec.getCodec());
+                    eStreamDetails.appendChild(eCodec);
+                }
+
+                eFileinfo.appendChild(eStreamDetails);
+
+
+                eRoot.appendChild(eFileinfo);
+
+            }
+        }   // End of detailed NFO
 
         DOMHelper.writeDocumentToFile(docNFO, tempNfoFile.getAbsolutePath());
 
