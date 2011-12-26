@@ -37,6 +37,7 @@ import com.moviejukebox.model.AwardEvent;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Comparator.ValueComparator;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -113,6 +114,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean addFPS;
     private boolean addCertification;
     private boolean addWatched;
+    private boolean blockWatched;
     private boolean addTop250;
     private boolean addKeywords;
     private boolean addCountry;
@@ -124,6 +126,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean blockAward;
     private boolean countAward;
     private boolean blockClones;
+    private boolean addEpisode;
+    private boolean blockEpisode;
     private HashMap<String, ArrayList<String>> keywordsRating = new HashMap<String, ArrayList<String>>();
     private HashMap<String, ArrayList<String>> keywordsVideoSource = new HashMap<String, ArrayList<String>>();
     private HashMap<String, ArrayList<String>> keywordsVideoOut = new HashMap<String, ArrayList<String>>();
@@ -140,6 +144,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private HashMap<String, ArrayList<String>> keywordsCompany = new HashMap<String, ArrayList<String>>();
     private HashMap<String, ArrayList<String>> keywordsAward = new HashMap<String, ArrayList<String>>();
     private HashMap<String, logosBlock> overlayBlocks = new HashMap<String, logosBlock>();
+    private int viIndex;
 
     public DefaultImagePlugin() {
         // Generic properties
@@ -156,9 +161,14 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         imageType = gImageType.toLowerCase();
 
         boolean isFooter = false;
+        viIndex = 0;
         if (imageType.indexOf(FOOTER) == 0) {
             isFooter = true;
             imageType = imageType.replaceFirst(FOOTER, "");
+        } else if (imageType.indexOf(VIDEOIMAGE) == 0 && !imageType.equals(VIDEOIMAGE)) {
+            viIndex = Integer.parseInt(imageType.replaceFirst(VIDEOIMAGE, ""));
+            viIndex = (viIndex > 0 && viIndex < movie.getFiles().size()) ? (viIndex - 1) : 0;
+            imageType = VIDEOIMAGE;
         } else if ((POSTER + THUMBNAIL + BANNER + VIDEOIMAGE).indexOf(imageType) < 0) {
             // This is an error with the calling function
             logger.error("YAMJ Error with calling function in DefaultImagePlugin.java");
@@ -234,7 +244,15 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addAspectRatio = PropertiesUtil.getBooleanProperty(imageType + ".aspect", "false");
         addFPS = PropertiesUtil.getBooleanProperty(imageType + ".fps", "false");
         addCertification = PropertiesUtil.getBooleanProperty(imageType + ".certification", "false");
-        addWatched = PropertiesUtil.getBooleanProperty(imageType + ".watched", "false");
+
+        String tmpWatched = PropertiesUtil.getProperty(imageType + ".watched", "false");
+        blockWatched = tmpWatched.equalsIgnoreCase("block");
+        addWatched = tmpWatched.equalsIgnoreCase("true") || blockWatched;
+
+        String tmpEpisode = PropertiesUtil.getProperty(imageType + ".episode", "false");
+        blockEpisode = tmpEpisode.equalsIgnoreCase("block");
+        addEpisode = tmpEpisode.equalsIgnoreCase("true") || blockEpisode;
+
         addTop250 = PropertiesUtil.getBooleanProperty(imageType + ".top250", "false");
         addKeywords = PropertiesUtil.getBooleanProperty(imageType + ".keywords", "false");
         blockClones = PropertiesUtil.getBooleanProperty(imageType + ".clones", "false");
@@ -548,7 +566,46 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         } else if (name.equalsIgnoreCase("certification")) {
                             value = movie.getCertification();
                         } else if (name.equalsIgnoreCase("watched")) {
-                            value = movie.isWatched() ? "true" : "false";
+                            if (imageType.equalsIgnoreCase(VIDEOIMAGE)) {
+                                value = movie.getFiles().toArray(new MovieFile[movie.getFiles().size()])[viIndex].isWatched() ? "true" : "false";
+                            } else if (movie.isTVShow() && blockWatched) {
+                                StringBuilder sbWatched = new StringBuilder();
+                                boolean first = true;
+                                for (MovieFile mf : movie.getFiles()) {
+                                    if (first) {
+                                        first = false;
+                                    } else {
+                                        sbWatched.append(" / ");
+                                    }
+                                    sbWatched.append(mf.isWatched() ? "true" : "false");
+                                }
+                                value = sbWatched.toString();
+                            } else {
+                                value = movie.isWatched() ? "true" : "false";
+                            }
+                        } else if (name.equalsIgnoreCase("episode")) {
+                            if (movie.isTVShow()) {
+                                if (blockEpisode) {
+                                    StringBuilder sbEpisode = new StringBuilder();
+                                    boolean first = true;
+                                    int firstPart, lastPart;
+                                    for (MovieFile mf : movie.getFiles()) {
+                                        firstPart = mf.getFirstPart();
+                                        lastPart = mf.getLastPart();
+                                        for (int part = firstPart; part <= lastPart; part++ ) {
+                                            if (first) {
+                                                first = false;
+                                            } else {
+                                                sbEpisode.append(" / ");
+                                            }
+                                            sbEpisode.append(part);
+                                        }
+                                    }
+                                    value = sbEpisode.toString();
+                                } else {
+                                    value = Integer.toString(movie.getFiles().size());
+                                }
+                            }
                         } else if (name.equalsIgnoreCase("top250")) {
                             value = movie.getTop250() > 0 ? "true" : "false";
                         } else if (name.equalsIgnoreCase("keywords")) {
@@ -713,6 +770,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             || (blockCountry && name.equalsIgnoreCase("country"))
                             || (blockCompany && name.equalsIgnoreCase("company"))
                             || (blockAward && name.equalsIgnoreCase("award"))
+                            || (blockWatched && name.equalsIgnoreCase("watched"))
+                            || (blockEpisode && name.equalsIgnoreCase("episode"))
                             || (blockLanguage && name.equalsIgnoreCase("language")))
                             && (overlayBlocks.get(name) != null)) {
                         bi = drawBlock(movie, bi, name, filename, state.left, state.align, state.width, state.top, state.valign, state.height);
@@ -1047,7 +1106,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 logosBlock block = overlayBlocks.get(name);
                 int cols = block.cols;
                 int rows = block.rows;
-                if ((block != null) && block.size && (filenames.length > 1)) {
+                if (filenames.length > 1) {
                     if (cols == 0 && rows == 0) {
                         cols = (int) Math.sqrt(filenames.length);
                         rows = (int) (filenames.length / cols);
@@ -1056,8 +1115,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     } else if (rows == 0) {
                         rows = (int) (filenames.length / cols);
                     }
-                    width = (int) (width / cols);
-                    height = (int) (height / rows);
+                    if (block.size) {
+                        width = (int) (width / cols);
+                        height = (int) (height / rows);
+                    }
                 }
                 int maxWidth = width;
                 int maxHeight = height;
@@ -1338,7 +1399,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     private class logosBlock {
 
-        boolean dir = false;        // true - vertical, false - horizontal,
+        boolean dir = false;         // true - vertical, false - horizontal,
         boolean size = false;        // true - static, false - auto
         Integer cols = 1;            // 0 - auto count
         Integer rows = 0;            // 0 - auto count
@@ -1564,6 +1625,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             return addCertification;
         } else if (name.equalsIgnoreCase("watched")) {
             return addWatched;
+        } else if (name.equalsIgnoreCase("episode")) {
+            return addEpisode;
         } else if (name.equalsIgnoreCase("top250")) {
             return addTop250;
         } else if (name.equalsIgnoreCase("keywords")) {

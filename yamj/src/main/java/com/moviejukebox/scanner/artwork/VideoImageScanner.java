@@ -223,7 +223,7 @@ public class VideoImageScanner {
                     // Can't check the file size because the jukebox videoimage may have been re-sized
                     // This may mean that the local art is different to the jukebox art even if the local file date is newer
                     if (FileTools.isNewer(fullVideoImageFile, finalDestinationFile) || videoimageOverwrite || localOverwrite || movie.isDirty(Movie.DIRTY_INFO)) {
-                        if (processImage(imagePlugin, movie, fullVideoImageFilename, tmpDestFilename)) {
+                        if (processImage(imagePlugin, movie, fullVideoImageFilename, tmpDestFilename, part)) {
                             logger.debug("VideoImageScanner: " + fullVideoImageFile.getName() + " has been copied to " + tmpDestFilename);
                         } else {
                             // Processing failed, so try backup image
@@ -233,7 +233,7 @@ public class VideoImageScanner {
                             FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_videoimage.jpg"), tmpDestFile);
                             
                             // Process the dummy videoimage in the temp folder
-                            if (processImage(imagePlugin, movie, tmpDestFilename, tmpDestFilename)) {
+                            if (processImage(imagePlugin, movie, tmpDestFilename, tmpDestFilename, part)) {
                                 logger.debug("VideoImageScanner: Using default videoimage");
                                 mf.setVideoImageURL(part, Movie.UNKNOWN);   // So we know this is a dummy videoimage
                             } else {
@@ -261,14 +261,14 @@ public class VideoImageScanner {
      * @param movie             The movie that the image relates to
      * @return                  True if the image was successfully processed, false otherwise
      */
-    private static boolean processImage(MovieImagePlugin imagePlugin, Movie movie, String imageFilename, String targetFilename) {
+    private static boolean processImage(MovieImagePlugin imagePlugin, Movie movie, String imageFilename, String targetFilename, int part) {
         boolean imageOK = true;
         
         try {
             BufferedImage videoimageImage = GraphicTools.loadJPEGImage(imageFilename);
 
             if (videoimageImage != null) {
-                videoimageImage = imagePlugin.generate(movie, videoimageImage, "videoimages", null);
+                videoimageImage = imagePlugin.generate(movie, videoimageImage, "videoimages" + Integer.toString(part), null);
                 GraphicTools.saveImageToDisk(videoimageImage, targetFilename);
             } else {
                 imageOK = false;
@@ -309,13 +309,13 @@ public class VideoImageScanner {
                     fileOK = false;
                 }
                     
-                if (fileOK && processImage(imagePlugin, movie, tmpDestFilename, tmpDestFilename)) {
+                if (fileOK && processImage(imagePlugin, movie, tmpDestFilename, tmpDestFilename, part)) {
                     logger.debug("VideoImageScanner: Downloaded videoimage for " + mf.getVideoImageFilename(part) + " to " + tmpDestFilename);
                 } else {
                     // failed use dummy
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_videoimage.jpg"), tmpDestFile);
 
-                    if (processImage(imagePlugin, movie, tmpDestFilename, tmpDestFilename)) {
+                    if (processImage(imagePlugin, movie, tmpDestFilename, tmpDestFilename, part)) {
                         logger.debug("VideoImageScanner: Using default videoimage");
                         mf.setVideoImageURL(part, Movie.UNKNOWN); // So we know this is a dummy videoimage
                         mf.setVideoImageFilename(part, safeVideoImageFilename); // See MovieFile.java: setVideoImageURL sets setVideoImageFilename=UNKNOWN !!??
