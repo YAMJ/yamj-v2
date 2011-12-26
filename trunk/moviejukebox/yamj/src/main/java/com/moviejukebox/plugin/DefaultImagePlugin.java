@@ -1106,6 +1106,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 logosBlock block = overlayBlocks.get(name);
                 int cols = block.cols;
                 int rows = block.rows;
+                boolean clones = block.clones;
                 if (filenames.length > 1) {
                     if (cols == 0 && rows == 0) {
                         cols = (int) Math.sqrt(filenames.length);
@@ -1129,7 +1130,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     int offsetX = block.dir ? width : 0;
                     int offsetY = block.dir ? 0 : height;
                     for (int i = 1; i < filenames.length; i++) {
-                        if (!blockClones) {
+                        if (!clones) {
                             if (uniqueFiles.contains(filenames[i])) {
                                 continue;
                             } else {
@@ -1401,14 +1402,16 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
         boolean dir = false;         // true - vertical, false - horizontal,
         boolean size = false;        // true - static, false - auto
+        boolean clones = false;      // true - enabled clones
         Integer cols = 1;            // 0 - auto count
         Integer rows = 0;            // 0 - auto count
         Integer hmargin = 0;
         Integer vmargin = 0;
 
-        public logosBlock(boolean dir, boolean size, String cols, String rows, String hmargin, String vmargin) {
+        public logosBlock(boolean dir, boolean size, String cols, String rows, String hmargin, String vmargin, boolean clones) {
             this.dir = dir;
             this.size = size;
+            this.clones = clones;
             this.cols = cols.equalsIgnoreCase("auto") ? 0 : Integer.parseInt(cols);
             this.rows = rows.equalsIgnoreCase("auto") ? 0 : Integer.parseInt(rows);
             this.hmargin = Integer.parseInt(hmargin);
@@ -1577,9 +1580,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     hmargin = StringTools.isNotValidString(hmargin) ? "0" : hmargin;
                     String vmargin = block.getString("vmargin");
                     vmargin = StringTools.isNotValidString(vmargin) ? "0" : vmargin;
+                    String clones = block.getString("clones");
                     overlayBlocks.put(name, new logosBlock(dir.equalsIgnoreCase("horizontal"),
                             size.equalsIgnoreCase("static"),
-                            cols, rows, hmargin, vmargin));
+                            cols, rows, hmargin, vmargin, StringTools.isNotValidString(clones) ? blockClones : (clones.equalsIgnoreCase("true") ? true : (clones.equalsIgnoreCase("false") ? false : blockClones))));
                 }
             } catch (Exception error) {
                 logger.error("Failed parsing moviejukebox overlay configuration file: " + xmlOverlayFile.getName());
