@@ -68,7 +68,6 @@ public class MediaInfoScanner {
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     private static final String SPACE_SLASH_SPACE = " / ";
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", SPACE_SLASH_SPACE);
-
     private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", SPACE_SLASH_SPACE);
     private static final ArrayList<String> mediaInfoDiskImages = new ArrayList<String>();
 
@@ -133,7 +132,6 @@ public class MediaInfoScanner {
                 }
             }
         } else if (!isMediaInfoRar && (mediaInfoDiskImages.contains(FilenameUtils.getExtension(currentMovie.getFile().getName())))) {
-//        } else if (!isMediaInfoRar && ((currentMovie.getFile().getName().toLowerCase().endsWith(".iso")) || (currentMovie.getFile().getName().toLowerCase().endsWith(".img")))) {
             // extracting IFO files from ISO file
             AbstractFile abstractIsoFile = null;
 
@@ -414,29 +412,6 @@ public class MediaInfoScanner {
                 }
             }
 
-            // Codec (most relevant Info depending on mediainfo result)
-            if (movie.getVideoCodec().equals(Movie.UNKNOWN)) {
-                infoValue = infosMainVideo.get("Codec ID/Hint");
-                if (infoValue != null) {
-                    movie.setVideoCodec(infoValue);
-                } else {
-                    infoValue = infosMainVideo.get("Codec");
-                    if (infoValue != null) {
-                        movie.setVideoCodec(infoValue);
-                    } else {
-                        infoValue = infosMainVideo.get("Format");
-                        if (infoValue != null) {
-                            movie.setVideoCodec(infoValue);
-                        } else {
-                            infoValue = infosMainVideo.get("Codec ID");
-                            if (infoValue != null) {
-                                movie.setVideoCodec(infoValue);
-                            }
-                        }
-                    }
-                }
-            }
-
             // Add the video codec to the list
             movie.addCodec(getCodecInfo(Codec.CodecType.VIDEO, infosMainVideo));
 
@@ -537,7 +512,6 @@ public class MediaInfoScanner {
         ArrayList<String> foundLanguages = new ArrayList<String>();
 
         String tmpAudioCodec = Movie.UNKNOWN;
-        String tmpAudioChannels = Movie.UNKNOWN;
 
         for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
             HashMap<String, String> infosCurAudio = infosAudio.get(numAudio);
@@ -563,7 +537,8 @@ public class MediaInfoScanner {
             }
 
             // Add the audio codec to the list
-            movie.addCodec(getCodecInfo(Codec.CodecType.AUDIO, infosCurAudio));
+            Codec codecToAdd = getCodecInfo(Codec.CodecType.AUDIO, infosCurAudio);
+            movie.addCodec(codecToAdd);
 
             if (infoValue != null) { // Make sure we have a codec before continuing
                 // String oldInfo = movie.getAudioCodec(); // Save the current codec information (if any)
@@ -573,20 +548,6 @@ public class MediaInfoScanner {
                     tmpAudioCodec = tmpAudioCodec + SPACE_SLASH_SPACE + infoValue + infoLanguage;
                 }
             }
-
-            infoValue = infosCurAudio.get("Channel(s)");
-            if (infoValue != null) {
-                // String oldInfo = movie.getAudioChannels();
-                if (StringTools.isNotValidString(tmpAudioChannels)) {
-                    tmpAudioChannels = infoValue;
-                } else {
-                    tmpAudioChannels = tmpAudioChannels + SPACE_SLASH_SPACE + infoValue;
-                }
-            }
-        }
-
-        if (StringTools.isValidString(tmpAudioChannels)) {
-            movie.setAudioChannels(tmpAudioChannels);
         }
 
         if (StringTools.isValidString(tmpAudioCodec)) {
@@ -684,6 +645,11 @@ public class MediaInfoScanner {
         codec.setCodecId(codecInfos.get(Codec.MI_CODEC_ID));
         codec.setCodecIdHint(codecInfos.get(Codec.MI_CODEC_ID_HINT));
         codec.setCodecLanguage(codecInfos.get(Codec.MI_CODEC_LANGUAGE));
+
+        String codecChannels = codecInfos.get(Codec.MI_CODEC_CHANNELS);
+        if (StringTools.isValidString(codecChannels)) {
+            codec.setCodecChannels(Integer.parseInt(codecChannels));
+        }
 
         return codec;
     }

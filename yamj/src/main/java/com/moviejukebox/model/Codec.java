@@ -16,6 +16,9 @@ import org.apache.commons.lang.StringUtils;
 
 public class Codec {
 
+    /*
+     * Properties
+     */
     private CodecType codecType;
     private String codec = Movie.UNKNOWN;
     private String codecFormat = Movie.UNKNOWN;
@@ -24,7 +27,10 @@ public class Codec {
     private String codecFormatVersion = Movie.UNKNOWN;
     private String codecFormatProfile = Movie.UNKNOWN;
     private String codecLanguage = Movie.UNKNOWN;
-    // List of the expected names in the MediaInfo data
+    private int codecChannels = 0;
+    /*
+     * List of the expected names in the MediaInfo data
+     */
     public static final String MI_CODEC = "Codec";
     public static final String MI_CODEC_FORMAT = "Format";
     public static final String MI_CODEC_ID = "Codec ID";
@@ -32,6 +38,7 @@ public class Codec {
     public static final String MI_CODEC_FORMAT_VERSION = "Format Version";
     public static final String MI_CODEC_FORMAT_PROFILE = "Format profile";
     public static final String MI_CODEC_LANGUAGE = "Language";
+    public static final String MI_CODEC_CHANNELS = "Channel(s)";
 
     public Codec(CodecType codecType) {
         this.codecType = codecType;
@@ -97,6 +104,10 @@ public class Codec {
         }
     }
 
+    public void setCodecChannels(int codecChannels) {
+        this.codecChannels = codecChannels;
+    }
+
     public String getCodec() {
         return codec;
     }
@@ -129,6 +140,10 @@ public class Codec {
         return codecLanguage;
     }
 
+    public int getCodecChannels() {
+        return codecChannels;
+    }
+
     public enum CodecType {
 
         AUDIO,
@@ -139,13 +154,14 @@ public class Codec {
     public String toString() {
         StringBuilder sb = new StringBuilder("[Codec=");
         sb.append("[codecType=").append(codecType.toString());
-        sb.append("][codec=").append(codec);
-        sb.append("][codecFormat=").append(codecFormat);
-        sb.append("][codecId=").append(codecId);
-        sb.append("][codecIdHint=").append(codecIdHint);
-        sb.append("][codecFormatVersion=").append(codecFormatVersion);
-        sb.append("][codecFormatProfile=").append(codecFormatProfile);
-        sb.append("][codecLanguage=").append(codecLanguage);
+        sb.append("], [codec=").append(codec);
+        sb.append("], [codecFormat=").append(codecFormat);
+        sb.append("], [codecId=").append(codecId);
+        sb.append("], [codecIdHint=").append(codecIdHint);
+        sb.append("], [codecFormatVersion=").append(codecFormatVersion);
+        sb.append("], [codecFormatProfile=").append(codecFormatProfile);
+        sb.append("], [codecLanguage=").append(codecLanguage);
+        sb.append("], [codecChannels=").append(codecChannels);
         sb.append("]]");
         return sb.toString();
     }
@@ -160,6 +176,9 @@ public class Codec {
         }
         final Codec other = (Codec) obj;
         if (this.codecType != other.codecType) {
+            return false;
+        }
+        if ((this.codec == null) ? (other.codec != null) : !this.codec.equals(other.codec)) {
             return false;
         }
         if ((this.codecFormat == null) ? (other.codecFormat != null) : !this.codecFormat.equals(other.codecFormat)) {
@@ -177,18 +196,28 @@ public class Codec {
         if ((this.codecFormatProfile == null) ? (other.codecFormatProfile != null) : !this.codecFormatProfile.equals(other.codecFormatProfile)) {
             return false;
         }
+        if ((this.codecLanguage == null) ? (other.codecLanguage != null) : !this.codecLanguage.equals(other.codecLanguage)) {
+            return false;
+        }
+        if (this.codecChannels != other.codecChannels) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 83 * hash + (this.codecType != null ? this.codecType.hashCode() : 0);
-        hash = 83 * hash + (this.codecFormat != null ? this.codecFormat.hashCode() : 0);
-        hash = 83 * hash + (this.codecId != null ? this.codecId.hashCode() : 0);
-        hash = 83 * hash + (this.codecIdHint != null ? this.codecIdHint.hashCode() : 0);
-        hash = 83 * hash + (this.codecFormatVersion != null ? this.codecFormatVersion.hashCode() : 0);
-        hash = 83 * hash + (this.codecFormatProfile != null ? this.codecFormatProfile.hashCode() : 0);
+        hash = 17 * hash + (this.codecType != null ? this.codecType.hashCode() : 0);
+        hash = 17 * hash + (this.codec != null ? this.codec.hashCode() : 0);
+        hash = 17 * hash + (this.codecFormat != null ? this.codecFormat.hashCode() : 0);
+        hash = 17 * hash + (this.codecId != null ? this.codecId.hashCode() : 0);
+        hash = 17 * hash + (this.codecIdHint != null ? this.codecIdHint.hashCode() : 0);
+        hash = 17 * hash + (this.codecFormatVersion != null ? this.codecFormatVersion.hashCode() : 0);
+        hash = 17 * hash + (this.codecFormatProfile != null ? this.codecFormatProfile.hashCode() : 0);
+        hash = 17 * hash + (this.codecLanguage != null ? this.codecLanguage.hashCode() : 0);
+        hash = 17 * hash + this.codecChannels;
         return hash;
     }
+
 }

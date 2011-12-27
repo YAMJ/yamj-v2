@@ -79,6 +79,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public static final String TYPE_DVD = "DVD"; // Used to indicate what physical format the video is
     public static final String TYPE_FILE = "FILE"; // Used to indicate what physical format the video is
     public static final String TYPE_PERSON = "PERSON";
+    private static final String SPACE_SLASH_SPACE = " / ";
     private String mjbVersion = UNKNOWN;
     private String mjbRevision = UNKNOWN;
     private DateTime mjbGenerationDate = null;
@@ -134,7 +135,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.
     private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.
     private Set<Codec> codecs = new LinkedHashSet<Codec>();
-    private String audioChannels = UNKNOWN; // Number of audio channels
     private String resolution = UNKNOWN; // 1280x528
     private String aspect = UNKNOWN;
     private String videoSource = UNKNOWN;
@@ -1727,7 +1727,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         sb.append("[container=").append(container).append("]"); // AVI, MKV, TS, etc.
         sb.append("[videoCodec=").append(videoCodec).append("]"); // DIVX, XVID, H.264, etc.
         sb.append("[audioCodec=").append(audioCodec).append("]"); // MP3, AC3, DTS, etc.
-        sb.append("[audioChannels=").append(audioChannels).append("]"); // Number of audio channels
         sb.append("[resolution=").append(resolution).append("]"); // 1280x528
         sb.append("[videoSource=").append(videoSource).append("]");
         sb.append("[videoOutput=").append(videoOutput).append("]");
@@ -1883,11 +1882,20 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public String getAudioChannels() {
-        return audioChannels;
-    }
+        StringBuilder sb = new StringBuilder();
+        boolean firstChannel = true;
 
-    public void setAudioChannels(String audioChannels) {
-        this.audioChannels = audioChannels;
+        for (Codec codec : codecs) {
+            if (codec.getCodecType().equals(Codec.CodecType.AUDIO)) {
+                if (firstChannel) {
+                    firstChannel = false;
+                } else {
+                    sb.append(SPACE_SLASH_SPACE);
+                }
+                sb.append(codec.getCodecChannels());
+            }
+        }
+        return sb.toString();
     }
 
     @XmlTransient
@@ -2447,7 +2455,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.container = aMovie.container;
         newMovie.videoCodec = aMovie.videoCodec;
         newMovie.audioCodec = aMovie.audioCodec;
-        newMovie.audioChannels = aMovie.audioChannels;
         newMovie.resolution = aMovie.resolution;
         newMovie.aspect = aMovie.aspect;
         newMovie.videoSource = aMovie.videoSource;
