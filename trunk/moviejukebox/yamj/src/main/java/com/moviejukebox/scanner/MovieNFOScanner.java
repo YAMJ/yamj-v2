@@ -751,7 +751,6 @@ public class MovieNFOScanner {
                             String fiEvent = r.nextEvent().toString();
                             String finalCodec = Movie.UNKNOWN;
                             String finalLanguage = Movie.UNKNOWN;
-                            String finalChannels = Movie.UNKNOWN;
                             String tmpSubtitleLanguage = Movie.UNKNOWN;
                             while (!fiEvent.equalsIgnoreCase("</fileinfo>")) {
                                 if (fiEvent.equalsIgnoreCase("<video>")) {
@@ -878,16 +877,6 @@ public class MovieNFOScanner {
                                             }
                                         }
                                     }
-
-                                    if (isValidString(tmpChannels)) {
-                                        // First one.
-                                        if (isNotValidString(finalChannels)) {
-                                            finalChannels = tmpChannels;
-                                        } else {
-                                            finalChannels = finalChannels + " / " + tmpChannels;
-                                        }
-
-                                    }
                                 }
 
                                 if (fiEvent.equalsIgnoreCase("<subtitle>")) {
@@ -924,10 +913,6 @@ public class MovieNFOScanner {
                             }
 
                             // Everything is parsed, override all audio info. - NFO Always right.
-                            if (isValidString(finalChannels)) {
-                                movie.setAudioChannels(finalChannels);
-                            }
-
                             if (isValidString(finalCodec)) {
                                 movie.setAudioCodec(finalCodec);
                             }
@@ -1233,7 +1218,6 @@ public class MovieNFOScanner {
                             String fiEvent = r.nextEvent().toString();
                             String finalTVCodec = Movie.UNKNOWN;
                             String finalTVLanguage = Movie.UNKNOWN;
-                            String finalTVChannels = Movie.UNKNOWN;
                             String tmpSubtitleLanguage = Movie.UNKNOWN;
                             while (!fiEvent.equalsIgnoreCase("</fileinfo>")) {
                                 if (fiEvent.equalsIgnoreCase("<video>")) {
@@ -1359,16 +1343,6 @@ public class MovieNFOScanner {
                                             }
                                         }
                                     }
-
-                                    if (isValidString(tmpTVChannels)) {
-                                        // First one.
-                                        if (isNotValidString(finalTVChannels)) {
-                                            finalTVChannels = tmpTVChannels;
-                                        } else {
-                                            finalTVChannels = finalTVChannels + " / " + tmpTVChannels;
-                                        }
-
-                                    }
                                 }
 
                                 // NEW Subtitle scan
@@ -1406,10 +1380,6 @@ public class MovieNFOScanner {
                             }
 
                             // Everything is parsed, override all audio info. - NFO Always right.
-                            if (isValidString(finalTVChannels)) {
-                                movie.setAudioChannels(finalTVChannels);
-                            }
-
                             if (isValidString(finalTVCodec)) {
                                 movie.setAudioCodec(finalTVCodec);
                             }

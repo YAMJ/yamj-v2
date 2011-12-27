@@ -460,6 +460,7 @@ public class MovieJukeboxXMLWriter {
                                         codec.setCodecFormatProfile(eCodec.getAttribute("formatProfile"));
                                         codec.setCodecFormatVersion(eCodec.getAttribute("formatVersion"));
                                         codec.setCodecLanguage(eCodec.getAttribute("language"));
+                                        codec.setCodecChannels(Integer.parseInt(eCodec.getAttribute("channels")));
                                         codec.setCodec(eCodec.getTextContent().trim());
 
                                         movie.addCodec(codec);
@@ -469,9 +470,6 @@ public class MovieJukeboxXMLWriter {
                         }   // END of audio/video codec
                     }   // END of codecs loop
                 }   // END of codecs
-
-                // get the audio channels
-                movie.setAudioChannels(DOMHelper.getValueFromElement(eMovie, "audioChannels"));
 
                 // get the resolution
                 movie.setResolution(DOMHelper.getValueFromElement(eMovie, "resolution"));
@@ -2103,8 +2101,10 @@ public class MovieJukeboxXMLWriter {
             codecAttribs.put("formatVersion", codec.getCodecFormatVersion());
             codecAttribs.put("codecId", codec.getCodecId());
             codecAttribs.put("codecIdHint", codec.getCodecIdHint());
-            codecAttribs.put("language", codec.getCodecLanguage());
-
+            if (codec.getCodecType() == Codec.CodecType.AUDIO) {
+                codecAttribs.put("language", codec.getCodecLanguage());
+                codecAttribs.put("channels", String.valueOf(codec.getCodecChannels()));
+            }
             if (codec.getCodecType() == Codec.CodecType.AUDIO) {
                 DOMHelper.appendChild(doc, eCodecAudio, "codec", codec.getCodec(), codecAttribs);
                 countAudio++;
