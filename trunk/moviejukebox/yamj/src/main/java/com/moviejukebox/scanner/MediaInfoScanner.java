@@ -41,7 +41,10 @@ import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
 import com.mucommander.file.FileFactory;
 import com.mucommander.file.impl.iso.IsoArchiveFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author Grael
@@ -50,6 +53,7 @@ public class MediaInfoScanner {
 
     private static final Logger logger = Logger.getLogger("moviejukebox");
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
+    private static final Pattern PATTERN_CHANNELS = Pattern.compile(".*(\\d{1,2}).*");
     // mediaInfo repository
     private static final File mediaInfoPath = new File(PropertiesUtil.getProperty("mediainfo.home", "./mediaInfo/"));
     // mediaInfo command line, depend on OS
@@ -647,10 +651,12 @@ public class MediaInfoScanner {
         codec.setCodecLanguage(codecInfos.get(Codec.MI_CODEC_LANGUAGE));
 
         String codecChannels = codecInfos.get(Codec.MI_CODEC_CHANNELS);
-        if (StringTools.isValidString(codecChannels)) {
-            codec.setCodecChannels(Integer.parseInt(codecChannels));
+        if (StringUtils.isNotBlank(codecChannels)) {
+            Matcher codecMatch = PATTERN_CHANNELS.matcher(codecChannels);
+            if (codecMatch.matches()) {
+                codec.setCodecChannels(Integer.parseInt(codecMatch.group(1)));
+            }
         }
-
         return codec;
     }
 
