@@ -441,7 +441,7 @@ public class MovieJukeboxXMLWriter {
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
                         nElement = nlElements.item(looper);
                         if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-
+                            String codecType = nElement.getNodeName();
                             if (nElement.getChildNodes().getLength() > 0) {
                                 for (int cLooper = 0; cLooper < nElement.getChildNodes().getLength(); cLooper++) {
                                     Node nCodec = nElement.getChildNodes().item(cLooper);
@@ -449,7 +449,7 @@ public class MovieJukeboxXMLWriter {
                                         Element eCodec = (Element) nCodec;
 
                                         Codec codec;
-                                        if (Codec.CodecType.VIDEO.toString().equalsIgnoreCase(eCodec.getNodeName())) {
+                                        if (Codec.CodecType.VIDEO.toString().equalsIgnoreCase(codecType)) {
                                             codec = new Codec(Codec.CodecType.VIDEO);
                                         } else {
                                             codec = new Codec(Codec.CodecType.AUDIO);
