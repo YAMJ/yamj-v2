@@ -460,7 +460,10 @@ public class MovieJukeboxXMLWriter {
                                         codec.setCodecFormatProfile(eCodec.getAttribute("formatProfile"));
                                         codec.setCodecFormatVersion(eCodec.getAttribute("formatVersion"));
                                         codec.setCodecLanguage(eCodec.getAttribute("language"));
-                                        codec.setCodecChannels(Integer.parseInt(eCodec.getAttribute("channels")));
+                                        String tmpChannels = eCodec.getAttribute("channels");
+                                        if (StringUtils.isNotBlank(tmpChannels)) {
+                                            codec.setCodecChannels(Integer.parseInt(eCodec.getAttribute("channels")));
+                                        }
                                         codec.setCodec(eCodec.getTextContent().trim());
 
                                         movie.addCodec(codec);
@@ -562,6 +565,7 @@ public class MovieJukeboxXMLWriter {
                                     person.setId(name, nPersonAttr.getNodeValue());
                                 }
                             }
+                            movie.addPerson(person);
                         }
                     }
                 }   // End of Cast
