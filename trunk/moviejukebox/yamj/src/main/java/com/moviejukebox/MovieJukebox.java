@@ -114,25 +114,21 @@ public class MovieJukebox {
     private String movieLibraryRoot;
     private String skinHome;
     private static String userPropertiesName = "./moviejukebox.properties";
-
     // Jukebox parameters
     protected static Jukebox jukebox;
     protected static String jukeboxLocation;
     protected static String jukeboxTempLocation;
     private static boolean jukeboxPreserve = false;
     private static boolean jukeboxClean = false;
-
     // Time Stamps
     private static long timeStart = System.currentTimeMillis();
     private static long timeEnd;
-
     // Overwrite flags
     private boolean forcePosterOverwrite;
     private boolean forceThumbnailOverwrite;
     private boolean forceBannerOverwrite;
     private boolean forceSkinOverwrite;
     private boolean forceFooterOverwrite;
-
     // Scanner Tokens
     private static String posterToken;
     private static String thumbnailToken;
@@ -141,19 +137,16 @@ public class MovieJukebox {
     private static String videoimageToken;
     private static String fanartToken;
     private static String footerToken;
-
     private static String posterExtension;
     private static String thumbnailExtension;
     private static String bannerExtension;
     private static String fanartExtension;
-
     private static Integer footerCount;
     private static ArrayList<String> footerName = new ArrayList<String>();
     private static ArrayList<Boolean> footerEnable = new ArrayList<Boolean>();
     private static ArrayList<Integer> footerWidth = new ArrayList<Integer>();
     private static ArrayList<Integer> footerHeight = new ArrayList<Integer>();
     private static ArrayList<String> footerExtension = new ArrayList<String>();
-
     private static boolean fanartMovieDownload;
     private static boolean fanartTvDownload;
     private static boolean videoimageDownload;
@@ -178,16 +171,13 @@ public class MovieJukebox {
     public static String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
     public static String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
     public static String mjbBuildDate = MovieJukebox.class.getPackage().getImplementationTitle();
-
     private static boolean trailersScannerEnable;
     private static long trailersRescanDaysMillis;
     private static String trailersScanner;
     private static Map<String, ITrailersPlugin> trailerPlugins;
     private static TrailersPlugin trailersPlugin;
-
     int MaxThreadsProcess = 1;
     int MaxThreadsDownload = 1;
-
     private static boolean enableWatchScanner;
     private static boolean enableCompleteMovies;
 
@@ -216,7 +206,7 @@ public class MovieJukebox {
         logger.info("See this page: http://code.google.com/p/moviejukebox/wiki/License");
         logger.info("");
 
-        // Print the revision information if it was populated by Hudson CI
+        // Print the revision information if it was populated
         if (!((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
             if (mjbRevision.equals("0000")) {
                 logger.info("  Revision: Custom Build (r" + mjbRevision + ")");
@@ -226,6 +216,10 @@ public class MovieJukebox {
             logger.info("Build Date: " + mjbBuildDate);
             logger.info("");
         }
+
+        String javaVersion = java.lang.System.getProperties().getProperty("java.version");
+        logger.info("Java Version: " + javaVersion);
+        logger.info("");
 
         String movieLibraryRoot = null;
         String jukeboxRoot = null;
@@ -238,7 +232,7 @@ public class MovieJukebox {
 
         try {
             for (int i = 0; i < args.length; i++) {
-                String arg = (String)args[i];
+                String arg = (String) args[i];
                 if ("-v".equalsIgnoreCase(arg)) {
                     // We've printed the version, so quit now
                     return;
@@ -313,7 +307,7 @@ public class MovieJukebox {
 
         // Load the overlay.properties file (ignore the error)
         String overlayRoot = getProperty("mjb.overlay.dir", Movie.UNKNOWN);
-        overlayRoot = (PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", "true")?(getProperty("mjb.skin.dir", "./skins/default") + File.separator):"") + (StringTools.isValidString(overlayRoot)?(overlayRoot + File.separator):"");
+        overlayRoot = (PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", "true") ? (getProperty("mjb.skin.dir", "./skins/default") + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
         setPropertiesStreamName(overlayRoot + "overlay.properties", false);
 
         // Load the apikeys.properties file
@@ -385,12 +379,12 @@ public class MovieJukebox {
         }
 
         MovieFilenameScanner.setSkipKeywords(tokenizeToArray(getProperty("filename.scanner.skip.keywords", ""), ",;| "),
-                        PropertiesUtil.getBooleanProperty("filename.scanner.skip.caseSensitive", "true"));
+                PropertiesUtil.getBooleanProperty("filename.scanner.skip.caseSensitive", "true"));
         MovieFilenameScanner.setSkipRegexKeywords(tokenizeToArray(getProperty("filename.scanner.skip.keywords.regex", ""), ","),
-                        PropertiesUtil.getBooleanProperty("filename.scanner.skip.caseSensitive.regex", "true"));
+                PropertiesUtil.getBooleanProperty("filename.scanner.skip.caseSensitive.regex", "true"));
         MovieFilenameScanner.setExtrasKeywords(tokenizeToArray(getProperty("filename.extras.keywords", "trailer,extra,bonus"), ",;| "));
         MovieFilenameScanner.setMovieVersionKeywords(tokenizeToArray(getProperty("filename.movie.versions.keywords",
-                        "remastered,directors cut,extended cut,final cut"), ",;|"));
+                "remastered,directors cut,extended cut,final cut"), ",;|"));
         MovieFilenameScanner.setLanguageDetection(PropertiesUtil.getBooleanProperty("filename.scanner.language.detection", "true"));
         final KeywordMap languages = PropertiesUtil.getKeywordMap("filename.scanner.language.keywords", null);
         if (languages.size() > 0) {
@@ -405,7 +399,7 @@ public class MovieJukebox {
             }
         }
         final KeywordMap sourceKeywords = PropertiesUtil.getKeywordMap("filename.scanner.source.keywords",
-                            "HDTV,PDTV,DVDRip,DVDSCR,DSRip,CAM,R5,LINE,HD2DVD,DVD,DVD5,DVD9,HRHDTV,MVCD,VCD,TS,VHSRip,BluRay,HDDVD,D-THEATER,SDTV");
+                "HDTV,PDTV,DVDRip,DVDSCR,DSRip,CAM,R5,LINE,HD2DVD,DVD,DVD5,DVD9,HRHDTV,MVCD,VCD,TS,VHSRip,BluRay,HDDVD,D-THEATER,SDTV");
         MovieFilenameScanner.setSourceKeywords(sourceKeywords.getKeywords(), sourceKeywords);
 
         String temp = getProperty("sorting.strip.prefixes");
@@ -508,7 +502,7 @@ public class MovieJukebox {
         if (StringTools.isValidString(logDir)) {
             renameFile = true;
             // Add the file separator if we need to
-            logDir += logDir.trim().endsWith(File.separator)?"":File.separator;
+            logDir += logDir.trim().endsWith(File.separator) ? "" : File.separator;
 
             newLogFilename.insert(0, logDir);
         }
@@ -578,11 +572,10 @@ public class MovieJukebox {
             logger.info("Dumping YAMJ root dir");
             // Dump YAMJ root for properties file
             dumpDir(new File("."), libraryRootDump);
-           // libraryRootDump.deleteOnExit();
+            // libraryRootDump.deleteOnExit();
         }
     }
-
-    private static final String[] excluded = { "dumpDir", ".svn", "src", "test", "bin", "skins" };
+    private static final String[] excluded = {"dumpDir", ".svn", "src", "test", "bin", "skins"};
 
     private static boolean isExcluded(File file) {
 
@@ -595,7 +588,7 @@ public class MovieJukebox {
     }
 
     private static void dumpDir(File sourceDir, File destDir) {
-        String[] extensionToCopy = { "nfo", "NFO", "properties", "xml", "xsl" };
+        String[] extensionToCopy = {"nfo", "NFO", "properties", "xml", "xsl"};
         logger.info("Dumping  : " + sourceDir + " to " + destDir);
         File[] files = sourceDir.listFiles();
         for (File file : files) {
@@ -635,7 +628,7 @@ public class MovieJukebox {
         while (st.hasMoreTokens()) {
             keywords.add(st.nextToken());
         }
-        return keywords.toArray(new String[] {});
+        return keywords.toArray(new String[]{});
     }
 
     private static void help() {
@@ -800,9 +793,10 @@ public class MovieJukebox {
          *
          */
         class ToolSet {
+
             public MovieImagePlugin imagePlugin = getImagePlugin(getProperty("mjb.image.plugin", "com.moviejukebox.plugin.DefaultImagePlugin"));
             public MovieImagePlugin backgroundPlugin = getBackgroundPlugin(getProperty("mjb.background.plugin",
-                            "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
+                    "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
             public MediaInfoScanner miScanner = new MediaInfoScanner();
             public OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
             public FanartTvPlugin fanartTvPlugin = new FanartTvPlugin();
@@ -810,10 +804,12 @@ public class MovieJukebox {
         }
 
         final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
+
             @Override
             protected ToolSet initialValue() {
                 return new ToolSet();
-            };
+            }
+        ;
         };
 
         final MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
@@ -831,7 +827,7 @@ public class MovieJukebox {
         enableRottenTomatoes = PropertiesUtil.getBooleanProperty("mjb.enableRottenTomatoes", "false");
         photoDownload = PropertiesUtil.getBooleanProperty("mjb.includePhoto", "false");
         includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");
-        boolean processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process","true");
+        boolean processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", "true");
 
         // Multi-thread: Processing thread settings
         MaxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", "0"));
@@ -881,17 +877,17 @@ public class MovieJukebox {
         }
 
         // Check to see if we need to read the jukebox_details.xml file and process, otherwise, just create the file.
-       JukeboxProperties.readDetailsFile(jukebox, mediaLibraryPaths);
+        JukeboxProperties.readDetailsFile(jukebox, mediaLibraryPaths);
 
-       // Save the current state of the preferences to the skin directory for use by the skin
-       // The forceHtmlOverwrite is set by the user or by the JukeboxProperties if there has been a skin change
+        // Save the current state of the preferences to the skin directory for use by the skin
+        // The forceHtmlOverwrite is set by the user or by the JukeboxProperties if there has been a skin change
 
-       if (PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", "false") ||
-                       !(new File(PropertiesUtil.getPropertiesFilename(true))).exists() ) {
-           PropertiesUtil.writeProperties();
-       }
+        if (PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", "false")
+                || !(new File(PropertiesUtil.getPropertiesFilename(true))).exists()) {
+            PropertiesUtil.writeProperties();
+        }
 
-       SystemTools.showMemory();
+        SystemTools.showMemory();
 
         logger.info("Initializing...");
         try {
@@ -936,6 +932,7 @@ public class MovieJukebox {
         for (final MediaLibraryPath mediaLibraryPath : mediaLibraryPaths) {
             // Multi-thread parallel processing
             tasks.submit(new Callable<Void>() {
+
                 @Override
                 public Void call() {
                     logger.debug("Scanning media library " + mediaLibraryPath.getPath());
@@ -944,8 +941,10 @@ public class MovieJukebox {
                     mds.scan(mediaLibraryPath, library);
                     System.out.print("\n");
                     return null;
-                };
-            });
+                }
+            ;
+        }
+        );
         }
         tasks.waitFor();
 
@@ -980,7 +979,7 @@ public class MovieJukebox {
                 final int count = ++movieCounter;
 
                 final String movieTitleExt = movie.getOriginalTitle() + (movie.isTVShow() ? (" [Season " + movie.getSeason() + "]") : "")
-                                + (movie.isExtra() ? " [Extra]" : "");
+                        + (movie.isExtra() ? " [Extra]" : "");
 
                 // Multi-thread parallel processing
                 tasks.submit(new Callable<Void>() {
@@ -1024,7 +1023,7 @@ public class MovieJukebox {
                             }
 
                             // Check for watched and unwatched files
-                            if(enableWatchScanner) { // Issue 1938
+                            if (enableWatchScanner) { // Issue 1938
                                 library.toggleDirty(WatchedScanner.checkWatched(jukebox, movie));
                             }
 
@@ -1068,8 +1067,10 @@ public class MovieJukebox {
                         }
 
                         return null;
-                    };
-                });
+                    }
+                ;
+            }
+            );
             }
             tasks.waitFor();
 
@@ -1287,7 +1288,6 @@ public class MovieJukebox {
              * PART 3 : Indexing the library
              *
              */
-
             SystemTools.showMemory();
 
             // This is for programs like NMTServer where they don't need the indexes.
@@ -1318,6 +1318,7 @@ public class MovieJukebox {
             for (final Movie movie : indexMasters) {
                 // Multi-tread: Start Parallel Processing
                 tasks.submit(new Callable<Void>() {
+
                     @Override
                     public Void call() throws FileNotFoundException, XMLStreamException {
                         ToolSet tools = threadTools.get();
@@ -1351,7 +1352,7 @@ public class MovieJukebox {
                             if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
                                 updateTvBanner(jukebox, movie, tools.imagePlugin);
                                 logger.debug("Local set banner (" + safeSetMasterBaseName + bannerToken + ") not found, using "
-                                                + oldPosterFilename);
+                                        + oldPosterFilename);
                             } else {
                                 logger.debug("Local set banner found, using " + movie.getBannerFilename());
                             }
@@ -1363,7 +1364,7 @@ public class MovieJukebox {
                             movie.setFanartFilename(safeSetMasterBaseName + fanartToken + "." + fanartExtension);
                             if (!FanartScanner.scan(tools.backgroundPlugin, jukebox, movie)) {
                                 logger.debug("Local set fanart (" + safeSetMasterBaseName + fanartToken + ") not found, using "
-                                                + oldPosterFilename);
+                                        + oldPosterFilename);
                             } else {
                                 logger.debug("Local set fanart found, using " + movie.getFanartFilename());
                             }
@@ -1384,7 +1385,7 @@ public class MovieJukebox {
 
                         for (int i = 0; i < footerCount; i++) {
                             if (footerEnable.get(i)) {
-                                movie.setFooterFilename(safeSetMasterBaseName + (footerName.get(i).contains("[")?(footerToken + "_" + i):("." + footerName.get(i))) + "." + footerExtension.get(i), i);
+                                movie.setFooterFilename(safeSetMasterBaseName + (footerName.get(i).contains("[") ? (footerToken + "_" + i) : ("." + footerName.get(i))) + "." + footerExtension.get(i), i);
                                 updateFooter(jukebox, movie, tools.imagePlugin, i);
                             }
                         }
@@ -1396,8 +1397,10 @@ public class MovieJukebox {
                         FileTools.addMovieToJukeboxFilenames(movie);
 
                         return null;
-                    };
-                });
+                    }
+                ;
+            }
+            );
             }
             tasks.waitFor();
 
@@ -1449,6 +1452,7 @@ public class MovieJukebox {
 
                 // Multi-tread: Start Parallel Processing
                 tasks.submit(new Callable<Void>() {
+
                     @Override
                     public Void call() throws FileNotFoundException, XMLStreamException {
                         ToolSet tools = threadTools.get();
@@ -1476,8 +1480,10 @@ public class MovieJukebox {
                         FileTools.addMovieToJukeboxFilenames(movie);
 
                         return null;
-                    };
-                });
+                    }
+                ;
+            }
+            );
             }
             tasks.waitFor();
 
@@ -1490,6 +1496,7 @@ public class MovieJukebox {
                 for (final Person person : library.getPeople()) {
                     // Multi-tread: Start Parallel Processing
                     tasks.submit(new Callable<Void>() {
+
                         @Override
                         public Void call() throws FileNotFoundException, XMLStreamException {
                             @SuppressWarnings("unused")
@@ -1504,8 +1511,10 @@ public class MovieJukebox {
                             }
 
                             return null;
-                        };
-                    });
+                        }
+                    ;
+                }
+                );
                 }
                 tasks.waitFor();
 
@@ -1640,8 +1649,8 @@ public class MovieJukebox {
             }
         }
         if (!dirty) {
-            dirty = film.getName().equalsIgnoreCase(movie.getOriginalTitle()) || film.getTitle().equalsIgnoreCase(movie.getOriginalTitle()) ||
-                    film.getName().equalsIgnoreCase(movie.getTitle()) || film.getTitle().equalsIgnoreCase(movie.getTitle());
+            dirty = film.getName().equalsIgnoreCase(movie.getOriginalTitle()) || film.getTitle().equalsIgnoreCase(movie.getOriginalTitle())
+                    || film.getName().equalsIgnoreCase(movie.getTitle()) || film.getTitle().equalsIgnoreCase(movie.getTitle());
         }
         return dirty;
     }
@@ -1697,11 +1706,11 @@ public class MovieJukebox {
         }
 
         logger.info(Integer.toString(nbFiles) + " files in the jukebox directory");
-        if (cleanDeletedTotal > 0 ) {
+        if (cleanDeletedTotal > 0) {
             if (jukeboxClean) {
-                logger.info("Deleted " + Integer.toString(cleanDeletedTotal) + " unused " + (cleanDeletedTotal==1?"file":"files") + " from the jukebox directory");
+                logger.info("Deleted " + Integer.toString(cleanDeletedTotal) + " unused " + (cleanDeletedTotal == 1 ? "file" : "files") + " from the jukebox directory");
             } else {
-                logger.info("There " + (cleanDeletedTotal==1?"is ":"are ") + Integer.toString(cleanDeletedTotal) + " orphaned " + (cleanDeletedTotal==1?"file":"files") + " in the jukebox directory");
+                logger.info("There " + (cleanDeletedTotal == 1 ? "is " : "are ") + Integer.toString(cleanDeletedTotal) + " orphaned " + (cleanDeletedTotal == 1 ? "file" : "files") + " in the jukebox directory");
             }
         }
 
@@ -1731,7 +1740,7 @@ public class MovieJukebox {
         List<File> nfoFiles = MovieNFOScanner.locateNFOs(movie);
 
         // Only check the NFO files if the XML exists and the CheckNewer parameter is set
-        if (checkNewer && xmlFile.exists() ) {
+        if (checkNewer && xmlFile.exists()) {
             for (File nfoFile : nfoFiles) {
                 // Only re-scan the nfo files if one of them is newer
                 if (FileTools.isNewer(nfoFile, xmlFile)) {
@@ -1908,7 +1917,7 @@ public class MovieJukebox {
         // Update footer format if needed
         for (int i = 0; i < footerCount; i++) {
             if (footerEnable.get(i)) {
-                movie.setFooterFilename(movie.getBaseName() + (footerName.get(i).contains("[")?(footerToken + "_" + i):("." + footerName.get(i))) + "." + footerExtension.get(i), i);
+                movie.setFooterFilename(movie.getBaseName() + (footerName.get(i).contains("[") ? (footerToken + "_" + i) : ("." + footerName.get(i))) + "." + footerExtension.get(i), i);
             }
         }
 
@@ -2206,7 +2215,7 @@ public class MovieJukebox {
      * @param forceThumbnailOverwrite
      */
     public static void createThumbnail(MovieImagePlugin imagePlugin, Jukebox jukebox, String skinHome, Movie movie,
-                    boolean forceThumbnailOverwrite) {
+            boolean forceThumbnailOverwrite) {
         try {
             // TODO Move all temp directory code to FileTools for a cleaner method
             // Issue 201 : we now download to local temp directory
@@ -2240,7 +2249,7 @@ public class MovieJukebox {
                     // There was an error with the URL, assume it's a bad URL and clear it so we try again
                     movie.setPosterURL(Movie.UNKNOWN);
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
-                                       new File(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename));
+                            new File(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename));
                     try {
                         bi = GraphicTools.loadJPEGImage(src);
                     } catch (Exception error) {
@@ -2303,18 +2312,18 @@ public class MovieJukebox {
      * @param forcePosterOverwrite
      */
     public static void createPoster(MovieImagePlugin posterManager, Jukebox jukebox, String skinHome, Movie movie,
-                    boolean forcePosterOverwrite) {
+            boolean forcePosterOverwrite) {
         try {
             // Issue 201 : we now download to local temporary directory
             String safePosterFilename = movie.getPosterFilename();
             String safeDetailPosterFilename = movie.getDetailPosterFilename();
-            File   src = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + safePosterFilename);
-            File   oldsrc = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename);
+            File src = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + safePosterFilename);
+            File oldsrc = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename);
             String dst = jukebox.getJukeboxTempLocationDetails() + File.separator + safeDetailPosterFilename;
             String olddst = jukebox.getJukeboxRootLocationDetails() + File.separator + safeDetailPosterFilename;
             File fin;
 
-            if (forcePosterOverwrite || !FileTools.fileCache.fileExists(olddst) || src.exists()){
+            if (forcePosterOverwrite || !FileTools.fileCache.fileExists(olddst) || src.exists()) {
                 // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
                 if (src.exists()) {
                     logger.debug("CreatePoster: New file exists (" + src + ")");
@@ -2417,8 +2426,8 @@ public class MovieJukebox {
             return false;
         }
 
-        int recheckDays     = PropertiesUtil.getIntProperty("mjb.recheck.Days", "30");
-        int recheckMinDays  = PropertiesUtil.getIntProperty("mjb.recheck.minDays", "7");
+        int recheckDays = PropertiesUtil.getIntProperty("mjb.recheck.Days", "30");
+        int recheckMinDays = PropertiesUtil.getIntProperty("mjb.recheck.minDays", "7");
         int recheckRevision = PropertiesUtil.getIntProperty("mjb.recheck.Revision", "25");
         boolean recheckUnknown = PropertiesUtil.getBooleanProperty("mjb.recheck.Unknown", "true");
         Date currentDate = new Date();
@@ -2430,7 +2439,7 @@ public class MovieJukebox {
         }
 
         // Check the date the XML file was written vs the current date
-        if ((recheckDays > 0)  && (dateDiff > recheckDays)) {
+        if ((recheckDays > 0) && (dateDiff > recheckDays)) {
             logger.debug("Recheck: " + movie.getBaseName() + " XML is " + dateDiff + " days old, will rescan");
             recheckCount++;
             return true;
@@ -2643,6 +2652,7 @@ public class MovieJukebox {
 
     @XmlRootElement(name = "jukebox")
     public static class JukeboxXml {
+
         @XmlElement
         public List<Movie> movies;
     }
@@ -2684,5 +2694,4 @@ public class MovieJukebox {
 
         return;
     }
-
 }
