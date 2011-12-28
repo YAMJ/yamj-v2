@@ -38,24 +38,33 @@ public class MediaInfoScannerTest {
     public void testStaticFile() {
         getMediaInfoTestFile("mediainfo-1.txt");
 
-        System.out.println(infosGeneral.values());
+//        System.out.println(infosGeneral.values());
         assertEquals(8, infosGeneral.size());
 
-        Codec codec;
-        int counter = 1;
-        for (HashMap<String, String> codecInfo : infosVideo) {
-            codec = toTest.getCodecInfo(CodecType.VIDEO, codecInfo);
-            System.out.println(counter++ + " = " + codec.toString());
-        }
+//        Codec codec;
+//        int counter = 1;
+//        for (HashMap<String, String> codecInfo : infosVideo) {
+//            codec = toTest.getCodecInfo(CodecType.VIDEO, codecInfo);
+//            System.out.println(counter++ + " = " + codec.toString());
+//        }
+//
+//        counter = 1;
+//        for (HashMap<String, String> codecInfo : infosAudio) {
+//            codec = toTest.getCodecInfo(CodecType.AUDIO, codecInfo);
+//            System.out.println(counter++ + " = " + codec.toString());
+//        }
+    }
+    
+    @Test
+    public void testAudioStreamFile() {
+        getMediaInfoTestFile("mediainfo-2.txt");
 
-        counter = 1;
-        for (HashMap<String, String> codecInfo : infosAudio) {
-            codec = toTest.getCodecInfo(CodecType.AUDIO, codecInfo);
-            System.out.println(counter++ + " = " + codec.toString());
-        }
+        assertEquals(7, infosAudio.size());
+        
+        assertEquals(1, infosVideo.size());
     }
 
-    @Test
+//    @Test
     public void testAvi() {
         getMediaInfoTestFile("AVI_DTS_ES_6.1.AVI.txt");
         
@@ -87,6 +96,10 @@ public class MediaInfoScannerTest {
         }
     }
 
+    /**
+     * Load a test file
+     * @param filename 
+     */
     private void getMediaInfoTestFile(String filename) {
         File file = new File(testDir + filename);
         System.out.print("File:" + file.getAbsolutePath());
