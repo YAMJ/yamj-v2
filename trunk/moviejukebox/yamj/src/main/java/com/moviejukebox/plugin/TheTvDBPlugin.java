@@ -38,6 +38,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
+import org.apache.commons.lang.math.NumberUtils;
 
 /**
  * @author styles
@@ -48,10 +49,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
     private static final String webhost = "thetvdb.com";
     private static final String defaultLanguage = "en";
-
     public static final String CACHE_SERIES = "Series";
     public static final String CACHE_BANNERS = "Banners";
-    
     private static TheTVDB tvDB;
     private static String language;
     private static String language2nd;
@@ -105,7 +104,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
     @Override
     public boolean scan(Movie movie) {
         String id = findId(movie);
-        
+
         if (StringTools.isValidString(id)) {
             Series series = getSeries(id);
 
@@ -123,7 +122,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                     if (!movie.isOverrideYear()) {
                         String year = Movie.UNKNOWN;
-                        
+
                         ThreadExecutor.enterIO(webhost);
                         try {
                             year = tvDB.getSeasonYear(id, movie.getSeason(), language);
@@ -138,19 +137,19 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             movie.setYear(year);
                         }
                     }
-                    
+
                     if (isNotValidString(movie.getReleaseDate())) {
                         // Set the release date to be the series first aired date
                         movie.setReleaseDate(series.getFirstAired());
                     }
-                    
+
                     if (isNotValidString(movie.getShowStatus())) {
                         // Set the show status
                         movie.setShowStatus(series.getStatus());
                     }
 
                     if (movie.getRating(THETVDB_PLUGIN_ID) == -1 && series.getRating() != null && !series.getRating().isEmpty()) {
-                        movie.addRating(THETVDB_PLUGIN_ID, (int)(Float.parseFloat(series.getRating()) * 10));
+                        movie.addRating(THETVDB_PLUGIN_ID, (int) (Float.parseFloat(series.getRating()) * 10));
                     }
 
                     if (movie.getRuntime().equals(Movie.UNKNOWN)) {
@@ -214,7 +213,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                         if (urlBanner != null) {
                             movie.setBannerURL(urlBanner);
-                            
+
                             ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, movie.getBannerFilename(), false);
                             Artwork artwork = new Artwork(ArtworkType.Banner, THETVDB_PLUGIN_ID, urlBanner, artworkFile);
                             movie.addArtwork(artwork);
@@ -234,7 +233,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     Artwork artwork = new Artwork();
                     artwork.setSourceSite(THETVDB_PLUGIN_ID);
                     artwork.setType(ArtworkType.Fanart);
-                    
+
                     Banners banners = getBanners(id);
 
                     if (!banners.getFanartList().isEmpty()) {
@@ -247,12 +246,12 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         // Make sure that the index is not more than the list of available banners
                         // We may still run into issues, if there are less HD than this number
                         index = (index % banners.getFanartList().size());
-                        
+
                         Banner bannerSD = null;
                         Banner bannerHD = null;
                         int countSD = 0;
                         int countHD = 0;
-                        
+
                         for (Banner banner : banners.getFanartList()) {
                             if (banner.getBannerType2() == BannerType.FanartHD) {
                                 bannerHD = banner;  // Save the current banner
@@ -269,15 +268,15 @@ public class TheTvDBPlugin extends ImdbPlugin {
                                 }
                             }
                         }
-                        
+
                         if (bannerHD != null) {
                             url = bannerHD.getUrl();
                         } else if (bannerSD != null) {
                             url = bannerSD.getUrl();
                         }
-                        
+
                     }
-                    
+
                     if (isNotValidString(url) && isValidString(series.getFanart())) {
                         url = series.getFanart();
                     }
@@ -292,7 +291,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setFanartFilename(artworkFilename);
                         artwork.addSize(new ArtworkFile(ArtworkSize.LARGE, artworkFilename, false));
                     }
-                    
+
                     movie.addArtwork(artwork);
                 }
 
@@ -315,9 +314,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
         ThreadExecutor.enterIO(webhost);
         try {
-            episodeList = tvDB.getSeasonEpisodes(id, movie.getSeason(), language);
-            if (!language.equalsIgnoreCase(language2nd)  && StringTools.isValidString(language2nd)) {
-                episodeList2ndLanguage = tvDB.getSeasonEpisodes(id, movie.getSeason(), language2nd);
+            episodeList = tvDB.getSeasonEpisodes(id, (dvdEpisodes ? -1 : movie.getSeason()), language);
+
+            if (!language.equalsIgnoreCase(language2nd) && StringTools.isValidString(language2nd)) {
+                episodeList2ndLanguage = tvDB.getSeasonEpisodes(id, (dvdEpisodes ? -1 : movie.getSeason()), language2nd);
             }
         } catch (Exception error) {
             logger.warn("TheTVDBPlugin: Error getting episode information: " + error.getMessage());
@@ -325,7 +325,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         } finally {
             ThreadExecutor.leaveIO();
         }
-        
+
         for (MovieFile file : movie.getMovieFiles()) {
             if (movie.getSeason() >= 0) {
                 for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
@@ -370,11 +370,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         if (isNotValidString(file.getAirsBeforeEpisode(part))) {
                             file.setAirsBeforeEpisode(part, String.valueOf(episode.getAirsBeforeEpisode()));
                         }
-                        
+
                         if (isNotValidString(file.getFirstAired(part))) {
                             file.setFirstAired(part, episode.getFirstAired());
                         }
-                        
+
                         // Set the title of the episode
                         if (isNotValidString(file.getTitle(part))) {
                             file.setTitle(part, episode.getEpisodeName());
@@ -388,7 +388,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                                 file.setRating(part, episodeRating2);
                             }
                         }
-	
+
                         if (includeEpisodePlots) {
                             if (isNotValidString(file.getPlot(part))) {
                                 String episodePlot = episode.getOverview();
@@ -425,7 +425,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         if (episodeList == null || episodeList.isEmpty()) {
             return null;
         }
-        
+
         for (Episode episode : episodeList) {
             if (episode.getSeasonNumber() == seasonNumber && episode.getEpisodeNumber() == episodeNumber) {
                 return episode;
@@ -433,7 +433,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
         return null;
     }
-    
+
     /**
      * Locate the specific DVD episode from the list of episodes
      * @param episodeList
@@ -445,15 +445,18 @@ public class TheTvDBPlugin extends ImdbPlugin {
         if (episodeList == null || episodeList.isEmpty()) {
             return null;
         }
-        
+
         for (Episode episode : episodeList) {
-            if (episode.getSeasonNumber() == seasonNumber && episode.getDvdEpisodeNumber().equals(""+episodeNumber)) {
+            int dvdSeason = NumberUtils.toInt(episode.getDvdSeason(), -1);
+            int dvdEpisode = (int) NumberUtils.toFloat(episode.getDvdEpisodeNumber(), -1.0f);
+
+            if ((dvdSeason == seasonNumber) && (dvdEpisode == episodeNumber)) {
                 return episode;
             }
         }
         return null;
     }
-    
+
     @Override
     public boolean scanNFO(String nfo, Movie movie) {
         super.scanNFO(nfo, movie);
@@ -499,7 +502,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         if (StringTools.isNotValidString(languageId)) {
             return null;
         }
-        
+
         for (Banner banner : bannerList.getSeasonList()) {
             if (banner.getSeason() == season) {
                 if (banner.getBannerType2() == bannerType) {
@@ -516,7 +519,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         if (StringTools.isNotValidString(languageId)) {
             return null;
         }
-        
+
         int counter = 0;
         String urlBanner = null;
         String savedUrl = null;
@@ -541,7 +544,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
         return urlBanner;
     }
-    
+
     /**
      * Get the series. Either from the cache or direct from TheTVDb
      * @param id
@@ -561,7 +564,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
 
                 if (series == null && !language2nd.isEmpty()) {
-                    series = (Series)Cache.getFromCache(Cache.generateCacheKey(CACHE_SERIES, id, language2nd));
+                    series = (Series) Cache.getFromCache(Cache.generateCacheKey(CACHE_SERIES, id, language2nd));
 
                     if (series == null) {
                         series = tvDB.getSeries(id, language2nd);
@@ -591,7 +594,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
         if (StringTools.isNotValidString(id)) {
             List<Series> seriesList = null;
-            
+
             ThreadExecutor.enterIO(webhost);
             try {
                 if (!movie.getTitle().equals(Movie.UNKNOWN)) {
@@ -600,7 +603,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         seriesList = tvDB.searchSeries(movie.getTitle(), language2nd);
                     }
                 }
-    
+
                 if (seriesList == null || seriesList.isEmpty()) {
                     seriesList = tvDB.searchSeries(movie.getBaseName(), language);
                     if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
@@ -634,7 +637,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         }
                     }
                 }
-                
+
                 // If we can't find an exact match, select the first one
                 if (series == null) {
                     series = seriesList.get(0);
@@ -643,7 +646,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                 // Add the series to the cache (no need to get it again
                 Cache.addToCache(Cache.generateCacheKey(CACHE_SERIES, id, language), series);
-                
+
                 id = String.valueOf(series.getId());
                 movie.setId(THETVDB_PLUGIN_ID, id);
 
@@ -652,10 +655,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
             }
         }
-        
+
         return id;
     }
-    
+
     /**
      * Get the banners from the cache or TheTVDb
      * @param id
@@ -663,7 +666,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
      */
     public static Banners getBanners(String id) {
         Banners banners = (Banners) Cache.getFromCache(Cache.generateCacheKey(CACHE_BANNERS, id, language));
-        
+
         if (banners == null) {
             ThreadExecutor.enterIO(webhost);
             try {
@@ -675,8 +678,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 ThreadExecutor.leaveIO();
             }
         }
-        
+
         return banners;
     }
-
 }
