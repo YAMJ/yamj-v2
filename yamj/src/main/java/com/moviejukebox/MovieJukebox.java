@@ -1214,7 +1214,7 @@ public class MovieJukebox {
                     }
                 }
                 tasks.waitFor();
-                logger.info("Fill in personal information to the movies...");
+                logger.info("Add/update people information to the videos...");
                 boolean dirty;
                 for (Movie movie : library.values()) {
                     // Issue 997: Skip the processing of extras if not required
