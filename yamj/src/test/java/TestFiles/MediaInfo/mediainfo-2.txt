@@ -1,0 +1,142 @@
+General
+Complete name                    : I:\Videos\Movies\Der Herr der Ringe 1 - Die Gefährten SEE\VIDEO_TS\VTS_01_0.IFO
+Format                           : DVD Video
+Format profile                   : Program
+File size                        : 108 KiB
+
+Video
+ID                               : 224 (0xE0)
+Format                           : MPEG Video
+Format version                   : Version 2
+Bit rate mode                    : Variable
+Width                            : 720 pixels
+Height                           : 576 pixels
+Display aspect ratio             : 16:9
+Frame rate                       : 25.000 fps
+Standard                         : PAL
+
+Audio #1
+ID                               : 128 (0x80)
+Format                           : AC-3
+Format/Info                      : Audio Coding 3
+Channel(s)                       : 6 channels
+Sampling rate                    : 48.0 KHz
+Language                         : German
+
+Audio #2
+ID                               : 137 (0x89)
+Format                           : DTS
+Format/Info                      : Digital Theater Systems
+Channel(s)                       : 6 channels
+Sampling rate                    : 48.0 KHz
+Language                         : German
+
+Audio #3
+ID                               : 130 (0x82)
+Format                           : AC-3
+Format/Info                      : Audio Coding 3
+Channel(s)                       : 6 channels
+Sampling rate                    : 48.0 KHz
+Language                         : English
+
+Audio #4
+ID                               : 131 (0x83)
+Format                           : AC-3
+Format/Info                      : Audio Coding 3
+Channel(s)                       : 2 channels
+Sampling rate                    : 48.0 KHz
+Language                         : English
+
+Audio #5
+ID                               : 132 (0x84)
+Format                           : AC-3
+Format/Info                      : Audio Coding 3
+Channel(s)                       : 2 channels
+Sampling rate                    : 48.0 KHz
+Language                         : English
+
+Audio #6
+ID                               : 133 (0x85)
+Format                           : AC-3
+Format/Info                      : Audio Coding 3
+Channel(s)                       : 2 channels
+Sampling rate                    : 48.0 KHz
+Language                         : English
+
+Audio #7
+ID                               : 134 (0x86)
+Format                           : AC-3
+Format/Info                      : Audio Coding 3
+Channel(s)                       : 2 channels
+Sampling rate                    : 48.0 KHz
+Language                         : English
+
+Text #1
+ID                               : 37 (0x25)
+Format                           : RLE
+Format/Info                      : Run-length encoding
+Bit depth                        : 2 bits
+Language                         : German
+
+Text #2
+ID                               : 38 (0x26)
+Format                           : RLE
+Format/Info                      : Run-length encoding
+Bit depth                        : 2 bits
+Language                         : German
+
+Text #3
+ID                               : 32 (0x20)
+Format                           : RLE
+Format/Info                      : Run-length encoding
+Bit depth                        : 2 bits
+Language                         : English
+
+Text #4
+ID                               : 39 (0x27)
+Format                           : RLE
+Format/Info                      : Run-length encoding
+Bit depth                        : 2 bits
+Language                         : English
+
+Text #5
+ID                               : 40 (0x28)
+Format                           : RLE
+Format/Info                      : Run-length encoding
+Bit depth                        : 2 bits
+Language                         : German
+
+Text #6
+Format                           : RLE
+Format/Info                      : Run-length encoding
+Bit depth                        : 2 bits
+Language                         : English
+
+Text #7
+Format                           : RLE
+Format/Info                      : Run-length encoding
+Bit depth                        : 2 bits
+Language                         : English
+
+Text #8
+Format                           : RLE
+Format/Info                      : Run-length encoding
+Bit depth                        : 2 bits
+Language                         : English
+
+Text #9
+Format                           : RLE
+Format/Info                      : Run-length encoding
+Bit depth                        : 2 bits
+Language                         : English
+
+Menu #1
+List (Audio)                     : 0 / 1 / 2 / 3 / 4 / 5 / 6
+List (Subtitles 4/3)             : 0 / 0 / 0 / 0 / 0
+List (Subtitles Wide)            : 5 / 6 / 0 / 7 / 8
+List (Subtitles Letterbox)       : 5 / 6 / 0 / 7 / 8
+List (Subtitles Pan&Scan)        : 0 / 0 / 0 / 0 / 0
+
+Menu #2
+ID                               : 14 (0xE) / 14 (0xE)
+List (Audio)                     : 23 / 4 / 0 / 14
