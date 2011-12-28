@@ -10,6 +10,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.plugin.ImdbPlugin;
 import java.io.File;
+import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -60,7 +61,7 @@ public class MovieJukeboxXMLWriterTest {
 
         // Check the movie files
         assertEquals(1, movie.getFiles().size());
-        for (MovieFile mf : movie.getFiles() ) {
+        for (MovieFile mf : movie.getFiles()) {
             assertEquals("99", mf.getAirsAfterSeason(1));
             assertEquals("Part Title", mf.getTitle(1));
         }
@@ -82,6 +83,26 @@ public class MovieJukeboxXMLWriterTest {
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
+    }
+
+    @Test
+    public void testMultiPartFileXML() {
+        BasicConfigurator.configure();
+        File xmlFile = getTestFile("ExampleMultiPartFile.xml");
+        Movie movie = new Movie();
+
+        MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
+        boolean result = xmlWriter.parseMovieXML(xmlFile, movie);
+
+        // Check that the scan was sucessful
+        assertTrue(result);
+        assertEquals("Incorrect number of files", 2, movie.getFiles().size());
+        
+        for (MovieFile mf : movie.getFiles()) {
+            for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
+                assertTrue("Missing part title", !Movie.UNKNOWN.equalsIgnoreCase(mf.getTitle(part)));
+            }
+        }
     }
 
     private File getTestFile(String filename) {

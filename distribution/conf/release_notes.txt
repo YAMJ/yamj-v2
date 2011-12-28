@@ -37,6 +37,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2231 Filmweb.pl genres are now correctly scraped
  - Enhancement  #2232 Support for MediaInfo-rar with BD ISOs
  - Fixed defect #2236 When use kinopoisk plugin and title in nfo, title in xml = UNKNOWN
+ - Fixed defect #2237 Rescan breaks episode data of multi-episode videos/DVDs
  - Enhancement  #2239 Add "fileinfo/streamdetails" section to the NFO files written by YAMJ
  - Enhancement  #2240 Add Audio Channels to codec information
 
