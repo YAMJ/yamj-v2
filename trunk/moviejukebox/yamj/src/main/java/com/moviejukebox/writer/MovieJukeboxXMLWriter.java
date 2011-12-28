@@ -77,6 +77,7 @@ import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import java.util.Set;
+import org.apache.commons.lang.math.NumberUtils;
 
 /**
  * Parse/Write XML files for movie details and library indexes
@@ -130,9 +131,9 @@ public class MovieJukeboxXMLWriter {
     private static boolean enableTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", Boolean.FALSE.toString());
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     // Should we reindex the New / Watched / Unwatched categories?
-    private boolean reindexNew = false;
-    private boolean reindexWatched = false;
-    private boolean reindexUnwatched = false;
+    private boolean reindexNew = Boolean.FALSE;
+    private boolean reindexWatched = Boolean.FALSE;
+    private boolean reindexUnwatched = Boolean.FALSE;
 
     static {
         if (strCategoriesDisplayList.length() == 0) {
@@ -230,7 +231,7 @@ public class MovieJukeboxXMLWriter {
         Node nMovie;        // Node for the movie
 
         NodeList nlElements;    // Reusable NodeList for the other elements
-        Node nElement;         // Reusable Node for the other elements
+        Node nElements;         // Reusable Node for the other elements
 
         nlMovies = xmlDoc.getElementsByTagName("movie");
         for (int loopMovie = 0; loopMovie < nlMovies.getLength(); loopMovie++) {
@@ -241,9 +242,9 @@ public class MovieJukeboxXMLWriter {
                 // Get all the IDs associated with the movie
                 nlElements = eMovie.getElementsByTagName("id");
                 for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                    nElement = nlElements.item(looper);
-                    if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                        Element eId = (Element) nElement;
+                    nElements = nlElements.item(looper);
+                    if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eId = (Element) nElements;
 
                         String movieDb = eId.getAttribute("moviedb");
                         if (StringTools.isNotValidString(movieDb)) {
@@ -290,9 +291,9 @@ public class MovieJukeboxXMLWriter {
                 if (nlElements.getLength() > 0) {
                     nlElements = nlElements.item(0).getChildNodes();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                        nElement = nlElements.item(looper);
-                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                            Element eRating = (Element) nElement;
+                        nElements = nlElements.item(looper);
+                        if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eRating = (Element) nElements;
 
                             String movieDb = eRating.getAttribute("moviedb");
                             if (StringTools.isNotValidString(movieDb)) {
@@ -343,9 +344,9 @@ public class MovieJukeboxXMLWriter {
                 if (nlElements.getLength() > 0) {
                     nlElements = nlElements.item(0).getChildNodes();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                        nElement = nlElements.item(looper);
-                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                            Element ePerson = (Element) nElement;
+                        nElements = nlElements.item(looper);
+                        if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                            Element ePerson = (Element) nElements;
                             movie.addDirector(ePerson.getTextContent());
                         }
                     }
@@ -356,9 +357,9 @@ public class MovieJukeboxXMLWriter {
                 if (nlElements.getLength() > 0) {
                     nlElements = nlElements.item(0).getChildNodes();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                        nElement = nlElements.item(looper);
-                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                            Element ePerson = (Element) nElement;
+                        nElements = nlElements.item(looper);
+                        if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                            Element ePerson = (Element) nElements;
                             movie.addWriter(ePerson.getTextContent());
                         }
                     }
@@ -372,9 +373,9 @@ public class MovieJukeboxXMLWriter {
                 if (nlElements.getLength() > 0) {
                     nlElements = nlElements.item(0).getChildNodes();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                        nElement = nlElements.item(looper);
-                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                            Element eGenre = (Element) nElement;
+                        nElements = nlElements.item(looper);
+                        if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eGenre = (Element) nElements;
                             movie.addGenre(eGenre.getTextContent());
                         }
                     }
@@ -385,9 +386,9 @@ public class MovieJukeboxXMLWriter {
                 if (nlElements.getLength() > 0) {
                     nlElements = nlElements.item(0).getChildNodes();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                        nElement = nlElements.item(looper);
-                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                            Element ePerson = (Element) nElement;
+                        nElements = nlElements.item(looper);
+                        if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                            Element ePerson = (Element) nElements;
                             movie.addActor(ePerson.getTextContent());
                         }
                     }
@@ -398,9 +399,9 @@ public class MovieJukeboxXMLWriter {
                 if (nlElements.getLength() > 0) {
                     nlElements = nlElements.item(0).getChildNodes();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                        nElement = nlElements.item(looper);
-                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                            Element eSet = (Element) nElement;
+                        nElements = nlElements.item(looper);
+                        if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eSet = (Element) nElements;
                             String order = eSet.getAttribute("order");
                             if (StringTools.isValidString(order)) {
                                 movie.addSet(eSet.getTextContent(), Integer.parseInt(order));
@@ -439,12 +440,12 @@ public class MovieJukeboxXMLWriter {
                 if (nlElements.getLength() > 0) {
                     nlElements = nlElements.item(0).getChildNodes();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                        nElement = nlElements.item(looper);
-                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                            String codecType = nElement.getNodeName();
-                            if (nElement.getChildNodes().getLength() > 0) {
-                                for (int cLooper = 0; cLooper < nElement.getChildNodes().getLength(); cLooper++) {
-                                    Node nCodec = nElement.getChildNodes().item(cLooper);
+                        nElements = nlElements.item(looper);
+                        if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                            String codecType = nElements.getNodeName();
+                            if (nElements.getChildNodes().getLength() > 0) {
+                                for (int cLooper = 0; cLooper < nElements.getChildNodes().getLength(); cLooper++) {
+                                    Node nCodec = nElements.getChildNodes().item(cLooper);
                                     if (nCodec.getNodeType() == Node.ELEMENT_NODE) {
                                         Element eCodec = (Element) nCodec;
 
@@ -506,9 +507,9 @@ public class MovieJukeboxXMLWriter {
                 if (nlElements.getLength() > 0) {
                     nlElements = nlElements.item(0).getChildNodes();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                        nElement = nlElements.item(looper);
-                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                            Element eAwardEvent = (Element) nElement;
+                        nElements = nlElements.item(looper);
+                        if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eAwardEvent = (Element) nElements;
                             AwardEvent awardEvent = new AwardEvent();
                             awardEvent.setName(eAwardEvent.getAttribute("name"));
 
@@ -541,9 +542,9 @@ public class MovieJukeboxXMLWriter {
                     nlElements = nlElements.item(0).getChildNodes();
 
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                        nElement = nlElements.item(looper);
-                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                            Element ePerson = (Element) nElement;
+                        nElements = nlElements.item(looper);
+                        if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                            Element ePerson = (Element) nElements;
                             Filmography person = new Filmography();
 
                             person.setCastId(ePerson.getAttribute("cast_id"));
@@ -574,9 +575,9 @@ public class MovieJukeboxXMLWriter {
                 // Issue 2012: Financial information about movie
                 nlElements = eMovie.getElementsByTagName("business");
                 for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                    nElement = nlElements.item(looper);
-                    if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                        Element eBusiness = (Element) nElement;
+                    nElements = nlElements.item(looper);
+                    if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eBusiness = (Element) nElements;
                         movie.setBudget(eBusiness.getAttribute("budget"));
 
                         Node nCountry;
@@ -599,9 +600,9 @@ public class MovieJukeboxXMLWriter {
                 if (nlElements.getLength() > 0) {
                     nlElements = nlElements.item(0).getChildNodes();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                        nElement = nlElements.item(looper);
-                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                            Element eFile = (Element) nElement;
+                        nElements = nlElements.item(looper);
+                        if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eFile = (Element) nElements;
                             MovieFile movieFile = new MovieFile();
 
                             String attr = eFile.getAttribute("title");
@@ -654,78 +655,100 @@ public class MovieJukeboxXMLWriter {
                             movieFile.setFilename(DOMHelper.getValueFromElement(eFile, "fileURL"));
 
                             // We need to get the part from the fileTitle
-                            Element eFileInfo = DOMHelper.getElementByName(eFile, "fileTitle");
-                            if (eFileInfo != null) {
-                                String part = eFileInfo.getAttribute("part");
-                                if (StringUtils.isNumeric(part)) {
-                                    movieFile.setTitle(Integer.parseInt(part), eFileInfo.getTextContent());
-                                } else {
-                                    movieFile.setTitle(eFileInfo.getTextContent());
-                                }
-                            }
-
-                            // get the file Plot
-                            eFileInfo = DOMHelper.getElementByName(eFile, "filePlot");
-                            if (eFileInfo != null) {
-                                String part = eFileInfo.getAttribute("part");
-                                if (StringUtils.isNumeric(part)) {
-                                    movieFile.setPlot(Integer.parseInt(part), eFileInfo.getTextContent());
+                            NodeList nlFileParts = eFile.getElementsByTagName("fileTitle");
+                            if (nlFileParts.getLength() > 0) {
+                                for (int looperFile = 0; looperFile < nlFileParts.getLength(); looperFile++) {
+                                    Node nFileParts = nlFileParts.item(looperFile);
+                                    if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
+                                        Element eFileParts = (Element) nFileParts;
+                                        String part = eFileParts.getAttribute("part");
+                                        if (StringUtils.isNumeric(part)) {
+                                            movieFile.setTitle(NumberUtils.toInt(part, 0), eFileParts.getTextContent());
+                                        } else {
+                                            movieFile.setTitle(eFileParts.getTextContent());
+                                        }
+                                    }
                                 }
                             }
 
                             // Get the airs info
-                            eFileInfo = DOMHelper.getElementByName(eFile, "airsInfo");
-                            if (eFileInfo != null) {
-                                int part = 1;
-                                String afterSeason = eFileInfo.getAttribute("afterSeason");
-                                String beforeEpisode = eFileInfo.getAttribute("beforeEpisode");
-                                String beforeSeason = eFileInfo.getAttribute("beforeSeason");
+                            nlFileParts = eFile.getElementsByTagName("airsInfo");
+                            if (nlFileParts.getLength() > 0) {
+                                for (int looperFile = 0; looperFile < nlFileParts.getLength(); looperFile++) {
+                                    Node nFileParts = nlFileParts.item(looperFile);
+                                    if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
+                                        Element eFileParts = (Element) nFileParts;
+                                        int part = NumberUtils.toInt(eFileParts.getAttribute("part"), 1);
 
-                                attr = eFileInfo.getAttribute("part");
-                                if (StringUtils.isNumeric(attr)) {
-                                    part = Integer.parseInt(attr);
+                                        movieFile.setAirsAfterSeason(part, eFileParts.getAttribute("afterSeason"));
+                                        movieFile.setAirsBeforeEpisode(part, eFileParts.getAttribute("beforeEpisode"));
+                                        movieFile.setAirsBeforeSeason(part, eFileParts.getAttribute("beforeSeason"));
+                                    }
                                 }
-
-                                movieFile.setAirsAfterSeason(part, afterSeason);
-                                movieFile.setAirsBeforeSeason(part, beforeSeason);
-                                movieFile.setAirsBeforeEpisode(part, beforeEpisode);
                             }
 
-                            eFileInfo = DOMHelper.getElementByName(eFile, "firstAired");
-                            if (eFileInfo != null) {
-                                int part = 0;
-                                attr = eFileInfo.getAttribute("part");
-                                if (StringUtils.isNumeric(attr)) {
-                                    part = Integer.parseInt(attr);
+                            // Get first aired information
+                            nlFileParts = eFile.getElementsByTagName("firstAired");
+                            if (nlFileParts.getLength() > 0) {
+                                for (int looperFile = 0; looperFile < nlFileParts.getLength(); looperFile++) {
+                                    Node nFileParts = nlFileParts.item(looperFile);
+                                    if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
+                                        Element eFileParts = (Element) nFileParts;
+                                        int part = NumberUtils.toInt(eFileParts.getAttribute("part"), 1);
+                                        movieFile.setFirstAired(part, eFileParts.getTextContent());
+                                    }
                                 }
+                            }
 
-                                movieFile.setFirstAired(part, eFileInfo.getTextContent());
+                            // get the file Plot
+                            nlFileParts = eFile.getElementsByTagName("filePlot");
+                            if (nlFileParts.getLength() > 0) {
+                                for (int looperFile = 0; looperFile < nlFileParts.getLength(); looperFile++) {
+                                    Node nFileParts = nlFileParts.item(looperFile);
+                                    if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
+                                        Element eFileParts = (Element) nFileParts;
+                                        int part = NumberUtils.toInt(eFileParts.getAttribute("part"), 1);
+                                        movieFile.setPlot(part, eFileParts.getTextContent());
+                                    }
+                                }
                             }
 
                             // get the file rating
-                            eFileInfo = DOMHelper.getElementByName(eFile, "fileRating");
-                            if (eFileInfo != null) {
-                                String part = eFileInfo.getAttribute("part");
-                                if (StringUtils.isNumeric(part)) {
-                                    movieFile.setRating(Integer.parseInt(part), eFileInfo.getTextContent());
+                            nlFileParts = eFile.getElementsByTagName("fileRating");
+                            if (nlFileParts.getLength() > 0) {
+                                for (int looperFile = 0; looperFile < nlFileParts.getLength(); looperFile++) {
+                                    Node nFileParts = nlFileParts.item(looperFile);
+                                    if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
+                                        Element eFileParts = (Element) nFileParts;
+                                        int part = NumberUtils.toInt(eFileParts.getAttribute("part"), 1);
+                                        movieFile.setRating(part, eFileParts.getTextContent());
+                                    }
                                 }
                             }
 
                             // get the file image url
-                            eFileInfo = DOMHelper.getElementByName(eFile, "fileImageURL");
-                            if (eFileInfo != null) {
-                                String part = eFileInfo.getAttribute("part");
-                                if (StringUtils.isNumeric(part)) {
-                                    movieFile.setVideoImageURL(Integer.parseInt(part), HTMLTools.decodeUrl(eFileInfo.getTextContent()));
+                            nlFileParts = eFile.getElementsByTagName("fileImageURL");
+                            if (nlFileParts.getLength() > 0) {
+                                for (int looperFile = 0; looperFile < nlFileParts.getLength(); looperFile++) {
+                                    Node nFileParts = nlFileParts.item(looperFile);
+                                    if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
+                                        Element eFileParts = (Element) nFileParts;
+                                        int part = NumberUtils.toInt(eFileParts.getAttribute("part"), 1);
+                                        movieFile.setVideoImageURL(part, HTMLTools.decodeUrl(eFileParts.getTextContent()));
+                                    }
                                 }
                             }
 
                             // get the file image filename
-                            eFileInfo = DOMHelper.getElementByName(eFile, "fileImageFile");
-                            if (eFileInfo != null) {
-                                String part = eFileInfo.getAttribute("part");
-                                if (StringUtils.isNumeric(part)) {
-                                    movieFile.setVideoImageFilename(Integer.parseInt(part), HTMLTools.decodeUrl(eFileInfo.getTextContent()));
+                            nlFileParts = eFile.getElementsByTagName("fileImageFile");
+                            if (nlFileParts.getLength() > 0) {
+                                for (int looperFile = 0; looperFile < nlFileParts.getLength(); looperFile++) {
+                                    Node nFileParts = nlFileParts.item(looperFile);
+                                    if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
+                                        Element eFileParts = (Element) nFileParts;
+                                        int part = NumberUtils.toInt(eFileParts.getAttribute("part"), 1);
+                                        movieFile.setVideoImageFilename(part, HTMLTools.decodeUrl(eFileParts.getTextContent()));
+                                    }
                                 }
                             }
 
@@ -745,9 +768,9 @@ public class MovieJukeboxXMLWriter {
                 if (nlElements.getLength() > 0) {
                     nlElements = nlElements.item(0).getChildNodes();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                        nElement = nlElements.item(looper);
-                        if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                            Element eExtra = (Element) nElement;
+                        nElements = nlElements.item(looper);
+                        if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eExtra = (Element) nElements;
 
                             String extraTitle = eExtra.getAttribute("title");
                             String extraFilename = eExtra.getTextContent();
@@ -776,7 +799,8 @@ public class MovieJukeboxXMLWriter {
             }   // End of ELEMENT_NODE
         }   // End of Movie Loop
 
-        movie.setDirty(Movie.DIRTY_INFO, forceDirtyFlag || movie.hasNewMovieFiles() || movie.hasNewExtraFiles());
+        movie.setDirty(Movie.DIRTY_INFO, forceDirtyFlag
+                || movie.hasNewMovieFiles() || movie.hasNewExtraFiles());
 
         return true;
     }

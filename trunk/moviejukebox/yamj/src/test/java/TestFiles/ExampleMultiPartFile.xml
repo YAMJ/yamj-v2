@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<details>
+   <movie isExtra="false" isSet="false" isTV="true">
+      <id moviedb="thetvdb">73141</id>
+      <id moviedb="imdb">tt0397306</id>
+      <mjbVersion>2.6-SNAPSHOT</mjbVersion>
+      <mjbRevision>2855</mjbRevision>
+      <xmlGenerationDate>2011-12-28 18:02:13</xmlGenerationDate>
+      <baseFilenameBase>American Dad - S01E01E04 - Disc1</baseFilenameBase>
+      <baseFilename>American Dad - S01E01E04 - Disc1</baseFilename>
+      <title>American Dad!</title>
+      <titleSort>American Dad!</titleSort>
+      <originalTitle>American Dad!</originalTitle>
+      <year Year="2000-09">2005</year>
+      <releaseDate>2005-02-06</releaseDate>
+      <showStatus>Continuing</showStatus>
+      <rating>85</rating>
+      <ratings>
+         <rating moviedb="thetvdb">85</rating>
+      </ratings>
+      <watched>false</watched>
+      <watchedNFO>false</watchedNFO>
+      <top250>-1</top250>
+      <details>American%20Dad%20-%20S01E01E04%20-%20Disc1.html</details>
+      <posterURL>http%3A%2F%2Fthetvdb.com%2Fbanners%2Fseasons%2F21935-1.jpg</posterURL>
+      <posterFile>American%20Dad%20-%20S01E01E04%20-%20Disc1.jpg</posterFile>
+      <fanartURL>UNKNOWN</fanartURL>
+      <fanartFile>UNKNOWN</fanartFile>
+      <detailPosterFile>American%20Dad%20-%20S01E01E04%20-%20Disc1_large.png</detailPosterFile>
+      <thumbnail>American%20Dad%20-%20S01E01E04%20-%20Disc1_small.png</thumbnail>
+      <bannerURL>UNKNOWN</bannerURL>
+      <bannerFile>American%20Dad%20-%20S01E01E04%20-%20Disc1.banner.jpg</bannerFile>
+      <artwork>
+         <Poster count="1">
+            <sourceSite>thetvdb</sourceSite>
+            <url>http://thetvdb.com/banners/seasons/21935-1.jpg</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </Poster>
+         <Fanart count="0">
+            <url>UNKNOWN</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </Fanart>
+         <Banner count="0">
+            <url>UNKNOWN</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </Banner>
+         <ClearArt count="0">
+            <url>UNKNOWN</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </ClearArt>
+         <ClearLogo count="0">
+            <url>UNKNOWN</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </ClearLogo>
+         <TvThumb count="0">
+            <url>UNKNOWN</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </TvThumb>
+         <SeasonThumb count="0">
+            <url>UNKNOWN</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </SeasonThumb>
+         <VideoImage count="0">
+            <url>UNKNOWN</url>
+            <LARGE downloaded="false">UNKNOWN</LARGE>
+         </VideoImage>
+      </artwork>
+      <plot>From the delightfully twisted creative minds behind Family Guy comes American Dad, the animated tour de force featuring CIA operative Stan Smith, his outrageous family, and Roger, the alcoholic extra-terrestrial who lives with them! Whether it's rigging elections, erasing memories, chasing sleazy strip clubs, or staging 'bum fights,' it's all in a day's work for Stan.</plot>
+      <outline>UNKNOWN</outline>
+      <quote>UNKNOWN</quote>
+      <tagline>UNKNOWN</tagline>
+      <country>UNKNOWN</country>
+      <company>FOX</company>
+      <runtime>2h 10m</runtime>
+      <certification>TV-14</certification>
+      <season>1</season>
+      <language>English / French</language>
+      <subtitles>English / French / Dutch</subtitles>
+      <trailerExchange>NO</trailerExchange>
+      <trailerLastScan>UNKNOWN</trailerLastScan>
+      <container>DVD Video</container>
+      <videoCodec>UNKNOWN</videoCodec>
+      <audioCodec>AC3 (en) / AC3 (fr) / AC3 (en)</audioCodec>
+      <codecs>
+         <audio count="3">
+            <codec channels="6" codecId="UNKNOWN" codecIdHint="UNKNOWN" format="AC-3"
+                   formatProfile="UNKNOWN"
+                   formatVersion="UNKNOWN"
+                   language="en">AC3</codec>
+            <codec channels="6" codecId="UNKNOWN" codecIdHint="UNKNOWN" format="AC-3"
+                   formatProfile="UNKNOWN"
+                   formatVersion="UNKNOWN"
+                   language="fr">AC3</codec>
+            <codec channels="2" codecId="UNKNOWN" codecIdHint="UNKNOWN" format="AC-3"
+                   formatProfile="UNKNOWN"
+                   formatVersion="UNKNOWN"
+                   language="en">AC3</codec>
+         </audio>
+         <video count="1">
+            <codec codecId="UNKNOWN" codecIdHint="UNKNOWN" format="MPEG Video"
+                   formatProfile="UNKNOWN"
+                   formatVersion="UNKNOWN">MPEG-2V</codec>
+         </video>
+      </codecs>
+      <audioChannels>6 / 6 / 2</audioChannels>
+      <resolution>720x576</resolution>
+      <videoSource>DVD</videoSource>
+      <videoOutput>PAL 25</videoOutput>
+      <aspect>1.777:1</aspect>
+      <fps>25.0</fps>
+      <fileDate>2011-12-28</fileDate>
+      <fileSize>654 KB</fileSize>
+      <first>Agent%20Vinod</first>
+      <previous>Agent%20Vinod</previous>
+      <next>American%20Dad%20S02E01E04</next>
+      <last>American%20Dad%20S02E01E04</last>
+      <libraryDescription>Test</libraryDescription>
+      <prebuf>-1</prebuf>
+      <genres count="2">
+         <genre>Animation</genre>
+         <genre>Comedy</genre>
+      </genres>
+      <director>Ron Hughart</director>
+      <directors count="1">
+         <director>Ron Hughart</director>
+      </directors>
+      <writers count="3">
+         <writer>Seth MacFarlane</writer>
+         <writer>Mike Barker</writer>
+         <writer>Matt Weitzman</writer>
+      </writers>
+      <cast count="6">
+         <actor>Seth MacFarlane</actor>
+         <actor>Wendy Schaal</actor>
+         <actor>Scott Grimes</actor>
+         <actor>Dee Bradley Baker</actor>
+         <actor>Rachael MacFarlane</actor>
+         <actor>Patrick Stewart</actor>
+      </cast>
+      <indexes>
+         <index encoded="2000-09" originalName="Year" type="Year">2000-09</index>
+         <index encoded="TV Shows" originalName="TV Shows" type="TV Shows">TV Shows</index>
+         <index encoded="Rating" originalName="Rating" type="Rating">Rating</index>
+         <index encoded="Test" originalName="Library" type="Library">Test</index>
+         <index encoded="Unwatched" originalName="Unwatched" type="Unwatched">Unwatched</index>
+         <index encoded="Comedy" originalName="Genres" type="Genres">Comedy</index>
+         <index encoded="New-TV" originalName="New-TV" type="New-TV">New-TV</index>
+         <index encoded="TV-14" originalName="Certification" type="Certification">TV-14</index>
+         <index encoded="All" originalName="All" type="All">All</index>
+         <index encoded="American Dad!" originalName="Set" type="Set">American Dad!</index>
+         <index encoded="A" originalName="Title" type="Title">A</index>
+      </indexes>
+      <files>
+         <file firstPart="1" lastPart="4" season="1" size="0" subtitlesExchange="NO"
+               title="Pilot / Threat Levels / Stan Knows Best / Francine's Flashback"
+               watched="false"
+               zcd="2">
+            <fileLocation>D:\YAMJ\YAMJ_Test\Videos\American Dad - S01E01E04 - Disc1</fileLocation>
+            <fileURL>file:///opt/sybhttpd/localhost.drives/SATA_DISK/Movies2/American%20Dad%20-%20S01E01E04%20-%20Disc1/VIDEO_TS</fileURL>
+            <fileTitle part="1">Pilot</fileTitle>
+            <airsInfo afterSeason="0" beforeEpisode="0" beforeSeason="0" part="1">1</airsInfo>
+            <firstAired part="1">2005-02-06</firstAired>
+            <fileTitle part="2">Threat Levels</fileTitle>
+            <airsInfo afterSeason="0" beforeEpisode="0" beforeSeason="0" part="2">2</airsInfo>
+            <firstAired part="2">2005-05-01</firstAired>
+            <fileTitle part="3">Stan Knows Best</fileTitle>
+            <airsInfo afterSeason="0" beforeEpisode="0" beforeSeason="0" part="3">3</airsInfo>
+            <firstAired part="3">2005-05-08</firstAired>
+            <fileTitle part="4">Francine's Flashback</fileTitle>
+            <airsInfo afterSeason="0" beforeEpisode="0" beforeSeason="0" part="4">4</airsInfo>
+            <firstAired part="4">2005-05-15</firstAired>
+         </file>
+         <file firstPart="5" lastPart="6" season="1" size="0" subtitlesExchange="NO"
+               title="Roger Codger / Homeland Insecurity"
+               watched="false"
+               zcd="2">
+            <fileLocation>D:\YAMJ\YAMJ_Test\Videos\American Dad S01E05E06</fileLocation>
+            <fileURL>file:///opt/sybhttpd/localhost.drives/SATA_DISK/Movies2/American%20Dad%20S01E05E06/VIDEO_TS</fileURL>
+            <fileTitle part="5">Roger Codger</fileTitle>
+            <airsInfo afterSeason="0" beforeEpisode="0" beforeSeason="0" part="5">5</airsInfo>
+            <firstAired part="5">2005-06-05</firstAired>
+            <fileTitle part="6">Homeland Insecurity</fileTitle>
+            <airsInfo afterSeason="0" beforeEpisode="0" beforeSeason="0" part="6">6</airsInfo>
+            <firstAired part="6">2005-06-12</firstAired>
+         </file>
+      </files>
+   </movie>
+</details>
