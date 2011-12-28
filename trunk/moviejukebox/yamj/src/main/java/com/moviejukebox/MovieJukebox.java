@@ -1000,6 +1000,31 @@ public class MovieJukebox {
                         // First get movie data (title, year, director, genre, etc...)
                         library.toggleDirty(updateMovieData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, movie, library));
                         if (!movie.getMovieType().equals(Movie.REMOVE)) {
+                            // Check for watched and unwatched files
+                            if (enableWatchScanner) { // Issue 1938
+                                library.toggleDirty(WatchedScanner.checkWatched(jukebox, movie));
+                            }
+
+                            // Get subtitle
+                            tools.subtitlePlugin.generate(movie);
+
+                            // RottenTomatoes Ratings
+                            if (!movie.isTVShow() && enableRottenTomatoes) {
+                                tools.rtPlugin.scan(movie);
+                            }
+
+                            // Get Trailers
+                            if (movie.canHaveTrailers() && trailersScannerEnable && isTrailersNeedRescan(movie)) {
+                                boolean status = getTrailers(movie);
+
+                                // Update trailerExchange
+                                if (status == false) {
+                                    // Set trailerExchange to true if trailersRescanDaysMillis is < 0 (disable)
+                                    status = trailersRescanDaysMillis < 0 ? true : false;
+                                }
+                                movie.setTrailerExchange(status);
+                            }
+
                             // Then get this movie's poster
                             logger.debug("Updating poster for: " + movieTitleExt);
                             updateMoviePoster(jukebox, movie);
@@ -1022,34 +1047,9 @@ public class MovieJukebox {
                                 }
                             }
 
-                            // Check for watched and unwatched files
-                            if (enableWatchScanner) { // Issue 1938
-                                library.toggleDirty(WatchedScanner.checkWatched(jukebox, movie));
-                            }
-
-                            // Get subtitle
-                            tools.subtitlePlugin.generate(movie);
-
                             // Get ClearART/LOGOS/etc
                             if (movie.isTVShow() && extraArtworkDownload) {
                                 tools.fanartTvPlugin.scan(movie);
-                            }
-
-                            // RottenTomatoes Ratings
-                            if (!movie.isTVShow() && enableRottenTomatoes) {
-                                tools.rtPlugin.scan(movie);
-                            }
-
-                            // Get Trailers
-                            if (movie.canHaveTrailers() && trailersScannerEnable && isTrailersNeedRescan(movie)) {
-                                boolean status = getTrailers(movie);
-
-                                // Update trailerExchange
-                                if (status == false) {
-                                    // Set trailerExchange to true if trailersRescanDaysMillis is < 0 (disable)
-                                    status = trailersRescanDaysMillis < 0 ? true : false;
-                                }
-                                movie.setTrailerExchange(status);
                             }
 
                             for (int i = 0; i < footerCount; i++) {

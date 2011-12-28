@@ -167,7 +167,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             imageType = imageType.replaceFirst(FOOTER, "");
         } else if (imageType.indexOf(VIDEOIMAGE) == 0 && !imageType.equals(VIDEOIMAGE)) {
             viIndex = Integer.parseInt(imageType.replaceFirst(VIDEOIMAGE, ""));
-            viIndex = (viIndex > 0 && viIndex < movie.getFiles().size()) ? (viIndex - 1) : 0;
+            viIndex = (viIndex > 0 && viIndex <= movie.getFiles().size()) ? (viIndex - 1) : 0;
             imageType = VIDEOIMAGE;
         } else if ((POSTER + THUMBNAIL + BANNER + VIDEOIMAGE).indexOf(imageType) < 0) {
             // This is an error with the calling function
