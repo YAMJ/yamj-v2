@@ -49,6 +49,7 @@ import com.moviejukebox.plugin.MovieDatabasePlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * Movie bean
@@ -891,6 +892,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setDirty(String dirtyType, boolean dirty) {
+//        SystemTools.logException(dirtyType + " " + String.valueOf(dirty));
         dirtyFlags.put(dirtyType, dirty);
     }
 
