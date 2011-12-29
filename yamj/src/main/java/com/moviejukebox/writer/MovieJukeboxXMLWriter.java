@@ -2161,7 +2161,7 @@ public class MovieJukeboxXMLWriter {
 
         FileTools.addJukeboxFile(finalXmlFile.getName());
 
-        if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty(Movie.DIRTY_INFO) || movie.isDirty(Movie.DIRTY_RECHECK)) {
+        if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty(Movie.DIRTY_INFO) || movie.isDirty(Movie.DIRTY_RECHECK) || movie.isDirty(Movie.DIRTY_WATCHED)) {
             Document xmlDoc;
             try {
                 xmlDoc = DOMHelper.createDocument();

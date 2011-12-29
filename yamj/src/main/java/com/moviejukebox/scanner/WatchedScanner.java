@@ -23,9 +23,11 @@ import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
+import org.apache.log4j.Logger;
 
 public class WatchedScanner {
-//    private static Logger logger = Logger.getLogger("moviejukebox");
+
+    private static Logger logger = Logger.getLogger("moviejukebox");
 
     /**
      * Calculate the watched state of a movie based on the files <filename>.watched & <filename>.unwatched
@@ -33,23 +35,24 @@ public class WatchedScanner {
      * @param movie
      */
     public static boolean checkWatched(Jukebox jukebox, Movie movie) {
-        int fileWatchedCount = 0;
-        boolean movieWatched = true;    // Assume it's watched.
-        boolean fileWatched = false;
-        boolean returnStatus = false;   // Assume no changes
-        
+        int fileWatchedCount = 0;                       // The number of watched files found
+        boolean movieWatched = Boolean.TRUE;            // Status of all of the movie files, to be saved in the movie bean
+        boolean movieFileWatchChanged = Boolean.FALSE;  // Have the movie files changed status?
+        boolean fileWatched = Boolean.FALSE;
+        boolean returnStatus = Boolean.FALSE;           // Assume no changes
+
         File foundFile = null;
         Collection<String> extensions = new ArrayList<String>();
         extensions.add("unwatched");
         extensions.add("watched");
-        
+
         for (MovieFile mf : movie.getFiles()) {
             // Check that the file pointer is valid
             if (mf.getFile() == null) {
                 continue;
             }
-            
-            fileWatched = false;
+
+            fileWatched = Boolean.FALSE;
             String filename = "";
             // BluRay stores the file differently to DVD and single files, so we need to process the path a little
             if (movie.isBluray()) {
@@ -57,9 +60,9 @@ public class WatchedScanner {
             } else {
                 filename = mf.getFile().getName();
             }
-            
+
             foundFile = FileTools.findFilenameInCache(filename, extensions, jukebox, "Watched Scanner: ");
-            
+
             // If we didn't find the file, we should look without the extension
             if (foundFile == null && !movie.isBluray()) {
                 // Remove the extension from the filename
@@ -67,49 +70,61 @@ public class WatchedScanner {
                 // Check again without the extension
                 foundFile = FileTools.findFilenameInCache(filename, extensions, jukebox, "Watched Scanner: ");
             }
-            
+
             if (foundFile != null) {
                 fileWatchedCount++;
                 if (foundFile.getName().toLowerCase().endsWith(".watched")) {
-                    fileWatched = true;
+                    fileWatched = Boolean.TRUE;
                     mf.setWatchedDate(new DateTime().toMillis());
                 } else {
                     // We've found a specific file <filename>.unwatched, so we clear the settings
-                    fileWatched = false;
+                    fileWatched = Boolean.FALSE;
                     mf.setWatchedDate(0); // remove the date if it exists
                 }
+            }
+
+            if (fileWatched != mf.isWatched()) {
+                movieFileWatchChanged = Boolean.TRUE;
             }
 
             mf.setWatched(fileWatched); // Set the watched status
             // As soon as there is an unwatched file, the whole movie becomes unwatched
             movieWatched = movieWatched && fileWatched;
         }
-        
+
+        if (movieFileWatchChanged) {
+            movie.setDirty(Movie.DIRTY_WATCHED, Boolean.TRUE);
+        }
+
         // Only change the watched status if we found at least 1 file
         if ((fileWatchedCount > 0) && (movie.isWatchedFile() != movieWatched)) {
             movie.setWatchedFile(movieWatched);
-            movie.setDirty(Movie.DIRTY_WATCHED, true);
-            
+            movie.setDirty(Movie.DIRTY_WATCHED, Boolean.TRUE);
+
             // Issue 1949 - Force the artwork to be overwritten (those that can have icons on them)
-            movie.setDirty(Movie.DIRTY_POSTER, true);
-            movie.setDirty(Movie.DIRTY_BANNER, true);
-            
-            returnStatus = true;
+            movie.setDirty(Movie.DIRTY_POSTER, Boolean.TRUE);
+            movie.setDirty(Movie.DIRTY_BANNER, Boolean.TRUE);
+
+            returnStatus = Boolean.TRUE;
         }
-        
+
         // If there are no files found and the movie is watched(file), reset the status
         if ((fileWatchedCount == 0) && movie.isWatchedFile()) {
             movie.setWatchedFile(movieWatched);
-            movie.setDirty(Movie.DIRTY_WATCHED, true);
+            movie.setDirty(Movie.DIRTY_WATCHED, Boolean.TRUE);
 
             // Issue 1949 - Force the artwork to be overwritten (those that can have icons on them)
-            movie.setDirty(Movie.DIRTY_POSTER, true);
-            movie.setDirty(Movie.DIRTY_BANNER, true);
+            movie.setDirty(Movie.DIRTY_POSTER, Boolean.TRUE);
+            movie.setDirty(Movie.DIRTY_BANNER, Boolean.TRUE);
 
-            returnStatus = true;
+            returnStatus = Boolean.TRUE;
         }
-
+        
+        returnStatus |= movieFileWatchChanged;
+        if (returnStatus) {
+            logger.debug("Watched Scanner: The video has one or more files that have changed status.");
+        }
+        
         return returnStatus;
     }
-
 }

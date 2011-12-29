@@ -1777,7 +1777,7 @@ public class MovieJukebox {
                     // Check to see if the paths match and then update the description and quit
                     String mlpPath = mlp.getPath().concat(File.separator);
                     if (movie.getFile().getAbsolutePath().startsWith(mlpPath) && !movie.getLibraryDescription().equals(mlp.getDescription())) {
-                        logger.debug("Changing libray description for movie '" + movie.getTitle() + "' from " + movie.getLibraryDescription() + " to " + mlp.getDescription());
+                            logger.debug("Changing libray description for movie '" + movie.getTitle() + "' from " + movie.getLibraryDescription() + " to " + mlp.getDescription());
                         library.addDirtyLibrary(movie.getLibraryDescription());
                         movie.setLibraryDescription(mlp.getDescription());
                         movie.setDirty(Movie.DIRTY_INFO, true);
@@ -1825,7 +1825,7 @@ public class MovieJukebox {
 
                 // VIDEO_TS.IFO check added for Issue 1851
                 if (((!scannedFilename.equalsIgnoreCase(xmlLoop.getFilename())) && (!(scannedFilename + "/VIDEO_TS.IFO").equalsIgnoreCase(xmlLoop.getFilename()))) || (!scannedFileLocation.equalsIgnoreCase(xmlLoop.getFile().getAbsolutePath()))) {
-                    logger.debug("Detected change of file location to: " + scannedFilename);
+                    logger.debug("Detected change of file location for >" + xmlLoop.getFilename() + "< to: >" + scannedFilename + "<");
                     xmlLoop.setFilename(scannedFilename);
                     xmlLoop.setNewFile(true);
                     movie.addMovieFile(xmlLoop);
