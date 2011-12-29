@@ -10,6 +10,8 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2027 TV show DVD sorting doesn't work
  - Fixed defect #2059 Can not set a movie to watched with brackets in the file names
  - Enhancement  #2076 MediaInfo Codec priority changes & Aspect Ratio rounding
+ - Fixed defect #2016 New category is not deleted when all movies are watched
+ - Fixed defect #2018 Watched not updated when a TV Season is completed
  - Enhancement  #2119 Overlay XML watched for episodes
  - Enhancement  #2137 Rating for TV Episodes
  - Fixed defect #2160 TV NFO ratings are not normalised to x/100 correctly
