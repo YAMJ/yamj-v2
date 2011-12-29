@@ -155,7 +155,7 @@
                title="Pilot / Threat Levels / Stan Knows Best / Francine's Flashback"
                watched="false"
                zcd="2">
-            <fileLocation>D:\YAMJ\YAMJ_Test\Videos\American Dad - S01E01E04 - Disc1</fileLocation>
+            <fileLocation>./src/test/java/TestFiles/ExampleMultiPartFile.xml</fileLocation>
             <fileURL>file:///opt/sybhttpd/localhost.drives/SATA_DISK/Movies2/American%20Dad%20-%20S01E01E04%20-%20Disc1/VIDEO_TS</fileURL>
             <fileTitle part="1">Pilot</fileTitle>
             <airsInfo afterSeason="0" beforeEpisode="0" beforeSeason="0" part="1">1</airsInfo>
@@ -174,7 +174,7 @@
                title="Roger Codger / Homeland Insecurity"
                watched="false"
                zcd="2">
-            <fileLocation>D:\YAMJ\YAMJ_Test\Videos\American Dad S01E05E06</fileLocation>
+            <fileLocation>./src/test/java/TestFiles/ExampleMultiPartFile.xml</fileLocation>
             <fileURL>file:///opt/sybhttpd/localhost.drives/SATA_DISK/Movies2/American%20Dad%20S01E05E06/VIDEO_TS</fileURL>
             <fileTitle part="5">Roger Codger</fileTitle>
             <airsInfo afterSeason="0" beforeEpisode="0" beforeSeason="0" part="5">5</airsInfo>
