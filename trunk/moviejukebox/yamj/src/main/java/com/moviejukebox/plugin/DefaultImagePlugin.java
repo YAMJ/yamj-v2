@@ -64,6 +64,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean addTVLogo;
     private boolean addSetLogo;
     private boolean addSubTitle;
+    private boolean blockSubTitle;
     private boolean addLanguage;
     private boolean blockLanguage;
     private boolean addOverlay;
@@ -184,7 +185,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         imageStretch = PropertiesUtil.getBooleanProperty(imageType + ".stretch", "false");
         addHDLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoHD", "false");
         addTVLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoTV", "false");
-        addSubTitle = PropertiesUtil.getBooleanProperty(imageType + ".logoSubTitle", "false");
+
+        String tmpSubTitle = PropertiesUtil.getProperty(imageType + ".logoSubTitle", "false");
+        blockSubTitle = tmpSubTitle.equalsIgnoreCase("block");
+        addSubTitle = tmpSubTitle.equalsIgnoreCase("true") || blockSubTitle;
 
         String tmpLanguage = PropertiesUtil.getProperty(imageType + ".language", "false");
         blockLanguage = tmpLanguage.equalsIgnoreCase("block");
@@ -502,7 +506,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         } else if (name.equalsIgnoreCase("HD")) {
                             value = movie.isHD() ? highdefDiff ? movie.isHD1080() ? "hd1080" : "hd720" : "hd" : "false";
                         } else if (name.equalsIgnoreCase("subtitle") || name.equalsIgnoreCase("ST")) {
-                            value = (StringTools.isNotValidString(movie.getSubtitles()) || movie.getSubtitles().equalsIgnoreCase("NO")) ? "false" : "true";
+                            value = (StringTools.isNotValidString(movie.getSubtitles()) || movie.getSubtitles().equalsIgnoreCase("NO")) ? "false" : (blockSubTitle ? movie.getSubtitles() : "true");
                         } else if (name.equalsIgnoreCase("language")) {
                             value = movie.getLanguage();
                         } else if (name.equalsIgnoreCase("rating")) {
@@ -772,6 +776,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             || (blockAward && name.equalsIgnoreCase("award"))
                             || (blockWatched && name.equalsIgnoreCase("watched"))
                             || (blockEpisode && name.equalsIgnoreCase("episode"))
+                            || (blockSubTitle && name.equalsIgnoreCase("subtitle"))
                             || (blockLanguage && name.equalsIgnoreCase("language")))
                             && (overlayBlocks.get(name) != null)) {
                         bi = drawBlock(movie, bi, name, filename, state.left, state.align, state.width, state.top, state.valign, state.height);
