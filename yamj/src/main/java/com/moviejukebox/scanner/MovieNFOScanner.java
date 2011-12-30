@@ -1201,6 +1201,30 @@ public class MovieNFOScanner {
                                     break;
                                 }
                             }
+                        } else if (tag.equalsIgnoreCase("credits")) {
+                            String event = r.nextEvent().toString();
+                            while (!event.equalsIgnoreCase("</credits>")) {
+                                if (event.equalsIgnoreCase("<writer>")) {
+                                    String val = XMLHelper.getCData(r);
+                                    if (isValidString(val)) {
+                                        movie.addWriter(Movie.UNKNOWN, val, Movie.UNKNOWN);
+                                    }
+                                    //} else if (event.equalsIgnoreCase("<otherCredits>")) {
+                                    // Not currently used
+                                }
+                                if (r.hasNext()) {
+                                    event = r.nextEvent().toString();
+                                } else {
+                                    break;
+                                }
+                            }
+                        } else if (tag.equalsIgnoreCase("director")) {
+                            String val = XMLHelper.getCData(r);
+                            if (isValidString(val)) {
+                                for (String director : val.split(splitPattern)) {
+                                    movie.addDirector(Movie.UNKNOWN, director, Movie.UNKNOWN);
+                                }
+                            }
                         } else if (tag.equalsIgnoreCase("fps")) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
