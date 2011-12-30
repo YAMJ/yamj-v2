@@ -43,6 +43,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Enhancement  #2239 Add "fileinfo/streamdetails" section to the NFO files written by YAMJ
  - Enhancement  #2240 Add Audio Channels to codec information
  - Enhancement  #2248 Make subtitle a text value corresponding to <subtitle> in Overlay XML
+ - Enhancement  #2251 Add Director and Writer information to the NFO file
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------
