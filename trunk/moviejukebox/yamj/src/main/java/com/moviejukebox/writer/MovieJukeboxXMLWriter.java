@@ -66,6 +66,7 @@ import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.Codec;
+import com.moviejukebox.model.Comparator.CertificationComparator;
 import com.moviejukebox.model.Comparator.SortIgnorePrefixesComparator;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.AspectRatioTools;
@@ -1098,7 +1099,7 @@ public class MovieJukeboxXMLWriter {
                     Element eCategory = xmlDoc.createElement("category");
                     eCategory.setAttribute("name", category.getKey());
 
-                    if ("other".equalsIgnoreCase(categoryName)) {
+                    if ("Other".equalsIgnoreCase(categoryName)) {
                         // Process the other category using the order listed in the category.xml file
                         Map<String, String> cm = new LinkedHashMap<String, String>(library.getCategoriesMap());
 
@@ -1134,8 +1135,24 @@ public class MovieJukeboxXMLWriter {
                             }
                         }
                     } else {
-                        // Process the remaining categories
-                        TreeMap<String, List<Movie>> sortedMap = new TreeMap<String, List<Movie>>(new SortIgnorePrefixesComparator());
+                        TreeMap<String, List<Movie>> sortedMap;
+                        
+                        // Sort the certification according to certification.ordering
+                        if ("Certification".equalsIgnoreCase(categoryName)) {
+                            List<String> certificationOrdering = new ArrayList<String>();
+                            String certificationOrder = PropertiesUtil.getProperty("certification.ordering");
+                            if (StringUtils.isNotBlank(certificationOrder)) {
+                                for (String cert : certificationOrder.split(",")) {
+                                    certificationOrdering.add(cert.trim());
+                                }
+                            }
+
+                            // Process the certification in order of the certification.ordering property
+                            sortedMap = new TreeMap<String, List<Movie>>(new CertificationComparator(certificationOrdering));
+                        } else {
+                            // Sort the remaining categories
+                            sortedMap = new TreeMap<String, List<Movie>>(new SortIgnorePrefixesComparator());
+                        }
                         sortedMap.putAll(category.getValue());
 
                         for (Map.Entry<String, List<Movie>> index : sortedMap.entrySet()) {
@@ -1146,6 +1163,7 @@ public class MovieJukeboxXMLWriter {
                                 categoryCount++;
                             }
                         }
+
                     }
 
                     // If there is nothing in the category, don't write it out
@@ -1164,6 +1182,7 @@ public class MovieJukeboxXMLWriter {
         eLibrary.setAttribute("count", String.valueOf(libraryCount));
 
         xmlDoc.appendChild(eLibrary);
+
         DOMHelper.writeDocumentToFile(xmlDoc, xmlFile);
     }
 
