@@ -161,10 +161,11 @@ public class Library implements Map<String, Movie> {
         }
 
         {
-            String temp = PropertiesUtil.getProperty("certification.ordering");
-            if (temp != null && !temp.isEmpty()) {
-                String[] certs = temp.split(",");
-                certificationOrdering.addAll(Arrays.asList(certs));
+            String certificationOrder = PropertiesUtil.getProperty("certification.ordering");
+            if (StringUtils.isNotBlank(certificationOrder)) {
+                for (String cert : certificationOrder.split(",")) {
+                    certificationOrdering.add(cert.trim());
+                }
             }
         }
 
@@ -801,10 +802,10 @@ public class Library implements Map<String, Movie> {
 
     private static Index indexByCertification(Iterable<Movie> moviesList) {
         Index index = null;
-        if (!certificationOrdering.isEmpty()) {
-            index = new Index(new CertificationComparator(certificationOrdering));
-        } else {
+        if (certificationOrdering.isEmpty()) {
             index = new Index();
+        } else {
+            index = new Index(new CertificationComparator(certificationOrdering));
         }
 
         for (Movie movie : moviesList) {

@@ -23,6 +23,7 @@ public class SortIgnorePrefixesComparator implements Comparator<Object> {
     private final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
     private boolean inited = false;
 
+    @Override
     public int compare(Object o1, Object o2) {
         if (!inited) {
             initSortIgnorePrefixes();

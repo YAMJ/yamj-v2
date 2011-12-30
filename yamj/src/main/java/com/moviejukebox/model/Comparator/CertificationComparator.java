@@ -26,6 +26,7 @@ public class CertificationComparator implements Comparator<String> {
         this.ordering = ordering;
     }
 
+    @Override
     public int compare(String obj1, String obj2) {
         int obj1Pos = ordering.indexOf(obj1);
         int obj2Pos = ordering.indexOf(obj2);
