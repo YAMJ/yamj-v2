@@ -1,5 +1,5 @@
 /*
- *      Copyright (c) 2004-2011 YAMJ Members
+ *      Copyright (c) 2004-2012 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
  *
  *      Web: http://code.google.com/p/moviejukebox/
@@ -198,7 +198,7 @@ public class MovieJukebox {
         logger.info("Yet Another Movie Jukebox " + mjbVersion);
         logger.info("~~~ ~~~~~~~ ~~~~~ ~~~~~~~ " + mjbTitle);
         logger.info("http://code.google.com/p/moviejukebox/");
-        logger.info("Copyright (c) 2004-2011 YAMJ Members");
+        logger.info("Copyright (c) 2004-2012 YAMJ Members");
         logger.info("");
         logger.info("This software is licensed under a Creative Commons License");
         logger.info("See this page: http://code.google.com/p/moviejukebox/wiki/License");
