@@ -129,7 +129,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String subtitles = UNKNOWN;
     private Set<String> directors = new LinkedHashSet<String>();
     private Map<String, Integer> sets = new HashMap<String, Integer>();
-    private SortedSet<String> genres = new TreeSet<String>();
+    private Collection<String> genres = new TreeSet<String>();
     private Set<String> cast = new LinkedHashSet<String>();
     private Set<String> writers = new LinkedHashSet<String>();
     private String container = UNKNOWN; // AVI, MKV, TS, etc.
@@ -1281,7 +1281,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             // Only check if the skip list isn't empty
             if (!genreSkipList.isEmpty()) {
                 // remove any unwanted genres from the new collection
-                SortedSet<String> genresFinal = new TreeSet<String>();
+                Collection<String> genresFinal = new TreeSet<String>();
 
                 Iterator<String> genreIterator = genresToAdd.iterator();
                 while (genreIterator.hasNext()) {
@@ -1292,10 +1292,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 }
 
                 // Add the trimmed genre list
-                this.genres = new TreeSet<String>(genresFinal);
+                this.genres = genresFinal;
             } else {
                 // No need to remove genres, so add them all
-                this.genres = new TreeSet<String>(genresToAdd);
+              this.genres = genresToAdd;
             }
 
             setDirty(DIRTY_INFO, true);
