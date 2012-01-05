@@ -24,6 +24,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2172 Writer category is empty in categories.xml
  - Fixed defect #2177 Original certification used for poster overlay instead of renamed one
  - Fixed defect #2179 Certification ordering now respected using certification.ordering property
+ - Fixed defect #2185 Genres list in Movie object should not be sorted
  - Enhancement  #2189 Add movie counts to indexes
  - Fixed defect #2190 Some genres are incorrectly split
  - Fixed defect #2191 HD is incorrectly removed from TV Show name
