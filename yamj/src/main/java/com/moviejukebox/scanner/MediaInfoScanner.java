@@ -417,7 +417,8 @@ public class MediaInfoScanner {
             }
 
             // Add the video codec to the list
-            movie.addCodec(getCodecInfo(Codec.CodecType.VIDEO, infosMainVideo));
+            Codec codecToAdd = getCodecInfo(Codec.CodecType.VIDEO, infosMainVideo);
+            movie.addCodec(codecToAdd);
 
             if (movie.getResolution().equals(Movie.UNKNOWN)) {
                 int width = 0;
@@ -515,8 +516,6 @@ public class MediaInfoScanner {
 
         ArrayList<String> foundLanguages = new ArrayList<String>();
 
-        String tmpAudioCodec = Movie.UNKNOWN;
-
         for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
             HashMap<String, String> infosCurAudio = infosAudio.get(numAudio);
 
@@ -543,19 +542,6 @@ public class MediaInfoScanner {
             // Add the audio codec to the list
             Codec codecToAdd = getCodecInfo(Codec.CodecType.AUDIO, infosCurAudio);
             movie.addCodec(codecToAdd);
-
-            if (infoValue != null) { // Make sure we have a codec before continuing
-                // String oldInfo = movie.getAudioCodec(); // Save the current codec information (if any)
-                if (StringTools.isNotValidString(tmpAudioCodec)) {
-                    tmpAudioCodec = infoValue + infoLanguage;
-                } else {
-                    tmpAudioCodec = tmpAudioCodec + SPACE_SLASH_SPACE + infoValue + infoLanguage;
-                }
-            }
-        }
-
-        if (StringTools.isValidString(tmpAudioCodec)) {
-            movie.setAudioCodec(tmpAudioCodec);
         }
 
         // TODO Add an option to choose to override FileName language info.

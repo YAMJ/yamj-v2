@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.scanner;
 
+import com.moviejukebox.model.Codec;
 import static com.moviejukebox.tools.StringTools.appendToPath;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
@@ -51,6 +52,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.XMLHelper;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * NFO file parser.
@@ -750,7 +752,7 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("fileinfo")) { // File Info Section
                             String fiEvent = r.nextEvent().toString();
                             String finalCodec = Movie.UNKNOWN;
-                            String finalLanguage = Movie.UNKNOWN;
+                            StringBuilder finalLanguage = new StringBuilder();
                             String tmpSubtitleLanguage = Movie.UNKNOWN;
                             while (!fiEvent.equalsIgnoreCase("</fileinfo>")) {
                                 if (fiEvent.equalsIgnoreCase("<video>")) {
@@ -760,7 +762,7 @@ public class MovieNFOScanner {
                                         if (fiEvent.equalsIgnoreCase("<codec>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (isValidString(val)) {
-                                                movie.setVideoCodec(val);
+                                                movie.addCodec(new Codec(Codec.CodecType.VIDEO, val));
                                             }
                                         }
 
@@ -797,12 +799,8 @@ public class MovieNFOScanner {
                                     }
                                 }
 
-                                // Issue 1251 - Multiple audio info - the last override all previous
                                 if (fiEvent.equalsIgnoreCase("<audio>")) {
-                                    // Start of audio info, using temp data to concatains codec + languague
-                                    String tmpCodec = Movie.UNKNOWN;
-                                    String tmpLanguage = Movie.UNKNOWN;
-                                    String tmpChannels = Movie.UNKNOWN;
+                                    Codec audioCodec = new Codec(Codec.CodecType.AUDIO);
 
                                     while (!fiEvent.equalsIgnoreCase("</audio>")) {
                                         if (fiEvent.equalsIgnoreCase("<codec>")) {
@@ -813,39 +811,27 @@ public class MovieNFOScanner {
                                                 if (val.toLowerCase().equals(val)) {
                                                     val = val.toUpperCase();
                                                 }
-
-                                                if (isNotValidString(tmpCodec)) {
-                                                    tmpCodec = val;
-                                                } else {
-                                                    // We already have language info, need to concatenate
-                                                    tmpCodec = val + " " + tmpCodec;
+                                                audioCodec.setCodec(val);
                                                 }
-                                                // movie.setAudioCodec(val);
                                             }
-                                        }
 
                                         if (fiEvent.equalsIgnoreCase("<language>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (isValidString(val)) {
-                                                tmpLanguage = val;
-                                                //if (isNotValidString(tmpTVCodec)) {
-                                                //    tmpTVCodec = "(" + val + ")";
-                                                //}
-                                                // reasons for inactivation above:
-                                                // 1. If NFO has language data but no audiocodec data, YAMJ will not look for audioCodec (by Mediainfo scan) anymore since the field is already occupied!
-                                                // 2. Problems if NFO already says eg. "en / de / fr" -> we would get as result: "AC3 (en / de / fr) / AC3 / AC3"!
-                                                if (isValidString(tmpCodec) && !val.contains("/")) {
-                                                    tmpCodec += " (" + val + ")";
+                                                audioCodec.setCodecLanguage(val);
+
+                                                // Add the language to the list
+                                                if (finalLanguage.length() > 0) {
+                                                    finalLanguage.append(languageDelimiter);
                                                 }
-                                                // movie.setLanguage(MovieFilenameScanner.determineLanguage(val));
+                                                finalLanguage.append(audioCodec.getCodecFullLanguage());
                                             }
                                         }
 
                                         if (fiEvent.equalsIgnoreCase("<channels>")) {
                                             String val = XMLHelper.getCData(r);
-                                            if (isValidString(val)) {
-                                                tmpChannels = val;
-                                                // movie.setAudioChannels(val);
+                                            if (StringUtils.isNumeric(val) && val.length() > 0) {
+                                                audioCodec.setCodecChannels(Integer.parseInt(val));
                                             }
                                         }
 
@@ -854,30 +840,11 @@ public class MovieNFOScanner {
                                         }
                                     }
                                     // Parsing of audio end - setting data to movie.
-                                    if (isValidString(tmpCodec)) {
-                                        // First one.
-                                        if (isNotValidString(finalCodec)) {
-                                            finalCodec = tmpCodec;
-                                        } else {
-                                            finalCodec = finalCodec + " / " + tmpCodec;
+                                    movie.addCodec(audioCodec);
                                         }
 
-                                    }
-
-                                    if (isValidString(tmpLanguage)) {
-                                        // First one.
-                                        // in case language has format like "ENG / GER / ESP" process it now
-                                        String[] tmpLanguages = tmpLanguage.split("/");
-                                        for (int i = 0; i < tmpLanguages.length; i++) {
-                                            String subLanguage = tmpLanguages[i].trim();
-                                            if (isNotValidString(finalLanguage)) {
-                                                finalLanguage = MovieFilenameScanner.determineLanguage(subLanguage);
-                                            } else {
-                                                finalLanguage = finalLanguage + languageDelimiter + MovieFilenameScanner.determineLanguage(subLanguage);
-                                            }
-                                        }
-                                    }
-                                }
+                                // Add the language list to the movie
+                                movie.setLanguage(finalLanguage.toString());
 
                                 if (fiEvent.equalsIgnoreCase("<subtitle>")) {
                                     while (!fiEvent.equalsIgnoreCase("</subtitle>")) {
@@ -913,14 +880,6 @@ public class MovieNFOScanner {
                             }
 
                             // Everything is parsed, override all audio info. - NFO Always right.
-                            if (isValidString(finalCodec)) {
-                                movie.setAudioCodec(finalCodec);
-                            }
-
-                            if (isValidString(finalLanguage)) {
-                                movie.setLanguage(finalLanguage);
-                            }
-
                             if (isValidString(tmpSubtitleLanguage)) {
                                 movie.setSubtitles(tmpSubtitleLanguage);
                             }
@@ -1251,7 +1210,7 @@ public class MovieNFOScanner {
                                         if (fiEvent.equalsIgnoreCase("<codec>")) {
                                             String val = XMLHelper.getCData(r);
                                             if (isValidString(val)) {
-                                                movie.setVideoCodec(val);
+                                                movie.addCodec(new Codec(Codec.CodecType.VIDEO, val));
                                             }
                                         }
 
@@ -1404,10 +1363,6 @@ public class MovieNFOScanner {
                             }
 
                             // Everything is parsed, override all audio info. - NFO Always right.
-                            if (isValidString(finalTVCodec)) {
-                                movie.setAudioCodec(finalTVCodec);
-                            }
-
                             if (isValidString(finalTVLanguage)) {
                                 movie.setLanguage(finalTVLanguage);
                             }

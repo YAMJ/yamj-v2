@@ -12,6 +12,8 @@
  */
 package com.moviejukebox.model;
 
+import com.moviejukebox.scanner.MovieFilenameScanner;
+import com.moviejukebox.tools.StringTools;
 import org.apache.commons.lang.StringUtils;
 
 public class Codec {
@@ -27,6 +29,7 @@ public class Codec {
     private String codecFormatVersion = Movie.UNKNOWN;
     private String codecFormatProfile = Movie.UNKNOWN;
     private String codecLanguage = Movie.UNKNOWN;
+    private String codecFullLanguage = Movie.UNKNOWN;   // Determined automatically from the codecLanguage
     private int codecChannels = 0;
     /*
      * List of the expected names in the MediaInfo data
@@ -40,10 +43,25 @@ public class Codec {
     public static final String MI_CODEC_LANGUAGE = "Language";
     public static final String MI_CODEC_CHANNELS = "Channel(s)";
 
+    /**
+     * Constructor with just the codec type
+     * @param codecType 
+     */
     public Codec(CodecType codecType) {
         this.codecType = codecType;
     }
 
+    /**
+     * Simple constructor with just the type and codec.
+     * @param codecType
+     * @param codec 
+     */
+    public Codec(CodecType codecType, String codec) {
+        this.codecType = codecType;
+        this.codec = codec;
+    }
+
+    
     public void setCodec(String codec) {
         if (StringUtils.isBlank(codec)) {
             this.codecFormat = Movie.UNKNOWN;
@@ -101,11 +119,18 @@ public class Codec {
             this.codecLanguage = Movie.UNKNOWN;
         } else {
             this.codecLanguage = codecLanguage;
+            if (StringTools.isNotValidString(codecFullLanguage)) {
+                this.codecFullLanguage = MovieFilenameScanner.determineLanguage(codecLanguage);
         }
+    }
     }
 
     public void setCodecChannels(int codecChannels) {
         this.codecChannels = codecChannels;
+    }
+
+    public void setCodecFullLanguage(String codecFullLanguage) {
+        this.codecFullLanguage = codecFullLanguage;
     }
 
     public String getCodec() {
@@ -142,6 +167,10 @@ public class Codec {
 
     public int getCodecChannels() {
         return codecChannels;
+    }
+
+    public String getCodecFullLanguage() {
+        return codecFullLanguage;
     }
 
     public enum CodecType {

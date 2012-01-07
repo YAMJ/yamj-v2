@@ -431,12 +431,6 @@ public class MovieJukeboxXMLWriter {
                 // Get file container
                 movie.setContainer(DOMHelper.getValueFromElement(eMovie, "container"));
 
-                // Get the video codec
-                movie.setVideoCodec(DOMHelper.getValueFromElement(eMovie, "videoCodec"));
-
-                // get the audio codec
-                movie.setAudioCodec(DOMHelper.getValueFromElement(eMovie, "audioCodec"));
-
                 nlElements = eMovie.getElementsByTagName("codecs");
                 if (nlElements.getLength() > 0) {
                     nlElements = nlElements.item(0).getChildNodes();
@@ -2152,8 +2146,6 @@ public class MovieJukeboxXMLWriter {
             if (codec.getCodecType() == Codec.CodecType.AUDIO) {
                 codecAttribs.put("language", codec.getCodecLanguage());
                 codecAttribs.put("channels", String.valueOf(codec.getCodecChannels()));
-            }
-            if (codec.getCodecType() == Codec.CodecType.AUDIO) {
                 DOMHelper.appendChild(doc, eCodecAudio, "codec", codec.getCodec(), codecAttribs);
                 countAudio++;
             } else {
