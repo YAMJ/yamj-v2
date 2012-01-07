@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
@@ -49,7 +48,6 @@ import com.moviejukebox.plugin.MovieDatabasePlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 
 /**
  * Movie bean
@@ -133,8 +131,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private Set<String> cast = new LinkedHashSet<String>();
     private Set<String> writers = new LinkedHashSet<String>();
     private String container = UNKNOWN; // AVI, MKV, TS, etc.
-    private String videoCodec = UNKNOWN; // DIVX, XVID, H.264, etc.
-    private String audioCodec = UNKNOWN; // MP3, AC3, DTS, etc.
     private Set<Codec> codecs = new LinkedHashSet<Codec>();
     private String resolution = UNKNOWN; // 1280x528
     private String aspect = UNKNOWN;
@@ -527,8 +523,31 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return this.getStrippedTitleSort().compareToIgnoreCase(anotherMovie.getStrippedTitleSort());
     }
 
+    @Deprecated
     public String getAudioCodec() {
-        return audioCodec;
+        StringBuilder sb = new StringBuilder();
+        boolean firstCodec = Boolean.TRUE;
+        for (Codec audioCodec : codecs) {
+            if (audioCodec.getCodecType() == Codec.CodecType.AUDIO) {
+                if (firstCodec) {
+                    firstCodec = Boolean.FALSE;
+                } else {
+                    sb.append(" / ");
+    }
+                sb.append(audioCodec.getCodec());
+                if (StringTools.isValidString(audioCodec.getCodecLanguage())) {
+                    sb.append(" (");
+                    sb.append(audioCodec.getCodecLanguage());
+                    sb.append(")");
+                }
+            }
+        }
+
+        if (sb.length() > 0) {
+            return sb.toString();
+        } else {
+            return UNKNOWN;
+        }
     }
 
     /*
@@ -861,10 +880,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return originalTitle;
     }
 
-    public String getVideoCodec() {
-        return videoCodec;
-    }
-
     public String getVideoOutput() {
         return videoOutput;
     }
@@ -974,16 +989,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     @XmlTransient
     public boolean is3D() {
         return (getVideoSource().indexOf("3D") > -1);
-    }
-
-    public void setAudioCodec(String audioCodec) {
-        if (StringUtils.isBlank(audioCodec)) {
-            audioCodec = UNKNOWN;
-        }
-        if (!audioCodec.equalsIgnoreCase(this.audioCodec)) {
-            setDirty(DIRTY_INFO, true);
-            this.audioCodec = audioCodec;
-        }
     }
 
     public void setBaseName(String baseName) {
@@ -1601,14 +1606,31 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void setVideoCodec(String videoCodec) {
-        if (StringUtils.isBlank(videoCodec)) {
-            videoCodec = UNKNOWN;
+    /**
+     * Get the video codec. You should use the getCodec methods instead
+     * @return
+     * @deprecated
+     */
+    @Deprecated
+    public String getVideoCodec() {
+        for (Codec videoCodec : codecs) {
+            if (videoCodec.getCodecType() == Codec.CodecType.VIDEO) {
+                if (StringTools.isValidString(videoCodec.getCodecIdHint())) {
+                    return videoCodec.getCodecIdHint();
         }
-        if (!videoCodec.equalsIgnoreCase(this.videoCodec)) {
-            setDirty(DIRTY_INFO, true);
-            this.videoCodec = videoCodec;
+                if (StringTools.isValidString(videoCodec.getCodec())) {
+                    return videoCodec.getCodec();
         }
+                if (StringTools.isValidString(videoCodec.getCodecFormat())) {
+                    return videoCodec.getCodecFormat();
+    }
+                if (StringTools.isValidString(videoCodec.getCodecId())) {
+                    return videoCodec.getCodecId();
+                }
+            }
+        }
+
+        return UNKNOWN;
     }
 
     public void setVideoOutput(String videoOutput) {
@@ -1727,8 +1749,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         sb.append("[language=").append(language).append("]");
         sb.append("[subtitles=").append(subtitles).append("]");
         sb.append("[container=").append(container).append("]"); // AVI, MKV, TS, etc.
-        sb.append("[videoCodec=").append(videoCodec).append("]"); // DIVX, XVID, H.264, etc.
-        sb.append("[audioCodec=").append(audioCodec).append("]"); // MP3, AC3, DTS, etc.
+        sb.append("[codecs=").append(codecs.toString()).append("]");
         sb.append("[resolution=").append(resolution).append("]"); // 1280x528
         sb.append("[videoSource=").append(videoSource).append("]");
         sb.append("[videoOutput=").append(videoOutput).append("]");
@@ -1883,6 +1904,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         this.libraryPath = libraryPath;
     }
 
+    @Deprecated
     public String getAudioChannels() {
         StringBuilder sb = new StringBuilder();
         boolean firstChannel = true;
@@ -1962,8 +1984,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void mergeFileNameDTO(MovieFileNameDTO dto) {
         setTitle(dto.getTitle());
         setExtra(dto.isExtra());
-        setAudioCodec(dto.getAudioCodec());
-        setVideoCodec(dto.getVideoCodec());
+        
+        if (StringTools.isValidString(dto.getAudioCodec())) {
+            addCodec(new Codec(Codec.CodecType.AUDIO, dto.getAudioCodec()));
+        }
+        if (StringTools.isValidString(dto.getVideoCodec())) {
+            addCodec(new Codec(Codec.CodecType.VIDEO, dto.getVideoCodec()));
+        }
         setVideoSource(dto.getVideoSource());
         setContainer(dto.getContainer());
         setFps(dto.getFps() > 0 ? dto.getFps() : 60);
@@ -2455,8 +2482,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.videoType = aMovie.videoType;
         newMovie.subtitles = aMovie.subtitles;
         newMovie.container = aMovie.container;
-        newMovie.videoCodec = aMovie.videoCodec;
-        newMovie.audioCodec = aMovie.audioCodec;
         newMovie.resolution = aMovie.resolution;
         newMovie.aspect = aMovie.aspect;
         newMovie.videoSource = aMovie.videoSource;

@@ -247,21 +247,22 @@ import com.moviejukebox.model.Movie.MovieId;
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("[Title=" + title + "]");
-        sb.append("[Year=" + year + "]");
-        sb.append("[Parttitle=" + partTitle + "]");
-        sb.append("[EpisodeTitle=" + episodeTitle + "]");
-        sb.append("[Season=" + season + "]");
-        sb.append("[EpisodeCount=" + episodes.size() + "]");
-        sb.append("[Part=" + part + "]");
-        sb.append("[Extra=" + extra + "]");
-        sb.append("[AudioCodec=" + audioCodec+ "]");
-        sb.append("[VideoCodec=" + videoCodec+ "]");
-        sb.append("[Container=" + container+ "]");
-        sb.append("[Extension=" + extension + "]");
-        sb.append("[Fps=" + fps+ "]");
-        sb.append("[hdResolution=" + hdResolution+ "]");
-        sb.append("[VideoSource=" + videoSource + "]");
+        sb.append("[Title=").append(title);
+        sb.append("],[Year=").append(year);
+        sb.append("],[Parttitle=").append(partTitle);
+        sb.append("],[EpisodeTitle=").append(episodeTitle);
+        sb.append("],[Season=").append(season);
+        sb.append("],[EpisodeCount=").append(episodes.size());
+        sb.append("],[Part=").append(part);
+        sb.append("],[Extra=").append(extra);
+        sb.append("],[AudioCodec=").append(audioCodec);
+        sb.append("],[VideoCodec=").append(videoCodec);
+        sb.append("],[Container=").append(container);
+        sb.append("],[Extension=").append(extension);
+        sb.append("],[Fps=").append(fps);
+        sb.append("],[hdResolution=").append(hdResolution);
+        sb.append("],[VideoSource=").append(videoSource);
+        sb.append("]");
         return sb.toString();
     }
 }
