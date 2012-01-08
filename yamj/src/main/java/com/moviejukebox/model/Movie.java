@@ -2451,6 +2451,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
+    @XmlTransient
     public MovieDatabasePlugin getMovieScanner() {
         return movieScanner;
     }

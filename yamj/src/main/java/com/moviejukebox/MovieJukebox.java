@@ -97,6 +97,7 @@ import com.moviejukebox.tools.Cache;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.FilteringLayout;
 import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.JukeboxProperties;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
@@ -2467,14 +2468,16 @@ public class MovieJukebox {
     }
 
     private void writeCompleteMovies(Library library) {
-        String totalMoviesXmlFileName = "CompleteMovies.xml";
+        String completeMoviesXmlFileName = "CompleteMovies.xml";
         String rssXmlFileName = "RSS.xml";
+        String rssXslFileName = "RSS.xsl";
         JAXBContext context;
 
         try {
             context = JAXBContext.newInstance(JukeboxXml.class);
         } catch (JAXBException error) {
-            logger.debug("CompleteMovies: RSS is not generated (Context creation error).");
+            logger.warn("CompleteMovies: RSS is not generated (Context creation error).");
+            logger.warn(SystemTools.getStackTrace(error));
             return;
         }
 
@@ -2483,22 +2486,24 @@ public class MovieJukebox {
 
         if (library.isDirty()) {
             try {
-                File totalMoviesXmlFile = new File(jukebox.getJukeboxTempLocationDetails(), totalMoviesXmlFileName);
+                File totalMoviesXmlFile = new File(jukebox.getJukeboxTempLocationDetails(), completeMoviesXmlFileName);
 
                 OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
                 context.createMarshaller().marshal(jukeboxXml, marStream);
                 marStream.close();
 
-                Transformer transformer = getTransformer(new File("rss.xsl"), jukebox.getJukeboxRootLocationDetails());
+                Transformer transformer = getTransformer(new File(rssXslFileName), jukebox.getJukeboxRootLocationDetails());
 
                 Result xmlResult = new StreamResult(new File(jukebox.getJukeboxTempLocationDetails(), rssXmlFileName));
                 transformer.transform(new StreamSource(totalMoviesXmlFile), xmlResult);
+                logger.debug("CompleteMovies: RSS is generated.");
             } catch (Exception error) {
-                logger.debug("CompleteMovies: RSS is not generated (Jukebox error)." /* + e.getStackTrace().toString() */);
+                logger.warn("CompleteMovies: RSS is not generated (Jukebox error).");
+                logger.warn(SystemTools.getStackTrace(error));
             }
         }
         // These should be added to the list of jukebox files regardless of the state of the library
-        FileTools.addJukeboxFile(totalMoviesXmlFileName);
+        FileTools.addJukeboxFile(completeMoviesXmlFileName);
         FileTools.addJukeboxFile(rssXmlFileName);
 
         return;
