@@ -627,7 +627,7 @@ public class MovieJukeboxHTMLWriter {
     /**
      * Creates and caches Transformer, one for every thread/xsl file.
      */
-    public static Transformer getTransformer(File xslFile, String styleSheetTargetRootPath) throws TransformerConfigurationException {
+    public static Transformer getTransformer(File xslFile, String styleSheetTargetRootPath) {
         /*
          * Removed caching of transformer, as saxon keeps all parsed documents in memory, causing memory leaks.
          * Creating a new transformer every time doesn't consume too much time and has no impact on performance.
@@ -637,17 +637,26 @@ public class MovieJukeboxHTMLWriter {
         Source xslSource = new StreamSource(xslFile);
 
         // Sometimes the StreamSource doesn't return an object and we get a null pointer exception, so check it and try loading it again
-        if (xslSource == null) {
+        for (int looper = 1; looper < 5; looper++) {
             xslSource = new StreamSource(xslFile);
+            if (xslSource != null) {
+                // looks ok, so quit the loop
+                break;
+            }
         }
 
-        Transformer transformer = transformerFactory.newTransformer(xslSource);
-        transformer.setParameter("homePage", indexHtmFile);
-        transformer.setParameter("rootPath", new File(styleSheetTargetRootPath).getAbsolutePath().replace('\\', '/'));
-        for (Entry<Object, Object> e : PropertiesUtil.getEntrySet()) {
-            if (e.getKey() != null && e.getValue() != null) {
-                transformer.setParameter(e.getKey().toString(), e.getValue().toString());
+        Transformer transformer = null;
+        try {
+            transformer = transformerFactory.newTransformer(xslSource);
+            transformer.setParameter("homePage", indexHtmFile);
+            transformer.setParameter("rootPath", new File(styleSheetTargetRootPath).getAbsolutePath().replace('\\', '/'));
+            for (Entry<Object, Object> e : PropertiesUtil.getEntrySet()) {
+                if (e.getKey() != null && e.getValue() != null) {
+                    transformer.setParameter(e.getKey().toString(), e.getValue().toString());
+                }
             }
+        } catch (TransformerConfigurationException ex) {
+            logger.warn(SystemTools.getStackTrace(ex));
         }
         return transformer;
     }
