@@ -2469,8 +2469,8 @@ public class MovieJukebox {
 
     private void writeCompleteMovies(Library library) {
         String completeMoviesXmlFileName = "CompleteMovies.xml";
-        String rssXmlFileName = "RSS.xml";
-        String rssXslFileName = "RSS.xsl";
+        String rssXmlFileName = "rss.xml";
+        String rssXslFileName = "rss.xsl";
         JAXBContext context;
 
         try {
