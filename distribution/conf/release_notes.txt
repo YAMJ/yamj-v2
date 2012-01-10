@@ -47,6 +47,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Enhancement  #2248 Make subtitle a text value corresponding to <subtitle> in Overlay XML
  - Enhancement  #2251 Add Director and Writer information to the NFO file
  - Fixed defect #2252 VideoCodec is always UNKNOWN
+ - Fixed defect #2253 People XML is missing all Cast members Person nodes for some movies (not all)
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------
