@@ -715,8 +715,8 @@ public class MovieJukebox {
 
         footerCount = PropertiesUtil.getIntProperty("mjb.footer.count", "0");
         for (int i = 0; i < MovieJukebox.footerCount; i++) {
-            footerEnable.add(PropertiesUtil.getBooleanProperty("mjb.footer[" + i + "].enable", "false"));
-            String fName = getProperty("mjb.footer[" + i + "].name", "footer[" + i + "]");
+            footerEnable.add(PropertiesUtil.getBooleanProperty("mjb.footer." + i + ".enable", "false"));
+            String fName = getProperty("mjb.footer." + i + ".name", "footer." + i);
             footerName.add(fName);
             footerWidth.add(PropertiesUtil.getIntProperty(fName + ".width", "400"));
             footerHeight.add(PropertiesUtil.getIntProperty(fName + ".height", "80"));
