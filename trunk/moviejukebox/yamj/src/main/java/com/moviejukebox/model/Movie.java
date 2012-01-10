@@ -394,8 +394,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringUtils.isNotBlank(name)
                 && StringUtils.isNotBlank(key)
                 && StringUtils.isNotBlank(URL)
-                && StringUtils.isNotBlank(job)
-                && StringUtils.isNotBlank(character)) {
+                && StringUtils.isNotBlank(job)) {
 
             Filmography person = new Filmography();
 

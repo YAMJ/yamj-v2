@@ -860,13 +860,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 for (String actorBlock : peopleList) {
                     String personID = actorBlock.substring(actorBlock.indexOf("\"/name/") + 7, actorBlock.indexOf("/\""));
                     int beginIndex = actorBlock.indexOf("<td class=\"character\">");
-                    String name = actorBlock.substring(actorBlock.indexOf("\">") + 2, actorBlock.indexOf("</a>"));
+                    String name = HTMLTools.extractTag(actorBlock, "<a ", 1);
                     String character = Movie.UNKNOWN;
                     if (beginIndex > 0) {
                         if (actorBlock.indexOf("<a href=\"/character/") > 0) {
-                            character = actorBlock.substring(actorBlock.indexOf("/\">", beginIndex) + 3, actorBlock.indexOf("</a>", beginIndex));
+                            character = HTMLTools.extractTag(actorBlock, "<a href=\"/character/", 1);
                         } else {
-                            character = HTMLTools.removeHtmlTags(actorBlock.substring(actorBlock.indexOf("\">", beginIndex) + 2, actorBlock.indexOf("</td>", beginIndex)));
+                            character = HTMLTools.removeHtmlTags(actorBlock.substring(actorBlock.indexOf(">", beginIndex) + 2, actorBlock.indexOf("</td>", beginIndex)));
                             character = character.replaceAll("\\s+", " ").replaceAll("^\\s", "").replaceAll("\\s$", "");
                         }
                     }
