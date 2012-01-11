@@ -667,7 +667,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // GENRES
         if (movie.getGenres().isEmpty()) {
-            for (String genre : HTMLTools.extractTags(xml, siteDef2.getGenre() + ":</h4>", "</div>", "<a href=\"", "</a>")) {
+            for (String genre : HTMLTools.extractTags(xml, siteDef2.getGenre() + ":</h4>", "</div>", "href=\"/genre/", "</a>")) {
                 movie.addGenre(Library.getIndexingGenre(HTMLTools.removeHtmlTags(genre)));
             }
         }
