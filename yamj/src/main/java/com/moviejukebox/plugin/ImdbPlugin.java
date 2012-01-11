@@ -301,37 +301,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        int peopleCount = 0;
-        if (movie.getPerson("Directing").isEmpty() && directorMax > 0) {
-            // Note this is a hack for the change to IMDB for Issue 875
-            //ArrayList<String> tempDirectors = null;
-            // Issue 1261 : Allow multiple text matching for one "element".
-            String[] directorMatches = siteDef.getDirector().split("\\|");
-
-            int count = 0;
-            boolean found = false;
-            for (String directorMatch : directorMatches) {
-                // Issue 1897: Cast enhancement
-                for (String member : HTMLTools.extractTags(xml, "<h5>" + directorMatch, "</div>", "", "</a>")) {
-                    int beginIndex = member.indexOf("<a href=\"/name/");
-                    if (beginIndex > -1) {
-                        String personID = member.substring(beginIndex + 15, member.indexOf("/\"", beginIndex));
-                        movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID + "/");
-                        found = true;
-                        count++;
-                        if (count == directorMax) {
-                            break;
-                        }
-                    }
-                }
-                if (found) {
-                    // We found a match, so stop search.
-                    break;
-                }
-            }
-            peopleCount += count;
-        }
-
         if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
             movie.setReleaseDate(HTMLTools.extractTag(xml, "<h5>" + siteDef.getReleaseDate() + ":</h5>", 1));
         }
@@ -397,7 +366,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         outline = outline.substring(0, outline.length() - 1);
                     }
 
-                    if (isValidString(imdbOutline)) {
+                    if (isValidString(outline)) {
                         imdbOutline = cleanStringEnding(outline);
                         imdbOutline = trimToLength(imdbOutline, preferredOutlineLength, true, plotEnding);
                     } else {
@@ -485,30 +454,71 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        /** Check for writer(s) **/
-        if (movie.getPerson("Writing").isEmpty() && writerMax > 0) {
+        String personXML = webBrowser.request(getImdbUrl(movie, siteDef) + "fullcredits", siteDef.getCharset());
+        int peopleCount = 0;
+
+        if (movie.getPerson("Directing").isEmpty() && directorMax > 0 && peopleCount < peopleMax) {
             // Issue 1897: Cast enhancement
-            int count = 0;
-            boolean found = true;
-            for (String categoryMatch : siteDef.getWriter().split("\\|")) {
-                for (String member : HTMLTools.extractTags(xml, "<h5>" + categoryMatch, "</div>", "", "</a>")) {
-                    int beginIndex = member.indexOf("<a href=\"/name/");
-                    if (beginIndex > -1) {
-                        String personID = member.substring(beginIndex + 15, member.indexOf("/\"", beginIndex));
-                        movie.addWriter(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID + "/");
-                        found = true;
-                        count++;
-                        if (count == writerMax) {
-                            break;
+            if (isValidString(personXML)) {
+                peopleCount += extractDirectors(movie, personXML, siteDef);
+            } else {
+                // Note this is a hack for the change to IMDB for Issue 875
+                //ArrayList<String> tempDirectors = null;
+                // Issue 1261 : Allow multiple text matching for one "element".
+                String[] directorMatches = siteDef.getDirector().split("\\|");
+
+                int count = 0;
+                boolean found = false;
+                for (String directorMatch : directorMatches) {
+                    for (String member : HTMLTools.extractTags(xml, "<h5>" + directorMatch, "</div>", "", "</a>")) {
+                        int beginIndex = member.indexOf("<a href=\"/name/");
+                        if (beginIndex > -1) {
+                            String personID = member.substring(beginIndex + 15, member.indexOf("/\"", beginIndex));
+                            movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID + "/");
+                            found = true;
+                            count++;
+                            if (count == directorMax) {
+                                break;
+                            }
                         }
                     }
+                    if (found) {
+                        // We found a match, so stop search.
+                        break;
+                    }
                 }
-                if (found) {
-                    // We found a match, so stop search.
-                    break;
-                }
+                peopleCount += count;
             }
-            peopleCount += count;
+        }
+
+        /** Check for writer(s) **/
+        if (movie.getPerson("Writing").isEmpty() && writerMax > 0 && peopleCount < peopleMax) {
+            // Issue 1897: Cast enhancement
+            if (isValidString(personXML)) {
+                peopleCount += extractWriters(movie, personXML, siteDef);
+            } else {
+                int count = 0;
+                boolean found = false;
+                for (String categoryMatch : siteDef.getWriter().split("\\|")) {
+                    for (String member : HTMLTools.extractTags(xml, "<h5>" + categoryMatch, "</div>", "", "</a>")) {
+                        int beginIndex = member.indexOf("<a href=\"/name/");
+                        if (beginIndex > -1) {
+                            String personID = member.substring(beginIndex + 15, member.indexOf("/\"", beginIndex));
+                            movie.addWriter(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID + "/");
+                            found = true;
+                            count++;
+                            if (count == writerMax) {
+                                break;
+                            }
+                        }
+                    }
+                    if (found) {
+                        // We found a match, so stop search.
+                        break;
+                    }
+                }
+                peopleCount += count;
+            }
         }
 
         if (movie.getPerson("Actors").isEmpty() && actorMax > 0 && peopleCount < peopleMax) {
@@ -785,54 +795,24 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         String personXML = webBrowser.request(getImdbUrl(movie, siteDef2) + "fullcredits", siteDef2.getCharset());
+        int peopleCount = 0;
+
         // DIRECTOR(S)
-        if (movie.getPerson("Directing").isEmpty()) {
+        if (movie.getPerson("Directing").isEmpty() && directorMax > 0 && peopleCount < peopleMax) {
             // Issue 1897: Cast enhancement
-            for (String category : siteDef2.getDirector().split("\\|")) {
-                if (personXML.indexOf(">" + category + "</a>") >= 0) {
-                    int count = 0;
-                    for (String member : HTMLTools.extractTags(personXML, ">" + category + "</a>", "</table>", "<a ", "</a>", false)) {
-                        int beginIndex = member.indexOf("href=\"/name/");
-                        if (beginIndex > -1) {
-                            String personID = member.substring(beginIndex + 12, member.indexOf("/\"", beginIndex));
-                            movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID + "/");
-                            count++;
-                            if (count == directorMax) {
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+            peopleCount += extractDirectors(movie, personXML, siteDef2);
         }
 
         // WRITER(S)
-        if (movie.getPerson("Writing").isEmpty()) {
+        if (movie.getPerson("Writing").isEmpty() && writerMax > 0 && peopleCount < peopleMax) {
             // Issue 1897: Cast enhancement
-            for (String category : siteDef2.getWriter().split("\\|")) {
-                if (personXML.indexOf(">" + category + "</a>") >= 0) {
-                    int count = 0;
-                    for (String member : HTMLTools.extractTags(personXML, ">" + category + "</a>", "</table>", "<a ", "</a>", false)) {
-                        int beginIndex = member.indexOf("href=\"/name/");
-                        if (beginIndex > -1) {
-                            String personID = member.substring(beginIndex + 12, member.indexOf("/\"", beginIndex));
-                            String name = member.substring(member.indexOf("\">", beginIndex) + 2);
-                            if (name.indexOf("more credit") == -1) {
-                                movie.addWriter(IMDB_PLUGIN_ID + ":" + personID, name, siteDef.getSite() + "name/" + personID + "/");
-                                count++;
-                                if (count == writerMax) {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            peopleCount += extractWriters(movie, personXML, siteDef2);
         }
 
         // CAST
-        if (movie.getPerson("Actors").isEmpty()) {
+        if (movie.getPerson("Actors").isEmpty() && actorMax > 0 && peopleCount < peopleMax) {
             // Issue 1897: Cast enhancement
+            int count = 0;
             peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", "</table>", "<td class=\"name\"", "</tr>");
 
             if (peopleList.isEmpty()) {
@@ -854,6 +834,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     } else {
                         // Add the cleaned up cast member to the movie
                         movie.addActor(HTMLTools.stripTags(castMember));
+                        count++;
+                        if (count == actorMax || peopleCount + count == peopleMax) {
+                            break;
+                        }
                     }
                 }
             } else {
@@ -871,6 +855,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         }
                     }
                     movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name, character, siteDef.getSite() + "name/" + personID + "/", Movie.UNKNOWN);
+                    count++;
+                    if (count == actorMax || peopleCount + count == peopleMax) {
+                        break;
+                    }
                 }
             }
         }
@@ -925,6 +913,61 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         return true;
+    }
+
+    private Integer extractDirectors(Movie movie, String personXML, ImdbSiteDataDefinition siteDef) {
+        int count = 0;
+        boolean found = false;
+        for (String directorMatch : siteDef.getDirector().split("\\|")) {
+            if (personXML.indexOf(">" + directorMatch + "</a>") >= 0) {
+                for (String member : HTMLTools.extractTags(personXML, ">" + directorMatch + "</a>", "</table>", "<a ", "</a>", false)) {
+                    int beginIndex = member.indexOf("href=\"/name/");
+                    if (beginIndex > -1) {
+                        String personID = member.substring(beginIndex + 12, member.indexOf("/\"", beginIndex));
+                        movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, member.substring(member.indexOf("\">", beginIndex) + 2), siteDef.getSite() + "name/" + personID + "/");
+                        found = true;
+                        count++;
+                        if (count == directorMax) {
+                            break;
+                        }
+                    }
+                }
+            }
+            if (found) {
+                // We found a match, so stop search.
+                break;
+            }
+        }
+        return count;
+    }
+
+    private Integer extractWriters(Movie movie, String personXML, ImdbSiteDataDefinition siteDef) {
+        int count = 0;
+        boolean found = false;
+        for (String categoryMatch : siteDef.getWriter().split("\\|")) {
+            if (personXML.indexOf(">" + categoryMatch + "</a>") >= 0) {
+                for (String member : HTMLTools.extractTags(personXML, ">" + categoryMatch + "</a>", "</table>", "<a ", "</a>", false)) {
+                    int beginIndex = member.indexOf("href=\"/name/");
+                    if (beginIndex > -1) {
+                        String personID = member.substring(beginIndex + 12, member.indexOf("/\"", beginIndex));
+                        String name = member.substring(member.indexOf("\">", beginIndex) + 2);
+                        if (name.indexOf("more credit") == -1) {
+                            movie.addWriter(IMDB_PLUGIN_ID + ":" + personID, name, siteDef.getSite() + "name/" + personID + "/");
+                            found = true;
+                            count++;
+                            if (count == writerMax) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (found) {
+                // We found a match, so stop search.
+                break;
+            }
+        }
+        return count;
     }
 
     /**
