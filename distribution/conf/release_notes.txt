@@ -35,6 +35,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2199 Library indexing does not work correctly when library path also a part of another library path
  - Fixed defect #2200 People XML files are incorrectly generated
  - Fixed defect #2210 No poster from Caratulasdecine when FilmAffinity plugin is used
+ - Fixed defect #2215 Not used filename.scanner.source.default on scraping
  - Enhancement  #2205 Additional footer images
  - Fixed defect #2226 Footer extension format cannot be set
  - Fixed defect #2227 Rescan looses people data
