@@ -2145,6 +2145,7 @@ public class MovieJukeboxXMLWriter {
             codecAttribs.put("codecIdHint", codec.getCodecIdHint());
             if (codec.getCodecType() == Codec.CodecType.AUDIO) {
                 codecAttribs.put("language", codec.getCodecLanguage());
+                codecAttribs.put("langugageFull", codec.getCodecFullLanguage());
                 codecAttribs.put("channels", String.valueOf(codec.getCodecChannels()));
                 DOMHelper.appendChild(doc, eCodecAudio, "codec", codec.getCodec(), codecAttribs);
                 countAudio++;
