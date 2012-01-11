@@ -49,6 +49,8 @@ MovieJukebox 2.6-SNAPSHOT
  - Enhancement  #2251 Add Director and Writer information to the NFO file
  - Fixed defect #2252 VideoCodec is always UNKNOWN
  - Fixed defect #2253 People XML is missing all Cast members Person nodes for some movies (not all)
+ - Fixed defect #2264 Genres missing from XML file
+ - Fixed defect #2065 Actors missing from XML file
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------
