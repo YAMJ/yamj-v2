@@ -136,6 +136,7 @@ public class MovieJukebox {
     private static String thumbnailToken;
     private static String bannerToken;
     @SuppressWarnings("unused")
+    private static String defaultSource;
     private static String videoimageToken;
     private static String fanartToken;
     private static String footerToken;
@@ -745,6 +746,8 @@ public class MovieJukebox {
                 throw e;
             }
         }
+
+        defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
 
         File f = new File(source);
         if (f.exists() && f.isFile() && source.toUpperCase().endsWith("XML")) {
@@ -1887,6 +1890,10 @@ public class MovieJukebox {
             miScanner.scan(movie);
 
             MovieNFOScanner.scan(movie, nfoFiles);
+
+            if (StringTools.isNotValidString(movie.getVideoSource())) {
+                movie.setVideoSource(defaultSource);
+            }
 
             // Added forceXMLOverwrite for issue 366
             if (!isValidString(movie.getPosterURL()) || movie.isDirty(Movie.DIRTY_POSTER)) {
