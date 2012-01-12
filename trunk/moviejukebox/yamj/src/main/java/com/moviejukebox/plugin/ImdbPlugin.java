@@ -696,31 +696,42 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             movie.setOutline(imdbOutline);
         }
 
+
         // PLOT
         if (movie.getPlot().equals(Movie.UNKNOWN)) {
-            // The new plot is now called Storyline
-            String xmlPlot = HTMLTools.extractTag(xml, "<h2>" + siteDef2.getPlot() + "</h2>", "<em class=\"nobr\">");
-            xmlPlot = HTMLTools.removeHtmlTags(xmlPlot).trim();
+            String xmlPlot = Movie.UNKNOWN;
 
-            // This plot didn't work, look for another version
-            if (isNotValidString(xmlPlot)) {
-                xmlPlot = HTMLTools.extractTag(xml, "<h2>" + siteDef2.getPlot() + "</h2>", "<span class=\"");
+            if (imdbPlot.equalsIgnoreCase("long")) {
+                // The new plot is now called Storyline
+                xmlPlot = HTMLTools.extractTag(xml, "<h2>" + siteDef2.getPlot() + "</h2>", "<em class=\"nobr\">");
                 xmlPlot = HTMLTools.removeHtmlTags(xmlPlot).trim();
-            }
 
-            // See if the plot has the "metacritic" text and remove it
-            int pos = xmlPlot.indexOf("Metacritic.com)");
-            if (pos > 0) {
-                xmlPlot = xmlPlot.substring(pos + "Metacritic.com)".length());
-            }
+                // This plot didn't work, look for another version
+                if (isNotValidString(xmlPlot)) {
+                    xmlPlot = HTMLTools.extractTag(xml, "<h2>" + siteDef2.getPlot() + "</h2>", "<span class=\"");
+                    xmlPlot = HTMLTools.removeHtmlTags(xmlPlot).trim();
+                }
 
-            // Check the length of the plot is OK
-            if (isValidString(xmlPlot)) {
-                xmlPlot = cleanStringEnding(xmlPlot);
-                xmlPlot = trimToLength(xmlPlot, preferredPlotLength, true, plotEnding);
-            } else {
-                // The plot might be blank or null so set it to UNKNOWN
-                xmlPlot = Movie.UNKNOWN;
+                // This plot didn't work, look for another version
+                if (isNotValidString(xmlPlot)) {
+                    xmlPlot = HTMLTools.extractTag(xml, "<h2>" + siteDef2.getPlot() + "</h2>", "<p>");
+                    xmlPlot = HTMLTools.removeHtmlTags(xmlPlot).trim();
+                }
+
+                // See if the plot has the "metacritic" text and remove it
+                int pos = xmlPlot.indexOf("Metacritic.com)");
+                if (pos > 0) {
+                    xmlPlot = xmlPlot.substring(pos + "Metacritic.com)".length());
+                }
+
+                // Check the length of the plot is OK
+                if (isValidString(xmlPlot)) {
+                    xmlPlot = cleanStringEnding(xmlPlot);
+                    xmlPlot = trimToLength(xmlPlot, preferredPlotLength, true, plotEnding);
+                } else {
+                    // The plot might be blank or null so set it to UNKNOWN
+                    xmlPlot = Movie.UNKNOWN;
+                }
             }
 
             // Update the plot with the found plot, or the outline if not found
