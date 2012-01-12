@@ -63,6 +63,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.IndexInfo;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
@@ -1052,7 +1053,7 @@ public class MovieJukebox {
 
                             for (int i = 0; i < footerCount; i++) {
                                 if (footerEnable.get(i)) {
-                                    updateFooter(jukebox, movie, tools.imagePlugin, i);
+                                    updateFooter(jukebox, movie, tools.imagePlugin, i, forceFooterOverwrite || movie.isDirty());
                                 }
                             }
                         } else {
@@ -1371,20 +1372,9 @@ public class MovieJukebox {
                         movie.setThumbnailFilename(safeSetMasterBaseName + thumbnailToken + "." + thumbnailExtension);
                         movie.setDetailPosterFilename(safeSetMasterBaseName + posterToken + "." + posterExtension);
 
-                        if (PropertiesUtil.getBooleanProperty("mjb.sets.createPosters", "false")) {
-                            // Create a detail poster for each movie
-                            logger.debug("Creating detail poster for index master: " + movie.getBaseName());
-                            createPoster(tools.imagePlugin, jukebox, skinHome, movie, forcePosterOverwrite);
-                        }
-
-                        // Create a thumbnail for each movie
-                        logger.debug("Creating thumbnail for index master: " + movie.getBaseName() + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
-                        createThumbnail(tools.imagePlugin, jukebox, skinHome, movie, forceThumbnailOverwrite);
-
-                        for (int i = 0; i < footerCount; i++) {
-                            if (footerEnable.get(i)) {
-                                movie.setFooterFilename(safeSetMasterBaseName + (footerName.get(i).contains("[") ? (footerToken + "_" + i) : ("." + footerName.get(i))) + "." + footerExtension.get(i), i);
-                                updateFooter(jukebox, movie, tools.imagePlugin, i);
+                        for (int inx = 0; inx < footerCount; inx++) {
+                            if (footerEnable.get(inx)) {
+                                movie.setFooterFilename(safeSetMasterBaseName + (footerName.get(inx).contains("[") ? (footerToken + "_" + inx) : ("." + footerName.get(inx))) + "." + footerExtension.get(inx), inx);
                             }
                         }
 
@@ -1423,6 +1413,36 @@ public class MovieJukebox {
             if (!skipIndexGeneration) {
                 logger.info("Writing Indexes XML...");
                 xmlWriter.writeIndexXML(jukebox, library, tasks);
+
+                // Issue 2235: Update artworks after masterSet changed
+                ToolSet tools = threadTools.get();
+                for (IndexInfo idx : library.getGeneratedIndexes()) {
+                    if (!idx.canSkip && idx.categoryName.equals("Set")) {
+                        String idxName = idx.categoryName + "_" + idx.key + "_1";
+                        for (Movie movie : indexMasters) {
+                            if (!movie.getBaseName().equals(idxName)) {
+                                continue;
+                            }
+
+                            if (PropertiesUtil.getBooleanProperty("mjb.sets.createPosters", "false")) {
+                                // Create/update a detail poster for setMaster
+                                logger.debug("Create/update detail poster for index master: " + movie.getBaseName());
+                                createPoster(tools.imagePlugin, jukebox, skinHome, movie, true);
+                            }
+
+                            // Create/update a thumbnail for setMaster
+                            logger.debug("Create/update thumbnail for index master: " + movie.getBaseName() + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
+                            createThumbnail(tools.imagePlugin, jukebox, skinHome, movie, true);
+
+                            for (int inx = 0; inx < footerCount; inx++) {
+                                if (footerEnable.get(inx)) {
+                                    logger.debug("Create/update footer for index master: " + movie.getBaseName() + ", footerName: " + footerName.get(inx));
+                                    updateFooter(jukebox, movie, tools.imagePlugin, inx, true);
+                                }
+                            }
+                        }
+                    }
+                }
 
                 logger.info("Writing Category XML...");
                 boolean forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false");
@@ -2042,13 +2062,13 @@ public class MovieJukebox {
         }
     }
 
-    public void updateFooter(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin, Integer inx) {
+    public void updateFooter(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin, Integer inx, boolean forceFooterOverwrite) {
         String footerFilename = movie.getFooterFilename().get(inx);
         File footerFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + footerFilename);
         String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + footerFilename;
         File tmpDestFile = new File(tmpDestFilename);
 
-        if ((!tmpDestFile.exists() && !footerFile.exists()) || movie.isDirty() || forceFooterOverwrite) {
+        if (forceFooterOverwrite || (!tmpDestFile.exists() && !footerFile.exists())) {
             footerFile.getParentFile().mkdirs();
 
             try {
