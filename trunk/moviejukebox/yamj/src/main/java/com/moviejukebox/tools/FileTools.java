@@ -104,6 +104,7 @@ public class FileTools {
     static Character encodeEscapeChar = null;
     private final static Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
     private static boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
+    private static int footerImageEnabled = PropertiesUtil.getIntProperty("mjb.footer.count", "0");
     private static String indexFilesPrefix = getProperty("mjb.indexFilesPrefix", "");
 
     static {
@@ -687,6 +688,11 @@ public class FileTools {
                     addJukeboxFile(mf.getVideoImageFilename(part));
                 }
             }
+        }
+
+        // Are footer images enabled?
+        if (footerImageEnabled > 0) {
+            addJukeboxFiles(movie.getFooterFilename());
         }
     }
 
