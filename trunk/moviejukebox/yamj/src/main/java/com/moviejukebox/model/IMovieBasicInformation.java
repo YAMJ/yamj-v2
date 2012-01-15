@@ -15,7 +15,7 @@ package com.moviejukebox.model;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.moviejukebox.model.Movie.BooleanYesNoAdapter;
+import com.moviejukebox.tools.BooleanYesNoAdapter;
 
 public interface IMovieBasicInformation {
 
