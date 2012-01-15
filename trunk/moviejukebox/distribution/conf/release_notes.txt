@@ -55,6 +55,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2263 Clean function deletes the footer overlay images
  - Fixed defect #2264 Genres missing from XML file
  - Fixed defect #2265 Actors missing from XML file
+ - Fixed defect #2271 AudioCodec uses codec and not CodecIdHint for information
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------

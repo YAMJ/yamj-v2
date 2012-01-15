@@ -532,8 +532,20 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                     firstCodec = Boolean.FALSE;
                 } else {
                     sb.append(" / ");
-    }
-                sb.append(audioCodec.getCodec());
+                }
+
+                if (StringTools.isValidString(audioCodec.getCodecIdHint())) {
+                    sb.append(audioCodec.getCodecIdHint());
+                } else if (StringTools.isValidString(audioCodec.getCodec())) {
+                    sb.append(audioCodec.getCodec());
+                } else if (StringTools.isValidString(audioCodec.getCodecFormat())) {
+                    sb.append(audioCodec.getCodecFormat());
+                } else if (StringTools.isValidString(audioCodec.getCodecId())) {
+                    sb.append(audioCodec.getCodecId());
+                } else {
+                    sb.append(Movie.UNKNOWN);
+                }
+
                 if (StringTools.isValidString(audioCodec.getCodecLanguage())) {
                     sb.append(" (");
                     sb.append(audioCodec.getCodecLanguage());
@@ -1299,7 +1311,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 this.genres = genresFinal;
             } else {
                 // No need to remove genres, so add them all
-              this.genres = genresToAdd;
+                this.genres = genresToAdd;
             }
 
             setDirty(DIRTY_INFO, true);
@@ -1616,13 +1628,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             if (videoCodec.getCodecType() == Codec.CodecType.VIDEO) {
                 if (StringTools.isValidString(videoCodec.getCodecIdHint())) {
                     return videoCodec.getCodecIdHint();
-        }
+                }
                 if (StringTools.isValidString(videoCodec.getCodec())) {
                     return videoCodec.getCodec();
-        }
+                }
                 if (StringTools.isValidString(videoCodec.getCodecFormat())) {
                     return videoCodec.getCodecFormat();
-    }
+                }
                 if (StringTools.isValidString(videoCodec.getCodecId())) {
                     return videoCodec.getCodecId();
                 }
@@ -1983,7 +1995,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void mergeFileNameDTO(MovieFileNameDTO dto) {
         setTitle(dto.getTitle());
         setExtra(dto.isExtra());
-        
+
         if (StringTools.isValidString(dto.getAudioCodec())) {
             addCodec(new Codec(Codec.CodecType.AUDIO, dto.getAudioCodec()));
         }
