@@ -1777,6 +1777,8 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "bannerURL", HTMLTools.encodeUrl(movie.getBannerURL()));
         DOMHelper.appendChild(doc, eMovie, "bannerFile", HTMLTools.encodeUrl(movie.getBannerFilename()));
 
+        // Removed for the time being until the artwork scanner is in place
+        /*
         Element eArtwork = doc.createElement("artwork");
         for (ArtworkType artworkType : ArtworkType.values()) {
             Collection<Artwork> artworkList = movie.getArtwork(artworkType);
@@ -1808,6 +1810,7 @@ public class MovieJukeboxXMLWriter {
             }
         }
         eMovie.appendChild(eArtwork);
+         */
 
         DOMHelper.appendChild(doc, eMovie, "plot", movie.getPlot());
         DOMHelper.appendChild(doc, eMovie, "outline", movie.getOutline());
