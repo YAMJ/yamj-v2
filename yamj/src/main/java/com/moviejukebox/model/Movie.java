@@ -34,7 +34,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang.StringUtils;
@@ -45,9 +44,10 @@ import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
-import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.BooleanYesNoAdapter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.UrlCodecAdapter;
 
 /**
  * Movie bean
@@ -197,33 +197,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.genre.skip", ""), ",;|");
         while (st.hasMoreTokens()) {
             genreSkipList.add(st.nextToken().toLowerCase());
-        }
-    }
-
-    // http://stackoverflow.com/questions/343669/how-to-let-jaxb-render-boolean-as-0-and-1-not-true-and-false
-    public static class BooleanYesNoAdapter extends XmlAdapter<String, Boolean> {
-
-        @Override
-        public Boolean unmarshal(String s) {
-            return s == null ? null : "YES".equalsIgnoreCase(s);
-        }
-
-        @Override
-        public String marshal(Boolean c) {
-            return c == null ? null : c ? "YES" : "NO";
-        }
-    }
-
-    public static class UrlCodecAdapter extends XmlAdapter<String, String> {
-
-        @Override
-        public String unmarshal(String s) {
-            return s == null ? null : HTMLTools.decodeUrl(s);
-        }
-
-        @Override
-        public String marshal(String c) {
-            return c == null ? null : HTMLTools.encodeUrl(c);
         }
     }
 

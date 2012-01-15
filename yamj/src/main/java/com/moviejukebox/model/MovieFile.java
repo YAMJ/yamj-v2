@@ -33,8 +33,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.pojava.datetime.DateTime;
 
-import com.moviejukebox.model.Movie.BooleanYesNoAdapter;
 import com.moviejukebox.scanner.MovieFilenameScanner;
+import com.moviejukebox.tools.BooleanYesNoAdapter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
