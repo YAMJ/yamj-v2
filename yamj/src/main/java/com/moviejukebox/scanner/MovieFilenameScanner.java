@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.scanner;
 
@@ -34,13 +34,13 @@ import com.moviejukebox.tools.StringTools;
 
 /**
  * Simple movie filename scanner. Scans a movie filename for keywords commonly used in scene released video files.
- * 
+ *
  * Main pattern for file scanner is the following:
- * 
+ *
  * <MovieTitle>[Keyword*].<container>
- * 
+ *
  * * The movie title is in the first position of the filename. * it is followed by zero or more keywords. * the file extension match the container name.
- * 
+ *
  * @author jjulien
  * @author quickfinga
  * @author artem.gratchev
@@ -60,10 +60,10 @@ public class MovieFilenameScanner {
     /** All symbols within brackets [] if there is an EXTRA keyword */
     private static String[] extrasKeywords;
     private static final List<Pattern> extrasPatterns = new ArrayList<Pattern>();
-    
+
     protected static final Pattern USE_PARENT_PATTERN;
     protected static final Pattern RAR_EXT_PATTERN = Pattern.compile("(rar|001)$");
-    
+
     static {
         setExtrasKeywords(new String[] {"trailer"});
         skipEpisodeTitle = PropertiesUtil.getBooleanProperty("filename.scanner.skip.episodeTitle", "false");
@@ -82,12 +82,12 @@ public class MovieFilenameScanner {
 
     private static String[] movieVersionKeywords;
     private static final List<Pattern> movieVersionPatterns = new ArrayList<Pattern>();
-    
+
     // Allow the use of [IMDB tt123456] to define the IMDB reference
     private static final Pattern IMDB_PATTERN = patt("\\[ID ([^\\[\\]]*)\\]");
-    
-    // Everything in format [SET something]
-    private static final Pattern SET_PATTERN = patt("\\[SET ([^\\[\\]]*)\\]");
+
+    // Everything in format [SET something] (case insensitive)
+    private static final Pattern SET_PATTERN = ipatt("\\[SET(?:\\s|-)([^\\[\\]]*)\\]");
 
     // Number at the end of string preceded with '-'
     private static final Pattern SET_INDEX_PATTERN = patt("-\\s*(\\d+)\\s*$");
@@ -129,8 +129,8 @@ public class MovieFilenameScanner {
     };
 
     /**
-     * Detect if the file/folder name is incomplete and additional 
-     * info must be taken from parent folder. 
+     * Detect if the file/folder name is incomplete and additional
+     * info must be taken from parent folder.
      * CAUTION: Grouping is used for part number detection/parsing.
      */
     private static final List<Pattern> PARENT_FOLDER_PART_PATTERNS = new ArrayList<Pattern>() {
@@ -141,7 +141,7 @@ public class MovieFilenameScanner {
             add(Pattern.compile("^" + TV_PATTERN, CASE_INSENSITIVE));
         }
     };
-    
+
     private static abstract class TokensPatternMap extends HashMap<String, Pattern> {
         /**
          * Generate pattern using tokens from given string.
@@ -149,7 +149,7 @@ public class MovieFilenameScanner {
          * @param tokensStr Tokens list divided by comma or space.
          */
         protected void put(String key, String tokensStr) {
-            List<String> tokens = new ArrayList<String>(); 
+            List<String> tokens = new ArrayList<String>();
             for (String token : tokensStr.split("[ ,]+")) {
                 token = StringUtils.trimToNull(token);
                 if (token != null) {
@@ -158,7 +158,7 @@ public class MovieFilenameScanner {
             }
             put(key, tokens);
         }
-        
+
         protected void putAll(List<String> keywords, Map<String, String> keywordMap) {
             for (String keyword : keywords) {
                 // Just pass the keyword if the map is null
@@ -169,7 +169,7 @@ public class MovieFilenameScanner {
                 }
             }
         }
-        
+
         /**
          * Generate pattern using tokens from given string.
          * @param key Language id.
@@ -179,20 +179,20 @@ public class MovieFilenameScanner {
     }
 
     /**
-     * Mapping exact tokens to language. Strict mapping is case sensitive and must be obvious. 
-     * E.q. it must avoid confusing movie name words and language markers. 
+     * Mapping exact tokens to language. Strict mapping is case sensitive and must be obvious.
+     * E.q. it must avoid confusing movie name words and language markers.
      * For example the English word "it" and Italian language marker "it", or "French" as part
      * of the title and "french" as language marker.
-     * 
-     * However, described above is important only by file naming with token delimiters 
+     *
+     * However, described above is important only by file naming with token delimiters
      * (see tokens description constants TOKEN_DELIMITERS*). Language detection in non-token
      * separated titles will be skipped automatically.
-     * 
+     *
      * Language markers, found with this pattern are counted as token delimiters (they will cut
      * movie title)
      */
     private static final TokensPatternMap strictLanguageMap = new TokensPatternMap() {
-        
+
         @Override
         protected void put(String key, Collection<String> tokens) {
             StringBuilder sb = new StringBuilder();
@@ -214,13 +214,13 @@ public class MovieFilenameScanner {
 
     /**
      * Mapping loose language markers. The second pass of language detection is being started
-     * after movie title detection. Language markers will be scanned with loose pattern in order 
+     * after movie title detection. Language markers will be scanned with loose pattern in order
      * to find out more languages without chance to confuse with movie title. Markers in this
      * map are case insensitive.
      */
     private static final TokensPatternMap looseLanguageMap = new TokensPatternMap() {
 
-        /** 
+        /**
          * {@inheritDoc}
          */
         @Override
@@ -336,8 +336,8 @@ public class MovieFilenameScanner {
      * @return Case insensitive pattern with word delimiters around
      */
     public static Pattern iwpatt(String regex) {
-        return Pattern.compile("(?<=" + WORD_DELIMITERS_MATCH_PATTERN 
-                + ")(?:" + regex + ")(?=" 
+        return Pattern.compile("(?<=" + WORD_DELIMITERS_MATCH_PATTERN
+                + ")(?:" + regex + ")(?="
                 + WORD_DELIMITERS_MATCH_PATTERN + ")", Pattern.CASE_INSENSITIVE);
     }
 
@@ -346,8 +346,8 @@ public class MovieFilenameScanner {
      * @return Case sensitive pattern with word delimiters around
      */
     public static Pattern wpatt(String regex) {
-        return Pattern.compile("(?<=" + WORD_DELIMITERS_MATCH_PATTERN 
-                + ")(?:" + regex + ")(?=" 
+        return Pattern.compile("(?<=" + WORD_DELIMITERS_MATCH_PATTERN
+                + ")(?:" + regex + ")(?="
                 + WORD_DELIMITERS_MATCH_PATTERN + ")");
     }
 
@@ -362,7 +362,7 @@ public class MovieFilenameScanner {
 
     private MovieFilenameScanner(File file) {
         // TODO: Not sure why the file/filename are FINAL here. perhaps we should look at this.
-        
+
         // CHECK FOR USE_PARENT_PATTERN matches
         if (useParentRegex && USE_PARENT_PATTERN.matcher(file.getName()).find()) {
             // Check the container to see if it's a RAR file and go up a further directory
@@ -372,7 +372,7 @@ public class MovieFilenameScanner {
             } catch (Exception error) {
                 rarExtensionCheck = Movie.UNKNOWN;
             }
-            
+
             if (archiveScanRar && RAR_EXT_PATTERN.matcher(rarExtensionCheck).find()) {
                 // We need to go up two parent directories
                 this.file = file.getParentFile().getParentFile();
@@ -380,12 +380,12 @@ public class MovieFilenameScanner {
                 // Just go up one parent directory.
                 this.file = file.getParentFile();
             }
-            
+
             logger.debug("MovieFilenameScanner: UseParentPattern matched for " + file.getName() + " - Using parent folder name: " + this.file.getName());
         } else {
             this.file = file;
         }
-        
+
         this.filename = this.file.getName();
         rest = filename;
 
@@ -427,7 +427,7 @@ public class MovieFilenameScanner {
         for (Pattern pattern : movieVersionPatterns) {
             rest = pattern.matcher(rest).replaceAll("./.");
         }
-        
+
         // EXTRAS (Including Trailers)
         {
             for (Pattern pattern : extrasPatterns) {
@@ -453,7 +453,7 @@ public class MovieFilenameScanner {
             if (matcher.find()) {
                 // logger.finest("It's a TV Show: " + group0);
                 rest = cutMatch(rest, matcher, "./TVSHOW/.");
-                
+
                 final Matcher smatcher = SEASON_PATTERN.matcher(matcher.group(0));
                 smatcher.find();
                 int season = Integer.parseInt(smatcher.group(1));
@@ -499,7 +499,7 @@ public class MovieFilenameScanner {
                 set.setTitle(n.trim());
             }
         }
-        
+
         // Movie ID detection
         {
             Matcher matcher = IMDB_PATTERN.matcher(rest);
@@ -581,7 +581,7 @@ public class MovieFilenameScanner {
                         }
                     }
                 }
-                
+
                 // Search year within title (last 4 digits or 4 digits in parenthesis)
                 if (dto.getYear() < 0) {
                     Matcher ymatcher = MOVIE_YEAR_PATTERN.matcher(title);
@@ -640,7 +640,7 @@ public class MovieFilenameScanner {
         }
         return rFilename;
     }
-    
+
     /**
      * Decode the language tag passed in, into standard YAMJ language code
      * @param language The language tag to decode
@@ -657,7 +657,7 @@ public class MovieFilenameScanner {
         }
         return language;
     }
-    
+
     /**
      * Get the list of loose languages associated with a language
      * @param language
@@ -674,8 +674,8 @@ public class MovieFilenameScanner {
     }
 
     /**
-     * Replace all dividers with spaces and trim trailing spaces and redundant 
-     * braces/minuses at the end. 
+     * Replace all dividers with spaces and trim trailing spaces and redundant
+     * braces/minuses at the end.
      * @param token String to clean up.
      * @return Prepared title.
      */
@@ -709,7 +709,7 @@ public class MovieFilenameScanner {
             if (matcher.find()) {
                 String restCut = cutMatch(rest, matcher, "./.");
                 for (Pattern protectPattern : protectPatterns) {
-                    if (protectPattern.matcher(rest).find() 
+                    if (protectPattern.matcher(rest).find()
                             && !protectPattern.matcher(restCut).find()) {
                         return e.getKey();
                     }
@@ -748,11 +748,11 @@ public class MovieFilenameScanner {
             }
         }
     }
-    
+
     public static String[] getSkipRegexKeywords() {
         return skipRegexKeywords;
     }
-    
+
     public static void setSkipRegexKeywords(String[] skipRegexKeywords, boolean caseSensitive) {
         MovieFilenameScanner.skipRegexKeywords = skipRegexKeywords;
         for (String s : skipRegexKeywords) {
@@ -763,7 +763,7 @@ public class MovieFilenameScanner {
             }
         }
     }
-    
+
     public static String[] getExtrasKeywords() {
         return extrasKeywords;
     }
@@ -809,7 +809,7 @@ public class MovieFilenameScanner {
     public String getFilename() {
         return filename;
     }
-    
+
     /**
      * Clear language detection patterns.
      */
@@ -817,12 +817,12 @@ public class MovieFilenameScanner {
         strictLanguageMap.clear();
         looseLanguageMap.clear();
     }
-    
+
     /**
      * Add new language detection pattern.
      * @param key Language code.
      * @param strictPattern Exact pattern for the first-pass detection.
-     * @param loosePattern Loose pattern for second-pass detection.   
+     * @param loosePattern Loose pattern for second-pass detection.
      */
     public static void addLanguage(String key, String strictPattern, String loosePattern) {
         strictLanguageMap.put(key, strictPattern);
@@ -833,5 +833,5 @@ public class MovieFilenameScanner {
         videoSourceMap.clear();
         videoSourceMap.putAll(keywords, keywordMap);
     }
-    
+
 }
