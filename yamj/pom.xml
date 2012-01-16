@@ -87,17 +87,8 @@
         </dependency>
 
         <dependency>
-            <groupId>de.innosystec</groupId>
-            <artifactId>java-unrar</artifactId>
-            <version>0.5</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/java-unrar-0.4-SNAPSHOT.jar</systemPath>
-        </dependency>
-
-        <dependency>
             <groupId>com.mucommander</groupId>
             <artifactId>mucommander</artifactId>
-            <version>0.8.5</version>
             <scope>system</scope>
             <systemPath>${basedir}/lib/mucommanderlight.jar</systemPath>
         </dependency>

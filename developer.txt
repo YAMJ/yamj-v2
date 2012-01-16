@@ -53,15 +53,15 @@ public class MyClass {
 ----- License Code (Put at the top of each file -----
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 
 ----- Eclipse Integration -----
@@ -79,7 +79,7 @@ From the command line the principal goals are:
     - mvn package : to create the package(s) (.jar, .zip, etc...)
     - mvn install : to install the package(s) in local repository
     - mvn deploy  : to deploy the package(s) to the oss.sonatype repository
-    
+
 If you want to skip the tests set the maven.test.skip property to true before the goal. Example:
     - mvn -Dmaven.test.skip=true package
 
@@ -89,11 +89,3 @@ and check the 'Skip Tests' option.
 If you have problems executing the plugin like sonar, try to increase memory heap:
 [Windows]  set MAVEN_OPTS=-Xmx512m -XX:MaxPermSize=256m
 [Unix/OSX] export MAVEN_OPT=S'-Xmx512m -XX:MaxPermSize=256m'
-
------ library sources -----
-java-unrar-0.4-SNAPSHOT.jar:
- https://github.com/edmund-wagner/junrar/tree/
- Branch: 8e91d695dc03f7b8a1138756655d280e340055d5
- 
- compiled with "mvn package".
-
