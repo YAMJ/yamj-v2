@@ -105,13 +105,13 @@ public class MediaInfoScanner {
             if (isMediaInfoRar) {
                 logger.info("MediaInfo-rar tool found, additional scanning functions enabled.");
             } else {
-                logger.info("MediaInfo tool will be used to extract video data.");
+                logger.info("MediaInfo tool will be used to extract video data. But not RAR and ISO formats");
             }
             isActivated = true;
         }
 
         // Add a list of supported extensions
-        for (String ext : PropertiesUtil.getProperty("mediainfo.rar.diskExtensions", "iso,img").split(",")) {
+        for (String ext : PropertiesUtil.getProperty("mediainfo.rar.diskExtensions", "iso,img,rar,001").split(",")) {
             mediaInfoDiskImages.add(ext.toLowerCase());
         }
     }
@@ -121,6 +121,12 @@ public class MediaInfoScanner {
     public MediaInfoScanner() {
         localDVDRipScanner = new DVDRipScanner();
         randomDirName = PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp") + "/isoTEMP/" + Thread.currentThread().getName();
+    }
+
+    public boolean extendedExtention(String filename) {
+        if (isMediaInfoRar && (mediaInfoDiskImages.contains(FilenameUtils.getExtension(filename).toLowerCase())))
+            return true;
+        return false;
     }
 
     @SuppressWarnings("unchecked")
@@ -232,8 +238,11 @@ public class MediaInfoScanner {
         return line;
     }
 
-    public void parseMediaInfo(InputStream in, HashMap<String, String> infosGeneral, ArrayList<HashMap<String, String>> infosVideo,
-            ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) throws IOException {
+    public void parseMediaInfo(InputStream in,
+                               HashMap<String, String> infosGeneral,
+                               ArrayList<HashMap<String, String>> infosVideo,
+                               ArrayList<HashMap<String, String>> infosAudio,
+                               ArrayList<HashMap<String, String>> infosText) throws IOException {
         BufferedReader input = new BufferedReader(new InputStreamReader(in));
         // Improvement, less code line, each cat have same code, so use the same for all.
         Map<String, ArrayList<HashMap<String, String>>> matches = new HashMap<String, ArrayList<HashMap<String, String>>>();
@@ -256,10 +265,11 @@ public class MediaInfoScanner {
                 line = new String(line.substring(0, line.indexOf("#"))).trim();
             }
 
-            // Get cat ArrayList from cat name.
+            // Get cat ArrayList from cat name.^M
             ArrayList<HashMap<String, String>> currentCat = matches.get(line);
+
             if (currentCat != null) {
-                // logger.debug("Current category : " + line);
+                //logger.debug("Current category : " + line);
                 HashMap<String, String> currentData = new HashMap<String, String>();
                 int indexSeparateur = -1;
                 while (((line = localInputReadLine(input)) != null) && ((indexSeparateur = line.indexOf(" : ")) != -1)) {
@@ -374,7 +384,7 @@ public class MediaInfoScanner {
             if (infoValue != null) {
                 movie.setReleaseDate(infoValue);
             }
-        }
+        } // enableMetaData
 
         // get Container from General Section
         infoValue = infosGeneral.get("Format");
@@ -407,13 +417,17 @@ public class MediaInfoScanner {
                     if (infoValue != null) {
 
                         int duration;
+                        try {
                         duration = Integer.parseInt(infoValue) / 1000;
                         // Issue 1176 - Prevent lost of NFO Data
                         if (movie.getRuntime().equals(Movie.UNKNOWN)) {
                             movie.setRuntime(StringTools.formatDuration(duration));
                         }
+                        } catch( NumberFormatException nfe) {
+                            logger.debug( nfe.getMessage()) ;
                     }
                 }
+            }
             }
 
             // Add the video codec to the list
@@ -615,8 +629,11 @@ public class MediaInfoScanner {
                 } else {
                     logger.debug("MediaInfo Scanner - Subtitle format skipped: " + infoFormat);
                 }
+
             }
+
         }
+
     }
 
     /**
@@ -645,6 +662,57 @@ public class MediaInfoScanner {
         }
         return codec;
     }
+
+    public String archiveScan(Movie currentMovie, String movieFilePath) {
+        if (!isActivated) {
+            return null;
+        }
+
+        logger.debug("YYX mediainfo mini-scan on "+movieFilePath);
+
+        try {
+            // Create the command line
+            ArrayList<String> commandMedia = new ArrayList<String>(mediaInfoExe);
+            // Technically, mediaInfoExe has "-f" in it from above, but "-s"
+            // will over-ride it anyway.
+            // "-s" will dump just "$size $path" inside RAR/ISO.
+            commandMedia.add("-s");
+            commandMedia.add(movieFilePath);
+
+            ProcessBuilder pb = new ProcessBuilder(commandMedia);
+
+            // set up the working directory.
+            pb.directory(mediaInfoPath);
+
+            Process p = pb.start();
+
+            BufferedReader input = new BufferedReader(
+                                                      new InputStreamReader(
+                                                                            p.getInputStream()));
+            String line;
+            String mediaArchive = null;
+
+            while ((line = localInputReadLine(input)) != null) {
+                Pattern patternArchive =
+                    Pattern.compile("^\\s*\\d+\\s(.*)$");
+                Matcher m = patternArchive.matcher(line);
+                if(m.find() && (m.groupCount() == 1)) {
+                    mediaArchive = m.group(1);
+                }
+            }
+            input.close();
+
+            logger.debug("YYX Returning with archivename "+mediaArchive);
+
+            return mediaArchive;
+
+        } catch (Exception error) {
+            logger.error(SystemTools.getStackTrace(error));
+        }
+
+        return null;
+    }
+
 
     /**
      * Look for the mediaInfo filename and return it.

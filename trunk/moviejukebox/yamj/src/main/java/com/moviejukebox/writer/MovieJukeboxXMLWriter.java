@@ -107,6 +107,7 @@ public class MovieJukeboxXMLWriter {
     private boolean includeVideoImages;
     private boolean includeEpisodeRating;
     private static boolean isPlayOnHD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", Boolean.FALSE.toString());
+    private static boolean isExtendedURL = PropertiesUtil.getBooleanProperty("mjb.scanner.mediainfo.rar.extended.url", Boolean.FALSE.toString());
     private static String defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
     private List<String> categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
     private boolean removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", Boolean.FALSE.toString());
@@ -636,6 +637,7 @@ public class MovieJukeboxXMLWriter {
                                 if (mfFile.exists() || MovieJukebox.isJukeboxPreserve()) {
                                     // Save the file to the MovieFile
                                     movieFile.setFile(mfFile);
+
                                 } else {
                                     // We can't find this file anymore, so skip it.
                                     logger.debug("Missing video file in the XML file (" + mfFile.getName() + "), it may have been moved or no longer exist.");
@@ -648,6 +650,12 @@ public class MovieJukeboxXMLWriter {
                             }
 
                             movieFile.setFilename(DOMHelper.getValueFromElement(eFile, "fileURL"));
+
+                            if (DOMHelper.getValueFromElement(eFile, "fileArchiveName") != null) {
+                                movieFile.setArchiveName(DOMHelper.getValueFromElement(eFile, "fileArchiveName"));
+                            }
+
+
 
                             // We need to get the part from the fileTitle
                             NodeList nlFileParts = eFile.getElementsByTagName("fileTitle");
@@ -1130,7 +1138,7 @@ public class MovieJukeboxXMLWriter {
                         }
                     } else {
                         TreeMap<String, List<Movie>> sortedMap;
-                        
+
                         // Sort the certification according to certification.ordering
                         if ("Certification".equalsIgnoreCase(categoryName)) {
                             List<String> certificationOrdering = new ArrayList<String>();
@@ -2064,6 +2072,27 @@ public class MovieJukeboxXMLWriter {
                     filename = filename + "/VIDEO_TS.IFO";
                 }
             }
+
+            // YYX
+            // If attribute was set, save it back out.
+            //if (mf.getArchiveName() != null) {
+            String roger = mf.getArchiveName();
+            if (roger == null) {
+                logger.debug("YYX half getArchiveName is null for "+mf.getFilename());
+            } else {
+                logger.debug("YYX half getArchivename is '"+roger+"' for "+mf.getFilename()+" length " + roger.length());
+            }
+
+            if ((roger != null) && roger.length() > 0) {
+                DOMHelper.appendChild(doc, eFileItem, "fileArchiveName",
+                                      roger);
+
+                // If they want full URL, do so
+                if (isExtendedURL) {
+                    filename = filename + "/" + roger;
+                }
+            }
+
             DOMHelper.appendChild(doc, eFileItem, "fileURL", filename);
 
             for (int part = mf.getFirstPart(); part <= mf.getLastPart(); ++part) {
@@ -2127,7 +2156,7 @@ public class MovieJukeboxXMLWriter {
      * Create an element with the codec information in it.
      * @param doc
      * @param movieCodecs
-     * @return 
+     * @return
      */
     private Element createCodecsElement(Document doc, Set<Codec> movieCodecs) {
         Element eCodecs = doc.createElement("codecs");

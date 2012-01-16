@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import org.apache.log4j.Logger;
 
@@ -61,6 +62,7 @@ public class MovieDirectoryScanner {
     private static Logger logger = Logger.getLogger("moviejukebox");
     private static int dirCount = 1;
     private static int fileCount = 0;
+    private static Pattern patternRarPart = Pattern.compile("\\.part(\\d+)\\.rar");
 
     // BD rip infos Scanner
     private BDRipScanner localBDRipScanner;
@@ -82,13 +84,6 @@ public class MovieDirectoryScanner {
         hashpathdepth = PropertiesUtil.getIntProperty("mjb.scanner.hashpathdepth", "0");
         playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", Boolean.FALSE.toString());
         localBDRipScanner = new BDRipScanner();
-        List<ArchiveScanner> archiveScannerList = new ArrayList<ArchiveScanner>();
-        if (PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", Boolean.FALSE.toString())) {
-            RARArchiveScanner rarArchiveScanner=new RARArchiveScanner();
-            rarArchiveScanner.setUseRARLastModified(PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar.userarlastmodified",Boolean.FALSE.toString()));
-            archiveScannerList.add(rarArchiveScanner);
-        }
-        archiveScanners = archiveScannerList.toArray(new ArchiveScanner[archiveScannerList.size()]);
     }
 
     /**
@@ -225,6 +220,18 @@ public class MovieDirectoryScanner {
                     }
                     return true;
                 }
+            }
+        }
+
+        // Handle special case of RARs. If ".rar", and it is ".partXXX.rar"
+        // exclude all NON-"part001.rar" files.
+
+        Matcher m = patternRarPart.matcher(relativeFileNameLower);
+
+        if(m.find() && (m.groupCount() == 1)) {
+            if (Integer.parseInt(m.group(1)) != 1) {
+                logger.debug("YYX: Excluding file " + relativeFilename + " as it is a non-first part RAR archive ("+m.group(1)+")");
+                return true;
             }
         }
 
