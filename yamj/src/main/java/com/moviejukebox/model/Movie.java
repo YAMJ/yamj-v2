@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.model;
 
@@ -51,7 +51,7 @@ import com.moviejukebox.tools.UrlCodecAdapter;
 
 /**
  * Movie bean
- * 
+ *
  * @author jjulien
  * @author artem.gratchev
  */
@@ -473,7 +473,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * Remove the sorting strip prefix from the title
-     * 
+     *
      * @param title
      * @return
      */
@@ -536,7 +536,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.moviejukebox.model.IMovieBasicInformation#getBaseName()
      */
     @Override
@@ -619,7 +619,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * Get the first logical file of the set of videos
-     * 
+     *
      * @return
      */
     public MovieFile getFirstFile() {
@@ -658,7 +658,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.moviejukebox.model.Identifiable#getId(java.lang.String)
      */
     @Override
@@ -730,7 +730,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.moviejukebox.model.IMovieBasicInformation#getLanguage()
      */
     @Override
@@ -789,7 +789,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.moviejukebox.model.IMovieBasicInformation#getSeason()
      */
     @Override
@@ -806,7 +806,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.moviejukebox.model.IMovieBasicInformation#getTitle()
      */
     @Override
@@ -816,7 +816,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.moviejukebox.model.IMovieBasicInformation#getTitleSort()
      */
     /**
@@ -874,7 +874,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.moviejukebox.model.IMovieBasicInformation#getYear()
      */
     @Override
@@ -934,7 +934,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.moviejukebox.model.IMovieBasicInformation#isTVShow()
      */
     @XmlAttribute(name = "isTV")
@@ -1302,7 +1302,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.moviejukebox.model.Identifiable#setId(java.lang.String, java.lang.String)
      */
     @Override
@@ -1750,7 +1750,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * Sets the "extra" flag to mark this file as an extra. Will trigger the "dirty" setting too
-     * 
+     *
      * @param extra
      *            Boolean flag, true=extra file, false=normal file
      */
@@ -1764,7 +1764,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * This function will return true if the movie can have trailers.
-     * 
+     *
      * @param movie
      * @return
      */
@@ -1785,7 +1785,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * Set the date of the last trailers scan
-     * 
+     *
      * @param lastScan
      *            date of the last trailers scan
      */
@@ -1799,7 +1799,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * Set the date of the last trailers scan
-     * 
+     *
      * @param lastScan
      *            date of the last trailers scan (milliseconds offset from the Epoch)
      */
@@ -1812,7 +1812,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * Get the date of the last trailers scan
-     * 
+     *
      * @return the date of the last trailers scan (milliseconds offset from the Epoch)
      */
     public long getTrailerLastScan() {
@@ -1829,7 +1829,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.moviejukebox.model.IMovieBasicInformation#isTrailerExchange()
      */
     @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
@@ -2072,7 +2072,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.moviejukebox.model.IMovieBasicInformation#isSetMaster()
      */
     @XmlAttribute(name = "isSet")
@@ -2148,7 +2148,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * Should be called only from ArtworkScanner. Avoid calling this inside MoviePlugin Also called from MovieNFOScanner
-     * 
+     *
      * @param url
      */
     public void setPosterURL(String url) {

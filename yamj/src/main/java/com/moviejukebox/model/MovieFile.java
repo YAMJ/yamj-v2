@@ -45,6 +45,7 @@ public class MovieFile implements Comparable<MovieFile> {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
     private String filename = Movie.UNKNOWN;
+    private String archiveName = null;
     private int season = -1;    // The season associated with the movie file
     private int firstPart = 1;  // #1, #2, CD1, CD2, etc.
     private int lastPart = 1;
@@ -107,8 +108,16 @@ public class MovieFile implements Comparable<MovieFile> {
         return filename;
     }
 
+    public String getArchiveName() {
+        return archiveName;
+    }
+
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public void setArchiveName(String archiveName) {
+        this.archiveName = archiveName;
     }
 
     public String getTitle(int part) {
@@ -679,6 +688,7 @@ public class MovieFile implements Comparable<MovieFile> {
         sb.append("][includeEpisodeRating=").append(includeEpisodeRating);
         sb.append("][playLinkVOD=").append(playLinkVOD);
         sb.append("][playLinkZCD=").append(playLinkZCD);
+        sb.append("][archivename=").append(archiveName);
         sb.append("]]");
         return sb.toString();
     }

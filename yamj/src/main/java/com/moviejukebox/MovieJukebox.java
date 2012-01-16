@@ -1056,6 +1056,31 @@ public class MovieJukebox {
                                     updateFooter(jukebox, movie, tools.imagePlugin, i, forceFooterOverwrite || movie.isDirty());
                                 }
                             }
+
+                            // If we are multipart, we need to make sure all
+                            // archives have expanded names.
+                            if (PropertiesUtil.getBooleanProperty("mjb.scanner.mediainfo.rar.extended.url", Boolean.FALSE.toString())) {
+
+                                Collection<MovieFile> partsFiles = movie.getFiles();
+                                for (MovieFile mf : partsFiles) {
+                                    String filename;
+
+                                    filename = mf.getFile().getAbsolutePath();
+
+                                    // Check the filename is a mediaInfo extension (RAR, ISO) ?
+                                    if (tools.miScanner.extendedExtention(filename) == true) {
+
+                                        if (mf.getArchiveName() == null) {
+                                            logger.debug("YYX: Attempting to get Archivename for " + filename);
+                                            String archive = tools.miScanner.archiveScan(movie, filename);
+                                            if (archive != null) {
+                                                logger.debug("YYX: Setting archive name to " + archive);
+                                                mf.setArchiveName(archive);
+                                            } // got archivename
+                                        } // not already set
+                                    } // is extension
+                                } // for all files
+                            } // property is set
                         } else {
                             library.remove(movie);
                         }
@@ -1801,7 +1826,7 @@ public class MovieJukebox {
                     // Check to see if the paths match and then update the description and quit
                     String mlpPath = mlp.getPath().concat(File.separator);
                     if (movie.getFile().getAbsolutePath().startsWith(mlpPath) && !movie.getLibraryDescription().equals(mlp.getDescription())) {
-                            logger.debug("Changing libray description for movie '" + movie.getTitle() + "' from " + movie.getLibraryDescription() + " to " + mlp.getDescription());
+                        logger.debug("Changing libray description for movie '" + movie.getTitle() + "' from " + movie.getLibraryDescription() + " to " + mlp.getDescription());
                         library.addDirtyLibrary(movie.getLibraryDescription());
                         movie.setLibraryDescription(mlp.getDescription());
                         movie.setDirty(Movie.DIRTY_INFO, true);
@@ -1848,7 +1873,10 @@ public class MovieJukebox {
                 }
 
                 // VIDEO_TS.IFO check added for Issue 1851
-                if (((!scannedFilename.equalsIgnoreCase(xmlLoop.getFilename())) && (!(scannedFilename + "/VIDEO_TS.IFO").equalsIgnoreCase(xmlLoop.getFilename()))) || (!scannedFileLocation.equalsIgnoreCase(xmlLoop.getFile().getAbsolutePath()))) {
+                if (((!scannedFilename.equalsIgnoreCase(xmlLoop.getFilename()))
+                        && (!(scannedFilename + "/VIDEO_TS.IFO").equalsIgnoreCase(xmlLoop.getFilename())))
+                        && ((sMF.getArchiveName() != null) && !(scannedFilename + "/" + sMF.getArchiveName()).equalsIgnoreCase(xmlLoop.getFilename()))
+                        || (!scannedFileLocation.equalsIgnoreCase(xmlLoop.getFile().getAbsolutePath()))) {
                     logger.debug("Detected change of file location for >" + xmlLoop.getFilename() + "< to: >" + scannedFilename + "<");
                     xmlLoop.setFilename(scannedFilename);
                     xmlLoop.setNewFile(true);

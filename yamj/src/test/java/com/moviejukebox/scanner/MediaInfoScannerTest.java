@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.scanner;
 
@@ -54,20 +54,20 @@ public class MediaInfoScannerTest {
 //            System.out.println(counter++ + " = " + codec.toString());
 //        }
     }
-    
+
     @Test
     public void testAudioStreamFile() {
         getMediaInfoTestFile("mediainfo-2.txt");
 
         assertEquals(7, infosAudio.size());
-        
+
         assertEquals(1, infosVideo.size());
     }
 
 //    @Test
     public void testAvi() {
         getMediaInfoTestFile("AVI_DTS_ES_6.1.AVI.txt");
-        
+
         Codec codec;
         int counter = 1;
         for (HashMap<String, String> codecInfo : infosVideo) {
@@ -80,9 +80,9 @@ public class MediaInfoScannerTest {
             codec = toTest.getCodecInfo(CodecType.AUDIO, codecInfo);
             System.out.println(counter++ + " = " + codec.toString());
         }
-        
+
         getMediaInfoTestFile("AVI_DTS_MA_7.1.AVI.txt");
-        
+
         counter = 1;
         for (HashMap<String, String> codecInfo : infosVideo) {
             codec = toTest.getCodecInfo(CodecType.VIDEO, codecInfo);
@@ -98,7 +98,7 @@ public class MediaInfoScannerTest {
 
     /**
      * Load a test file
-     * @param filename 
+     * @param filename
      */
     private void getMediaInfoTestFile(String filename) {
         File file = new File(testDir + filename);
