@@ -81,7 +81,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
     protected boolean NFOposter = false;
     protected boolean NFOawards = false;
 
-    boolean scrapeAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", "false");
+    String tmpAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", "false");
+    boolean scrapeWonAwards = tmpAwards.equalsIgnoreCase("won");
+    boolean scrapeAwards = tmpAwards.equalsIgnoreCase("true") || scrapeWonAwards;
+
     boolean scrapeBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", "false");
     boolean scrapeTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", "false");
 
@@ -823,15 +826,13 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                     nominations.add(HTMLTools.removeHtmlTags(tmp));
                                 }
                             }
-                            if (StringTools.isValidString(name) && year > 1900 && year < 2020) {
+                            if (StringTools.isValidString(name) && year > 1900 && year < 2020 && (!scrapeWonAwards || (won > 0))) {
                                 Award award = new Award();
                                 award.setName(name);
                                 award.setYear(year);
-                                award.setWon(won);
                                 if (won > 0) {
                                     award.setWons(wons);
                                 }
-                                award.setNominated(nominated);
                                 if (nominated > 0) {
                                     award.setNominations(nominations);
                                 }
