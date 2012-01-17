@@ -126,7 +126,7 @@ public class MovieJukeboxXMLWriter {
     // Should we scrape people information
     private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE.toString());
     // Should we scrape the award information
-    private static boolean enableAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", Boolean.FALSE.toString());
+    private static boolean enableAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", Boolean.FALSE.toString()) || PropertiesUtil.getProperty("mjb.scrapeAwards", "").equalsIgnoreCase("won");
     // Should we scrape the business information
     private static boolean enableBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", Boolean.FALSE.toString());
     // Should we scrape the trivia information

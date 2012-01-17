@@ -79,6 +79,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private boolean skipV;
     private List<String> jobsInclude;
     private boolean scrapeAwards;   // Should we scrape the award information
+    private boolean scrapeWonAwards;// Should we scrape the won awards only
     private boolean scrapeBusiness; // Should we scrape the business information
     private boolean scrapeTrivia;   // Shoulw we scrape the trivia information
 
@@ -111,7 +112,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         triviaMax = PropertiesUtil.getIntProperty("plugin.trivia.maxCount", "15");
 
-        scrapeAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", "false");
+        String tmpAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", "false");
+        scrapeWonAwards = tmpAwards.equalsIgnoreCase("won");
+        scrapeAwards = tmpAwards.equalsIgnoreCase("true") || scrapeWonAwards;
+
         scrapeBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", "false");
         scrapeTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", "false");
     }
@@ -1025,12 +1029,18 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                             nominated = count;
                         }
 
-                        Award award = new Award();
-                        award.setName(name);
-                        award.setYear(year);
-                        award.setWon(won);
-                        award.setNominated(nominated);
-                        event.addAward(award);
+                        if (!scrapeWonAwards || (won > 0)) {
+                            Award award = new Award();
+                            award.setName(name);
+                            award.setYear(year);
+                            if (won > 0) {
+                                award.setWons(extractNominationNames(true, yearBlock, nominated));
+                            }
+                            if (nominated > 0) {
+                                award.setNominations(extractNominationNames(false, yearBlock, nominated));
+                            }
+                            event.addAward(award);
+                        }
                     }
                 }
                 awards.add(event);
@@ -1040,6 +1050,29 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
         return true;
+    }
+
+    private Collection<String> extractNominationNames(boolean won, String yearBlock, Integer nominated) {
+        Collection<String> wons = new ArrayList<String>();
+        String blockContent;
+        for (String nameBlock : HTMLTools.extractTags(yearBlock + "<end>", won ? "<b>Won</b>" : "<b>Nominated</b>", won && (nominated > 0) ? "<b>Nominated</b>" : "<end>", "<td valign=\"top\"", "</td>")) {
+            if (nameBlock.indexOf("<a ") > -1 && nameBlock.indexOf("<a ") < nameBlock.indexOf("<br>") && nameBlock.indexOf("<small>") > 0) {
+                blockContent = HTMLTools.extractTag(nameBlock, "<small>", "</small>");
+            } else if (nameBlock.indexOf("<br>") > 0) {
+                blockContent = nameBlock.substring(0, nameBlock.indexOf("<br>"));
+            } else {
+                blockContent = nameBlock;
+            }
+            blockContent = HTMLTools.removeHtmlTags(blockContent);
+            if (isNotValidString(blockContent)) {
+                blockContent = HTMLTools.removeHtmlTags(nameBlock);
+            }
+            blockContent = blockContent.replaceAll("^\\s+", "").replaceAll("\\s+$", "").replaceAll("\\s+", " ");
+//            if (isValidString(blockContent)) {
+                wons.add(blockContent);
+//            }
+        }
+        return wons;
     }
 
     /**
