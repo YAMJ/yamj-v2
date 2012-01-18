@@ -1043,7 +1043,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         }
                     }
                 }
-                awards.add(event);
+                if (event.getAwards().size() > 0) {
+                    awards.add(event);
+                }
             }
             if (awards.size() > 0) {
                 movie.setAwards(awards);
