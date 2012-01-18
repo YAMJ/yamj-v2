@@ -13,7 +13,6 @@
 package com.moviejukebox.scanner;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -230,7 +229,7 @@ public class MovieDirectoryScanner {
 
         if(m.find() && (m.groupCount() == 1)) {
             if (Integer.parseInt(m.group(1)) != 1) {
-                logger.debug("YYX: Excluding file " + relativeFilename + " as it is a non-first part RAR archive ("+m.group(1)+")");
+                logger.debug("MovieDirectoryScanner: Excluding file " + relativeFilename + " as it is a non-first part RAR archive ("+m.group(1)+")");
                 return true;
             }
         }

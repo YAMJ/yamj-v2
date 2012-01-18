@@ -1071,10 +1071,10 @@ public class MovieJukebox {
                                     if (tools.miScanner.extendedExtention(filename) == true) {
 
                                         if (mf.getArchiveName() == null) {
-                                            logger.debug("YYX: Attempting to get Archivename for " + filename);
+                                            logger.debug("MovieJukebox: Attempting to get Archivename for " + filename);
                                             String archive = tools.miScanner.archiveScan(movie, filename);
                                             if (archive != null) {
-                                                logger.debug("YYX: Setting archive name to " + archive);
+                                                logger.debug("MovieJukebox: Setting archive name to " + archive);
                                                 mf.setArchiveName(archive);
                                             } // got archivename
                                         } // not already set

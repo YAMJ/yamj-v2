@@ -1789,33 +1789,33 @@ public class MovieJukeboxXMLWriter {
         /*
         Element eArtwork = doc.createElement("artwork");
         for (ArtworkType artworkType : ArtworkType.values()) {
-            Collection<Artwork> artworkList = movie.getArtwork(artworkType);
-            if (artworkList.size() > 0) {
-                Element eArtworkType;
-
-                for (Artwork artwork : artworkList) {
-                    eArtworkType = doc.createElement(artworkType.toString());
-                    eArtworkType.setAttribute("count", String.valueOf(artworkList.size()));
-
-                    DOMHelper.appendChild(doc, eArtworkType, "sourceSite", artwork.getSourceSite());
-                    DOMHelper.appendChild(doc, eArtworkType, "url", artwork.getUrl());
-
-                    for (ArtworkFile artworkFile : artwork.getSizes()) {
-                        DOMHelper.appendChild(doc, eArtworkType, artworkFile.getSize().toString(), artworkFile.getFilename(), "downloaded",
-                                String.valueOf(artworkFile.isDownloaded()));
-                    }
-                    eArtwork.appendChild(eArtworkType);
-                }
-            } else {
-                // Write a dummy node
-                Element eArtworkType = doc.createElement(artworkType.toString());
-                eArtworkType.setAttribute("count", String.valueOf(0));
-
-                DOMHelper.appendChild(doc, eArtworkType, "url", Movie.UNKNOWN);
-                DOMHelper.appendChild(doc, eArtworkType, ArtworkSize.LARGE.toString(), Movie.UNKNOWN, "downloaded", "false");
-
-                eArtwork.appendChild(eArtworkType);
-            }
+        Collection<Artwork> artworkList = movie.getArtwork(artworkType);
+        if (artworkList.size() > 0) {
+        Element eArtworkType;
+        
+        for (Artwork artwork : artworkList) {
+        eArtworkType = doc.createElement(artworkType.toString());
+        eArtworkType.setAttribute("count", String.valueOf(artworkList.size()));
+        
+        DOMHelper.appendChild(doc, eArtworkType, "sourceSite", artwork.getSourceSite());
+        DOMHelper.appendChild(doc, eArtworkType, "url", artwork.getUrl());
+        
+        for (ArtworkFile artworkFile : artwork.getSizes()) {
+        DOMHelper.appendChild(doc, eArtworkType, artworkFile.getSize().toString(), artworkFile.getFilename(), "downloaded",
+        String.valueOf(artworkFile.isDownloaded()));
+        }
+        eArtwork.appendChild(eArtworkType);
+        }
+        } else {
+        // Write a dummy node
+        Element eArtworkType = doc.createElement(artworkType.toString());
+        eArtworkType.setAttribute("count", String.valueOf(0));
+        
+        DOMHelper.appendChild(doc, eArtworkType, "url", Movie.UNKNOWN);
+        DOMHelper.appendChild(doc, eArtworkType, ArtworkSize.LARGE.toString(), Movie.UNKNOWN, "downloaded", "false");
+        
+        eArtwork.appendChild(eArtworkType);
+        }
         }
         eMovie.appendChild(eArtwork);
          */
@@ -2073,23 +2073,18 @@ public class MovieJukeboxXMLWriter {
                 }
             }
 
-            // YYX
             // If attribute was set, save it back out.
-            //if (mf.getArchiveName() != null) {
-            String roger = mf.getArchiveName();
-            if (roger == null) {
-                logger.debug("YYX half getArchiveName is null for "+mf.getFilename());
-            } else {
-                logger.debug("YYX half getArchivename is '"+roger+"' for "+mf.getFilename()+" length " + roger.length());
+            String archiveName = mf.getArchiveName();
+            if (StringTools.isValidString(archiveName)) {
+                logger.debug("MovieJukeboxXMLWriter: getArchivename is '" + archiveName + "' for " + mf.getFilename() + " length " + archiveName.length());
             }
 
-            if ((roger != null) && roger.length() > 0) {
-                DOMHelper.appendChild(doc, eFileItem, "fileArchiveName",
-                                      roger);
+            if ((archiveName != null) && archiveName.length() > 0) {
+                DOMHelper.appendChild(doc, eFileItem, "fileArchiveName", archiveName);
 
                 // If they want full URL, do so
                 if (isExtendedURL) {
-                    filename = filename + "/" + roger;
+                    filename = filename + "/" + archiveName;
                 }
             }
 
