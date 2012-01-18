@@ -99,13 +99,13 @@ public class MediaInfoScanner {
 
         // System.out.println(checkMediainfo.getAbsolutePath());
         if (!checkMediainfo.canExecute()) {
-            logger.info("Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
+            logger.info("MediaInfoScanner: Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
             isActivated = false;
         } else {
             if (isMediaInfoRar) {
-                logger.info("MediaInfo-rar tool found, additional scanning functions enabled.");
+                logger.info("MediaInfoScanner: MediaInfo-rar tool found, additional scanning functions enabled.");
             } else {
-                logger.info("MediaInfo tool will be used to extract video data. But not RAR and ISO formats");
+                logger.info("MediaInfoScanner: MediaInfo tool will be used to extract video data. But not RAR and ISO formats");
             }
             isActivated = true;
         }
@@ -124,8 +124,9 @@ public class MediaInfoScanner {
     }
 
     public boolean extendedExtention(String filename) {
-        if (isMediaInfoRar && (mediaInfoDiskImages.contains(FilenameUtils.getExtension(filename).toLowerCase())))
+        if (isMediaInfoRar && (mediaInfoDiskImages.contains(FilenameUtils.getExtension(filename).toLowerCase()))) {
             return true;
+        }
         return false;
     }
 
@@ -149,7 +150,7 @@ public class MediaInfoScanner {
             try {
                 abstractIsoFile = FileFactory.getFile(currentMovie.getFile().getAbsolutePath());
             } catch (Exception error) {
-                logger.debug("Error reading disk Image. Please re-rip and try again");
+                logger.debug("MediaInfoScanner: Error reading disk Image. Please re-rip and try again");
                 logger.info(error.getMessage());
                 return;
             }
@@ -239,10 +240,10 @@ public class MediaInfoScanner {
     }
 
     public void parseMediaInfo(InputStream in,
-                               HashMap<String, String> infosGeneral,
-                               ArrayList<HashMap<String, String>> infosVideo,
-                               ArrayList<HashMap<String, String>> infosAudio,
-                               ArrayList<HashMap<String, String>> infosText) throws IOException {
+            HashMap<String, String> infosGeneral,
+            ArrayList<HashMap<String, String>> infosVideo,
+            ArrayList<HashMap<String, String>> infosAudio,
+            ArrayList<HashMap<String, String>> infosText) throws IOException {
         BufferedReader input = new BufferedReader(new InputStreamReader(in));
         // Improvement, less code line, each cat have same code, so use the same for all.
         Map<String, ArrayList<HashMap<String, String>>> matches = new HashMap<String, ArrayList<HashMap<String, String>>>();
@@ -418,16 +419,16 @@ public class MediaInfoScanner {
 
                         int duration;
                         try {
-                        duration = Integer.parseInt(infoValue) / 1000;
-                        // Issue 1176 - Prevent lost of NFO Data
-                        if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                            movie.setRuntime(StringTools.formatDuration(duration));
+                            duration = Integer.parseInt(infoValue) / 1000;
+                            // Issue 1176 - Prevent lost of NFO Data
+                            if (movie.getRuntime().equals(Movie.UNKNOWN)) {
+                                movie.setRuntime(StringTools.formatDuration(duration));
+                            }
+                        } catch (NumberFormatException nfe) {
+                            logger.debug(nfe.getMessage());
                         }
-                        } catch( NumberFormatException nfe) {
-                            logger.debug( nfe.getMessage()) ;
                     }
                 }
-            }
             }
 
             // Add the video codec to the list
@@ -627,7 +628,7 @@ public class MediaInfoScanner {
                         }
                     }
                 } else {
-                    logger.debug("MediaInfo Scanner - Subtitle format skipped: " + infoFormat);
+                    logger.debug("MediaInfoScanner: Subtitle format skipped: " + infoFormat);
                 }
 
             }
@@ -668,7 +669,7 @@ public class MediaInfoScanner {
             return null;
         }
 
-        logger.debug("YYX mediainfo mini-scan on "+movieFilePath);
+        logger.debug("MediaInfoScanner: mini-scan on " + movieFilePath);
 
         try {
             // Create the command line
@@ -687,22 +688,22 @@ public class MediaInfoScanner {
             Process p = pb.start();
 
             BufferedReader input = new BufferedReader(
-                                                      new InputStreamReader(
-                                                                            p.getInputStream()));
+                    new InputStreamReader(
+                    p.getInputStream()));
             String line;
             String mediaArchive = null;
 
             while ((line = localInputReadLine(input)) != null) {
                 Pattern patternArchive =
-                    Pattern.compile("^\\s*\\d+\\s(.*)$");
+                        Pattern.compile("^\\s*\\d+\\s(.*)$");
                 Matcher m = patternArchive.matcher(line);
-                if(m.find() && (m.groupCount() == 1)) {
+                if (m.find() && (m.groupCount() == 1)) {
                     mediaArchive = m.group(1);
                 }
             }
             input.close();
 
-            logger.debug("YYX Returning with archivename "+mediaArchive);
+            logger.debug("MediaInfoScanner: Returning with archivename " + mediaArchive);
 
             return mediaArchive;
 
@@ -712,7 +713,6 @@ public class MediaInfoScanner {
 
         return null;
     }
-
 
     /**
      * Look for the mediaInfo filename and return it.
