@@ -644,10 +644,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     logger.debug("TheTvDBPlugin: No exact match for " + movie.getTitle() + " found, using " + series.getSeriesName());
                 }
 
+                id = String.valueOf(series.getId());
+
                 // Add the series to the cache (no need to get it again
                 Cache.addToCache(Cache.generateCacheKey(CACHE_SERIES, id, language), series);
 
-                id = String.valueOf(series.getId());
                 movie.setId(THETVDB_PLUGIN_ID, id);
 
                 if (StringTools.isValidString(series.getImdbId())) {
