@@ -12,43 +12,17 @@
  */
 package com.moviejukebox.plugin;
 
-import static com.moviejukebox.tools.StringTools.isNotValidString;
-import static com.moviejukebox.tools.StringTools.isValidString;
-import static com.moviejukebox.tools.StringTools.trimToLength;
-
+import com.moviejukebox.model.*;
+import com.moviejukebox.scanner.artwork.FanartScanner;
+import static com.moviejukebox.tools.StringTools.*;
+import com.moviejukebox.tools.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.log4j.Logger;
-
-import com.moviejukebox.model.Award;
-import com.moviejukebox.model.AwardEvent;
-import com.moviejukebox.model.Filmography;
-import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.ImdbSiteDataDefinition;
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.scanner.artwork.FanartScanner;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 
@@ -175,7 +149,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      */
     private boolean updateImdbMediaInfo(Movie movie) {
         String imdbID = movie.getId(IMDB_PLUGIN_ID);
-        boolean imdbNewVersion = false; // Used to fork the processing for the new version of IMDb
+        boolean imdbNewVersion; // Used to fork the processing for the new version of IMDb
         boolean returnStatus = false;
 
         try {
@@ -649,7 +623,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // COUNTRY
         if (movie.getCountry().equals(Movie.UNKNOWN)) {
-            for (String country : HTMLTools.extractTags(xml, siteDef2.getCountry() + ":</h4>", "</div>", "<a href", "</a>")) {
+            for (String country : HTMLTools.extractTags(xml, siteDef2.getCountry() + ":</h4>", "</div>", "onclick=\"", "</a>")) {
                 if (country != null) {
                     // TODO Save more than one country
                     movie.setCountry(HTMLTools.removeHtmlTags(country));
@@ -1526,7 +1500,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             beginIndex = xmlInfo.indexOf("birth_place=", beginIndex);
-            String place = "";
+            String place;
             if (beginIndex > -1) {
                 place = xmlInfo.substring(xmlInfo.indexOf("\">", beginIndex) + 2, xmlInfo.indexOf("</a>", beginIndex));
                 if (isValidString(place)) {
