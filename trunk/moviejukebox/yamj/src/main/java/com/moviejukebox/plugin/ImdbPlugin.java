@@ -652,7 +652,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // QUOTE
         if (movie.getQuote().equals(Movie.UNKNOWN)) {
-            for (String quote : HTMLTools.extractTags(xml, "<h4>" + siteDef2.getQuotes() + "</h4>", "<span class=\"", "<a ", "<br")) {
+            for (String quote : HTMLTools.extractTags(xml, "<h4>" + siteDef2.getQuotes() + "</h4>", "<span class=\"", "<br", "<br")) {
                 if (quote != null) {
                     quote = HTMLTools.stripTags(quote);
                     movie.setQuote(cleanStringEnding(quote));
