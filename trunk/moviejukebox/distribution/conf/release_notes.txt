@@ -59,6 +59,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2271 AudioCodec uses codec and not CodecIdHint for information
  - Enhancement  #2273 Award scanner: User to select if scans only scans for won
  - Fixed defect #2283 Country not scraped from IMDb
+ - Fixed defect #2290 RAR: Archive name added repeatedly to fileurl
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------
