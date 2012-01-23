@@ -155,7 +155,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     if (movie.getRuntime().equals(Movie.UNKNOWN)) {
                         movie.setRuntime(series.getRuntime());
                     }
-
+                    
                     if (movie.getCompany().equals(Movie.UNKNOWN)) {
                         movie.setCompany(series.getNetwork());
                     }
@@ -646,6 +646,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                 id = String.valueOf(series.getId());
 
+                series=getSeries(id);
+                
                 // Add the series to the cache (no need to get it again
                 Cache.addToCache(Cache.generateCacheKey(CACHE_SERIES, id, language), series);
 
