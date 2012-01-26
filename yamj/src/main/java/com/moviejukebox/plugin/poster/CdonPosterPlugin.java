@@ -214,7 +214,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         try {
             xml = getCdonMovieDetailsPage(id);
             // extract poster url and return it
-            posterURL = extractCdonPosterUrl(xml);
+            posterURL = extractCdonPosterUrl(xml, id);
         } catch (Exception error) {
             logger.error(" CdonPosterPlugin: Failed retreiving Cdon poster for movie : " + id);
             logger.error(SystemTools.getStackTrace(error));
@@ -302,7 +302,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         }
     }
 
-    protected String extractCdonPosterUrl(String cdonMoviePage) {
+    protected String extractCdonPosterUrl(String cdonMoviePage, String id) {
 
         String cdonPosterURL = Movie.UNKNOWN;
         String[] htmlArray = cdonMoviePage.split("<");
@@ -315,7 +315,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             // if not found look for a small cover
             cdonPosterURL = findUrlString("/media-dynamic/images/product/", htmlArray);
         } else {
-            logger.info("CdonPosterPlugin: No CDON cover was found for movie ");
+            logger.debug("CdonPosterPlugin: No CDON cover was found for video: " + id);
         }
         return cdonPosterURL;
     }
