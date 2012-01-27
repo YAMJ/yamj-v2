@@ -23,10 +23,12 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import org.apache.log4j.Logger;
 
 public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
 
     private WebBrowser webBrowser;
+    private static Logger logger = Logger.getLogger(MotechnetPosterPlugin.class);
 
     public MotechnetPosterPlugin() {
         super();

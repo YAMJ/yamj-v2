@@ -25,9 +25,11 @@ import com.moviejukebox.plugin.MovieMeterPluginSession;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
+import org.apache.log4j.Logger;
 
 public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
     private WebBrowser webBrowser;
+    private static Logger logger = Logger.getLogger(MovieMeterPosterPlugin.class);
 
     private String preferredSearchEngine;
     private MovieMeterPluginSession session;

@@ -21,11 +21,13 @@ import com.moviejukebox.plugin.AllocinePlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import org.apache.log4j.Logger;
 
 public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
 
     private WebBrowser webBrowser;
     private AllocinePlugin allocinePlugin;
+    private static Logger logger = Logger.getLogger(PassionXbmcPosterPlugin.class);
 
     public PassionXbmcPosterPlugin() {
         super();

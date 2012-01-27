@@ -22,10 +22,12 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import org.apache.log4j.Logger;
 
 public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
 
     private WebBrowser webBrowser;
+    private static Logger logger = Logger.getLogger(FilmUpItPosterPlugin.class);
 
     public FilmUpItPosterPlugin() {
         super();

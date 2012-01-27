@@ -12,19 +12,14 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import org.apache.log4j.Logger;
-
-import com.moviejukebox.model.IMovieBasicInformation;
-import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.Image;
+import com.moviejukebox.model.*;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import org.apache.log4j.Logger;
 
 public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
 
-    protected static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(AbstractMoviePosterPlugin.class);
     protected static String searchPriorityMovie = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie", "").toLowerCase();
     protected static String searchPriorityTv = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "").toLowerCase();
 

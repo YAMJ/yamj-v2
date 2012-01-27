@@ -12,22 +12,24 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-
-import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import org.apache.log4j.Logger;
 
 public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
 //    private static Logger logger = Logger.getLogger("moviejukebox");
 
     private WebBrowser webBrowser = new WebBrowser();
+    private static Logger logger = Logger.getLogger(CaratulasdecinePosterPlugin.class);
+    
     private static final String SEARCH_START = "La Web";
     private static final String SEARCH_END = "Sugerencias de búsqueda";
     private static final String TITLE_START = "Carátula de la película: ";
@@ -44,12 +46,13 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     /**
-     * Look for the movie URL in the XML.
-     * If there is no title, or the title is not found, return the first movie URL
+     * Look for the movie URL in the XML. If there is no title, or the title is
+     * not found, return the first movie URL
+     *
      * @param xml
      * @param title
      * @return
-     * @throws IOException 
+     * @throws IOException
      */
     private String getMovieId(String xml, String title) throws IOException {
         String movieId = Movie.UNKNOWN;
@@ -81,7 +84,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
         if (beginIndex > -1) {
             movieId = new String(xml.substring(beginIndex + SEARCH_ID_START.length(), xml.indexOf(" ", beginIndex + SEARCH_ID_START.length())));
         }
-        
+
         return movieId;
     }
 
@@ -136,7 +139,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                 int beginIndex = xml.indexOf(searchString);
                 if (beginIndex > -1) {
                     posterURL = "http://www.caratulasdecine.com/"
-                            + new String(xml.substring(beginIndex + searchString.length(), xml.indexOf(" ", beginIndex + searchString.length()) - 1 ));
+                            + new String(xml.substring(beginIndex + searchString.length(), xml.indexOf(" ", beginIndex + searchString.length()) - 1));
                 }
 
             } catch (Exception error) {
@@ -144,11 +147,11 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                 logger.error("Error : " + error.getMessage());
             }
         }
-        
+
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
             return new Image(posterURL);
         }
-        
+
         return Image.UNKNOWN;
     }
 

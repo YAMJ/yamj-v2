@@ -21,11 +21,13 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.AllocinePlugin;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import org.apache.log4j.Logger;
 
 public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
 
     private AllocinePlugin allocinePlugin;
-
+    private static Logger logger = Logger.getLogger(AllocinePosterPlugin.class);
+    
     public AllocinePosterPlugin() {
         super();
 
