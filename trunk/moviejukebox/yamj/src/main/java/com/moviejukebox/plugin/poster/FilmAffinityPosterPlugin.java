@@ -20,10 +20,12 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.plugin.FilmAffinityInfo;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
+import org.apache.log4j.Logger;
 
 public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
     private WebBrowser webBrowser;
     private FilmAffinityInfo filmAffinityInfo;
+    private static Logger logger = Logger.getLogger(FilmAffinityPosterPlugin.class);
 
     public FilmAffinityPosterPlugin() {
         super();

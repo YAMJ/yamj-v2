@@ -21,11 +21,13 @@ import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 
 import java.io.IOException;
+import org.apache.log4j.Logger;
 
 public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
 
     private WebBrowser webBrowser;
     private FilmwebPlugin filmwebPlugin;
+    private static Logger logger = Logger.getLogger(FilmwebPosterPlugin.class);
 
     public FilmwebPosterPlugin() {
         super();
