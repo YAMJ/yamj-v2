@@ -482,8 +482,14 @@ public class MovieJukeboxXMLWriter {
                                     award.setNominated(Integer.parseInt(eAward.getAttribute("nominated")));
                                     award.setWon(Integer.parseInt(eAward.getAttribute("won")));
                                     award.setYear(Integer.parseInt(eAward.getAttribute("year")));
-                                    award.setWons(Arrays.asList(eAward.getAttribute("wons").split(" / ")));
-                                    award.setNominations(Arrays.asList(eAward.getAttribute("nominations").split(" / ")));
+                                    String tmpAward = eAward.getAttribute("wons");
+                                    if (StringTools.isValidString(tmpAward)) {
+                                        award.setWons(Arrays.asList(tmpAward.split(" / ")));
+                                    }
+                                    tmpAward = eAward.getAttribute("nominations");
+                                    if (StringTools.isValidString(tmpAward)) {
+                                        award.setNominations(Arrays.asList(tmpAward.split(" / ")));
+                                    }
 
                                     awardEvent.addAward(award);
                                 }

@@ -85,6 +85,11 @@ public class Library implements Map<String, Movie> {
     private static boolean removeTitleExplodeSet = false;
     private static String setsRating = "first";
     private static String indexList;
+    private static List<String> awardEventList;
+    private static List<String> awardNameList;
+    private static List<String> awardNominated;
+    private static List<String> awardWon;
+    private static boolean scrapeWonAwards = false;
     private static boolean splitHD = false;
     private static boolean processExtras = true;
     private static boolean hideWatched = true;
@@ -144,6 +149,15 @@ public class Library implements Map<String, Movie> {
         removeTitleExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet.title", "false");
         singleSeriesPage = PropertiesUtil.getBooleanProperty("mjb.singleSeriesPage", "false");
         indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
+        String awardTmp = PropertiesUtil.getProperty("mjb.categories.award.events", "");
+        awardEventList = StringTools.isValidString(awardTmp)?Arrays.asList(awardTmp.split(" / ")):new ArrayList<String>();
+        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.name", "");
+        awardNameList = StringTools.isValidString(awardTmp)?Arrays.asList(awardTmp.split(" / ")):new ArrayList<String>();
+        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.nominated", "");
+        awardNominated = StringTools.isValidString(awardTmp)?Arrays.asList(awardTmp.split(" / ")):new ArrayList<String>();
+        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.won", "");
+        awardWon = StringTools.isValidString(awardTmp)?Arrays.asList(awardTmp.split(" / ")):new ArrayList<String>();
+        scrapeWonAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", "false").equalsIgnoreCase("won");
         splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
         processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", "true");
         hideWatched = PropertiesUtil.getBooleanProperty("mjb.Library.hideWatched", "true");
@@ -1051,11 +1065,43 @@ public class Library implements Map<String, Movie> {
         Index index = new Index(true);
         for (Movie movie : list) {
             if (!movie.isExtra()) {
-                for (AwardEvent award : movie.getAwards()) {
-                    String awardName = award.getName();
-                    logger.debug("Adding " + movie.getTitle() + " to award list for " + awardName);
-                    index.addMovie(awardName, movie);
-                    movie.addIndex(INDEX_AWARD, awardName);
+                for (AwardEvent awardEvent : movie.getAwards()) {
+                    String awardName = awardEvent.getName();
+                    boolean found = awardEventList.isEmpty() && awardNameList.isEmpty();
+                    if (found || awardEventList.contains(awardName) || !awardNameList.isEmpty()) {
+                        if (!found) {
+                            for (Award award : awardEvent.getAwards()) {
+                                if (awardNameList.isEmpty() || awardNameList.contains(award.getName())) {
+                                    int flag = (scrapeWonAwards?0:((awardNominated.isEmpty()?0:8) + (award.getNominations().isEmpty()?0:4))) + (awardWon.isEmpty()?0:2) + (award.getWons().isEmpty()?0:1);
+                                    found = "145".indexOf(Integer.toString(flag)) > -1;
+                                    if (!found && (flag > 10)) {
+                                        for (String nomination : award.getNominations()) {
+                                            found = awardNominated.contains(nomination);
+                                            if (found) {
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (!found && !awardWon.isEmpty() && !award.getWons().isEmpty()) {
+                                        for (String nomination : award.getWons()) {
+                                            found = awardWon.contains(nomination);
+                                            if (found) {
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (found) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (found) {
+                        logger.debug("Adding " + movie.getTitle() + " to award list for " + awardName);
+                        index.addMovie(awardName, movie);
+                        movie.addIndex(INDEX_AWARD, awardName);
+                    }
                 }
             }
         }
