@@ -1119,13 +1119,15 @@ public class MovieJukebox {
                             String name = person.getName();
                             for (String key : popularPeople.keySet()) {
                                 if (key.substring(3).equalsIgnoreCase(name)) {
-                                    popularPeople.get(key).popularityUp();
+                                    popularPeople.get(key).popularityUp(movie);
                                     exists = true;
                                 }
                             }
                             if (!exists) {
                                 Person p = new Person(person);
-                                popularPeople.put(String.format("%03d", person.getOrder()) + person.getName(), p);
+                                String key = String.format("%03d", person.getOrder()) + person.getName();
+                                popularPeople.put(key, p);
+                                popularPeople.get(key).popularityUp(movie);
                             }
                         }
                     } else {
