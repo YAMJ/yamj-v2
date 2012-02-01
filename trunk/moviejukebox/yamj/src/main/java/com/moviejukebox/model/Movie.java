@@ -14,6 +14,7 @@ package com.moviejukebox.model;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -101,6 +102,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private int highdef720 = PropertiesUtil.getIntProperty("highdef.720.width", "1280");    // Get the minimum width for a high-definition movies
     private int highdef1080 = PropertiesUtil.getIntProperty("highdef.1080.width", "1920");  // Get the minimum width for a high-definition movies
     private String[] ratingSource = PropertiesUtil.getProperty("mjb.rating.source", "average").split(",");
+    private String tmpRatingIgnore = PropertiesUtil.getProperty("mjb.rating.ignore", "");
+    private List<String> ratingIgnore = StringTools.isValidString(tmpRatingIgnore)?Arrays.asList(tmpRatingIgnore.split(",")):new ArrayList<String>();
     private static HashSet<String> genreSkipList = new HashSet<String>();   // List of genres to ignore
     private static String titleSortType = PropertiesUtil.getProperty("mjb.sortTitle", "title");
     /*--------------------------------------------------------------------------------
@@ -1450,11 +1453,27 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 int count = 0;
 
                 for (String ratingSite : ratings.keySet()) {
+                    if (ratingIgnore.size() > 0) {
+                        if (ratingIgnore.contains(ratingSite)) {
+                            continue;
+                        } else {
+                            boolean found = false;
+                            for (String ignoreName : ratingIgnore) {
+                                if (ratingSite.indexOf(ignoreName) == 0) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (found) {
+                                continue;
+                            }
+                        }
+                    }
                     rating += ratings.get(ratingSite);
                     count++;
                 }
 
-                return (rating / count);
+                return (count > 0?(rating / count):0);
             }
 
             if (ratings.containsKey(site)) {
