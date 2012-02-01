@@ -61,6 +61,8 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2283 Country not scraped from IMDb
  - Fixed defect #2288 TV Episodes Not Scraping Studio/Company
  - Fixed defect #2290 RAR: Archive name added repeatedly to fileurl
+ - Fixed defect #2310 People Scanner Not Working Correctly
+ - Fixed defect #2311 People Photo Not Retrieved
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------

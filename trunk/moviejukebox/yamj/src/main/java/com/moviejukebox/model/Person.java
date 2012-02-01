@@ -44,6 +44,7 @@ public class Person extends Filmography {
     private List<Filmography> filmography = new ArrayList<Filmography>();
     private List<String>      aka         = new ArrayList<String>();
     private String  lastModifiedAt;
+    private List<Movie> movies            = new ArrayList<Movie>();
 
     public Person() {
     }
@@ -261,5 +262,16 @@ public class Person extends Filmography {
 
     public void popularityUp(Integer value) {
         popularity += value;
+    }
+
+    public void popularityUp(Movie movie) {
+        if (movie != null && !movies.contains(movie)) {
+            movies.add(movie);
+        }
+        popularity = movies.size();
+    }
+
+    public List<Movie> getMovies() {
+        return movies;
     }
 }

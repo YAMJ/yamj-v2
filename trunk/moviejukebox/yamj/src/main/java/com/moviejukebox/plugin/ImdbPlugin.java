@@ -1401,7 +1401,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     public boolean scan(Person person) {
         String imdbId = person.getId(IMDB_PLUGIN_ID);
         if (isNotValidString(imdbId)) {
-            imdbId = imdbInfo.getImdbPersonId(person.getName(), person.getJob());
+            String movieId = Movie.UNKNOWN;
+            for (Movie movie : person.getMovies()) {
+                movieId = movie.getId(IMDB_PLUGIN_ID);
+                if (isValidString(movieId)) {
+                    break;
+                }
+            }
+            imdbId = imdbInfo.getImdbPersonId(person.getName(), movieId);
             person.setId(IMDB_PLUGIN_ID, imdbId);
         }
 
@@ -1629,14 +1636,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                             }
                         }
                         if (isNotValidString(character)) {
-                            String movieXML = webBrowser.request(URL + "fullcredits");
-                            beginIndex = movieXML.indexOf("Cast</a>");
-                            if (beginIndex > -1) {
-                                character = HTMLTools.extractTag(movieXML.substring(beginIndex), "<a href=\"/name/" + person.getId(), "</td></tr>");
-                                character = character.substring(character.lastIndexOf("\">") + 2).replace("</a>", "").replace("\"", "'").replaceAll("^\\s+", "");
-                            }
-                        }
-                        if (isNotValidString(character)) {
                             character = Movie.UNKNOWN;
                         }
                     }
@@ -1662,7 +1661,20 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             int count = 0;
             while (iterFilm.hasNext() && count < preferredFilmographyMax) {
                 obj = iterFilm.next();
-                person.addFilm(filmography.get(obj));
+                Filmography film = filmography.get(obj);
+                if ((film.getJob().equalsIgnoreCase("actor") || film.getJob().equalsIgnoreCase("actress")) && isNotValidString(film.getCharacter())) {
+                    String movieXML = webBrowser.request(siteDef.getSite() + "title/" + film.getId() + "/" + "fullcredits");
+                    beginIndex = movieXML.indexOf("Cast</a>");
+                    String character = Movie.UNKNOWN;
+                    if (beginIndex > -1) {
+                        character = HTMLTools.extractTag(movieXML.substring(beginIndex), "<a href=\"/name/" + person.getId(), "</td></tr>");
+                        character = character.substring(character.lastIndexOf("\">") + 2).replace("</a>", "").replace("\"", "'").replaceAll("^\\s+", "");
+                    }
+                    if (isValidString(character)) {
+                        film.setCharacter(character);
+                    }
+                }
+                person.addFilm(film);
                 count++;
             }
         }

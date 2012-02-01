@@ -109,8 +109,36 @@ public class ImdbInfo {
      * @param job
      * @return
      */
-    public String getImdbPersonId(String movieName, String job) {
-        return getImdbPersonId(movieName);
+    public String getImdbPersonId(String personName, String movieId) {
+        try {
+            if (StringTools.isValidString(movieId)) {
+                StringBuilder sb = new StringBuilder(siteDef.getSite() + "search/name?name=");
+                sb.append(URLEncoder.encode(personName, "iso-8859-1")).append("&role=").append(movieId);
+
+                logger.debug("ImdbInfo Querying IMDB for " + sb.toString());
+                String xml = webBrowser.request(sb.toString());
+
+                // Check if this is an exact match (we got a person page instead of a results list)
+                Pattern titleregex = Pattern.compile(Pattern.quote("<link rel=\"canonical\" href=\"" + siteDef.getSite() + "name/(nm\\d+)/\""));
+                Matcher titlematch = titleregex.matcher(xml);
+                if (titlematch.find()) {
+                    logger.debug("ImdbInfo: IMDb returned one match " + titlematch.group(1));
+                    return titlematch.group(1);
+                }
+
+                String firstPersonId = HTMLTools.extractTag(HTMLTools.extractTag(xml, "<tr class=\"even detailed\">", "</tr>"), "<a href=\"/name/", "/\"");
+                if (StringTools.isValidString(firstPersonId)) {
+                    return firstPersonId;
+                }
+            }
+
+            return getImdbPersonId(personName);
+        } catch (Exception error) {
+            logger.error("ImdbInfo Failed retreiving IMDb Id for person : " + personName);
+            logger.error("ImdbInfo Error : " + error.getMessage());
+        }
+
+        return Movie.UNKNOWN;
     }
 
     /**
@@ -118,17 +146,17 @@ public class ImdbInfo {
      * @param movieName
      * @return
      */
-    public String getImdbPersonId(String movieName) {
+    public String getImdbPersonId(String personName) {
         objectType = "person";
 
         if ("google".equalsIgnoreCase(preferredSearchEngine)) {
-            return getImdbIdFromGoogle(movieName, Movie.UNKNOWN);
+            return getImdbIdFromGoogle(personName, Movie.UNKNOWN);
         } else if ("yahoo".equalsIgnoreCase(preferredSearchEngine)) {
-            return getImdbIdFromYahoo(movieName, Movie.UNKNOWN);
+            return getImdbIdFromYahoo(personName, Movie.UNKNOWN);
         } else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
             return Movie.UNKNOWN;
         } else {
-            return getImdbIdFromImdb(movieName.toLowerCase(), Movie.UNKNOWN);
+            return getImdbIdFromImdb(personName.toLowerCase(), Movie.UNKNOWN);
         }
     }
 
@@ -254,37 +282,44 @@ public class ImdbInfo {
                return titlematch.group(1);
             }
 
-            String otherMovieName = HTMLTools.extractTag(HTMLTools.extractTag(xml, ";ttype=ep\">", "\"</a>.</li>"), "<b>" , "</b>").toLowerCase();
-            String formattedMovieName;
-            if (StringTools.isValidString(otherMovieName)) {
-                if (StringTools.isValidString(year) && otherMovieName.endsWith(")") && otherMovieName.contains("(")) {
-                    otherMovieName = otherMovieName.substring(0,otherMovieName.lastIndexOf("(")-1);
-                    formattedMovieName = otherMovieName + "</a> (" + year + ")";
+            if (objectType.equals("movie")) {
+                String otherMovieName = HTMLTools.extractTag(HTMLTools.extractTag(xml, ";ttype=ep\">", "\"</a>.</li>"), "<b>" , "</b>").toLowerCase();
+                String formattedMovieName;
+                if (StringTools.isValidString(otherMovieName)) {
+                    if (StringTools.isValidString(year) && otherMovieName.endsWith(")") && otherMovieName.contains("(")) {
+                        otherMovieName = otherMovieName.substring(0,otherMovieName.lastIndexOf("(")-1);
+                        formattedMovieName = otherMovieName + "</a> (" + year + ")";
+                    } else {
+                        formattedMovieName = otherMovieName + "</a>";
+                    }
                 } else {
-                    formattedMovieName = otherMovieName + "</a>";
+                    sb = new StringBuilder(URLEncoder.encode(movieName, "iso-8859-1").replace("+"," ")+"</a>");
+                    if (StringTools.isValidString(year)) {
+                        sb.append(" (").append(year).append(")");
+                    }
+                    otherMovieName = sb.toString();
+                    formattedMovieName = otherMovieName;
                 }
-            } else {
-                sb = new StringBuilder(URLEncoder.encode(movieName, "iso-8859-1").replace("+"," ")+"</a>");
-                if (StringTools.isValidString(year)) {
-                    sb.append(" (").append(year).append(")");
-                }
-                otherMovieName = sb.toString();
-                formattedMovieName = otherMovieName;
-            }
 
-            //logger.debug("ImdbInfo title search : " + formattedMovieName);
-            for (String searchResult : HTMLTools.extractTags(xml, "<div class=\"media_strip_thumbs\">", "<div id=\"sidebar\">", ".src='/rg/find-"+(objectType.equals("movie")?"title":"name")+"-", "</td>", false)) {
-                //logger.debug("ImdbInfo title check : " + searchResult);
-                if (searchResult.toLowerCase().indexOf(formattedMovieName) != -1) {
-                    //logger.debug("ImdbInfo title match : " + searchResult);
-                    return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals("movie")?"/title/":"/name/"), "/';\">");
-                } else {
-                    for (String otherResult : HTMLTools.extractTags(searchResult, "</';\">", "</p>", "<p class=\"find-aka\">", "</em>", false)) {
-                        if (otherResult.toLowerCase().indexOf("\"" + otherMovieName + "\"") != -1) {
-                            //logger.debug("ImdbInfo othertitle match : " + otherResult);
-                            return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals("movie")?"/title/":"/name/"), "/';\">");
+                //logger.debug("ImdbInfo title search : " + formattedMovieName);
+                for (String searchResult : HTMLTools.extractTags(xml, "<div class=\"media_strip_thumbs\">", "<div id=\"sidebar\">", ".src='/rg/find-"+(objectType.equals("movie")?"title":"name")+"-", "</td>", false)) {
+                    //logger.debug("ImdbInfo title check : " + searchResult);
+                    if (searchResult.toLowerCase().indexOf(formattedMovieName) != -1) {
+                        //logger.debug("ImdbInfo title match : " + searchResult);
+                        return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals("movie")?"/title/":"/name/"), "/';\">");
+                    } else {
+                        for (String otherResult : HTMLTools.extractTags(searchResult, "</';\">", "</p>", "<p class=\"find-aka\">", "</em>", false)) {
+                            if (otherResult.toLowerCase().indexOf("\"" + otherMovieName + "\"") != -1) {
+                                //logger.debug("ImdbInfo othertitle match : " + otherResult);
+                                return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals("movie")?"/title/":"/name/"), "/';\">");
+                            }
                         }
                     }
+                }
+            } else {
+                String firstPersonId = HTMLTools.extractTag(HTMLTools.extractTag(xml, "<table><tr> <td valign=\"top\">", "</td></tr></table>"), "<a href=\"/name/", "/\"");
+                if (StringTools.isValidString(firstPersonId)) {
+                    return firstPersonId;
                 }
             }
 
