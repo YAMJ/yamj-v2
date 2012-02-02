@@ -1401,7 +1401,14 @@ public class MovieJukebox {
 
                         for (int inx = 0; inx < footerCount; inx++) {
                             if (footerEnable.get(inx)) {
-                                movie.setFooterFilename(safeSetMasterBaseName + (footerName.get(inx).contains("[") ? (footerToken + "_" + inx) : ("." + footerName.get(inx))) + "." + footerExtension.get(inx), inx);
+                                StringBuilder sb = new StringBuilder(safeSetMasterBaseName);
+                                if (footerName.get(inx).contains("[")) {
+                                    sb.append(footerToken).append("_").append(inx);
+                                } else {
+                                    sb.append(".").append(footerName.get(inx));
+                                }
+                                sb.append(".").append(footerExtension.get(inx));
+                                movie.setFooterFilename(sb.toString(), inx);
                             }
                         }
 
@@ -1970,7 +1977,14 @@ public class MovieJukebox {
         // Update footer format if needed
         for (int i = 0; i < footerCount; i++) {
             if (footerEnable.get(i)) {
-                movie.setFooterFilename(movie.getBaseName() + (footerName.get(i).contains("[") ? (footerToken + "_" + i) : ("." + footerName.get(i))) + "." + footerExtension.get(i), i);
+                StringBuilder sb = new StringBuilder(movie.getBaseFilename());
+                if (footerName.get(i).contains("[")) {
+                    sb.append(footerToken).append(" ").append(i);
+                } else {
+                    sb.append(".").append(footerName.get(i));
+                }
+                sb.append(".").append(footerExtension.get(i));
+                movie.setFooterFilename(sb.toString(), i);
             }
         }
 

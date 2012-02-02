@@ -12,35 +12,6 @@
  */
 package com.moviejukebox.model;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.TreeSet;
-
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.XmlValue;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime.DateTime;
-
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
@@ -49,6 +20,15 @@ import com.moviejukebox.tools.BooleanYesNoAdapter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.UrlCodecAdapter;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Map.Entry;
+import java.util.*;
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.pojava.datetime.DateTime;
 
 /**
  * Movie bean
@@ -2509,7 +2489,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.posterFilename = aMovie.posterFilename;
         newMovie.detailPosterFilename = aMovie.detailPosterFilename;
         newMovie.thumbnailFilename = aMovie.thumbnailFilename;
-        newMovie.footerFilename = aMovie.footerFilename;
         newMovie.fanartURL = aMovie.fanartURL;
         newMovie.fanartFilename = aMovie.fanartFilename;
         newMovie.bannerURL = aMovie.bannerURL;
@@ -2542,6 +2521,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.extraFiles = new TreeSet<ExtraFile>(aMovie.extraFiles);
         newMovie.dirtyFlags = new HashMap<String, Boolean>(aMovie.dirtyFlags);
         newMovie.codecs = new LinkedHashSet<Codec>(aMovie.codecs);
+        newMovie.footerFilename = new ArrayList<String>(aMovie.footerFilename);
 
         return newMovie;
     }
