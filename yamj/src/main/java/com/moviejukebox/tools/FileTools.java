@@ -12,49 +12,18 @@
  */
 package com.moviejukebox.tools;
 
-import static com.moviejukebox.tools.PropertiesUtil.getProperty;
-import static org.apache.commons.lang.StringUtils.substringAfter;
-import static org.apache.commons.lang.StringUtils.substringBefore;
-import static org.apache.commons.lang.StringUtils.trimToNull;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
-
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import static com.moviejukebox.tools.PropertiesUtil.getProperty;
+import java.io.*;
+import java.nio.channels.FileChannel;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import org.apache.commons.io.FilenameUtils;
+import static org.apache.commons.lang.StringUtils.*;
+import org.apache.log4j.Logger;
 
-// import com.moviejukebox.tools.HTMLTools;
-@SuppressWarnings("unused")
 public class FileTools {
 
     private static Logger logger = Logger.getLogger("moviejukebox");
@@ -682,6 +651,7 @@ public class FileTools {
         addJukeboxFile(movie.getThumbnailFilename());
         addJukeboxFile(movie.getBannerFilename());
         addJukeboxFile(movie.getFanartFilename());
+        
         if (videoimageDownload) {
             for (MovieFile mf : movie.getFiles()) {
                 for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
