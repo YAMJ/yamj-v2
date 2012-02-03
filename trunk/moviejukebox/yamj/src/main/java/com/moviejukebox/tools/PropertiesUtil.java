@@ -12,28 +12,11 @@
  */
 package com.moviejukebox.tools;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.io.*;
 import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
-
+import java.util.*;
 import org.apache.commons.lang.StringUtils;
+import static org.apache.commons.lang.StringUtils.isBlank;
 import org.apache.log4j.Logger;
 
 /**
@@ -43,7 +26,7 @@ import org.apache.log4j.Logger;
 public class PropertiesUtil {
 
     private static final String PROPERTIES_CHARSET = "UTF-8";
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(PropertiesUtil.class);
     private static Properties props = new Properties();
     private static String propertiesFilename = "preferences.xsl";
 

@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 
 /**
@@ -19,30 +19,13 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-
+import com.moviejukebox.model.Artwork.ArtworkFile;
+import com.moviejukebox.model.Artwork.ArtworkSize;
+import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.Artwork.ArtworkFile;
-import com.moviejukebox.model.Artwork.ArtworkSize;
-import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
@@ -53,17 +36,28 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.*;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import org.apache.log4j.Logger;
 
 /**
  * Scanner for fanart files in local directory
- * 
+ *
  * @author Stuart.Boston
  * @version 1.0, 10th December 2008 - Initial code
  * @version 1.1, 19th July 2009 - Added Internet search
  */
 public class FanartScanner {
 
-    protected static Logger logger = Logger.getLogger("moviejukebox");
+    protected static Logger logger = Logger.getLogger(FanartScanner.class);
     protected static Collection<String> fanartExtensions = new ArrayList<String>();
     protected static String fanartToken;
     protected static boolean fanartOverwrite;
@@ -87,7 +81,7 @@ public class FanartScanner {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
 
         fanartOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartOverwrite", "false");
-        
+
         // See if we use background.* or fanart.*
         useFolderBackground = PropertiesUtil.getBooleanProperty("fanart.scanner.useFolderImage", "false");
         if (useFolderBackground) {
@@ -167,7 +161,7 @@ public class FanartScanner {
             if (StringTools.isNotValidString(movie.getFanartFilename())) {
                 movie.setFanartFilename(movie.getBaseFilename() + fanartToken + "." + FileTools.getFileExtension(localFanartFile.getName()));
             }
-            
+
             if (StringTools.isNotValidString(movie.getFanartURL())) {
                 movie.setFanartURL(localFanartFile.toURI().toString());
             }
@@ -192,10 +186,10 @@ public class FanartScanner {
                         }
                         GraphicTools.saveImageToDisk(fanartImage, destFileName);
                         logger.debug("FanartScanner: " + fullFanartFilename + " has been copied to " + destFileName);
-                        
+
                         ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, fullFanartFilename, false);
                         movie.addArtwork(new com.moviejukebox.model.Artwork.Artwork(ArtworkType.Fanart, "local", fullFanartFilename, artworkFile));
-                        
+
                     } else {
                         movie.setFanartFilename(Movie.UNKNOWN);
                         movie.setFanartURL(Movie.UNKNOWN);
@@ -210,7 +204,7 @@ public class FanartScanner {
             // logger.debug("FanartScanner : No local Fanart found for " + movie.getBaseFilename() + " attempting to download");
             downloadFanart(backgroundPlugin, jukebox, movie);
         }
-        
+
         return foundLocalFanart;
     }
 
@@ -252,7 +246,7 @@ public class FanartScanner {
 
     /**
      * Get the Fanart for the movie from TheMovieDB.org
-     * 
+     *
      * @author Stuart.Boston
      * @param movie
      *            The movie bean to get the fanart for
@@ -286,7 +280,7 @@ public class FanartScanner {
             logger.debug("FanartScanner: Error getting fanart from TheMovieDB.org for " + movie.getBaseFilename());
             return Movie.UNKNOWN;
         }
-        
+
         try {
             List<Artwork> artworkList = moviedb.getArtwork(Artwork.ARTWORK_TYPE_BACKDROP, Artwork.ARTWORK_SIZE_ORIGINAL);
 
@@ -314,7 +308,7 @@ public class FanartScanner {
     /**
      * Checks for older fanart property in case the skin hasn't been updated.
      * TODO: Remove this procedure at some point
-     * 
+     *
      * @return true if the fanart is to be downloaded, or false otherwise
      */
     public static boolean checkDownloadFanart(boolean isTvShow) {
@@ -372,7 +366,7 @@ public class FanartScanner {
             if (in != null) {
                 in.close();
             }
-            
+
             if (iis != null) {
                 iis.close();
             }

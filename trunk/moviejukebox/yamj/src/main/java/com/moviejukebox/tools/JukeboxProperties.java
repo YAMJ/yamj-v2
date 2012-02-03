@@ -12,25 +12,22 @@
  */
 package com.moviejukebox.tools;
 
-import static com.moviejukebox.tools.PropertiesUtil.getProperty;
-
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
+import static com.moviejukebox.tools.PropertiesUtil.getProperty;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Save a pre-defined list of attributes of the jukebox and properties
@@ -40,7 +37,7 @@ import com.moviejukebox.model.Movie;
  *
  */
 public class JukeboxProperties {
-    private final static Logger logger = Logger.getLogger("moviejukebox");
+    private final static Logger logger = Logger.getLogger(JukeboxProperties.class);
     private final static Collection<PropertyInformation> propInfo = new ArrayList<PropertyInformation>();
     private final static String JUKEBOX = "jukebox";
     private final static String SKIN = "skin";

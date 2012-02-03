@@ -12,24 +12,17 @@
  */
 package com.moviejukebox.plugin;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintStream;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
-
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 
 /**
  * The MovieMeterPluginSession communicates with XML-RPC webservice of www.moviemeter.nl.
@@ -48,7 +41,7 @@ public final class MovieMeterPluginSession {
 
     public static String SESSION_FILENAME = "./temp/moviemeter.session";
     private static String MOVIEMETER_API_KEY = PropertiesUtil.getProperty("API_KEY_MovieMeter");
-    protected static Logger logger = Logger.getLogger("moviejukebox");
+    protected static Logger logger = Logger.getLogger(MovieMeterPluginSession.class);
     private String key;
     private Integer timestamp;
     private Integer counter;

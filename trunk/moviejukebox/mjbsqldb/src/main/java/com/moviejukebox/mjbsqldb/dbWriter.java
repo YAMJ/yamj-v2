@@ -1,34 +1,22 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 
 package com.moviejukebox.mjbsqldb;
 
+import com.moviejukebox.mjbsqldb.dto.*;
+import com.moviejukebox.mjbsqldb.tools.SQLTools;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-
-import com.moviejukebox.mjbsqldb.dto.ArtworkDTO;
-import com.moviejukebox.mjbsqldb.dto.CertificationDTO;
-import com.moviejukebox.mjbsqldb.dto.CodecDTO;
-import com.moviejukebox.mjbsqldb.dto.CompanyDTO;
-import com.moviejukebox.mjbsqldb.dto.CountryDTO;
-import com.moviejukebox.mjbsqldb.dto.GenreDTO;
-import com.moviejukebox.mjbsqldb.dto.LanguageDTO;
-import com.moviejukebox.mjbsqldb.dto.PersonDTO;
-import com.moviejukebox.mjbsqldb.dto.VideoDTO;
-import com.moviejukebox.mjbsqldb.dto.VideoFileDTO;
-import com.moviejukebox.mjbsqldb.dto.VideoFilePartDTO;
-import com.moviejukebox.mjbsqldb.dto.VideoSiteDTO;
-import com.moviejukebox.mjbsqldb.tools.SQLTools;
 
 public class dbWriter {
     // Join tables
@@ -41,7 +29,7 @@ public class dbWriter {
     public static int deleteIdFromTable(Connection connection, String tableName, String columnName, int tableId) {
         return deleteIdFromTable(connection, tableName, columnName, tableId, null, null);
     }
-    
+
     public static int deleteIdFromTable(Connection connection, String tableName, String columnName1, int tableId1, String columnName2, String tableId2) {
         PreparedStatement pstmt = null;
         try {
@@ -59,7 +47,7 @@ public class dbWriter {
 
         return 0;
     }
-    
+
     public static int insertArtwork(Connection connection, ArtworkDTO artworkDTO) throws Throwable {
         // See if we have a value (non-zero) ID
         if (artworkDTO.getId() == 0) {
@@ -84,7 +72,7 @@ public class dbWriter {
             pstmt.setInt   (5, artworkDTO.getRelatedId());
             pstmt.setString(6, artworkDTO.getForeignKey());
             pstmt.executeUpdate();
-            
+
             return artworkDTO.getId();
         } catch (Throwable tw) {
             throw new RuntimeException("Error inserting Artwork:  " + tw.getMessage(), tw);
@@ -92,7 +80,7 @@ public class dbWriter {
             SQLTools.close(pstmt);
         }
     }
-    
+
     public static int insertCertification(Connection connection, CertificationDTO certificationDTO) throws Throwable {
         // See if we have a value (non-zero) ID
         if (certificationDTO.getId() == 0) {
@@ -114,7 +102,7 @@ public class dbWriter {
             pstmt.setString(2, certificationDTO.getCertification());
             pstmt.executeUpdate();
             connection.commit();
-            
+
             return certificationDTO.getId();
         } catch (Throwable tw) {
             throw new RuntimeException("Error inserting Certification:  " + tw.getMessage(), tw);
@@ -122,7 +110,7 @@ public class dbWriter {
             SQLTools.close(pstmt);
         }
     }
-    
+
     public static int insertCodec(Connection connection, CodecDTO codecDTO) throws Throwable {
         // See if we have a value (non-zero) ID
         if (codecDTO.getId() == 0) {
@@ -145,7 +133,7 @@ public class dbWriter {
             pstmt.setString(3, codecDTO.getType());
             pstmt.executeUpdate();
             connection.commit();
-            
+
             return codecDTO.getId();
         } catch (Throwable tw) {
             throw new RuntimeException("Error inserting Codec " + codecDTO.toString() + ":  " + tw.getMessage(), tw);
@@ -153,7 +141,7 @@ public class dbWriter {
             SQLTools.close(pstmt);
         }
     }
-    
+
     public static int insertCompany(Connection connection, CompanyDTO companyDTO) throws Throwable {
         // See if we have a value (non-zero) ID
         if (companyDTO.getId() == 0) {
@@ -175,7 +163,7 @@ public class dbWriter {
             pstmt.setString(2, companyDTO.getCompany());
             pstmt.setString(3, companyDTO.getUrl());
             pstmt.executeUpdate();
-            
+
             return companyDTO.getId();
         } catch (Throwable tw) {
             throw new RuntimeException("Error inserting Company:  " + tw.getMessage(), tw);
@@ -205,7 +193,7 @@ public class dbWriter {
             pstmt.setString(2, countryDTO.getCountry());
             pstmt.setString(3, countryDTO.getUrl());
             pstmt.executeUpdate();
-            
+
             return countryDTO.getId();
         } catch (Throwable tw) {
             throw new RuntimeException("Error inserting Country:  " + tw.getMessage(), tw);
@@ -213,7 +201,7 @@ public class dbWriter {
             SQLTools.close(pstmt);
         }
     }
-    
+
     public static int insertGenre(Connection connection, GenreDTO genreDTO) throws Throwable {
         // See if we have a value (non-zero) ID
         if (genreDTO.getId() == 0) {
@@ -235,7 +223,7 @@ public class dbWriter {
             pstmt.setString(2, genreDTO.getName());
             pstmt.setString(3, genreDTO.getForeignKey());
             pstmt.executeUpdate();
-            
+
             return genreDTO.getId();
         } catch (Throwable tw) {
             throw new RuntimeException("Error inserting Genre:  " + tw.getMessage(), tw);
@@ -243,7 +231,7 @@ public class dbWriter {
             SQLTools.close(pstmt);
         }
     }
-    
+
     public static int insertLanguage(Connection connection, LanguageDTO languageDTO) throws Throwable {
         // See if we have a value (non-zero) ID
         if (languageDTO.getId() == 0) {
@@ -267,7 +255,7 @@ public class dbWriter {
             pstmt.setString(4, languageDTO.getMediumCode());
             pstmt.setString(5, languageDTO.getLongCode());
             pstmt.executeUpdate();
-            
+
             return languageDTO.getId();
         } catch (Throwable tw) {
             throw new RuntimeException("Error inserting Language:  " + tw.getMessage(), tw);
@@ -275,7 +263,7 @@ public class dbWriter {
             SQLTools.close(pstmt);
         }
     }
-    
+
     public static int insertPerson(Connection connection, PersonDTO personDTO) throws Throwable {
         // See if we have a value (non-zero) ID
         if (personDTO.getId() == 0) {
@@ -301,7 +289,7 @@ public class dbWriter {
             pstmt.setString (6, personDTO.getBiography());
             pstmt.setString (7, personDTO.getBirthday());
             pstmt.executeUpdate();
-            
+
             return personDTO.getId();
         } catch (Throwable tw) {
             throw new RuntimeException("Error inserting Person:  " + tw.getMessage(), tw);
@@ -309,7 +297,7 @@ public class dbWriter {
             SQLTools.close(pstmt);
         }
     }
-    
+
     public static int insertVideo(Connection connection, VideoDTO videoDTO) throws Throwable {
         // See if we have a value (non-zero) ID
         if (videoDTO.getId() == 0) {
@@ -327,7 +315,7 @@ public class dbWriter {
         PreparedStatement pstmt = null;
         try {
             pstmt = connection.prepareStatement(VideoDTO.INSERT_TABLE);
-            
+
             pstmt.setInt    ( 1, videoDTO.getId());
             pstmt.setString ( 2, videoDTO.getMjbVersion());
             pstmt.setInt    ( 3, videoDTO.getMjbRevision());
@@ -350,7 +338,7 @@ public class dbWriter {
             pstmt.setString (20, videoDTO.getLibraryDescription());
             pstmt.setInt    (21, videoDTO.getCertificationId());
             pstmt.executeUpdate();
-            
+
             return videoDTO.getId();
         } catch (Throwable tw) {
             throw new RuntimeException("Error inserting Video:  " + tw.getMessage(), tw);
@@ -358,7 +346,7 @@ public class dbWriter {
             SQLTools.close(pstmt);
         }
     }
-    
+
     public static int insertVideoFile(Connection connection, VideoFileDTO videoFileDTO) throws Throwable {
         // See if we have a value (non-zero) ID
         if (videoFileDTO.getId() == 0) {
@@ -395,7 +383,7 @@ public class dbWriter {
             pstmt.setInt   (17, videoFileDTO.getFirstPart());
             pstmt.setInt   (18, videoFileDTO.getLastPart());
             pstmt.executeUpdate();
-            
+
             return videoFileDTO.getId();
         } catch (Throwable tw) {
             throw new RuntimeException("Error inserting Video File:  " + tw.getMessage(), tw);
@@ -403,7 +391,7 @@ public class dbWriter {
             SQLTools.close(pstmt);
         }
     }
-    
+
     public static int insertVideoFilePart(Connection connection, VideoFilePartDTO videoFilePartDTO) throws Throwable {
         // See if we have a value (non-zero) ID
         if (videoFilePartDTO.getId() == 0) {
@@ -428,7 +416,7 @@ public class dbWriter {
             pstmt.setString(5, videoFilePartDTO.getPlot());
             pstmt.setInt   (6, videoFilePartDTO.getSeason());
             pstmt.executeUpdate();
-            
+
             return videoFilePartDTO.getId();
         } catch (Throwable tw) {
             throw new RuntimeException("Error inserting Video File Part:  " + tw.getMessage(), tw);
@@ -436,13 +424,13 @@ public class dbWriter {
             SQLTools.close(pstmt);
         }
     }
-    
+
     public static String insertVideoSite(Connection connection, VideoSiteDTO videoSiteDTO) throws Throwable {
         if (videoSiteDTO.getVideoId() == 0) {
             return "";
         }
-        
-        String siteID = dbReader.getVideoSiteId(connection, videoSiteDTO.getVideoId(), videoSiteDTO.getSite()); 
+
+        String siteID = dbReader.getVideoSiteId(connection, videoSiteDTO.getVideoId(), videoSiteDTO.getSite());
         if (siteID.equals("")) {
             PreparedStatement pstmt = null;
             try {
@@ -451,7 +439,7 @@ public class dbWriter {
                 pstmt.setString(2, videoSiteDTO.getSite());
                 pstmt.setString(3, videoSiteDTO.getSiteId());
                 pstmt.executeUpdate();
-                
+
                 return videoSiteDTO.getSiteId();
             } catch (Throwable tw) {
                 throw new RuntimeException("Error inserting Video Site: " + tw.getMessage(), tw);
@@ -462,19 +450,19 @@ public class dbWriter {
             return siteID;
         }
     }
-    
+
     public static void joinCompany(Connection connection, int videoId, int companyId) {
         joinTable(connection, JOIN_COMPANY, videoId, companyId);
     }
-    
+
     public static void joinCountry(Connection connection, int videoId, int countryId) {
         joinTable(connection, JOIN_COUNTRY, videoId, countryId);
     }
-    
+
     public static void joinGenre(Connection connection, int videoId, int genreId) {
         joinTable(connection, JOIN_GENRE, videoId, genreId);
     }
-    
+
     public static void joinLanguage(Connection connection, int videoId, int languageId) {
         joinTable(connection, JOIN_LANGUAGE, videoId, languageId);
     }
@@ -482,7 +470,7 @@ public class dbWriter {
     public static void joinPerson(Connection connection, int videoId, int personId) {
         joinTable(connection, JOIN_PERSON, videoId, personId);
     }
-    
+
     /**
      * Generic method to update a join table
      * @param connection
@@ -517,9 +505,9 @@ public class dbWriter {
             if (artwork.getId() > 0) {
                 deleteIdFromTable(connection, "artwork", "id", artwork.getId());
             }
-        
+
             insertArtwork(connection, artwork);
-            
+
             connection.commit();
         } catch (Throwable tw) {
             throw new RuntimeException("Error updating artwork table: " + tw.getMessage(), tw);
@@ -532,9 +520,9 @@ public class dbWriter {
             if (certification.getId() > 0) {
                 deleteIdFromTable(connection, "certification", "id", certification.getId());
             }
-            
+
             insertCertification(connection, certification);
-            
+
             connection.commit();
         } catch (Throwable tw) {
             throw new RuntimeException("Error updating certification table: " + tw.getMessage(), tw);
@@ -547,16 +535,16 @@ public class dbWriter {
             if (codec.getId() > 0) {
                 deleteIdFromTable(connection, "codec", "id", codec.getId());
             }
-            
+
             insertCodec(connection, codec);
-            
+
             connection.commit();
         } catch (Throwable tw) {
             throw new RuntimeException("Error updating codec table: " + tw.getMessage(), tw);
         }
         return codec.getId();
     }
-    
+
     public static int updateCompany(Connection connection, CompanyDTO company) throws Throwable {
         try {
             if (company.getId() > 0) {
@@ -564,7 +552,7 @@ public class dbWriter {
             }
 
             insertCompany(connection, company);
-            
+
             connection.commit();
         } catch (Throwable tw) {
             throw new RuntimeException("Error updating company table: " + tw.getMessage(), tw);
@@ -579,7 +567,7 @@ public class dbWriter {
             }
 
             insertCountry(connection, country);
-            
+
             connection.commit();
         } catch (Throwable tw) {
             throw new RuntimeException("Error updating country table: " + tw.getMessage(), tw);
@@ -594,7 +582,7 @@ public class dbWriter {
             }
 
             insertGenre(connection, genre);
-            
+
             connection.commit();
         } catch (Throwable tw) {
             throw new RuntimeException("Error updating genre table: " + tw.getMessage(), tw);
@@ -609,7 +597,7 @@ public class dbWriter {
             }
 
             insertLanguage(connection, language);
-            
+
             connection.commit();
         } catch (Throwable tw) {
             throw new RuntimeException("Error updating language table: " + tw.getMessage(), tw);
@@ -624,7 +612,7 @@ public class dbWriter {
             }
 
             insertPerson(connection, person);
-            
+
             connection.commit();
         } catch (Throwable tw) {
             throw new RuntimeException("Error updating person table: " + tw.getMessage(), tw);
@@ -639,7 +627,7 @@ public class dbWriter {
             }
 
             insertVideo(connection, video);
-            
+
             connection.commit();
         } catch (Throwable tw) {
             throw new RuntimeException("Error updating video table: " + tw.getMessage(), tw);
@@ -654,7 +642,7 @@ public class dbWriter {
             }
 
             insertVideoFile(connection, videoFile);
-            
+
             connection.commit();
         } catch (Throwable tw) {
             throw new RuntimeException("Error updating Video File table: " + tw.getMessage(), tw);
@@ -669,7 +657,7 @@ public class dbWriter {
             }
 
             insertVideoFilePart(connection, videoFilePart);
-            
+
             connection.commit();
         } catch (Throwable tw) {
             throw new RuntimeException("Error updating artwork table: " + tw.getMessage(), tw);
@@ -685,12 +673,12 @@ public class dbWriter {
                 // Just delete it. We don't care.
             }
             insertVideoSite(connection, videoSite);
-            
+
             connection.commit();
         } catch (Throwable tw) {
             throw new RuntimeException("Error updating Video Site table: " + tw.getMessage(), tw);
         }
         return videoSite.getVideoId();
     }
-    
+
 }

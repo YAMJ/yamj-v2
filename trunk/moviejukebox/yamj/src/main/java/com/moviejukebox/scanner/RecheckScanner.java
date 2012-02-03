@@ -1,24 +1,24 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.scanner;
 
-import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.StringTools.isNotValidString;
 import java.util.Date;
 import org.apache.log4j.Logger;
-import static com.moviejukebox.tools.StringTools.isNotValidString;
 
 /**
  * This function will validate the current movie object and return true if the movie needs to be re-scanned.
@@ -26,7 +26,7 @@ import static com.moviejukebox.tools.StringTools.isNotValidString;
  */
 public class RecheckScanner {
 
-    private static final Logger logger = Logger.getLogger("moviejukebox");
+    private static final Logger logger = Logger.getLogger(RecheckScanner.class);
 
     /*
      * Recheck variables
@@ -60,25 +60,25 @@ public class RecheckScanner {
         if (movie.isExtra()) {
             return false;
         }
-        
+
         logger.debug("RecheckScanner: Checking " + movie.getBaseName());
 
         /*
          * Always perform these checks, regardless of the recheckCount
          */
-        
+
         // Check for the version of YAMJ that wrote the XML file vs the current version
         //System.out.println("- mjbVersion : " + movie.getMjbVersion() + " (" + movie.getCurrentMjbVersion() + ")");
         if (recheckVersion && !movie.getMjbVersion().equalsIgnoreCase(movie.getCurrentMjbVersion())) {
             logger.debug("RecheckScanner: " + movie.getBaseName() + " XML is from a previous version, will rescan");
             return true;
         }
-        
+
         if (includePeople && movie.getPeople().isEmpty()) {
             logger.debug("RecheckScanner: " + movie.getBaseName() + " is missing people data, will rescan");
             return true;
         }
-        
+
         /*
          * End of permanent checks
          */

@@ -12,12 +12,7 @@
  */
 package com.moviejukebox.tools;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
@@ -27,17 +22,17 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
 
 /**
  * Web browser with simple cookies support
  */
 public class WebBrowser {
 
-    private static final Logger logger = Logger.getLogger("moviejukebox");
+    private static final Logger logger = Logger.getLogger(WebBrowser.class);
 
     private Map<String, String> browserProperties;
     private Map<String, Map<String, String>> cookies;

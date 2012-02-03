@@ -12,17 +12,15 @@
  */
 package com.moviejukebox.plugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ServiceLoader;
-
-import org.apache.log4j.Logger;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.SystemTools;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ServiceLoader;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -30,7 +28,7 @@ import com.moviejukebox.tools.SystemTools;
  */
 public class DatabasePluginController {
 
-    private static final Logger logger = Logger.getLogger("moviejukebox");
+    private static final Logger logger = Logger.getLogger(DatabasePluginController.class);
     private static boolean autoDetect = false;
     private static ArrayList<String> autoDetectList = new ArrayList<String>();
     /**

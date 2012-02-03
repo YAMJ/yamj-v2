@@ -12,20 +12,15 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.*;
 import com.moviejukebox.tools.CSVWriter;
-
 import com.moviejukebox.tools.SystemTools;
-import org.apache.log4j.Logger;
-import java.util.Collection;
-import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import org.apache.log4j.Logger;
 
 /**
  * User: JDGJr
@@ -33,7 +28,7 @@ import java.sql.Timestamp;
  */
 public class MovieListingPluginCsv extends MovieListingPluginBase implements MovieListingPlugin {
 
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(MovieListingPluginCsv.class);
 
     /**
      * @return CSV-formatted header row

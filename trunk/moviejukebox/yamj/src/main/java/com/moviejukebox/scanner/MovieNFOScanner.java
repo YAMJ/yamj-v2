@@ -12,11 +12,12 @@
  */
 package com.moviejukebox.scanner;
 
-import com.moviejukebox.model.Codec;
-import static com.moviejukebox.tools.StringTools.appendToPath;
-import static com.moviejukebox.tools.StringTools.isNotValidString;
-import static com.moviejukebox.tools.StringTools.isValidString;
-
+import com.moviejukebox.model.*;
+import com.moviejukebox.plugin.DatabasePluginController;
+import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.plugin.TheTvDBPlugin;
+import static com.moviejukebox.tools.StringTools.*;
+import com.moviejukebox.tools.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -25,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLEventReader;
@@ -33,26 +33,10 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.XMLEvent;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 import org.pojava.datetime.DateTimeConfig;
-
-import com.moviejukebox.model.EpisodeDetail;
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.plugin.DatabasePluginController;
-import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.plugin.TheTvDBPlugin;
-import com.moviejukebox.tools.AspectRatioTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.GenericFileFilter;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.XMLHelper;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * NFO file parser.
@@ -63,7 +47,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class MovieNFOScanner {
 
-    private static final Logger logger = Logger.getLogger("moviejukebox");
+    private static final Logger logger = Logger.getLogger(MovieNFOScanner.class);
     private static final String splitPattern = "\\||,|/";
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
     private static boolean skipNfoUrl;

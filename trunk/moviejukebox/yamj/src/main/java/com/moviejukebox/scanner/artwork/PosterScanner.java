@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 /**
  * Scanner for posters.
@@ -16,35 +16,14 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import java.awt.Dimension;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.ServiceLoader;
-import java.util.Set;
-import java.util.StringTokenizer;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.poster.IMoviePosterPlugin;
 import com.moviejukebox.plugin.poster.IPosterPlugin;
@@ -53,13 +32,24 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.awt.Dimension;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.*;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 /**
  * Scanner for poster files in local directory and from the Internet
- * 
+ *
  * @author groll.troll
  * @author Stuart.Boston
- * 
+ *
  * @version 1.0, 7 October 2008
  * @version 2.0 6 July 2009
  */
@@ -68,18 +58,18 @@ public class PosterScanner {
     private static Map<String, IPosterPlugin> posterPlugins;
     private static Map<String, IMoviePosterPlugin> moviePosterPlugins = new HashMap<String, IMoviePosterPlugin>();
     private static Map<String, ITvShowPosterPlugin> tvShowPosterPlugins = new HashMap<String, ITvShowPosterPlugin>();
-    
+
     private static final String EXISTING_MOVIE = "moviename";
     private static final String EXISTING_FIXED = "fixedcoverartname";
     private static final String EXISTING_NO = "no";
-    
-    protected static final Logger logger = Logger.getLogger("moviejukebox");
+
+    protected static final Logger logger = Logger.getLogger(PosterScanner.class);
     // We get covert art scanner behaviour
     protected static final String searchForExistingPoster = PropertiesUtil.getProperty("poster.scanner.searchForExistingCoverArt", EXISTING_MOVIE);
     // See if we use folder.* image or not
     // Note: We need the useFolderImage because of the special "folder.jpg" case in windows.
     protected static final Boolean useFolderImage = PropertiesUtil.getBooleanProperty("poster.scanner.useFolderImage", "false");
-    // We get the fixed name property    
+    // We get the fixed name property
     protected static final String fixedPosterName = PropertiesUtil.getProperty("poster.scanner.fixedCoverArtName", "folder");
     protected static Collection<String> posterExtensions = new ArrayList<String>();
     protected static String posterDirectory;
@@ -187,7 +177,7 @@ public class PosterScanner {
         /**
          * This part will look for a filename with the same name as the directory for the poster or for folder.* poster The intention is for you to be able
          * to create the season / TV series art for the whole series and not for the first show. Useful if you change the files regularly.
-         * 
+         *
          * @author Stuart.Boston
          * @version 1.0
          * @date 18th October 2008
@@ -292,7 +282,7 @@ public class PosterScanner {
 
     /**
      * Locate the PosterURL from the Internet. This is the main method and should be called instead of the individual getPosterFrom* methods.
-     * 
+     *
      * @param movie
      *            The movieBean to search for
      * @return The posterImage with poster url that was found (Maybe Image.UNKNOWN)
@@ -357,7 +347,7 @@ public class PosterScanner {
 
     /**
      * Get the size of the file at the end of the URL Taken from: http://forums.sun.com/thread.jspa?threadID=528155&messageID=2537096
-     * 
+     *
      * @param posterImage
      *            Poster image to check
      * @param posterWidth

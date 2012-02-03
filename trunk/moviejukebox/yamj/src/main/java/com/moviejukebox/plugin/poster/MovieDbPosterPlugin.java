@@ -1,25 +1,18 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin.poster;
 
-import java.util.List;
-import org.apache.log4j.Logger;
-
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.IMovieBasicInformation;
-import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.Image;
-import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.scanner.artwork.PosterScanner;
 import com.moviejukebox.themoviedb.TheMovieDb;
@@ -28,28 +21,30 @@ import com.moviejukebox.themoviedb.model.MovieDB;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.util.List;
+import org.apache.log4j.Logger;
 
 public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(MovieDbPosterPlugin.class);
     private String API_KEY;
     private String language;
     private TheMovieDb theMovieDb;
 
     public MovieDbPosterPlugin() {
         super();
-        
+
         // Check to see if we are needed
         if (!isNeeded()) {
             return;
         }
-        
+
         API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
         language = PropertiesUtil.getProperty("themoviedb.language", "en-US");
         theMovieDb = new TheMovieDb(API_KEY);
-        
+
         // Set the proxy
         theMovieDb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
-        
+
         // Set the timeouts
         theMovieDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
     }
@@ -58,7 +53,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
     public String getIdFromMovieInfo(String title, String year) {
         theMovieDb = new TheMovieDb(API_KEY);
         List<MovieDB> movieList = theMovieDb.moviedbSearch(title, language);
-        
+
         if (movieList.isEmpty()) {
             return Movie.UNKNOWN;
         } else {
@@ -66,7 +61,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                 // Only one movie so return that id
                 return movieList.get(0).getId();
             }
-            
+
             for (MovieDB moviedb : movieList) {
                 if (TheMovieDb.compareMovies(moviedb, title, year)) {
                     return moviedb.getId();
@@ -75,7 +70,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         }
         return Movie.UNKNOWN;
     }
-    
+
     @Override
     public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
@@ -96,7 +91,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                 if (artworkList.size() > 0) {
                     Image image;
                     boolean validImage = false;
-                    
+
                     for (Artwork artwork : artworkList) {
                         posterURL = artwork.getUrl();
                         image = new Image(posterURL);
@@ -115,7 +110,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         } catch (Exception error) {
             logger.error("MovieDbPosterPlugin: TheMovieDB.org API Error: " + error.getMessage());
         }
-        
+
         if (StringTools.isValidString(posterURL)) {
             return new Image(posterURL);
         } else {
@@ -131,7 +126,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
     @Override
     public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
-        
+
         if (StringTools.isNotValidString(id)) {
             id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear());
             // Id found

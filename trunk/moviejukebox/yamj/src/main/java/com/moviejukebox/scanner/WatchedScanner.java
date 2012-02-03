@@ -1,33 +1,31 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.scanner;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.apache.commons.io.FilenameUtils;
-import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
+import org.pojava.datetime.DateTime;
 
 public class WatchedScanner {
 
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(WatchedScanner.class);
 
     /**
      * Calculate the watched state of a movie based on the files <filename>.watched & <filename>.unwatched
@@ -119,12 +117,12 @@ public class WatchedScanner {
 
             returnStatus = Boolean.TRUE;
         }
-        
+
         returnStatus |= movieFileWatchChanged;
         if (returnStatus) {
             logger.debug("Watched Scanner: The video has one or more files that have changed status.");
         }
-        
+
         return returnStatus;
     }
 }

@@ -14,24 +14,11 @@ package com.moviejukebox.tools;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import org.apache.log4j.Logger;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.log4j.Logger;
 
 public class ThreadExecutor<T> implements ThreadFactory {
 
@@ -40,7 +27,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
     private BlockingQueue<Runnable> queue = null;
     private int threadsRun, threadsIo, threadsTotal;
     private boolean ignoreErrors = true;
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(ThreadExecutor.class);
     private Semaphore runningThreads, ioThreads;
     private static Map<String, String> hostgrp = new HashMap<String, String>();
     private static Map<String, Semaphore> grouplimits = new HashMap<String, Semaphore>();

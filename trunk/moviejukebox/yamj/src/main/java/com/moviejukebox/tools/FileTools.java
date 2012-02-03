@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 
 public class FileTools {
 
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(FileTools.class);
     final static int BUFF_SIZE = 16 * 1024;
     private static Collection<String> subtitleExtensions = new ArrayList<String>();
 
@@ -651,7 +651,7 @@ public class FileTools {
         addJukeboxFile(movie.getThumbnailFilename());
         addJukeboxFile(movie.getBannerFilename());
         addJukeboxFile(movie.getFanartFilename());
-        
+
         if (videoimageDownload) {
             for (MovieFile mf : movie.getFiles()) {
                 for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {

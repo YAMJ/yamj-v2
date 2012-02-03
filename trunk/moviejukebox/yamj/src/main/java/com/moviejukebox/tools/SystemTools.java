@@ -12,16 +12,15 @@
  */
 package com.moviejukebox.tools;
 
+import static com.moviejukebox.tools.StringTools.formatFileSize;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-
 import org.apache.log4j.Logger;
-import static com.moviejukebox.tools.StringTools.*;
 
 public class SystemTools {
 
-    private static final Logger logger = Logger.getLogger("moviejukebox");
+    private static final Logger logger = Logger.getLogger(SystemTools.class);
     private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", "false");
     private static final long cacheOff = (long) (PropertiesUtil.getIntProperty("mjb.cacheOffSize", "50") * 1024 * 1024);
 

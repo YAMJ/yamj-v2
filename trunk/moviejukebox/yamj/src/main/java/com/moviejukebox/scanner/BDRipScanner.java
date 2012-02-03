@@ -13,10 +13,9 @@
 package com.moviejukebox.scanner;
 
 import com.moviejukebox.tools.SystemTools;
-import org.apache.commons.io.FilenameUtils;
-
 import java.io.File;
 import java.io.RandomAccessFile;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -42,7 +41,7 @@ import org.apache.log4j.Logger;
  */
 public class BDRipScanner {
 
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(BDRipScanner.class);
 
     public class BDPlaylistInfo {
 

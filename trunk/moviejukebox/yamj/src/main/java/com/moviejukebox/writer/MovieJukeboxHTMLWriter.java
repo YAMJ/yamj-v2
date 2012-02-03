@@ -12,45 +12,19 @@
  */
 package com.moviejukebox.writer;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import com.moviejukebox.model.*;
+import com.moviejukebox.tools.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
-import org.apache.log4j.Logger;
-
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.IndexInfo;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.XMLWriter;
+import org.apache.log4j.Logger;
 
 /**
  * Generate HTML pages from XML movies and indexes
@@ -60,7 +34,7 @@ import com.moviejukebox.tools.XMLWriter;
  */
 public class MovieJukeboxHTMLWriter {
 
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(MovieJukeboxHTMLWriter.class);
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";
     private static final String EXT_XSL = ".xsl";

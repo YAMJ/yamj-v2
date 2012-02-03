@@ -12,37 +12,26 @@
  */
 package com.moviejukebox.scanner.artwork;
 
+import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.DefaultBackgroundPlugin;
+import com.moviejukebox.plugin.DefaultImagePlugin;
+import com.moviejukebox.plugin.MovieImagePlugin;
+import com.moviejukebox.tools.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
-
+import java.util.*;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
-
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.Artwork.ArtworkType;
-import com.moviejukebox.plugin.DefaultBackgroundPlugin;
-import com.moviejukebox.plugin.DefaultImagePlugin;
-import com.moviejukebox.plugin.MovieImagePlugin;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
+import org.apache.log4j.Logger;
 
 /**
  * Scanner for artwork.
@@ -82,7 +71,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     protected static boolean         artworkValidate;       // Should the artwork be validated or not.
     protected boolean                artworkValidateAspect; // Should the artwork be validated for it's aspect
     protected int                    artworkWidth;          // The width of the image from the skin.properties for use in the validation routine
-    protected static Logger          logger = Logger.getLogger("moviejukebox");
+    protected static Logger          logger = Logger.getLogger(ArtworkScanner.class);
     protected String                 logMessage;            // The start of the log message
     protected boolean                searchForExistingArtwork;  // Should we search for local artwork
     protected String                 skinHome;              // Location of the skin files used to get the dummy images from for missing artwork

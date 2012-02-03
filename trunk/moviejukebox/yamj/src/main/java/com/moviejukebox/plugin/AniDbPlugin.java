@@ -12,49 +12,6 @@
  */
 package com.moviejukebox.plugin;
 
-import static com.moviejukebox.tools.StringTools.cleanString;
-import static com.moviejukebox.tools.StringTools.isValidString;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import net.anidb.Anime;
-import net.anidb.Episode;
-import net.anidb.checksum.Ed2kChecksum;
-import net.anidb.udp.AniDbException;
-import net.anidb.udp.UdpConnection;
-import net.anidb.udp.UdpConnectionException;
-import net.anidb.udp.UdpConnectionFactory;
-import net.anidb.udp.UdpReturnCodes;
-import net.anidb.udp.mask.AnimeFileMask;
-import net.anidb.udp.mask.AnimeMask;
-import net.anidb.udp.mask.FileMask;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime.DateTime;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.helpers.DefaultHandler;
-
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.dao.ForeignCollection;
@@ -70,15 +27,43 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTable;
 import com.j256.ormlite.table.TableUtils;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.Person;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Person;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.Cache;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import static com.moviejukebox.tools.StringTools.cleanString;
+import static com.moviejukebox.tools.StringTools.isValidString;
 import com.moviejukebox.tools.SystemTools;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import net.anidb.Anime;
+import net.anidb.Episode;
+import net.anidb.checksum.Ed2kChecksum;
+import net.anidb.udp.*;
+import net.anidb.udp.mask.AnimeFileMask;
+import net.anidb.udp.mask.AnimeMask;
+import net.anidb.udp.mask.FileMask;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+import org.pojava.datetime.DateTime;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * AniDB Plugin
@@ -93,7 +78,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     // AniDb Documentation: http://wiki.anidb.info/w/UDP_API_Definition
 
     // TODO: Keep the plugin logged in until the end of the run
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(AniDbPlugin.class);
     public static final String ANIDB_PLUGIN_ID = "anidb";
     private static final String ANIDB_CLIENT_NAME = "yamj";
     private static final int ANIDB_CLIENT_VERSION = 1;

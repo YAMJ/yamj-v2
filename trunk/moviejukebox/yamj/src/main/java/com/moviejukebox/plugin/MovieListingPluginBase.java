@@ -1,33 +1,32 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
-import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.FileTools;
-
-import org.apache.log4j.Logger;
+import com.moviejukebox.tools.PropertiesUtil;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-import java.io.File;
+import org.apache.log4j.Logger;
 
 /**
  * User: JDGJr
  * Date: Feb 15, 2009
  */
 public class MovieListingPluginBase implements MovieListingPlugin {
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(MovieListingPluginBase.class);
 
     protected static final String UNDEFINED = "UNDEFINED";
 

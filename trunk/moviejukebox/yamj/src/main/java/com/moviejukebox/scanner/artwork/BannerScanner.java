@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 
 /**
@@ -19,6 +19,18 @@
  */
 package com.moviejukebox.scanner.artwork;
 
+import com.moviejukebox.model.Artwork.Artwork;
+import com.moviejukebox.model.Artwork.ArtworkFile;
+import com.moviejukebox.model.Artwork.ArtworkSize;
+import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.plugin.MovieImagePlugin;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -26,29 +38,16 @@ import java.util.Collection;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.Artwork.Artwork;
-import com.moviejukebox.model.Artwork.ArtworkFile;
-import com.moviejukebox.model.Artwork.ArtworkSize;
-import com.moviejukebox.model.Artwork.ArtworkType;
-import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.plugin.MovieImagePlugin;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-
 /**
  * Scanner for banner files in local directory
- * 
+ *
  * @author Stuart.Boston
  * @version 1.0, 25th August 2009 - Initial code copied from FanartScanner.java
- * 
+ *
  */
 public class BannerScanner {
 
-    protected static Logger logger = Logger.getLogger("moviejukebox");
+    protected static Logger logger = Logger.getLogger(BannerScanner.class);
     protected static Collection<String> bannerExtensions = new ArrayList<String>();
     protected static String bannerToken;
     protected static boolean bannerOverwrite;
@@ -66,7 +65,7 @@ public class BannerScanner {
         bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
 
         bannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", "false");
-        
+
         // See if we use the folder banner artwork
         useFolderBanner = PropertiesUtil.getBooleanProperty("banner.scanner.useFolderImage", "false");
         if (useFolderBanner) {
@@ -81,7 +80,7 @@ public class BannerScanner {
 
     /**
      * Scan for local banners and download if necessary
-     * 
+     *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
      * @param tempJukeboxDetailsRoot
@@ -116,7 +115,7 @@ public class BannerScanner {
             localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, bannerExtensions);
             foundLocalBanner = localBannerFile.exists();
         }
-        
+
         // Check for folder banners.
         if (!foundLocalBanner && useFolderBanner) {
             // Check for each of the farnartImageName.* files
@@ -144,11 +143,11 @@ public class BannerScanner {
         if (foundLocalBanner) {
             fullBannerFilename = localBannerFile.getAbsolutePath();
             logger.debug("BannerScanner: File " + fullBannerFilename + " found");
-            
+
             if (StringTools.isNotValidString(movie.getBannerFilename())) {
                 movie.setBannerFilename(movie.getBaseFilename() + bannerToken + "." + PropertiesUtil.getProperty("banners.format", "jpg"));
             }
-            
+
             if (StringTools.isNotValidString(movie.getBannerURL())) {
                 movie.setBannerURL(localBannerFile.toURI().toString());
             }
@@ -169,7 +168,7 @@ public class BannerScanner {
                         bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                         GraphicTools.saveImageToDisk(bannerImage, destFileName);
                         logger.debug("BannerScanner: " + fullBannerFilename + " has been copied to " + destFileName);
-                        
+
                         ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, Movie.UNKNOWN, false);
                         movie.addArtwork(new Artwork(ArtworkType.Banner, "local", fullBannerFilename, artworkFile));
                     } else {
@@ -184,7 +183,7 @@ public class BannerScanner {
             }
         } else {
             // logger.debug("BannerScanner : No local Banner found for " + movie.getBaseFilename() + " attempting to download");
-            
+
             // Don't download banners for sets as they will use the first banner from the set
             if (!movie.isSetMaster()) {
                 downloadBanner(imagePlugin, jukebox, movie);
@@ -196,9 +195,9 @@ public class BannerScanner {
     /**
      * Download the banner from the URL.
      * Initially this is populated from TheTVDB plugin
-     * 
-     * @param imagePlugin  
-     * @param jukeboxDetailsRoot   
+     *
+     * @param imagePlugin
+     * @param jukeboxDetailsRoot
      * @param tempJukeboxDetailsRoot
      * @param movie
      */
@@ -208,7 +207,7 @@ public class BannerScanner {
             logger.debug("PosterScanner: Skipping online banner search for " + movie.getBaseFilename());
             return;
         }
-        
+
         if (StringTools.isValidString(movie.getBannerURL())) {
             String safeBannerFilename = movie.getBannerFilename();
             String bannerFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safeBannerFilename;
@@ -243,7 +242,7 @@ public class BannerScanner {
                 logger.debug("BannerScanner: Banner exists for " + movie.getBaseFilename());
             }
         }
-        
+
         return;
     }
 
