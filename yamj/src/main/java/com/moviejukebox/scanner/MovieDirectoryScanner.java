@@ -12,29 +12,14 @@
  */
 package com.moviejukebox.scanner;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-
-import org.apache.log4j.Logger;
-
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.MediaLibraryPath;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.MovieFileNameDTO;
+import com.moviejukebox.model.*;
 import com.moviejukebox.scanner.BDRipScanner.BDFilePropertiesMovie;
-import com.moviejukebox.tools.ArchiveScanner;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.*;
+import java.io.File;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.log4j.Logger;
 
 /**
  * DirectoryScanner
@@ -58,7 +43,7 @@ public class MovieDirectoryScanner {
     private Boolean excludeFilesWithoutExternalSubtitles;
     private Boolean excludeMultiPartBluRay;
     private Boolean playFullBluRayDisk;
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(MovieDirectoryScanner.class);
     private static int dirCount = 1;
     private static int fileCount = 0;
     private static Pattern patternRarPart = Pattern.compile("\\.part(\\d+)\\.rar");

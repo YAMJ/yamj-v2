@@ -12,21 +12,16 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import java.net.URLEncoder;
-import org.apache.log4j.Logger;
-
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.IMovieBasicInformation;
-import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.Image;
-import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.*;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.net.URLEncoder;
+import org.apache.log4j.Logger;
 
 public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
     // The AbstractMoviePosterPlugin already implements IMoviePosterPlugin
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(CdonPosterPlugin.class);
 
     protected WebBrowser webBrowser;
 

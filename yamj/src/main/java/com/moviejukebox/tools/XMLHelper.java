@@ -18,13 +18,11 @@ import java.net.URL;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
-
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.XMLEvent;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -33,7 +31,7 @@ import org.apache.log4j.Logger;
  */
 public class XMLHelper {
 
-    protected static Logger logger = Logger.getLogger("moviejukebox");
+    protected static Logger logger = Logger.getLogger(XMLHelper.class);
 
     public static XMLEventReader getEventReader(String url) throws IOException, XMLStreamException {
         WebBrowser wb = new WebBrowser();

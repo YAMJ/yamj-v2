@@ -1,37 +1,32 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.model.Movie;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.moviejukebox.model.Movie;
+import org.apache.log4j.Logger;
 
 public class HTMLTools {
 
     private static final Map<Character, String> AGGRESSIVE_HTML_ENCODE_MAP = new HashMap<Character, String>();
     private static final Map<Character, String> DEFENSIVE_HTML_ENCODE_MAP = new HashMap<Character, String>();
     private static final Map<String, Character> HTML_DECODE_MAP = new HashMap<String, Character>();
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(HTMLTools.class);
 
     static {
         // Html encoding mapping according to the HTML 4.0 spec
@@ -438,7 +433,7 @@ public class HTMLTools {
         if (startTag != null) {
             index = sectionText.indexOf(startTag);
         }
-        
+
         while (index != -1) {
             endIndex = sectionText.indexOf(endTag, index);
             if (endIndex == -1) {
@@ -589,7 +584,7 @@ public class HTMLTools {
     /**
      * Example: src = "<a id="specialID"><br/>
      * <img src="a.gif"/>my text</a> findStr = "specialID" result = "my text"
-     * 
+     *
      * @param src
      *            html text
      * @param findStr
@@ -633,10 +628,10 @@ public class HTMLTools {
         while (m.find()) {
             res.append(m.group(1));
         }
-        
+
         // Replace escaped spaces
         String finalRes = res.toString().replaceAll("&nbsp;", " ");
-        
+
         return finalRes.trim();
     }
 }

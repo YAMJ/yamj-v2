@@ -12,15 +12,13 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.model.Movie;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
-
-import com.moviejukebox.model.Movie;
 
 /**
  * Process the skin information file for the details about the skin
@@ -28,7 +26,7 @@ import com.moviejukebox.model.Movie;
  *
  */
 public class SkinProperties {
-    private final static Logger logger = Logger.getLogger("moviejukebox");
+    private final static Logger logger = Logger.getLogger(SkinProperties.class);
     private final static String skinVersionFilename = "version.xml";
 
     private static String skinName          = Movie.UNKNOWN;

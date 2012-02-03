@@ -1,27 +1,18 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin.poster;
 
-import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.pojava.datetime.DateTime;
-
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.IMovieBasicInformation;
-import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.Image;
-import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banner;
@@ -32,9 +23,12 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
+import java.util.List;
+import org.apache.log4j.Logger;
+import org.pojava.datetime.DateTime;
 
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(TheTvDBPosterPlugin.class);
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
     private static final String defaultLanguage = "en";
 
@@ -45,12 +39,12 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 
     public TheTvDBPosterPlugin() {
         super();
-        
+
         // Check to see if we are needed
         if (!isNeeded()) {
             return;
         }
-        
+
         tvDB = new TheTVDB(API_KEY);
 
         // We need to set the proxy parameters if set.
@@ -71,7 +65,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     public String getIdFromMovieInfo(String title, String year, int tvSeason) {
         String response = Movie.UNKNOWN;
         List<Series> seriesList = null;
-        
+
         try {
             if (StringTools.isValidString(title)) {
                 ThreadExecutor.enterIO(webhost);
@@ -105,11 +99,11 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                         }
                     }
                 }
-                
+
                 if (series == null) {
                     series = seriesList.get(0);
                 }
-                
+
                 response = String.valueOf(series.getId());
             }
 
@@ -123,15 +117,15 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     @Override
     public IImage getPosterUrl(String id, int season) {
         String posterURL = Movie.UNKNOWN;
-        
+
         ThreadExecutor.enterIO(webhost);
 
         try {
             if (!(id.equals(Movie.UNKNOWN) || (id.equals("-1"))) || (id.equals("0"))) {
                 String urlNormal = null;
-                
+
                 Banners banners = TheTvDBPlugin.getBanners(id);
-                
+
                 if (!banners.getSeasonList().isEmpty()) {
                     // Trying to grab localized banners at first...
                     urlNormal = findPosterURL(banners, season, language);
@@ -140,11 +134,11 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                         urlNormal = findPosterURL(banners, season, language2nd);
                     }
                 }
-                
+
                 if (StringTools.isNotValidString(urlNormal) && !banners.getPosterList().isEmpty()) {
                     urlNormal = banners.getPosterList().get(0).getUrl();
                 }
-                
+
                 if (urlNormal == null) {
                     Series series = TheTvDBPlugin.getSeries(id);
                     if (series != null && StringTools.isValidString(series.getPoster())) {
@@ -156,7 +150,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                     posterURL = urlNormal;
                 }
             }
-            
+
             if (StringTools.isValidString(posterURL)) {
                 logger.debug("TheTvDBPosterPlugin: Used poster " + posterURL);
                 return new Image(posterURL);
@@ -167,7 +161,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         } finally {
             ThreadExecutor.leaveIO();
         }
-        
+
         return Image.UNKNOWN;
     }
 
@@ -184,7 +178,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     @Override
     public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
-        
+
         if (StringTools.isNotValidString(id)) {
             if (movieInformation.isTVShow()) {
                 id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear(), movieInformation.getSeason());

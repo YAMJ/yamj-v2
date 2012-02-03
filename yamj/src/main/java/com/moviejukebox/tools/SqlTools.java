@@ -1,31 +1,30 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.model.Movie;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import org.apache.log4j.Logger;
 
-import com.moviejukebox.model.Movie;
-
 public class SqlTools {
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(SqlTools.class);
     private static Connection connection = null;
-    
+
     private static String INSERT_VIDEO = "insert into VIDEO (TITLE, POSTER, PATH) values (?, ?, ?)";
-    
+
     static {
         try {
             Class.forName("org.sqlite.JDBC");
@@ -45,7 +44,7 @@ public class SqlTools {
             logger.error("SqlTools: Error opening database: " + error.getMessage());
         }
     }
-    
+
     public static void closeDatabase() {
         try {
             if (connection != null) {
@@ -56,7 +55,7 @@ public class SqlTools {
             logger.error("SqlTools: Error closing database: " + error.getMessage());
         }
     }
-    
+
     public static void createTables() {
         Statement stmt = null;
         try {
@@ -75,14 +74,14 @@ public class SqlTools {
             stmt.addBatch("CREATE TABLE VIDEO_SYNOPSIS (VIDEO_SYNOPSIS_ID INTEGER PRIMARY KEY, VIDEO_ID INTEGER, SHOW_ID INTEGER, LANGUAGE TEXT, CONTENT TEXT, VIDEO_SYNOPSIS1 TEXT, VIDEO_SYNOPSIS2 TEXT, VIDEO_SYNOPSIS3 TEXT, VIDEO_SYNOPSIS4 TEXT, VIDEO_SYNOPSIS5 TEXT)");
             stmt.addBatch("CREATE TABLE VIDEO_PLS (VIDEO_PLS_ID INTEGER PRIMARY KEY, NAME TEXT, LAST_PLAY_ITEM INTEGER, TOTAL_ITEM INTEGER, CREATE_TIME TEXT, VIDEO_PLS1 TEXT, VIDEO_PLS2 TEXT, VIDEO_PLS3 TEXT, VIDEO_PLS4 TEXT, VIDEO_PLS5 TEXT)");
             stmt.addBatch("CREATE TABLE VIDEO_PLS_ITEM (VIDEO_PLS_ITEM_ID INTEGER PRIMARY KEY, VIDEO_PLS_ID INTEGER, VIDEO_ID INTEGER, SEQUENCE INTEGER, VIDEO_PLS_ITEM1 TEXT, VIDEO_PLS_ITEM2 TEXT, VIDEO_PLS_ITEM3 TEXT, VIDEO_PLS_ITEM4 TEXT, VIDEO_PLS_ITEM5 TEXT)");
-            
+
             stmt.executeBatch();
 
         } catch (Exception error) {
             logger.error("SqlTools: Error creating tables: " + error.getMessage());
         }
     }
-    
+
     public static void deleteTables() {
         Statement stmt = null;
         try {
@@ -101,7 +100,7 @@ public class SqlTools {
             stmt.addBatch("DELETE FROM VIDEO_SYNOPSIS");
             stmt.addBatch("DELETE FROM VIDEO_PLS");
             stmt.addBatch("DELETE FROM VIDEO_PLS_ITEM");
-            
+
             stmt.executeBatch();
         } catch (Throwable tw) {
             throw new RuntimeException("Delete photo tables error. "
@@ -114,7 +113,7 @@ public class SqlTools {
 
     public static void insertIntoVideo(Movie movie) {
         PreparedStatement pstmt = null;
-        
+
         try {
             pstmt = connection.prepareStatement(INSERT_VIDEO);
             pstmt.setString(1, movie.getTitle());
@@ -126,6 +125,6 @@ public class SqlTools {
             logger.error("SqlTools: Error inserting into VIDEO table: " + error.getMessage());
         }
     }
-    
-    
+
+
 }

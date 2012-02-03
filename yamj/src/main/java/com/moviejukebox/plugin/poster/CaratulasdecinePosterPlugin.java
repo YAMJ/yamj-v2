@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin.poster;
 
@@ -25,11 +25,9 @@ import java.util.ArrayList;
 import org.apache.log4j.Logger;
 
 public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
-//    private static Logger logger = Logger.getLogger("moviejukebox");
-
     private WebBrowser webBrowser = new WebBrowser();
     private static Logger logger = Logger.getLogger(CaratulasdecinePosterPlugin.class);
-    
+
     private static final String SEARCH_START = "La Web";
     private static final String SEARCH_END = "Sugerencias de búsqueda";
     private static final String TITLE_START = "Carátula de la película: ";

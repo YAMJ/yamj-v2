@@ -12,6 +12,12 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Person;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -23,19 +29,12 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-
 /**
  * @author Durin
  */
 public class OfdbPlugin implements MovieDatabasePlugin {
 
-    protected static Logger logger = Logger.getLogger("moviejukebox");
+    protected static Logger logger = Logger.getLogger(OfdbPlugin.class);
     public static String OFDB_PLUGIN_ID = "ofdb";
     boolean getplot;
     boolean gettitle;

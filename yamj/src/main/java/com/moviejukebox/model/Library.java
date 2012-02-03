@@ -12,49 +12,27 @@
  */
 package com.moviejukebox.model;
 
-import static com.moviejukebox.tools.FileTools.createCategoryKey;
-import static com.moviejukebox.tools.FileTools.createPrefix;
-import static com.moviejukebox.tools.FileTools.makeSafeFilename;
-
-import java.io.File;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.Callable;
-
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
-import com.moviejukebox.model.Comparator.CertificationComparator;
-import com.moviejukebox.model.Comparator.LastModifiedComparator;
-import com.moviejukebox.model.Comparator.MovieSetComparator;
-import com.moviejukebox.model.Comparator.Top250Comparator;
-import com.moviejukebox.model.Comparator.RatingComparator;
-import com.moviejukebox.model.Comparator.RatingsComparator;
+import com.moviejukebox.model.Comparator.*;
+import static com.moviejukebox.tools.FileTools.*;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
+import java.io.File;
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.concurrent.Callable;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 public class Library implements Map<String, Movie> {
 
     public static final String TV_SERIES = "TVSeries";
     public static final String SET = "Set";
     private Collection<IndexInfo> generatedIndexes = Collections.synchronizedCollection(new ArrayList<IndexInfo>());
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(Library.class);
     private static boolean filterGenres;
     private static boolean filterCertificationn;
     private static boolean singleSeriesPage;
@@ -151,11 +129,14 @@ public class Library implements Map<String, Movie> {
         indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
         String awardTmp = PropertiesUtil.getProperty("mjb.categories.award.events", "");
         awardEventList = StringTools.isValidString(awardTmp)?Arrays.asList(awardTmp.split(" / ")):new ArrayList<String>();
-        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.name", "");
+        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.name", "")
+;
         awardNameList = StringTools.isValidString(awardTmp)?Arrays.asList(awardTmp.split(" / ")):new ArrayList<String>();
-        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.nominated", "");
+        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.nominated", "")
+;
         awardNominated = StringTools.isValidString(awardTmp)?Arrays.asList(awardTmp.split(" / ")):new ArrayList<String>();
-        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.won", "");
+        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.won", "")
+;
         awardWon = StringTools.isValidString(awardTmp)?Arrays.asList(awardTmp.split(" / ")):new ArrayList<String>();
         scrapeWonAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", "false").equalsIgnoreCase("won");
         splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");

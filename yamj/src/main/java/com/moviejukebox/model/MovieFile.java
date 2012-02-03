@@ -12,38 +12,26 @@
  */
 package com.moviejukebox.model;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.XmlValue;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import org.pojava.datetime.DateTime;
-
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.BooleanYesNoAdapter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import java.io.File;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.pojava.datetime.DateTime;
 
 @SuppressWarnings("serial")
 @XmlType
 public class MovieFile implements Comparable<MovieFile> {
 
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(MovieFile.class);
     private String filename = Movie.UNKNOWN;
     private String archiveName = null;
     private int season = -1;    // The season associated with the movie file

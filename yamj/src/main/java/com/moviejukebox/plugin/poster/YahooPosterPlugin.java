@@ -1,39 +1,38 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin.poster;
 
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.WebBrowser;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import org.apache.log4j.Logger;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.Image;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.WebBrowser;
-
 public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(YahooPosterPlugin.class);
     private WebBrowser webBrowser;
 
     public YahooPosterPlugin() {
         super();
-        
+
         // Check to see if we are needed
         if (!isNeeded()) {
             return;
         }
-        
+
         webBrowser = new WebBrowser();
     }
 
@@ -63,11 +62,11 @@ public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
             logger.error("YahooPosterPlugin : Failed retreiving poster URL from yahoo images : " + title);
             logger.error("Error : " + error.getMessage());
         }
-        
+
         if (StringTools.isValidString(posterURL)) {
             return new Image(posterURL);
         }
-        
+
         return Image.UNKNOWN;
     }
 

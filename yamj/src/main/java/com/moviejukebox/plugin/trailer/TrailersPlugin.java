@@ -1,17 +1,22 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
+ *      http://code.google.com/p/moviejukebox/people/list
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
  *
- *      For any reuse or distribution, you must make clear to others the 
+ *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
  */
 package com.moviejukebox.plugin.trailer;
 
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.IMovieBasicInformation;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -20,25 +25,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import org.apache.log4j.Logger;
-
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.IMovieBasicInformation;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.WebBrowser;
-import com.moviejukebox.tools.WebStats;
 
 public class TrailersPlugin implements ITrailersPlugin {
     public String trailersPluginName = "AbstractTrailers";
 
-    protected static Logger logger = Logger.getLogger("moviejukebox");
+    protected static Logger logger = Logger.getLogger(TrailersPlugin.class);
     protected WebBrowser webBrowser;
 
     private static String trailersScanerPath = PropertiesUtil.getProperty("trailers.path.scaner", "");

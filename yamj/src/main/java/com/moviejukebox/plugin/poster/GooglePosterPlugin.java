@@ -1,17 +1,22 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin.poster;
 
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.scanner.artwork.PosterScanner;
+import com.moviejukebox.tools.WebBrowser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -19,26 +24,20 @@ import java.net.URLEncoder;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.Image;
-import com.moviejukebox.scanner.artwork.PosterScanner;
-import com.moviejukebox.tools.WebBrowser;
-
 public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(GooglePosterPlugin.class);
     private WebBrowser webBrowser;
 
     // private int nbRetry;
 
     public GooglePosterPlugin() {
         super();
-        
+
         // Check to see if we are needed
         if (!isNeeded()) {
             return;
         }
-        
+
         webBrowser = new WebBrowser();
     }
 

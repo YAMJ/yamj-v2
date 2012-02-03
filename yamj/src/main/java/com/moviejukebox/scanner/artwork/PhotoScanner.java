@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 
 /**
@@ -19,14 +19,6 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.StringTokenizer;
-
-import org.apache.log4j.Logger;
-
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
@@ -35,17 +27,23 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.StringTokenizer;
+import org.apache.log4j.Logger;
 
 /**
  * Scanner for photo files in local directory
- * 
+ *
  * @author ilgizar
  * Initial code copied from BannerScanner.java
- * 
+ *
  */
 public class PhotoScanner {
 
-    protected static Logger logger = Logger.getLogger("moviejukebox");
+    protected static Logger logger = Logger.getLogger(PhotoScanner.class);
     protected static Collection<String> photoExtensions = new ArrayList<String>();
     protected static boolean photoOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", "false");
     protected static Collection<String> photoImageName;
@@ -70,7 +68,7 @@ public class PhotoScanner {
 
     /**
      * Scan for local photo and download if necessary
-     * 
+     *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
      * @param tempJukeboxDetailsRoot
@@ -96,9 +94,9 @@ public class PhotoScanner {
     /**
      * Download the photo from the URL.
      * Initially this is populated from TheTVDB plugin
-     * 
-     * @param imagePlugin  
-     * @param jukeboxDetailsRoot   
+     *
+     * @param imagePlugin
+     * @param jukeboxDetailsRoot
      * @param tempJukeboxDetailsRoot
      * @param person
      */

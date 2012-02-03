@@ -1,42 +1,40 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin.poster;
-
-import java.awt.Dimension;
-import java.io.IOException;
-import java.net.URLEncoder;
-
-import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.artwork.PosterScanner;
 import com.moviejukebox.tools.WebBrowser;
+import java.awt.Dimension;
+import java.io.IOException;
+import java.net.URLEncoder;
+import org.apache.log4j.Logger;
 
 public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(SubBabaPosterPlugin.class);
 
     private WebBrowser webBrowser;
 
     public SubBabaPosterPlugin() {
         super();
-        
+
         // Check to see if we are needed
         if (!isNeeded()) {
             return;
         }
-        
+
         webBrowser = new WebBrowser();
     }
 
@@ -51,7 +49,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
             StringBuilder searchURL = new StringBuilder("http://www.sub-baba.com/search/query/");
             searchURL.append(URLEncoder.encode(title, "iso-8859-8"));
             searchURL.append("/type/1/");
-            
+
             String xml = webBrowser.request(searchURL.toString());
             String posterID = Movie.UNKNOWN;
 
@@ -102,7 +100,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
                     break;
                 }
             }
-            
+
             if (!Movie.UNKNOWN.equals(posterID)) {
                 response = posterID;
             }
@@ -122,25 +120,25 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
             // This is the page that contains the poster URL
             StringBuilder posterUrl = new StringBuilder("http://www.sub-baba.com/download/");
             posterUrl.append(id).append("/2");
-            
+
             // Load the poster page and extract the image filename
             try {
                 String xml = webBrowser.request(posterUrl.toString());
-                
+
                 int startIndex = xml.indexOf("<img src=\"");
                 if (startIndex == -1) {
                     return posterImage;
                 }
                 startIndex += 10;
-                
+
                 int endIndex = xml.indexOf("\" width=", startIndex);
                 if (endIndex == -1) {
                     return posterImage;
                 }
-                
+
                 posterUrl = new StringBuilder("http://www.sub-baba.com");
                 posterUrl.append(xml.substring(startIndex, endIndex));
-                
+
             } catch (IOException error) {
                 logger.error("SubBabaPosterPlugin: Failed retreiving SubBaba poster information (" + posterUrl + "): " + error.getMessage());
             }
@@ -150,7 +148,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
 
             // checking poster dimension
             Dimension imageDimension = PosterScanner.getUrlDimensions(posterUrl.toString());
-            
+
             // DVD Cover
             if (imageDimension.getWidth() > imageDimension.getHeight()) {
                 logger.debug("SubBabaPosterPlugin: Detected DVD Cover, cropping image to poster size.");

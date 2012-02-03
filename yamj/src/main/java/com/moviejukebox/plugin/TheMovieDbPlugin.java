@@ -1,36 +1,30 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin;
-
-import java.util.List;
-import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
-
-import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.themoviedb.TheMovieDb;
-import com.moviejukebox.themoviedb.model.Category;
-import com.moviejukebox.themoviedb.model.Country;
-import com.moviejukebox.themoviedb.model.MovieDB;
-import com.moviejukebox.themoviedb.model.Person;
-import com.moviejukebox.themoviedb.model.Studio;
+import com.moviejukebox.themoviedb.model.*;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
+import java.util.List;
+import java.util.StringTokenizer;
+import org.apache.log4j.Logger;
+import org.pojava.datetime.DateTime;
 
 
 /**
@@ -39,7 +33,7 @@ import com.moviejukebox.tools.WebBrowser;
  */
 public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
-    protected static Logger logger = Logger.getLogger("moviejukebox");
+    protected static Logger logger = Logger.getLogger(TheMovieDbPlugin.class);
     public static final String TMDB_PLUGIN_ID = "themoviedb";
     public static final String IMDB_PLUGIN_ID = "imdb";
     private static final String webhost = "themoviedb.org";
@@ -54,10 +48,10 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
     public TheMovieDbPlugin() {
         TMDb = new TheMovieDb(API_KEY);
-        
+
         // Set the proxy
         TMDb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
-        
+
         // Set the timeouts
         TMDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
 
@@ -103,7 +97,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 if (StringTools.isValidString(movie.getYear())) {
                     yearSuffix = " " + movie.getYear();
                 }
-                
+
                 // Search using movie name
                 movieList = TMDb.moviedbSearch(movie.getTitle() + yearSuffix, language);
                 moviedb = TheMovieDb.findMovie(movieList, movie.getTitle(), movie.getYear());
@@ -126,23 +120,23 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             if (StringTools.isValidString(moviedb.getId())) {
                 movie.setMovieType(Movie.TYPE_MOVIE);
             }
-    
+
             if (StringTools.isValidString(moviedb.getTitle())) {
                 copyMovieInfo(moviedb, movie);
                 retval = true;
             }
-            
+
             // Update TheMovieDb Id if needed
             if (StringTools.isNotValidString(movie.getId(TMDB_PLUGIN_ID))) {
                 movie.setId(TMDB_PLUGIN_ID, moviedb.getId());
             }
-            
+
             // Update IMDb Id if needed
             if (StringTools.isNotValidString(movie.getId(IMDB_PLUGIN_ID))) {
                 movie.setId(IMDB_PLUGIN_ID, moviedb.getImdb());
             }
         }
-        
+
         // TODO: Remove this check at some point when all skins have moved over to the new property
         downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
@@ -158,7 +152,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
     /**
      * Copy the movie info from the MovieDB bean to the YAMJ movie bean
-     * 
+     *
      * @param moviedb
      *            The MovieDB source
      * @param movie
@@ -170,7 +164,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // Title
         //if (overwriteCheck(moviedb.getTitle(), movie.getTitle())) {
         movie.setTitle(moviedb.getTitle());
-        
+
         // We're overwriting the title, so we should do the original name too
         movie.setOriginalTitle(moviedb.getOriginalName());
         //}
@@ -186,7 +180,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             String plot = moviedb.getOverview();
             plot = StringTools.trimToLength(plot, preferredPlotLength, true, "...");
             movie.setPlot(plot);
-            
+
             plot = StringTools.trimToLength(plot, preferredOutlineLength, true, "...");
             movie.setOutline(plot);
         }
@@ -247,12 +241,12 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 //logger.fine("Skipped job " + job + " for " +person.getName());
             }
         }
-        
+
         // tagline
         if (overwriteCheck(moviedb.getTagline(), movie.getTagline())) {
             movie.setTagline(moviedb.getTagline());
         }
-        
+
         // Country
         List<Country> countries = moviedb.getCountries();
         if (!countries.isEmpty()) {
@@ -262,7 +256,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 movie.setCountry(country);
             }
         }
-        
+
         // Company
         List<Studio> studios = moviedb.getStudios();
         if (!studios.isEmpty()) {
@@ -271,17 +265,17 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 movie.setCompany(studio);
             }
         }
-        
+
         // Certification
         if (overwriteCheck(moviedb.getCertification(), movie.getCertification())) {
             movie.setCertification(moviedb.getCertification());
         }
-        
+
         // Language
         if (overwriteCheck(moviedb.getLanguage(), movie.getLanguage())) {
             movie.setLanguage(MovieFilenameScanner.determineLanguage(moviedb.getLanguage()));
         }
-        
+
         // Genres
         List<Category> genres = moviedb.getCategories();
         if (!genres.isEmpty()) {
@@ -299,7 +293,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
     /**
      * Checks to see if the source string is null or "UNKNOWN" and that target string ISN'T null or "UNKNOWN"
-     * 
+     *
      * @param sourceString
      *            The source string to check
      * @param targetString
@@ -323,7 +317,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     @Override
     public boolean scanNFO(String nfo, Movie movie) {
         int beginIndex;
-        
+
         boolean result = false;
         logger.debug("Scanning NFO for TheMovieDb Id");
         beginIndex = nfo.indexOf("/movie/");
@@ -335,7 +329,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         } else {
             logger.debug("No TheMovieDb Id found in nfo!");
         }
-        
+
         // We might as well look for the IMDb ID as well
         beginIndex = nfo.indexOf("/tt");
         if (beginIndex != -1) {
@@ -361,7 +355,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
     /**
      * Locate the FanartURL for the movie. This should probably be skipped as this uses TheMovieDb.org anyway
-     * 
+     *
      * @param movie
      *            Movie bean for the movie to locate
      * @return The URL of the fanart

@@ -78,7 +78,7 @@ public class MovieJukeboxXMLWriter {
     private static String strCategoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
     private static int categoryMinCountMaster = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3");
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(MovieJukeboxXMLWriter.class);
     private static boolean writeNfoFiles;
     private static boolean writeSimpleNfoFiles;
     private boolean extractCertificationFromMPAA;
@@ -1756,14 +1756,14 @@ public class MovieJukeboxXMLWriter {
         Collection<Artwork> artworkList = movie.getArtwork(artworkType);
         if (artworkList.size() > 0) {
         Element eArtworkType;
-        
+
         for (Artwork artwork : artworkList) {
         eArtworkType = doc.createElement(artworkType.toString());
         eArtworkType.setAttribute("count", String.valueOf(artworkList.size()));
-        
+
         DOMHelper.appendChild(doc, eArtworkType, "sourceSite", artwork.getSourceSite());
         DOMHelper.appendChild(doc, eArtworkType, "url", artwork.getUrl());
-        
+
         for (ArtworkFile artworkFile : artwork.getSizes()) {
         DOMHelper.appendChild(doc, eArtworkType, artworkFile.getSize().toString(), artworkFile.getFilename(), "downloaded",
         String.valueOf(artworkFile.isDownloaded()));
@@ -1774,10 +1774,10 @@ public class MovieJukeboxXMLWriter {
         // Write a dummy node
         Element eArtworkType = doc.createElement(artworkType.toString());
         eArtworkType.setAttribute("count", String.valueOf(0));
-        
+
         DOMHelper.appendChild(doc, eArtworkType, "url", Movie.UNKNOWN);
         DOMHelper.appendChild(doc, eArtworkType, ArtworkSize.LARGE.toString(), Movie.UNKNOWN, "downloaded", "false");
-        
+
         eArtwork.appendChild(eArtworkType);
         }
         }

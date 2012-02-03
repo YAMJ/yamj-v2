@@ -12,25 +12,17 @@
  */
 package com.moviejukebox.scanner;
 
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import java.io.File;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 /**
  * Simple movie filename scanner. Scans a movie filename for keywords commonly used in scene released video files.
@@ -47,7 +39,7 @@ import com.moviejukebox.tools.StringTools;
  */
 @SuppressWarnings("serial")
 public class MovieFilenameScanner {
-    protected static final Logger logger = Logger.getLogger("moviejukebox");
+    protected static final Logger logger = Logger.getLogger(MovieFilenameScanner.class);
     protected static boolean skipEpisodeTitle;
     protected static boolean useParentRegex;
     protected static boolean archiveScanRar;

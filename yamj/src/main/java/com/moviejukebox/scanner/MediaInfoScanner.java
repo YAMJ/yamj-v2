@@ -14,44 +14,27 @@ package com.moviejukebox.scanner;
 
 import com.moviejukebox.model.Codec;
 import com.moviejukebox.model.Codec.CodecType;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
-import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
-
-import org.apache.log4j.Logger;
-
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.AspectRatioTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.*;
 import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
 import com.mucommander.file.FileFactory;
 import com.mucommander.file.impl.iso.IsoArchiveFile;
+import java.io.*;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 /**
  * @author Grael
  */
 public class MediaInfoScanner {
 
-    private static final Logger logger = Logger.getLogger("moviejukebox");
+    private static final Logger logger = Logger.getLogger(MediaInfoScanner.class);
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
     private static final Pattern PATTERN_CHANNELS = Pattern.compile(".*(\\d{1,2}).*");
     // mediaInfo repository

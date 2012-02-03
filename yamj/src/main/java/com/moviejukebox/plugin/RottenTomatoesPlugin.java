@@ -1,20 +1,16 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.plugin;
-
-import java.util.Map;
-
-import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.rottentomatoes.RottenTomatoes;
@@ -22,6 +18,8 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
+import java.util.Map;
+import org.apache.log4j.Logger;
 
 /**
  * API for getting the ratings from RottenTomatoes.com
@@ -29,7 +27,7 @@ import com.moviejukebox.tools.WebBrowser;
  *
  */
 public class RottenTomatoesPlugin {
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(RottenTomatoesPlugin.class);
 
     public static final String ROTTENTOMATOES_PLUGIN_ID = "rottentomatoes";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_RottenTomatoes");
@@ -37,24 +35,24 @@ public class RottenTomatoesPlugin {
     private static String logMessage = "RottenTomatoesPlugin: ";
 
     private static String[] priorityList = PropertiesUtil.getProperty("mjb.rottentomatoes.priority", "critics_score,audience_score,critics_rating,audience_rating").split(",");
-    
+
     private RottenTomatoes rt;
-    
+
     public RottenTomatoesPlugin() {
         rt = new RottenTomatoes(API_KEY);
 
         // We need to set the proxy parameters if set.
         rt.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
-        
+
         // Set the timeout values
         rt.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
     }
-    
+
     public boolean scan(Movie movie) {
         if (!movie.isScrapeLibrary()) {
             return false;
         }
-        
+
         if (movie.isTVShow()) {
             logger.debug(logMessage + movie.getBaseName() + " is a TV Show, skipping.");
             return false;
@@ -68,11 +66,11 @@ public class RottenTomatoesPlugin {
             ThreadExecutor.leaveIO();
         }
     }
-    
+
     public boolean doScan(Movie movie) {
         int rtId = 0;
         com.moviejukebox.rottentomatoes.model.Movie rtMovie = null;
-        
+
         if (StringTools.isValidString(movie.getId(ROTTENTOMATOES_PLUGIN_ID))) {
             try {
                 rtId = Integer.parseInt(movie.getId(ROTTENTOMATOES_PLUGIN_ID));
@@ -80,7 +78,7 @@ public class RottenTomatoesPlugin {
                 rtId = 0;
             }
         }
-            
+
         if (rtId == 0) {
             for (com.moviejukebox.rottentomatoes.model.Movie tmpMovie : rt.moviesSearch(movie.getTitle())) {
                 if (movie.getTitle().equalsIgnoreCase(tmpMovie.getTitle()) && (movie.getYear().equals(""+tmpMovie.getYear()))) {
@@ -93,16 +91,16 @@ public class RottenTomatoesPlugin {
         } else {
            rtMovie = rt.movieInfo(rtId);
         }
-        
+
         int ratingFound = 0;
-        
+
         if (rtMovie != null) {
             Map<String, Integer> ratings = rtMovie.getRatings();
-            
+
             for (String type : priorityList) {
                 if (ratings.containsKey(type)) {
                     ratingFound = ratings.get(type);
-                    
+
                     if (ratingFound > 0) {
                         logger.debug(logMessage + movie.getBaseName() + " - " + type + " found: " + ratingFound);
                         movie.addRating(ROTTENTOMATOES_PLUGIN_ID, ratingFound);
@@ -110,7 +108,7 @@ public class RottenTomatoesPlugin {
                     }
                 }
             }
-            
+
             return true;
         } else {
             logger.debug(logMessage + "No RottenTomatoes information found for " + movie.getBaseName());

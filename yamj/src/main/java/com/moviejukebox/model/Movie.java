@@ -46,7 +46,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public static final String dateFormatLongString = dateFormatString + " HH:mm:ss";
     public static final SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
     public static final SimpleDateFormat dateFormatLong = new SimpleDateFormat(dateFormatLongString);
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(Movie.class);
     public static final String UNKNOWN = "UNKNOWN";
     public static final String NOTRATED = "Not Rated";
     public static final String REMOVE = "Remove"; // All Movie objects with this type will be removed from library before index generation

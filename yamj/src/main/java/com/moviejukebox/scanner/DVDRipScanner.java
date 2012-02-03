@@ -15,9 +15,8 @@ package com.moviejukebox.scanner;
 import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.util.ArrayList;
-import org.apache.log4j.Logger;
-
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
+import org.apache.log4j.Logger;
 
 /**
  * @author Grael by using GPL Source from Mediterranean :
@@ -42,7 +41,7 @@ import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
  */
 public class DVDRipScanner {
 
-    private static Logger logger = Logger.getLogger("moviejukebox");
+    private static Logger logger = Logger.getLogger(DVDRipScanner.class);
 
     public DVDRipScanner() {
     }

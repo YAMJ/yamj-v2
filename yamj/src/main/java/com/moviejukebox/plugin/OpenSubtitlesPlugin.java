@@ -1,24 +1,24 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 // Based on some code from the opensubtitles.org subtitle upload java applet
 package com.moviejukebox.plugin;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,19 +28,13 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.util.Scanner;
-import org.apache.log4j.Logger;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
-
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
+import org.apache.log4j.Logger;
 
 public class OpenSubtitlesPlugin {
 
-    private static final Logger logger = Logger.getLogger("moviejukebox");
+    private static final Logger logger = Logger.getLogger(OpenSubtitlesPlugin.class);
     private static String login = PropertiesUtil.getProperty("opensubtitles.username", "");
     private static String pass = PropertiesUtil.getProperty("opensubtitles.password", "");
     private static String useragent = "moviejukebox 1.0.15";
@@ -516,22 +510,22 @@ public class OpenSubtitlesPlugin {
     ;
 
     /*
-     * 
-     * 
+     *
+     *
      * private static String sendRPCDetectLang(byte text[]) throws MalformedURLException, IOException { String str = ""; String strona = OSdbServer; // String
      * logowanie=xml; URL url = new URL(strona); URLConnection connection = url.openConnection(); connection.setRequestProperty("Connection", "Close");
-     * 
+     *
      * // connection.setRequestProperty("Accept","text/html"); connection.setRequestProperty("Content-Type", "text/xml"); connection.setDoOutput(true);
      * //PrintWriter out= new PrintWriter(connection.getOutputStream()); //out.print(logowanie); String str2 =
      * "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>" + "DetectLanguage" + "</methodName><params>" + "<param><value><string>" + token +
      * "</string></value></param>" + "<param><value>" + "<struct><value><string>";
-     * 
-     * 
+     *
+     *
      * String str3 = "</string></value></struct></value></param></params></methodCall>";
-     * 
+     *
      * connection.getOutputStream().write(str2.getBytes("UTF-8")); connection.getOutputStream().write(text);
      * connection.getOutputStream().write(str3.getBytes("UTF-8"));
-     * 
+     *
      * Scanner in; in = new Scanner(connection.getInputStream()); while (in.hasNextLine()) { str += in.nextLine(); } ; return str; } ;
      */
 
@@ -656,13 +650,13 @@ public class OpenSubtitlesPlugin {
                 tri |= (s[iii + 2] & 0xff);
             } catch (Exception error) {
             }
-            
+
             for (int j = 0; j < 4; j++) {
                 wynik[i * 4 + j] = (iii * 8 + j * 6 >= s.length * 8) ? '=' : t2[(tri >> 6 * (3 - j)) & 0x3f];
             }
             // if((i+1) % 19 ==0 ) str +="\n";
         }
-        
+
         str = new String(wynik);
         if (str.endsWith("====")) {
             str = str.substring(0, str.length() - 4);

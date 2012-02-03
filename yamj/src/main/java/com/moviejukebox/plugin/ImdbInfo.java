@@ -12,23 +12,22 @@
  */
 package com.moviejukebox.plugin;
 
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.moviejukebox.model.ImdbSiteDataDefinition;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.log4j.Logger;
 
 public class ImdbInfo {
-    protected static Logger logger = Logger.getLogger("moviejukebox");
+    protected static Logger logger = Logger.getLogger(ImdbInfo.class);
     private static final String DEFAULT_SITE = "us";
     private static final Map<String, ImdbSiteDataDefinition> matchesDataPerSite = new HashMap<String, ImdbSiteDataDefinition>();
     private final String imdbSite = PropertiesUtil.getProperty("imdb.site", DEFAULT_SITE);
