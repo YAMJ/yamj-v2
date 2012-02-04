@@ -128,16 +128,13 @@ public class Library implements Map<String, Movie> {
         singleSeriesPage = PropertiesUtil.getBooleanProperty("mjb.singleSeriesPage", "false");
         indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
         String awardTmp = PropertiesUtil.getProperty("mjb.categories.award.events", "");
-        awardEventList = StringTools.isValidString(awardTmp)?Arrays.asList(awardTmp.split(" / ")):new ArrayList<String>();
-        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.name", "")
-;
-        awardNameList = StringTools.isValidString(awardTmp)?Arrays.asList(awardTmp.split(" / ")):new ArrayList<String>();
-        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.nominated", "")
-;
-        awardNominated = StringTools.isValidString(awardTmp)?Arrays.asList(awardTmp.split(" / ")):new ArrayList<String>();
-        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.won", "")
-;
-        awardWon = StringTools.isValidString(awardTmp)?Arrays.asList(awardTmp.split(" / ")):new ArrayList<String>();
+        awardEventList = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(" / ")) : new ArrayList<String>();
+        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.name", "");
+        awardNameList = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(" / ")) : new ArrayList<String>();
+        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.nominated", "");
+        awardNominated = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(" / ")) : new ArrayList<String>();
+        awardTmp = PropertiesUtil.getProperty("mjb.categories.award.won", "");
+        awardWon = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(" / ")) : new ArrayList<String>();
         scrapeWonAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", "false").equalsIgnoreCase("won");
         splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
         processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", "true");
@@ -149,11 +146,7 @@ public class Library implements Map<String, Movie> {
         filterCertificationn = PropertiesUtil.getBooleanProperty("mjb.filter.certification", "false");
         fillCertificationMap(PropertiesUtil.getProperty("mjb.xmlCertificationFile", "certification-default.xml"));
 
-        try {
-            maxGenresPerMovie = PropertiesUtil.getIntProperty("genres.max", String.valueOf(maxGenresPerMovie));
-        } catch (Exception ignore) {
-            maxGenresPerMovie = 3;
-        }
+        maxGenresPerMovie = PropertiesUtil.getIntProperty("genres.max", String.valueOf(maxGenresPerMovie));
 
         {
             String certificationOrder = PropertiesUtil.getProperty("certification.ordering");
@@ -340,8 +333,8 @@ public class Library implements Map<String, Movie> {
             indexMaster.setBaseName(makeSafeFilename(indexMaster.getBaseFilename()));
 
             // set TV and HD properties of the master
-            int cntTV = 0;
-            int cntHD = 0;
+            int countTV = 0;
+            int countHD = 0;
             int top250 = -1;
             boolean watched = true; // Assume watched for the check, because any false value will reset it.
             int maxRating = 0;
@@ -353,11 +346,11 @@ public class Library implements Map<String, Movie> {
             Collection<MovieFile> masterMovieFileCollection = new LinkedList<MovieFile>();
             for (Movie movie : indexMovieList) {
                 if (movie.isTVShow()) {
-                    ++cntTV;
+                    countTV++;
                 }
 
                 if (movie.isHD()) {
-                    ++cntHD;
+                    countHD++;
                 }
 
                 // If watched is false for any part, then set the master to unwatched
@@ -385,8 +378,8 @@ public class Library implements Map<String, Movie> {
                 indexMaster.addFileDate(movie.getFileDate());
             }
 
-            indexMaster.setMovieType(cntTV > 1 ? Movie.TYPE_TVSHOW : Movie.TYPE_MOVIE);
-            indexMaster.setVideoType(cntHD > 1 ? Movie.TYPE_VIDEO_HD : null);
+            indexMaster.setMovieType(countTV > 1 ? Movie.TYPE_TVSHOW : Movie.TYPE_MOVIE);
+            indexMaster.setVideoType(countHD > 1 ? Movie.TYPE_VIDEO_HD : null);
             indexMaster.setWatchedFile(watched);
             indexMaster.setTop250(top250);
             if (setsRating.equalsIgnoreCase("max") || (setsRating.equalsIgnoreCase("average") && (indexMovieList.size() > 0))) {
@@ -401,9 +394,9 @@ public class Library implements Map<String, Movie> {
             StringBuilder sb = new StringBuilder("Setting index master '");
             sb.append(indexMaster.getTitle());
             sb.append("' - isTV: ").append(indexMaster.isTVShow());
-            sb.append(" (").append(cntTV).append("/").append(indexMovieList.size()).append(")");
+            sb.append(" (").append(countTV).append("/").append(indexMovieList.size()).append(")");
             sb.append(" - isHD: ").append(indexMaster.isHD());
-            sb.append(" (").append(cntHD).append("/").append(indexMovieList.size()).append(")");
+            sb.append(" (").append(countHD).append("/").append(indexMovieList.size()).append(")");
             sb.append(" - top250: ").append(indexMaster.getTop250());
             sb.append(" - watched: ").append(indexMaster.isWatched());
             sb.append(" - rating: ").append(indexMaster.getRating());
@@ -620,9 +613,11 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Trim the new category to the required length, add the trimmed video list to the NEW category
-     * @param catName   The name of the category: "New-TV" or "New-Movie"
-     * @param catCount  The maximum size of the category
+     * Trim the new category to the required length, add the trimmed video list
+     * to the NEW category
+     *
+     * @param catName The name of the category: "New-TV" or "New-Movie"
+     * @param catCount The maximum size of the category
      * @return
      */
     private boolean trimNewCategory(String catName, int catCount) {
@@ -796,7 +791,7 @@ public class Library implements Map<String, Movie> {
     }
 
     private static Index indexByCertification(Iterable<Movie> moviesList) {
-        Index index = null;
+        Index index;
         if (certificationOrdering.isEmpty()) {
             index = new Index();
         } else {
@@ -813,8 +808,9 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Index the videos by the property values
-     * This is slightly different from the other indexes as there may be multiple entries for each of the videos
+     * Index the videos by the property values This is slightly different from
+     * the other indexes as there may be multiple entries for each of the videos
+     *
      * @param moviesList
      * @return
      */
@@ -1053,7 +1049,7 @@ public class Library implements Map<String, Movie> {
                         if (!found) {
                             for (Award award : awardEvent.getAwards()) {
                                 if (awardNameList.isEmpty() || awardNameList.contains(award.getName())) {
-                                    int flag = (scrapeWonAwards?0:((awardNominated.isEmpty()?0:8) + (award.getNominations().isEmpty()?0:4))) + (awardWon.isEmpty()?0:2) + (award.getWons().isEmpty()?0:1);
+                                    int flag = (scrapeWonAwards ? 0 : ((awardNominated.isEmpty() ? 0 : 8) + (award.getNominations().isEmpty() ? 0 : 4))) + (awardWon.isEmpty() ? 0 : 2) + (award.getWons().isEmpty() ? 0 : 1);
                                     found = "145".indexOf(Integer.toString(flag)) > -1;
                                     if (!found && (flag > 10)) {
                                         for (String nomination : award.getNominations()) {
@@ -1141,10 +1137,10 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Checks if there is a master (will be shown in the index) genre for the specified one.
+     * Checks if there is a master (will be shown in the index) genre for the
+     * specified one.
      *
-     * @param genre
-     *            Genre to find the master for
+     * @param genre Genre to find the master for
      * @return Genre itself or master if available.
      */
     public static String getIndexingGenre(String genre) {
@@ -1161,10 +1157,10 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Checks if there is a master (will be shown in the index) Certification for the specified one.
+     * Checks if there is a master (will be shown in the index) Certification
+     * for the specified one.
      *
-     * @param certification
-     *            Certification to find the master for
+     * @param certification Certification to find the master for
      * @return Certification itself or master if available.
      */
     public static String getIndexingCertification(String certification) {
@@ -1386,8 +1382,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the first category in the first index that has any movies in it
-     * For Issue 436
+     * Find the first category in the first index that has any movies in it For
+     * Issue 436
      */
     public String getDefaultCategory() {
         for (Index index : indexes.values()) {
@@ -1427,9 +1423,10 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the un-modified category name.
-     * The Category name could be changed by the use of the Category XML file.
-     * This function will return the original, unchanged name
+     * Find the un-modified category name. The Category name could be changed by
+     * the use of the Category XML file. This function will return the original,
+     * unchanged name
+     *
      * @param newCategory
      * @return
      */
@@ -1444,9 +1441,10 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the renamed category name from the original name
-     * The Category name could be changed by the use of the Category XML file.
-     * This function will return the new name.
+     * Find the renamed category name from the original name The Category name
+     * could be changed by the use of the Category XML file. This function will
+     * return the new name.
+     *
      * @param test
      * @return
      */
@@ -1488,37 +1486,37 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Determine the year banding for the category. If the year is this year or last year, return those, otherwise return the decade the year resides in
+     * Determine the year banding for the category. If the year is this year or
+     * last year, return those, otherwise return the decade the year resides in
      *
-     * @param filmYear
-     *            The year to check
+     * @param filmYear The year to check
      * @return "This Year", "Last Year" or the decade range (1990-1999)
      */
     public static String getYearCategory(String filmYear) {
-        String yearCat = Movie.UNKNOWN;
+        StringBuilder yearCat;
         if (StringTools.isValidString(filmYear)) {
-            try {
-                if (filmYear.equals(String.valueOf(currentYear))) {
-                    yearCat = "This Year";
-                } else if (filmYear.equals(String.valueOf(currentYear - 1))) {
-                    yearCat = "Last Year";
+            if (filmYear.equals(String.valueOf(currentYear))) {
+                yearCat = new StringBuilder("This Year");
+            } else if (filmYear.equals(String.valueOf(currentYear - 1))) {
+                yearCat = new StringBuilder("Last Year");
+            } else {
+                String beginYear = new String(filmYear.substring(0, filmYear.length() - 1)) + "0";
+                String endYear;
+                if (Integer.parseInt(filmYear) >= currentDecade) {
+                    // The film year is in the current decade, so we need to adjust the end year
+                    endYear = String.valueOf(finalYear);
                 } else {
-                    String beginYear = new String(filmYear.substring(0, filmYear.length() - 1)) + "0";
-                    String endYear = Movie.UNKNOWN;
-                    if (Integer.parseInt(filmYear) >= currentDecade) {
-                        // The film year is in the current decade, so we need to adjust the end year
-                        endYear = String.valueOf(finalYear);
-                    } else {
-                        // Otherwise it's 9
-                        endYear = new String(filmYear.substring(0, filmYear.length() - 1)) + "9";
-                    }
-                    yearCat = beginYear + "-" + new String(endYear.substring(endYear.length() - 2));
+                    // Otherwise it's 9
+                    endYear = new String(filmYear.substring(0, filmYear.length() - 1)) + "9";
                 }
-            } catch (Exception ignore) {
+                yearCat = new StringBuilder(beginYear);
+                yearCat.append("-").append(endYear.substring(endYear.length() - 2));
             }
+        } else {
+            yearCat = new StringBuilder(Movie.UNKNOWN);
         }
 
-        return yearCat;
+        return yearCat.toString();
     }
 
     public List<Movie> getMatchingMoviesList(String indexName, List<Movie> boxedSetMovies, String categorie) {

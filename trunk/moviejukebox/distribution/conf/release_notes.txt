@@ -13,9 +13,10 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2016 New category is not deleted when all movies are watched
  - Fixed defect #2018 Watched not updated when a TV Season is completed
  - Enhancement  #2119 Overlay XML watched for episodes
+ - Fixes defect #2123 Season # is appended to all TV show sets, rather than just series name.
  - Enhancement  #2137 Rating for TV Episodes
  - Fixed defect #2160 TV NFO ratings are not normalised to x/100 correctly
- - Fixed defect #2065 Skins need to include .html ext when inserting $mjb.homePage variable
+ - Fixed defect #2065 Skins need to include '.HTML' ext when inserting $mjb.homePage variable
  - Fixed defect #2165 AspectRatio-Icons not displayed anymore (localization problem)
  - Enhancement  #2167 Clean aspect ratios
  - Fixed defect #2168 Problem with mjb.aspectRatioPrecision
@@ -58,7 +59,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2265 Actors missing from XML file
  - Fixed defect #2271 AudioCodec uses codec and not CodecIdHint for information
  - Enhancement  #2273 Award scanner: User to select if scans only scans for won
- - Ehhancement  #2282 Switch to TheMovieDVB API v3
+ - Enhancement  #2282 Switch to TheMovieDVB API v3
  - Fixed defect #2283 Country not scraped from IMDb
  - Fixed defect #2288 TV Episodes Not Scraping Studio/Company
  - Fixed defect #2289 Failed to create poster images for TV shows with special characters in title
