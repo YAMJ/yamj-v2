@@ -58,6 +58,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2265 Actors missing from XML file
  - Fixed defect #2271 AudioCodec uses codec and not CodecIdHint for information
  - Enhancement  #2273 Award scanner: User to select if scans only scans for won
+ - Ehhancement  #2282 Switch to TheMovieDVB API v3
  - Fixed defect #2283 Country not scraped from IMDb
  - Fixed defect #2288 TV Episodes Not Scraping Studio/Company
  - Fixed defect #2290 RAR: Archive name added repeatedly to fileurl

@@ -18,6 +18,7 @@ import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.MovieDb;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.WebBrowser;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -30,7 +31,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
     private String apiKey = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
     private String languageCode;
     private String countryCode;
-    private TheMovieDb theMovieDb;
+    private TheMovieDb TMDb;
     private static final String DEFAULT_POSTER_SIZE = "original";
 
     public MovieDbPosterPlugin() {
@@ -55,22 +56,22 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         logger.debug("MovieDbPosterPlugin: Using `" + countryCode + "` as the country code");
 
         try {
-            theMovieDb = new TheMovieDb(apiKey);
+            TMDb = new TheMovieDb(apiKey);
         } catch (IOException ex) {
             logger.warn("MovieDbPosterPlugin: Failed to initialise TheMovieDB API.");
             return;
         }
 
         // Set the proxy
-//        theMovieDb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+        TMDb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
 
         // Set the timeouts
-//        theMovieDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+        TMDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
     }
 
     @Override
     public String getIdFromMovieInfo(String title, String year) {
-        List<MovieDb> movieList = theMovieDb.searchMovie(title, languageCode, false);
+        List<MovieDb> movieList = TMDb.searchMovie(title, languageCode, false);
 
         if (movieList.isEmpty()) {
             return Movie.UNKNOWN;
@@ -99,9 +100,9 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         URL posterURL;
 
         if (StringUtils.isNumeric(id)) {
-            MovieDb moviedb = theMovieDb.getMovieInfo(Integer.parseInt(id), languageCode);
+            MovieDb moviedb = TMDb.getMovieInfo(Integer.parseInt(id), languageCode);
             logger.debug("MovieDbPosterPlugin: Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
-            posterURL = theMovieDb.createImageUrl(moviedb.getPosterPath(), DEFAULT_POSTER_SIZE);
+            posterURL = TMDb.createImageUrl(moviedb.getPosterPath(), DEFAULT_POSTER_SIZE);
             return new Image(posterURL.toString());
         } else {
             return Image.UNKNOWN;
@@ -142,7 +143,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                 response = tmdbID;
             } else if (StringTools.isValidString(imdbID)) {
                 // Search based on IMDb ID
-                moviedb = theMovieDb.getMovieInfoImdb(imdbID, languageCode);
+                moviedb = TMDb.getMovieInfoImdb(imdbID, languageCode);
                 if (moviedb != null) {
                     tmdbID = String.valueOf(moviedb.getId());
                     if (StringUtils.isNumeric(tmdbID)) {
