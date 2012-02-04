@@ -19,6 +19,7 @@ import com.moviejukebox.plugin.MovieDatabasePlugin;
 import com.moviejukebox.tools.BooleanYesNoAdapter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.UrlCodecAdapter;
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -38,8 +39,10 @@ import org.pojava.datetime.DateTime;
  */
 @XmlType
 public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInformation {
-    /*--------------------------------------------------------------------------------
-     * Static & Final variables that are used for control and don't relate specifically to the Movie object
+    /*
+     * --------------------------------------------------------------------------------
+     * Static & Final variables that are used for control and don't relate
+     * specifically to the Movie object
      */
 
     public static final String dateFormatString = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
@@ -63,9 +66,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String mjbVersion = UNKNOWN;
     private String mjbRevision = UNKNOWN;
     private DateTime mjbGenerationDate = null;
-    /*--------------------------------------------------------------------------------
-     * Caching - Dirty Flags
-     * More of these flags can be added to further classify what changed
+    /*
+     * --------------------------------------------------------------------------------
+     * Caching - Dirty Flags More of these flags can be added to further
+     * classify what changed
      */
     public static final String DIRTY_NFO = "NFO";
     public static final String DIRTY_FANART = "FANART";
@@ -75,7 +79,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public static final String DIRTY_INFO = "INFO"; // Information on the video (default)
     public static final String DIRTY_RECHECK = "RECHECK"; // The movie needs to be rechecked.
 
-    /*--------------------------------------------------------------------------------
+    /*
+     * --------------------------------------------------------------------------------
      * Properties that control the object
      */
     public static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
@@ -83,10 +88,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private int highdef1080 = PropertiesUtil.getIntProperty("highdef.1080.width", "1920");  // Get the minimum width for a high-definition movies
     private String[] ratingSource = PropertiesUtil.getProperty("mjb.rating.source", "average").split(",");
     private String tmpRatingIgnore = PropertiesUtil.getProperty("mjb.rating.ignore", "");
-    private List<String> ratingIgnore = StringTools.isValidString(tmpRatingIgnore)?Arrays.asList(tmpRatingIgnore.split(",")):new ArrayList<String>();
+    private List<String> ratingIgnore = StringTools.isValidString(tmpRatingIgnore) ? Arrays.asList(tmpRatingIgnore.split(",")) : new ArrayList<String>();
     private static HashSet<String> genreSkipList = new HashSet<String>();   // List of genres to ignore
     private static String titleSortType = PropertiesUtil.getProperty("mjb.sortTitle", "title");
-    /*--------------------------------------------------------------------------------
+    /*
+     * --------------------------------------------------------------------------------
      * Properties related to the Movie object itself
      */
     private String baseName;        // Safe name for generated files
@@ -173,9 +179,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private int setSize = 0;                // Amount of movies in set
     private MovieDatabasePlugin movieScanner = null;
 
-    /*--------------------------------------------------------------------------------
+    /*
+     * --------------------------------------------------------------------------------
      * End of properties
-     *--------------------------------------------------------------------------------*/
+     * --------------------------------------------------------------------------------
+     */
     static {
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.genre.skip", ""), ",;|");
         while (st.hasMoreTokens()) {
@@ -777,9 +785,12 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      */
     @Override
     public int getSeason() {
-        // Return the first season as the whole season
-        // This could be changed later to allow multi season movie objects
-        if (movieFiles.size() > 0) {
+        /*
+         * Return the first season as the whole season This could be changed
+         * later to allow multi season movie objects. Do not return a value for
+         * the set master.
+         */
+        if (movieFiles.size() > 0 && !isSetMaster) {
             return getFirstFile().getSeason();
         } else {
             // Strictly speaking this isn't "-1" its a non-existent season.
@@ -880,6 +891,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * Clear ALL the dirty flags, and just set DIRTY_INFO to the passed value
+     *
      * @param dirty
      */
     public void setDirty(boolean dirty) {
@@ -888,8 +900,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Returns true if ANY of the dirty flags are set.
-     * Use with caution, it's better to test individual flags as you need them, rather than this generic flag
+     * Returns true if ANY of the dirty flags are set. Use with caution, it's
+     * better to test individual flags as you need them, rather than this
+     * generic flag
+     *
      * @return
      */
     @XmlTransient
@@ -972,6 +986,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringUtils.isBlank(filename)) {
             filename = UNKNOWN;
         }
+
         if (!filename.equalsIgnoreCase(this.baseFilename)) {
             setDirty(DIRTY_INFO, true);
             this.baseFilename = filename;
@@ -1158,6 +1173,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * Get just one director from the collection
+     *
      * @return
      */
     public String getDirector() {
@@ -1286,7 +1302,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     /*
      * (non-Javadoc)
      *
-     * @see com.moviejukebox.model.Identifiable#setId(java.lang.String, java.lang.String)
+     * @see com.moviejukebox.model.Identifiable#setId(java.lang.String,
+     * java.lang.String)
      */
     @Override
     public void setId(String key, String id) {
@@ -1453,7 +1470,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                     count++;
                 }
 
-                return (count > 0?(rating / count):0);
+                return (count > 0 ? (rating / count) : 0);
             }
 
             if (ratings.containsKey(site)) {
@@ -1591,6 +1608,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * Get the video codec. You should use the getCodec methods instead
+     *
      * @return
      * @deprecated
      */
@@ -1748,10 +1766,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Sets the "extra" flag to mark this file as an extra. Will trigger the "dirty" setting too
+     * Sets the "extra" flag to mark this file as an extra. Will trigger the
+     * "dirty" setting too
      *
-     * @param extra
-     *            Boolean flag, true=extra file, false=normal file
+     * @param extra Boolean flag, true=extra file, false=normal file
      */
     public void setExtra(boolean extra) {
         setDirty(DIRTY_INFO, true);
@@ -1785,8 +1803,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     /**
      * Set the date of the last trailers scan
      *
-     * @param lastScan
-     *            date of the last trailers scan
+     * @param lastScan date of the last trailers scan
      */
     public void setTrailerLastScan(String lastScan) {
         try {
@@ -1799,8 +1816,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     /**
      * Set the date of the last trailers scan
      *
-     * @param lastScan
-     *            date of the last trailers scan (milliseconds offset from the Epoch)
+     * @param lastScan date of the last trailers scan (milliseconds offset from
+     * the Epoch)
      */
     public void setTrailerLastScan(long lastScan) {
         if (lastScan != this.trailerLastScan) {
@@ -1812,7 +1829,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     /**
      * Get the date of the last trailers scan
      *
-     * @return the date of the last trailers scan (milliseconds offset from the Epoch)
+     * @return the date of the last trailers scan (milliseconds offset from the
+     * Epoch)
      */
     public long getTrailerLastScan() {
         return trailerLastScan;
@@ -1962,6 +1980,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * Take the passed DTO and update the movie information
+     *
      * @param dto
      */
     public void mergeFileNameDTO(MovieFileNameDTO dto) {
@@ -2094,8 +2113,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Store the latest filedate for a set of movie files.
-     * Synchronized so that the comparisons don't overlap
+     * Store the latest filedate for a set of movie files. Synchronized so that
+     * the comparisons don't overlap
+     *
      * @param fileDate
      */
     synchronized public void addFileDate(Date fileDate) {
@@ -2108,6 +2128,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * Overwrite the file date
+     *
      * @param fileDate
      */
     public void setFileDate(Date fileDate) {
@@ -2146,7 +2167,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Should be called only from ArtworkScanner. Avoid calling this inside MoviePlugin Also called from MovieNFOScanner
+     * Should be called only from ArtworkScanner. Avoid calling this inside
+     * MoviePlugin Also called from MovieNFOScanner
      *
      * @param url
      */
@@ -2359,7 +2381,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Look at the associated movie files and return the latest date a file was watched
+     * Look at the associated movie files and return the latest date a file was
+     * watched
+     *
      * @return
      */
     public long getWatchedDate() {
@@ -2395,6 +2419,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * Check to see if an artwork already exists.
+     *
      * @param artwork
      * @return
      */
@@ -2441,6 +2466,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     /**
      * Copy the movie
+     *
      * @param aMovie
      * @return
      */
