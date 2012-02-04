@@ -1387,9 +1387,12 @@ public class MovieJukebox {
             SystemTools.showMemory();
 
             // Issue 1886: Html indexes recreated every time
+            StringBuilder indexFilename;
             for (Movie setMovie : library.getMoviesList()) {
                 if (setMovie.isSetMaster()) {
-                    File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + setMovie.getBaseName() + ".xml");
+                    indexFilename = new StringBuilder(jukebox.getJukeboxRootLocationDetails());
+                    indexFilename.append(File.separator).append(setMovie.getBaseName()).append(".xml");
+                    File xmlFile = FileTools.fileCache.getFile(indexFilename.toString());
                     if (xmlFile.exists()) {
                         xmlWriter.parseSetXML(xmlFile, setMovie, library.getMoviesList());
                     }
@@ -1405,27 +1408,32 @@ public class MovieJukebox {
 
                 // Issue 2235: Update artworks after masterSet changed
                 ToolSet tools = threadTools.get();
+                StringBuilder idxName;
+                boolean createPosters = PropertiesUtil.getBooleanProperty("mjb.sets.createPosters", "false");
+                
                 for (IndexInfo idx : library.getGeneratedIndexes()) {
                     if (!idx.canSkip && idx.categoryName.equals("Set")) {
-                        String idxName = idx.categoryName + "_" + idx.key + "_1";
+                        idxName = new StringBuilder(idx.categoryName);
+                        idxName.append("_").append(FileTools.makeSafeFilename(idx.key)).append( "_1");
+                        
                         for (Movie movie : indexMasters) {
-                            if (!movie.getBaseName().equals(idxName)) {
+                            if (!movie.getBaseName().equals(idxName.toString())) {
                                 continue;
                             }
 
-                            if (PropertiesUtil.getBooleanProperty("mjb.sets.createPosters", "false")) {
+                            if (createPosters) {
                                 // Create/update a detail poster for setMaster
-                                logger.debug("Create/update detail poster for index master: " + movie.getBaseName());
+                                logger.debug("Create/update detail poster for set: " + movie.getBaseName());
                                 createPoster(tools.imagePlugin, jukebox, skinHome, movie, true);
                             }
 
                             // Create/update a thumbnail for setMaster
-                            logger.debug("Create/update thumbnail for index master: " + movie.getBaseName() + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
+                            logger.debug("Create/update thumbnail for set: " + movie.getBaseName() + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
                             createThumbnail(tools.imagePlugin, jukebox, skinHome, movie, true);
 
                             for (int inx = 0; inx < footerCount; inx++) {
                                 if (footerEnable.get(inx)) {
-                                    logger.debug("Create/update footer for index master: " + movie.getBaseName() + ", footerName: " + footerName.get(inx));
+                                    logger.debug("Create/update footer for set: " + movie.getBaseName() + ", footerName: " + footerName.get(inx));
                                     updateFooter(jukebox, movie, tools.imagePlugin, inx, true);
                                 }
                             }
