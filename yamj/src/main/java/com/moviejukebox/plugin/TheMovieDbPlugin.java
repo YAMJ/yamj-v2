@@ -20,6 +20,7 @@ import com.moviejukebox.themoviedb.model.*;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.WebBrowser;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,10 +58,10 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         }
 
         // Set the proxy
-//        TMDb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+        TMDb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
 
         // Set the timeouts
-//        TMDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+        TMDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
 
         languageCode = PropertiesUtil.getProperty("themoviedb.language", "en");
         countryCode = PropertiesUtil.getProperty("themoviedb.country", "");     // Don't default this as we might get it from the language (old setting)
@@ -343,8 +344,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 }
             }
         }
-
-        return;
     }
 
     /**
@@ -405,7 +404,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     @Override
     public void scanTVShowTitles(Movie movie) {
         // TheMovieDB.org does not have any TV Shows, so just return
-        return;
     }
 
     /**
