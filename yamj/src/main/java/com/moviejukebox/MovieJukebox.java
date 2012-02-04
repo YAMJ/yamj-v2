@@ -61,7 +61,6 @@ public class MovieJukebox {
     // Jukebox parameters
     protected static Jukebox jukebox;
     protected static String jukeboxLocation;
-    protected static String jukeboxTempLocation;
     private static boolean jukeboxPreserve = false;
     private static boolean jukeboxClean = false;
     // Time Stamps
@@ -407,12 +406,11 @@ public class MovieJukebox {
 
         // Now rename the log files
         renameLogFile();
-
-        return;
     }
 
     /**
      * Append the library filename or the date/time to the log filename
+     *
      * @param logFilename
      */
     private static void renameLogFile() {
@@ -488,8 +486,6 @@ public class MovieJukebox {
                 }
             }
         }
-
-        return;
     }
 
     private void makeDumpStructure() {
@@ -714,24 +710,26 @@ public class MovieJukebox {
 
     private void generateLibrary() throws Throwable {
 
-        /********************************************************************************
+        /**
+         * ******************************************************************************
          * @author Gabriel Corneanu
          *
-         *  The tools used for parallel processing are NOT thread safe (some operations
-         *  are, but not all) therefore all are added to a container which is instantiated
-         *  one per thread
+         * The tools used for parallel processing are NOT thread safe (some
+         * operations are, but not all) therefore all are added to a container
+         * which is instantiated one per thread
          *
-         *  - xmlWriter looks thread safe
-         *  - htmlWriter was not thread safe,
-         *  - getTransformer is fixed (simple workaround)
-         *  - MovieImagePlugin : not clear, made thread specific for safety
-         *  - MediaInfoScanner : not sure, made thread specific
+         * - xmlWriter looks thread safe - htmlWriter was not thread safe, -
+         * getTransformer is fixed (simple workaround) - MovieImagePlugin : not
+         * clear, made thread specific for safety - MediaInfoScanner : not sure,
+         * made thread specific
          *
-         *  Also important: The library itself is not thread safe for modifications
-         *  (API says so) it could be adjusted with concurrent versions, but it needs many
-         *  changes it seems that it is safe for subsequent reads (iterators), so leave for now...
+         * Also important: The library itself is not thread safe for
+         * modifications (API says so) it could be adjusted with concurrent
+         * versions, but it needs many changes it seems that it is safe for
+         * subsequent reads (iterators), so leave for now...
          *
-         *  - DatabasePluginController is also fixed to be thread safe (plugins map for each thread)
+         * - DatabasePluginController is also fixed to be thread safe (plugins
+         * map for each thread)
          *
          */
         class ToolSet {
@@ -787,7 +785,8 @@ public class MovieJukebox {
             logger.info("See README.TXT for increasing performance using these settings.");
         }
 
-        /********************************************************************************
+        /*
+         * ******************************************************************************
          *
          * PART 1 : Preparing the temporary environment
          *
@@ -851,7 +850,8 @@ public class MovieJukebox {
             return;
         }
 
-        /********************************************************************************
+        /*
+         * ******************************************************************************
          *
          * PART 2 : Scan movie libraries for files...
          *
@@ -1250,7 +1250,8 @@ public class MovieJukebox {
                 }
             }
 
-            /********************************************************************************
+            /*
+             * ******************************************************************************
              *
              * PART 3 : Indexing the library
              *
@@ -1269,8 +1270,10 @@ public class MovieJukebox {
 
             logger.info("Indexing masters...");
             /*
-             * This is kind of a hack -- library.values() are the movies that were found in the library and library.getMoviesList()
-             * are the ones that are there now. So the movies that are in getMoviesList but not in values are the index masters.
+             * This is kind of a hack -- library.values() are the movies that
+             * were found in the library and library.getMoviesList() are the
+             * ones that are there now. So the movies that are in getMoviesList
+             * but not in values are the index masters.
              */
             List<Movie> indexMasters = new ArrayList<Movie>(library.getMoviesList());
             indexMasters.removeAll(library.values());
@@ -1278,7 +1281,8 @@ public class MovieJukebox {
             // Multi-thread: Parallel Executor
             tasks.restart();
 
-            /********************************************************************************
+            /*
+             * ******************************************************************************
              *
              * PART 3B - Indexing masters
              */
@@ -1292,15 +1296,19 @@ public class MovieJukebox {
 
                         String safeSetMasterBaseName = FileTools.makeSafeFilename(movie.getBaseName());
 
-                        // The master's movie XML is used for generating the
-                        // playlist it will be overwritten by the index XML
+                        /*
+                         * The master's movie XML is used for generating the
+                         * playlist it will be overwritten by the index XML
+                         *
+                         * Issue 1886: Html indexes recreated every time
+                         * commented next 2 lines because generated XML file not
+                         * useful
+                         *
+                         * //logger.debug("Writing index data for master: " + movie.getBaseName());
+                         * //xmlWriter.writeMovieXML(jukebox, movie, library);
+                         */
 
-                        // Issue 1886: Html indexes recreated every time
-                        // commented next 2 lines because generated XML file not useful
-                        //logger.debug("Writing index data for master: " + movie.getBaseName());
-                        //xmlWriter.writeMovieXML(jukebox, movie, library);
-
-                        logger.debug("Updating poster for index master: " + movie.getOriginalTitle() + "...");
+                        logger.debug("Updating set poster for: " + movie.getOriginalTitle() + "...");
 
                         // If we can find a set poster file, use it; otherwise, stick with the first movie's poster
                         String oldPosterFilename = movie.getPosterFilename();
@@ -1337,19 +1345,25 @@ public class MovieJukebox {
                             }
                         }
 
-                        movie.setThumbnailFilename(safeSetMasterBaseName + thumbnailToken + "." + thumbnailExtension);
-                        movie.setDetailPosterFilename(safeSetMasterBaseName + posterToken + "." + posterExtension);
+                        StringBuilder artworkFilename = new StringBuilder(safeSetMasterBaseName);
+                        artworkFilename.append(thumbnailToken).append(".").append(thumbnailExtension);
+                        movie.setThumbnailFilename(artworkFilename.toString());
+                        
+                        artworkFilename = new StringBuilder(safeSetMasterBaseName);
+                        artworkFilename.append(posterToken).append(".").append(posterExtension);
+                        movie.setDetailPosterFilename(artworkFilename.toString());
 
+                        // Generate footer filenames
                         for (int inx = 0; inx < footerCount; inx++) {
                             if (footerEnable.get(inx)) {
-                                StringBuilder sb = new StringBuilder(safeSetMasterBaseName);
+                                artworkFilename = new StringBuilder(safeSetMasterBaseName);
                                 if (footerName.get(inx).contains("[")) {
-                                    sb.append(footerToken).append("_").append(inx);
+                                    artworkFilename.append(footerToken).append("_").append(inx);
                                 } else {
-                                    sb.append(".").append(footerName.get(inx));
+                                    artworkFilename.append(".").append(footerName.get(inx));
                                 }
-                                sb.append(".").append(footerExtension.get(inx));
-                                movie.setFooterFilename(sb.toString(), inx);
+                                artworkFilename.append(".").append(footerExtension.get(inx));
+                                movie.setFooterFilename(artworkFilename.toString(), inx);
                             }
                         }
 
@@ -1529,8 +1543,8 @@ public class MovieJukebox {
                 }
 
                 /*
-                 * Generate the index file.
-                 * Do not skip this part as it's the index that starts the jukebox
+                 * Generate the index file. Do not skip this part as it's the
+                 * index that starts the jukebox
                  */
                 htmlWriter.generateMainIndexHTML(jukebox, library);
             }
@@ -1539,7 +1553,8 @@ public class MovieJukebox {
                 writeCompleteMovies(library);
             }
 
-            /********************************************************************************
+            /**
+             * ******************************************************************************
              *
              * PART 4 : Copy files to target directory
              *
@@ -1595,7 +1610,8 @@ public class MovieJukebox {
 
             FileTools.fileCache.saveFileList("filecache.txt");
 
-            /********************************************************************************
+            /**
+             * ******************************************************************************
              *
              * PART 5: Clean-up the jukebox directory
              *
@@ -1628,8 +1644,6 @@ public class MovieJukebox {
         logger.info("");
         logger.info("MovieJukebox process completed at " + new Date());
         logger.info("Processing took " + dateFormat.format(new Date(timeEnd - timeStart)));
-
-        return;
     }
 
     private boolean compareMovieAndFilm(Movie movie, Filmography film) {
@@ -1651,7 +1665,8 @@ public class MovieJukebox {
     /**
      * Clean up the jukebox folder of any extra files that are not needed.
      *
-     * If the jukeboxClean parameter is not set, just report on the files that would be cleaned.
+     * If the jukeboxClean parameter is not set, just report on the files that
+     * would be cleaned.
      */
     private void cleanJukeboxFolder() {
         boolean cleanReport = PropertiesUtil.getBooleanProperty("mjb.jukeboxCleanReport", "false");
@@ -1668,14 +1683,13 @@ public class MovieJukebox {
         Collection<String> generatedFileNames = FileTools.getJukeboxFiles();
 
         File[] cleanList = jukebox.getJukeboxRootLocationDetailsFile().listFiles();
-        int nbFiles = 0;
         int cleanDeletedTotal = 0;
-        boolean skip = false;
+        boolean skip;
 
         String skipPattStr = getProperty("mjb.clean.skip");
         Pattern skipPatt = null != skipPattStr ? Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE) : null;
 
-        for (nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
+        for (int nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
             // Scan each file in here
             if (cleanList[nbFiles].isFile() && !generatedFileNames.contains(cleanList[nbFiles].getName())) {
                 skip = false;
@@ -1698,7 +1712,7 @@ public class MovieJukebox {
             }
         }
 
-        logger.info(Integer.toString(nbFiles) + " files in the jukebox directory");
+        logger.info(Integer.toString(cleanList.length) + " files in the jukebox directory");
         if (cleanDeletedTotal > 0) {
             if (jukeboxClean) {
                 logger.info("Deleted " + Integer.toString(cleanDeletedTotal) + " unused " + (cleanDeletedTotal == 1 ? "file" : "files") + " from the jukebox directory");
@@ -1706,25 +1720,27 @@ public class MovieJukebox {
                 logger.info("There " + (cleanDeletedTotal == 1 ? "is " : "are ") + Integer.toString(cleanDeletedTotal) + " orphaned " + (cleanDeletedTotal == 1 ? "file" : "files") + " in the jukebox directory");
             }
         }
-
-        return;
     }
 
     /**
-     * Generates a movie XML file which contains data in the <tt>Movie</tt> bean.
+     * Generates a movie XML file which contains data in the <tt>Movie</tt>
+     * bean.
      *
-     * When an XML file exists for the specified movie file, it is loaded into the specified <tt>Movie</tt> object.
+     * When an XML file exists for the specified movie file, it is loaded into
+     * the specified <tt>Movie</tt> object.
      *
-     * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt> object.
-     * Once scanned, the <tt>movie</tt> object is persisted.
+     * When no XML file exist, scanners are called in turn, in order to add
+     * information to the specified <tt>movie</tt> object. Once scanned, the
+     * <tt>movie</tt> object is persisted.
      */
     public boolean updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
         boolean checkNewer = PropertiesUtil.getBooleanProperty("filename.nfo.checknewer", "true");
 
         /*
-         * For each video in the library, if an XML file for this video already exists, then there is no need to search for the video file information, just
-         * parse the XML data.
+         * For each video in the library, if an XML file for this video already
+         * exists, then there is no need to search for the video file
+         * information, just parse the XML data.
          */
         String safeBaseName = movie.getBaseName();
         File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + safeBaseName + ".xml");
@@ -1864,7 +1880,6 @@ public class MovieJukebox {
             // Update poster format if needed
             movie.setDetailPosterFilename(movie.getBaseName() + posterToken + "." + posterExtension);
 
-
             // Check for local CoverArt
             PosterScanner.scan(jukebox, movie);
 
@@ -1964,9 +1979,11 @@ public class MovieJukebox {
     }
 
     /**
-     * Update the movie poster for the specified movie. When an existing thumbnail is found for the movie, it is not overwritten, unless the
-     * mjb.forceThumbnailOverwrite is set to true in the property file. When the specified movie does not contain a valid URL for the poster, a dummy image is
-     * used instead.
+     * Update the movie poster for the specified movie. When an existing
+     * thumbnail is found for the movie, it is not overwritten, unless the
+     * mjb.forceThumbnailOverwrite is set to true in the property file. When the
+     * specified movie does not contain a valid URL for the poster, a dummy
+     * image is used instead.
      *
      * @param tempJukeboxDetailsRoot
      */
@@ -2002,8 +2019,11 @@ public class MovieJukebox {
     }
 
     /**
-     * Update the banner for the specified TV Show. When an existing banner is found for the movie, it is not overwritten, unless the mjb.forcePosterOverwrite
-     * is set to true in the property file. When the specified movie does not contain a valid URL for the banner, a dummy image is used instead.
+     * Update the banner for the specified TV Show. When an existing banner is
+     * found for the movie, it is not overwritten, unless the
+     * mjb.forcePosterOverwrite is set to true in the property file. When the
+     * specified movie does not contain a valid URL for the banner, a dummy
+     * image is used instead.
      *
      * @param tempJukeboxDetailsRoot
      */
@@ -2275,8 +2295,7 @@ public class MovieJukebox {
 
                     // Generate left & save as copy
                     logger.debug("Generating mirror thumbnail from " + src + " to " + dstMirror);
-                    BufferedImage biMirror = bi;
-                    biMirror = imagePlugin.generate(movie, bi, "thumbnails", "left");
+                    BufferedImage biMirror = imagePlugin.generate(movie, bi, "thumbnails", "left");
                     GraphicTools.saveImageToDisk(biMirror, dstMirror);
 
                     // Generate right as per normal
@@ -2367,8 +2386,7 @@ public class MovieJukebox {
 
                     // Generate left & save as copy
                     logger.debug("Generating mirror poster from " + src + " to " + dstMirror);
-                    BufferedImage biMirror = bi;
-                    biMirror = posterManager.generate(movie, bi, "posters", "left");
+                    BufferedImage biMirror = posterManager.generate(movie, bi, "posters", "left");
                     GraphicTools.saveImageToDisk(biMirror, dstMirror);
 
                     // Generate right as per normal
@@ -2402,7 +2420,9 @@ public class MovieJukebox {
     }
 
     /**
-     * This function will check movie trailers and return true if trailers needs to be re-scanned.
+     * This function will check movie trailers and return true if trailers needs
+     * to be re-scanned.
+     *
      * @param movie
      * @return
      */
@@ -2427,6 +2447,11 @@ public class MovieJukebox {
         return true;
     }
 
+    /**
+     * Get a list of the trailer plugins
+     *
+     * @return
+     */
     public static String getTrailerPluginsCode() {
         StringBuilder response = new StringBuilder();
 
@@ -2435,6 +2460,8 @@ public class MovieJukebox {
             response.append(string);
             response.append(" / ");
         }
+
+        response.delete(response.length() - 3, response.length());
         return response.toString();
     }
 
@@ -2445,11 +2472,11 @@ public class MovieJukebox {
         StringTokenizer st = new StringTokenizer(trailersScanner, ",");
         while (st.hasMoreTokens() && !result) {
             trailersSearchToken = st.nextToken();
-            ITrailersPlugin trailersPlugin = trailerPlugins.get(trailersSearchToken);
-            if (trailersPlugin == null) {
+            ITrailersPlugin trailerPlugin = trailerPlugins.get(trailersSearchToken);
+            if (trailerPlugin == null) {
                 logger.error("MovieJukebox: TrailersScanner: '" + trailersSearchToken + "' plugin doesn't exist, please check your moviejukebox properties. Valid plugins are : " + getTrailerPluginsCode());
             } else {
-                result |= trailersPlugin.generate(movie);
+                result |= trailerPlugin.generate(movie);
             }
         }
 
@@ -2466,6 +2493,7 @@ public class MovieJukebox {
 
     /**
      * Return the Jukebox object
+     *
      * @return the jukebox
      */
     public static Jukebox getJukebox() {
@@ -2517,7 +2545,5 @@ public class MovieJukebox {
         // These should be added to the list of jukebox files regardless of the state of the library
         FileTools.addJukeboxFile(completeMoviesXmlFileName);
         FileTools.addJukeboxFile(rssXmlFileName);
-
-        return;
     }
 }
