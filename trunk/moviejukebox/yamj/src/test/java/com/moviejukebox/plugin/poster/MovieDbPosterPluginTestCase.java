@@ -12,9 +12,8 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import junit.framework.TestCase;
-
 import com.moviejukebox.tools.PropertiesUtil;
+import junit.framework.TestCase;
 
 public class MovieDbPosterPluginTestCase extends TestCase {
 
