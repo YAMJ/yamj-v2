@@ -14,21 +14,24 @@ package com.moviejukebox.plugin.poster;
 
 import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
-import com.moviejukebox.scanner.artwork.PosterScanner;
 import com.moviejukebox.themoviedb.TheMovieDb;
-import com.moviejukebox.themoviedb.model.Artwork;
-import com.moviejukebox.themoviedb.model.MovieDB;
+import com.moviejukebox.themoviedb.model.MovieDb;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.WebBrowser;
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
+
     private static Logger logger = Logger.getLogger(MovieDbPosterPlugin.class);
-    private String API_KEY;
-    private String language;
+    private String apiKey = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
+    private String languageCode;
+    private String countryCode;
     private TheMovieDb theMovieDb;
+    private static final String DEFAULT_POSTER_SIZE = "original";
 
     public MovieDbPosterPlugin() {
         super();
@@ -38,33 +41,48 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
             return;
         }
 
-        API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
-        language = PropertiesUtil.getProperty("themoviedb.language", "en-US");
-        theMovieDb = new TheMovieDb(API_KEY);
+        languageCode = PropertiesUtil.getProperty("themoviedb.language", "en");
+        countryCode = PropertiesUtil.getProperty("themoviedb.country", "");     // Don't default this as we might get it from the language (old setting)
+
+        if (languageCode.length() > 2) {
+            if (StringUtils.isBlank(countryCode)) {
+                // Guess that the last 2 characters of the language code is the country code.
+                countryCode = new String(languageCode.substring(languageCode.length()-2)).toUpperCase();
+            }
+            languageCode = new String(languageCode.substring(0, 2)).toLowerCase();
+        }
+        logger.debug("MovieDbPosterPlugin: Using `" + languageCode + "` as the language code");
+        logger.debug("MovieDbPosterPlugin: Using `" + countryCode + "` as the country code");
+
+        try {
+            theMovieDb = new TheMovieDb(apiKey);
+        } catch (IOException ex) {
+            logger.warn("MovieDbPosterPlugin: Failed to initialise TheMovieDB API.");
+            return;
+        }
 
         // Set the proxy
-        theMovieDb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+//        theMovieDb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
 
         // Set the timeouts
-        theMovieDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+//        theMovieDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
     }
 
     @Override
     public String getIdFromMovieInfo(String title, String year) {
-        theMovieDb = new TheMovieDb(API_KEY);
-        List<MovieDB> movieList = theMovieDb.moviedbSearch(title, language);
+        List<MovieDb> movieList = theMovieDb.searchMovie(title, languageCode, false);
 
         if (movieList.isEmpty()) {
             return Movie.UNKNOWN;
         } else {
             if (movieList.size() == 1) {
                 // Only one movie so return that id
-                return movieList.get(0).getId();
+                return String.valueOf(movieList.get(0).getId());
             }
 
-            for (MovieDB moviedb : movieList) {
+            for (MovieDb moviedb : movieList) {
                 if (TheMovieDb.compareMovies(moviedb, title, year)) {
-                    return moviedb.getId();
+                    return String.valueOf(moviedb.getId());
                 }
             }
         }
@@ -78,41 +96,13 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
 
     @Override
     public IImage getPosterUrl(String id) {
-        String posterURL = Movie.UNKNOWN;
-        if (StringTools.isNotValidString(id)) {
-            return Image.UNKNOWN;
-        }
+        URL posterURL;
 
-        MovieDB moviedb = theMovieDb.moviedbGetImages(id, language);
-
-        try {
-            if (moviedb != null) {
-                List<Artwork> artworkList = moviedb.getArtwork(Artwork.ARTWORK_TYPE_POSTER, Artwork.ARTWORK_SIZE_ORIGINAL);
-                if (artworkList.size() > 0) {
-                    Image image;
-                    boolean validImage = false;
-
-                    for (Artwork artwork : artworkList) {
-                        posterURL = artwork.getUrl();
-                        image = new Image(posterURL);
-                        validImage = PosterScanner.validatePoster(image);
-                        if (validImage) {
-                            logger.debug("MovieDbPosterPlugin : Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
-                            break;
-                        }
-                    }
-                } else {
-                    logger.debug("MovieDbPosterPlugin: Unable to find posters for " + id);
-                }
-            } else {
-                logger.debug("MovieDbPosterPlugin: Unable to find posters for " + id);
-            }
-        } catch (Exception error) {
-            logger.error("MovieDbPosterPlugin: TheMovieDB.org API Error: " + error.getMessage());
-        }
-
-        if (StringTools.isValidString(posterURL)) {
-            return new Image(posterURL);
+        if (StringUtils.isNumeric(id)) {
+            MovieDb moviedb = theMovieDb.getMovieInfo(Integer.parseInt(id), languageCode);
+            logger.debug("MovieDbPosterPlugin: Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
+            posterURL = theMovieDb.createImageUrl(moviedb.getPosterPath(), DEFAULT_POSTER_SIZE);
+            return new Image(posterURL.toString());
         } else {
             return Image.UNKNOWN;
         }
@@ -146,24 +136,23 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         if (ident != null) {
             String imdbID = ident.getId(TheMovieDbPlugin.IMDB_PLUGIN_ID);
             String tmdbID = ident.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID);
-            MovieDB moviedb;
+            MovieDb moviedb;
             // First look to see if we have a TMDb ID as this will make looking the film up easier
             if (StringTools.isValidString(tmdbID)) {
                 response = tmdbID;
             } else if (StringTools.isValidString(imdbID)) {
                 // Search based on IMDb ID
-                moviedb = theMovieDb.moviedbImdbLookup(imdbID, language);
+                moviedb = theMovieDb.getMovieInfoImdb(imdbID, languageCode);
                 if (moviedb != null) {
-                    tmdbID = moviedb.getId();
-                    if (tmdbID != null && !tmdbID.equals("")) {
+                    tmdbID = String.valueOf(moviedb.getId());
+                    if (StringUtils.isNumeric(tmdbID)) {
                         response = tmdbID;
                     } else {
-                        logger.info("MovieDvPosterPlugin: No TMDb ID found for movie!");
+                        logger.info("MovieDbPosterPlugin: No TMDb ID found for movie!");
                     }
                 }
             }
         }
         return response;
     }
-
 }

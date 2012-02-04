@@ -10,9 +10,8 @@
  *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
  */
-
 /**
- *  FanartScanner
+ * FanartScanner
  *
  * Routines for locating and downloading Fanart for videos
  *
@@ -23,15 +22,13 @@ import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.themoviedb.TheMovieDb;
-import com.moviejukebox.themoviedb.model.Artwork;
-import com.moviejukebox.themoviedb.model.MovieDB;
+import com.moviejukebox.themoviedb.model.MovieDb;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -46,6 +43,7 @@ import java.util.*;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -57,18 +55,18 @@ import org.apache.log4j.Logger;
  */
 public class FanartScanner {
 
-    protected static Logger logger = Logger.getLogger(FanartScanner.class);
+    protected final static Logger logger = Logger.getLogger(FanartScanner.class);
     protected static Collection<String> fanartExtensions = new ArrayList<String>();
     protected static String fanartToken;
     protected static boolean fanartOverwrite;
     protected static boolean useFolderBackground;
     protected static Collection<String> fanartImageName;
-
-    protected static boolean    artworkValidate;
-    protected static int        artworkValidateMatch;
-    protected static boolean    artworkValidateAspect;
-    protected static int        artworkWidth;
-    protected static int        artworkHeight;
+    protected static boolean artworkValidate;
+    protected static int artworkValidateMatch;
+    protected static boolean artworkValidateAspect;
+    protected static int artworkWidth;
+    protected static int artworkHeight;
+    protected static TheMovieDb TMDb;
 
     static {
 
@@ -98,19 +96,22 @@ public class FanartScanner {
         artworkValidateMatch = PropertiesUtil.getIntProperty("fanart.scanner.ValidateMatch", "75");
         artworkValidateAspect = PropertiesUtil.getBooleanProperty("fanart.scanner.ValidateAspect", "true");
 
+        try {
+            TMDb = new TheMovieDb(PropertiesUtil.getProperty("API_KEY_TheMovieDB"));
+        } catch (IOException ex) {
+            logger.warn("FanartScanner: Failed to initialise TheMovieDB API. Fanart will not be downloaded.");
+            TMDb = null;
+        }
     }
 
     public static boolean scan(MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) {
         String localFanartBaseFilename = movie.getBaseFilename();
-        String fullFanartFilename = null;
         String parentPath = FileTools.getParentFolder(movie.getFile());
-        File localFanartFile = null;
-        boolean foundLocalFanart = false;
 
         // Look for the videoname.fanartToken.Extension
-        fullFanartFilename = StringTools.appendToPath(parentPath, localFanartBaseFilename + fanartToken);
-        localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
-        foundLocalFanart = localFanartFile.exists();
+        String fullFanartFilename = StringTools.appendToPath(parentPath, localFanartBaseFilename + fanartToken);
+        File localFanartFile = FileTools.findFileFromExtensions(fullFanartFilename, fanartExtensions);
+        boolean foundLocalFanart = localFanartFile.exists();
 
         // Try searching the fileCache for the filename.
         if (!foundLocalFanart) {
@@ -248,31 +249,51 @@ public class FanartScanner {
      * Get the Fanart for the movie from TheMovieDB.org
      *
      * @author Stuart.Boston
-     * @param movie
-     *            The movie bean to get the fanart for
+     * @param movie The movie bean to get the fanart for
      * @return A string URL pointing to the fanart
      */
     public static String getFanartURL(Movie movie) {
-        String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
-        String language = PropertiesUtil.getProperty("themoviedb.language", "en");
-        String imdbID = null;
-        String tmdbID = null;
-        TheMovieDb TMDb;
-        MovieDB moviedb = null;
+        // Unable to scan for fanart because TheMovieDB wasn't initialised
+        if (TMDb == null) {
+            return Movie.UNKNOWN;
+        }
 
-        TMDb = new TheMovieDb(API_KEY);
+        String language = PropertiesUtil.getProperty("themoviedb.language", "en-US");
+        MovieDb moviedb = null;
 
-        imdbID = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID);
-        tmdbID = movie.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID);
+        String imdbID = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID);
+        String tmdbIDstring = movie.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID);
+        int tmdbID;
 
-        if (StringTools.isValidString(tmdbID)) {
-            moviedb = TMDb.moviedbGetInfo(tmdbID, language);
+        if (StringUtils.isNumeric(tmdbIDstring)) {
+            tmdbID = Integer.parseInt(tmdbIDstring);
+        } else {
+            tmdbID = 0;
+        }
+
+        if (tmdbID > 0) {
+            moviedb = TMDb.getMovieInfo(tmdbID, language);
         } else if (StringTools.isValidString(imdbID)) {
             // The ImdbLookup contains images
-            moviedb = TMDb.moviedbImdbLookup(imdbID, language);
+            moviedb = TMDb.getMovieInfoImdb(imdbID, language);
         } else {
-            List<MovieDB> movieList = TMDb.moviedbSearch(movie.getOriginalTitle(), language);
-            moviedb = TheMovieDb.findMovie(movieList, movie.getOriginalTitle(), movie.getYear());
+            List<MovieDb> movieList = TMDb.searchMovie(movie.getOriginalTitle(), language, false);
+            for (MovieDb m : movieList) {
+                if (m.getTitle().equals(movie.getTitle())
+                        || m.getTitle().equalsIgnoreCase(movie.getOriginalTitle())
+                        || m.getOriginalTitle().equalsIgnoreCase(movie.getTitle())
+                        || m.getOriginalTitle().equalsIgnoreCase(movie.getOriginalTitle())) {
+                    if (StringTools.isNotValidString(movie.getYear())) {
+                        // We don't have a year for the movie, so assume this is the correct movie
+                        moviedb = m;
+                        break;
+                    } else if (m.getReleaseDate().contains(movie.getYear())) {
+                        // found the movie name and year
+                        moviedb = m;
+                        break;
+                    }
+                }
+            }
         }
 
         // Check that the returned movie isn't null
@@ -281,28 +302,12 @@ public class FanartScanner {
             return Movie.UNKNOWN;
         }
 
-        try {
-            List<Artwork> artworkList = moviedb.getArtwork(Artwork.ARTWORK_TYPE_BACKDROP, Artwork.ARTWORK_SIZE_ORIGINAL);
-
-            if (artworkList == null || artworkList.isEmpty()) {
-                logger.debug("FanartScanner: Error no fanart found from TheMovieDB.org for " + movie.getBaseFilename());
-                return Movie.UNKNOWN;
-            }
-
-            for (Artwork fanartArtwork : artworkList) {
-                IImage imageFanart = new Image(fanartArtwork.getUrl());
-                if (validateArtwork(imageFanart, artworkWidth, artworkHeight, true)) {
-                    movie.setDirty(Movie.DIRTY_FANART, true);
-                    return fanartArtwork.getUrl();
-                } else {
-                    logger.debug("FanartScanner: Skipped invalid artwork " + fanartArtwork.getUrl());
-                }
-            }
-        } catch (Exception error) {
-            logger.error("FanartScanner: TheMovieDB.org API Error: " + error.getMessage());
+        URL fanart = TMDb.createImageUrl(moviedb.getBackdropPath(), "original");
+        if (fanart == null) {
             return Movie.UNKNOWN;
+        } else {
+            return fanart.toString();
         }
-        return Movie.UNKNOWN;
     }
 
     /**
@@ -312,8 +317,8 @@ public class FanartScanner {
      * @return true if the fanart is to be downloaded, or false otherwise
      */
     public static boolean checkDownloadFanart(boolean isTvShow) {
-        String fanartDownloadProperty = null;
-        boolean downloadFanart = false;
+        String fanartDownloadProperty;
+        boolean downloadFanart;
 
         if (isTvShow) {
             fanartDownloadProperty = "fanart.tv.download";
@@ -343,7 +348,7 @@ public class FanartScanner {
     public static boolean validateArtwork(IImage artworkImage, int artworkWidth, int artworkHeight, boolean checkAspect) {
         @SuppressWarnings("rawtypes")
         Iterator readers = ImageIO.getImageReadersBySuffix("jpeg");
-        ImageReader reader = (ImageReader)readers.next();
+        ImageReader reader = (ImageReader) readers.next();
         int urlWidth = 0, urlHeight = 0;
         float urlAspect;
 
@@ -375,7 +380,7 @@ public class FanartScanner {
             return false; // Quit and return a false fanart
         }
 
-        urlAspect = (float)urlWidth / (float)urlHeight;
+        urlAspect = (float) urlWidth / (float) urlHeight;
 
         if (checkAspect && urlAspect < 1.0) {
             logger.debug("FanartScanner: ValidateFanart " + artworkImage + " rejected: URL is portrait format");
@@ -397,5 +402,4 @@ public class FanartScanner {
         }
         return true;
     }
-
 }
