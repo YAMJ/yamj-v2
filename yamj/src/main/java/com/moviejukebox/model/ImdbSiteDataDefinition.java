@@ -29,7 +29,7 @@ public class ImdbSiteDataDefinition {
     private String certification;
     private String original_air_date;
     private String writer;
-    private String tagline;
+    private String taglines;
     private Charset charset;
 
     public ImdbSiteDataDefinition(String site,
@@ -47,7 +47,7 @@ public class ImdbSiteDataDefinition {
                                   String certification,
                                   String originalAirDate,
                                   String writer,
-                                  String tagline) {
+                                  String taglines) {
         super();
         this.site = site;
         this.director = director;
@@ -63,7 +63,7 @@ public class ImdbSiteDataDefinition {
         this.certification = certification;
         this.original_air_date = originalAirDate;
         this.writer = writer;
-        this.tagline = tagline;
+        this.taglines = taglines;
         
         if (charsetName == null || charsetName.length() == 0) {
             this.charset = Charset.defaultCharset();
@@ -128,8 +128,8 @@ public class ImdbSiteDataDefinition {
         return writer;
     }
 
-    public String getTagline() {
-        return tagline;
+    public String getTaglines() {
+        return taglines;
     }
 
     public Charset getCharset() {

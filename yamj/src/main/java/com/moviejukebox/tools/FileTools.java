@@ -221,10 +221,11 @@ public class FileTools {
 
     /**
      * Copy files from one directory to another
-     * @param srcPathName   The source directory to copy from
-     * @param dstPathName   The target directory to copy to
+     *
+     * @param srcPathName The source directory to copy from
+     * @param dstPathName The target directory to copy to
      * @param updateDisplay Display an update to the console
-     * @param pathRoot      The root of the srcPath for display purposes
+     * @param pathRoot The root of the srcPath for display purposes
      */
     public static void copyDir(String srcPathName, String dstPathName, boolean updateDisplay, String pathRoot) {
         String displayRoot;
@@ -302,7 +303,6 @@ public class FileTools {
         } catch (Exception error) {
             logger.error("FileTools: Failed to copy " + srcPathName + " to " + dstPathName);
             logger.error(SystemTools.getStackTrace(error));
-            return;
         }
     }
 
@@ -316,7 +316,7 @@ public class FileTools {
                     in = new BufferedReader(new FileReader(file));
                     String line = in.readLine();
                     while (line != null) {
-                        out.append(line + " "); // Add a space to avoid unwanted concatenation
+                        out.append(line).append(" "); // Add a space to avoid unwanted concatenation
                         line = in.readLine();
                     }
                 } finally {
@@ -334,6 +334,7 @@ public class FileTools {
 
     /**
      * Write string to a file (Used for debugging)
+     *
      * @param filename
      * @param outputString
      */
@@ -356,11 +357,12 @@ public class FileTools {
         }
     }
 
-    /***
-     *  @author Stuart Boston
-     *  @param  file1 - first file to compare
-     *  @param  file2 - second file to compare
-     *  @return true if the files exist and file2 is older, false otherwise.
+    /**
+     * *
+     * @author Stuart Boston
+     * @param file1 - first file to compare
+     * @param file2 - second file to compare
+     * @return true if the files exist and file2 is older, false otherwise.
      *
      * Note that file1 will be checked to see if it's newer than file2
      */
@@ -392,7 +394,9 @@ public class FileTools {
     }
 
     public static String createPrefix(String category, String key) {
-        return indexFilesPrefix + category + '_' + key + '_';
+        StringBuilder prefix = new StringBuilder(indexFilesPrefix);
+        prefix.append(category).append('_').append(key).append('_');
+        return prefix.toString();
     }
 
     public static OutputStream createFileOutputStream(File f, int size) throws FileNotFoundException {
@@ -436,9 +440,9 @@ public class FileTools {
     }
 
     /**
-     * Returns the given path in canonical form
-     * i.e. no duplicated separators, no ".", ".."..., and ending without trailing separator
-     * the only exception is a root! the canonical form for a root INCLUDES the separator
+     * Returns the given path in canonical form i.e. no duplicated separators,
+     * no ".", ".."..., and ending without trailing separator the only exception
+     * is a root! the canonical form for a root INCLUDES the separator
      */
     public static String getCanonicalPath(String path) {
         try {
@@ -449,8 +453,8 @@ public class FileTools {
     }
 
     /**
-     * when concatenating paths and the source MIGHT be a root, use this function
-     * to safely add the separator
+     * when concatenating paths and the source MIGHT be a root, use this
+     * function to safely add the separator
      */
     public static String getDirPathWithSeparator(String path) {
         return path.endsWith(File.separator) ? path : path + File.separator;
@@ -471,8 +475,10 @@ public class FileTools {
         return new String(path.substring(path.lastIndexOf(File.separator) + 1));
     }
 
-    /***
-     * Pass in the filename and a list of extensions, this function will scan for the filename plus extensions and return the File
+    /**
+     * *
+     * Pass in the filename and a list of extensions, this function will scan
+     * for the filename plus extensions and return the File
      *
      * @param filename
      * @param fileExtensions
@@ -495,7 +501,9 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the extensions
+     * Search for the filename in the cache and look for each with the
+     * extensions
+     *
      * @param searchFilename
      * @param fileExtensions
      * @param jukebox
@@ -555,7 +563,8 @@ public class FileTools {
 
     /**
      * Download the image for the specified URL into the specified file.
-     * Utilises the WebBrowser downloadImage function to allow for proxy connections.
+     * Utilises the WebBrowser downloadImage function to allow for proxy
+     * connections.
      *
      * @param imageFile
      * @param imageURL
@@ -568,12 +577,13 @@ public class FileTools {
 
     /**
      * Find the parent directory of the movie file.
+     *
      * @param file (movieFile)
      * @return Parent folder
      * @author Stuart Boston
      */
     public static String getParentFolder(File movieFile) {
-        String parentFolder = null;
+        String parentFolder;
 
         if (movieFile.isDirectory()) { // for VIDEO_TS
             parentFolder = movieFile.getPath();
@@ -591,6 +601,7 @@ public class FileTools {
 
     /**
      * Recursively delete a directory
+     *
      * @param dir
      * @return
      */
@@ -600,6 +611,7 @@ public class FileTools {
 
     /**
      * Recursively delete a directory
+     *
      * @param dir
      * @return
      */
@@ -621,6 +633,7 @@ public class FileTools {
 
     /**
      * Add a list of files to the jukebox filenames
+     *
      * @param filenames
      */
     public static void addJukeboxFiles(Collection<String> filenames) {
@@ -629,6 +642,7 @@ public class FileTools {
 
     /**
      * Add an individual filename to the jukebox cleaning exclusion list
+     *
      * @param filename
      */
     public static void addJukeboxFile(String filename) {
@@ -642,7 +656,9 @@ public class FileTools {
     }
 
     /**
-     * Process the movie and add all the files to the jukebox cleaning exclusion list
+     * Process the movie and add all the files to the jukebox cleaning exclusion
+     * list
+     *
      * @param movie
      */
     public static void addMovieToJukeboxFilenames(Movie movie) {
@@ -671,8 +687,9 @@ public class FileTools {
     }
 
     /**
-     * Special File with "cached" attributes
-     * used to minimize file system access which slows down everything
+     * Special File with "cached" attributes used to minimize file system access
+     * which slows down everything
+     *
      * @author Gabriel Corneanu
      */
     @SuppressWarnings("serial")
@@ -838,8 +855,9 @@ public class FileTools {
     }
 
     /**
-     * cached File instances
-     * the key is always absolute path in upper-case, so it will NOT work for case only differences
+     * cached File instances the key is always absolute path in upper-case, so
+     * it will NOT work for case only differences
+     *
      * @author Gabriel Corneanu
      */
     public static class ScannedFilesCache {
@@ -866,11 +884,11 @@ public class FileTools {
         }
 
         /*
-         * Retrieve a file from cache
-         * If it is NOT found, construct one instance and mark it as non-existing
-         * The exist() test is used very often throughout the library to search for specific files
-         * The path MUST be canonical (i.e. carefully constructed)
-         * We do NOT want here to make it canonical because it goes to the file system and it's slow
+         * Retrieve a file from cache If it is NOT found, construct one instance
+         * and mark it as non-existing The exist() test is used very often
+         * throughout the library to search for specific files The path MUST be
+         * canonical (i.e. carefully constructed) We do NOT want here to make it
+         * canonical because it goes to the file system and it's slow
          */
         public File getFile(String path) {
             File f = cachedFiles.get(path.toUpperCase());
@@ -951,6 +969,7 @@ public class FileTools {
 
     /**
      * Look for any subtitle files for a file
+     *
      * @param fileToScan
      * @return
      */
