@@ -358,7 +358,7 @@ public class MovieFilenameScanner {
         // CHECK FOR USE_PARENT_PATTERN matches
         if (useParentRegex && USE_PARENT_PATTERN.matcher(file.getName()).find()) {
             // Check the container to see if it's a RAR file and go up a further directory
-            String rarExtensionCheck = null;
+            String rarExtensionCheck;
             try {
                 rarExtensionCheck = file.getParentFile().getName().toLowerCase();
             } catch (Exception error) {

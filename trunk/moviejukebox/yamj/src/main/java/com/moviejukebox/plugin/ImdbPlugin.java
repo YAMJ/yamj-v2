@@ -258,6 +258,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Process the old IMDb formatted web page
+     *
      * @param movie
      * @param xml
      * @return
@@ -469,7 +470,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        /** Check for writer(s) **/
+        /**
+         * Check for writer(s) *
+         */
         if (movie.getPerson("Writing").isEmpty() && writerMax > 0 && peopleCount < peopleMax) {
             // Issue 1897: Cast enhancement
             if (isValidString(personXML)) {
@@ -540,6 +543,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Process the new IMDb format web page
+     *
      * @param movie
      * @param xml
      * @return
@@ -887,7 +891,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // TAGLINE
         if (StringTools.isNotValidString(movie.getTagline())) {
-            for (String tagline : HTMLTools.extractTags(xml, "<h4 class=\"inline\">" + siteDef2.getTagline() + ":</h4>", "<span class=\"")) {
+            for (String tagline : HTMLTools.extractTags(xml, "<h4 class=\"inline\">" + siteDef2.getTaglines() + ":</h4>", "<span class=\"")) {
                 if (tagline != null) {
                     tagline = HTMLTools.stripTags(tagline);
                     movie.setTagline(cleanStringEnding(tagline));
@@ -961,6 +965,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Process a awards in the IMDb web page
+     *
      * @param movie
      * @return
      * @throws MalformedURLException
@@ -1045,7 +1050,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
             blockContent = blockContent.replaceAll("^\\s+", "").replaceAll("\\s+$", "").replaceAll("\\s+", " ");
 //            if (isValidString(blockContent)) {
-                wons.add(blockContent);
+            wons.add(blockContent);
 //            }
         }
         return wons;
@@ -1053,6 +1058,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Process financial information in the IMDb web page
+     *
      * @param movie
      * @return
      * @throws MalformedURLException
@@ -1098,6 +1104,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Process trivia in the IMDb web page
+     *
      * @param movie
      * @return
      * @throws MalformedURLException
@@ -1132,9 +1139,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Process a list of people in the source XML
+     *
      * @param sourceXml
-     * @param singleCategory    The singular version of the category, e.g. "Writer"
-     * @param pluralCategory    The plural version of the category, e.g. "Writers"
+     * @param singleCategory The singular version of the category, e.g. "Writer"
+     * @param pluralCategory The plural version of the category, e.g. "Writers"
      * @return
      */
     @SuppressWarnings("unused")
@@ -1220,7 +1228,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * Retrieves the long plot description from IMDB if it exists, else "UNKNOWN"
+     * Retrieves the long plot description from IMDB if it exists, else
+     * "UNKNOWN"
      *
      * @param movie
      * @return long plot
@@ -1241,7 +1250,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (isValidString(result) && result.indexOf("This plot synopsis is empty") < 0) {
                 plot = result;
             }
-
         } catch (Exception error) {
             plot = Movie.UNKNOWN;
         }
@@ -1282,6 +1290,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Search for the IMDB Id in the NFO file
+     *
      * @param nfo
      * @param movie
      * @return
@@ -1334,6 +1343,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Remove the "see more" or "more" values from the end of a string
+     *
      * @param uncleanString
      * @return
      */
@@ -1342,25 +1352,26 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // First let's check if "more" exists in the string
         if (pos > 0) {
             if (uncleanString.endsWith("more")) {
-                return new String(uncleanString.substring(0, uncleanString.length() - 4));
+                return new String(uncleanString.substring(0, uncleanString.length() - 4)).trim();
             }
 
             pos = uncleanString.toLowerCase().indexOf("see more");
             if (pos > 0) {
-                return new String(uncleanString.substring(0, pos).trim());
+                return new String(uncleanString.substring(0, pos)).trim();
             }
         }
 
         pos = uncleanString.toLowerCase().indexOf("see full summary");
         if (pos > 0) {
-            return new String(uncleanString.substring(0, pos).trim());
+            return new String(uncleanString.substring(0, pos)).trim();
         }
 
-        return new String(uncleanString.trim());
+        return uncleanString.trim();
     }
 
     /**
      * Get the IMDb URL with the default site definition
+     *
      * @param movie
      * @return
      */
@@ -1370,6 +1381,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Get the IMDb URL with the default site definition
+     *
      * @param person
      * @return
      */
@@ -1379,6 +1391,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Get the IMDb URL with a specific site definition
+     *
      * @param movie
      * @param siteDefinition
      * @return
@@ -1389,6 +1402,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Get the IMDb URL with a specific site definition
+     *
      * @param person
      * @param siteDefinition
      * @return
@@ -1458,6 +1472,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Process the new IMDb format web page
+     *
      * @param person
      * @param xml
      * @return
@@ -1656,12 +1671,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     }
                 }
             }
+            
             Iterator<Float> iterFilm = filmography.keySet().iterator();
-            Object obj;
             int count = 0;
             while (iterFilm.hasNext() && count < preferredFilmographyMax) {
-                obj = iterFilm.next();
-                Filmography film = filmography.get(obj);
+                Filmography film = filmography.get(iterFilm.next());
                 if ((film.getJob().equalsIgnoreCase("actor") || film.getJob().equalsIgnoreCase("actress")) && isNotValidString(film.getCharacter())) {
                     String movieXML = webBrowser.request(siteDef.getSite() + "title/" + film.getId() + "/" + "fullcredits");
                     beginIndex = movieXML.indexOf("Cast</a>");
