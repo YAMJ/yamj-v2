@@ -168,6 +168,13 @@ public class Person extends Filmography {
         }
     }
 
+    public void clearPhotoFilename() {
+        if (!this.photoFilename.equals(Movie.UNKNOWN)) {
+            this.photoFilename = Movie.UNKNOWN;
+            setDirty();
+        }
+    }
+
     public void setAka(List<String> aka) {
         if (aka != null && !this.aka.equals(aka)) {
             this.aka.clear();

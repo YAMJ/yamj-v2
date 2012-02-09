@@ -1104,6 +1104,8 @@ public class MovieJukebox {
                     peopleCounter = 0;
                     for (final Person person : stars) {
                         final int count = ++peopleCounter;
+                        final String personName = person.getName();
+                        final Person p = new Person(person);
 
                         // Multi-thread parallel processing
                         tasks.submit(new Callable<Void>() {
@@ -1113,14 +1115,11 @@ public class MovieJukebox {
 
                                 ToolSet tools = threadTools.get();
 
-                                // Set default filename
-                                person.setFilename();
-
                                 // Get person data (name, birthday, etc...), download photo
-                                updatePersonData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, person, tools.imagePlugin);
-                                library.addPerson(person);
+                                updatePersonData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, p, tools.imagePlugin);
+                                library.addPerson(p);
 
-                                logger.info("Finished: " + person.getName() + " (" + count + "/" + peopleCount + ")");
+                                logger.info("Finished: " + personName + " (" + count + "/" + peopleCount + ")");
 
                                 // Show memory every (processing count) movies
                                 if (showMemory && (count % MaxThreadsProcess) == 0) {
@@ -1151,6 +1150,7 @@ public class MovieJukebox {
                                 typeCounter.put(job, typeCounter.get(job) + 1);
                             }
                             final Person p = new Person(person);
+                            final String personName = p.getName();
 
                             // Multi-thread parallel processing
                             tasks.submit(new Callable<Void>() {
@@ -1160,14 +1160,11 @@ public class MovieJukebox {
 
                                     ToolSet tools = threadTools.get();
 
-                                    // Set default filename
-                                    p.setFilename();
-
                                     // Get person data (name, birthday, etc...), download photo and put to library
                                     updatePersonData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, p, tools.imagePlugin);
                                     library.addPerson(p);
 
-                                    logger.info("Finished: " + p.getName() + " (" + count + "/" + peopleCount + ")");
+                                    logger.info("Finished: " + personName + " (" + count + "/" + peopleCount + ")");
 
                                     // Show memory every (processing count) movies
                                     if (showMemory && (count % MaxThreadsProcess) == 0) {
@@ -1958,7 +1955,7 @@ public class MovieJukebox {
     public void updatePersonData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Person person, MovieImagePlugin imagePlugin) throws FileNotFoundException, XMLStreamException {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
         person.setFilename();
-        File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + FileTools.makeSafeFilename(person.getFilename() + ".xml"));
+        File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + person.getFilename() + ".xml");
 
         // Change the output message depending on the existance of the XML file
         if (xmlFile.exists()) {

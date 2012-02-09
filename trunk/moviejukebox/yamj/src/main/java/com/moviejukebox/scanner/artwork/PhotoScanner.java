@@ -138,9 +138,13 @@ public class PhotoScanner {
             } else {
                 logger.debug("PhotoScanner: Photo exists for " + person.getName());
             }
-        } else if ((photoOverwrite || (!photoFile.exists() && !tmpDestFile.exists())) && dummyFile.exists()) {
-            logger.debug("Dummy image used for " + person.getName());
-            FileTools.copyFile(dummyFile, tmpDestFile);
+        } else if ((photoOverwrite || (!photoFile.exists() && !tmpDestFile.exists()))) {
+            if (dummyFile.exists()) {
+                logger.debug("Dummy image used for " + person.getName());
+                FileTools.copyFile(dummyFile, tmpDestFile);
+            } else {
+                person.clearPhotoFilename();
+            }
         }
 
         return;

@@ -17,6 +17,7 @@ import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
 import com.moviejukebox.tools.BooleanYesNoAdapter;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
@@ -2233,6 +2234,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setFooterFilename(String footerFilename, Integer inx) {
         if (StringUtils.isBlank(footerFilename)) {
             footerFilename = UNKNOWN;
+        } else {
+            footerFilename = FileTools.makeSafeFilename(footerFilename);
         }
         if (this.footerFilename.size() <= inx) {
             while (this.footerFilename.size() < inx) {
