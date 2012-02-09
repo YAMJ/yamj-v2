@@ -521,7 +521,7 @@ public class MovieJukeboxXMLWriter {
                             person.setOrder(ePerson.getAttribute("order"));
                             person.setTitle(ePerson.getAttribute("title"));
                             person.setUrl(ePerson.getAttribute("url"));
-                            person.setFilename();   // Sets the filename using the person name
+                            person.setFilename(ePerson.getNodeValue());   // Sets the filename using the person name
 
                             // Get any "id_???" values
                             for (int loopAttr = 0; loopAttr < ePerson.getAttributes().getLength(); loopAttr++) {

@@ -178,20 +178,22 @@ public class Filmography {
     }
 
     public void setFilename(String filename) {
-        if (isValidString(filename) && !this.filename.equals(filename)) {
-            this.filename = filename;
+        if (isValidString(filename) && !this.filename.equals(FileTools.makeSafeFilename(filename))) {
+            this.filename = FileTools.makeSafeFilename(filename);
             setDirty();
         }
     }
 
     public void clearFilename() {
-        this.filename = Movie.UNKNOWN;
-        setDirty();
+        if (!this.filename.equals(Movie.UNKNOWN)) {
+            this.filename = Movie.UNKNOWN;
+            setDirty();
+        }
     }
 
     public void setFilename() {
         if (isValidString(name) && isNotValidString(filename)) {
-            setFilename(FileTools.makeSafeFilename(name));
+            setFilename(name);
         }
     }
 
