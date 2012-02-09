@@ -378,8 +378,8 @@ public class Library implements Map<String, Movie> {
                 indexMaster.addFileDate(movie.getFileDate());
             }
 
-            indexMaster.setMovieType(countTV > 1 ? Movie.TYPE_TVSHOW : Movie.TYPE_MOVIE);
-            indexMaster.setVideoType(countHD > 1 ? Movie.TYPE_VIDEO_HD : null);
+            indexMaster.setMovieType(countTV > 0 ? Movie.TYPE_TVSHOW : Movie.TYPE_MOVIE);
+            indexMaster.setVideoType(countHD > 0 ? Movie.TYPE_VIDEO_HD : null);
             indexMaster.setWatchedFile(watched);
             indexMaster.setTop250(top250);
             if (setsRating.equalsIgnoreCase("max") || (setsRating.equalsIgnoreCase("average") && (indexMovieList.size() > 0))) {
