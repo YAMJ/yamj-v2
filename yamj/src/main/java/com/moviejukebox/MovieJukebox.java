@@ -1305,7 +1305,8 @@ public class MovieJukebox {
                          * commented next 2 lines because generated XML file not
                          * useful
                          *
-                         * //logger.debug("Writing index data for master: " + movie.getBaseName());
+                         * //logger.debug("Writing index data for master: " +
+                         * movie.getBaseName());
                          * //xmlWriter.writeMovieXML(jukebox, movie, library);
                          */
 
@@ -1349,7 +1350,7 @@ public class MovieJukebox {
                         StringBuilder artworkFilename = new StringBuilder(safeSetMasterBaseName);
                         artworkFilename.append(thumbnailToken).append(".").append(thumbnailExtension);
                         movie.setThumbnailFilename(artworkFilename.toString());
-                        
+
                         artworkFilename = new StringBuilder(safeSetMasterBaseName);
                         artworkFilename.append(posterToken).append(".").append(posterExtension);
                         movie.setDetailPosterFilename(artworkFilename.toString());
@@ -1411,12 +1412,12 @@ public class MovieJukebox {
                 ToolSet tools = threadTools.get();
                 StringBuilder idxName;
                 boolean createPosters = PropertiesUtil.getBooleanProperty("mjb.sets.createPosters", "false");
-                
+
                 for (IndexInfo idx : library.getGeneratedIndexes()) {
                     if (!idx.canSkip && idx.categoryName.equals("Set")) {
                         idxName = new StringBuilder(idx.categoryName);
-                        idxName.append("_").append(FileTools.makeSafeFilename(idx.key)).append( "_1");
-                        
+                        idxName.append("_").append(FileTools.makeSafeFilename(idx.key)).append("_1");
+
                         for (Movie movie : indexMasters) {
                             if (!movie.getBaseName().equals(idxName.toString())) {
                                 continue;
@@ -1789,6 +1790,7 @@ public class MovieJukebox {
             for (String set : movie.getSetsKeys()) {
                 movieNFO.addSet(set);
             }
+
             MovieNFOScanner.scan(movieNFO, nfoFiles);
             if (!Arrays.equals(movieNFO.getSetsKeys().toArray(), movie.getSetsKeys().toArray())) {
                 movie.setSets(movieNFO.getSets());

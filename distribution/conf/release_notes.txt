@@ -69,7 +69,8 @@ MovieJukebox 2.6-SNAPSHOT
  - Enhancement  #2305 get people link and photo inside detail xml page
  - Enhancement  #2301 Add Link to cast,director and writer indexes in person.xml
  - Fixed defect #2310 People Scanner Not Working Correctly
- - Fixed defect #2311 People Photo Not Retrieved
+ - Fixed defect #2311 People photo not retrieved
+ - Fixed defect #2328 Watched and NFO error - recreates file data every run
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------

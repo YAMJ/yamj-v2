@@ -272,7 +272,8 @@ public class MovieJukeboxXMLWriter {
                 movie.setTop250(Integer.parseInt(DOMHelper.getValueFromElement(eMovie, "top250")));
 
                 // Get the watched flags
-                movie.setWatchedFile(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watched")));
+                // The "watched" attribute is transient, based on the status of the watched movie files
+//                movie.setWatchedFile(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watched")));
                 movie.setWatchedNFO(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watchedNFO")));
 
                 // Get artwork URLS
