@@ -18,7 +18,9 @@ import static com.moviejukebox.tools.StringTools.isNotValidString;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.moviejukebox.tools.FileTools;
 
@@ -45,6 +47,7 @@ public class Person extends Filmography {
     private List<String>      aka         = new ArrayList<String>();
     private String  lastModifiedAt;
     private List<Movie> movies            = new ArrayList<Movie>();
+    private Map<String, String> indexes   = new HashMap<String, String>();
 
     public Person() {
     }
@@ -94,6 +97,7 @@ public class Person extends Filmography {
         setFilmography(person.getFilmography());
         setAka(person.getAka());
         setLastModifiedAt(person.getLastModifiedAt());
+        setIndexes(person.getIndexes());
 
         setDirty(person.isDirty());
     }
@@ -169,8 +173,8 @@ public class Person extends Filmography {
     }
 
     public void clearPhotoFilename() {
-        if (!this.photoFilename.equals(Movie.UNKNOWN)) {
-            this.photoFilename = Movie.UNKNOWN;
+        if (!this.photoFilename.equals(UNKNOWN)) {
+            this.photoFilename = UNKNOWN;
             setDirty();
         }
     }
@@ -280,5 +284,19 @@ public class Person extends Filmography {
 
     public List<Movie> getMovies() {
         return movies;
+    }
+
+    public Map<String, String> getIndexes() {
+        return indexes;
+    }
+
+    public void addIndex(String key, String index) {
+        if (key != null && index != null) {
+            indexes.put(key, index);
+        }
+    }
+
+    public void setIndexes(Map<String, String> indexes) {
+        this.indexes = new HashMap<String, String>(indexes);
     }
 }

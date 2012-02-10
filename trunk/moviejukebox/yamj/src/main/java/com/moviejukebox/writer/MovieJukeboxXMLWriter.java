@@ -521,7 +521,7 @@ public class MovieJukeboxXMLWriter {
                             person.setOrder(ePerson.getAttribute("order"));
                             person.setTitle(ePerson.getAttribute("title"));
                             person.setUrl(ePerson.getAttribute("url"));
-                            person.setFilename(ePerson.getNodeValue());   // Sets the filename using the person name
+                            person.setFilename(ePerson.getTextContent());
 
                             // Get any "id_???" values
                             for (int loopAttr = 0; loopAttr < ePerson.getAttributes().getLength(); loopAttr++) {
@@ -558,6 +558,15 @@ public class MovieJukeboxXMLWriter {
                         }   // End of budget info
                     }
                 }   // End of business info
+
+                // Issue 2013: Add trivia
+                if (enableTrivia) {
+                    nlElements = eMovie.getElementsByTagName("trivia");
+                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                        nElements = nlElements.item(looper);
+                        movie.addDidYouKnow(nElements.getTextContent());
+                    }
+                }   // End of trivia info
 
                 // Get the file list
                 nlElements = eMovie.getElementsByTagName("files");
@@ -1222,8 +1231,6 @@ public class MovieJukeboxXMLWriter {
         int indexCount = 0;
         int indexSize = library.getIndexes().size();
 
-        // Issue 1882: Separate index files for each category
-        final boolean separateCategories = PropertiesUtil.getBooleanProperty("mjb.separateCategories", "false");
         final boolean setReindex = PropertiesUtil.getBooleanProperty("mjb.sets.reindex", "true");
 
         tasks.restart();
@@ -1246,7 +1253,7 @@ public class MovieJukeboxXMLWriter {
                         // FIXME This is horrible! Issue 735 will get rid of it.
                         int categoryCount = library.getMovieCountForIndex(categoryName, key);
                         if (categoryCount < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)
-                                && !Library.INDEX_SET.equalsIgnoreCase(categoryName) && !separateCategories) {
+                                && !Library.INDEX_SET.equalsIgnoreCase(categoryName)) {
                             logger.debug("Category '" + categoryPath + "' does not contain enough videos (" + categoryCount + "/" + categoryMinCount
                                     + "), skipping XML generation.");
                             return null;
@@ -2248,6 +2255,24 @@ public class MovieJukeboxXMLWriter {
             }
             ePerson.appendChild(eFilmography);
         }
+
+        // Write the indexes that the people belongs to
+        Element eIndexes = doc.createElement("indexes");
+        String originalName;
+        for (Entry<String, String> index : person.getIndexes().entrySet()) {
+            Element eIndexEntry = doc.createElement("index");
+            eIndexEntry.setAttribute("type", index.getKey());
+            originalName = Library.getOriginalCategory(index.getKey());
+            if (StringTools.isValidString(originalName)) {
+                eIndexEntry.setAttribute("originalName", originalName);
+            } else {
+                eIndexEntry.setAttribute("originalName", index.getKey());
+            }
+            eIndexEntry.setAttribute("encoded", FileTools.makeSafeFilename(index.getValue()));
+            eIndexEntry.setTextContent(index.getValue());
+            eIndexes.appendChild(eIndexEntry);
+        }
+        ePerson.appendChild(eIndexes);
 
         DOMHelper.appendChild(doc, ePerson, "version", String.valueOf(person.getVersion()));
         DOMHelper.appendChild(doc, ePerson, "lastModifiedAt", person.getLastModifiedAt());

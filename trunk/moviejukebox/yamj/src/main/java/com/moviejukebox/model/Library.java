@@ -49,6 +49,7 @@ public class Library implements Map<String, Movie> {
     private Map<String, Index> indexes = new LinkedHashMap<String, Index>();
     private Map<String, Index> unCompressedIndexes = new LinkedHashMap<String, Index>();
     private static DecimalFormat paddedFormat = new DecimalFormat("000"); // Issue 190
+    private static int categoryMinCountMaster = 3;
     private static int maxGenresPerMovie = 3;
     private static int newMovieCount;
     private static long newMovieDays;
@@ -117,6 +118,7 @@ public class Library implements Map<String, Movie> {
     public static final String INDEX_CATEGORIES = "Categories";
 
     static {
+        categoryMinCountMaster = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3");
         minSetCount = PropertiesUtil.getIntProperty("mjb.sets.minSetCount", "2");
         setsRequireAll = PropertiesUtil.getBooleanProperty("mjb.sets.requireAll", "false");
         setsRating = PropertiesUtil.getProperty("mjb.sets.rating", "first");
@@ -610,6 +612,31 @@ public class Library implements Map<String, Movie> {
             setMovieListNavigation(indexMovies);
             SystemTools.showMemory();
         }
+
+        tasks.restart();
+        final List<Person> indexPersons = new ArrayList<Person>(people.values());
+
+        if (indexPersons.size() > 0) {
+            for (final String indexStr : indexList.split(",")) {
+                if ((INDEX_CAST + INDEX_DIRECTOR + INDEX_WRITER + INDEX_PERSON).indexOf(indexStr) < 0) {
+                    continue;
+                }
+                tasks.submit(new Callable<Void>() {
+
+                    @Override
+                    public Void call() {
+                        SystemTools.showMemory();
+                        logger.info("  Indexing " + indexStr + " (person)...");
+                        indexByJob(indexPersons, indexStr.equals(INDEX_CAST)?Filmography.DEPT_ACTORS:
+                                                indexStr.equals(INDEX_DIRECTOR)?Filmography.DEPT_DIRECTING:
+                                                indexStr.equals(INDEX_WRITER)?Filmography.DEPT_WRITING:Movie.UNKNOWN, indexStr);
+                        return null;
+                    }
+                });
+            }
+            tasks.waitFor();
+            SystemTools.showMemory();
+        }
     }
 
     /**
@@ -972,6 +999,35 @@ public class Library implements Map<String, Movie> {
         return index;
     }
 
+    protected void indexByJob(List<Person> list, String job, String index) {
+        for (Person person : list) {
+            if ((StringTools.isValidString(job) && !person.getDepartment().equalsIgnoreCase(job)) || StringTools.isNotValidString(person.getFilename())) {
+                continue;
+            }
+            String actor = person.getTitle();
+            if (getMovieCountForIndex(index, actor) < calcMinCategoryCount(index)) {
+                continue;
+            }
+            person.addIndex(index, actor);
+        }
+    }
+
+    /**
+     * Calculate the minimum count for a category based on it's property value.
+     *
+     * @param categoryName
+     * @return
+     */
+    protected static int calcMinCategoryCount(String categoryName) {
+        int categoryMinCount;
+        try {
+            categoryMinCount = PropertiesUtil.getIntProperty("mjb.categories.minCount." + categoryName, String.valueOf(categoryMinCountMaster));
+        } catch (Exception ignore) {
+            categoryMinCount = categoryMinCountMaster;
+        }
+        return categoryMinCount;
+    }
+
     protected static Index indexByCountry(List<Movie> list) {
         Index index = new Index(true);
         for (Movie movie : list) {
@@ -1127,12 +1183,16 @@ public class Library implements Map<String, Movie> {
             index = indexes.get(indexName);
         }
 
-        List<Movie> categoryList = index.get(category);
-
-        if (categoryList != null) {
-            return categoryList.size();
-        } else {
+        if (index == null) {
             return -1;
+        } else {
+            List<Movie> categoryList = index.get(category);
+
+            if (categoryList != null) {
+                return categoryList.size();
+            } else {
+                return -1;
+            }
         }
     }
 
