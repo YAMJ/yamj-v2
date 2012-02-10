@@ -1201,6 +1201,10 @@ public class MovieJukebox {
                                     person.setId(p.getId());
                                     dirty = true;
                                 }
+                                if (!person.getPhotoFilename().equals(p.getPhotoFilename()) && isValidString(p.getPhotoFilename())) {
+                                    person.setPhotoFilename(p.getPhotoFilename());
+                                    dirty = true;
+                                }
                                 break;
                             }
                         }
