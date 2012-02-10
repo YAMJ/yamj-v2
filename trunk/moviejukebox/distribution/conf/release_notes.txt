@@ -65,7 +65,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2288 TV Episodes Not Scraping Studio/Company
  - Fixed defect #2289 Failed to create poster images for TV shows with special characters in title
  - Fixed defect #2290 RAR: Archive name added repeatedly to fileurl
- - Fixed defect #2305 get people link and photo inside detail xml page
+ - Enhancement  #2305 get people link and photo inside detail xml page
  - Fixed defect #2310 People Scanner Not Working Correctly
  - Enhancement  #2301 Add Link to cast,director and writer indexes in person.xml
  - Fixed defect #2311 People Photo Not Retrieved

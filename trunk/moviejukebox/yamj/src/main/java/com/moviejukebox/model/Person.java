@@ -39,9 +39,6 @@ public class Person extends Filmography {
     private int     version               = -1;
     private int     knownMovies           = -1;
     private String  birthPlace            = UNKNOWN;
-    private String  photoURL              = UNKNOWN;
-    private String  photoFilename         = UNKNOWN;
-    private boolean isDirtyPhoto          = false;
     private int     popularity            = 1;
     private List<Filmography> filmography = new ArrayList<Filmography>();
     private List<String>      aka         = new ArrayList<String>();
@@ -66,7 +63,10 @@ public class Person extends Filmography {
         setScrapeLibrary(person.isScrapeLibrary());
         setOrder(person.getOrder());
         setCastId(person.getCastId());
+        setPhotoURL(person.getPhotoURL());
+        setPhotoFilename(person.getPhotoFilename());
 
+        setDirtyPhoto(person.isDirtyPhoto());
         setDirty(person.isDirty());
     }
 
@@ -85,20 +85,20 @@ public class Person extends Filmography {
         setOrder(person.getOrder());
         setCastId(person.getCastId());
         setYear(person.getYear());
+        setPhotoURL(person.getPhotoURL());
+        setPhotoFilename(person.getPhotoFilename());
 
         setBiography(person.getBiography());
         setVersion(person.getVersion());
         setKnownMovies(person.getKnownMovies());
         setBirthPlace(person.getBirthPlace());
-        setPhotoURL(person.getPhotoURL());
-        setPhotoFilename(person.getPhotoFilename());
-        setDirtyPhoto(person.isDirtyPhoto());
         setPopularity(person.getPopularity());
         setFilmography(person.getFilmography());
         setAka(person.getAka());
         setLastModifiedAt(person.getLastModifiedAt());
         setIndexes(person.getIndexes());
 
+        setDirtyPhoto(person.isDirtyPhoto());
         setDirty(person.isDirty());
     }
 
@@ -130,14 +130,6 @@ public class Person extends Filmography {
         return version;
     }
 
-    public String getPhotoURL() {
-        return photoURL;
-    }
-
-    public String getPhotoFilename() {
-        return photoFilename;
-    }
-
     public void addAka(String alsoKnownAs) {
         if (isValidString(alsoKnownAs) && !getName().equals(alsoKnownAs) && !getTitle().equals(alsoKnownAs) && !this.aka.contains(alsoKnownAs)) {
             this.aka.add(alsoKnownAs);
@@ -148,33 +140,6 @@ public class Person extends Filmography {
     public void addFilm(Filmography film) {
         if (film != null) {
             this.filmography.add(film);
-            setDirty();
-        }
-    }
-
-    public void setPhotoURL(String URL) {
-        if (isValidString(URL) && !photoURL.equalsIgnoreCase(URL)) {
-            photoURL = URL;
-            setDirty();
-        }
-    }
-
-    public void setPhotoFilename(String filename) {
-        if (isValidString(filename) && !this.photoFilename.equalsIgnoreCase(FileTools.makeSafeFilename(filename))) {
-            this.photoFilename = FileTools.makeSafeFilename(filename);
-            setDirty();
-        }
-    }
-
-    public void setPhotoFilename() {
-        if (isValidString(getTitle()) && isNotValidString(photoFilename)) {
-            setPhotoFilename(getTitle() + ".jpg");
-        }
-    }
-
-    public void clearPhotoFilename() {
-        if (!this.photoFilename.equals(UNKNOWN)) {
-            this.photoFilename = UNKNOWN;
             setDirty();
         }
     }
@@ -242,21 +207,6 @@ public class Person extends Filmography {
     public void setDirty(boolean isDirty) {
         super.setDirty(isDirty);
         setLastModifiedAt();
-    }
-
-    public boolean isDirtyPhoto() {
-        return isDirtyPhoto;
-    }
-
-    public void setDirtyPhoto(boolean isDirty) {
-        if (isDirtyPhoto != isDirty) {
-            isDirtyPhoto = isDirty;
-            setDirty();
-        }
-    }
-
-    public void setDirtyPhoto() {
-        setDirtyPhoto(true);
     }
 
     public void setPopularity(Integer value) {

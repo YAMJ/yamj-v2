@@ -521,6 +521,7 @@ public class MovieJukeboxXMLWriter {
                             person.setOrder(ePerson.getAttribute("order"));
                             person.setTitle(ePerson.getAttribute("title"));
                             person.setUrl(ePerson.getAttribute("url"));
+                            person.setPhotoFilename(ePerson.getAttribute("photoFile"));
                             person.setFilename(ePerson.getTextContent());
 
                             // Get any "id_???" values
@@ -1951,6 +1952,7 @@ public class MovieJukeboxXMLWriter {
                     ePerson.setAttribute("url", person.getUrl());
                     ePerson.setAttribute("order", Integer.toString(person.getOrder()));
                     ePerson.setAttribute("cast_id", Integer.toString(person.getCastId()));
+                    ePerson.setAttribute("photoFile", person.getPhotoFilename());
                     ePerson.setTextContent(person.getFilename());
                     ePeople.appendChild(ePerson);
                 }

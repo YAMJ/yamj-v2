@@ -71,6 +71,9 @@ public class Filmography {
     private String department           = UNKNOWN;
     private String rating               = UNKNOWN;
     private String url                  = UNKNOWN;
+    private String photoFilename        = UNKNOWN;
+    private String photoURL             = UNKNOWN;
+    private boolean isDirtyPhoto        = false;
     private boolean isDirty             = false;
     private boolean isScrapeLibrary     = true;
     private int     order               = -1;
@@ -340,5 +343,55 @@ public class Filmography {
                 setDepartment(DEPT_CAMERA);
             }
         }
+    }
+
+    public String getPhotoURL() {
+        return photoURL;
+    }
+
+    public String getPhotoFilename() {
+        return photoFilename;
+    }
+
+    public void setPhotoURL(String URL) {
+        if (isValidString(URL) && !photoURL.equalsIgnoreCase(URL)) {
+            photoURL = URL;
+            setDirty();
+        }
+    }
+
+    public void setPhotoFilename(String filename) {
+        if (isValidString(filename) && !this.photoFilename.equalsIgnoreCase(FileTools.makeSafeFilename(filename))) {
+            this.photoFilename = FileTools.makeSafeFilename(filename);
+            setDirty();
+        }
+    }
+
+    public void setPhotoFilename() {
+        if (isValidString(getTitle()) && isNotValidString(photoFilename)) {
+            setPhotoFilename(getTitle() + ".jpg");
+        }
+    }
+
+    public void clearPhotoFilename() {
+        if (!this.photoFilename.equals(UNKNOWN)) {
+            this.photoFilename = UNKNOWN;
+            setDirty();
+        }
+    }
+
+    public boolean isDirtyPhoto() {
+        return isDirtyPhoto;
+    }
+
+    public void setDirtyPhoto(boolean isDirty) {
+        if (isDirtyPhoto != isDirty) {
+            isDirtyPhoto = isDirty;
+            setDirty();
+        }
+    }
+
+    public void setDirtyPhoto() {
+        setDirtyPhoto(true);
     }
 }
