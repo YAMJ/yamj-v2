@@ -765,7 +765,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     // Return the width of the movie
     public int getWidth() {
-        int width = 0;
+        int width;
         try {
             width = Integer.parseInt(new String(getResolution().substring(0, getResolution().indexOf("x"))));
         } catch (Exception error) {
@@ -887,6 +887,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setDirty(String dirtyType, boolean dirty) {
 //        SystemTools.logException(dirtyType + " " + String.valueOf(dirty));
+//        logger.info(showDirty());
         dirtyFlags.put(dirtyType, dirty);
     }
 
@@ -909,7 +910,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      */
     @XmlTransient
     public boolean isDirty() {
-        if (dirtyFlags.isEmpty() || dirtyFlags.containsValue(true)) {
+        if (!dirtyFlags.isEmpty() && dirtyFlags.containsValue(true)) {
             return true;
         } else {
             return false;
@@ -1545,7 +1546,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             setDirty(DIRTY_INFO, true);
             // Escape the first "0" AlloCine gives sometimes
             if (runtime.startsWith("0")) {
-                this.runtime = new String(runtime.substring(1).trim());
+                this.runtime = new String(runtime.substring(1)).trim();
             } else {
                 this.runtime = runtime.trim();
             }

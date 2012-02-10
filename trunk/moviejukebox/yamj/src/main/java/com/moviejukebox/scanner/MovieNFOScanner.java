@@ -189,7 +189,7 @@ public class MovieNFOScanner {
      */
     public static List<File> locateNFOs(Movie movie) {
         List<File> nfos = new ArrayList<File>();
-        GenericFileFilter fFilter = null;
+        GenericFileFilter fFilter;
 
         File currentDir = movie.getFirstFile().getFile();
 
@@ -332,7 +332,6 @@ public class MovieNFOScanner {
                 nfoFiles.add(foundFile);
             }
         }
-        return;
     }
 
     /**
@@ -603,7 +602,7 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("fps")) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
-                                float fps = 0.0f;
+                                float fps;
                                 try {
                                     fps = Float.parseFloat(val);
                                 } catch (NumberFormatException error) {
@@ -1171,7 +1170,7 @@ public class MovieNFOScanner {
                         } else if (tag.equalsIgnoreCase("fps")) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
-                                float fps = 0.0f;
+                                float fps;
                                 try {
                                     fps = Float.parseFloat(val);
                                 } catch (NumberFormatException error) {
