@@ -12,52 +12,44 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-
 /**
  * @author iuk
  *
  */
-
 public class ComingSoonPlugin extends ImdbPlugin {
 
     public static String COMINGSOON_PLUGIN_ID = "comingsoon";
     public static String COMINGSOON_NOT_PRESENT = "na";
     public static String COMINGSOON_BASE_URL = "http://www.comingsoon.it/";
     public static String COMINGSOON_SEARCH_URL = "Film/Scheda/Trama/?";
-    public static String COMINGSOON_KEY_PARAM= "key=";
-
+    public static String COMINGSOON_KEY_PARAM = "key=";
     private static int COMINGSOON_MAX_DIFF = 1000;
-
     private static int COMINGSOON_MAX_SEARCH_PAGES = 5;
-
-
-    private static int COMINGSOON_RESTORE_TITLE         = 1;
+    private static int COMINGSOON_RESTORE_TITLE = 1;
     private static int COMINGSOON_RESTORE_ORIGINALTITLE = 1 << 1;
-    private static int COMINGSOON_RESTORE_PLOT          = 1 << 2;
-    private static int COMINGSOON_RESTORE_OUTLINE       = 1 << 3;
-    private static int COMINGSOON_RESTORE_RATING        = 1 << 4;
-    private static int COMINGSOON_RESTORE_RUNTIME       = 1 << 5;
-    private static int COMINGSOON_RESTORE_COUNTRY       = 1 << 6;
-    private static int COMINGSOON_RESTORE_YEAR          = 1 << 7;
-    private static int COMINGSOON_RESTORE_COMPANY       = 1 << 8;
-    private static int COMINGSOON_RESTORE_GENRES        = 1 << 9;
-    private static int COMINGSOON_RESTORE_CAST          = 1 << 10;
-    private static int COMINGSOON_RESTORE_DIRECTORS     = 1 << 11;
-    private static int COMINGSOON_RESTORE_WRITERS       = 1 << 12;
-
-    private static int COMINGSOON_RESTORE_ALL           = (2 << 13) - 1;
-
+    private static int COMINGSOON_RESTORE_PLOT = 1 << 2;
+    private static int COMINGSOON_RESTORE_OUTLINE = 1 << 3;
+    private static int COMINGSOON_RESTORE_RATING = 1 << 4;
+    private static int COMINGSOON_RESTORE_RUNTIME = 1 << 5;
+    private static int COMINGSOON_RESTORE_COUNTRY = 1 << 6;
+    private static int COMINGSOON_RESTORE_YEAR = 1 << 7;
+    private static int COMINGSOON_RESTORE_COMPANY = 1 << 8;
+    private static int COMINGSOON_RESTORE_GENRES = 1 << 9;
+    private static int COMINGSOON_RESTORE_CAST = 1 << 10;
+    private static int COMINGSOON_RESTORE_DIRECTORS = 1 << 11;
+    private static int COMINGSOON_RESTORE_WRITERS = 1 << 12;
+    private static int COMINGSOON_RESTORE_ALL = (2 << 13) - 1;
     protected int preferredPlotLength;
     protected int preferredOutlineLength;
     protected String scanImdb;
@@ -78,9 +70,9 @@ public class ComingSoonPlugin extends ImdbPlugin {
             StringTokenizer st = new StringTokenizer(preferImdbFor, ",");
 
             if (st.hasMoreTokens()) {
-               while (st.hasMoreTokens()) {
-                   preferImdbMask |= getInfoMask(st.nextToken());
-               }
+                while (st.hasMoreTokens()) {
+                    preferImdbMask |= getInfoMask(st.nextToken());
+                }
             } else {
                 preferImdbMask |= getInfoMask(preferImdbFor);
             }
@@ -89,13 +81,11 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
         }
 
-        if (
-            ! PropertiesUtil.getProperty("comingsoon.trailer.resolution", "DEPRECATED").equals("DEPRECATED") ||
-            ! PropertiesUtil.getProperty("comingsoon.trailer.preferredFormat", "DEPRECATED").equals("DEPRECATED") ||
-            ! PropertiesUtil.getProperty("comingsoon.trailer.setExchange", "DEPRECATED").equals("DEPRECATED") ||
-            ! PropertiesUtil.getProperty("comingsoon.trailer.download", "DEPRECATED").equals("DEPRECATED") ||
-            ! PropertiesUtil.getProperty("comingsoon.trailer.label", "DEPRECATED").equals("DEPRECATED")
-            ) {
+        if (!PropertiesUtil.getProperty("comingsoon.trailer.resolution", "DEPRECATED").equals("DEPRECATED")
+                || !PropertiesUtil.getProperty("comingsoon.trailer.preferredFormat", "DEPRECATED").equals("DEPRECATED")
+                || !PropertiesUtil.getProperty("comingsoon.trailer.setExchange", "DEPRECATED").equals("DEPRECATED")
+                || !PropertiesUtil.getProperty("comingsoon.trailer.download", "DEPRECATED").equals("DEPRECATED")
+                || !PropertiesUtil.getProperty("comingsoon.trailer.label", "DEPRECATED").equals("DEPRECATED")) {
             logger.error("ComingSoon: comingsoon.trailer.* properties are not supported anymore. Please add comingsoon to trailers.scanner property and configure the plugin using comingsoontrailers.* properties.");
         }
     }
@@ -108,29 +98,29 @@ public class ComingSoonPlugin extends ImdbPlugin {
     private int getInfoMask(String infoDescription) {
         if (infoDescription.equalsIgnoreCase("title")) {
             return COMINGSOON_RESTORE_TITLE;
-        } else if (infoDescription.equalsIgnoreCase("originaltitle")){
+        } else if (infoDescription.equalsIgnoreCase("originaltitle")) {
             return COMINGSOON_RESTORE_ORIGINALTITLE;
-        } else if (infoDescription.equalsIgnoreCase("plot")){
+        } else if (infoDescription.equalsIgnoreCase("plot")) {
             return COMINGSOON_RESTORE_PLOT;
-        } else if (infoDescription.equalsIgnoreCase("outline")){
+        } else if (infoDescription.equalsIgnoreCase("outline")) {
             return COMINGSOON_RESTORE_OUTLINE;
-        } else if (infoDescription.equalsIgnoreCase("rating")){
+        } else if (infoDescription.equalsIgnoreCase("rating")) {
             return COMINGSOON_RESTORE_RATING;
-        } else if (infoDescription.equalsIgnoreCase("runtime")){
+        } else if (infoDescription.equalsIgnoreCase("runtime")) {
             return COMINGSOON_RESTORE_RUNTIME;
-        } else if (infoDescription.equalsIgnoreCase("country")){
+        } else if (infoDescription.equalsIgnoreCase("country")) {
             return COMINGSOON_RESTORE_COUNTRY;
-        } else if (infoDescription.equalsIgnoreCase("year")){
+        } else if (infoDescription.equalsIgnoreCase("year")) {
             return COMINGSOON_RESTORE_YEAR;
-        } else if (infoDescription.equalsIgnoreCase("company")){
+        } else if (infoDescription.equalsIgnoreCase("company")) {
             return COMINGSOON_RESTORE_COMPANY;
-        } else if (infoDescription.equalsIgnoreCase("genres")){
+        } else if (infoDescription.equalsIgnoreCase("genres")) {
             return COMINGSOON_RESTORE_GENRES;
-        } else if (infoDescription.equalsIgnoreCase("cast")){
+        } else if (infoDescription.equalsIgnoreCase("cast")) {
             return COMINGSOON_RESTORE_CAST;
-        } else if (infoDescription.equalsIgnoreCase("directors")){
+        } else if (infoDescription.equalsIgnoreCase("directors")) {
             return COMINGSOON_RESTORE_DIRECTORS;
-        } else if (infoDescription.equalsIgnoreCase("writers")){
+        } else if (infoDescription.equalsIgnoreCase("writers")) {
             return COMINGSOON_RESTORE_WRITERS;
         } else {
             logger.info("ComingSoon: unknown value \"" + infoDescription + "\" for property comingsoon.perferimdbfor");
@@ -218,7 +208,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             logger.debug("ComingSoon: restoring comingsoon informations where needed");
             // restoreMovieInfo(postComingSoon, movie, COMINGSOON_RESTORE_TITLE | COMINGSOON_RESTORE_ORIGINALTITLE, true);
-            restoreMovieInfo(postComingSoon, movie, COMINGSOON_RESTORE_ALL ^ preferImdbMask , true, true);
+            restoreMovieInfo(postComingSoon, movie, COMINGSOON_RESTORE_ALL ^ preferImdbMask, true, true);
 
 
         }
@@ -237,7 +227,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     protected String getComingSoonId(String movieName, String year, String searchIdPreference) {
 
         if (searchIdPreference.equalsIgnoreCase("comingsoon")) {
-            return  getComingSoonIdFromComingSoon(movieName, year);
+            return getComingSoonIdFromComingSoon(movieName, year);
         } else if (searchIdPreference.equalsIgnoreCase("yahoo")) {
             return getComingSoonIdFromSearch("http://search.yahoo.com/search?vc=&p=", movieName, year);
         } else if (searchIdPreference.equalsIgnoreCase("google")) {
@@ -362,9 +352,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
     private ArrayList<String[]> parseComingSoonSearchResults(String xml) {
 
-        /* Search results end with "Trovati NNN Film" (found NNN movies).
-           After this string, more movie URL are found, so we have to set a boundary
-        */
+        /*
+         * Search results end with "Trovati NNN Film" (found NNN movies). After
+         * this string, more movie URL are found, so we have to set a boundary
+         */
 
         ArrayList<String[]> listaFilm = new ArrayList<String[]>();
         int trovatiIndex = xml.indexOf("Trovati");
@@ -395,7 +386,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         while (beginIndex >= 0 && beginIndex < trovatiIndex) {
             int urlIndex = xml.indexOf(COMINGSOON_SEARCH_URL, beginIndex);
             logger.debug("ComingSoon: Found movie URL " + new String(xml.substring(urlIndex, xml.indexOf('"', urlIndex))));
-            String comingSoonId = getComingSoonIdFromURL (new String(xml.substring(urlIndex, xml.indexOf('"', urlIndex))));
+            String comingSoonId = getComingSoonIdFromURL(new String(xml.substring(urlIndex, xml.indexOf('"', urlIndex))));
 
             int nextIndex = xml.indexOf("<div id=\"BoxFilm\">", beginIndex + 1);
 
@@ -431,7 +422,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
     }
 
-    private String getComingSoonIdFromURL (String url) {
+    private String getComingSoonIdFromURL(String url) {
         int beginIndex = url.indexOf(COMINGSOON_KEY_PARAM);
         StringTokenizer st = new StringTokenizer(new String(url.substring(beginIndex + COMINGSOON_KEY_PARAM.length())), "&/\"");
         String comingSoonId = st.nextToken();
@@ -440,9 +431,9 @@ public class ComingSoonPlugin extends ImdbPlugin {
     }
 
     /**
-     * Returns difference between two titles.
-     * Since ComingSoon returns strange results on some researches, difference is defined as follows:
-     * abs(word count difference) - (searchedTitle word count - matched words);
+     * Returns difference between two titles. Since ComingSoon returns strange
+     * results on some researches, difference is defined as follows: abs(word
+     * count difference) - (searchedTitle word count - matched words);
      *
      * @param searchedTitle
      * @param returnedTitle
@@ -470,7 +461,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             int wordCounter = 0;
             StringTokenizer st2 = new StringTokenizer(returnedTitle);
             returnedWordCount = st2.countTokens();
-            while (st2.hasMoreTokens() && ! gotMatch) {
+            while (st2.hasMoreTokens() && !gotMatch) {
                 String candidate2 = st2.nextToken();
 
                 if (wordCounter > lastMatchedWord) {
@@ -504,7 +495,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         }
 
         try {
-            String movieURL = COMINGSOON_BASE_URL + COMINGSOON_SEARCH_URL +  COMINGSOON_KEY_PARAM + movie.getId(COMINGSOON_PLUGIN_ID);
+            String movieURL = COMINGSOON_BASE_URL + COMINGSOON_SEARCH_URL + COMINGSOON_KEY_PARAM + movie.getId(COMINGSOON_PLUGIN_ID);
             logger.debug("ComingSoon: Querying ComingSoon for " + movieURL);
             String xml = webBrowser.request(movieURL, Charset.forName("iso-8859-1"));
 
@@ -543,7 +534,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 logger.debug("ComingSoon: found rating " + rating);
                 if (StringTools.isValidString(rating)) {
                     rating = new String(rating.substring(rating.indexOf(" ") + 1, rating.indexOf("/")));
-                    int ratingInt = (int) (Float.parseFloat(rating.replace(',','.')) * 20); // Rating is 0 to 5, we normalize to 100
+                    int ratingInt = (int) (Float.parseFloat(rating.replace(',', '.')) * 20); // Rating is 0 to 5, we normalize to 100
                     if (ratingInt > 0) {
                         movie.addRating(COMINGSOON_PLUGIN_ID, ratingInt);
                     }
@@ -572,17 +563,23 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             String countryYear = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PAESE: ", "<br />"));
             String country = Movie.UNKNOWN;
-            String year = Movie.UNKNOWN;
+            String year;
 
             if (StringTools.isValidString(countryYear)) {
 
-                year = new String(countryYear.substring(countryYear.length() - 4, countryYear.length()));
-                StringTokenizer st = new StringTokenizer(new String(countryYear.substring(0, countryYear.length() - 5)), ",");
-                // Last country seems to be the more appropriate
-                while (st.hasMoreTokens()) {
-                    country = st.nextToken().trim();
+                if (countryYear.length() <= 4) {
+                    year = countryYear.trim();
+                } else {
+                    year = new String(countryYear.substring(countryYear.length() - 4, countryYear.length()));
                 }
 
+                if (countryYear.length() > 5) {
+                    StringTokenizer st = new StringTokenizer(new String(countryYear.substring(0, countryYear.length() - 5)), ",");
+                    // Last country seems to be the more appropriate
+                    while (st.hasMoreTokens()) {
+                        country = st.nextToken().trim();
+                    }
+                }
 
                 logger.debug("ComingSoon: found countryYear " + countryYear + ", country " + country + ", year " + year);
 
@@ -650,13 +647,13 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 xmlPlot = HTMLTools.stripTags(xmlPlot).trim();
 
                 /*
-                 *  There are sometimes two markers in the plot to differentiate between the
-                 *  plot (TRAMA LUNGA) and the outline (TRAMA BREVE). We should extract these
-                 *  and use them appropriately
+                 * There are sometimes two markers in the plot to differentiate
+                 * between the plot (TRAMA LUNGA) and the outline (TRAMA BREVE).
+                 * We should extract these and use them appropriately
                  */
 
-                String plot = "";
-                String outline = "";
+                String plot;
+                String outline;
                 int plotStart = xmlPlot.toUpperCase().indexOf("TRAMA LUNGA");
                 int outlineStart = xmlPlot.toUpperCase().indexOf("TRAMA BREVE");
 
@@ -688,7 +685,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 String castList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ATTORI: ", "Ruoli ed Interpreti"));
 
                 if (castList.contains(",")) {
-                    StringTokenizer st = new StringTokenizer(castList,",");
+                    StringTokenizer st = new StringTokenizer(castList, ",");
                     while (st.hasMoreTokens()) {
                         movie.addActor(st.nextToken());
                     }
@@ -703,7 +700,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 String directorList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">REGIA: ", "<br />"));
 
                 if (directorList.contains(",")) {
-                    StringTokenizer st = new StringTokenizer(directorList,",");
+                    StringTokenizer st = new StringTokenizer(directorList, ",");
                     while (st.hasMoreTokens()) {
                         movie.addDirector(st.nextToken());
                     }
@@ -718,7 +715,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 String writerList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">SCENEGGIATURA: ", "<br />"));
 
                 if (writerList.contains(",")) {
-                    StringTokenizer st = new StringTokenizer(writerList,",");
+                    StringTokenizer st = new StringTokenizer(writerList, ",");
                     while (st.hasMoreTokens()) {
                         movie.addWriter(st.nextToken());
                     }
@@ -739,6 +736,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
     /**
      * ComingSoon has some titles all caps. We normalize them
+     *
      * @param title
      * @return
      */
@@ -831,13 +829,12 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
         }
         /*
-        if ((what & COMINGSOON_RESTORE_RATING) > 0 && (override || targetMovie.getRating() < 0)) {
-            if (!protect || sourceMovie.getRating() >= 0) {
-                logger.debug("ComingSoon: restoring rating");
-                targetMovie.addRating(COMINGSOON_PLUGIN_ID, sourceMovie.getRating());
-            }
-        }
-        */
+         * if ((what & COMINGSOON_RESTORE_RATING) > 0 && (override ||
+         * targetMovie.getRating() < 0)) { if (!protect ||
+         * sourceMovie.getRating() >= 0) { logger.debug("ComingSoon: restoring
+         * rating"); targetMovie.addRating(COMINGSOON_PLUGIN_ID,
+         * sourceMovie.getRating()); } }
+         */
         if ((what & COMINGSOON_RESTORE_RUNTIME) > 0 && (override || StringTools.isNotValidString(targetMovie.getRuntime()))) {
             if (!protect || StringTools.isValidString(sourceMovie.getRuntime())) {
                 logger.debug("ComingSoon: restoring runtime");
@@ -887,5 +884,4 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
         }
     }
-
 }
