@@ -1213,7 +1213,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         // Let's draw the set's size (at bottom) if requested.
         final int size = movie.getSetSize();
         if (addTextSetSize && size > 0) {
-            String text = null;
+            String text;
             // Let's draw not more than 9...
             if (size > 9) {
                 text = "9+";
@@ -1247,8 +1247,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         int textWidth = fm.stringWidth(outputText);
         int imageWidth = bi.getWidth();
         int imageHeight = bi.getHeight();
-        int leftAlignment = 0;
-        int topAlignment = 0;
+        int leftAlignment;
+        int topAlignment;
 
         if (textAlignment.equalsIgnoreCase("left")) {
             leftAlignment = textOffset;
