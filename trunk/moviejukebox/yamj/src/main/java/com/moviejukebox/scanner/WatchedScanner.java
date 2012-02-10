@@ -36,10 +36,10 @@ public class WatchedScanner {
         int fileWatchedCount = 0;                       // The number of watched files found
         boolean movieWatched = Boolean.TRUE;            // Status of all of the movie files, to be saved in the movie bean
         boolean movieFileWatchChanged = Boolean.FALSE;  // Have the movie files changed status?
-        boolean fileWatched = Boolean.FALSE;
+        boolean fileWatched;
         boolean returnStatus = Boolean.FALSE;           // Assume no changes
 
-        File foundFile = null;
+        File foundFile;
         Collection<String> extensions = new ArrayList<String>();
         extensions.add("unwatched");
         extensions.add("watched");
@@ -51,7 +51,7 @@ public class WatchedScanner {
             }
 
             fileWatched = Boolean.FALSE;
-            String filename = "";
+            String filename;
             // BluRay stores the file differently to DVD and single files, so we need to process the path a little
             if (movie.isBluray()) {
                 filename = new File(FileTools.getParentFolder(mf.getFile())).getName();
