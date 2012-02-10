@@ -71,7 +71,7 @@ public class Filmography {
     private String department           = UNKNOWN;
     private String rating               = UNKNOWN;
     private String url                  = UNKNOWN;
-    private boolean isDirty             = true;
+    private boolean isDirty             = false;
     private boolean isScrapeLibrary     = true;
     private int     order               = -1;
     private int     castId              = -1;

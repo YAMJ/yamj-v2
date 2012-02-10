@@ -101,6 +101,7 @@ public class PhotoScanner {
      * @param person
      */
     private static void downloadPhoto(MovieImagePlugin imagePlugin, Jukebox jukebox, Person person) {
+        String prevPhotoFilename = person.getPhotoFilename();
         person.setPhotoFilename();
         String safePhotoFilename = person.getPhotoFilename();
         String photoFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + safePhotoFilename;
@@ -144,6 +145,9 @@ public class PhotoScanner {
                 FileTools.copyFile(dummyFile, tmpDestFile);
             } else {
                 person.clearPhotoFilename();
+                if (prevPhotoFilename.equals(Movie.UNKNOWN)) {
+                    person.setDirty(false);
+                }
             }
         }
 
