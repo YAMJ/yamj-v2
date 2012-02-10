@@ -511,11 +511,11 @@ public class ComingSoonPlugin extends ImdbPlugin {
             // TITLE & ORIGINAL TITLE
 
             if (!movie.isOverrideTitle()) {
-                String title = HTMLTools.extractTag(xml, "<h1 class='titoloFilm'", 0, "<>", false).trim();
-                String originalTitle = HTMLTools.extractTag(xml, "<h1 class='titoloFilm2'", 0, "<>", false).trim();
+                String title = HTMLTools.extractTag(xml, "<h1 class='titoloFilm", 1, "<>", false).trim();
+                String originalTitle = HTMLTools.extractTag(xml, "<h1 class='titoloFilm2", 1, "<>", false).trim();
                 if (StringTools.isNotValidString(originalTitle)) {
                     // Comingsoon layout slightly changed at some point and original title became h2
-                    originalTitle = HTMLTools.extractTag(xml, "<h2 class='titoloFilm2'", 0, "<>", false).trim();
+                    originalTitle = HTMLTools.extractTag(xml, "<h2 class='titoloFilm2", 1, "<>", false).trim();
                 }
                 if (originalTitle.startsWith("(")) {
                     originalTitle = new String(originalTitle.substring(1, originalTitle.length() - 1)).trim();
