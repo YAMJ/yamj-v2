@@ -1562,15 +1562,20 @@ public class Library implements Map<String, Movie> {
             } else {
                 String beginYear = new String(filmYear.substring(0, filmYear.length() - 1)) + "0";
                 String endYear;
-                if (Integer.parseInt(filmYear) >= currentDecade) {
-                    // The film year is in the current decade, so we need to adjust the end year
-                    endYear = String.valueOf(finalYear);
-                } else {
-                    // Otherwise it's 9
-                    endYear = new String(filmYear.substring(0, filmYear.length() - 1)) + "9";
+                try {
+                    if (Integer.parseInt(filmYear) >= currentDecade) {
+                        // The film year is in the current decade, so we need to adjust the end year
+                        endYear = String.valueOf(finalYear);
+                    } else {
+                        // Otherwise it's 9
+                        endYear = new String(filmYear.substring(0, filmYear.length() - 1)) + "9";
+                    }
+                    yearCat = new StringBuilder(beginYear);
+                    yearCat.append("-").append(endYear.substring(endYear.length() - 2));
+                } catch (NumberFormatException e) {
+                    logger.debug("Year is not number: " + filmYear);
+                    return Movie.UNKNOWN;
                 }
-                yearCat = new StringBuilder(beginYear);
-                yearCat.append("-").append(endYear.substring(endYear.length() - 2));
             }
         } else {
             yearCat = new StringBuilder(Movie.UNKNOWN);

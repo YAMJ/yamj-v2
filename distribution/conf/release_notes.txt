@@ -72,6 +72,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2311 People photo not retrieved
  - Fixed defect #2328 Watched and NFO error - recreates file data every run
  - Fixed defect #2337 Issue with Filmweb plugin
+ - Fixed defect #2338 Library indexing exception
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------
