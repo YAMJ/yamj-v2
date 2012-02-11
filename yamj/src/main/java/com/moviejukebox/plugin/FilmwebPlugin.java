@@ -160,7 +160,7 @@ public class FilmwebPlugin extends ImdbPlugin {
      */
     private String getFilmwebUrlFromFilmweb(String movieName, String year) {
         try {
-            StringBuilder sb = new StringBuilder("http://www.filmweb.pl/search/film?q=");
+            StringBuilder sb = new StringBuilder("http://www.filmweb.pl/search?q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
             if (StringTools.isValidString(year)) {
@@ -169,7 +169,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             String xml = webBrowser.request(sb.toString());
             Matcher m = filmwebPattern.matcher(xml);
             if (m.find()) {
-                return "http://www.filmweb.pl" + m.group(1);
+                return "http://www.filmweb.pl" + m.group(1).trim();
             } else {
                 return Movie.UNKNOWN;
             }
@@ -188,7 +188,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             String xml = webBrowser.request(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
 
             if (HTMLTools.extractTag(xml, "<title>").contains("Serial")) {
-                if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
+                if (!movie.isTVShow()) {
                     movie.setMovieType(Movie.TYPE_TVSHOW);
                     return false;
                 }
@@ -196,7 +196,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
             if (!movie.isOverrideTitle()) {
                 movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()></"));
-                String metaTitle = HTMLTools.extractTag(xml, "<title>");
+                String metaTitle = HTMLTools.extractTag(xml, "og:title", "\">");
                 if (metaTitle.contains("/")) {
                     String originalTitle = HTMLTools.extractTag(metaTitle, "/", 0, "()><");
                     if (originalTitle.endsWith(", The")) {
@@ -232,7 +232,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (Movie.UNKNOWN.equals(movie.getCountry())) {
-                String country = StringUtils.join(HTMLTools.extractTags(xml, "kraje:", "</div", "<a ", "</a>"), ", ");
+                String country = StringUtils.join(HTMLTools.extractTags(xml, "produkcja:", "</tr", "<a ", "</a>"), ", ");
                 if (country.endsWith(", ")) {
                     movie.setCountry(country.substring(0, country.length() - 2));
                 } else {
@@ -261,7 +261,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (!movie.isOverrideYear()) {
-                movie.setYear(HTMLTools.extractTag(xml, "<title>", 1, "()><"));
+                movie.setYear(HTMLTools.getTextAfterElem(xml, "filmYear"));
             }
 
             if (movie.getCast().isEmpty()) {

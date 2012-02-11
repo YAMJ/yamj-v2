@@ -55,7 +55,7 @@ public class FilmwebPluginTest extends TestCase {
     public void testGetFilmwebUrlFromGoogleWithId() {
         filmwebPlugin.filmwebPreferredSearchEngine = "google";
         filmwebPlugin.setRequestResult("<font color=\"green\">http://www.filmweb.pl/serial/4400-2004-122684 - 90k</font>");
-        assertEquals("http://www.filmweb.pl/serial/4400-2004-122684", filmwebPlugin.getFilmwebUrl("The 4400", null));
+        assertEquals("http://www.filmweb.pl/serial/4400-2004-122684", filmwebPlugin.getFilmwebUrl("4400", null));
     }
 
     public void testGetFilmwebUrlFromYahoo() {
@@ -76,12 +76,11 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals("http://www.filmweb.pl/John.Rambo", filmwebPlugin.getFilmwebUrl("john rambo", null));
     }
 
-    // This needs work, tv shows aren't supported in this code search (although they are on the site)
-//    public void testGetFilmwebUrlFromFilmwebWithId() {
-//        filmwebPlugin.filmwebPreferredSearchEngine = "filmweb";
-//        filmwebPlugin.setRequestResult("<a class=\"searchResultTitle\" href=\"/serial/4400-2004-122684\"><b>4400</b> / <b>4400</b>, The </a>");
-//        assertEquals("http://www.filmweb.pl/serial/4400-2004-122684", filmwebPlugin.getFilmwebUrl("The 4400", null));
-//    }
+    public void testGetFilmwebUrlFromFilmwebWithId() {
+        filmwebPlugin.filmwebPreferredSearchEngine = "filmweb";
+        filmwebPlugin.setRequestResult("<a class=\"searchResultTitle\" href=\"/serial/4400-2004-122684\"><b>4400</b> / <b>4400</b>, The </a>");
+        assertEquals("http://www.filmweb.pl/serial/4400-2004-122684", filmwebPlugin.getFilmwebUrl("The 4400", null));
+    }
 
     public void testScanNFONoUrl() {
         filmwebPlugin.scanNFO("", movie);
@@ -136,7 +135,7 @@ public class FilmwebPluginTest extends TestCase {
 
     public void testUpdateMediaInfoTitleWithOriginalTitle() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Ojciec.Chrzestny");
-        filmwebPlugin.setRequestResult("<title>Ojciec chrzestny / Godfather, The (1972)  - Film - FILMWEB.pl</title>");
+        filmwebPlugin.setRequestResult("<title>Ojciec chrzestny (1972) - Filmweb</title><meta property=\"og:title\" content=\"Ojciec chrzestny / Godfather, The\">");
         filmwebPlugin.updateMediaInfo(movie);
         assertEquals("Ojciec chrzestny", movie.getTitle());
         assertEquals("The Godfather", movie.getOriginalTitle());
@@ -179,7 +178,7 @@ public class FilmwebPluginTest extends TestCase {
 
     public void testUpdateMediaInfoCountry() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
-        filmwebPlugin.setRequestResult("<dt>kraje:</dt><dd><a href=\"/search/film?countryIds=38\">Niemcy</a>, <a href=\"/search/film?countryIds=53\">USA</a></dd>/dl></div>                                                <div class=\"topicsList lastTopicsList\"><div class=comBox><h2><a href=\"/John.Rambo/discussion\" class=\"hdrBig icoBig icoBigDiscuss\">dyskusja</a>");
+        filmwebPlugin.setRequestResult("<tr><th>produkcja:</th><td><a href=\"/search/film?countryIds=38\">Niemcy</a>, <a href=\"/search/film?countryIds=53\">USA</a></td></tr>");
         filmwebPlugin.updateMediaInfo(movie);
         assertEquals("Niemcy, USA", movie.getCountry());
     }
@@ -218,7 +217,7 @@ public class FilmwebPluginTest extends TestCase {
 
     public void testUpdateMediaInfoYear() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Seksmisja");
-        filmwebPlugin.setRequestResult("<title>Seksmisja (1983)  - Film - FILMWEB.pl</title>");
+        filmwebPlugin.setRequestResult("<span id=filmYear class=filmYear>1983</span>");
         filmwebPlugin.updateMediaInfo(movie);
         assertEquals("1983", movie.getYear());
     }
@@ -238,6 +237,7 @@ public class FilmwebPluginTest extends TestCase {
 
     public void testUpdateMediaInfoUpdateTVShowInfo() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Prison.Break");
+        movie.setMovieType(Movie.TYPE_TVSHOW);
         MovieFile episode = new MovieFile();
         episode.setSeason(4);
         episode.setPart(1);
