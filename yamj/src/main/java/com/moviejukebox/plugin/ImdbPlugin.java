@@ -48,6 +48,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected ImdbSiteDataDefinition siteDef;
     protected ImdbInfo imdbInfo;
     protected static final String plotEnding = "...";
+    private boolean skipFaceless;
     private boolean skipVG;
     private boolean skipTV;
     private boolean skipV;
@@ -79,6 +80,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         actorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", "10");
         directorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.director", "2");
         writerMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.writer", "3");
+        skipFaceless = PropertiesUtil.getBooleanProperty("plugin.people.skip.faceless", "false");
         skipVG = PropertiesUtil.getBooleanProperty("plugin.people.skip.VG", "true");
         skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", "false");
         skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", "false");
@@ -505,20 +507,28 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (movie.getPerson("Actors").isEmpty() && actorMax > 0 && peopleCount < peopleMax) {
             // Issue 1897: Cast enhancement
             int count = 0;
-            for (String actorBlock : HTMLTools.extractTags(xml, "<table class=\"cast\">", "</table>", "<td class=\"nm\"", "</tr>")) {
-                String personID = actorBlock.substring(actorBlock.indexOf("\"/name/") + 7, actorBlock.indexOf("/\""));
-                int beginIndex = actorBlock.indexOf("<td class=\"char\">");
-                String character = Movie.UNKNOWN;
-                if (beginIndex > 0) {
-                    if (actorBlock.indexOf("<a href=\"/character/") > 0) {
-                        character = actorBlock.substring(actorBlock.indexOf("/\">", beginIndex) + 3, actorBlock.indexOf("</a>", beginIndex));
-                    } else {
-                        character = actorBlock.substring(actorBlock.indexOf("\">", beginIndex) + 2, actorBlock.indexOf("</td>", beginIndex));
+            for (int scrapeStep = 0; scrapeStep < 2; scrapeStep++) {
+                for (String actorBlock : HTMLTools.extractTags(xml, "<table class=\"cast\">", "</table>", "<td class=\"hs\"", "</tr>")) {
+                    if (!skipFaceless || (scrapeStep == 0 && actorBlock.indexOf("no_photo.png") == -1) || (scrapeStep == 1 && actorBlock.indexOf("no_photo.png") != -1)) {
+                        int nmPosition = actorBlock.indexOf(">", actorBlock.indexOf("<td class=\"nm\"")) + 1;
+                        String personID = actorBlock.substring(actorBlock.indexOf("\"/name/", nmPosition) + 7, actorBlock.indexOf("/\"", nmPosition));
+                        int beginIndex = actorBlock.indexOf("<td class=\"char\">");
+                        String character = Movie.UNKNOWN;
+                        if (beginIndex > 0) {
+                            if (actorBlock.indexOf("<a href=\"/character/") > 0) {
+                                character = actorBlock.substring(actorBlock.indexOf("/\">", beginIndex) + 3, actorBlock.indexOf("</a>", beginIndex));
+                            } else {
+                                character = actorBlock.substring(actorBlock.indexOf("\">", beginIndex) + 2, actorBlock.indexOf("</td>", beginIndex));
+                            }
+                        }
+                        movie.addActor(IMDB_PLUGIN_ID + ":" + personID, actorBlock.substring(actorBlock.indexOf("\">", nmPosition) + 2, actorBlock.indexOf("</a>", nmPosition)), character, siteDef.getSite() + "name/" + personID + "/", Movie.UNKNOWN);
+                        count++;
+                        if (count == actorMax || peopleCount + count == peopleMax) {
+                            break;
+                        }
                     }
                 }
-                movie.addActor(IMDB_PLUGIN_ID + ":" + personID, actorBlock.substring(actorBlock.indexOf("\">") + 2, actorBlock.indexOf("</a>")), character, siteDef.getSite() + "name/" + personID + "/", Movie.UNKNOWN);
-                count++;
-                if (count == actorMax || peopleCount + count == peopleMax) {
+                if (!skipFaceless || count == actorMax || peopleCount + count == peopleMax) {
                     break;
                 }
             }

@@ -511,11 +511,48 @@ public class FileTools {
      * @return
      */
     public static File findFilenameInCache(String searchFilename, Collection<String> fileExtensions, Jukebox jukebox, String logPrefix) {
+        return findFilenameInCache(searchFilename, fileExtensions, jukebox, logPrefix, false, Movie.UNKNOWN);
+    }
+
+    /**
+     * Search for the filename in the cache and look for each with the
+     * extensions
+     *
+     * @param searchFilename
+     * @param fileExtensions
+     * @param jukebox
+     * @param logPrefix
+     * @param includeJukebox
+     * @return
+     */
+    public static File findFilenameInCache(String searchFilename, Collection<String> fileExtensions, Jukebox jukebox, String logPrefix, boolean includeJukebox) {
+        return findFilenameInCache(searchFilename, fileExtensions, jukebox, logPrefix, includeJukebox, Movie.UNKNOWN);
+    }
+
+    /**
+     * Search for the filename in the cache and look for each with the
+     * extensions
+     *
+     * @param searchFilename
+     * @param fileExtensions
+     * @param jukebox
+     * @param logPrefix
+     * @param includeJukebox
+     * @param subFolder
+     * @return
+     */
+    public static File findFilenameInCache(String searchFilename, Collection<String> fileExtensions, Jukebox jukebox, String logPrefix, boolean includeJukebox, String subFolder) {
         File searchFile = null;
         String safeFilename = makeSafeFilename(searchFilename);
 
         logger.debug(logPrefix + "Scanning fileCache for " + safeFilename);
         safeFilename = File.separator + safeFilename;
+
+        if (StringTools.isValidString(subFolder)) {
+            subFolder = File.separator + subFolder.toLowerCase();
+        } else {
+            subFolder = "";
+        }
 
         Collection<File> files = FileTools.fileCache.searchFilename(safeFilename, true);
 
@@ -527,7 +564,7 @@ public class FileTools {
                 File file = iter.next();
                 String abPath = file.getAbsolutePath().toLowerCase();
 
-                if (abPath.startsWith(jukebox.getJukeboxRootLocationDetails().toLowerCase())) {
+                if (abPath.startsWith(jukebox.getJukeboxRootLocationDetails().toLowerCase() + subFolder) != includeJukebox) {
                     // Skip any files found in the jukebox
                     continue;
                 }

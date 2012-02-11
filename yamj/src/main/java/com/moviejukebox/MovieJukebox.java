@@ -108,6 +108,7 @@ public class MovieJukebox {
     private static int peopleMax = 10;
     private static int popularity = 5;
     private static String peopleFolder = "";
+    private static Collection<String> photoExtensions = new ArrayList<String>();
     // These are pulled from the Manifest.MF file that is created by the Ant build script
     public static String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
     public static String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
@@ -299,6 +300,10 @@ public class MovieJukebox {
                 peopleFolder = "";
             } else if (!peopleFolder.endsWith(File.separator)) {
                 peopleFolder += File.separator;
+            }
+            StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("photo.scanner.photoExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
+            while (st.hasMoreTokens()) {
+                photoExtensions.add(st.nextToken());
             }
         }
 
@@ -1939,6 +1944,21 @@ public class MovieJukebox {
             }
 
             movie.setCertification(Library.getIndexingCertification(movie.getCertification()));
+
+        }
+
+        boolean photoFound = false;
+        for (Filmography person : movie.getPeople()) {
+            if (isValidString(person.getPhotoFilename())) {
+                continue;
+            }
+            if (FileTools.findFilenameInCache(person.getName(), photoExtensions, jukebox, "MovieJukebox: ", true, "person") != null) {
+                person.setPhotoFilename();
+                photoFound = true;
+            }
+        }
+        if (photoFound) {
+            movie.setDirty(Movie.DIRTY_INFO, true);
         }
 
         // Update footer format if needed
