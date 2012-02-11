@@ -71,6 +71,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2310 People Scanner Not Working Correctly
  - Fixed defect #2311 People photo not retrieved
  - Fixed defect #2328 Watched and NFO error - recreates file data every run
+ - Enhancement  #2332 Option to scrape to movie persons only with photo
  - Fixed defect #2337 Issue with Filmweb plugin
  - Fixed defect #2338 Library indexing exception
 
