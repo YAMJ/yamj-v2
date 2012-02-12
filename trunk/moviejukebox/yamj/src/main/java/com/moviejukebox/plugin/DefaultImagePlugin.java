@@ -109,6 +109,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean blockCompany;
     private boolean countSetLogo;
     private boolean addAward;
+    private boolean awardEventName;
     private boolean blockAward;
     private boolean countAward;
     private boolean blockClones;
@@ -258,6 +259,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         blockAward = tmpAward.equalsIgnoreCase("block");
         countAward = tmpAward.equalsIgnoreCase("count");
         addAward = tmpAward.equalsIgnoreCase("true") || blockAward || countAward;
+        awardEventName = PropertiesUtil.getBooleanProperty(imageType + ".award.useEventName", "false");
 
         xmlOverlay = PropertiesUtil.getBooleanProperty(imageType + ".xmlOverlay", "false");
         if (xmlOverlay) {
@@ -624,7 +626,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     for (Award award : awardEvent.getAwards()) {
                                         if (award.getWon() > 0) {
                                             if (blockAward) {
-                                                awards.put(award.getName(), award.getWon());
+                                                awards.put((awardEventName?(awardEvent.getName() + " - "):"") + award.getName(), award.getWon());
                                             } else if (countAward) {
                                                 awardCount++;
                                             } else {
@@ -645,7 +647,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                 sortedAwards.putAll(awards);
 
                                 StringBuilder sbAwards = new StringBuilder();
-                                boolean first = !value.isEmpty();   // Append the separator only if the "value" is not empty
+                                boolean first = value.isEmpty();   // Append the separator only if the "value" is not empty
 
                                 for (String award : sortedAwards.keySet()) {
                                     if (first) {
