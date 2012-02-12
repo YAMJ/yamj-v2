@@ -1001,7 +1001,7 @@ public class Library implements Map<String, Movie> {
 
     protected void indexByJob(List<Person> list, String job, String index) {
         for (Person person : list) {
-            if ((StringTools.isValidString(job) && !person.getDepartment().equalsIgnoreCase(job)) || StringTools.isNotValidString(person.getFilename())) {
+            if ((StringTools.isValidString(job) && !person.getDepartments().contains(job)) || StringTools.isNotValidString(person.getFilename())) {
                 continue;
             }
             String actor = person.getTitle();
