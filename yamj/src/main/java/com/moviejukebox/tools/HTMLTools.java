@@ -308,8 +308,8 @@ public class HTMLTools {
         }
 
         int current_index = 0;
-        int delimiter_start_index = 0;
-        int delimiter_end_index = 0;
+        int delimiter_start_index;
+        int delimiter_end_index;
 
         StringBuilder result = null;
 

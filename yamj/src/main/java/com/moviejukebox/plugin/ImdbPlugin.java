@@ -22,6 +22,7 @@ import java.text.NumberFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
@@ -282,15 +283,15 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(movie.getReleaseDate())) {
             movie.setReleaseDate(HTMLTools.extractTag(xml, "<h5>" + siteDef.getReleaseDate() + ":</h5>", 1));
         }
 
-        if (movie.getRuntime().equals(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(movie.getRuntime())) {
             movie.setRuntime(getPreferredValue(HTMLTools.extractTags(xml, "<h5>" + siteDef.getRuntime() + ":</h5>")));
         }
 
-        if (movie.getCountry().equals(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(movie.getCountry())) {
             // HTMLTools.extractTags(xml, "<h5>" + siteDef.getCountry() + ":</h5>", "</div>", "<a href", "</a>")
             for (String country : HTMLTools.extractTags(xml, "<h5>" + siteDef.getCountry() + ":</h5>", "</div>")) {
                 if (country != null) {
@@ -301,7 +302,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        if (movie.getCompany().equals(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(movie.getCompany())) {
             for (String company : HTMLTools.extractTags(xml, "<h5>" + siteDef.getCompany() + ":</h5>", "</div>", "<a href", "</a>")) {
                 if (company != null) {
                     // TODO Save more than one company
@@ -318,7 +319,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        if (movie.getQuote().equals(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(movie.getQuote())) {
             for (String quote : HTMLTools.extractTags(xml, "<h5>" + siteDef.getQuotes() + ":</h5>", "</div>", "<a href=\"/name/nm", "</a class=\"")) {
                 if (quote != null) {
                     quote = HTMLTools.stripTags(quote);
@@ -358,18 +359,18 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        if (movie.getOutline().equals(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(movie.getOutline())) {
             movie.setOutline(imdbOutline);
         }
 
-        if (movie.getPlot().equals(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(movie.getPlot())) {
             String plot = Movie.UNKNOWN;
             if (imdbPlot.equalsIgnoreCase("long")) {
                 plot = getLongPlot(movie);
             }
 
             // even if "long" is set we will default to the "short" one if none was found
-            if (plot.equals(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(plot)) {
                 plot = imdbOutline;
             }
 
@@ -377,10 +378,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         String certification = movie.getCertification();
-        if (certification.equals(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(certification)) {
             if (extractCertificationFromMPAA) {
                 String mpaa = HTMLTools.extractTag(xml, "<h5><a href=\"/mpaa\">MPAA</a>:</h5>", 1);
-                if (!mpaa.equals(Movie.UNKNOWN)) {
+                if (StringTools.isValidString(mpaa)) {
                     String key = siteDef.getRated() + " ";
                     int pos = mpaa.indexOf(key);
                     if (pos != -1) {
@@ -607,9 +608,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // RELEASE DATE
-        if (movie.getReleaseDate().equals(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(movie.getReleaseDate())) {
             // Load the release page from IMDb
-            if (releaseInfoXML.equals(Movie.UNKNOWN)) {
+            if (StringTools.isNotValidString(releaseInfoXML)) {
                 releaseInfoXML = webBrowser.request(getImdbUrl(movie, siteDef2) + "releaseinfo", siteDef2.getCharset());
             }
             movie.setReleaseDate(HTMLTools.stripTags(HTMLTools.extractTag(releaseInfoXML, "\">" + preferredCountry, "</a></td>")).trim());
@@ -622,7 +623,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // RUNTIME
-        if (movie.getRuntime().equals(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(movie.getRuntime())) {
             String runtime = siteDef2.getRuntime() + ":</h4>";
             ArrayList<String> runtimes = HTMLTools.extractTags(xml, runtime, "</div>", null, "|", false);
             runtime = getPreferredValue(runtimes);
@@ -636,7 +637,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // COUNTRY
-        if (movie.getCountry().equals(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(movie.getCountry())) {
             for (String country : HTMLTools.extractTags(xml, siteDef2.getCountry() + ":</h4>", "</div>", "onclick=\"", "</a>")) {
                 if (country != null) {
                     // TODO Save more than one country
@@ -647,7 +648,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // COMPANY
-        if (movie.getCompany().equals(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(movie.getCompany())) {
             for (String company : HTMLTools.extractTags(xml, siteDef2.getCompany() + ":</h4>", "<span class", "<a ", "</a>")) {
                 if (company != null) {
                     // TODO Save more than one company
@@ -659,13 +660,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // GENRES
         if (movie.getGenres().isEmpty()) {
-            for (String genre : HTMLTools.extractTags(xml, siteDef2.getGenre() + ":</h4>", "</div>", "href=\"/genre/", "</a>")) {
-                movie.addGenre(Library.getIndexingGenre(HTMLTools.removeHtmlTags(genre)));
+            for (String genre : HTMLTools.extractTags(xml, siteDef2.getGenre() + ":</h4>", "</div>")) {
+                // Check normally for the genre
+                String iGenre = HTMLTools.getTextAfterElem(genre, "<a");
+                // Sometimes the genre is just "{genre}</a>???" so try and remove the trailing element
+                if (StringTools.isNotValidString(iGenre) && genre.contains("</a>")) {
+                    iGenre = genre.substring(0, genre.indexOf("</a>"));
+                }
+                movie.addGenre(iGenre);
             }
         }
 
         // QUOTE
-        if (movie.getQuote().equals(Movie.UNKNOWN)) {
+        if (StringTools.isNotValidString(movie.getQuote())) {
             for (String quote : HTMLTools.extractTags(xml, "<h4>" + siteDef2.getQuotes() + "</h4>", "<span class=\"", "<br", "<br")) {
                 if (quote != null) {
                     quote = HTMLTools.stripTags(quote);
@@ -901,7 +908,18 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // TAGLINE
         if (StringTools.isNotValidString(movie.getTagline())) {
-            for (String tagline : HTMLTools.extractTags(xml, "<h4 class=\"inline\">" + siteDef2.getTaglines() + ":</h4>", "<span class=\"")) {
+            int startTag = xml.indexOf("<h4 class=\"inline\">" + siteDef2.getTaglines() + ":</h4>");
+            String endMarker;
+            
+            // We need to work out which of the two formats to use, this is dependent on which comes first "<span" or "</div"
+            if (StringUtils.indexOf(xml, "<span", startTag) < StringUtils.indexOf(xml, "</div>", startTag)) {
+                endMarker = "<span";
+            } else {
+                endMarker="</div>";
+            }
+
+            // Now look for the right string
+            for (String tagline : HTMLTools.extractTags(xml, "<h4 class=\"inline\">" + siteDef2.getTaglines() + ":</h4>", endMarker)) {
                 if (tagline != null) {
                     tagline = HTMLTools.stripTags(tagline);
                     movie.setTagline(cleanStringEnding(tagline));
@@ -1681,7 +1699,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     }
                 }
             }
-            
+
             Iterator<Float> iterFilm = filmography.keySet().iterator();
             int count = 0;
             while (iterFilm.hasNext() && count < preferredFilmographyMax) {
