@@ -40,10 +40,11 @@ public class Person extends Filmography {
     private int     knownMovies           = -1;
     private String  birthPlace            = UNKNOWN;
     private int     popularity            = 1;
+    private String  lastModifiedAt;
     private List<Filmography> filmography = new ArrayList<Filmography>();
     private List<String>      aka         = new ArrayList<String>();
-    private String  lastModifiedAt;
-    private List<Movie> movies            = new ArrayList<Movie>();
+    private List<String>      departments = new ArrayList<String>();
+    private List<Movie>       movies      = new ArrayList<Movie>();
     private Map<String, String> indexes   = new HashMap<String, String>();
 
     public Person() {
@@ -95,6 +96,7 @@ public class Person extends Filmography {
         setPopularity(person.getPopularity());
         setFilmography(person.getFilmography());
         setAka(person.getAka());
+        setDepartments(person.getDepartments());
         setLastModifiedAt(person.getLastModifiedAt());
         setIndexes(person.getIndexes());
 
@@ -104,6 +106,10 @@ public class Person extends Filmography {
 
     public List<String> getAka() {
         return aka;
+    }
+
+    public List<String> getDepartments() {
+        return departments;
     }
 
     public String getBiography() {
@@ -137,6 +143,16 @@ public class Person extends Filmography {
         }
     }
 
+    public void addDepartment(String department) {
+        if (isValidString(department) && !departments.contains(department)) {
+            departments.add(department);
+            if (isNotValidString(getDepartment())) {
+                setDepartment(department);
+            }
+            setDirty();
+        }
+    }
+
     public void addFilm(Filmography film) {
         if (film != null) {
             this.filmography.add(film);
@@ -149,6 +165,16 @@ public class Person extends Filmography {
             this.aka.clear();
             for (String akaName : aka) {
                 addAka(akaName);
+            }
+            setDirty();
+        }
+    }
+
+    public void setDepartments(List<String> departments) {
+        if (departments != null && !this.departments.equals(departments)) {
+            this.departments.clear();
+            for (String department : departments) {
+                addDepartment(department);
             }
             setDirty();
         }

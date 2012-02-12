@@ -1065,12 +1065,14 @@ public class MovieJukebox {
                             String name = person.getName();
                             for (String key : popularPeople.keySet()) {
                                 if (key.substring(3).equalsIgnoreCase(name)) {
+                                    popularPeople.get(key).addDepartment(person.getDepartment());
                                     popularPeople.get(key).popularityUp(movie);
                                     exists = true;
                                 }
                             }
                             if (!exists) {
                                 Person p = new Person(person);
+                                p.addDepartment(p.getDepartment());
                                 String key = String.format("%03d", person.getOrder()) + person.getName();
                                 popularPeople.put(key, p);
                                 popularPeople.get(key).popularityUp(movie);
@@ -1952,7 +1954,7 @@ public class MovieJukebox {
             if (isValidString(person.getPhotoFilename())) {
                 continue;
             }
-            if (FileTools.findFilenameInCache(person.getName(), photoExtensions, jukebox, "MovieJukebox: ", true, "person") != null) {
+            if (FileTools.findFilenameInCache(person.getName(), photoExtensions, jukebox, "MovieJukebox: ", true, peopleFolder) != null) {
                 person.setPhotoFilename();
                 photoFound = true;
             }
