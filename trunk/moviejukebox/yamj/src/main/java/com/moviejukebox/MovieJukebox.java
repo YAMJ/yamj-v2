@@ -1195,7 +1195,7 @@ public class MovieJukebox {
                     for (Filmography person : movie.getPeople()) {
                         dirty = false;
                         for (Person p : library.getPeople()) {
-                            if (person.getName().equals(p.getName())) {
+                            if (comparePersonName(person, p) || comparePersonId(person, p)) {
                                 if (!person.getFilename().equals(p.getFilename()) && isValidString(p.getFilename())) {
                                     person.setFilename(p.getFilename());
                                     dirty = true;
@@ -1204,8 +1204,14 @@ public class MovieJukebox {
                                     person.setUrl(p.getUrl());
                                     dirty = true;
                                 }
-                                if (!person.getId().equals(p.getId()) && isValidString(p.getId())) {
-                                    person.setId(p.getId());
+                                for (Map.Entry<String, String> e : p.getIdMap().entrySet()) {
+                                    if (isNotValidString(e.getValue())) {
+                                        continue;
+                                    }
+                                    if (person.getId(e.getKey()).equals(e.getValue())) {
+                                        continue;
+                                    }
+                                    person.setId(e.getKey(), e.getValue());
                                     dirty = true;
                                 }
                                 if (!person.getPhotoFilename().equals(p.getPhotoFilename()) && isValidString(p.getPhotoFilename())) {
@@ -1663,6 +1669,38 @@ public class MovieJukebox {
         logger.info("Processing took " + dateFormat.format(new Date(timeEnd - timeStart)));
     }
 
+    private boolean comparePersonId(Filmography aPerson, Filmography bPerson) {
+        String aValue, bValue;
+        for (Map.Entry<String, String> e : aPerson.getIdMap().entrySet()) {
+            aValue = e.getValue();
+            if (StringTools.isNotValidString(aValue)) {
+                continue;
+            }
+            bValue = bPerson.getId(e.getKey());
+            if (StringTools.isValidString(bValue) && aValue.equals(bValue)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean comparePersonName(Filmography aPerson, Person bPerson) {
+        String aName = aPerson.getName();
+        String aTitle = aPerson.getTitle();
+        String bName = bPerson.getName();
+        String bTitle = bPerson.getTitle();
+        if (aName.equalsIgnoreCase(bName) || aTitle.equalsIgnoreCase(bTitle) || aName.equalsIgnoreCase(bTitle) || aTitle.equalsIgnoreCase(bName)) {
+            return true;
+        }
+
+        for (String name : bPerson.getAka()) {
+            if (aName.equalsIgnoreCase(name) || aTitle.equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean compareMovieAndFilm(Movie movie, Filmography film) {
         boolean dirty = false;
         for (Entry<String, String> e : movie.getIdMap().entrySet()) {
@@ -1826,6 +1864,13 @@ public class MovieJukebox {
                 // Don't think we need the DIRTY_INFO with the RECHECK, so long as it is checked for specifically
                 //movie.setDirty(Movie.DIRTY_INFO, true);
                 movie.setDirty(Movie.DIRTY_RECHECK, true);
+            }
+
+            if (peopleScan && movie.getPeople().size() == 0 && (movie.getCast().size() + movie.getWriters().size() + movie.getDirectors().size()) > 0) {
+                forceXMLOverwrite = true;
+                movie.clearWriters();
+                movie.clearDirectors();
+                movie.clearCast();
             }
         }
 
