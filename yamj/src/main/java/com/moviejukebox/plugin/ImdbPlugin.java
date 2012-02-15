@@ -171,7 +171,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             xml = webBrowser.request(xml, siteDef.getCharset());
 
-            if (xml.contains("\"tv-extra\"")) {
+            if (xml.contains("\"tv-extra\"") || xml.contains("\"tv-series-series\"")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
                     movie.setMovieType(Movie.TYPE_TVSHOW);
                     return false;
