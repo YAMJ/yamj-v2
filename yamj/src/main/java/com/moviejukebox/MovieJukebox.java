@@ -105,6 +105,7 @@ public class MovieJukebox {
     private static boolean dumpLibraryStructure = false;
     private static boolean showMemory = false;
     private static boolean peopleScan = false;
+    private static boolean skipPeopleScrape = false;
     private static int peopleMax = 10;
     private static int popularity = 5;
     private static String peopleFolder = "";
@@ -291,6 +292,7 @@ public class MovieJukebox {
 
         if (PropertiesUtil.getBooleanProperty("mjb.people", "false")) {
             peopleScan = true;
+            skipPeopleScrape = !PropertiesUtil.getBooleanProperty("mjb.people.scrape", "true");
             peopleMax = PropertiesUtil.getIntProperty("mjb.people.maxCount", "10");
             popularity = PropertiesUtil.getIntProperty("mjb.people.popularity", "5");
 
@@ -1050,7 +1052,7 @@ public class MovieJukebox {
             OpenSubtitlesPlugin.logOut();
             AniDbPlugin.anidbClose();
 
-            if (peopleScan) {
+            if (peopleScan && !skipPeopleScrape) {
                 logger.info("Searching for people information...");
                 int peopleCounter = 0;
                 TreeMap<String, Person> popularPeople = new TreeMap<String, Person>();
