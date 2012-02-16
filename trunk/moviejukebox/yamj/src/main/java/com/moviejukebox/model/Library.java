@@ -78,7 +78,7 @@ public class Library implements Map<String, Movie> {
     private TreeMap<String, Person> people = new TreeMap<String, Person>();
     private static boolean isDirty = false;
     private static boolean peopleScan = false;
-    private static boolean skipPeopleScrape = false;
+    private static boolean peopleScrape = true;
     private static boolean completePerson = true;
     // Static values for the year indexes
     private static final int currentYear = Calendar.getInstance().get(Calendar.YEAR);
@@ -165,7 +165,7 @@ public class Library implements Map<String, Movie> {
         charGroupEnglish = PropertiesUtil.getBooleanProperty("indexing.character.groupEnglish", "false");
         completePerson = PropertiesUtil.getBooleanProperty("indexing.completePerson", "true");
         peopleScan = PropertiesUtil.getBooleanProperty("mjb.people", "false");
-        skipPeopleScrape = !PropertiesUtil.getBooleanProperty("mjb.people.scrape", "true");
+        peopleScrape = PropertiesUtil.getBooleanProperty("mjb.people.scrape", "true");
         getNewCategoryProperties();
     }
 
@@ -978,7 +978,7 @@ public class Library implements Map<String, Movie> {
         Index index = new Index(true);
         for (Movie movie : list) {
             if (!movie.isExtra()) {
-                if (peopleScan && !skipPeopleScrape) {
+                if (peopleScan && peopleScrape) {
                     for (Filmography person : movie.getPeople()) {
                         if (!person.getDepartment().equalsIgnoreCase(Filmography.DEPT_ACTORS) || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
                             continue;
@@ -1046,7 +1046,7 @@ public class Library implements Map<String, Movie> {
         Index index = new Index(true);
         for (Movie movie : list) {
             if (!movie.isExtra()) {
-                if (peopleScan && !skipPeopleScrape) {
+                if (peopleScan && peopleScrape) {
                     for (Filmography person : movie.getPeople()) {
                         if (!person.getDepartment().equalsIgnoreCase(Filmography.DEPT_DIRECTING) || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
                             continue;
@@ -1073,7 +1073,7 @@ public class Library implements Map<String, Movie> {
         Index index = new Index(true);
         for (Movie movie : list) {
             if (!movie.isExtra()) {
-                if (peopleScan && !skipPeopleScrape) {
+                if (peopleScan && peopleScrape) {
                     for (Filmography person : movie.getPeople()) {
                         if (!person.getDepartment().equalsIgnoreCase(Filmography.DEPT_WRITING) || (completePerson && StringTools.isNotValidString(person.getFilename()))) {
                             continue;
