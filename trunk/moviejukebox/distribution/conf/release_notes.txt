@@ -66,8 +66,9 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2288 TV Episodes Not Scraping Studio/Company
  - Fixed defect #2289 Failed to create poster images for TV shows with special characters in title
  - Fixed defect #2290 RAR: Archive name added repeatedly to fileurl
- - Enhancement  #2305 get people link and photo inside detail xml page
+ - Enhancement  #2300 Separate YAMJpeople runs from the YAMJ normal run
  - Enhancement  #2301 Add Link to cast,director and writer indexes in person.xml
+ - Enhancement  #2305 get people link and photo inside detail xml page
  - Fixed defect #2310 People Scanner Not Working Correctly
  - Fixed defect #2311 People photo not retrieved
  - Fixed defect #2319 IMDB Genre scraping misses some genres
@@ -76,6 +77,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Enhancement  #2332 Option to scrape to movie persons only with photo
  - Fixed defect #2337 Issue with Filmweb plugin
  - Fixed defect #2338 Library indexing exception
+ - Enhancement  #2348 Optional sotring person index
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------

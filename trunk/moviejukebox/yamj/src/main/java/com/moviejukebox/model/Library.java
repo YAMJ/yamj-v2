@@ -80,6 +80,7 @@ public class Library implements Map<String, Movie> {
     private static boolean peopleScan = false;
     private static boolean peopleScrape = true;
     private static boolean completePerson = true;
+    private static String sortPeople = Movie.UNKNOWN;
     // Static values for the year indexes
     private static final int currentYear = Calendar.getInstance().get(Calendar.YEAR);
     private static final int finalYear = currentYear - 2;
@@ -166,6 +167,7 @@ public class Library implements Map<String, Movie> {
         completePerson = PropertiesUtil.getBooleanProperty("indexing.completePerson", "true");
         peopleScan = PropertiesUtil.getBooleanProperty("mjb.people", "false");
         peopleScrape = PropertiesUtil.getBooleanProperty("mjb.people.scrape", "true");
+        sortPeople = PropertiesUtil.getProperty("indexing.sort.people", Movie.UNKNOWN).toUpperCase();
         getNewCategoryProperties();
     }
 
@@ -1461,6 +1463,7 @@ public class Library implements Map<String, Movie> {
     static Top250Comparator cmp250 = new Top250Comparator();
     static RatingComparator cmpRating = new RatingComparator();
     static RatingsComparator cmpRatings = new RatingsComparator();
+    static ReleaseComparator cmpRelease = new ReleaseComparator(sortPeople.equals("ASC"));
 
     protected static Comparator<Movie> getComparator(String category, String key) {
         Comparator<Movie> cmpMovie = null;
@@ -1479,6 +1482,8 @@ public class Library implements Map<String, Movie> {
             }
         } else if (category.equals(INDEX_RATINGS)) {
             cmpMovie = cmpRatings;
+        } else if (category.equals(INDEX_PERSON) && StringTools.isValidString(sortPeople)) {
+            cmpMovie = cmpRelease;
         }
 
         return cmpMovie;
