@@ -78,6 +78,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2337 Issue with Filmweb plugin
  - Fixed defect #2338 Library indexing exception
  - Enhancement  #2348 Optional sotring person index
+ - Enhancement  #2349 Encoded filename of the index basename like categories has but only if the index exists
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------

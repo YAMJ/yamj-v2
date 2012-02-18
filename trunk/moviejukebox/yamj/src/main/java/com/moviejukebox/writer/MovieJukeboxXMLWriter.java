@@ -1954,6 +1954,10 @@ public class MovieJukeboxXMLWriter {
                     ePerson.setAttribute("order", Integer.toString(person.getOrder()));
                     ePerson.setAttribute("cast_id", Integer.toString(person.getCastId()));
                     ePerson.setAttribute("photoFile", person.getPhotoFilename());
+                    String inx = createIndexAttribute(library, Library.INDEX_PERSON, person.getName());
+                    if (inx != null) {
+                        ePerson.setAttribute("index", inx);
+                    }
                     ePerson.setTextContent(person.getFilename());
                     ePeople.appendChild(ePerson);
                 }
