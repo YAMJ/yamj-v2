@@ -368,8 +368,8 @@ public class Filmography {
     }
 
     public void setPhotoFilename() {
-        if (isValidString(getTitle()) && isNotValidString(photoFilename)) {
-            setPhotoFilename(getTitle() + ".jpg");
+        if (isValidString(filename) && isNotValidString(photoFilename)) {
+            setPhotoFilename(filename + ".jpg");
         }
     }
 

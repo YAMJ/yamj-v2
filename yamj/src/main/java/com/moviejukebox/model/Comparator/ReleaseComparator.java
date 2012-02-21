@@ -20,20 +20,33 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.StringTools.isValidString;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author ilgizar
  */
 public class ReleaseComparator extends YearComparator {
     private Locale locale = Locale.ENGLISH;
+    private String dateLocale = PropertiesUtil.getProperty("mjb.locale", "en_US");
+    private static Logger logger = Logger.getLogger(ReleaseComparator.class);
 
     public ReleaseComparator() {
         super(true);
+        setLocale();
     }
 
     public ReleaseComparator(boolean ascending) {
         super(ascending);
+        setLocale();
+    }
+
+    private void setLocale() {
+        if (isValidString(dateLocale) && (dateLocale.length() == 2 || dateLocale.length() == 5)) {
+            locale  = new Locale(dateLocale.substring(0, 2), dateLocale.length() == 2 ? "" : dateLocale.substring(3, 5));
+        }
     }
 
     @Override
@@ -60,14 +73,52 @@ public class ReleaseComparator extends YearComparator {
         SimpleDateFormat dstDate = new SimpleDateFormat("yyyyMMdd");
 
         // pattern for date: 05 December 1993
-        Pattern dateRegex = Pattern.compile("\\d{2} \\S+ \\d{4}");
+        Pattern dateRegex = Pattern.compile("(\\d{2}) (\\S+) (\\d{4})");
         Matcher dateMatch = dateRegex.matcher(date);
         if (dateMatch.find()) {
             SimpleDateFormat srcDate = new SimpleDateFormat("dd MMM yyyy", locale);
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(0)));
             } catch (ParseException e) {
-                 e.printStackTrace();
+            }
+
+            try {
+                return dstDate.format(srcDate.parse(dateMatch.group(1) + " " + correctShortMonth(dateMatch.group(2).substring(0, 3)) + " " + dateMatch.group(3)));
+            } catch (ParseException e) {
+            }
+
+            srcDate = new SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH);
+            try {
+                return dstDate.format(srcDate.parse(dateMatch.group(0)));
+            } catch (ParseException e) {
+                logger.debug("ReleaseComparator: Unparseable date: " + dateMatch.group(0) + " (" + dateLocale + ")");
+            }
+
+            return Movie.UNKNOWN;
+        } else {
+            // pattern for date: December 1993
+            dateRegex = Pattern.compile("(\\S+) (\\d{4})");
+            dateMatch = dateRegex.matcher(date);
+            if (dateMatch.find()) {
+                SimpleDateFormat srcDate = new SimpleDateFormat("MMM yyyy", locale);
+                try {
+                    return dstDate.format(srcDate.parse(dateMatch.group(0)));
+                } catch (ParseException e) {
+                }
+
+                try {
+                    return dstDate.format(srcDate.parse(correctShortMonth(dateMatch.group(1).substring(0, 3)) + " " + dateMatch.group(2)));
+                } catch (ParseException e) {
+                }
+
+                srcDate = new SimpleDateFormat("MMM yyyy", Locale.ENGLISH);
+                try {
+                    return dstDate.format(srcDate.parse(dateMatch.group(0)));
+                } catch (ParseException e) {
+                    logger.debug("ReleaseComparator: Unparseable date: " + dateMatch.group(0) + " (" + dateLocale + ")");
+                }
+
+                return Movie.UNKNOWN;
             }
         }
 
@@ -79,7 +130,6 @@ public class ReleaseComparator extends YearComparator {
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(0)));
             } catch (ParseException e) {
-                 e.printStackTrace();
             }
         }
 
@@ -91,7 +141,6 @@ public class ReleaseComparator extends YearComparator {
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(0)));
             } catch (ParseException e) {
-                 e.printStackTrace();
             }
         }
 
@@ -103,7 +152,6 @@ public class ReleaseComparator extends YearComparator {
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(0)));
             } catch (ParseException e) {
-                 e.printStackTrace();
             }
         }
 
@@ -115,22 +163,18 @@ public class ReleaseComparator extends YearComparator {
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(0)));
             } catch (ParseException e) {
-                 e.printStackTrace();
-            }
-        }
-
-        // pattern for date: December 1993
-        dateRegex = Pattern.compile("\\S+ \\d{4}");
-        dateMatch = dateRegex.matcher(date);
-        if (dateMatch.find()) {
-            SimpleDateFormat srcDate = new SimpleDateFormat("MMM yyyy", locale);
-            try {
-                return dstDate.format(srcDate.parse(dateMatch.group(0)));
-            } catch (ParseException e) {
-                e.printStackTrace();
             }
         }
 
         return Movie.UNKNOWN;
+    }
+
+    private String correctShortMonth(String month) {
+        if (dateLocale.equals("ru_RU")) {
+            if (month.equals("мая")) {
+                month = "май";
+            }
+        }
+        return month;
     }
 }

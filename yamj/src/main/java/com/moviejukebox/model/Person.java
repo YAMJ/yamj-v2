@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  *  This is the new bean for the Person
@@ -41,11 +42,15 @@ public class Person extends Filmography {
     private String  birthPlace            = UNKNOWN;
     private int     popularity            = 1;
     private String  lastModifiedAt;
+    private String backdropFilename       = UNKNOWN;
+    private String backdropURL            = UNKNOWN;
+    private boolean isDirtyBackdrop       = false;
     private List<Filmography> filmography = new ArrayList<Filmography>();
     private List<String>      aka         = new ArrayList<String>();
     private List<String>      departments = new ArrayList<String>();
     private List<Movie>       movies      = new ArrayList<Movie>();
     private Map<String, String> indexes   = new HashMap<String, String>();
+    private String backdropToken          = PropertiesUtil.getProperty("mjb.scanner.backdropToken", ".backdrop");
 
     public Person() {
     }
@@ -99,8 +104,11 @@ public class Person extends Filmography {
         setDepartments(person.getDepartments());
         setLastModifiedAt(person.getLastModifiedAt());
         setIndexes(person.getIndexes());
+        setBackdropURL(person.getBackdropURL());
+        setBackdropFilename(person.getBackdropFilename());
 
         setDirtyPhoto(person.isDirtyPhoto());
+        setDirtyBackdrop(person.isDirtyBackdrop());
         setDirty(person.isDirty());
     }
 
@@ -274,5 +282,55 @@ public class Person extends Filmography {
 
     public void setIndexes(Map<String, String> indexes) {
         this.indexes = new HashMap<String, String>(indexes);
+    }
+
+    public String getBackdropURL() {
+        return backdropURL;
+    }
+
+    public String getBackdropFilename() {
+        return backdropFilename;
+    }
+
+    public void setBackdropURL(String URL) {
+        if (isValidString(URL) && !backdropURL.equalsIgnoreCase(URL)) {
+            backdropURL = URL;
+            setDirty();
+        }
+    }
+
+    public void setBackdropFilename(String filename) {
+        if (isValidString(filename) && !this.backdropFilename.equalsIgnoreCase(FileTools.makeSafeFilename(filename))) {
+            this.backdropFilename = FileTools.makeSafeFilename(filename);
+            setDirty();
+        }
+    }
+
+    public void setBackdropFilename() {
+        if (isValidString(getFilename()) && isNotValidString(backdropFilename)) {
+            setBackdropFilename(getFilename() + backdropToken + ".jpg");
+        }
+    }
+
+    public void clearBackdropFilename() {
+        if (!this.backdropFilename.equals(UNKNOWN)) {
+            this.backdropFilename = UNKNOWN;
+            setDirty();
+        }
+    }
+
+    public boolean isDirtyBackdrop() {
+        return isDirtyBackdrop;
+    }
+
+    public void setDirtyBackdrop(boolean isDirty) {
+        if (isDirtyBackdrop != isDirty) {
+            isDirtyBackdrop = isDirty;
+            setDirty();
+        }
+    }
+
+    public void setDirtyBackdrop() {
+        setDirtyBackdrop(true);
     }
 }
