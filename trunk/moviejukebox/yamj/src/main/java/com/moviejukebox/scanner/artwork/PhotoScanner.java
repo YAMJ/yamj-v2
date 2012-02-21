@@ -75,7 +75,7 @@ public class PhotoScanner {
      * @param person
      */
     public static boolean scan(MovieImagePlugin imagePlugin, Jukebox jukebox, Person person) {
-        String localPhotoBaseFilename = person.getName();
+        String localPhotoBaseFilename = person.getFilename();
         File localPhotoFile = null;
         boolean foundLocalPhoto = false;
 

@@ -950,6 +950,14 @@ public class MovieJukeboxXMLWriter {
                     person.setPhotoURL(parseCData(r));
                     continue;
                 }
+                if (tag.equalsIgnoreCase("<backdropFile>")) {
+                    person.setBackdropFilename(parseCData(r));
+                    continue;
+                }
+                if (tag.equalsIgnoreCase("<backdropURL>")) {
+                    person.setBackdropURL(parseCData(r));
+                    continue;
+                }
                 if (tag.equalsIgnoreCase("<knownMovies>")) {
                     person.setKnownMovies(Integer.parseInt(parseCData(r)));
                     continue;
@@ -1377,6 +1385,19 @@ public class MovieJukeboxXMLWriter {
                             }
                         }
 
+                        if (skipIndex && Library.INDEX_PERSON.equalsIgnoreCase(idx.categoryName)) {
+                            for (Person person : library.getPeople()) {
+                                if (!person.getName().equalsIgnoreCase(idx.key)) {
+                                    continue;
+                                }
+                                if (!person.isDirty()) {
+                                    continue;
+                                }
+                                skipIndex = false;
+                                break;
+                            }
+                        }
+
                         if (skipIndex) {
                             logger.debug("Category " + categoryPath + " no change detected, skipping XML generation.");
                         } else {
@@ -1508,6 +1529,16 @@ public class MovieJukeboxXMLWriter {
                 eCategory.setAttribute("count", String.valueOf(categoryCount));
                 eLibrary.appendChild(eCategory);
                 libraryCount++;
+            }
+        }
+
+        if (Library.INDEX_PERSON.equalsIgnoreCase(idx.categoryName)) {
+            for (Person person : library.getPeople()) {
+                if (!person.getName().equalsIgnoreCase(idx.key)) {
+                    continue;
+                }
+                eLibrary.appendChild(writePerson(xmlDoc, person));
+                break;
             }
         }
 
@@ -2233,6 +2264,8 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, ePerson, "url", person.getUrl());
         DOMHelper.appendChild(doc, ePerson, "photoFile", person.getPhotoFilename());
         DOMHelper.appendChild(doc, ePerson, "photoURL", person.getPhotoURL());
+        DOMHelper.appendChild(doc, ePerson, "backdropFile", person.getBackdropFilename());
+        DOMHelper.appendChild(doc, ePerson, "backdropURL", person.getBackdropURL());
         DOMHelper.appendChild(doc, ePerson, "knownMovies", String.valueOf(person.getKnownMovies()));
 
         if (person.getFilmography().size() > 0) {

@@ -1112,6 +1112,31 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 if (xml.indexOf("http://st.kinopoisk.ru/images/actor/" + kinopoiskId + ".jpg") > -1 && StringTools.isNotValidString(person.getPhotoURL())) {
                     person.setPhotoURL("http://st.kinopoisk.ru/images/actor/" + kinopoiskId + ".jpg");
                 }
+
+                if (xml.indexOf("/level/12/people/" + kinopoiskId + "/") > -1 && StringTools.isNotValidString(person.getBackdropURL())) {
+                    xml = webBrowser.request("http://www.kinopoisk.ru/level/12/people/" + kinopoiskId + "/");
+                    if (StringTools.isValidString(xml)) {
+                        String size = Movie.UNKNOWN;
+                        if (xml.indexOf("/w_size/1600/") > -1) {
+                            size = "1600";
+                        } else if (xml.indexOf("/w_size/1280/") > -1) {
+                            size = "1280";
+                        } else if (xml.indexOf("/w_size/1024/") > -1) {
+                            size = "1024";
+                        }
+                        if (StringTools.isValidString(size)) {
+                            String id = xml.substring(xml.indexOf("/w_size/" + size + "/") - 25, xml.indexOf("/w_size/" + size + "/"));
+                            id = id.substring(id.indexOf("/picture/") + 9);
+                            xml = webBrowser.request("http://www.kinopoisk.ru/picture/" + id + "/w_size/" + size + "/");
+                            if (StringTools.isValidString(xml)) {
+                                int beginInx = xml.indexOf("http://st.kinopoisk.ru/im/wallpaper");
+                                if (beginInx > -1) {
+                                    person.setBackdropURL(xml.substring(beginInx, xml.indexOf("\"", beginInx)));
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             if (!preferredRating.equals("imdb")) {
@@ -1260,25 +1285,26 @@ public class KinopoiskPlugin extends ImdbPlugin {
             sb = sb.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
             sb = "&m_act[find]=" + URLEncoder.encode(sb, "UTF-8").replace(" ", "+");
 
-            sb = "http://www.kinopoisk.ru/index.php?level=7&from=forma&result=adv&m_act[from]=forma&m_act[what]=actor" + sb + "&m_act[work]=" + mode;
-            String xml = webBrowser.request(sb);
+            for (int step = 0; step < 3 && StringTools.isNotValidString(personId); step++) {
+                String xml = webBrowser.request("http://www.kinopoisk.ru/index.php?level=7&from=forma&result=adv&m_act[from]=forma" + (step < 2 ? ("&m_act[what]=actor") : "") + sb + (step == 0 ? ("&m_act[work]=" + mode) : ""));
 
-            // Checking for zero results
-            int beginIndex = xml.indexOf("class=\"search_results\"");
-            if (beginIndex > 0) {
-                // Checking if we got the person page directly
-                int beginInx = xml.indexOf("id_actor = ");
-                if (beginInx == -1) {
-                    // It's search results page, searching a link to the person page
-                    beginIndex = xml.indexOf("/level/4/people/", beginIndex);
-                    if (beginIndex != -1) {
-                        StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 16), "/");
+                // Checking for zero results
+                int beginIndex = xml.indexOf("class=\"search_results\"");
+                if (beginIndex > 0) {
+                    // Checking if we got the person page directly
+                    int beginInx = xml.indexOf("id_actor = ");
+                    if (beginInx == -1) {
+                        // It's search results page, searching a link to the person page
+                        beginIndex = xml.indexOf("/level/4/people/", beginIndex);
+                        if (beginIndex != -1) {
+                            StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 16), "/");
+                            personId = st.nextToken();
+                        }
+                    } else {
+                        // It's the person page
+                        StringTokenizer st = new StringTokenizer(xml.substring(beginInx + 11), ";");
                         personId = st.nextToken();
                     }
-                } else {
-                    // It's the person page
-                    StringTokenizer st = new StringTokenizer(xml.substring(beginInx + 11), ";");
-                    personId = st.nextToken();
                 }
             }
         } catch (Exception error) {

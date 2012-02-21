@@ -79,6 +79,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2338 Library indexing exception
  - Enhancement  #2348 Optional sotring person index
  - Enhancement  #2349 Encoded filename of the index basename like categories has but only if the index exists
+ - Enhancement  #2350 Personal information to person index
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------

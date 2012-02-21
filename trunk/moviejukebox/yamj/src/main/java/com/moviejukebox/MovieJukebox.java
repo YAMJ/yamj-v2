@@ -96,6 +96,7 @@ public class MovieJukebox {
     private static boolean videoimageDownload;
     private static boolean bannerDownload;
     private static boolean photoDownload;
+    private static boolean backdropDownload;
     private static boolean extraArtworkDownload;    // TODO: Rename this property and split it into clearlogo/clearart/tvthumb/seasonthumb
     private static boolean enableRottenTomatoes;
     private boolean moviejukeboxListing;
@@ -772,6 +773,7 @@ public class MovieJukebox {
         extraArtworkDownload = PropertiesUtil.getBooleanProperty("mjb.includeExtraArtwork", "false");
         enableRottenTomatoes = PropertiesUtil.getBooleanProperty("mjb.enableRottenTomatoes", "false");
         photoDownload = PropertiesUtil.getBooleanProperty("mjb.includePhoto", "false");
+        backdropDownload = PropertiesUtil.getBooleanProperty("mjb.includeBackdrop", "false");
         boolean processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", "true");
 
         // Multi-thread: Processing thread settings
@@ -2055,6 +2057,10 @@ public class MovieJukebox {
 
         if (photoDownload) {
             PhotoScanner.scan(imagePlugin, jukebox, person);
+        }
+
+        if (backdropDownload) {
+            BackdropScanner.scan(imagePlugin, jukebox, person);
         }
     }
 
