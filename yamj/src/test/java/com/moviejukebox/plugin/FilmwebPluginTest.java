@@ -217,7 +217,7 @@ public class FilmwebPluginTest extends TestCase {
 
     public void testUpdateMediaInfoYear() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Seksmisja");
-        filmwebPlugin.setRequestResult("<span id=filmYear class=filmYear>1983</span>");
+        filmwebPlugin.setRequestResult("<span id=filmYear class=filmYear> (1983) </span>");
         filmwebPlugin.updateMediaInfo(movie);
         assertEquals("1983", movie.getYear());
     }

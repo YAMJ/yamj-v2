@@ -261,7 +261,11 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (!movie.isOverrideYear()) {
-                movie.setYear(HTMLTools.getTextAfterElem(xml, "filmYear"));
+                String year = HTMLTools.getTextAfterElem(xml, "filmYear");
+                if (!Movie.UNKNOWN.equals(year)) {
+                    year = year.replaceAll("[^0-9]", "");
+                }
+                movie.setYear(year);
             }
 
             if (movie.getCast().isEmpty()) {
