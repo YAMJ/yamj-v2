@@ -98,6 +98,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
     boolean clearAward = PropertiesUtil.getBooleanProperty("kinopoisk.clear.award", "false");
     boolean clearTrivia = PropertiesUtil.getBooleanProperty("kinopoisk.clear.trivia", "false");
 
+    boolean translitCountry = PropertiesUtil.getBooleanProperty("kinopoisk.translit.country", "false");
+
     String etalonId = PropertiesUtil.getProperty("kinopoisk.etalon", "251733");
 
     // Personal information
@@ -484,7 +486,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 if (!NFOcountry) {
                     Collection<String> country = HTMLTools.extractTags(item, ">страна<", "</tr>", "<a href=\"/level/10", "</a>");
                     if (country != null && country.size() > 0) {
-                        movie.setCountry(countryAll?StringUtils.join(country, " / "):new ArrayList<String>(country).get(0));
+                        String strCountry = countryAll?StringUtils.join(country, " / "):new ArrayList<String>(country).get(0);
+                        if (translitCountry) {
+                            strCountry = FileTools.makeSafeFilename(strCountry);
+                        }
+                        movie.setCountry(strCountry);
                         countryFounded = true;
                     }
                 }
@@ -551,7 +557,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     logger.error("KinopoiskPlugin: Site design changed - failed get certification!");
                 }
                 if (!countryFounded) {
-                        logger.error("KinopoiskPlugin: Site design changed - failed get country!");
+                    logger.error("KinopoiskPlugin: Site design changed - failed get country!");
                 }
                 if (!yearFounded) {
                     logger.error("KinopoiskPlugin: Site design changed - failed get year!");
