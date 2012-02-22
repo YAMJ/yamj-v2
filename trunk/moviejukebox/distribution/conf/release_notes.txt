@@ -71,6 +71,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Enhancement  #2305 get people link and photo inside detail xml page
  - Fixed defect #2310 People Scanner Not Working Correctly
  - Fixed defect #2311 People photo not retrieved
+ - Enhancement  #2313 Add maxcount to categories parameter
  - Fixed defect #2319 IMDB Genre scraping misses some genres
  - Enhancement  #2326 Overlay xml and awards
  - Fixed defect #2328 Watched and NFO error - recreates file data every run

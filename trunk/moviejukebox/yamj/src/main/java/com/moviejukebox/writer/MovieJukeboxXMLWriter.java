@@ -14,6 +14,7 @@ package com.moviejukebox.writer;
 
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Comparator.CertificationComparator;
+import com.moviejukebox.model.Comparator.IndexComparator;
 import com.moviejukebox.model.Comparator.SortIgnorePrefixesComparator;
 import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.ImdbPlugin;
@@ -77,7 +78,7 @@ public class MovieJukeboxXMLWriter {
     private boolean beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", Boolean.FALSE.toString());
     private static String strCategoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
-    private static int categoryMinCountMaster = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3");
+    private static List<String> categoriesLimitList = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.limitList", "Cast,Director,Writer,Person").split(","));
     private static Logger logger = Logger.getLogger(MovieJukeboxXMLWriter.class);
     private static boolean writeNfoFiles;
     private static boolean writeSimpleNfoFiles;
@@ -1078,7 +1079,7 @@ public class MovieJukeboxXMLWriter {
         // Issue 1148, generate category in the order specified in properties
         logger.info("  Indexing " + filename + "...");
         for (String categoryName : categoriesDisplayList) {
-            int categoryMinCount = calcMinCategoryCount(categoryName);
+            int categoryMinCount = Library.calcMinCategoryCount(categoryName);
             int categoryCount = 0;
 
             for (Entry<String, Index> category : library.getIndexes().entrySet()) {
@@ -1245,13 +1246,22 @@ public class MovieJukeboxXMLWriter {
 
         tasks.restart();
 
-        for (final Map.Entry<String, Index> category : library.getIndexes().entrySet()) {
+        for (Map.Entry<String, Index> category : library.getIndexes().entrySet()) {
             final String categoryName = category.getKey();
             Map<String, List<Movie>> index = category.getValue();
-            final int categoryMinCount = calcMinCategoryCount(categoryName);
+            final int categoryMinCount = Library.calcMinCategoryCount(categoryName);
+            int categoryMaxCount = Library.calcMaxCategoryCount(categoryName);
+            final int movieMaxCount = Library.calcMaxMovieCount(categoryName);
+            final boolean toLimitCategory = categoriesLimitList.contains(categoryName);
 
-            logger.info("  Indexing " + categoryName + " (" + (++indexCount) + "/" + indexSize + ") contains " + index.size() + " indexes");
-            for (final Map.Entry<String, List<Movie>> group : index.entrySet()) {
+            logger.info("  Indexing " + categoryName + " (" + (++indexCount) + "/" + indexSize + ") contains " + index.size() + " indexes" + (toLimitCategory && categoryMaxCount > 0 && index.size() > categoryMaxCount ? (" (limit to " + categoryMaxCount + ")") : ""));
+            ArrayList<Map.Entry<String, List<Movie>>> groupArray = new ArrayList<Map.Entry<String, List<Movie>>>(index.entrySet());
+            Collections.sort(groupArray, new IndexComparator(library, categoryName));
+            Iterator<Map.Entry<String, List<Movie>>> itr = groupArray.iterator();
+            groupArray = null;
+            int currentCategoryCount = 0;
+            while (itr.hasNext()) {
+                final Map.Entry<String, List<Movie>> group = itr.next();
                 tasks.submit(new Callable<Void>() {
 
                     @Override
@@ -1362,6 +1372,13 @@ public class MovieJukeboxXMLWriter {
                             }
                         }
 
+                        if (toLimitCategory && movieMaxCount > 0 && tmpMovieList.size() > movieMaxCount) {
+                            logger.debug("Limiting category " + categoryName + " " + key + " " + tmpMovieList.size() + " -> " + movieMaxCount);
+                            while (tmpMovieList.size() > movieMaxCount) {
+                                tmpMovieList.remove(tmpMovieList.size() - 1);
+                            }
+                        }
+
                         int last = 1 + (tmpMovieList.size() - 1) / nbVideosPerPage;
                         int previous = last;
                         moviepos = 0;
@@ -1406,7 +1423,7 @@ public class MovieJukeboxXMLWriter {
                                 // All pages are handled here
                                 next = (current % last) + 1; // this gives 1 for last
                                 writeIndexPage(library, tmpMovieList.subList(moviepos, Math.min(moviepos + nbVideosPerPage, tmpMovieList.size())),
-                                        jukebox.getJukeboxTempLocationDetails(), idx, previous, current, next, last);
+                                        jukebox.getJukeboxTempLocationDetails(), idx, previous, current, next, last, tmpMovieList.size());
 
                                 moviepos += nbVideosPerPage;
                                 previous = current;
@@ -1417,6 +1434,10 @@ public class MovieJukeboxXMLWriter {
                         return null;
                     }
                 });
+                currentCategoryCount++;
+                if (toLimitCategory && categoryMaxCount > 0 && currentCategoryCount >= categoryMaxCount) {
+                    break;
+                }
             }
         }
         tasks.waitFor();
@@ -1434,7 +1455,7 @@ public class MovieJukeboxXMLWriter {
      * @param next
      * @param last
      */
-    public void writeIndexPage(Library library, List<Movie> movies, String rootPath, IndexInfo idx, int previous, int current, int next, int last) {
+    public void writeIndexPage(Library library, List<Movie> movies, String rootPath, IndexInfo idx, int previous, int current, int next, int last, int indexCount) {
         String prefix = idx.baseName;
         File xmlFile = new File(rootPath, prefix + current + EXT_XML);
 
@@ -1547,7 +1568,8 @@ public class MovieJukeboxXMLWriter {
         eMovies.setAttribute("cols", String.valueOf(idx.videosPerLine));
         eMovies.setAttribute("count", String.valueOf(idx.videosPerPage));
 
-        eMovies.setAttribute("indexCount", String.valueOf(library.getMovieCountForIndex(idx.categoryName, idx.key)));
+        //eMovies.setAttribute("indexCount", String.valueOf(library.getMovieCountForIndex(idx.categoryName, idx.key)));
+        eMovies.setAttribute("indexCount", String.valueOf(indexCount));
         eMovies.setAttribute("totalCount", String.valueOf(library.getMovieCountForIndex(Library.INDEX_OTHER, Library.INDEX_ALL)));
 
         if (fullMovieInfoInIndexes) {
@@ -1585,7 +1607,7 @@ public class MovieJukeboxXMLWriter {
         }
 
         // FIXME This is horrible! Issue 735 will get rid of it.
-        if (indexSize < calcMinCategoryCount(categoryName) && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
+        if (indexSize < Library.calcMinCategoryCount(categoryName) && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
             return null;
         }
 
@@ -1707,29 +1729,13 @@ public class MovieJukeboxXMLWriter {
 
         Index index = library.getIndexes().get(categoryName);
         if (null != index) {
-            int categoryMinCount = calcMinCategoryCount(categoryName);
+            int categoryMinCount = Library.calcMinCategoryCount(categoryName);
 
             if (library.getMovieCountForIndex(categoryName, value) >= categoryMinCount) {
                 return HTMLTools.encodeUrl(FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, value)) + 1);
             }
         }
         return null;
-    }
-
-    /**
-     * Calculate the minimum count for a category based on it's property value.
-     *
-     * @param categoryName
-     * @return
-     */
-    private int calcMinCategoryCount(String categoryName) {
-        int categoryMinCount;
-        try {
-            categoryMinCount = PropertiesUtil.getIntProperty("mjb.categories.minCount." + categoryName, String.valueOf(categoryMinCountMaster));
-        } catch (Exception ignore) {
-            categoryMinCount = categoryMinCountMaster;
-        }
-        return categoryMinCount;
     }
 
     /**

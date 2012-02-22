@@ -44,9 +44,6 @@ public class MovieJukeboxHTMLWriter {
     private String peopleFolder;
     private static String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
     private static TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    // private static String str_categoriesIndexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Rating,Year,Library,Set");
-    // private static List<String> categoriesIndexList = Arrays.asList(str_categoriesIndexList.split(","));
-    // private static int categoriesMinCount = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3"));
     private static String playlistIgnoreExtensions = PropertiesUtil.getProperty("mjb.playlist.IgnoreExtensions", "iso,img");
     private static File playlistFile = new File("playlist.xsl");
     private static String indexHtmFile = "../" + PropertiesUtil.getProperty("mjb.indexFile", "index.htm");

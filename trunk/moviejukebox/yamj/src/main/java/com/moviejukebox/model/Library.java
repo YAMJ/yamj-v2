@@ -50,6 +50,8 @@ public class Library implements Map<String, Movie> {
     private Map<String, Index> unCompressedIndexes = new LinkedHashMap<String, Index>();
     private static DecimalFormat paddedFormat = new DecimalFormat("000"); // Issue 190
     private static int categoryMinCountMaster = 3;
+    private static int categoryMaxCountMaster = 0;
+    private static int movieMaxCountMaster = 0;
     private static int maxGenresPerMovie = 3;
     private static int newMovieCount;
     private static long newMovieDays;
@@ -122,6 +124,8 @@ public class Library implements Map<String, Movie> {
 
     static {
         categoryMinCountMaster = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3");
+        categoryMaxCountMaster = PropertiesUtil.getIntProperty("mjb.categories.maxCount", "0");
+        movieMaxCountMaster = PropertiesUtil.getIntProperty("mjb.movies.maxCount", "0");
         minSetCount = PropertiesUtil.getIntProperty("mjb.sets.minSetCount", "2");
         setsRequireAll = PropertiesUtil.getBooleanProperty("mjb.sets.requireAll", "false");
         setsRating = PropertiesUtil.getProperty("mjb.sets.rating", "first");
@@ -1024,14 +1028,44 @@ public class Library implements Map<String, Movie> {
      * @param categoryName
      * @return
      */
-    protected static int calcMinCategoryCount(String categoryName) {
-        int categoryMinCount;
+    public static int calcMinCategoryCount(String categoryName) {
+        return calcCategoryCount(categoryName, true, false);
+    }
+
+    /**
+     * Calculate the maximum count for a category based on it's property value.
+     *
+     * @param categoryName
+     * @return
+     */
+    public static int calcMaxCategoryCount(String categoryName) {
+        return calcCategoryCount(categoryName, false, false);
+    }
+
+    /**
+     * Calculate the maximum count for a movie based on it's property value.
+     *
+     * @param categoryName
+     * @return
+     */
+    public static int calcMaxMovieCount(String categoryName) {
+        return calcCategoryCount(categoryName, false, true);
+    }
+
+    /**
+     * Calculate the minimum/maximum count for a category/movie based on it's property value.
+     *
+     * @param categoryName
+     * @return
+     */
+    public static int calcCategoryCount(String categoryName, boolean getMinimum, boolean byMovie) {
+        int categoryMaxCount;
         try {
-            categoryMinCount = PropertiesUtil.getIntProperty("mjb.categories.minCount." + categoryName, String.valueOf(categoryMinCountMaster));
+            categoryMaxCount = PropertiesUtil.getIntProperty("mjb." + (byMovie ? "movies." : "categories.") + (getMinimum ? "minCount." : "maxCount.") + categoryName, String.valueOf(getMinimum ? categoryMinCountMaster : byMovie ? movieMaxCountMaster : categoryMaxCountMaster));
         } catch (Exception ignore) {
-            categoryMinCount = categoryMinCountMaster;
+            categoryMaxCount = getMinimum ? categoryMinCountMaster : byMovie ? movieMaxCountMaster : categoryMaxCountMaster;
         }
-        return categoryMinCount;
+        return categoryMaxCount;
     }
 
     protected static Index indexByCountry(List<Movie> list) {
