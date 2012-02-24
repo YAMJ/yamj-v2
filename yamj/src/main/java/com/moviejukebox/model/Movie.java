@@ -63,7 +63,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public static final String TYPE_DVD = "DVD"; // Used to indicate what physical format the video is
     public static final String TYPE_FILE = "FILE"; // Used to indicate what physical format the video is
     public static final String TYPE_PERSON = "PERSON";
-    private static final String SPACE_SLASH_SPACE = " / ";
+    public static final String SPACE_SLASH_SPACE = " / ";
     private String mjbVersion = UNKNOWN;
     private String mjbRevision = UNKNOWN;
     private DateTime mjbGenerationDate = null;
@@ -127,6 +127,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String videoSource = UNKNOWN;
     private String videoOutput = UNKNOWN;
     private float fps = 60;
+    private String videobitrate = UNKNOWN;
+    private String audiobitrate = UNKNOWN;
     private String certification = UNKNOWN;
     private String showStatus = UNKNOWN;    // For TV shows a status such as "Continuing" or "Ended"
     private boolean scrapeLibrary;
@@ -496,7 +498,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 if (firstCodec) {
                     firstCodec = Boolean.FALSE;
                 } else {
-                    sb.append(" / ");
+                    sb.append(SPACE_SLASH_SPACE);
                 }
 
                 if (StringTools.isValidString(audioCodec.getCodecIdHint())) {
@@ -632,6 +634,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public float getFps() {
         return fps;
+    }
+
+    public String getVBitRate() {
+        return videobitrate;
+    }
+
+    public String getABitRate() {
+        return audiobitrate;
     }
 
     @XmlElementWrapper(name = "genres")
@@ -1266,6 +1276,26 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
+    public void setVBitRate(String videobitrate) {
+        if (videobitrate == null) {
+            videobitrate = UNKNOWN;
+        }
+        if (!videobitrate.equalsIgnoreCase(this.videobitrate)) {
+            setDirty(DIRTY_INFO, true);
+            this.videobitrate = videobitrate;
+        }
+    }
+
+    public void setABitRate(String audiobitrate) {
+        if (audiobitrate == null) {
+            audiobitrate = UNKNOWN;
+        }
+        if (!audiobitrate.equalsIgnoreCase(this.audiobitrate)) {
+            setDirty(DIRTY_INFO, true);
+            this.audiobitrate = audiobitrate;
+        }
+    }
+
     public void setGenres(Collection<String> genresToAdd) {
         if (!extra) {
             // Only check if the skip list isn't empty
@@ -1757,6 +1787,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         sb.append("[videoSource=").append(videoSource).append("]");
         sb.append("[videoOutput=").append(videoOutput).append("]");
         sb.append("[fps=").append(fps).append("]");
+        sb.append("[videoBitRate=").append(videobitrate).append("]");
+        sb.append("[audioBitRate=").append(audiobitrate).append("]");
         sb.append("[certification=").append(certification).append("]");
         sb.append("[cast=").append(cast).append("]");
         sb.append("[writers=").append(writers).append("]");
@@ -2501,6 +2533,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.videoSource = aMovie.videoSource;
         newMovie.videoOutput = aMovie.videoOutput;
         newMovie.fps = aMovie.fps;
+        newMovie.videobitrate = aMovie.videobitrate;
+        newMovie.audiobitrate = aMovie.audiobitrate;
         newMovie.certification = aMovie.certification;
         newMovie.showStatus = aMovie.showStatus;
         newMovie.scrapeLibrary = aMovie.scrapeLibrary;

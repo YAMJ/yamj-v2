@@ -30,6 +30,7 @@ public class Codec {
     private String codecFormatProfile = Movie.UNKNOWN;
     private String codecLanguage = Movie.UNKNOWN;
     private String codecFullLanguage = Movie.UNKNOWN;   // Determined automatically from the codecLanguage
+    private String codecBitRate = Movie.UNKNOWN;
     private int codecChannels = 0;
     /*
      * List of the expected names in the MediaInfo data
@@ -42,6 +43,7 @@ public class Codec {
     public static final String MI_CODEC_FORMAT_PROFILE = "Format profile";
     public static final String MI_CODEC_LANGUAGE = "Language";
     public static final String MI_CODEC_CHANNELS = "Channel(s)";
+    public static final String MI_CODEC_BITRATE = "Bit rate";
 
     /**
      * Constructor with just the codec type
@@ -125,6 +127,14 @@ public class Codec {
     }
     }
 
+    public void setCodecBitRate(String codecBitRate) {
+        if (StringUtils.isBlank(codecBitRate)) {
+            this.codecBitRate = Movie.UNKNOWN;
+        } else {
+            this.codecBitRate = codecBitRate;
+        }
+    }
+
     public void setCodecChannels(int codecChannels) {
         this.codecChannels = codecChannels;
     }
@@ -165,6 +175,10 @@ public class Codec {
         return codecLanguage;
     }
 
+    public String getCodecBitRate() {
+        return codecBitRate;
+    }
+
     public int getCodecChannels() {
         return codecChannels;
     }
@@ -190,6 +204,7 @@ public class Codec {
         sb.append("], [codecFormatVersion=").append(codecFormatVersion);
         sb.append("], [codecFormatProfile=").append(codecFormatProfile);
         sb.append("], [codecLanguage=").append(codecLanguage);
+        sb.append("], [codecBitRate=").append(codecBitRate);
         sb.append("], [codecChannels=").append(codecChannels);
         sb.append("]]");
         return sb.toString();

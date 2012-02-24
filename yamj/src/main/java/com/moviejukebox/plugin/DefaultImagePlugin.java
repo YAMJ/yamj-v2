@@ -507,7 +507,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         } else if (name.equalsIgnoreCase("audiocodec") || name.equalsIgnoreCase("acodec") || name.equalsIgnoreCase("AC")) {
                             value = movie.getAudioCodec();
                             if (!blockAudioCodec) {
-                                int pos = value.indexOf(" / ");
+                                int pos = value.indexOf(Movie.SPACE_SLASH_SPACE);
                                 if (pos > -1) {
                                     value = value.substring(0, pos);
                                 }
@@ -522,7 +522,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             }
                         } else if (name.equalsIgnoreCase("audiolang") || name.equalsIgnoreCase("alang") || name.equalsIgnoreCase("AL")) {
                             value = "";
-                            for (String tmp : movie.getAudioCodec().split(" / ")) {
+                            for (String tmp : movie.getAudioCodec().split(Movie.SPACE_SLASH_SPACE)) {
                                 if (tmp.indexOf(" (") > 0 && tmp.indexOf(" (") < tmp.indexOf(")")) {
                                     tmp = tmp.substring(tmp.indexOf(" (") + 2, tmp.indexOf(")"));
                                 } else {
@@ -533,7 +533,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     break;
                                 }
                                 if (!value.equals("")) {
-                                    value += " / ";
+                                    value += Movie.SPACE_SLASH_SPACE;
                                 }
                                 value += tmp;
                             }
@@ -543,7 +543,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         } else if (name.equalsIgnoreCase("audiochannels") || name.equalsIgnoreCase("channels")) {
                             value = movie.getAudioChannels();
                             if (!blockAudioChannels) {
-                                int pos = value.indexOf(" / ");
+                                int pos = value.indexOf(Movie.SPACE_SLASH_SPACE);
                                 if (pos > -1) {
                                     value = value.substring(0, pos);
                                 }
@@ -566,7 +566,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     if (first) {
                                         first = false;
                                     } else {
-                                        sbWatched.append(" / ");
+                                        sbWatched.append(Movie.SPACE_SLASH_SPACE);
                                     }
                                     sbWatched.append(mf.isWatched() ? "true" : "false");
                                 }
@@ -587,7 +587,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                             if (first) {
                                                 first = false;
                                             } else {
-                                                sbEpisode.append(" / ");
+                                                sbEpisode.append(Movie.SPACE_SLASH_SPACE);
                                             }
                                             sbEpisode.append(part);
                                         }
@@ -604,7 +604,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         } else if (name.equalsIgnoreCase("country")) {
                             value = movie.getCountry();
                             if (!blockCountry) {
-                                int pos = value.indexOf(" / ");
+                                int pos = value.indexOf(Movie.SPACE_SLASH_SPACE);
                                 if (pos > -1) {
                                     value = value.substring(0, pos);
                                 }
@@ -612,7 +612,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         } else if (name.equalsIgnoreCase("company")) {
                             value = movie.getCompany();
                             if (!blockCompany) {
-                                int pos = value.indexOf(" / ");
+                                int pos = value.indexOf(Movie.SPACE_SLASH_SPACE);
                                 if (pos > -1) {
                                     value = value.substring(0, pos);
                                 }
@@ -653,7 +653,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     if (first) {
                                         first = false;
                                     } else {
-                                        sbAwards.append(" / ");
+                                        sbAwards.append(Movie.SPACE_SLASH_SPACE);
                                     }
                                     sbAwards.append(award);
                                 }
@@ -676,7 +676,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         if (!blockLanguage && name.equalsIgnoreCase("language") && StringTools.isValidString(value)) {
                             filename = "languages/English.png";
                         }
-                        String[] values = value.split(" / ");
+                        String[] values = value.split(Movie.SPACE_SLASH_SPACE);
                         for (int j = 0; j < values.length; j++) {
                             value = values[j];
                             for (imageOverlay img : layer.images) {
@@ -701,7 +701,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                         if (StringTools.isNotValidString(filename)) {
                                             filename = img.filename;
                                         } else {
-                                            filename += " / " + img.filename;
+                                            filename += Movie.SPACE_SLASH_SPACE + img.filename;
                                         }
                                     }
                                     break;
@@ -1087,7 +1087,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     private BufferedImage drawBlock(IMovieBasicInformation movie, BufferedImage bi, String name, String files, int left, String align, String Width, int top, String valign, String Height) {
         if (StringTools.isValidString(files)) {
-            String[] filenames = files.split(" / ");
+            String[] filenames = files.split(Movie.SPACE_SLASH_SPACE);
             try {
                 Graphics2D g2d = bi.createGraphics();
                 BufferedImage biSet = GraphicTools.loadJPEGImage(overlayResources + filenames[0]);
@@ -1662,7 +1662,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         if (StringTools.isValidString(value)) {
             String[] temp = value.split(" ; ");
             for (int i = 0; i < temp.length; i++) {
-                String[] values = temp[i].split(" / ");
+                String[] values = temp[i].split(Movie.SPACE_SLASH_SPACE);
                 if (values.length > 1) {
                     ArrayList<String> arr = new ArrayList<String>(Arrays.asList(values));
                     data.put(values[0], arr);

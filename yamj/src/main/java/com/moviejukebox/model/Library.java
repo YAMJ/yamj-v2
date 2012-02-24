@@ -137,13 +137,13 @@ public class Library implements Map<String, Movie> {
         singleSeriesPage = PropertiesUtil.getBooleanProperty("mjb.singleSeriesPage", "false");
         indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
         String awardTmp = PropertiesUtil.getProperty("mjb.categories.award.events", "");
-        awardEventList = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(" / ")) : new ArrayList<String>();
+        awardEventList = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
         awardTmp = PropertiesUtil.getProperty("mjb.categories.award.name", "");
-        awardNameList = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(" / ")) : new ArrayList<String>();
+        awardNameList = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
         awardTmp = PropertiesUtil.getProperty("mjb.categories.award.nominated", "");
-        awardNominated = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(" / ")) : new ArrayList<String>();
+        awardNominated = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
         awardTmp = PropertiesUtil.getProperty("mjb.categories.award.won", "");
-        awardWon = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(" / ")) : new ArrayList<String>();
+        awardWon = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
         scrapeWonAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", "false").equalsIgnoreCase("won");
         splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
         processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", "true");

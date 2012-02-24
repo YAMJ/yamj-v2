@@ -477,7 +477,7 @@ public class MovieFilenameScanner {
                 if (!matcher.find()) {
                     break;
                 }
-                rest = cutMatch(rest, matcher, " / ");
+                rest = cutMatch(rest, matcher, Movie.SPACE_SLASH_SPACE);
 
                 MovieFileNameDTO.SetDTO set = new MovieFileNameDTO.SetDTO();
                 dto.getSets().add(set);

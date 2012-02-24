@@ -275,7 +275,7 @@ public class PosterScanner {
 
         Set<String> keySet = posterPlugins.keySet();
         for (String string : keySet) {
-            response.append(string).append(" / ");
+            response.append(string).append(Movie.SPACE_SLASH_SPACE);
         }
         return response.toString();
     }
