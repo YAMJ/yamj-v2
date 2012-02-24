@@ -61,6 +61,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
     // Shows what name is on the first position with respect to divider
     String titleLeader = PropertiesUtil.getProperty("kinopoisk.title.leader", "english");
     String titleDivider = PropertiesUtil.getProperty("kinopoisk.title.divider", " - ");
+    boolean joinTitles = PropertiesUtil.getBooleanProperty("kinopoisk.title.join", "true");
 
     // Set NFO information priority
     protected boolean NFOpriority = PropertiesUtil.getBooleanProperty("kinopoisk.NFOpriority", "false");
@@ -377,7 +378,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         for (String s : HTMLTools.extractTags(xml, "<span style=\"color: #666", "</span>", "font-size: 13px\" itemprop=\"alternativeHeadline\">", "</span>")) {
                             if (!s.isEmpty()) {
                                 originalTitle = s;
-                                newTitle = newTitle + " / " + originalTitle;
+                                if (joinTitles) {
+                                    newTitle = newTitle + Movie.SPACE_SLASH_SPACE + originalTitle;
+                                }
                             }
                             break;
                         }
@@ -486,7 +489,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 if (!NFOcountry) {
                     Collection<String> country = HTMLTools.extractTags(item, ">страна<", "</tr>", "<a href=\"/level/10", "</a>");
                     if (country != null && country.size() > 0) {
-                        String strCountry = countryAll?StringUtils.join(country, " / "):new ArrayList<String>(country).get(0);
+                        String strCountry = countryAll?StringUtils.join(country, Movie.SPACE_SLASH_SPACE):new ArrayList<String>(country).get(0);
                         if (translitCountry) {
                             strCountry = FileTools.makeSafeFilename(strCountry);
                         }
@@ -782,7 +785,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
                     if (studio.size() > 0) {
-                        movie.setCompany(companyAll?StringUtils.join(studio, " / "):new ArrayList<String>(studio).get(0));
+                        movie.setCompany(companyAll?StringUtils.join(studio, Movie.SPACE_SLASH_SPACE):new ArrayList<String>(studio).get(0));
                         valueFounded = true;
                     }
                 }

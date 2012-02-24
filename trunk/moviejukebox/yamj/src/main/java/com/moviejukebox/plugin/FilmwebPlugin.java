@@ -347,7 +347,7 @@ public class FilmwebPlugin extends ImdbPlugin {
                         if (first) {
                             first = false;
                         } else {
-                            sb.append(" / ");
+                            sb.append(Movie.SPACE_SLASH_SPACE);
                         }
                         sb.append(episodeName);
                     }

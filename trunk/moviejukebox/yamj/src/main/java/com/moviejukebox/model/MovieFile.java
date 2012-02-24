@@ -223,7 +223,7 @@ public class MovieFile implements Comparable<MovieFile> {
                 title.append(getTitle(loop));
                 first = false;
             } else {
-                title.append(" / ").append(getTitle(loop));
+                title.append(Movie.SPACE_SLASH_SPACE).append(getTitle(loop));
             }
         }
         return title.toString();

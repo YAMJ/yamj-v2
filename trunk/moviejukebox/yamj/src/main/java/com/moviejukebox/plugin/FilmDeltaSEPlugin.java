@@ -302,7 +302,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         if (!filmdeltaDirectors.isEmpty()) {
             for (String dir : filmdeltaDirectors) {
                 dir = new String(dir.substring(0, dir.length() - 4));
-                newDirector.append(dir).append(" / ");
+                newDirector.append(dir).append(Movie.SPACE_SLASH_SPACE);
             }
 
             movie.addDirector(newDirector.substring(0, newDirector.length() - 3).toString());

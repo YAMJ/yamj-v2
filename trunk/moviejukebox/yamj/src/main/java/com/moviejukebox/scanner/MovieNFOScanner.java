@@ -65,9 +65,9 @@ public class MovieNFOScanner {
     private static String NFO_PLUGIN_ID = "NFO";
     private static boolean archiveScanRar;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
-    private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", " / ");
+    private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     ;
-    private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", " / ");
+    private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
 
     ;
 
@@ -1291,7 +1291,7 @@ public class MovieNFOScanner {
                                         if (isNotValidString(finalTVCodec)) {
                                             finalTVCodec = tmpTVCodec;
                                         } else {
-                                            finalTVCodec = finalTVCodec + " / " + tmpTVCodec;
+                                            finalTVCodec = finalTVCodec + Movie.SPACE_SLASH_SPACE + tmpTVCodec;
                                         }
 
                                     }

@@ -863,7 +863,7 @@ public class SratimPlugin extends ImdbPlugin {
                         if (first) {
                             first = false;
                         } else {
-                            sb.append(" / ");
+                            sb.append(Movie.SPACE_SLASH_SPACE);
                         }
                         sb.append(logicalToVisual(HTMLTools.decodeHtml(scanName)));
 

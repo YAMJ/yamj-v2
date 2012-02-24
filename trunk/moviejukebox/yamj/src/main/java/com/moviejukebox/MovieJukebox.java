@@ -2544,7 +2544,7 @@ public class MovieJukebox {
         Set<String> keySet = trailerPlugins.keySet();
         for (String string : keySet) {
             response.append(string);
-            response.append(" / ");
+            response.append(Movie.SPACE_SLASH_SPACE);
         }
 
         response.delete(response.length() - 3, response.length());
