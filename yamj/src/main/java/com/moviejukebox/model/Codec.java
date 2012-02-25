@@ -44,6 +44,8 @@ public class Codec {
     public static final String MI_CODEC_LANGUAGE = "Language";
     public static final String MI_CODEC_CHANNELS = "Channel(s)";
     public static final String MI_CODEC_BITRATE = "Bit rate";
+    public static final String MI_CODEC_NOMINAL_BITRATE = "Nominal bit rate";
+    public static final String MI_CODEC_OVERALL_BITRATE = "Overall bit rate";
 
     /**
      * Constructor with just the codec type
