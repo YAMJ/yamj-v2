@@ -169,11 +169,6 @@ public class MovieJukebox {
         String jukeboxRoot = null;
         Map<String, String> cmdLineProps = new LinkedHashMap<String, String>();
 
-        if (args.length == 0) {
-            help();
-            return;
-        }
-
         try {
             for (int i = 0; i < args.length; i++) {
                 String arg = (String) args[i];
@@ -366,9 +361,16 @@ public class MovieJukebox {
         enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", "true");
         enableCompleteMovies = PropertiesUtil.getBooleanProperty("complete.movies.enable", "true");
 
-        if (movieLibraryRoot == null) {
+        // Check to see if don't have a root, check the property file
+        if (StringTools.isNotValidString(movieLibraryRoot)) {
             movieLibraryRoot = getProperty("mjb.libraryRoot");
-            logger.info("Got libraryRoot from properties file: " + movieLibraryRoot);
+            if (StringTools.isValidString(movieLibraryRoot)) {
+                logger.info("Got libraryRoot from properties file: " + movieLibraryRoot);
+            } else {
+                logger.error("No library root found!");
+                help();
+                return;
+            }
         }
 
         if (jukeboxRoot == null) {
