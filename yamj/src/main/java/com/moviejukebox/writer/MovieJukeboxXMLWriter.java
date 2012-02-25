@@ -100,6 +100,7 @@ public class MovieJukeboxXMLWriter {
     private boolean reindexWatched = Boolean.FALSE;
     private boolean reindexUnwatched = Boolean.FALSE;
     private boolean XMLcompatible = PropertiesUtil.getBooleanProperty("mjb.XMLcompatible", Boolean.FALSE.toString());
+    private boolean sortLibrary = PropertiesUtil.getBooleanProperty("indexing.sort.library", Boolean.TRUE.toString());
 
     static {
         if (strCategoriesDisplayList.length() == 0) {
@@ -1132,7 +1133,7 @@ public class MovieJukeboxXMLWriter {
                         TreeMap<String, List<Movie>> sortedMap;
 
                         // Sort the certification according to certification.ordering
-                        if ("Certification".equalsIgnoreCase(categoryName)) {
+                        if (Library.INDEX_CERTIFICATION.equalsIgnoreCase(categoryName)) {
                             List<String> certificationOrdering = new ArrayList<String>();
                             String certificationOrder = PropertiesUtil.getProperty("certification.ordering");
                             if (StringUtils.isNotBlank(certificationOrder)) {
@@ -1143,6 +1144,9 @@ public class MovieJukeboxXMLWriter {
 
                             // Process the certification in order of the certification.ordering property
                             sortedMap = new TreeMap<String, List<Movie>>(new CertificationComparator(certificationOrdering));
+                        } else if (!sortLibrary && Library.INDEX_LIBRARY.equalsIgnoreCase(categoryName)) {
+                            // Issue 2359, disable sorting the list of libraries so that the entries in categories.xml are written in the same order as the list of libraries in library.xml
+                            sortedMap = new TreeMap<String, List<Movie>>(new CertificationComparator(library.getLibraryOrdering()));
                         } else {
                             // Sort the remaining categories
                             sortedMap = new TreeMap<String, List<Movie>>(new SortIgnorePrefixesComparator());
@@ -1905,7 +1909,7 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "audioCodec", movie.getAudioCodec());
 
         // Write codec information
-        eMovie.appendChild(createCodecsElement(doc, movie.getCodecs(), movie));
+        eMovie.appendChild(createCodecsElement(doc, movie.getCodecs()));
         DOMHelper.appendChild(doc, eMovie, "audioChannels", movie.getAudioChannels());
         DOMHelper.appendChild(doc, eMovie, "resolution", movie.getResolution());
 
@@ -2234,7 +2238,7 @@ public class MovieJukeboxXMLWriter {
      * @param movieCodecs
      * @return
      */
-    private Element createCodecsElement(Document doc, Set<Codec> movieCodecs, Movie movie) {
+    private Element createCodecsElement(Document doc, Set<Codec> movieCodecs) {
         Element eCodecs = doc.createElement("codecs");
         Element eCodecAudio = doc.createElement("audio");
         Element eCodecVideo = doc.createElement("video");

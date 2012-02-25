@@ -37,6 +37,7 @@ public class Library implements Map<String, Movie> {
     private static boolean filterCertificationn;
     private static boolean singleSeriesPage;
     private static List<String> certificationOrdering = new ArrayList<String>();
+    private static List<String> libraryOrdering = new ArrayList<String>();
     private static Map<String, String> genresMap = new HashMap<String, String>();
     private static Map<String, String> certificationsMap = new HashMap<String, String>();
     private static String defaultCertification = null;
@@ -245,6 +246,10 @@ public class Library implements Map<String, Movie> {
         return key.toString().toLowerCase();
     }
 
+    public static List<String> getLibraryOrdering() {
+        return libraryOrdering;
+    }
+
     // synchronized because scanning can be multi-threaded
     public synchronized void addMovie(String key, Movie movie) {
         Movie existingMovie = library.get(key);
@@ -256,6 +261,9 @@ public class Library implements Map<String, Movie> {
         } else if (existingMovie == null) {
             keys.put(movie, key);
             library.put(key, movie);
+            if (movie.getLibraryDescription().length() > 0 && !libraryOrdering.contains(movie.getLibraryDescription())) {
+                libraryOrdering.add(movie.getLibraryDescription());
+            }
         } else {
             MovieFile firstMovieFile = movie.getFirstFile();
             // Take care of TV-Show (order by episode). Issue 535 - Not sure it's the best place do to this.
