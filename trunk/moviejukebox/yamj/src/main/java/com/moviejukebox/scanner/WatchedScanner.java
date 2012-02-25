@@ -28,8 +28,10 @@ public class WatchedScanner {
     private static Logger logger = Logger.getLogger(WatchedScanner.class);
 
     /**
-     * Calculate the watched state of a movie based on the files <filename>.watched & <filename>.unwatched
-     * Always assumes that the file is unwatched if nothing is found.
+     * Calculate the watched state of a movie based on the files
+     * <filename>.watched & <filename>.unwatched Always assumes that the file is
+     * unwatched if nothing is found.
+     *
      * @param movie
      */
     public static boolean checkWatched(Jukebox jukebox, Movie movie) {
