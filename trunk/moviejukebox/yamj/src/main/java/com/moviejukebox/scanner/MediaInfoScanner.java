@@ -51,6 +51,7 @@ public class MediaInfoScanner {
     public static final String OS_ARCH = System.getProperty("os.arch");
     private static boolean isActivated;
     private static boolean enableMetadata = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", "false");
+    private static boolean overallBitrate = PropertiesUtil.getBooleanProperty("mediainfo.overallbitrate", "false");
     private String randomDirName;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
@@ -415,6 +416,13 @@ public class MediaInfoScanner {
 
             // Add the video codec to the list
             Codec codecToAdd = getCodecInfo(Codec.CodecType.VIDEO, infosMainVideo);
+            if (overallBitrate && StringTools.isNotValidString(codecToAdd.getCodecBitRate())) {
+                infoValue = infosGeneral.get(Codec.MI_CODEC_OVERALL_BITRATE);
+                if (StringUtils.isNotBlank(infoValue)) {
+                    infoValue = infoValue.substring(0, infoValue.length() - 3);
+                    codecToAdd.setCodecBitRate(infoValue);
+                }
+            }
             movie.addCodec(codecToAdd);
 
             if (movie.getResolution().equals(Movie.UNKNOWN)) {
@@ -442,12 +450,6 @@ public class MediaInfoScanner {
                 fps = Float.parseFloat(infoValue);
 
                 movie.setFps(fps);
-            }
-
-            // Video bit rate
-            infoValue = infosMainVideo.get("Nominal bit rate");
-            if (infoValue != null) {
-                movie.setVBitRate(infoValue.substring(0, infoValue.length() - 3));
             }
 
             // Save the aspect ratio for the video
@@ -642,13 +644,20 @@ public class MediaInfoScanner {
         codec.setCodecIdHint(codecInfos.get(Codec.MI_CODEC_ID_HINT));
         codec.setCodecLanguage(codecInfos.get(Codec.MI_CODEC_LANGUAGE));
 
-        String infoValue = codecInfos.get(Codec.MI_CODEC_BITRATE);
-        if (StringUtils.isNotBlank(infoValue)) {
-            if (infoValue.indexOf(Movie.SPACE_SLASH_SPACE) > -1) {
-                infoValue = infoValue.substring(0, infoValue.indexOf(Movie.SPACE_SLASH_SPACE));
+        String[] keyBitrates = { Codec.MI_CODEC_BITRATE, Codec.MI_CODEC_NOMINAL_BITRATE };
+        for (String key : Arrays.asList(keyBitrates)) {
+            String infoValue = codecInfos.get(key);
+            if (StringUtils.isNotBlank(infoValue)) {
+                if (infoValue.indexOf(Movie.SPACE_SLASH_SPACE) > -1) {
+                    infoValue = infoValue.substring(0, infoValue.indexOf(Movie.SPACE_SLASH_SPACE));
+                }
+                infoValue = infoValue.substring(0, infoValue.length() - 3);
+                codec.setCodecBitRate(infoValue);
+                break;
             }
-            infoValue = infoValue.substring(0, infoValue.length() - 3);
-            codec.setCodecBitRate(infoValue);
+            if (codecType.equals(Codec.CodecType.AUDIO) && key.equals(Codec.MI_CODEC_BITRATE)) {
+                break;
+            }
         }
 
         String codecChannels = codecInfos.get(Codec.MI_CODEC_CHANNELS);

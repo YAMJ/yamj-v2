@@ -453,9 +453,6 @@ public class MovieJukeboxXMLWriter {
                 // get frames per second
                 movie.setFps(Float.parseFloat(DOMHelper.getValueFromElement(eMovie, "fps")));
 
-                // get video bit rate
-                movie.setVBitRate(DOMHelper.getValueFromElement(eMovie, "videobitrate"));
-
                 // Get navigation info
                 movie.setFirst(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "first")));
                 movie.setPrevious(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "previous")));
@@ -1908,7 +1905,7 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "audioCodec", movie.getAudioCodec());
 
         // Write codec information
-        eMovie.appendChild(createCodecsElement(doc, movie.getCodecs()));
+        eMovie.appendChild(createCodecsElement(doc, movie.getCodecs(), movie));
         DOMHelper.appendChild(doc, eMovie, "audioChannels", movie.getAudioChannels());
         DOMHelper.appendChild(doc, eMovie, "resolution", movie.getResolution());
 
@@ -1922,7 +1919,6 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "videoOutput", movie.getVideoOutput());
         DOMHelper.appendChild(doc, eMovie, "aspect", movie.getAspectRatio());
         DOMHelper.appendChild(doc, eMovie, "fps", Float.toString(movie.getFps()));
-        DOMHelper.appendChild(doc, eMovie, "videobitrate", movie.getVBitRate());
 
         if (movie.getFileDate() == null) {
             DOMHelper.appendChild(doc, eMovie, "fileDate", Movie.UNKNOWN);
@@ -2238,7 +2234,7 @@ public class MovieJukeboxXMLWriter {
      * @param movieCodecs
      * @return
      */
-    private Element createCodecsElement(Document doc, Set<Codec> movieCodecs) {
+    private Element createCodecsElement(Document doc, Set<Codec> movieCodecs, Movie movie) {
         Element eCodecs = doc.createElement("codecs");
         Element eCodecAudio = doc.createElement("audio");
         Element eCodecVideo = doc.createElement("video");
@@ -2263,6 +2259,7 @@ public class MovieJukeboxXMLWriter {
                 DOMHelper.appendChild(doc, eCodecAudio, "codec", codec.getCodec(), codecAttribs);
                 countAudio++;
             } else {
+                codecAttribs.put("bitrate", codec.getCodecBitRate());
                 DOMHelper.appendChild(doc, eCodecVideo, "codec", codec.getCodec(), codecAttribs);
                 countVideo++;
             }
