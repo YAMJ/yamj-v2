@@ -1146,7 +1146,7 @@ public class MovieJukeboxXMLWriter {
                             sortedMap = new TreeMap<String, List<Movie>>(new CertificationComparator(certificationOrdering));
                         } else if (!sortLibrary && Library.INDEX_LIBRARY.equalsIgnoreCase(categoryName)) {
                             // Issue 2359, disable sorting the list of libraries so that the entries in categories.xml are written in the same order as the list of libraries in library.xml
-                            sortedMap = new TreeMap<String, List<Movie>>(new CertificationComparator(library.getLibraryOrdering()));
+                            sortedMap = new TreeMap<String, List<Movie>>(new CertificationComparator(Library.getLibraryOrdering()));
                         } else {
                             // Sort the remaining categories
                             sortedMap = new TreeMap<String, List<Movie>>(new SortIgnorePrefixesComparator());
@@ -1251,6 +1251,8 @@ public class MovieJukeboxXMLWriter {
 
         final boolean setReindex = PropertiesUtil.getBooleanProperty("mjb.sets.reindex", "true");
 
+        StringBuilder loggerString;
+
         tasks.restart();
 
         for (Map.Entry<String, Index> category : library.getIndexes().entrySet()) {
@@ -1261,7 +1263,12 @@ public class MovieJukeboxXMLWriter {
             final int movieMaxCount = Library.calcMaxMovieCount(categoryName);
             final boolean toLimitCategory = categoriesLimitList.contains(categoryName);
 
-            logger.info("  Indexing " + categoryName + " (" + (++indexCount) + "/" + indexSize + ") contains " + index.size() + " indexes" + (toLimitCategory && categoryMaxCount > 0 && index.size() > categoryMaxCount ? (" (limit to " + categoryMaxCount + ")") : ""));
+            loggerString = new StringBuilder("  Indexing ");
+            loggerString.append(categoryName).append(" (").append(++indexCount).append("/").append(indexSize);
+            loggerString.append(") contains ").append(index.size()).append(index.size() == 1 ? " index" : " indexes");
+            loggerString.append(toLimitCategory && categoryMaxCount > 0 && index.size() > categoryMaxCount ? (" (limit to " + categoryMaxCount + ")") : "");
+            logger.info(loggerString);
+
             ArrayList<Map.Entry<String, List<Movie>>> groupArray = new ArrayList<Map.Entry<String, List<Movie>>>(index.entrySet());
             Collections.sort(groupArray, new IndexComparator(library, categoryName));
             Iterator<Map.Entry<String, List<Movie>>> itr = groupArray.iterator();
@@ -1281,8 +1288,10 @@ public class MovieJukeboxXMLWriter {
                         int categoryCount = library.getMovieCountForIndex(categoryName, key);
                         if (categoryCount < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryName)
                                 && !Library.INDEX_SET.equalsIgnoreCase(categoryName)) {
-                            logger.debug("Category '" + categoryPath + "' does not contain enough videos (" + categoryCount + "/" + categoryMinCount
-                                    + "), skipping XML generation.");
+                            StringBuilder loggerString = new StringBuilder();
+                            loggerString.append("Category '").append(categoryPath).append("' does not contain enough videos (");
+                            loggerString.append(categoryCount).append("/").append(categoryMinCount).append("), skipping XML generation.");
+                            logger.debug(loggerString);
                             return null;
                         }
                         boolean skipIndex = !forceIndexOverwrite;
@@ -1423,7 +1432,7 @@ public class MovieJukeboxXMLWriter {
                         }
 
                         if (skipIndex) {
-                            logger.debug("Category " + categoryPath + " no change detected, skipping XML generation.");
+                            logger.debug("Category " + categoryPath + " - no change detected, skipping XML generation.");
                         } else {
                             int next;
                             for (int current = 1; current <= last; current++) {
