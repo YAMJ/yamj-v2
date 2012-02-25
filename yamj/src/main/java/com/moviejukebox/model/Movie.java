@@ -16,12 +16,7 @@ import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
-import com.moviejukebox.tools.BooleanYesNoAdapter;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.UrlCodecAdapter;
+import com.moviejukebox.tools.*;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Map.Entry;
@@ -1738,13 +1733,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public long getLastModifiedTimestamp() {
         if (!isSetMaster()) {
-            if (tmstmp == null) {
-                synchronized (this) {
-                    if (tmstmp == null) {
-                        tmstmp = new Long(0);
-                        for (MovieFile mf : getMovieFiles()) {
-                            tmstmp = Math.max(tmstmp, mf.getLastModified());
-                        }
+            synchronized (this) {
+                if (tmstmp == null) {
+                    tmstmp = new Long(0);
+                    for (MovieFile mf : getMovieFiles()) {
+                        tmstmp = Math.max(tmstmp, mf.getLastModified());
                     }
                 }
             }

@@ -277,6 +277,7 @@ public class MovieJukeboxXMLWriter {
                 // The "watched" attribute is transient, based on the status of the watched movie files
 //                movie.setWatchedFile(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watched")));
                 movie.setWatchedNFO(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watchedNFO")));
+                movie.setWatchedFile(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watchedFile")));
 
                 // Get artwork URLS
                 movie.setPosterURL(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "posterURL")));
@@ -1791,6 +1792,7 @@ public class MovieJukeboxXMLWriter {
 
         DOMHelper.appendChild(doc, eMovie, "watched", Boolean.toString(movie.isWatched()));
         DOMHelper.appendChild(doc, eMovie, "watchedNFO", Boolean.toString(movie.isWatchedNFO()));
+        DOMHelper.appendChild(doc, eMovie, "watchedFile", Boolean.toString(movie.isWatchedFile()));
         if (movie.isWatched()) {
             DOMHelper.appendChild(doc, eMovie, "watchedDate", movie.getWatchedDateString());
         }

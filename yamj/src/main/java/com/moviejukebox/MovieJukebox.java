@@ -1870,7 +1870,7 @@ public class MovieJukebox {
                 movie.setDirty(Movie.DIRTY_RECHECK, true);
             }
 
-            if (peopleScan && movie.getPeople().size() == 0 && (movie.getCast().size() + movie.getWriters().size() + movie.getDirectors().size()) > 0) {
+            if (peopleScan && movie.getPeople().isEmpty() && (movie.getCast().size() + movie.getWriters().size() + movie.getDirectors().size()) > 0) {
                 forceXMLOverwrite = true;
                 movie.clearWriters();
                 movie.clearDirectors();
