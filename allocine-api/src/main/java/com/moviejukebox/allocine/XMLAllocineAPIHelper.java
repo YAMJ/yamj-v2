@@ -41,7 +41,8 @@ public final class XMLAllocineAPIHelper {
     }
 
     public static MovieInfos getMovieInfos(String allocineId) throws IOException, JAXBException, XMLStreamException {
-        URL url = new URL("http://api.allocine.fr/xml/movie?partner=3&profile=large&code=" + allocineId);
+        // HTML tags are remove from synopsis & synopsisshort
+        URL url = new URL("http://api.allocine.fr/rest/v3/movie?partner=YW5kcm9pZC12M3M&profile=large&mediafmt=mp4-lc&format=XML&filter=movie&striptags=synopsis,synopsisshort&code=" + allocineId);
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
         return validMovieElement(unmarshaller.unmarshal(url));
     }

@@ -38,17 +38,21 @@
 	</castingShort>
 	<casting>
 		<castMember>
-			<person code="1">Yves Blusseau</person>
+			<person code="1">
+				<name>Yves Blusseau</name>
+			</person>
 			<activity code="8002">Réalisateur</activity>
 			<picture path="/none.jpg"
 				href="http://images.allocine.fr/medias/nmedia/none.jpg" />
 		</castMember>
-        <castMember>
-            <person code="1">Yves Blusseau</person>
-            <activity code="8043">Scripte</activity>
-            <picture path="/none.jpg"
-                href="http://images.allocine.fr/medias/nmedia/none.jpg" />
-        </castMember>
+		<castMember>
+			<person code="1">
+				<name>Yves Blusseau</name>
+			</person>
+			<activity code="8043">Scripte</activity>
+			<picture path="/none.jpg"
+				href="http://images.allocine.fr/medias/nmedia/none.jpg" />
+		</castMember>
 	</casting>
 	<movieCertificate code="14001">Interdit aux moins de 12 ans</movieCertificate>
 	<statistics>

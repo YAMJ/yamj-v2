@@ -106,13 +106,13 @@ public class MovieInfos extends Movie {
 
         for (CastMember member : getCasting()) {
             if (member.getActivity().getCode() == ACTOR_ACTIVITY_CODE) {
-                actors.add(member.getPerson());
+                actors.add(member.getPerson().getName());
             } else if (member.getActivity().getCode() == DIRECTOR_ACTIVITY_CODE) {
-                directors.add(member.getPerson());
+                directors.add(member.getPerson().getName());
             } else if (member.getActivity().getCode() == WRITER_ACTIVITY_CODE) {
-                writers.add(member.getPerson());
+                writers.add(member.getPerson().getName());
             } else if (member.getActivity().getCode() == SCRIPT_ACTIVITY_CODE) {
-                scripts.add(member.getPerson());
+                scripts.add(member.getPerson().getName());
             }
         }
         // Add scripts to writers
