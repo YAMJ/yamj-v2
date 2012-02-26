@@ -7,6 +7,12 @@
   elementFormDefault="qualified"
   xmlns="http://www.allocine.net/v6/ns/">
 
+  <!-- External Links:
+    http://http://wiki.gromez.fr/dev/api/allocine_v3
+    http://jaxb.java.net/nonav/2.1.9/docs/api/javax/xml/bind/annotation/XmlType.html
+    http://docs.oracle.com/cd/E17802_01/webservices/webservices/reference/tutorials/wsit/doc/DataBinding2.html
+  -->
+
   <!-- definition of simple elements -->
   <xs:element name="title" type="xs:string" />
   <xs:element name="originalTitle" type="xs:string" />
@@ -16,7 +22,7 @@
   <xs:element name="nationality" type="xs:string" />
   <xs:element name="genre" type="xs:string" />
   <xs:element name="releaseDate" type="xs:string" />
-  <xs:element name="person" type="xs:string" />
+  <xs:element name="name" type="xs:string" />
 
   <!-- definition of complex elements -->
   <xs:element name="error">
@@ -107,6 +113,14 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="castMember" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="person">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="name" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

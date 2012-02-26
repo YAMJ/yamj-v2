@@ -73,7 +73,7 @@ public class MovieInfosTest {
      */
     @Test
     public void testGetRating() {
-        Assert.assertEquals(85, avatarInfos.getRating());
+        Assert.assertEquals(83, avatarInfos.getRating());
         Assert.assertEquals(-1, sample1Infos.getRating());
         Assert.assertEquals(-1, sample2Infos.getRating());
     }
@@ -159,7 +159,7 @@ public class MovieInfosTest {
     @Test
     public void testGetRelease() {
         Release release = avatarInfos.getRelease();
-        Assert.assertEquals("2010-09-01", release.getReleaseDate());
+        Assert.assertEquals("2009-12-16", release.getReleaseDate());
         Assert.assertEquals("Twentieth Century Fox France", release.getDistributor().getName());
         Assert.assertEquals(null, sample2Infos.getRelease());
     }
