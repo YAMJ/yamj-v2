@@ -216,17 +216,22 @@ public class MovieFile implements Comparable<MovieFile> {
         }
 
         boolean first = true;
+        boolean oneValidTitle = false;
         StringBuilder title = new StringBuilder();
 
         for (int loop = firstPart; loop <= lastPart; loop++) {
+            String titlePart = getTitle(loop);
+            if (!Movie.UNKNOWN.equals(titlePart)) {
+                oneValidTitle=true;
+            }
             if (first) {
-                title.append(getTitle(loop));
+                title.append(titlePart);
                 first = false;
             } else {
-                title.append(Movie.SPACE_SLASH_SPACE).append(getTitle(loop));
+                title.append(Movie.SPACE_SLASH_SPACE).append(titlePart);
             }
         }
-        return title.toString();
+        return oneValidTitle ? title.toString() : Movie.UNKNOWN;
     }
 
     public boolean hasTitle() {
