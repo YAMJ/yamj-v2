@@ -9,6 +9,8 @@
 
   <!-- External Links:
     http://http://wiki.gromez.fr/dev/api/allocine_v3
+
+    http://www.w3schools.com/Schema/
     http://jaxb.java.net/nonav/2.1.9/docs/api/javax/xml/bind/annotation/XmlType.html
     http://docs.oracle.com/cd/E17802_01/webservices/webservices/reference/tutorials/wsit/doc/DataBinding2.html
   -->
@@ -16,13 +18,21 @@
   <!-- definition of simple elements -->
   <xs:element name="title" type="xs:string" />
   <xs:element name="originalTitle" type="xs:string" />
+  <xs:element name="originalChannel" type="xs:string" />
   <xs:element name="productionYear" type="xs:string" />
+  <xs:element name="yearStart" type="xs:string" />
+  <xs:element name="yearEnd" type="xs:string" />
   <xs:element name="runtime" type="xs:int" />
   <xs:element name="movieCertificate" type="xs:string" />
   <xs:element name="nationality" type="xs:string" />
   <xs:element name="genre" type="xs:string" />
   <xs:element name="releaseDate" type="xs:string" />
   <xs:element name="name" type="xs:string" />
+  <xs:element name="totalResults" type="xs:int" />
+  <xs:element name="seasonCount" type="xs:int" />
+  <xs:element name="seasonNumber" type="xs:int" />
+  <xs:element name="episodeNumberSeries" type="xs:int" />
+  <xs:element name="episodeNumberSeason" type="xs:int" />
 
   <!-- definition of complex elements -->
   <xs:element name="error">
@@ -38,6 +48,21 @@
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
+
+  <xs:element name="feed">
+    <xs:annotation>
+      <xs:appinfo>
+        <jaxb:class implClass="com.moviejukebox.allocine.Search"/>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="totalResults" />
+        <xs:element ref="movie"    maxOccurs="unbounded" />
+        <xs:element ref="tvseries" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
   <xs:element name="movie">
     <xs:annotation>
@@ -117,20 +142,20 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="person">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="name" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-
   <xs:element name="castMember">
     <xs:complexType>
       <xs:all>
         <xs:element ref="person" />
         <xs:element name="activity" type="activityType" />
       </xs:all>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="person">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="name" />
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 
@@ -188,5 +213,86 @@
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
+
+
+  <!-- definition of complex elements -->
+  <xs:element name="tvseries">
+    <xs:annotation>
+      <xs:appinfo>
+        <jaxb:class implClass="com.moviejukebox.allocine.TvSeriesInfos"/>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="title" />
+        <xs:element ref="originalTitle" />
+        <xs:element ref="originalChannel" />
+        <xs:element ref="seasonList" />
+        <xs:element ref="seasonCount" />
+        <xs:element ref="yearStart" />
+        <xs:element ref="yearEnd" />
+        <xs:element ref="nationalityList" />
+        <xs:element name="synopsis" type="htmlSynopsisType">
+          <xs:annotation>
+            <xs:appinfo>
+              <jaxb:property name="htmlSynopsis"/>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
+        <xs:element ref="genreList" />
+        <xs:element ref="release" />
+        <xs:element ref="casting" />
+        <xs:element ref="mediaList" />
+        <xs:element ref="statistics" />
+      </xs:all>
+      <xs:attribute name="code" type="xs:int" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="seasonList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="season" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- definition of complex elements -->
+  <xs:element name="season">
+    <xs:annotation>
+      <xs:appinfo>
+        <jaxb:class implClass="com.moviejukebox.allocine.TvSeasonInfos"/>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="seasonNumber" />
+        <xs:element ref="yearStart" />
+        <xs:element ref="yearEnd" />
+        <xs:element ref="episodeList" />
+      </xs:all>
+      <xs:attribute name="code" type="xs:int" use="required" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="episodeList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="episode" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="episode">
+    <xs:complexType>
+      <xs:all>
+        <xs:element ref="title" />
+        <xs:element ref="episodeNumberSeries" />
+        <xs:element ref="episodeNumberSeason" />
+        <xs:element name="synopsis" type="xs:string" />
+      </xs:all>
+      <xs:attribute name="code" type="xs:int" use="required" />
+    </xs:complexType>
+  </xs:element>
 
 </xs:schema>

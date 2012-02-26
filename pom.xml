@@ -34,7 +34,7 @@
     </modules>
 
     <properties>
-        <allocine-api.version>1.0.4-SNAPSHOT</allocine-api.version>
+        <allocine-api.version>1.1.0-SNAPSHOT</allocine-api.version>
         <mjbsqldb.version>1.2-SNAPSHOT</mjbsqldb.version>
         <distribution.format>zip</distribution.format>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
