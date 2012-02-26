@@ -17,28 +17,42 @@ import static com.moviejukebox.tools.StringTools.isValidString;
 import static com.moviejukebox.tools.StringTools.trimToLength;
 
 import java.net.URLEncoder;
-import java.text.Normalizer;
 import java.text.ParseException;
-import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
-import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.allocine.*;
+//import com.moviejukebox.allocine.jaxb.CastMember;
+//import com.moviejukebox.allocine.jaxb.Season;
+import com.moviejukebox.allocine.jaxb.Episode;
+import com.moviejukebox.allocine.jaxb.Tvseries;
+import com.moviejukebox.tools.Cache;
 import com.moviejukebox.tools.SystemTools;
+import org.apache.commons.lang.math.NumberUtils;
 
 public class AllocinePlugin extends ImdbPlugin {
+
+    public static final String CACHE_SEARCH_MOVIE  = "AllocineSearchMovie";
+    public static final String CACHE_SEARCH_SERIES = "AllocineSearchSeries";
+    public static final String CACHE_SERIES        = "AllocineSeries";
+    private boolean includeEpisodePlots;
+    private boolean includeVideoImages;
+    protected TheTvDBPlugin tvdb = null;
 
     public static String ALLOCINE_PLUGIN_ID = "allocine";
 
     public AllocinePlugin() {
         super();
-        preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
+        preferredCountry    = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
+        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
+        includeVideoImages  = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
+        downloadFanart      = PropertiesUtil.getBooleanProperty("fanart.tv.download", "false");
     }
 
     @Override
@@ -52,149 +66,146 @@ public class AllocinePlugin extends ImdbPlugin {
      */
     @Override
     protected void updateTVShowInfo(Movie movie) {
-        try {
-            String xml = webBrowser.request("http://www.allocine.fr/series/ficheserie_gen_cserie=" + movie.getId(ALLOCINE_PLUGIN_ID) + ".html");
 
-            if (!movie.isOverrideTitle()) {
-                movie.setTitle(HTMLTools.extractTag(xml, "<h1>", "</h1>"));
-            }
-            movie.addRating(ALLOCINE_PLUGIN_ID, parseRating(HTMLTools.extractTag(xml, "<p class=\"withstars\">", "</p>")));
-            // logger.debug("AllocinePlugin: TV Show rating = " + movie.getRating());
-            String tmpPlot = removeHtmlTags(HTMLTools.extractTag(xml, "Synopsis :", "</p>"));
-            // limit plot to ALLOCINE_PLUGIN_PLOT_LENGTH_LIMIT char
-
-            tmpPlot = StringTools.trimToLength(tmpPlot, preferredPlotLength);
-            movie.setPlot(tmpPlot);
-
-            // logger.debug("AllocinePlugin: TV Show Plot = " + movie.getPlot());
-            movie.addDirector(removeHtmlTags(HTMLTools.extractTag(xml, "Créée par", "</span>")));
-            // logger.debug("AllocinePlugin: TV Show Director = " + movie.getDirector());
-
-            // movie.setRuntime(HTMLTools.extractTag(xml, "Format</span> : ", "."));
-            movie.setCountry(removeOpenedHtmlTags(HTMLTools.extractTag(xml, "<a href='/film/tous/", "</a>")));
-            // logger.debug("AllocinePlugin: TV Show country = " + movie.getCountry());
-
-            for (String genre : HTMLTools.extractTags(xml, "Genre :", "</p>", "<a href='/series/toutes/genre", "</a>", false)) {
-                movie.addGenre(Library.getIndexingGenre(removeOpenedHtmlTags(genre)));
-            }
-
-            /*
-             * Per user request Issue 1389
-             * If a film does not have a certification - The phrase "Interdit aux moins de" is not found the "All" will be used
-             * Otherwise the "??" value from "Interdit aux moins de ??" will be used
-             */
-            int pos = xml.indexOf("Interdit aux moins de");
-            if (pos == -1) {
-                // Not found, so use "All"
-                movie.setCertification("All");
-            } else {
-                // extract the age and use that as the certification
-                movie.setCertification(HTMLTools.extractTag(xml, "Interdit aux moins de ", " ans"));
-            }
-
-            if (movie.isOverrideYear()) {
-                movie.setYear(removeOpenedHtmlTags(HTMLTools.extractTag(xml, "en <a href=\"/series/toutes/", "</a>")));
-                // logger.debug("AllocinePlugin: TV Show year = " + movie.getYear());
-            }
-
-            // Get Fanart
-            if (downloadFanart && isNotValidString(movie.getFanartURL())) {
-                movie.setFanartURL(getFanartURL(movie));
-                if (isValidString(movie.getFanartURL())) {
-                    movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
-                }
-            }
-
-            if (movie.getCast().isEmpty()) {
-                for (String actor : HTMLTools.extractTags(xml, "Avec ", "<br />", "<a", "</a>", false)) {
-                    // logger.debug("AllocinePlugin: actorTag=["+actor+"]");
-                    if (actor.contains("/personne/fichepersonne_gen_cpersonne")) {
-                        String cleanActor = removeOpenedHtmlTags(actor);
-                        // logger.debug("AllocinePlugin: Actor added : " + cleanActor);
-                        movie.addActor(cleanActor);
-                    }
-                }
-            }
-
-            // Removing Poster info from plugins. Use of PosterScanner routine instead.
-
-            // Allocine does not old posters for Tv Shows
-            // updatePoster(movie);
-            // String posterURL = PosterScanner.getPosterURL(movie, xml, IMDB_PLUGIN_ID);
-            // logger.debug("AllocinePlugin: Movie PosterURL from other source : " + posterURL);
-            // movie.setPosterURL(posterURL);
-
-            scanTVShowTitles(movie);
-        } catch (Exception error) {
-            logger.error("AllocinePlugin: Failed retreiving alloCine TVShow info for " + movie.getId(ALLOCINE_PLUGIN_ID));
-            logger.error(SystemTools.getStackTrace(error));
-        }
-    }
-
-    @Override
-    public void scanTVShowTitles(Movie movie) {
-        String allocineId = movie.getId(ALLOCINE_PLUGIN_ID);
-        if (!movie.isTVShow() || !movie.hasNewMovieFiles() || isNotValidString(allocineId)) {
+        String AllocineId = movie.getId(ALLOCINE_PLUGIN_ID);
+        if (!movie.isTVShow() || !movie.hasNewMovieFiles() || isNotValidString(AllocineId)) {
             return;
         }
 
         try {
-            // start a new request for seasons details
-            // logger.debug(
-            // "AllocinePlugin: Start a new request for seasons details : http://www.allocine.fr/seriespage_seasonepisodes_last?cseries=" + allocineId);
+            String cacheKey = Cache.generateCacheKey(CACHE_SERIES, AllocineId);
+            TvSeriesInfos tvSeriesInfos = (TvSeriesInfos) Cache.getFromCache(cacheKey);
+            if (tvSeriesInfos == null) {
+                tvSeriesInfos = XMLAllocineAPIHelper.getTvSeriesInfos(AllocineId);
+                // Add to the cache
+                Cache.addToCache(cacheKey, tvSeriesInfos);
+            }
 
-            String xml = webBrowser.request("http://www.allocine.fr/seriespage_seasonepisodes_last?cseries=" + allocineId);
+            if (tvSeriesInfos == null) {
+                logger.error("AllocinePlugin: Can't find informations for TvShow with id: " + AllocineId);
+                return;
+            }
 
-            for (String seasonTag : HTMLTools.extractHtmlTags(xml, "Saison :", "</ul>", "<a href=\"/seriespage_seasonepisodes_last", "</a>")) {
-                try {
-                    // logger.debug("AllocinePlugin: New Season detected seasonTag=[" + seasonTag+"]");
-                    String seasonString = removeHtmlTags(seasonTag);
-                    // logger.debug("AllocinePlugin: New Season detected seasonString=[" + seasonString+"]");
-                    int seasonNbI = Integer.valueOf(seasonString);
-                    // logger.debug("AllocinePlugin: New Season detected seasonNbI=[" + seasonNbI+"]");
-                    String seasonStringId = new String(seasonTag.substring(seasonTag.lastIndexOf('=') + 1, seasonTag.lastIndexOf('"')));
-                    // logger.debug("AllocinePlugin: New Season detected seasonStringId=[" + seasonStringId+"]");
-                    int seasonIdI = Integer.valueOf(seasonStringId);
-                    // logger.debug("AllocinePlugin: New Season detected seasonIdI= " + seasonIdI);
-                    // logger.debug("AllocinePlugin: seasonNbI = " + seasonNbI + ", movie.getSeason() = " + movie.getSeason());
-                    if (seasonNbI == movie.getSeason()) {
-                        // we found the right season, time to get the infos
-                        // logger.debug("AllocinePlugin: The right SeasonIdI = " + seasonIdI);
-                        xml = webBrowser.request("http://www.allocine.fr/seriespage_seasonepisodes_last?cseries=" + allocineId + "&cseriesseason=" + seasonIdI);
+            // Check Title
+            if (!movie.isOverrideTitle() && isValidString(tvSeriesInfos.getTitle())) {
+                movie.setTitle(tvSeriesInfos.getTitle());
+            }
 
-                        HashMap<Integer, String> episodeNames = new HashMap<Integer, String>();
-                        for (String episode : HTMLTools.extractTags(xml, "<table class=\"boxofficedata\">", "</table>", "<a", "</a>", false)) {
-                            try {
-                                // logger.debug("AllocinePlugin: episodeTag=[" + episode+"]");
-                                String episodeNbS = new String(episode.substring(episode.lastIndexOf("Episode") + 8, episode.lastIndexOf(':'))).trim();
-                                // logger.debug("AllocinePlugin: episodeNbS=[" + episodeNbS+"]");
-                                Integer episodeNbI = Integer.valueOf(episodeNbS);
-                                String episodeName = new String(episode.substring(episode.lastIndexOf(':') + 1)).trim();
-                                // logger.debug("AllocinePlugin: episodeName=[" + episodeName+"]");
-                                episodeNames.put(episodeNbI, episodeName);
-                                // logger.debug("AllocinePlugin: Episode Nb "+ episodeNbI + " : [" + episodeName+"] added to map");
-                            } catch (Exception e) {
-                                logger.error("AllocinePlugin: Error while parsing episode names : " + e.getMessage());
-                                // skip to next episode
-                            }
-                        }
-                        for (MovieFile file : movie.getFiles()) {
-                            if (!file.isNewFile() || file.hasTitle()) {
-                                // don't scan episode title if it exists in XML data
-                                continue;
-                            }
-                            logger.debug("AllocinePlugin: Setting filename for episode Nb " + file.getFirstPart());
-                            file.setTitle(episodeNames.get(file.getFirstPart()));
-                        }
-                    }
-                } catch (Exception error) {
-                    // logger.error("AllocinePlugin: Error while getting season infos " + e);
-                    // nothing to do, we skip this season
+            // Check Rating
+            if (movie.getRating() == -1) {
+                int rating = tvSeriesInfos.getRating();
+                if (rating >= 0) {
+                    movie.addRating(ALLOCINE_PLUGIN_ID, rating);
                 }
             }
+
+            // Check Year Start and End
+            if (!movie.isOverrideYear() && isNotValidString(movie.getYear()) && isValidString(tvSeriesInfos.getYearStart())) {
+                if (isValidString(tvSeriesInfos.getYearEnd()))
+                    movie.setYear(tvSeriesInfos.getYearStart()+"-"+tvSeriesInfos.getYearEnd());
+                else
+                    movie.setYear(tvSeriesInfos.getYearStart());
+            }
+
+            // Check Plot
+            if (isNotValidString(movie.getPlot())) {
+                String synopsis = tvSeriesInfos.getSynopsis();
+                if (isValidString(synopsis)) {
+                    String plot = trimToLength(synopsis, preferredPlotLength, true, plotEnding);
+                    movie.setPlot(plot);
+                }
+            }
+
+            // Check ReleaseDate and Company
+            //if (tvSeriesInfos.getRelease() != null) {
+            //   if (isNotValidString(movie.getReleaseDate()) && isValidString(tvSeriesInfos.getRelease().getReleaseDate())) {
+            //        movie.setReleaseDate(tvSeriesInfos.getRelease().getReleaseDate());
+            //    }
+            //}
+
+            if (isNotValidString(movie.getCompany()) && isValidString(tvSeriesInfos.getOriginalChannel())) {
+                    movie.setCompany(tvSeriesInfos.getOriginalChannel());
+            }
+
+            // Check country
+            if (isNotValidString(movie.getCountry()) && !tvSeriesInfos.getNationalityList().isEmpty()) {
+                String firstCountry = tvSeriesInfos.getNationalityList().get(0);
+                movie.setCountry(firstCountry);
+            }
+
+            // Check Genres
+            if (movie.getGenres().isEmpty()) {
+                for (String genre : tvSeriesInfos.getGenreList()) {
+                    movie.addGenre(genre);
+                }
+            }
+
+            // Check Casting
+            if (movie.getDirectors().isEmpty()) {
+                movie.setDirectors(tvSeriesInfos.getDirectors());
+            }
+            if (movie.getCast().isEmpty()) {
+                movie.setCast(tvSeriesInfos.getActors());
+            }
+            if (movie.getWriters().isEmpty()) {
+                movie.setWriters(tvSeriesInfos.getWriters());
+            }
+
+            int currentSeason = movie.getSeason();
+            try {
+                if (currentSeason <= 0 || currentSeason > tvSeriesInfos.getSeasonCount())
+                        throw new Exception();
+                TvSeasonInfos tvSeasonInfos = null;
+                for (MovieFile file : movie.getFiles()) {
+                    if (!file.isNewFile() && file.hasTitle()) {
+                        // don't scan episode title if it exists in XML data
+                        continue;
+                    }
+                    if (tvSeasonInfos == null) {
+                        tvSeasonInfos = XMLAllocineAPIHelper.getTvSeasonInfos(tvSeriesInfos.getSeasonCode(currentSeason));
+                    }
+                    // A file can have multiple episodes in it
+                    for (int numEpisode = file.getFirstPart(); numEpisode <= file.getLastPart(); ++numEpisode) {
+                        logger.debug("AllocinePlugin: Setting filename for episode Nb " + numEpisode);
+                        Episode episode = tvSeasonInfos.getEpisode(numEpisode);
+                        if (episode != null) {
+                            // Set the title of the episode
+                            if (isNotValidString(file.getTitle(numEpisode))) {
+                                file.setTitle(numEpisode, episode.getTitle());
+                            }
+
+                            if (includeEpisodePlots && isNotValidString(file.getPlot(numEpisode))) {
+                                String episodePlot =
+                                    trimToLength(episode.getSynopsis(), preferredPlotLength, true, plotEnding);
+                                file.setPlot(numEpisode, episodePlot);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e) {
+                logger.warn("AllocinePlugin: Can't find informations for season " + currentSeason +
+                            " for TvSeries with id "+ AllocineId + " (" + movie.getBaseName() +")");
+            }
+
+            // Call the TvDBPlugin to download fanart and/or videoimages
+            if (downloadFanart || includeVideoImages) {
+                if (tvdb == null) {
+                    tvdb = new TheTvDBPlugin();
+                }
+                String tvDBid = TheTvDBPlugin.findId(movie);
+                if (StringTools.isValidString(tvDBid)) {
+                    tvdb.getFanart(movie);
+                    tvdb.scanTVShowTitles(movie);
+                }
+            }
+        } catch (JAXBException error) {
+            logger.error("AllocinePlugin: Failed retrieving allocine infos for TvShow "
+                    + AllocineId + ". Perhaps the allocine XML API has changed ...");
+            logger.error(SystemTools.getStackTrace(error));
         } catch (Exception error) {
-            logger.error("AllocinePlugin: Failed retreiving episodes titles for movie : " + movie.getTitle());
-            logger.error("AllocinePlugin: Error : " + error.getMessage());
+            logger.error("AllocinePlugin: Failed retrieving allocine infos for TvShow : " + AllocineId);
+            logger.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -315,21 +326,6 @@ public class AllocinePlugin extends ImdbPlugin {
         return true;
     }
 
-    private int parseRating(String rating) {
-
-        try {
-            int ratingBegin = rating.indexOf("\"");
-            int ratingEnd = rating.indexOf("\"", ratingBegin + 1);
-            String floatRating = new String(rating.substring(ratingBegin + 1, ratingEnd)).replace(',', '.');
-            // logger.debug("AllocinePlugin: String floatRating =[" + floatRating + "]");
-
-            return (int) (Float.parseFloat(floatRating) / 5.0 * 100);
-        } catch (Exception error) {
-            logger.debug("AllocinePlugin: AllocinePlugin.parseRating no rating found in [" + rating + "]");
-            return -1;
-        }
-    }
-
     @Override
     public boolean scan(Movie mediaFile) {
         boolean retval = false;
@@ -349,6 +345,7 @@ public class AllocinePlugin extends ImdbPlugin {
                 mediaFile.setId(ALLOCINE_PLUGIN_ID, allocineId);
                 if (mediaFile.isTVShow()) {
                     updateTVShowInfo(mediaFile);
+                    retval = true;
                 } else {
                     retval = updateMovieInfo(mediaFile);
                 }
@@ -365,71 +362,110 @@ public class AllocinePlugin extends ImdbPlugin {
         return retval;
     }
 
+
     /**
-     * retrieve the allocineId matching the specified movie name. This routine is base on a alloCine search.
+     * retrieve the allocineId matching the specified movie name.
      *
      * @throws ParseException
      */
     public String getAllocineId(String movieName, String year, int tvSeason) throws ParseException {
-        if (isValidString(year)) {
-            return getAllocineIdFromGoogle(movieName, year);
-        } else {
-            String allocineId = Movie.UNKNOWN;
-            // Add '/1' in the URL to obtain the 20 first matches
-            String allocineBaseRequest = "http://www.allocine.fr/recherche/1/?q=";
-            try {
-                StringBuilder sb = new StringBuilder(allocineBaseRequest);
-                sb.append(URLEncoder.encode(movieName, "UTF-8"));
-                String xml = webBrowser.request(sb.toString());
+        String allocineId = Movie.UNKNOWN;
+        try {
+            if (tvSeason > -1) {;
+                allocineId = getAllocineSerieId(movieName, year);
+            } else {
+                allocineId = getAllocineMovieId(movieName, year);
+            }
+            if (isNotValidString(allocineId) && isValidString(year)) {
+                // Try to find the allocine id with google
+                return getAllocineIdFromGoogle(movieName, year);
+            }
 
-                String alloCineStartResult;
-                String alloCineMediaPrefix;
-                if (tvSeason > -1) {
-                    alloCineStartResult = "dans les titres de séries TV";
-                    alloCineMediaPrefix = "/series/ficheserie_gen_cserie=";
-                } else {
-                    alloCineStartResult = "dans les titres de films";
-                    alloCineMediaPrefix = "/film/fichefilm_gen_cfilm=";
-                }
+            return allocineId;
 
-                String alloCineEndResult = "</table>";
-                String alloCineMediaSectionTagEnd = "</span> <!--  /fs11 -->";
-
-                String alloCineYearTagStart = "<span class=\"fs11\">";
-                String alloCineYearTagEnd = "<br />";
-
-                String formattedMovieName = Normalizer.normalize(movieName.replace("\u0153", "oe").toLowerCase(), Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "");
-                for (String searchResult : HTMLTools.extractTags(xml, alloCineStartResult, alloCineEndResult, alloCineMediaPrefix, alloCineMediaSectionTagEnd, false)) {
-                    String formattedTitle = "<" + HTMLTools.extractTag(searchResult, alloCineMediaPrefix, "</a>").replace("<b>", "").replace("</b>", "");
-                    formattedTitle = HTMLTools.getTextAfterElem(formattedTitle, ".html'>").replace(":", "-");
-                    formattedTitle = Normalizer.normalize(formattedTitle, Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "").replace(" (TV)", "");
-                    // logger.debug("AllocinePlugin search '" + formattedMovieName + "' in " + searchResult);
-
-                    if (formattedTitle.equalsIgnoreCase(formattedMovieName)) {
-                        String searchResultYear = new String(searchResult.substring(searchResult.lastIndexOf(alloCineYearTagStart) + alloCineYearTagStart.length(), searchResult.length()));
-                        searchResultYear = new String(searchResultYear.substring(0, searchResultYear.indexOf(alloCineYearTagEnd))).trim();
-                        // Issue #1265: to prevent some strange layout where tags <b></b> are inside the movie year
-                        searchResultYear = removeHtmlTags(searchResultYear);
-                        logger.debug("AllocinePlugin: searchResultYear = [" + searchResultYear + "] while year=[" + year + "]");
-                        if (isNotValidString(year) || year.equalsIgnoreCase(searchResultYear)) {
-                            int allocineIndexBegin = 0;
-                            int allocineIndexEnd = searchResult.indexOf(".html");
-
-                            allocineId = new String(searchResult.substring(allocineIndexBegin, allocineIndexEnd));
-                            // validate that allocineId is an int
-                            Integer.valueOf(allocineId);
-                            logger.debug("AllocinePlugin: Found AllocineId = " + allocineId);
-                            return allocineId;
+        } catch (Exception error) {
+            logger.error("AllocinePlugin: Failed to retrieve alloCine Id for movie : " + movieName);
+            logger.error("AllocinePlugin: Now using ImdbPlugin");
+            throw new ParseException(allocineId, 0);
+        }
+    }
+ 
+    private String getAllocineSerieId(String movieName, String year) throws Exception {
+        String cacheKey = Cache.generateCacheKey(CACHE_SEARCH_SERIES, movieName);
+        Search searchInfos = (Search) Cache.getFromCache(cacheKey);
+        if (searchInfos == null) {
+            searchInfos = XMLAllocineAPIHelper.SearchTvseriesInfos(movieName);
+            // Add to the cache
+            Cache.addToCache(cacheKey, searchInfos);
+        }
+        if (searchInfos != null && searchInfos.getTotalResults() > 0) {
+            int totalResults =  searchInfos.getTotalResults();
+            // If we have a valid year try to find the first serie that match
+            if (totalResults > 1 && isValidString(year)) {
+                int yearSerie = NumberUtils.toInt(year, -1);
+                for (Tvseries serie : searchInfos.getTvseries()) {
+                    if (serie != null) {
+                        int serieStart = NumberUtils.toInt(serie.getYearStart(), -1);
+                        if (serieStart == -1) {
+                            continue;
+                        }
+                        int serieEnd = NumberUtils.toInt(serie.getYearEnd(), -1);;
+                        if (serieEnd == -1) {
+                            serieEnd = serieStart;
+                        }
+                        if (yearSerie >= serieStart  && yearSerie <= serieEnd) {
+                            return String.valueOf(serie.getCode());
                         }
                     }
                 }
-                return Movie.UNKNOWN;
-            } catch (Exception error) {
-                logger.error("AllocinePlugin: Failed to retrieve alloCine Id for movie : " + movieName);
-                logger.error("AllocinePlugin: Now using ImdbPlugin");
-                throw new ParseException(allocineId, 0);
+            }
+            // We don't find a serie or there only one result, return the first
+            List<Tvseries> serieList = searchInfos.getTvseries();
+            if (!serieList.isEmpty()) {
+                Tvseries serie = serieList.get(0);
+                if (serie != null) {
+                    return String.valueOf(serie.getCode());
+                }
             }
         }
+        return Movie.UNKNOWN;
+    }
+
+    private String getAllocineMovieId(String movieName, String year) throws Exception {
+        String cacheKey = Cache.generateCacheKey(CACHE_SEARCH_MOVIE, movieName);
+        Search searchInfos = (Search) Cache.getFromCache(cacheKey);
+        if (searchInfos == null) {
+            searchInfos = XMLAllocineAPIHelper.SearchMovieInfos(movieName);
+            // Add to the cache
+            Cache.addToCache(cacheKey, searchInfos);
+        }
+        if (searchInfos != null && searchInfos.getTotalResults() > 0) {
+            int totalResults =  searchInfos.getTotalResults();
+            // If we have a valid year try to find the first movie that match
+            if (totalResults > 1 && isValidString(year)) {
+                int yearMovie = NumberUtils.toInt(year, -1);
+                for (com.moviejukebox.allocine.jaxb.Movie movie : searchInfos.getMovie()) {
+                    if (movie != null) {
+                        int movieProductionYear = NumberUtils.toInt(movie.getProductionYear(), -1);
+                        if (movieProductionYear == -1) {
+                            continue;
+                        }
+                        if (movieProductionYear == yearMovie) {
+                            return String.valueOf(movie.getCode());
+                        }
+                    }
+                }
+            }
+            // We don't find a movie or there only one result, return the first
+            List<com.moviejukebox.allocine.jaxb.Movie> movieList = searchInfos.getMovie();
+            if (!movieList.isEmpty()) {
+                com.moviejukebox.allocine.jaxb.Movie movie = movieList.get(0);
+                if (movie != null) {
+                    return String.valueOf(movie.getCode());
+                }
+            }
+        }
+        return Movie.UNKNOWN;
     }
 
     /**

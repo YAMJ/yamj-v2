@@ -1,6 +1,9 @@
 package com.moviejukebox.allocine;
 
 import com.moviejukebox.allocine.jaxb.ObjectFactory;
+import com.moviejukebox.allocine.jaxb.Feed;
+import com.moviejukebox.allocine.jaxb.Tvseries;
+import com.moviejukebox.allocine.jaxb.Season;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -32,6 +35,25 @@ public final class XMLAllocineAPIHelper {
         return unmarshaller;
     }
 
+    protected static Search validSearchElement(Object rootElement) {
+        if (rootElement instanceof Feed) {
+            return (Search) rootElement;
+        }
+        // Error
+        return null;
+    }
+
+    public static Search SearchMovieInfos(String query) throws IOException, JAXBException, XMLStreamException {
+        URL url = new URL("http://api.allocine.fr/rest/v3/search?partner=YW5kcm9pZC12M3M&format=XML&filter=movie&q=" + query);
+        Unmarshaller unmarshaller = createAllocineUnmarshaller();
+        return validSearchElement(unmarshaller.unmarshal(url));
+    }
+    public static Search SearchTvseriesInfos(String query) throws IOException, JAXBException, XMLStreamException {
+        URL url = new URL("http://api.allocine.fr/rest/v3/search?partner=YW5kcm9pZC12M3M&format=XML&filter=tvseries&q=" + query);
+        Unmarshaller unmarshaller = createAllocineUnmarshaller();
+        return validSearchElement(unmarshaller.unmarshal(url));
+    }
+
     protected static MovieInfos validMovieElement(Object rootElement) {
         if (rootElement instanceof MovieInfos) {
             return (MovieInfos) rootElement;
@@ -51,4 +73,35 @@ public final class XMLAllocineAPIHelper {
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
         return validMovieElement(unmarshaller.unmarshal(file));
     }
+
+    protected static TvSeriesInfos validTvSeriesElement(Object rootElement) {
+        if (rootElement instanceof Tvseries) {
+            return (TvSeriesInfos) rootElement;
+        }
+        // Error
+        return null;
+    }
+
+    public static TvSeriesInfos getTvSeriesInfos(String allocineId) throws IOException, JAXBException, XMLStreamException {
+        // HTML tags are remove from synopsis & synopsisshort
+        URL url = new URL("http://api.allocine.fr/rest/v3/tvseries?partner=YW5kcm9pZC12M3M&profile=large&mediafmt=mp4-lc&format=XML&filter=movie&striptags=synopsis,synopsisshort&code=" + allocineId);
+        Unmarshaller unmarshaller = createAllocineUnmarshaller();
+        return validTvSeriesElement(unmarshaller.unmarshal(url));
+    }
+
+    protected static TvSeasonInfos validTvSeasonElement(Object rootElement) {
+        if (rootElement instanceof Season) {
+            return (TvSeasonInfos) rootElement;
+        }
+        // Error
+        return null;
+    }
+
+    public static TvSeasonInfos getTvSeasonInfos(Integer seasonCode) throws IOException, JAXBException, XMLStreamException {
+        // HTML tags are remove from synopsis & synopsisshort
+        URL url = new URL("http://api.allocine.fr/rest/v3/season?partner=YW5kcm9pZC12M3M&profile=large&mediafmt=mp4-lc&format=XML&filter=movie&striptags=synopsis,synopsisshort&code=" + seasonCode);
+        Unmarshaller unmarshaller = createAllocineUnmarshaller();
+        return validTvSeasonElement(unmarshaller.unmarshal(url));
+    }
+
 }
