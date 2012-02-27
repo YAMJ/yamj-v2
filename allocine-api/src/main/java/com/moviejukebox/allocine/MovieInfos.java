@@ -43,6 +43,18 @@ public class MovieInfos extends Movie {
 
     private static final int     POSTER_MEDIA_CODE      = 31001;
 
+    public MovieInfos() {
+        setCode(-1); // Mark the object as invalid
+    }
+
+    public boolean isValid() {
+        return getCode() > -1 ? true : false;
+    }
+
+    public boolean isNotValid() {
+        return getCode() > -1 ? false : true;
+    }
+
     public final String getSynopsis() {
         String synopsis = "";
         HtmlSynopsisType htmlSynopsis = getHtmlSynopsis();

@@ -22,4 +22,16 @@ import com.moviejukebox.allocine.jaxb.*;
  */
 
 public class Search extends Feed {
+
+    public Search() {
+        setTotalResults(-1); // Mark the movie as invalid
+    }
+
+    public boolean isValid() {
+        return getTotalResults() > -1 ? true : false;
+    }
+
+    public boolean isNotValid() {
+        return getTotalResults() > -1 ? true : false;
+    }
 }

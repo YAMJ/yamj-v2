@@ -40,6 +40,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
     public static final String CACHE_SEARCH_MOVIE  = "AllocineSearchMovie";
     public static final String CACHE_SEARCH_SERIES = "AllocineSearchSeries";
+    public static final String CACHE_MOVIE         = "AllocineMovie";
     public static final String CACHE_SERIES        = "AllocineSeries";
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
@@ -81,7 +82,7 @@ public class AllocinePlugin extends ImdbPlugin {
                 Cache.addToCache(cacheKey, tvSeriesInfos);
             }
 
-            if (tvSeriesInfos == null) {
+            if (tvSeriesInfos.isNotValid()) {
                 logger.error("AllocinePlugin: Can't find informations for TvShow with id: " + AllocineId);
                 return;
             }
@@ -164,6 +165,9 @@ public class AllocinePlugin extends ImdbPlugin {
                     if (tvSeasonInfos == null) {
                         tvSeasonInfos = XMLAllocineAPIHelper.getTvSeasonInfos(tvSeriesInfos.getSeasonCode(currentSeason));
                     }
+                    if (tvSeasonInfos.isNotValid()) {
+                        continue;
+                    }
                     // A file can have multiple episodes in it
                     for (int numEpisode = file.getFirstPart(); numEpisode <= file.getLastPart(); ++numEpisode) {
                         logger.debug("AllocinePlugin: Setting filename for episode Nb " + numEpisode);
@@ -218,9 +222,15 @@ public class AllocinePlugin extends ImdbPlugin {
 
         try {
 
-            MovieInfos movieInfos = XMLAllocineAPIHelper.getMovieInfos(AllocineId);
-
+            String cacheKey = Cache.generateCacheKey(CACHE_MOVIE, AllocineId);
+            MovieInfos movieInfos = (MovieInfos) Cache.getFromCache(cacheKey);
             if (movieInfos == null) {
+                movieInfos = XMLAllocineAPIHelper.getMovieInfos(AllocineId);
+                // Add to the cache
+                Cache.addToCache(cacheKey, movieInfos);
+            }
+
+            if (movieInfos.isNotValid()) {
                 logger.error("AllocinePlugin: Can't find informations for movie with id: " + AllocineId);
                 return false;
             }
@@ -394,11 +404,11 @@ public class AllocinePlugin extends ImdbPlugin {
         String cacheKey = Cache.generateCacheKey(CACHE_SEARCH_SERIES, movieName);
         Search searchInfos = (Search) Cache.getFromCache(cacheKey);
         if (searchInfos == null) {
-            searchInfos = XMLAllocineAPIHelper.SearchTvseriesInfos(movieName);
+            searchInfos = XMLAllocineAPIHelper.searchTvseriesInfos(movieName);
             // Add to the cache
             Cache.addToCache(cacheKey, searchInfos);
         }
-        if (searchInfos != null && searchInfos.getTotalResults() > 0) {
+        if (searchInfos.isValid() && searchInfos.getTotalResults() > 0) {
             int totalResults =  searchInfos.getTotalResults();
             // If we have a valid year try to find the first serie that match
             if (totalResults > 1 && isValidString(year)) {
@@ -435,11 +445,11 @@ public class AllocinePlugin extends ImdbPlugin {
         String cacheKey = Cache.generateCacheKey(CACHE_SEARCH_MOVIE, movieName);
         Search searchInfos = (Search) Cache.getFromCache(cacheKey);
         if (searchInfos == null) {
-            searchInfos = XMLAllocineAPIHelper.SearchMovieInfos(movieName);
+            searchInfos = XMLAllocineAPIHelper.searchMovieInfos(movieName);
             // Add to the cache
             Cache.addToCache(cacheKey, searchInfos);
         }
-        if (searchInfos != null && searchInfos.getTotalResults() > 0) {
+        if (searchInfos.isValid() && searchInfos.getTotalResults() > 0) {
             int totalResults =  searchInfos.getTotalResults();
             // If we have a valid year try to find the first movie that match
             if (totalResults > 1 && isValidString(year)) {

@@ -44,7 +44,7 @@ public class MovieInfosTest {
     public void testGetMovieInfos() throws Exception {
         File noresultFile = new File("src/test/java/noresult.xml");
         MovieInfos noresultInfos = XMLAllocineAPIHelper.getMovieInfos(noresultFile);
-        Assert.assertNull(noresultInfos);
+        Assert.assertEquals(false, noresultInfos.isValid());
     }
 
     /**
