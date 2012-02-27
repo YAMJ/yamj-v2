@@ -68,6 +68,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2288 TV Episodes Not Scraping Studio/Company
  - Fixed defect #2289 Failed to create poster images for TV shows with special characters in title
  - Fixed defect #2290 RAR: Archive name added repeatedly to fileurl
+ - Fixed defect #2294 Update WriteNFO to save the person's job
  - Enhancement  #2300 Separate YAMJpeople runs from the YAMJ normal run
  - Enhancement  #2301 Add Link to cast,director and writer indexes in person.xml
  - Enhancement  #2305 get people link and photo inside detail xml page

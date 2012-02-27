@@ -2534,23 +2534,6 @@ public class MovieJukeboxXMLWriter {
                 }
             }
 
-            if (!movie.getWriters().isEmpty()) {
-                eCredits = docNFO.createElement("credits");
-                eRoot.appendChild(eCredits);
-
-                for (String writerCredit : movie.getWriters()) {
-                    DOMHelper.appendChild(docNFO, eCredits, "writer", writerCredit);
-                }
-            }
-
-            if (!movie.getDirectors().isEmpty()) {
-                eDirectors = docNFO.createElement("directors");
-                eRoot.appendChild(eDirectors);
-                for (String director : movie.getDirectors()) {
-                    DOMHelper.appendChild(docNFO, eDirectors, "director", director);
-                }
-            }
-
             if (StringTools.isValidString(movie.getCompany())) {
                 DOMHelper.appendChild(docNFO, eRoot, "company", movie.getCompany());
             }
@@ -2559,14 +2542,73 @@ public class MovieJukeboxXMLWriter {
                 DOMHelper.appendChild(docNFO, eRoot, "country", movie.getCountry());
             }
 
-            if (!movie.getCast().isEmpty()) {
+            /*
+             * Process the people information from the video If we are using
+             * people scraping, use that information, otherwise revert to the
+             * standard people
+             */
+            if (enablePeople) {
                 eActors = docNFO.createElement("actor");
+                eCredits = docNFO.createElement("credits");
+                eDirectors = docNFO.createElement("directors");
+                int countActors = 0;
+                int countCredits = 0;
+                int countDirectors = 0;
 
-                for (String actor : movie.getCast()) {
-                    DOMHelper.appendChild(docNFO, eActors, "name", actor);
-                    DOMHelper.appendChild(docNFO, eActors, "role", "");
+                for (Filmography person : movie.getPeople()) {
+                    if (person.getDepartment().equalsIgnoreCase(Filmography.DEPT_ACTORS)) {
+                        countActors++;
+                        DOMHelper.appendChild(docNFO, eActors, "name", person.getName());
+                        DOMHelper.appendChild(docNFO, eActors, "role", person.getJob());
+                    } else if (person.getDepartment().equalsIgnoreCase(Filmography.DEPT_DIRECTING)) {
+                        countDirectors++;
+                        DOMHelper.appendChild(docNFO, eDirectors, "director", person.getName());
+                    } else {
+                        // Add the person to the misc credits section
+                        countCredits++;
+                        DOMHelper.appendChild(docNFO, eCredits, person.getJob().toLowerCase(), person.getName());
+                    }
                 }
-                eRoot.appendChild(eActors);
+
+                // Only add the actors section if there were any
+                if (countActors > 0) {
+                    eRoot.appendChild(eActors);
+                }
+
+                // Only add the directors section if there were any
+                if (countDirectors > 0) {
+                    eRoot.appendChild(eDirectors);
+                }
+
+                // Only add the credits section if there were any
+                if (countCredits > 0) {
+                    eRoot.appendChild(eCredits);
+                }
+            } else {
+                if (!movie.getCast().isEmpty()) {
+                    eActors = docNFO.createElement("actor");
+                    for (String actor : movie.getCast()) {
+                        DOMHelper.appendChild(docNFO, eActors, "name", actor);
+                        DOMHelper.appendChild(docNFO, eActors, "role", Filmography.DEPT_ACTORS);
+                    }
+                    eRoot.appendChild(eActors);
+                }
+
+                if (!movie.getWriters().isEmpty()) {
+                    eCredits = docNFO.createElement("credits");
+                    for (String writerCredit : movie.getWriters()) {
+                        DOMHelper.appendChild(docNFO, eCredits, "writer", writerCredit);
+                    }
+                    eRoot.appendChild(eCredits);
+                }
+
+                if (!movie.getDirectors().isEmpty()) {
+                    eDirectors = docNFO.createElement("directors");
+                    for (String director : movie.getDirectors()) {
+                        DOMHelper.appendChild(docNFO, eDirectors, "director", director);
+                    }
+                    eRoot.appendChild(eDirectors);
+                }
             }
 
             // Add the fileinfo format

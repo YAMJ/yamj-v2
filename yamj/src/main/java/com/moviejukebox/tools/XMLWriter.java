@@ -27,8 +27,8 @@ import org.apache.log4j.Logger;
  */
 public class XMLWriter {
 
-    private int indent = 4;
-    private String indentString = "    ";
+    private static int indent = 4;
+    private static String indentString = "    ";
     private int indentCount = 0;
 
     private boolean wasPrevElement = true;
@@ -39,7 +39,7 @@ public class XMLWriter {
     private XMLStreamWriter writer;
 
     private static final Logger logger = Logger.getLogger(XMLWriter.class);
-    private static XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+    private static final XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
 
     public XMLWriter(File xmlFile) {
         try {
