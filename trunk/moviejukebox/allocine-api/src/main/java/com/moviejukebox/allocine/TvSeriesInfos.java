@@ -39,6 +39,18 @@ public class TvSeriesInfos extends Tvseries {
 
     private static final int     POSTER_MEDIA_CODE      = 31001;
 
+    public TvSeriesInfos() {
+        setCode(-1); // Mark the object as invalid
+    }
+
+    public boolean isValid() {
+        return getCode() > -1 ? true : false;
+    }
+
+    public boolean isNotValid() {
+        return getCode() > -1 ? false : true;
+    }
+
     public final String getSynopsis() {
         String synopsis = "";
         HtmlSynopsisType htmlSynopsis = getHtmlSynopsis();
@@ -146,8 +158,9 @@ public class TvSeriesInfos extends Tvseries {
 
     public final int getSeasonCode(int seasonNumber) {
         for (Season season : getSeasonList()) {
-            if (season.getSeasonNumber() == seasonNumber)
+            if (season.getSeasonNumber() == seasonNumber) {
                 return season.getCode();
+            }
         }
         return -1;
     }

@@ -36,30 +36,30 @@ public final class XMLAllocineAPIHelper {
     }
 
     protected static Search validSearchElement(Object rootElement) {
-        if (rootElement instanceof Feed) {
+        if (rootElement.getClass() == Search.class) {
             return (Search) rootElement;
         }
         // Error
-        return null;
+        return new Search();
     }
 
-    public static Search SearchMovieInfos(String query) throws IOException, JAXBException, XMLStreamException {
+    public static Search searchMovieInfos(String query) throws IOException, JAXBException, XMLStreamException {
         URL url = new URL("http://api.allocine.fr/rest/v3/search?partner=YW5kcm9pZC12M3M&format=XML&filter=movie&q=" + query);
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
         return validSearchElement(unmarshaller.unmarshal(url));
     }
-    public static Search SearchTvseriesInfos(String query) throws IOException, JAXBException, XMLStreamException {
+    public static Search searchTvseriesInfos(String query) throws IOException, JAXBException, XMLStreamException {
         URL url = new URL("http://api.allocine.fr/rest/v3/search?partner=YW5kcm9pZC12M3M&format=XML&filter=tvseries&q=" + query);
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
         return validSearchElement(unmarshaller.unmarshal(url));
     }
 
     protected static MovieInfos validMovieElement(Object rootElement) {
-        if (rootElement instanceof MovieInfos) {
+        if (rootElement.getClass() == MovieInfos.class) {
             return (MovieInfos) rootElement;
         }
         // Error
-        return null;
+        return new MovieInfos();
     }
 
     public static MovieInfos getMovieInfos(String allocineId) throws IOException, JAXBException, XMLStreamException {
@@ -75,11 +75,11 @@ public final class XMLAllocineAPIHelper {
     }
 
     protected static TvSeriesInfos validTvSeriesElement(Object rootElement) {
-        if (rootElement instanceof Tvseries) {
+        if (rootElement.getClass() == TvSeriesInfos.class) {
             return (TvSeriesInfos) rootElement;
         }
         // Error
-        return null;
+        return new TvSeriesInfos();
     }
 
     public static TvSeriesInfos getTvSeriesInfos(String allocineId) throws IOException, JAXBException, XMLStreamException {
@@ -90,11 +90,11 @@ public final class XMLAllocineAPIHelper {
     }
 
     protected static TvSeasonInfos validTvSeasonElement(Object rootElement) {
-        if (rootElement instanceof Season) {
+        if (rootElement.getClass() == TvSeasonInfos.class) {
             return (TvSeasonInfos) rootElement;
         }
         // Error
-        return null;
+        return new TvSeasonInfos();
     }
 
     public static TvSeasonInfos getTvSeasonInfos(Integer seasonCode) throws IOException, JAXBException, XMLStreamException {

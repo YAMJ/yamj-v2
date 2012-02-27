@@ -19,6 +19,7 @@ import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.AllocinePlugin;
+import com.moviejukebox.tools.Cache;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import org.apache.log4j.Logger;
@@ -56,9 +57,15 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
         String posterURL = Movie.UNKNOWN;
         if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
             try {
-                MovieInfos movieInfos = XMLAllocineAPIHelper.getMovieInfos(id);
-
+                String cacheKey = Cache.generateCacheKey(AllocinePlugin.CACHE_MOVIE, id);
+                MovieInfos movieInfos = (MovieInfos) Cache.getFromCache(cacheKey);
                 if (movieInfos == null) {
+                    movieInfos = XMLAllocineAPIHelper.getMovieInfos(id);
+                    // Add to the cache
+                    Cache.addToCache(cacheKey, movieInfos);
+                }
+
+                if (movieInfos.isNotValid()) {
                     logger.error("AllocinePlugin: Can't find informations for movie with id: " + id);
                     return Image.UNKNOWN;
                 }

@@ -23,6 +23,18 @@ import com.moviejukebox.allocine.jaxb.*;
 
 public class TvSeasonInfos extends Season {
 
+    public TvSeasonInfos() {
+        setCode(-1); // Mark the object as invalid
+    }
+
+    public boolean isValid() {
+        return getCode() > -1 ? true : false;
+    }
+
+    public boolean isNotValid() {
+        return getCode() > -1 ? false : true;
+    }
+
     public Episode getEpisode(int numEpisode) {
         Episode episode = null;
         for (Episode checkEpisode : getEpisodeList()) {
