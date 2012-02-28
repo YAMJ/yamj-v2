@@ -5,6 +5,7 @@
 MovieJukebox 2.6-SNAPSHOT
 -------------------------
  - Enhancement  #1189 Generating a Footer image for every movie with Video/Audio/Studio/Subtitles logos
+ - Fixed defect #1425 TV NFO Episode Details not working
  - Fixed defect #2019 Caratulasdecine Poster Plugin does not work
  - Enhancement  #2025 Capture more codec information
  - Fixed defect #2027 TV show DVD sorting doesn't work

@@ -183,8 +183,7 @@ public class MovieNFOScanner {
     /**
      * Search for the NFO file in the library structure
      *
-     * @param movie
-     *            The movie bean to locate the NFO for
+     * @param movie The movie bean to locate the NFO for
      * @return A List structure of all the relevant NFO files
      */
     public static List<File> locateNFOs(Movie movie) {
@@ -260,14 +259,16 @@ public class MovieNFOScanner {
 
         // *** Next step is to check for a directory wide NFO file.
         if (acceptAllNFO) {
-            /* If any NFO file in this directory will do, then we search for all we can find
-             * NOTE: for scanning efficiency, it is better to first search for specific
-             * filenames before we start doing filtered "listfiles" which scans all the files;
-             * A movie collection with all moviefiles in one directory could take tremendously
-             * longer if for each moviefile found, the entire directory must be listed!!
-             * Therefore, we first check for specific filenames (cfr. old behaviour) before
-             * doing an entire scan of the directory -- and only if the user has decided to
-             * accept any NFO file!
+            /*
+             * If any NFO file in this directory will do, then we search for all
+             * we can find NOTE: for scanning efficiency, it is better to first
+             * search for specific filenames before we start doing filtered
+             * "listfiles" which scans all the files; A movie collection with
+             * all moviefiles in one directory could take tremendously longer if
+             * for each moviefile found, the entire directory must be listed!!
+             * Therefore, we first check for specific filenames (cfr. old
+             * behaviour) before doing an entire scan of the directory -- and
+             * only if the user has decided to accept any NFO file!
              */
 
             // Check the current directory
@@ -320,6 +321,7 @@ public class MovieNFOScanner {
 
     /**
      * Search the current directory for all NFO files using a file filter
+     *
      * @param nfoFiles
      * @param currentDir
      * @param fFilter
@@ -337,8 +339,7 @@ public class MovieNFOScanner {
     /**
      * Check to see if the passed filename exists with nfo extensions
      *
-     * @param checkNFOfilename
-     *            (NO EXTENSION)
+     * @param checkNFOfilename (NO EXTENSION)
      * @return blank string if not found, filename if found
      */
     private static void checkNFO(List<File> nfoFiles, String checkNFOfilename) {
@@ -354,8 +355,9 @@ public class MovieNFOScanner {
     }
 
     /**
-     * Check the NFO file for any of the XML triggers that indicate it's a XML file
-     * If found, process the NFO file as a XML NFO
+     * Check the NFO file for any of the XML triggers that indicate it's a XML
+     * file If found, process the NFO file as a XML NFO
+     *
      * @param nfo
      * @param movie
      * @param nfoFile
@@ -376,10 +378,8 @@ public class MovieNFOScanner {
     /**
      * Create an XML reader for file. Use forced encoding if specified.
      *
-     * @param nfoFile
-     *            File to read.
-     * @param nfo
-     *            Content of the XML file. Used only for the encoding detection.
+     * @param nfoFile File to read.
+     * @param nfo Content of the XML file. Used only for the encoding detection.
      * @return New XML reader.
      * @throws FactoryConfigurationError
      * @throws XMLStreamException
@@ -402,7 +402,8 @@ public class MovieNFOScanner {
     }
 
     /**
-     * Used to parse out the XBMC NFO XML data for movies The specification is here: http://xbmc.org/wiki/?title=Import_-_Export_Library
+     * Used to parse out the XBMC NFO XML data for movies The specification is
+     * here: http://xbmc.org/wiki/?title=Import_-_Export_Library
      *
      * @param xmlFile
      * @param movie
@@ -686,13 +687,10 @@ public class MovieNFOScanner {
                             String role = Movie.UNKNOWN;
 
                             /*
-                             * There can be multiple actors listed in the nfo in the format
-                             * <actor>
-                             *     <name>Actor Name</name>
-                             *     <role>Character Name</role>
-                             *     <name>Actor Name</name>
-                             *     <role>Character Name</role>
-                             * </actor>
+                             * There can be multiple actors listed in the nfo in
+                             * the format <actor> <name>Actor Name</name>
+                             * <role>Character Name</role> <name>Actor
+                             * Name</name> <role>Character Name</role> </actor>
                              */
                             while (!event.equalsIgnoreCase("</actor>")) {
                                 if (event.equalsIgnoreCase("<name>")) {
@@ -795,8 +793,8 @@ public class MovieNFOScanner {
                                                     val = val.toUpperCase();
                                                 }
                                                 audioCodec.setCodec(val);
-                                                }
                                             }
+                                        }
 
                                         if (fiEvent.equalsIgnoreCase("<language>")) {
                                             String val = XMLHelper.getCData(r);
@@ -824,7 +822,7 @@ public class MovieNFOScanner {
                                     }
                                     // Parsing of audio end - setting data to movie.
                                     movie.addCodec(audioCodec);
-                                        }
+                                }
 
                                 // Add the language list to the movie
                                 movie.setLanguage(finalLanguage.toString());
@@ -951,15 +949,20 @@ public class MovieNFOScanner {
 
                 if (e.isStartElement()) {
                     String tag = e.asStartElement().getName().toString();
+
                     if (tag.equalsIgnoreCase("tvshow")) {
                         isTVTag = true;
+                        isEpisode = false;
                     }
+
                     if (tag.equalsIgnoreCase("episodedetails")) {
                         isEpisode = true;
+                        isTVTag = false;
                         episodedetail = new EpisodeDetail();
                     }
 
-                    /************************************************************
+                    /**
+                     * **********************************************************
                      * Process the main TV show details section
                      */
                     if (isTVTag) {
@@ -1369,11 +1372,12 @@ public class MovieNFOScanner {
                         }
                     }
 
-                    /************************************************************
+                    /**
+                     * **********************************************************
                      * Process the episode details section
                      *
-                     * These details should be added to the movie file and
-                     * not the movie itself
+                     * These details should be added to the movie file and not
+                     * the movie itself
                      */
                     if (isEpisode) {
                         if (tag.equalsIgnoreCase("title")) {
@@ -1381,8 +1385,6 @@ public class MovieNFOScanner {
                             if (isValidString(val)) {
                                 episodedetail.setTitle(val);
                             }
-                            //} else if (tag.equalsIgnoreCase("rating")) {
-                            // Not currently used
                         } else if (tag.equalsIgnoreCase("season")) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
@@ -1409,7 +1411,6 @@ public class MovieNFOScanner {
                                     episodedetail.setRating(val);
                                 }
                             }
-
                         } else if (tag.equalsIgnoreCase("aired")) {
                             String val = XMLHelper.getCData(r);
                             if (isValidString(val)) {
