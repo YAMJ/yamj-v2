@@ -1906,7 +1906,11 @@ public class MovieJukeboxXMLWriter {
         if (movie.getTrailerLastScan() == 0) {
             DOMHelper.appendChild(doc, eMovie, "trailerLastScan", Movie.UNKNOWN);
         } else {
-            DOMHelper.appendChild(doc, eMovie, "trailerLastScan", Movie.dateFormat.format(movie.getTrailerLastScan()));
+            try {
+                DOMHelper.appendChild(doc, eMovie, "trailerLastScan", Movie.dateFormat.format(movie.getTrailerLastScan()));
+            } catch (Exception error) {
+                DOMHelper.appendChild(doc, eMovie, "trailerLastScan", Movie.UNKNOWN);
+            }
         }
 
         DOMHelper.appendChild(doc, eMovie, "container", movie.getContainer());
