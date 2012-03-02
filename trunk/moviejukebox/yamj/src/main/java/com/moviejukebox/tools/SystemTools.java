@@ -53,7 +53,7 @@ public class SystemTools {
 
         // Check to see if we need to turn the cache off.
         if (memoryFree < cacheOff) {
-            Cache.purgeCache();
+            CacheMemory.purgeCache();
         }
 
         // Run garbage collection (if needed)

@@ -32,7 +32,7 @@ import com.moviejukebox.model.Person;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Series;
-import com.moviejukebox.tools.Cache;
+import com.moviejukebox.tools.CacheMemory;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import static com.moviejukebox.tools.StringTools.cleanString;
@@ -67,6 +67,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * AniDB Plugin
+ *
  * @author stuart.boston
  * @author Xaanin
  * @version 2
@@ -206,8 +207,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     private void setupDatabase() {
         /*
-         * Lets just pray that the current directory is writable
-         * TODO: Implement an override for this in the properties file
+         * Lets just pray that the current directory is writable TODO: Implement
+         * an override for this in the properties file
          */
         String dbUrl = "jdbc:sqlite:yamj_anidb.db";
         ConnectionSource connectionSource;
@@ -227,8 +228,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 
     /*
-     * Method to check if the database tables are old and need updating, and performs
-     * the update if it's needed.
+     * Method to check if the database tables are old and need updating, and
+     * performs the update if it's needed.
      */
     private static synchronized void updateTables(ConnectionSource connectionSource) {
         try {
@@ -688,6 +689,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     /**
      * Get the episode details by AnimeID and Episode Number
+     *
      * @param animeId
      * @param episodeNumber
      * @return
@@ -700,6 +702,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     /**
      * Get the episode details by Anime Name and Episode Number
+     *
      * @param animeName
      * @param episodeNumber
      * @return
@@ -716,6 +719,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     /**
      * Output a nice message for the UDP exception
+     *
      * @param error
      */
     private void processUdpError(UdpConnectionException error) {
@@ -724,6 +728,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     /**
      * Output a nice message for the AniDb Exception
+     *
      * @param error
      */
     @SuppressWarnings("unused")
@@ -813,6 +818,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     /**
      * Open the connection to the website
+     *
      * @return a connection object, or null if there was a failure.
      */
     public static synchronized void anidbOpen() {
@@ -851,6 +857,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     /**
      * Close the connection to the website
+     *
      * @param conn
      */
     public static void anidbClose() {
@@ -868,6 +875,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     /**
      * Try and log the user out
+     *
      * @param conn
      */
     private static void anidbLogout(UdpConnection conn) {
@@ -885,6 +893,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     /**
      * Hold information about the AniDb video file
+     *
      * @author stuart.boston
      *
      */
@@ -903,8 +912,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     // TODO: Here be dragons! Everything below should probably be refactored in time
     /**
-     * Parses the xml document containing mappings from anidb id
-     * to thetvdb id.
+     * Parses the xml document containing mappings from anidb id to thetvdb id.
+     *
      * @author Xaanin
      *
      */
@@ -1108,7 +1117,9 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             anime.setDescription(animePlot);
             animeDao.create(anime);
 
-            /* Add categories and reload anime from database */
+            /*
+             * Add categories and reload anime from database
+             */
             createCategories(anime, _anime);
             anime = animeDao.queryForId(Long.toString(anime.getAnimeId()));
             addAnimeToCache(anime);
@@ -1149,8 +1160,13 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 
     private void createCategories(AnidbAnime anime, Anime anidbResult) throws SQLException, UdpConnectionException, AniDbException {
-        /* Add categories and reload anime from database */
-        /* Response was most likely truncated if we got less than five categories */
+        /*
+         * Add categories and reload anime from database
+         */
+        /*
+         * Response was most likely truncated if we got less than five
+         * categories
+         */
         if (anidbResult.getCategoryList() == null || anidbResult.getCategoryWeightList() == null || anidbResult.getCategoryList().size() < 5) {
             anidbResult = anidbConn.getAnime(anime.getAnimeId(), categoryMask);
         }
@@ -1165,10 +1181,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     private AnidbAnime getAnimeFromCache(String name) {
         AnidbAnime anime = null;
-        if ((anime = (AnidbAnime) Cache.getFromCache(Cache.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeNameEnglish", name))) != null) {
+        if ((anime = (AnidbAnime) CacheMemory.getFromCache(CacheMemory.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeNameEnglish", name))) != null) {
             return anime;
         }
-        if ((anime = (AnidbAnime) Cache.getFromCache(Cache.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeNameRomaji", name))) != null) {
+        if ((anime = (AnidbAnime) CacheMemory.getFromCache(CacheMemory.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeNameRomaji", name))) != null) {
             return anime;
         }
         return null;
@@ -1176,19 +1192,19 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     private AnidbAnime getAnimeFromCache(long aid) {
         AnidbAnime anime = null;
-        if ((anime = (AnidbAnime) Cache.getFromCache(Cache.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeId", Long.toString(aid)))) != null) {
+        if ((anime = (AnidbAnime) CacheMemory.getFromCache(CacheMemory.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeId", Long.toString(aid)))) != null) {
             return anime;
         }
         return null;
     }
 
     private static void addAnimeToCache(AnidbAnime anime) {
-        Cache.addToCache(Cache.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeId", Long.toString(anime.getAnimeId())), anime);
+        CacheMemory.addToCache(CacheMemory.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeId", Long.toString(anime.getAnimeId())), anime);
         if (StringTools.isValidString(anime.getEnglishName())) {
-            Cache.addToCache(Cache.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeNameEnglish", anime.getEnglishName()), anime);
+            CacheMemory.addToCache(CacheMemory.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeNameEnglish", anime.getEnglishName()), anime);
         }
         if (StringTools.isValidString(anime.getRomajiName())) {
-            Cache.addToCache(Cache.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeNameRomaji", anime.getRomajiName()), anime);
+            CacheMemory.addToCache(CacheMemory.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeNameRomaji", anime.getRomajiName()), anime);
         }
     }
 }
@@ -1262,6 +1278,7 @@ class AnidbLocalFile {
 
 /**
  * Hold information about a file from anidb
+ *
  * @author Xaanin
  */
 @DatabaseTable(tableName = "anidb_file")
@@ -1389,6 +1406,7 @@ class AnidbFile {
 
 /**
  * Hold information about an episode from anidb
+ *
  * @author Xaanin
  */
 @DatabaseTable(tableName = "anidb_episode")
@@ -1768,6 +1786,7 @@ class AnidbAnime {
 
 /**
  * Category class
+ *
  * @author Xaanin
  */
 @DatabaseTable(tableName = "anidb_category")
