@@ -79,6 +79,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2319 IMDB Genre scraping misses some genres
  - Enhancement  #2326 Overlay xml and awards
  - Fixed defect #2328 Watched and NFO error - recreates file data every run
+ - Fixed defect #2329 filmupit and comingsoon.it plugins not working
  - Enhancement  #2332 Option to scrape to movie persons only with photo
  - Fixed defect #2337 Issue with Filmweb plugin
  - Fixed defect #2338 Library indexing exception
