@@ -12,23 +12,23 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import java.text.ParseException;
-
-import com.moviejukebox.allocine.*;
+import com.moviejukebox.allocine.MovieInfos;
+import com.moviejukebox.allocine.XMLAllocineAPIHelper;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.AllocinePlugin;
-import com.moviejukebox.tools.Cache;
+import com.moviejukebox.tools.CacheMemory;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import java.text.ParseException;
 import org.apache.log4j.Logger;
 
 public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
 
     private AllocinePlugin allocinePlugin;
     private static Logger logger = Logger.getLogger(AllocinePosterPlugin.class);
-    
+
     public AllocinePosterPlugin() {
         super();
 
@@ -57,12 +57,12 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
         String posterURL = Movie.UNKNOWN;
         if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
             try {
-                String cacheKey = Cache.generateCacheKey(AllocinePlugin.CACHE_MOVIE, id);
-                MovieInfos movieInfos = (MovieInfos) Cache.getFromCache(cacheKey);
+                String cacheKey = CacheMemory.generateCacheKey(AllocinePlugin.CACHE_MOVIE, id);
+                MovieInfos movieInfos = (MovieInfos) CacheMemory.getFromCache(cacheKey);
                 if (movieInfos == null) {
                     movieInfos = XMLAllocineAPIHelper.getMovieInfos(id);
                     // Add to the cache
-                    Cache.addToCache(cacheKey, movieInfos);
+                    CacheMemory.addToCache(cacheKey, movieInfos);
                 }
 
                 if (movieInfos.isNotValid()) {

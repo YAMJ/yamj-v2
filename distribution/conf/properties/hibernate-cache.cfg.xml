@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">false</property>
+        <property name="format_sql">true</property>
+
+	<!-- SQL dialect -->
+        <property name="dialect">com.moviejukebox.dialect.SQLiteDialect</property>
+
+	<!-- Database connection settings -->
+        <property name="connection.driver_class">org.sqlite.JDBC</property>
+        <property name="connection.url">jdbc:sqlite:yamj_cache.db</property>
+        <property name="connection.username"></property>
+        <property name="connection.password"></property>
+
+        <!-- Database connection settings -->
+
+        <!-- Enable Hibernate's automatic session context management -->
+        <property name="current_session_context_class">thread</property>
+
+        <!-- Disable the second-level cache  -->
+        <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+
+        <!-- Drop and re-create the database schema on startup (use update to try and update schema) -->
+        <property name="hbm2ddl.auto">update</property>
+
+        <!-- Use new enhanced identifier generators -->
+        <property name="hibernate.id.new_generator_mappings">true</property>
+
+        <!-- Mapping files -->
+        <mapping class="com.moviejukebox.thetvdb.model.Actor"/>
+        <mapping class="com.moviejukebox.thetvdb.model.Banner" />
+        <mapping class="com.moviejukebox.thetvdb.model.Banners" />
+        <mapping class="com.moviejukebox.thetvdb.model.Series"/>
+        <mapping class="com.moviejukebox.thetvdb.model.Episode"/>
+
+    </session-factory>
+</hibernate-configuration>

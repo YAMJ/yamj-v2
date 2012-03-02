@@ -108,7 +108,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
 
         } catch (Exception e) {
-            logger.error("TheTvDBPosterPlugin: Failed to retrieve TheTvDb Id for movie : " + title);
+            logger.error("TheTvDBPosterPlugin: Failed to retrieve TheTvDb Id for: " + title);
             logger.error("Error : " + e.getMessage());
         }
         return response;
@@ -156,7 +156,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                 return new Image(posterURL);
             }
         } catch (Exception e) {
-            logger.error("TheTvDBPosterPlugin: Failed to retrieve poster for TheTvDb Id movie : " + id);
+            logger.error("TheTvDBPosterPlugin: Failed to retrieve poster for TheTvDb Id for: " + id);
             logger.error("Error : " + e.getMessage());
         } finally {
             ThreadExecutor.leaveIO();

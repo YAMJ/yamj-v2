@@ -1403,7 +1403,7 @@ public class MovieJukebox {
             tasks.waitFor();
 
             // Clear the cache if we've used it
-            Cache.clear();
+            CacheMemory.clear();
 
             SystemTools.showMemory();
 

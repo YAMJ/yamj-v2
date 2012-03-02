@@ -25,13 +25,13 @@ import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.*;
 import java.util.List;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.pojava.datetime.DateTime;
 
 /**
- * @author styles
+ * TheTVDBPlugin with added hibernate code
+ * @author Stuart.Boston
  */
-public class TheTvDBPlugin extends ImdbPlugin {
+public class TheTvDBPluginH extends ImdbPlugin {
 
     public static final String THETVDB_PLUGIN_ID = "thetvdb";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
@@ -54,7 +54,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private boolean dvdEpisodes = false;
     private int preferredPlotLength;
 
-    public TheTvDBPlugin() {
+    public TheTvDBPluginH() {
         super();
         tvDB = new TheTVDB(API_KEY);
         language = PropertiesUtil.getProperty("thetvdb.language", defaultLanguage);
@@ -416,6 +416,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     /**
      * Locate the specific episode from the list of episodes
+     *
      * @param episodeList
      * @param seasonNumber
      * @param episodeNumber
@@ -436,6 +437,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     /**
      * Locate the specific DVD episode from the list of episodes
+     *
      * @param episodeList
      * @param seasonNumber
      * @param episodeNumber
@@ -488,8 +490,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 } else {
                     id = new String(compareString.substring(beginIdx + length));
                 }
-
-                if (StringUtils.isNotBlank(id)) {
+                if (id != null && !id.isEmpty()) {
                     movie.setId(THETVDB_PLUGIN_ID, id.trim());
                     logger.debug("TheTVDB Id found in nfo = " + id.trim());
                     result = true;
@@ -548,11 +549,12 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     /**
      * Get the series. Either from the cache or direct from TheTVDb
+     *
      * @param id
      * @return
      */
     public static Series getSeries(String id) {
-        Series series = (Series) CacheMemory.getFromCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, language));
+        Series series = CacheDB.getFromCache(id, Series.class);
 
         if (series == null) {
             // Not found in cache, so look online
@@ -561,17 +563,17 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 series = tvDB.getSeries(id, language);
                 if (series != null) {
                     // Add to the cache
-                    CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, language), series);
+                    CacheDB.addToCache(id, series);
                 }
 
                 if (series == null && !language2nd.isEmpty()) {
-                    series = (Series) CacheMemory.getFromCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, language2nd));
+                    series = (Series) CacheDB.getFromCache(id, Series.class);
 
                     if (series == null) {
                         series = tvDB.getSeries(id, language2nd);
                         if (series != null) {
                             // Add to the cache
-                            CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, language2nd), series);
+                            CacheDB.addToCache(id, series);
                         }
                     }
                 }
@@ -587,6 +589,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     /**
      * Use the movie information to find the series and ID
+     *
      * @param movie
      * @return
      */
@@ -647,10 +650,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                 id = String.valueOf(series.getId());
 
-                series=getSeries(id);
+                series = getSeries(id);
 
                 // Add the series to the cache (no need to get it again
-                CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, language), series);
+                CacheDB.addToCache(id, series);
 
                 movie.setId(THETVDB_PLUGIN_ID, id);
 
@@ -665,17 +668,18 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     /**
      * Get the banners from the cache or TheTVDb
+     *
      * @param id
      * @return
      */
     public static Banners getBanners(String id) {
-        Banners banners = (Banners) CacheMemory.getFromCache(CacheMemory.generateCacheKey(CACHE_BANNERS, id, language));
+        Banners banners = CacheDB.getFromCache(id, Banners.class);
 
         if (banners == null) {
             ThreadExecutor.enterIO(webhost);
             try {
                 banners = tvDB.getBanners(id);
-                CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_BANNERS, id, language), banners);
+                CacheDB.addToCache(id, banners);
             } catch (Exception error) {
                 logger.warn("TheTVDBPlugin: Error getting Banners: " + error.getMessage());
             } finally {

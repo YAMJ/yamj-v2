@@ -12,28 +12,17 @@
  */
 package com.moviejukebox.plugin;
 
-import static com.moviejukebox.tools.StringTools.isNotValidString;
-import static com.moviejukebox.tools.StringTools.isValidString;
-import static com.moviejukebox.tools.StringTools.trimToLength;
-
+import com.moviejukebox.allocine.*;
+import com.moviejukebox.allocine.jaxb.Episode;
+import com.moviejukebox.allocine.jaxb.Tvseries;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import static com.moviejukebox.tools.StringTools.*;
+import com.moviejukebox.tools.*;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.List;
-
 import javax.xml.bind.JAXBException;
-
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.allocine.*;
-//import com.moviejukebox.allocine.jaxb.CastMember;
-//import com.moviejukebox.allocine.jaxb.Season;
-import com.moviejukebox.allocine.jaxb.Episode;
-import com.moviejukebox.allocine.jaxb.Tvseries;
-import com.moviejukebox.tools.Cache;
-import com.moviejukebox.tools.SystemTools;
 import org.apache.commons.lang.math.NumberUtils;
 
 public class AllocinePlugin extends ImdbPlugin {
@@ -74,12 +63,12 @@ public class AllocinePlugin extends ImdbPlugin {
         }
 
         try {
-            String cacheKey = Cache.generateCacheKey(CACHE_SERIES, AllocineId);
-            TvSeriesInfos tvSeriesInfos = (TvSeriesInfos) Cache.getFromCache(cacheKey);
+            String cacheKey = CacheMemory.generateCacheKey(CACHE_SERIES, AllocineId);
+            TvSeriesInfos tvSeriesInfos = (TvSeriesInfos) CacheMemory.getFromCache(cacheKey);
             if (tvSeriesInfos == null) {
                 tvSeriesInfos = XMLAllocineAPIHelper.getTvSeriesInfos(AllocineId);
                 // Add to the cache
-                Cache.addToCache(cacheKey, tvSeriesInfos);
+                CacheMemory.addToCache(cacheKey, tvSeriesInfos);
             }
 
             if (tvSeriesInfos.isNotValid()) {
@@ -222,12 +211,12 @@ public class AllocinePlugin extends ImdbPlugin {
 
         try {
 
-            String cacheKey = Cache.generateCacheKey(CACHE_MOVIE, AllocineId);
-            MovieInfos movieInfos = (MovieInfos) Cache.getFromCache(cacheKey);
+            String cacheKey = CacheMemory.generateCacheKey(CACHE_MOVIE, AllocineId);
+            MovieInfos movieInfos = (MovieInfos) CacheMemory.getFromCache(cacheKey);
             if (movieInfos == null) {
                 movieInfos = XMLAllocineAPIHelper.getMovieInfos(AllocineId);
                 // Add to the cache
-                Cache.addToCache(cacheKey, movieInfos);
+                CacheMemory.addToCache(cacheKey, movieInfos);
             }
 
             if (movieInfos.isNotValid()) {
@@ -399,14 +388,14 @@ public class AllocinePlugin extends ImdbPlugin {
             throw new ParseException(allocineId, 0);
         }
     }
- 
+
     private String getAllocineSerieId(String movieName, String year) throws Exception {
-        String cacheKey = Cache.generateCacheKey(CACHE_SEARCH_SERIES, movieName);
-        Search searchInfos = (Search) Cache.getFromCache(cacheKey);
+        String cacheKey = CacheMemory.generateCacheKey(CACHE_SEARCH_SERIES, movieName);
+        Search searchInfos = (Search) CacheMemory.getFromCache(cacheKey);
         if (searchInfos == null) {
             searchInfos = XMLAllocineAPIHelper.searchTvseriesInfos(movieName);
             // Add to the cache
-            Cache.addToCache(cacheKey, searchInfos);
+            CacheMemory.addToCache(cacheKey, searchInfos);
         }
         if (searchInfos.isValid() && searchInfos.getTotalResults() > 0) {
             int totalResults =  searchInfos.getTotalResults();
@@ -442,12 +431,12 @@ public class AllocinePlugin extends ImdbPlugin {
     }
 
     private String getAllocineMovieId(String movieName, String year) throws Exception {
-        String cacheKey = Cache.generateCacheKey(CACHE_SEARCH_MOVIE, movieName);
-        Search searchInfos = (Search) Cache.getFromCache(cacheKey);
+        String cacheKey = CacheMemory.generateCacheKey(CACHE_SEARCH_MOVIE, movieName);
+        Search searchInfos = (Search) CacheMemory.getFromCache(cacheKey);
         if (searchInfos == null) {
             searchInfos = XMLAllocineAPIHelper.searchMovieInfos(movieName);
             // Add to the cache
-            Cache.addToCache(cacheKey, searchInfos);
+            CacheMemory.addToCache(cacheKey, searchInfos);
         }
         if (searchInfos.isValid() && searchInfos.getTotalResults() > 0) {
             int totalResults =  searchInfos.getTotalResults();
