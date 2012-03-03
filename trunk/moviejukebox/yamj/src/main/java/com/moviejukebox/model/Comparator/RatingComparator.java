@@ -20,10 +20,15 @@ import com.moviejukebox.model.Movie;
  * @author altman.matthew
  */
 public class RatingComparator implements Comparator<Movie> {
+    private boolean descending = true;
+
+    public RatingComparator(boolean descending) {
+        this.descending = descending;
+    }
 
     @Override
     public int compare(Movie movie1, Movie movie2) {
-        return compare(movie1, movie2, true);
+        return compare(movie1, movie2, descending);
     }
     
     /**
@@ -34,12 +39,6 @@ public class RatingComparator implements Comparator<Movie> {
      * @return
      */
     public int compare(Movie movie1, Movie movie2, boolean descending) {
-        if (descending) {
-            // Sort descending
-            return movie2.getRating() - movie1.getRating();
-        } else {
-            // Sort ascending
-            return movie1.getRating() - movie2.getRating();
-        }
+        return descending ? (movie2.getRating() - movie1.getRating()) : (movie1.getRating() - movie2.getRating());
     }
 }
