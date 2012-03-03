@@ -894,9 +894,12 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     valueFounded = false;
                     for (String tmp : HTMLTools.extractTags(xml, ">Итого:<", "</table>", "<font color=\"#ff6600\"", "</h3>")) {
                         if (StringTools.isValidString(tmp)) {
-                            movie.setBudget(tmp.replaceAll("\u00A0", ",").replaceAll(",$", ""));
-                            valueFounded = true;
-                            break;
+                            tmp = tmp.replaceAll("\u00A0", ",").replaceAll(",$", "");
+                            if (StringTools.isValidString(tmp) && !tmp.equals("--")) {
+                                movie.setBudget(tmp);
+                                valueFounded = true;
+                                break;
+                            }
                         }
                     }
                     if (!valueFounded && etalonFlag) {
@@ -906,9 +909,12 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     for (String tmp : HTMLTools.extractTags(xml, ">Первый уик-энд (США)<", "</table>",
                                     "<h3 style=\"font-size: 18px; margin: 0; padding: 0;color:#f60\"", "</h3>")) {
                         if (StringTools.isValidString(tmp)) {
-                            movie.setOpenWeek("USA", tmp.replaceAll("\u00A0", ",").replaceAll(",$", ""));
-                            valueFounded = true;
-                            break;
+                            tmp = tmp.replaceAll("\u00A0", ",").replaceAll(",$", "");
+                            if (StringTools.isValidString(tmp) && !tmp.equals("--")) {
+                                movie.setOpenWeek("USA", tmp);
+                                valueFounded = true;
+                                break;
+                            }
                         }
                     }
                     if (!valueFounded && etalonFlag) {

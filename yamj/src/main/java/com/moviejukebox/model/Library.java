@@ -84,11 +84,13 @@ public class Library implements Map<String, Movie> {
     private static boolean peopleScrape = true;
     private static boolean peopleExclusive = false;
     private static boolean completePerson = true;
-    private static String sortPeople = Movie.UNKNOWN;
     // Static values for the year indexes
     private static final int currentYear = Calendar.getInstance().get(Calendar.YEAR);
     private static final int finalYear = currentYear - 2;
     private static final int currentDecade = (finalYear / 10) * 10;
+    // Sorting params
+    private static Map<String, String> sortKeys = new HashMap<String, String>();
+    private static Map<String, Boolean> sortAsc = new HashMap<String, Boolean>();
     // Index Names
     public static final String INDEX_OTHER = "Other";
     public static final String INDEX_GENRES = "Genres";
@@ -174,8 +176,40 @@ public class Library implements Map<String, Movie> {
         peopleScan = PropertiesUtil.getBooleanProperty("mjb.people", "false");
         peopleScrape = PropertiesUtil.getBooleanProperty("mjb.people.scrape", "true");
         peopleExclusive = PropertiesUtil.getBooleanProperty("mjb.people.exclusive", "false");
-        sortPeople = PropertiesUtil.getProperty("indexing.sort.people", Movie.UNKNOWN).toUpperCase();
+
+        getSortProperty(INDEX_PERSON, INDEX_TITLE, "true");
+        getSortProperty(INDEX_CAST, INDEX_TITLE, "true");
+        getSortProperty(INDEX_DIRECTOR, INDEX_TITLE, "true");
+        getSortProperty(INDEX_WRITER, INDEX_TITLE, "true");
+        getSortProperty(INDEX_RATINGS, INDEX_RATING, "false");
+        getSortProperty(INDEX_GENRES, INDEX_TITLE, "true");
+        getSortProperty(INDEX_TITLE, INDEX_TITLE, "true");
+        getSortProperty(INDEX_CERTIFICATION, INDEX_TITLE, "true");
+        getSortProperty(INDEX_YEAR, INDEX_TITLE, "true");
+        getSortProperty(INDEX_LIBRARY, INDEX_TITLE, "true");
+        getSortProperty(INDEX_COUNTRY, INDEX_TITLE, "true");
+        getSortProperty(INDEX_AWARD, INDEX_TITLE, "true");
+
+        getSortProperty(INDEX_RATING, INDEX_RATING, "true");
+        getSortProperty(INDEX_HD, INDEX_TITLE, "true");
+        getSortProperty(INDEX_HD1080, INDEX_TITLE, "true");
+        getSortProperty(INDEX_HD720, INDEX_TITLE, "true");
+        getSortProperty(INDEX_3D, INDEX_TITLE, "true");
+        getSortProperty(INDEX_WATCHED, INDEX_TITLE, "true");
+        getSortProperty(INDEX_UNWATCHED, INDEX_TITLE, "true");
+        getSortProperty(INDEX_ALL, INDEX_TITLE, "true");
+        getSortProperty(INDEX_TVSHOWS, INDEX_TITLE, "true");
+        getSortProperty(INDEX_MOVIES, INDEX_TITLE, "true");
+
         getNewCategoryProperties();
+    }
+
+    private static void getSortProperty(String indexKey, String defSort, String defAsc) {
+        if (indexKey.indexOf(" ") > -1) {
+            indexKey.replaceAll(" ", "");
+        }
+        sortKeys.put(indexKey, PropertiesUtil.getProperty("indexing.sort." + indexKey.toLowerCase(), defSort));
+        sortAsc.put(indexKey, PropertiesUtil.getBooleanProperty("indexing.sort." + indexKey.toLowerCase() + ".asc", defAsc));
     }
 
     public Library() {
@@ -1506,9 +1540,10 @@ public class Library implements Map<String, Movie> {
     }
     static LastModifiedComparator cmpLast = new LastModifiedComparator();
     static Top250Comparator cmp250 = new Top250Comparator();
-    static RatingComparator cmpRating = new RatingComparator();
-    static RatingsComparator cmpRatings = new RatingsComparator();
-    static ReleaseComparator cmpRelease = new ReleaseComparator(sortPeople.equals("ASC"));
+    static RatingComparator cmpRatingAsc = new RatingComparator(false);
+    static RatingComparator cmpRatingDesc = new RatingComparator(true);
+    static ReleaseComparator cmpReleaseAsc = new ReleaseComparator(true);
+    static ReleaseComparator cmpReleaseDesc = new ReleaseComparator(false);
 
     protected static Comparator<Movie> getComparator(String category, String key) {
         Comparator<Movie> cmpMovie = null;
@@ -1522,15 +1557,45 @@ public class Library implements Map<String, Movie> {
                 cmpMovie = cmpLast;
             } else if (key.equals(categoriesMap.get(INDEX_TOP250))) {
                 cmpMovie = cmp250;
+            }  else if (key.equals(categoriesMap.get(INDEX_ALL))) {
+                cmpMovie = getComparator(INDEX_ALL);
+            }  else if (key.equals(categoriesMap.get(INDEX_TVSHOWS))) {
+                cmpMovie = getComparator(INDEX_TVSHOWS);
+            }  else if (key.equals(categoriesMap.get(INDEX_MOVIES))) {
+                cmpMovie = getComparator(INDEX_MOVIES);
+            }  else if (key.equals(categoriesMap.get(INDEX_WATCHED))) {
+                cmpMovie = getComparator(INDEX_WATCHED);
+            }  else if (key.equals(categoriesMap.get(INDEX_UNWATCHED))) {
+                cmpMovie = getComparator(INDEX_UNWATCHED);
             } else if (key.equals(categoriesMap.get(INDEX_RATING))) {
-                cmpMovie = cmpRating;
+                cmpMovie = getComparator(INDEX_RATING);
+            }  else if (key.equals(categoriesMap.get(INDEX_HD))) {
+                cmpMovie = getComparator(INDEX_HD);
+            }  else if (key.equals(categoriesMap.get(INDEX_HD1080))) {
+                cmpMovie = getComparator(INDEX_HD1080);
+            }  else if (key.equals(categoriesMap.get(INDEX_HD720))) {
+                cmpMovie = getComparator(INDEX_HD720);
+            }  else if (key.equals(categoriesMap.get(INDEX_3D))) {
+                cmpMovie = getComparator(INDEX_3D);
             }
-        } else if (category.equals(INDEX_RATINGS)) {
-            cmpMovie = cmpRatings;
-        } else if (category.equals(INDEX_PERSON) && StringTools.isValidString(sortPeople)) {
-            cmpMovie = cmpRelease;
+        } else {
+            cmpMovie = getComparator(category);
         }
 
+        return cmpMovie;
+    }
+
+    protected static Comparator<Movie> getComparator(String category) {
+        Comparator<Movie> cmpMovie = null;
+        String sortKey = sortKeys.get(category);
+        boolean ascending = sortAsc.get(category);
+        if (StringTools.isValidString(sortKey) && !sortKey.equalsIgnoreCase(INDEX_TITLE)) {
+            if (sortKey.equalsIgnoreCase(INDEX_YEAR)) {
+                cmpMovie = ascending ? cmpReleaseAsc : cmpReleaseDesc;
+            } else if (sortKey.equalsIgnoreCase(INDEX_RATING)) {
+                cmpMovie = ascending ? cmpRatingAsc : cmpRatingDesc;
+            }
+        }
         return cmpMovie;
     }
 

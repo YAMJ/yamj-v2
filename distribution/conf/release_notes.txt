@@ -13,6 +13,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Enhancement  #2076 MediaInfo Codec priority changes & Aspect Ratio rounding
  - Fixed defect #2016 New category is not deleted when all movies are watched
  - Fixed defect #2018 Watched not updated when a TV Season is completed
+ - Enhancement  #2118 Add sorting possibilities
  - Enhancement  #2119 Overlay XML watched for episodes
  - Fixes defect #2123 Season # is appended to all TV show sets, rather than just series name.
  - Enhancement  #2137 Rating for TV Episodes
@@ -25,6 +26,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2171 Categories generation is skipped even when forceIndexOverwrite is set
  - Fixed defect #2172 Writer item is empty in categories.xml when mjb.people=false
  - Fixed defect #2172 Writer category is empty in categories.xml
+ - Fixed defect #2176 Setting imdb.site=de causes YAMJ not to scrape writers
  - Fixed defect #2177 Original certification used for poster overlay instead of renamed one
  - Fixed defect #2179 Certification ordering now respected using certification.ordering property
  - Fixed defect #2185 Genres list in Movie object should not be sorted

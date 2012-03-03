@@ -98,7 +98,7 @@ public class MovieJukeboxXMLWriter {
     private boolean reindexWatched = Boolean.FALSE;
     private boolean reindexUnwatched = Boolean.FALSE;
     private boolean XMLcompatible = PropertiesUtil.getBooleanProperty("mjb.XMLcompatible", Boolean.FALSE.toString());
-    private boolean sortLibrary = PropertiesUtil.getBooleanProperty("indexing.sort.library", Boolean.TRUE.toString());
+    private boolean sortLibrary = PropertiesUtil.getBooleanProperty("indexing.sort.libraries", Boolean.TRUE.toString());
 
     static {
         if (strCategoriesDisplayList.length() == 0) {
