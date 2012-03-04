@@ -12,15 +12,19 @@
  */
 package com.moviejukebox.model.Comparator;
 
-import java.util.Comparator;
-
 import com.moviejukebox.model.Movie;
+import java.util.Comparator;
 
 /**
  * @author altman.matthew
  */
 public class RatingComparator implements Comparator<Movie> {
-    private boolean descending = true;
+
+    private boolean descending;
+
+    public RatingComparator() {
+        this.descending = Boolean.TRUE;
+    }
 
     public RatingComparator(boolean descending) {
         this.descending = descending;
@@ -30,9 +34,10 @@ public class RatingComparator implements Comparator<Movie> {
     public int compare(Movie movie1, Movie movie2) {
         return compare(movie1, movie2, descending);
     }
-    
+
     /**
      * Compare the rating of two movies.
+     *
      * @param movie1
      * @param movie2
      * @param descending
