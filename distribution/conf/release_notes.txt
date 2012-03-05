@@ -91,6 +91,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Enhancement  #2353 Make compatible XML values instead slash divided
  - Enhancement  #2359 Add option to stop YAMJ sorting library list in categories.xml
  - Fixes issue  #2364 Java calendar error when indexing
+ - Enhancement  #2371 Add "birth name" to Person_xxx_1.xml
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------

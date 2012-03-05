@@ -40,6 +40,7 @@ public class Person extends Filmography {
     private int     version               = -1;
     private int     knownMovies           = -1;
     private String  birthPlace            = UNKNOWN;
+    private String  birthName             = UNKNOWN;
     private int     popularity            = 1;
     private String  lastModifiedAt;
     private String backdropFilename       = UNKNOWN;
@@ -98,6 +99,7 @@ public class Person extends Filmography {
         setVersion(person.getVersion());
         setKnownMovies(person.getKnownMovies());
         setBirthPlace(person.getBirthPlace());
+        setBirthName(person.getBirthName());
         setPopularity(person.getPopularity());
         setFilmography(person.getFilmography());
         setAka(person.getAka());
@@ -126,6 +128,10 @@ public class Person extends Filmography {
 
     public String getBirthPlace() {
         return birthPlace;
+    }
+
+    public String getBirthName() {
+        return birthName;
     }
 
     public List<Filmography> getFilmography() {
@@ -198,6 +204,13 @@ public class Person extends Filmography {
     public void setBirthPlace(String birthPlace) {
         if (isValidString(birthPlace) && !this.birthPlace.equalsIgnoreCase(birthPlace)) {
             this.birthPlace = birthPlace;
+            setDirty();
+        }
+    }
+
+    public void setBirthName(String birthName) {
+        if (isValidString(birthName) && !this.birthName.equalsIgnoreCase(birthName)) {
+            this.birthName = birthName;
             setDirty();
         }
     }
