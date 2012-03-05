@@ -86,6 +86,7 @@ public class MovieJukeboxXMLWriter {
     private static boolean enableWatchScanner;
     // Should we scrape people information
     private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE.toString());
+    private static boolean addPeopleInfo = PropertiesUtil.getBooleanProperty("mjb.people.addInfo", Boolean.FALSE.toString());
     // Should we scrape the award information
     private static boolean enableAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", Boolean.FALSE.toString()) || PropertiesUtil.getProperty("mjb.scrapeAwards", "").equalsIgnoreCase("won");
     // Should we scrape the business information
@@ -1569,10 +1570,21 @@ public class MovieJukeboxXMLWriter {
             }
         }
 
-        if (Library.INDEX_PERSON.equalsIgnoreCase(idx.categoryName)) {
+        if (enablePeople && addPeopleInfo && (Library.INDEX_PERSON + Library.INDEX_CAST + Library.INDEX_DIRECTOR + Library.INDEX_WRITER).indexOf(idx.categoryName) > -1) {
             for (Person person : library.getPeople()) {
-                if (!person.getName().equalsIgnoreCase(idx.key)) {
-                    continue;
+                if (!person.getName().equalsIgnoreCase(idx.key) && !person.getTitle().equalsIgnoreCase(idx.key)) {
+                    boolean found = false;
+                    if (!Library.INDEX_PERSON.equals(idx.categoryName)) {
+                        for (String name : person.getAka()) {
+                            if (name.equalsIgnoreCase(idx.key)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!found) {
+                        continue;
+                    }
                 }
                 eLibrary.appendChild(writePerson(xmlDoc, person));
                 break;
