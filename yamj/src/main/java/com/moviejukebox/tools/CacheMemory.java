@@ -89,7 +89,7 @@ public class CacheMemory {
     }
 
     public static String generateCacheKey(String stringOne, String stringTwo) {
-        return generateCacheKey(stringOne, stringOne, null, null);
+        return generateCacheKey(stringOne, stringTwo, null, null);
     }
 
     public static String generateCacheKey(String stringOne, String stringTwo, String stringThree) {
