@@ -1586,7 +1586,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (beginIndex > -1) {
             String name = xmlInfo.substring(beginIndex + 19, xmlInfo.indexOf("<br/>", beginIndex));
             if (isValidString(name)) {
-                person.addAka(name);
+                person.setBirthName(name);
             }
         }
 

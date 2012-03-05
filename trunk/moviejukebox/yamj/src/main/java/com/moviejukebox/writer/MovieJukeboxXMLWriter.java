@@ -939,6 +939,10 @@ public class MovieJukeboxXMLWriter {
                     person.setBirthPlace(parseCData(r));
                     continue;
                 }
+                if (tag.equalsIgnoreCase("<birthname>")) {
+                    person.setBirthName(parseCData(r));
+                    continue;
+                }
                 if (tag.equalsIgnoreCase("<url>")) {
                     person.setUrl(parseCData(r));
                     continue;
@@ -2346,6 +2350,7 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, ePerson, "biography", person.getBiography());
         DOMHelper.appendChild(doc, ePerson, "birthday", person.getYear());
         DOMHelper.appendChild(doc, ePerson, "birthplace", person.getBirthPlace());
+        DOMHelper.appendChild(doc, ePerson, "birthname", person.getBirthName());
         DOMHelper.appendChild(doc, ePerson, "url", person.getUrl());
         DOMHelper.appendChild(doc, ePerson, "photoFile", person.getPhotoFilename());
         DOMHelper.appendChild(doc, ePerson, "photoURL", person.getPhotoURL());
