@@ -134,16 +134,17 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
 
     private String getId(Identifiable ident) {
         String response = Movie.UNKNOWN;
+        
         if (ident != null) {
             String imdbID = ident.getId(TheMovieDbPlugin.IMDB_PLUGIN_ID);
             String tmdbID = ident.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID);
-            MovieDb moviedb;
+            
             // First look to see if we have a TMDb ID as this will make looking the film up easier
             if (StringTools.isValidString(tmdbID)) {
                 response = tmdbID;
             } else if (StringTools.isValidString(imdbID)) {
                 // Search based on IMDb ID
-                moviedb = TMDb.getMovieInfoImdb(imdbID, languageCode);
+                MovieDb moviedb = TMDb.getMovieInfoImdb(imdbID, languageCode);
                 if (moviedb != null) {
                     tmdbID = String.valueOf(moviedb.getId());
                     if (StringUtils.isNumeric(tmdbID)) {

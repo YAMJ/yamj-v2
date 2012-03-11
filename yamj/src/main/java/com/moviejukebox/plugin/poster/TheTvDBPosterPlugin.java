@@ -14,28 +14,27 @@ package com.moviejukebox.plugin.poster;
 
 import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.TheTvDBPlugin;
+import com.moviejukebox.plugin.TheTvDBPluginH;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banner;
 import com.moviejukebox.thetvdb.model.BannerType;
 import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Series;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.*;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
+
     private static Logger logger = Logger.getLogger(TheTvDBPosterPlugin.class);
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
     private static final String defaultLanguage = "en";
-
     private String language;
     private String language2nd;
     private TheTVDB tvDB;
     private static String webhost = "thetvdb.com";
+    private static boolean isHibernateEnabled = Boolean.FALSE;
 
     public TheTvDBPosterPlugin() {
         super();
@@ -58,6 +57,10 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         // We do not need use the same secondary language... So clearing when equal.
         if (language2nd.equalsIgnoreCase(language)) {
             language2nd = "";
+        }
+
+        if (PropertiesUtil.getProperty("mjb.internet.tv.plugin", "").endsWith("TheTvDBPluginH")) {
+            isHibernateEnabled = Boolean.TRUE;
         }
     }
 
@@ -110,6 +113,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         } catch (Exception e) {
             logger.error("TheTvDBPosterPlugin: Failed to retrieve TheTvDb Id for: " + title);
             logger.error("Error : " + e.getMessage());
+            logger.error(SystemTools.getStackTrace(e));
         }
         return response;
     }
@@ -124,7 +128,13 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             if (!(id.equals(Movie.UNKNOWN) || (id.equals("-1"))) || (id.equals("0"))) {
                 String urlNormal = null;
 
-                Banners banners = TheTvDBPlugin.getBanners(id);
+                Banners banners;
+                // Ugly code for testing purposes
+                if (isHibernateEnabled) {
+                    banners = TheTvDBPluginH.getBanners(id);
+                } else {
+                    banners = TheTvDBPlugin.getBanners(id);
+                }
 
                 if (!banners.getSeasonList().isEmpty()) {
                     // Trying to grab localized banners at first...
@@ -140,7 +150,13 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                 }
 
                 if (urlNormal == null) {
-                    Series series = TheTvDBPlugin.getSeries(id);
+                    Series series;
+                    // Ugly code for testing purposes
+                    if (isHibernateEnabled) {
+                        series = TheTvDBPluginH.getSeries(id);
+                    } else {
+                        series = TheTvDBPlugin.getSeries(id);
+                    }
                     if (series != null && StringTools.isValidString(series.getPoster())) {
                         urlNormal = series.getPoster();
                     }
@@ -158,6 +174,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         } catch (Exception e) {
             logger.error("TheTvDBPosterPlugin: Failed to retrieve poster for TheTvDb Id for: " + id);
             logger.error("Error : " + e.getMessage());
+            logger.error(SystemTools.getStackTrace(e));
         } finally {
             ThreadExecutor.leaveIO();
         }
@@ -223,8 +240,8 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     }
 
     @Override
-    public boolean isNeeded() {
-        String searchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv","");
+    public final boolean isNeeded() {
+        String searchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "");
         if (searchPriority.toLowerCase().contains(this.getName())) {
             return true;
         } else {

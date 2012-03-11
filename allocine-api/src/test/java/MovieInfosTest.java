@@ -1,15 +1,25 @@
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.HashSet;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
+/*
+ *      Copyright (c) 2004-2012 YAMJ Members
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      Web: http://code.google.com/p/moviejukebox/
+ *
+ *      This software is licensed under a Creative Commons License
+ *      See this page: http://code.google.com/p/moviejukebox/wiki/License
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
+ */
 import com.moviejukebox.allocine.MovieInfos;
 import com.moviejukebox.allocine.XMLAllocineAPIHelper;
 import com.moviejukebox.allocine.jaxb.Release;
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Yves Blusseau
