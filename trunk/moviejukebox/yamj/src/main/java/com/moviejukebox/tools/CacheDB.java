@@ -12,6 +12,8 @@
  */
 package com.moviejukebox.tools;
 
+import java.io.Serializable;
+import java.util.Collection;
 import org.apache.log4j.Logger;
 
 /**
@@ -41,7 +43,7 @@ public class CacheDB {
      * @param key
      * @param value
      */
-    public static void addToCache(String key, Object value) {
+    public static void addToCache(Serializable key, Object value) {
         if (!cacheEnabled) {
             return;
         }
@@ -53,6 +55,19 @@ public class CacheDB {
             logger.debug("Cache (Add): Already contains object (" + value.getClass().getSimpleName() + ") with key " + key + " overwriting...");
         }
     }
+    
+    public static <T> void addToCache(Serializable key, Collection<T> values) {
+        if (!cacheEnabled) {
+            return;
+        }
+        
+        boolean isSaved = HibernateUtil.saveCollection(values,key);
+        if (isSaved) {
+            logger.debug("Cache (Add): Adding object (" + values.getClass().getSimpleName() + ") for key " + key);
+        } else {
+            logger.debug("Cache (Add): Already contains object (" + values.getClass().getSimpleName() + ") with key " + key + " overwriting...");
+        }
+    }
 
     /**
      * Get an item from the cache
@@ -60,7 +75,7 @@ public class CacheDB {
      * @param key
      * @return
      */
-    public static <T> T getFromCache(String key, Class<T> clazz) {
+    public static <T> T getFromCache(Serializable key, Class<T> clazz) {
         if (!cacheEnabled) {
             return null;
         }
@@ -74,24 +89,5 @@ public class CacheDB {
         }
 
         return dbObject;
-    }
-
-    /**
-     * Called when running low on memory, clear the cache and turn off the
-     * caching routine Also print out a message to warn the user
-     */
-    public static void purgeCache() {
-        if (cacheEnabled) {
-            logger.debug("Cache: Disabling cache due to low memory.");
-            cacheEnabled = false;
-            clear();
-        }
-    }
-
-    /**
-     * Clear the cache
-     */
-    public static void clear() {
-        logger.debug("Cache: Database caching enabled, no need to clear the cache");
     }
 }

@@ -672,16 +672,30 @@ public class TheTvDBPluginH extends ImdbPlugin {
      * @param id
      * @return
      */
-    public static Banners getBanners(String id) {
+    public static Banners getBanners(String tvdbId) {
+        int id = Integer.parseInt(tvdbId);
         Banners banners = CacheDB.getFromCache(id, Banners.class);
 
         if (banners == null) {
             ThreadExecutor.enterIO(webhost);
             try {
-                banners = tvDB.getBanners(id);
+                banners = tvDB.getBanners(tvdbId);
                 CacheDB.addToCache(id, banners);
+                for (Banner banner : banners.getFanartList()) {
+                    CacheDB.addToCache(id, banner);
+                }
+                for (Banner banner : banners.getPosterList()) {
+                    CacheDB.addToCache(id, banner);
+                }
+                for (Banner banner : banners.getSeasonList()) {
+                    CacheDB.addToCache(id, banner);
+                }
+                for (Banner banner : banners.getSeriesList()) {
+                    CacheDB.addToCache(id, banner);
+                }
             } catch (Exception error) {
                 logger.warn("TheTVDBPlugin: Error getting Banners: " + error.getMessage());
+                logger.warn(SystemTools.getStackTrace(error));
             } finally {
                 ThreadExecutor.leaveIO();
             }

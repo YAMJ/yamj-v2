@@ -12,7 +12,6 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.thetvdb.model.Series;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 
@@ -23,10 +22,11 @@ import org.hibernate.Hibernate;
  * @author stuart.boston
  */
 public class CacheInitializer {
+
     private final static Logger logger = Logger.getLogger(CacheInitializer.class);
 
     protected CacheInitializer() {
-        throw new UnsupportedOperationException("Class cannot be initialised");
+        throw new UnsupportedOperationException("This class cannot be initialised");
     }
 
     public static <T> void initialize(T dbObject) {
@@ -35,16 +35,35 @@ public class CacheInitializer {
             return;
         }
 
-        if (dbObject.getClass() == Series.class) {
-            initialize((Series) dbObject);
+        Class clazz = dbObject.getClass();
+
+        if (clazz == com.moviejukebox.thetvdb.model.Series.class) {
+            initialize((com.moviejukebox.thetvdb.model.Series) dbObject);
+        } else if (clazz == com.moviejukebox.thetvdb.model.Episode.class) {
+            initialize((com.moviejukebox.thetvdb.model.Episode) dbObject);
+        } else if (clazz == com.moviejukebox.thetvdb.model.Banners.class) {
+            initialize((com.moviejukebox.thetvdb.model.Banners) dbObject);
         } else {
-            logger.warn("No initializer found for class of type " + dbObject.getClass().getSimpleName());
+            // Not sure if this warning should be here. Some Classes do not need to be initilized
+            logger.debug("No initializer found for class of type " + dbObject.getClass().getSimpleName());
         }
     }
 
-    private static void initialize(Series series) {
-        logger.info("Initialising Series " + series.getSeriesName());
+    private static void initialize(com.moviejukebox.thetvdb.model.Series series) {
         Hibernate.initialize(series.getActors());
         Hibernate.initialize(series.getGenres());
+    }
+
+    private static void initialize(com.moviejukebox.thetvdb.model.Episode episode) {
+        Hibernate.initialize(episode.getDirectors());
+        Hibernate.initialize(episode.getGuestStars());
+        Hibernate.initialize(episode.getWriters());
+    }
+
+    private static void initialize(com.moviejukebox.thetvdb.model.Banners banners) {
+        Hibernate.initialize(banners.getFanartList());
+        Hibernate.initialize(banners.getPosterList());
+        Hibernate.initialize(banners.getSeasonList());
+        Hibernate.initialize(banners.getSeriesList());
     }
 }
