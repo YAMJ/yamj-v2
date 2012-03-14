@@ -872,6 +872,14 @@ public class MovieJukebox {
         logger.info("Scanning library directory " + mediaLibraryRoot);
         logger.info("Jukebox output goes to " + jukebox.getJukeboxRootLocation());
         FileTools.fileCache.addDir(jukeboxDetailsRootFile, 0);
+
+        // Add the watched folder
+        {
+            File watchedFileHandle = new FileTools.FileEx(jukebox.getJukeboxRootLocationDetails() + File.separator + "Watched");
+            FileTools.fileCache.addDir(watchedFileHandle, 0);
+        }
+
+        // Add the people folder if needed
         if (isValidString(peopleFolder)) {
             File peopleFolderHandle = new FileTools.FileEx(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder);
             FileTools.fileCache.addDir(peopleFolderHandle, 0);

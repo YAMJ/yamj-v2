@@ -16,8 +16,9 @@ import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.PropertiesUtil;
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
@@ -26,6 +27,13 @@ import org.pojava.datetime.DateTime;
 public class WatchedScanner {
 
     private static Logger logger = Logger.getLogger(WatchedScanner.class);
+    private static Collection<String> watchedExtensions = Arrays.asList(PropertiesUtil.getProperty("mjb.watchedExtensions", "watched").split(",;\\|"));
+    private static String watchedLocation = PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo");
+    private static String withExtension = PropertiesUtil.getProperty("mjb.watched.withExtension", "true");
+
+    protected WatchedScanner() {
+        throw new UnsupportedOperationException("Watched Scanner cannot be initialised");
+    }
 
     /**
      * Calculate the watched state of a movie based on the files
@@ -41,10 +49,18 @@ public class WatchedScanner {
         boolean fileWatched;
         boolean returnStatus = Boolean.FALSE;           // Assume no changes
 
-        File foundFile;
-        Collection<String> extensions = new ArrayList<String>();
-        extensions.add("unwatched");
-        extensions.add("watched");
+        boolean withJukebox = Boolean.FALSE;
+        
+        if ("withVideo".equalsIgnoreCase(watchedLocation)) {
+            // Normal scanning
+        } else if("withJukebox".equalsIgnoreCase(watchedLocation)) {
+            // Fixed scanning in the jukebox folder
+            withJukebox = Boolean.TRUE;
+        } else {
+            logger.warn("Watched Scanner: Custom file location not supported for watched scanner");
+        }
+        
+        File foundFile = null;
 
         for (MovieFile mf : movie.getFiles()) {
             // Check that the file pointer is valid
@@ -61,14 +77,19 @@ public class WatchedScanner {
                 filename = mf.getFile().getName();
             }
 
-            foundFile = FileTools.findFilenameInCache(filename, extensions, jukebox, "Watched Scanner: ");
+            if ("true".equalsIgnoreCase(withExtension) || "both".equalsIgnoreCase(withExtension) || movie.isBluray()) {
+                if (withJukebox) {
+                    foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, "Watched Scanner: ", Boolean.TRUE);
+                } else {
+                    foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, "Watched Scanner: ", Boolean.FALSE);
+                }
+            }
 
-            // If we didn't find the file, we should look without the extension
-            if (foundFile == null && !movie.isBluray()) {
+            if (foundFile == null && ("false".equalsIgnoreCase(withExtension) || "both".equalsIgnoreCase(withExtension)) && !movie.isBluray()) {
                 // Remove the extension from the filename
                 filename = FilenameUtils.removeExtension(filename);
                 // Check again without the extension
-                foundFile = FileTools.findFilenameInCache(filename, extensions, jukebox, "Watched Scanner: ");
+                foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, "Watched Scanner: ");
             }
 
             if (foundFile != null) {

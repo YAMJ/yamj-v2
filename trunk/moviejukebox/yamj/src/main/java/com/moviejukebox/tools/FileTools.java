@@ -31,16 +31,14 @@ public class FileTools {
     private static Collection<String> subtitleExtensions = new ArrayList<String>();
 
     static {
-        // Populate the subtitle extensions
-        for (String ext : PropertiesUtil.getProperty("filename.scanner.subtitle", "SRT,SUB,SSA,SMI,PGS").split(",")) {
-            subtitleExtensions.add(ext);
-        }
+        subtitleExtensions.addAll(Arrays.asList(PropertiesUtil.getProperty("filename.scanner.subtitle", "SRT,SUB,SSA,SMI,PGS").split(",")));
     }
     /**
      * Gabriel Corneanu: One buffer for each thread to allow threaded copies
      */
     private final static ThreadLocal<byte[]> threadBuffer = new ThreadLocal<byte[]>() {
 
+        @Override
         protected byte[] initialValue() {
             return new byte[BUFF_SIZE];
         }
@@ -545,13 +543,11 @@ public class FileTools {
         File searchFile = null;
         String safeFilename = makeSafeFilename(searchFilename);
 
-        logger.debug(logPrefix + "Scanning fileCache for " + safeFilename);
         safeFilename = File.separator + safeFilename;
 
+        StringBuilder jukeboxSubFolder = new StringBuilder(jukebox.getJukeboxRootLocationDetails().toLowerCase());
         if (StringTools.isValidString(subFolder)) {
-            subFolder = File.separator + subFolder.toLowerCase();
-        } else {
-            subFolder = "";
+            jukeboxSubFolder.append(File.separator).append((subFolder.toLowerCase()));
         }
 
         Collection<File> files = FileTools.fileCache.searchFilename(safeFilename, true);
@@ -560,26 +556,21 @@ public class FileTools {
             // Copy the synchronized list to avoid ConcurrentModificationException
             Iterator<File> iter = new ArrayList<File>(FileTools.fileCache.searchFilename(safeFilename, true)).iterator();
 
-            while (iter.hasNext()) {
+            while (iter.hasNext() && (searchFile == null)) {
                 File file = iter.next();
                 String abPath = file.getAbsolutePath().toLowerCase();
 
-                if (abPath.startsWith(jukebox.getJukeboxRootLocationDetails().toLowerCase() + subFolder) != includeJukebox) {
+                if (!includeJukebox && abPath.startsWith(jukeboxSubFolder.toString())) {
                     // Skip any files found in the jukebox
                     continue;
                 }
 
                 // Loop round the filename+extension to see if any exist and add them to the array
+                String checkFilename;
                 for (String extension : fileExtensions) {
-                    if (abPath.endsWith((safeFilename + "." + extension).toLowerCase())) {
-                        files.add(file);
-
-                        logger.debug(logPrefix + "Found: " + file.getAbsolutePath());
-
-                        if (searchFile == null) {
-                            searchFile = file;
-                        }
-
+                    checkFilename = safeFilename + "." + extension;
+                    if (abPath.endsWith((checkFilename).toLowerCase())) {
+                        searchFile = file;
                         // We've found the file, so we should quit the loop
                         break;
                     }
