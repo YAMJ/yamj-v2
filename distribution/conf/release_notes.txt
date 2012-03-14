@@ -93,6 +93,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixes issue  #2364 Java calendar error when indexing
  - Enhancement  #2370 Add person/people info in Cast_XX, Director_XX, Writer_XX as in Person_XX
  - Enhancement  #2371 Add "birth name" to Person_xxx_1.xml
+ - Fixed defect #2379 Watched Scanner doesn't use withJukebox folder.
 
 MovieJukebox 2.5.1 (01-Nov-2011)
 --------------------------------
