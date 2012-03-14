@@ -99,29 +99,6 @@ public class HibernateUtil {
     }
 
     /**
-     * Save a whole collection to the database.
-     * @param <T>
-     * @param collectionToSave
-     * @param objectKey
-     * @return 
-     */
-    public static <T> boolean saveCollection(Collection<T> collectionToSave, Serializable objectKey) {
-        Session session = sessionFactory.getCurrentSession();
-        try {
-            session.beginTransaction();
-
-            Iterator iter = collectionToSave.iterator();
-            while (iter.hasNext()) {
-                T obj = (T) iter.next();
-                session.save(obj);
-            }
-            return true;
-        } finally {
-            session.getTransaction().commit();
-        }
-    }
-
-    /**
      * Load a single object from the database
      *
      * TODO: Add a session to the parameters so you can load from each database
