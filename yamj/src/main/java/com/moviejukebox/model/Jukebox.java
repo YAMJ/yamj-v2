@@ -142,4 +142,16 @@ public final class Jukebox {
             return (rootDirectory + File.separator + Jukebox.detailsDirName);
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("[Jukebox=");
+        sb.append("[detailsDirName=").append(detailsDirName);
+        sb.append("][jukeboxRootLocation=").append(jukeboxRootLocation);
+        sb.append("][jukeboxRootLocationDetails=").append(jukeboxRootLocationDetails);
+        sb.append("][jukeboxTempLocation=").append(jukeboxTempLocation);
+        sb.append("][jukeboxTempLocationDetails").append(jukeboxTempLocationDetails);
+        sb.append("]]");
+        return sb.toString();
+    }
 }

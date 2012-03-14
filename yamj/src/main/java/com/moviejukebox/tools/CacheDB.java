@@ -55,19 +55,6 @@ public class CacheDB {
             logger.debug("Cache (Add): Already contains object (" + value.getClass().getSimpleName() + ") with key " + key + " overwriting...");
         }
     }
-    
-    public static <T> void addToCache(Serializable key, Collection<T> values) {
-        if (!cacheEnabled) {
-            return;
-        }
-        
-        boolean isSaved = HibernateUtil.saveCollection(values,key);
-        if (isSaved) {
-            logger.debug("Cache (Add): Adding object (" + values.getClass().getSimpleName() + ") for key " + key);
-        } else {
-            logger.debug("Cache (Add): Already contains object (" + values.getClass().getSimpleName() + ") with key " + key + " overwriting...");
-        }
-    }
 
     /**
      * Get an item from the cache
