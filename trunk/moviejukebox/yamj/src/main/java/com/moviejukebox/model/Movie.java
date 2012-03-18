@@ -74,6 +74,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public static final String DIRTY_WATCHED = "WATCHED";
     public static final String DIRTY_INFO = "INFO"; // Information on the video (default)
     public static final String DIRTY_RECHECK = "RECHECK"; // The movie needs to be rechecked.
+    public static final String DIRTY_CLEARART = "CLEARART";
+    public static final String DIRTY_CLEARLOGO = "CLEARLOGO";
+    public static final String DIRTY_TVTHUMB = "TVTHUMB";
+    public static final String DIRTY_SEASONTHUMB = "SEASONTHUMB";
 
     /*
      * --------------------------------------------------------------------------------
@@ -153,6 +157,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String fanartFilename = UNKNOWN; // The resized fanart file
     private String bannerURL = UNKNOWN; // The TV Show banner URL
     private String bannerFilename = UNKNOWN; // The resized banner file
+    private String clearartURL = UNKNOWN;
+    private String clearartFilename = UNKNOWN;
+    private String clearlogoURL = UNKNOWN;
+    private String clearlogoFilename = UNKNOWN;
+    private String seasonthumbURL = UNKNOWN;
+    private String seasonthumbFilename = UNKNOWN;
+    private String tvthumbURL = UNKNOWN;
+    private String tvthumbFilename = UNKNOWN;
     // File information
     private Date fileDate = null;
     private long fileSize = 0;
@@ -2298,6 +2310,126 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             bannerFilename = UNKNOWN;
         }
         this.bannerFilename = bannerFilename;
+    }
+
+    // ***** ClearLogo
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
+    public String getClearlogoURL() {
+        return clearlogoURL;
+    }
+
+    public void setClearlogoURL(String clearlogoURL) {
+        if (StringUtils.isBlank(clearlogoURL)) {
+            clearlogoURL = UNKNOWN;
+        }
+
+        if (!clearlogoURL.equalsIgnoreCase(this.clearlogoURL)) {
+            setDirty(Movie.DIRTY_INFO, true);
+            this.clearlogoURL = clearlogoURL;
+        }
+    }
+
+    @XmlElement(name = "clearlogoFile")
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
+    public String getClearlogoFilename() {
+        return clearlogoFilename;
+    }
+
+    public void setClearlogoFilename(String clearlogoFilename) {
+        if (StringUtils.isBlank(clearlogoFilename)) {
+            clearlogoFilename = UNKNOWN;
+        }
+        this.clearlogoFilename = clearlogoFilename;
+    }
+
+    // ***** ClearArt
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
+    public String getClearartURL() {
+        return clearartURL;
+    }
+
+    public void setClearartURL(String clearartURL) {
+        if (StringUtils.isBlank(clearartURL)) {
+            clearartURL = UNKNOWN;
+        }
+
+        if (!clearartURL.equalsIgnoreCase(this.clearartURL)) {
+            setDirty(Movie.DIRTY_INFO, true);
+            this.clearartURL = clearartURL;
+        }
+    }
+
+    @XmlElement(name = "clearartFile")
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
+    public String getClearartFilename() {
+        return clearartFilename;
+    }
+
+    public void setClearartFilename(String clearartFilename) {
+        if (StringUtils.isBlank(clearartFilename)) {
+            clearartFilename = UNKNOWN;
+        }
+        this.clearartFilename = clearartFilename;
+    }
+
+    // ***** TvThumb
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
+    public String getTvthumbURL() {
+        return tvthumbURL;
+    }
+
+    public void setTvthumbURL(String tvthumbURL) {
+        if (StringUtils.isBlank(tvthumbURL)) {
+            tvthumbURL = UNKNOWN;
+        }
+
+        if (!tvthumbURL.equalsIgnoreCase(this.tvthumbURL)) {
+            setDirty(Movie.DIRTY_INFO, true);
+            this.tvthumbURL = tvthumbURL;
+        }
+    }
+
+    @XmlElement(name = "tvthumbFile")
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
+    public String getTvthumbFilename() {
+        return tvthumbFilename;
+    }
+
+    public void setTvthumbFilename(String tvthumbFilename) {
+        if (StringUtils.isBlank(tvthumbFilename)) {
+            tvthumbFilename = UNKNOWN;
+        }
+        this.tvthumbFilename = tvthumbFilename;
+    }
+
+    // ***** SeasonThumb
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
+    public String getSeasonThumbURL() {
+        return seasonthumbURL;
+    }
+
+    public void setSeasonThumbURL(String seasonthumbURL) {
+        if (StringUtils.isBlank(seasonthumbURL)) {
+            seasonthumbURL = UNKNOWN;
+        }
+
+        if (!seasonthumbURL.equalsIgnoreCase(this.seasonthumbURL)) {
+            setDirty(Movie.DIRTY_INFO, true);
+            this.seasonthumbURL = seasonthumbURL;
+        }
+    }
+
+    @XmlElement(name = "seasonthumbFile")
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
+    public String getSeasonThumbFilename() {
+        return seasonthumbFilename;
+    }
+
+    public void setSeasonThumbFilename(String seasonthumbFilename) {
+        if (StringUtils.isBlank(seasonthumbFilename)) {
+            seasonthumbFilename = UNKNOWN;
+        }
+        this.seasonthumbFilename = seasonthumbFilename;
     }
 
     // ***** END of graphics *****
