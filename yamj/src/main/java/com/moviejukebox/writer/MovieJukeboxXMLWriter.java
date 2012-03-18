@@ -281,6 +281,10 @@ public class MovieJukeboxXMLWriter {
                 movie.setPosterURL(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "posterURL")));
                 movie.setFanartURL(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "fanartURL")));
                 movie.setBannerURL(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "bannerURL")));
+                movie.setClearartURL(HTMLTools.decodeHtml(DOMHelper.getValueFromElement(eMovie, "clearartURL")));
+                movie.setClearlogoURL(HTMLTools.decodeHtml(DOMHelper.getValueFromElement(eMovie, "clearlogoURL")));
+                movie.setTvthumbURL(HTMLTools.decodeHtml(DOMHelper.getValueFromElement(eMovie, "tvthumbURL")));
+                movie.setSeasonThumbURL(HTMLTools.decodeHtml(DOMHelper.getValueFromElement(eMovie, "seasonthumbURL")));
 
                 // Get artwork files
                 movie.setPosterFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "posterFile")));
@@ -288,7 +292,12 @@ public class MovieJukeboxXMLWriter {
                 movie.setThumbnailFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "thumbnail")));
                 movie.setFanartFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "fanartFile")));
                 movie.setBannerFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "bannerFile")));
-
+                movie.setClearartFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "clearartFile")));
+                movie.setClearlogoFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "clearlogoFile")));
+                movie.setTvthumbFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "tvthumbFile")));
+                movie.setSeasonThumbFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "seasonthumbFile")));
+                
+                
                 // Get the plot and outline
                 movie.setPlot(DOMHelper.getValueFromElement(eMovie, "plot"));
                 movie.setOutline(DOMHelper.getValueFromElement(eMovie, "outline"));
@@ -1828,6 +1837,14 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "thumbnail", HTMLTools.encodeUrl(movie.getThumbnailFilename()));
         DOMHelper.appendChild(doc, eMovie, "bannerURL", HTMLTools.encodeUrl(movie.getBannerURL()));
         DOMHelper.appendChild(doc, eMovie, "bannerFile", HTMLTools.encodeUrl(movie.getBannerFilename()));
+        DOMHelper.appendChild(doc, eMovie, "clearlogoURL", HTMLTools.encodeUrl(movie.getClearlogoURL()));
+        DOMHelper.appendChild(doc, eMovie, "clearlogoFile", HTMLTools.encodeUrl(movie.getClearlogoFilename()));
+        DOMHelper.appendChild(doc, eMovie, "clearartURL", HTMLTools.encodeUrl(movie.getClearartURL()));
+        DOMHelper.appendChild(doc, eMovie, "clearartFile", HTMLTools.encodeUrl(movie.getClearartFilename()));
+        DOMHelper.appendChild(doc, eMovie, "tvthumbURL", HTMLTools.encodeUrl(movie.getTvthumbURL()));
+        DOMHelper.appendChild(doc, eMovie, "tvthumbFile", HTMLTools.encodeUrl(movie.getTvthumbFilename()));
+        DOMHelper.appendChild(doc, eMovie, "seasonthumbURL", HTMLTools.encodeUrl(movie.getSeasonThumbURL()));
+        DOMHelper.appendChild(doc, eMovie, "seasonthumbFile", HTMLTools.encodeUrl(movie.getSeasonThumbFilename()));
 
         // Removed for the time being until the artwork scanner is in place
         /*

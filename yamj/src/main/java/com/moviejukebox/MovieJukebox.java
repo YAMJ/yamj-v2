@@ -12,8 +12,10 @@
  */
 package com.moviejukebox;
 
+import com.moviejukebox.fanarttv.model.FanartTvArtwork;
 import com.moviejukebox.model.Comparator.PersonComparator;
 import com.moviejukebox.model.*;
+import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.plugin.*;
 import com.moviejukebox.plugin.trailer.ITrailersPlugin;
 import com.moviejukebox.plugin.trailer.TrailersPlugin;
@@ -1009,6 +1011,7 @@ public class MovieJukebox {
                             // Get ClearART/LOGOS/etc
                             if (movie.isTVShow() && extraArtworkDownload) {
                                 tools.fanartTvPlugin.scan(movie);
+                                updateFanartTv(jukebox, movie, tools.imagePlugin);
                             }
 
                             for (int i = 0; i < footerCount; i++) {
@@ -2115,13 +2118,103 @@ public class MovieJukebox {
     }
 
     /**
+     * Update the FanartTV Artwork for the specified TV Show. There can be more
+     * than one type of artwork and more than one quantity of each artwork.
+     *
+     * @param jukebox
+     * @param movie
+     * @param imagePlugin
+     */
+    public void updateFanartTv(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
+        List<String> requiredArtworkTypes = Arrays.asList(PropertiesUtil.getProperty("fanarttv.types", "clearart,clearlogo,seasonthumb,tvthumb").toLowerCase().split(","));
+
+        boolean forceFanartTvOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartTvOverwrite", "false");
+
+        logger.info("UpdateFanartTv for " + movie.getBaseName());
+        
+        if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_CLEARART)
+                && StringTools.isValidString(movie.getClearartURL())
+                && StringTools.isValidString(movie.getClearartFilename())) {
+            processArtworktToFile(movie, imagePlugin, movie.getClearartFilename(), movie.getClearartURL(), FanartTvArtwork.TYPE_CLEARART, Movie.DIRTY_CLEARART, forceFanartTvOverwrite);
+        }
+
+        if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_CLEARLOGO)
+                && StringTools.isValidString(movie.getClearlogoURL())
+                && StringTools.isValidString(movie.getClearlogoFilename())) {
+            processArtworktToFile(movie, imagePlugin, movie.getClearlogoFilename(), movie.getClearlogoURL(), FanartTvArtwork.TYPE_CLEARLOGO, Movie.DIRTY_CLEARLOGO, forceFanartTvOverwrite);
+        }
+
+        if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_SEASONTHUMB)
+                && StringTools.isValidString(movie.getSeasonThumbURL())
+                && StringTools.isValidString(movie.getSeasonThumbFilename())) {
+            processArtworktToFile(movie, imagePlugin, movie.getSeasonThumbFilename(), movie.getSeasonThumbURL(), FanartTvArtwork.TYPE_SEASONTHUMB, Movie.DIRTY_SEASONTHUMB, forceFanartTvOverwrite);
+        }
+
+        if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_TVTHUMB)
+                && StringTools.isValidString(movie.getTvthumbURL())
+                && StringTools.isValidString(movie.getTvthumbFilename())) {
+            processArtworktToFile(movie, imagePlugin, movie.getTvthumbFilename(), movie.getTvthumbURL(), FanartTvArtwork.TYPE_TVTHUMB, Movie.DIRTY_TVTHUMB, forceFanartTvOverwrite);
+        }
+
+    }
+
+    /**
+     * Save artwork to the disk
+     *
+     * @param movie
+     * @param imagePlugin
+     * @param artworkFilename This should be the FULL filename of the artwork
+     * @param artworkUrl This should the URL of the artwork to download
+     * @param artworkType This should be the type of artwork to download. Used
+     * in the imagePlugin
+     * @param dirtyFlag This should be the Movie.DIRTY_??? flag to use
+     * @param forceOverwrite This should be the relevant forceOverwrite flag,
+     * e.g forcePosterOverwrite.
+     */
+    private void processArtworktToFile(Movie movie, MovieImagePlugin imagePlugin, String artworkFilename, String artworkUrl, String artworkType, String dirtyFlag, boolean forceOverwrite) {
+        File artworkFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + artworkFilename);
+        String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + artworkFilename;
+        File tmpDestFile = new File(tmpDestFilename);
+
+        logger.debug("Processing " + artworkType + " for " + movie.getBaseName());
+        
+        // Do not overwrite existing artwork, unless there is a new artwork URL in the nfo file.
+        if ((!tmpDestFile.exists() && !artworkFile.exists()) || movie.isDirty(dirtyFlag) || forceOverwrite) {
+            artworkFile.getParentFile().mkdirs();
+
+            if (isNotValidString(artworkUrl)) {
+                logger.debug("Dummy image used for " + movie.getBaseName() + " (" + artworkFilename + ")");
+                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), tmpDestFile);
+            } else {
+                try {
+                    logger.debug("Downloading " + artworkType + " for " + movie.getBaseName());
+                    FileTools.downloadImage(tmpDestFile, artworkUrl);
+                } catch (Exception error) {
+                    logger.debug("Failed downloading " + artworkType + ": " + artworkUrl + " - " + error.getMessage());
+                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_" + artworkType + ".jpg"), tmpDestFile);
+                }
+            }
+
+            try {
+                BufferedImage artworkImage = GraphicTools.loadJPEGImage(tmpDestFile);
+                if (artworkImage != null) {
+                    // TODO validate tha the artworkType here works
+                    artworkImage = imagePlugin.generate(movie, artworkImage, artworkType, null);
+                    GraphicTools.saveImageToDisk(artworkImage, tmpDestFilename);
+                }
+            } catch (Exception error) {
+                logger.debug("MovieJukebox: Failed generate " + artworkType + ": " + tmpDestFilename);
+            }
+        }
+    }
+
+    /**
      * Update the banner for the specified TV Show. When an existing banner is
      * found for the movie, it is not overwritten, unless the
      * mjb.forcePosterOverwrite is set to true in the property file. When the
      * specified movie does not contain a valid URL for the banner, a dummy
      * image is used instead.
      *
-     * @param tempJukeboxDetailsRoot
      */
     public void updateTvBanner(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
         String bannerFilename = movie.getBannerFilename();

@@ -17,22 +17,23 @@ import java.awt.Dimension;
 import com.moviejukebox.model.Movie;
 
 public class ArtworkFile {
+
     private ArtworkSize size;       // Descriptive size of the artwork, e.g. Small, medium, large
-    private Dimension   dimension;  // Target size of the artwork - populated from the properties file
-    private String      filename;   // The filename to save the artwork too
-    private boolean     downloaded; // Has the artwork been downloaded (to the jukebox)
+    private Dimension dimension;  // Target size of the artwork - populated from the properties file
+    private String filename;   // The filename to save the artwork too
+    private boolean downloaded; // Has the artwork been downloaded (to the jukebox)
     
     public ArtworkFile() {
-        this.size       = ArtworkSize.LARGE;
-        this.dimension  = new Dimension();
-        this.filename   = Movie.UNKNOWN;
+        this.size = ArtworkSize.LARGE;
+        this.dimension = new Dimension();
+        this.filename = Movie.UNKNOWN;
         this.downloaded = false;
     }
     
     public ArtworkFile(ArtworkSize size, String filename, boolean downloaded) {
-        this.size       = size;
-        this.dimension  = new Dimension();
-        this.filename   = filename;
+        this.size = size;
+        this.dimension = new Dimension();
+        this.filename = filename;
         this.downloaded = downloaded;
     }
     
@@ -106,5 +107,15 @@ public class ArtworkFile {
         this.downloaded = downloaded;
     }
 
-}
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("[ArtworkFile=");
+        sb.append("[size=").append(size);
+        sb.append("][dimension=").append(dimension);
+        sb.append("][filename=").append(filename);
+        sb.append("][downloaded=").append(downloaded);
+        sb.append("]]");
 
+        return sb.toString();
+    }
+}

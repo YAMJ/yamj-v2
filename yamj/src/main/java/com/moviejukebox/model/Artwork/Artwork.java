@@ -19,23 +19,25 @@ import com.moviejukebox.model.Movie;
 
 /**
  * A class to store all the artwork associated with a movie object
+ *
  * @author stuart.boston
  *
  */
 public class Artwork {
-    private static final String UNKNOWN = Movie.UNKNOWN;
     
+    private static final String UNKNOWN = Movie.UNKNOWN;
     private ArtworkType type;       // The type of the artwork.
-    private String      sourceSite; // Where the artwork originated from
-    private String      url;        // The original URL of the artwork (may be used as key)
+    private String sourceSite; // Where the artwork originated from
+    private String url;        // The original URL of the artwork (may be used as key)
     private HashMap<ArtworkSize, ArtworkFile> sizes; // The hash should be the size that is passed as part of the ArtworkSize 
 
     /**
      * Create an Artwork object with a set of sizes
-     * @param type          The type of the artwork
-     * @param sourceSite    The source site the artwork came from
-     * @param url           The URL of the artwork
-     * @param sizes         A list of the artwork files to add
+     *
+     * @param type The type of the artwork
+     * @param sourceSite The source site the artwork came from
+     * @param url The URL of the artwork
+     * @param sizes A list of the artwork files to add
      */
     public Artwork(ArtworkType type, String sourceSite, String url, Collection<ArtworkFile> sizes) {
         this.type = type;
@@ -49,10 +51,11 @@ public class Artwork {
 
     /**
      * Create an Artwork object with a single size
-     * @param type          The type of the artwork
-     * @param sourceSite    The source site the artwork came from
-     * @param url           The URL of the artwork
-     * @param size          An artwork files to add
+     *
+     * @param type The type of the artwork
+     * @param sourceSite The source site the artwork came from
+     * @param url The URL of the artwork
+     * @param size An artwork files to add
      */
     public Artwork(ArtworkType type, String sourceSite, String url, ArtworkFile size) {
         this.type = type;
@@ -67,13 +70,14 @@ public class Artwork {
      */
     public Artwork() {
         this.sourceSite = UNKNOWN;
-        this.type       = null;
-        this.url        = UNKNOWN;
-        this.sizes      = new HashMap<ArtworkSize, ArtworkFile>();
+        this.type = null;
+        this.url = UNKNOWN;
+        this.sizes = new HashMap<ArtworkSize, ArtworkFile>();
     }
     
     /**
      * Add the ArtworkFile to the list, overwriting anything already there
+     *
      * @param size
      */
     public void addSize(ArtworkFile size) {
@@ -135,13 +139,23 @@ public class Artwork {
     }
 
     public int compareTo(Artwork anotherArtwork) {
-        if (this.sourceSite.equals(anotherArtwork.getSourceSite()) &&
-             this.type.equals(anotherArtwork.getType()) &&
-             this.url.equals(anotherArtwork.getUrl())) {
+        if (this.sourceSite.equals(anotherArtwork.getSourceSite())
+                && this.type.equals(anotherArtwork.getType())
+                && this.url.equals(anotherArtwork.getUrl())) {
             return 0;
         } else {
             return 1;
         }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("[Artwork=");
+        sb.append("[type=").append(type);
+        sb.append("][sourceSite=").append(sourceSite);
+        sb.append("][url=").append(url);
+        sb.append("][sizes=").append(sizes);
+        sb.append("]]");
+        return sb.toString();
+}
 }
