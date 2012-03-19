@@ -71,6 +71,7 @@ public class FileTools {
     static Character encodeEscapeChar = null;
     private final static Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
     private static boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
+    private static boolean extraArtworkEnabled = PropertiesUtil.getBooleanProperty("mjb.includeExtraArtwork", "false");
     private static int footerImageEnabled = PropertiesUtil.getIntProperty("mjb.footer.count", "0");
     private static String indexFilesPrefix = getProperty("mjb.indexFilesPrefix", "");
 
@@ -676,10 +677,10 @@ public class FileTools {
     public static void addJukeboxFile(String filename) {
         if (StringTools.isValidString(filename)) {
             generatedFileNames.add(filename);
-        }
 
-        if (logger.isTraceEnabled()) {
-            logger.trace("FileTools: Adding " + filename + " to safe jukebox files");
+            if (logger.isTraceEnabled()) {
+                logger.trace("FileTools: Adding " + filename + " to safe jukebox files");
+            }
         }
     }
 
@@ -702,6 +703,13 @@ public class FileTools {
                     addJukeboxFile(mf.getVideoImageFilename(part));
                 }
             }
+        }
+
+        if (extraArtworkEnabled) {
+            addJukeboxFile(movie.getClearartFilename());
+            addJukeboxFile(movie.getClearlogoFilename());
+            addJukeboxFile(movie.getSeasonThumbFilename());
+            addJukeboxFile(movie.getTvthumbFilename());
         }
 
         // Are footer images enabled?
