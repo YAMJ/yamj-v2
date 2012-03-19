@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.fanarttv.model.FanartTvArtwork;
 import com.moviejukebox.model.Comparator.ValueComparator;
 import com.moviejukebox.model.*;
 import com.moviejukebox.tools.GraphicTools;
@@ -31,11 +32,17 @@ import org.apache.log4j.Logger;
 
 public class DefaultImagePlugin implements MovieImagePlugin {
 
-    private final String BANNER = "banners";
-    private final String POSTER = "posters";
-    private final String VIDEOIMAGE = "videoimages";
-    private final String THUMBNAIL = "thumbnails";
-    private final String FOOTER = "footer";
+    private static final String BANNER = "banners";
+    private static final String POSTER = "posters";
+    private static final String VIDEOIMAGE = "videoimages";
+    private static final String THUMBNAIL = "thumbnails";
+    private static final String FOOTER = "footer";
+    private static final String CLEARART = FanartTvArtwork.TYPE_CLEARART;
+    private static final String CLEARLOGO = FanartTvArtwork.TYPE_CLEARLOGO;
+    private static final String SEASONTHUMB = FanartTvArtwork.TYPE_SEASONTHUMB;
+    private static final String TVTHUMB = FanartTvArtwork.TYPE_TVTHUMB;
+
+    private static ArrayList<String> validImageTypes = new ArrayList<String>();
     private static Logger logger = Logger.getLogger(DefaultImagePlugin.class);
     private String skinHome;
     private String overlayRoot;
@@ -141,6 +148,18 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         overlayRoot = (skinRoot ? (skinHome + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
         overlayResources = overlayRoot + PropertiesUtil.getProperty("mjb.overlay.resources", "resources") + File.separator;
         highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
+
+        if (validImageTypes.isEmpty()) {
+            validImageTypes.add(BANNER);
+            validImageTypes.add(POSTER);
+            validImageTypes.add(VIDEOIMAGE);
+            validImageTypes.add(THUMBNAIL);
+            validImageTypes.add(FOOTER);
+            validImageTypes.add(CLEARART);
+            validImageTypes.add(CLEARLOGO);
+            validImageTypes.add(SEASONTHUMB);
+            validImageTypes.add(TVTHUMB);
+        }
     }
 
     @Override
@@ -156,7 +175,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             viIndex = Integer.parseInt(imageType.replaceFirst(VIDEOIMAGE, ""));
             viIndex = (viIndex > 0 && viIndex <= movie.getFiles().size()) ? (viIndex - 1) : 0;
             imageType = VIDEOIMAGE;
-        } else if ((POSTER + THUMBNAIL + BANNER + VIDEOIMAGE).indexOf(imageType) < 0) {
+        } else if (!validImageTypes.contains(imageType)) {
             // This is an error with the calling function
             logger.error("YAMJ Error with calling function in DefaultImagePlugin.java");
             return imageGraphic;
@@ -382,6 +401,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     /**
      * Draw a frame around the image; color depends on resolution if wanted
+     *
      * @param movie
      * @param bi
      * @return
@@ -449,6 +469,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     /**
      * Draw rounded corners on the image
+     *
      * @param bi
      * @return
      */
@@ -468,10 +489,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     /**
      * Draw the TV and HD logos onto the image
      *
-     * @param movie
-     *            The source movie
-     * @param bi
-     *            The image to draw on
+     * @param movie The source movie
+     * @param bi The image to draw on
      * @return The new image with the added logos
      */
     protected BufferedImage drawLogos(Movie movie, BufferedImage bi, String imageType, boolean beforeMainOverlay) {
@@ -583,7 +602,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     for (MovieFile mf : movie.getFiles()) {
                                         firstPart = mf.getFirstPart();
                                         lastPart = mf.getLastPart();
-                                        for (int part = firstPart; part <= lastPart; part++ ) {
+                                        for (int part = firstPart; part <= lastPart; part++) {
                                             if (first) {
                                                 first = false;
                                             } else {
@@ -626,7 +645,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     for (Award award : awardEvent.getAwards()) {
                                         if (award.getWon() > 0) {
                                             if (blockAward) {
-                                                awards.put((awardEventName?(awardEvent.getName() + " - "):"") + award.getName(), award.getWon());
+                                                awards.put((awardEventName ? (awardEvent.getName() + " - ") : "") + award.getName(), award.getWon());
                                             } else if (countAward) {
                                                 awardCount++;
                                             } else {
@@ -819,6 +838,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     /**
      * Draw the SubTitle logo on the image
+     *
      * @param movie
      * @param bi
      * @return
@@ -852,12 +872,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     /**
      * Draw the appropriate HD logo onto the image file
      *
-     * @param movie
-     *            The source movie
-     * @param bi
-     *            The original image
-     * @param addOtherLogo
-     *            Do we need to draw the TV logo as well?
+     * @param movie The source movie
+     * @param bi The original image
+     * @param addOtherLogo Do we need to draw the TV logo as well?
      * @return The new image file
      */
     private BufferedImage drawLogoHD(Movie movie, BufferedImage bi, Boolean addOtherLogo) {
@@ -914,12 +931,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     /**
      * Draw the TV logo onto the image file
      *
-     * @param movie
-     *            The source movie
-     * @param bi
-     *            The original image
-     * @param addOtherLogo
-     *            Do we need to draw the HD logo as well?
+     * @param movie The source movie
+     * @param bi The original image
+     * @param addOtherLogo Do we need to draw the HD logo as well?
      * @return The new image file
      */
     private BufferedImage drawLogoTV(Movie movie, BufferedImage bi, Boolean addOtherLogo) {
@@ -949,8 +963,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     }
 
     /**
-     * Draw an overlay on the image, such as a box cover
-     * specific for videosource, container, certification if wanted
+     * Draw an overlay on the image, such as a box cover specific for
+     * videosource, container, certification if wanted
+     *
      * @param movie
      * @param bi
      * @param offsetY
@@ -1005,10 +1020,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     /**
      * Draw the language logo to the image
      *
-     * @param movie
-     *            Movie file, used to determine the language
-     * @param bi
-     *            The image file to draw on
+     * @param movie Movie file, used to determine the language
+     * @param bi The image file to draw on
      * @return The new image file with the language flag on it
      */
     private BufferedImage drawLanguage(IMovieBasicInformation movie, BufferedImage bi, int left, int top) {
@@ -1191,10 +1204,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     /**
      * Draw the set logo onto a poster
      *
-     * @param movie
-     *            the movie to check
-     * @param bi
-     *            the image to draw on
+     * @param movie the movie to check
+     * @param bi the image to draw on
      * @return the new buffered image
      */
     private BufferedImage drawSet(Identifiable movie, BufferedImage bi) {
