@@ -2,8 +2,12 @@
 ** MovieJukebox Release Notes
 ***************************************************************
 
-MovieJukebox 2.6-SNAPSHOT
+MovieJukebox 2.7-SNAPSHOT
 -------------------------
+
+
+MovieJukebox 2.6 (20-Mar-2012)
+------------------------------
  - Enhancement  #1189 Generating a Footer image for every movie with Video/Audio/Studio/Subtitles logos
  - Fixed defect #1425 TV NFO Episode Details not working
  - Fixed defect #2019 Caratulasdecine Poster Plugin does not work
@@ -15,7 +19,7 @@ MovieJukebox 2.6-SNAPSHOT
  - Fixed defect #2018 Watched not updated when a TV Season is completed
  - Enhancement  #2118 Add sorting possibilities
  - Enhancement  #2119 Overlay XML watched for episodes
- - Fixes defect #2123 Season # is appended to all TV show sets, rather than just series name.
+ - Fixed defect #2123 Season # is appended to all TV show sets, rather than just series name.
  - Enhancement  #2137 Rating for TV Episodes
  - Fixed defect #2160 TV NFO ratings are not normalised to x/100 correctly
  - Fixed defect #2065 Skins need to include '.HTML' ext when inserting $mjb.homePage variable
@@ -90,9 +94,9 @@ MovieJukebox 2.6-SNAPSHOT
  - Enhancement  #2350 Personal information to person index
  - Enhancement  #2353 Make compatible XML values instead slash divided
  - Enhancement  #2359 Add option to stop YAMJ sorting library list in categories.xml
- - Fixes issue  #2364 Java calendar error when indexing
+ - Fixed defect #2364 Java calendar error when indexing
  - Enhancement  #2370 Add person/people info in Cast_XX, Director_XX, Writer_XX as in Person_XX
- - Enhancement  #2371 Add "birth name" to Person_xxx_1.xml
+ - Enhancement  #2371 Add "birth name" to Person_XX
  - Fixed defect #2379 Watched Scanner doesn't use withJukebox folder.
 
 MovieJukebox 2.5.1 (01-Nov-2011)
@@ -229,8 +233,8 @@ MovieJukebox 2.5 (24-Oct-2011)
  - Fixed defect #2128 Out a large amount of error codes while scanning
  - Enhancement  #2132 Trailer plugin for www.trailersland.com
 
-MovieJukebox 2.4
-----------------
+MovieJukebox 2.4 (30-Mar-2011)
+------------------------------
  - Fixed defect  #793 Problems with more than 9 parts
  - Enhancement   #989 Multiple Directors
  - Fixed defect #1036 Removed/renamed trailers stays in XML
@@ -266,8 +270,8 @@ MovieJukebox 2.4
  - Fixed defect #1889 Allocine plugin: when no plot, additional information not retrieved (actors, director...)
  - Enhancement  #1890 Allow RAR scanner to check the date of the RAR container instead of the video file
 
-MovieJukebox 2.3
-----------------
+MovieJukebox 2.3 (11-Feb-2011)
+------------------------------
  - Fixed defect  #808 Trailers: Periodic rescan option
  - Enhancement   #997 Ability to turn off 'EXTRAS' processing
  - Enhancement  #1012 Separate index.htm XSL file
@@ -324,8 +328,8 @@ MovieJukebox 2.3
  - Enhancement  #1814 Old RAR support added to RAR library
  - Fixed defect #1820 Issue with Filmweb plugin (search engine)
 
-MovieJukebox 2.2
-----------------
+MovieJukebox 2.2 (30-Oct-2010)
+------------------------------
   - Enhancement   #323 TheMovieDB plugin created
   - Fixed defect  #558 New episodes from TV series didn't appear in the NEW Category.
   - Enhancement   #617 Add logo to cover art to indicate the presence of subtitle
@@ -366,8 +370,8 @@ MovieJukebox 2.2
   - Fixed defect #1679 The New Category Should Sort DVD Rips based on Video_TS folder modified date
   - Fixed defect #1686 BluRay NFO Files not picked up
 
-MovieJukebox 2.1
-----------------
+MovieJukebox 2.1 (26-Sep-2010)
+------------------------------
   - Enhancement   #941 Allow rounded corners on graphics
   - Enhancement  #1566 Would be nice to have plot in CSV listing
   - Fixed defect #1402 No Hebrew posters only plot
@@ -408,8 +412,8 @@ MovieJukebox 2.1
   - Fixed defect #1605 New IMDb site format breaks IMDb scanner
   - Enhancement  #1607 Add Credits info from XML NFO files to YAMJ
 
-MovieJukebox 2.0
-----------------
+MovieJukebox 2.0 (5-Jun-2010)
+-----------------------------
   - Enhancement   #118 Exclude strings for files/folders to support regex
   - Enhancement   #357 Use XBMC episodedetails NFO to override TV episode information
   - Enhancement   #364 Use directory name to scan for movie title
