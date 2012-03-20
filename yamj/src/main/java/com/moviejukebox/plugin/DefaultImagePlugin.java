@@ -41,8 +41,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static final String CLEARLOGO = FanartTvArtwork.TYPE_CLEARLOGO;
     private static final String SEASONTHUMB = FanartTvArtwork.TYPE_SEASONTHUMB;
     private static final String TVTHUMB = FanartTvArtwork.TYPE_TVTHUMB;
-
-    private static ArrayList<String> validImageTypes = new ArrayList<String>();
+    private static final List<String> validImageTypes = Collections.synchronizedList(new ArrayList<String>());
     private static Logger logger = Logger.getLogger(DefaultImagePlugin.class);
     private String skinHome;
     private String overlayRoot;
@@ -149,16 +148,18 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         overlayResources = overlayRoot + PropertiesUtil.getProperty("mjb.overlay.resources", "resources") + File.separator;
         highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
 
-        if (validImageTypes.isEmpty()) {
-            validImageTypes.add(BANNER);
-            validImageTypes.add(POSTER);
-            validImageTypes.add(VIDEOIMAGE);
-            validImageTypes.add(THUMBNAIL);
-            validImageTypes.add(FOOTER);
-            validImageTypes.add(CLEARART);
-            validImageTypes.add(CLEARLOGO);
-            validImageTypes.add(SEASONTHUMB);
-            validImageTypes.add(TVTHUMB);
+        synchronized (validImageTypes) {
+            if (validImageTypes.isEmpty()) {
+                validImageTypes.add(BANNER);
+                validImageTypes.add(POSTER);
+                validImageTypes.add(VIDEOIMAGE);
+                validImageTypes.add(THUMBNAIL);
+                validImageTypes.add(FOOTER);
+                validImageTypes.add(CLEARART);
+                validImageTypes.add(CLEARLOGO);
+                validImageTypes.add(SEASONTHUMB);
+                validImageTypes.add(TVTHUMB);
+            }
         }
     }
 
