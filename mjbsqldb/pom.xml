@@ -26,9 +26,9 @@
 		<url>http://jenkins.omertron.com/job/API-mjbSQL/</url>
 	</ciManagement>
 	<scm>
-		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/tags/mjbsqldb-1.2</connection>
-		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/tags/mjbsqldb-1.2</developerConnection>
-		<url>http://code.google.com/p/moviejukebox/source/browse/tags/mjbsqldb-1.2</url>
+		<connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox/mjbsqldb</connection>
+		<developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox/mjbsqldb</developerConnection>
+		<url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox/mjbsqldb</url>
 	</scm>
 
 	<dependencies>
