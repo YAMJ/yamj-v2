@@ -16,7 +16,6 @@ import com.moviejukebox.fanarttv.FanartTv;
 import com.moviejukebox.fanarttv.model.FanartTvArtwork;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -25,21 +24,14 @@ import org.apache.log4j.Logger;
 public class FanartTvPlugin {
 
     protected static final Logger logger = Logger.getLogger(FanartTvPlugin.class);
+    private static final String logMessage = "FanartTvPlugin: ";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_FanartTv");
     private FanartTv ft = new FanartTv(API_KEY);
-    private List<FanartTvArtwork> ftArtwork = new ArrayList<FanartTvArtwork>();
-    private static String logMessage = "FanartTvPlugin: ";
     private static final String webhost = "fanart.tv";
-    private static HashMap<String, Integer> artworkTypes = new HashMap<String, Integer>();
+    private static final HashMap<String, Integer> artworkTypes = new HashMap<String, Integer>();
     private static int totalRequired = 0;
 
-    public FanartTvPlugin() {
-        // We need to set the proxy parameters if set.
-        ft.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
-
-        // Set the timeout values
-        ft.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
-
+    static {
         // Read the properties for the artwork required and the quantities
         List<String> requiredArtworkTypes = Arrays.asList(PropertiesUtil.getProperty("fanarttv.types", "clearart,clearlogo,seasonthumb,tvthumb").toLowerCase().split(","));
         logger.debug(logMessage + "Looking for " + requiredArtworkTypes.toString() + " Fanart.TV Types");
@@ -49,10 +41,22 @@ public class FanartTvPlugin {
             artworkTypes.put(artworkType, artworkQuantity);
             if (artworkQuantity > 0) {
                 logger.debug(logMessage + "Getting maximum of " + artworkQuantity + " " + artworkType);
-                totalRequired += artworkQuantity;
             } else {
                 logger.debug(logMessage + "No " + artworkType + " required");
             }
+        }
+    }
+
+    public FanartTvPlugin() {
+        // We need to set the proxy parameters if set.
+        ft.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+
+        // Set the timeout values
+        ft.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+
+        // Calculate the required number of artworks
+        for(String key : artworkTypes.keySet()) {
+            totalRequired += artworkTypes.get(key);
         }
     }
 
@@ -79,7 +83,8 @@ public class FanartTvPlugin {
         }
 
         if (tvdbid > 0) {
-            ftArtwork = getFanartTvArtwork(tvdbid, artworkType);
+            List<FanartTvArtwork> ftArtwork = getFanartTvArtwork(tvdbid, artworkType);
+
             logger.debug(logMessage + "Found " + ftArtwork.size() + (StringTools.isValidString(artworkType) ? artworkType : "") + " artwork items");
 
 //            Artwork movieArtwork;
@@ -169,5 +174,19 @@ public class FanartTvPlugin {
         filename.append(".").append(PropertiesUtil.getProperty(artworkType + ".format", "png"));
 
         return filename.toString();
+    }
+
+    public static boolean isArtworkRequired(String artworkType) {
+        if (artworkTypes.containsKey(artworkType)) {
+            if (artworkTypes.get(artworkType) > 0) {
+                return true;
+            } else {
+                // None required
+                return false;
+            }
+        } else {
+            // Not found, so not required
+            return false;
+        }
     }
 }

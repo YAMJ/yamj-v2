@@ -12,8 +12,10 @@
  */
 package com.moviejukebox.scanner;
 
+import com.moviejukebox.fanarttv.model.FanartTvArtwork;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.plugin.FanartTvPlugin;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
@@ -21,13 +23,15 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 /**
- * This function will validate the current movie object and return true if the movie needs to be re-scanned.
+ * This function will validate the current movie object and return true if the
+ * movie needs to be re-scanned.
+ *
  * @author Stuart
  */
 public class RecheckScanner {
 
     private static final Logger logger = Logger.getLogger(RecheckScanner.class);
-
+    private static final String logMessage = "RecheckScanner: ";
     /*
      * Recheck variables
      */
@@ -50,6 +54,7 @@ public class RecheckScanner {
     private static final boolean bannerDownload = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", "false");
     private static final boolean includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");
     private static final boolean includePeople = PropertiesUtil.getBooleanProperty("mjb.people", "false");
+    private static final boolean extraArtworkDownload = PropertiesUtil.getBooleanProperty("mjb.includeExtraArtwork", "false");
 
     public static boolean scan(Movie movie) {
         if (!recheckXML) {
@@ -70,12 +75,12 @@ public class RecheckScanner {
         // Check for the version of YAMJ that wrote the XML file vs the current version
         //System.out.println("- mjbVersion : " + movie.getMjbVersion() + " (" + movie.getCurrentMjbVersion() + ")");
         if (recheckVersion && !movie.getMjbVersion().equalsIgnoreCase(movie.getCurrentMjbVersion())) {
-            logger.debug("RecheckScanner: " + movie.getBaseName() + " XML is from a previous version, will rescan");
+            logger.debug(logMessage + movie.getBaseName() + " XML is from a previous version, will rescan");
             return true;
         }
 
         if (includePeople && movie.getPeople().isEmpty()) {
-            logger.debug("RecheckScanner: " + movie.getBaseName() + " is missing people data, will rescan");
+            logger.debug(logMessage + movie.getBaseName() + " is missing people data, will rescan");
             return true;
         }
 
@@ -102,7 +107,7 @@ public class RecheckScanner {
 
         // Check the date the XML file was written vs the current date
         if ((recheckDays > 0) && (dateDiff > recheckDays)) {
-            logger.debug("RecheckScanner: " + movie.getBaseName() + " XML is " + dateDiff + " days old, will rescan");
+            logger.debug(logMessage + movie.getBaseName() + " XML is " + dateDiff + " days old, will rescan");
             recheckCount++;
             return true;
         }
@@ -116,7 +121,7 @@ public class RecheckScanner {
             String movieMjbRevision = movie.getMjbRevision();
             int revDiff = Integer.parseInt(isNotValidString(currentRevision) ? "0" : currentRevision) - Integer.parseInt(isNotValidString(movieMjbRevision) ? "0" : movieMjbRevision);
             if (revDiff > recheckRevision) {
-                logger.debug("RecheckScanner: " + movie.getBaseName() + " XML is " + revDiff + " revisions old (" + recheckRevision + " maximum), will rescan");
+                logger.debug(logMessage + movie.getBaseName() + " XML is " + revDiff + " revisions old (" + recheckRevision + " maximum), will rescan");
                 recheckCount++;
                 return true;
             }
@@ -125,38 +130,64 @@ public class RecheckScanner {
         // Check for "UNKNOWN" values in the XML
         if (recheckUnknown) {
             if (isNotValidString(movie.getTitle()) && isNotValidString(movie.getYear())) {
-                logger.debug("RecheckScanner: " + movie.getBaseName() + " XML is missing the title, will rescan");
+                logger.debug(logMessage + movie.getBaseName() + " XML is missing the title, will rescan");
                 recheckCount++;
                 return true;
             }
 
             if (isNotValidString(movie.getPlot())) {
-                logger.debug("RecheckScanner: " + movie.getBaseName() + " XML is missing plot, will rescan");
+                logger.debug(logMessage + movie.getBaseName() + " XML is missing plot, will rescan");
                 recheckCount++;
                 return true;
             }
 
             if (isNotValidString(movie.getYear())) {
-                logger.debug("RecheckScanner: " + movie.getBaseName() + " XML is missing year, will rescan");
+                logger.debug(logMessage + movie.getBaseName() + " XML is missing year, will rescan");
                 recheckCount++;
                 return true;
             }
 
             if (movie.getGenres().isEmpty()) {
-                logger.debug("RecheckScanner: " + movie.getBaseName() + " XML is missing genres, will rescan");
+                logger.debug(logMessage + movie.getBaseName() + " XML is missing genres, will rescan");
                 recheckCount++;
                 return true;
             }
 
             if (isNotValidString(movie.getPosterURL())) {
-                logger.debug("RecheckScanner: " + movie.getBaseName() + " is missing poster, will rescan");
+                logger.debug(logMessage + movie.getBaseName() + " is missing poster, will rescan");
                 recheckCount++;
                 return true;
             }
 
             if (isNotValidString(movie.getFanartURL())) {
                 if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
-                    logger.debug("RecheckScanner: " + movie.getBaseName() + " is missing fanart, will rescan");
+                    logger.debug(logMessage + movie.getBaseName() + " is missing fanart, will rescan");
+                    recheckCount++;
+                    return true;
+                }
+            }
+
+            if (extraArtworkDownload && movie.isTVShow()) {
+                if (isNotValidString(movie.getClearartURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_CLEARART)) {
+                    logger.debug(logMessage + movie.getBaseName() + " is missing ClearArt, will rescan");
+                    recheckCount++;
+                    return true;
+                }
+
+                if (isNotValidString(movie.getClearlogoURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_CLEARLOGO)) {
+                    logger.debug(logMessage + movie.getBaseName() + " is missing ClearLogo, will rescan");
+                    recheckCount++;
+                    return true;
+                }
+
+                if (isNotValidString(movie.getSeasonThumbURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_SEASONTHUMB)) {
+                    logger.debug(logMessage + movie.getBaseName() + " is missing SeasonThumb, will rescan");
+                    recheckCount++;
+                    return true;
+                }
+
+                if (isNotValidString(movie.getTvthumbURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_TVTHUMB)) {
+                    logger.debug(logMessage + movie.getBaseName() + " is missing TvThumb, will rescan");
                     recheckCount++;
                     return true;
                 }
@@ -164,7 +195,7 @@ public class RecheckScanner {
 
             // Only get ratings if the rating list is null or empty - We assume it's OK to have a -1 rating if there are entries in the array
             if (movie.getRatings() == null || movie.getRatings().isEmpty()) {
-                logger.debug("RecheckScanner: " + movie.getBaseName() + " is missing rating, will rescan");
+                logger.debug(logMessage + movie.getBaseName() + " is missing rating, will rescan");
                 recheckCount++;
                 return true;
             }
@@ -173,19 +204,19 @@ public class RecheckScanner {
                 boolean recheckEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
 
                 if (bannerDownload && isNotValidString(movie.getBannerURL())) {
-                    logger.debug("RecheckScanner: " + movie.getBaseName() + " is missing banner artwork, will rescan");
+                    logger.debug(logMessage + movie.getBaseName() + " is missing banner artwork, will rescan");
                     recheckCount++;
                     return true;
                 }
 
                 if (isNotValidString(movie.getShowStatus())) {
-                    logger.debug("RecheckScanner: " + movie.getBaseName() + " is missing show status, will rescan");
+                    logger.debug(logMessage + movie.getBaseName() + " is missing show status, will rescan");
                     recheckCount++;
                     return true;
                 }
 
                 if (isNotValidString(movie.getReleaseDate())) {
-                    logger.debug("RecheckScanner: " + movie.getBaseName() + " is missing show release date, will rescan");
+                    logger.debug(logMessage + movie.getBaseName() + " is missing show release date, will rescan");
                     recheckCount++;
                     return true;
                 }
@@ -193,7 +224,7 @@ public class RecheckScanner {
                 // scan the TV episodes
                 for (MovieFile mf : movie.getMovieFiles()) {
                     if (isNotValidString(mf.getTitle())) {
-                        logger.debug("RecheckScanner: " + movie.getBaseName() + " - Part " + mf.getFirstPart() + " XML is missing Title, will rescan");
+                        logger.debug(logMessage + movie.getBaseName() + " - Part " + mf.getFirstPart() + " XML is missing Title, will rescan");
                         mf.setNewFile(true); // This forces the episodes to be rechecked
                         recheckCount++;
                         return true;
@@ -202,14 +233,14 @@ public class RecheckScanner {
                     if (recheckEpisodePlots || videoimageDownload) {
                         for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
                             if (recheckEpisodePlots && isNotValidString(mf.getPlot(part))) {
-                                logger.debug("RecheckScanner: " + movie.getBaseName() + " - Part " + part + " XML is missing TV plot, will rescan");
+                                logger.debug(logMessage + movie.getBaseName() + " - Part " + part + " XML is missing TV plot, will rescan");
                                 mf.setNewFile(true); // This forces the episodes to be rechecked
                                 recheckCount++;
                                 return true;
                             } // plots
 
                             if (videoimageDownload && isNotValidString(mf.getVideoImageURL(part))) {
-                                logger.debug("RecheckScanner: " + movie.getBaseName() + " - Part " + part + " XML is missing TV video image, will rescan");
+                                logger.debug(logMessage + movie.getBaseName() + " - Part " + part + " XML is missing TV video image, will rescan");
                                 mf.setNewFile(true); // This forces the episodes to be rechecked
                                 recheckCount++;
                                 return true;
@@ -220,7 +251,7 @@ public class RecheckScanner {
 
                     for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
                         if (isNotValidString(mf.getFirstAired(part))) {
-                            logger.debug("RecheckScanner: " + movie.getBaseName() + " - Part " + part + " XML is missing TV first aired date, will rescan");
+                            logger.debug(logMessage + movie.getBaseName() + " - Part " + part + " XML is missing TV first aired date, will rescan");
                             mf.setNewFile(true); // This forces the episodes to be rechecked
                             recheckCount++;
                             return true;
@@ -229,7 +260,7 @@ public class RecheckScanner {
 
                     for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
                         if (includeEpisodeRating && isNotValidString(mf.getRating(part))) {
-                            logger.info("RecheckScanner: " + movie.getBaseName() + " - Part " + part + " XML is missing TV rating, will rescan");
+                            logger.info(logMessage + movie.getBaseName() + " - Part " + part + " XML is missing TV rating, will rescan");
                             mf.setNewFile(true); // This forces the episodes to be rechecked
                             recheckCount++;
                             return true;
