@@ -23,19 +23,18 @@ import org.apache.log4j.Logger;
 
 /**
  * API for getting the ratings from RottenTomatoes.com
+ *
  * @author stuart.boston
  *
  */
 public class RottenTomatoesPlugin {
-    private static Logger logger = Logger.getLogger(RottenTomatoesPlugin.class);
 
+    private static Logger logger = Logger.getLogger(RottenTomatoesPlugin.class);
     public static final String ROTTENTOMATOES_PLUGIN_ID = "rottentomatoes";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_RottenTomatoes");
     private static final String webhost = "rottentomatoes.com";
     private static String logMessage = "RottenTomatoesPlugin: ";
-
     private static String[] priorityList = PropertiesUtil.getProperty("mjb.rottentomatoes.priority", "critics_score,audience_score,critics_rating,audience_rating").split(",");
-
     private RottenTomatoes rt;
 
     public RottenTomatoesPlugin() {
@@ -56,6 +55,12 @@ public class RottenTomatoesPlugin {
         if (movie.isTVShow()) {
             logger.debug(logMessage + movie.getBaseName() + " is a TV Show, skipping.");
             return false;
+        }
+
+        // If we have a rating already, skip unless we are rechecking.
+        if (movie.getRating(ROTTENTOMATOES_PLUGIN_ID) >= 0 && !movie.isDirty(Movie.DIRTY_RECHECK)) {
+            logger.debug(logMessage + movie.getBaseName() + " already has a rating");
+            return true;
         }
 
         // We seem to have a valid movie, so let's scan
@@ -81,7 +86,7 @@ public class RottenTomatoesPlugin {
 
         if (rtId == 0) {
             for (com.moviejukebox.rottentomatoes.model.Movie tmpMovie : rt.moviesSearch(movie.getTitle())) {
-                if (movie.getTitle().equalsIgnoreCase(tmpMovie.getTitle()) && (movie.getYear().equals(""+tmpMovie.getYear()))) {
+                if (movie.getTitle().equalsIgnoreCase(tmpMovie.getTitle()) && (movie.getYear().equals("" + tmpMovie.getYear()))) {
                     rtId = tmpMovie.getId();
                     rtMovie = tmpMovie;
                     movie.setId(ROTTENTOMATOES_PLUGIN_ID, rtId);
@@ -89,7 +94,7 @@ public class RottenTomatoesPlugin {
                 }
             }
         } else {
-           rtMovie = rt.movieInfo(rtId);
+            rtMovie = rt.movieInfo(rtId);
         }
 
         int ratingFound = 0;

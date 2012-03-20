@@ -15,7 +15,6 @@ package com.moviejukebox;
 import com.moviejukebox.fanarttv.model.FanartTvArtwork;
 import com.moviejukebox.model.Comparator.PersonComparator;
 import com.moviejukebox.model.*;
-import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.plugin.*;
 import com.moviejukebox.plugin.trailer.ITrailersPlugin;
 import com.moviejukebox.plugin.trailer.TrailersPlugin;
@@ -2131,7 +2130,7 @@ public class MovieJukebox {
         boolean forceFanartTvOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartTvOverwrite", "false");
 
         logger.info("UpdateFanartTv for " + movie.getBaseName());
-        
+
         if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_CLEARART)
                 && StringTools.isValidString(movie.getClearartURL())
                 && StringTools.isValidString(movie.getClearartFilename())) {
@@ -2177,7 +2176,7 @@ public class MovieJukebox {
         File tmpDestFile = new File(tmpDestFilename);
 
         logger.debug("Processing " + artworkType + " for " + movie.getBaseName());
-        
+
         // Do not overwrite existing artwork, unless there is a new artwork URL in the nfo file.
         if ((!tmpDestFile.exists() && !artworkFile.exists()) || movie.isDirty(dirtyFlag) || forceOverwrite) {
             artworkFile.getParentFile().mkdirs();
