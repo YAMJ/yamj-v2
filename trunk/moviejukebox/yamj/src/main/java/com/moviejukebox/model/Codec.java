@@ -49,7 +49,8 @@ public class Codec {
 
     /**
      * Constructor with just the codec type
-     * @param codecType 
+     *
+     * @param codecType
      */
     public Codec(CodecType codecType) {
         this.codecType = codecType;
@@ -57,15 +58,15 @@ public class Codec {
 
     /**
      * Simple constructor with just the type and codec.
+     *
      * @param codecType
-     * @param codec 
+     * @param codec
      */
     public Codec(CodecType codecType, String codec) {
         this.codecType = codecType;
         this.codec = codec;
     }
 
-    
     public void setCodec(String codec) {
         if (StringUtils.isBlank(codec)) {
             this.codecFormat = Movie.UNKNOWN;
@@ -125,8 +126,8 @@ public class Codec {
             this.codecLanguage = codecLanguage;
             if (StringTools.isNotValidString(codecFullLanguage)) {
                 this.codecFullLanguage = MovieFilenameScanner.determineLanguage(codecLanguage);
+            }
         }
-    }
     }
 
     public void setCodecBitRate(String codecBitRate) {
@@ -187,6 +188,17 @@ public class Codec {
 
     public String getCodecFullLanguage() {
         return codecFullLanguage;
+    }
+
+    /**
+     * Check to see if this is a MediaInfo codec or an empty NFO codec
+     *
+     * @return
+     */
+    public boolean isFullCodec() {
+        return (StringTools.isValidString(codecIdHint)
+                && StringTools.isValidString(codecFormat)
+                && StringTools.isValidString(codecId));
     }
 
     public enum CodecType {
@@ -265,5 +277,4 @@ public class Codec {
         hash = 17 * hash + this.codecChannels;
         return hash;
     }
-
 }

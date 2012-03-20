@@ -127,7 +127,7 @@ public class MediaInfoScanner {
             }
         } else if (!isMediaInfoRar && (mediaInfoDiskImages.contains(FilenameUtils.getExtension(currentMovie.getFile().getName())))) {
             // extracting IFO files from ISO file
-            AbstractFile abstractIsoFile = null;
+            AbstractFile abstractIsoFile;
 
             // Issue 979: Split the reading of the ISO file to catch any errors
             try {
@@ -241,7 +241,7 @@ public class MediaInfoScanner {
         matches.put("Text", infosText);
 
         String line = localInputReadLine(input);
-        String label = null;
+        String label;
 
         while (line != null) {
             // In case of new format : Text #1, Audio #1
@@ -257,7 +257,7 @@ public class MediaInfoScanner {
                 HashMap<String, String> currentData = new HashMap<String, String>();
                 int indexSeparateur = -1;
                 while (((line = localInputReadLine(input)) != null) && ((indexSeparateur = line.indexOf(" : ")) != -1)) {
-                    label = new String(line.substring(0, indexSeparateur).trim());
+                    label = new String(line.substring(0, indexSeparateur)).trim();
                     if (currentData.get(label) == null) {
                         currentData.put(label, new String(line.substring(indexSeparateur + 3)));
                     }
@@ -378,11 +378,10 @@ public class MediaInfoScanner {
 
         infoValue = infosGeneral.get("PlayTime");
         if (infoValue != null) {
-            int duration = 0;
             if (infoValue.indexOf('.') >= 0) {
                 infoValue = new String(infoValue.substring(0, infoValue.indexOf('.')));
             }
-            duration = Integer.parseInt(infoValue) / 1000;
+            int duration = Integer.parseInt(infoValue) / 1000;
             // Issue 1176 - Prevent lost of NFO Data
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
                 movie.setRuntime(StringTools.formatDuration(duration));
@@ -391,6 +390,9 @@ public class MediaInfoScanner {
         // get Info from first Video Stream
         // - can evolve to get info from longest Video Stream
         if (infosVideo.size() > 0) {
+            // At this point there is only a codec pulled from the filename, so we can clear that now
+            movie.getCodecs().clear();
+            
             HashMap<String, String> infosMainVideo = infosVideo.get(0);
 
             // Check that movie is not multi part
@@ -426,11 +428,9 @@ public class MediaInfoScanner {
             movie.addCodec(codecToAdd);
 
             if (movie.getResolution().equals(Movie.UNKNOWN)) {
-                int width = 0;
-
                 infoValue = infosMainVideo.get("Width");
                 if (infoValue != null) {
-                    width = Integer.parseInt(infoValue);
+                    int width = Integer.parseInt(infoValue);
 
                     infoValue = infosMainVideo.get("Height");
                     if (infoValue != null) {
@@ -462,8 +462,8 @@ public class MediaInfoScanner {
 
             if (movie.getVideoOutput().equals(Movie.UNKNOWN)) {
                 // Guessing Video Output (Issue 988)
-                String normeHD;
                 if (movie.isHD()) {
+                    String normeHD;
                     if (movie.isHD1080()) {
                         normeHD = "1080";
                     } else {
@@ -480,7 +480,6 @@ public class MediaInfoScanner {
                     }
                     movie.setVideoOutput(normeHD + " " + Math.round(movie.getFps()) + "Hz");
                 } else {
-                    normeHD = "SD";
                     String videoOutput;
                     switch (Math.round(movie.getFps())) {
                         case 24:
@@ -629,6 +628,7 @@ public class MediaInfoScanner {
 
     /**
      * Create a Codec object with the information from the file
+     *
      * @param codecType
      * @param Video
      * @return
@@ -644,7 +644,7 @@ public class MediaInfoScanner {
         codec.setCodecIdHint(codecInfos.get(Codec.MI_CODEC_ID_HINT));
         codec.setCodecLanguage(codecInfos.get(Codec.MI_CODEC_LANGUAGE));
 
-        String[] keyBitrates = { Codec.MI_CODEC_BITRATE, Codec.MI_CODEC_NOMINAL_BITRATE };
+        String[] keyBitrates = {Codec.MI_CODEC_BITRATE, Codec.MI_CODEC_NOMINAL_BITRATE};
         for (String key : Arrays.asList(keyBitrates)) {
             String infoValue = codecInfos.get(key);
             if (StringUtils.isNotBlank(infoValue)) {
@@ -721,13 +721,14 @@ public class MediaInfoScanner {
     }
 
     /**
-     * Look for the mediaInfo filename and return it.
-     * Will check first for the mediainfo-rar file and then mediainfo
+     * Look for the mediaInfo filename and return it. Will check first for the
+     * mediainfo-rar file and then mediainfo
+     *
      * @param osName
      * @return
      */
     protected static File findMediaInfo() {
-        File mediaInfoFile = null;
+        File mediaInfoFile;
 
         if (OS_NAME.contains("Windows")) {
             mediaInfoFile = new File(mediaInfoPath.getAbsolutePath() + File.separator + mediaInfoRarFilenameWindows);
