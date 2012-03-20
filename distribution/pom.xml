@@ -1,101 +1,101 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>com.moviejukebox</groupId>
-		<artifactId>moviejukebox</artifactId>
-		<version>2.7-SNAPSHOT</version>
-	</parent>
-	<artifactId>yamj-distribution</artifactId>
-	<name>YAMJ Distribution</name>
-	<packaging>pom</packaging>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.moviejukebox</groupId>
+        <artifactId>moviejukebox</artifactId>
+        <version>2.7-SNAPSHOT</version>
+    </parent>
+    <artifactId>yamj-distribution</artifactId>
+    <name>YAMJ Distribution</name>
+    <packaging>pom</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>com.moviejukebox</groupId>
-			<artifactId>yamj</artifactId>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>com.moviejukebox</groupId>
+            <artifactId>yamj</artifactId>
+        </dependency>
+    </dependencies>
 
-	<description>Distribution module for YAMJ</description>
-	<url>http://code.google.com/p/moviejukebox/</url>
-	<issueManagement>
-	</issueManagement>
-	<ciManagement>
-	</ciManagement>
-	<scm>
-	  <connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox/yamj-distribution</connection>
-    <developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox/yamj-distribution</developerConnection>
-    <url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox/yamj-distribution</url>
-  </scm>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>create-version-txt</id>
-						<phase>generate-resources</phase>
-						<configuration>
-							<target>
-								<property name="version_file" value="${project.build.directory}/version.txt" />
-								<property name="header_line" value="Yet Another Movie Jukebox${line.separator}" />
-								<property name="build_date_line" value="Build Date: ${timestamp}${line.separator}" />
-								<property name="version_line" value="Version: ${project.version}${line.separator}" />
-								<property name="revision_line" value="Revision: r${buildNumber}${line.separator}" />
-								<echo>Writing version file: ${version_file}</echo>
-								<echo file="${version_file}" append="false">${header_line}</echo>
-								<echo file="${version_file}" append="true">${build_date_line}</echo>
-								<echo file="${version_file}" append="true">${version_line}</echo>
-								<echo file="${version_file}" append="true">${revision_line}</echo>
-							</target>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+    <description>Distribution module for YAMJ</description>
+    <url>http://code.google.com/p/moviejukebox/</url>
+    <issueManagement>
+    </issueManagement>
+    <ciManagement>
+    </ciManagement>
+    <scm>
+        <connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox/yamj-distribution</connection>
+        <developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox/yamj-distribution</developerConnection>
+        <url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox/yamj-distribution</url>
+    </scm>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>create-version-txt</id>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <target>
+                                <property name="version_file" value="${project.build.directory}/version.txt" />
+                                <property name="header_line" value="Yet Another Movie Jukebox${line.separator}" />
+                                <property name="build_date_line" value="Build Date: ${timestamp}${line.separator}" />
+                                <property name="version_line" value="Version: ${project.version}${line.separator}" />
+                                <property name="revision_line" value="Revision: r${buildNumber}${line.separator}" />
+                                <echo>Writing version file: ${version_file}</echo>
+                                <echo file="${version_file}" append="false">${header_line}</echo>
+                                <echo file="${version_file}" append="true">${build_date_line}</echo>
+                                <echo file="${version_file}" append="true">${version_line}</echo>
+                                <echo file="${version_file}" append="true">${revision_line}</echo>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-dependencies</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<includeScope>compile</includeScope>
-							<outputDirectory>${project.build.directory}/dependencies</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>compile</includeScope>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>distro-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<descriptors>
-								<descriptor>src/main/assembly/bin.xml</descriptor>
-							</descriptors>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>distro-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/bin.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
-		</plugins>
-		<finalName>yamj-${project.version}-r${buildNumber}</finalName>
-	</build>
+        </plugins>
+        <finalName>yamj-${project.version}-r${buildNumber}</finalName>
+    </build>
 </project>

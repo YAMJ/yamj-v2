@@ -4,7 +4,7 @@
 
 MovieJukebox 2.7-SNAPSHOT
 -------------------------
-
+ - Fixed defect #2386 RottenTomatoes rating is checked every run
 
 MovieJukebox 2.6 (20-Mar-2012)
 ------------------------------
