@@ -10,7 +10,6 @@
  *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
  */
-
 package com.moviejukebox.mjbsqldb;
 
 import com.moviejukebox.mjbsqldb.dto.*;
@@ -20,13 +19,13 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class dbReader {
 
     /**
      * Get the last used ID for the table
+     *
      * @param tableName
      * @param idColumnName
      * @return
@@ -42,7 +41,12 @@ public class dbReader {
 
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("select MAX(" + idColumnName + ") from " + tableName);
+            StringBuilder sqlText = new StringBuilder("select MAX(");
+            sqlText.append(idColumnName);
+            sqlText.append(") from ");
+            sqlText.append(tableName);
+
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 // update the id by 1 to create the next id
@@ -103,6 +107,7 @@ public class dbReader {
 
     /**
      * Get any existing Artwork ID with the filename
+     *
      * @param connection
      * @param filename
      * @return
@@ -114,6 +119,7 @@ public class dbReader {
 
     /**
      * Get any existing Certification ID with the certification name
+     *
      * @param connection
      * @param certification
      * @return
@@ -138,9 +144,15 @@ public class dbReader {
         try {
             stmt = connection.createStatement();
 
-            rs = stmt.executeQuery("SELECT SITE_ID FROM " + VideoSiteDTO.TABLE_NAME + " WHERE VIDEO_ID=" + videoId +
-                            " AND SITE='" + StringEscapeUtils.escapeSql(site) + "'");
+            StringBuilder sqlText = new StringBuilder("SELECT SITE_ID FROM ");
+            sqlText.append(VideoSiteDTO.TABLE_NAME);
+            sqlText.append(" WHERE VIDEO_ID=");
+            sqlText.append(videoId);
+            sqlText.append(" AND SITE='");
+            sqlText.append(site);
+            sqlText.append("'");
 
+            rs = stmt.executeQuery(sqlText.toString());
             if (rs.next()) {
                 return rs.getString(1);
             }
@@ -185,9 +197,19 @@ public class dbReader {
         try {
             stmt = connection.createStatement();
 
-            rs = stmt.executeQuery("SELECT ID FROM " + tableName + " WHERE " +
-                    columnName1 + "='" + StringEscapeUtils.escapeSql(searchTerm1) + "' AND " +
-                    columnName2 + "='" + StringEscapeUtils.escapeSql(searchTerm2) + "'");
+            StringBuilder sqlText = new StringBuilder("SELECT ID FROM ");
+            sqlText.append(tableName);
+            sqlText.append(" WHERE ");
+            sqlText.append(columnName1);
+            sqlText.append("='");
+            sqlText.append(searchTerm1);
+            sqlText.append("' AND ");
+            sqlText.append(columnName2);
+            sqlText.append("='");
+            sqlText.append(searchTerm2);
+            sqlText.append("'");
+
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 return rs.getInt(1);
@@ -212,8 +234,15 @@ public class dbReader {
         try {
             stmt = connection.createStatement();
 
-            rs = stmt.executeQuery("SELECT ID FROM " + tableName + " WHERE " + columnName + "='" +
-                    StringEscapeUtils.escapeSql(searchTerm) + "'");
+            StringBuilder sqlText = new StringBuilder("SELECT ID FROM ");
+            sqlText.append(tableName);
+            sqlText.append(" WHERE ");
+            sqlText.append(columnName);
+            sqlText.append("='");
+            sqlText.append(searchTerm);
+            sqlText.append("'");
+
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 return rs.getInt(1);
@@ -228,7 +257,8 @@ public class dbReader {
     }
 
     /**
-     * Get the VideoFile ID using the video's fileLocation
+     * Get the VideoFile ID using the video fileLocation
+     *
      * @param connection
      * @param fileLocation
      * @return
@@ -245,7 +275,15 @@ public class dbReader {
         try {
             stmt = connection.createStatement();
 
-            rs = stmt.executeQuery("SELECT " + VideoFilePartDTO.TABLE_KEY + " FROM " + VideoFilePartDTO.TABLE_NAME + " WHERE FILE_ID=" + fileId + " AND PART=" + part);
+            StringBuilder sqlText = new StringBuilder("SELECT ");
+            sqlText.append(VideoFilePartDTO.TABLE_KEY);
+            sqlText.append(" FROM ");
+            sqlText.append(VideoFilePartDTO.TABLE_NAME);
+            sqlText.append(" WHERE FILE_ID=");
+            sqlText.append(fileId);
+            sqlText.append(" AND PART=");
+            sqlText.append(part);
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 return rs.getInt(1);
@@ -261,6 +299,7 @@ public class dbReader {
 
     /**
      * Get the Video ID using the title
+     *
      * @param connection
      * @param title
      * @return
@@ -281,8 +320,16 @@ public class dbReader {
 
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("select " + VideoDTO.TABLE_KEY + " from " + VideoDTO.TABLE_NAME + " where TITLE='"
-                + StringEscapeUtils.escapeSql(title) + "'");
+
+            StringBuilder sqlText = new StringBuilder("select ");
+            sqlText.append(VideoDTO.TABLE_KEY);
+            sqlText.append(" from ");
+            sqlText.append(VideoDTO.TABLE_NAME);
+            sqlText.append(" where TITLE='");
+            sqlText.append(title);
+            sqlText.append("'");
+            rs = stmt.executeQuery(sqlText.toString());
+
 
             return rs.next();
         } catch (Throwable tw) {
@@ -305,7 +352,15 @@ public class dbReader {
 
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + ArtworkDTO.TABLE_NAME + " WHERE " + ArtworkDTO.TABLE_KEY + "=" + artworkId);
+
+            StringBuilder sqlText = new StringBuilder("SELECT * FROM ");
+            sqlText.append(ArtworkDTO.TABLE_NAME);
+            sqlText.append(" WHERE ");
+            sqlText.append(ArtworkDTO.TABLE_KEY);
+            sqlText.append("=");
+            sqlText.append(artworkId);
+            rs = stmt.executeQuery(sqlText.toString());
+
             if (rs.next()) {
                 artwork.populateDTO(rs);
             }
@@ -331,7 +386,13 @@ public class dbReader {
 
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + CertificationDTO.TABLE_NAME + " WHERE " + CertificationDTO.TABLE_KEY + "=" + certId);
+            StringBuilder sqlText = new StringBuilder("SELECT * FROM ");
+            sqlText.append(CertificationDTO.TABLE_NAME);
+            sqlText.append(" WHERE ");
+            sqlText.append(CertificationDTO.TABLE_KEY);
+            sqlText.append("=");
+            sqlText.append(certId);
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 cert.populateDTO(rs);
@@ -358,7 +419,13 @@ public class dbReader {
 
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + CodecDTO.TABLE_NAME + " WHERE " + CodecDTO.TABLE_KEY + "=" + codecId);
+            StringBuilder sqlText = new StringBuilder("SELECT * FROM ");
+            sqlText.append(CodecDTO.TABLE_NAME);
+            sqlText.append(" WHERE ");
+            sqlText.append(CodecDTO.TABLE_KEY);
+            sqlText.append("=");
+            sqlText.append(codecId);
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 codec.populateDTO(rs);
@@ -385,7 +452,13 @@ public class dbReader {
 
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + CompanyDTO.TABLE_NAME + " WHERE " + CompanyDTO.TABLE_KEY + "=" + companyId);
+            StringBuilder sqlText = new StringBuilder("SELECT * FROM ");
+            sqlText.append(CompanyDTO.TABLE_NAME);
+            sqlText.append(" WHERE ");
+            sqlText.append(CompanyDTO.TABLE_KEY);
+            sqlText.append("=");
+            sqlText.append(companyId);
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 company.populateDTO(rs);
@@ -412,7 +485,13 @@ public class dbReader {
 
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + CountryDTO.TABLE_NAME + " WHERE " + CountryDTO.TABLE_KEY + "=" + countryId);
+            StringBuilder sqlText = new StringBuilder("SELECT * FROM ");
+            sqlText.append(CountryDTO.TABLE_NAME);
+            sqlText.append(" WHERE ");
+            sqlText.append(CountryDTO.TABLE_KEY);
+            sqlText.append("=");
+            sqlText.append(countryId);
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 country.populateDTO(rs);
@@ -439,7 +518,13 @@ public class dbReader {
 
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + GenreDTO.TABLE_NAME + " WHERE " + GenreDTO.TABLE_KEY + "=" + genreId);
+            StringBuilder sqlText = new StringBuilder("SELECT * FROM ");
+            sqlText.append(GenreDTO.TABLE_NAME);
+            sqlText.append(" WHERE ");
+            sqlText.append(GenreDTO.TABLE_KEY);
+            sqlText.append("=");
+            sqlText.append(genreId);
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 genre.populateDTO(rs);
@@ -466,7 +551,13 @@ public class dbReader {
 
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + LanguageDTO.TABLE_NAME + " WHERE " + LanguageDTO.TABLE_KEY + "=" + languageId);
+            StringBuilder sqlText = new StringBuilder("SELECT * FROM ");
+            sqlText.append(LanguageDTO.TABLE_NAME);
+            sqlText.append(" WHERE ");
+            sqlText.append(LanguageDTO.TABLE_KEY);
+            sqlText.append("=");
+            sqlText.append(languageId);
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 language.populateDTO(rs);
@@ -493,7 +584,13 @@ public class dbReader {
 
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + PersonDTO.TABLE_NAME + " WHERE " + PersonDTO.TABLE_KEY + "=" + personId);
+            StringBuilder sqlText = new StringBuilder("SELECT * FROM ");
+            sqlText.append(PersonDTO.TABLE_NAME);
+            sqlText.append(" WHERE ");
+            sqlText.append(PersonDTO.TABLE_KEY);
+            sqlText.append("=");
+            sqlText.append(personId);
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 person.populateDTO(rs);
@@ -520,7 +617,13 @@ public class dbReader {
 
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + VideoDTO.TABLE_NAME + " WHERE " + VideoDTO.TABLE_KEY + "=" + videoId);
+            StringBuilder sqlText = new StringBuilder("SELECT * FROM ");
+            sqlText.append(VideoDTO.TABLE_NAME);
+            sqlText.append(" WHERE ");
+            sqlText.append(VideoDTO.TABLE_KEY);
+            sqlText.append("=");
+            sqlText.append(videoId);
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 video.populateDTO(rs);
@@ -547,7 +650,13 @@ public class dbReader {
 
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + VideoFileDTO.TABLE_NAME + " WHERE " + VideoFileDTO.TABLE_KEY + "=" + videoFileId);
+            StringBuilder sqlText = new StringBuilder("SELECT * FROM ");
+            sqlText.append(VideoFileDTO.TABLE_NAME);
+            sqlText.append(" WHERE ");
+            sqlText.append(VideoFileDTO.TABLE_KEY);
+            sqlText.append("=");
+            sqlText.append(videoFileId);
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 videoFile.populateDTO(rs);
@@ -577,7 +686,11 @@ public class dbReader {
             vf = new VideoFileDTO();
 
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + VideoFileDTO.TABLE_NAME + " WHERE VIDEO_ID=" + videoId);
+            StringBuilder sqlText = new StringBuilder("SELECT * FROM ");
+            sqlText.append(VideoFileDTO.TABLE_NAME);
+            sqlText.append(" WHERE VIDEO_ID=");
+            sqlText.append(videoId);
+            rs = stmt.executeQuery(sqlText.toString());
 
             while (rs.next()) {
                 vf.populateDTO(rs);
@@ -607,7 +720,13 @@ public class dbReader {
 
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + VideoFilePartDTO.TABLE_NAME + " WHERE " + VideoFilePartDTO.TABLE_KEY + "=" + videoFilePartId);
+            StringBuilder sqlText = new StringBuilder("SELECT * FROM ");
+            sqlText.append(VideoFilePartDTO.TABLE_NAME);
+            sqlText.append(" WHERE ");
+            sqlText.append(VideoFilePartDTO.TABLE_KEY);
+            sqlText.append("=");
+            sqlText.append(videoFilePartId);
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 videoPartFile.populateDTO(rs);
@@ -637,7 +756,11 @@ public class dbReader {
             vf = new VideoFilePartDTO();
 
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + VideoFilePartDTO.TABLE_NAME + " WHERE VIDEO_ID=" + videoId);
+            StringBuilder sqlText = new StringBuilder("SELECT * FROM ");
+            sqlText.append(VideoFilePartDTO.TABLE_NAME);
+            sqlText.append(" WHERE VIDEO_ID=");
+            sqlText.append(videoId);
+            rs = stmt.executeQuery(sqlText.toString());
 
             while (rs.next()) {
                 vf.populateDTO(rs);
@@ -667,8 +790,16 @@ public class dbReader {
 
         try {
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM " + VideoSiteDTO.TABLE_NAME + " WHERE " + VideoSiteDTO.TABLE_KEY + "=" + videoId +
-                            "SITE='" + StringEscapeUtils.escapeSql(site) + "'");
+            StringBuilder sqlText = new StringBuilder("SELECT * FROM ");
+            sqlText.append(VideoSiteDTO.TABLE_NAME);
+            sqlText.append(" WHERE ");
+            sqlText.append(VideoSiteDTO.TABLE_KEY);
+            sqlText.append("=");
+            sqlText.append(videoId);
+            sqlText.append("SITE='");
+            sqlText.append(site);
+            sqlText.append("'");
+            rs = stmt.executeQuery(sqlText.toString());
 
             if (rs.next()) {
                 videoSite.populateDTO(rs);
@@ -682,5 +813,4 @@ public class dbReader {
             SQLTools.close(stmt);
         }
     }
-
 }
