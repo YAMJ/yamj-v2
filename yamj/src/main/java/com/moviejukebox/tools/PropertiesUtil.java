@@ -85,6 +85,7 @@ public class PropertiesUtil {
 
     /**
      * Return the key property as an integer
+     *
      * @param key
      * @param defaultValue
      * @return
@@ -100,6 +101,7 @@ public class PropertiesUtil {
 
     /**
      * Return the key property as an long
+     *
      * @param key
      * @param defaultValue
      * @return
@@ -115,6 +117,7 @@ public class PropertiesUtil {
 
     /**
      * Return the key property as a boolean
+     *
      * @param key
      * @param defaultValue
      * @return
@@ -130,6 +133,7 @@ public class PropertiesUtil {
 
     /**
      * Return the key property as a float
+     *
      * @param key
      * @param defaultValue
      * @return
@@ -169,11 +173,8 @@ public class PropertiesUtil {
     }
 
     /**
-     * Collect keywords list and appropriate keyword values.
-     * Example:
-     * my.languages = EN,FR
-     * my.languages.EN = English
-     * my.languages.FR = French
+     * Collect keywords list and appropriate keyword values. Example:
+     * my.languages = EN,FR my.languages.EN = English my.languages.FR = French
      *
      * @param prefix Key for keywords list and prefix for value searching.
      * @return Ordered keyword list and map.
@@ -223,7 +224,7 @@ public class PropertiesUtil {
             out.write("    <xsl:output method=\"xml\" omit-xml-declaration=\"yes\" />\n");
 
             for (String property : propertiesList) {
-                if (!property.startsWith("API_KEY")) {
+                if (!property.startsWith("API_KEY") && !property.contains("#")) {
                     out.write("    <xsl:param name=\"" + property + "\" />\n");
                 }
             }

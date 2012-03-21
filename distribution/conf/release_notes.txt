@@ -2,8 +2,8 @@
 ** MovieJukebox Release Notes
 ***************************************************************
 
-MovieJukebox 2.7-SNAPSHOT
--------------------------
+MovieJukebox 2.6.1
+------------------
  - Fixed defect #2247 Remove filename codec if MediaInfo codecs are found
  - Fixed defect #2386 RottenTomatoes rating is checked every run
  - Fixed defect #2387 Failed instantiating imagePlugin

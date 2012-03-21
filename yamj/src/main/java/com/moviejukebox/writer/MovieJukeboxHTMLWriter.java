@@ -271,7 +271,7 @@ public class MovieJukeboxHTMLWriter {
 
         try {
             reader = new BufferedReader(new FileReader(filename));
-            String br = "";
+            String br;
 
             while ((br = reader.readLine()) != null) {
                 if (br.trim().length() > 0) {
@@ -304,7 +304,6 @@ public class MovieJukeboxHTMLWriter {
                 // Ignore
             }
         }
-        return;
     }
 
     /**
@@ -372,8 +371,6 @@ public class MovieJukeboxHTMLWriter {
     private void generateTransformedIndexHTML(Jukebox jukebox, Library library) {
         logger.debug("Generating Index file from jukebox-index.xsl");
 
-        XMLWriter writer = null;
-
         String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
         if (homePage.length() == 0) {
             String defCat = library.getDefaultCategory();
@@ -389,7 +386,7 @@ public class MovieJukeboxHTMLWriter {
             // Create the index.xml file with some properties in it.
             File indexXmlFile = new File(jukebox.getJukeboxTempLocation(), "index.xml");
             indexXmlFile.getParentFile().mkdirs();
-            writer = new XMLWriter(indexXmlFile);
+            XMLWriter writer = new XMLWriter(indexXmlFile);
 
             writer.writeStartDocument("UTF-8", "1.0");
             writer.writeStartElement("index");
@@ -642,14 +639,13 @@ public class MovieJukeboxHTMLWriter {
      */
     private void doTransform(Transformer transformer, Source xmlSource, Result xmlResult, String message) throws Exception {
         int retryCount = 0;
-        int retryTimes = 0;
 
         do {
             try {
                 transformer.transform(xmlSource, xmlResult);
                 return;  // If the transform didn't throw an error, return
             } catch (Throwable tw) {
-                retryTimes = maxRetryCount - ++retryCount;
+                int retryTimes = maxRetryCount - ++retryCount;
 
                 if (retryTimes == 0) {
                     // We've exceeded the maximum number of retries, so throw the exception and quit
