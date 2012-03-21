@@ -4,7 +4,7 @@
     <groupId>com.moviejukebox</groupId>
     <artifactId>moviejukebox</artifactId>
     <name>Yet Another Movie Jukebox</name>
-    <version>2.7-SNAPSHOT</version>
+    <version>2.6.1</version>
     <description>The MovieJukebox project</description>
     <packaging>pom</packaging>
     <parent>
