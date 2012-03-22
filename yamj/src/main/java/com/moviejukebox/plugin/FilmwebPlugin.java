@@ -12,15 +12,6 @@
  */
 package com.moviejukebox.plugin;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -28,12 +19,21 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 public class FilmwebPlugin extends ImdbPlugin {
 
+    private static final Logger logger = Logger.getLogger(FilmwebPlugin.class);
     public static String FILMWEB_PLUGIN_ID = "filmweb";
 //    private static Pattern googlePattern = Pattern.compile(">(http://[^\"/?&]*filmweb.pl[^<\\s]*)");
-    private static Pattern googlePattern =  Pattern.compile("(http://[^\"/?&]*filmweb.pl[^\"&<\\s]*)");
+    private static Pattern googlePattern = Pattern.compile("(http://[^\"/?&]*filmweb.pl[^\"&<\\s]*)");
     private static Pattern yahooPattern = Pattern.compile("http%3a(//[^\"/?&]*filmweb.pl[^\"]*)\"");
     private static Pattern filmwebPattern = Pattern.compile("searchResultTitle\"? href=\"([^\"]*)\"");
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
@@ -51,7 +51,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         return FILMWEB_PLUGIN_ID;
     }
 
-    public void init() {
+    protected void init() {
         filmwebPreferredSearchEngine = PropertiesUtil.getProperty("filmweb.id.search", "filmweb");
         try {
             // first request to filmweb site to skip welcome screen with ad banner
@@ -95,7 +95,8 @@ public class FilmwebPlugin extends ImdbPlugin {
     }
 
     /**
-     * retrieve the filmweb url matching the specified movie name and year. This routine is base on a yahoo request.
+     * retrieve the filmweb url matching the specified movie name and year. This
+     * routine is base on a yahoo request.
      */
     private String getFilmwebUrlFromYahoo(String movieName, String year) {
         try {
@@ -128,7 +129,8 @@ public class FilmwebPlugin extends ImdbPlugin {
     }
 
     /**
-     * retrieve the filmweb url matching the specified movie name and year. This routine is base on a google request.
+     * retrieve the filmweb url matching the specified movie name and year. This
+     * routine is base on a google request.
      */
     private String getFilmwebUrlFromGoogle(String movieName, String year) {
         try {
@@ -156,7 +158,8 @@ public class FilmwebPlugin extends ImdbPlugin {
     }
 
     /**
-     * retrieve the filmweb url matching the specified movie name and year. This routine is base on a filmweb request.
+     * retrieve the filmweb url matching the specified movie name and year. This
+     * routine is base on a filmweb request.
      */
     private String getFilmwebUrlFromFilmweb(String movieName, String year) {
         try {

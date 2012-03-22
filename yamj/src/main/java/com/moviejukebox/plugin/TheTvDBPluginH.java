@@ -25,6 +25,7 @@ import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.*;
 import java.util.List;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 
 /**
@@ -33,6 +34,7 @@ import org.pojava.datetime.DateTime;
  */
 public class TheTvDBPluginH extends ImdbPlugin {
 
+    private static final Logger logger = Logger.getLogger(TheTvDBPluginH.class);
     public static final String THETVDB_PLUGIN_ID = "thetvdb";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
     private static final String webhost = "thetvdb.com";

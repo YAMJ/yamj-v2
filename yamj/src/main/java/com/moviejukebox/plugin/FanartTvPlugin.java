@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
 
 public class FanartTvPlugin {
 
-    protected static final Logger logger = Logger.getLogger(FanartTvPlugin.class);
+    private static final Logger logger = Logger.getLogger(FanartTvPlugin.class);
     private static final String logMessage = "FanartTvPlugin: ";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_FanartTv");
     private FanartTv ft = new FanartTv(API_KEY);

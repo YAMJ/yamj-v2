@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
  */
 public class FilePropertiesMovie {
 
-    static Logger logger = Logger.getLogger(FilePropertiesMovie.class);
+    static final Logger logger = Logger.getLogger(FilePropertiesMovie.class);
     /**
      * The filesize.
      */

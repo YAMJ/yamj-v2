@@ -41,7 +41,7 @@ import org.apache.log4j.Logger;
  */
 public class BDRipScanner {
 
-    private static Logger logger = Logger.getLogger(BDRipScanner.class);
+    private static final Logger logger = Logger.getLogger(BDRipScanner.class);
 
     public class BDPlaylistInfo {
 

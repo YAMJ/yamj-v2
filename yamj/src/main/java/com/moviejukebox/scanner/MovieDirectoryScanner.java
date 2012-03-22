@@ -43,7 +43,7 @@ public class MovieDirectoryScanner {
     private Boolean excludeFilesWithoutExternalSubtitles;
     private Boolean excludeMultiPartBluRay;
     private Boolean playFullBluRayDisk;
-    private static Logger logger = Logger.getLogger(MovieDirectoryScanner.class);
+    private static final Logger logger = Logger.getLogger(MovieDirectoryScanner.class);
     private static int dirCount = 1;
     private static int fileCount = 0;
     private static Pattern patternRarPart = Pattern.compile("\\.part(\\d+)\\.rar");

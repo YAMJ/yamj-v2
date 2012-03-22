@@ -19,6 +19,11 @@ animator.sites: [all, animator, allmults] - where find movie data
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,21 +36,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
-
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 
 /**
  * @author ilgizar
  */
 public class AnimatorPlugin extends ImdbPlugin {
 
+    private static final Logger logger = Logger.getLogger(AnimatorPlugin.class);
     public static String ANIMATOR_PLUGIN_ID = "animator";
 //  Define plot length
     int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
@@ -132,7 +131,6 @@ public class AnimatorPlugin extends ImdbPlugin {
 
             sb = "text=" + URLEncoder.encode(sb, "Cp1251").replace(" ", "+");
 
-            String xml = "";
 // Get ID from animator.ru
             if (animatorDiscovery) {
                 String uri = "http://www.animator.ru/db/?p=search&SearchMask=1&" + sb;
@@ -140,7 +138,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                     uri = uri + "&year0=" + year;
                     uri = uri + "&year1=" + year;
                 }
-                xml = webBrowser.request(uri);
+                String xml = webBrowser.request(uri);
 // Checking for zero results
                 if (xml.indexOf("[соответствие фразы]") != -1) {
 // It's search results page, searching a link to the movie page
@@ -474,7 +472,6 @@ public class AnimatorPlugin extends ImdbPlugin {
             movie.setCompany(Company);
 
 // Poster + Fanart (animator.ru)
-            String fanURL = Movie.UNKNOWN;
             String posterURL = Movie.UNKNOWN;
             if (!animatorId.equals(Movie.UNKNOWN)) {
                 int tmp = xml.indexOf("<img src=\"../film_img/");
@@ -482,7 +479,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                     posterURL = "http://www.animator.ru/film_img/" + new String(xml.substring(tmp + 22, xml.indexOf("\" ", tmp)));
                 } else if (xml.indexOf("<img id=SlideShow ") != -1) {
                     posterURL = "http://www.animator.ru/film_img/variants/film_" + animatorId + "_00.jpg";
-                    fanURL = "http://www.animator.ru/film_img/variants/film_" + animatorId + "_01.jpg";
+                    String fanURL = "http://www.animator.ru/film_img/variants/film_" + animatorId + "_01.jpg";
                     if (StringTools.isValidString(fanURL)) {
                         movie.setFanartURL(fanURL);
                         movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);

@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
  */
 public class CacheDB {
 
-    private static Logger logger = Logger.getLogger(CacheDB.class);
+    private static final Logger logger = Logger.getLogger(CacheDB.class);
     private static boolean cacheEnabled = initCacheState();
 
     public static boolean initCacheState() {

@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
  */
 public class XMLHelper {
 
-    protected static Logger logger = Logger.getLogger(XMLHelper.class);
+    private static final Logger logger = Logger.getLogger(XMLHelper.class);
 
     public static XMLEventReader getEventReader(String url) throws IOException, XMLStreamException {
         WebBrowser wb = new WebBrowser();

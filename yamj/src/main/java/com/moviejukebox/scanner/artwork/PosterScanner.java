@@ -63,7 +63,7 @@ public class PosterScanner {
     private static final String EXISTING_FIXED = "fixedcoverartname";
     private static final String EXISTING_NO = "no";
 
-    protected static final Logger logger = Logger.getLogger(PosterScanner.class);
+    private static final Logger logger = Logger.getLogger(PosterScanner.class);
     // We get covert art scanner behaviour
     protected static final String searchForExistingPoster = PropertiesUtil.getProperty("poster.scanner.searchForExistingCoverArt", EXISTING_MOVIE);
     // See if we use folder.* image or not

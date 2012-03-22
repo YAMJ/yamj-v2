@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 
 public class MovieListingPluginSql extends MovieListingPluginBase implements MovieListingPlugin {
-    private static Logger logger = Logger.getLogger(MovieListingPluginSql.class);
+    private static final Logger logger = Logger.getLogger(MovieListingPluginSql.class);
     private static Connection mjbConn = null;
     private static String dbLocation = PropertiesUtil.getProperty("mjb.sql.location", "./");
     private static String dbName = PropertiesUtil.getProperty("mjb.sql.dbname", "listing.db");

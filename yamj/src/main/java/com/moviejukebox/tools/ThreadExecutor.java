@@ -27,7 +27,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
     private BlockingQueue<Runnable> queue = null;
     private int threadsRun, threadsIo, threadsTotal;
     private boolean ignoreErrors = true;
-    private static Logger logger = Logger.getLogger(ThreadExecutor.class);
+    private static final Logger logger = Logger.getLogger(ThreadExecutor.class);
     private Semaphore runningThreads, ioThreads;
     private static Map<String, String> hostgrp = new HashMap<String, String>();
     private static Map<String, Semaphore> grouplimits = new HashMap<String, Semaphore>();

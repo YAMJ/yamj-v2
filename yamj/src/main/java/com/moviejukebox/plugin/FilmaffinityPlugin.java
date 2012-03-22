@@ -1,5 +1,5 @@
 /*
-/*
+ /*
  *      Copyright (c) 2004-2012 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
  *
@@ -13,20 +13,21 @@
  */
 package com.moviejukebox.plugin;
 
-import java.nio.charset.Charset;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 public class FilmaffinityPlugin extends ImdbPlugin {
 
+    private static final Logger logger = Logger.getLogger(FilmaffinityPlugin.class);
     /*
      * Literals of web of each movie info
      */
@@ -132,11 +133,9 @@ public class FilmaffinityPlugin extends ImdbPlugin {
 
             /*
              * Sometimes FilmAffinity includes the writer of novel in the form:
-             * screenwriter (Novela: writer)
-             * OR
-             * screenwriter1, screenwriter2, ... (Novela: writer)
-             * OR even!!
-             * screenwriter1, screenwriter2, ... (Story: writer1, writer2)
+             * screenwriter (Novela: writer) OR screenwriter1, screenwriter2,
+             * ... (Novela: writer) OR even!! screenwriter1, screenwriter2, ...
+             * (Story: writer1, writer2)
              *
              * The info between parenthesis doesn't add.
              */
@@ -168,11 +167,11 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             movie.setPlot(plot.trim());
 
             /*
-             * Fill the rest of the fields from IMDB,
-             * taking care not to allow the title to get overwritten.
+             * Fill the rest of the fields from IMDB, taking care not to allow
+             * the title to get overwritten.
              *
-             * I change temporally: title = Original title
-             * to improve the chance to find the right movie in IMDb.
+             * I change temporally: title = Original title to improve the chance
+             * to find the right movie in IMDb.
              */
             boolean overrideTitle = movie.isOverrideTitle();
             String title = movie.getTitle();

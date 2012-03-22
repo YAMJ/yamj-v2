@@ -23,7 +23,7 @@ import java.text.Normalizer;
 import org.apache.log4j.Logger;
 
 public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
-    private static Logger logger = Logger.getLogger(MovieCoversPosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(MovieCoversPosterPlugin.class);
     private WebBrowser webBrowser;
 
     public MovieCoversPosterPlugin() {

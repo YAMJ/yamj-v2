@@ -39,7 +39,7 @@ import org.apache.log4j.Logger;
  */
 @SuppressWarnings("serial")
 public class MovieFilenameScanner {
-    protected static final Logger logger = Logger.getLogger(MovieFilenameScanner.class);
+    private static final Logger logger = Logger.getLogger(MovieFilenameScanner.class);
     protected static boolean skipEpisodeTitle;
     protected static boolean useParentRegex;
     protected static boolean archiveScanRar;

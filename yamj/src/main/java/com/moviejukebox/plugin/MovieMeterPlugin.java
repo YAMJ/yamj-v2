@@ -12,30 +12,34 @@
  */
 package com.moviejukebox.plugin;
 
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.StringTokenizer;
-
-import org.apache.xmlrpc.XmlRpcException;
-
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.StringTokenizer;
+import org.apache.log4j.Logger;
+import org.apache.xmlrpc.XmlRpcException;
 
 /**
- * The MovieMeterPlugin uses the XML-RPC API of www.moviemeter.nl (http://wiki.moviemeter.nl/index.php/API).
+ * The MovieMeterPlugin uses the XML-RPC API of www.moviemeter.nl
+ * (http://wiki.moviemeter.nl/index.php/API).
  *
- * Version 0.1 : Initial release Version 0.2 : Fixed google search Version 0.3 : Fixed a problem when the moviemeter webservice returned no movie duration
- * (Issue 676) Version 0.4 : Fixed a problem when the moviemeter webservice returned no actors (Issue 677) Added extra checks if values returned from the
- * webservice doesn't exist Version 0.5 : Added Fanart download based on imdb id returned from moviemeter
+ * Version 0.1 : Initial release Version 0.2 : Fixed google search Version 0.3 :
+ * Fixed a problem when the moviemeter webservice returned no movie duration
+ * (Issue 676) Version 0.4 : Fixed a problem when the moviemeter webservice
+ * returned no actors (Issue 677) Added extra checks if values returned from the
+ * webservice doesn't exist Version 0.5 : Added Fanart download based on imdb id
+ * returned from moviemeter
  *
  * @author RdeTuinman
  *
  */
 public class MovieMeterPlugin extends ImdbPlugin {
 
+    private static final Logger logger = Logger.getLogger(MovieMeterPlugin.class);
     public static String MOVIEMETER_PLUGIN_ID = "moviemeter";
     private MovieMeterPluginSession session;
     protected String preferredSearchEngine;
@@ -114,9 +118,9 @@ public class MovieMeterPlugin extends ImdbPlugin {
             }
 
             if (mediaFile.getReleaseDate().equals(Movie.UNKNOWN)) {
-                Object[] dates = (Object[])filmInfo.get("dates_cinema");
+                Object[] dates = (Object[]) filmInfo.get("dates_cinema");
                 if (dates != null && dates.length > 0) {
-                    HashMap dateshm = (HashMap)dates[0];
+                    HashMap dateshm = (HashMap) dates[0];
                     mediaFile.setReleaseDate(dateshm.get("date").toString());
                     logger.debug("MovieMeterPlugin: Fetched releasedate: " + mediaFile.getReleaseDate());
                 }
@@ -124,9 +128,9 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
             if (mediaFile.getRuntime().equals(Movie.UNKNOWN)) {
                 if (filmInfo.get("durations") != null) {
-                    Object[] durationsArray = (Object[])filmInfo.get("durations");
+                    Object[] durationsArray = (Object[]) filmInfo.get("durations");
                     if (durationsArray.length > 0) {
-                        HashMap durations = (HashMap)(durationsArray[0]);
+                        HashMap durations = (HashMap) (durationsArray[0]);
                         mediaFile.setRuntime(durations.get("duration").toString());
                     }
                 }
@@ -142,7 +146,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
             if (mediaFile.getGenres().isEmpty()) {
                 if (filmInfo.get("genres") != null) {
-                    Object[] genres = (Object[])filmInfo.get("genres");
+                    Object[] genres = (Object[]) filmInfo.get("genres");
                     for (int i = 0; i < genres.length; i++) {
                         mediaFile.addGenre(Library.getIndexingGenre(genres[i].toString()));
                     }
@@ -153,7 +157,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             if (mediaFile.getPlot().equals(Movie.UNKNOWN)) {
                 if (filmInfo.get("plot") != null) {
                     String tmpPlot = filmInfo.get("plot").toString();
-                    tmpPlot= StringTools.trimToLength(tmpPlot, preferredPlotLength, true, plotEnding);
+                    tmpPlot = StringTools.trimToLength(tmpPlot, preferredPlotLength, true, plotEnding);
                     mediaFile.setPlot(tmpPlot);
                 }
             }
@@ -171,9 +175,9 @@ public class MovieMeterPlugin extends ImdbPlugin {
                     // This results in a ClassCastException
                     // So first check the Class, before casting it to an Object array
                     if (filmInfo.get("actors").getClass().equals(Object[].class)) {
-                        Object[] actors = (Object[])filmInfo.get("actors");
+                        Object[] actors = (Object[]) filmInfo.get("actors");
                         for (int i = 0; i < actors.length; i++) {
-                            mediaFile.addActor((String)(((HashMap)actors[i]).get("name")));
+                            mediaFile.addActor((String) (((HashMap) actors[i]).get("name")));
                         }
                     }
                 }
@@ -181,9 +185,9 @@ public class MovieMeterPlugin extends ImdbPlugin {
             }
 
             if (mediaFile.getDirector().equals(Movie.UNKNOWN)) {
-                Object[] directors = (Object[])filmInfo.get("directors");
+                Object[] directors = (Object[]) filmInfo.get("directors");
                 if (directors != null && directors.length > 0) {
-                    HashMap directorshm = (HashMap)directors[0];
+                    HashMap directorshm = (HashMap) directors[0];
                     mediaFile.addDirector(directorshm.get("name").toString());
                     logger.debug("MovieMeterPlugin: Fetched director: " + mediaFile.getDirector());
                 }
@@ -205,7 +209,8 @@ public class MovieMeterPlugin extends ImdbPlugin {
     }
 
     /**
-     * Searches www.google.nl for the moviename and retreives the movie id for www.moviemeter.nl.
+     * Searches www.google.nl for the moviename and retreives the movie id for
+     * www.moviemeter.nl.
      *
      * Only used when moviemeter.id.search=google
      *

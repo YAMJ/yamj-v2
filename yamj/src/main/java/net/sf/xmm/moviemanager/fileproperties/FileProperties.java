@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 
 abstract class FileProperties {
 
-    private static Logger logger = Logger.getLogger(FileProperties.class);
+    private static final Logger logger = Logger.getLogger(FileProperties.class);
     protected boolean supported = false;
     protected boolean errorOccured = false;
     /**

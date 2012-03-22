@@ -55,7 +55,7 @@ import org.apache.log4j.Logger;
  */
 public class FanartScanner {
 
-    protected final static Logger logger = Logger.getLogger(FanartScanner.class);
+    protected static final Logger logger = Logger.getLogger(FanartScanner.class);
     protected static Collection<String> fanartExtensions = new ArrayList<String>();
     protected static String fanartToken;
     protected static boolean fanartOverwrite;

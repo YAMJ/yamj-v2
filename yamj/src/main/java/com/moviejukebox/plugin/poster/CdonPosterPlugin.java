@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 
 public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
     // The AbstractMoviePosterPlugin already implements IMoviePosterPlugin
-    private static Logger logger = Logger.getLogger(CdonPosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(CdonPosterPlugin.class);
 
     protected WebBrowser webBrowser;
 

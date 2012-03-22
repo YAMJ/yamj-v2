@@ -31,7 +31,7 @@ import org.pojava.datetime.DateTime;
 @XmlType
 public class MovieFile implements Comparable<MovieFile> {
 
-    private static Logger logger = Logger.getLogger(MovieFile.class);
+    private static final Logger logger = Logger.getLogger(MovieFile.class);
     private String filename = Movie.UNKNOWN;
     private String archiveName = null;
     private int season = -1;    // The season associated with the movie file

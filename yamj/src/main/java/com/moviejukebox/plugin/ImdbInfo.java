@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 public class ImdbInfo {
-    protected static Logger logger = Logger.getLogger(ImdbInfo.class);
+    private static final Logger logger = Logger.getLogger(ImdbInfo.class);
     private static final String DEFAULT_SITE = "us";
     private static final Map<String, ImdbSiteDataDefinition> matchesDataPerSite = new HashMap<String, ImdbSiteDataDefinition>();
     private final String imdbSite = PropertiesUtil.getProperty("imdb.site", DEFAULT_SITE);

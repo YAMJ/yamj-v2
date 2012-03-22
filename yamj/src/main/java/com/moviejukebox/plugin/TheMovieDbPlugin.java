@@ -35,7 +35,7 @@ import org.pojava.datetime.DateTime;
  */
 public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
-    protected static Logger logger = Logger.getLogger(TheMovieDbPlugin.class);
+    private static final Logger logger = Logger.getLogger(TheMovieDbPlugin.class);
     public static final String TMDB_PLUGIN_ID = "themoviedb";
     public static final String IMDB_PLUGIN_ID = "imdb";
     private static final String webhost = "themoviedb.org";

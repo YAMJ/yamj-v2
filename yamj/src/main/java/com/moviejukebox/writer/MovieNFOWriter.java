@@ -26,7 +26,7 @@ import org.w3c.dom.Element;
  */
 public class MovieNFOWriter {
 
-    private static Logger logger = Logger.getLogger(MovieNFOWriter.class);
+    private static final Logger logger = Logger.getLogger(MovieNFOWriter.class);
     private static boolean writeSimpleNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeSimpleFiles", Boolean.FALSE.toString());
     private static boolean extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE.toString());
     private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE.toString());

@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 public class ImdbPlugin implements MovieDatabasePlugin {
 
     public static String IMDB_PLUGIN_ID = "imdb";
-    protected static Logger logger = Logger.getLogger(ImdbPlugin.class);
+    private static final Logger logger = Logger.getLogger(ImdbPlugin.class);
     protected String preferredCountry;
     private String imdbPlot;
     protected WebBrowser webBrowser;

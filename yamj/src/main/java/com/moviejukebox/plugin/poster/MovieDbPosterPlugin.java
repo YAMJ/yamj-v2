@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 
 public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
 
-    private static Logger logger = Logger.getLogger(MovieDbPosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(MovieDbPosterPlugin.class);
     private String apiKey = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
     private String languageCode;
     private String countryCode;

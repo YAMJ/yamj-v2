@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
  */
 public class MovieListingPluginCsv extends MovieListingPluginBase implements MovieListingPlugin {
 
-    private static Logger logger = Logger.getLogger(MovieListingPluginCsv.class);
+    private static final Logger logger = Logger.getLogger(MovieListingPluginCsv.class);
 
     /**
      * @return CSV-formatted header row

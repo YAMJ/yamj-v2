@@ -27,7 +27,7 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IT
 
     private WebBrowser webBrowser;
     private FilmwebPlugin filmwebPlugin;
-    private static Logger logger = Logger.getLogger(FilmwebPosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(FilmwebPosterPlugin.class);
 
     public FilmwebPosterPlugin() {
         super();

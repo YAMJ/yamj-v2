@@ -12,6 +12,12 @@
  */
 package com.moviejukebox.plugin.trailer;
 
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -19,13 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.StringTokenizer;
-
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
+import org.apache.log4j.Logger;
 
 /**
  * @author iuk
@@ -33,6 +33,7 @@ import com.moviejukebox.tools.SystemTools;
  */
 public class TrailersLandPlugin extends TrailersPlugin {
 
+    private static final Logger logger = Logger.getLogger(TrailersLandPlugin.class);
     private static String TRAILERSLAND_BASE_URL = "http://www.trailersland.com/";
     private static String TRAILERSLAND_SEARCH_URL = "cerca/ricerca=";
     private static String TRAILERSLAND_MOVIE_URL = "film/";
@@ -157,9 +158,6 @@ public class TrailersLandPlugin extends TrailersPlugin {
     }
 
     protected ArrayList<TrailersLandTrailer> getTrailerUrls(Movie movie) {
-
-
-
         String trailersLandId = movie.getId(getName());
         if (StringTools.isNotValidString(trailersLandId)) {
             trailersLandId = getTrailersLandId(movie);
@@ -265,27 +263,24 @@ public class TrailersLandPlugin extends TrailersPlugin {
                 }
             }
         }
-
-
         return trailerList;
-
     }
 
-    class TrailersLandTrailer implements Comparable<TrailersLandTrailer> {
+    public class TrailersLandTrailer implements Comparable<TrailersLandTrailer> {
 
-        String pageUrl;
-        String url;
-        String res;
-        String type;
-        String lang;
-        int foundOrder = 0;
+        private String pageUrl;
+        private String url;
+        private String res;
+        private String type;
+        private String lang;
+        private int foundOrder = 0;
 
         public TrailersLandTrailer(String pageUrl) {
-            this.setPageUrl(pageUrl);
-            this.setLang(Movie.UNKNOWN);
-            this.setRes(Movie.UNKNOWN);
-            this.setType(Movie.UNKNOWN);
-            this.setUrl(Movie.UNKNOWN);
+            this.pageUrl = pageUrl;
+            this.lang = Movie.UNKNOWN;
+            this.res = Movie.UNKNOWN;
+            this.type = Movie.UNKNOWN;
+            this.url = Movie.UNKNOWN;
         }
 
         public String getPageUrl() {
@@ -412,32 +407,32 @@ public class TrailersLandPlugin extends TrailersPlugin {
 
                 String params = url.substring(0, startIndex - 1);
 
-                String res;
+                String resolution;
                 if (params.indexOf("sd_file") >= 0) {
-                    res = "sd";
+                    resolution = "sd";
                 } else if (params.indexOf("480") >= 0) {
-                    res = "sd";
+                    resolution = "sd";
                 } else if (params.indexOf("720") >= 0) {
-                    res = "720p";
+                    resolution = "720p";
                 } else if (params.indexOf("1080") >= 0) {
-                    res = "1080p";
+                    resolution = "1080p";
                 } else {
                     logger.error(trailersPluginName + " Plugin: cannot guess trailer resolution for params " + params + ". Layout changed?");
                     return false;
                 }
 
-                if (!isResValid(res)) {
+                if (!isResValid(resolution)) {
                     //logger.debug(trailersPluginName + " Plugin: discarding " + fileUrl + " due to resolution.");
                     return false;
                 } else {
-                    if (!this.isResBetter(res)) {
+                    if (!this.isResBetter(resolution)) {
                         //logger.debug(trailersPluginName + " Plugin: discarding " + fileUrl + " as it's not better than actual resolution.");
                         return false;
                     }
                 }
 
                 setUrl(url);
-                setRes(res);
+                setRes(resolution);
 
                 return true;
             } else {

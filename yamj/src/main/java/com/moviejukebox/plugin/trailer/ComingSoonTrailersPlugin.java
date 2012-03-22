@@ -12,9 +12,6 @@
  */
 package com.moviejukebox.plugin.trailer;
 
-import java.util.Date;
-import java.util.StringTokenizer;
-
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -22,6 +19,9 @@ import com.moviejukebox.plugin.ComingSoonPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import java.util.Date;
+import java.util.StringTokenizer;
+import org.apache.log4j.Logger;
 
 /**
  * base on ComingSoonPlugin
@@ -31,6 +31,7 @@ import com.moviejukebox.tools.SystemTools;
 
 public class ComingSoonTrailersPlugin extends TrailersPlugin {
 
+    private static final Logger logger = Logger.getLogger(ComingSoonTrailersPlugin.class);
     private static String COMINGSOON_VIDEO_URL = "Film/Scheda/Video/?";
     private ComingSoonPlugin csPlugin = new ComingSoonPlugin();
 

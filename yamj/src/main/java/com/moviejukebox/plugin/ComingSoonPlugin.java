@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
+import org.apache.log4j.Logger;
 
 /**
  * @author iuk
@@ -29,6 +30,7 @@ import java.util.StringTokenizer;
  */
 public class ComingSoonPlugin extends ImdbPlugin {
 
+    private static final Logger logger = Logger.getLogger(ComingSoonPlugin.class);
     public static String COMINGSOON_PLUGIN_ID = "comingsoon";
     public static String COMINGSOON_NOT_PRESENT = "na";
     public static String COMINGSOON_BASE_URL = "http://www.comingsoon.it/";

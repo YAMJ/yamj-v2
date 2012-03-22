@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
 
     private WebBrowser webBrowser;
-    private static Logger logger = Logger.getLogger(MotechnetPosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(MotechnetPosterPlugin.class);
 
     public MotechnetPosterPlugin() {
         super();

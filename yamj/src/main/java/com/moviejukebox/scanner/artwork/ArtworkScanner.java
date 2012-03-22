@@ -54,11 +54,12 @@ import org.apache.log4j.Logger;
  *      ???.height
  */
 public abstract class ArtworkScanner implements IArtworkScanner {
-//    public final static String BANNER     = "banner";
-//    public final static String FANART     = "fanart";
-//    public final static String POSTER     = "poster";
-//    public final static String VIDEOIMAGE = "videoimage";
+//    public static final String BANNER     = "banner";
+//    public static final String FANART     = "fanart";
+//    public static final String POSTER     = "poster";
+//    public static final String VIDEOIMAGE = "videoimage";
 
+    private static final Logger      logger = Logger.getLogger(ArtworkScanner.class);
     protected Collection<String>     artworkExtensions = new ArrayList<String>();
     protected String                 artworkFormat;         // Format of the artwork to save, e.g. JPG, PNG, etc.
     protected int                    artworkHeight;         // The height of the image from the skin.properties for use in the validation routine
@@ -71,7 +72,6 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     protected static boolean         artworkValidate;       // Should the artwork be validated or not.
     protected boolean                artworkValidateAspect; // Should the artwork be validated for it's aspect
     protected int                    artworkWidth;          // The width of the image from the skin.properties for use in the validation routine
-    protected static Logger          logger = Logger.getLogger(ArtworkScanner.class);
     protected String                 logMessage;            // The start of the log message
     protected boolean                searchForExistingArtwork;  // Should we search for local artwork
     protected String                 skinHome;              // Location of the skin files used to get the dummy images from for missing artwork

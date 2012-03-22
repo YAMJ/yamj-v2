@@ -54,7 +54,7 @@ import org.apache.log4j.PropertyConfigurator;
 public class MovieJukebox {
 
     private static final String logFilename = "moviejukebox";
-    private static Logger logger = Logger.getLogger(MovieJukebox.class);
+    private static final Logger logger = Logger.getLogger(MovieJukebox.class);
     private static Collection<MediaLibraryPath> mediaLibraryPaths;
     private String movieLibraryRoot;
     private String skinHome;

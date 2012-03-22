@@ -43,7 +43,7 @@ import org.apache.log4j.Logger;
  */
 public class VideoImageScanner {
 
-    protected static Logger logger = Logger.getLogger(VideoImageScanner.class);
+    private static final Logger logger = Logger.getLogger(VideoImageScanner.class);
     protected static String skinHome;
     protected static Collection<String> videoimageExtensions = new ArrayList<String>();
     protected static String videoimageToken;

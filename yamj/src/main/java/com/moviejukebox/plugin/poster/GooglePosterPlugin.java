@@ -25,7 +25,7 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
 public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
-    private static Logger logger = Logger.getLogger(GooglePosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(GooglePosterPlugin.class);
     private WebBrowser webBrowser;
 
     // private int nbRetry;

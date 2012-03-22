@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 
 public class GraphicTools {
 
-    private static Logger logger = Logger.getLogger(GraphicTools.class);
+    private static final Logger logger = Logger.getLogger(GraphicTools.class);
     private static float quality;
     private static int jpegQuality;
 

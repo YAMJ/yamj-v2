@@ -24,12 +24,6 @@
  */
 package com.moviejukebox.plugin.trailer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -37,9 +31,12 @@ import com.moviejukebox.plugin.KinopoiskPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import java.util.*;
+import org.apache.log4j.Logger;
 
 public class KinopoiskTrailersPlugin extends TrailersPlugin {
 
+    private static final Logger logger = Logger.getLogger(KinopoiskPlugin.class);
     public static String KINOPOISK_PLUGIN_ID = "kinopoisk";
 
     private static List<String> extensions = Arrays.asList(PropertiesUtil.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV MP4 M1V M2V M4V M2P TP TRP M2T MTS ASF RMP4 IMG MK3D FLV").toUpperCase().split(" "));
@@ -80,7 +77,7 @@ public class KinopoiskTrailersPlugin extends TrailersPlugin {
         MovieFile tmf = new MovieFile();
         tmf.setTitle("TRAILER-" + title);
 
-        boolean isExchangeOk = false;
+        boolean isExchangeOk;
 
         if (getDownload()) {
             isExchangeOk = downloadTrailer(movie, trailerUrl, title, tmf);

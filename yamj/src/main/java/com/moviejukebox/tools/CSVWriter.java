@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
  * Date: Feb 14, 2009
  */
 public class CSVWriter {
-    private static Logger logger = Logger.getLogger(CSVWriter.class);
+    private static final Logger logger = Logger.getLogger(CSVWriter.class);
 
     private FileWriter writer;
     static private String sEOL = System.getProperty("line.separator");

@@ -42,7 +42,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static final String SEASONTHUMB = FanartTvArtwork.TYPE_SEASONTHUMB;
     private static final String TVTHUMB = FanartTvArtwork.TYPE_TVTHUMB;
     private static final List<String> validImageTypes = Collections.synchronizedList(new ArrayList<String>());
-    private static Logger logger = Logger.getLogger(DefaultImagePlugin.class);
+    private static final Logger logger = Logger.getLogger(DefaultImagePlugin.class);
     private String skinHome;
     private String overlayRoot;
     private String overlayResources;

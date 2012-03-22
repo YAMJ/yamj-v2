@@ -41,7 +41,7 @@ public final class MovieMeterPluginSession {
 
     public static String SESSION_FILENAME = "./temp/moviemeter.session";
     private static String MOVIEMETER_API_KEY = PropertiesUtil.getProperty("API_KEY_MovieMeter");
-    protected static Logger logger = Logger.getLogger(MovieMeterPluginSession.class);
+    private static final Logger logger = Logger.getLogger(MovieMeterPluginSession.class);
     private String key;
     private Integer timestamp;
     private Integer counter;

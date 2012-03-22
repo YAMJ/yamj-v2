@@ -21,7 +21,7 @@ import java.io.File;
 import org.apache.log4j.Logger;
 
 public class OutputDirectoryScanner {
-    private static Logger logger = Logger.getLogger(OutputDirectoryScanner.class);
+    private static final Logger logger = Logger.getLogger(OutputDirectoryScanner.class);
 
     private String scanDir;
 

@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
  */
 public class MovieListingPluginCustomCsv extends MovieListingPluginBase implements MovieListingPlugin {
 
-    private static Logger logger = Logger.getLogger(MovieListingPluginCustomCsv.class);
+    private static final Logger logger = Logger.getLogger(MovieListingPluginCustomCsv.class);
     private List<String> mFields;
     private String mDelimiter = ",";
     private String mSecondDelimiter = "|";

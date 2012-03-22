@@ -37,15 +37,15 @@ import org.w3c.dom.NodeList;
  *
  */
 public class JukeboxProperties {
-    private final static Logger logger = Logger.getLogger(JukeboxProperties.class);
-    private final static Collection<PropertyInformation> propInfo = new ArrayList<PropertyInformation>();
-    private final static String JUKEBOX = "jukebox";
-    private final static String SKIN = "skin";
-    private final static String PROPERTIES = "properties";
-    private final static String CATEGORY = "Category";
-    private final static String GENRE = "Genre";
-    private final static String CERTIFICATION = "Certification";
-    private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kk:mm:ss");
+    private static final Logger logger = Logger.getLogger(JukeboxProperties.class);
+    private static final Collection<PropertyInformation> propInfo = new ArrayList<PropertyInformation>();
+    private static final String JUKEBOX = "jukebox";
+    private static final String SKIN = "skin";
+    private static final String PROPERTIES = "properties";
+    private static final String CATEGORY = "Category";
+    private static final String GENRE = "Genre";
+    private static final String CERTIFICATION = "Certification";
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-kk:mm:ss");
 
     static {
         // Set up the properties to watch:                                          xml           thumbnail     fanart        videoimage    trailers
@@ -163,7 +163,6 @@ public class JukeboxProperties {
             logger.error("Failed creating " + mjbDetails.getName() + " file!");
             logger.error(SystemTools.getStackTrace(error));
         }
-        return;
     }
 
     /**
@@ -192,7 +191,7 @@ public class JukeboxProperties {
         try {
             // Start with a blank document
             docMjbDetails = DOMHelper.createDocument();
-            docMjbDetails.appendChild(docMjbDetails.createComment("This file was created on: " + dateFormat.format(System.currentTimeMillis())));
+            docMjbDetails.appendChild(docMjbDetails.createComment("This file was created on: " + DATE_FORMAT.format(System.currentTimeMillis())));
 
             //create the root element and add it to the document
             eRoot = docMjbDetails.createElement("root");
@@ -219,7 +218,7 @@ public class JukeboxProperties {
             DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxRevision", currentRevision);
 
             // Save the run date
-            DOMHelper.appendChild(docMjbDetails, eJukebox, "RunTime", dateFormat.format(System.currentTimeMillis()));
+            DOMHelper.appendChild(docMjbDetails, eJukebox, "RunTime", DATE_FORMAT.format(System.currentTimeMillis()));
 
             // Save the details directory name
             DOMHelper.appendChild(docMjbDetails, eJukebox, "DetailsDirName", jukebox.getDetailsDirName());
@@ -257,7 +256,7 @@ public class JukeboxProperties {
                 }
 
                 if (SkinProperties.getFileDate() > 0) {
-                    DOMHelper.appendChild(docMjbDetails, eSkin, "filedate", dateFormat.format(SkinProperties.getFileDate()));
+                    DOMHelper.appendChild(docMjbDetails, eSkin, "filedate", DATE_FORMAT.format(SkinProperties.getFileDate()));
                 }
             }
 
@@ -276,7 +275,7 @@ public class JukeboxProperties {
             DOMHelper.writeDocumentToFile(docMjbDetails, mjbDetails.getAbsolutePath());
         } catch (Exception error) {
             logger.error("JukeboxProperties: Error creating " + mjbDetails.getName() + " file");
-            error.printStackTrace();
+            logger.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -330,7 +329,7 @@ public class JukeboxProperties {
         if (StringTools.isValidString(tempFilename)) {
             try {
                 File tempFile = new File(tempFilename);
-                return dateFormat.format(tempFile.lastModified());
+                return DATE_FORMAT.format(tempFile.lastModified());
             } catch (Exception ignore) {
                 return Movie.UNKNOWN;
             }
@@ -603,6 +602,7 @@ public class JukeboxProperties {
             this.trailersOverwrite   = trailersOverwrite   || newPI.isTrailersOverwrite();
         }
 
+        @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
             sb.append("Name: ");
