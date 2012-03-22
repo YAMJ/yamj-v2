@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
  */
 public class MovieJukeboxHTMLWriter {
 
-    private static Logger logger = Logger.getLogger(MovieJukeboxHTMLWriter.class);
+    private static final Logger logger = Logger.getLogger(MovieJukeboxHTMLWriter.class);
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";
     private static final String EXT_XSL = ".xsl";

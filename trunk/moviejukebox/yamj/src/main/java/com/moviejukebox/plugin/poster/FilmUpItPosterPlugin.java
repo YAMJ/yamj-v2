@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
 
     private WebBrowser webBrowser;
-    private static Logger logger = Logger.getLogger(FilmUpItPosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(FilmUpItPosterPlugin.class);
 
     public FilmUpItPosterPlugin() {
         super();

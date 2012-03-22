@@ -40,7 +40,7 @@ import org.xml.sax.SAXException;
  */
 public class DOMHelper {
 
-    private static Logger logger = Logger.getLogger(DOMHelper.class);
+    private static final Logger logger = Logger.getLogger(DOMHelper.class);
 
     /**
      * Add a child element to a parent element

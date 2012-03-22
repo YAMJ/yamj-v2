@@ -26,8 +26,8 @@ import org.apache.log4j.Logger;
  *
  */
 public class SkinProperties {
-    private final static Logger logger = Logger.getLogger(SkinProperties.class);
-    private final static String skinVersionFilename = "version.xml";
+    private static final Logger logger = Logger.getLogger(SkinProperties.class);
+    private static final String SKIN_VERSION_FILENAME = "version.xml";
 
     private static String skinName          = Movie.UNKNOWN;
     private static String skinVersion       = Movie.UNKNOWN;
@@ -39,7 +39,7 @@ public class SkinProperties {
      * Read the skin information from skinVersionFilename in the skin directory
      */
     public static void readSkinVersion() {
-        String skinVersionPath = StringTools.appendToPath(PropertiesUtil.getProperty("mjb.skin.dir", ""), skinVersionFilename);
+        String skinVersionPath = StringTools.appendToPath(PropertiesUtil.getProperty("mjb.skin.dir", ""), SKIN_VERSION_FILENAME);
         File xmlFile = new File(skinVersionPath);
 
         if (xmlFile.exists()) {
@@ -57,15 +57,12 @@ public class SkinProperties {
             setSkinMessage(StringTools.castList(String.class, xmlConfig.getList("message")));
             setFileDate(xmlFile.lastModified());
         } catch (ConfigurationException error) {
-            logger.error("SkinProperties: Failed reading version information file (" + skinVersionFilename + ")");
+            logger.error("SkinProperties: Failed reading version information file (" + SKIN_VERSION_FILENAME + ")");
             logger.warn(SystemTools.getStackTrace(error));
-            return;
         } catch (Exception error) {
-            logger.error("SkinProperties: Failed processing version information file (" + skinVersionFilename + ")");
+            logger.error("SkinProperties: Failed processing version information file (" + SKIN_VERSION_FILENAME + ")");
             logger.warn(SystemTools.getStackTrace(error));
-            return;
         }
-
     }
 
     /**

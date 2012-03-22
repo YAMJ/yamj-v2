@@ -12,20 +12,21 @@
  */
 package com.moviejukebox.plugin;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.text.ParseException;
-import java.util.ArrayList;
-
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.text.ParseException;
+import java.util.ArrayList;
+import org.apache.log4j.Logger;
 
 public class FilmUpITPlugin extends ImdbPlugin {
 
+    private static final Logger logger = Logger.getLogger(FilmUpITPlugin.class);
     public static String FILMUPIT_PLUGIN_ID = "filmupit";
 
     public FilmUpITPlugin() {
@@ -138,8 +139,10 @@ public class FilmUpITPlugin extends ImdbPlugin {
     /*
      *
      *
-     * private int parseRating(String rating) { int index = rating.indexOf("etoile_"); try { return (int) (Float.parseFloat(rating.substring(index + 7, index +
-     * 8)) / 4.0 * 100); } catch (Exception error) { return -1; } }
+     * private int parseRating(String rating) { int index =
+     * rating.indexOf("etoile_"); try { return (int)
+     * (Float.parseFloat(rating.substring(index + 7, index + 8)) / 4.0 * 100); }
+     * catch (Exception error) { return -1; } }
      */
     @Override
     public boolean scan(Movie mediaFile) {
@@ -177,7 +180,8 @@ public class FilmUpITPlugin extends ImdbPlugin {
     }
 
     /**
-     * retrieve the FilmUpITId matching the specified movie name. This routine is base on a FilmUpIT search.
+     * retrieve the FilmUpITId matching the specified movie name. This routine
+     * is base on a FilmUpIT search.
      *
      * @throws ParseException
      */
@@ -343,6 +347,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
         return tags;
     }
 
+    @Override
     public boolean scanNFO(String nfo, Movie movie) {
         // Always look for imdb id look for ttXXXXXX
         super.scanNFO(nfo, movie);

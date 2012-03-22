@@ -42,7 +42,7 @@ import org.apache.log4j.Logger;
  */
 public class BackdropScanner {
 
-    protected static Logger logger = Logger.getLogger(BackdropScanner.class);
+    private static final Logger logger = Logger.getLogger(BackdropScanner.class);
     protected static Collection<String> backdropExtensions = new ArrayList<String>();
     protected static boolean backdropOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBackdropOverwrite", "false");
     protected static Collection<String> backdropImageName;

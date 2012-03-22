@@ -12,6 +12,11 @@
  */
 package com.moviejukebox.plugin.trailer;
 
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.SystemTools;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -21,17 +26,12 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.log4j.Level;
-
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.SystemTools;
+import org.apache.log4j.Logger;
 
 public class AppleTrailersPlugin extends TrailersPlugin {
 
+    private static final Logger logger = Logger.getLogger(AppleTrailersPlugin.class);
     private static String configResolution = PropertiesUtil.getProperty("appletrailers.resolution", "");
     private static boolean configDownload = PropertiesUtil.getBooleanProperty("appletrailers.download", "false");
     private static String configTrailerTypes = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec,640w");
@@ -66,7 +66,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
 
         movie.setTrailerLastScan(new Date().getTime()); // Set the last scan to now
 
-        if (trailerPageUrl == Movie.UNKNOWN) {
+        if (Movie.UNKNOWN.equalsIgnoreCase(trailerPageUrl)) {
             logger.debug(trailersPluginName + " Plugin: Trailer not found for " + movie.getBaseName());
             return false;
         }
@@ -151,7 +151,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
             String xml = webBrowser.request(searchURL);
 
             int index = 0;
-            int endIndex = 0;
+            int endIndex;
             while (true) {
                 index = xml.indexOf(titleKey, index);
                 if (index == -1) {
@@ -271,7 +271,6 @@ public class AppleTrailersPlugin extends TrailersPlugin {
         } catch (Exception error) {
             logger.error(trailersPluginName + " Plugin: Error : " + error.getMessage());
             logger.error(SystemTools.getStackTrace(error));
-            return;
         }
     }
 

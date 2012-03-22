@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
 
     private AllocinePlugin allocinePlugin;
-    private static Logger logger = Logger.getLogger(AllocinePosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(AllocinePosterPlugin.class);
 
     public AllocinePosterPlugin() {
         super();

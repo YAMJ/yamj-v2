@@ -12,54 +12,49 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
+import org.apache.log4j.Logger;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.MongeElkan;
 
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-
 public class SratimPlugin extends ImdbPlugin {
 
+    private static final Logger logger = Logger.getLogger(SratimPlugin.class);
     public static String SRATIM_PLUGIN_ID = "sratim";
     public static String SRATIM_PLUGIN_SUBTITLE_ID = "sratim_subtitle";
     protected static String PHPSESSID = "COOKIE";
-
     private static AbstractStringMetric metric = new MongeElkan();
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*sratim.co.il[^\\s<>`\"\\[\\]]*");
-    private static String[] genereStringEnglish = { "Action", "Adult", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama",
-                    "Family", "Fantasy", "Film-Noir", "Game-Show", "History", "Horror", "Music", "Musical", "Mystery", "News", "Reality-TV", "Romance",
-                    "Sci-Fi", "Short", "Sport", "Talk-Show", "Thriller", "War", "Western" };
-    private static String[] genereStringHebrew = { "פעולה", "מבוגרים", "הרפתקאות", "אנימציה", "ביוגרפיה", "קומדיה", "פשע", "תיעודי", "דרמה", "משפחה", "פנטזיה",
-                    "אפל", "שעשועון", "היסטוריה", "אימה", "מוזיקה", "מחזמר", "מיסתורין", "חדשות", "ריאליטי", "רומנטיקה", "מדע בדיוני", "קצר", "ספורט", "אירוח",
-                    "מתח", "מלחמה", "מערבון" };
-
+    private static String[] genereStringEnglish = {"Action", "Adult", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama",
+        "Family", "Fantasy", "Film-Noir", "Game-Show", "History", "Horror", "Music", "Musical", "Mystery", "News", "Reality-TV", "Romance",
+        "Sci-Fi", "Short", "Sport", "Talk-Show", "Thriller", "War", "Western"};
+    private static String[] genereStringHebrew = {"פעולה", "מבוגרים", "הרפתקאות", "אנימציה", "ביוגרפיה", "קומדיה", "פשע", "תיעודי", "דרמה", "משפחה", "פנטזיה",
+        "אפל", "שעשועון", "היסטוריה", "אימה", "מוזיקה", "מחזמר", "מיסתורין", "חדשות", "ריאליטי", "רומנטיקה", "מדע בדיוני", "קצר", "ספורט", "אירוח",
+        "מתח", "מלחמה", "מערבון"};
     private static boolean subtitleDownload = false;
     private static boolean keepEnglishTitle = false;
     private static boolean keepEnglishGenres = false;
     private static boolean keepImdbCast = false;
     private static boolean bidiSupport = true;
-
     protected static final String RECAPTCHA_URL = "http://www.google.com/recaptcha/api/challenge?k=6LfK1LsSAAAAACdKnQfBi_xCdaMxyd2I9qL5PRH8";
     protected static final Pattern CHALLENGE_ID = Pattern.compile("challenge : '([^']+)'");
-
     protected int plotLineMaxChar;
     protected int plotLineMax;
     protected TheTvDBPlugin tvdb;
@@ -196,7 +191,6 @@ public class SratimPlugin extends ImdbPlugin {
         // Set translated IMDB genres
         movie.setGenres(genresHeb);
     }
-
     // Porting from my old code in c++
     public static final int BCT_L = 0;
     public static final int BCT_R = 1;
@@ -213,8 +207,8 @@ public class SratimPlugin extends ImdbPlugin {
         }
 
         if ((charToCheck == 0x26) || (charToCheck == 0x40) || ((charToCheck >= 0x41) && (charToCheck <= 0x5A))
-                        || ((charToCheck >= 0x61) && (charToCheck <= 0x7A)) || ((charToCheck >= 0xC0) && (charToCheck <= 0xD6))
-                        || ((charToCheck >= 0xD8) && (charToCheck <= 0xDF))) {
+                || ((charToCheck >= 0x61) && (charToCheck <= 0x7A)) || ((charToCheck >= 0xC0) && (charToCheck <= 0xD6))
+                || ((charToCheck >= 0xD8) && (charToCheck <= 0xDF))) {
             return BCT_L;
         }
 
@@ -227,7 +221,7 @@ public class SratimPlugin extends ImdbPlugin {
         }
 
         if ((charToCheck == 0x23) || (charToCheck == 0x24) || ((charToCheck >= 0xA2) && (charToCheck <= 0xA5)) || (charToCheck == 0x25)
-                        || (charToCheck == 0x2B) || (charToCheck == 0x2D) || (charToCheck == 0xB0) || (charToCheck == 0xB1)) {
+                || (charToCheck == 0x2B) || (charToCheck == 0x2D) || (charToCheck == 0xB0) || (charToCheck == 0xB1)) {
             return BCT_ET;
         }
 
@@ -555,7 +549,7 @@ public class SratimPlugin extends ImdbPlugin {
 
                 lineCount++;
                 if (lineCount == lineMax) {
-                    return ret = ret + "..." + logicalToVisual(new String(text.substring(lineStart, lastBreakPos).trim()));
+                    return (ret + "..." + logicalToVisual(new String(text.substring(lineStart, lastBreakPos)).trim()));
                 }
 
                 ret = ret + logicalToVisual(new String(text.substring(lineStart, lastBreakPos)).trim());
@@ -630,8 +624,8 @@ public class SratimPlugin extends ImdbPlugin {
             if (!keepEnglishTitle) { // Translate Title to Hebrew
                 if (!movie.isOverrideTitle()) {
                     String title = extractMovieTitle(xml);
-                    
-                    if (!movie.isOverrideTitle() && title !="None") {
+
+                    if (!movie.isOverrideTitle() && "None".equalsIgnoreCase(title)) {
                         movie.setTitle(logicalToVisual(title));
                         movie.setTitleSort(title);
                     }
@@ -664,7 +658,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             String tmpPlot = removeHtmlTags(extractTag(xml, "<meta name=\"description\" content=\"", "\""));
 
-            if (tmpPlot.length()>30) { //Set Hebrew plot only if it contains substantial nubmetr of characters, otherwise IMDB plot will be used.
+            if (tmpPlot.length() > 30) { //Set Hebrew plot only if it contains substantial nubmetr of characters, otherwise IMDB plot will be used.
                 movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax));
             }
 
@@ -725,7 +719,7 @@ public class SratimPlugin extends ImdbPlugin {
             int season = movie.getSeason();
 
             int index = 0;
-            int endIndex = 0;
+            int endIndex;
 
             String seasonUrl;
             String seasonYear;
@@ -774,7 +768,7 @@ public class SratimPlugin extends ImdbPlugin {
 
                 String scanYear = new String(mainXML.substring(index, endIndex));
 
-                int scanSeasontInt = 0;
+                int scanSeasontInt;
                 try {
                     scanSeasontInt = Integer.parseInt(scanSeason);
                 } catch (Exception error) {
@@ -813,7 +807,7 @@ public class SratimPlugin extends ImdbPlugin {
             for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
 
                 int index = 0;
-                int endIndex = 0;
+                int endIndex;
 
                 // Go over the page and sacn for episode links
                 while (true) {
@@ -969,7 +963,7 @@ public class SratimPlugin extends ImdbPlugin {
         String mainXML = webBrowser.request("http://www.sratim.co.il/subtitles.php?mid=" + subID, Charset.forName("UTF-8"));
 
         int index = 0;
-        int endIndex = 0;
+        int endIndex;
 
         // find the end of hebrew subtitles section, to prevent downloading non-hebrew ones
         int endHebrewSubsIndex = findEndOfHebrewSubtitlesSection(mainXML);
@@ -1102,7 +1096,7 @@ public class SratimPlugin extends ImdbPlugin {
             }
 
             logger.debug("Sratim Plugin: scanFileName: " + scanFileName + " scanFPS: " + scanFPS + " scanID: " + scanID + " scanCount: " + scanCount
-                            + " scanDiscs: " + scanDiscs + " scanFormat: " + scanFormat + " similarity: " + result);
+                    + " scanDiscs: " + scanDiscs + " scanFormat: " + scanFormat + " similarity: " + result);
 
             // Check if movie parts matches
             int nDiscs = movie.getMovieFiles().size();
@@ -1117,14 +1111,14 @@ public class SratimPlugin extends ImdbPlugin {
             }
 
             try {
-                int scanCountInt = 0;
+                int scanCountInt;
                 try {
                     scanCountInt = Integer.parseInt(scanCount);
                 } catch (Exception error) {
                     scanCountInt = 0;
                 }
 
-                float scanFPSFloat = 0;
+                float scanFPSFloat;
                 try {
                     scanFPSFloat = Float.parseFloat(scanFPS);
                 } catch (Exception error) {
@@ -1134,8 +1128,8 @@ public class SratimPlugin extends ImdbPlugin {
                 logger.debug("Sratim Plugin: FPS: " + movie.getFps() + " scanFPS: " + scanFPSFloat);
 
                 if (bluRay
-                                && ((scanFileName.indexOf("BRRIP") != -1) || (scanFileName.indexOf("BDRIP") != -1) || (scanFileName.indexOf("BLURAY") != -1)
-                                                || (scanFileName.indexOf("BLU-RAY") != -1) || (scanFileName.indexOf("HDDVD") != -1))) {
+                        && ((scanFileName.indexOf("BRRIP") != -1) || (scanFileName.indexOf("BDRIP") != -1) || (scanFileName.indexOf("BLURAY") != -1)
+                        || (scanFileName.indexOf("BLU-RAY") != -1) || (scanFileName.indexOf("HDDVD") != -1))) {
 
                     if ((scanFPSFloat == 0) && (scanCountInt > bestBlurayCount)) {
                         bestBlurayCount = scanCountInt;
@@ -1160,7 +1154,7 @@ public class SratimPlugin extends ImdbPlugin {
         }
 
         // Select the best subtitles ID
-        String bestID = "";
+        String bestID;
 
         // Check for exact file name match
         if (!bestFileID.equals("")) {
@@ -1215,7 +1209,7 @@ public class SratimPlugin extends ImdbPlugin {
 
         try {
             URL url = new URL(subDownloadLink);
-            connection = (HttpURLConnection)(url.openConnection());
+            connection = (HttpURLConnection) (url.openConnection());
             inputStream = connection.getInputStream();
 
             String contentType = connection.getContentType();
@@ -1352,8 +1346,8 @@ public class SratimPlugin extends ImdbPlugin {
 
     @Override
     public boolean scanNFO(String nfo, Movie movie) {
-        boolean found=super.scanNFO(nfo, movie);
-        if (found){
+        boolean found = super.scanNFO(nfo, movie);
+        if (found) {
             return true; // IMDB nfo found, no need of further scanning.
         }
         logger.debug("Sratim Plugin: Scanning NFO for sratim url");
@@ -1389,10 +1383,10 @@ public class SratimPlugin extends ImdbPlugin {
     protected String extractMovieTitle(String xml) {
         String tmpTitle = removeHtmlTags(extractTag(xml, "<title>", "</title>"));
         int index = tmpTitle.indexOf("(");
-        if (index==-1){
+        if (index == -1) {
             return "None";
         }
-        
+
         return new String(tmpTitle.substring(0, index));
     }
 

@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
  */
 public class OfdbPlugin implements MovieDatabasePlugin {
 
-    protected static Logger logger = Logger.getLogger(OfdbPlugin.class);
+    private static final Logger logger = Logger.getLogger(OfdbPlugin.class);
     public static String OFDB_PLUGIN_ID = "ofdb";
     boolean getplot;
     boolean gettitle;

@@ -79,7 +79,7 @@ public class MovieJukeboxXMLWriter {
     private static String strCategoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
     private static List<String> categoriesLimitList = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.limitList", "Cast,Director,Writer,Person").split(","));
-    private static Logger logger = Logger.getLogger(MovieJukeboxXMLWriter.class);
+    private static final Logger logger = Logger.getLogger(MovieJukeboxXMLWriter.class);
     private static boolean writeNfoFiles;
     private boolean setsExcludeTV;
     private static String peopleFolder;

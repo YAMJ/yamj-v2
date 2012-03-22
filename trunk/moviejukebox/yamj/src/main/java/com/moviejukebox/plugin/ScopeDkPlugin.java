@@ -12,6 +12,11 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Identifiable;
+import com.moviejukebox.model.Movie;
+import static com.moviejukebox.tools.HTMLTools.*;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -20,18 +25,14 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import static com.moviejukebox.tools.HTMLTools.*;
+import org.apache.log4j.Logger;
 
 public class ScopeDkPlugin extends ImdbPlugin {
-    public static String SCOPEDK_PLUGIN_ID = "scopedk";
 
-    private final static Pattern patternScopeDkIp = Pattern.compile("^(.*)(http://www.scope.dk/film/)([0-9]+)(.*)");
-    private final static Pattern patternScopeDkIpMovidedb = Pattern.compile("^(.*)(<id moviedb=\"scopedk\")>([0-9]+)(</id>.*)");
+    private static final Logger logger = Logger.getLogger(ScopeDkPlugin.class);
+    public static String SCOPEDK_PLUGIN_ID = "scopedk";
+    private static final Pattern patternScopeDkIp = Pattern.compile("^(.*)(http://www.scope.dk/film/)([0-9]+)(.*)");
+    private static final Pattern patternScopeDkIpMovidedb = Pattern.compile("^(.*)(<id moviedb=\"scopedk\")>([0-9]+)(</id>.*)");
 
     public ScopeDkPlugin() {
         super();
@@ -87,7 +88,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
 
     @Override
     public boolean scan(Movie mediaFile) {
-        boolean retval = false;
+        boolean retval;
         try {
             String scopeDkId = mediaFile.getId(SCOPEDK_PLUGIN_ID);
 
@@ -117,7 +118,8 @@ public class ScopeDkPlugin extends ImdbPlugin {
     }
 
     /**
-     * retrieve the Scope.dk id matching the specified movie name. This routine is base on a Scope.dk search.
+     * retrieve the Scope.dk id matching the specified movie name. This routine
+     * is base on a Scope.dk search.
      *
      * @throws ParseException
      */
@@ -187,5 +189,4 @@ public class ScopeDkPlugin extends ImdbPlugin {
         }
         return result;
     }
-
 }

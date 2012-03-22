@@ -20,7 +20,7 @@ import java.sql.Statement;
 import org.apache.log4j.Logger;
 
 public class SqlTools {
-    private static Logger logger = Logger.getLogger(SqlTools.class);
+    private static final Logger logger = Logger.getLogger(SqlTools.class);
     private static Connection connection = null;
 
     private static String INSERT_VIDEO = "insert into VIDEO (TITLE, POSTER, PATH) values (?, ?, ?)";

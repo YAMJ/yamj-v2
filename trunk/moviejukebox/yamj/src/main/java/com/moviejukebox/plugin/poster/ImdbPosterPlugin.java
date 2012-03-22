@@ -22,7 +22,7 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
 public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
-    private static Logger logger = Logger.getLogger(ImdbPosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(ImdbPosterPlugin.class);
     private WebBrowser webBrowser;
     private ImdbInfo imdbInfo;
 

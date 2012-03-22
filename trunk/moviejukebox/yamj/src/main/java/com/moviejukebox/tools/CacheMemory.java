@@ -25,8 +25,8 @@ import org.apache.log4j.Logger;
  *
  */
 public class CacheMemory {
-    private final static ConcurrentHashMap<String, Object> mjbCache = new ConcurrentHashMap<String, Object>();
-    private static Logger logger = Logger.getLogger(CacheMemory.class);
+    private static final ConcurrentHashMap<String, Object> mjbCache = new ConcurrentHashMap<String, Object>();
+    private static final Logger logger = Logger.getLogger(CacheMemory.class);
     private static boolean cacheEnabled = true;
 
     public CacheMemory() {

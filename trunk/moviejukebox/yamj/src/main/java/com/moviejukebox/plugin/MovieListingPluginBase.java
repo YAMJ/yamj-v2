@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
  * Date: Feb 15, 2009
  */
 public class MovieListingPluginBase implements MovieListingPlugin {
-    private static Logger logger = Logger.getLogger(MovieListingPluginBase.class);
+    private static final Logger logger = Logger.getLogger(MovieListingPluginBase.class);
 
     protected static final String UNDEFINED = "UNDEFINED";
 

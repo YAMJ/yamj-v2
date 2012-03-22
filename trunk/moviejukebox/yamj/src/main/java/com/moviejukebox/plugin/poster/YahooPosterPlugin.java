@@ -22,7 +22,7 @@ import java.net.URLEncoder;
 import org.apache.log4j.Logger;
 
 public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
-    private static Logger logger = Logger.getLogger(YahooPosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(YahooPosterPlugin.class);
     private WebBrowser webBrowser;
 
     public YahooPosterPlugin() {

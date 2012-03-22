@@ -79,7 +79,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     // AniDb Documentation: http://wiki.anidb.info/w/UDP_API_Definition
 
     // TODO: Keep the plugin logged in until the end of the run
-    private static Logger logger = Logger.getLogger(AniDbPlugin.class);
+    private static final Logger logger = Logger.getLogger(AniDbPlugin.class);
     public static final String ANIDB_PLUGIN_ID = "anidb";
     private static final String ANIDB_CLIENT_NAME = "yamj";
     private static final int ANIDB_CLIENT_VERSION = 1;

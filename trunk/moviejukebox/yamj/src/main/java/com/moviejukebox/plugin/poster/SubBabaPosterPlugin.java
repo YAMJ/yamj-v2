@@ -23,7 +23,7 @@ import java.net.URLEncoder;
 import org.apache.log4j.Logger;
 
 public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
-    private static Logger logger = Logger.getLogger(SubBabaPosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(SubBabaPosterPlugin.class);
 
     private WebBrowser webBrowser;
 

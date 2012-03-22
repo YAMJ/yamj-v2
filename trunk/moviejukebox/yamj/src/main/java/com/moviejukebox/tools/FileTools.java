@@ -26,8 +26,8 @@ import org.apache.log4j.Logger;
 
 public class FileTools {
 
-    private static Logger logger = Logger.getLogger(FileTools.class);
-    final static int BUFF_SIZE = 16 * 1024;
+    private static final Logger logger = Logger.getLogger(FileTools.class);
+    static final int BUFF_SIZE = 16 * 1024;
     private static Collection<String> subtitleExtensions = new ArrayList<String>();
 
     static {
@@ -36,7 +36,7 @@ public class FileTools {
     /**
      * Gabriel Corneanu: One buffer for each thread to allow threaded copies
      */
-    private final static ThreadLocal<byte[]> threadBuffer = new ThreadLocal<byte[]>() {
+    private static final ThreadLocal<byte[]> threadBuffer = new ThreadLocal<byte[]>() {
 
         @Override
         protected byte[] initialValue() {
@@ -69,7 +69,7 @@ public class FileTools {
     };
     private static Collection<ReplaceEntry> unsafeChars = new ArrayList<ReplaceEntry>();
     static Character encodeEscapeChar = null;
-    private final static Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
+    private static final Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
     private static boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
     private static boolean extraArtworkEnabled = PropertiesUtil.getBooleanProperty("mjb.includeExtraArtwork", "false");
     private static int footerImageEnabled = PropertiesUtil.getIntProperty("mjb.footer.count", "0");

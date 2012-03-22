@@ -24,7 +24,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
-    private static Logger logger = Logger.getLogger(ScopeDkPosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(ScopeDkPosterPlugin.class);
 
     private WebBrowser webBrowser;
 

@@ -47,7 +47,7 @@ import org.apache.log4j.Logger;
  */
 public class BannerScanner {
 
-    protected static Logger logger = Logger.getLogger(BannerScanner.class);
+    private static final Logger logger = Logger.getLogger(BannerScanner.class);
     protected static Collection<String> bannerExtensions = new ArrayList<String>();
     protected static String bannerToken;
     protected static boolean bannerOverwrite;

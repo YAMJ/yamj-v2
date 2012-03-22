@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
     private WebBrowser webBrowser;
     private FilmAffinityInfo filmAffinityInfo;
-    private static Logger logger = Logger.getLogger(FilmAffinityPosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(FilmAffinityPosterPlugin.class);
 
     public FilmAffinityPosterPlugin() {
         super();

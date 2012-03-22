@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 
 public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
     private WebBrowser webBrowser;
-    private static Logger logger = Logger.getLogger(MovieMeterPosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(MovieMeterPosterPlugin.class);
 
     private String preferredSearchEngine;
     private MovieMeterPluginSession session;

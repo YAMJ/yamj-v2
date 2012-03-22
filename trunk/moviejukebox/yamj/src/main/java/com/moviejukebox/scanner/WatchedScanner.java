@@ -26,7 +26,7 @@ import org.pojava.datetime.DateTime;
 
 public class WatchedScanner {
 
-    private static Logger logger = Logger.getLogger(WatchedScanner.class);
+    private static final Logger logger = Logger.getLogger(WatchedScanner.class);
     private static Collection<String> watchedExtensions = Arrays.asList(PropertiesUtil.getProperty("mjb.watchedExtensions", "watched").split(",;\\|"));
     private static String watchedLocation = PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo");
     private static String withExtension = PropertiesUtil.getProperty("mjb.watched.withExtension", "true");

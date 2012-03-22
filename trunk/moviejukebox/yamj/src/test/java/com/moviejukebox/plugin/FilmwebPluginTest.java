@@ -12,19 +12,17 @@
  */
 package com.moviejukebox.plugin;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-
-import junit.framework.TestCase;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import junit.framework.TestCase;
 import org.apache.log4j.BasicConfigurator;
 
 public class FilmwebPluginTest extends TestCase {

@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
  */
 public class RottenTomatoesPlugin {
 
-    private static Logger logger = Logger.getLogger(RottenTomatoesPlugin.class);
+    private static final Logger logger = Logger.getLogger(RottenTomatoesPlugin.class);
     public static final String ROTTENTOMATOES_PLUGIN_ID = "rottentomatoes";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_RottenTomatoes");
     private static final String webhost = "rottentomatoes.com";

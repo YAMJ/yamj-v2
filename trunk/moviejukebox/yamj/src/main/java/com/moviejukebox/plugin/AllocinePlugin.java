@@ -24,25 +24,26 @@ import java.text.ParseException;
 import java.util.List;
 import javax.xml.bind.JAXBException;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.log4j.Logger;
 
 public class AllocinePlugin extends ImdbPlugin {
 
-    public static final String CACHE_SEARCH_MOVIE  = "AllocineSearchMovie";
+    private static final Logger logger = Logger.getLogger(AllocinePlugin.class);
+    public static final String CACHE_SEARCH_MOVIE = "AllocineSearchMovie";
     public static final String CACHE_SEARCH_SERIES = "AllocineSearchSeries";
-    public static final String CACHE_MOVIE         = "AllocineMovie";
-    public static final String CACHE_SERIES        = "AllocineSeries";
+    public static final String CACHE_MOVIE = "AllocineMovie";
+    public static final String CACHE_SERIES = "AllocineSeries";
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
     protected TheTvDBPlugin tvdb = null;
-
     public static String ALLOCINE_PLUGIN_ID = "allocine";
 
     public AllocinePlugin() {
         super();
-        preferredCountry    = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
+        preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
-        includeVideoImages  = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
-        downloadFanart      = PropertiesUtil.getBooleanProperty("fanart.tv.download", "false");
+        includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
+        downloadFanart = PropertiesUtil.getBooleanProperty("fanart.tv.download", "false");
     }
 
     @Override
@@ -91,10 +92,11 @@ public class AllocinePlugin extends ImdbPlugin {
 
             // Check Year Start and End
             if (!movie.isOverrideYear() && isNotValidString(movie.getYear()) && isValidString(tvSeriesInfos.getYearStart())) {
-                if (isValidString(tvSeriesInfos.getYearEnd()))
-                    movie.setYear(tvSeriesInfos.getYearStart()+"-"+tvSeriesInfos.getYearEnd());
-                else
+                if (isValidString(tvSeriesInfos.getYearEnd())) {
+                    movie.setYear(tvSeriesInfos.getYearStart() + "-" + tvSeriesInfos.getYearEnd());
+                } else {
                     movie.setYear(tvSeriesInfos.getYearStart());
+                }
             }
 
             // Check Plot
@@ -114,7 +116,7 @@ public class AllocinePlugin extends ImdbPlugin {
             //}
 
             if (isNotValidString(movie.getCompany()) && isValidString(tvSeriesInfos.getOriginalChannel())) {
-                    movie.setCompany(tvSeriesInfos.getOriginalChannel());
+                movie.setCompany(tvSeriesInfos.getOriginalChannel());
             }
 
             // Check country
@@ -143,8 +145,9 @@ public class AllocinePlugin extends ImdbPlugin {
 
             int currentSeason = movie.getSeason();
             try {
-                if (currentSeason <= 0 || currentSeason > tvSeriesInfos.getSeasonCount())
-                        throw new Exception();
+                if (currentSeason <= 0 || currentSeason > tvSeriesInfos.getSeasonCount()) {
+                    throw new Exception();
+                }
                 TvSeasonInfos tvSeasonInfos = null;
                 for (MovieFile file : movie.getFiles()) {
                     if (!file.isNewFile() && file.hasTitle()) {
@@ -169,16 +172,15 @@ public class AllocinePlugin extends ImdbPlugin {
 
                             if (includeEpisodePlots && isNotValidString(file.getPlot(numEpisode))) {
                                 String episodePlot =
-                                    trimToLength(episode.getSynopsis(), preferredPlotLength, true, plotEnding);
+                                        trimToLength(episode.getSynopsis(), preferredPlotLength, true, plotEnding);
                                 file.setPlot(numEpisode, episodePlot);
                             }
                         }
                     }
                 }
-            }
-            catch (Exception e) {
-                logger.warn("AllocinePlugin: Can't find informations for season " + currentSeason +
-                            " for TvSeries with id "+ AllocineId + " (" + movie.getBaseName() +")");
+            } catch (Exception e) {
+                logger.warn("AllocinePlugin: Can't find informations for season " + currentSeason
+                        + " for TvSeries with id " + AllocineId + " (" + movie.getBaseName() + ")");
             }
 
             // Call the TvDBPlugin to download fanart and/or videoimages
@@ -327,7 +329,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
     @Override
     public boolean scan(Movie mediaFile) {
-        boolean retval = false;
+        boolean retval;
         try {
             String allocineId = mediaFile.getId(ALLOCINE_PLUGIN_ID);
             if (isNotValidString(allocineId)) {
@@ -361,7 +363,6 @@ public class AllocinePlugin extends ImdbPlugin {
         return retval;
     }
 
-
     /**
      * retrieve the allocineId matching the specified movie name.
      *
@@ -370,7 +371,7 @@ public class AllocinePlugin extends ImdbPlugin {
     public String getAllocineId(String movieName, String year, int tvSeason) throws ParseException {
         String allocineId = Movie.UNKNOWN;
         try {
-            if (tvSeason > -1) {;
+            if (tvSeason > -1) {
                 allocineId = getAllocineSerieId(movieName, year);
             } else {
                 allocineId = getAllocineMovieId(movieName, year);
@@ -398,7 +399,7 @@ public class AllocinePlugin extends ImdbPlugin {
             CacheMemory.addToCache(cacheKey, searchInfos);
         }
         if (searchInfos.isValid() && searchInfos.getTotalResults() > 0) {
-            int totalResults =  searchInfos.getTotalResults();
+            int totalResults = searchInfos.getTotalResults();
             // If we have a valid year try to find the first serie that match
             if (totalResults > 1 && isValidString(year)) {
                 int yearSerie = NumberUtils.toInt(year, -1);
@@ -408,11 +409,11 @@ public class AllocinePlugin extends ImdbPlugin {
                         if (serieStart == -1) {
                             continue;
                         }
-                        int serieEnd = NumberUtils.toInt(serie.getYearEnd(), -1);;
+                        int serieEnd = NumberUtils.toInt(serie.getYearEnd(), -1);
                         if (serieEnd == -1) {
                             serieEnd = serieStart;
                         }
-                        if (yearSerie >= serieStart  && yearSerie <= serieEnd) {
+                        if (yearSerie >= serieStart && yearSerie <= serieEnd) {
                             return String.valueOf(serie.getCode());
                         }
                     }
@@ -439,7 +440,7 @@ public class AllocinePlugin extends ImdbPlugin {
             CacheMemory.addToCache(cacheKey, searchInfos);
         }
         if (searchInfos.isValid() && searchInfos.getTotalResults() > 0) {
-            int totalResults =  searchInfos.getTotalResults();
+            int totalResults = searchInfos.getTotalResults();
             // If we have a valid year try to find the first movie that match
             if (totalResults > 1 && isValidString(year)) {
                 int yearMovie = NumberUtils.toInt(year, -1);
@@ -468,12 +469,11 @@ public class AllocinePlugin extends ImdbPlugin {
     }
 
     /**
-     * Retrieve the AllocineId matching the specified movie name and year. This routine is base on a Google request.
+     * Retrieve the AllocineId matching the specified movie name and year. This
+     * routine is base on a Google request.
      *
-     * @param movieName
-     *            The name of the Movie to search for
-     * @param year
-     *            The year of the movie
+     * @param movieName The name of the Movie to search for
+     * @param year The year of the movie
      * @return The AllocineId if it was found
      */
     private String getAllocineIdFromGoogle(String movieName, String year) {

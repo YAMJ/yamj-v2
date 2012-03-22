@@ -25,7 +25,7 @@ import com.moviejukebox.tools.WebBrowser;
 public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
     private WebBrowser webBrowser;
     private SratimPlugin sratimPlugin;
-    private static Logger logger = Logger.getLogger(SratimPosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(SratimPosterPlugin.class);
 
     public SratimPosterPlugin() {
         super();

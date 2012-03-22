@@ -35,7 +35,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     private static final int MAX_WIDTH = 1920;
     private static final int MAX_HEIGHT = 1080;
 
-    private static Logger logger = Logger.getLogger(DefaultBackgroundPlugin.class);
+    private static final Logger logger = Logger.getLogger(DefaultBackgroundPlugin.class);
     private int backgroundWidth;
     private int backgroundHeight;
     private boolean upscaleImage;

@@ -32,7 +32,7 @@ public class Library implements Map<String, Movie> {
     public static final String TV_SERIES = "TVSeries";
     public static final String SET = "Set";
     private Collection<IndexInfo> generatedIndexes = Collections.synchronizedCollection(new ArrayList<IndexInfo>());
-    private static Logger logger = Logger.getLogger(Library.class);
+    private static final Logger logger = Logger.getLogger(Library.class);
     private static boolean filterGenres;
     private static boolean filterCertificationn;
     private static boolean singleSeriesPage;

@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 public class TrailersPlugin implements ITrailersPlugin {
     public String trailersPluginName = "AbstractTrailers";
 
-    protected static Logger logger = Logger.getLogger(TrailersPlugin.class);
+    private static final Logger logger = Logger.getLogger(TrailersPlugin.class);
     protected WebBrowser webBrowser;
 
     private static String trailersScanerPath = PropertiesUtil.getProperty("trailers.path.scaner", "");

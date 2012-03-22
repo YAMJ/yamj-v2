@@ -19,13 +19,13 @@
  */
 package com.moviejukebox.plugin;
 
-import java.net.URLEncoder;
-import java.util.StringTokenizer;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import java.net.URLEncoder;
+import java.util.StringTokenizer;
+import org.apache.log4j.Logger;
 
 /**
  * Film Katalogus Plugin for Hungarian language
@@ -34,6 +34,7 @@ import com.moviejukebox.tools.SystemTools;
  */
 public class FilmKatalogusPlugin extends ImdbPlugin {
 
+    private static final Logger logger = Logger.getLogger(FilmKatalogusPlugin.class);
     public static String FILMKAT_PLUGIN_ID = "filmkatalogus";
     boolean getplot = true;
     boolean gettitle = true;
@@ -52,7 +53,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
         return FILMKAT_PLUGIN_ID;
     }
 
-    public void init() {
+    private void init() {
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
         if (preferredPlotLength < 50) {
             preferredPlotLength = 500;
@@ -115,12 +116,9 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
                 endIndex = xml.indexOf("</DIV>", beginIndex);
                 if (getplot) {
-                    String plot = Movie.UNKNOWN;
-                    plot = new String(xml.substring((beginIndex + 19), endIndex));
-
+                    String plot = new String(xml.substring((beginIndex + 19), endIndex));
                     plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
                     movie.setPlot(plot);
-
                     // movie.setPlot(new String(xml.substring((beginIndex + 19), endIndex)));
                 }
                 return null;
@@ -148,8 +146,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                     beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
                     endIndex = xml.indexOf("</DIV>", beginIndex);
                     if (getplot) {
-                        String plot = Movie.UNKNOWN;
-                        plot = new String(xml.substring((beginIndex + 19), endIndex));
+                        String plot = new String(xml.substring((beginIndex + 19), endIndex));
 
                         plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
                         movie.setPlot(plot);

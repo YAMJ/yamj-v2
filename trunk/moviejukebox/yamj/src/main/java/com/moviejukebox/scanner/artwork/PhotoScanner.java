@@ -43,7 +43,7 @@ import org.apache.log4j.Logger;
  */
 public class PhotoScanner {
 
-    protected static Logger logger = Logger.getLogger(PhotoScanner.class);
+    private static final Logger logger = Logger.getLogger(PhotoScanner.class);
     protected static Collection<String> photoExtensions = new ArrayList<String>();
     protected static boolean photoOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", "false");
     protected static Collection<String> photoImageName;

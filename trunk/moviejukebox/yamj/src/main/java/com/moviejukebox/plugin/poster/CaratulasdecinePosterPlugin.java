@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 
 public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
     private WebBrowser webBrowser = new WebBrowser();
-    private static Logger logger = Logger.getLogger(CaratulasdecinePosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(CaratulasdecinePosterPlugin.class);
 
     private static final String SEARCH_START = "La Web";
     private static final String SEARCH_END = "Sugerencias de búsqueda";

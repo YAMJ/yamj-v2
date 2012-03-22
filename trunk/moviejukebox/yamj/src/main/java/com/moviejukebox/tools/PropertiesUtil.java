@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 public class PropertiesUtil {
 
     private static final String PROPERTIES_CHARSET = "UTF-8";
-    private static Logger logger = Logger.getLogger(PropertiesUtil.class);
+    private static final Logger logger = Logger.getLogger(PropertiesUtil.class);
     private static Properties props = new Properties();
     private static String propertiesFilename = "preferences.xsl";
 

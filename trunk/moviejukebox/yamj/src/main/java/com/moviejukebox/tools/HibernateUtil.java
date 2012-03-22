@@ -13,8 +13,6 @@
 package com.moviejukebox.tools;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -24,7 +22,7 @@ import org.hibernate.service.ServiceRegistryBuilder;
 
 public class HibernateUtil {
 
-    private final static Logger logger = Logger.getLogger(HibernateUtil.class);
+    private static final Logger logger = Logger.getLogger(HibernateUtil.class);
     private static SessionFactory sessionFactory = buildSessionFactory();
     private static ServiceRegistry serviceRegistry;
 

@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 public class ReleaseComparator extends YearComparator {
     private Locale locale = Locale.ENGLISH;
     private String dateLocale = PropertiesUtil.getProperty("mjb.locale", "en_US");
-    private static Logger logger = Logger.getLogger(ReleaseComparator.class);
+    private static final Logger logger = Logger.getLogger(ReleaseComparator.class);
 
     public ReleaseComparator() {
         super(true);

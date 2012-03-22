@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 
 class FilePropertiesIFO extends FileProperties {
 
-    private static Logger logger = Logger.getLogger(FilePropertiesIFO.class);
+    private static final Logger logger = Logger.getLogger(FilePropertiesIFO.class);
     private final int DVDVIDEO_VTS = 0x535456; // 'VTS'
     private final int SIZE = 100000;
 

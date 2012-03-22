@@ -23,7 +23,7 @@ import org.hibernate.Hibernate;
  */
 public class CacheInitializer {
 
-    private final static Logger logger = Logger.getLogger(CacheInitializer.class);
+    private static final Logger logger = Logger.getLogger(CacheInitializer.class);
 
     protected CacheInitializer() {
         throw new UnsupportedOperationException("This class cannot be initialised");

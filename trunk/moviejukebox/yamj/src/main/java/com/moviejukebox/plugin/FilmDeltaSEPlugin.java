@@ -19,6 +19,11 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -26,12 +31,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
-
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
+import org.apache.log4j.Logger;
 
 /**
  * Plugin to retrieve movie data from Swedish movie database www.filmdelta.se Modified from imdb plugin and Kinopoisk plugin written by Yury Sidorov.
@@ -41,6 +41,7 @@ import com.moviejukebox.tools.SystemTools;
  */
 public class FilmDeltaSEPlugin extends ImdbPlugin {
 
+    private static final Logger logger = Logger.getLogger(FilmDeltaSEPlugin.class);
     public static String FILMDELTA_PLUGIN_ID = "filmdelta";
     protected TheTvDBPlugin tvdb;
     // Get properties for plotlength
@@ -187,9 +188,8 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
      */
     protected boolean updateFilmdeltaMediaInfo(Movie movie, String filmdeltaId) {
 
-        String fdeltaHtml = "";
         // fetch filmdelta html page for movie
-        fdeltaHtml = getFilmdeltaHtml(filmdeltaId);
+        String fdeltaHtml = getFilmdeltaHtml(filmdeltaId);
 
         if (!fdeltaHtml.equals(Movie.UNKNOWN)) {
             getFilmdeltaTitle(movie, fdeltaHtml);
@@ -342,7 +342,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
 
     private void getFilmdeltaRating(Movie movie, String fdeltaHtml) {
         String rating = HTMLTools.extractTag(fdeltaHtml, "<h4>Medlemmarna</h4>", 3, "<");
-        int newRating = 0;
+        int newRating;
         // check if valid rating string is found
         if (rating.indexOf("Snitt") != -1) {
             String[] result = rating.split(":");

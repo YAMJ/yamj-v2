@@ -27,7 +27,7 @@ public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
 
     private WebBrowser webBrowser;
     private AllocinePlugin allocinePlugin;
-    private static Logger logger = Logger.getLogger(PassionXbmcPosterPlugin.class);
+    private static final Logger logger = Logger.getLogger(PassionXbmcPosterPlugin.class);
 
     public PassionXbmcPosterPlugin() {
         super();
