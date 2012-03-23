@@ -215,9 +215,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        // TODO: Remove this check at some point when all skins have moved over to the new property
-        downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
-
         if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
             movie.setFanartURL(getFanartURL(movie));
             if (StringTools.isValidString(movie.getFanartURL())) {

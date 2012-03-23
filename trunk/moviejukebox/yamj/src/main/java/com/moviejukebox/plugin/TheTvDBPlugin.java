@@ -225,9 +225,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
     }
 
     public void getFanart(Movie movie) {
-        // TODO remove this once all skins are using the new fanart properties
-        downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
-
         if (downloadFanart && isNotValidString(movie.getFanartURL()) || (forceFanartOverwrite) || movie.isDirty(Movie.DIRTY_BANNER)) {
             String url = null;
             Artwork artwork = new Artwork();

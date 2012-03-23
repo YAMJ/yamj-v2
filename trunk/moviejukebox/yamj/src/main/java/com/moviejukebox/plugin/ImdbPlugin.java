@@ -241,9 +241,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 updateTrivia(movie);        // Issue 2013: Add trivia
             }
 
-            // TODO: Remove this check at some point when all skins have moved over to the new property
-            downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
-
             // TODO: Move this check out of here, it doesn't belong.
             if (downloadFanart && isNotValidString(movie.getFanartURL())) {
                 movie.setFanartURL(getFanartURL(movie));
@@ -538,9 +535,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (movie.isTVShow()) {
             updateTVShowInfo(movie);
         }
-
-        // TODO: Remove this check at some point when all skins have moved over to the new property
-        downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
 
         if (downloadFanart && isNotValidString(movie.getFanartURL())) {
             movie.setFanartURL(getFanartURL(movie));
@@ -910,7 +904,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (StringTools.isNotValidString(movie.getTagline())) {
             int startTag = xml.indexOf("<h4 class=\"inline\">" + siteDef2.getTaglines() + ":</h4>");
             String endMarker;
-            
+
             // We need to work out which of the two formats to use, this is dependent on which comes first "<span" or "</div"
             if (StringUtils.indexOf(xml, "<span", startTag) < StringUtils.indexOf(xml, "</div>", startTag)) {
                 endMarker = "<span";

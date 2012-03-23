@@ -48,8 +48,8 @@ public class RecheckScanner {
     /*
      * Property values
      */
-    private static final boolean fanartMovieDownload = FanartScanner.checkDownloadFanart(false);
-    private static final boolean fanartTvDownload = FanartScanner.checkDownloadFanart(true);
+    private static final boolean fanartMovieDownload = PropertiesUtil.getBooleanProperty("fanart.movie.download", "false");
+    private static final boolean fanartTvDownload = PropertiesUtil.getBooleanProperty("fanart.tv.download", "false");
     private static final boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
     private static final boolean bannerDownload = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", "false");
     private static final boolean includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");

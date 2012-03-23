@@ -634,11 +634,8 @@ public class MovieJukebox {
         this.forceFooterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFooterOverwrite", "false");
         this.skinHome = getProperty("mjb.skin.dir", "./skins/default");
 
-        // This is what these properties should look like
-        // this.fanartMovieDownload = PropertiesUtil.getBooleanProperty("fanart.movie.download", "false");
-        // this.fanartTvDownload = PropertiesUtil.getBooleanProperty("fanart.tv.download", "false");
-        fanartMovieDownload = FanartScanner.checkDownloadFanart(false);
-        fanartTvDownload = FanartScanner.checkDownloadFanart(true);
+        this.fanartMovieDownload = PropertiesUtil.getBooleanProperty("fanart.movie.download", "false");
+        this.fanartTvDownload = PropertiesUtil.getBooleanProperty("fanart.tv.download", "false");
 
         this.setIndexFanart = PropertiesUtil.getBooleanProperty("mjb.sets.indexFanart", "false");
 
