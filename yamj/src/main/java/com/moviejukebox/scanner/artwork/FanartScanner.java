@@ -18,6 +18,7 @@
  */
 package com.moviejukebox.scanner.artwork;
 
+import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
@@ -27,12 +28,15 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
+import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.MovieDb;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.thetvdb.TheTVDB;
+import com.moviejukebox.thetvdb.model.Banner;
+import com.moviejukebox.thetvdb.model.BannerType;
+import com.moviejukebox.thetvdb.model.Banners;
+import com.moviejukebox.thetvdb.model.Series;
+import com.moviejukebox.tools.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -56,36 +60,41 @@ import org.apache.log4j.Logger;
 public class FanartScanner {
 
     protected static final Logger logger = Logger.getLogger(FanartScanner.class);
-    protected static Collection<String> fanartExtensions = new ArrayList<String>();
+    protected static final Collection<String> fanartExtensions = Collections.synchronizedList(new ArrayList<String>());
     protected static String fanartToken;
     protected static boolean fanartOverwrite;
     protected static final boolean useFolderBackground = PropertiesUtil.getBooleanProperty("fanart.scanner.useFolderImage", "false");
-    protected static Collection<String> fanartImageName;
+    protected static final Collection<String> fanartImageName = Collections.synchronizedList(new ArrayList<String>());
     protected static boolean artworkValidate;
     protected static int artworkValidateMatch;
     protected static boolean artworkValidateAspect;
     protected static int artworkWidth;
     protected static int artworkHeight;
     protected static TheMovieDb TMDb;
+    protected static TheTVDB tvDB;
 
     static {
 
         // We get valid extensions
-        StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("fanart.scanner.fanartExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
-        while (st.hasMoreTokens()) {
-            fanartExtensions.add(st.nextToken());
+        synchronized (fanartExtensions) {
+            if (fanartExtensions.isEmpty()) {
+                StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("fanart.scanner.fanartExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
+                while (st.hasMoreTokens()) {
+                    fanartExtensions.add(st.nextToken());
+                }
+            }
         }
 
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
-
         fanartOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartOverwrite", "false");
 
         // See if we use background.* or fanart.*
-        if (useFolderBackground) {
-            st = new StringTokenizer(PropertiesUtil.getProperty("fanart.scanner.imageName", "fanart,backdrop,background"), ",;|");
-            fanartImageName = new ArrayList<String>();
-            while (st.hasMoreTokens()) {
-                fanartImageName.add(st.nextToken());
+        synchronized (fanartImageName) {
+            if (useFolderBackground && fanartImageName.isEmpty()) {
+                StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("fanart.scanner.imageName", "fanart,backdrop,background"), ",;|");
+                while (st.hasMoreTokens()) {
+                    fanartImageName.add(st.nextToken());
+                }
             }
         }
 
@@ -99,8 +108,29 @@ public class FanartScanner {
             TMDb = new TheMovieDb(PropertiesUtil.getProperty("API_KEY_TheMovieDB"));
         } catch (IOException ex) {
             logger.warn("FanartScanner: Failed to initialise TheMovieDB API. Fanart will not be downloaded.");
+            logger.warn(SystemTools.getStackTrace(ex));
             TMDb = null;
         }
+
+        tvDB = new TheTVDB(PropertiesUtil.getProperty("API_KEY_TheTvDB"));
+    }
+
+    protected FanartScanner() {
+        throw new UnsupportedOperationException("FanartScanner is a utility class and cannot be instatiated");
+    }
+
+    /**
+     * Get the Fanart URL for the movie from the source sites
+     * @param movie
+     * @return
+     */
+    public static String getFanartURL(Movie movie) {
+        if (movie.isTVShow()) {
+            return getTvFanartURL(movie);
+        } else {
+            return getMovieFanartURL(movie);
+        }
+
     }
 
     public static boolean scan(MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) {
@@ -251,7 +281,7 @@ public class FanartScanner {
      * @param movie The movie bean to get the fanart for
      * @return A string URL pointing to the fanart
      */
-    public static String getFanartURL(Movie movie) {
+    private static String getMovieFanartURL(Movie movie) {
         // Unable to scan for fanart because TheMovieDB wasn't initialised
         if (TMDb == null) {
             return Movie.UNKNOWN;
@@ -307,6 +337,81 @@ public class FanartScanner {
         } else {
             return fanart.toString();
         }
+    }
+
+    /**
+     * Get the Fanart for the movie from TheTVDb.com
+     *
+     * @author Stuart.Boston
+     * @param movie The movie bean to get the fanart for
+     * @return A string URL pointing to the fanart
+     */
+    private static String getTvFanartURL(Movie movie) {
+        String url = null;
+
+        String id = TheTvDBPlugin.findId(movie);
+
+        if (StringTools.isNotValidString(id)) {
+            return Movie.UNKNOWN;
+        }
+        Series series = TheTvDBPlugin.getSeries(id);
+        if (series == null) {
+            return Movie.UNKNOWN;
+        }
+
+        Banners banners = TheTvDBPlugin.getBanners(id);
+
+        if (!banners.getFanartList().isEmpty()) {
+            // Pick a fanart that is not likely to be the same as a previous one.
+            int index = movie.getSeason();
+            if (index < 0) {
+                index = 0;
+            }
+
+            // Make sure that the index is not more than the list of available banners
+            // We may still run into issues, if there are less HD than this number
+            index = (index % banners.getFanartList().size());
+
+            Banner bannerSD = null;
+            Banner bannerHD = null;
+            int countSD = 0;
+            int countHD = 0;
+
+            for (Banner banner : banners.getFanartList()) {
+                if (banner.getBannerType2() == BannerType.FanartHD) {
+                    bannerHD = banner;  // Save the current banner
+                    countHD++;
+                    if (countHD >= index) {
+                        // We have a HD banner, so quit
+                        break;
+                    }
+                } else {
+                    // This is a SD banner, So save it in case we can't find a HD one
+                    if (countSD <= index) {
+                        // Only update the banner if we want a later one
+                        bannerSD = banner;
+                    }
+                }
+            }
+
+            if (bannerHD != null) {
+                url = bannerHD.getUrl();
+            } else if (bannerSD != null) {
+                url = bannerSD.getUrl();
+            }
+
+        }
+
+        if (StringTools.isNotValidString(url) && StringTools.isValidString(series.getFanart())) {
+            url = series.getFanart();
+        }
+
+//        if (StringTools.isValidString(movie.getFanartURL())) {
+//            String artworkFilename = movie.getBaseName() + fanartToken + "." + fanartExtension;
+//            movie.setFanartFilename(artworkFilename);
+//        }
+
+        return url;
     }
 
     public static boolean validateArtwork(IImage artworkImage, int artworkWidth, int artworkHeight, boolean checkAspect) {

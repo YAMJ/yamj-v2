@@ -17,6 +17,7 @@ import com.moviejukebox.allocine.jaxb.Episode;
 import com.moviejukebox.allocine.jaxb.Tvseries;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.scanner.artwork.FanartScanner;
 import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.*;
 import java.net.URLEncoder;
@@ -190,7 +191,8 @@ public class AllocinePlugin extends ImdbPlugin {
                 }
                 String tvDBid = TheTvDBPlugin.findId(movie);
                 if (StringTools.isValidString(tvDBid)) {
-                    tvdb.getFanart(movie);
+                    // This needs to check if we should overwrite the artwork or not.
+                    movie.setFanartURL(FanartScanner.getFanartURL(movie));
                     tvdb.scanTVShowTitles(movie);
                 }
             }
