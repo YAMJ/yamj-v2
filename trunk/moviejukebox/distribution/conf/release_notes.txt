@@ -11,6 +11,21 @@ MovieJukebox 2.6.1 (21-Mar-2012)
  - Fixed defect #2247 Remove filename codec if MediaInfo codecs are found
  - Fixed defect #2386 RottenTomatoes rating is checked every run
  - Fixed defect #2387 Failed instantiating imagePlugin
+ - Fixed defect #2392 ISO Playback broken with mjb.scanner.mediainfo.rar.extended.url default
+***************************************************************
+** MovieJukebox Release Notes
+***************************************************************
+
+MovieJukebox 2.7-SNAPSHOT
+-------------------------
+
+
+MovieJukebox 2.6.1 (21-Mar-2012)
+--------------------------------
+ - Fixed defect #2247 Remove filename codec if MediaInfo codecs are found
+ - Fixed defect #2386 RottenTomatoes rating is checked every run
+ - Fixed defect #2387 Failed instantiating imagePlugin
+ - Fixed defect #2392 ISO Playback broken with mjb.scanner.mediainfo.rar.extended.url default
 
 MovieJukebox 2.6 (20-Mar-2012)
 ------------------------------
