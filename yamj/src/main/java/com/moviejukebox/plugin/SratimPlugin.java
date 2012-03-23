@@ -625,7 +625,7 @@ public class SratimPlugin extends ImdbPlugin {
                 if (!movie.isOverrideTitle()) {
                     String title = extractMovieTitle(xml);
 
-                    if (!movie.isOverrideTitle() && "None".equalsIgnoreCase(title)) {
+                    if (!movie.isOverrideTitle() && !"None".equalsIgnoreCase(title)) {
                         movie.setTitle(logicalToVisual(title));
                         movie.setTitleSort(title);
                     }
