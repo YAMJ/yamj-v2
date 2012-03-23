@@ -41,59 +41,59 @@ public class KinopoiskPlugin extends ImdbPlugin {
     int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     @Deprecated
     String preferredRating = PropertiesUtil.getProperty("kinopoisk.rating", "imdb");
-    protected TheTvDBPlugin tvdb;
+    private TheTvDBPlugin tvdb;
     // Shows what name is on the first position with respect to divider
     String titleLeader = PropertiesUtil.getProperty("kinopoisk.title.leader", "english");
     String titleDivider = PropertiesUtil.getProperty("kinopoisk.title.divider", " - ");
     boolean joinTitles = PropertiesUtil.getBooleanProperty("kinopoisk.title.join", "true");
     // Set NFO information priority
-    protected boolean NFOpriority = PropertiesUtil.getBooleanProperty("kinopoisk.NFOpriority", "false");
-    protected boolean NFOplot = false;
-    protected boolean NFOcast = false;
-    protected boolean NFOgenres = false;
-    protected boolean NFOdirectors = false;
-    protected boolean NFOwriters = false;
-    protected boolean NFOcertification = false;
-    protected boolean NFOcountry = false;
-    protected String NFOyear = "";
-    protected boolean NFOtagline = false;
-    protected boolean NFOrating = false;
-    protected boolean NFOtop250 = false;
-    protected boolean NFOcompany = false;
-    protected boolean NFOrelease = false;
-    protected boolean NFOfanart = false;
-    protected boolean NFOposter = false;
-    protected boolean NFOawards = false;
-    String tmpAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", "false");
-    boolean scrapeWonAwards = tmpAwards.equalsIgnoreCase("won");
-    boolean scrapeAwards = tmpAwards.equalsIgnoreCase("true") || scrapeWonAwards;
-    boolean scrapeBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", "false");
-    boolean scrapeTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", "false");
+    private boolean NFOpriority = PropertiesUtil.getBooleanProperty("kinopoisk.NFOpriority", "false");
+    private boolean NFOplot = false;
+    private boolean NFOcast = false;
+    private boolean NFOgenres = false;
+    private boolean NFOdirectors = false;
+    private boolean NFOwriters = false;
+    private boolean NFOcertification = false;
+    private boolean NFOcountry = false;
+    private String NFOyear = "";
+    private boolean NFOtagline = false;
+    private boolean NFOrating = false;
+    private boolean NFOtop250 = false;
+    private boolean NFOcompany = false;
+    private boolean NFOrelease = false;
+    private boolean NFOfanart = false;
+    private boolean NFOposter = false;
+    private boolean NFOawards = false;
+    private String tmpAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", "false");
+    private boolean scrapeWonAwards = tmpAwards.equalsIgnoreCase("won");
+    private boolean scrapeAwards = tmpAwards.equalsIgnoreCase("true") || scrapeWonAwards;
+    private boolean scrapeBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", "false");
+    private boolean scrapeTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", "false");
     // Set priority fanart & poster by kinopoisk.ru
-    boolean fanArt = PropertiesUtil.getBooleanProperty("kinopoisk.fanart", "false");
-    boolean poster = PropertiesUtil.getBooleanProperty("kinopoisk.poster", "false");
-    boolean kadr = PropertiesUtil.getBooleanProperty("kinopoisk.kadr", "false");
-    boolean companyAll = PropertiesUtil.getProperty("kinopoisk.company", "first").equalsIgnoreCase("all");
-    boolean countryAll = PropertiesUtil.getProperty("kinopoisk.country", "first").equalsIgnoreCase("all");
-    boolean clearAward = PropertiesUtil.getBooleanProperty("kinopoisk.clear.award", "false");
-    boolean clearTrivia = PropertiesUtil.getBooleanProperty("kinopoisk.clear.trivia", "false");
-    boolean translitCountry = PropertiesUtil.getBooleanProperty("kinopoisk.translit.country", "false");
-    String etalonId = PropertiesUtil.getProperty("kinopoisk.etalon", "251733");
+    private boolean fanArt = PropertiesUtil.getBooleanProperty("kinopoisk.fanart", "false");
+    private boolean poster = PropertiesUtil.getBooleanProperty("kinopoisk.poster", "false");
+    private boolean kadr = PropertiesUtil.getBooleanProperty("kinopoisk.kadr", "false");
+    private boolean companyAll = PropertiesUtil.getProperty("kinopoisk.company", "first").equalsIgnoreCase("all");
+    private boolean countryAll = PropertiesUtil.getProperty("kinopoisk.country", "first").equalsIgnoreCase("all");
+    private boolean clearAward = PropertiesUtil.getBooleanProperty("kinopoisk.clear.award", "false");
+    private boolean clearTrivia = PropertiesUtil.getBooleanProperty("kinopoisk.clear.trivia", "false");
+    private boolean translitCountry = PropertiesUtil.getBooleanProperty("kinopoisk.translit.country", "false");
+    private String etalonId = PropertiesUtil.getProperty("kinopoisk.etalon", "251733");
     // Personal information
-    int peopleMax = PropertiesUtil.getIntProperty("plugin.people.maxCount", "15");
-    int actorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", "10");
-    int directorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.director", "2");
-    int writerMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.writer", "3");
-    int filmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", "20");
-    int biographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", "500");
-    int filmography = PropertiesUtil.getIntProperty("plugin.filmography.max", "20");
-    boolean skipVG = PropertiesUtil.getBooleanProperty("plugin.people.skip.VG", "true");
-    boolean skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", "false");
-    boolean skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", "false");
-    List<String> jobsInclude = Arrays.asList(PropertiesUtil.getProperty("plugin.filmography.jobsInclude", "Director,Writer,Actor,Actress").split(","));
-    int triviaMax = PropertiesUtil.getIntProperty("plugin.trivia.maxCount", "15");
-    String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-    String jukeboxTempLocationDetails = FileTools.getCanonicalPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp") + File.separator + PropertiesUtil.getProperty("mjb.detailsDirName", "Jukebox"));
+    private int peopleMax = PropertiesUtil.getIntProperty("plugin.people.maxCount", "15");
+    private int actorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", "10");
+    private int directorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.director", "2");
+    private int writerMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.writer", "3");
+    private int filmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", "20");
+    private int biographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", "500");
+    private int filmography = PropertiesUtil.getIntProperty("plugin.filmography.max", "20");
+    private boolean skipVG = PropertiesUtil.getBooleanProperty("plugin.people.skip.VG", "true");
+    private boolean skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", "false");
+    private boolean skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", "false");
+    private List<String> jobsInclude = Arrays.asList(PropertiesUtil.getProperty("plugin.filmography.jobsInclude", "Director,Writer,Actor,Actress").split(","));
+    private int triviaMax = PropertiesUtil.getIntProperty("plugin.trivia.maxCount", "15");
+    private String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+    private String jukeboxTempLocationDetails = FileTools.getCanonicalPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp") + File.separator + PropertiesUtil.getProperty("mjb.detailsDirName", "Jukebox"));
 
     public KinopoiskPlugin() {
         super();
@@ -954,7 +954,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
         return true;
     }
 
-    protected int scanMoviePerson(Movie movie, String xml, String mode, int personMax, int peopleCount) {
+    private int scanMoviePerson(Movie movie, String xml, String mode, int personMax, int peopleCount) {
         if (peopleCount < peopleMax && personMax > 0 && xml.indexOf("<a name=\"" + mode + "\">") != -1) {
             if (mode.equals("actor")) {
                 movie.clearCast();
@@ -1267,7 +1267,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
         return returnStatus;
     }
 
-    protected String getKinopoiskPersonId(String person, String mode) {
+    private String getKinopoiskPersonId(String person, String mode) {
         String personId = Movie.UNKNOWN;
         try {
             String sb = person;
