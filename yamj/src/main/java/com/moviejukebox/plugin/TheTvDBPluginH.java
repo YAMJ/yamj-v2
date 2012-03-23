@@ -18,7 +18,6 @@ import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.*;
 import static com.moviejukebox.tools.StringTools.*;
@@ -225,9 +224,6 @@ public class TheTvDBPluginH extends ImdbPlugin {
     }
 
     public void getFanart(Movie movie) {
-        // TODO remove this once all skins are using the new fanart properties
-        downloadFanart = FanartScanner.checkDownloadFanart(movie.isTVShow());
-
         if (downloadFanart && isNotValidString(movie.getFanartURL()) || (forceFanartOverwrite) || movie.isDirty(Movie.DIRTY_BANNER)) {
             String url = null;
             Artwork artwork = new Artwork();

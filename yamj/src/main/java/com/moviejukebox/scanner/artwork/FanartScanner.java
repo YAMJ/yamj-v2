@@ -59,7 +59,7 @@ public class FanartScanner {
     protected static Collection<String> fanartExtensions = new ArrayList<String>();
     protected static String fanartToken;
     protected static boolean fanartOverwrite;
-    protected static boolean useFolderBackground;
+    protected static final boolean useFolderBackground = PropertiesUtil.getBooleanProperty("fanart.scanner.useFolderImage", "false");
     protected static Collection<String> fanartImageName;
     protected static boolean artworkValidate;
     protected static int artworkValidateMatch;
@@ -81,7 +81,6 @@ public class FanartScanner {
         fanartOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartOverwrite", "false");
 
         // See if we use background.* or fanart.*
-        useFolderBackground = PropertiesUtil.getBooleanProperty("fanart.scanner.useFolderImage", "false");
         if (useFolderBackground) {
             st = new StringTokenizer(PropertiesUtil.getProperty("fanart.scanner.imageName", "fanart,backdrop,background"), ",;|");
             fanartImageName = new ArrayList<String>();
@@ -310,46 +309,11 @@ public class FanartScanner {
         }
     }
 
-    /**
-     * Checks for older fanart property in case the skin hasn't been updated.
-     * TODO: Remove this procedure at some point
-     *
-     * @return true if the fanart is to be downloaded, or false otherwise
-     */
-    public static boolean checkDownloadFanart(boolean isTvShow) {
-        String fanartDownloadProperty;
-        boolean downloadFanart;
-
-        if (isTvShow) {
-            fanartDownloadProperty = "fanart.tv.download";
-        } else {
-            fanartDownloadProperty = "fanart.movie.download";
-        }
-
-        String fanartDownloadValue = PropertiesUtil.getProperty(fanartDownloadProperty, null);
-
-        // If this is null, then the property wasn't found, so look for the original
-        if (fanartDownloadValue == null) {
-            logger.error("The property moviedb.fanart.download needs to be changed to 'fanart.tv.download' AND 'fanart.movie.download' ");
-            downloadFanart = PropertiesUtil.getBooleanProperty("moviedb.fanart.download", "false");
-        } else {
-            try {
-                downloadFanart = Boolean.parseBoolean(fanartDownloadValue);
-            } catch (Exception ignore) {
-                logger.error("FanartScanner: Error with fanart property '" + fanartDownloadProperty + "' value, should be true or false and not '"
-                        + fanartDownloadValue + "'");
-                downloadFanart = false;
-            }
-        }
-
-        return downloadFanart;
-    }
-
     public static boolean validateArtwork(IImage artworkImage, int artworkWidth, int artworkHeight, boolean checkAspect) {
         @SuppressWarnings("rawtypes")
         Iterator readers = ImageIO.getImageReadersBySuffix("jpeg");
         ImageReader reader = (ImageReader) readers.next();
-        int urlWidth = 0, urlHeight = 0;
+        int urlWidth, urlHeight;
         float urlAspect;
 
         if (!artworkValidate) {
