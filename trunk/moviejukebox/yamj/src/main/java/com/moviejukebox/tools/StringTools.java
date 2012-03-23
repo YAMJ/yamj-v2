@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.tools;
 
@@ -60,7 +60,7 @@ public class StringTools {
             }
         }
     }
-    
+
     /**
      * Check the passed character against the replacement list.
      * @param charToReplace
@@ -74,7 +74,7 @@ public class StringTools {
             return tempC.toString();
         }
     }
-    
+
     /**
      * Change all the characters in a string to the safe replacements
      * @param stringToReplace
@@ -83,7 +83,7 @@ public class StringTools {
     public static String stringMapReplacement(String stringToReplace) {
         Character tempC;
         StringBuilder sb = new StringBuilder();
-        
+
         for (Character c : stringToReplace.toCharArray()) {
             tempC = charReplacementMap.get(c);
             if (tempC == null) {
@@ -94,7 +94,7 @@ public class StringTools {
         }
         return sb.toString();
     }
-    
+
     /**
      * Append a string to the end of a path ensuring that there are the correct number of File.separators
      * @param basePath
@@ -117,7 +117,7 @@ public class StringTools {
     public static String convertDateToString(Date convertDate) {
         return convertDateToString(convertDate, Movie.dateFormat);
     }
-    
+
     /**
      * Convert a date to a string using a Simple Date Format
      * @param convertDate
@@ -142,7 +142,7 @@ public class StringTools {
         SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
         return convertDateToString(convertDate, dateFormat);
     }
-    
+
     public static String formatDuration(int duration) {
         StringBuilder returnString = new StringBuilder("");
 
@@ -161,12 +161,12 @@ public class StringTools {
 
         return returnString.toString();
     }
-    
+
     /**
      * Format the file size
      */
     public static String formatFileSize(long fileSize) {
-        
+
         String returnSize = Movie.UNKNOWN;
         if (fileSize < KB) {
             returnSize = fileSize + " Bytes";
@@ -185,7 +185,7 @@ public class StringTools {
                 appendText = " GB";
                 divider = GB;
             }
-            
+
             // resolve decimal format
             DecimalFormat df;
             long checker = (fileSize / divider);
@@ -196,14 +196,14 @@ public class StringTools {
             } else {
                 df = FILESIZE_FORMAT_0;
             }
-            
+
             // build string
-            returnSize = df.format( (float) ((float) fileSize / (float) divider)) + appendText;  
+            returnSize = df.format( (float) ((float) fileSize / (float) divider)) + appendText;
         }
-        
+
         return returnSize;
     }
-    
+
     /**
      * Check the string passed to see if it is invalid.
      * Invalid strings are "UNKNOWN", null or blank
@@ -224,14 +224,14 @@ public class StringTools {
         if (StringUtils.isBlank(testString)) {
             return false;
         }
-        
+
         if (testString.equalsIgnoreCase(Movie.UNKNOWN)) {
             return false;
         }
-        
+
         return true;
     }
- 
+
     /**
      * Take a string runtime in various formats and try to output this in minutes
      * @param runtime
@@ -249,25 +249,25 @@ public class StringTools {
 
         // This is for the format xx(hour/hr/min)yy(min), e.g. 1h30, 90mins, 1h30m
         Pattern hrmnPattern = Pattern.compile("(?i)(\\d+)(\\D*)(\\d*)(.*?)");
-        
+
         Matcher matcher = hrmnPattern.matcher(runtime);
         if (matcher.find()) {
             String first = matcher.group(1);
             String divide = matcher.group(2);
             String second = matcher.group(3);
-            
+
             if (isValidString(second)) {
                 // Assume that this is HH(text)MM
                 returnValue = (Integer.parseInt(first) * 60) + Integer.parseInt(second);
                 return returnValue;
             }
-            
+
             if (!isValidString(divide)) {
                 // No divider value, so assume this is a straight minute value
                 returnValue = Integer.parseInt(first);
                 return returnValue;
             }
-            
+
             if (!isValidString(second) && isValidString(divide)) {
                 // this is xx(text) so we need to work out what the (text) is
                 if (divide.toLowerCase().contains("h")) {
@@ -280,7 +280,7 @@ public class StringTools {
                 return returnValue;
             }
         }
-        
+
         return returnValue;
     }
 
@@ -298,7 +298,7 @@ public class StringTools {
      */
     public static String trimToLength(String sourceString, int requiredLength, boolean trimToWord, String endingSuffix) {
         String changedString = sourceString.trim();
-        
+
         if (isValidString(changedString)) {
             if (changedString.length() <= requiredLength) {
                 // No need to do anything
@@ -317,7 +317,7 @@ public class StringTools {
         }
         return changedString;
     }
-    
+
     /**
      * Cast a generic list to a specfic class
      * See: http://stackoverflow.com/questions/367626/how-do-i-fix-the-expression-of-type-list-needs-unchecked-conversion
@@ -341,12 +341,21 @@ public class StringTools {
      */
     public static List<String> splitList(String stringToSplit, String regexDelim) {
         List<String> finalValues = new ArrayList<String>();
-        
+
         for (String output : stringToSplit.split(regexDelim)) {
             finalValues.add(output.trim());
         }
-        
+
         return finalValues;
+    }
+
+    public static String[] tokenizeToArray(String sourceString, String delimiter) {
+        StringTokenizer st = new StringTokenizer(sourceString, delimiter);
+        Collection<String> keywords = new ArrayList<String>();
+        while (st.hasMoreTokens()) {
+            keywords.add(st.nextToken());
+        }
+        return keywords.toArray(new String[keywords.size()]);
     }
 
 }

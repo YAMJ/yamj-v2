@@ -1337,12 +1337,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     // Issue 1937: Overlay configuration XML
     private class positionOverlay {
 
-        Integer left = 0;
-        Integer top = 0;
-        String align = "left";
-        String valign = "top";
-        String width = "equal";
-        String height = "equal";
+        protected Integer left = 0;
+        protected Integer top = 0;
+        protected String align = "left";
+        protected String valign = "top";
+        protected String width = "equal";
+        protected String height = "equal";
 
         public positionOverlay() {
         }
@@ -1359,10 +1359,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     private class imageOverlay {
 
-        String name;
-        String value;
-        List<String> values = new ArrayList<String>();
-        String filename;
+        private String name;
+        private String value;
+        private List<String> values = new ArrayList<String>();
+        private String filename;
 
         public imageOverlay(String name, String value, String filename, List<String> values) {
             this.name = name;
@@ -1374,22 +1374,22 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     private class conditionOverlay {
 
-        List<String> values = new ArrayList<String>();
-        List<positionOverlay> positions = new ArrayList<positionOverlay>();
+        private List<String> values = new ArrayList<String>();
+        private List<positionOverlay> positions = new ArrayList<positionOverlay>();
     }
 
     private class logoOverlay extends positionOverlay {
 
-        boolean before = true;
-        List<String> names = new ArrayList<String>();
-        List<imageOverlay> images = new ArrayList<imageOverlay>();
-        List<conditionOverlay> positions = new ArrayList<conditionOverlay>();
+        private boolean before = true;
+        private List<String> names = new ArrayList<String>();
+        private List<imageOverlay> images = new ArrayList<imageOverlay>();
+        private List<conditionOverlay> positions = new ArrayList<conditionOverlay>();
     }
 
     private class stateOverlay extends positionOverlay {
 
-        String value = Movie.UNKNOWN;
-        String filename = Movie.UNKNOWN;
+        private String value = Movie.UNKNOWN;
+        private String filename = Movie.UNKNOWN;
 
         public stateOverlay(Integer left, Integer top, String align, String valign, String width, String height, String value) {
             this.left = left;
@@ -1404,13 +1404,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     private class logosBlock {
 
-        boolean dir = false;         // true - vertical, false - horizontal,
-        boolean size = false;        // true - static, false - auto
-        boolean clones = false;      // true - enabled clones
-        Integer cols = 1;            // 0 - auto count
-        Integer rows = 0;            // 0 - auto count
-        Integer hmargin = 0;
-        Integer vmargin = 0;
+        private boolean dir = false;         // true - vertical, false - horizontal,
+        private boolean size = false;        // true - static, false - auto
+        private boolean clones = false;      // true - enabled clones
+        private Integer cols = 1;            // 0 - auto count
+        private Integer rows = 0;            // 0 - auto count
+        private Integer hmargin = 0;
+        private Integer vmargin = 0;
 
         public logosBlock(boolean dir, boolean size, String cols, String rows, String hmargin, String vmargin, boolean clones) {
             this.dir = dir;

@@ -571,15 +571,6 @@ public class MovieJukebox {
         }
     }
 
-    public static String[] tokenizeToArray(String str, String delim) {
-        StringTokenizer st = new StringTokenizer(str, delim);
-        Collection<String> keywords = new ArrayList<String>();
-        while (st.hasMoreTokens()) {
-            keywords.add(st.nextToken());
-        }
-        return keywords.toArray(new String[]{});
-    }
-
     private static void help() {
         System.out.println("");
         System.out.println("Usage:");

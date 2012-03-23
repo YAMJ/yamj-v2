@@ -51,6 +51,7 @@ import org.xml.sax.SAXException;
  */
 public class MovieJukeboxXMLWriter {
 
+    private static final Logger logger = Logger.getLogger(MovieJukeboxXMLWriter.class);
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";
     private static boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", Boolean.FALSE.toString());
@@ -79,7 +80,6 @@ public class MovieJukeboxXMLWriter {
     private static String strCategoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
     private static List<String> categoriesLimitList = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.limitList", "Cast,Director,Writer,Person").split(","));
-    private static final Logger logger = Logger.getLogger(MovieJukeboxXMLWriter.class);
     private static boolean writeNfoFiles;
     private boolean setsExcludeTV;
     private static String peopleFolder;
@@ -296,8 +296,8 @@ public class MovieJukeboxXMLWriter {
                 movie.setClearlogoFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "clearlogoFile")));
                 movie.setTvthumbFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "tvthumbFile")));
                 movie.setSeasonThumbFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "seasonthumbFile")));
-                
-                
+
+
                 // Get the plot and outline
                 movie.setPlot(DOMHelper.getValueFromElement(eMovie, "plot"));
                 movie.setOutline(DOMHelper.getValueFromElement(eMovie, "outline"));
