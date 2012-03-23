@@ -18,6 +18,7 @@ import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.*;
 import static com.moviejukebox.tools.StringTools.*;
@@ -225,78 +226,17 @@ public class TheTvDBPluginH extends ImdbPlugin {
 
     public void getFanart(Movie movie) {
         if (downloadFanart && isNotValidString(movie.getFanartURL()) || (forceFanartOverwrite) || movie.isDirty(Movie.DIRTY_BANNER)) {
-            String url = null;
-            Artwork artwork = new Artwork();
-            artwork.setSourceSite(THETVDB_PLUGIN_ID);
-            artwork.setType(ArtworkType.Fanart);
-            String id = findId(movie);
-            if (StringTools.isNotValidString(id)) {
-                return;
-            }
-            Series series = getSeries(id);
-            if (series == null) {
-                return;
-            }
 
-            Banners banners = getBanners(id);
-
-            if (!banners.getFanartList().isEmpty()) {
-                // Pick a fanart that is not likely to be the same as a previous one.
-                int index = movie.getSeason();
-                if (index < 0) {
-                    index = 0;
-                }
-
-                // Make sure that the index is not more than the list of available banners
-                // We may still run into issues, if there are less HD than this number
-                index = (index % banners.getFanartList().size());
-
-                Banner bannerSD = null;
-                Banner bannerHD = null;
-                int countSD = 0;
-                int countHD = 0;
-
-                for (Banner banner : banners.getFanartList()) {
-                    if (banner.getBannerType2() == BannerType.FanartHD) {
-                        bannerHD = banner;  // Save the current banner
-                        countHD++;
-                        if (countHD >= index) {
-                            // We have a HD banner, so quit
-                            break;
-                        }
-                    } else {
-                        // This is a SD banner, So save it in case we can't find a HD one
-                        if (countSD <= index) {
-                            // Only update the banner if we want a later one
-                            bannerSD = banner;
-                        }
-                    }
-                }
-
-                if (bannerHD != null) {
-                    url = bannerHD.getUrl();
-                } else if (bannerSD != null) {
-                    url = bannerSD.getUrl();
-                }
-
-            }
-
-            if (isNotValidString(url) && isValidString(series.getFanart())) {
-                url = series.getFanart();
-            }
+            String url = FanartScanner.getFanartURL(movie);
 
             if (isValidString(url)) {
                 movie.setFanartURL(url);
-                artwork.setUrl(url);
             }
 
             if (isValidString(movie.getFanartURL())) {
                 String artworkFilename = movie.getBaseName() + fanartToken + "." + fanartExtension;
                 movie.setFanartFilename(artworkFilename);
-                artwork.addSize(new ArtworkFile(ArtworkSize.LARGE, artworkFilename, false));
             }
-
-            movie.addArtwork(artwork);
         }
     }
 
