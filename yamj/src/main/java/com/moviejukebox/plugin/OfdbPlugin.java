@@ -14,16 +14,8 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
+import com.moviejukebox.tools.*;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -40,7 +32,8 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     boolean gettitle;
     private int preferredPlotLength;
     private int preferredOutlineLength;
-    com.moviejukebox.plugin.ImdbPlugin imdbp;
+    private ImdbPlugin imdbp;
+    private WebBrowser webBrowser;
 
     public OfdbPlugin() {
         imdbp = new com.moviejukebox.plugin.ImdbPlugin();
@@ -50,6 +43,8 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
         getplot = PropertiesUtil.getBooleanProperty("ofdb.getplot", "true");
         gettitle = PropertiesUtil.getBooleanProperty("ofdb.gettitle", "true");
+
+        webBrowser = new WebBrowser();
     }
 
     @Override
@@ -80,39 +75,8 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     }
 
     public String getOfdbIdFromOfdb(String imdbId) {
-        BufferedReader input = null;
-        URL url;
-        URLConnection urlConn;
-        DataOutputStream printout = null;
-
         try {
-            // URL of CGI-Bin script.
-            url = new URL("http://www.ofdb.de/view.php?page=suchergebnis");
-            // URL connection channel.
-            urlConn = url.openConnection();
-            // Let the run-time system (RTS) know that we want input.
-            urlConn.setDoInput(true);
-            // Let the RTS know that we want to do output.
-            urlConn.setDoOutput(true);
-            // No caching, we want the real thing.
-            urlConn.setUseCaches(false);
-            // Specify the content type.
-            urlConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            // Send POST output.
-            printout = new DataOutputStream(urlConn.getOutputStream());
-            String content = "&SText=" + imdbId + "&Kat=IMDb";
-            printout.writeBytes(content);
-            printout.flush();
-            printout.close();
-            // Get response data.
-            StringBuilder site = new StringBuilder();
-            input = new BufferedReader(new InputStreamReader(urlConn.getInputStream(), "UTF-8"));
-            String line;
-            while ((line = input.readLine()) != null) {
-                site.append(line);
-            }
-            input.close();
-            String xml = site.toString();
+            String xml = webBrowser.request("http://www.ofdb.de/view.php?page=suchergebnis&SText="+imdbId+"&Kat=IMDb");
             String ofdbID;
             int beginIndex = xml.indexOf("film/");
             if (beginIndex != -1) {
@@ -123,28 +87,16 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                 ofdbID = Movie.UNKNOWN;
             }
             return ofdbID;
-        } catch (Exception error) {
-            logger.error("Failed retreiving ofdb URL for movie : ");
-            logger.error("Error : " + error.getMessage());
+        } catch (IOException error) {
+            logger.error("Failed retreiving ofdb URL for movie: " + imdbId);
+            logger.error(SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
-        } finally {
-            try {
-                input.close();
-            } catch (IOException e) {
-                // Ignore
-            }
-
-            try {
-                printout.close();
-            } catch (IOException e) {
-                // Ignore
-            }
         }
     }
 
     private String getofdbIDfromGoogle(String movieName, String year) {
         try {
-            String ofdbID = Movie.UNKNOWN;
+            String ofdbID;
             StringBuilder sb = new StringBuilder("http://www.google.de/search?hl=de&q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
 
@@ -154,7 +106,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
             sb.append("+site%3Awww.ofdb.de/film");
 
-            String xml = request(new URL(sb.toString()));
+            String xml = webBrowser.request(sb.toString());
             int beginIndex = xml.indexOf("http://www.ofdb.de/film");
             if (beginIndex != -1) {
                 StringTokenizer st = new StringTokenizer(xml.substring(beginIndex), "\"");
@@ -177,11 +129,12 @@ public class OfdbPlugin implements MovieDatabasePlugin {
      * @param plotBeforeImdb
      */
     private boolean updateOfdbMediaInfo(Movie movie, boolean plotBeforeImdb) {
+        String xml = "";
         try {
             if (StringTools.isNotValidString(movie.getId(OFDB_PLUGIN_ID))) {
                 return false;
             }
-            String xml = request(new URL(movie.getId(OFDB_PLUGIN_ID)));
+            xml = webBrowser.request(movie.getId(OFDB_PLUGIN_ID));
 
             if (gettitle) {
                 String titleShort = extractTag(xml, "<title>OFDb - ", 0, "(");
@@ -192,8 +145,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
             if (getplot) {
                 // plot url auslesen:
-                URL plotURL = new URL("http://www.ofdb.de/plot/" + extractTag(xml, "<a href=\"plot/", 0, "\""));
-                String plot = getPlot(plotURL);
+                String plot = getPlot("http://www.ofdb.de/plot/" + extractTag(xml, "<a href=\"plot/", 0, "\""));
                 // Issue 797, preserve Plot from NFO
                 // Did we get some translated plot and didn't have previous plotFromNfo ?
                 if (!Movie.UNKNOWN.equalsIgnoreCase(plot) && !plotBeforeImdb) {
@@ -204,32 +156,11 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                 }
             }
 
-        } catch (Exception error) {
+        } catch (IOException error) {
             logger.error(SystemTools.getStackTrace(error));
             return false;
         }
         return true;
-    }
-
-    private static String request(URL url) throws IOException {
-        StringBuilder content = new StringBuilder();
-
-        BufferedReader in = null;
-        try {
-            URLConnection cnx = url.openConnection();
-            cnx.setRequestProperty("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
-            in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), "UTF-8"));
-            String line;
-            while ((line = in.readLine()) != null) {
-                content.append(line);
-            }
-
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-        }
-        return content.toString();
     }
 
     protected String extractTag(String src, String findStr, int skip) {
@@ -304,11 +235,11 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         return tags;
     }
 
-    private String getPlot(URL plotURL) {
+    private String getPlot(String plotURL) {
         String plot;
 
         try {
-            String xml = request(plotURL);
+            String xml = webBrowser.request(plotURL);
 
             int firstindex = xml.indexOf("gelesen</b></b><br><br>") + 23;
             int lastindex = xml.indexOf("</font>", firstindex);
@@ -317,7 +248,9 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
             plot = StringTools.trimToLength(plot, preferredPlotLength, true, "...");
 
-        } catch (Exception error) {
+        } catch (IOException error) {
+            logger.warn("Failed to get plot");
+            logger.warn(SystemTools.getStackTrace(error));
             plot = Movie.UNKNOWN;
         }
 
