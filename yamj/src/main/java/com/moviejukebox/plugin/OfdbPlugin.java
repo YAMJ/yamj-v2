@@ -28,6 +28,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
     private static final Logger logger = Logger.getLogger(OfdbPlugin.class);
     public static String OFDB_PLUGIN_ID = "ofdb";
+    private static final String PLOT_MARKER = "<a href=\"plot/";
     boolean getplot;
     boolean gettitle;
     private int preferredPlotLength;
@@ -76,7 +77,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
     public String getOfdbIdFromOfdb(String imdbId) {
         try {
-            String xml = webBrowser.request("http://www.ofdb.de/view.php?page=suchergebnis&SText="+imdbId+"&Kat=IMDb");
+            String xml = webBrowser.request("http://www.ofdb.de/view.php?page=suchergebnis&SText=" + imdbId + "&Kat=IMDb");
             String ofdbID;
             int beginIndex = xml.indexOf("film/");
             if (beginIndex != -1) {
@@ -129,12 +130,11 @@ public class OfdbPlugin implements MovieDatabasePlugin {
      * @param plotBeforeImdb
      */
     private boolean updateOfdbMediaInfo(Movie movie, boolean plotBeforeImdb) {
-        String xml = "";
         try {
             if (StringTools.isNotValidString(movie.getId(OFDB_PLUGIN_ID))) {
                 return false;
             }
-            xml = webBrowser.request(movie.getId(OFDB_PLUGIN_ID));
+            String xml = webBrowser.request(movie.getId(OFDB_PLUGIN_ID));
 
             if (gettitle) {
                 String titleShort = extractTag(xml, "<title>OFDb - ", 0, "(");
@@ -145,14 +145,20 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
             if (getplot) {
                 // plot url auslesen:
-                String plot = getPlot("http://www.ofdb.de/plot/" + extractTag(xml, "<a href=\"plot/", 0, "\""));
-                // Issue 797, preserve Plot from NFO
-                // Did we get some translated plot and didn't have previous plotFromNfo ?
-                if (!Movie.UNKNOWN.equalsIgnoreCase(plot) && !plotBeforeImdb) {
-                    movie.setPlot(plot);
+                if (xml.contains(PLOT_MARKER)) {
+                    String plot = getPlot("http://www.ofdb.de/plot/" + extractTag(xml, PLOT_MARKER, 0, "\""));
 
-                    String outline = StringTools.trimToLength(plot, preferredOutlineLength, true, "...");
-                    movie.setOutline(outline);
+                    // Issue 797, preserve Plot from NFO
+                    // Did we get some translated plot and didn't have previous plotFromNfo ?
+                    if (!Movie.UNKNOWN.equalsIgnoreCase(plot) && !plotBeforeImdb) {
+                        movie.setPlot(plot);
+
+                        String outline = StringTools.trimToLength(plot, preferredOutlineLength, true, "...");
+                        movie.setOutline(outline);
+                    }
+                } else {
+                    logger.debug("No plot found for " + movie.getBaseName());
+                    return false;
                 }
             }
 
