@@ -179,7 +179,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 } catch (MovieDbException ex) {
                     java.util.logging.Logger.getLogger(TheMovieDbPlugin.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
                 try {
                     // Get the cast information
                     moviePeople = TMDb.getMovieCasts(moviedb.getId());
@@ -191,7 +191,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             // the rest is not web search anymore
             ThreadExecutor.leaveIO();
         }
-        
+
         if (moviedb != null) {
             if (moviedb.getId() > 0) {
                 movie.setMovieType(Movie.TYPE_MOVIE);
@@ -358,7 +358,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     sb.append(lang.getIsoCode());
                     sb.append("/");
                 }
-                sb.deleteCharAt(sb.length());
+                sb.deleteCharAt(sb.length() - 1);
                 logger.debug("TheMovieDbPlugin: Additional languages found and not used - " + sb.toString());
             }
         }
