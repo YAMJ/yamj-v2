@@ -15,16 +15,17 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
+import com.moviejukebox.themoviedb.MovieDbException;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.*;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
@@ -52,8 +53,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public TheMovieDbPlugin() {
         try {
             TMDb = new TheMovieDb(API_KEY);
-        } catch (IOException ex) {
-            logger.warn("MovieDbPosterPlugin: Failed to initialise TheMovieDB API.");
+        } catch (MovieDbException ex) {
+            logger.warn("MovieDbPosterPlugin: Failed to initialise TheMovieDB API: " + ex.getMessage());
             return;
         }
 
@@ -104,62 +105,93 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             if (StringTools.isValidString(tmdbID)) {
                 // Search based on TMdb ID
                 logger.debug("TheMovieDbPlugin: Using TMDb ID (" + tmdbID + ") for " + movie.getBaseFilename());
-                moviedb = TMDb.getMovieInfo(Integer.parseInt(tmdbID), languageCode);
-            } else if (StringTools.isValidString(imdbID)) {
+                try {
+                    moviedb = TMDb.getMovieInfo(Integer.parseInt(tmdbID), languageCode);
+                } catch (MovieDbException ex) {
+                    logger.debug("Failed to get movie info using TMDB ID: " + tmdbID + " - " + ex.getMessage());
+                    moviedb = null;
+                }
+            }
+
+            if (moviedb == null && StringTools.isValidString(imdbID)) {
                 // Search based on IMDb ID
                 logger.debug("TheMovieDbPlugin: Using IMDb ID (" + imdbID + ") for " + movie.getBaseFilename());
-                moviedb = TMDb.getMovieInfoImdb(imdbID, languageCode);
-                tmdbID = String.valueOf(moviedb.getId());
-                if (StringTools.isNotValidString(tmdbID)) {
-                    logger.debug("TheMovieDbPlugin: No TMDb ID found for movie!");
+                try {
+                    moviedb = TMDb.getMovieInfoImdb(imdbID, languageCode);
+                    tmdbID = String.valueOf(moviedb.getId());
+                    if (StringTools.isNotValidString(tmdbID)) {
+                        logger.debug("TheMovieDbPlugin: No TMDb ID found for movie!");
+                    }
+                } catch (MovieDbException ex) {
+                    logger.debug("Failed to get movie info using IMDB ID: " + imdbID + " - " + ex.getMessage());
+                    moviedb = null;
                 }
-            } else {
+            }
+
+            if (moviedb == null) {
                 StringBuilder movieSearch = new StringBuilder(movie.getTitle());
                 if (StringTools.isValidString(movie.getYear())) {
                     movieSearch.append(" ").append(movie.getYear());
                 }
+                try {
+                    // Search using movie name
+                    movieList = TMDb.searchMovie(movieSearch.toString(), languageCode, false);
+                    String movieYear = (StringTools.isValidString(movie.getYear()) ? movie.getYear() : "");
+                    // Iterate over the list until we find a match
+                    for (MovieDb m : movieList) {
+                        logger.debug("TheMovieDbPlugin: checking " + m.getTitle() + " " + m.getReleaseDate());
+                        if (TheMovieDb.compareMovies(m, movie.getTitle(), movieYear)) {
+                            moviedb = m;
+                            break;
+                        }
 
-                // Search using movie name
-                movieList = TMDb.searchMovie(movieSearch.toString(), languageCode, false);
-                String movieYear = (StringTools.isValidString(movie.getYear())?movie.getYear():"");
-                // Iterate over the list until we find a match
-                for (MovieDb m : movieList) {
-                    logger.debug("TheMovieDbPlugin: checking " + m.getTitle() + " " + m.getReleaseDate());
-                    if (TheMovieDb.compareMovies(m, movie.getTitle(), movieYear)) {
-                        moviedb = m;
-                        break;
+                        // See if the original title is different and then compare it too
+                        if (!movie.getTitle().equals(movie.getOriginalTitle())
+                                && TheMovieDb.compareMovies(m, movie.getOriginalTitle(), movieYear)) {
+                            moviedb = m;
+                            break;
+                        }
                     }
-
-                    // See if the original title is different and then compare it too
-                    if (!movie.getTitle().equals(movie.getOriginalTitle())
-                            && TheMovieDb.compareMovies(m, movie.getOriginalTitle(), movieYear)) {
-                        moviedb = m;
-                        break;
-                    }
-                }
-
-                if (moviedb != null) {
-                    // Get the full information on the film
-                    moviedb = TMDb.getMovieInfo(moviedb.getId(), languageCode);
-                    logger.debug("TheMovieDbPlugin: Found id (" + moviedb.getId() + ") for " + moviedb.getTitle());
-                } else {
-                    logger.debug("TheMovieDbPlugin: Movie " + movieSearch.toString() + " not found!");
-                    logger.debug("Try using a NFO file to specify the movie");
+                } catch (MovieDbException ex) {
+                    logger.debug("Failed to get movie info for " + movieSearch.toString() + " - " + ex.getMessage());
+                    moviedb = null;
                 }
             }
 
-            if (moviedb != null) {
-                // Get the release information
-                movieReleaseInfo = TMDb.getMovieReleaseInfo(moviedb.getId(), countryCode);
+            if (moviedb == null) {
+                logger.debug("TheMovieDbPlugin: Movie " + movie.getBaseName() + " not found!");
+                logger.debug("Try using a NFO file to specify the movie");
+            } else {
+                try {
+                    // Get the full information on the film
+                    moviedb = TMDb.getMovieInfo(moviedb.getId(), languageCode);
+                } catch (MovieDbException ex) {
+                    logger.debug("TheMovieDbPlugin: Failed to download remaining information for " + movie.getBaseName());
+                }
+                logger.debug("TheMovieDbPlugin: Found id (" + moviedb.getId() + ") for " + moviedb.getTitle());
+            }
 
-                // Get the cast information
-                moviePeople = TMDb.getMovieCasts(moviedb.getId());
+
+            if (moviedb != null) {
+                try {
+                    // Get the release information
+                    movieReleaseInfo = TMDb.getMovieReleaseInfo(moviedb.getId(), countryCode);
+                } catch (MovieDbException ex) {
+                    java.util.logging.Logger.getLogger(TheMovieDbPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+                try {
+                    // Get the cast information
+                    moviePeople = TMDb.getMovieCasts(moviedb.getId());
+                } catch (MovieDbException ex) {
+                    java.util.logging.Logger.getLogger(TheMovieDbPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         } finally {
             // the rest is not web search anymore
             ThreadExecutor.leaveIO();
         }
-
+        
         if (moviedb != null) {
             if (moviedb.getId() > 0) {
                 movie.setMovieType(Movie.TYPE_MOVIE);
@@ -214,14 +246,13 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 movie.setId(IMDB_PLUGIN_ID, moviedb.getImdbID());
             }
         }
-
-        if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
+        if (downloadFanart
+                && StringTools.isNotValidString(movie.getFanartURL())) {
             movie.setFanartURL(getFanartURL(movie));
             if (StringTools.isValidString(movie.getFanartURL())) {
                 movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
             }
         }
-
         return retval;
     }
 

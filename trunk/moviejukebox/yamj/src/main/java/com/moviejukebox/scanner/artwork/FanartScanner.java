@@ -18,7 +18,6 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
@@ -29,6 +28,7 @@ import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
+import com.moviejukebox.themoviedb.MovieDbException;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.MovieDb;
 import com.moviejukebox.thetvdb.TheTVDB;
@@ -106,7 +106,7 @@ public class FanartScanner {
 
         try {
             TMDb = new TheMovieDb(PropertiesUtil.getProperty("API_KEY_TheMovieDB"));
-        } catch (IOException ex) {
+        } catch (MovieDbException ex) {
             logger.warn("FanartScanner: Failed to initialise TheMovieDB API. Fanart will not be downloaded.");
             logger.warn(SystemTools.getStackTrace(ex));
             TMDb = null;
@@ -121,6 +121,7 @@ public class FanartScanner {
 
     /**
      * Get the Fanart URL for the movie from the source sites
+     *
      * @param movie
      * @return
      */
@@ -301,27 +302,46 @@ public class FanartScanner {
         }
 
         if (tmdbID > 0) {
-            moviedb = TMDb.getMovieInfo(tmdbID, language);
-        } else if (StringTools.isValidString(imdbID)) {
-            // The ImdbLookup contains images
-            moviedb = TMDb.getMovieInfoImdb(imdbID, language);
-        } else {
-            List<MovieDb> movieList = TMDb.searchMovie(movie.getOriginalTitle(), language, false);
-            for (MovieDb m : movieList) {
-                if (m.getTitle().equals(movie.getTitle())
-                        || m.getTitle().equalsIgnoreCase(movie.getOriginalTitle())
-                        || m.getOriginalTitle().equalsIgnoreCase(movie.getTitle())
-                        || m.getOriginalTitle().equalsIgnoreCase(movie.getOriginalTitle())) {
-                    if (StringTools.isNotValidString(movie.getYear())) {
-                        // We don't have a year for the movie, so assume this is the correct movie
-                        moviedb = m;
-                        break;
-                    } else if (m.getReleaseDate().contains(movie.getYear())) {
-                        // found the movie name and year
-                        moviedb = m;
-                        break;
+            try {
+                moviedb = TMDb.getMovieInfo(tmdbID, language);
+            } catch (MovieDbException ex) {
+                logger.debug("FanartScanner: Failed to get fanart using TMDB ID: " + tmdbID + " - " + ex.getMessage());
+                moviedb = null;
+            }
+        }
+
+        if (moviedb == null && StringTools.isValidString(imdbID)) {
+            try {
+                // The ImdbLookup contains images
+                moviedb = TMDb.getMovieInfoImdb(imdbID, language);
+            } catch (MovieDbException ex) {
+                logger.debug("FanartScanner: Failed to get fanart using IMDB ID: " + imdbID + " - " + ex.getMessage());
+                moviedb = null;
+            }
+        }
+
+        if (moviedb == null) {
+            try {
+                List<MovieDb> movieList = TMDb.searchMovie(movie.getOriginalTitle(), language, false);
+                for (MovieDb m : movieList) {
+                    if (m.getTitle().equals(movie.getTitle())
+                            || m.getTitle().equalsIgnoreCase(movie.getOriginalTitle())
+                            || m.getOriginalTitle().equalsIgnoreCase(movie.getTitle())
+                            || m.getOriginalTitle().equalsIgnoreCase(movie.getOriginalTitle())) {
+                        if (StringTools.isNotValidString(movie.getYear())) {
+                            // We don't have a year for the movie, so assume this is the correct movie
+                            moviedb = m;
+                            break;
+                        } else if (m.getReleaseDate().contains(movie.getYear())) {
+                            // found the movie name and year
+                            moviedb = m;
+                            break;
+                        }
                     }
                 }
+            } catch (MovieDbException ex) {
+                logger.debug("FanartScanner: Failed to get fanart using IMDB ID: " + imdbID + " - " + ex.getMessage());
+                moviedb = null;
             }
         }
 
@@ -331,11 +351,16 @@ public class FanartScanner {
             return Movie.UNKNOWN;
         }
 
-        URL fanart = TMDb.createImageUrl(moviedb.getBackdropPath(), "original");
-        if (fanart == null) {
+        try {
+            URL fanart = TMDb.createImageUrl(moviedb.getBackdropPath(), "original");
+            if (fanart == null) {
+                return Movie.UNKNOWN;
+            } else {
+                return fanart.toString();
+            }
+        } catch (MovieDbException ex) {
+            logger.debug("FanartScanner: Error getting fanart from TheMovieDB.org for " + movie.getBaseFilename());
             return Movie.UNKNOWN;
-        } else {
-            return fanart.toString();
         }
     }
 
