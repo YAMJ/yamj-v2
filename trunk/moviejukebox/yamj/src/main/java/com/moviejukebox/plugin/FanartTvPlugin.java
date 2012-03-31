@@ -13,9 +13,11 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.fanarttv.FanartTv;
+import com.moviejukebox.fanarttv.FanartTvException;
 import com.moviejukebox.fanarttv.model.FanartTvArtwork;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -161,6 +163,9 @@ public class FanartTvPlugin {
         ThreadExecutor.enterIO(webhost);
         try {
             return ft.getArtwork(tvdbid, artworkType);
+        } catch (FanartTvException ex) {
+            logger.warn(logMessage + "Failed to get fanart information");
+            return new ArrayList<FanartTvArtwork>();
         } finally {
             ThreadExecutor.leaveIO();
         }
