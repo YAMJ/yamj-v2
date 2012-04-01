@@ -30,6 +30,7 @@ public class WatchedScanner {
     private static Collection<String> watchedExtensions = Arrays.asList(PropertiesUtil.getProperty("mjb.watchedExtensions", "watched").split(",;\\|"));
     private static String watchedLocation = PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo");
     private static String withExtension = PropertiesUtil.getProperty("mjb.watched.withExtension", "true");
+    private static boolean warned = Boolean.FALSE;
 
     protected WatchedScanner() {
         throw new UnsupportedOperationException("Watched Scanner cannot be initialised");
@@ -48,18 +49,22 @@ public class WatchedScanner {
         boolean movieFileWatchChanged = Boolean.FALSE;  // Have the movie files changed status?
         boolean fileWatched;
         boolean returnStatus = Boolean.FALSE;           // Assume no changes
+        boolean withJukebox;
 
-        boolean withJukebox = Boolean.FALSE;
-        
         if ("withVideo".equalsIgnoreCase(watchedLocation)) {
             // Normal scanning
-        } else if("withJukebox".equalsIgnoreCase(watchedLocation)) {
+            withJukebox = Boolean.FALSE;
+        } else if ("withJukebox".equalsIgnoreCase(watchedLocation)) {
             // Fixed scanning in the jukebox folder
             withJukebox = Boolean.TRUE;
         } else {
-            logger.warn("Watched Scanner: Custom file location not supported for watched scanner");
+            if (!warned) {
+                logger.warn("Watched Scanner: Custom file location not supported for watched scanner");
+                warned = Boolean.TRUE;
+            }
+            withJukebox = Boolean.FALSE;
         }
-        
+
         File foundFile = null;
 
         for (MovieFile mf : movie.getFiles()) {
