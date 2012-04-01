@@ -32,6 +32,7 @@ public class FanartTvPlugin {
     private static final String webhost = "fanart.tv";
     private static final HashMap<String, Integer> artworkTypes = new HashMap<String, Integer>();
     private static int totalRequired = 0;
+    private static final String language = PropertiesUtil.getProperty("themoviedb.language", "en");
 
     static {
         // Read the properties for the artwork required and the quantities
@@ -57,7 +58,7 @@ public class FanartTvPlugin {
         ft.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
 
         // Calculate the required number of artworks
-        for(String key : artworkTypes.keySet()) {
+        for (String key : artworkTypes.keySet()) {
             totalRequired += artworkTypes.get(key);
         }
     }
@@ -89,11 +90,10 @@ public class FanartTvPlugin {
 
             logger.debug(logMessage + "Found " + ftArtwork.size() + (StringTools.isValidString(artworkType) ? artworkType : "") + " artwork items");
 
-//            Artwork movieArtwork;
             String ftType;
             int ftQuantity;
             int requiredQuantity = totalRequired;
-            HashMap<String,Integer> requiredArtworkTypes = new HashMap<String,Integer>(artworkTypes);
+            HashMap<String, Integer> requiredArtworkTypes = new HashMap<String, Integer>(artworkTypes);
 
             for (FanartTvArtwork ftSingle : ftArtwork) {
                 ftType = ftSingle.getType();
@@ -101,19 +101,8 @@ public class FanartTvPlugin {
                 if (requiredArtworkTypes.containsKey(ftType)) {
                     ftQuantity = requiredArtworkTypes.get(ftType);
 
-                    if (ftQuantity > 0) {
+                    if (ftQuantity > 0 && ftSingle.getLanguage().equalsIgnoreCase(language)) {
                         requiredArtworkTypes.put(ftType, --ftQuantity);
-
-                        /*
-                         * TODO: Add this back in when we use the new artwork
-                         * movieArtwork = new Artwork();
-                         * movieArtwork.setSourceSite("fanarttv");
-                         * movieArtwork.setType(ArtworkType.fromString(ftSingle.getType()));
-                         * movieArtwork.setUrl(ftSingle.getUrl());
-                         * movie.addArtwork(movieArtwork);
-                         * logger.info(logMessage + "Added " +
-                         * movieArtwork.toString());
-                         */
 
                         if (ftType.equalsIgnoreCase(FanartTvArtwork.TYPE_CLEARART)) {
                             movie.setClearartURL(ftSingle.getUrl());
@@ -131,7 +120,7 @@ public class FanartTvPlugin {
                             if (ftSingle.getSeason() == movie.getSeason()) {
                                 movie.setSeasonThumbFilename(ftSingle.getUrl());
                                 movie.setSeasonThumbFilename(makeSafeFilename(movie, FanartTvArtwork.TYPE_SEASONTHUMB));
-                            requiredQuantity--;
+                                requiredQuantity--;
                             }
                         } else {
                             logger.debug("Unrecognised artwork type '" + ftType + "'");
