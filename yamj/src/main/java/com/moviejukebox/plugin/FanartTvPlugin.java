@@ -32,7 +32,8 @@ public class FanartTvPlugin {
     private static final String webhost = "fanart.tv";
     private static final HashMap<String, Integer> artworkTypes = new HashMap<String, Integer>();
     private static int totalRequired = 0;
-    private static final String language = PropertiesUtil.getProperty("themoviedb.language", "en");
+    private static final String movieLanguage = PropertiesUtil.getProperty("themoviedb.language", "en");
+    private static final String tvLanguage = PropertiesUtil.getProperty("thetvdb.language", "en");
 
     static {
         // Read the properties for the artwork required and the quantities
@@ -101,7 +102,7 @@ public class FanartTvPlugin {
                 if (requiredArtworkTypes.containsKey(ftType)) {
                     ftQuantity = requiredArtworkTypes.get(ftType);
 
-                    if (ftQuantity > 0 && ftSingle.getLanguage().equalsIgnoreCase(language)) {
+                    if (ftQuantity > 0 && ftSingle.getLanguage().equalsIgnoreCase(tvLanguage)) {
                         requiredArtworkTypes.put(ftType, --ftQuantity);
 
                         if (ftType.equalsIgnoreCase(FanartTvArtwork.TYPE_CLEARART)) {
