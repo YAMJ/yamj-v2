@@ -4,7 +4,7 @@
 
 MovieJukebox 2.7-SNAPSHOT
 -------------------------
-
+ - Fixed defect #2245 Trailer URL from NFO is lost after a rescan
 
 MovieJukebox 2.6.1 (21-Mar-2012)
 --------------------------------
