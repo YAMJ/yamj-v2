@@ -27,6 +27,7 @@ public class FanartTvPlugin {
 
     private static final Logger logger = Logger.getLogger(FanartTvPlugin.class);
     private static final String logMessage = "FanartTvPlugin: ";
+    public static final String FANARTTV_PLUGIN_ID = "fanarttv";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_FanartTv");
     private FanartTv ft = new FanartTv(API_KEY);
     private static final String webhost = "fanart.tv";
@@ -162,15 +163,35 @@ public class FanartTvPlugin {
         }
     }
 
-    public List<FanartTvArtwork> getFanartTvArtwork(int tvdbid, String artworkType) {
-        ThreadExecutor.enterIO(webhost);
-        try {
-            return ft.getArtwork(tvdbid, artworkType);
-        } catch (FanartTvException ex) {
-            logger.warn(logMessage + "Failed to get fanart information");
-            return new ArrayList<FanartTvArtwork>();
-        } finally {
-            ThreadExecutor.leaveIO();
+    public List<FanartTvArtwork> getFanartTvArtwork(int tvdbId, String artworkType) {
+        String key;
+        if (StringTools.isValidString(artworkType)) {
+            key = CacheMemory.generateCacheKey(FANARTTV_PLUGIN_ID, String.valueOf(tvdbId), artworkType);
+        } else {
+            // Default to the "all" value for artwork
+            key = CacheMemory.generateCacheKey(FANARTTV_PLUGIN_ID, String.valueOf(tvdbId), FanartTvArtwork.TYPE_ALL);
+        }
+
+        List<FanartTvArtwork> ftArtwork = (List<FanartTvArtwork>) CacheMemory.getFromCache(key);
+
+        if (ftArtwork == null || ftArtwork.isEmpty()) {
+            ThreadExecutor.enterIO(webhost);
+            try {
+                ftArtwork = ft.getArtwork(tvdbId, artworkType);
+
+                if (ftArtwork != null && !ftArtwork.isEmpty()) {
+                    CacheMemory.addToCache(key, ftArtwork);
+                }
+
+                return ftArtwork;
+            } catch (FanartTvException ex) {
+                logger.warn(logMessage + "Failed to get fanart information");
+                return new ArrayList<FanartTvArtwork>();
+            } finally {
+                ThreadExecutor.leaveIO();
+            }
+        } else {
+            return ftArtwork;
         }
     }
 
