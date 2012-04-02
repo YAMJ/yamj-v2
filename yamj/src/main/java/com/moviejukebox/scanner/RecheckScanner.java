@@ -16,7 +16,6 @@ import com.moviejukebox.fanarttv.model.FanartTvArtwork;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.FanartTvPlugin;
-import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
 import java.util.Date;
@@ -168,13 +167,13 @@ public class RecheckScanner {
             }
 
             if (extraArtworkDownload && movie.isTVShow()) {
-                if (isNotValidString(movie.getClearartURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_CLEARART)) {
+                if (isNotValidString(movie.getClearArtURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_CLEARART)) {
                     logger.debug(logMessage + movie.getBaseName() + " is missing ClearArt, will rescan");
                     recheckCount++;
                     return true;
                 }
 
-                if (isNotValidString(movie.getClearlogoURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_CLEARLOGO)) {
+                if (isNotValidString(movie.getClearLogoURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_CLEARLOGO)) {
                     logger.debug(logMessage + movie.getBaseName() + " is missing ClearLogo, will rescan");
                     recheckCount++;
                     return true;
@@ -186,8 +185,14 @@ public class RecheckScanner {
                     return true;
                 }
 
-                if (isNotValidString(movie.getTvthumbURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_TVTHUMB)) {
+                if (isNotValidString(movie.getTvThumbURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_TVTHUMB)) {
                     logger.debug(logMessage + movie.getBaseName() + " is missing TvThumb, will rescan");
+                    recheckCount++;
+                    return true;
+                }
+
+                if (isNotValidString(movie.getCdArtURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_CDART)) {
+                    logger.debug(logMessage + movie.getBaseName() + " is missing cdArt, will rescan");
                     recheckCount++;
                     return true;
                 }

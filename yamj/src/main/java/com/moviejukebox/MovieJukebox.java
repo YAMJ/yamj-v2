@@ -2120,15 +2120,15 @@ public class MovieJukebox {
         logger.info("UpdateFanartTv for " + movie.getBaseName());
 
         if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_CLEARART)
-                && StringTools.isValidString(movie.getClearartURL())
+                && StringTools.isValidString(movie.getClearArtURL())
                 && StringTools.isValidString(movie.getClearartFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getClearartFilename(), movie.getClearartURL(), FanartTvArtwork.TYPE_CLEARART, Movie.DIRTY_CLEARART, forceFanartTvOverwrite);
+            processArtworktToFile(movie, imagePlugin, movie.getClearartFilename(), movie.getClearArtURL(), FanartTvArtwork.TYPE_CLEARART, Movie.DIRTY_CLEARART, forceFanartTvOverwrite);
         }
 
         if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_CLEARLOGO)
-                && StringTools.isValidString(movie.getClearlogoURL())
-                && StringTools.isValidString(movie.getClearlogoFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getClearlogoFilename(), movie.getClearlogoURL(), FanartTvArtwork.TYPE_CLEARLOGO, Movie.DIRTY_CLEARLOGO, forceFanartTvOverwrite);
+                && StringTools.isValidString(movie.getClearLogoURL())
+                && StringTools.isValidString(movie.getClearLogoFilename())) {
+            processArtworktToFile(movie, imagePlugin, movie.getClearLogoFilename(), movie.getClearLogoURL(), FanartTvArtwork.TYPE_CLEARLOGO, Movie.DIRTY_CLEARLOGO, forceFanartTvOverwrite);
         }
 
         if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_SEASONTHUMB)
@@ -2138,11 +2138,16 @@ public class MovieJukebox {
         }
 
         if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_TVTHUMB)
-                && StringTools.isValidString(movie.getTvthumbURL())
-                && StringTools.isValidString(movie.getTvthumbFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getTvthumbFilename(), movie.getTvthumbURL(), FanartTvArtwork.TYPE_TVTHUMB, Movie.DIRTY_TVTHUMB, forceFanartTvOverwrite);
+                && StringTools.isValidString(movie.getTvThumbURL())
+                && StringTools.isValidString(movie.getTvThumbFilename())) {
+            processArtworktToFile(movie, imagePlugin, movie.getTvThumbFilename(), movie.getTvThumbURL(), FanartTvArtwork.TYPE_TVTHUMB, Movie.DIRTY_TVTHUMB, forceFanartTvOverwrite);
         }
 
+        if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_CDART)
+                && StringTools.isValidString(movie.getCdArtURL())
+                && StringTools.isValidString(movie.getCdArtFilename())) {
+            processArtworktToFile(movie, imagePlugin, movie.getCdArtFilename(), movie.getCdArtURL(), FanartTvArtwork.TYPE_CDART, Movie.DIRTY_CDART, forceFanartTvOverwrite);
+        }
     }
 
     /**
