@@ -37,7 +37,7 @@ public class FanartTvPlugin {
 
     static {
         // Read the properties for the artwork required and the quantities
-        List<String> requiredArtworkTypes = Arrays.asList(PropertiesUtil.getProperty("fanarttv.types", "clearart,clearlogo,seasonthumb,tvthumb").toLowerCase().split(","));
+        List<String> requiredArtworkTypes = Arrays.asList(PropertiesUtil.getProperty("fanarttv.types", "clearart,clearlogo,seasonthumb,tvthumb,cdart").toLowerCase().split(","));
         logger.debug(logMessage + "Looking for " + requiredArtworkTypes.toString() + " Fanart.TV Types");
         for (String artworkType : requiredArtworkTypes) {
             // For the time being limit the max to 1
@@ -100,31 +100,44 @@ public class FanartTvPlugin {
                 ftType = ftSingle.getType();
 
                 if (requiredArtworkTypes.containsKey(ftType)) {
-                    ftQuantity = requiredArtworkTypes.get(ftType);
 
+                    ftQuantity = requiredArtworkTypes.get(ftType);
                     if (ftQuantity > 0 && ftSingle.getLanguage().equalsIgnoreCase(tvLanguage)) {
-                        requiredArtworkTypes.put(ftType, --ftQuantity);
+                        boolean foundOK = Boolean.FALSE;
 
                         if (ftType.equalsIgnoreCase(FanartTvArtwork.TYPE_CLEARART)) {
-                            movie.setClearartURL(ftSingle.getUrl());
-                            movie.setClearartFilename(makeSafeFilename(movie, FanartTvArtwork.TYPE_CLEARART));
-                            requiredQuantity--;
+                            movie.setClearArtURL(ftSingle.getUrl());
+                            movie.setClearArtFilename(makeSafeFilename(movie, FanartTvArtwork.TYPE_CLEARART));
+                            foundOK = Boolean.TRUE;
                         } else if (ftType.equalsIgnoreCase(FanartTvArtwork.TYPE_CLEARLOGO)) {
-                            movie.setClearlogoURL(ftSingle.getUrl());
-                            movie.setClearlogoFilename(makeSafeFilename(movie, FanartTvArtwork.TYPE_CLEARLOGO));
-                            requiredQuantity--;
+                            movie.setClearLogoURL(ftSingle.getUrl());
+                            movie.setClearLogoFilename(makeSafeFilename(movie, FanartTvArtwork.TYPE_CLEARLOGO));
+                            foundOK = Boolean.TRUE;
                         } else if (ftType.equalsIgnoreCase(FanartTvArtwork.TYPE_TVTHUMB)) {
-                            movie.setTvthumbURL(ftSingle.getUrl());
-                            movie.setTvthumbFilename(makeSafeFilename(movie, FanartTvArtwork.TYPE_TVTHUMB));
-                            requiredQuantity--;
+                            movie.setTvThumbURL(ftSingle.getUrl());
+                            movie.setTvThumbFilename(makeSafeFilename(movie, FanartTvArtwork.TYPE_TVTHUMB));
+                            foundOK = Boolean.TRUE;
                         } else if (ftType.equalsIgnoreCase(FanartTvArtwork.TYPE_SEASONTHUMB)) {
                             if (ftSingle.getSeason() == movie.getSeason()) {
-                                movie.setSeasonThumbFilename(ftSingle.getUrl());
+                                movie.setSeasonThumbURL(ftSingle.getUrl());
                                 movie.setSeasonThumbFilename(makeSafeFilename(movie, FanartTvArtwork.TYPE_SEASONTHUMB));
-                                requiredQuantity--;
+                                foundOK = Boolean.TRUE;
                             }
+                        } else if (ftType.equalsIgnoreCase(FanartTvArtwork.TYPE_CDART)) {
+                            movie.setCdArtURL(ftSingle.getUrl());
+                            movie.setCdArtFilename(makeSafeFilename(movie, FanartTvArtwork.TYPE_CDART));
+                            foundOK = Boolean.TRUE;
                         } else {
-                            logger.debug("Unrecognised artwork type '" + ftType + "'");
+                            logger.debug("Unrecognised artwork type '" + ftType + "', ignoring.");
+                        }
+
+                        // Reduce the quantity needed as this artwork was found
+                        if (foundOK) {
+                            // Reduce the global counter
+                            requiredQuantity--;
+
+                            // Update the specific counter
+                            requiredArtworkTypes.put(ftType, --ftQuantity);
                         }
 
                         // Performance check, stop looking if there is no more artwork to find

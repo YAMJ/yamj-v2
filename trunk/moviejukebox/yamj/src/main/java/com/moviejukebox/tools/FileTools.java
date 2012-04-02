@@ -707,9 +707,10 @@ public class FileTools {
 
         if (extraArtworkEnabled) {
             addJukeboxFile(movie.getClearartFilename());
-            addJukeboxFile(movie.getClearlogoFilename());
+            addJukeboxFile(movie.getClearLogoFilename());
             addJukeboxFile(movie.getSeasonThumbFilename());
-            addJukeboxFile(movie.getTvthumbFilename());
+            addJukeboxFile(movie.getTvThumbFilename());
+            addJukeboxFile(movie.getCdArtFilename());
         }
 
         // Are footer images enabled?

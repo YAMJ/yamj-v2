@@ -78,6 +78,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public static final String DIRTY_CLEARLOGO = "CLEARLOGO";
     public static final String DIRTY_TVTHUMB = "TVTHUMB";
     public static final String DIRTY_SEASONTHUMB = "SEASONTHUMB";
+    public static final String DIRTY_CDART = "CDART";
 
     /*
      * --------------------------------------------------------------------------------
@@ -157,14 +158,16 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String fanartFilename = UNKNOWN; // The resized fanart file
     private String bannerURL = UNKNOWN; // The TV Show banner URL
     private String bannerFilename = UNKNOWN; // The resized banner file
-    private String clearartURL = UNKNOWN;
-    private String clearartFilename = UNKNOWN;
-    private String clearlogoURL = UNKNOWN;
-    private String clearlogoFilename = UNKNOWN;
-    private String seasonthumbURL = UNKNOWN;
-    private String seasonthumbFilename = UNKNOWN;
-    private String tvthumbURL = UNKNOWN;
-    private String tvthumbFilename = UNKNOWN;
+    private String clearArtURL = UNKNOWN;
+    private String clearArtFilename = UNKNOWN;
+    private String clearLogoURL = UNKNOWN;
+    private String clearLogoFilename = UNKNOWN;
+    private String seasonThumbURL = UNKNOWN;
+    private String seasonThumbFilename = UNKNOWN;
+    private String tvThumbURL = UNKNOWN;
+    private String tvThumbFilename = UNKNOWN;
+    private String cdArtURL = UNKNOWN;
+    private String cdArtFilename = UNKNOWN;
     // File information
     private Date fileDate = null;
     private long fileSize = 0;
@@ -2314,122 +2317,152 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     // ***** ClearLogo
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
-    public String getClearlogoURL() {
-        return clearlogoURL;
+    public String getClearLogoURL() {
+        return clearLogoURL;
     }
 
-    public void setClearlogoURL(String clearlogoURL) {
-        if (StringUtils.isBlank(clearlogoURL)) {
-            clearlogoURL = UNKNOWN;
+    public void setClearLogoURL(String clearLogoURL) {
+        if (StringUtils.isBlank(clearLogoURL)) {
+            clearLogoURL = UNKNOWN;
         }
 
-        if (!clearlogoURL.equalsIgnoreCase(this.clearlogoURL)) {
-            setDirty(Movie.DIRTY_INFO, true);
-            this.clearlogoURL = clearlogoURL;
+        if (!clearLogoURL.equalsIgnoreCase(this.clearLogoURL)) {
+            setDirty(Movie.DIRTY_CLEARLOGO, true);
+            this.clearLogoURL = clearLogoURL;
         }
     }
 
-    @XmlElement(name = "clearlogoFile")
+    @XmlElement(name = "clearLogoFile")
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
-    public String getClearlogoFilename() {
-        return clearlogoFilename;
+    public String getClearLogoFilename() {
+        return clearLogoFilename;
     }
 
-    public void setClearlogoFilename(String clearlogoFilename) {
-        if (StringUtils.isBlank(clearlogoFilename)) {
-            clearlogoFilename = UNKNOWN;
+    public void setClearLogoFilename(String clearLogoFilename) {
+        if (StringUtils.isBlank(clearLogoFilename)) {
+            clearLogoFilename = UNKNOWN;
         }
-        this.clearlogoFilename = clearlogoFilename;
+        this.clearLogoFilename = clearLogoFilename;
     }
 
     // ***** ClearArt
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
-    public String getClearartURL() {
-        return clearartURL;
+    public String getClearArtURL() {
+        return clearArtURL;
     }
 
-    public void setClearartURL(String clearartURL) {
-        if (StringUtils.isBlank(clearartURL)) {
-            clearartURL = UNKNOWN;
+    public void setClearArtURL(String clearArtURL) {
+        if (StringUtils.isBlank(clearArtURL)) {
+            clearArtURL = UNKNOWN;
         }
 
-        if (!clearartURL.equalsIgnoreCase(this.clearartURL)) {
-            setDirty(Movie.DIRTY_INFO, true);
-            this.clearartURL = clearartURL;
+        if (!clearArtURL.equalsIgnoreCase(this.clearArtURL)) {
+            setDirty(Movie.DIRTY_CLEARART, true);
+            this.clearArtURL = clearArtURL;
         }
     }
 
-    @XmlElement(name = "clearartFile")
+    @XmlElement(name = "clearArtFile")
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getClearartFilename() {
-        return clearartFilename;
+        return clearArtFilename;
     }
 
-    public void setClearartFilename(String clearartFilename) {
-        if (StringUtils.isBlank(clearartFilename)) {
-            clearartFilename = UNKNOWN;
+    public void setClearArtFilename(String clearArtFilename) {
+        if (StringUtils.isBlank(clearArtFilename)) {
+            clearArtFilename = UNKNOWN;
         }
-        this.clearartFilename = clearartFilename;
+        this.clearArtFilename = clearArtFilename;
     }
 
     // ***** TvThumb
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
-    public String getTvthumbURL() {
-        return tvthumbURL;
+    public String getTvThumbURL() {
+        return tvThumbURL;
     }
 
-    public void setTvthumbURL(String tvthumbURL) {
-        if (StringUtils.isBlank(tvthumbURL)) {
-            tvthumbURL = UNKNOWN;
+    public void setTvThumbURL(String tvThumbURL) {
+        if (StringUtils.isBlank(tvThumbURL)) {
+            tvThumbURL = UNKNOWN;
         }
 
-        if (!tvthumbURL.equalsIgnoreCase(this.tvthumbURL)) {
-            setDirty(Movie.DIRTY_INFO, true);
-            this.tvthumbURL = tvthumbURL;
+        if (!tvThumbURL.equalsIgnoreCase(this.tvThumbURL)) {
+            setDirty(Movie.DIRTY_TVTHUMB, true);
+            this.tvThumbURL = tvThumbURL;
         }
     }
 
-    @XmlElement(name = "tvthumbFile")
+    @XmlElement(name = "tvThumbFile")
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
-    public String getTvthumbFilename() {
-        return tvthumbFilename;
+    public String getTvThumbFilename() {
+        return tvThumbFilename;
     }
 
-    public void setTvthumbFilename(String tvthumbFilename) {
-        if (StringUtils.isBlank(tvthumbFilename)) {
-            tvthumbFilename = UNKNOWN;
+    public void setTvThumbFilename(String tvThumbFilename) {
+        if (StringUtils.isBlank(tvThumbFilename)) {
+            tvThumbFilename = UNKNOWN;
         }
-        this.tvthumbFilename = tvthumbFilename;
+        this.tvThumbFilename = tvThumbFilename;
     }
 
     // ***** SeasonThumb
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getSeasonThumbURL() {
-        return seasonthumbURL;
+        return seasonThumbURL;
     }
 
-    public void setSeasonThumbURL(String seasonthumbURL) {
-        if (StringUtils.isBlank(seasonthumbURL)) {
-            seasonthumbURL = UNKNOWN;
+    public void setSeasonThumbURL(String seasonThumbURL) {
+        if (StringUtils.isBlank(seasonThumbURL)) {
+            seasonThumbURL = UNKNOWN;
         }
 
-        if (!seasonthumbURL.equalsIgnoreCase(this.seasonthumbURL)) {
-            setDirty(Movie.DIRTY_INFO, true);
-            this.seasonthumbURL = seasonthumbURL;
+        if (!seasonThumbURL.equalsIgnoreCase(this.seasonThumbURL)) {
+            setDirty(Movie.DIRTY_SEASONTHUMB, true);
+            this.seasonThumbURL = seasonThumbURL;
         }
     }
 
-    @XmlElement(name = "seasonthumbFile")
+    @XmlElement(name = "seasonThumbFile")
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getSeasonThumbFilename() {
-        return seasonthumbFilename;
+        return seasonThumbFilename;
     }
 
-    public void setSeasonThumbFilename(String seasonthumbFilename) {
-        if (StringUtils.isBlank(seasonthumbFilename)) {
-            seasonthumbFilename = UNKNOWN;
+    public void setSeasonThumbFilename(String seasonThumbFilename) {
+        if (StringUtils.isBlank(seasonThumbFilename)) {
+            seasonThumbFilename = UNKNOWN;
         }
-        this.seasonthumbFilename = seasonthumbFilename;
+        this.seasonThumbFilename = seasonThumbFilename;
+    }
+
+    // ***** CDArt
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
+    public String getCdArtURL() {
+        return cdArtURL;
+    }
+
+    public void setCdArtURL(String cdArtURL) {
+        if (StringUtils.isBlank(cdArtURL)) {
+            cdArtURL = UNKNOWN;
+        }
+
+        if (!cdArtURL.equalsIgnoreCase(this.cdArtURL)) {
+            setDirty(Movie.DIRTY_CDART, true);
+            this.cdArtURL = cdArtURL;
+        }
+    }
+
+    @XmlElement(name = "cdArtFile")
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
+    public String getCdArtFilename() {
+        return cdArtFilename;
+    }
+
+    public void setCdArtFilename(String cdArtFilename) {
+        if (StringUtils.isBlank(cdArtFilename)) {
+            cdArtFilename = UNKNOWN;
+        }
+        this.cdArtFilename = cdArtFilename;
     }
 
     // ***** END of graphics *****
