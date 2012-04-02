@@ -438,10 +438,28 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return false;
     }
 
+    /**
+     * Add a new extra file to the movie
+     *
+     * @param extraFile
+     */
     public void addExtraFile(ExtraFile extraFile) {
+        addExtraFile(extraFile, Boolean.TRUE);
+    }
+
+    /**
+     * Add a new extra file to the movie without marking the movie as dirty.
+     *
+     * @param extraFile
+     * @param isNewFile Use carefully as this will not cause the movie to be
+     * marked as dirty and may not be written out
+     */
+    public void addExtraFile(ExtraFile extraFile, boolean isNewFile) {
         // Only add extraFile if it doesn't already exists
         if (extraFile != null && !this.extraFiles.contains(extraFile)) {
-            setDirty(DIRTY_INFO, true);
+            if (isNewFile) {
+                setDirty(DIRTY_INFO, true);
+            }
             this.extraFiles.add(extraFile);
         }
     }

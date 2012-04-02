@@ -77,7 +77,6 @@ public class MovieJukeboxXMLWriter {
     private boolean removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", Boolean.FALSE.toString());
     private boolean keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", Boolean.TRUE.toString());
     private boolean beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", Boolean.FALSE.toString());
-    private static String strCategoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
     private static List<String> categoriesDisplayList = Collections.emptyList();
     private static List<String> categoriesLimitList = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.limitList", "Cast,Director,Writer,Person").split(","));
     private static boolean writeNfoFiles;
@@ -101,17 +100,6 @@ public class MovieJukeboxXMLWriter {
     private boolean XMLcompatible = PropertiesUtil.getBooleanProperty("mjb.XMLcompatible", Boolean.FALSE.toString());
     private boolean sortLibrary = PropertiesUtil.getBooleanProperty("indexing.sort.libraries", Boolean.TRUE.toString());
 
-    static {
-        if (strCategoriesDisplayList.length() == 0) {
-            strCategoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
-        }
-        categoriesDisplayList = Arrays.asList(strCategoriesDisplayList.split(","));
-
-        writeNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeFiles", Boolean.FALSE.toString());
-
-        enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", Boolean.TRUE.toString());
-    }
-
     public MovieJukeboxXMLWriter() {
         nbMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerPage", "10");
         nbMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerLine", "5");
@@ -128,6 +116,11 @@ public class MovieJukeboxXMLWriter {
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE.toString());
         includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", Boolean.FALSE.toString());
         setsExcludeTV = PropertiesUtil.getBooleanProperty("mjb.sets.excludeTV", Boolean.FALSE.toString());
+        writeNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeFiles", Boolean.FALSE.toString());
+        enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", Boolean.TRUE.toString());
+
+        // Set up the display list
+        populateDisplayList();
 
         // Issue 1947: Cast enhancement - option to save all related files to a specific folder
         peopleFolder = PropertiesUtil.getProperty("mjb.people.folder", "");
@@ -160,6 +153,14 @@ public class MovieJukeboxXMLWriter {
         if (nbTVSetMoviesPerLine == 0) {
             nbTVSetMoviesPerLine = nbTvShowsPerLine;
         }
+    }
+
+    protected final void populateDisplayList() {
+        String strCategoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
+        if (strCategoriesDisplayList.length() == 0) {
+            strCategoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
+        }
+        categoriesDisplayList = Arrays.asList(strCategoriesDisplayList.split(","));
     }
 
     /**
@@ -771,20 +772,31 @@ public class MovieJukeboxXMLWriter {
                             String extraFilename = eExtra.getTextContent();
 
                             if (!extraTitle.isEmpty() && !extraFilename.isEmpty()) {
-                                boolean exist = false;
-                                for (ExtraFile ef : movie.getExtraFiles()) {
-                                    // Check if the movie has already the extra file
-                                    if (ef.getFilename().equals(extraFilename)) {
-                                        exist = true;
-                                        // the extra file is old
-                                        ef.setNewFile(false);
-                                        break;
+                                boolean exist = Boolean.FALSE;
+                                if (extraFilename.startsWith("http:")) {
+                                    // This is a URL from a NFO file
+                                    ExtraFile ef = new ExtraFile();
+                                    ef.setNewFile(Boolean.FALSE);
+                                    ef.setTitle(extraTitle);
+                                    ef.setFilename(extraFilename);
+                                    movie.addExtraFile(ef, Boolean.FALSE);  // Add to the movie, but it's not dirty
+                                    exist = Boolean.TRUE;
+                                } else {
+                                    // Check for existing files
+                                    for (ExtraFile ef : movie.getExtraFiles()) {
+                                        // Check if the movie has already the extra file
+                                        if (ef.getFilename().equals(extraFilename)) {
+                                            exist = Boolean.TRUE;
+                                            // the extra file is old
+                                            ef.setNewFile(Boolean.FALSE);
+                                            break;
+                                        }
                                     }
                                 }
 
                                 if (!exist) {
                                     // the extra file has been deleted so force the dirty flag
-                                    forceDirtyFlag = true;
+                                    forceDirtyFlag = Boolean.TRUE;
                                 }
                             }
                         }
