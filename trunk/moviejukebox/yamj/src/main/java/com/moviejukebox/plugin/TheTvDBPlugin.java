@@ -211,7 +211,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         }
                     }
                 } catch (Exception error) {
-                    logger.error("TheTvDBPlugin: Failed to retrieve TheTvDb Id for movie : " + movie.getTitle());
+                    logger.error("TheTvDBPlugin: Failed to retrieve TheTvDb Id for show: " + movie.getTitle());
                     logger.error("Error : " + error.getMessage());
                 }
 
