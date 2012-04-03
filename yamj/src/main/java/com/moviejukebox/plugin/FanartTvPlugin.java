@@ -32,13 +32,14 @@ public class FanartTvPlugin {
     private FanartTv ft = new FanartTv(API_KEY);
     private static final String webhost = "fanart.tv";
     private static final HashMap<String, Integer> artworkTypes = new HashMap<String, Integer>();
-    private static int totalRequired = 0;
+    private static int totalRequiredTv = 0;
+    private static int totalRequireMovie = 0;
     private static final String movieLanguage = PropertiesUtil.getProperty("themoviedb.language", "en");
     private static final String tvLanguage = PropertiesUtil.getProperty("thetvdb.language", "en");
 
     static {
         // Read the properties for the artwork required and the quantities
-        List<String> requiredArtworkTypes = Arrays.asList(PropertiesUtil.getProperty("fanarttv.types", "clearart,clearlogo,seasonthumb,tvthumb,cdart").toLowerCase().split(","));
+        List<String> requiredArtworkTypes = Arrays.asList(PropertiesUtil.getProperty("fanarttv.types", "clearart,clearlogo,seasonthumb,tvthumb,movielogo,moviedisc").toLowerCase().split(","));
         logger.debug(logMessage + "Looking for " + requiredArtworkTypes.toString() + " Fanart.TV Types");
         for (String artworkType : requiredArtworkTypes) {
             // For the time being limit the max to 1
@@ -59,9 +60,15 @@ public class FanartTvPlugin {
         // Set the timeout values
         ft.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
 
-        // Calculate the required number of artworks
-        for (String key : artworkTypes.keySet()) {
-            totalRequired += artworkTypes.get(key);
+        // Calculate the required number of artworks (Only do it once though)
+        if (totalRequireMovie + totalRequiredTv == 0) {
+            for (String key : artworkTypes.keySet()) {
+                if (key.equalsIgnoreCase(FanartTvArtwork.TYPE_MOVIEDISC) || key.equalsIgnoreCase(FanartTvArtwork.TYPE_MOVIELOGO)) {
+                    totalRequireMovie += artworkTypes.get(key);
+                } else {
+                    totalRequiredTv += artworkTypes.get(key);
+                }
+            }
         }
     }
 
@@ -76,25 +83,37 @@ public class FanartTvPlugin {
     }
 
     public boolean scan(Movie movie, String artworkType) {
-        String tvdbidString = movie.getId(TheTvDBPlugin.THETVDB_PLUGIN_ID);
-        int tvdbid = 0;
+        List<FanartTvArtwork> ftArtwork;
+        int requiredQuantity;
+        String requiredLanguage;
 
-        if (StringTools.isValidString(tvdbidString)) {
+        if (movie.isTVShow()) {
+            int tvdbid;
             try {
-                tvdbid = Integer.parseInt(tvdbidString);
-            } catch (Exception error) {
+                tvdbid = Integer.parseInt(movie.getId(TheTvDBPlugin.THETVDB_PLUGIN_ID));
+            } catch (NumberFormatException ex) {
                 tvdbid = 0;
             }
+            ftArtwork = getTvArtwork(tvdbid, artworkType);
+            requiredQuantity = totalRequiredTv;
+            requiredLanguage = tvLanguage;
+        } else {
+            int tmdbId;
+            try {
+                tmdbId = Integer.parseInt(movie.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID));
+            } catch (NumberFormatException ex) {
+                tmdbId = 0;
+            }
+            ftArtwork = getMovieArtwork(tmdbId, movie.getId(ImdbPlugin.IMDB_PLUGIN_ID), artworkType);
+            requiredQuantity = totalRequireMovie;
+            requiredLanguage = movieLanguage;
         }
 
-        if (tvdbid > 0) {
-            List<FanartTvArtwork> ftArtwork = getFanartTvArtwork(tvdbid, artworkType);
-
+        if (!ftArtwork.isEmpty()) {
             logger.debug(logMessage + "Found " + ftArtwork.size() + (StringTools.isValidString(artworkType) ? artworkType : "") + " artwork items");
 
             String ftType;
             int ftQuantity;
-            int requiredQuantity = totalRequired;
             HashMap<String, Integer> requiredArtworkTypes = new HashMap<String, Integer>(artworkTypes);
 
             for (FanartTvArtwork ftSingle : ftArtwork) {
@@ -103,7 +122,8 @@ public class FanartTvPlugin {
                 if (requiredArtworkTypes.containsKey(ftType)) {
 
                     ftQuantity = requiredArtworkTypes.get(ftType);
-                    if (ftQuantity > 0 && ftSingle.getLanguage().equalsIgnoreCase(tvLanguage)) {
+                    if (ftQuantity > 0 && ftSingle.getLanguage().equalsIgnoreCase(requiredLanguage)) {
+                        logger.info("Need " + ftQuantity + " more");
                         boolean foundOK = Boolean.FALSE;
 
                         if (ftType.equalsIgnoreCase(FanartTvArtwork.TYPE_CLEARART)) {
@@ -119,14 +139,19 @@ public class FanartTvPlugin {
                             movie.setTvThumbFilename(makeSafeFilename(movie, FanartTvArtwork.TYPE_TVTHUMB));
                             foundOK = Boolean.TRUE;
                         } else if (ftType.equalsIgnoreCase(FanartTvArtwork.TYPE_SEASONTHUMB)) {
+                            // Check this is the right season
                             if (ftSingle.getSeason() == movie.getSeason()) {
                                 movie.setSeasonThumbURL(ftSingle.getUrl());
                                 movie.setSeasonThumbFilename(makeSafeFilename(movie, FanartTvArtwork.TYPE_SEASONTHUMB));
                                 foundOK = Boolean.TRUE;
                             }
-                        } else if (ftType.equalsIgnoreCase(FanartTvArtwork.TYPE_CDART)) {
-                            movie.setCdArtURL(ftSingle.getUrl());
-                            movie.setCdArtFilename(makeSafeFilename(movie, FanartTvArtwork.TYPE_CDART));
+                        } else if (ftType.equalsIgnoreCase(FanartTvArtwork.TYPE_MOVIEDISC)) {
+                            movie.setMovieDiscURL(ftSingle.getUrl());
+                            movie.setMovieDiscFilename(makeSafeFilename(movie, FanartTvArtwork.TYPE_MOVIEDISC));
+                            foundOK = Boolean.TRUE;
+                        } else if (ftType.equalsIgnoreCase(FanartTvArtwork.TYPE_MOVIELOGO)) {
+                            movie.setClearLogoURL(ftSingle.getUrl());
+                            movie.setClearLogoFilename(makeSafeFilename(movie, FanartTvArtwork.TYPE_MOVIELOGO));
                             foundOK = Boolean.TRUE;
                         } else {
                             logger.debug("Unrecognised artwork type '" + ftType + "', ignoring.");
@@ -158,12 +183,12 @@ public class FanartTvPlugin {
 
             return true;
         } else {
-            logger.debug(logMessage + "No artwork found for " + movie.getBaseName() + " with TVDBID: " + tvdbidString);
+            logger.debug(logMessage + "No artwork found for " + movie.getBaseName());
             return false;
         }
     }
 
-    public List<FanartTvArtwork> getFanartTvArtwork(int tvdbId, String artworkType) {
+    public List<FanartTvArtwork> getTvArtwork(int tvdbId, String artworkType) {
         String key;
         if (StringTools.isValidString(artworkType)) {
             key = CacheMemory.generateCacheKey(FANARTTV_PLUGIN_ID, String.valueOf(tvdbId), artworkType);
@@ -178,6 +203,47 @@ public class FanartTvPlugin {
             ThreadExecutor.enterIO(webhost);
             try {
                 ftArtwork = ft.getTvArtwork(tvdbId, artworkType);
+
+                if (ftArtwork != null && !ftArtwork.isEmpty()) {
+                    CacheMemory.addToCache(key, ftArtwork);
+                }
+
+                return ftArtwork;
+            } catch (FanartTvException ex) {
+                logger.warn(logMessage + "Failed to get fanart information");
+                return new ArrayList<FanartTvArtwork>();
+            } finally {
+                ThreadExecutor.leaveIO();
+            }
+        } else {
+            return ftArtwork;
+        }
+    }
+
+    public List<FanartTvArtwork> getMovieArtwork(int tmdbId, String imdbId, String artworkType) {
+        String videoId;
+        String key;
+        // Default to the "all" value for artwork
+        String atString = (StringTools.isValidString(artworkType) ? artworkType : FanartTvArtwork.TYPE_ALL);
+
+        if (StringTools.isValidString(imdbId)) {
+            key = CacheMemory.generateCacheKey(FANARTTV_PLUGIN_ID, imdbId, atString);
+        } else if (tmdbId > 0) {
+            key = CacheMemory.generateCacheKey(FANARTTV_PLUGIN_ID, String.valueOf(tmdbId), atString);
+        } else {
+            key = Movie.UNKNOWN;
+        }
+
+        List<FanartTvArtwork> ftArtwork = (List<FanartTvArtwork>) CacheMemory.getFromCache(key);
+
+        if (ftArtwork == null || ftArtwork.isEmpty()) {
+            ThreadExecutor.enterIO(webhost);
+            try {
+                if (StringTools.isValidString(imdbId)) {
+                    ftArtwork = ft.getMovieArtwork(imdbId, artworkType);
+                } else {
+                    ftArtwork = ft.getMovieArtwork(tmdbId, artworkType);
+                }
 
                 if (ftArtwork != null && !ftArtwork.isEmpty()) {
                     CacheMemory.addToCache(key, ftArtwork);

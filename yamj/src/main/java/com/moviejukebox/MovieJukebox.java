@@ -996,7 +996,7 @@ public class MovieJukebox {
                             }
 
                             // Get ClearART/LOGOS/etc
-                            if (movie.isTVShow() && extraArtworkDownload) {
+                            if (extraArtworkDownload) {
                                 tools.fanartTvPlugin.scan(movie);
                                 updateFanartTv(jukebox, movie, tools.imagePlugin);
                             }
@@ -2144,9 +2144,9 @@ public class MovieJukebox {
         }
 
         if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_CDART)
-                && StringTools.isValidString(movie.getCdArtURL())
-                && StringTools.isValidString(movie.getCdArtFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getCdArtFilename(), movie.getCdArtURL(), FanartTvArtwork.TYPE_CDART, Movie.DIRTY_CDART, forceFanartTvOverwrite);
+                && StringTools.isValidString(movie.getMovieDiscURL())
+                && StringTools.isValidString(movie.getMovieDiscFilename())) {
+            processArtworktToFile(movie, imagePlugin, movie.getMovieDiscFilename(), movie.getMovieDiscURL(), FanartTvArtwork.TYPE_CDART, Movie.DIRTY_MOVIEDISC, forceFanartTvOverwrite);
         }
     }
 

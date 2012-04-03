@@ -28,10 +28,12 @@ public class FileTools {
 
     private static final Logger logger = Logger.getLogger(FileTools.class);
     static final int BUFF_SIZE = 16 * 1024;
-    private static Collection<String> subtitleExtensions = new ArrayList<String>();
+    private static final Collection<String> subtitleExtensions = new ArrayList<String>();
 
     static {
-        subtitleExtensions.addAll(Arrays.asList(PropertiesUtil.getProperty("filename.scanner.subtitle", "SRT,SUB,SSA,SMI,PGS").split(",")));
+        if (subtitleExtensions.isEmpty()) {
+            subtitleExtensions.addAll(Arrays.asList(PropertiesUtil.getProperty("filename.scanner.subtitle", "SRT,SUB,SSA,SMI,PGS").split(",")));
+        }
     }
     /**
      * Gabriel Corneanu: One buffer for each thread to allow threaded copies
@@ -67,8 +69,8 @@ public class FileTools {
             return newFilename;
         }
     };
-    private static Collection<ReplaceEntry> unsafeChars = new ArrayList<ReplaceEntry>();
-    static Character encodeEscapeChar = null;
+    private static final Collection<ReplaceEntry> unsafeChars = new ArrayList<ReplaceEntry>();
+    private static final Character encodeEscapeChar;
     private static final Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
     private static boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
     private static boolean extraArtworkEnabled = PropertiesUtil.getBooleanProperty("mjb.includeExtraArtwork", "false");
@@ -94,6 +96,8 @@ public class FileTools {
                     }
                 }
             }
+        } else {
+            encodeEscapeChar = null;
         }
 
         // Parse transliteration map: (source_character [-] transliteration_sequence [,])+
@@ -710,7 +714,7 @@ public class FileTools {
             addJukeboxFile(movie.getClearLogoFilename());
             addJukeboxFile(movie.getSeasonThumbFilename());
             addJukeboxFile(movie.getTvThumbFilename());
-            addJukeboxFile(movie.getCdArtFilename());
+            addJukeboxFile(movie.getMovieDiscFilename());
         }
 
         // Are footer images enabled?

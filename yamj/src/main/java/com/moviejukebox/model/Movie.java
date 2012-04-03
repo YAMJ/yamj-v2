@@ -78,7 +78,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public static final String DIRTY_CLEARLOGO = "CLEARLOGO";
     public static final String DIRTY_TVTHUMB = "TVTHUMB";
     public static final String DIRTY_SEASONTHUMB = "SEASONTHUMB";
-    public static final String DIRTY_CDART = "CDART";
+    public static final String DIRTY_MOVIEDISC = "MOVIEDISC";
 
     /*
      * --------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String[] ratingSource = PropertiesUtil.getProperty("mjb.rating.source", "average").split(",");
     private String tmpRatingIgnore = PropertiesUtil.getProperty("mjb.rating.ignore", "");
     private List<String> ratingIgnore = StringTools.isValidString(tmpRatingIgnore) ? Arrays.asList(tmpRatingIgnore.split(",")) : new ArrayList<String>();
-    private static HashSet<String> genreSkipList = new HashSet<String>();   // List of genres to ignore
+    private static final HashSet<String> genreSkipList = new HashSet<String>();   // List of genres to ignore
     private static String titleSortType = PropertiesUtil.getProperty("mjb.sortTitle", "title");
     /*
      * --------------------------------------------------------------------------------
@@ -166,8 +166,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String seasonThumbFilename = UNKNOWN;
     private String tvThumbURL = UNKNOWN;
     private String tvThumbFilename = UNKNOWN;
-    private String cdArtURL = UNKNOWN;
-    private String cdArtFilename = UNKNOWN;
+    private String movieDiscURL = UNKNOWN;
+    private String movieDiscFilename = UNKNOWN;
     // File information
     private Date fileDate = null;
     private long fileSize = 0;
@@ -196,9 +196,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * --------------------------------------------------------------------------------
      */
     static {
-        StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.genre.skip", ""), ",;|");
-        while (st.hasMoreTokens()) {
-            genreSkipList.add(st.nextToken().toLowerCase());
+        if (genreSkipList.isEmpty()) {
+            StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.genre.skip", ""), ",;|");
+            while (st.hasMoreTokens()) {
+                genreSkipList.add(st.nextToken().toLowerCase());
+            }
         }
     }
 
@@ -2198,16 +2200,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * Should be called only from ArtworkScanner. Avoid calling this inside
      * MoviePlugin Also called from MovieNFOScanner
      *
-     * @param url
+     * @param posterURL
      */
-    public void setPosterURL(String url) {
-        if (StringUtils.isBlank(url)) {
-            url = UNKNOWN;
-        }
-
-        if (!url.equalsIgnoreCase(this.posterURL)) {
+    public void setPosterURL(String posterURL) {
+        if (StringTools.isValidString(posterURL) && !posterURL.equalsIgnoreCase(this.posterURL)) {
             setDirty(Movie.DIRTY_INFO, true);
-            this.posterURL = url;
+            this.posterURL = posterURL;
+        } else {
+            this.posterURL = UNKNOWN;
         }
     }
 
@@ -2218,10 +2218,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setPosterFilename(String posterFilename) {
-        if (StringUtils.isBlank(posterFilename)) {
-            posterFilename = UNKNOWN;
+        if (StringTools.isValidString(posterFilename)) {
+            this.posterFilename = posterFilename;
+        } else {
+            this.posterFilename = UNKNOWN;
         }
-        this.posterFilename = posterFilename;
     }
 
     @XmlElement(name = "detailPosterFile")
@@ -2231,10 +2232,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setDetailPosterFilename(String detailPosterFilename) {
-        if (StringUtils.isBlank(detailPosterFilename)) {
-            detailPosterFilename = UNKNOWN;
+        if (StringTools.isValidString(detailPosterFilename)) {
+            this.detailPosterFilename = detailPosterFilename;
+        } else {
+            this.detailPosterFilename = UNKNOWN;
         }
-        this.detailPosterFilename = detailPosterFilename;
     }
 
     // ***** Thumbnails
@@ -2245,10 +2247,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setThumbnailFilename(String thumbnailFilename) {
-        if (StringUtils.isBlank(thumbnailFilename)) {
-            thumbnailFilename = UNKNOWN;
+        if (StringTools.isValidString(thumbnailFilename)) {
+            this.thumbnailFilename = thumbnailFilename;
+        } else {
+            this.thumbnailFilename = UNKNOWN;
         }
-        this.thumbnailFilename = thumbnailFilename;
     }
 
     // ***** Footer
@@ -2259,18 +2262,21 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setFooterFilename(String footerFilename, Integer inx) {
+        // Can't change the passed parameter
+        String ff;
         if (StringUtils.isBlank(footerFilename)) {
-            footerFilename = UNKNOWN;
+            ff = UNKNOWN;
         } else {
-            footerFilename = FileTools.makeSafeFilename(footerFilename);
+            ff = FileTools.makeSafeFilename(footerFilename);
         }
+
         if (this.footerFilename.size() <= inx) {
             while (this.footerFilename.size() < inx) {
                 this.footerFilename.add(UNKNOWN);
             }
-            this.footerFilename.add(footerFilename);
+            this.footerFilename.add(ff);
         } else {
-            this.footerFilename.set(inx, footerFilename);
+            this.footerFilename.set(inx, ff);
         }
     }
 
@@ -2281,13 +2287,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setFanartURL(String fanartURL) {
-        if (StringUtils.isBlank(fanartURL)) {
-            fanartURL = UNKNOWN;
-        }
-
-        if (!fanartURL.equalsIgnoreCase(this.fanartURL)) {
+        if (StringTools.isValidString(fanartURL) && !fanartURL.equalsIgnoreCase(this.fanartURL)) {
             setDirty(Movie.DIRTY_INFO, true);
             this.fanartURL = fanartURL;
+        } else {
+            this.fanartURL = UNKNOWN;
         }
     }
 
@@ -2298,10 +2302,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setFanartFilename(String fanartFilename) {
-        if (StringUtils.isBlank(fanartFilename)) {
-            fanartFilename = UNKNOWN;
+        if (StringTools.isValidString(fanartFilename)) {
+            this.fanartFilename = fanartFilename;
+        } else {
+            this.fanartFilename = UNKNOWN;
         }
-        this.fanartFilename = fanartFilename;
     }
 
     // ***** Banners
@@ -2311,13 +2316,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setBannerURL(String bannerURL) {
-        if (StringUtils.isBlank(bannerURL)) {
-            bannerURL = UNKNOWN;
-        }
-
-        if (!bannerURL.equalsIgnoreCase(this.bannerURL)) {
+        if (StringTools.isValidString(bannerURL) && !bannerURL.equalsIgnoreCase(this.bannerURL)) {
             setDirty(DIRTY_INFO, true);
             this.bannerURL = bannerURL;
+        } else {
+            this.bannerURL = UNKNOWN;
         }
     }
 
@@ -2327,10 +2330,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setBannerFilename(String bannerFilename) {
-        if (StringUtils.isBlank(bannerFilename)) {
-            bannerFilename = UNKNOWN;
+        if (StringTools.isValidString(bannerFilename)) {
+            this.bannerFilename = bannerFilename;
+        } else {
+            this.bannerFilename = UNKNOWN;
         }
-        this.bannerFilename = bannerFilename;
     }
 
     // ***** ClearLogo
@@ -2340,13 +2344,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setClearLogoURL(String clearLogoURL) {
-        if (StringUtils.isBlank(clearLogoURL)) {
-            clearLogoURL = UNKNOWN;
-        }
-
-        if (!clearLogoURL.equalsIgnoreCase(this.clearLogoURL)) {
+        if (StringTools.isValidString(clearLogoURL) && !clearLogoURL.equalsIgnoreCase(this.clearLogoURL)) {
             setDirty(Movie.DIRTY_CLEARLOGO, true);
             this.clearLogoURL = clearLogoURL;
+        } else {
+            this.clearArtURL = UNKNOWN;
         }
     }
 
@@ -2357,10 +2359,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setClearLogoFilename(String clearLogoFilename) {
-        if (StringUtils.isBlank(clearLogoFilename)) {
-            clearLogoFilename = UNKNOWN;
+        if (StringTools.isValidString(clearLogoFilename)) {
+            this.clearLogoFilename = clearLogoFilename;
+        } else {
+            this.clearLogoFilename = UNKNOWN;
         }
-        this.clearLogoFilename = clearLogoFilename;
     }
 
     // ***** ClearArt
@@ -2370,13 +2373,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setClearArtURL(String clearArtURL) {
-        if (StringUtils.isBlank(clearArtURL)) {
-            clearArtURL = UNKNOWN;
-        }
-
-        if (!clearArtURL.equalsIgnoreCase(this.clearArtURL)) {
+        if (StringTools.isValidString(clearArtURL) && !clearArtURL.equalsIgnoreCase(this.clearArtURL)) {
             setDirty(Movie.DIRTY_CLEARART, true);
             this.clearArtURL = clearArtURL;
+        } else {
+            this.clearArtURL = UNKNOWN;
         }
     }
 
@@ -2387,10 +2388,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setClearArtFilename(String clearArtFilename) {
-        if (StringUtils.isBlank(clearArtFilename)) {
-            clearArtFilename = UNKNOWN;
+        if (StringTools.isValidString(clearArtFilename)) {
+            this.clearArtFilename = clearArtFilename;
+        } else {
+            this.clearArtFilename = UNKNOWN;
         }
-        this.clearArtFilename = clearArtFilename;
     }
 
     // ***** TvThumb
@@ -2400,13 +2402,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setTvThumbURL(String tvThumbURL) {
-        if (StringUtils.isBlank(tvThumbURL)) {
-            tvThumbURL = UNKNOWN;
-        }
-
-        if (!tvThumbURL.equalsIgnoreCase(this.tvThumbURL)) {
+        if (StringTools.isValidString(tvThumbURL) && !tvThumbURL.equalsIgnoreCase(this.tvThumbURL)) {
             setDirty(Movie.DIRTY_TVTHUMB, true);
             this.tvThumbURL = tvThumbURL;
+        } else {
+            this.tvThumbURL = UNKNOWN;
         }
     }
 
@@ -2417,10 +2417,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setTvThumbFilename(String tvThumbFilename) {
-        if (StringUtils.isBlank(tvThumbFilename)) {
-            tvThumbFilename = UNKNOWN;
+        if (StringTools.isValidString(tvThumbFilename)) {
+            this.tvThumbFilename = tvThumbFilename;
+        } else {
+            this.tvThumbFilename = UNKNOWN;
         }
-        this.tvThumbFilename = tvThumbFilename;
     }
 
     // ***** SeasonThumb
@@ -2430,13 +2431,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setSeasonThumbURL(String seasonThumbURL) {
-        if (StringUtils.isBlank(seasonThumbURL)) {
-            seasonThumbURL = UNKNOWN;
-        }
-
-        if (!seasonThumbURL.equalsIgnoreCase(this.seasonThumbURL)) {
+        if (StringTools.isValidString(seasonThumbURL) && !seasonThumbURL.equalsIgnoreCase(this.seasonThumbURL)) {
             setDirty(Movie.DIRTY_SEASONTHUMB, true);
             this.seasonThumbURL = seasonThumbURL;
+        } else {
+            this.seasonThumbURL = UNKNOWN;
         }
     }
 
@@ -2447,40 +2446,40 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setSeasonThumbFilename(String seasonThumbFilename) {
-        if (StringUtils.isBlank(seasonThumbFilename)) {
-            seasonThumbFilename = UNKNOWN;
+        if (StringTools.isValidString(seasonThumbFilename)) {
+            this.seasonThumbFilename = seasonThumbFilename;
+        } else {
+            this.seasonThumbFilename = UNKNOWN;
         }
-        this.seasonThumbFilename = seasonThumbFilename;
     }
 
-    // ***** CDArt
+    // ***** MovieDisc
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
-    public String getCdArtURL() {
-        return cdArtURL;
+    public String getMovieDiscURL() {
+        return movieDiscURL;
     }
 
-    public void setCdArtURL(String cdArtURL) {
-        if (StringUtils.isBlank(cdArtURL)) {
-            cdArtURL = UNKNOWN;
-        }
-
-        if (!cdArtURL.equalsIgnoreCase(this.cdArtURL)) {
-            setDirty(Movie.DIRTY_CDART, true);
-            this.cdArtURL = cdArtURL;
+    public void setMovieDiscURL(String movieDiscURL) {
+        if (StringTools.isValidString(movieDiscURL) && !movieDiscURL.equalsIgnoreCase(this.movieDiscURL)) {
+            setDirty(Movie.DIRTY_MOVIEDISC, true);
+            this.movieDiscURL = movieDiscURL;
+        } else {
+            this.movieDiscURL = UNKNOWN;
         }
     }
 
-    @XmlElement(name = "cdArtFile")
+    @XmlElement(name = "movieDiscFile")
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
-    public String getCdArtFilename() {
-        return cdArtFilename;
+    public String getMovieDiscFilename() {
+        return movieDiscFilename;
     }
 
-    public void setCdArtFilename(String cdArtFilename) {
-        if (StringUtils.isBlank(cdArtFilename)) {
-            cdArtFilename = UNKNOWN;
+    public void setMovieDiscFilename(String movieDiscFilename) {
+        if (StringTools.isValidString(movieDiscFilename)) {
+            this.movieDiscFilename = movieDiscFilename;
+        } else {
+            this.movieDiscFilename = UNKNOWN;
         }
-        this.cdArtFilename = cdArtFilename;
     }
 
     // ***** END of graphics *****
