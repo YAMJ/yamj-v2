@@ -286,7 +286,7 @@ public class MovieJukeboxXMLWriter {
                 movie.setClearLogoURL(HTMLTools.decodeHtml(DOMHelper.getValueFromElement(eMovie, "clearLogoURL")));
                 movie.setTvThumbURL(HTMLTools.decodeHtml(DOMHelper.getValueFromElement(eMovie, "tvThumbURL")));
                 movie.setSeasonThumbURL(HTMLTools.decodeHtml(DOMHelper.getValueFromElement(eMovie, "seasonThumbURL")));
-                movie.setCdArtURL(HTMLTools.decodeHtml(DOMHelper.getValueFromElement(eMovie, "cdArtURL")));
+                movie.setMovieDiscURL(HTMLTools.decodeHtml(DOMHelper.getValueFromElement(eMovie, "movieDiscURL")));
 
                 // Get artwork files
                 movie.setPosterFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "posterFile")));
@@ -298,7 +298,7 @@ public class MovieJukeboxXMLWriter {
                 movie.setClearLogoFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "clearLogoFile")));
                 movie.setTvThumbFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "tvThumbFile")));
                 movie.setSeasonThumbFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "seasonThumbFile")));
-                movie.setCdArtFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "cdArtFile")));
+                movie.setMovieDiscFilename(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "movieDiscFile")));
 
 
                 // Get the plot and outline
@@ -1859,8 +1859,8 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "tvThumbFile", HTMLTools.encodeUrl(movie.getTvThumbFilename()));
         DOMHelper.appendChild(doc, eMovie, "seasonThumbURL", HTMLTools.encodeUrl(movie.getSeasonThumbURL()));
         DOMHelper.appendChild(doc, eMovie, "seasonThumbFile", HTMLTools.encodeUrl(movie.getSeasonThumbFilename()));
-        DOMHelper.appendChild(doc, eMovie, "cdArtURL", HTMLTools.encodeUrl(movie.getCdArtURL()));
-        DOMHelper.appendChild(doc, eMovie, "cdArtFile", HTMLTools.encodeUrl(movie.getCdArtFilename()));
+        DOMHelper.appendChild(doc, eMovie, "movieDiscURL", HTMLTools.encodeUrl(movie.getMovieDiscURL()));
+        DOMHelper.appendChild(doc, eMovie, "movieDiscFile", HTMLTools.encodeUrl(movie.getMovieDiscFilename()));
 
         // Removed for the time being until the artwork scanner is in place
         /*
