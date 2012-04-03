@@ -177,7 +177,7 @@ public class FanartTvPlugin {
         if (ftArtwork == null || ftArtwork.isEmpty()) {
             ThreadExecutor.enterIO(webhost);
             try {
-                ftArtwork = ft.getArtwork(tvdbId, artworkType);
+                ftArtwork = ft.getTvArtwork(tvdbId, artworkType);
 
                 if (ftArtwork != null && !ftArtwork.isEmpty()) {
                     CacheMemory.addToCache(key, ftArtwork);
