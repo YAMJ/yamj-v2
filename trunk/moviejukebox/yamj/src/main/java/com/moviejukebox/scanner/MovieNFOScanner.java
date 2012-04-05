@@ -66,10 +66,8 @@ public class MovieNFOScanner {
     private static boolean archiveScanRar;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
-    ;
     private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
-
-    ;
+    private static boolean skipTvNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.skipTVNFOFiles", "false");
 
     static {
         skipNfoUrl = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", "true");
@@ -223,7 +221,7 @@ public class MovieNFOScanner {
             checkNFO(nfos, pathFileName + new String(pathFileName.substring(pathFileName.lastIndexOf(File.separator))));
         }
 
-        if (movie.isTVShow()) {
+        if (movie.isTVShow() && !skipTvNfoFiles) {
             String mfFilename;
             int pos;
 
