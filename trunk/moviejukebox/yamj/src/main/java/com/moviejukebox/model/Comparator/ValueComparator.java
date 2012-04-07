@@ -16,14 +16,15 @@ import java.util.Comparator;
 import java.util.Map;
 
 public class ValueComparator implements Comparator<Object> {
+
     Map<String, Integer> base;
 
     public ValueComparator(Map<String, Integer> base) {
         this.base = base;
     }
 
+    @Override
     public int compare(Object a, Object b) {
-        return ((Integer)base.get(a) < (Integer)base.get(b))?1:-1;
+        return ((Integer) base.get(a) < (Integer) base.get(b)) ? 1 : -1;
     }
-
 }
