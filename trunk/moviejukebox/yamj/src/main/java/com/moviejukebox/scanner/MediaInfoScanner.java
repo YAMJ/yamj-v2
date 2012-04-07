@@ -113,7 +113,6 @@ public class MediaInfoScanner {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     public void scan(Movie currentMovie) {
         if (currentMovie.getFile().isDirectory()) {
             // Scan IFO files
@@ -392,7 +391,7 @@ public class MediaInfoScanner {
         if (infosVideo.size() > 0) {
             // At this point there is only a codec pulled from the filename, so we can clear that now
             movie.getCodecs().clear();
-            
+
             HashMap<String, String> infosMainVideo = infosVideo.get(0);
 
             // Check that movie is not multi part
@@ -661,7 +660,11 @@ public class MediaInfoScanner {
         }
 
         String codecChannels = codecInfos.get(Codec.MI_CODEC_CHANNELS);
+
         if (StringUtils.isNotBlank(codecChannels)) {
+            if (codecChannels.contains("/")) {
+                codecChannels = codecChannels.substring(0, codecChannels.indexOf("/"));
+            }
             Matcher codecMatch = PATTERN_CHANNELS.matcher(codecChannels);
             if (codecMatch.matches()) {
                 codec.setCodecChannels(Integer.parseInt(codecMatch.group(1)));
