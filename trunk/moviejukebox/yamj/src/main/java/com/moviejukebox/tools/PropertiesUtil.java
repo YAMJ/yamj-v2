@@ -79,8 +79,7 @@ public class PropertiesUtil {
     }
 
     public static String getProperty(String key, String defaultValue) {
-        return props.getProperty(
-                key, defaultValue);
+        return props.getProperty(key, defaultValue);
     }
 
     /**
@@ -241,9 +240,6 @@ public class PropertiesUtil {
             logger.error("PropertiesUtil: Error with file");
             logger.error(SystemTools.getStackTrace(error));
         } finally {
-            // Free up memory
-            propertiesList = null;
-
             if (out != null) {
                 try {
                     out.flush();
