@@ -24,8 +24,8 @@ import com.moviejukebox.thetvdb.model.*;
 import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.*;
 import java.util.List;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 
@@ -59,8 +59,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
     public TheTvDBPlugin() {
         super();
         tvDB = new TheTVDB(API_KEY);
-        language = PropertiesUtil.getProperty("thetvdb.language", defaultLanguage);
-        language2nd = PropertiesUtil.getProperty("thetvdb.language.secondary", defaultLanguage);
+        language = PropertiesUtil.getProperty("thetvdb.language", defaultLanguage).trim();
+        language2nd = PropertiesUtil.getProperty("thetvdb.language.secondary", defaultLanguage).trim();
         // We do not need use the same secondary language... So clearing when equal.
         if (language2nd.equalsIgnoreCase(language)) {
             language2nd = "";
@@ -354,6 +354,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     /**
      * Locate the specific episode from the list of episodes
+     *
      * @param episodeList
      * @param seasonNumber
      * @param episodeNumber
@@ -374,6 +375,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     /**
      * Locate the specific DVD episode from the list of episodes
+     *
      * @param episodeList
      * @param seasonNumber
      * @param episodeNumber
@@ -486,6 +488,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     /**
      * Get the series. Either from the cache or direct from TheTVDb
+     *
      * @param id
      * @return
      */
@@ -525,6 +528,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     /**
      * Use the movie information to find the series and ID
+     *
      * @param movie
      * @return
      */
@@ -585,7 +589,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                 id = String.valueOf(series.getId());
 
-                series=getSeries(id);
+                series = getSeries(id);
 
                 // Add the series to the cache (no need to get it again
                 CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, language), series);
@@ -603,6 +607,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     /**
      * Get the banners from the cache or TheTVDb
+     *
      * @param id
      * @return
      */
