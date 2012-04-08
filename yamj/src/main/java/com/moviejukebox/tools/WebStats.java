@@ -12,8 +12,9 @@
  */
 package com.moviejukebox.tools;
 
-import java.net.*;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 
 /*
  * Web stats class for downloading large files such as trailers
@@ -47,6 +48,7 @@ public abstract class WebStats {
 
     //actual classes
     private static class WebStatsBasic extends WebStats {
+        @Override
         public String calculatePercentageComplete(){
             return "???";
         }
@@ -57,6 +59,7 @@ public abstract class WebStats {
         public WebStatsProgress(long contentLength) {
             this.contentLength = contentLength;
         }
+        @Override
         public String calculatePercentageComplete() {
             return Long.toString((totalBytes * 100L / contentLength));
         }

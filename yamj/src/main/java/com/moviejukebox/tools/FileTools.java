@@ -588,7 +588,7 @@ public class FileTools {
                 logger.debug(logPrefix + "No matching files found for " + safeFilename);
             }
         } else {
-            logger.debug(logPrefix + "No scanned files found...");
+            logger.debug(logPrefix + "No scanned files found for " + searchFilename);
         }
 
         return searchFile;

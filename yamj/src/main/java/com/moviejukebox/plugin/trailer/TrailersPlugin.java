@@ -25,14 +25,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 public class TrailersPlugin implements ITrailersPlugin {
-    public String trailersPluginName = "AbstractTrailers";
 
     private static final Logger logger = Logger.getLogger(TrailersPlugin.class);
+    public String trailersPluginName = "AbstractTrailers";
     protected WebBrowser webBrowser;
-
     private static String trailersScanerPath = PropertiesUtil.getProperty("trailers.path.scaner", "");
     private static String trailersPlayerPath = PropertiesUtil.getProperty("trailers.path.player", "");
     private static boolean trailersDownload = PropertiesUtil.getBooleanProperty("trailers.download", "false");
@@ -95,6 +95,7 @@ public class TrailersPlugin implements ITrailersPlugin {
             int index = name.lastIndexOf(".");
             basename = index == -1 ? name : new String(name.substring(0, index));
         }
+        
         if (StringTools.isValidString(trailersScanerPath)) {
             parentPath = trailersScanerPath;
             (new File(parentPath)).mkdirs();
@@ -139,7 +140,7 @@ public class TrailersPlugin implements ITrailersPlugin {
     public boolean existsTrailerFiles(Movie movie) {
         boolean fileExists = true;
         if (!movie.getExtraFiles().isEmpty() && trailersDownload) {
-            String trailersPath = (trailersScanerPath != "")?trailersScanerPath:movie.getFirstFile().getFile().getParent();
+            String trailersPath = (StringUtils.isNotBlank(trailersScanerPath)) ? trailersScanerPath : movie.getFirstFile().getFile().getParent();
             for (ExtraFile extraFile : movie.getExtraFiles()) {
                 File trailerFile = new File(trailersPath + "/" + HTMLTools.decodeUrl(new File(extraFile.getFilename()).getName()));
                 fileExists &= trailerFile.exists();
@@ -151,11 +152,11 @@ public class TrailersPlugin implements ITrailersPlugin {
         return fileExists;
     }
 
-    public boolean trailerDownload(final IMovieBasicInformation movie, String trailerUrl, File trailerFile) {
+    public boolean trailerDownload(final IMovieBasicInformation movie, String trailerUrlString, File trailerFile) {
         // Copied from AppleTrailersPlugin.java
         URL url;
         try {
-            url = new URL(trailerUrl);
+            url = new URL(trailerUrlString);
         } catch (MalformedURLException e) {
             return false;
         }
@@ -168,7 +169,10 @@ public class TrailersPlugin implements ITrailersPlugin {
             final WebStats stats = WebStats.make(url);
             // after make!
             timer.schedule(new TimerTask() {
+
                 private String lastStatus = "";
+
+                @Override
                 public void run() {
                     String status = stats.calculatePercentageComplete();
                     // only print if percentage changed
@@ -201,7 +205,7 @@ public class TrailersPlugin implements ITrailersPlugin {
             return false;
         } finally {
             timer.cancel();         // Close the timer
-            if(connection != null){
+            if (connection != null) {
                 connection.disconnect();
             }
             ThreadExecutor.leaveIO();
