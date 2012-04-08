@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -33,7 +34,6 @@ import org.apache.log4j.Logger;
 public class WebBrowser {
 
     private static final Logger logger = Logger.getLogger(WebBrowser.class);
-
     private Map<String, String> browserProperties;
     private Map<String, Map<String, String>> cookies;
     private static String mjbProxyHost;
@@ -43,14 +43,13 @@ public class WebBrowser {
     private static String mjbEncodedPassword;
     private static int mjbTimeoutConnect = 25000;
     private static int mjbTimeoutRead = 90000;
-
     private int imageRetryCount;
 
     public WebBrowser() {
         browserProperties = new HashMap<String, String>();
         browserProperties.put("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
         String browserLanguage = PropertiesUtil.getProperty("mjb.Accept-Language", null);
-        if (browserLanguage != null && browserLanguage.trim().length()>0){
+        if (StringUtils.isNotBlank(browserLanguage)) {
             browserProperties.put("Accept-Language", browserLanguage.trim());
         }
 
@@ -123,11 +122,10 @@ public class WebBrowser {
 
     public String request(URL url, Charset charset) throws IOException {
         logger.debug("WebBrowser: Requesting " + url.toString());
-        StringWriter content = null;
 
         // get the download limit for the host
         ThreadExecutor.enterIO(url);
-        content = new StringWriter(10*1024);
+        StringWriter content = new StringWriter(10 * 1024);
         try {
 
             URLConnection cnx = null;
@@ -157,8 +155,7 @@ public class WebBrowser {
                     content.flush();
                 } catch (Exception error) {
                     logger.error("WebBrowser: Error getting URL " + url.toString());
-                }
-                finally {
+                } finally {
                     if (in != null) {
                         in.close();
                     }
@@ -167,8 +164,8 @@ public class WebBrowser {
                 logger.error("Timeout Error with " + url.toString());
             } finally {
                 if (cnx != null) {
-                    if(cnx instanceof HttpURLConnection) {
-                        ((HttpURLConnection)cnx).disconnect();
+                    if (cnx instanceof HttpURLConnection) {
+                        ((HttpURLConnection) cnx).disconnect();
                     }
                 }
             }
@@ -186,9 +183,11 @@ public class WebBrowser {
      */
     public void downloadImage(File imageFile, String imageURL) throws IOException {
 
-        String fixedImageURL = new String(imageURL);
-        if (fixedImageURL.contains(" ")) {
-            fixedImageURL.replaceAll(" ", "%20");
+        String fixedImageURL;
+        if (imageURL.contains(" ")) {
+            fixedImageURL = imageURL.replaceAll(" ", "%20");
+        } else {
+            fixedImageURL = imageURL;
         }
 
         URL url = new URL(fixedImageURL);
@@ -224,9 +223,11 @@ public class WebBrowser {
     }
 
     /**
-     * Check the URL to see if it's one of the special cases that needs to be worked around
-     * @param URL   The URL to check
-     * @param cnx   The connection that has been opened
+     * Check the URL to see if it's one of the special cases that needs to be
+     * worked around
+     *
+     * @param URL The URL to check
+     * @param cnx The connection that has been opened
      */
     private void checkRequest(URLConnection checkCnx) {
         String checkUrl = checkCnx.getURL().getHost().toLowerCase();
@@ -244,8 +245,6 @@ public class WebBrowser {
             checkCnx.setRequestProperty("Accept-Language", "ru");
             checkCnx.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.2) Gecko/20100115 Firefox/3.6");
         }
-
-        return;
     }
 
     private void sendHeader(URLConnection cnx) {
