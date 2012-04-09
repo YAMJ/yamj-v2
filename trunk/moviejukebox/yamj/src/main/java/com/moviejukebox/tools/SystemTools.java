@@ -16,6 +16,7 @@ import static com.moviejukebox.tools.StringTools.formatFileSize;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.*;
 import org.apache.log4j.Logger;
 
 public class SystemTools {
@@ -25,11 +26,14 @@ public class SystemTools {
     private static final long cacheOff = (long) (PropertiesUtil.getIntProperty("mjb.cacheOffSize", "50") * 1024 * 1024);
 
     /**
-     * Show the memory available to the program and optionally try to force a garbage collection
+     * Show the memory available to the program and optionally try to force a
+     * garbage collection
      */
     public static void showMemory(boolean showAll) {
 
-        /* This will return Long.MAX_VALUE if there is no preset limit */
+        /*
+         * This will return Long.MAX_VALUE if there is no preset limit
+         */
         long memoryMaximum = Runtime.getRuntime().maxMemory();
         long memoryAllocated = Runtime.getRuntime().totalMemory();
         long memoryFree = Runtime.getRuntime().freeMemory();
@@ -37,13 +41,19 @@ public class SystemTools {
 
         if (showMemory) {
             if (showAll) {
-                /* Maximum amount of memory the JVM will attempt to use */
+                /*
+                 * Maximum amount of memory the JVM will attempt to use
+                 */
                 logger.info("  Maximum memory: " + (memoryMaximum == Long.MAX_VALUE ? "no limit" : formatFileSize(memoryMaximum)));
 
-                /* Total memory currently in use by the JVM */
+                /*
+                 * Total memory currently in use by the JVM
+                 */
                 logger.info("Allocated memory: " + formatFileSize(memoryAllocated));
 
-                /* Total amount of free memory available to the JVM */
+                /*
+                 * Total amount of free memory available to the JVM
+                 */
                 logger.info("     Free memory: " + formatFileSize(memoryFree) + " (" + (int) memoryPercentage + "%)");
             } else {
                 logger.info("Memory - Maximum: " + formatFileSize(memoryMaximum) + ", Allocated: " + formatFileSize(memoryAllocated) + ", Free: "
@@ -61,7 +71,8 @@ public class SystemTools {
     }
 
     /**
-     * Show the memory available to the program and optionally try to force a garbage collection
+     * Show the memory available to the program and optionally try to force a
+     * garbage collection
      */
     public static void showMemory() {
         showMemory(false);
@@ -69,6 +80,7 @@ public class SystemTools {
 
     /**
      * Helper method that throws an exception and saves it to the log as well.
+     *
      * @param text
      */
     public static void logException(String text) {
@@ -82,6 +94,7 @@ public class SystemTools {
 
     /**
      * Helper method to print the stack trace to the log file
+     *
      * @param tw
      * @return
      */
@@ -94,4 +107,67 @@ public class SystemTools {
         return sw.toString();
     }
 
+    /**
+     * Check the 'lib' directory to see if any of the common API jars have
+     * duplicates and warn if they do
+     *
+     * @return
+     */
+    public static boolean validateInstallation() {
+        boolean installationIsValid = Boolean.TRUE;
+
+        if (PropertiesUtil.getBooleanProperty("mjb.skipCheckJars", "false")) {
+            return installationIsValid;
+        }
+
+        // List of the jars to check for duplicates
+        HashMap<String, List<String>> jarsToCheck = new HashMap<String, List<String>>();
+        jarsToCheck.put("allocine-api", new ArrayList<String>());
+        jarsToCheck.put("apirottentomatoes", new ArrayList<String>());
+        jarsToCheck.put("fanarttvapi", new ArrayList<String>());
+        jarsToCheck.put("mjbsqldb", new ArrayList<String>());
+        jarsToCheck.put("themoviedbapi", new ArrayList<String>());
+        jarsToCheck.put("thetvdbapi", new ArrayList<String>());
+        jarsToCheck.put("tvrageapi", new ArrayList<String>());
+
+        List<String> jarList = Arrays.asList(System.getProperty("java.class.path").split(";"));
+        for (String currentJar : jarList) {
+            // Only check the lib directory
+            if (currentJar.startsWith("lib/")) {
+                currentJar = currentJar.substring(4);
+            } else {
+                continue;
+            }
+
+            for (Map.Entry<String, List<String>> entry : jarsToCheck.entrySet()) {
+                if (currentJar.contains(entry.getKey())) {
+                    entry.getValue().add(currentJar);
+                    if (entry.getValue().size() > 1) {
+                        installationIsValid = Boolean.FALSE;
+                    }
+                    // No need to check for further matches
+                    continue;
+                }
+            }
+        }
+
+        if (!installationIsValid) {
+            logger.error("WARNING: Your installation appears to be invalid.");
+            logger.error("WARNING: Please ensure you delete the 'lib' folder before you update!");
+            logger.error("WARNING: You will need to re-install YAMJ now to ensure correct running!");
+            logger.error("");
+            logger.error("The following duplicates were found:");
+         
+            for (Map.Entry<String, List<String>> entry : jarsToCheck.entrySet()) {
+                if (entry.getValue().size() > 1) {
+                    logger.error(entry.getKey() + ":");
+                    for (String dupJar : entry.getValue()) {
+                        logger.error("    - " + dupJar);
+                    }
+                }
+            }
+        }
+
+        return installationIsValid;
+    }
 }

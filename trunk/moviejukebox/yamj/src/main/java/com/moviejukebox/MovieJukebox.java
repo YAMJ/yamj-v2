@@ -166,6 +166,11 @@ public class MovieJukebox {
         logger.info("Java Version: " + javaVersion);
         logger.info("");
 
+        if (!SystemTools.validateInstallation()) {
+            logger.info("ABORTING.");
+            return;
+        }
+
         String movieLibraryRoot = null;
         String jukeboxRoot = null;
         Map<String, String> cmdLineProps = new LinkedHashMap<String, String>();
