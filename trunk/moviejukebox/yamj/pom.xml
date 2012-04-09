@@ -114,7 +114,7 @@
             <artifactId>simmetrics</artifactId>
             <version>1.6.2</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/simmetrics.jar</systemPath>
+            <systemPath>${basedir}/lib/simmetrics_jar_v1_6_2_d07_02_07.jar</systemPath>
         </dependency>
 
         <dependency>
