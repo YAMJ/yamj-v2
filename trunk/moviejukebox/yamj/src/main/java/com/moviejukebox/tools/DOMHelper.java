@@ -12,10 +12,7 @@
  */
 package com.moviejukebox.tools;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -30,7 +27,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.log4j.Logger;
 import org.w3c.dom.*;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /**
  * Generic set of routines to process the DOM model data
@@ -73,8 +72,6 @@ public class DOMHelper {
         }
 
         parentElement.appendChild(child);
-
-        return;
     }
 
     /**
@@ -92,8 +89,6 @@ public class DOMHelper {
         child.appendChild(text);
         child.setAttribute(attribName, attribValue);
         parentElement.appendChild(child);
-
-        return;
     }
 
     /**
@@ -131,31 +126,28 @@ public class DOMHelper {
 
     /**
      * Get a DOM document from the supplied file
-     * @param file
+     * @param xmlFile
      * @return
      * @throws MalformedURLException
      * @throws IOException
      * @throws ParserConfigurationException
      * @throws SAXException
      */
-    public static Document getEventDocFromUrl(File file) throws MalformedURLException, IOException, ParserConfigurationException, SAXException {
-        return getEventDocFromUrl(file.toURI().toURL().toString());
-    }
-
-    /**
-     * Get a DOM document from the supplied URL
-     * @param url
-     * @return
-     * @throws MalformedURLException
-     * @throws IOException
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     */
-    public static Document getEventDocFromUrl(String url) throws MalformedURLException, IOException, ParserConfigurationException, SAXException {
+    public static Document getEventDocFromUrl(File xmlFile) throws MalformedURLException, IOException, ParserConfigurationException, SAXException {
+        String url = xmlFile.toURI().toURL().toString();
         InputStream in = (new URL(url)).openStream();
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
-        Document doc = db.parse(in);
+        Document doc;
+        try {
+            doc = db.parse(in);
+        } catch (SAXParseException ex) {
+            // try wrapping the file in a root
+            StringBuilder sb = new StringBuilder("<xml>");
+            sb.append(FileTools.readFileToString(xmlFile));
+            sb.append("</xml>");
+            doc = db.parse(new InputSource(new StringReader(sb.toString())));
+        }
         doc.getDocumentElement().normalize();
         return doc;
     }
