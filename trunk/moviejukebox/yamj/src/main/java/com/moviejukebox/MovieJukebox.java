@@ -23,28 +23,21 @@ import com.moviejukebox.scanner.artwork.*;
 import static com.moviejukebox.tools.PropertiesUtil.*;
 import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.*;
+import com.moviejukebox.writer.CompleteMoviesWriter;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
-import static com.moviejukebox.writer.MovieJukeboxHTMLWriter.getTransformer;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Map.Entry;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.Result;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang.ArrayUtils;
@@ -1582,7 +1575,7 @@ public class MovieJukebox {
             }
 
             if (enableCompleteMovies) {
-                writeCompleteMovies(library);
+                CompleteMoviesWriter.writeCompleteMovies(library, jukebox);
             }
 
             /**
@@ -2274,7 +2267,6 @@ public class MovieJukebox {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private Collection<MediaLibraryPath> parseMovieLibraryRootFile(File f) {
         Collection<MediaLibraryPath> mlp = new ArrayList<MediaLibraryPath>();
 
@@ -2677,59 +2669,10 @@ public class MovieJukebox {
         jukeboxPreserve = bJukeboxPreserve;
     }
 
-    /**
-     * Return the Jukebox object
-     *
-     * @return the jukebox
-     */
-    public static Jukebox getJukebox() {
-        return jukebox;
-    }
-
     @XmlRootElement(name = "jukebox")
     public static class JukeboxXml {
 
         @XmlElement
         public List<Movie> movies;
-    }
-
-    private void writeCompleteMovies(Library library) {
-        String completeMoviesXmlFileName = "CompleteMovies.xml";
-        String rssXmlFileName = "rss.xml";
-        String rssXslFileName = "rss.xsl";
-        JAXBContext context;
-
-        try {
-            context = JAXBContext.newInstance(JukeboxXml.class);
-        } catch (JAXBException error) {
-            logger.warn("CompleteMovies: RSS is not generated (Context creation error).");
-            logger.warn(SystemTools.getStackTrace(error));
-            return;
-        }
-
-        JukeboxXml jukeboxXml = new JukeboxXml();
-        jukeboxXml.movies = library.values();
-
-        if (library.isDirty()) {
-            try {
-                File totalMoviesXmlFile = new File(jukebox.getJukeboxTempLocationDetails(), completeMoviesXmlFileName);
-
-                OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
-                context.createMarshaller().marshal(jukeboxXml, marStream);
-                marStream.close();
-
-                Transformer transformer = getTransformer(new File(rssXslFileName), jukebox.getJukeboxRootLocationDetails());
-
-                Result xmlResult = new StreamResult(new File(jukebox.getJukeboxTempLocationDetails(), rssXmlFileName));
-                transformer.transform(new StreamSource(totalMoviesXmlFile), xmlResult);
-                logger.debug("CompleteMovies: RSS is generated.");
-            } catch (Exception error) {
-                logger.warn("CompleteMovies: RSS is not generated (Jukebox error).");
-                logger.warn(SystemTools.getStackTrace(error));
-            }
-        }
-        // These should be added to the list of jukebox files regardless of the state of the library
-        FileTools.addJukeboxFile(completeMoviesXmlFileName);
-        FileTools.addJukeboxFile(rssXmlFileName);
     }
 }

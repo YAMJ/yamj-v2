@@ -29,12 +29,12 @@ public class ThreadExecutor<T> implements ThreadFactory {
     private boolean ignoreErrors = true;
     private static final Logger logger = Logger.getLogger(ThreadExecutor.class);
     private Semaphore runningThreads, ioThreads;
-    private static Map<String, String> hostgrp = new HashMap<String, String>();
-    private static Map<String, Semaphore> grouplimits = new HashMap<String, Semaphore>();
+    private static final Map<String, String> hostgrp = new HashMap<String, String>();
+    private static final Map<String, Semaphore> grouplimits = new HashMap<String, Semaphore>();
 
     /**
-     * Handle IO slots allocation to avoid throttling / ban on source sites Find the proper semaphore for each host:
-     *  - Map each unique host to a group
+     * Handle IO slots allocation to avoid throttling / ban on source sites Find
+     * the proper semaphore for each host: - Map each unique host to a group
      * (hostgrp) - Max each group (rule) to a semaphore
      *
      * @author Gabriel Corneanu
@@ -61,15 +61,13 @@ public class ThreadExecutor<T> implements ThreadFactory {
     }
 
     /**
-     * Helper class
-     * Encapsulates a fixed thread pool ExecutorService
-     * Saves futures, used just to catch inner exceptions
-     * Usage patter:
-     * - create with thread count and io slots
-     * - submit tasks (Callable)
-     * - call waitFor; this logs
+     * Helper class Encapsulates a fixed thread pool ExecutorService Saves
+     * futures, used just to catch inner exceptions Usage patter: - create with
+     * thread count and io slots - submit tasks (Callable) - call waitFor; this
+     * logs
      *
-     * - in addition processing threads should call pairs EnterIO, LeaveIO to switch from running to io state
+     * - in addition processing threads should call pairs EnterIO, LeaveIO to
+     * switch from running to io state
      *
      * @author Gabriel Corneanu
      */
@@ -208,7 +206,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
         return new ScheduledThread(r, runningThreads, ioThreads);
     }
 
-    public void restart() {
+    public final void restart() {
         values.clear();
         runningThreads = new Semaphore(threadsRun);
         ioThreads = new Semaphore(threadsIo);
