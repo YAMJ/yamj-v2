@@ -36,7 +36,7 @@ public class Library implements Map<String, Movie> {
     private static boolean filterGenres;
     private static boolean filterCertificationn;
     private static boolean singleSeriesPage;
-    private static List<String> certificationOrdering = new ArrayList<String>();
+    private static final List<String> certificationOrdering = new ArrayList<String>();
     private static List<String> libraryOrdering = new ArrayList<String>();
     private static Map<String, String> genresMap = new HashMap<String, String>();
     private static Map<String, String> certificationsMap = new HashMap<String, String>();
@@ -158,7 +158,7 @@ public class Library implements Map<String, Movie> {
         filterCertificationn = PropertiesUtil.getBooleanProperty("mjb.filter.certification", "false");
         fillCertificationMap(PropertiesUtil.getProperty("mjb.xmlCertificationFile", "certification-default.xml"));
 
-        maxGenresPerMovie = PropertiesUtil.getIntProperty("genres.max", String.valueOf(maxGenresPerMovie));
+        maxGenresPerMovie = PropertiesUtil.getIntProperty("genres.max", "3");
 
         {
             String certificationOrder = PropertiesUtil.getProperty("certification.ordering");
@@ -679,9 +679,9 @@ public class Library implements Map<String, Movie> {
                     public Void call() {
                         SystemTools.showMemory();
                         logger.info("  Indexing " + indexStr + " (person)...");
-                        indexByJob(indexPersons, indexStr.equals(INDEX_CAST)?Filmography.DEPT_ACTORS:
-                                                indexStr.equals(INDEX_DIRECTOR)?Filmography.DEPT_DIRECTING:
-                                                indexStr.equals(INDEX_WRITER)?Filmography.DEPT_WRITING:Movie.UNKNOWN, indexStr);
+                        indexByJob(indexPersons, indexStr.equals(INDEX_CAST) ? Filmography.DEPT_ACTORS
+                                : indexStr.equals(INDEX_DIRECTOR) ? Filmography.DEPT_DIRECTING
+                                : indexStr.equals(INDEX_WRITER) ? Filmography.DEPT_WRITING : Movie.UNKNOWN, indexStr);
                         return null;
                     }
                 });
@@ -1095,7 +1095,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Calculate the minimum/maximum count for a category/movie based on it's property value.
+     * Calculate the minimum/maximum count for a category/movie based on it's
+     * property value.
      *
      * @param categoryName
      * @return
@@ -1447,10 +1448,10 @@ public class Library implements Map<String, Movie> {
                 for (HierarchicalConfiguration genre : genres) {
                     String masterGenre = genre.getString("[@name]");
                     // logger.debug("New masterGenre parsed : (" + masterGenre+ ")");
-                    List<String> subgenres = genre.getList("subgenre");
-                    for (String subgenre : subgenres) {
+                    List<Object> subgenres = genre.getList("subgenre");
+                    for (Object subgenre : subgenres) {
                         // logger.debug("New genre added to map : (" + subgenre+ "," + masterGenre+ ")");
-                        genresMap.put(subgenre, masterGenre);
+                        genresMap.put((String) subgenre, masterGenre);
                     }
 
                 }
@@ -1473,9 +1474,9 @@ public class Library implements Map<String, Movie> {
                 List<HierarchicalConfiguration> certifications = conf.configurationsAt("certification");
                 for (HierarchicalConfiguration certification : certifications) {
                     String masterCertification = certification.getString("[@name]");
-                    List<String> subcertifications = certification.getList("subcertification");
-                    for (String subcertification : subcertifications) {
-                        certificationsMap.put(subcertification, masterCertification);
+                    List<Object> subcertifications = certification.getList("subcertification");
+                    for (Object subcertification : subcertifications) {
+                        certificationsMap.put((String) subcertification, masterCertification);
                     }
 
                 }
@@ -1557,25 +1558,25 @@ public class Library implements Map<String, Movie> {
                 cmpMovie = cmpLast;
             } else if (key.equals(categoriesMap.get(INDEX_TOP250))) {
                 cmpMovie = cmp250;
-            }  else if (key.equals(categoriesMap.get(INDEX_ALL))) {
+            } else if (key.equals(categoriesMap.get(INDEX_ALL))) {
                 cmpMovie = getComparator(INDEX_ALL);
-            }  else if (key.equals(categoriesMap.get(INDEX_TVSHOWS))) {
+            } else if (key.equals(categoriesMap.get(INDEX_TVSHOWS))) {
                 cmpMovie = getComparator(INDEX_TVSHOWS);
-            }  else if (key.equals(categoriesMap.get(INDEX_MOVIES))) {
+            } else if (key.equals(categoriesMap.get(INDEX_MOVIES))) {
                 cmpMovie = getComparator(INDEX_MOVIES);
-            }  else if (key.equals(categoriesMap.get(INDEX_WATCHED))) {
+            } else if (key.equals(categoriesMap.get(INDEX_WATCHED))) {
                 cmpMovie = getComparator(INDEX_WATCHED);
-            }  else if (key.equals(categoriesMap.get(INDEX_UNWATCHED))) {
+            } else if (key.equals(categoriesMap.get(INDEX_UNWATCHED))) {
                 cmpMovie = getComparator(INDEX_UNWATCHED);
             } else if (key.equals(categoriesMap.get(INDEX_RATING))) {
                 cmpMovie = getComparator(INDEX_RATING);
-            }  else if (key.equals(categoriesMap.get(INDEX_HD))) {
+            } else if (key.equals(categoriesMap.get(INDEX_HD))) {
                 cmpMovie = getComparator(INDEX_HD);
-            }  else if (key.equals(categoriesMap.get(INDEX_HD1080))) {
+            } else if (key.equals(categoriesMap.get(INDEX_HD1080))) {
                 cmpMovie = getComparator(INDEX_HD1080);
-            }  else if (key.equals(categoriesMap.get(INDEX_HD720))) {
+            } else if (key.equals(categoriesMap.get(INDEX_HD720))) {
                 cmpMovie = getComparator(INDEX_HD720);
-            }  else if (key.equals(categoriesMap.get(INDEX_3D))) {
+            } else if (key.equals(categoriesMap.get(INDEX_3D))) {
                 cmpMovie = getComparator(INDEX_3D);
             }
         } else {
