@@ -15,8 +15,8 @@ package com.moviejukebox.tools;
 import java.io.*;
 import java.util.Map.Entry;
 import java.util.*;
-import org.apache.commons.lang.StringUtils;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import org.apache.commons.lang3.StringUtils;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import org.apache.log4j.Logger;
 
 /**

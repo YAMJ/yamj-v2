@@ -23,7 +23,7 @@ import java.util.Map.Entry;
 import java.util.*;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 
@@ -285,6 +285,12 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             setDirty(DIRTY_INFO, true);
             //logger.debug("Genre added : " + genre);
             genres.add(genre);
+        }
+    }
+
+    public void addGenres(List<String> genres) {
+        for (String newGenre : genres) {
+            addGenre(newGenre);
         }
     }
 
@@ -1081,7 +1087,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             }
             if (!found) {
                 addActor(Name);
-                addPerson(key, name, URL, "Actor", character, doublage);
+                addPerson(key, name, URL, StringUtils.capitalize(Filmography.JOB_ACTOR), character, doublage);
             }
         }
     }
