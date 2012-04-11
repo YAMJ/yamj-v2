@@ -14,15 +14,16 @@ package com.moviejukebox.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 public class MediaLibraryPath {
 
-    String path;
-    String playerRootPath;
-    Collection<String> excludes;
-    String description;
-    boolean scrapeLibrary = true;
-    long prebuf = -1;
+    private String path;
+    private String playerRootPath;
+    private Collection<String> excludes = Collections.synchronizedCollection(new ArrayList<String>());
+    private String description;
+    private boolean scrapeLibrary = true;
+    private long prebuf = -1;
 
     public String getPath() {
         return path;
@@ -46,11 +47,10 @@ public class MediaLibraryPath {
 
     public void setExcludes(Collection<Object> excludes) {
         if (excludes == null) {
-            this.excludes = new ArrayList<String>();
+            this.excludes.clear();
         } else {
-            excludes.clear();
             for (Object excludeObject : excludes) {
-                excludes.add((String) excludeObject);
+                this.excludes.add((String) excludeObject);
             }
         }
     }
