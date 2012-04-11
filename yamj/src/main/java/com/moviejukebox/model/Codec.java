@@ -14,7 +14,7 @@ package com.moviejukebox.model;
 
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.StringTools;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class Codec {
 

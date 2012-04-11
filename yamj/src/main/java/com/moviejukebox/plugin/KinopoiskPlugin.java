@@ -30,7 +30,7 @@ import java.io.File;
 import java.net.URLEncoder;
 import java.text.Normalizer;
 import java.util.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 public class KinopoiskPlugin extends ImdbPlugin {

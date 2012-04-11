@@ -21,7 +21,7 @@ import java.nio.channels.FileChannel;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.io.FilenameUtils;
-import static org.apache.commons.lang.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.*;
 import org.apache.log4j.Logger;
 
 public class FileTools {
