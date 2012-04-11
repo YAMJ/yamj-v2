@@ -700,7 +700,7 @@ public class MovieJukebox {
             }
             mlp.setPlayerRootPath(playerRootPath);
             mlp.setScrapeLibrary(true);
-            mlp.setExcludes(new ArrayList<String>());
+            mlp.setExcludes(null);
             mediaLibraryPaths.add(mlp);
         }
     }
@@ -2322,7 +2322,7 @@ public class MovieJukebox {
                     }
                 }
 
-                List<String> excludes = sub.getList("exclude[@name]");
+                List<Object> excludes = sub.getList("exclude[@name]");
                 File medialibfile = new File(path);
                 if (medialibfile.exists()) {
                     MediaLibraryPath medlib = new MediaLibraryPath();

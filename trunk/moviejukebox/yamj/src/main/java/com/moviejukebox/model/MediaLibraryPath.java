@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.model;
 
@@ -44,11 +44,14 @@ public class MediaLibraryPath {
         return excludes;
     }
 
-    public void setExcludes(Collection<String> excludes) {
+    public void setExcludes(Collection<Object> excludes) {
         if (excludes == null) {
             this.excludes = new ArrayList<String>();
         } else {
-            this.excludes = excludes;
+            excludes.clear();
+            for (Object excludeObject : excludes) {
+                excludes.add((String) excludeObject);
+            }
         }
     }
 
