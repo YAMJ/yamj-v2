@@ -2204,7 +2204,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      */
     public void setPosterURL(String posterURL) {
         if (StringTools.isValidString(posterURL) && !posterURL.equalsIgnoreCase(this.posterURL)) {
-            setDirty(Movie.DIRTY_INFO, true);
+            setDirty(Movie.DIRTY_POSTER, true);
             this.posterURL = posterURL;
         } else {
             this.posterURL = UNKNOWN;
@@ -2288,7 +2288,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setFanartURL(String fanartURL) {
         if (StringTools.isValidString(fanartURL) && !fanartURL.equalsIgnoreCase(this.fanartURL)) {
-            setDirty(Movie.DIRTY_INFO, true);
+            setDirty(Movie.DIRTY_FANART, true);
             this.fanartURL = fanartURL;
         } else {
             this.fanartURL = UNKNOWN;
@@ -2317,7 +2317,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setBannerURL(String bannerURL) {
         if (StringTools.isValidString(bannerURL) && !bannerURL.equalsIgnoreCase(this.bannerURL)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DIRTY_BANNER, true);
             this.bannerURL = bannerURL;
         } else {
             this.bannerURL = UNKNOWN;
@@ -2698,6 +2698,16 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.fanartFilename = aMovie.fanartFilename;
         newMovie.bannerURL = aMovie.bannerURL;
         newMovie.bannerFilename = aMovie.bannerFilename;
+        newMovie.clearArtURL = aMovie.clearArtURL;
+        newMovie.clearArtFilename = aMovie.clearArtFilename;
+        newMovie.clearLogoURL = aMovie.clearLogoURL;
+        newMovie.clearLogoFilename = aMovie.clearLogoFilename;
+        newMovie.tvThumbURL = aMovie.tvThumbURL;
+        newMovie.tvThumbFilename = aMovie.tvThumbFilename;
+        newMovie.seasonThumbURL = aMovie.seasonThumbURL;
+        newMovie.seasonThumbFilename = aMovie.seasonThumbFilename;
+        newMovie.movieDiscURL = aMovie.movieDiscURL;
+        newMovie.movieDiscFilename = aMovie.movieDiscFilename;
         newMovie.fileDate = aMovie.fileDate;
         newMovie.fileSize = aMovie.fileSize;
         newMovie.watchedFile = aMovie.watchedFile;
