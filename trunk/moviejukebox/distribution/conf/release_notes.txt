@@ -4,12 +4,12 @@
 
 MovieJukebox 2.7-SNAPSHOT
 -------------------------
+ - Fixed defect #1368 Support XML NFO files without a root element
  - Fixed defect #2245 Trailer URL from NFO is lost after a rescan
  - Fixed defect #2398 Report extended channel count for audio formats with core/extended channels
 
 MovieJukebox 2.6.1 (21-Mar-2012)
 --------------------------------
- - Fixed defect #1368 Support XML NFO files without a root element
  - Fixed defect #2247 Remove filename codec if MediaInfo codecs are found
  - Fixed defect #2386 RottenTomatoes rating is checked every run
  - Fixed defect #2387 Failed instantiating imagePlugin
