@@ -20,6 +20,8 @@ import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.*;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,16 +29,22 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.XMLEvent;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 import org.pojava.datetime.DateTimeConfig;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * NFO file parser.
@@ -48,6 +56,12 @@ import org.pojava.datetime.DateTimeConfig;
 public class MovieNFOScanner {
 
     private static final Logger logger = Logger.getLogger(MovieNFOScanner.class);
+    // Types of nodes
+    private static final String TYPE_MOVIE = "movie";
+    private static final String TYPE_TVSHOW = "tvshow";
+    private static final String TYPE_EPISODE = "episodedetails";
+    private static final String TYPE_ROOT = "xml";
+    // Other properties
     private static final String splitPattern = "\\||,|/";
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
     private static boolean skipNfoUrl;
@@ -362,11 +376,11 @@ public class MovieNFOScanner {
      * @return
      */
     private static boolean parseXMLNFO(String nfo, Movie movie, File nfoFile) {
-        if (nfo.indexOf("<movie") > -1 && parseMovieNFO(nfoFile, movie, nfo)) {
+        if (nfo.indexOf("<" + TYPE_MOVIE) > -1 && parseMovieNFO(nfoFile, movie, nfo)) {
             return true;
-        } else if (nfo.indexOf("<tvshow") > -1 && parseTVNFO(nfoFile, movie, nfo)) {
+        } else if (nfo.indexOf("<" + TYPE_TVSHOW) > -1 && parseTVNFO(nfoFile, movie)) {
             return true;
-        } else if (nfo.indexOf("<episodedetails") > -1 && parseTVNFO(nfoFile, movie, nfo)) {
+        } else if (nfo.indexOf("<" + TYPE_EPISODE) > -1 && parseTVNFO(nfoFile, movie)) {
             return true;
         } else {
             return false;
@@ -422,7 +436,7 @@ public class MovieNFOScanner {
                 if (e.isStartElement()) {
                     String tag = e.asStartElement().getName().toString();
                     // logger.debug("In parseMovieNFO found new startElement=" + tag);
-                    if (tag.equalsIgnoreCase("movie")) {
+                    if (tag.equalsIgnoreCase(TYPE_MOVIE)) {
                         isMovieTag = true;
                     }
 
@@ -896,7 +910,7 @@ public class MovieNFOScanner {
                     }
                 } else if (e.isEndElement()) {
                     // logger.debug("In parseMovieNFO found new endElement=" + e.asEndElement().getName().toString());
-                    if (e.asEndElement().getName().toString().equalsIgnoreCase("movie")) {
+                    if (e.asEndElement().getName().toString().equalsIgnoreCase(TYPE_MOVIE)) {
                         break;
                     }
                 }
@@ -917,7 +931,7 @@ public class MovieNFOScanner {
 
             return isMovieTag;
         } catch (Exception error) {
-            logger.error("NFOScanner: Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
+            logger.error("NFOScanner: Failed parsing NFO file for video: " + movie.getTitle() + ". Please fix or remove it.");
             logger.error(SystemTools.getStackTrace(error));
         }
 
@@ -925,556 +939,478 @@ public class MovieNFOScanner {
     }
 
     /**
-     * Used to parse out the XBMC nfo xml data for tv series
+     * Used to parse out the XBMC NFO XML data for TV series
      *
-     * @param xmlFile
+     * @param nfoFile
      * @param movie
+     * @return
      */
-    private static boolean parseTVNFO(File nfoFile, Movie movie, String nfo) {
+    private static boolean parseTVNFO(File nfoFile, Movie movie) {
+        Document xmlDoc;
 
         try {
-            XMLEventReader r = createXMLReader(nfoFile, nfo);
+            xmlDoc = DOMHelper.getEventDocFromUrl(nfoFile);
+        } catch (MalformedURLException error) {
+            logger.error("Failed parsing NFO file: " + nfoFile.getName() + ". Please fix it or remove it.");
+            logger.error(SystemTools.getStackTrace(error));
+            return false;
+        } catch (IOException error) {
+            logger.error("Failed parsing NFO file: " + nfoFile.getName() + ". Please fix it or remove it.");
+            logger.error(SystemTools.getStackTrace(error));
+            return false;
+        } catch (ParserConfigurationException error) {
+            logger.error("Failed parsing NFO file: " + nfoFile.getName() + ". Please fix it or remove it.");
+            logger.error(SystemTools.getStackTrace(error));
+            return false;
+        } catch (SAXException error) {
+            logger.error("Failed parsing NFO file: " + nfoFile.getName() + ". Please fix it or remove it.");
+            logger.error(SystemTools.getStackTrace(error));
+            return false;
+        }
 
-            boolean isTVTag = false;
-            boolean isEpisode = false;
-            boolean isOK = false;
-            EpisodeDetail episodedetail = new EpisodeDetail();
-            String titleMain = null;
-            String titleSort = null;
+        NodeList nlShows = xmlDoc.getElementsByTagName(TYPE_TVSHOW);
+        Node nShow;
+        NodeList nlElements;
+        Node nElements;
 
-            while (r.hasNext()) {
-                XMLEvent e = r.nextEvent();
+        for (int loopMovie = 0; loopMovie < nlShows.getLength(); loopMovie++) {
+            nShow = nlShows.item(loopMovie);
+            if (nShow.getNodeType() == Node.ELEMENT_NODE) {
+                Element eShow = (Element) nShow;
 
-                if (e.isStartElement()) {
-                    String tag = e.asStartElement().getName().toString();
+                movie.setTitle(DOMHelper.getValueFromElement(eShow, "title"));
+                movie.setOriginalTitle(DOMHelper.getValueFromElement(eShow, "originaltitle"));
+                movie.setTitleSort(DOMHelper.getValueFromElement(eShow, "sorttitle"));
 
-                    if (tag.equalsIgnoreCase("tvshow")) {
-                        isTVTag = true;
-                        isEpisode = false;
+                movie.setId(TheTvDBPlugin.THETVDB_PLUGIN_ID, DOMHelper.getValueFromElement(eShow, "tvdbid"));
+
+                // Get all the IDs associated with the movie
+                nlElements = eShow.getElementsByTagName("id");
+                for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                    nElements = nlElements.item(looper);
+                    if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eId = (Element) nElements;
+
+                        String movieDb = eId.getAttribute("moviedb");
+                        if (StringTools.isNotValidString(movieDb)) {
+                            movieDb = ImdbPlugin.IMDB_PLUGIN_ID;
+                        }
+                        movie.setId(movieDb, eId.getTextContent());
                     }
+                }   // End of ID
 
-                    if (tag.equalsIgnoreCase("episodedetails")) {
-                        isEpisode = true;
-                        isTVTag = false;
-                        episodedetail = new EpisodeDetail();
+                try {
+                    movie.setWatchedNFO(Boolean.parseBoolean(DOMHelper.getValueFromElement(eShow, "watched")));
+                } catch (Exception ignore) {
+                    // Don't change the watched status
+                }
+
+                // Get the sets
+                nlElements = eShow.getElementsByTagName("set");
+                for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                    nElements = nlElements.item(looper);
+                    if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eId = (Element) nElements;
+
+                        String setOrder = eId.getAttribute("order");
+                        if (StringUtils.isNumeric(setOrder)) {
+                            movie.addSet(eId.getTextContent(), Integer.parseInt(setOrder));
+                        } else {
+                            movie.addSet(eId.getTextContent());
+                        }
                     }
+                }   // End of SET
 
-                    /**
-                     * **********************************************************
-                     * Process the main TV show details section
-                     */
-                    if (isTVTag) {
-                        if (tag.equalsIgnoreCase("title")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                titleMain = val;
+                // Rating
+                String ratingString = DOMHelper.getValueFromElement(eShow, "rating");
+                if (StringTools.isValidString(ratingString)) {
+                    try {
+                        float rating = Float.parseFloat(ratingString);
+                        if (rating != 0.0f) {
+                            if (rating <= 10.0f) {
+                                movie.addRating(NFO_PLUGIN_ID, Math.round(rating * 10f));
+                            } else {
+                                movie.addRating(NFO_PLUGIN_ID, Math.round(rating * 1f));
                             }
-                        } else if (tag.equalsIgnoreCase("originaltitle")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                movie.setOriginalTitle(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("sorttitle")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                titleSort = val;
-                            }
-                        } else if (tag.equalsIgnoreCase("tvdbid")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                movie.setId(TheTvDBPlugin.THETVDB_PLUGIN_ID, val);
-                            }
-                        } else if (tag.equalsIgnoreCase("id")) {
-                            Attribute movieDbIdAttribute = e.asStartElement().getAttributeByName(new QName("moviedb"));
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                if (movieDbIdAttribute != null) { // if we have a moviedb attribute
-                                    movie.setId(movieDbIdAttribute.getValue(), val); // we store the Id for this movieDb
-                                    logger.debug("NFOScanner: In parseTVNFO Id=" + val + " found for movieDB=" + movieDbIdAttribute.getValue());
-                                } else {
-                                    movie.setId(TheTvDBPlugin.THETVDB_PLUGIN_ID, val); // without attribute we assume it's a TheTVDB Id
-                                    logger.debug("NFOScanner: In parseTVNFO Id=" + val + " found for default TheTVDB");
-                                }
-                            }
-                        } else if (tag.equalsIgnoreCase("watched")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                try {
-                                    movie.setWatchedNFO(Boolean.parseBoolean(val));
-                                } catch (Exception ignore) {
-                                    // Don't change the watched status
-                                }
-                            }
-                        } else if (tag.equalsIgnoreCase("set")) {
-                            String set = XMLHelper.getCData(r);
-                            Attribute orderAttribute = e.asStartElement().getAttributeByName(new QName("order"));
-                            Integer order = null;
-                            // Check the attribute is found before getting the value
-                            if (orderAttribute != null) {
-                                order = Integer.valueOf(orderAttribute.getValue());
-                            }
-                            movie.addSet(set, order);
-                        } else if (tag.equalsIgnoreCase("rating")) {
-                            float val = XMLHelper.parseFloat(r);
-                            if (val != 0.0f) {
-                                if (val <= 10f) {
-                                    movie.addRating(NFO_PLUGIN_ID, Math.round(val * 10f));
-                                } else {
-                                    movie.addRating(NFO_PLUGIN_ID, Math.round(val * 1f));
-                                }
-                            }
-                        } else if (tag.equalsIgnoreCase("mpaa") && getCertificationFromMPAA) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                // Issue 333
-                                if (val.startsWith("Rated ")) {
-                                    int start = 6; // "Rated ".length()
-                                    int pos = val.indexOf(" on appeal for ", start);
-                                    if (pos == -1) {
-                                        pos = val.indexOf(" for ", start);
-                                    }
-                                    if (pos > start) {
-                                        val = new String(val.substring(start, pos));
-                                    } else {
-                                        val = new String(val.substring(start));
-                                    }
-                                }
-                                movie.setCertification(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("certification") && !getCertificationFromMPAA) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                movie.setCertification(val);
-                            }
-                            //} else if (tag.equalsIgnoreCase("season")) {
-                            // Not currently used
-                            //} else if (tag.equalsIgnoreCase("episode")) {
-                            // Not currently used
-                            //} else if (tag.equalsIgnoreCase("votes")) {
-                            // Not currently used
-                            //} else if (tag.equalsIgnoreCase("displayseason")) {
-                            // Not currently used
-                            //} else if (tag.equalsIgnoreCase("displayepisode")) {
-                            // Not currently used
-                        } else if (tag.equalsIgnoreCase("plot")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                movie.setPlot(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("genre")) {
-                            Collection<String> genres = movie.getGenres();
-                            List<String> newGenres = StringTools.splitList(XMLHelper.getCData(r), SPLIT_GENRE);
-                            genres.addAll(newGenres);
-                            movie.setGenres(genres);
-                        } else if (tag.equalsIgnoreCase("premiered") || tag.equalsIgnoreCase("releasedate")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                try {
-                                    DateTime dateTime = new DateTime(val);
+                        }
+                    } catch (NumberFormatException nfe) {
+                        logger.error("Failed parsing rating in NFO file: " + nfoFile.getName() + ". Please fix it or remove it.");
+                    }
+                }
 
-                                    movie.setReleaseDate(dateTime.toString(Movie.dateFormatString));
-                                    movie.setOverrideYear(true);
-                                    movie.setYear(dateTime.toString("yyyy"));
-                                } catch (Exception ignore) {
-                                    // Set the release date if there is an exception
-                                    movie.setReleaseDate(val);
-                                }
+                // Certification
+                if (getCertificationFromMPAA) {
+                    String val = DOMHelper.getValueFromElement(eShow, "mpaa");
+                    if (isValidString(val)) {
+                        // Issue 333
+                        if (val.startsWith("Rated ")) {
+                            int start = 6; // "Rated ".length()
+                            int pos = val.indexOf(" on appeal for ", start);
+                            if (pos == -1) {
+                                pos = val.indexOf(" for ", start);
                             }
-                        } else if (tag.equalsIgnoreCase("quote")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                movie.setQuote(val);
+                            if (pos > start) {
+                                val = new String(val.substring(start, pos));
+                            } else {
+                                val = new String(val.substring(start));
                             }
-                        } else if (tag.equalsIgnoreCase("tagline")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                movie.setTagline(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("studio")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                movie.setCompany(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("company")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                movie.setCompany(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("country")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                movie.setCountry(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("thumb") && !skipNfoUrl) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                movie.setPosterURL(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("fanart") && !skipNfoUrl) {
-                            // TODO Validate the URL and see if it's a local file
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                movie.setFanartURL(val);
-                                movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
-                            }
-                        } else if (tag.equalsIgnoreCase("trailer") && !skipNfoTrailer) {
-                            String trailer = XMLHelper.getCData(r).trim();
+                        }
+                        movie.setCertification(val);
+                    }
+                } else {
+                    movie.setCertification(DOMHelper.getValueFromElement(eShow, "certification"));
+                }
+
+                // Plot
+                movie.setPlot(DOMHelper.getValueFromElement(eShow, "plot"));
+
+                // Genres - Caters for multiple genres on the same line and multiple lines
+                nlElements = eShow.getElementsByTagName("genre");
+                for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                    nElements = nlElements.item(looper);
+                    if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eGenre = (Element) nElements;
+                        movie.addGenres(StringTools.splitList(eGenre.getTextContent(), SPLIT_GENRE));
+                    }
+                }   // End of GENRES
+
+                // Premiered & Release Date
+                movieDate(movie, DOMHelper.getValueFromElement(eShow, "premiered"));
+                movieDate(movie, DOMHelper.getValueFromElement(eShow, "releasedate"));
+
+                movie.setQuote(DOMHelper.getValueFromElement(eShow, "quote"));
+                movie.setTagline(DOMHelper.getValueFromElement(eShow, "tagline"));
+                movie.setCompany(DOMHelper.getValueFromElement(eShow, "studio"));
+                movie.setCompany(DOMHelper.getValueFromElement(eShow, "company"));
+                movie.setCountry(DOMHelper.getValueFromElement(eShow, "country"));
+
+                // Poster and Fanart
+                if (!skipNfoUrl) {
+                    movie.setPosterURL(DOMHelper.getValueFromElement(eShow, "thumb"));
+                    movie.setFanartURL(DOMHelper.getValueFromElement(eShow, "fanart"));
+                    // Not sure this is needed
+                    movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
+                }
+
+                // Trailers
+                if (!skipNfoTrailer) {
+                    nlElements = eShow.getElementsByTagName("trailer");
+                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                        nElements = nlElements.item(looper);
+                        if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                            Element eTrailer = (Element) nElements;
+
+                            String trailer = eTrailer.getTextContent().trim();
                             if (!trailer.isEmpty()) {
                                 ExtraFile ef = new ExtraFile();
                                 ef.setNewFile(false);
                                 ef.setFilename(trailer);
                                 movie.addExtraFile(ef);
                             }
-                        } else if (tag.equalsIgnoreCase("actor")) {
-                            String event = r.nextEvent().toString();
-                            while (!event.equalsIgnoreCase("</actor>")) {
-                                if (event.equalsIgnoreCase("<name>")) {
-                                    String val = XMLHelper.getCData(r);
-                                    if (isValidString(val)) {
-                                        movie.addActor(val);
-                                    }
-                                    //} else if (event.equalsIgnoreCase("<role>")) {
-                                    // Not currently used
-                                    //} else if (event.equalsIgnoreCase("<thumb>")) {
-                                    // Not currently used
-                                }
-                                if (r.hasNext()) {
-                                    event = r.nextEvent().toString();
-                                } else {
-                                    break;
-                                }
-                            }
-                        } else if (tag.equalsIgnoreCase("credits")) {
-                            String event = r.nextEvent().toString();
-                            while (!event.equalsIgnoreCase("</credits>")) {
-                                if (event.equalsIgnoreCase("<writer>")) {
-                                    String val = XMLHelper.getCData(r);
-                                    if (isValidString(val)) {
-                                        movie.addWriter(Movie.UNKNOWN, val, Movie.UNKNOWN);
-                                    }
-                                    //} else if (event.equalsIgnoreCase("<otherCredits>")) {
-                                    // Not currently used
-                                }
-                                if (r.hasNext()) {
-                                    event = r.nextEvent().toString();
-                                } else {
-                                    break;
-                                }
-                            }
-                        } else if (tag.equalsIgnoreCase("director")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                for (String director : val.split(splitPattern)) {
-                                    movie.addDirector(Movie.UNKNOWN, director, Movie.UNKNOWN);
-                                }
-                            }
-                        } else if (tag.equalsIgnoreCase("fps")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                float fps;
-                                try {
-                                    fps = Float.parseFloat(val);
-                                } catch (NumberFormatException error) {
-                                    logger.warn("MovieNFOScanner: Error reading FPS value " + val);
-                                    fps = 0.0f;
-                                }
-                                movie.setFps(fps);
-                            }
-                        } else if (tag.equalsIgnoreCase("fileinfo")) { // File Info Section
-                            // NEW START multiple TV audio info from episode
-                            String fiEvent = r.nextEvent().toString();
-                            String finalTVCodec = Movie.UNKNOWN;
-                            String finalTVLanguage = Movie.UNKNOWN;
-                            String tmpSubtitleLanguage = Movie.UNKNOWN;
-                            while (!fiEvent.equalsIgnoreCase("</fileinfo>")) {
-                                if (fiEvent.equalsIgnoreCase("<video>")) {
-                                    String nfoWidth = null;
-                                    String nfoHeight = null;
-                                    while (!fiEvent.equalsIgnoreCase("</video>")) {
-                                        if (fiEvent.equalsIgnoreCase("<codec>")) {
-                                            String val = XMLHelper.getCData(r);
-                                            if (isValidString(val)) {
-                                                movie.addCodec(new Codec(Codec.CodecType.VIDEO, val));
-                                            }
-                                        }
-
-                                        if (fiEvent.equalsIgnoreCase("<aspect>")) {
-                                            String val = XMLHelper.getCData(r);
-                                            if (isValidString(val)) {
-                                                movie.setAspectRatio(aspectTools.cleanAspectRatio(val));
-                                            }
-                                        }
-
-                                        if (fiEvent.equalsIgnoreCase("<width>")) {
-                                            String val = XMLHelper.getCData(r);
-                                            if (isValidString(val)) {
-                                                nfoWidth = val;
-                                            }
-                                        }
-
-                                        if (fiEvent.equalsIgnoreCase("<height>")) {
-                                            String val = XMLHelper.getCData(r);
-                                            if (isValidString(val)) {
-                                                nfoHeight = val;
-                                            }
-                                        }
-
-                                        if (nfoWidth != null && nfoHeight != null) {
-                                            movie.setResolution(nfoWidth + "x" + nfoHeight);
-                                            nfoWidth = null;
-                                            nfoHeight = null;
-                                        }
-
-                                        if (r.hasNext()) {
-                                            fiEvent = r.nextEvent().toString();
-                                        }
-                                    }
-                                }
-
-                                if (fiEvent.equalsIgnoreCase("<audio>")) {
-                                    // Start of audio info, using temp data to concatain codec + languague
-                                    String tmpTVCodec = Movie.UNKNOWN;
-                                    String tmpTVLanguage = Movie.UNKNOWN;
-                                    String tmpTVChannels = Movie.UNKNOWN;
-
-                                    while (!fiEvent.equalsIgnoreCase("</audio>")) {
-                                        if (fiEvent.equalsIgnoreCase("<codec>")) {
-                                            String val = XMLHelper.getCData(r);
-                                            if (isValidString(val)) {
-                                                // codec come first
-                                                // If the codec is lowercase, covert it to uppercase, otherwise leave it alone
-                                                if (val.toLowerCase().equals(val)) {
-                                                    val = val.toUpperCase();
-                                                }
-
-                                                if (isNotValidString(tmpTVCodec)) {
-                                                    tmpTVCodec = val;
-                                                } else {
-                                                    // We already have language info, need to concat
-                                                    tmpTVCodec = val + " " + tmpTVCodec;
-                                                }
-                                                // movie.setAudioCodec(val);
-                                            }
-                                        }
-
-                                        if (fiEvent.equalsIgnoreCase("<language>")) {
-                                            String val = XMLHelper.getCData(r);
-                                            if (isValidString(val)) {
-                                                tmpTVLanguage = val;
-                                                //if (isNotValidString(tmpTVCodec)) {
-                                                //    tmpTVCodec = "(" + val + ")";
-                                                //}
-                                                // reasons for inactivation above:
-                                                // 1. If NFO has language data but no audiocodec data, YAMJ will not look for audioCodec (by Mediainfo scan) anymore since the field is already occupied!
-                                                // 2. Problems if NFO already says eg. "en / de / fr" -> we would get as result: "AC3 (en / de / fr) / AC3 / AC3"!
-                                                if (isValidString(tmpTVCodec) && !val.contains("/")) {
-                                                    tmpTVCodec += " (" + val + ")";
-                                                }
-                                                // movie.setLanguage(MovieFilenameScanner.determineLanguage(val));
-                                            }
-                                        }
-
-                                        if (fiEvent.equalsIgnoreCase("<channels>")) {
-                                            String val = XMLHelper.getCData(r);
-                                            if (isValidString(val)) {
-                                                tmpTVChannels = val;
-                                                // movie.setAudioChannels(val);
-                                            }
-                                        }
-
-                                        if (r.hasNext()) {
-                                            fiEvent = r.nextEvent().toString();
-                                        }
-                                    }
-                                    // Parsing of audio end - setting data to movie.
-                                    if (isValidString(tmpTVCodec)) {
-                                        // First one.
-                                        if (isNotValidString(finalTVCodec)) {
-                                            finalTVCodec = tmpTVCodec;
-                                        } else {
-                                            finalTVCodec = finalTVCodec + Movie.SPACE_SLASH_SPACE + tmpTVCodec;
-                                        }
-
-                                    }
-
-                                    if (isValidString(tmpTVLanguage)) {
-                                        // First one.
-                                        // in case language has format like "ENG / GER / ESP" process it now
-                                        String[] tmpTVLanguages = tmpTVLanguage.split("/");
-                                        for (int i = 0; i < tmpTVLanguages.length; i++) {
-                                            String subTVLanguage = tmpTVLanguages[i].trim();
-                                            if (isNotValidString(finalTVLanguage)) {
-                                                finalTVLanguage = MovieFilenameScanner.determineLanguage(subTVLanguage);
-                                            } else {
-                                                finalTVLanguage = finalTVLanguage + languageDelimiter + MovieFilenameScanner.determineLanguage(subTVLanguage);
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // NEW Subtitle scan
-                                if (fiEvent.equalsIgnoreCase("<subtitle>")) {
-                                    while (!fiEvent.equalsIgnoreCase("</subtitle>")) {
-                                        if (fiEvent.equalsIgnoreCase("<language>")) {
-                                            String val = XMLHelper.getCData(r);
-                                            if (isValidString(val)) {
-                                                // in case subtitle has format like "ENG / GER / ESP" process it now
-                                                String[] tmpSubtitleLanguages = val.split("/");
-                                                for (int i = 0; i < tmpSubtitleLanguages.length; i++) {
-                                                    String subval = tmpSubtitleLanguages[i].trim();
-                                                    if (isNotValidString(tmpSubtitleLanguage)) {
-                                                        tmpSubtitleLanguage = MovieFilenameScanner.determineLanguage(subval);
-                                                    } else {
-                                                        tmpSubtitleLanguage = tmpSubtitleLanguage + subtitleDelimiter + MovieFilenameScanner.determineLanguage(subval);
-                                                    }
-                                                }
-                                            }
-
-                                        }
-
-                                        if (r.hasNext()) {
-                                            fiEvent = r.nextEvent().toString();
-                                        }
-                                    }
-                                }
-
-                                if (r.hasNext()) {
-                                    fiEvent = r.nextEvent().toString();
-                                } else {
-                                    break;
-                                }
-
-                            }
-
-                            // Everything is parsed, override all audio info. - NFO Always right.
-                            if (isValidString(finalTVLanguage)) {
-                                movie.setLanguage(finalTVLanguage);
-                            }
-
-                            if (isValidString(tmpSubtitleLanguage)) {
-                                movie.setSubtitles(tmpSubtitleLanguage);
-                            }
-                            // end multiple TV audio info
-
-                        } else if (tag.equalsIgnoreCase("VideoSource")) {
-                            // Issue 506 - Even though it's not strictly XBMC standard
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                movie.setVideoSource(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("VideoOutput")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                movie.setVideoOutput(val);
-                            }
                         }
-                    }
-
-                    /**
-                     * **********************************************************
-                     * Process the episode details section
-                     *
-                     * These details should be added to the movie file and not
-                     * the movie itself
-                     */
-                    if (isEpisode) {
-                        if (tag.equalsIgnoreCase("title")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                episodedetail.setTitle(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("season")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                episodedetail.setSeason(Integer.parseInt(val));
-                            }
-                        } else if (tag.equalsIgnoreCase("episode")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                episodedetail.setEpisode(Integer.parseInt(val));
-                            }
-                        } else if (tag.equalsIgnoreCase("plot")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                episodedetail.setPlot(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("rating")) {
-                            float val1 = XMLHelper.parseFloat(r);
-                            if (val1 != 0.0f) {
-                                if (val1 <= 10f) {
-                                    String val = String.valueOf(Math.round(val1 * 10f));
-                                    episodedetail.setRating(val);
-                                } else {
-                                    String val = String.valueOf(Math.round(val1 * 1f));
-                                    episodedetail.setRating(val);
-                                }
-                            }
-                        } else if (tag.equalsIgnoreCase("aired")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                try {
-                                    DateTime dateTime = new DateTime(val);
-                                    episodedetail.setFirstAired(dateTime.toString(Movie.dateFormatString));
-                                } catch (Exception ignore) {
-                                    // Set the aired date if there is an exception
-                                    episodedetail.setFirstAired(val);
-                                }
-                            }
-                        } else if (tag.equalsIgnoreCase("airsafterseason")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                episodedetail.setAirsAfterSeason(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("airsbeforeseason")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                episodedetail.setAirsBeforeSeason(val);
-                            }
-                        } else if (tag.equalsIgnoreCase("airsbeforeepisode")) {
-                            String val = XMLHelper.getCData(r);
-                            if (isValidString(val)) {
-                                episodedetail.setAirsBeforeEpisode(val);
-                            }
-                            //} else if (tag.equalsIgnoreCase("credits")) {
-                            // Not currently used
-                            //} else if (tag.equalsIgnoreCase("director")) {
-                            // Not currently used
-                            //} else if (tag.equalsIgnoreCase("actor")) {
-                            // Not currently used
-                        }
-                    }
-                } else if (e.isEndElement()) {
-                    if (e.asEndElement().getName().toString().equalsIgnoreCase("tvshow")) {
-                        isTVTag = false;
-                        isOK = true;
-                    }
-                    if (e.asEndElement().getName().toString().equalsIgnoreCase("episodedetails")) {
-                        isEpisode = false;
-                        episodedetail.updateMovie(movie);
-                        isOK = true;
-                    }
+                    }   // End of TRAILER
                 }
-            }
 
-            // We've processed all the NFO file, so work out what to do with the title and titleSort
-            if (isValidString(titleMain)) {
-                // We have a valid title, so set that for title and titleSort
-                movie.setTitle(titleMain);
-                movie.setTitleSort(titleMain);
-                movie.setOverrideTitle(true);
-            }
+                // Actors
+                nlElements = eShow.getElementsByTagName("actor");
+                for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                    nElements = nlElements.item(looper);
+                    if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eActor = (Element) nElements;
 
-            // Now check the titleSort and overwrite it if necessary.
-            if (isValidString(titleSort)) {
-                movie.setTitleSort(titleSort);
-            }
+                        String aName = DOMHelper.getValueFromElement(eActor, "name");
+                        String aRole = DOMHelper.getValueFromElement(eActor, "role");
+                        String aThumb = DOMHelper.getValueFromElement(eActor, "thumb");
 
-            return isOK;
-        } catch (Exception error) {
-            logger.error("NFOScanner: Failed parsing NFO file: " + nfoFile.getAbsolutePath() + ". Please fix or remove it.");
-            logger.error(SystemTools.getStackTrace(error));
+                        // This will add to the person and actor
+                        movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN);
+                    }
+                }   // End of Actors
+
+                // Credits/Writer
+                nlElements = eShow.getElementsByTagName("writer");
+                for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                    nElements = nlElements.item(looper);
+                    if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eWriter = (Element) nElements;
+                        movie.addWriter(eWriter.getTextContent());
+                    }
+                }   // End of Credits/Writer
+
+                // Director
+                nlElements = eShow.getElementsByTagName("writer");
+                for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                    nElements = nlElements.item(looper);
+                    if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eDirector = (Element) nElements;
+                        movie.addDirector(eDirector.getTextContent());
+                    }
+                }   // Director
+
+                String fpsString = DOMHelper.getValueFromElement(eShow, "fps");
+                if (isValidString(fpsString)) {
+                    float fps;
+                    try {
+                        fps = Float.parseFloat(fpsString);
+                    } catch (NumberFormatException error) {
+                        logger.warn("MovieNFOScanner: Error reading FPS value " + fpsString);
+                        fps = 0.0f;
+                    }
+                    movie.setFps(fps);
+                }
+
+                // VideoSource: Issue 506 - Even though it's not strictly XBMC standard
+                movie.setVideoSource(DOMHelper.getValueFromElement(eShow, "VideoSource"));
+
+                // Video Output
+                movie.setVideoOutput(DOMHelper.getValueFromElement(eShow, "VideoOutput"));
+
+                // Parse the video info
+                parseFileInfo(movie, DOMHelper.getElementByName(eShow, "fileinfo"));
+            }
+        }   // End of TVSHOW
+
+        parseAllEpisodeDetails(movie, xmlDoc.getElementsByTagName("episodedetails"));
+
+        return true;
+    }
+
+    /**
+     * Parse the FileInfo section
+     *
+     * @param movie
+     * @param eFileInfo
+     */
+    private static void parseFileInfo(Movie movie, Element eFileInfo) {
+        Element eStreamDetails = DOMHelper.getElementByName(eFileInfo, "streamdetails");
+
+        // Video
+        NodeList nlStreams = eStreamDetails.getElementsByTagName("video");
+        Node nStreams;
+        for (int looper = 0; looper < nlStreams.getLength(); looper++) {
+            nStreams = nlStreams.item(looper);
+            if (nStreams.getNodeType() == Node.ELEMENT_NODE) {
+                Element eStreams = (Element) nStreams;
+
+                String temp = DOMHelper.getValueFromElement(eStreams, "codec");
+                if (isValidString(temp)) {
+                    movie.addCodec(new Codec(Codec.CodecType.VIDEO, temp));
+                }
+
+                temp = DOMHelper.getValueFromElement(eStreams, "aspect");
+                movie.setAspectRatio(aspectTools.cleanAspectRatio(temp));
+
+                movie.setResolution(DOMHelper.getValueFromElement(eStreams, "width"), DOMHelper.getValueFromElement(eStreams, "height"));
+            }
+        } // End of VIDEO
+
+        // Audio
+        nlStreams = eStreamDetails.getElementsByTagName("audio");
+
+        for (int looper = 0; looper < nlStreams.getLength(); looper++) {
+            nStreams = nlStreams.item(looper);
+            if (nStreams.getNodeType() == Node.ELEMENT_NODE) {
+                Element eStreams = (Element) nStreams;
+
+                String aCodec = DOMHelper.getValueFromElement(eStreams, "codec");
+                String aLanguage = DOMHelper.getValueFromElement(eStreams, "language");
+                String aChannels = DOMHelper.getValueFromElement(eStreams, "channels");
+
+                // If the codec is lowercase, covert it to uppercase, otherwise leave it alone
+                if (aCodec.toLowerCase().equals(aCodec)) {
+                    aCodec = aCodec.toUpperCase();
+                }
+
+                if (StringTools.isValidString(aLanguage)) {
+                    aLanguage = MovieFilenameScanner.determineLanguage(aLanguage);
+                }
+
+                Codec audioCodec = new Codec(Codec.CodecType.AUDIO, aCodec);
+                audioCodec.setCodecLanguage(aLanguage);
+                audioCodec.setCodecChannels(aChannels);
+                movie.addCodec(audioCodec);
+            }
+        } // End of AUDIO
+
+        // Update the language
+        StringBuilder movieLanguage = new StringBuilder();
+        boolean first = Boolean.TRUE;
+        for (Codec codec : movie.getCodecs()) {
+            if (codec.getCodecType() == Codec.CodecType.AUDIO) {
+                if (first) {
+                    first = Boolean.FALSE;
+                } else {
+                    movieLanguage.append(languageDelimiter);
+                }
+                movieLanguage.append(codec.getCodecLanguage());
+            }
+        }
+        movie.setLanguage(movieLanguage.toString());
+
+        // Subtitles
+        List<String> subs = new ArrayList<String>();
+        nlStreams = eStreamDetails.getElementsByTagName("subtitle");
+        for (int looper = 0; looper < nlStreams.getLength(); looper++) {
+            nStreams = nlStreams.item(looper);
+            if (nStreams.getNodeType() == Node.ELEMENT_NODE) {
+                Element eStreams = (Element) nStreams;
+                subs.add(DOMHelper.getValueFromElement(eStreams, "language"));
+            }
         }
 
-        return false;
+        // If we have some subtitles, add them to the movie
+        if (!subs.isEmpty()) {
+            StringBuilder movieSubs = new StringBuilder();
+            first = Boolean.TRUE;
+            for (String subtitle : subs) {
+                if (first) {
+                    first = Boolean.FALSE;
+                } else {
+                    movieSubs.append(subtitleDelimiter);
+                }
+                movieSubs.append(subtitle);
+            }
+            movie.setSubtitles(movieSubs.toString());
+        }
+
+    }
+
+    /**
+     * Process all the Episode Details
+     *
+     * @param movie
+     * @param nlEpisodeDetails
+     */
+    private static void parseAllEpisodeDetails(Movie movie, NodeList nlEpisodeDetails) {
+        Node nEpisodeDetails;
+        for (int looper = 0; looper < nlEpisodeDetails.getLength(); looper++) {
+            nEpisodeDetails = nlEpisodeDetails.item(looper);
+            if (nEpisodeDetails.getNodeType() == Node.ELEMENT_NODE) {
+                Element eEpisodeDetail = (Element) nEpisodeDetails;
+                parseSingleEpisodeDetail(eEpisodeDetail).updateMovie(movie);
+            }
+        }
+    }
+
+    /**
+     * Parse a single episode detail element
+     *
+     * @param movie
+     * @param eEpisodeDetails
+     * @return
+     */
+    private static EpisodeDetail parseSingleEpisodeDetail(Element eEpisodeDetails) {
+        EpisodeDetail epDetail = new EpisodeDetail();
+
+        epDetail.setTitle(DOMHelper.getValueFromElement(eEpisodeDetails, "title"));
+
+        String tempValue = DOMHelper.getValueFromElement(eEpisodeDetails, "season");
+        if (StringUtils.isNumeric(tempValue)) {
+            epDetail.setSeason(Integer.parseInt(tempValue));
+        }
+
+        tempValue = DOMHelper.getValueFromElement(eEpisodeDetails, "episode");
+        if (StringUtils.isNumeric(tempValue)) {
+            epDetail.setEpisode(Integer.parseInt(tempValue));
+        }
+
+        epDetail.setPlot(DOMHelper.getValueFromElement(eEpisodeDetails, "plot"));
+
+        tempValue = DOMHelper.getValueFromElement(eEpisodeDetails, "rating");
+        if (StringUtils.isNotBlank(tempValue)) {
+            try {
+                float rating = Float.parseFloat(tempValue);
+                if (rating != 0.0f) {
+                    if (rating <= 10f) {
+                        String val = String.valueOf(Math.round(rating * 10f));
+                        epDetail.setRating(val);
+                    } else {
+                        String val = String.valueOf(Math.round(rating * 1f));
+                        epDetail.setRating(val);
+                    }
+                }
+            } catch (NumberFormatException ex) {
+                logger.debug("Failed to convert rating '" + tempValue + "'");
+            }
+        }
+
+        tempValue = DOMHelper.getValueFromElement(eEpisodeDetails, "aired");
+        if (isValidString(tempValue)) {
+            try {
+                DateTime dateTime = new DateTime(tempValue);
+                epDetail.setFirstAired(dateTime.toString(Movie.dateFormatString));
+            } catch (Exception ignore) {
+                // Set the aired date if there is an exception
+                epDetail.setFirstAired(tempValue);
+            }
+        }
+
+        epDetail.setAirsAfterSeason(DOMHelper.getValueFromElement(eEpisodeDetails, "airsafterseason"));
+        epDetail.setAirsBeforeEpisode(DOMHelper.getValueFromElement(eEpisodeDetails, "airsbeforeepisode"));
+        epDetail.setAirsBeforeSeason(DOMHelper.getValueFromElement(eEpisodeDetails, "airsbeforeseason"));
+
+        return epDetail;
+    }
+
+    /**
+     * Convert the date string to a date and update the movie object
+     *
+     * @param movie
+     * @param dateString
+     */
+    private static void movieDate(Movie movie, String dateString) {
+        if (StringTools.isValidString(dateString)) {
+            try {
+                DateTime dateTime = new DateTime(dateString);
+
+                movie.setReleaseDate(dateTime.toString(Movie.dateFormatString));
+                movie.setOverrideYear(true);
+                movie.setYear(dateTime.toString("yyyy"));
+            } catch (Exception ignore) {
+                // Set the release date if there is an exception
+                movie.setReleaseDate(dateString);
+            }
+        }
+    }
+
+    /**
+     * Take a file and wrap it in a new root element
+     *
+     * @param fileString
+     * @return
+     */
+    public static String wrapInXml(String fileString) {
+        StringBuilder newOutput = new StringBuilder(fileString);
+
+        int posMovie = fileString.indexOf("<" + TYPE_MOVIE);
+        int posTvShow = fileString.indexOf("<" + TYPE_TVSHOW);
+        int posEpisode = fileString.indexOf("<" + TYPE_EPISODE);
+        boolean posValid = Boolean.FALSE;
+
+        if (posMovie == -1) {
+            posMovie = fileString.length();
+        } else {
+            posValid = Boolean.TRUE;
+        }
+
+        if (posTvShow == -1) {
+            posTvShow = fileString.length();
+        } else {
+            posValid = Boolean.TRUE;
+        }
+
+        if (posEpisode == -1) {
+            posEpisode = fileString.length();
+        } else {
+            posValid = Boolean.TRUE;
+        }
+
+        if (posValid) {
+            int pos = Math.min(posMovie, Math.min(posTvShow, posEpisode));
+            newOutput.insert(pos, "<" + TYPE_ROOT + ">");
+            newOutput.append("</").append(TYPE_ROOT).append(">");
+        }
+
+        return newOutput.toString();
     }
 }

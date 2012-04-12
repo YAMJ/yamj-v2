@@ -1566,9 +1566,16 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringUtils.isBlank(resolution)) {
             resolution = UNKNOWN;
         }
+
         if (!resolution.equalsIgnoreCase(this.resolution)) {
             setDirty(DIRTY_INFO, true);
             this.resolution = resolution;
+        }
+    }
+
+    public void setResolution(String width, String height) {
+        if(StringTools.isValidString(width) && StringTools.isValidString(height)) {
+            setResolution(width + "x" + height);
         }
     }
 

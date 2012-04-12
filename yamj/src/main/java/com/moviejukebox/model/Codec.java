@@ -142,6 +142,12 @@ public class Codec {
         this.codecChannels = codecChannels;
     }
 
+    public void setCodecChannels(String codecChannels) {
+        if (StringUtils.isNumeric(codecChannels)) {
+            this.codecChannels = Integer.parseInt(codecChannels);
+        }
+    }
+
     public void setCodecFullLanguage(String codecFullLanguage) {
         this.codecFullLanguage = codecFullLanguage;
     }

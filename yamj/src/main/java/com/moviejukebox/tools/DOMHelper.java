@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.scanner.MovieNFOScanner;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,15 +26,18 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.*;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * Generic set of routines to process the DOM model data
- * Used for read XML files.
+ * Generic set of routines to process the DOM model data Used for read XML
+ * files.
+ *
  * @author Stuart.Boston
  *
  */
@@ -43,6 +47,7 @@ public class DOMHelper {
 
     /**
      * Add a child element to a parent element
+     *
      * @param doc
      * @param parentElement
      * @param elementName
@@ -54,6 +59,7 @@ public class DOMHelper {
 
     /**
      * Add a child element to a parent element with a set of attributes
+     *
      * @param doc
      * @param parentElement
      * @param elementName
@@ -75,7 +81,9 @@ public class DOMHelper {
     }
 
     /**
-     * Append a child element to a parent element with a single attribute/value pair
+     * Append a child element to a parent element with a single attribute/value
+     * pair
+     *
      * @param doc
      * @param parentElement
      * @param elementName
@@ -93,6 +101,7 @@ public class DOMHelper {
 
     /**
      * Convert a DOM document to a string
+     *
      * @param doc
      * @return
      * @throws TransformerException
@@ -114,6 +123,7 @@ public class DOMHelper {
 
     /**
      * Create a blank Document
+     *
      * @return a Document
      * @throws ParserConfigurationException
      */
@@ -126,6 +136,7 @@ public class DOMHelper {
 
     /**
      * Get a DOM document from the supplied file
+     *
      * @param xmlFile
      * @return
      * @throws MalformedURLException
@@ -139,21 +150,28 @@ public class DOMHelper {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc;
+        // Custom error handler
+        db.setErrorHandler(new SaxErrorHandler());
+
         try {
             doc = db.parse(in);
         } catch (SAXParseException ex) {
-            // try wrapping the file in a root
-            StringBuilder sb = new StringBuilder("<xml>");
-            sb.append(FileTools.readFileToString(xmlFile));
-            sb.append("</xml>");
-            doc = db.parse(new InputSource(new StringReader(sb.toString())));
+            doc = null;
         }
+
+        if (doc == null) {
+            // try wrapping the file in a root
+            String wrappedFile = MovieNFOScanner.wrapInXml(FileTools.readFileToString(xmlFile));
+            doc = db.parse(new InputSource(new StringReader(wrappedFile)));
+        }
+
         doc.getDocumentElement().normalize();
         return doc;
     }
 
     /**
      * Gets the string value of the tag element name passed
+     *
      * @param element
      * @param tagName
      * @return
@@ -175,6 +193,7 @@ public class DOMHelper {
 
     /**
      * Get an element from a parent element node
+     *
      * @param eParent
      * @param elementName
      * @return
@@ -191,7 +210,8 @@ public class DOMHelper {
 
     /**
      * Write the Document out to a file using nice formatting
-     * @param doc   The document to save
+     *
+     * @param doc The document to save
      * @param localFile The file to write to
      * @return
      */
@@ -201,7 +221,8 @@ public class DOMHelper {
 
     /**
      * Write the Document out to a file using nice formatting
-     * @param doc   The document to save
+     *
+     * @param doc The document to save
      * @param localFile The file to write to
      * @return
      */
@@ -222,6 +243,49 @@ public class DOMHelper {
             logger.error("Error writing the document to " + localFile);
             logger.error("Message: " + error.getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Override the standard Sax ErrorHandler with this one, to minimise noise
+     * about failed parsing errors
+     */
+    public static class SaxErrorHandler implements ErrorHandler {
+
+        @Override
+        public void warning(SAXParseException exception) throws SAXException {
+//            logger.warn(buildMessage(exception, "Warning"));
+            throw new SAXParseException(null, null, exception);
+        }
+
+        @Override
+        public void error(SAXParseException exception) throws SAXException {
+//            logger.warn(buildMessage(exception, "Error"));
+            throw new SAXParseException(null, null, exception);
+        }
+
+        @Override
+        public void fatalError(SAXParseException exception) throws SAXException {
+//            logger.warn(buildMessage(exception, "Fatal Error"));
+            throw new SAXParseException(null, null, exception);
+        }
+
+        public String buildMessage(SAXParseException exception) {
+            return buildMessage(exception, null);
+        }
+
+        public String buildMessage(SAXParseException exception, String level) {
+            StringBuilder message = new StringBuilder("Parsing ");
+            if (StringUtils.isNotBlank(level)) {
+                message.append(level);
+            } else {
+                message.append("Error");
+            }
+            message.append(" - ");
+            message.append(" Line: ").append(exception.getLineNumber());
+            message.append(" Column: ").append(exception.getColumnNumber());
+            message.append(" Message: ").append(exception.getMessage());
+            return message.toString();
         }
     }
 }
