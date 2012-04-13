@@ -2528,7 +2528,18 @@ public class MovieJukebox {
             String olddst = jukebox.getJukeboxRootLocationDetails() + File.separator + safeDetailPosterFilename;
             File fin;
 
-            if (forcePosterOverwrite || !FileTools.fileCache.fileExists(olddst) || src.exists()) {
+//            logger.info("Dirty     : " + movie.isDirty(Movie.DIRTY_POSTER));
+//            logger.info("FPO       : " + forcePosterOverwrite);
+//            logger.info("old exists: " + FileTools.fileCache.fileExists(olddst));
+//            logger.info("SRC Exists: " + src.exists());
+//            logger.info("olddst    : " + olddst);
+//            logger.info("src       : " + src.getAbsolutePath());
+//            logger.info("oldsrc    : " + oldsrc.getAbsolutePath());
+
+            if (movie.isDirty(Movie.DIRTY_POSTER)
+                    || forcePosterOverwrite
+                    || !FileTools.fileCache.fileExists(olddst)
+                    || src.exists()) {
                 // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
                 if (src.exists()) {
                     logger.debug("CreatePoster: New file exists (" + src + ")");

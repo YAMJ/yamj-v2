@@ -14,29 +14,31 @@ package com.moviejukebox.model.Artwork;
 
 public enum ArtworkType {
     // Define the lowercase equivalents of the Enum names
-    Poster("poster"),   // Thumbnail is a sub-type of poster
+
+    Poster("poster"), // Thumbnail is a sub-type of poster
     Fanart("fanart"),
     Banner("banner"),
     ClearArt("clearart"),
     ClearLogo("clearlogo"),
     TvThumb("tvthumb"),
     SeasonThumb("seasonthumb"),
+    MovieDisc("moviedisc"),
     VideoImage("videoimage");    // We don't store VideoImages in this artwork type as it's specific to a video file
-    
     private String type;
-    
+
     /**
      * Constructor
+     *
      * @param type
      */
     private ArtworkType(String type) {
         this.type = type;
     }
-    
+
     public String getType() {
         return this.type;
     }
-    
+
     public static ArtworkType fromString(String type) {
         if (type != null) {
             for (ArtworkType artworkType : ArtworkType.values()) {
@@ -48,5 +50,4 @@ public enum ArtworkType {
         // We've not found the type, so raise an exception
         throw new IllegalArgumentException("No ArtworkType " + type + " exists");
     }
-
 }
