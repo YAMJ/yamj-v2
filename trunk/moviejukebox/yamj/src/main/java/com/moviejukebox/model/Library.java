@@ -1447,10 +1447,10 @@ public class Library implements Map<String, Movie> {
                 List<HierarchicalConfiguration> genres = c.configurationsAt("genre");
                 for (HierarchicalConfiguration genre : genres) {
                     String masterGenre = genre.getString("[@name]");
-                    // logger.debug("New masterGenre parsed : (" + masterGenre+ ")");
+//                     logger.debug("New masterGenre parsed : (" + masterGenre+ ")");
                     List<Object> subgenres = genre.getList("subgenre");
                     for (Object subgenre : subgenres) {
-                        // logger.debug("New genre added to map : (" + subgenre+ "," + masterGenre+ ")");
+//                         logger.debug("New genre added to map : (" + subgenre+ "," + masterGenre+ ")");
                         genresMap.put((String) subgenre, masterGenre);
                     }
 
@@ -1464,7 +1464,6 @@ public class Library implements Map<String, Movie> {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private static void fillCertificationMap(String xmlCertificationFilename) {
         File xmlCertificationFile = new File(xmlCertificationFilename);
         if (xmlCertificationFile.exists() && xmlCertificationFile.isFile() && xmlCertificationFilename.toUpperCase().endsWith("XML")) {
