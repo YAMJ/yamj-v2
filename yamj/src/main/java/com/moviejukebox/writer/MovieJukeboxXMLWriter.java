@@ -806,8 +806,9 @@ public class MovieJukeboxXMLWriter {
             }   // End of ELEMENT_NODE
         }   // End of Movie Loop
 
-        movie.setDirty(Movie.DIRTY_INFO, forceDirtyFlag
-                || movie.hasNewMovieFiles() || movie.hasNewExtraFiles());
+        // This is a new movie, so clear the current dirty flags
+        movie.clearDirty();
+        movie.setDirty(Movie.DIRTY_INFO, forceDirtyFlag || movie.hasNewMovieFiles() || movie.hasNewExtraFiles());
 
         return true;
     }
