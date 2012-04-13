@@ -234,9 +234,14 @@ public class PosterScanner {
             File tempJukeboxFile = new File(tempJukeboxPosterFileName);
             boolean copyLocalPoster = false;
 
+//            logger.debug(logMessage + "finalJukeboxFile exists: " + finalJukeboxFile.exists());
+//            logger.debug(logMessage + "Local newer than temp? : " + (tempJukeboxFile.exists() && FileTools.isNewer(localPosterFile, tempJukeboxFile)));
+//            logger.debug(logMessage + "Posters same size?     : " + (localPosterFile.length() != finalJukeboxFile.length()));
+//            logger.debug(logMessage + "Local newer than final?: " + (FileTools.isNewer(localPosterFile, finalJukeboxFile)));
+
             if (!finalJukeboxFile.exists()
                     || // temp jukebox file exists and is newer ?
-                    FileTools.isNewer(localPosterFile, tempJukeboxFile)
+                    (tempJukeboxFile.exists() && FileTools.isNewer(localPosterFile, tempJukeboxFile))
                     || // file size is different ?
                     (localPosterFile.length() != finalJukeboxFile.length())
                     || // local file is newer ?
