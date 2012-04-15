@@ -1023,6 +1023,7 @@ public class MovieJukebox {
                     if (movie.isExtra() && !processExtras) {
                         continue;
                     }
+                    
                     if (popularity > 0) {
                         for (Filmography person : movie.getPeople()) {
                             boolean exists = false;
@@ -1174,16 +1175,20 @@ public class MovieJukebox {
                                     if (isNotValidString(e.getValue())) {
                                         continue;
                                     }
+                                    
                                     if (person.getId(e.getKey()).equals(e.getValue())) {
                                         continue;
                                     }
+                                    
                                     person.setId(e.getKey(), e.getValue());
                                     dirty = true;
                                 }
+                                
                                 if (!person.getPhotoFilename().equals(p.getPhotoFilename()) && isValidString(p.getPhotoFilename())) {
                                     person.setPhotoFilename(p.getPhotoFilename());
                                     dirty = true;
                                 }
+                                
                                 break;
                             }
                         }
@@ -2045,7 +2050,7 @@ public class MovieJukebox {
 
         boolean forceFanartTvOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartTvOverwrite", "false");
 
-        logger.info("UpdateFanartTv for " + movie.getBaseName());
+        logger.debug("Updating FanartTv images for " + movie.getBaseName());
 
         if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_CLEARART)
                 && StringTools.isValidString(movie.getClearArtURL())
@@ -2071,10 +2076,10 @@ public class MovieJukebox {
             processArtworktToFile(movie, imagePlugin, movie.getTvThumbFilename(), movie.getTvThumbURL(), FanartTvArtwork.TYPE_TVTHUMB, Movie.DIRTY_TVTHUMB, forceFanartTvOverwrite);
         }
 
-        if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_CDART)
+        if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_MOVIEDISC)
                 && StringTools.isValidString(movie.getMovieDiscURL())
                 && StringTools.isValidString(movie.getMovieDiscFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getMovieDiscFilename(), movie.getMovieDiscURL(), FanartTvArtwork.TYPE_CDART, Movie.DIRTY_MOVIEDISC, forceFanartTvOverwrite);
+            processArtworktToFile(movie, imagePlugin, movie.getMovieDiscFilename(), movie.getMovieDiscURL(), FanartTvArtwork.TYPE_MOVIEDISC, Movie.DIRTY_MOVIEDISC, forceFanartTvOverwrite);
         }
     }
 
