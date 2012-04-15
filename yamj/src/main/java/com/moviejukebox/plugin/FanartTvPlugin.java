@@ -123,7 +123,7 @@ public class FanartTvPlugin {
 
                     ftQuantity = requiredArtworkTypes.get(ftType);
                     if (ftQuantity > 0 && ftSingle.getLanguage().equalsIgnoreCase(requiredLanguage)) {
-                        logger.info("Need " + ftQuantity + " more");
+//                        logger.info("Need " + ftQuantity + " more");
                         boolean foundOK = Boolean.FALSE;
 
                         if (ftType.equalsIgnoreCase(FanartTvArtwork.TYPE_CLEARART)) {
