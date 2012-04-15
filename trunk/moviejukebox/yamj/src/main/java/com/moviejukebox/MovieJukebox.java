@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Map.Entry;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
@@ -1150,6 +1149,7 @@ public class MovieJukebox {
                     }
                 }
                 tasks.waitFor();
+                
                 logger.info("Add/update people information to the videos...");
                 boolean dirty;
                 for (Movie movie : library.values()) {
@@ -1157,10 +1157,11 @@ public class MovieJukebox {
                     if (movie.isExtra() && !processExtras) {
                         continue;
                     }
+                    
                     for (Filmography person : movie.getPeople()) {
                         dirty = false;
                         for (Person p : library.getPeople()) {
-                            if (comparePersonName(person, p) || comparePersonId(person, p)) {
+                            if (Filmography.comparePersonName(person, p) || comparePersonId(person, p)) {
                                 if (!person.getFilename().equals(p.getFilename()) && isValidString(p.getFilename())) {
                                     person.setFilename(p.getFilename());
                                     dirty = true;
@@ -1194,7 +1195,7 @@ public class MovieJukebox {
 
                     for (Person p : library.getPeople()) {
                         for (Filmography film : p.getFilmography()) {
-                            if (compareMovieAndFilm(movie, film)) {
+                            if (Filmography.compareMovieAndFilm(movie, film)) {
                                 film.setFilename(movie.getBaseName());
                                 film.setTitle(movie.getTitle());
                                 if (film.isDirty()) {
@@ -1216,7 +1217,7 @@ public class MovieJukebox {
                             if (movie.isExtra() && !processExtras) {
                                 continue;
                             }
-                            dirty = compareMovieAndFilm(movie, film);
+                            dirty = Filmography.compareMovieAndFilm(movie, film);
                             if (dirty) {
                                 break;
                             }
@@ -1647,39 +1648,6 @@ public class MovieJukebox {
             }
         }
         return false;
-    }
-
-    private boolean comparePersonName(Filmography aPerson, Person bPerson) {
-        String aName = aPerson.getName();
-        String aTitle = aPerson.getTitle();
-        String bName = bPerson.getName();
-        String bTitle = bPerson.getTitle();
-        if (aName.equalsIgnoreCase(bName) || aTitle.equalsIgnoreCase(bTitle) || aName.equalsIgnoreCase(bTitle) || aTitle.equalsIgnoreCase(bName)) {
-            return true;
-        }
-
-        for (String name : bPerson.getAka()) {
-            if (aName.equalsIgnoreCase(name) || aTitle.equalsIgnoreCase(name)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean compareMovieAndFilm(Movie movie, Filmography film) {
-        boolean dirty = false;
-        for (Entry<String, String> e : movie.getIdMap().entrySet()) {
-            String value = film.getId(e.getKey());
-            dirty |= isValidString(e.getValue()) && isValidString(value) && value.equals(e.getValue());
-            if (dirty) {
-                break;
-            }
-        }
-        if (!dirty) {
-            dirty = film.getName().equalsIgnoreCase(movie.getOriginalTitle()) || film.getTitle().equalsIgnoreCase(movie.getOriginalTitle())
-                    || film.getName().equalsIgnoreCase(movie.getTitle()) || film.getTitle().equalsIgnoreCase(movie.getTitle());
-        }
-        return dirty;
     }
 
     /**
