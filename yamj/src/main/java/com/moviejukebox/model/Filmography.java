@@ -10,74 +10,68 @@
  *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
  */
-
 package com.moviejukebox.model;
-
-import static com.moviejukebox.tools.StringTools.isNotValidString;
-import static com.moviejukebox.tools.StringTools.isValidString;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- *  This is the new bean for the Person
+ * This is the new bean for the Person
  *
- *  @author ilgizar
- *  Initial code copied from com.moviejukebox.themoviedb.model.Filmography
+ * @author ilgizar Initial code copied from
+ * com.moviejukebox.themoviedb.model.Filmography
  *
  */
 public class Filmography {
 
     private static final String UNKNOWN = Movie.UNKNOWN;
-
     // Define the list of jobs
-    public static final String JOB_ACTOR      = "actor";
-    public static final String JOB_ACTRESS    = "actress";
-    public static final String JOB_PRODUCER   = "producer";
-    public static final String JOB_CASTING    = "casting";
-    public static final String JOB_DESIGN     = "design";
-    public static final String JOB_DIRECTOR   = "director";
-    public static final String JOB_AUTHOR     = "author";
-    public static final String JOB_WRITER     = "writer";
-    public static final String JOB_EDITOR     = "editor";
-    public static final String JOB_MUSIC      = "music";
-    public static final String JOB_COMPOSER   = "composer";
-    public static final String JOB_PHOTO      = "photo";
-    public static final String JOB_CAMERA     = "camera";
-    public static final String JOB_OPERATOR   = "operator";
+    public static final String JOB_ACTOR = "actor";
+    public static final String JOB_ACTRESS = "actress";
+    public static final String JOB_PRODUCER = "producer";
+    public static final String JOB_CASTING = "casting";
+    public static final String JOB_DESIGN = "design";
+    public static final String JOB_DIRECTOR = "director";
+    public static final String JOB_AUTHOR = "author";
+    public static final String JOB_WRITER = "writer";
+    public static final String JOB_EDITOR = "editor";
+    public static final String JOB_MUSIC = "music";
+    public static final String JOB_COMPOSER = "composer";
+    public static final String JOB_PHOTO = "photo";
+    public static final String JOB_CAMERA = "camera";
+    public static final String JOB_OPERATOR = "operator";
     public static final String JOB_THEMSELVES = "themselves";   // Also Himself or Herself
-
     // Define the list of departments
-    public static final String DEPT_ACTORS     = "Actors";
+    public static final String DEPT_ACTORS = "Actors";
     public static final String DEPT_PRODUCTION = "Production";
-    public static final String DEPT_DIRECTING  = "Directing";
-    public static final String DEPT_WRITING    = "Writing";
-    public static final String DEPT_EDITING    = "Editing";
-    public static final String DEPT_SOUND      = "Sound";
-    public static final String DEPT_CAMERA     = "Camera";
-
-    private Map<String, String> idMap   = new HashMap<String, String>(2);
-    private String name                 = UNKNOWN;
-    private String title                = UNKNOWN;
-    private String originalTitle        = UNKNOWN;
-    private String year                 = UNKNOWN;
-    private String doublage             = UNKNOWN;
-    private String filename             = UNKNOWN;
-    private String job                  = UNKNOWN;
-    private String character            = UNKNOWN;
-    private String department           = UNKNOWN;
-    private String rating               = UNKNOWN;
-    private String url                  = UNKNOWN;
-    private String photoFilename        = UNKNOWN;
-    private String photoURL             = UNKNOWN;
-    private boolean isDirtyPhoto        = false;
-    private boolean isDirty             = false;
-    private boolean isScrapeLibrary     = true;
-    private int     order               = -1;
-    private int     castId              = -1;
+    public static final String DEPT_DIRECTING = "Directing";
+    public static final String DEPT_WRITING = "Writing";
+    public static final String DEPT_EDITING = "Editing";
+    public static final String DEPT_SOUND = "Sound";
+    public static final String DEPT_CAMERA = "Camera";
+    private Map<String, String> idMap = new HashMap<String, String>(2);
+    private String name = UNKNOWN;
+    private String title = UNKNOWN;
+    private String originalTitle = UNKNOWN;
+    private String year = UNKNOWN;
+    private String doublage = UNKNOWN;
+    private String filename = UNKNOWN;
+    private String job = UNKNOWN;
+    private String character = UNKNOWN;
+    private String department = UNKNOWN;
+    private String rating = UNKNOWN;
+    private String url = UNKNOWN;
+    private String photoFilename = UNKNOWN;
+    private String photoURL = UNKNOWN;
+    private boolean isDirtyPhoto = false;
+    private boolean isDirty = false;
+    private boolean isScrapeLibrary = true;
+    private int order = -1;
+    private int castId = -1;
 
     public String getId() {
         return getId(ImdbPlugin.IMDB_PLUGIN_ID);
@@ -393,5 +387,38 @@ public class Filmography {
 
     public void setDirtyPhoto() {
         setDirtyPhoto(true);
+    }
+
+    public static boolean comparePersonName(Filmography aPerson, Person bPerson) {
+        String aName = aPerson.getName();
+        String aTitle = aPerson.getTitle();
+        String bName = bPerson.getName();
+        String bTitle = bPerson.getTitle();
+        if (aName.equalsIgnoreCase(bName) || aTitle.equalsIgnoreCase(bTitle) || aName.equalsIgnoreCase(bTitle) || aTitle.equalsIgnoreCase(bName)) {
+            return true;
+        }
+
+        for (String name : bPerson.getAka()) {
+            if (aName.equalsIgnoreCase(name) || aTitle.equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean compareMovieAndFilm(Movie movie, Filmography film) {
+        boolean dirty = false;
+        for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
+            String value = film.getId(e.getKey());
+            dirty |= isValidString(e.getValue()) && isValidString(value) && value.equals(e.getValue());
+            if (dirty) {
+                break;
+            }
+        }
+        if (!dirty) {
+            dirty = film.getName().equalsIgnoreCase(movie.getOriginalTitle()) || film.getTitle().equalsIgnoreCase(movie.getOriginalTitle())
+                    || film.getName().equalsIgnoreCase(movie.getTitle()) || film.getTitle().equalsIgnoreCase(movie.getTitle());
+        }
+        return dirty;
     }
 }
