@@ -274,7 +274,7 @@ public class RecheckScanner {
 
                     for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
                         if (includeEpisodeRating && isNotValidString(mf.getRating(part))) {
-                            logger.info(logMessage + movie.getBaseName() + " - Part " + part + " XML is missing TV rating, will rescan");
+                            logger.debug(logMessage + movie.getBaseName() + " - Part " + part + " XML is missing TV rating, will rescan");
                             mf.setNewFile(true); // This forces the episodes to be rechecked
                             recheckCount++;
                             return true;
