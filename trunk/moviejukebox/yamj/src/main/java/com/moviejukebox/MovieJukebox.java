@@ -23,6 +23,7 @@ import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.*;
 import com.moviejukebox.writer.CompleteMoviesWriter;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
+import com.moviejukebox.writer.MovieJukeboxLibraryReader;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -36,8 +37,6 @@ import java.util.regex.Pattern;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.stream.XMLStreamException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -654,11 +653,11 @@ public class MovieJukebox {
 
         defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
 
-        File f = new File(source);
-        if (f.exists() && f.isFile() && source.toUpperCase().endsWith("XML")) {
+        File libraryFile = new File(source);
+        if (libraryFile.exists() && libraryFile.isFile() && source.toUpperCase().endsWith("XML")) {
             logger.debug("Parsing library file : " + source);
-            mediaLibraryPaths = parseMovieLibraryRootFile(f);
-        } else if (f.exists() && f.isDirectory()) {
+            mediaLibraryPaths = MovieJukeboxLibraryReader.parse(libraryFile);
+        } else if (libraryFile.exists() && libraryFile.isDirectory()) {
             logger.debug("Library path is : " + source);
             mediaLibraryPaths = new ArrayList<MediaLibraryPath>();
             MediaLibraryPath mlp = new MediaLibraryPath();
@@ -2228,96 +2227,6 @@ public class MovieJukebox {
                 logger.debug("MovieJukebox: Failed generate footer " + inx + " (" + footerName.get(inx) + "): " + tmpDestFilename);
             }
         }
-    }
-
-    private Collection<MediaLibraryPath> parseMovieLibraryRootFile(File f) {
-        Collection<MediaLibraryPath> mlp = new ArrayList<MediaLibraryPath>();
-
-        if (!f.exists() || f.isDirectory()) {
-            logger.error("The moviejukebox library input file you specified is invalid: " + f.getName());
-            return mlp;
-        }
-
-        try {
-            XMLConfiguration c = new XMLConfiguration(f);
-
-            List<HierarchicalConfiguration> fields = c.configurationsAt("library");
-            for (Iterator<HierarchicalConfiguration> it = fields.iterator(); it.hasNext();) {
-                HierarchicalConfiguration sub = it.next();
-                // sub contains now all data about a single medialibrary node
-                String path = sub.getString("path");
-                String nmtpath = sub.getString("nmtpath"); // This should be depreciated
-                String playerpath = sub.getString("playerpath");
-                String description = sub.getString("description");
-                boolean scrapeLibrary = true;
-
-                String scrapeLibraryString = sub.getString("scrapeLibrary");
-                if (isValidString(scrapeLibraryString)) {
-                    try {
-                        scrapeLibrary = sub.getBoolean("scrapeLibrary");
-                    } catch (Exception ignore) {
-                    }
-                }
-
-                long prebuf = -1;
-                String prebufString = sub.getString("prebuf");
-                if (prebufString != null && !prebufString.isEmpty()) {
-                    try {
-                        prebuf = Long.parseLong(prebufString);
-                    } catch (Exception ignore) {
-                    }
-                }
-
-                // Note that the nmtpath should no longer be used in the library file and instead "playerpath" should be used.
-                // Check that the nmtpath terminates with a "/" or "\"
-                if (nmtpath != null) {
-                    if (!(nmtpath.endsWith("/") || nmtpath.endsWith("\\"))) {
-                        // This is the NMTPATH so add the unix path separator rather than File.separator
-                        nmtpath = nmtpath + "/";
-                    }
-                }
-
-                // Check that the playerpath terminates with a "/" or "\"
-                if (playerpath != null) {
-                    if (!(playerpath.endsWith("/") || playerpath.endsWith("\\"))) {
-                        // This is the PlayerPath so add the Unix path separator rather than File.separator
-                        playerpath = playerpath + "/";
-                    }
-                }
-
-                List<Object> excludes = sub.getList("exclude[@name]");
-                File medialibfile = new File(path);
-                if (medialibfile.exists()) {
-                    MediaLibraryPath medlib = new MediaLibraryPath();
-                    medlib.setPath(medialibfile.getCanonicalPath());
-                    if (playerpath == null || playerpath.equals("")) {
-                        medlib.setPlayerRootPath(nmtpath);
-                    } else {
-                        medlib.setPlayerRootPath(playerpath);
-                    }
-                    medlib.setExcludes(excludes);
-                    medlib.setDescription(description);
-                    medlib.setScrapeLibrary(scrapeLibrary);
-                    medlib.setPrebuf(prebuf);
-                    mlp.add(medlib);
-
-                    if (description != null && !description.isEmpty()) {
-                        logger.info("Found media library: " + description);
-                    } else {
-                        logger.info("Found media library: " + path);
-                    }
-                    // Save the media library to the log file for reference.
-                    logger.debug("Media library: " + medlib);
-
-                } else {
-                    logger.info("Skipped invalid media library: " + path);
-                }
-            }
-        } catch (Exception error) {
-            logger.error("Failed parsing moviejukebox library input file: " + f.getName());
-            logger.error(SystemTools.getStackTrace(error));
-        }
-        return mlp;
     }
 
     public synchronized static MovieImagePlugin getImagePlugin(String className) {
