@@ -16,8 +16,6 @@ import com.moviejukebox.fanarttv.model.FanartTvArtwork;
 import com.moviejukebox.model.Comparator.PersonComparator;
 import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.*;
-import com.moviejukebox.plugin.trailer.ITrailersPlugin;
-import com.moviejukebox.plugin.trailer.TrailersPlugin;
 import com.moviejukebox.scanner.*;
 import com.moviejukebox.scanner.artwork.*;
 import static com.moviejukebox.tools.PropertiesUtil.*;
@@ -70,9 +68,7 @@ public class MovieJukebox {
     private static String posterToken;
     private static String thumbnailToken;
     private static String bannerToken;
-    @SuppressWarnings("unused")
     private static String defaultSource;
-    private static String videoimageToken;
     private static String fanartToken;
     private static String footerToken;
     private static String posterExtension;
@@ -110,10 +106,6 @@ public class MovieJukebox {
     public static String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
     public static String mjbBuildDate = MovieJukebox.class.getPackage().getImplementationTitle();
     private static boolean trailersScannerEnable;
-    private static long trailersRescanDaysMillis;
-    private static String trailersScanner;
-    private static Map<String, ITrailersPlugin> trailerPlugins;
-    private static TrailersPlugin trailersPlugin;
     private static int MaxThreadsProcess = 1;
     private static int MaxThreadsDownload = 1;
     private static boolean enableWatchScanner;
@@ -641,7 +633,6 @@ public class MovieJukebox {
         bannerToken = getProperty("mjb.scanner.bannerToken", ".banner");
         posterToken = getProperty("mjb.scanner.posterToken", "_large");
         thumbnailToken = getProperty("mjb.scanner.thumbnailToken", "_small");
-        videoimageToken = getProperty("mjb.scanner.videoimageToken", ".videoimage");
         footerToken = getProperty("mjb.scanner.footerToken", ".footer");
 
         posterExtension = getProperty("posters.format", "png");
@@ -660,27 +651,6 @@ public class MovieJukebox {
         }
 
         trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
-        if (trailersScannerEnable) {
-            trailersScanner = PropertiesUtil.getProperty("trailers.scanner", "apple");
-            trailersPlugin = new TrailersPlugin();
-
-            trailerPlugins = new HashMap<String, ITrailersPlugin>();
-
-            ServiceLoader<ITrailersPlugin> trailerPluginsSet = ServiceLoader.load(ITrailersPlugin.class);
-
-            for (ITrailersPlugin trailerPlugin : trailerPluginsSet) {
-                trailerPlugins.put(trailerPlugin.getName().toLowerCase().trim(), trailerPlugin);
-            }
-
-            try {
-                trailersRescanDaysMillis = PropertiesUtil.getIntProperty("trailers.rescan.days", "15");
-                // Convert trailers.rescan.days from DAYS to MILLISECONDS for comparison purposes
-                trailersRescanDaysMillis *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
-            } catch (Exception e) {
-                logger.error("Error trailers.rescan.days property, should be an integer");
-                throw e;
-            }
-        }
 
         defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
 
@@ -738,6 +708,7 @@ public class MovieJukebox {
             public OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
             public FanartTvPlugin fanartTvPlugin = new FanartTvPlugin();
             public RottenTomatoesPlugin rtPlugin = new RottenTomatoesPlugin();
+            public TrailerScanner trailerScanner = new TrailerScanner();
         }
 
         final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
@@ -960,15 +931,8 @@ public class MovieJukebox {
                             }
 
                             // Get Trailers
-                            if (movie.canHaveTrailers() && trailersScannerEnable && isTrailersNeedRescan(movie)) {
-                                boolean status = getTrailers(movie);
-
-                                // Update trailerExchange
-                                if (status == false) {
-                                    // Set trailerExchange to true if trailersRescanDaysMillis is < 0 (disable)
-                                    status = trailersRescanDaysMillis < 0 ? true : false;
-                                }
-                                movie.setTrailerExchange(status);
+                            if (trailersScannerEnable) {
+                                tools.trailerScanner.getTrailers(movie);
                             }
 
                             // Then get this movie's poster
@@ -1933,7 +1897,6 @@ public class MovieJukebox {
                     }
                 }
             }
-            scanLoop = null; // Free up the variable
             // *** END of file location change
 
             // update new episodes titles if new MovieFiles were added
@@ -2606,70 +2569,6 @@ public class MovieJukebox {
             logger.error("Failed creating poster for " + movie.getOriginalTitle());
             logger.error(SystemTools.getStackTrace(error));
         }
-    }
-
-    /**
-     * This function will check movie trailers and return true if trailers needs
-     * to be re-scanned.
-     *
-     * @param movie
-     * @return
-     */
-    private static boolean isTrailersNeedRescan(Movie movie) {
-
-        if (trailersPlugin.getOverwrite()) {
-            return true;
-        }
-
-        // Check if this movie was already checked for trailers
-        if (movie.isTrailerExchange()) {
-            logger.debug("Trailers Plugin: Movie " + movie.getTitle() + " has previously been checked for trailers, skipping.");
-            return false;
-        }
-
-        // Check if we need to scan or rescan for trailers
-        long now = new Date().getTime();
-        if ((now - movie.getTrailerLastScan()) < trailersRescanDaysMillis) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Get a list of the trailer plugins
-     *
-     * @return
-     */
-    public static String getTrailerPluginsCode() {
-        StringBuilder response = new StringBuilder();
-
-        Set<String> keySet = trailerPlugins.keySet();
-        for (String string : keySet) {
-            response.append(string);
-            response.append(Movie.SPACE_SLASH_SPACE);
-        }
-
-        response.delete(response.length() - 3, response.length());
-        return response.toString();
-    }
-
-    public static boolean getTrailers(Movie movie) {
-        boolean result = false;
-        String trailersSearchToken;
-
-        StringTokenizer st = new StringTokenizer(trailersScanner, ",");
-        while (st.hasMoreTokens() && !result) {
-            trailersSearchToken = st.nextToken();
-            ITrailersPlugin trailerPlugin = trailerPlugins.get(trailersSearchToken);
-            if (trailerPlugin == null) {
-                logger.error("MovieJukebox: TrailersScanner: '" + trailersSearchToken + "' plugin doesn't exist, please check your moviejukebox properties. Valid plugins are : " + getTrailerPluginsCode());
-            } else {
-                result |= trailerPlugin.generate(movie);
-            }
-        }
-
-        return result;
     }
 
     public static boolean isJukeboxPreserve() {
