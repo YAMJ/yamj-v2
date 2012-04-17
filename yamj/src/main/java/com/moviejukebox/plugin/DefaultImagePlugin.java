@@ -12,7 +12,7 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.fanarttv.model.FanartTvArtwork;
+import com.moviejukebox.fanarttv.model.FTArtworkType;
 import com.moviejukebox.model.Comparator.ValueComparator;
 import com.moviejukebox.model.*;
 import com.moviejukebox.tools.GraphicTools;
@@ -37,10 +37,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static final String VIDEOIMAGE = "videoimages";
     private static final String THUMBNAIL = "thumbnails";
     private static final String FOOTER = "footer";
-    private static final String CLEARART = FanartTvArtwork.TYPE_CLEARART;
-    private static final String CLEARLOGO = FanartTvArtwork.TYPE_CLEARLOGO;
-    private static final String SEASONTHUMB = FanartTvArtwork.TYPE_SEASONTHUMB;
-    private static final String TVTHUMB = FanartTvArtwork.TYPE_TVTHUMB;
+    private static final String CLEARART = FTArtworkType.CLEARART.toString().toLowerCase();
+    private static final String CLEARLOGO = FTArtworkType.CLEARLOGO.toString().toLowerCase();
+    private static final String SEASONTHUMB = FTArtworkType.SEASONTHUMB.toString().toLowerCase();
+    private static final String TVTHUMB = FTArtworkType.TVTHUMB.toString().toLowerCase();
     private static final List<String> validImageTypes = Collections.synchronizedList(new ArrayList<String>());
     private static final Logger logger = Logger.getLogger(DefaultImagePlugin.class);
     private String skinHome;

@@ -1,21 +1,20 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.model.Artwork;
 
+import com.moviejukebox.model.Movie;
 import java.util.Collection;
 import java.util.HashMap;
-
-import com.moviejukebox.model.Movie;
 
 /**
  * A class to store all the artwork associated with a movie object
@@ -24,12 +23,12 @@ import com.moviejukebox.model.Movie;
  *
  */
 public class Artwork {
-    
+
     private static final String UNKNOWN = Movie.UNKNOWN;
     private ArtworkType type;       // The type of the artwork.
     private String sourceSite; // Where the artwork originated from
     private String url;        // The original URL of the artwork (may be used as key)
-    private HashMap<ArtworkSize, ArtworkFile> sizes; // The hash should be the size that is passed as part of the ArtworkSize 
+    private HashMap<ArtworkSize, ArtworkFile> sizes; // The hash should be the size that is passed as part of the ArtworkSize
 
     /**
      * Create an Artwork object with a set of sizes
@@ -43,7 +42,7 @@ public class Artwork {
         this.type = type;
         this.sourceSite = sourceSite;
         this.url = url;
-        
+
         for (ArtworkFile artworkFile : sizes) {
             this.addSize(artworkFile);
         }
@@ -74,7 +73,7 @@ public class Artwork {
         this.url = UNKNOWN;
         this.sizes = new HashMap<ArtworkSize, ArtworkFile>();
     }
-    
+
     /**
      * Add the ArtworkFile to the list, overwriting anything already there
      *
@@ -83,15 +82,15 @@ public class Artwork {
     public void addSize(ArtworkFile size) {
         sizes.put(size.getSize(), size);
     }
-    
+
     public Collection<ArtworkFile> getSizes() {
         return sizes.values();
     }
-    
+
     public ArtworkFile getSize(String size) {
         return sizes.get(ArtworkSize.valueOf(size.toUpperCase()));
     }
-    
+
     public ArtworkFile getSize(ArtworkSize size) {
         return sizes.get(size);
     }

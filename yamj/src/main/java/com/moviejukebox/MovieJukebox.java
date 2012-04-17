@@ -12,6 +12,7 @@
  */
 package com.moviejukebox;
 
+import com.moviejukebox.fanarttv.model.FTArtworkType;
 import com.moviejukebox.fanarttv.model.FanartTvArtwork;
 import com.moviejukebox.model.Comparator.PersonComparator;
 import com.moviejukebox.model.*;
@@ -1023,7 +1024,7 @@ public class MovieJukebox {
                     if (movie.isExtra() && !processExtras) {
                         continue;
                     }
-                    
+
                     if (popularity > 0) {
                         for (Filmography person : movie.getPeople()) {
                             boolean exists = false;
@@ -1150,7 +1151,7 @@ public class MovieJukebox {
                     }
                 }
                 tasks.waitFor();
-                
+
                 logger.info("Add/update people information to the videos...");
                 boolean dirty;
                 for (Movie movie : library.values()) {
@@ -1158,7 +1159,7 @@ public class MovieJukebox {
                     if (movie.isExtra() && !processExtras) {
                         continue;
                     }
-                    
+
                     for (Filmography person : movie.getPeople()) {
                         dirty = false;
                         for (Person p : library.getPeople()) {
@@ -1175,20 +1176,20 @@ public class MovieJukebox {
                                     if (isNotValidString(e.getValue())) {
                                         continue;
                                     }
-                                    
+
                                     if (person.getId(e.getKey()).equals(e.getValue())) {
                                         continue;
                                     }
-                                    
+
                                     person.setId(e.getKey(), e.getValue());
                                     dirty = true;
                                 }
-                                
+
                                 if (!person.getPhotoFilename().equals(p.getPhotoFilename()) && isValidString(p.getPhotoFilename())) {
                                     person.setPhotoFilename(p.getPhotoFilename());
                                     dirty = true;
                                 }
-                                
+
                                 break;
                             }
                         }
@@ -2046,40 +2047,47 @@ public class MovieJukebox {
      * @param imagePlugin
      */
     public void updateFanartTv(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
-        List<String> requiredArtworkTypes = Arrays.asList(PropertiesUtil.getProperty("fanarttv.types", "clearart,clearlogo,seasonthumb,tvthumb").toLowerCase().split(","));
+        logger.debug("Updating FanartTv images for " + movie.getBaseName());
+
+        List<FTArtworkType> requiredArtworkTypes = new ArrayList<FTArtworkType>();
+        for (String artType : PropertiesUtil.getProperty("fanarttv.types", "clearart,clearlogo,seasonthumb,tvthumb").toLowerCase().split(",")) {
+            try {
+                requiredArtworkTypes.add(FTArtworkType.fromString(artType));
+            } catch (IllegalArgumentException ex) {
+                // Don't add the invalid type
+            }
+        }
 
         boolean forceFanartTvOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartTvOverwrite", "false");
 
-        logger.debug("Updating FanartTv images for " + movie.getBaseName());
-
-        if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_CLEARART)
+        if (requiredArtworkTypes.contains(FTArtworkType.CLEARART)
                 && StringTools.isValidString(movie.getClearArtURL())
                 && StringTools.isValidString(movie.getClearartFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getClearartFilename(), movie.getClearArtURL(), FanartTvArtwork.TYPE_CLEARART, Movie.DIRTY_CLEARART, forceFanartTvOverwrite);
+            processArtworktToFile(movie, imagePlugin, movie.getClearartFilename(), movie.getClearArtURL(), FTArtworkType.CLEARART, Movie.DIRTY_CLEARART, forceFanartTvOverwrite);
         }
 
-        if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_CLEARLOGO)
+        if (requiredArtworkTypes.contains(FTArtworkType.CLEARLOGO)
                 && StringTools.isValidString(movie.getClearLogoURL())
                 && StringTools.isValidString(movie.getClearLogoFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getClearLogoFilename(), movie.getClearLogoURL(), FanartTvArtwork.TYPE_CLEARLOGO, Movie.DIRTY_CLEARLOGO, forceFanartTvOverwrite);
+            processArtworktToFile(movie, imagePlugin, movie.getClearLogoFilename(), movie.getClearLogoURL(), FTArtworkType.CLEARLOGO, Movie.DIRTY_CLEARLOGO, forceFanartTvOverwrite);
         }
 
-        if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_SEASONTHUMB)
+        if (requiredArtworkTypes.contains(FTArtworkType.SEASONTHUMB)
                 && StringTools.isValidString(movie.getSeasonThumbURL())
                 && StringTools.isValidString(movie.getSeasonThumbFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getSeasonThumbFilename(), movie.getSeasonThumbURL(), FanartTvArtwork.TYPE_SEASONTHUMB, Movie.DIRTY_SEASONTHUMB, forceFanartTvOverwrite);
+            processArtworktToFile(movie, imagePlugin, movie.getSeasonThumbFilename(), movie.getSeasonThumbURL(), FTArtworkType.SEASONTHUMB, Movie.DIRTY_SEASONTHUMB, forceFanartTvOverwrite);
         }
 
-        if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_TVTHUMB)
+        if (requiredArtworkTypes.contains(FTArtworkType.TVTHUMB)
                 && StringTools.isValidString(movie.getTvThumbURL())
                 && StringTools.isValidString(movie.getTvThumbFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getTvThumbFilename(), movie.getTvThumbURL(), FanartTvArtwork.TYPE_TVTHUMB, Movie.DIRTY_TVTHUMB, forceFanartTvOverwrite);
+            processArtworktToFile(movie, imagePlugin, movie.getTvThumbFilename(), movie.getTvThumbURL(), FTArtworkType.TVTHUMB, Movie.DIRTY_TVTHUMB, forceFanartTvOverwrite);
         }
 
-        if (requiredArtworkTypes.contains(FanartTvArtwork.TYPE_MOVIEDISC)
+        if (requiredArtworkTypes.contains(FTArtworkType.MOVIEDISC)
                 && StringTools.isValidString(movie.getMovieDiscURL())
                 && StringTools.isValidString(movie.getMovieDiscFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getMovieDiscFilename(), movie.getMovieDiscURL(), FanartTvArtwork.TYPE_MOVIEDISC, Movie.DIRTY_MOVIEDISC, forceFanartTvOverwrite);
+            processArtworktToFile(movie, imagePlugin, movie.getMovieDiscFilename(), movie.getMovieDiscURL(), FTArtworkType.MOVIEDISC, Movie.DIRTY_MOVIEDISC, forceFanartTvOverwrite);
         }
     }
 
@@ -2096,12 +2104,12 @@ public class MovieJukebox {
      * @param forceOverwrite This should be the relevant forceOverwrite flag,
      * e.g forcePosterOverwrite.
      */
-    private void processArtworktToFile(Movie movie, MovieImagePlugin imagePlugin, String artworkFilename, String artworkUrl, String artworkType, String dirtyFlag, boolean forceOverwrite) {
+    private void processArtworktToFile(Movie movie, MovieImagePlugin imagePlugin, String artworkFilename, String artworkUrl, FTArtworkType artworkType, String dirtyFlag, boolean forceOverwrite) {
         File artworkFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + artworkFilename);
         String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + artworkFilename;
         File tmpDestFile = new File(tmpDestFilename);
 
-        logger.debug("Processing " + artworkType + " for " + movie.getBaseName());
+        logger.debug("Processing " + artworkType.toString() + " for " + movie.getBaseName());
 
         // Do not overwrite existing artwork, unless there is a new artwork URL in the nfo file.
         if ((!tmpDestFile.exists() && !artworkFile.exists()) || movie.isDirty(dirtyFlag) || forceOverwrite) {
@@ -2112,11 +2120,11 @@ public class MovieJukebox {
                 FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), tmpDestFile);
             } else {
                 try {
-                    logger.debug("Downloading " + artworkType + " for " + movie.getBaseName());
+                    logger.debug("Downloading " + artworkType.toString() + " for " + movie.getBaseName());
                     FileTools.downloadImage(tmpDestFile, artworkUrl);
                 } catch (Exception error) {
-                    logger.debug("Failed downloading " + artworkType + ": " + artworkUrl + " - " + error.getMessage());
-                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_" + artworkType + ".jpg"), tmpDestFile);
+                    logger.debug("Failed downloading " + artworkType.toString() + ": " + artworkUrl + " - " + error.getMessage());
+                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_" + artworkType.toString().toLowerCase() + ".jpg"), tmpDestFile);
                 }
             }
 
@@ -2124,11 +2132,11 @@ public class MovieJukebox {
                 BufferedImage artworkImage = GraphicTools.loadJPEGImage(tmpDestFile);
                 if (artworkImage != null) {
                     // TODO validate tha the artworkType here works
-                    artworkImage = imagePlugin.generate(movie, artworkImage, artworkType, null);
+                    artworkImage = imagePlugin.generate(movie, artworkImage, artworkType.toString().toLowerCase(), null);
                     GraphicTools.saveImageToDisk(artworkImage, tmpDestFilename);
                 }
             } catch (Exception error) {
-                logger.debug("MovieJukebox: Failed generate " + artworkType + ": " + tmpDestFilename);
+                logger.debug("MovieJukebox: Failed generate " + artworkType.toString() + ": " + tmpDestFilename);
             }
         }
     }

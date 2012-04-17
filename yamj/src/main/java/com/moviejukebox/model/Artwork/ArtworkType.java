@@ -1,16 +1,18 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.model.Artwork;
+
+import java.util.EnumSet;
 
 public enum ArtworkType {
     // Define the lowercase equivalents of the Enum names
@@ -41,7 +43,7 @@ public enum ArtworkType {
 
     public static ArtworkType fromString(String type) {
         if (type != null) {
-            for (ArtworkType artworkType : ArtworkType.values()) {
+            for (final ArtworkType artworkType : EnumSet.allOf(ArtworkType.class)) {
                 if (type.equalsIgnoreCase(artworkType.type)) {
                     return artworkType;
                 }
