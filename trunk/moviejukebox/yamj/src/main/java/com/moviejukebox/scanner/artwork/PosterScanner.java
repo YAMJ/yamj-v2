@@ -12,14 +12,11 @@
  */
 package com.moviejukebox.scanner.artwork;
 
+import com.moviejukebox.model.*;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.Image;
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.poster.IMoviePosterPlugin;
 import com.moviejukebox.plugin.poster.IPosterPlugin;
@@ -329,7 +326,7 @@ public class PosterScanner {
                 if (!Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl())) {
                     logger.debug(logMessage + "Poster URL found at " + posterSearchToken + ": " + posterImage.getUrl());
                     posterImage.setSubimage(posterSearchToken);     // TODO: This is a hack, but seeing as only one poster scanner uses it, it should be safe until it's all refactored to use the Artwork class
-                    movie.setDirty(Movie.DIRTY_POSTER, true);
+                    movie.setDirty(DirtyFlag.POSTER, true);
                 }
             }
         }

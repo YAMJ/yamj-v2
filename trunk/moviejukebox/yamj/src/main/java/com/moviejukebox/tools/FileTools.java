@@ -710,7 +710,7 @@ public class FileTools {
         }
 
         if (extraArtworkEnabled) {
-            addJukeboxFile(movie.getClearartFilename());
+            addJukeboxFile(movie.getClearArtFilename());
             addJukeboxFile(movie.getClearLogoFilename());
             addJukeboxFile(movie.getSeasonThumbFilename());
             addJukeboxFile(movie.getTvThumbFilename());

@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.rottentomatoes.RottenTomatoes;
 import com.moviejukebox.rottentomatoes.RottenTomatoesException;
@@ -71,7 +72,7 @@ public class RottenTomatoesPlugin {
         }
 
         // If we have a rating already, skip unless we are rechecking.
-        if (movie.getRating(ROTTENTOMATOES_PLUGIN_ID) >= 0 && !movie.isDirty(Movie.DIRTY_RECHECK)) {
+        if (movie.getRating(ROTTENTOMATOES_PLUGIN_ID) >= 0 && !movie.isDirty(DirtyFlag.RECHECK)) {
             logger.debug(logMessage + movie.getBaseName() + " already has a rating");
             return true;
         }

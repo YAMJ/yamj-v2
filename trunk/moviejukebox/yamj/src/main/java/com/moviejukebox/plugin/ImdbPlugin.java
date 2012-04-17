@@ -592,7 +592,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // TOP250
         int currentTop250 = movie.getTop250();
         // Check to see if the top250 is empty or the movie needs re-checking (in which case overwrite it)
-        if (currentTop250 == -1 || movie.isDirty(Movie.DIRTY_RECHECK)) {
+        if (currentTop250 == -1 || movie.isDirty(DirtyFlag.RECHECK)) {
             try {
                 movie.setTop250(Integer.parseInt(HTMLTools.extractTag(xml, "Top 250 #")));
             } catch (NumberFormatException error) {

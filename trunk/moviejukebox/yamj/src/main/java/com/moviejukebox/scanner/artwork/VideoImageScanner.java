@@ -19,6 +19,7 @@
  */
 package com.moviejukebox.scanner.artwork;
 
+import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -222,7 +223,7 @@ public class VideoImageScanner {
                     // Can't check the file size because the jukebox videoimage may have been re-sized
                     // This may mean that the local art is different to the jukebox art even if the local file date is newer
                     // Also check for DIRTY_WATCHED to see if we need to redo the image for the watched flag
-                    if (FileTools.isNewer(fullVideoImageFile, finalDestinationFile) || videoimageOverwrite || localOverwrite || movie.isDirty(Movie.DIRTY_INFO) || movie.isDirty(Movie.DIRTY_WATCHED)) {
+                    if (FileTools.isNewer(fullVideoImageFile, finalDestinationFile) || videoimageOverwrite || localOverwrite || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.WATCHED)) {
                         if (processImage(imagePlugin, movie, fullVideoImageFilename, tmpDestFilename, part)) {
                             logger.debug("VideoImageScanner: " + fullVideoImageFile.getName() + " has been copied to " + tmpDestFilename);
                         } else {

@@ -34,8 +34,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -808,7 +808,7 @@ public class MovieJukeboxXMLWriter {
 
         // This is a new movie, so clear the current dirty flags
         movie.clearDirty();
-        movie.setDirty(Movie.DIRTY_INFO, forceDirtyFlag || movie.hasNewMovieFiles() || movie.hasNewExtraFiles());
+        movie.setDirty(DirtyFlag.INFO, forceDirtyFlag || movie.hasNewMovieFiles() || movie.hasNewExtraFiles());
 
         return true;
     }
@@ -886,7 +886,7 @@ public class MovieJukeboxXMLWriter {
                     for (Movie movie : moviesList) {
                         if (movie.getBaseName().equals(movieName)) {
                             // See if the movie is in a collection OR isDirty
-                            forceDirtyFlag |= (!movie.isTVShow() && !movie.getSetsKeys().contains(setMaster.getTitle())) || movie.isDirty(Movie.DIRTY_INFO);
+                            forceDirtyFlag |= (!movie.isTVShow() && !movie.getSetsKeys().contains(setMaster.getTitle())) || movie.isDirty(DirtyFlag.INFO);
                             counter--;
                             break;
                         }
@@ -908,7 +908,7 @@ public class MovieJukeboxXMLWriter {
             return false;
         }
 
-        setMaster.setDirty(Movie.DIRTY_INFO, forceDirtyFlag);
+        setMaster.setDirty(DirtyFlag.INFO, forceDirtyFlag);
 
         return true;
     }
@@ -1341,7 +1341,7 @@ public class MovieJukeboxXMLWriter {
                                     // Issue 1886: HTML indexes recreated every time
                                     for (Movie m : library.getMoviesList()) {
                                         if (m.isSetMaster() && m.getTitle().equals(key)) {
-                                            skipIndex &= !m.isDirty(Movie.DIRTY_INFO);
+                                            skipIndex &= !m.isDirty(DirtyFlag.INFO);
                                             break;
                                         }
                                     }
@@ -1353,20 +1353,20 @@ public class MovieJukeboxXMLWriter {
                         int moviepos = 0;
                         for (Movie movie : movies) {
                             // Don't skip the index if the movie is dirty
-                            if (movie.isDirty(Movie.DIRTY_INFO) || movie.isDirty(Movie.DIRTY_RECHECK)) {
+                            if (movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.RECHECK)) {
                                 skipIndex = false;
                             }
 
                             // Check for changes to the Watched, Unwatched and New categories whilst we are processing the All category
                             if (enableWatchScanner && key.equals(Library.getRenamedCategory(Library.INDEX_ALL))) {
-                                if (movie.isWatched() && movie.isDirty(Movie.DIRTY_WATCHED)) {
+                                if (movie.isWatched() && movie.isDirty(DirtyFlag.WATCHED)) {
                                     // Don't skip the index
                                     reindexWatched = true;
                                     reindexUnwatched = true;
                                     reindexNew = true;
                                 }
 
-                                if (!movie.isWatched() && movie.isDirty(Movie.DIRTY_WATCHED)) {
+                                if (!movie.isWatched() && movie.isDirty(DirtyFlag.WATCHED)) {
                                     // Don't skip the index
                                     reindexWatched = true;
                                     reindexUnwatched = true;
@@ -1855,7 +1855,7 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "clearLogoURL", HTMLTools.encodeUrl(movie.getClearLogoURL()));
         DOMHelper.appendChild(doc, eMovie, "clearLogoFile", HTMLTools.encodeUrl(movie.getClearLogoFilename()));
         DOMHelper.appendChild(doc, eMovie, "clearArtURL", HTMLTools.encodeUrl(movie.getClearArtURL()));
-        DOMHelper.appendChild(doc, eMovie, "clearArtFile", HTMLTools.encodeUrl(movie.getClearartFilename()));
+        DOMHelper.appendChild(doc, eMovie, "clearArtFile", HTMLTools.encodeUrl(movie.getClearArtFilename()));
         DOMHelper.appendChild(doc, eMovie, "tvThumbURL", HTMLTools.encodeUrl(movie.getTvThumbURL()));
         DOMHelper.appendChild(doc, eMovie, "tvThumbFile", HTMLTools.encodeUrl(movie.getTvThumbFilename()));
         DOMHelper.appendChild(doc, eMovie, "seasonThumbURL", HTMLTools.encodeUrl(movie.getSeasonThumbURL()));
@@ -2347,7 +2347,7 @@ public class MovieJukeboxXMLWriter {
 
         FileTools.addJukeboxFile(finalXmlFile.getName());
 
-        if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty(Movie.DIRTY_INFO) || movie.isDirty(Movie.DIRTY_RECHECK) || movie.isDirty(Movie.DIRTY_WATCHED)) {
+        if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.RECHECK) || movie.isDirty(DirtyFlag.WATCHED)) {
             Document xmlDoc;
             try {
                 xmlDoc = DOMHelper.createDocument();

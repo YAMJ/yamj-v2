@@ -95,7 +95,7 @@ public class MovieJukeboxHTMLWriter {
 
                 FileTools.addJukeboxFile(baseName + suffix + EXT_HTML);
 
-                if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty(Movie.DIRTY_INFO)) {
+                if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty(DirtyFlag.INFO)) {
                     // Issue 216: If the HTML is deleted the generation fails because it looks in the temp directory and not
                     // the original source directory
                     if (tempXmlFile.exists()) {
@@ -216,7 +216,7 @@ public class MovieJukeboxHTMLWriter {
                 return fileNames;
             } // Issue 884
 
-            if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty(Movie.DIRTY_INFO)) {
+            if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty(DirtyFlag.INFO)) {
                 tempPlaylistFile.getParentFile().mkdirs();
 
                 Transformer transformer = getTransformer(playlistFile, jukebox.getJukeboxRootLocationDetails());
@@ -326,7 +326,7 @@ public class MovieJukeboxHTMLWriter {
         File finalPlaylistFile = new File(jukebox.getJukeboxRootLocationDetails() + File.separator + baseName + fileSuffix);
         File tempPlaylistFile = new File(tempFilename + fileSuffix);
 
-        if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty(Movie.DIRTY_INFO)) {
+        if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty(DirtyFlag.INFO)) {
             tempPlaylistFile.getParentFile().mkdirs();
 
             PrintWriter writer = new PrintWriter(tempPlaylistFile, "UTF-8");
