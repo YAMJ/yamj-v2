@@ -12,7 +12,7 @@
  */
 package com.moviejukebox.scanner;
 
-import com.moviejukebox.fanarttv.model.FanartTvArtwork;
+import com.moviejukebox.fanarttv.model.FTArtworkType;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.FanartTvPlugin;
@@ -169,37 +169,37 @@ public class RecheckScanner {
 
             if (extraArtworkDownload) {
                 if (movie.isTVShow()) {
-                    if (isNotValidString(movie.getClearArtURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_CLEARART)) {
+                    if (isNotValidString(movie.getClearArtURL()) && FanartTvPlugin.isArtworkRequired(FTArtworkType.CLEARART)) {
                         logger.debug(logMessage + movie.getBaseName() + " is missing ClearArt, will rescan");
                         recheckCount++;
                         return true;
                     }
 
-                    if (isNotValidString(movie.getClearLogoURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_CLEARLOGO)) {
+                    if (isNotValidString(movie.getClearLogoURL()) && FanartTvPlugin.isArtworkRequired(FTArtworkType.CLEARLOGO)) {
                         logger.debug(logMessage + movie.getBaseName() + " is missing ClearLogo, will rescan");
                         recheckCount++;
                         return true;
                     }
 
-                    if (isNotValidString(movie.getSeasonThumbURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_SEASONTHUMB)) {
+                    if (isNotValidString(movie.getSeasonThumbURL()) && FanartTvPlugin.isArtworkRequired(FTArtworkType.SEASONTHUMB)) {
                         logger.debug(logMessage + movie.getBaseName() + " is missing SeasonThumb, will rescan");
                         recheckCount++;
                         return true;
                     }
 
-                    if (isNotValidString(movie.getTvThumbURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_TVTHUMB)) {
+                    if (isNotValidString(movie.getTvThumbURL()) && FanartTvPlugin.isArtworkRequired(FTArtworkType.TVTHUMB)) {
                         logger.debug(logMessage + movie.getBaseName() + " is missing TvThumb, will rescan");
                         recheckCount++;
                         return true;
                     }
                 } else {
-                    if (isNotValidString(movie.getClearLogoURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_MOVIELOGO)) {
+                    if (isNotValidString(movie.getClearLogoURL()) && FanartTvPlugin.isArtworkRequired(FTArtworkType.MOVIELOGO)) {
                         logger.debug(logMessage + movie.getBaseName() + " is missing ClearLogo, will rescan");
                         recheckCount++;
                         return true;
                     }
 
-                    if (isNotValidString(movie.getMovieDiscURL()) && FanartTvPlugin.isArtworkRequired(FanartTvArtwork.TYPE_MOVIEDISC)) {
+                    if (isNotValidString(movie.getMovieDiscURL()) && FanartTvPlugin.isArtworkRequired(FTArtworkType.MOVIEDISC)) {
                         logger.debug(logMessage + movie.getBaseName() + " is missing cdArt, will rescan");
                         recheckCount++;
                         return true;
