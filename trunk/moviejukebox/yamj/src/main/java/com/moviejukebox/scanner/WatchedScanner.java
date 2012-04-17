@@ -27,6 +27,7 @@ import org.pojava.datetime.DateTime;
 public class WatchedScanner {
 
     private static final Logger logger = Logger.getLogger(WatchedScanner.class);
+    private static final String logMessage = "Watched Scanner: ";
     private static Collection<String> watchedExtensions = Arrays.asList(PropertiesUtil.getProperty("mjb.watchedExtensions", "watched").split(",;\\|"));
     private static String watchedLocation = PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo");
     private static String withExtension = PropertiesUtil.getProperty("mjb.watched.withExtension", "true");
@@ -59,7 +60,7 @@ public class WatchedScanner {
             withJukebox = Boolean.TRUE;
         } else {
             if (!warned) {
-                logger.warn("Watched Scanner: Custom file location not supported for watched scanner");
+                logger.warn(logMessage + "Custom file location not supported for watched scanner");
                 warned = Boolean.TRUE;
             }
             withJukebox = Boolean.FALSE;
@@ -84,9 +85,9 @@ public class WatchedScanner {
 
             if ("true".equalsIgnoreCase(withExtension) || "both".equalsIgnoreCase(withExtension) || movie.isBluray()) {
                 if (withJukebox) {
-                    foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, "Watched Scanner: ", Boolean.TRUE);
+                    foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, logMessage, Boolean.TRUE);
                 } else {
-                    foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, "Watched Scanner: ", Boolean.FALSE);
+                    foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, logMessage, Boolean.FALSE);
                 }
             }
 
@@ -94,7 +95,7 @@ public class WatchedScanner {
                 // Remove the extension from the filename
                 filename = FilenameUtils.removeExtension(filename);
                 // Check again without the extension
-                foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, "Watched Scanner: ");
+                foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, logMessage);
             }
 
             if (foundFile != null) {
@@ -148,7 +149,7 @@ public class WatchedScanner {
 
         returnStatus |= movieFileWatchChanged;
         if (returnStatus) {
-            logger.debug("Watched Scanner: The video has one or more files that have changed status.");
+            logger.debug(logMessage + "The video has one or more files that have changed status.");
         }
 
         return returnStatus;
