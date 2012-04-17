@@ -15,6 +15,7 @@ package com.moviejukebox;
 import com.moviejukebox.fanarttv.model.FTArtworkType;
 import com.moviejukebox.model.Comparator.PersonComparator;
 import com.moviejukebox.model.*;
+import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.*;
 import com.moviejukebox.scanner.*;
 import com.moviejukebox.scanner.artwork.*;
@@ -707,8 +708,15 @@ public class MovieJukebox {
             public FanartTvPlugin fanartTvPlugin = new FanartTvPlugin();
             public RottenTomatoesPlugin rtPlugin = new RottenTomatoesPlugin();
             public TrailerScanner trailerScanner = new TrailerScanner();
-//            public ArtworkScanner caScanner = new ClearArtScanner();
-//            public ArtworkScanner mlScanner = new MovieLogoScanner();
+            // Fanart.TV TV Artwork Scanners
+//            public ArtworkScanner clearArtScanner = new FanartTvScanner(ArtworkType.ClearArt);
+//            public ArtworkScanner clearLogoScanner = new FanartTvScanner(ArtworkType.ClearLogo);
+//            public ArtworkScanner tvThumbScanner = new FanartTvScanner(ArtworkType.TvThumb);
+//            public ArtworkScanner seasonThumbScanner = new FanartTvScanner(ArtworkType.SeasonThumb);
+            // Fanart.TV Movie Artwork Scanners
+//            public ArtworkScanner movieArtScanner = new FanartTvScanner(ArtworkType.MovieArt);
+//            public ArtworkScanner movieLogoScanner = new FanartTvScanner(ArtworkType.MovieLogo);
+//            public ArtworkScanner movieDiscScanner = new FanartTvScanner(ArtworkType.MovieDisc);
         }
 
         final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
@@ -961,10 +969,15 @@ public class MovieJukebox {
                             if (extraArtworkDownload) {
                                 if (movie.isTVShow()) {
                                     // Only scan using the TV Show artwork scanners
-//                                    tools.caScanner.scan(jukebox, movie);
+//                                    tools.clearArtScanner.scan(jukebox, movie);
+//                                    tools.clearLogoScanner.scan(jukebox, movie);
+//                                    tools.tvThumbScanner.scan(jukebox, movie);
+//                                    tools.seasonThumbScanner.scan(jukebox, movie);
                                 } else {
                                     // Only scan using the Movie artwork scanners
-//                                    tools.mlScanner.scan(jukebox, movie);
+//                                    tools.movieArtScanner.scan(jukebox, movie);
+//                                    tools.movieDiscScanner.scan(jukebox, movie);
+//                                    tools.movieLogoScanner.scan(jukebox, movie);
                                 }
 
                                 tools.fanartTvPlugin.scan(movie);
