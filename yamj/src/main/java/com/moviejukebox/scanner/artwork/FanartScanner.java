@@ -59,19 +59,20 @@ import org.apache.log4j.Logger;
  */
 public class FanartScanner {
 
-    protected static final Logger logger = Logger.getLogger(FanartScanner.class);
-    protected static final Collection<String> fanartExtensions = Collections.synchronizedList(new ArrayList<String>());
-    protected static String fanartToken;
-    protected static boolean fanartOverwrite;
-    protected static final boolean useFolderBackground = PropertiesUtil.getBooleanProperty("fanart.scanner.useFolderImage", "false");
-    protected static final Collection<String> fanartImageName = Collections.synchronizedList(new ArrayList<String>());
-    protected static boolean artworkValidate;
-    protected static int artworkValidateMatch;
-    protected static boolean artworkValidateAspect;
-    protected static int artworkWidth;
-    protected static int artworkHeight;
-    protected static TheMovieDb TMDb;
-    protected static TheTVDB tvDB;
+    private static final Logger logger = Logger.getLogger(FanartScanner.class);
+    private static final String logMessage = "FanartScanner: ";
+    private static final Collection<String> fanartExtensions = Collections.synchronizedList(new ArrayList<String>());
+    private static String fanartToken;
+    private static boolean fanartOverwrite;
+    private static final boolean useFolderBackground = PropertiesUtil.getBooleanProperty("fanart.scanner.useFolderImage", "false");
+    private static final Collection<String> fanartImageName = Collections.synchronizedList(new ArrayList<String>());
+    private static boolean artworkValidate;
+    private static int artworkValidateMatch;
+    private static boolean artworkValidateAspect;
+    private static int artworkWidth;
+    private static int artworkHeight;
+    private static TheMovieDb TMDb;
+    private static TheTVDB tvDB;
 
     static {
 
@@ -107,7 +108,7 @@ public class FanartScanner {
         try {
             TMDb = new TheMovieDb(PropertiesUtil.getProperty("API_KEY_TheMovieDB"));
         } catch (MovieDbException ex) {
-            logger.warn("FanartScanner: Failed to initialise TheMovieDB API. Fanart will not be downloaded.");
+            logger.warn(logMessage + "Failed to initialise TheMovieDB API. Fanart will not be downloaded.");
             logger.warn(SystemTools.getStackTrace(ex));
             TMDb = null;
         }
@@ -145,7 +146,7 @@ public class FanartScanner {
 
         // Try searching the fileCache for the filename.
         if (!foundLocalFanart) {
-            localFanartFile = FileTools.findFilenameInCache(localFanartBaseFilename + fanartToken, fanartExtensions, jukebox, "FanartScanner: ");
+            localFanartFile = FileTools.findFilenameInCache(localFanartBaseFilename + fanartToken, fanartExtensions, jukebox, logMessage, Boolean.TRUE);
             if (localFanartFile != null) {
                 foundLocalFanart = true;
             }
@@ -187,7 +188,7 @@ public class FanartScanner {
         // If we've found the fanart, copy it to the jukebox, otherwise download it.
         if (foundLocalFanart) {
             fullFanartFilename = localFanartFile.getAbsolutePath();
-            logger.debug("FanartScanner: File " + fullFanartFilename + " found");
+            logger.debug(logMessage + "File " + fullFanartFilename + " found");
 
             if (StringTools.isNotValidString(movie.getFanartFilename())) {
                 movie.setFanartFilename(movie.getBaseFilename() + fanartToken + "." + FileTools.getFileExtension(localFanartFile.getName()));
@@ -216,7 +217,7 @@ public class FanartScanner {
                             movie.setFanartFilename(destFileName);
                         }
                         GraphicTools.saveImageToDisk(fanartImage, destFileName);
-                        logger.debug("FanartScanner: " + fullFanartFilename + " has been copied to " + destFileName);
+                        logger.debug(logMessage + fullFanartFilename + " has been copied to " + destFileName);
 
                         ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, fullFanartFilename, false);
                         movie.addArtwork(new com.moviejukebox.model.Artwork.Artwork(ArtworkType.Fanart, "local", fullFanartFilename, artworkFile));
@@ -226,10 +227,10 @@ public class FanartScanner {
                         movie.setFanartURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.debug("FanartScanner: Failed loading fanart : " + fullFanartFilename);
+                    logger.debug(logMessage + "Failed loading fanart : " + fullFanartFilename);
                 }
             } else {
-                logger.debug("FanartScanner: " + finalDestinationFileName + " already exists");
+                logger.debug(logMessage + finalDestinationFileName + " already exists");
             }
         } else {
             // logger.debug("FanartScanner : No local Fanart found for " + movie.getBaseFilename() + " attempting to download");
@@ -252,7 +253,7 @@ public class FanartScanner {
                 fanartFile.getParentFile().mkdirs();
 
                 try {
-                    logger.debug("FanartScanner: Downloading fanart for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
+                    logger.debug(logMessage + "Downloading fanart for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
 
                     FileTools.downloadImage(tmpDestFile, URLDecoder.decode(movie.getFanartURL(), "UTF-8"));
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(tmpDestFile);
@@ -265,12 +266,12 @@ public class FanartScanner {
                         movie.setFanartURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.debug("FanartScanner: Failed to download fanart : " + movie.getFanartURL() + " removing from movie details");
+                    logger.debug(logMessage + "Failed to download fanart : " + movie.getFanartURL() + " removing from movie details");
                     movie.setFanartFilename(Movie.UNKNOWN);
                     movie.setFanartURL(Movie.UNKNOWN);
                 }
             } else {
-                logger.debug("FanartScanner: Fanart exists for " + movie.getBaseFilename());
+                logger.debug(logMessage + "Fanart exists for " + movie.getBaseFilename());
             }
         }
     }
@@ -305,7 +306,7 @@ public class FanartScanner {
             try {
                 moviedb = TMDb.getMovieInfo(tmdbID, language);
             } catch (MovieDbException ex) {
-                logger.debug("FanartScanner: Failed to get fanart using TMDB ID: " + tmdbID + " - " + ex.getMessage());
+                logger.debug(logMessage + "Failed to get fanart using TMDB ID: " + tmdbID + " - " + ex.getMessage());
                 moviedb = null;
             }
         }
@@ -315,7 +316,7 @@ public class FanartScanner {
                 // The ImdbLookup contains images
                 moviedb = TMDb.getMovieInfoImdb(imdbID, language);
             } catch (MovieDbException ex) {
-                logger.debug("FanartScanner: Failed to get fanart using IMDB ID: " + imdbID + " - " + ex.getMessage());
+                logger.debug(logMessage + "Failed to get fanart using IMDB ID: " + imdbID + " - " + ex.getMessage());
                 moviedb = null;
             }
         }
@@ -340,14 +341,14 @@ public class FanartScanner {
                     }
                 }
             } catch (MovieDbException ex) {
-                logger.debug("FanartScanner: Failed to get fanart using IMDB ID: " + imdbID + " - " + ex.getMessage());
+                logger.debug(logMessage + "Failed to get fanart using IMDB ID: " + imdbID + " - " + ex.getMessage());
                 moviedb = null;
             }
         }
 
         // Check that the returned movie isn't null
         if (moviedb == null) {
-            logger.debug("FanartScanner: Error getting fanart from TheMovieDB.org for " + movie.getBaseFilename());
+            logger.debug(logMessage + "Error getting fanart from TheMovieDB.org for " + movie.getBaseFilename());
             return Movie.UNKNOWN;
         }
 
@@ -359,7 +360,7 @@ public class FanartScanner {
                 return fanart.toString();
             }
         } catch (MovieDbException ex) {
-            logger.debug("FanartScanner: Error getting fanart from TheMovieDB.org for " + movie.getBaseFilename());
+            logger.debug(logMessage + "Error getting fanart from TheMovieDB.org for " + movie.getBaseFilename());
             return Movie.UNKNOWN;
         }
     }
@@ -470,14 +471,14 @@ public class FanartScanner {
                 iis.close();
             }
         } catch (IOException error) {
-            logger.debug("FanartScanner: ValidateFanart error: " + error.getMessage() + ": can't open url");
+            logger.debug(logMessage + "ValidateFanart error: " + error.getMessage() + ": can't open url");
             return false; // Quit and return a false fanart
         }
 
         urlAspect = (float) urlWidth / (float) urlHeight;
 
         if (checkAspect && urlAspect < 1.0) {
-            logger.debug("FanartScanner: ValidateFanart " + artworkImage + " rejected: URL is portrait format");
+            logger.debug(logMessage + "ValidateFanart " + artworkImage + " rejected: URL is portrait format");
             return false;
         }
 
@@ -486,12 +487,12 @@ public class FanartScanner {
         artworkHeight = artworkHeight * (artworkValidateMatch / 100);
 
         if (urlWidth < artworkWidth) {
-            logger.debug("FanartScanner: " + artworkImage + " rejected: URL width (" + urlWidth + ") is smaller than fanart width (" + artworkWidth + ")");
+            logger.debug(logMessage + artworkImage + " rejected: URL width (" + urlWidth + ") is smaller than fanart width (" + artworkWidth + ")");
             return false;
         }
 
         if (urlHeight < artworkHeight) {
-            logger.debug("FanartScanner: " + artworkImage + " rejected: URL height (" + urlHeight + ") is smaller than fanart height (" + artworkHeight + ")");
+            logger.debug(logMessage + artworkImage + " rejected: URL height (" + urlHeight + ") is smaller than fanart height (" + artworkHeight + ")");
             return false;
         }
         return true;

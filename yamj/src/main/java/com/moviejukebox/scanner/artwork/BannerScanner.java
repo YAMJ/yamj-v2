@@ -10,9 +10,8 @@
  *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
  */
-
 /**
- *  BannerScanner
+ * BannerScanner
  *
  * Routines for locating and downloading Banner for videos
  *
@@ -48,6 +47,7 @@ import org.apache.log4j.Logger;
 public class BannerScanner {
 
     private static final Logger logger = Logger.getLogger(BannerScanner.class);
+    private static final String logMessage = "BannerScanner: ";
     protected static Collection<String> bannerExtensions = new ArrayList<String>();
     protected static String bannerToken;
     protected static boolean bannerOverwrite;
@@ -100,7 +100,7 @@ public class BannerScanner {
 
         // Try searching the fileCache for the filename.
         if (!foundLocalBanner) {
-            localBannerFile = FileTools.findFilenameInCache(localBannerBaseFilename + bannerToken, bannerExtensions, jukebox, "BannerScanner: ");
+            localBannerFile = FileTools.findFilenameInCache(localBannerBaseFilename + bannerToken, bannerExtensions, jukebox, logMessage, Boolean.TRUE);
             if (localBannerFile != null) {
                 foundLocalBanner = true;
             }
@@ -142,7 +142,7 @@ public class BannerScanner {
         // If we've found the banner, copy it to the jukebox, otherwise download it.
         if (foundLocalBanner) {
             fullBannerFilename = localBannerFile.getAbsolutePath();
-            logger.debug("BannerScanner: File " + fullBannerFilename + " found");
+            logger.debug(logMessage + "File " + fullBannerFilename + " found");
 
             if (StringTools.isNotValidString(movie.getBannerFilename())) {
                 movie.setBannerFilename(movie.getBaseFilename() + bannerToken + "." + PropertiesUtil.getProperty("banners.format", "jpg"));
@@ -167,7 +167,7 @@ public class BannerScanner {
                     if (bannerImage != null) {
                         bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                         GraphicTools.saveImageToDisk(bannerImage, destFileName);
-                        logger.debug("BannerScanner: " + fullBannerFilename + " has been copied to " + destFileName);
+                        logger.debug(logMessage + fullBannerFilename + " has been copied to " + destFileName);
 
                         ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, Movie.UNKNOWN, false);
                         movie.addArtwork(new Artwork(ArtworkType.Banner, "local", fullBannerFilename, artworkFile));
@@ -176,10 +176,10 @@ public class BannerScanner {
                         movie.setBannerURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.debug("BannerScanner: Failed loading banner : " + fullBannerFilename);
+                    logger.debug(logMessage + "Failed loading banner : " + fullBannerFilename);
                 }
             } else {
-                logger.debug("BannerScanner: " + finalDestinationFileName + " already exists");
+                logger.debug(logMessage + finalDestinationFileName + " already exists");
             }
         } else {
             // logger.debug("BannerScanner : No local Banner found for " + movie.getBaseFilename() + " attempting to download");
@@ -193,8 +193,8 @@ public class BannerScanner {
     }
 
     /**
-     * Download the banner from the URL.
-     * Initially this is populated from TheTVDB plugin
+     * Download the banner from the URL. Initially this is populated from
+     * TheTVDB plugin
      *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
@@ -220,7 +220,7 @@ public class BannerScanner {
                 bannerFile.getParentFile().mkdirs();
 
                 try {
-                    logger.debug("BannerScanner: Downloading banner for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
+                    logger.debug(logMessage + "Downloading banner for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
 
                     // Download the banner using the proxy save downloadImage
                     FileTools.downloadImage(tmpDestFile, movie.getBannerURL());
@@ -229,21 +229,20 @@ public class BannerScanner {
                     if (bannerImage != null) {
                         bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                         GraphicTools.saveImageToDisk(bannerImage, tmpDestFileName);
-                        logger.debug("BannerScanner: Downloaded banner for " + movie.getBannerURL());
+                        logger.debug(logMessage + "Downloaded banner for " + movie.getBannerURL());
                     } else {
                         movie.setBannerFilename(Movie.UNKNOWN);
                         movie.setBannerURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.debug("BannerScanner: Failed to download banner: " + movie.getBannerURL());
+                    logger.debug(logMessage + "Failed to download banner: " + movie.getBannerURL());
                     movie.setBannerURL(Movie.UNKNOWN);
                 }
             } else {
-                logger.debug("BannerScanner: Banner exists for " + movie.getBaseFilename());
+                logger.debug(logMessage + "Banner exists for " + movie.getBaseFilename());
             }
         }
 
         return;
     }
-
 }
