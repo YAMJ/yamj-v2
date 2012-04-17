@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.scanner;
 
+import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -120,17 +121,17 @@ public class WatchedScanner {
         }
 
         if (movieFileWatchChanged) {
-            movie.setDirty(Movie.DIRTY_WATCHED, Boolean.TRUE);
+            movie.setDirty(DirtyFlag.WATCHED, Boolean.TRUE);
         }
 
         // Only change the watched status if we found at least 1 file
         if ((fileWatchedCount > 0) && (movie.isWatchedFile() != movieWatched)) {
             movie.setWatchedFile(movieWatched);
-            movie.setDirty(Movie.DIRTY_WATCHED, Boolean.TRUE);
+            movie.setDirty(DirtyFlag.WATCHED, Boolean.TRUE);
 
             // Issue 1949 - Force the artwork to be overwritten (those that can have icons on them)
-            movie.setDirty(Movie.DIRTY_POSTER, Boolean.TRUE);
-            movie.setDirty(Movie.DIRTY_BANNER, Boolean.TRUE);
+            movie.setDirty(DirtyFlag.POSTER, Boolean.TRUE);
+            movie.setDirty(DirtyFlag.BANNER, Boolean.TRUE);
 
             returnStatus = Boolean.TRUE;
         }
@@ -138,11 +139,11 @@ public class WatchedScanner {
         // If there are no files found and the movie is watched(file), reset the status
         if ((fileWatchedCount == 0) && movie.isWatchedFile()) {
             movie.setWatchedFile(movieWatched);
-            movie.setDirty(Movie.DIRTY_WATCHED, Boolean.TRUE);
+            movie.setDirty(DirtyFlag.WATCHED, Boolean.TRUE);
 
             // Issue 1949 - Force the artwork to be overwritten (those that can have icons on them)
-            movie.setDirty(Movie.DIRTY_POSTER, Boolean.TRUE);
-            movie.setDirty(Movie.DIRTY_BANNER, Boolean.TRUE);
+            movie.setDirty(DirtyFlag.POSTER, Boolean.TRUE);
+            movie.setDirty(DirtyFlag.BANNER, Boolean.TRUE);
 
             returnStatus = Boolean.TRUE;
         }

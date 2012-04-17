@@ -29,13 +29,16 @@ public class FanartTvPlugin {
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_FanartTv");
     private FanartTv ft = new FanartTv(API_KEY);
     private static final String webhost = "fanart.tv";
+    private static final boolean extraArtworkDownload = PropertiesUtil.getBooleanProperty("mjb.includeExtraArtwork", "false");
     private static final Map<FTArtworkType, Integer> artworkTypes = new EnumMap<FTArtworkType, Integer>(FTArtworkType.class);
     private static int totalRequiredTv = 0;
     private static int totalRequireMovie = 0;
     private static final String movieLanguage = PropertiesUtil.getProperty("themoviedb.language", "en");
     private static final String tvLanguage = PropertiesUtil.getProperty("thetvdb.language", "en");
+    private static boolean versionInfoShown = Boolean.FALSE;
 
     static {
+        logger.debug(logMessage + "Available Fanart.TV types: " + EnumSet.allOf(FTArtworkType.class).toString().toLowerCase());
         // Read the properties for the artwork required and the quantities
         List<String> requiredArtworkTypes = Arrays.asList(PropertiesUtil.getProperty("fanarttv.types", "clearart,clearlogo,seasonthumb,tvthumb,movielogo,moviedisc").toLowerCase().split(","));
         logger.debug(logMessage + "Looking for " + requiredArtworkTypes.toString() + " Fanart.TV Types");
@@ -56,6 +59,11 @@ public class FanartTvPlugin {
     }
 
     public FanartTvPlugin() {
+        if (!versionInfoShown) {
+            FanartTv.showVersion();
+            versionInfoShown = Boolean.TRUE;
+        }
+
         // We need to set the proxy parameters if set.
         ft.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
 

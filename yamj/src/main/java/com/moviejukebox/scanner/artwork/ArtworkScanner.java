@@ -50,34 +50,30 @@ import org.apache.log4j.Logger;
  * skin.properties ???.width ???.height
  */
 public abstract class ArtworkScanner implements IArtworkScanner {
-//    public static final String BANNER     = "banner";
-//    public static final String FANART     = "fanart";
-//    public static final String POSTER     = "poster";
-//    public static final String VIDEOIMAGE = "videoimage";
 
     private static final Logger logger = Logger.getLogger(ArtworkScanner.class);
     protected Collection<String> artworkExtensions = new ArrayList<String>();
-    protected String artworkFormat;         // Format of the artwork to save, e.g. JPG, PNG, etc.
-    protected int artworkHeight;         // The height of the image from the skin.properties for use in the validation routine
+    protected String artworkFormat;                     // Format of the artwork to save, e.g. JPG, PNG, etc.
+    protected int artworkHeight;                        // The height of the image from the skin.properties for use in the validation routine
     protected Collection<String> artworkImageName = new ArrayList<String>();    // List of fixed artwork names
     protected MovieImagePlugin artworkImagePlugin;
     protected static boolean artworkOverwrite = false;
-    protected String artworkToken;          // The suffix of the artwork filename to search for.
-    protected ArtworkType artworkType;           // The type of the artwork. Will be used to load the other properties. When using for properties, must be lowercase
-    protected String artworkTypeName;       // The artwork type name to use in properties (all lowercase)
-    protected static boolean artworkValidate;       // Should the artwork be validated or not.
-    protected boolean artworkValidateAspect; // Should the artwork be validated for it's aspect
-    protected int artworkWidth;          // The width of the image from the skin.properties for use in the validation routine
-    protected String logMessage;            // The start of the log message
-    protected boolean searchForExistingArtwork;  // Should we search for local artwork
-    protected String skinHome;              // Location of the skin files used to get the dummy images from for missing artwork
+    protected String artworkToken;                      // The suffix of the artwork filename to search for.
+    protected ArtworkType artworkType;                  // The type of the artwork. Will be used to load the other properties. When using for properties, must be lowercase
+    protected String artworkTypeName;                   // The artwork type name to use in properties (all lowercase)
+    protected static boolean artworkValidate;           // Should the artwork be validated or not.
+    protected boolean artworkValidateAspect;            // Should the artwork be validated for it's aspect
+    protected int artworkWidth;                         // The width of the image from the skin.properties for use in the validation routine
+    protected String logMessage;                        // The start of the log message
+    protected boolean searchForExistingArtwork;         // Should we search for local artwork
+    protected String skinHome;                          // Location of the skin files used to get the dummy images from for missing artwork
     protected final WebBrowser webBrowser = new WebBrowser();
-    private EnumMap<ArtworkType, String> ARTWORK_TYPES;         // First value is the property value, the second is the graphic image value
-    private String artworkDirectory;      // The name of the artwork directory to search from from either the video directory or the root of the library
-    private String artworkPriority;       // The order of the searches performed for the local artwork.
-    protected static int artworkValidateMatch;  // How close the image should be to the expected dimensions (artworkWidth & artworkHeight)
-    protected static boolean artworkMovieDownload;  // Whether or not to download artwork for a Movie
-    protected boolean artworkTvDownload;     // Whether or not to download artwork for a TV Show
+    private EnumMap<ArtworkType, String> ARTWORK_TYPES; // First value is the property value, the second is the graphic image value
+    private String artworkDirectory;                    // The name of the artwork directory to search from from either the video directory or the root of the library
+    private String artworkPriority;                     // The order of the searches performed for the local artwork.
+    protected static int artworkValidateMatch;          // How close the image should be to the expected dimensions (artworkWidth & artworkHeight)
+    protected static boolean artworkMovieDownload;      // Whether or not to download artwork for a Movie
+    protected boolean artworkTvDownload;                // Whether or not to download artwork for a TV Show
 
     /**
      * Construct the
@@ -96,7 +92,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         ARTWORK_TYPES.put(ArtworkType.ClearLogo, "clearlogo");
         ARTWORK_TYPES.put(ArtworkType.SeasonThumb, "seasonthumb");
         ARTWORK_TYPES.put(ArtworkType.TvThumb, "tvthumb");
+        ARTWORK_TYPES.put(ArtworkType.MovieArt, "movieart");
         ARTWORK_TYPES.put(ArtworkType.MovieDisc, "moviedisc");
+        ARTWORK_TYPES.put(ArtworkType.MovieLogo, "movielogo");
 
         setArtworkType(conArtworkType);
 
@@ -117,23 +115,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         artworkFormat = PropertiesUtil.getProperty(artworkTypeName + ".format", "jpg");
         setArtworkImageName(PropertiesUtil.getProperty(artworkTypeName + ".scanner.imageName", ""));
 
-        try {
-            artworkValidate = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.Validate", "true");
-        } catch (Exception ignore) {
-            artworkValidate = true;
-        }
-
-        try {
-            artworkValidateMatch = PropertiesUtil.getIntProperty(artworkTypeName + ".scanner.ValidateMatch", "75");
-        } catch (Exception ignore) {
-            artworkValidateMatch = 75;
-        }
-
-        try {
-            artworkValidateAspect = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.ValidateAspect", "true");
-        } catch (Exception ignore) {
-            artworkValidateAspect = true;
-        }
+        artworkValidate = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.Validate", "true");
+        artworkValidateMatch = PropertiesUtil.getIntProperty(artworkTypeName + ".scanner.ValidateMatch", "75");
+        artworkValidateAspect = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.ValidateAspect", "true");
 
         artworkDirectory = PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkDirectory", "");
 
@@ -264,8 +248,6 @@ public abstract class ArtworkScanner implements IArtworkScanner {
             setArtworkUrl(movie, Movie.UNKNOWN);
         }
 
-
-
         String artworkUrl = scanLocalArtwork(jukebox, movie);
         logger.info(logMessage + "ScanLocalArtwork returned: " + artworkUrl); // XXX DEBUG
 
@@ -305,6 +287,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         String movieArtwork = Movie.UNKNOWN;
         String artworkFilename = movie.getBaseFilename() + artworkToken;
 
+        logger.info(logMessage + "Searching for '" + artworkFilename + "'");
+
         StringTokenizer st = new StringTokenizer(artworkPriority, ",;|");
 
         while (st.hasMoreTokens() && movieArtwork.equalsIgnoreCase(Movie.UNKNOWN)) {
@@ -312,19 +296,19 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
             if (artworkSearch.equals("video")) {
                 movieArtwork = scanVideoArtwork(movie, artworkFilename);
-                //logger.info(logMessage + movie.getBaseFilename() + " scanVideoArtwork    : " + movieArtwork);
+                logger.info(logMessage + movie.getBaseFilename() + " scanVideoArtwork    : " + movieArtwork); // XXX DEBUG
                 continue;
             }
 
             if (artworkSearch.equals("folder")) {
                 movieArtwork = scanFolderArtwork(movie);
-                //logger.info(logMessage + movie.getBaseFilename() + " scanFolderArtwork   : " + movieArtwork);
+                logger.info(logMessage + movie.getBaseFilename() + " scanFolderArtwork   : " + movieArtwork); // XXX DEBUG
                 continue;
             }
 
             if (artworkSearch.equals("fixed")) {
                 movieArtwork = scanFixedArtwork(movie);
-                //logger.info(logMessage + movie.getBaseFilename() + " scanFixedArtwork    : " + movieArtwork);
+                logger.info(logMessage + movie.getBaseFilename() + " scanFixedArtwork    : " + movieArtwork); // XXX DEBUG
                 continue;
             }
 
@@ -332,14 +316,14 @@ public abstract class ArtworkScanner implements IArtworkScanner {
                 // This is only for TV Sets as it searches the directory above the one the episode is in for fixed artwork
                 if (movie.isTVShow() && movie.isSetMaster()) {
                     movieArtwork = scanTvSeriesArtwork(movie);
-                    //logger.info(logMessage + movie.getBaseFilename() + " scanTvSeriesArtwork : " + movieArtwork);
+                    logger.info(logMessage + movie.getBaseFilename() + " scanTvSeriesArtwork : " + movieArtwork); // XXX DEBUG
                 }
                 continue;
             }
 
             if (artworkSearch.equals("directory")) {
                 movieArtwork = scanArtworkDirectory(movie, artworkFilename);
-                //logger.info(logMessage + movie.getBaseFilename() + " scanArtworkDirectory: " + movieArtwork);
+                logger.info(logMessage + movie.getBaseFilename() + " scanArtworkDirectory: " + movieArtwork); // XXX DEBUG
                 continue;
             }
 
@@ -383,6 +367,10 @@ public abstract class ArtworkScanner implements IArtworkScanner {
             artworkDummy = "dummy_banner.jpg";
         } else if (artworkType == ArtworkType.VideoImage) {
             artworkDummy = "dummy_videoimage.jpg";
+        } else {
+            // guess a default dummy name
+            artworkDummy = "dummy_" + artworkTypeName + "." + artworkFormat;
+            logger.debug((logMessage + "Using dummy image name of '" + artworkDummy + "'"));
         }
 
         File artworkFile = FileTools.fileCache.getFile(StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), artworkFilename));
@@ -405,7 +393,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
                         FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + artworkDummy), tmpDestFile);
                     }
                 } else {
-                    logger.debug(logMessage + "No dummy artwork for " + artworkType);
+                    logger.debug(logMessage + "No dummy artwork ('" + artworkDummy + "') for " + artworkType);
                 }
             }
         } else {
@@ -692,11 +680,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
     /**
      * Scan for artwork named like
-     * <videoFileName><artworkToken>.<artworkExtensions
-     *
-     *
-     *
-
+     * <videoFileName><artworkToken>.<artworkExtensions>
      *
      * @param movie
      * @return UNKNOWN or Absolute Path
@@ -722,10 +706,18 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         return scanDirectoryForArtwork(artworkFilename, parentPath);
     }
 
-    protected void setImagePlugin(String className) {
+    protected void setImagePlugin(String classNameString) {
+        String className;
+        if (StringTools.isNotValidString(classNameString)) {
+            // Use the default image plugin
+            className = PropertiesUtil.getProperty("mjb.image.plugin", "com.moviejukebox.plugin.DefaultImagePlugin");
+        } else {
+            className = classNameString;
+        }
+
         try {
-            Thread t = Thread.currentThread();
-            ClassLoader cl = t.getContextClassLoader();
+            Thread artThread = Thread.currentThread();
+            ClassLoader cl = artThread.getContextClassLoader();
             Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
             artworkImagePlugin = pluginClass.newInstance();
         } catch (Exception error) {
@@ -807,7 +799,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
         // Set the default logger message
         logMessage = "ArtworkScanner (" + artworkType + "): ";
-//        logger.info(logMessage + "Using " + artworkType + " as the Artwork Type");
+//        logger.debug(logMessage + "Using " + artworkType + " as the Artwork Type");  // XXX DEBUG
     }
 
     /**
@@ -836,5 +828,57 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         }
 
         return true;
+    }
+
+    /**
+     * Create a safe filename for the artwork
+     *
+     * @param movie
+     * @return
+     */
+    public String makeSafeFilename(Movie movie) {
+        StringBuilder filename = new StringBuilder();
+
+        filename.append(FileTools.makeSafeFilename(movie.getBaseName()));
+        filename.append(".").append(artworkToken);
+        filename.append(".").append(artworkFormat);
+
+        return filename.toString();
+    }
+
+    protected void debugProperty(String propName, Object propValue, boolean addTypeToOutput) {
+        StringBuilder property = new StringBuilder(logMessage);
+        property.append("'");
+        if (addTypeToOutput) {
+            property.append(artworkTypeName);
+        }
+        property.append(propName).append("' = ");
+        property.append(propValue);
+        logger.debug(property.toString());
+    }
+
+    protected void debugProperty(String propName, Object propValue) {
+        debugProperty(propName, propValue, Boolean.TRUE);
+    }
+
+    /**
+     * Output all the properties used by this scanner
+     */
+    public void debugOutput() {
+        debugProperty(".scanner.imageName", artworkImageName);
+        debugProperty(".scanner.searchForExistingArtwork", searchForExistingArtwork);
+        debugProperty(".scanner.artworkToken", artworkToken);
+        debugProperty(".format", artworkFormat);
+        debugProperty(".scanner.Validate", artworkValidate);
+        debugProperty(".scanner.ValidateMatch", artworkValidateMatch);
+        debugProperty(".scanner.ValidateAspect", artworkValidateAspect);
+        debugProperty(".scanner.artworkDirectory", artworkDirectory);
+        debugProperty(".scanner.artworkPriority", artworkPriority);
+        debugProperty(".movie.download", artworkMovieDownload);
+        debugProperty(".tv.download", artworkTvDownload);
+        debugProperty(".scanner.artworkExtensions", artworkExtensions);
+        debugProperty(".scanner.imageName", artworkImageName);
+        debugProperty(ARTWORK_TYPES.get(artworkType) + ".width", artworkWidth, Boolean.FALSE);
+        debugProperty(ARTWORK_TYPES.get(artworkType) + ".height", artworkHeight, Boolean.FALSE);
     }
 }

@@ -21,6 +21,7 @@ package com.moviejukebox.scanner.artwork;
 import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
@@ -207,7 +208,7 @@ public class FanartScanner {
             // Local Fanart is newer OR ForceFanartOverwrite OR DirtyFanart
             // Can't check the file size because the jukebox fanart may have been re-sized
             // This may mean that the local art is different to the jukebox art even if the local file date is newer
-            if (FileTools.isNewer(fullFanartFile, finalDestinationFile) || fanartOverwrite || movie.isDirty(Movie.DIRTY_FANART)) {
+            if (FileTools.isNewer(fullFanartFile, finalDestinationFile) || fanartOverwrite || movie.isDirty(DirtyFlag.FANART)) {
                 try {
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(fullFanartFile);
                     if (fanartImage != null) {

@@ -41,6 +41,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static final String CLEARLOGO = FTArtworkType.CLEARLOGO.toString().toLowerCase();
     private static final String SEASONTHUMB = FTArtworkType.SEASONTHUMB.toString().toLowerCase();
     private static final String TVTHUMB = FTArtworkType.TVTHUMB.toString().toLowerCase();
+    private static final String CHARACTERART = FTArtworkType.CHARACTERART.toString().toLowerCase();
+    private static final String MOVIEART = FTArtworkType.MOVIEART.toString().toLowerCase();
+    private static final String MOVIEDISC = FTArtworkType.MOVIEDISC.toString().toLowerCase();
+    private static final String MOVIELOGO = FTArtworkType.MOVIELOGO.toString().toLowerCase();
     private static final List<String> validImageTypes = Collections.synchronizedList(new ArrayList<String>());
     private static final Logger logger = Logger.getLogger(DefaultImagePlugin.class);
     private String skinHome;
@@ -159,6 +163,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 validImageTypes.add(CLEARLOGO);
                 validImageTypes.add(SEASONTHUMB);
                 validImageTypes.add(TVTHUMB);
+                validImageTypes.add(CHARACTERART);
+                validImageTypes.add(MOVIEART);
+                validImageTypes.add(MOVIEDISC);
+                validImageTypes.add(MOVIELOGO);
             }
         }
     }
@@ -179,6 +187,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         } else if (!validImageTypes.contains(imageType)) {
             // This is an error with the calling function
             logger.error("YAMJ Error with calling function in DefaultImagePlugin.java");
+            logger.error("The image type '" + imageType + "' cannot be found");
             return imageGraphic;
         }
 

@@ -22,6 +22,7 @@ import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbPlugin;
@@ -161,7 +162,7 @@ public class BannerScanner {
             // Local Banner is newer OR ForcePosterOverwrite OR DirtyPoster
             // Can't check the file size because the jukebox banner may have been re-sized
             // This may mean that the local art is different to the jukebox art even if the local file date is newer
-            if (bannerOverwrite || movie.isDirty(Movie.DIRTY_POSTER) || FileTools.isNewer(fullBannerFile, finalDestinationFile)) {
+            if (bannerOverwrite || movie.isDirty(DirtyFlag.POSTER) || FileTools.isNewer(fullBannerFile, finalDestinationFile)) {
                 try {
                     BufferedImage bannerImage = GraphicTools.loadJPEGImage(fullBannerFile);
                     if (bannerImage != null) {
@@ -216,7 +217,7 @@ public class BannerScanner {
             File tmpDestFile = new File(tmpDestFileName);
 
             // Do not overwrite existing banner unless ForceBannerOverwrite = true
-            if (bannerOverwrite || movie.isDirty(Movie.DIRTY_BANNER) || (!bannerFile.exists() && !tmpDestFile.exists())) {
+            if (bannerOverwrite || movie.isDirty(DirtyFlag.BANNER) || (!bannerFile.exists() && !tmpDestFile.exists())) {
                 bannerFile.getParentFile().mkdirs();
 
                 try {

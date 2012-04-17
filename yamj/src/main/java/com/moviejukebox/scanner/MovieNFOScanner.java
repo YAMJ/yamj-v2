@@ -138,7 +138,7 @@ public class MovieNFOScanner {
         for (File nfoFile : nfoFiles) {
             logger.debug("NFOScanner: Scanning NFO file for IDs: " + nfoFile.getName());
             // Set the NFO as dirty so that the information will be re-scanned at the appropriate points.
-            movie.setDirty(Movie.DIRTY_NFO, true);
+            movie.setDirty(DirtyFlag.NFO, true);
 
             String nfo = FileTools.readFileToString(nfoFile);
 
@@ -174,7 +174,7 @@ public class MovieNFOScanner {
                                     logger.debug("NFOScanner: Poster URL found in nfo = " + foundUrl);
                                     movie.setPosterURL(new String(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3)));
                                     urlStartIndex = -1;
-                                    movie.setDirty(Movie.DIRTY_POSTER, true);
+                                    movie.setDirty(DirtyFlag.POSTER, true);
                                 }
                             } else {
                                 logger.debug("NFOScanner: Poster URL ignored in NFO because it's a fanart URL");

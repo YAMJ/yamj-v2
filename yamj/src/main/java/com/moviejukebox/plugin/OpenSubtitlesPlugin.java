@@ -13,6 +13,7 @@
 // Based on some code from the opensubtitles.org subtitle upload java applet
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
@@ -174,7 +175,7 @@ public class OpenSubtitlesPlugin {
 
                     if (!subtitleFile.exists()) {
                         if (subtitleDownload(movie, mf.getFile(), subtitleFile) == true) {
-                            movie.setDirty(Movie.DIRTY_INFO, true);
+                            movie.setDirty(DirtyFlag.INFO, true);
                             mf.setSubtitlesExchange(true);
                         }
                     } else {
@@ -186,7 +187,7 @@ public class OpenSubtitlesPlugin {
                             subtitleFileArray[0] = subtitleFile;
 
                             if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == true) {
-                                movie.setDirty(Movie.DIRTY_INFO, true);
+                                movie.setDirty(DirtyFlag.INFO, true);
                                 mf.setSubtitlesExchange(true);
                             }
                         }
@@ -214,7 +215,7 @@ public class OpenSubtitlesPlugin {
                 }
 
                 if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == true) {
-                    movie.setDirty(Movie.DIRTY_INFO, true);
+                    movie.setDirty(DirtyFlag.INFO, true);
 
                     // Go over all the movie files and mark the exchange
                     for (MovieFile mf : movie.getMovieFiles()) {
@@ -303,8 +304,8 @@ public class OpenSubtitlesPlugin {
 
         try {
 
-            String ret = "";
-            String xml = "";
+            String ret;
+            String xml;
 
             String idmovieimdb = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID).substring(2);
             idmovieimdb = String.valueOf(Integer.parseInt(idmovieimdb));

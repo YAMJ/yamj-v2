@@ -16,6 +16,7 @@ import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;
 import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.FanartScanner;
@@ -166,7 +167,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.setCast(series.getActors());
                     }
 
-                    if (includeWideBanners && isNotValidString(movie.getBannerURL()) || (forceBannerOverwrite) || movie.isDirty(Movie.DIRTY_BANNER)) {
+                    if (includeWideBanners && isNotValidString(movie.getBannerURL()) || (forceBannerOverwrite) || movie.isDirty(DirtyFlag.BANNER)) {
                         Banners banners = getBanners(id);
 
                         final int season = movie.getSeason();
@@ -225,7 +226,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
     }
 
     private void getFanart(Movie movie) {
-        if (downloadFanart && isNotValidString(movie.getFanartURL()) || (forceFanartOverwrite) || movie.isDirty(Movie.DIRTY_BANNER)) {
+        if (downloadFanart && isNotValidString(movie.getFanartURL()) || (forceFanartOverwrite) || movie.isDirty(DirtyFlag.BANNER)) {
 
             String url = FanartScanner.getFanartURL(movie);
 

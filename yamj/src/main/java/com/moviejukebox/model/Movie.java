@@ -67,18 +67,18 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * Caching - Dirty Flags More of these flags can be added to further
      * classify what changed
      */
-    public static final String DIRTY_NFO = "NFO";
-    public static final String DIRTY_FANART = "FANART";
-    public static final String DIRTY_POSTER = "POSTER";
-    public static final String DIRTY_BANNER = "BANNER";
-    public static final String DIRTY_WATCHED = "WATCHED";
-    public static final String DIRTY_INFO = "INFO"; // Information on the video (default)
-    public static final String DIRTY_RECHECK = "RECHECK"; // The movie needs to be rechecked.
-    public static final String DIRTY_CLEARART = "CLEARART";
-    public static final String DIRTY_CLEARLOGO = "CLEARLOGO";
-    public static final String DIRTY_TVTHUMB = "TVTHUMB";
-    public static final String DIRTY_SEASONTHUMB = "SEASONTHUMB";
-    public static final String DIRTY_MOVIEDISC = "MOVIEDISC";
+//    public static final String DirtyFlag.NFO = "NFO";
+//    public static final String DirtyFlag.FANART = "FANART";
+//    public static final String DirtyFlag.POSTER = "POSTER";
+//    public static final String DirtyFlag.BANNER = "BANNER";
+//    public static final String DirtyFlag.WATCHED = "WATCHED";
+//    public static final String DirtyFlag.INFO = "INFO"; // Information on the video (default)
+//    public static final String DirtyFlag.RECHECK = "RECHECK"; // The movie needs to be rechecked.
+//    public static final String DirtyFlag.CLEARART = "CLEARART";
+//    public static final String DirtyFlag.CLEARLOGO = "CLEARLOGO";
+//    public static final String DirtyFlag.TVTHUMB = "TVTHUMB";
+//    public static final String DirtyFlag.SEASONTHUMB = "SEASONTHUMB";
+//    public static final String DirtyFlag.MOVIEDISC = "MOVIEDISC";
 
     /*
      * --------------------------------------------------------------------------------
@@ -182,7 +182,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     // Media file properties
     Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
     Collection<ExtraFile> extraFiles = new TreeSet<ExtraFile>();
-    private Map<String, Boolean> dirtyFlags = new HashMap<String, Boolean>();   // List of the dirty flags associated with the Movie
+    private Map<DirtyFlag, Boolean> dirtyFlags = new EnumMap<DirtyFlag, Boolean>(DirtyFlag.class); // List of the dirty flags associated with the Movie
     private File file;
     private File containerFile;
     // Set information
@@ -282,7 +282,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void addGenre(String genre) {
         if (StringTools.isValidString(genre) && !extra && !genreSkipList.contains(genre.toLowerCase())) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             //logger.debug("Genre added : " + genre);
             genres.add(genre);
         }
@@ -300,7 +300,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void addSet(String set, Integer order) {
         if (StringTools.isValidString(set)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             logger.debug("Set added : " + set + ", order : " + order);
             sets.put(set, order);
         }
@@ -308,7 +308,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void addMovieFile(MovieFile movieFile) {
         if (movieFile != null) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             // Always replace MovieFile
             for (MovieFile mf : this.movieFiles) {
                 if (mf.compareTo(movieFile) == 0) {
@@ -324,7 +324,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void addAward(AwardEvent award) {
         if (award != null) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.awards.add(award);
         }
     }
@@ -341,7 +341,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 }
             }
             if (!duplicate) {
-                setDirty(DIRTY_INFO, true);
+                setDirty(DirtyFlag.INFO, true);
                 people.add(person);
             }
         }
@@ -426,7 +426,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void removeMovieFile(MovieFile movieFile) {
         if (movieFile != null) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             for (MovieFile mf : this.movieFiles) {
                 if (mf.compareTo(movieFile) == 0) {
                     this.movieFiles.remove(mf);
@@ -466,7 +466,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         // Only add extraFile if it doesn't already exists
         if (extraFile != null && !this.extraFiles.contains(extraFile)) {
             if (isNewFile) {
-                setDirty(DIRTY_INFO, true);
+                setDirty(DirtyFlag.INFO, true);
             }
             this.extraFiles.add(extraFile);
         }
@@ -921,8 +921,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return subtitles;
     }
 
-    public void setDirty(String dirtyType, boolean dirty) {
-//        if (dirtyType.equals(DIRTY_POSTER)) {
+    public void setDirty(DirtyFlag dirtyType, boolean dirty) {
+//        if (dirtyType.equals(DirtyFlag.POSTER)
+//                || dirtyType.equals(DirtyFlag.CLEARART)
+//                || dirtyType.equals(DirtyFlag.CLEARLOGO)
+//                || dirtyType.equals(DirtyFlag.TVTHUMB)
+//                || dirtyType.equals(DirtyFlag.SEASONTHUMB)
+//                || dirtyType.equals(DirtyFlag.MOVIEDISC)) {
 //            SystemTools.logException(dirtyType + " " + String.valueOf(dirty));
 //            logger.info("Existing flags: " + showDirty());
 //        }
@@ -930,13 +935,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Clear ALL the dirty flags, and just set DIRTY_INFO to the passed value
+     * Clear ALL the dirty flags, and just set DirtyFlag.INFO to the passed
+     * value
      *
      * @param dirty
      */
     public void setDirty(boolean dirty) {
         clearDirty();
-        setDirty(Movie.DIRTY_INFO, dirty);
+        setDirty(DirtyFlag.INFO, dirty);
     }
 
     /**
@@ -962,7 +968,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         dirtyFlags.clear();
     }
 
-    public boolean isDirty(String dirtyType) {
+    public boolean isDirty(DirtyFlag dirtyType) {
         if (dirtyFlags.get(dirtyType) == null) {
             setDirty(dirtyType, false);
         }
@@ -1018,7 +1024,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             baseName = UNKNOWN;
         }
         if (!baseName.equalsIgnoreCase(this.baseName)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.baseName = baseName;
         }
     }
@@ -1029,14 +1035,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
 
         if (!filename.equalsIgnoreCase(this.baseFilename)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.baseFilename = filename;
         }
     }
 
     public void addDidYouKnow(String fact) {
         if (fact != null && !DidYouKnow.contains(fact)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             DidYouKnow.add(fact);
         }
     }
@@ -1044,18 +1050,18 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setDidYouKnow(Collection<String> facts) {
         if (facts != null && !facts.isEmpty()) {
             DidYouKnow = facts;
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
         }
     }
 
     public void clearDidYouKnow() {
         DidYouKnow.clear();
-        setDirty(DIRTY_INFO, true);
+        setDirty(DirtyFlag.INFO, true);
     }
 
     public void clearAwards() {
         awards.clear();
-        setDirty(DIRTY_INFO, true);
+        setDirty(DirtyFlag.INFO, true);
     }
 
     public void addActor(String actor) {
@@ -1064,7 +1070,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
 
         if (!cast.contains(actor.trim())) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             cast.add(actor.trim());
         }
     }
@@ -1118,13 +1124,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void clearCast() {
-        setDirty(DIRTY_INFO, true);
+        setDirty(DirtyFlag.INFO, true);
         cast.clear();
     }
 
     public void addWriter(String writer) {
         if (writer != null && !writers.contains(writer)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             writers.add(writer);
         }
     }
@@ -1178,7 +1184,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void clearWriters() {
-        setDirty(DIRTY_INFO, true);
+        setDirty(DirtyFlag.INFO, true);
         writers.clear();
     }
 
@@ -1187,7 +1193,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             company = UNKNOWN;
         }
         if (!company.equalsIgnoreCase(this.company)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.company = company;
         }
     }
@@ -1197,7 +1203,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             container = UNKNOWN;
         }
         if (!container.equalsIgnoreCase(this.container)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.container = container;
         }
     }
@@ -1207,7 +1213,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             country = UNKNOWN;
         }
         if (!country.equalsIgnoreCase(this.country)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.country = country;
         }
     }
@@ -1249,13 +1255,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void clearDirectors() {
-        setDirty(DIRTY_INFO, true);
+        setDirty(DirtyFlag.INFO, true);
         directors.clear();
     }
 
     public void addDirector(String director) {
         if (director != null && !directors.contains(director)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             directors.add(director);
         }
     }
@@ -1292,7 +1298,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             first = UNKNOWN;
         }
         if (!first.equalsIgnoreCase(this.first)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.first = first;
         }
     }
@@ -1300,7 +1306,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setFps(float fps) {
         //Prevent wrong result caused by floating point rounding by allowing difference of 0.1 fpsS
         if (Math.abs(fps - this.fps) > 0.1) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.fps = fps;
         }
     }
@@ -1327,12 +1333,12 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 this.genres = genresToAdd;
             }
 
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
         }
     }
 
     public void setSets(Map<String, Integer> sets) {
-        setDirty(DIRTY_INFO, true);
+        setDirty(DirtyFlag.INFO, true);
         this.sets = sets;
     }
 
@@ -1349,7 +1355,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     @Override
     public void setId(String key, String id) {
         if (StringTools.isValidString(key) && StringTools.isValidString(id) && !id.equalsIgnoreCase(this.getId(key))) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.idMap.put(key, id);
         }
     }
@@ -1360,7 +1366,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setGross(String country, String value) {
         if (StringTools.isValidString(country) && StringTools.isValidString(value) && !value.equalsIgnoreCase(this.getGross(country))) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.gross.put(country, value);
         }
     }
@@ -1373,7 +1379,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setOpenWeek(String country, String value) {
         if (StringTools.isValidString(country) && StringTools.isValidString(value) && !value.equalsIgnoreCase(this.getOpenWeek(country))) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.openweek.put(country, value);
         }
     }
@@ -1389,7 +1395,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             language = UNKNOWN;
         }
         if (!language.equalsIgnoreCase(this.language)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.language = language;
         }
     }
@@ -1399,7 +1405,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             certification = NOTRATED;
         }
         this.certification = certification;
-        setDirty(DIRTY_INFO, true);
+        setDirty(DirtyFlag.INFO, true);
     }
 
     public void setLast(String last) {
@@ -1407,28 +1413,28 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             last = UNKNOWN;
         }
         if (!last.equalsIgnoreCase(this.last)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.last = last;
         }
     }
 
     public void setMovieFiles(Collection<MovieFile> movieFiles) {
-        setDirty(DIRTY_INFO, true);
+        setDirty(DirtyFlag.INFO, true);
         this.movieFiles = movieFiles;
     }
 
     public void setExtraFiles(Collection<ExtraFile> extraFiles) {
-        setDirty(DIRTY_INFO, true);
+        setDirty(DirtyFlag.INFO, true);
         this.extraFiles = extraFiles;
     }
 
     public void setAwards(Collection<AwardEvent> awards) {
-        setDirty(DIRTY_INFO, true);
+        setDirty(DirtyFlag.INFO, true);
         this.awards = awards;
     }
 
     public void setPeople(Collection<Filmography> people) {
-        setDirty(DIRTY_INFO, true);
+        setDirty(DirtyFlag.INFO, true);
         this.people = people;
     }
 
@@ -1437,7 +1443,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             next = UNKNOWN;
         }
         if (!next.equalsIgnoreCase(this.next)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.next = next;
         }
     }
@@ -1447,7 +1453,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             plot = UNKNOWN;
         }
         if (!plot.equalsIgnoreCase(this.plot)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             plot = plot.replaceAll("\"", "'");
             this.plot = plot;
         }
@@ -1463,7 +1469,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
 
         if (!outline.equalsIgnoreCase(this.outline)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             outline = outline.replaceAll("\"", "'");
             this.outline = outline;
         }
@@ -1474,7 +1480,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             previous = UNKNOWN;
         }
         if (!previous.equalsIgnoreCase(this.previous)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.previous = previous;
         }
     }
@@ -1541,7 +1547,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 if (ratings.get(site) != rating) {
                     ratings.remove(site);
                     ratings.put(site, rating);
-                    setDirty(DIRTY_INFO, true);
+                    setDirty(DirtyFlag.INFO, true);
                 }
             } else {
                 ratings.put(site, rating);
@@ -1560,7 +1566,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             releaseDate = UNKNOWN;
         }
         if (!releaseDate.equalsIgnoreCase(this.releaseDate)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.releaseDate = releaseDate;
         }
     }
@@ -1571,7 +1577,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
 
         if (!resolution.equalsIgnoreCase(this.resolution)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.resolution = resolution;
         }
     }
@@ -1589,7 +1595,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
 
         if (!runtime.equalsIgnoreCase(this.runtime)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             // Escape the first "0" AlloCine gives sometimes
             if (runtime.startsWith("0")) {
                 this.runtime = new String(runtime.substring(1)).trim();
@@ -1605,7 +1611,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
 
         if (!subtitles.equals(this.subtitles)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.subtitles = subtitles;
         }
     }
@@ -1616,7 +1622,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
 
         if (!name.equals(this.title)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.title = name;
 
             // If we don't have a original title, then use the title
@@ -1639,7 +1645,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
             // Issue 1908: Replace all non-standard characters in the title sort
             this.titleSort = getStrippedTitle(StringTools.stringMapReplacement(new String(text.substring(idx))));
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
         }
     }
 
@@ -1649,7 +1655,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
 
         if (!name.equals(this.originalTitle)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.originalTitle = name;
         }
     }
@@ -1687,7 +1693,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             videoOutput = UNKNOWN;
         }
         if (!videoOutput.equalsIgnoreCase(this.videoOutput)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.videoOutput = videoOutput;
         }
     }
@@ -1697,7 +1703,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             videoSource = UNKNOWN;
         }
         if (!videoSource.equalsIgnoreCase(this.videoSource)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.videoSource = videoSource;
         }
     }
@@ -1707,14 +1713,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             year = UNKNOWN;
         }
         if (!year.equalsIgnoreCase(this.year)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.year = year;
         }
     }
 
     public void setBudget(String budget) {
         if (budget != null && !this.budget.equalsIgnoreCase(budget)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.budget = budget;
         }
     }
@@ -1728,7 +1734,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             quote = UNKNOWN;
         }
         if (!quote.equalsIgnoreCase(this.quote)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.quote = quote;
         }
     }
@@ -1818,7 +1824,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * @param extra Boolean flag, true=extra file, false=normal file
      */
     public void setExtra(boolean extra) {
-        setDirty(DIRTY_INFO, true);
+        setDirty(DirtyFlag.INFO, true);
         this.extra = extra;
         if (extra) {
             genres.clear();
@@ -1841,7 +1847,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setTrailerExchange(Boolean trailerExchange) {
         if (this.trailerExchange != trailerExchange) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.trailerExchange = trailerExchange;
         }
     }
@@ -1867,7 +1873,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      */
     public void setTrailerLastScan(long lastScan) {
         if (lastScan != this.trailerLastScan) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.trailerLastScan = lastScan;
         }
     }
@@ -1906,7 +1912,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             movieType = TYPE_UNKNOWN;
         }
         if (!this.movieType.equals(movieType)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.movieType = movieType;
         }
     }
@@ -1920,7 +1926,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             formatType = TYPE_FILE;
         }
         if (!this.formatType.equals(formatType)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.formatType = formatType;
         }
     }
@@ -1934,7 +1940,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             videoType = UNKNOWN;
         }
         if (!this.videoType.equals(videoType)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.videoType = videoType;
         }
     }
@@ -1984,7 +1990,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setTop250(int top250) {
         if (top250 != this.top250) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.top250 = top250;
         }
     }
@@ -1999,7 +2005,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
         if (!libraryDescription.equals(this.libraryDescription)) {
             this.libraryDescription = libraryDescription;
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
         }
     }
 
@@ -2222,7 +2228,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringTools.isValidString(posterURL)) {
             // If the artwork URL is different, then change it, otheriwse leave alone.
             if (!posterURL.equalsIgnoreCase(this.posterURL)) {
-                setDirty(Movie.DIRTY_POSTER, true);
+                setDirty(DirtyFlag.POSTER, true);
                 this.posterURL = posterURL;
             }
         } else {
@@ -2308,7 +2314,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setFanartURL(String fanartURL) {
         if (StringTools.isValidString(fanartURL)) {
             if (!fanartURL.equalsIgnoreCase(this.fanartURL)) {
-                setDirty(Movie.DIRTY_FANART, true);
+                setDirty(DirtyFlag.FANART, true);
                 this.fanartURL = fanartURL;
             }
         } else {
@@ -2339,7 +2345,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setBannerURL(String bannerURL) {
         if (StringTools.isValidString(bannerURL)) {
             if (!bannerURL.equalsIgnoreCase(this.bannerURL)) {
-                setDirty(DIRTY_BANNER, true);
+                setDirty(DirtyFlag.BANNER, true);
                 this.bannerURL = bannerURL;
             }
         } else {
@@ -2369,7 +2375,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setClearLogoURL(String clearLogoURL) {
         if (StringTools.isValidString(clearLogoURL)) {
             if (!clearLogoURL.equalsIgnoreCase(this.clearLogoURL)) {
-                setDirty(Movie.DIRTY_CLEARLOGO, true);
+                setDirty(DirtyFlag.CLEARLOGO, true);
                 this.clearLogoURL = clearLogoURL;
             }
         } else {
@@ -2400,7 +2406,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setClearArtURL(String clearArtURL) {
         if (StringTools.isValidString(clearArtURL)) {
             if (!clearArtURL.equalsIgnoreCase(this.clearArtURL)) {
-                setDirty(Movie.DIRTY_CLEARART, true);
+                setDirty(DirtyFlag.CLEARART, true);
                 this.clearArtURL = clearArtURL;
             }
         } else {
@@ -2410,7 +2416,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     @XmlElement(name = "clearArtFile")
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
-    public String getClearartFilename() {
+    public String getClearArtFilename() {
         return clearArtFilename;
     }
 
@@ -2431,7 +2437,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setTvThumbURL(String tvThumbURL) {
         if (StringTools.isValidString(tvThumbURL)) {
             if (!tvThumbURL.equalsIgnoreCase(this.tvThumbURL)) {
-                setDirty(Movie.DIRTY_TVTHUMB, true);
+                setDirty(DirtyFlag.TVTHUMB, true);
                 this.tvThumbURL = tvThumbURL;
             }
         } else {
@@ -2462,7 +2468,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setSeasonThumbURL(String seasonThumbURL) {
         if (StringTools.isValidString(seasonThumbURL)) {
             if (!seasonThumbURL.equalsIgnoreCase(this.seasonThumbURL)) {
-                setDirty(Movie.DIRTY_SEASONTHUMB, true);
+                setDirty(DirtyFlag.SEASONTHUMB, true);
                 this.seasonThumbURL = seasonThumbURL;
             }
         } else {
@@ -2493,7 +2499,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setMovieDiscURL(String movieDiscURL) {
         if (StringTools.isValidString(movieDiscURL)) {
             if (!movieDiscURL.equalsIgnoreCase(this.movieDiscURL)) {
-                setDirty(Movie.DIRTY_MOVIEDISC, true);
+                setDirty(DirtyFlag.MOVIEDISC, true);
                 this.movieDiscURL = movieDiscURL;
             }
         } else {
@@ -2549,7 +2555,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
 
         if (!tagline.equalsIgnoreCase(this.tagline)) {
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
             this.tagline = tagline;
         }
     }
@@ -2767,7 +2773,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.indexes = new HashMap<String, String>(aMovie.indexes);
         newMovie.movieFiles = new TreeSet<MovieFile>(aMovie.movieFiles);
         newMovie.extraFiles = new TreeSet<ExtraFile>(aMovie.extraFiles);
-        newMovie.dirtyFlags = new HashMap<String, Boolean>(aMovie.dirtyFlags);
+        newMovie.dirtyFlags = new EnumMap<DirtyFlag, Boolean>(aMovie.dirtyFlags);
         newMovie.codecs = new LinkedHashSet<Codec>(aMovie.codecs);
         newMovie.footerFilename = new ArrayList<String>(aMovie.footerFilename);
 
@@ -2780,7 +2786,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setCodecs(Set<Codec> codecs) {
         this.codecs = codecs;
-        setDirty(DIRTY_INFO, true);
+        setDirty(DirtyFlag.INFO, true);
     }
 
     public void addCodec(Codec codec) {
@@ -2795,7 +2801,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
         if (!alreadyExists) {
             this.codecs.add(codec);
-            setDirty(DIRTY_INFO, true);
+            setDirty(DirtyFlag.INFO, true);
         }
     }
 }

@@ -13,7 +13,6 @@
 package com.moviejukebox;
 
 import com.moviejukebox.fanarttv.model.FTArtworkType;
-import com.moviejukebox.fanarttv.model.FanartTvArtwork;
 import com.moviejukebox.model.Comparator.PersonComparator;
 import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.*;
@@ -708,6 +707,8 @@ public class MovieJukebox {
             public FanartTvPlugin fanartTvPlugin = new FanartTvPlugin();
             public RottenTomatoesPlugin rtPlugin = new RottenTomatoesPlugin();
             public TrailerScanner trailerScanner = new TrailerScanner();
+//            public ArtworkScanner caScanner = new ClearArtScanner();
+//            public ArtworkScanner mlScanner = new MovieLogoScanner();
         }
 
         final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
@@ -958,6 +959,14 @@ public class MovieJukebox {
 
                             // Get ClearART/LOGOS/etc
                             if (extraArtworkDownload) {
+                                if (movie.isTVShow()) {
+                                    // Only scan using the TV Show artwork scanners
+//                                    tools.caScanner.scan(jukebox, movie);
+                                } else {
+                                    // Only scan using the Movie artwork scanners
+//                                    tools.mlScanner.scan(jukebox, movie);
+                                }
+
                                 tools.fanartTvPlugin.scan(movie);
                                 updateFanartTv(jukebox, movie, tools.imagePlugin);
                             }
@@ -1195,7 +1204,7 @@ public class MovieJukebox {
                         }
 
                         if (dirty) {
-                            movie.setDirty(Movie.DIRTY_INFO, true);
+                            movie.setDirty(DirtyFlag.INFO, true);
                         }
                     }
 
@@ -1748,11 +1757,11 @@ public class MovieJukebox {
                 // Only re-scan the nfo files if one of them is newer
                 if (FileTools.isNewer(nfoFile, xmlFile)) {
                     logger.info("NFO for " + movie.getOriginalTitle() + " (" + nfoFile.getAbsolutePath() + ") has changed, will rescan file.");
-                    movie.setDirty(Movie.DIRTY_NFO, true);
-                    movie.setDirty(Movie.DIRTY_INFO, true);
-                    movie.setDirty(Movie.DIRTY_POSTER, true);
-                    movie.setDirty(Movie.DIRTY_FANART, true);
-                    movie.setDirty(Movie.DIRTY_BANNER, true);
+                    movie.setDirty(DirtyFlag.NFO, true);
+                    movie.setDirty(DirtyFlag.INFO, true);
+                    movie.setDirty(DirtyFlag.POSTER, true);
+                    movie.setDirty(DirtyFlag.FANART, true);
+                    movie.setDirty(DirtyFlag.BANNER, true);
                     forceXMLOverwrite = true;
                     break; // one is enough
                 }
@@ -1778,7 +1787,7 @@ public class MovieJukebox {
             MovieNFOScanner.scan(movieNFO, nfoFiles);
             if (!Arrays.equals(movieNFO.getSetsKeys().toArray(), movie.getSetsKeys().toArray())) {
                 movie.setSets(movieNFO.getSets());
-                movie.setDirty(Movie.DIRTY_NFO, true);
+                movie.setDirty(DirtyFlag.NFO, true);
             }
 
             // If we are overwiting the indexes, we need to check for an update to the library description
@@ -1790,7 +1799,7 @@ public class MovieJukebox {
                         logger.debug("Changing libray description for movie '" + movie.getTitle() + "' from " + movie.getLibraryDescription() + " to " + mlp.getDescription());
                         library.addDirtyLibrary(movie.getLibraryDescription());
                         movie.setLibraryDescription(mlp.getDescription());
-                        movie.setDirty(Movie.DIRTY_INFO, true);
+                        movie.setDirty(DirtyFlag.INFO, true);
                         break;
                     }
                 }
@@ -1801,8 +1810,8 @@ public class MovieJukebox {
                 logger.info("Recheck of " + movie.getBaseName() + " required");
                 forceXMLOverwrite = true;
                 // Don't think we need the DIRTY_INFO with the RECHECK, so long as it is checked for specifically
-                //movie.setDirty(Movie.DIRTY_INFO, true);
-                movie.setDirty(Movie.DIRTY_RECHECK, true);
+                //movie.setDirty(DirtyFlag.INFO, true);
+                movie.setDirty(DirtyFlag.RECHECK, true);
             }
 
             if (peopleScan && movie.getPeople().isEmpty() && (movie.getCast().size() + movie.getWriters().size() + movie.getDirectors().size()) > 0) {
@@ -1910,7 +1919,7 @@ public class MovieJukebox {
             }
 
             // Added forceXMLOverwrite for issue 366
-            if (!isValidString(movie.getPosterURL()) || movie.isDirty(Movie.DIRTY_POSTER)) {
+            if (!isValidString(movie.getPosterURL()) || movie.isDirty(DirtyFlag.POSTER)) {
                 PosterScanner.scan(jukebox, movie);
             }
 
@@ -1923,7 +1932,7 @@ public class MovieJukebox {
 
             // Check for new fanart if we need to (Issue 1563)
             if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
-                if (!isValidString(movie.getFanartURL()) || movie.isDirty(Movie.DIRTY_FANART)) {
+                if (!isValidString(movie.getFanartURL()) || movie.isDirty(DirtyFlag.FANART)) {
                     FanartScanner.scan(backgroundPlugin, jukebox, movie);
                 }
             }
@@ -1943,7 +1952,7 @@ public class MovieJukebox {
             }
         }
         if (photoFound) {
-            movie.setDirty(Movie.DIRTY_INFO, true);
+            movie.setDirty(DirtyFlag.INFO, true);
         }
 
         // Update footer format if needed
@@ -1960,7 +1969,7 @@ public class MovieJukebox {
             }
         }
 
-        return movie.isDirty(Movie.DIRTY_INFO) || movie.isDirty(Movie.DIRTY_NFO);
+        return movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.NFO);
     }
 
     public void updatePersonData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Person person, MovieImagePlugin imagePlugin) throws FileNotFoundException, XMLStreamException {
@@ -2018,7 +2027,7 @@ public class MovieJukebox {
         // Download poster
 
         // Do not overwrite existing posters, unless there is a new poster URL in the nfo file.
-        if ((!tmpDestFile.exists() && !posterFile.exists()) || movie.isDirty(Movie.DIRTY_POSTER) || forcePosterOverwrite) {
+        if ((!tmpDestFile.exists() && !posterFile.exists()) || movie.isDirty(DirtyFlag.POSTER) || forcePosterOverwrite) {
             posterFile.getParentFile().mkdirs();
 
             if (!isValidString(movie.getPosterURL())) {
@@ -2062,32 +2071,32 @@ public class MovieJukebox {
 
         if (requiredArtworkTypes.contains(FTArtworkType.CLEARART)
                 && StringTools.isValidString(movie.getClearArtURL())
-                && StringTools.isValidString(movie.getClearartFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getClearartFilename(), movie.getClearArtURL(), FTArtworkType.CLEARART, Movie.DIRTY_CLEARART, forceFanartTvOverwrite);
+                && StringTools.isValidString(movie.getClearArtFilename())) {
+            processArtworktToFile(movie, imagePlugin, movie.getClearArtFilename(), movie.getClearArtURL(), FTArtworkType.CLEARART, DirtyFlag.CLEARART, forceFanartTvOverwrite);
         }
 
         if (requiredArtworkTypes.contains(FTArtworkType.CLEARLOGO)
                 && StringTools.isValidString(movie.getClearLogoURL())
                 && StringTools.isValidString(movie.getClearLogoFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getClearLogoFilename(), movie.getClearLogoURL(), FTArtworkType.CLEARLOGO, Movie.DIRTY_CLEARLOGO, forceFanartTvOverwrite);
+            processArtworktToFile(movie, imagePlugin, movie.getClearLogoFilename(), movie.getClearLogoURL(), FTArtworkType.CLEARLOGO, DirtyFlag.CLEARLOGO, forceFanartTvOverwrite);
         }
 
         if (requiredArtworkTypes.contains(FTArtworkType.SEASONTHUMB)
                 && StringTools.isValidString(movie.getSeasonThumbURL())
                 && StringTools.isValidString(movie.getSeasonThumbFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getSeasonThumbFilename(), movie.getSeasonThumbURL(), FTArtworkType.SEASONTHUMB, Movie.DIRTY_SEASONTHUMB, forceFanartTvOverwrite);
+            processArtworktToFile(movie, imagePlugin, movie.getSeasonThumbFilename(), movie.getSeasonThumbURL(), FTArtworkType.SEASONTHUMB, DirtyFlag.SEASONTHUMB, forceFanartTvOverwrite);
         }
 
         if (requiredArtworkTypes.contains(FTArtworkType.TVTHUMB)
                 && StringTools.isValidString(movie.getTvThumbURL())
                 && StringTools.isValidString(movie.getTvThumbFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getTvThumbFilename(), movie.getTvThumbURL(), FTArtworkType.TVTHUMB, Movie.DIRTY_TVTHUMB, forceFanartTvOverwrite);
+            processArtworktToFile(movie, imagePlugin, movie.getTvThumbFilename(), movie.getTvThumbURL(), FTArtworkType.TVTHUMB, DirtyFlag.TVTHUMB, forceFanartTvOverwrite);
         }
 
         if (requiredArtworkTypes.contains(FTArtworkType.MOVIEDISC)
                 && StringTools.isValidString(movie.getMovieDiscURL())
                 && StringTools.isValidString(movie.getMovieDiscFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getMovieDiscFilename(), movie.getMovieDiscURL(), FTArtworkType.MOVIEDISC, Movie.DIRTY_MOVIEDISC, forceFanartTvOverwrite);
+            processArtworktToFile(movie, imagePlugin, movie.getMovieDiscFilename(), movie.getMovieDiscURL(), FTArtworkType.MOVIEDISC, DirtyFlag.MOVIEDISC, forceFanartTvOverwrite);
         }
     }
 
@@ -2100,11 +2109,11 @@ public class MovieJukebox {
      * @param artworkUrl This should the URL of the artwork to download
      * @param artworkType This should be the type of artwork to download. Used
      * in the imagePlugin
-     * @param dirtyFlag This should be the Movie.DIRTY_??? flag to use
+     * @param dirtyFlag This should be the DirtyFlag.??? flag to use
      * @param forceOverwrite This should be the relevant forceOverwrite flag,
      * e.g forcePosterOverwrite.
      */
-    private void processArtworktToFile(Movie movie, MovieImagePlugin imagePlugin, String artworkFilename, String artworkUrl, FTArtworkType artworkType, String dirtyFlag, boolean forceOverwrite) {
+    private void processArtworktToFile(Movie movie, MovieImagePlugin imagePlugin, String artworkFilename, String artworkUrl, FTArtworkType artworkType, DirtyFlag dirtyFlag, boolean forceOverwrite) {
         File artworkFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + artworkFilename);
         String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + artworkFilename;
         File tmpDestFile = new File(tmpDestFilename);
@@ -2161,7 +2170,7 @@ public class MovieJukebox {
         // Download banner
 
         // Do not overwrite existing banners, unless there is a new poster URL in the nfo file.
-        if ((!tmpDestFile.exists() && !bannerFile.exists()) || movie.isDirty(Movie.DIRTY_BANNER) || forceBannerOverwrite) {
+        if ((!tmpDestFile.exists() && !bannerFile.exists()) || movie.isDirty(DirtyFlag.BANNER) || forceBannerOverwrite) {
             bannerFile.getParentFile().mkdirs();
 
             if (isNotValidString(movie.getBannerURL())) {
@@ -2381,7 +2390,7 @@ public class MovieJukebox {
             String olddst = jukebox.getJukeboxRootLocationDetails() + File.separator + safeDetailPosterFilename;
             File fin;
 
-//            logger.info("Dirty     : " + movie.isDirty(Movie.DIRTY_POSTER));
+//            logger.info("Dirty     : " + movie.isDirty(DirtyFlag.POSTER));
 //            logger.info("FPO       : " + forcePosterOverwrite);
 //            logger.info("old exists: " + FileTools.fileCache.fileExists(olddst));
 //            logger.info("SRC Exists: " + src.exists());
@@ -2389,7 +2398,7 @@ public class MovieJukebox {
 //            logger.info("src       : " + src.getAbsolutePath());
 //            logger.info("oldsrc    : " + oldsrc.getAbsolutePath());
 
-            if (movie.isDirty(Movie.DIRTY_POSTER)
+            if (movie.isDirty(DirtyFlag.POSTER)
                     || forcePosterOverwrite
                     || !FileTools.fileCache.fileExists(olddst)
                     || src.exists()) {
