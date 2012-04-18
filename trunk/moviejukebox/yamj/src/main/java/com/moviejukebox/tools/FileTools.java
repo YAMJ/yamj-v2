@@ -15,6 +15,7 @@ package com.moviejukebox.tools;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.scanner.IArchiveScanner;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import java.io.*;
 import java.nio.channels.FileChannel;
@@ -105,13 +106,13 @@ public class FileTools {
         while (st.hasMoreElements()) {
             final String token = st.nextToken();
             String beforeStr = substringBefore(token, "-");
-            final String character = new String(beforeStr.length() == 1 && (beforeStr.equals("\t") || beforeStr.equals(" ")) ? beforeStr : trimToNull(beforeStr));
+            final String character = beforeStr.length() == 1 && (beforeStr.equals("\t") || beforeStr.equals(" ")) ? beforeStr : trimToNull(beforeStr);
             if (character == null) {
                 // TODO Error message?
                 continue;
             }
             String afterStr = substringAfter(token, "-");
-            final String translation = new String(afterStr.length() == 1 && (afterStr.equals("\t") || afterStr.equals(" ")) ? afterStr : trimToNull(afterStr));
+            final String translation = afterStr.length() == 1 && (afterStr.equals("\t") || afterStr.equals(" ")) ? afterStr : trimToNull(afterStr);
             if (translation == null) {
                 // TODO Error message?
                 // TODO Allow empty transliteration?
@@ -741,7 +742,7 @@ public class FileTools {
         private volatile Boolean _isfile = null;
         private volatile Long _len = null;
         private volatile Long _lastModified = null;
-        private ArchiveScanner[] archiveScanners;
+        private IArchiveScanner[] archiveScanners;
 
         //Standard constructors
         public FileEx(String parent, String child) {
@@ -762,12 +763,12 @@ public class FileTools {
         }
 
         // archive scanner supporting constructors
-        public FileEx(String pathname, ArchiveScanner[] archiveScanners) {
+        public FileEx(String pathname, IArchiveScanner[] archiveScanners) {
             super(pathname);
             this.archiveScanners = archiveScanners;
         }
 
-        public FileEx(File parent, String child, ArchiveScanner[] archiveScanners) {
+        public FileEx(File parent, String child, IArchiveScanner[] archiveScanners) {
             this(parent, child);
             this.archiveScanners = archiveScanners;
         }
@@ -857,7 +858,7 @@ public class FileTools {
                 List<String> mutableNames = new ArrayList<String>(Arrays.asList(nameStrings));
                 List<File> files = new ArrayList<File>();
                 if (archiveScanners != null) {
-                    for (ArchiveScanner as : archiveScanners) {
+                    for (IArchiveScanner as : archiveScanners) {
                         files.addAll(as.getArchiveFiles(this, mutableNames));
                     }
                 }

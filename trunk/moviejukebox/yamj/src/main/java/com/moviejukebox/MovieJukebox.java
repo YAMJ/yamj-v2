@@ -1054,13 +1054,14 @@ public class MovieJukebox {
                         for (Filmography person : movie.getPeople()) {
                             boolean exists = false;
                             String name = person.getName();
-                            for (String key : popularPeople.keySet()) {
-                                if (key.substring(3).equalsIgnoreCase(name)) {
-                                    popularPeople.get(key).addDepartment(person.getDepartment());
-                                    popularPeople.get(key).popularityUp(movie);
+                            for (Map.Entry<String, Person> entry : popularPeople.entrySet()) {
+                                if (entry.getKey().substring(3).equalsIgnoreCase(name)) {
+                                    entry.getValue().addDepartment(person.getDepartment());
+                                    entry.getValue().popularityUp(movie);
                                     exists = true;
                                 }
                             }
+
                             if (!exists) {
                                 Person p = new Person(person);
                                 p.addDepartment(p.getDepartment());

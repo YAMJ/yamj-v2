@@ -384,6 +384,13 @@ public class MovieFile implements Comparable<MovieFile> {
         public int part;
         @XmlValue
         public String value;
+
+        public PartDataDTO() {}
+
+        public PartDataDTO(int part, String value) {
+            this.part = part;
+            this.value = value;
+        }
     }
 
     @XmlElement(name = "filePlot")
@@ -440,12 +447,11 @@ public class MovieFile implements Comparable<MovieFile> {
 
     private static List<PartDataDTO> toPartDataList(LinkedHashMap<Integer, String> map) {
         List<PartDataDTO> list = new ArrayList<PartDataDTO>();
-        for (Integer part : map.keySet()) {
-            PartDataDTO p = new PartDataDTO();
-            p.part = part;
-            p.value = map.get(part);
-            list.add(p);
+
+        for (Map.Entry<Integer, String> part : map.entrySet()) {
+            list.add(new PartDataDTO(part.getKey(), part.getValue()));
         }
+        
         return list;
     }
 

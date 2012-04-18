@@ -10,13 +10,13 @@
  *      For any reuse or distribution, you must make clear to others the 
  *      license terms of this work.  
  */
-package com.moviejukebox.tools;
+package com.moviejukebox.scanner;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
-public interface ArchiveScanner {
+public interface IArchiveScanner {
 
     // creates Files from mutableNames clearing them from the list.
     public Collection<? extends File> getArchiveFiles(File parent, List<String> mutableNames);

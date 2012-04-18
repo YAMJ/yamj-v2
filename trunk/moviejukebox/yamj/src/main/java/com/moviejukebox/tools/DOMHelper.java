@@ -72,8 +72,8 @@ public class DOMHelper {
         child.appendChild(text);
 
         if (childAttributes != null && !childAttributes.isEmpty()) {
-            for (String attrib : childAttributes.keySet()) {
-                child.setAttribute(attrib, childAttributes.get(attrib));
+            for(Map.Entry<String, String> attrib : childAttributes.entrySet()) {
+                child.setAttribute(attrib.getKey(), attrib.getValue());
             }
         }
 
