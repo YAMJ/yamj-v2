@@ -38,6 +38,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.stream.XMLStreamException;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -116,18 +117,12 @@ public class MovieJukebox {
         PropertyConfigurator.configure("properties/log4j.properties");
 
         // Just create a pretty underline.
-        StringBuilder mjbTitle = new StringBuilder();
-
         if (mjbVersion == null) {
             mjbVersion = "";
         }
 
-        for (int i = 1; i <= mjbVersion.length(); i++) {
-            mjbTitle.append("~");
-        }
-
         logger.info("Yet Another Movie Jukebox " + mjbVersion);
-        logger.info("~~~ ~~~~~~~ ~~~~~ ~~~~~~~ " + mjbTitle);
+        logger.info("~~~ ~~~~~~~ ~~~~~ ~~~~~~~ " + StringUtils.repeat("~", mjbVersion.length()));
         logger.info("http://code.google.com/p/moviejukebox/");
         logger.info("Copyright (c) 2004-2012 YAMJ Members");
         logger.info("");
@@ -705,18 +700,17 @@ public class MovieJukebox {
                     "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
             public MediaInfoScanner miScanner = new MediaInfoScanner();
             public OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
-            public FanartTvPlugin fanartTvPlugin = new FanartTvPlugin();
             public RottenTomatoesPlugin rtPlugin = new RottenTomatoesPlugin();
             public TrailerScanner trailerScanner = new TrailerScanner();
             // Fanart.TV TV Artwork Scanners
-//            public ArtworkScanner clearArtScanner = new FanartTvScanner(ArtworkType.ClearArt);
-//            public ArtworkScanner clearLogoScanner = new FanartTvScanner(ArtworkType.ClearLogo);
-//            public ArtworkScanner tvThumbScanner = new FanartTvScanner(ArtworkType.TvThumb);
-//            public ArtworkScanner seasonThumbScanner = new FanartTvScanner(ArtworkType.SeasonThumb);
+            public ArtworkScanner clearArtScanner = new FanartTvScanner(ArtworkType.ClearArt);
+            public ArtworkScanner clearLogoScanner = new FanartTvScanner(ArtworkType.ClearLogo);
+            public ArtworkScanner tvThumbScanner = new FanartTvScanner(ArtworkType.TvThumb);
+            public ArtworkScanner seasonThumbScanner = new FanartTvScanner(ArtworkType.SeasonThumb);
             // Fanart.TV Movie Artwork Scanners
-//            public ArtworkScanner movieArtScanner = new FanartTvScanner(ArtworkType.MovieArt);
-//            public ArtworkScanner movieLogoScanner = new FanartTvScanner(ArtworkType.MovieLogo);
-//            public ArtworkScanner movieDiscScanner = new FanartTvScanner(ArtworkType.MovieDisc);
+            public ArtworkScanner movieArtScanner = new FanartTvScanner(ArtworkType.MovieArt);
+            public ArtworkScanner movieLogoScanner = new FanartTvScanner(ArtworkType.MovieLogo);
+            public ArtworkScanner movieDiscScanner = new FanartTvScanner(ArtworkType.MovieDisc);
         }
 
         final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
@@ -969,19 +963,28 @@ public class MovieJukebox {
                             if (extraArtworkDownload) {
                                 if (movie.isTVShow()) {
                                     // Only scan using the TV Show artwork scanners
-//                                    tools.clearArtScanner.scan(jukebox, movie);
-//                                    tools.clearLogoScanner.scan(jukebox, movie);
-//                                    tools.tvThumbScanner.scan(jukebox, movie);
-//                                    tools.seasonThumbScanner.scan(jukebox, movie);
+                                    tools.clearArtScanner.scan(jukebox, movie);
+                                    tools.clearArtScanner.saveArtworkToJukebox(jukebox, movie);
+
+                                    tools.clearLogoScanner.scan(jukebox, movie);
+                                    tools.clearLogoScanner.saveArtworkToJukebox(jukebox, movie);
+
+                                    tools.tvThumbScanner.scan(jukebox, movie);
+                                    tools.tvThumbScanner.saveArtworkToJukebox(jukebox, movie);
+
+                                    tools.seasonThumbScanner.scan(jukebox, movie);
+                                    tools.seasonThumbScanner.saveArtworkToJukebox(jukebox, movie);
                                 } else {
                                     // Only scan using the Movie artwork scanners
-//                                    tools.movieArtScanner.scan(jukebox, movie);
-//                                    tools.movieDiscScanner.scan(jukebox, movie);
-//                                    tools.movieLogoScanner.scan(jukebox, movie);
-                                }
+                                    tools.movieArtScanner.scan(jukebox, movie);
+                                    tools.movieArtScanner.saveArtworkToJukebox(jukebox, movie);
 
-                                tools.fanartTvPlugin.scan(movie);
-                                updateFanartTv(jukebox, movie, tools.imagePlugin);
+                                    tools.movieDiscScanner.scan(jukebox, movie);
+                                    tools.movieDiscScanner.saveArtworkToJukebox(jukebox, movie);
+
+                                    tools.movieLogoScanner.scan(jukebox, movie);
+                                    tools.movieLogoScanner.saveArtworkToJukebox(jukebox, movie);
+                                }
                             }
 
                             for (int i = 0; i < footerCount; i++) {
@@ -2061,114 +2064,13 @@ public class MovieJukebox {
     }
 
     /**
-     * Update the FanartTV Artwork for the specified TV Show. There can be more
-     * than one type of artwork and more than one quantity of each artwork.
+     * Update the banner for the specified TV Show.
      *
-     * @param jukebox
-     * @param movie
-     * @param imagePlugin
-     */
-    public void updateFanartTv(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
-        logger.debug("Updating FanartTv images for " + movie.getBaseName());
-
-        List<FTArtworkType> requiredArtworkTypes = new ArrayList<FTArtworkType>();
-        for (String artType : PropertiesUtil.getProperty("fanarttv.types", "clearart,clearlogo,seasonthumb,tvthumb").toLowerCase().split(",")) {
-            try {
-                requiredArtworkTypes.add(FTArtworkType.fromString(artType));
-            } catch (IllegalArgumentException ex) {
-                // Don't add the invalid type
-            }
-        }
-
-        boolean forceFanartTvOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartTvOverwrite", "false");
-
-        if (requiredArtworkTypes.contains(FTArtworkType.CLEARART)
-                && StringTools.isValidString(movie.getClearArtURL())
-                && StringTools.isValidString(movie.getClearArtFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getClearArtFilename(), movie.getClearArtURL(), FTArtworkType.CLEARART, DirtyFlag.CLEARART, forceFanartTvOverwrite);
-        }
-
-        if (requiredArtworkTypes.contains(FTArtworkType.CLEARLOGO)
-                && StringTools.isValidString(movie.getClearLogoURL())
-                && StringTools.isValidString(movie.getClearLogoFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getClearLogoFilename(), movie.getClearLogoURL(), FTArtworkType.CLEARLOGO, DirtyFlag.CLEARLOGO, forceFanartTvOverwrite);
-        }
-
-        if (requiredArtworkTypes.contains(FTArtworkType.SEASONTHUMB)
-                && StringTools.isValidString(movie.getSeasonThumbURL())
-                && StringTools.isValidString(movie.getSeasonThumbFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getSeasonThumbFilename(), movie.getSeasonThumbURL(), FTArtworkType.SEASONTHUMB, DirtyFlag.SEASONTHUMB, forceFanartTvOverwrite);
-        }
-
-        if (requiredArtworkTypes.contains(FTArtworkType.TVTHUMB)
-                && StringTools.isValidString(movie.getTvThumbURL())
-                && StringTools.isValidString(movie.getTvThumbFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getTvThumbFilename(), movie.getTvThumbURL(), FTArtworkType.TVTHUMB, DirtyFlag.TVTHUMB, forceFanartTvOverwrite);
-        }
-
-        if (requiredArtworkTypes.contains(FTArtworkType.MOVIEDISC)
-                && StringTools.isValidString(movie.getMovieDiscURL())
-                && StringTools.isValidString(movie.getMovieDiscFilename())) {
-            processArtworktToFile(movie, imagePlugin, movie.getMovieDiscFilename(), movie.getMovieDiscURL(), FTArtworkType.MOVIEDISC, DirtyFlag.MOVIEDISC, forceFanartTvOverwrite);
-        }
-    }
-
-    /**
-     * Save artwork to the disk
+     * When an existing banner is found for the movie, it is not overwritten,
+     * unless the mjb.forcePosterOverwrite is set to true in the property file.
      *
-     * @param movie
-     * @param imagePlugin
-     * @param artworkFilename This should be the FULL filename of the artwork
-     * @param artworkUrl This should the URL of the artwork to download
-     * @param artworkType This should be the type of artwork to download. Used
-     * in the imagePlugin
-     * @param dirtyFlag This should be the DirtyFlag.??? flag to use
-     * @param forceOverwrite This should be the relevant forceOverwrite flag,
-     * e.g forcePosterOverwrite.
-     */
-    private void processArtworktToFile(Movie movie, MovieImagePlugin imagePlugin, String artworkFilename, String artworkUrl, FTArtworkType artworkType, DirtyFlag dirtyFlag, boolean forceOverwrite) {
-        File artworkFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + artworkFilename);
-        String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + artworkFilename;
-        File tmpDestFile = new File(tmpDestFilename);
-
-        logger.debug("Processing " + artworkType.toString() + " for " + movie.getBaseName());
-
-        // Do not overwrite existing artwork, unless there is a new artwork URL in the nfo file.
-        if ((!tmpDestFile.exists() && !artworkFile.exists()) || movie.isDirty(dirtyFlag) || forceOverwrite) {
-            artworkFile.getParentFile().mkdirs();
-
-            if (isNotValidString(artworkUrl)) {
-                logger.debug("Dummy image used for " + movie.getBaseName() + " (" + artworkFilename + ")");
-                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), tmpDestFile);
-            } else {
-                try {
-                    logger.debug("Downloading " + artworkType.toString() + " for " + movie.getBaseName());
-                    FileTools.downloadImage(tmpDestFile, artworkUrl);
-                } catch (Exception error) {
-                    logger.debug("Failed downloading " + artworkType.toString() + ": " + artworkUrl + " - " + error.getMessage());
-                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_" + artworkType.toString().toLowerCase() + ".jpg"), tmpDestFile);
-                }
-            }
-
-            try {
-                BufferedImage artworkImage = GraphicTools.loadJPEGImage(tmpDestFile);
-                if (artworkImage != null) {
-                    // TODO validate tha the artworkType here works
-                    artworkImage = imagePlugin.generate(movie, artworkImage, artworkType.toString().toLowerCase(), null);
-                    GraphicTools.saveImageToDisk(artworkImage, tmpDestFilename);
-                }
-            } catch (Exception error) {
-                logger.debug("MovieJukebox: Failed generate " + artworkType.toString() + ": " + tmpDestFilename);
-            }
-        }
-    }
-
-    /**
-     * Update the banner for the specified TV Show. When an existing banner is
-     * found for the movie, it is not overwritten, unless the
-     * mjb.forcePosterOverwrite is set to true in the property file. When the
-     * specified movie does not contain a valid URL for the banner, a dummy
-     * image is used instead.
+     * When the specified movie does not contain a valid URL for the banner, a
+     * dummy image is used instead.
      *
      */
     public void updateTvBanner(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {

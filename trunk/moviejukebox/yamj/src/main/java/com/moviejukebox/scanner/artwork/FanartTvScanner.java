@@ -12,11 +12,15 @@
  */
 package com.moviejukebox.scanner.artwork;
 
+import com.moviejukebox.fanarttv.model.FTArtworkType;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.FanartTvPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -28,11 +32,20 @@ import org.apache.log4j.Logger;
 public class FanartTvScanner extends ArtworkScanner {
 
     private static final Logger logger = Logger.getLogger(FanartTvScanner.class);
+    private static boolean required;
+    private static final FanartTvPlugin fanartTvPlugin = new FanartTvPlugin();
 
     public FanartTvScanner(ArtworkType fanartTvArtworkType) {
         super(fanartTvArtworkType);
 
-        artworkOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcemjb.forceFanartTvOverwrite", "false");
+        if (StringUtils.containsIgnoreCase(PropertiesUtil.getProperty("fanarttv.types", ""), artworkTypeName)) {
+            required = Boolean.TRUE;
+        } else {
+            required = Boolean.FALSE;
+            return;
+        }
+
+        artworkOverwrite = setOverwrite();
 
         if (PropertiesUtil.getBooleanProperty("scanner." + artworkTypeName + ".debug", "false")) {
             debugOutput();
@@ -41,15 +54,44 @@ public class FanartTvScanner extends ArtworkScanner {
     }
 
     @Override
+    public boolean isRequired() {
+        return required;
+    }
+
+    @Override
+    public String scanLocalArtwork(Jukebox jukebox, Movie movie) {
+        if (isRequired()) {
+            return super.scanLocalArtwork(jukebox, movie, artworkImagePlugin);
+        } else {
+            return Movie.UNKNOWN;
+        }
+    }
+
+    @Override
+    public String scanOnlineArtwork(Movie movie) {
+        // Don't scan if we are not needed
+
+        if (isRequired() && (isOverwrite() || StringTools.isNotValidString(getArtworkUrl(movie)))) {
+            // Lets get all the artwork
+            fanartTvPlugin.scan(movie, FTArtworkType.ALL);
+        }
+        return getArtworkUrl(movie);
+    }
+
+    @Override
     public String getArtworkFilename(Movie movie) {
-        if (artworkType == ArtworkType.ClearArt || artworkType == ArtworkType.MovieArt) {
+        if (artworkType == ArtworkType.ClearArt) {
             return movie.getClearArtFilename();
-        } else if (artworkType == ArtworkType.ClearLogo || artworkType == ArtworkType.MovieLogo) {
+        } else if (artworkType == ArtworkType.ClearLogo) {
             return movie.getClearLogoFilename();
         } else if (artworkType == ArtworkType.TvThumb) {
             return movie.getTvThumbFilename();
         } else if (artworkType == ArtworkType.SeasonThumb) {
             return movie.getSeasonThumbFilename();
+        } else if (artworkType == ArtworkType.MovieArt) {
+            return movie.getClearArtFilename();
+        } else if (artworkType == ArtworkType.MovieLogo) {
+            return movie.getClearLogoFilename();
         } else if (artworkType == ArtworkType.MovieDisc) {
             return movie.getMovieDiscFilename();
         } else if (artworkType == ArtworkType.CharacterArt) {
@@ -60,15 +102,42 @@ public class FanartTvScanner extends ArtworkScanner {
     }
 
     @Override
+    public void setArtworkFilename(Movie movie, String artworkFilename) {
+        if (artworkType == ArtworkType.ClearArt) {
+            movie.setClearArtFilename(artworkFilename);
+        } else if (artworkType == ArtworkType.ClearLogo) {
+            movie.setClearLogoFilename(artworkFilename);
+        } else if (artworkType == ArtworkType.TvThumb) {
+            movie.setTvThumbFilename(artworkFilename);
+        } else if (artworkType == ArtworkType.SeasonThumb) {
+            movie.setSeasonThumbFilename(artworkFilename);
+        } else if (artworkType == ArtworkType.MovieArt) {
+            movie.setClearArtFilename(artworkFilename);
+        } else if (artworkType == ArtworkType.MovieLogo) {
+            movie.setClearLogoFilename(artworkFilename);
+        } else if (artworkType == ArtworkType.MovieDisc) {
+            movie.setMovieDiscFilename(artworkFilename);
+        } else if (artworkType == ArtworkType.CharacterArt) {
+            throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
+        } else {
+            throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
+        }
+    }
+
+    @Override
     public String getArtworkUrl(Movie movie) {
-        if (artworkType == ArtworkType.ClearArt || artworkType == ArtworkType.MovieArt) {
+        if (artworkType == ArtworkType.ClearArt) {
             return movie.getClearArtURL();
-        } else if (artworkType == ArtworkType.ClearLogo || artworkType == ArtworkType.MovieLogo) {
+        } else if (artworkType == ArtworkType.ClearLogo) {
             return movie.getClearLogoURL();
         } else if (artworkType == ArtworkType.TvThumb) {
             return movie.getTvThumbURL();
         } else if (artworkType == ArtworkType.SeasonThumb) {
             return movie.getSeasonThumbURL();
+        } else if (artworkType == ArtworkType.MovieArt) {
+            return movie.getClearArtURL();
+        } else if (artworkType == ArtworkType.MovieLogo) {
+            return movie.getClearLogoURL();
         } else if (artworkType == ArtworkType.MovieDisc) {
             return movie.getMovieDiscURL();
         } else if (artworkType == ArtworkType.CharacterArt) {
@@ -79,15 +148,42 @@ public class FanartTvScanner extends ArtworkScanner {
     }
 
     @Override
+    public void setArtworkUrl(Movie movie, String artworkUrl) {
+        if (artworkType == ArtworkType.ClearArt) {
+            movie.setClearArtURL(artworkUrl);
+        } else if (artworkType == ArtworkType.ClearLogo) {
+            movie.setClearLogoURL(artworkUrl);
+        } else if (artworkType == ArtworkType.TvThumb) {
+            movie.setTvThumbURL(artworkUrl);
+        } else if (artworkType == ArtworkType.SeasonThumb) {
+            movie.setSeasonThumbURL(artworkUrl);
+        } else if (artworkType == ArtworkType.MovieArt) {
+            movie.setClearArtURL(artworkUrl);
+        } else if (artworkType == ArtworkType.MovieLogo) {
+            movie.setClearLogoURL(artworkUrl);
+        } else if (artworkType == ArtworkType.MovieDisc) {
+            movie.setMovieDiscURL(artworkUrl);
+        } else if (artworkType == ArtworkType.CharacterArt) {
+            throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
+        } else {
+            throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
+        }
+    }
+
+    @Override
     public boolean isDirtyArtwork(Movie movie) {
-        if (artworkType == ArtworkType.ClearArt || artworkType == ArtworkType.MovieArt) {
+        if (artworkType == ArtworkType.ClearArt) {
             movie.isDirty(DirtyFlag.CLEARART);
-        } else if (artworkType == ArtworkType.ClearLogo || artworkType == ArtworkType.MovieLogo) {
+        } else if (artworkType == ArtworkType.ClearLogo) {
             movie.isDirty(DirtyFlag.CLEARLOGO);
         } else if (artworkType == ArtworkType.TvThumb) {
             movie.isDirty(DirtyFlag.TVTHUMB);
         } else if (artworkType == ArtworkType.SeasonThumb) {
             movie.isDirty(DirtyFlag.SEASONTHUMB);
+        } else if (artworkType == ArtworkType.MovieArt) {
+            movie.isDirty(DirtyFlag.CLEARART);
+        } else if (artworkType == ArtworkType.MovieLogo) {
+            movie.isDirty(DirtyFlag.CLEARLOGO);
         } else if (artworkType == ArtworkType.MovieDisc) {
             movie.isDirty(DirtyFlag.MOVIEDISC);
         } else if (artworkType == ArtworkType.CharacterArt) {
@@ -99,70 +195,19 @@ public class FanartTvScanner extends ArtworkScanner {
     }
 
     @Override
-    public void setArtworkFilename(Movie movie, String artworkFilename) {
-        if (artworkType == ArtworkType.ClearArt || artworkType == ArtworkType.MovieArt) {
-            movie.setClearArtFilename(artworkFilename);
-        } else if (artworkType == ArtworkType.ClearLogo || artworkType == ArtworkType.MovieLogo) {
-            movie.setClearLogoFilename(artworkFilename);
-        } else if (artworkType == ArtworkType.TvThumb) {
-            movie.setTvThumbFilename(artworkFilename);
-        } else if (artworkType == ArtworkType.SeasonThumb) {
-            movie.setSeasonThumbFilename(artworkFilename);
-        } else if (artworkType == ArtworkType.MovieDisc) {
-            movie.setMovieDiscFilename(artworkFilename);
-        } else if (artworkType == ArtworkType.CharacterArt) {
-            throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
-        } else {
-            throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
-        }
-    }
-
-    @Override
-    public void setArtworkUrl(Movie movie, String artworkUrl) {
-        if (artworkType == ArtworkType.ClearArt || artworkType == ArtworkType.MovieArt) {
-            movie.setClearArtURL(artworkUrl);
-        } else if (artworkType == ArtworkType.ClearLogo || artworkType == ArtworkType.MovieLogo) {
-            movie.setClearLogoURL(artworkUrl);
-        } else if (artworkType == ArtworkType.TvThumb) {
-            movie.setTvThumbURL(artworkUrl);
-        } else if (artworkType == ArtworkType.SeasonThumb) {
-            movie.setSeasonThumbURL(artworkUrl);
-        } else if (artworkType == ArtworkType.MovieDisc) {
-            movie.setMovieDiscURL(artworkUrl);
-        } else if (artworkType == ArtworkType.CharacterArt) {
-            throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
-        } else {
-            throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
-        }
-    }
-
-    @Override
-    public String scanLocalArtwork(Jukebox jukebox, Movie movie) {
-        return super.scanLocalArtwork(jukebox, movie, artworkImagePlugin);
-    }
-
-    @Override
-    public String scanOnlineArtwork(Movie movie) {
-        logger.info(logMessage + "*** USE FANART.TV SCANNER TO GET THE ONLINE IMAGES");
-        return Movie.UNKNOWN;
-    }
-
-    @Override
-    public void setArtworkImagePlugin() {
-        // Use the default image plugin
-        setImagePlugin(null);
-    }
-
-    @Override
     public void setDirtyArtwork(Movie movie, boolean dirty) {
-        if (artworkType == ArtworkType.ClearArt || artworkType == ArtworkType.MovieArt) {
+        if (artworkType == ArtworkType.ClearArt) {
             movie.setDirty(DirtyFlag.CLEARART, dirty);
-        } else if (artworkType == ArtworkType.ClearLogo || artworkType == ArtworkType.MovieLogo) {
+        } else if (artworkType == ArtworkType.ClearLogo) {
             movie.setDirty(DirtyFlag.CLEARLOGO, dirty);
         } else if (artworkType == ArtworkType.TvThumb) {
             movie.setDirty(DirtyFlag.TVTHUMB, dirty);
         } else if (artworkType == ArtworkType.SeasonThumb) {
             movie.setDirty(DirtyFlag.SEASONTHUMB, dirty);
+        } else if (artworkType == ArtworkType.MovieArt) {
+            movie.setDirty(DirtyFlag.CLEARART, dirty);
+        } else if (artworkType == ArtworkType.MovieLogo) {
+            movie.setDirty(DirtyFlag.CLEARLOGO, dirty);
         } else if (artworkType == ArtworkType.MovieDisc) {
             movie.setDirty(DirtyFlag.MOVIEDISC, dirty);
         } else if (artworkType == ArtworkType.CharacterArt) {
@@ -170,5 +215,20 @@ public class FanartTvScanner extends ArtworkScanner {
         } else {
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
         }
+    }
+
+    /**
+     * Determine the overwrite property from the artwork type
+     *
+     * @return
+     */
+    private boolean setOverwrite() {
+        return PropertiesUtil.getBooleanProperty("mjb.force" + StringUtils.capitalize(artworkTypeName) + "Overwrite", "false");
+    }
+
+    @Override
+    public void setArtworkImagePlugin() {
+        // Use the default image plugin
+        setImagePlugin(null);
     }
 }
