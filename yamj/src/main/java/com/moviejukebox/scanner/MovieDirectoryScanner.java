@@ -14,7 +14,10 @@ package com.moviejukebox.scanner;
 
 import com.moviejukebox.model.*;
 import com.moviejukebox.scanner.BDRipScanner.BDFilePropertiesMovie;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import java.io.File;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -52,7 +55,7 @@ public class MovieDirectoryScanner {
     private BDRipScanner localBDRipScanner;
 
     // Archived virtual directories (f.ex. rar, zip, tar.gz etc.)
-    private ArchiveScanner archiveScanners[];
+    private IArchiveScanner archiveScanners[];
 
     public MovieDirectoryScanner() {
         supportedExtensions.addAll(Arrays.asList(PropertiesUtil.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV").toUpperCase().split(" ")));

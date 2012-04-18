@@ -1143,10 +1143,10 @@ public class MovieJukeboxXMLWriter {
                             cm.remove(Library.INDEX_NEW_TV);
                         }
 
-                        for (String catOriginalName : cm.keySet()) {
-                            String catNewName = cm.get(catOriginalName);
+                        for (Map.Entry<String,String> catOriginalName : cm.entrySet()) {
+                            String catNewName = catOriginalName.getValue();
                             if (category.getValue().containsKey(catNewName)) {
-                                Element eCatIndex = processCategoryIndex(xmlDoc, catNewName, catOriginalName, category.getValue().get(catNewName),
+                                Element eCatIndex = processCategoryIndex(xmlDoc, catNewName, catOriginalName.getKey(), category.getValue().get(catNewName),
                                         categoryName, categoryMinCount, library);
                                 if (eCatIndex != null) {
                                     eCategory.appendChild(eCatIndex);
@@ -1560,8 +1560,8 @@ public class MovieJukeboxXMLWriter {
                     cm.remove(Library.INDEX_NEW_TV);
                 }
 
-                for (String catOriginalName : cm.keySet()) {
-                    String catNewName = cm.get(catOriginalName);
+                for (Map.Entry<String,String> catOriginalName : cm.entrySet()) {
+                    String catNewName = catOriginalName.getValue();
                     if (category.getValue().containsKey(catNewName)) {
                         indexSize = index.get(catNewName).size();
                         Element eIndexCategory = processIndexCategory(xmlDoc, catNewName, categoryKey, isCurrentKey, idx, indexSize, previous, current, next,
@@ -1574,10 +1574,10 @@ public class MovieJukeboxXMLWriter {
                 }
 
             } else {
-                for (String categoryName : index.keySet()) {
-                    indexSize = index.get(categoryName).size();
-                    Element eIndexCategory = processIndexCategory(xmlDoc, categoryName, categoryKey, isCurrentKey, idx, indexSize, previous, current, next,
-                            last);
+                for (Map.Entry<String, List<Movie>> categoryName : index.entrySet()) {
+                    indexSize = categoryName.getValue().size();
+
+                    Element eIndexCategory = processIndexCategory(xmlDoc, categoryName.getKey(), categoryKey, isCurrentKey, idx, indexSize, previous, current, next, last);
                     if (eIndexCategory != null) {
                         eCategory.appendChild(eIndexCategory);
                         categoryCount++;

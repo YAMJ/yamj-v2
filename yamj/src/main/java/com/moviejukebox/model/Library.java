@@ -730,13 +730,13 @@ public class Library implements Map<String, Movie> {
             Index indexTmp = new Index();
 
             unCompressedIndexes.put(key, indexTmp);
-            for (String keyCategorie : index.keySet()) {
-                List<Movie> listMovie = index.get(keyCategorie);
-                List<Movie> litMovieTmp = new ArrayList<Movie>(listMovie.size());
-                indexTmp.put(keyCategorie, litMovieTmp);
+            for (Map.Entry<String, List<Movie>> keyCategory : index.entrySet()) {
+                List<Movie> listMovie = keyCategory.getValue();
+                List<Movie> listMovieTmp = new ArrayList<Movie>(listMovie.size());
+                indexTmp.put(keyCategory.getKey(), listMovieTmp);
 
                 for (Movie movie : listMovie) {
-                    litMovieTmp.add(movie);
+                    listMovieTmp.add(movie);
                 }
             }
         }
