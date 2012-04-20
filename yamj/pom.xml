@@ -11,6 +11,10 @@
     <artifactId>yamj</artifactId>
     <packaging>jar</packaging>
 
+    <prerequisites>
+        <maven>3.0.3</maven>
+    </prerequisites>
+
     <!-- Project Information -->
     <name>YAMJ Core</name>
     <description>Static analysis of MovieJukebox project</description>
@@ -135,7 +139,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>4.1.0.Final</version>
+            <version>4.1.2</version>
         </dependency>
     </dependencies>
 
@@ -246,14 +250,14 @@
             <dependency>
                 <groupId>com.j256.ormlite</groupId>
                 <artifactId>ormlite-core</artifactId>
-                <version>4.38</version>
+                <version>4.40</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>com.j256.ormlite</groupId>
                 <artifactId>ormlite-jdbc</artifactId>
-                <version>4.38</version>
+                <version>4.40</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>

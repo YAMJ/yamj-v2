@@ -11,7 +11,12 @@
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
         <version>7</version>
-    </parent>
+    </parent>    
+
+    <prerequisites>
+        <maven>3.0.3</maven>
+    </prerequisites>
+
     <url>http://code.google.com/p/moviejukebox/</url>
     <issueManagement>
         <system>Google Code</system>
