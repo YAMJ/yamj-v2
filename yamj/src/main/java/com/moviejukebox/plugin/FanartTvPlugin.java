@@ -38,9 +38,9 @@ public class FanartTvPlugin {
     private static boolean versionInfoShown = Boolean.FALSE;
 
     static {
-        logger.debug(logMessage + "Available Fanart.TV types: " + EnumSet.allOf(FTArtworkType.class).toString().toLowerCase());
+//        logger.debug(logMessage + "Available Fanart.TV types: " + EnumSet.allOf(FTArtworkType.class).toString().toLowerCase());
         // Read the properties for the artwork required and the quantities
-        List<String> requiredArtworkTypes = Arrays.asList(PropertiesUtil.getProperty("fanarttv.types", "clearart,clearlogo,seasonthumb,tvthumb,movielogo,moviedisc").toLowerCase().split(","));
+        List<String> requiredArtworkTypes = Arrays.asList(PropertiesUtil.getProperty("fanarttv.types", "clearart,clearlogo,seasonthumb,tvthumb,movieart,movielogo,moviedisc").toLowerCase().split(","));
         for (String artworkType : requiredArtworkTypes) {
             try {
                 // For the time being limit the max to 1

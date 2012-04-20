@@ -87,7 +87,6 @@ public class MovieJukebox {
     private static boolean bannerDownload;
     private static boolean photoDownload;
     private static boolean backdropDownload;
-    private static boolean extraArtworkDownload;    // TODO: Rename this property and split it into clearlogo/clearart/tvthumb/seasonthumb
     private static boolean enableRottenTomatoes;
     private boolean moviejukeboxListing;
     private boolean setIndexFanart;
@@ -732,7 +731,6 @@ public class MovieJukebox {
 
         videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
         bannerDownload = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", "false");
-        extraArtworkDownload = PropertiesUtil.getBooleanProperty("mjb.includeExtraArtwork", "false");
         enableRottenTomatoes = PropertiesUtil.getBooleanProperty("mjb.enableRottenTomatoes", "false");
         photoDownload = PropertiesUtil.getBooleanProperty("mjb.includePhoto", "false");
         backdropDownload = PropertiesUtil.getBooleanProperty("mjb.includeBackdrop", "false");
@@ -960,31 +958,29 @@ public class MovieJukebox {
                             }
 
                             // Get ClearART/LOGOS/etc
-                            if (extraArtworkDownload) {
-                                if (movie.isTVShow()) {
-                                    // Only scan using the TV Show artwork scanners
-                                    tools.clearArtScanner.scan(jukebox, movie);
-                                    tools.clearArtScanner.saveArtworkToJukebox(jukebox, movie);
+                            if (movie.isTVShow()) {
+                                // Only scan using the TV Show artwork scanners
+                                tools.clearArtScanner.scan(jukebox, movie);
+                                tools.clearArtScanner.saveArtworkToJukebox(jukebox, movie);
 
-                                    tools.clearLogoScanner.scan(jukebox, movie);
-                                    tools.clearLogoScanner.saveArtworkToJukebox(jukebox, movie);
+                                tools.clearLogoScanner.scan(jukebox, movie);
+                                tools.clearLogoScanner.saveArtworkToJukebox(jukebox, movie);
 
-                                    tools.tvThumbScanner.scan(jukebox, movie);
-                                    tools.tvThumbScanner.saveArtworkToJukebox(jukebox, movie);
+                                tools.tvThumbScanner.scan(jukebox, movie);
+                                tools.tvThumbScanner.saveArtworkToJukebox(jukebox, movie);
 
-                                    tools.seasonThumbScanner.scan(jukebox, movie);
-                                    tools.seasonThumbScanner.saveArtworkToJukebox(jukebox, movie);
-                                } else {
-                                    // Only scan using the Movie artwork scanners
-                                    tools.movieArtScanner.scan(jukebox, movie);
-                                    tools.movieArtScanner.saveArtworkToJukebox(jukebox, movie);
+                                tools.seasonThumbScanner.scan(jukebox, movie);
+                                tools.seasonThumbScanner.saveArtworkToJukebox(jukebox, movie);
+                            } else {
+                                // Only scan using the Movie artwork scanners
+                                tools.movieArtScanner.scan(jukebox, movie);
+                                tools.movieArtScanner.saveArtworkToJukebox(jukebox, movie);
 
-                                    tools.movieDiscScanner.scan(jukebox, movie);
-                                    tools.movieDiscScanner.saveArtworkToJukebox(jukebox, movie);
+                                tools.movieDiscScanner.scan(jukebox, movie);
+                                tools.movieDiscScanner.saveArtworkToJukebox(jukebox, movie);
 
-                                    tools.movieLogoScanner.scan(jukebox, movie);
-                                    tools.movieLogoScanner.saveArtworkToJukebox(jukebox, movie);
-                                }
+                                tools.movieLogoScanner.scan(jukebox, movie);
+                                tools.movieLogoScanner.saveArtworkToJukebox(jukebox, movie);
                             }
 
                             for (int i = 0; i < footerCount; i++) {

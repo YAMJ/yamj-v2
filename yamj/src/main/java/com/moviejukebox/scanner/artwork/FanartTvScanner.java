@@ -32,20 +32,12 @@ import org.apache.log4j.Logger;
 public class FanartTvScanner extends ArtworkScanner {
 
     private static final Logger logger = Logger.getLogger(FanartTvScanner.class);
-    private static boolean required;
     private static final FanartTvPlugin fanartTvPlugin = new FanartTvPlugin();
 
     public FanartTvScanner(ArtworkType fanartTvArtworkType) {
         super(fanartTvArtworkType);
 
-        if (StringUtils.containsIgnoreCase(PropertiesUtil.getProperty("fanarttv.types", ""), artworkTypeName)) {
-            required = Boolean.TRUE;
-        } else {
-            required = Boolean.FALSE;
-            return;
-        }
-
-        artworkOverwrite = setOverwrite();
+        setOverwrite();
 
         if (PropertiesUtil.getBooleanProperty("scanner." + artworkTypeName + ".debug", "false")) {
             debugOutput();
@@ -54,13 +46,8 @@ public class FanartTvScanner extends ArtworkScanner {
     }
 
     @Override
-    public boolean isRequired() {
-        return required;
-    }
-
-    @Override
     public String scanLocalArtwork(Jukebox jukebox, Movie movie) {
-        if (isRequired()) {
+        if (isRequiredLocal()) {
             return super.scanLocalArtwork(jukebox, movie, artworkImagePlugin);
         } else {
             return Movie.UNKNOWN;
@@ -223,7 +210,10 @@ public class FanartTvScanner extends ArtworkScanner {
      * @return
      */
     private boolean setOverwrite() {
-        return PropertiesUtil.getBooleanProperty("mjb.force" + StringUtils.capitalize(artworkTypeName) + "Overwrite", "false");
+        String propName = "mjb.force" + StringUtils.capitalize(artworkTypeName) + "Overwrite";
+        artworkOverwrite = PropertiesUtil.getBooleanProperty(propName, "false");
+        logger.debug(logMessage + propName + "=" + artworkOverwrite);
+        return artworkOverwrite;
     }
 
     @Override
