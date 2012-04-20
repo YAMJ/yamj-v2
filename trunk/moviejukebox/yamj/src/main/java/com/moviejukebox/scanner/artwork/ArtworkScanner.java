@@ -26,54 +26,64 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.*;
+import java.util.StringTokenizer;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import org.apache.log4j.Logger;
 
 /**
- * Scanner for artwork.
+ * Scanner for artwork
  *
- * @author Stuart.Boston
- * @version 1.0 12th September 2010
- *
- * These are the properties used: {artworkType}.scanner.searchForExistingArtwork
- * - true/false {artworkType}.scanner.artworkExtensions - The extensions to
- * search for the artwork {artworkType}.scanner.artworkToken - A token that
- * delimits the artwork, such as ".fanart" or ".banner"
- * {artworkType}.scanner.imageName - List of fixed artwork names
- * {artworkType}.scanner.Validate - {artworkType}.scanner.ValidateMatch -
- * {artworkType}.scanner.ValidateAspect - {artworkType}.scanner.artworkDirectory
- * - {artworkType}.scanner.artworkPriority - mjb.skin.dir - Skin directory From
- * skin.properties ???.width ???.height
+ * @author Stuart
  */
 public abstract class ArtworkScanner implements IArtworkScanner {
 
+    //These are the properties used:
+    //  {artworkType}.scanner.artworkLocalSearch - true/false
+    //  {artworkType}.scanner.artworkExtensions - The extensions to search for the artwork
+    //  {artworkType}.scanner.artworkToken - A token that delimits the artwork, such as ".fanart" or ".banner"
+    //  {artworkType}.scanner.imageName - List of fixed artwork names
+    //  {artworkType}.scanner.Validate -
+    //  {artworkType}.scanner.ValidateMatch -
+    //  {artworkType}.scanner.ValidateAspect -
+    //  {artworkType}.scanner.artworkDirectory -
+    //  {artworkType}.scanner.artworkPriority - mjb.skin.dir - Skin directory
+    //
+    // From skin.properties
+    //  ???.width
+    //  ???.height
     private static final Logger logger = Logger.getLogger(ArtworkScanner.class);
-    protected Collection<String> artworkExtensions = new ArrayList<String>();
-    protected String artworkFormat;                     // Format of the artwork to save, e.g. JPG, PNG, etc.
-    protected int artworkHeight;                        // The height of the image from the skin.properties for use in the validation routine
-    protected Collection<String> artworkImageName = new ArrayList<String>();    // List of fixed artwork names
+    protected String logMessage;                        // The start of the log message
+    protected final WebBrowser webBrowser = new WebBrowser();
     protected MovieImagePlugin artworkImagePlugin;
-    protected static boolean artworkOverwrite = false;
-    protected String artworkToken;                      // The suffix of the artwork filename to search for.
+    protected String skinHome;                          // Location of the skin files used to get the dummy images from for missing artwork
+    // Scanner settings
     protected ArtworkType artworkType;                  // The type of the artwork. Will be used to load the other properties. When using for properties, must be lowercase
     protected String artworkTypeName;                   // The artwork type name to use in properties (all lowercase)
-    protected static boolean artworkValidate;           // Should the artwork be validated or not.
-    protected boolean artworkValidateAspect;            // Should the artwork be validated for it's aspect
-    protected int artworkWidth;                         // The width of the image from the skin.properties for use in the validation routine
-    protected String logMessage;                        // The start of the log message
-    protected boolean searchForExistingArtwork;         // Should we search for local artwork
-    protected String skinHome;                          // Location of the skin files used to get the dummy images from for missing artwork
-    protected final WebBrowser webBrowser = new WebBrowser();
-    private EnumMap<ArtworkType, String> ARTWORK_TYPES; // First value is the property value, the second is the graphic image value
+    protected boolean artworkOverwrite = Boolean.FALSE;
+    // Search settings
+    protected boolean artworkLocalSearch;               // Should we search for local artwork
+    protected boolean artworkMovieDownload;             // Whether or not to download artwork for a Movie
+    protected boolean artworkTvDownload;                // Whether or not to download artwork for a TV Show
+    // Local search settings
+    protected Collection<String> artworkExtensions = new ArrayList<String>();
+    protected Collection<String> artworkImageName = new ArrayList<String>();    // List of fixed artwork names
     private String artworkDirectory;                    // The name of the artwork directory to search from from either the video directory or the root of the library
     private String artworkPriority;                     // The order of the searches performed for the local artwork.
-    protected static int artworkValidateMatch;          // How close the image should be to the expected dimensions (artworkWidth & artworkHeight)
-    protected static boolean artworkMovieDownload;      // Whether or not to download artwork for a Movie
-    protected boolean artworkTvDownload;                // Whether or not to download artwork for a TV Show
+    // Artwork attributes
+    protected String artworkFormat;                     // Format of the artwork to save, e.g. JPG, PNG, etc.
+    protected String artworkToken;                      // The suffix of the artwork filename to search for.
+    protected int artworkWidth;                         // The width of the image from the skin.properties for use in the validation routine
+    protected int artworkHeight;                        // The height of the image from the skin.properties for use in the validation routine
+    // Artwork validation
+    protected boolean artworkValidate;                  // Should the artwork be validated or not.
+    protected boolean artworkValidateAspect;            // Should the artwork be validated for it's aspect
+    protected int artworkValidateMatch;                 // How close the image should be to the expected dimensions (artworkWidth & artworkHeight)
 
     /**
      * Construct the
@@ -81,21 +91,6 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * @param conArtworkType
      */
     public ArtworkScanner(ArtworkType conArtworkType) {
-        // TODO: change this to use the ArtworkType Enum
-        // Define the allowable artwork types
-        ARTWORK_TYPES = new EnumMap<ArtworkType, String>(ArtworkType.class);
-        ARTWORK_TYPES.put(ArtworkType.Poster, "posters");
-        ARTWORK_TYPES.put(ArtworkType.Fanart, "");
-        ARTWORK_TYPES.put(ArtworkType.Banner, "banners");
-        ARTWORK_TYPES.put(ArtworkType.VideoImage, "videoimages");
-        ARTWORK_TYPES.put(ArtworkType.ClearArt, "clearart");
-        ARTWORK_TYPES.put(ArtworkType.ClearLogo, "clearlogo");
-        ARTWORK_TYPES.put(ArtworkType.SeasonThumb, "seasonthumb");
-        ARTWORK_TYPES.put(ArtworkType.TvThumb, "tvthumb");
-        ARTWORK_TYPES.put(ArtworkType.MovieArt, "movieart");
-        ARTWORK_TYPES.put(ArtworkType.MovieDisc, "moviedisc");
-        ARTWORK_TYPES.put(ArtworkType.MovieLogo, "movielogo");
-
         setArtworkType(conArtworkType);
 
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty(conArtworkType + ".scanner.imageName", ""), ",;|");
@@ -104,11 +99,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         }
 
         // We get artwork scanner behaviour
-        try {
-            searchForExistingArtwork = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.searchForExistingArtwork", "true");
-        } catch (Exception ignore) {
-            searchForExistingArtwork = true;
-        }
+        artworkLocalSearch = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.searchForExistingArtwork", "true");
+        artworkMovieDownload = PropertiesUtil.getBooleanProperty(artworkTypeName + ".movie.download", "true");
+        artworkTvDownload = PropertiesUtil.getBooleanProperty(artworkTypeName + ".tv.download", "true");
 
         setArtworkExtensions(PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkExtensions", "jpg,png,gif"));
         artworkToken = PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkToken", "");
@@ -131,9 +124,6 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         setArtworkImagePlugin();
 
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-
-        artworkMovieDownload = PropertiesUtil.getBooleanProperty(artworkTypeName + ".movie.download", "true");
-        artworkTvDownload = PropertiesUtil.getBooleanProperty(artworkTypeName + ".tv.download", "true");
     }
 
     /**
@@ -153,18 +143,18 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
         if (!StringTools.isValidString(artworkUrl)) {
 //            logger.debug(logMessage + "Invalid " + artworkType + " URL - " + artworkUrl); // XXX DEBUG
-            return false;
+            return Boolean.FALSE;
         }
 
         if (!StringTools.isValidString(artworkFilename)) {
 //            logger.debug(logMessage + "Invalid " + artworkType + " filename - " + artworkFilename); // XXX DEBUG
-            return false;
+            return Boolean.FALSE;
         }
 
         String artworkPath = StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), artworkFilename);
         if (!artworkOverwrite && FileTools.fileCache.fileExists(artworkPath)) {
             logger.debug(logMessage + "Artwork exists for " + movie.getBaseName());
-            return true;
+            return Boolean.TRUE;
         }
         artworkPath = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), artworkFilename);
 
@@ -178,7 +168,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
                 FileTools.downloadImage(artworkFile, artworkUrl);
                 BufferedImage artworkImage = GraphicTools.loadJPEGImage(artworkFile);
 
-                String pluginType = ARTWORK_TYPES.get(artworkType);
+                String pluginType = getPropertyName();
 
                 if ((artworkImage != null) || (pluginType != null)) {
                     artworkImage = artworkImagePlugin.generate(movie, artworkImage, pluginType, null);
@@ -186,15 +176,15 @@ public abstract class ArtworkScanner implements IArtworkScanner {
                 } else {
                     setArtworkFilename(movie, Movie.UNKNOWN);
                     setArtworkUrl(movie, Movie.UNKNOWN);
-                    return false;
+                    return Boolean.FALSE;
                 }
             } catch (MalformedURLException error) {
                 logger.debug(logMessage + "Failed to download " + artworkType + ": " + artworkUrl + " doesn't look like a proper URL");
-                return false;
+                return Boolean.FALSE;
             } catch (Exception error) {
                 logger.debug(logMessage + "Failed to download " + artworkType + ": " + artworkUrl);
                 logger.error(SystemTools.getStackTrace(error));
-                return false;
+                return Boolean.FALSE;
             }
         } else {
             // Looks like a file, so copy it
@@ -207,7 +197,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
             }
         }
 
-        return true;
+        return Boolean.TRUE;
     }
 
     /**
@@ -234,7 +224,22 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     @Override
     public boolean isRequired() {
         // Assume the artwork is required
-        return Boolean.TRUE;
+        return isRequiredLocal() || isRequiredMovie() || isRequiredTV();
+    }
+
+    @Override
+    public boolean isRequiredLocal() {
+        return artworkLocalSearch;
+    }
+
+    @Override
+    public boolean isRequiredTV() {
+        return artworkTvDownload;
+    }
+
+    @Override
+    public boolean isRequiredMovie() {
+        return artworkMovieDownload;
     }
 
     /**
@@ -243,9 +248,12 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     @Override
     public final String scan(Jukebox jukebox, Movie movie) {
         /*
-         * We need to check some things before we start scanning 1) If the
-         * artwork exists, do we need to overwrite it? (force overwrite?) 2)
-         * Force overwrite should NOT check the jukebox for artwork.
+         * We need to check some things before we start scanning
+         *
+         * 1) If the artwork exists, do we need to overwrite it? (force
+         * overwrite?)
+         *
+         * 2) Force overwrite should NOT check the jukebox for artwork.
          */
 
         // If we are not required, leave
@@ -324,8 +332,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      */
     protected String scanLocalArtwork(Jukebox jukebox, Movie movie, MovieImagePlugin artworkImagePlugin) {
         // Check to see if we are required
-        if (!isRequired()) {
-            return Movie.UNKNOWN;
+        if (!isRequiredLocal()) {
+            // return the current URL
+            return getArtworkUrl(movie);
         }
 
         String movieArtwork = Movie.UNKNOWN;
@@ -471,30 +480,30 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         float urlAspect;
 
         if (!artworkValidate) {
-            return true;
+            return Boolean.TRUE;
         }
 
         if (artworkImage.getUrl().equalsIgnoreCase(Movie.UNKNOWN)) {
-            return false;
+            return Boolean.FALSE;
         }
 
         try {
             URL url = new URL(artworkImage.getUrl());
             InputStream in = url.openStream();
             ImageInputStream iis = ImageIO.createImageInputStream(in);
-            reader.setInput(iis, true);
+            reader.setInput(iis, Boolean.TRUE);
             urlWidth = reader.getWidth(0);
             urlHeight = reader.getHeight(0);
         } catch (IOException ignore) {
             logger.debug(logMessage + "ValidateArtwork error: " + ignore.getMessage() + ": can't open URL");
-            return false; // Quit and return a false poster
+            return Boolean.FALSE; // Quit and return a Boolean.FALSE poster
         }
 
         urlAspect = (float) urlWidth / (float) urlHeight;
 
         if (checkAspect && urlAspect > 1.0) {
             logger.debug(logMessage + artworkImage + " rejected: URL is wrong aspect (portrait/landscape)");
-            return false;
+            return Boolean.FALSE;
         }
 
         // Adjust artwork width / height by the ValidateMatch figure
@@ -503,14 +512,14 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
         if (urlWidth < artworkWidth) {
             logger.debug(logMessage + artworkImage + " rejected: URL width (" + urlWidth + ") is smaller than artwork width (" + artworkWidth + ")");
-            return false;
+            return Boolean.FALSE;
         }
 
         if (urlHeight < artworkHeight) {
             logger.debug(logMessage + artworkImage + " rejected: URL height (" + urlHeight + ") is smaller than artwork height (" + artworkHeight + ")");
-            return false;
+            return Boolean.FALSE;
         }
-        return true;
+        return Boolean.TRUE;
     }
 
     /**
@@ -570,14 +579,14 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      */
     protected boolean overwriteArtwork(Jukebox jukebox, Movie movie) {
         if (isOverwrite()) {
-            setDirtyArtwork(movie, true);
+            setDirtyArtwork(movie, Boolean.TRUE);
             logger.debug(logMessage + "Artwork overwrite"); // XXX DEBUG
-            return true;
+            return Boolean.TRUE;
         }
 
         if (isDirtyArtwork(movie)) {
             logger.debug(logMessage + "Dirty artwork"); // XXX DEBUG
-            return true;
+            return Boolean.TRUE;
         }
 
         // This is the filename & path of the artwork that was found
@@ -595,29 +604,29 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         // Check to see if the found artwork newer than the temp jukebox
         if (FileTools.fileCache.fileExists(tempLocFile)) {
             if (FileTools.isNewer(artworkFile, tempLocFile)) {
-                setDirtyArtwork(movie, true);
+                setDirtyArtwork(movie, Boolean.TRUE);
                 logger.debug(logMessage + movie.getBaseName() + ": Local artwork is newer, overwritting existing artwork"); // XXX DEBUG
-                return true;
+                return Boolean.TRUE;
             }
         } else if (FileTools.fileCache.fileExists(jukeboxFile)) {
             // Check to see if the found artwork newer than the existing jukebox
             if (FileTools.isNewer(artworkFile, jukeboxFile)) {
-                setDirtyArtwork(movie, true);
+                setDirtyArtwork(movie, Boolean.TRUE);
                 logger.debug(logMessage + movie.getBaseName() + ": Local artwork is newer, overwritting existing jukebox artwork"); // XXX DEBUG
-                return true;
+                return Boolean.TRUE;
             } else {
                 logger.debug(logMessage + "Local artwork is older, not copying"); // XXX DEBUG
-                return false;
+                return Boolean.FALSE;
             }
         } else {
             logger.debug(logMessage + "No jukebox file found, file will be copied"); // XXX DEBUG
-            return true;
+            return Boolean.TRUE;
         }
 
         // TODO: Any other checks that can be made for the artwork?
 
         // All the tests passed so don't overwrite
-        return false;
+        return Boolean.FALSE;
     }
 
     /**
@@ -792,7 +801,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      */
     private void setArtworkDimensions() {
         // This should return a value, but if it doesn't then we'll default to "posters"
-        String dimensionType = ARTWORK_TYPES.get(artworkType);
+        String dimensionType = getPropertyName();
 
         try {
             artworkWidth = PropertiesUtil.getIntProperty(dimensionType + ".width", "0");
@@ -864,27 +873,27 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * As soon as we hit a "false" then we should return.
      */
     @Override
-    public boolean getOnlineArtwork(Movie movie) {
+    public final boolean getOnlineArtwork(Movie movie) {
         if (!movie.isScrapeLibrary()) {
-            return false;
+            return Boolean.FALSE;
         }
 
-        if (!movie.isTVShow() && !artworkMovieDownload) {
-            return false;
+        if (!movie.isTVShow() && !isRequiredMovie()) {
+            return Boolean.FALSE;
         }
 
-        if (movie.isTVShow() && !artworkTvDownload) {
-            return false;
+        if (movie.isTVShow() && !isRequiredTV()) {
+            return Boolean.FALSE;
         }
 
         for (Entry<String, String> e : movie.getIdMap().entrySet()) {
             if (("0".equals(e.getValue())) || ("-1".equals(e.getValue()))) {
                 // Stop and return
-                return false;
+                return Boolean.FALSE;
             }
         }
 
-        return true;
+        return Boolean.TRUE;
     }
 
     /**
@@ -913,7 +922,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * @param propValue
      * @param addTypeToOutput
      */
-    protected void debugProperty(String propName, Object propValue, boolean addTypeToOutput) {
+    protected final void debugProperty(String propName, Object propValue, boolean addTypeToOutput) {
         StringBuilder property = new StringBuilder(logMessage);
         property.append("'");
         if (addTypeToOutput) {
@@ -930,17 +939,17 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * @param propName
      * @param propValue
      */
-    protected void debugProperty(String propName, Object propValue) {
+    protected final void debugProperty(String propName, Object propValue) {
         debugProperty(propName, propValue, Boolean.TRUE);
     }
 
     /**
      * Output the properties used by this scanner
      */
-    public void debugOutput() {
+    public final void debugOutput() {
         debugProperty(" Required?", isRequired());
         debugProperty(".scanner.imageName", artworkImageName);
-        debugProperty(".scanner.searchForExistingArtwork", searchForExistingArtwork);
+        debugProperty(".scanner.searchForExistingArtwork", artworkLocalSearch);
         debugProperty(".scanner.artworkToken", artworkToken);
         debugProperty(".format", artworkFormat);
         debugProperty(".scanner.Validate", artworkValidate);
@@ -951,7 +960,36 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         debugProperty(".movie.download", artworkMovieDownload);
         debugProperty(".tv.download", artworkTvDownload);
         debugProperty(".scanner.artworkExtensions", artworkExtensions);
-        debugProperty(ARTWORK_TYPES.get(artworkType) + ".width", artworkWidth, Boolean.FALSE);
-        debugProperty(ARTWORK_TYPES.get(artworkType) + ".height", artworkHeight, Boolean.FALSE);
+        debugProperty(getPropertyName() + ".width", artworkWidth, Boolean.FALSE);
+        debugProperty(getPropertyName() + ".height", artworkHeight, Boolean.FALSE);
+    }
+
+    /**
+     * Return the name used in the properties file for this artwork type
+     *
+     * This is needed because of the disconnection between what was originally
+     * in the properties files and making it generic enough for this scanner
+     *
+     * @return
+     */
+    protected final String getPropertyName() {
+        if (artworkType == ArtworkType.Poster) {
+            return "posters";
+        }
+
+        if (artworkType == ArtworkType.Fanart) {
+            return "";
+        }
+
+        if (artworkType == ArtworkType.Banner) {
+            return "banners";
+        }
+
+        if (artworkType == ArtworkType.VideoImage) {
+            return "videoimages";
+        }
+
+        // Return the artworkTypeName which is a lowercase representation of the artwork type
+        return artworkTypeName;
     }
 }

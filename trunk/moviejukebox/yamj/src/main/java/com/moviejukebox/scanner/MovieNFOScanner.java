@@ -68,7 +68,7 @@ public class MovieNFOScanner {
     private static boolean skipNfoTrailer;
     private static String fanartToken;
     private static String fanartExtension;
-    private static String forceNFOEncoding;
+    private static String forceNFOEncoding = PropertiesUtil.getProperty("mjb.forceNFOEncoding", "AUTO");
     private static String NFOdirectory;
     private static boolean getCertificationFromMPAA;
     private static String imdbPreferredCountry;
@@ -89,11 +89,6 @@ public class MovieNFOScanner {
 
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
-
-        forceNFOEncoding = PropertiesUtil.getProperty("mjb.forceNFOEncoding", "AUTO");
-        if (forceNFOEncoding.equalsIgnoreCase("AUTO")) {
-            forceNFOEncoding = null;
-        }
 
         NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
         getCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", "true");
@@ -407,7 +402,7 @@ public class MovieNFOScanner {
             fileContainsEncoding = (i > 0 && i < 100);
         }
 
-        XMLEventReader r = (forceNFOEncoding != null && !fileContainsEncoding)
+        XMLEventReader r = (!"AUTO".equalsIgnoreCase(forceNFOEncoding) && !fileContainsEncoding)
                 ? factory.createXMLEventReader(FileTools.createFileInputStream(nfoFile), forceNFOEncoding)
                 : factory.createXMLEventReader(FileTools.createFileInputStream(nfoFile));
         return r;
@@ -502,7 +497,7 @@ public class MovieNFOScanner {
                                     movie.setOverrideYear(true);
                                     movie.setYear(dateTime.toString("yyyy"));
                                 } catch (Exception error) {
-                                    logger.error("NFOScanner: Failed parsing NFO file for movie: " + movie.getTitle() + ". Please fix or remove it.");
+                                    logger.error("NFOScanner: Failed parsing NFO file for movie: " + movie.getBaseFilename() + ". Please fix or remove it.");
                                     logger.error("NFOScanner: premiered or releasedate does not contain a valid date.");
                                     logger.error(SystemTools.getStackTrace(error));
                                 }
@@ -931,7 +926,7 @@ public class MovieNFOScanner {
 
             return isMovieTag;
         } catch (Exception error) {
-            logger.error("NFOScanner: Failed parsing NFO file for video: " + movie.getTitle() + ". Please fix or remove it.");
+            logger.error("NFOScanner: Failed parsing NFO file for video: " + movie.getBaseFilename() + ". Please fix or remove it.");
             logger.error(SystemTools.getStackTrace(error));
         }
 

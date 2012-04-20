@@ -103,6 +103,27 @@ public interface IArtworkScanner {
     abstract boolean isRequired();
 
     /**
+     * Determine if the artwork type is required for local searching
+     *
+     * @return
+     */
+    abstract boolean isRequiredLocal();
+
+    /**
+     * Determine if the artwork is required for Online TV search
+     *
+     * @return
+     */
+    abstract boolean isRequiredTV();
+
+    /**
+     * Determine if the artwork is required for Online Movie search
+     *
+     * @return
+     */
+    abstract boolean isRequiredMovie();
+
+    /**
      * Create a operating system safe filename for the artwork
      *
      * @param movie
