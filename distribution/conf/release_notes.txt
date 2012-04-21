@@ -8,6 +8,7 @@ MovieJukebox 2.7-SNAPSHOT
  - Fixed defect #2245 Trailer URL from NFO is lost after a rescan
  - Fixed defect #2398 Report extended channel count for audio formats with core/extended channels
  - Fixed defect #2403 Local posters are copied to the jukebox each run
+ - Fixed defect #2408 Year 0 bug in NFO file
 
 MovieJukebox 2.6.1 (21-Mar-2012)
 --------------------------------
