@@ -481,7 +481,9 @@ public class MovieNFOScanner {
                                 movie.setOverrideYear(true);
                                 movie.setYear(val);
                             } else {
-                                logger.warn(logMessage + "Invalid year: '" + val + "' in " + nfoFile.getAbsolutePath());
+                                if (StringUtils.isNotBlank(val)) {
+                                    logger.warn(logMessage + "Invalid year: '" + val + "' in " + nfoFile.getAbsolutePath());
+                                }
                             }
                         } else if (tag.equalsIgnoreCase("premiered") || tag.equalsIgnoreCase("releasedate")) {
                             String val = XMLHelper.getCData(r);
