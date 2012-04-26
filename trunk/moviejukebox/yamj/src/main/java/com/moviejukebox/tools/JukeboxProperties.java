@@ -20,9 +20,7 @@ import com.moviejukebox.model.Movie;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -30,14 +28,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Save a pre-defined list of attributes of the jukebox and properties
- * for use in subsequent processing runs to determine if an attribute
- * has changed and force a rescan of the appropriate data
+ * Save a pre-defined list of attributes of the jukebox and properties for use
+ * in subsequent processing runs to determine if an attribute has changed and
+ * force a rescan of the appropriate data
+ *
  * @author stuart.boston
  *
  */
 public class JukeboxProperties {
+
     private static final Logger logger = Logger.getLogger(JukeboxProperties.class);
+    private static final String logMessage = "JukeboxProperties: ";
     private static final Collection<PropertyInformation> propInfo = new ArrayList<PropertyInformation>();
     private static final String JUKEBOX = "jukebox";
     private static final String SKIN = "skin";
@@ -48,57 +49,103 @@ public class JukeboxProperties {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-kk:mm:ss");
 
     static {
-        // Set up the properties to watch:                                          xml           thumbnail     fanart        videoimage    trailers
-        //                                                                                 html          poster        banner        index
-        propInfo.add(new PropertyInformation("userPropertiesName",                  false, false, false, false, false, false, false, false, false));
-        propInfo.add(new PropertyInformation("mjb.skin.dir",                        false, true,  true,  true,  false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("fanart.movie.download",               false, false, false, false, true,  false, false, false, false));
-        propInfo.add(new PropertyInformation("fanart.tv.download",                  false, false, false, false, true,  false, false, false, false));
+        propInfo.add(new PropertyInformation("userPropertiesName", EnumSet.noneOf(PropertyOverwrites.class)));
+        propInfo.add(new PropertyInformation("mjb.skin.dir", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Thumbnails, PropertyOverwrites.Posters, PropertyOverwrites.Index)));
 
-        propInfo.add(new PropertyInformation("mjb.includeEpisodePlots",             true,  false, false, false, false, false, false, false, false));
-        propInfo.add(new PropertyInformation("mjb.includeEpisodeRating",            true,  false, false, false, false, false, false, false, false));
-        propInfo.add(new PropertyInformation("mjb.includeVideoImages",              true,  false, false, false, false, false, true,  false, false));
-        propInfo.add(new PropertyInformation("mjb.includeWideBanners",              false, false, false, false, false, true,  false, false, false));
-        propInfo.add(new PropertyInformation("filename.scanner.skip.episodeTitle",  true,  true,  false, false, false, false, false, false, false));
+        propInfo.add(new PropertyInformation("mjb.includeEpisodePlots", EnumSet.of(PropertyOverwrites.XML)));
+        propInfo.add(new PropertyInformation("mjb.includeEpisodeRating", EnumSet.of(PropertyOverwrites.XML)));
+        propInfo.add(new PropertyInformation("filename.scanner.skip.episodeTitle", EnumSet.of(PropertyOverwrites.XML, PropertyOverwrites.HTML)));
 
-        propInfo.add(new PropertyInformation("mjb.nbThumbnailsPerPage",             false, true,  true,  false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.nbThumbnailsPerLine",             false, true,  true,  false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.nbTvThumbnailsPerPage",           false, true,  true,  false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.nbTvThumbnailsPerLine",           false, true,  true,  false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Other", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Genres", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Title", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Certification", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Year", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Library", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Set", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Cast", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Director", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Writer", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("mjb.categories.minCount.Country", EnumSet.of(PropertyOverwrites.Index)));
 
-        propInfo.add(new PropertyInformation("mjb.categories.minCount",             false, false, false, false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Other",       false, false, false, false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Genres",      false, false, false, false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Title",       false, false, false, false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Certification", false, false, false, false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Year",        false, false, false, false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Library",     false, false, false, false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Set",         false, false, false, false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Cast",        false, false, false, false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Director",    false, false, false, false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Writer",      false, false, false, false, false, false, false, true,  false));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Country",     false, false, false, false, false, false, false, true,  false));
+        propInfo.add(new PropertyInformation("trailers.rescan.days", EnumSet.of(PropertyOverwrites.Trailers)));
 
-        propInfo.add(new PropertyInformation("thumbnails.width",                    false, true,  true,  false, false, false, false, false, false));
-        propInfo.add(new PropertyInformation("thumbnails.height",                   false, true,  true,  false, false, false, false, false, false));
-        propInfo.add(new PropertyInformation("thumbnails.logoHD",                   false, true,  true,  false, false, false, false, false, false));
-        propInfo.add(new PropertyInformation("thumbnails.logoTV",                   false, true,  true,  false, false, false, false, false, false));
-        propInfo.add(new PropertyInformation("thumbnails.logoSet",                  false, true,  true,  false, false, false, false, false, false));
-        propInfo.add(new PropertyInformation("thumbnails.language",                 false, true,  true,  false, false, false, false, false, false));
+        // Posters
+        propInfo.add(new PropertyInformation("posters.width", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Posters)));
+        propInfo.add(new PropertyInformation("posters.height", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Posters)));
+        propInfo.add(new PropertyInformation("posters.logoHD", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Posters)));
+        propInfo.add(new PropertyInformation("posters.logoTV", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Posters)));
+        propInfo.add(new PropertyInformation("posters.language", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Posters)));
 
-        propInfo.add(new PropertyInformation("posters.width",                       false, true,  false, true,  false, false, false, false, false));
-        propInfo.add(new PropertyInformation("posters.height",                      false, true,  false, true,  false, false, false, false, false));
-        propInfo.add(new PropertyInformation("posters.logoHD",                      false, true,  false, true,  false, false, false, false, false));
-        propInfo.add(new PropertyInformation("posters.logoTV",                      false, true,  false, true,  false, false, false, false, false));
-        propInfo.add(new PropertyInformation("posters.language",                    false, true,  false, true,  false, false, false, false, false));
+        // Thumbnails
+        propInfo.add(new PropertyInformation("mjb.nbThumbnailsPerPage", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Thumbnails, PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("mjb.nbThumbnailsPerLine", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Thumbnails, PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("mjb.nbTvThumbnailsPerPage", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Thumbnails, PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("mjb.nbTvThumbnailsPerLine", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Thumbnails, PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("thumbnails.width", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Thumbnails)));
+        propInfo.add(new PropertyInformation("thumbnails.height", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Thumbnails)));
+        propInfo.add(new PropertyInformation("thumbnails.logoHD", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Thumbnails)));
+        propInfo.add(new PropertyInformation("thumbnails.logoTV", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Thumbnails)));
+        propInfo.add(new PropertyInformation("thumbnails.logoSet", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Thumbnails)));
+        propInfo.add(new PropertyInformation("thumbnails.language", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Thumbnails)));
 
-        propInfo.add(new PropertyInformation("trailers.rescan.days",                false, false, false, false, false, false, false, false, true));
+        // Banners 
+        propInfo.add(new PropertyInformation("mjb.includeWideBanners", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Banners)));
+        propInfo.add(new PropertyInformation("banners.width", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Banners)));
+        propInfo.add(new PropertyInformation("banners.height", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Banners)));
+
+        // Fanart
+        propInfo.add(new PropertyInformation("fanart.movie.download", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Fanart)));
+        propInfo.add(new PropertyInformation("fanart.tv.download", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Fanart)));
+
+        // VideoImages
+        propInfo.add(new PropertyInformation("mjb.includeVideoImages", EnumSet.of(PropertyOverwrites.XML, PropertyOverwrites.VideoImages)));
+        propInfo.add(new PropertyInformation("videoimages.width", EnumSet.of(PropertyOverwrites.XML, PropertyOverwrites.VideoImages)));
+        propInfo.add(new PropertyInformation("videoimages.height", EnumSet.of(PropertyOverwrites.XML, PropertyOverwrites.VideoImages)));
+
+        // Clearart
+        propInfo.add(new PropertyInformation("clearart.tv.download", EnumSet.of(PropertyOverwrites.Clearart)));
+        propInfo.add(new PropertyInformation("clearart.width", EnumSet.of(PropertyOverwrites.Clearart)));
+        propInfo.add(new PropertyInformation("clearart.height", EnumSet.of(PropertyOverwrites.Clearart)));
+
+        // Clearlogo
+        propInfo.add(new PropertyInformation("clearlogo.tv.download", EnumSet.of(PropertyOverwrites.Clearlogo)));
+        propInfo.add(new PropertyInformation("clearlogo.width", EnumSet.of(PropertyOverwrites.Clearlogo)));
+        propInfo.add(new PropertyInformation("clearlogo.height", EnumSet.of(PropertyOverwrites.Clearlogo)));
+
+        // TvThumb
+        propInfo.add(new PropertyInformation("tvthumb.tv.download", EnumSet.of(PropertyOverwrites.Tvthumb)));
+        propInfo.add(new PropertyInformation("tvthumb.width", EnumSet.of(PropertyOverwrites.Tvthumb)));
+        propInfo.add(new PropertyInformation("tvthumb.height", EnumSet.of(PropertyOverwrites.Tvthumb)));
+
+        // SeasonThumb
+        propInfo.add(new PropertyInformation("seasonthumb.tv.download", EnumSet.of(PropertyOverwrites.Seasonthumb)));
+        propInfo.add(new PropertyInformation("seasonthumb.width", EnumSet.of(PropertyOverwrites.Seasonthumb)));
+        propInfo.add(new PropertyInformation("seasonthumb.height", EnumSet.of(PropertyOverwrites.Seasonthumb)));
+
+        // MovieArt
+        propInfo.add(new PropertyInformation("movieart.movie.download", EnumSet.of(PropertyOverwrites.Movieart)));
+        propInfo.add(new PropertyInformation("movieart.width", EnumSet.of(PropertyOverwrites.Movieart)));
+        propInfo.add(new PropertyInformation("movieart.height", EnumSet.of(PropertyOverwrites.Movieart)));
+
+        // MovieDisc
+        propInfo.add(new PropertyInformation("moviedisc.movie.download", EnumSet.of(PropertyOverwrites.Moviedisc)));
+        propInfo.add(new PropertyInformation("moviedisc.width", EnumSet.of(PropertyOverwrites.Moviedisc)));
+        propInfo.add(new PropertyInformation("moviedisc.height", EnumSet.of(PropertyOverwrites.Moviedisc)));
+
+        // MovieLogo
+        propInfo.add(new PropertyInformation("movielogo.movie.download", EnumSet.of(PropertyOverwrites.Movielogo)));
+        propInfo.add(new PropertyInformation("movielogo.width", EnumSet.of(PropertyOverwrites.Movielogo)));
+        propInfo.add(new PropertyInformation("movielogo.height", EnumSet.of(PropertyOverwrites.Movielogo)));
+
     }
 
     /**
-     * Check to see if the file needs to be processed (if it exists) or just created
-     * Note: This *MIGHT* cause issues with some programs that assume all XML files in the jukebox folder are
-     * videos or indexes. However, they should just deal with this themselves :-)
+     * Check to see if the file needs to be processed (if it exists) or just
+     * created Note: This *MIGHT* cause issues with some programs that assume
+     * all XML files in the jukebox folder are videos or indexes. However, they
+     * should just deal with this themselves :-)
      *
      * @param jukebox
      * @param mediaLibraryPaths
@@ -114,49 +161,14 @@ public class JukeboxProperties {
             if (monitor && mjbDetails.exists()) {
                 PropertyInformation pi = processFile(mjbDetails, mediaLibraryPaths);
 
-                if (pi.isBannerOverwrite()) {
-                    logger.debug("Setting 'forceBannerOverwrite = true' due to property file changes");
-                    PropertiesUtil.setProperty("mjb.forceBannersOverwrite", "true");
-                }
-
-                if (pi.isFanartOverwrite()) {
-                    logger.debug("Setting 'forceFanartOverwrite = true' due to property file changes");
-                    PropertiesUtil.setProperty("mjb.forceFanartOverwrite", "true");
-                }
-
-                if (pi.isHtmlOverwrite()) {
-                    logger.debug("Setting 'forceHtmlOverwrite = true' due to property file changes");
-                    PropertiesUtil.setProperty("mjb.forceHTMLOverwrite", "true");
-                }
-
-                if (pi.isPosterOverwrite()) {
-                    logger.debug("Setting 'forcePosterOverwrite = true' due to property file changes");
-                    PropertiesUtil.setProperty("mjb.forcePosterOverwrite", "true");
-                }
-
-                if (pi.isThumbnailOverwrite()) {
-                    logger.debug("Setting 'forceThumbnailOverwrite = true' due to property file changes");
-                    PropertiesUtil.setProperty("mjb.forceThumbnailOverwrite", "true");
-                }
-
-                if (pi.isVideoimageOverwrite()) {
-                    logger.debug("Setting 'forceVideoimageOverwrite = true' due to property file changes");
-                    PropertiesUtil.setProperty("mjb.forceVideoimageOverwrite", "true");
-                }
-
-                if (pi.isXmlOverwrite()) {
-                    logger.debug("Setting 'forceXmlOverwrite = true' due to property file changes");
-                    PropertiesUtil.setProperty("mjb.forceXMLOverwrite", "true");
-                }
-
-                if (pi.isIndexOverwrite()) {
-                    logger.debug("Setting 'forceIndexOverwrite = true' due to property file changes");
-                    PropertiesUtil.setProperty("mjb.forceIndexOverwrite", "true");
-                }
-
-                if (pi.isTrailersOverwrite()) {
-                    logger.debug("Setting 'forceTrailersOverwrite = true' due to property file changes");
-                    PropertiesUtil.setProperty("mjb.forceTrailersOverwrite", "true");
+                if (pi.getOverwrites().size() > 0) {
+                    logger.debug(logMessage + "Found " + pi.getOverwrites().size() + " overwites to set.");
+                    for (PropertyOverwrites po : pi.getOverwrites()) {
+                        logger.debug("Setting 'force" + po.toString() + "Overwrite = true' due to property file changes");
+                        PropertiesUtil.setProperty("mjb.force" + po.toString() + "Overwrite", "true");
+                    }
+                } else {
+                    logger.debug(logMessage + "Properties haven't changed, no updates necessary");
                 }
             }
         } catch (Exception error) {
@@ -167,6 +179,7 @@ public class JukeboxProperties {
 
     /**
      * Create the mjbDetails file and populate with the attributes
+     *
      * @param mjbDetails
      * @param jukebox
      */
@@ -180,11 +193,11 @@ public class JukeboxProperties {
         try {
             logger.debug("Creating JukeboxProperties file: " + mjbDetails.getAbsolutePath());
             if (mjbDetails.exists() && !mjbDetails.delete()) {
-                logger.error("JukeboxProperties: Failed to delete " + mjbDetails.getName() + ". Please make sure it's not read only");
+                logger.error(logMessage + "Failed to delete " + mjbDetails.getName() + ". Please make sure it's not read only");
                 return;
             }
         } catch (Exception error) {
-            logger.error("JukeboxProperties: Failed to create/delete " + mjbDetails.getName() + ". Please make sure it's not read only");
+            logger.error(logMessage + "Failed to create/delete " + mjbDetails.getName() + ". Please make sure it's not read only");
             return;
         }
 
@@ -274,13 +287,14 @@ public class JukeboxProperties {
 
             DOMHelper.writeDocumentToFile(docMjbDetails, mjbDetails.getAbsolutePath());
         } catch (Exception error) {
-            logger.error("JukeboxProperties: Error creating " + mjbDetails.getName() + " file");
+            logger.error(logMessage + "Error creating " + mjbDetails.getName() + " file");
             logger.error(SystemTools.getStackTrace(error));
         }
     }
 
     /**
      * Generate some statistics for the library
+     *
      * @param doc
      * @param library
      * @return
@@ -291,12 +305,12 @@ public class JukeboxProperties {
         int stat = library.getMovieCountForIndex(Library.INDEX_OTHER, Library.INDEX_ALL);
         DOMHelper.appendChild(doc, eStats, "Videos", String.valueOf(stat));
 
-        stat=library.getMovieCountForIndex(Library.INDEX_OTHER, Library.INDEX_MOVIES);
+        stat = library.getMovieCountForIndex(Library.INDEX_OTHER, Library.INDEX_MOVIES);
         if (stat > 0) {
             DOMHelper.appendChild(doc, eStats, "Movies", String.valueOf(stat));
         }
 
-        stat=library.getMovieCountForIndex(Library.INDEX_OTHER, Library.INDEX_TVSHOWS);
+        stat = library.getMovieCountForIndex(Library.INDEX_OTHER, Library.INDEX_TVSHOWS);
         if (stat > 0) {
             DOMHelper.appendChild(doc, eStats, "TVShows", String.valueOf(stat));
         }
@@ -306,6 +320,7 @@ public class JukeboxProperties {
 
     /**
      * Generic routine to save details about the supplied XML file details
+     *
      * @param xmlFileProperty
      * @param jukeboxPropertyCategory
      * @param docMjbDetails
@@ -321,7 +336,9 @@ public class JukeboxProperties {
     }
 
     /**
-     * Determine the file date from the passed filename, if the filename is invalid return UNKNOWN
+     * Determine the file date from the passed filename, if the filename is
+     * invalid return UNKNOWN
+     *
      * @param tempFilename
      * @return
      */
@@ -339,19 +356,21 @@ public class JukeboxProperties {
     }
 
     /**
-     * Read the attributes from the file and compare and set any force overwrites needed
+     * Read the attributes from the file and compare and set any force
+     * overwrites needed
+     *
      * @param mjbDetails
      * @param mediaLibraryPaths
      * @return PropertyInformation Containing the merged overwrite values
      */
     public static PropertyInformation processFile(File mjbDetails, Collection<MediaLibraryPath> mediaLibraryPaths) {
-        PropertyInformation piReturn = new PropertyInformation("RETURN", false, false, false, false, false, false, false, false, false);
+        PropertyInformation piReturn = new PropertyInformation("RETURN", EnumSet.noneOf(PropertyOverwrites.class));
         Document docMjbDetails;
         // Try to open and read the document file
         try {
             docMjbDetails = DOMHelper.getEventDocFromUrl(mjbDetails);
         } catch (Exception error) {
-            logger.error("JukeboxProperties: Failed creating the file, no checks performed");
+            logger.error(logMessage + "Failed creating the file, no checks performed");
             logger.error(error.getMessage());
             error.getStackTrace();
             return piReturn;
@@ -372,30 +391,29 @@ public class JukeboxProperties {
             String mlp = DOMHelper.getValueFromElement(eJukebox, "LibraryPath");
             if (!mediaLibraryPaths.toString().equalsIgnoreCase(mlp)) {
                 // Overwrite the indexes only.
-                piReturn.mergePropertyInformation(new PropertyInformation("LibraryPath", false, false, false, false, false, false, false, true, false));
+                piReturn.mergePropertyInformation(new PropertyInformation("LibraryPath", EnumSet.of(PropertyOverwrites.Index)));
             }
 
             // Check the Categories file
             if (!validXmlFileDetails("mjb.xmlCategoryFile", CATEGORY, eJukebox)) {
                 // Details are wrong, so overwrite
-                piReturn.mergePropertyInformation(new PropertyInformation(CATEGORY, false, false, false, false, false, false, false, true, false));
-                logger.debug("JukeboxProperties: Categories has changed, so need to update");
+                piReturn.mergePropertyInformation(new PropertyInformation(CATEGORY, EnumSet.of(PropertyOverwrites.Index)));
+                logger.debug(logMessage + "Categories has changed, so need to update");
             }
 
             // Check the Genres file
             if (!validXmlFileDetails("mjb.xmlGenreFile", GENRE, eJukebox)) {
                 // Details are wrong, so overwrite
-                piReturn.mergePropertyInformation(new PropertyInformation(GENRE, false, false, false, false, false, false, false, true, false));
-                logger.debug("JukeboxProperties: Genres has changed, so need to update");
+                piReturn.mergePropertyInformation(new PropertyInformation(GENRE, EnumSet.of(PropertyOverwrites.Index)));
+                logger.debug(logMessage + "Genres has changed, so need to update");
             }
 
             // Check the Certifications file
             if (!validXmlFileDetails("mjb.xmlCertificationFile", CERTIFICATION, eJukebox)) {
                 // Details are wrong, so overwrite
-                piReturn.mergePropertyInformation(new PropertyInformation("Certifications", false, false, false, false, false, false, false, true, false));
-                logger.debug("JukeboxProperties: Certifications has changed, so need to update");
+                piReturn.mergePropertyInformation(new PropertyInformation("Certifications", EnumSet.of(PropertyOverwrites.Index)));
+                logger.debug(logMessage + "Certifications has changed, so need to update");
             }
-
         }
 
         nlElements = docMjbDetails.getElementsByTagName(PROPERTIES);
@@ -410,9 +428,7 @@ public class JukeboxProperties {
             Element eJukebox = (Element) nDetails;
             String propName, propValue, propCurrent;
 
-            Iterator<PropertyInformation> iterator = propInfo.iterator();
-            while (iterator.hasNext()) {
-                PropertyInformation pi = iterator.next();
+            for (PropertyInformation pi : propInfo) {
                 propName = pi.getPropertyName();
                 propValue = DOMHelper.getValueFromElement(eJukebox, propName);
                 propCurrent = PropertiesUtil.getProperty(propName, "");
@@ -424,13 +440,14 @@ public class JukeboxProperties {
             }
         }
 
-        logger.debug("JukeboxProperties: Returning: " + piReturn.toString());
+        logger.debug(logMessage + "Returning: " + piReturn.toString());
         return piReturn;
     }
 
     /**
-     * Compare the current XML file details with the stored ones
-     * Any errors with this check will return "true" to ensure no properties are overwritten
+     * Compare the current XML file details with the stored ones Any errors with
+     * this check will return "true" to ensure no properties are overwritten
+     *
      * @param eJukebox
      * @return
      */
@@ -451,7 +468,7 @@ public class JukeboxProperties {
                 return false;
             }
         } catch (Exception ignore) {
-            logger.warn("JukeboxProperties: Error validating " + jukeboxPropertyCategory);
+            logger.warn(logMessage + "Error validating " + jukeboxPropertyCategory);
             return true;
         }
 
@@ -461,6 +478,7 @@ public class JukeboxProperties {
 
     /**
      * Helper function to write out the property to the DOM document & Element
+     *
      * @param doc
      * @param element
      * @param propertyName
@@ -475,170 +493,71 @@ public class JukeboxProperties {
     }
 
     /**
-     * Class to define the property name and the impact on each of the overwrite flags.
-     * If the
+     * Enumeration of the Overwrite properties
+     *
+     * These should be exactly as needed when setting the force???Overwrite
+     * property
+     */
+    public static enum PropertyOverwrites {
+
+        XML, Thumbnails, Fanart, VideoImages, Trailers, HTML, Posters, Banners,
+        Index, Clearart, Clearlogo, Tvthumb, Seasonthumb, Movielogo, Movieart,
+        Moviedisc, Footer, Skin;
+    }
+
+    /**
+     * Class to define the property name and the impact on each of the overwrite
+     * flags. If the
+     *
      * @author stuart.boston
      *
      */
     public static class PropertyInformation {
-        private String  propertyName        = Movie.UNKNOWN;
-        private boolean xmlOverwrite        = false;
-        private boolean htmlOverwrite       = false;
-        private boolean thumbnailOverwrite  = false;
-        private boolean posterOverwrite     = false;
-        private boolean fanartOverwrite     = false;
-        private boolean bannerOverwrite     = false;
-        private boolean videoimageOverwrite = false;
-        private boolean indexOverwrite      = false;
-        private boolean trailersOverwrite   = false;
 
-        public PropertyInformation(String property,
-                                    boolean xml,
-                                    boolean html,
-                                    boolean thumbnail,
-                                    boolean poster,
-                                    boolean fanart,
-                                    boolean banner,
-                                    boolean videoimage,
-                                    boolean index,
-                                    boolean trailers) {
-            this.propertyName        = property;
-            this.xmlOverwrite        = xml;
-            this.htmlOverwrite       = html;
-            this.thumbnailOverwrite  = thumbnail;
-            this.posterOverwrite     = poster;
-            this.fanartOverwrite     = fanart;
-            this.bannerOverwrite     = banner;
-            this.videoimageOverwrite = videoimage;
-            this.indexOverwrite      = index;
-            this.trailersOverwrite   = trailers;
+        private String propertyName = Movie.UNKNOWN;
+        private EnumSet<PropertyOverwrites> propertyOverwrites = EnumSet.noneOf(PropertyOverwrites.class);
+
+        public PropertyInformation(String property, Set<PropertyOverwrites> propOverwrites) {
+            this.propertyName = property;
+            this.propertyOverwrites.addAll(propOverwrites);
         }
 
         public String getPropertyName() {
             return propertyName;
         }
 
-        public boolean isXmlOverwrite() {
-            return xmlOverwrite;
-        }
-
-        public boolean isHtmlOverwrite() {
-            return htmlOverwrite;
-        }
-
-        public boolean isThumbnailOverwrite() {
-            return thumbnailOverwrite;
-        }
-
-        public boolean isPosterOverwrite() {
-            return posterOverwrite;
-        }
-
-        public boolean isFanartOverwrite() {
-            return fanartOverwrite;
-        }
-
-        public boolean isBannerOverwrite() {
-            return bannerOverwrite;
-        }
-
-        public boolean isTrailersOverwrite() {
-            return trailersOverwrite;
-        }
-
-        public boolean isVideoimageOverwrite() {
-            return videoimageOverwrite;
-        }
-
         public void setPropertyName(String propertyName) {
             this.propertyName = propertyName;
         }
 
-        public void setXmlOverwrite(boolean xmlOverwrite) {
-            this.xmlOverwrite = xmlOverwrite;
+        public EnumSet<PropertyOverwrites> getOverwrites() {
+            return propertyOverwrites;
         }
 
-        public void setHtmlOverwrite(boolean htmlOverwrite) {
-            this.htmlOverwrite = htmlOverwrite;
-        }
-
-        public void setThumbnailOverwrite(boolean thumbnailOverwrite) {
-            this.thumbnailOverwrite = thumbnailOverwrite;
-        }
-
-        public void setPosterOverwrite(boolean posterOverwrite) {
-            this.posterOverwrite = posterOverwrite;
-        }
-
-        public void setFanartOverwrite(boolean fanartOverwrite) {
-            this.fanartOverwrite = fanartOverwrite;
-        }
-
-        public void setBannerOverwrite(boolean bannerOverwrite) {
-            this.bannerOverwrite = bannerOverwrite;
-        }
-
-        public void setTrailersOverwrite(boolean trailersOverwrite) {
-            this.trailersOverwrite = trailersOverwrite;
-        }
-
-        public void setVideoimagesOverwrite(boolean videoimageOverwrite) {
-            this.videoimageOverwrite = videoimageOverwrite;
+        public boolean isOverwrite(PropertyOverwrites overwrite) {
+            if (propertyOverwrites.contains(overwrite)) {
+                return Boolean.TRUE;
+            } else {
+                return Boolean.FALSE;
+            }
         }
 
         /**
-         * Merge two PropertyInformation objects. Sets the overwrite flags to true.
+         * Merge two PropertyInformation objects. Sets the overwrite flags to
+         * true.
+         *
          * @param newPI
          */
         public void mergePropertyInformation(PropertyInformation newPI) {
-            this.xmlOverwrite        = xmlOverwrite        || newPI.isXmlOverwrite();
-            this.htmlOverwrite       = htmlOverwrite       || newPI.isHtmlOverwrite();
-            this.thumbnailOverwrite  = thumbnailOverwrite  || newPI.isThumbnailOverwrite();
-            this.posterOverwrite     = posterOverwrite     || newPI.isPosterOverwrite();
-            this.fanartOverwrite     = fanartOverwrite     || newPI.isFanartOverwrite();
-            this.bannerOverwrite     = bannerOverwrite     || newPI.isBannerOverwrite();
-            this.videoimageOverwrite = videoimageOverwrite || newPI.isVideoimageOverwrite();
-            this.indexOverwrite      = indexOverwrite      || newPI.isIndexOverwrite();
-            this.trailersOverwrite   = trailersOverwrite   || newPI.isTrailersOverwrite();
+            this.propertyOverwrites.addAll(newPI.getOverwrites());
         }
 
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            sb.append("Name: ");
-            sb.append(getPropertyName());
-            sb.append(", xmlOverwrite: ");
-            sb.append(isXmlOverwrite());
-            sb.append(", htmlOverwrite: ");
-            sb.append(isHtmlOverwrite());
-            sb.append(", thumbnailOverwrite: ");
-            sb.append(isThumbnailOverwrite());
-            sb.append(", posterOverwrite: ");
-            sb.append(isPosterOverwrite());
-            sb.append(", fanartOverwrite: ");
-            sb.append(isFanartOverwrite());
-            sb.append(", bannerOverwrite: ");
-            sb.append(isBannerOverwrite());
-            sb.append(", videoimageOverwrite: ");
-            sb.append(isVideoimageOverwrite());
-            sb.append(", indexOverwrite: ");
-            sb.append(isIndexOverwrite());
-            sb.append(", trailersOverwrite: ");
-            sb.append(isTrailersOverwrite());
+            sb.append("Name: ").append(getPropertyName());
+            sb.append(" Overwrites: ").append(getOverwrites().toString());
             return sb.toString();
         }
-
-        public boolean isIndexOverwrite() {
-            return indexOverwrite;
-        }
-
-        public void setVideoimageOverwrite(boolean videoimageOverwrite) {
-            this.videoimageOverwrite = videoimageOverwrite;
-        }
-
-        public void setIndexOverwrite(boolean indexOverwrite) {
-            this.indexOverwrite = indexOverwrite;
-        }
     }
-
 }
