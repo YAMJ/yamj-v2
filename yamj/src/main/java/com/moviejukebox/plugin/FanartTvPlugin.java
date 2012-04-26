@@ -19,6 +19,7 @@ import com.moviejukebox.fanarttv.model.FanartTvArtwork;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.*;
 import java.util.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 public class FanartTvPlugin {
@@ -29,22 +30,21 @@ public class FanartTvPlugin {
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_FanartTv");
     private FanartTv ft = new FanartTv(API_KEY);
     private static final String webhost = "fanart.tv";
-    private static final boolean extraArtworkDownload = PropertiesUtil.getBooleanProperty("mjb.includeExtraArtwork", "false");
     private static final Map<FTArtworkType, Integer> artworkTypes = new EnumMap<FTArtworkType, Integer>(FTArtworkType.class);
     private static int totalRequiredTv = 0;
     private static int totalRequireMovie = 0;
-    private static final String movieLanguage = PropertiesUtil.getProperty("themoviedb.language", "en");
-    private static final String tvLanguage = PropertiesUtil.getProperty("thetvdb.language", "en");
+    private static final String DEFAULT_LANGUAGE = "en";
+    private static String movieLanguage = getMovieLanguage();
+    private static String tvLanguage = getTvLanguage();
     private static boolean versionInfoShown = Boolean.FALSE;
 
     static {
-//        logger.debug(logMessage + "Available Fanart.TV types: " + EnumSet.allOf(FTArtworkType.class).toString().toLowerCase());
         // Read the properties for the artwork required and the quantities
         List<String> requiredArtworkTypes = Arrays.asList(PropertiesUtil.getProperty("fanarttv.types", "clearart,clearlogo,seasonthumb,tvthumb,movieart,movielogo,moviedisc").toLowerCase().split(","));
         for (String artworkType : requiredArtworkTypes) {
             try {
-                // For the time being limit the max to 1
-                int artworkQuantity = Math.min(1, PropertiesUtil.getIntProperty("fanarttv.quantity." + artworkType, "0"));
+                // For the time being limit the max to 1, minimum of 1 if the property exists
+                int artworkQuantity = Math.min(1, PropertiesUtil.getIntProperty("fanarttv.quantity." + artworkType, "1"));
                 artworkTypes.put(FTArtworkType.fromString(artworkType), artworkQuantity);
 //                if (artworkQuantity > 0) {
 //                    logger.debug(logMessage + "Getting maximum of " + artworkQuantity + " " + artworkType);
@@ -300,4 +300,35 @@ public class FanartTvPlugin {
 
         return isArtworkRequired(requiredType);
     }
+
+    /**
+     * Get the language for the Movie search.
+     *
+     * Default to the fanart.tv setting and then try themoviedb setting
+     *
+     * @return
+     */
+    private static String getMovieLanguage() {
+        String language = PropertiesUtil.getProperty("fanarttv.movie.language", "");
+        if (StringUtils.isBlank(language)) {
+            language = PropertiesUtil.getProperty("themoviedb.language", DEFAULT_LANGUAGE);
+        }
+        return language;
+    }
+
+    /**
+     * Get the kanguage for the TV Search
+     *
+     * Default to the fanart.tv setting and then try thetvdb setting
+     *
+     * @return
+     */
+    private static String getTvLanguage() {
+        String language = PropertiesUtil.getProperty("fanarttv.tv.language", "");
+        if (StringUtils.isBlank(language)) {
+            language = PropertiesUtil.getProperty("thetvdb.language", DEFAULT_LANGUAGE);
+        }
+        return language;
+    }
+
 }
