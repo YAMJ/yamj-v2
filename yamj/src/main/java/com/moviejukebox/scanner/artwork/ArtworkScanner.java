@@ -13,6 +13,7 @@
 package com.moviejukebox.scanner.artwork;
 
 import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
@@ -256,21 +257,19 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * @return
      */
     public static boolean isRequired(String artworkTypeString) {
-        boolean sArtworkLocalSearch = PropertiesUtil.getBooleanProperty(artworkTypeString + ".scanner.searchForExistingArtwork", "");
-        boolean sArtworkMovieDownload = PropertiesUtil.getBooleanProperty(artworkTypeString + ".movie.download", "");
-        boolean sArtworkTvDownload = PropertiesUtil.getBooleanProperty(artworkTypeString + ".tv.download", "");
-
-        logger.info(artworkTypeString + ".scanner.searchForExistingArtwork=" + sArtworkLocalSearch);    // XXX DEBUG
-        logger.info(artworkTypeString + ".movie.download=" + sArtworkMovieDownload);    // XXX DEBUG
-        logger.info(artworkTypeString + ".tv.download=" + sArtworkTvDownload);  // XXX DEBUG
+        boolean sArtworkLocalSearch = PropertiesUtil.getBooleanProperty(artworkTypeString + ".scanner.searchForExistingArtwork", "false");
+        boolean sArtworkMovieDownload = PropertiesUtil.getBooleanProperty(artworkTypeString + ".movie.download", "false");
+        boolean sArtworkTvDownload = PropertiesUtil.getBooleanProperty(artworkTypeString + ".tv.download", "false");
 
         return (sArtworkLocalSearch || sArtworkMovieDownload || sArtworkTvDownload);
     }
 
-    public static Map<ArtworkType, Boolean> getRequiredArtworkTypes() {
-        Map<ArtworkType, Boolean> artworkTypeRequired = new EnumMap<ArtworkType, Boolean>(ArtworkType.class);
+    public static EnumSet<ArtworkType> getRequiredArtworkTypes() {
+        EnumSet<ArtworkType> artworkTypeRequired = EnumSet.noneOf(ArtworkType.class);
         for (ArtworkType artworkType : EnumSet.allOf(ArtworkType.class)) {
-            artworkTypeRequired.put(artworkType, isRequired(artworkType));
+            if (isRequired(artworkType)) {
+                artworkTypeRequired.add(artworkType);
+            }
         }
         return artworkTypeRequired;
     }
@@ -301,14 +300,21 @@ public abstract class ArtworkScanner implements IArtworkScanner {
             setArtworkUrl(movie, Movie.UNKNOWN);
             setArtworkFilename(movie, Movie.UNKNOWN);
         } else {
-            // Check to see if we have a valid URL.
-            if (StringTools.isValidString(getArtworkUrl(movie))) {
+            // Check to see if we have a valid URL and it's not dirty
+            if (StringTools.isValidString(getArtworkUrl(movie)) && !(isDirtyArtwork(movie) || movie.isDirty(DirtyFlag.INFO))) {
                 // Valid URL, so exit with that
                 logger.debug(logMessage + "URL for " + movie.getBaseName() + " looks valid, skipping online search: " + getArtworkUrl(movie));
                 if (StringTools.isNotValidString(getArtworkFilename(movie))) {
                     setArtworkFilename(movie, makeSafeArtworkFilename(movie));
                 }
                 return getArtworkUrl(movie);
+            } else {
+                // Not a valid URL, check to see if the artwork is dirty or the movie is dirty
+                if (!(isDirtyArtwork(movie) || movie.isDirty(DirtyFlag.NFO) || movie.isDirty(DirtyFlag.RECHECK))) {
+                    // Artwork and movie is not dirty, so don't process
+                    logger.debug(logMessage + "URL is invalid, but update not required (not dirty or recheck)");
+                    return getArtworkUrl(movie);
+                }
             }
         }
 

@@ -42,7 +42,6 @@ public class FanartTvScanner extends ArtworkScanner {
 
         if (PropertiesUtil.getBooleanProperty("scanner." + artworkTypeName + ".debug", "false")) {
             debugOutput();
-            debugProperty("mjb.forcemjb.forceFanartTvOverwrite", artworkOverwrite, Boolean.FALSE);
         }
     }
 
@@ -213,7 +212,7 @@ public class FanartTvScanner extends ArtworkScanner {
     private boolean setOverwrite() {
         String propName = "mjb.force" + StringUtils.capitalize(artworkTypeName) + "Overwrite";
         artworkOverwrite = PropertiesUtil.getBooleanProperty(propName, "false");
-        logger.debug(logMessage + propName + "=" + artworkOverwrite);
+//        logger.debug(logMessage + propName + "=" + artworkOverwrite);
         return artworkOverwrite;
     }
 
