@@ -310,7 +310,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
                 return getArtworkUrl(movie);
             } else {
                 // Not a valid URL, check to see if the artwork is dirty or the movie is dirty
-                if (!(isDirtyArtwork(movie) || movie.isDirty(DirtyFlag.NFO) || movie.isDirty(DirtyFlag.RECHECK))) {
+                if (!(isDirtyArtwork(movie) || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.RECHECK))) {
                     // Artwork and movie is not dirty, so don't process
                     logger.debug(logMessage + "URL is invalid, but update not required (not dirty or recheck)");
                     return getArtworkUrl(movie);
