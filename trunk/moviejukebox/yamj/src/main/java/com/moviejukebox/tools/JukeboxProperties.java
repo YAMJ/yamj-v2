@@ -280,9 +280,8 @@ public class JukeboxProperties {
             eProperties = docMjbDetails.createElement(PROPERTIES);
             eRoot.appendChild(eProperties);
 
-            Iterator<PropertyInformation> iterator = propInfo.iterator();
-            while (iterator.hasNext()) {
-                appendProperty(docMjbDetails, eProperties, iterator.next().getPropertyName());
+            for (PropertyInformation pi : propInfo) {
+                appendProperty(docMjbDetails, eProperties, pi.getPropertyName());
             }
 
             DOMHelper.writeDocumentToFile(docMjbDetails, mjbDetails.getAbsolutePath());
