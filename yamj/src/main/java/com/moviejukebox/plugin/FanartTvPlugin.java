@@ -228,6 +228,7 @@ public class FanartTvPlugin {
                 return ftArtwork;
             } catch (FanartTvException ex) {
                 logger.warn(logMessage + "Failed to get fanart information");
+                logger.warn(logMessage + "Failed to get fanart information for TVDB ID: " + tvdbId + ". Error: " + ex.getMessage());
                 return new ArrayList<FanartTvArtwork>();
             } finally {
                 ThreadExecutor.leaveIO();
@@ -265,7 +266,7 @@ public class FanartTvPlugin {
 
                 return ftArtwork;
             } catch (FanartTvException ex) {
-                logger.warn(logMessage + "Failed to get fanart information");
+                logger.warn(logMessage + "Failed to get fanart information for IMDB ID: " + imdbId + " / TMDB ID: " + tmdbId + ". Error: " + ex.getMessage());
                 return new ArrayList<FanartTvArtwork>();
             } finally {
                 ThreadExecutor.leaveIO();
@@ -330,5 +331,4 @@ public class FanartTvPlugin {
         }
         return language;
     }
-
 }
