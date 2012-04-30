@@ -1182,6 +1182,10 @@ public class MovieNFOScanner {
      * @param eFileInfo
      */
     private static void parseFileInfo(Movie movie, Element eFileInfo) {
+        if (eFileInfo == null) {
+            return;
+        }
+        
         Element eStreamDetails = DOMHelper.getElementByName(eFileInfo, "streamdetails");
 
         // Video
