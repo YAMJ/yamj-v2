@@ -12,11 +12,14 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.MovieJukebox;
+import com.moviejukebox.model.Movie;
 import static com.moviejukebox.tools.StringTools.formatFileSize;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 public class SystemTools {
@@ -157,7 +160,7 @@ public class SystemTools {
             logger.error("WARNING: You will need to re-install YAMJ now to ensure correct running!");
             logger.error("");
             logger.error("The following duplicates were found:");
-         
+
             for (Map.Entry<String, List<String>> entry : jarsToCheck.entrySet()) {
                 if (entry.getValue().size() > 1) {
                     logger.error(entry.getKey() + ":");
@@ -169,5 +172,43 @@ public class SystemTools {
         }
 
         return installationIsValid;
+    }
+
+    /**
+     * Get the currently running YAMJ revision
+     *
+     * @return
+     */
+    public static String getRevision() {
+        // Jukebox revision
+        String currentRevision = MovieJukebox.class.getPackage().getImplementationVersion();
+        // If YAMJ is self compiled then the revision information may not exist.
+        if (StringUtils.isBlank(currentRevision) || (currentRevision.equalsIgnoreCase("${env.SVN_REVISION}"))) {
+            currentRevision = "0000";
+        }
+        return currentRevision;
+    }
+
+    /**
+     * Get the currently running YAMJ version
+     *
+     * @return
+     */
+    public static String getVersion() {
+        String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
+        if (StringUtils.isBlank(mjbVersion)) {
+            return "";
+        } else {
+            return mjbVersion;
+        }
+    }
+
+    /**
+     * Get the build date of YAMJ
+     *
+     * @return
+     */
+    public static String getBuildDate() {
+        return MovieJukebox.class.getPackage().getImplementationTitle();
     }
 }
