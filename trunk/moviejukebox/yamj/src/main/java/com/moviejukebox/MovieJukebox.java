@@ -12,6 +12,7 @@
  */
 package com.moviejukebox;
 
+import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.fanarttv.model.FTArtworkType;
 import com.moviejukebox.model.Comparator.PersonComparator;
 import com.moviejukebox.model.*;

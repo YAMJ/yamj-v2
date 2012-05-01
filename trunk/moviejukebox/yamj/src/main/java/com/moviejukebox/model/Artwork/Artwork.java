@@ -14,7 +14,8 @@ package com.moviejukebox.model.Artwork;
 
 import com.moviejukebox.model.Movie;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
  * A class to store all the artwork associated with a movie object
@@ -28,7 +29,7 @@ public class Artwork {
     private ArtworkType type;       // The type of the artwork.
     private String sourceSite; // Where the artwork originated from
     private String url;        // The original URL of the artwork (may be used as key)
-    private HashMap<ArtworkSize, ArtworkFile> sizes; // The hash should be the size that is passed as part of the ArtworkSize
+    private Map<ArtworkSize, ArtworkFile> sizes; // The hash should be the size that is passed as part of the ArtworkSize
 
     /**
      * Create an Artwork object with a set of sizes
@@ -60,7 +61,7 @@ public class Artwork {
         this.type = type;
         this.sourceSite = sourceSite;
         this.url = url;
-        this.sizes = new HashMap<ArtworkSize, ArtworkFile>();
+        this.sizes = new EnumMap<ArtworkSize, ArtworkFile>(ArtworkSize.class);
         this.addSize(size);
     }
 
@@ -71,7 +72,7 @@ public class Artwork {
         this.sourceSite = UNKNOWN;
         this.type = null;
         this.url = UNKNOWN;
-        this.sizes = new HashMap<ArtworkSize, ArtworkFile>();
+        this.sizes = new EnumMap<ArtworkSize, ArtworkFile>(ArtworkSize.class);
     }
 
     /**
@@ -79,7 +80,7 @@ public class Artwork {
      *
      * @param size
      */
-    public void addSize(ArtworkFile size) {
+    public final void addSize(ArtworkFile size) {
         sizes.put(size.getSize(), size);
     }
 
@@ -131,7 +132,7 @@ public class Artwork {
     }
 
     /**
-     * @param url the url to set
+     * @param url the URL to set
      */
     public void setUrl(String url) {
         this.url = url;

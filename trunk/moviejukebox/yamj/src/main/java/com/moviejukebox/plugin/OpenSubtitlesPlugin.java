@@ -367,7 +367,7 @@ public class OpenSubtitlesPlugin {
             // Upload the subtitle
             xml = generateXMLRPCUS(idmovieimdb, subhash, subcontent, subfilename, moviehash, moviebytesize, movietimems, movieframes, moviefps, moviefilename);
 
-            ret = sendRPC(xml);
+            sendRPC(xml);
 
             return true;
 
@@ -568,7 +568,6 @@ public class OpenSubtitlesPlugin {
                 return xml.substring(b + 8, c);
             }
         }
-        ;
         return str;
     }
 
@@ -636,12 +635,11 @@ public class OpenSubtitlesPlugin {
 
         // char tx;
         // long mili = Calendar.getInstance().getTimeInMillis();
-        String str = "";
         String t = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         char t2[] = t.toCharArray();
         char wynik[] = new char[(s.length / 3 + 1) * 4];
 
-        int tri = 0;
+        int tri;
         for (int i = 0; i < (s.length / 3 + 1); i++) {
             tri = 0;
             int iii = i * 3;
@@ -658,7 +656,7 @@ public class OpenSubtitlesPlugin {
             // if((i+1) % 19 ==0 ) str +="\n";
         }
 
-        str = new String(wynik);
+        String str = new String(wynik);
         if (str.endsWith("====")) {
             str = str.substring(0, str.length() - 4);
         }

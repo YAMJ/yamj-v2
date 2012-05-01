@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.scanner;
 
+import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
@@ -1185,7 +1186,7 @@ public class MovieNFOScanner {
         if (eFileInfo == null) {
             return;
         }
-        
+
         Element eStreamDetails = DOMHelper.getElementByName(eFileInfo, "streamdetails");
 
         // Video
