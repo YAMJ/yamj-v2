@@ -86,42 +86,39 @@ public interface IArtworkScanner {
     abstract void setDirtyArtwork(Movie movie, boolean dirty);
 
     /**
-     * Determine if an online search should be performed for a particular movie
-     * and artwork type. Properties should be checked as should scrape library
-     * and ID = 0/-1
-     *
-     * @param movie
-     * @return true if online scraping should be done
-     */
-    abstract boolean getOnlineArtwork(Movie movie);
-
-    /**
      * Determine if the artwork type is required.
      *
      * @return true if the artwork is required
      */
-    abstract boolean isRequired();
+    abstract boolean isSearchRequired();
 
     /**
      * Determine if the artwork type is required for local searching
      *
      * @return
      */
-    abstract boolean isRequiredLocal();
+    abstract boolean isSearchLocal();
 
     /**
-     * Determine if the artwork is required for Online TV search
+     * Determine if an online search should be performed for a particular video.
      *
-     * @return
+     * Properties should be checked as should scrape library and ID = 0/-1
+     *
+     * @param movie
+     * @return true if online scraping should be done
      */
-    abstract boolean isRequiredTV();
+    abstract boolean isSearchOnline(Movie movie);
 
     /**
-     * Determine if the artwork is required for Online Movie search
+     * Determine if an online search should be performed for a particular
+     * artwork.
      *
-     * @return
+     * This only checks the properties and can't determine if the specific video
+     * artwork should be downloaded.
+     *
+     * @return true if online scraping should be done
      */
-    abstract boolean isRequiredMovie();
+    abstract boolean isSearchOnline();
 
     /**
      * Create a operating system safe filename for the artwork

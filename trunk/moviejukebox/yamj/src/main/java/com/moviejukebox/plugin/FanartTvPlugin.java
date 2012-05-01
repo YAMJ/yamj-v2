@@ -15,6 +15,7 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.fanarttv.FanartTv;
 import com.moviejukebox.fanarttv.FanartTvException;
 import com.moviejukebox.fanarttv.model.FTArtworkType;
+import com.moviejukebox.fanarttv.model.FTSourceType;
 import com.moviejukebox.fanarttv.model.FanartTvArtwork;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.*;
@@ -40,22 +41,25 @@ public class FanartTvPlugin {
 
     static {
         // Read the properties for the artwork required and the quantities
-        List<String> requiredArtworkTypes = Arrays.asList(PropertiesUtil.getProperty("fanarttv.types", "clearart,clearlogo,seasonthumb,tvthumb,movieart,movielogo,moviedisc").toLowerCase().split(","));
-        for (String artworkType : requiredArtworkTypes) {
-            try {
-                // For the time being limit the max to 1, minimum of 1 if the property exists
-                int artworkQuantity = Math.min(1, PropertiesUtil.getIntProperty("fanarttv.quantity." + artworkType, "1"));
-                artworkTypes.put(FTArtworkType.fromString(artworkType), artworkQuantity);
-//                if (artworkQuantity > 0) {
-//                    logger.debug(logMessage + "Getting maximum of " + artworkQuantity + " " + artworkType);
-//                } else {
-//                    logger.debug(logMessage + "No " + artworkType + " required");
-//                }
-            } catch (IllegalArgumentException ex) {
-                logger.warn(logMessage + "Artwork type '" + artworkType + "' not recognised");
+
+        // The propery name should be named like: "{artworkType}.{artworkSource}.download", e.g. clearart.tv.download
+        StringBuilder artworkPropertyName;
+        for (FTArtworkType artworkType : EnumSet.allOf(FTArtworkType.class)) {
+            artworkPropertyName = new StringBuilder(artworkType.toString().toLowerCase());
+            artworkPropertyName.append('.');
+            artworkPropertyName.append(artworkType.getSourceType().toString().toLowerCase());
+            artworkPropertyName.append(".download");
+
+            if (PropertiesUtil.getBooleanProperty(artworkPropertyName.toString(), "false")) {
+                artworkTypes.put(artworkType, 1);
             }
         }
-        logger.debug(logMessage + "Looking for " + artworkTypes.toString() + " Fanart.TV Types");
+
+        if (artworkTypes.size() > 0) {
+            logger.debug(logMessage + "Looking for " + artworkTypes.toString() + " Fanart.TV Types");
+        } else {
+            logger.debug(logMessage + "No Fanart.TV artwork required.");
+        }
     }
 
     public FanartTvPlugin() {
@@ -93,6 +97,11 @@ public class FanartTvPlugin {
     }
 
     public boolean scan(Movie movie, FTArtworkType artworkType) {
+        if (artworkType != FTArtworkType.ALL && !artworkTypes.containsKey(artworkType)) {
+            logger.debug(logMessage + artworkType.toString().toLowerCase() + " not required");
+            return true;
+        }
+
         List<FanartTvArtwork> ftArtwork;
         int requiredQuantity;
         String requiredLanguage;
@@ -108,11 +117,14 @@ public class FanartTvPlugin {
             }
 
             // Remove the non-TV types
-            requiredArtworkTypes.remove(FTArtworkType.MOVIEART);
-            requiredArtworkTypes.remove(FTArtworkType.MOVIEDISC);
-            requiredArtworkTypes.remove(FTArtworkType.MOVIELOGO);
+            for (FTArtworkType at : requiredArtworkTypes.keySet()) {
+                if (at.getSourceType() != FTSourceType.TV) {
+                    requiredArtworkTypes.remove(at);
+                }
+            }
 
-            ftArtwork = getTvArtwork(tvdbid, artworkType);
+            // Get all the artwork to speed up any subsequent requests
+            ftArtwork = getTvArtwork(tvdbid, FTArtworkType.ALL);
             requiredQuantity = totalRequiredTv;
             requiredLanguage = tvLanguage;
         } else {
@@ -124,18 +136,20 @@ public class FanartTvPlugin {
             }
 
             // Remove the non-Movie types
-            requiredArtworkTypes.remove(FTArtworkType.CLEARART);
-            requiredArtworkTypes.remove(FTArtworkType.CLEARLOGO);
-            requiredArtworkTypes.remove(FTArtworkType.SEASONTHUMB);
-            requiredArtworkTypes.remove(FTArtworkType.TVTHUMB);
+            for (FTArtworkType at : requiredArtworkTypes.keySet()) {
+                if (at.getSourceType() != FTSourceType.MOVIE) {
+                    requiredArtworkTypes.remove(at);
+                }
+            }
 
-            ftArtwork = getMovieArtwork(tmdbId, movie.getId(ImdbPlugin.IMDB_PLUGIN_ID), artworkType);
+            // Get all the artwork to speed up any subsequent requests
+            ftArtwork = getMovieArtwork(tmdbId, movie.getId(ImdbPlugin.IMDB_PLUGIN_ID), FTArtworkType.ALL);
             requiredQuantity = totalRequireMovie;
             requiredLanguage = movieLanguage;
         }
 
         if (!ftArtwork.isEmpty()) {
-            logger.debug(logMessage + "Found " + ftArtwork.size() + (artworkType == FTArtworkType.ALL ? "" : artworkType.toString().toLowerCase()) + " artwork items");
+            logger.debug(logMessage + "Found " + ftArtwork.size() + " artwork items");
 
             FTArtworkType ftType;
             int ftQuantity;
