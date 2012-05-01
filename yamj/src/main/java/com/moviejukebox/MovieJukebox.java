@@ -961,26 +961,14 @@ public class MovieJukebox {
                             if (movie.isTVShow()) {
                                 // Only scan using the TV Show artwork scanners
                                 tools.clearArtScanner.scan(jukebox, movie);
-                                tools.clearArtScanner.saveArtworkToJukebox(jukebox, movie);
-
                                 tools.clearLogoScanner.scan(jukebox, movie);
-                                tools.clearLogoScanner.saveArtworkToJukebox(jukebox, movie);
-
                                 tools.tvThumbScanner.scan(jukebox, movie);
-                                tools.tvThumbScanner.saveArtworkToJukebox(jukebox, movie);
-
                                 tools.seasonThumbScanner.scan(jukebox, movie);
-                                tools.seasonThumbScanner.saveArtworkToJukebox(jukebox, movie);
                             } else {
                                 // Only scan using the Movie artwork scanners
                                 tools.movieArtScanner.scan(jukebox, movie);
-                                tools.movieArtScanner.saveArtworkToJukebox(jukebox, movie);
-
                                 tools.movieDiscScanner.scan(jukebox, movie);
-                                tools.movieDiscScanner.saveArtworkToJukebox(jukebox, movie);
-
                                 tools.movieLogoScanner.scan(jukebox, movie);
-                                tools.movieLogoScanner.saveArtworkToJukebox(jukebox, movie);
                             }
 
                             for (int i = 0; i < footerCount; i++) {

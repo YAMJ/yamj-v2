@@ -47,7 +47,7 @@ public class FanartTvScanner extends ArtworkScanner {
 
     @Override
     public String scanLocalArtwork(Jukebox jukebox, Movie movie) {
-        if (isRequiredLocal()) {
+        if (isSearchLocal()) {
             return super.scanLocalArtwork(jukebox, movie, artworkImagePlugin);
         } else {
             return Movie.UNKNOWN;
@@ -57,11 +57,11 @@ public class FanartTvScanner extends ArtworkScanner {
     @Override
     public String scanOnlineArtwork(Movie movie) {
         // Don't scan if we are not needed
-
-        if (isRequired() && (isOverwrite() || StringTools.isNotValidString(getArtworkUrl(movie)))) {
-            // Lets get all the artwork
-            fanartTvPlugin.scan(movie, FTArtworkType.ALL);
+        if ((isOverwrite() || StringTools.isNotValidString(getArtworkUrl(movie))) && isSearchOnline(movie)) {
+            // Check the type of the video and whether it is required or not
+            fanartTvPlugin.scan(movie, FTArtworkType.fromString(artworkType.toString()));
         }
+
         return getArtworkUrl(movie);
     }
 
@@ -222,36 +222,36 @@ public class FanartTvScanner extends ArtworkScanner {
     private void setDownloadByType() {
         if (artworkType == ArtworkType.ClearArt) {
             // Movie download is not supported for this type
-            artworkMovieDownload = Boolean.FALSE;
+            artworkDownloadMovie = Boolean.FALSE;
         } else if (artworkType == ArtworkType.ClearLogo) {
             // Movie download is not supported for this type
-            artworkMovieDownload = Boolean.FALSE;
+            artworkDownloadMovie = Boolean.FALSE;
         } else if (artworkType == ArtworkType.TvThumb) {
             // Movie download is not supported for this type
-            artworkMovieDownload = Boolean.FALSE;
+            artworkDownloadMovie = Boolean.FALSE;
         } else if (artworkType == ArtworkType.SeasonThumb) {
             // Movie download is not supported for this type
-            artworkMovieDownload = Boolean.FALSE;
+            artworkDownloadMovie = Boolean.FALSE;
         } else if (artworkType == ArtworkType.MovieArt) {
             // TV download is not supported for this type
-            artworkTvDownload = Boolean.FALSE;
+            artworkDownloadTv = Boolean.FALSE;
         } else if (artworkType == ArtworkType.MovieLogo) {
             // TV download is not supported for this type
-            artworkTvDownload = Boolean.FALSE;
+            artworkDownloadTv = Boolean.FALSE;
         } else if (artworkType == ArtworkType.MovieDisc) {
             // TV download is not supported for this type
-            artworkTvDownload = Boolean.FALSE;
+            artworkDownloadTv = Boolean.FALSE;
         } else if (artworkType == ArtworkType.CharacterArt) {
-            artworkLocalSearch = Boolean.FALSE;
+            artworkSearchLocal = Boolean.FALSE;
             artworkOverwrite = Boolean.FALSE;
-            artworkMovieDownload = Boolean.FALSE;
-            artworkTvDownload = Boolean.FALSE;
+            artworkDownloadMovie = Boolean.FALSE;
+            artworkDownloadTv = Boolean.FALSE;
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
         } else {
-            artworkLocalSearch = Boolean.FALSE;
+            artworkSearchLocal = Boolean.FALSE;
             artworkOverwrite = Boolean.FALSE;
-            artworkMovieDownload = Boolean.FALSE;
-            artworkTvDownload = Boolean.FALSE;
+            artworkDownloadMovie = Boolean.FALSE;
+            artworkDownloadTv = Boolean.FALSE;
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
         }
     }
