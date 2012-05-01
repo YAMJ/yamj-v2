@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.scanner.artwork;
 
+import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.*;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkFile;

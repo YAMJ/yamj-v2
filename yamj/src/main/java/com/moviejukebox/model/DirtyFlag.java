@@ -12,7 +12,10 @@
  */
 package com.moviejukebox.model;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
+ * The list of dirty flags
  *
  * @author Stuart
  */
@@ -30,4 +33,23 @@ public enum DirtyFlag {
     TVTHUMB,
     SEASONTHUMB,
     MOVIEDISC;
+
+    /**
+     * Convert a string into an Enum type
+     *
+     * @param dirtyFlag
+     * @return
+     * @throws IllegalArgumentException If type is not recognised
+     *
+     */
+    public static DirtyFlag fromString(String dirtyFlag) {
+        if (StringUtils.isNotBlank(dirtyFlag)) {
+            try {
+                return DirtyFlag.valueOf(dirtyFlag.trim().toUpperCase());
+            } catch (IllegalArgumentException ex) {
+                throw new IllegalArgumentException("DirtyFlag " + dirtyFlag + " does not exist.", ex);
+            }
+        }
+        throw new IllegalArgumentException("DirtyFlag must not be null");
+    }
 }

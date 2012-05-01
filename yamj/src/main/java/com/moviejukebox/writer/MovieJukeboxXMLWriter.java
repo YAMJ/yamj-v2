@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.writer;
 
+import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Comparator.CertificationComparator;
 import com.moviejukebox.model.Comparator.IndexComparator;

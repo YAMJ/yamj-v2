@@ -13,6 +13,7 @@
 package com.moviejukebox.model.Artwork;
 
 import java.util.EnumSet;
+import org.apache.commons.lang3.StringUtils;
 
 public enum ArtworkType {
     // Define the lowercase equivalents of the Enum names
@@ -44,15 +45,23 @@ public enum ArtworkType {
         return this.type;
     }
 
-    public static ArtworkType fromString(String type) {
-        if (type != null) {
+    /**
+     * Convert a string into an Enum type
+     *
+     * @param artworkType
+     * @return
+     * @throws IllegalArgumentException If type is not recognised
+     *
+     */
+    public static ArtworkType fromString(String artworkTypeString) {
+        if (StringUtils.isNotBlank(artworkTypeString)) {
             for (final ArtworkType artworkType : EnumSet.allOf(ArtworkType.class)) {
-                if (type.equalsIgnoreCase(artworkType.type)) {
+                if (artworkTypeString.equalsIgnoreCase(artworkType.type)) {
                     return artworkType;
                 }
             }
         }
         // We've not found the type, so raise an exception
-        throw new IllegalArgumentException("No ArtworkType " + type + " exists");
+                throw new IllegalArgumentException("ArtworkType " + artworkTypeString + " does not exist.");
     }
 }
