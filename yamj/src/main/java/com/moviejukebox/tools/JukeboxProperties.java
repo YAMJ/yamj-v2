@@ -12,7 +12,6 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
@@ -20,7 +19,11 @@ import com.moviejukebox.model.Movie;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,6 +50,7 @@ public class JukeboxProperties {
     private static final String GENRE = "Genre";
     private static final String CERTIFICATION = "Certification";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-kk:mm:ss");
+    private static final int MINIMUM_REVISION = 3061;
 
     static {
         propInfo.add(new PropertyInformation("userPropertiesName", EnumSet.noneOf(PropertyOverwrites.class)));
@@ -214,21 +218,9 @@ public class JukeboxProperties {
             eJukebox = docMjbDetails.createElement(JUKEBOX);
             eRoot.appendChild(eJukebox);
 
-            // Jukebox version
-            String specificationVersion = MovieJukebox.mjbVersion;
-            if (specificationVersion == null) {
-                specificationVersion = Movie.UNKNOWN;
-            }
-            DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxVersion", specificationVersion);
+            DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxVersion", SystemTools.getVersion());
 
-            // Jukebox revision
-            // If YAMJ is self compiled then the revision information may not exist.
-            String currentRevision = MovieJukebox.mjbRevision;
-            // If YAMJ is self compiled then the revision information may not exist.
-            if ((currentRevision == null) || (currentRevision.equalsIgnoreCase("${env.SVN_REVISION}"))) {
-                currentRevision = Movie.UNKNOWN;
-            }
-            DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxRevision", currentRevision);
+            DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxRevision", SystemTools.getRevision());
 
             // Save the run date
             DOMHelper.appendChild(docMjbDetails, eJukebox, "RunTime", DATE_FORMAT.format(System.currentTimeMillis()));
@@ -365,13 +357,14 @@ public class JukeboxProperties {
     public static PropertyInformation processFile(File mjbDetails, Collection<MediaLibraryPath> mediaLibraryPaths) {
         PropertyInformation piReturn = new PropertyInformation("RETURN", EnumSet.noneOf(PropertyOverwrites.class));
         Document docMjbDetails;
+        boolean revisionCheckPassed = Boolean.TRUE;
+
         // Try to open and read the document file
         try {
             docMjbDetails = DOMHelper.getEventDocFromUrl(mjbDetails);
         } catch (Exception error) {
-            logger.error(logMessage + "Failed creating the file, no checks performed");
-            logger.error(error.getMessage());
-            error.getStackTrace();
+            logger.warn(logMessage + "Failed creating the file, no checks performed");
+            logger.warn(SystemTools.getStackTrace(error));
             return piReturn;
         }
 
@@ -413,6 +406,26 @@ public class JukeboxProperties {
                 piReturn.mergePropertyInformation(new PropertyInformation("Certifications", EnumSet.of(PropertyOverwrites.Index)));
                 logger.debug(logMessage + "Certifications has changed, so need to update");
             }
+
+            // Check the revision of YAMJ
+            String mjbRevision = DOMHelper.getValueFromElement(eJukebox, "JukeboxRevision");
+            if (StringUtils.isNumeric(mjbRevision) && (Integer.parseInt(mjbRevision) < MINIMUM_REVISION)) {
+                revisionCheckPassed = Boolean.FALSE;
+            }
+        }
+
+        /*
+         * This is a temporary check for the changes to the ArtworkScanner.
+         *
+         * Basically if the user came from a revision <r3061 we will skip the
+         * property checks. See
+         * http://www.networkedmediatank.com/showthread.php?tid=60652&pid=555361
+         *
+         * // TODO: REMOVE this after v2.7 is released
+         */
+        if (!revisionCheckPassed) {
+            // Stop and return what we have so far.
+            return piReturn;
         }
 
         nlElements = docMjbDetails.getElementsByTagName(PROPERTIES);
@@ -494,8 +507,8 @@ public class JukeboxProperties {
     /**
      * Enumeration of the Overwrite properties
      *
-     * These should be exactly as needed when setting the force???Overwrite
-     * property
+     * These are case sensitive and should be exactly as needed when setting the
+     * force???Overwrite property
      */
     public static enum PropertyOverwrites {
 

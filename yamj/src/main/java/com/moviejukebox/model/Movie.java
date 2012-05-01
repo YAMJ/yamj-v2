@@ -12,7 +12,6 @@
  */
 package com.moviejukebox.model;
 
-import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
@@ -206,7 +205,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setMjbVersion(String mjbVersion) {
         if (StringTools.isNotValidString(mjbVersion)) {
-            this.mjbVersion = getCurrentMjbVersion();
+            this.mjbVersion = SystemTools.getVersion();
         } else {
             this.mjbVersion = mjbVersion;
         }
@@ -217,17 +216,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return mjbVersion;
     }
 
-    public String getCurrentMjbVersion() {
-        String specificationVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
-        if (StringUtils.isBlank(specificationVersion)) {
-            specificationVersion = UNKNOWN;
-        }
-        return specificationVersion;
-    }
-
     public void setMjbRevision(String mjbRevision) {
         if (StringTools.isNotValidString(mjbRevision)) {
-            this.mjbRevision = "0";
+            this.mjbRevision = "0000";
         } else {
             this.mjbRevision = mjbRevision;
         }
@@ -241,15 +232,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         } else {
             return Movie.UNKNOWN;
         }
-    }
-
-    public String getCurrentMjbRevision() {
-        String currentRevision = MovieJukebox.mjbRevision;
-        // If YAMJ is self compiled then the revision information may not exist.
-        if (StringUtils.isBlank(currentRevision) || (currentRevision.equalsIgnoreCase("${env.SVN_REVISION}"))) {
-            currentRevision = Movie.UNKNOWN;
-        }
-        return currentRevision;
     }
 
     public void setMjbGenerationDateString(String mjbGenerationDate) {

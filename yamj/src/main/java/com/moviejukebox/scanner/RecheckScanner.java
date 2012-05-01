@@ -18,6 +18,7 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.ArtworkScanner;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
+import com.moviejukebox.tools.SystemTools;
 import java.util.Date;
 import java.util.EnumSet;
 import org.apache.log4j.Logger;
@@ -74,7 +75,7 @@ public class RecheckScanner {
 
         // Check for the version of YAMJ that wrote the XML file vs the current version
         //System.out.println("- mjbVersion : " + movie.getMjbVersion() + " (" + movie.getCurrentMjbVersion() + ")");
-        if (recheckVersion && !movie.getMjbVersion().equalsIgnoreCase(movie.getCurrentMjbVersion())) {
+        if (recheckVersion && !movie.getMjbVersion().equalsIgnoreCase(SystemTools.getVersion())) {
             logger.debug(logMessage + movie.getBaseName() + " XML is from a previous version, will rescan");
             return true;
         }
@@ -118,7 +119,7 @@ public class RecheckScanner {
             // Check the revision of YAMJ that wrote the XML file vs the current revisions
             //System.out.println("- mjbRevision: " + movie.getMjbRevision() + " (" + movie.getCurrentMjbRevision() + ")");
             //System.out.println("- Difference : " + (Integer.parseInt(movie.getCurrentMjbRevision()) - Integer.parseInt(movie.getMjbRevision())) );
-            String currentRevision = movie.getCurrentMjbRevision();
+            String currentRevision = SystemTools.getRevision();
             String movieMjbRevision = movie.getMjbRevision();
             int revDiff = Integer.parseInt(isNotValidString(currentRevision) ? "0" : currentRevision) - Integer.parseInt(isNotValidString(movieMjbRevision) ? "0" : movieMjbRevision);
             if (revDiff > recheckRevision) {

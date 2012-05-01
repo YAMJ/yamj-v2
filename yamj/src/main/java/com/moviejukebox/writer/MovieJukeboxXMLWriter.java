@@ -12,7 +12,6 @@
  */
 package com.moviejukebox.writer;
 
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Comparator.CertificationComparator;
 import com.moviejukebox.model.Comparator.IndexComparator;
@@ -1813,8 +1812,8 @@ public class MovieJukeboxXMLWriter {
             DOMHelper.appendChild(doc, eMovie, "id", e.getValue(), "moviedb", e.getKey());
         }
 
-        DOMHelper.appendChild(doc, eMovie, "mjbVersion", movie.getCurrentMjbVersion());
-        DOMHelper.appendChild(doc, eMovie, "mjbRevision", movie.getCurrentMjbRevision());
+        DOMHelper.appendChild(doc, eMovie, "mjbVersion", SystemTools.getVersion());
+        DOMHelper.appendChild(doc, eMovie, "mjbRevision", SystemTools.getRevision());
         DOMHelper.appendChild(doc, eMovie, "xmlGenerationDate", Movie.dateFormatLong.format(new Date()));
         DOMHelper.appendChild(doc, eMovie, "baseFilenameBase", movie.getBaseFilename());
         DOMHelper.appendChild(doc, eMovie, "baseFilename", movie.getBaseName());

@@ -102,9 +102,9 @@ public class MovieJukebox {
     private static String peopleFolder = "";
     private static Collection<String> photoExtensions = new ArrayList<String>();
     // These are pulled from the Manifest.MF file that is created by the Ant build script
-    public static String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
-    public static String mjbRevision = MovieJukebox.class.getPackage().getImplementationVersion();
-    public static String mjbBuildDate = MovieJukebox.class.getPackage().getImplementationTitle();
+    private static String mjbVersion = SystemTools.getVersion();
+    private static String mjbRevision = SystemTools.getRevision();
+    private static String mjbBuildDate = SystemTools.getBuildDate();
     private static boolean trailersScannerEnable;
     private static int MaxThreadsProcess = 1;
     private static int MaxThreadsDownload = 1;
@@ -116,11 +116,6 @@ public class MovieJukebox {
         System.setProperty("file.name", logFilename);
         PropertyConfigurator.configure("properties/log4j.properties");
 
-        // Just create a pretty underline.
-        if (mjbVersion == null) {
-            mjbVersion = "";
-        }
-
         logger.info("Yet Another Movie Jukebox " + mjbVersion);
         logger.info("~~~ ~~~~~~~ ~~~~~ ~~~~~~~ " + StringUtils.repeat("~", mjbVersion.length()));
         logger.info("http://code.google.com/p/moviejukebox/");
@@ -131,18 +126,15 @@ public class MovieJukebox {
         logger.info("");
 
         // Print the revision information if it was populated
-        if (!((mjbRevision == null) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
-            if (mjbRevision.equals("0000")) {
-                logger.info("  Revision: Custom Build (r" + mjbRevision + ")");
-            } else {
-                logger.info("  Revision: r" + mjbRevision);
-            }
-            logger.info("Build Date: " + mjbBuildDate);
-            logger.info("");
+        if (mjbRevision.equals("0000")) {
+            logger.info("  Revision: Custom Build (r" + mjbRevision + ")");
+        } else {
+            logger.info("  Revision: r" + mjbRevision);
         }
+        logger.info("Build Date: " + mjbBuildDate);
+        logger.info("");
 
-        String javaVersion = java.lang.System.getProperties().getProperty("java.version");
-        logger.info("Java Version: " + javaVersion);
+        logger.info("Java Version: " + java.lang.System.getProperties().getProperty("java.version"));
         logger.info("");
 
         if (!SystemTools.validateInstallation()) {
