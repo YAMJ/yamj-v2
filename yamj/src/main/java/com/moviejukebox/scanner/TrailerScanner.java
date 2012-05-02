@@ -31,7 +31,7 @@ public class TrailerScanner {
     private static boolean trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
     private static String trailersScanner;
     private static String trailerPluginList = Movie.UNKNOWN;
-    private static Map<String, ITrailersPlugin> trailerPlugins;
+    private static final Map<String, ITrailersPlugin> trailerPlugins = Collections.synchronizedMap(new HashMap<String, ITrailersPlugin>());
     private static TrailersPlugin trailersPlugin;
 
     public TrailerScanner() {
@@ -43,15 +43,15 @@ public class TrailerScanner {
             trailersScanner = PropertiesUtil.getProperty("trailers.scanner", "apple");
             trailersPlugin = new TrailersPlugin();
 
-            trailerPlugins = new HashMap<String, ITrailersPlugin>();
+            synchronized (trailerPlugins) {
+                ServiceLoader<ITrailersPlugin> trailerPluginsSet = ServiceLoader.load(ITrailersPlugin.class);
 
-            ServiceLoader<ITrailersPlugin> trailerPluginsSet = ServiceLoader.load(ITrailersPlugin.class);
+                for (ITrailersPlugin trailerPlugin : trailerPluginsSet) {
+                    trailerPlugins.put(trailerPlugin.getName().toLowerCase().trim(), trailerPlugin);
+                }
 
-            for (ITrailersPlugin trailerPlugin : trailerPluginsSet) {
-                trailerPlugins.put(trailerPlugin.getName().toLowerCase().trim(), trailerPlugin);
+                trailerPluginList = getTrailerPluginList();
             }
-            
-            trailerPluginList = getTrailerPluginList();
         }
     }
 
