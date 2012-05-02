@@ -1,57 +1,60 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.model;
 
+import com.moviejukebox.model.Movie.MovieId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 
-import com.moviejukebox.model.Movie.MovieId;
-
 /**
  * Container of parsed data from movie file name.
+ *
  * DTO. No methods. Only getters/setters.
- * 
+ *
  * Contains only information which could be possibly extracted from file name.
- * 
+ *
  * @author Artem.Gratchev
  */
-@XmlType public class MovieFileNameDTO {
-    private String  title = null;
-    private int     year = -1;
-    private String  partTitle = null;
-    private String  episodeTitle = null;
-    private int     season = -1;
+@XmlType
+public class MovieFileNameDTO {
+
+    private String title = null;
+    private int year = -1;
+    private String partTitle = null;
+    private String episodeTitle = null;
+    private int season = -1;
     private final List<Integer> episodes = new ArrayList<Integer>();
-    private int     part = -1;
+    private int part = -1;
     private boolean extra = false;
-    private String  audioCodec = null;
-    private String  videoCodec = null;
-    private String  container = null;
-    private String  extension = null;
-    private int     fps = -1;
-    private String  hdResolution = null;
-    private String  videoSource = null;
+    private String audioCodec = null;
+    private String videoCodec = null;
+    private String container = null;
+    private String extension = null;
+    private int fps = -1;
+    private String hdResolution = null;
+    private String videoSource = null;
     private Map<String, String> idMap = new HashMap<String, String>(2);
 
-    @XmlType public static class SetDTO {
+    @XmlType
+    public static class SetDTO {
+
         private String title = null;
         private int index = -1;
 
@@ -73,7 +76,6 @@ import com.moviejukebox.model.Movie.MovieId;
             this.index = index;
         }
     }
-
     private final List<SetDTO> sets = new ArrayList<SetDTO>();
     private final List<String> languages = new ArrayList<String>();
 
@@ -84,7 +86,7 @@ import com.moviejukebox.model.Movie.MovieId;
     public void setTitle(String title) {
         this.title = title;
     }
-    
+
     @XmlAttribute
     public int getYear() {
         return year;
@@ -191,11 +193,13 @@ import com.moviejukebox.model.Movie.MovieId;
         this.videoSource = videoSource;
     }
 
-    @XmlElement public List<SetDTO> getSets() {
+    @XmlElement
+    public List<SetDTO> getSets() {
         return sets;
     }
 
-    @XmlElement public List<String> getLanguages() {
+    @XmlElement
+    public List<String> getLanguages() {
         return languages;
     }
 
@@ -206,7 +210,7 @@ import com.moviejukebox.model.Movie.MovieId;
     public void setEpisodeTitle(String episodeTitle) {
         this.episodeTitle = episodeTitle;
     }
-    
+
     public void setId(String key, String id) {
         if (key != null && id != null && !id.equalsIgnoreCase(this.getId(key))) {
             this.idMap.put(key, id);
@@ -243,13 +247,13 @@ import com.moviejukebox.model.Movie.MovieId;
             idMap.put(id.movieDatabase, id.value);
         }
     }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("[Title=").append(title);
         sb.append("],[Year=").append(year);
-        sb.append("],[Parttitle=").append(partTitle);
+        sb.append("],[PartTitle=").append(partTitle);
         sb.append("],[EpisodeTitle=").append(episodeTitle);
         sb.append("],[Season=").append(season);
         sb.append("],[EpisodeCount=").append(episodes.size());
