@@ -1704,12 +1704,18 @@ public class Library implements Map<String, Movie> {
     public List<Movie> getMatchingMoviesList(String indexName, List<Movie> boxedSetMovies, String categorie) {
         List<Movie> response = new ArrayList<Movie>();
         List<Movie> list = this.unCompressedIndexes.get(indexName).get(categorie);
+        
+        if (list == null) {
+            return response;
+        }
+        
         for (Movie movie : boxedSetMovies) {
             if (list.contains(movie)) {
                 logger.debug("Movie " + movie.getTitle() + " match for " + indexName + "[" + categorie + "]");
                 response.add(movie);
             }
         }
+        
         return response;
     }
 
