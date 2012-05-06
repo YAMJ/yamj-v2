@@ -64,6 +64,7 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
                 }
             }
         }
+        logger.debug("AllocinePosterPlugin: No poster found at allocine for movie id " + id);
         return Image.UNKNOWN;
     }
 

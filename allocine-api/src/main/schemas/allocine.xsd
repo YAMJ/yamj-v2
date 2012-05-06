@@ -88,6 +88,7 @@
         <xs:element ref="genreList" />
         <xs:element ref="release" />
         <xs:element ref="casting" />
+        <xs:element name="poster" type="posterType" />
         <xs:element ref="mediaList" />
         <xs:element ref="statistics" />
       </xs:all>
@@ -167,6 +168,14 @@
     </xs:simpleContent>
   </xs:complexType>
 
+  <xs:complexType name="posterType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="href" type="xs:string" use="required" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
   <xs:element name="statistics">
     <xs:complexType>
       <xs:all>
@@ -209,7 +218,7 @@
   <xs:complexType name="thumbnailType">
     <xs:simpleContent>
       <xs:extension base="xs:string">
-        <xs:attribute name="href" type="xs:string"/>
+        <xs:attribute name="href" type="xs:string" use="required" />
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
