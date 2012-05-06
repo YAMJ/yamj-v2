@@ -34,13 +34,16 @@ public class AllocinePlugin extends ImdbPlugin {
     public static final String CACHE_SEARCH_SERIES = "AllocineSearchSeries";
     public static final String CACHE_MOVIE = "AllocineMovie";
     public static final String CACHE_SERIES = "AllocineSeries";
+    private XMLAllocineAPIHelper allocineAPI;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
+    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     protected TheTvDBPlugin tvdb = null;
     public static String ALLOCINE_PLUGIN_ID = "allocine";
 
     public AllocinePlugin() {
         super();
+        allocineAPI = new XMLAllocineAPIHelper(PropertiesUtil.getProperty("API_KEY_Allocine"));
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
@@ -51,7 +54,6 @@ public class AllocinePlugin extends ImdbPlugin {
     public String getPluginID() {
         return ALLOCINE_PLUGIN_ID;
     }
-    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
 
     /**
      * Scan Allocine html page for the specified TV Show
@@ -68,7 +70,7 @@ public class AllocinePlugin extends ImdbPlugin {
             String cacheKey = CacheMemory.generateCacheKey(CACHE_SERIES, AllocineId);
             TvSeriesInfos tvSeriesInfos = (TvSeriesInfos) CacheMemory.getFromCache(cacheKey);
             if (tvSeriesInfos == null) {
-                tvSeriesInfos = XMLAllocineAPIHelper.getTvSeriesInfos(AllocineId);
+                tvSeriesInfos = allocineAPI.getTvSeriesInfos(AllocineId);
                 // Add to the cache
                 CacheMemory.addToCache(cacheKey, tvSeriesInfos);
             }
@@ -156,7 +158,7 @@ public class AllocinePlugin extends ImdbPlugin {
                         continue;
                     }
                     if (tvSeasonInfos == null) {
-                        tvSeasonInfos = XMLAllocineAPIHelper.getTvSeasonInfos(tvSeriesInfos.getSeasonCode(currentSeason));
+                        tvSeasonInfos = allocineAPI.getTvSeasonInfos(tvSeriesInfos.getSeasonCode(currentSeason));
                     }
                     if (tvSeasonInfos.isNotValid()) {
                         continue;
@@ -218,7 +220,7 @@ public class AllocinePlugin extends ImdbPlugin {
             String cacheKey = CacheMemory.generateCacheKey(CACHE_MOVIE, AllocineId);
             MovieInfos movieInfos = (MovieInfos) CacheMemory.getFromCache(cacheKey);
             if (movieInfos == null) {
-                movieInfos = XMLAllocineAPIHelper.getMovieInfos(AllocineId);
+                movieInfos = allocineAPI.getMovieInfos(AllocineId);
                 // Add to the cache
                 CacheMemory.addToCache(cacheKey, movieInfos);
             }
@@ -396,7 +398,7 @@ public class AllocinePlugin extends ImdbPlugin {
         String cacheKey = CacheMemory.generateCacheKey(CACHE_SEARCH_SERIES, movieName);
         Search searchInfos = (Search) CacheMemory.getFromCache(cacheKey);
         if (searchInfos == null) {
-            searchInfos = XMLAllocineAPIHelper.searchTvseriesInfos(movieName);
+            searchInfos = allocineAPI.searchTvseriesInfos(movieName);
             // Add to the cache
             CacheMemory.addToCache(cacheKey, searchInfos);
         }
@@ -437,7 +439,7 @@ public class AllocinePlugin extends ImdbPlugin {
         String cacheKey = CacheMemory.generateCacheKey(CACHE_SEARCH_MOVIE, movieName);
         Search searchInfos = (Search) CacheMemory.getFromCache(cacheKey);
         if (searchInfos == null) {
-            searchInfos = XMLAllocineAPIHelper.searchMovieInfos(movieName);
+            searchInfos = allocineAPI.searchMovieInfos(movieName);
             // Add to the cache
             CacheMemory.addToCache(cacheKey, searchInfos);
         }

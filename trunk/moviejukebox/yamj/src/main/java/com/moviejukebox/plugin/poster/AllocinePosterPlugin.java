@@ -19,6 +19,7 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.AllocinePlugin;
 import com.moviejukebox.tools.CacheMemory;
+import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.text.ParseException;
@@ -27,6 +28,7 @@ import org.apache.log4j.Logger;
 public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
 
     private AllocinePlugin allocinePlugin;
+    private XMLAllocineAPIHelper allocineAPI;
     private static final Logger logger = Logger.getLogger(AllocinePosterPlugin.class);
 
     public AllocinePosterPlugin() {
@@ -38,6 +40,7 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
         }
 
         allocinePlugin = new AllocinePlugin();
+        allocineAPI    = new XMLAllocineAPIHelper(PropertiesUtil.getProperty("API_KEY_Allocine"));
     }
 
     @Override
@@ -60,7 +63,7 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
                 String cacheKey = CacheMemory.generateCacheKey(AllocinePlugin.CACHE_MOVIE, id);
                 MovieInfos movieInfos = (MovieInfos) CacheMemory.getFromCache(cacheKey);
                 if (movieInfos == null) {
-                    movieInfos = XMLAllocineAPIHelper.getMovieInfos(id);
+                    movieInfos = allocineAPI.getMovieInfos(id);
                     // Add to the cache
                     CacheMemory.addToCache(cacheKey, movieInfos);
                 }

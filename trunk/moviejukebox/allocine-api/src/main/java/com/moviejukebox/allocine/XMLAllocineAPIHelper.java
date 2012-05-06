@@ -12,13 +12,24 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLStreamException;
 
+/**
+ * The Allocine API. This is for version 3 of the API as specified here:
+ * http://wiki.gromez.fr/dev/api/allocine_v3
+ *
+ * @author Yves Blusseau
+ */
 public final class XMLAllocineAPIHelper {
 
-    // Suppresses default constructor, ensuring non-instantiability.
-    private XMLAllocineAPIHelper() {
-    }
-
+    private String apiKey;
     private static final JAXBContext JAXB_CONTEXT = initContext();
+
+    /**
+     * Constructor.
+     * @param apiKey The API key for allocine
+     */
+    public XMLAllocineAPIHelper(String apiKey) {
+        this.apiKey = apiKey;
+    }
 
     private static JAXBContext initContext() {
         try {
@@ -43,13 +54,21 @@ public final class XMLAllocineAPIHelper {
         return new Search();
     }
 
-    public static Search searchMovieInfos(String query) throws IOException, JAXBException, XMLStreamException {
-        URL url = new URL("http://api.allocine.fr/rest/v3/search?partner=YW5kcm9pZC12M3M&format=XML&filter=movie&q=" + query);
+    /**
+     * Return the API key in used.
+     * @return The API key
+     */
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public Search searchMovieInfos(String query) throws IOException, JAXBException, XMLStreamException {
+        URL url = new URL("http://api.allocine.fr/rest/v3/search?partner=" + apiKey + "&format=XML&filter=movie&q=" + query);
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
         return validSearchElement(unmarshaller.unmarshal(url));
     }
-    public static Search searchTvseriesInfos(String query) throws IOException, JAXBException, XMLStreamException {
-        URL url = new URL("http://api.allocine.fr/rest/v3/search?partner=YW5kcm9pZC12M3M&format=XML&filter=tvseries&q=" + query);
+    public Search searchTvseriesInfos(String query) throws IOException, JAXBException, XMLStreamException {
+        URL url = new URL("http://api.allocine.fr/rest/v3/search?partner=" + apiKey + "&format=XML&filter=tvseries&q=" + query);
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
         return validSearchElement(unmarshaller.unmarshal(url));
     }
@@ -62,9 +81,9 @@ public final class XMLAllocineAPIHelper {
         return new MovieInfos();
     }
 
-    public static MovieInfos getMovieInfos(String allocineId) throws IOException, JAXBException, XMLStreamException {
+    public MovieInfos getMovieInfos(String allocineId) throws IOException, JAXBException, XMLStreamException {
         // HTML tags are remove from synopsis & synopsisshort
-        URL url = new URL("http://api.allocine.fr/rest/v3/movie?partner=YW5kcm9pZC12M3M&profile=large&mediafmt=mp4-lc&format=XML&filter=movie&striptags=synopsis,synopsisshort&code=" + allocineId);
+        URL url = new URL("http://api.allocine.fr/rest/v3/movie?partner="+ apiKey + "&profile=large&mediafmt=mp4-lc&format=XML&filter=movie&striptags=synopsis,synopsisshort&code=" + allocineId);
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
         return validMovieElement(unmarshaller.unmarshal(url));
     }
@@ -82,9 +101,9 @@ public final class XMLAllocineAPIHelper {
         return new TvSeriesInfos();
     }
 
-    public static TvSeriesInfos getTvSeriesInfos(String allocineId) throws IOException, JAXBException, XMLStreamException {
+    public TvSeriesInfos getTvSeriesInfos(String allocineId) throws IOException, JAXBException, XMLStreamException {
         // HTML tags are remove from synopsis & synopsisshort
-        URL url = new URL("http://api.allocine.fr/rest/v3/tvseries?partner=YW5kcm9pZC12M3M&profile=large&mediafmt=mp4-lc&format=XML&filter=movie&striptags=synopsis,synopsisshort&code=" + allocineId);
+        URL url = new URL("http://api.allocine.fr/rest/v3/tvseries?partner=" + apiKey + "&profile=large&mediafmt=mp4-lc&format=XML&filter=movie&striptags=synopsis,synopsisshort&code=" + allocineId);
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
         return validTvSeriesElement(unmarshaller.unmarshal(url));
     }
@@ -97,9 +116,9 @@ public final class XMLAllocineAPIHelper {
         return new TvSeasonInfos();
     }
 
-    public static TvSeasonInfos getTvSeasonInfos(Integer seasonCode) throws IOException, JAXBException, XMLStreamException {
+    public TvSeasonInfos getTvSeasonInfos(Integer seasonCode) throws IOException, JAXBException, XMLStreamException {
         // HTML tags are remove from synopsis & synopsisshort
-        URL url = new URL("http://api.allocine.fr/rest/v3/season?partner=YW5kcm9pZC12M3M&profile=large&mediafmt=mp4-lc&format=XML&filter=movie&striptags=synopsis,synopsisshort&code=" + seasonCode);
+        URL url = new URL("http://api.allocine.fr/rest/v3/season?partner=" + apiKey + "&profile=large&mediafmt=mp4-lc&format=XML&filter=movie&striptags=synopsis,synopsisshort&code=" + seasonCode);
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
         return validTvSeasonElement(unmarshaller.unmarshal(url));
     }
