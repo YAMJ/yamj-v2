@@ -209,124 +209,134 @@ public class AllocinePlugin extends ImdbPlugin {
     }
 
     /**
+     * Get Movie Informations from Allocine ID
+	 *
+     * @param  AllocineId   The allocine ID of the Movie
+     * @return              The MovieInfo object
+     */
+    public MovieInfos getMovieInfos(String AllocineId) {
+        MovieInfos movieInfos;
+
+        String cacheKey = CacheMemory.generateCacheKey(CACHE_MOVIE, AllocineId);
+        movieInfos = (MovieInfos) CacheMemory.getFromCache(cacheKey);
+        if (movieInfos == null) {
+            try {
+                movieInfos = allocineAPI.getMovieInfos(AllocineId);
+            } catch (JAXBException error) {
+                logger.error("AllocinePlugin: Failed retrieving allocine infos for movie "
+                            + AllocineId + ". Perhaps the allocine XML API has changed ...");
+                logger.error(SystemTools.getStackTrace(error));
+            } catch (Exception error) {
+                logger.error("AllocinePlugin: Failed retrieving allocine infos for movie : " + AllocineId);
+                logger.error(SystemTools.getStackTrace(error));
+            }
+            // Add to the cache
+            CacheMemory.addToCache(cacheKey, movieInfos);
+        }
+
+        return movieInfos;
+    }
+
+    /**
      * Scan Allocine html page for the specified movie
      */
     private boolean updateMovieInfo(Movie movie) {
 
         String AllocineId = movie.getId(ALLOCINE_PLUGIN_ID);
 
-        try {
+		MovieInfos movieInfos = getMovieInfos(AllocineId);
+		if (movieInfos == null) {
+		    logger.error("AllocinePlugin: Can't find informations for movie with id: " + AllocineId);
+		    return false;
+		}
 
-            String cacheKey = CacheMemory.generateCacheKey(CACHE_MOVIE, AllocineId);
-            MovieInfos movieInfos = (MovieInfos) CacheMemory.getFromCache(cacheKey);
-            if (movieInfos == null) {
-                movieInfos = allocineAPI.getMovieInfos(AllocineId);
-                // Add to the cache
-                CacheMemory.addToCache(cacheKey, movieInfos);
-            }
+		// Check Title
+		if (!movie.isOverrideTitle() && isValidString(movieInfos.getTitle())) {
+		    movie.setTitle(movieInfos.getTitle());
+		}
 
-            if (movieInfos.isNotValid()) {
-                logger.error("AllocinePlugin: Can't find informations for movie with id: " + AllocineId);
-                return false;
-            }
+		// Check OriginalTitle
+		if (isValidString(movieInfos.getOriginalTitle())) {
+		    movie.setOriginalTitle(movieInfos.getOriginalTitle());
+		}
 
-            // Check Title
-            if (!movie.isOverrideTitle() && isValidString(movieInfos.getTitle())) {
-                movie.setTitle(movieInfos.getTitle());
-            }
+		// Check Rating
+		if (movie.getRating() == -1) {
+		    int rating = movieInfos.getRating();
+		    if (rating >= 0) {
+		        movie.addRating(ALLOCINE_PLUGIN_ID, rating);
+		    }
+		}
 
-            // Check OriginalTitle
-            if (isValidString(movieInfos.getOriginalTitle())) {
-                movie.setOriginalTitle(movieInfos.getOriginalTitle());
-            }
+		// Check Year
+		if (!movie.isOverrideYear() && isNotValidString(movie.getYear()) && isValidString(movieInfos.getProductionYear())) {
+		    movie.setYear(movieInfos.getProductionYear());
+		}
 
-            // Check Rating
-            if (movie.getRating() == -1) {
-                int rating = movieInfos.getRating();
-                if (rating >= 0) {
-                    movie.addRating(ALLOCINE_PLUGIN_ID, rating);
-                }
-            }
+		// Check Plot
+		if (isNotValidString(movie.getPlot())) {
+		    String synopsis = movieInfos.getSynopsis();
+		    if (isValidString(synopsis)) {
+		        String plot = trimToLength(synopsis, preferredPlotLength, true, plotEnding);
+		        movie.setPlot(plot);
+		    }
+		}
 
-            // Check Year
-            if (!movie.isOverrideYear() && isNotValidString(movie.getYear()) && isValidString(movieInfos.getProductionYear())) {
-                movie.setYear(movieInfos.getProductionYear());
-            }
+		// Check ReleaseDate and Company
+		if (movieInfos.getRelease() != null) {
+		    if (isNotValidString(movie.getReleaseDate()) && isValidString(movieInfos.getRelease().getReleaseDate())) {
+		        movie.setReleaseDate(movieInfos.getRelease().getReleaseDate());
+		    }
+		    if (isNotValidString(movie.getCompany()) && movieInfos.getRelease().getDistributor() != null &&
+		            isValidString(movieInfos.getRelease().getDistributor().getName())) {
+		        movie.setCompany(movieInfos.getRelease().getDistributor().getName());
+		    }
+		}
 
-            // Check Plot
-            if (isNotValidString(movie.getPlot())) {
-                String synopsis = movieInfos.getSynopsis();
-                if (isValidString(synopsis)) {
-                    String plot = trimToLength(synopsis, preferredPlotLength, true, plotEnding);
-                    movie.setPlot(plot);
-                }
-            }
+		// Check Runtime
+		if (isNotValidString(movie.getRuntime())) {
+		    int runtime = movieInfos.getRuntime();
+		    if (runtime > 0) {
+		        movie.setRuntime(StringTools.formatDuration(runtime));
+		    }
+		}
 
-            // Check ReleaseDate and Company
-            if (movieInfos.getRelease() != null) {
-                if (isNotValidString(movie.getReleaseDate()) && isValidString(movieInfos.getRelease().getReleaseDate())) {
-                    movie.setReleaseDate(movieInfos.getRelease().getReleaseDate());
-                }
-                if (isNotValidString(movie.getCompany()) && movieInfos.getRelease().getDistributor() != null
-                        && isValidString(movieInfos.getRelease().getDistributor().getName())) {
-                    movie.setCompany(movieInfos.getRelease().getDistributor().getName());
-                }
-            }
+		// Check country
+		if (isNotValidString(movie.getCountry()) && !movieInfos.getNationalityList().isEmpty()) {
+		    String firstCountry = movieInfos.getNationalityList().get(0);
+		    movie.setCountry(firstCountry);
+		}
 
-            // Check Runtime
-            if (isNotValidString(movie.getRuntime())) {
-                int runtime = movieInfos.getRuntime();
-                if (runtime > 0) {
-                    movie.setRuntime(StringTools.formatDuration(runtime));
-                }
-            }
+		// Check Genres
+		if (movie.getGenres().isEmpty()) {
+		    for (String genre : movieInfos.getGenreList()) {
+		        movie.addGenre(genre);
+		    }
+		}
 
-            // Check country
-            if (isNotValidString(movie.getCountry()) && !movieInfos.getNationalityList().isEmpty()) {
-                String firstCountry = movieInfos.getNationalityList().get(0);
-                movie.setCountry(firstCountry);
-            }
+		// Check certification
+		if (isNotValidString(movie.getCertification())) {
+		    movie.setCertification(movieInfos.getCertification());
+		}
 
-            // Check Genres
-            if (movie.getGenres().isEmpty()) {
-                for (String genre : movieInfos.getGenreList()) {
-                    movie.addGenre(genre);
-                }
-            }
+		// Check Casting
+		if (movie.getDirectors().isEmpty()) {
+		    movie.setDirectors(movieInfos.getDirectors());
+		}
+		if (movie.getCast().isEmpty()) {
+		    movie.setCast(movieInfos.getActors());
+		}
+		if (movie.getWriters().isEmpty()) {
+		    movie.setWriters(movieInfos.getWriters());
+		}
 
-            // Check certification
-            if (isNotValidString(movie.getCertification())) {
-                movie.setCertification(movieInfos.getCertification());
-            }
-
-            // Check Casting
-            if (movie.getDirectors().isEmpty()) {
-                movie.setDirectors(movieInfos.getDirectors());
-            }
-            if (movie.getCast().isEmpty()) {
-                movie.setCast(movieInfos.getActors());
-            }
-            if (movie.getWriters().isEmpty()) {
-                movie.setWriters(movieInfos.getWriters());
-            }
-
-            // Get Fanart
-            if (isNotValidString(movie.getFanartURL()) && downloadFanart) {
-                movie.setFanartURL(getFanartURL(movie));
-                if (isValidString(movie.getFanartURL())) {
-                    movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
-                }
-            }
-        } catch (JAXBException error) {
-            logger.error("AllocinePlugin: Failed retrieving allocine infos for movie "
-                    + AllocineId + ". Perhaps the allocine XML API has changed ...");
-            logger.error(SystemTools.getStackTrace(error));
-            return false;
-        } catch (Exception error) {
-            logger.error("AllocinePlugin: Failed retrieving allocine infos for movie : " + AllocineId);
-            logger.error(SystemTools.getStackTrace(error));
-            return false;
-        }
+		// Get Fanart
+		if (isNotValidString(movie.getFanartURL()) && downloadFanart) {
+		    movie.setFanartURL(getFanartURL(movie));
+		    if (isValidString(movie.getFanartURL())) {
+		        movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
+		    }
+		}
 
         return true;
     }
