@@ -164,12 +164,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
-                <version>2.2.5</version>
-            </dependency>
-
-            <dependency>
                 <groupId>com.jhlabs</groupId>
                 <artifactId>filters</artifactId>
                 <version>2.0.235</version>

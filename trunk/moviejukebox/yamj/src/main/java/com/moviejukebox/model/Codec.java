@@ -57,6 +57,15 @@ public class Codec {
     }
 
     /**
+     * Default constructor for use by XML bindings.
+     *
+     * Not intended for use by anything else.
+     */
+    protected Codec() {
+        this.codecType = CodecType.AUDIO;
+    }
+
+    /**
      * Simple constructor with just the type and codec.
      *
      * @param codecType
