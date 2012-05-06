@@ -762,7 +762,7 @@
 	  <activity code="8044">Chef accessoiriste</activity>
 	</castMember>
   </casting>
-  <poster name="Affiche Avatar" href="http://images.allocine.fr/medias/nmedia/18/78/95/70/19485155.jpg" />
+  <poster name="Affiche Avatar" href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19149062.jpg" />
 	<trailer name="Bande-Annonce Avatar" code="19135625" href="http://www.allocine.fr/blogvision/19135625" />
 	  <linkList>
 		<link rel="aco:web" name="Avatar" href="http://www.allocine.fr/film/fichefilm_gen_cfilm=61282.html" />
@@ -790,13 +790,6 @@
 		  <type code="31001">Affiche</type>
 		  <title>Avatar : affiche James Cameron</title>
 		  <thumbnail path="/medias/nmedia/18/64/43/65/19150275.jpg" href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19150275.jpg" />
-			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
-		</media>
-		<media class="picture" code="18910309" rcode="19149062">
-		  <type code="31001">Affiche</type>
-		  <title>Avatar : affiche James Cameron</title>
-		  <thumbnail path="/medias/nmedia/18/64/43/65/19149062.jpg" href="http://images.allocine.fr/medias/nmedia/18/64/43/65/19149062.jpg" />
-			<description>Affiche teaser américaine</description>
 			<copyrightHolder code="7622" name="Twentieth Century Fox France" />
 		</media>
 		<media class="picture" code="18854393" rcode="19226836">

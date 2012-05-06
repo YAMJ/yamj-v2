@@ -167,6 +167,9 @@ public class MovieInfos extends Movie {
     public final Set<String> getPosterUrls() {
         if (posterURLS == null) {
             parseMediaList();
+            if (poster != null) {
+                posterURLS.add(poster.getHref());
+            }
         }
         return posterURLS;
     }
