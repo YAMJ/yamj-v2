@@ -100,6 +100,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private Map<String, String> idMap = new HashMap<String, String>(2);
     private String title = UNKNOWN;
     private String titleSort = UNKNOWN;
+    private String strippedTitleSort = UNKNOWN; // Not saved, used to speedup the sort
     private String originalTitle = UNKNOWN;
     private String year = UNKNOWN;
     private String releaseDate = UNKNOWN;
@@ -464,6 +465,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public String getStrippedTitleSort() {
+        // If we have a strippedTitleSort, return that
+        if (StringTools.isValidString(strippedTitleSort)) {
+            return strippedTitleSort;
+        }
+
         StringBuilder text = new StringBuilder(getStrippedTitle(getTitleSort()));
         int season = getSeason();
 
@@ -478,7 +484,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
         // Added Year to handle movies like Ocean's Eleven (1960) and Ocean's Eleven (2001)
         text.append(" (").append(this.getYear()).append(") ");
-        return text.toString();
+        strippedTitleSort = text.toString();
+        return strippedTitleSort;
     }
 
     /**
@@ -1626,7 +1633,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             }
 
             // Issue 1908: Replace all non-standard characters in the title sort
-            this.titleSort = getStrippedTitle(StringTools.stringMapReplacement(new String(text.substring(idx))));
+            this.titleSort = StringTools.stringMapReplacement(new String(text.substring(idx)));
             setDirty(DirtyFlag.INFO, Boolean.TRUE);
         }
     }
