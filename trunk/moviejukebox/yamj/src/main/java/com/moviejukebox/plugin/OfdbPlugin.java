@@ -175,6 +175,10 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
     protected String extractTag(String src, String findStr, int skip, String separator) {
         int beginIndex = src.indexOf(findStr);
+        if (beginIndex < 0) {
+            return Movie.UNKNOWN;
+        }
+        
         StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), separator);
         for (int i = 0; i < skip; i++) {
             st.nextToken();
