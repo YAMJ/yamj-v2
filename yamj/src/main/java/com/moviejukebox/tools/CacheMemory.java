@@ -126,18 +126,15 @@ public class CacheMemory {
             return "";
         }
 
-        StringBuilder sb = new StringBuilder();
-        boolean first = true;
+        StringBuilder cacheKey = new StringBuilder();
         for (String value : cacheKeys) {
-            if (!first) {
-                sb.append("-");
-            } else {
-                first = false;
+            if(cacheKey.length()>0){
+                cacheKey.append("-");
             }
-            sb.append(value);
+            cacheKey.append(value);
         }
 
-        return sb.toString();
+        return cacheKey.toString();
     }
 
     /**

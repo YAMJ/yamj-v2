@@ -51,7 +51,7 @@ public class MovieFilenameScanner {
     private static String[] skipKeywords;
     private static String[] skipRegexKeywords;
     private static final List<Pattern> skipPatterns = new ArrayList<Pattern>();
-    private static boolean languageDetection = true;
+    private static boolean languageDetection = Boolean.TRUE;
     /**
      * All symbols within brackets [] if there is an EXTRA keyword
      */
@@ -71,7 +71,7 @@ public class MovieFilenameScanner {
         } else {
             logger.debug("MovieFilenameScanner: Invalid parentPattern, ignoring");
             USE_PARENT_PATTERN = null;
-            useParentRegex = false;
+            useParentRegex = Boolean.FALSE;
         }
         archiveScanRar = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", "false");
     }
@@ -186,16 +186,14 @@ public class MovieFilenameScanner {
 
         @Override
         protected void put(String key, Collection<String> tokens) {
-            StringBuilder sb = new StringBuilder();
-            boolean first = true;
+            StringBuilder tokenBuilder = new StringBuilder();
             for (String s : tokens) {
-                if (!first) {
-                    sb.append('|');
+                if (tokenBuilder.length() > 0) {
+                    tokenBuilder.append('|');
                 }
-                sb.append(Pattern.quote(s));
-                first = false;
+                tokenBuilder.append(Pattern.quote(s));
             }
-            put(key, tpatt(sb.toString()));
+            put(key, tpatt(tokenBuilder.toString()));
         }
 
         {
@@ -218,21 +216,18 @@ public class MovieFilenameScanner {
          */
         @Override
         protected void put(String key, Collection<String> tokens) {
-            StringBuilder sb = new StringBuilder();
-            boolean first = true;
+            StringBuilder tokenBuilder = new StringBuilder();
             for (String token : tokens) {
                 // Only add the token if it's not there already
                 String quotedToken = Pattern.quote(token.toUpperCase());
-                if (sb.indexOf(quotedToken) < 0) {
-                    if (!first) {
-                        sb.append('|');
-                    } else {
-                        first = false;
+                if (tokenBuilder.indexOf(quotedToken) < 0) {
+                    if (tokenBuilder.length() > 0) {
+                        tokenBuilder.append('|');
                     }
-                    sb.append(quotedToken);
+                    tokenBuilder.append(quotedToken);
                 }
             }
-            put(key, iwpatt(sb.toString()));
+            put(key, iwpatt(tokenBuilder.toString()));
         }
 
         {
@@ -425,7 +420,7 @@ public class MovieFilenameScanner {
             for (Pattern pattern : extrasPatterns) {
                 Matcher matcher = pattern.matcher(rest);
                 if (matcher.find()) {
-                    dto.setExtra(true);
+                    dto.setExtra(Boolean.TRUE);
                     dto.setPartTitle(matcher.group(1));
                     rest = cutMatch(rest, matcher, "./EXTRA/.");
                     break;
@@ -541,7 +536,7 @@ public class MovieFilenameScanner {
                     }
                 }
 
-                boolean first = true;
+                boolean first = Boolean.TRUE;
                 while (t.hasMoreElements()) {
                     String token = t.nextToken();
                     token = cleanUpTitle(token);
@@ -556,7 +551,7 @@ public class MovieFilenameScanner {
                             } catch (NumberFormatException error) {
                             }
                         }
-                        first = false;
+                        first = Boolean.FALSE;
                     }
 
                     if (!languageDetection) {
