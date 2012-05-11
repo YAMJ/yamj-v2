@@ -11,6 +11,7 @@ MovieJukebox 2.7-SNAPSHOT
  - Fixed defect #2403 Local posters are copied to the jukebox each run
  - Fixed defect #2408 Year 0 bug in NFO file
  - Fixed defect #2212 Issue with sorttitle and sorting.strip.prefixes
+ - Fixed defect #2419 TV videos with NFO results in "UNKNOWN" XML values
  - Fixed defect #2422 Watched files with no extension in jukebox are not found
 
 MovieJukebox 2.6.1 (21-Mar-2012)
