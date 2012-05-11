@@ -40,8 +40,9 @@ public class WatchedScanner {
 
     /**
      * Calculate the watched state of a movie based on the files
-     * <filename>.watched & <filename>.unwatched Always assumes that the file is
-     * unwatched if nothing is found.
+     * <filename>.watched & <filename>.unwatched
+     *
+     * Always assumes that the file is unwatched if nothing is found.
      *
      * @param movie
      */
@@ -96,7 +97,11 @@ public class WatchedScanner {
                 // Remove the extension from the filename
                 filename = FilenameUtils.removeExtension(filename);
                 // Check again without the extension
-                foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, logMessage);
+                if (withJukebox) {
+                    foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, logMessage, Boolean.TRUE);
+                } else {
+                    foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, logMessage, Boolean.FALSE);
+                }
             }
 
             if (foundFile != null) {

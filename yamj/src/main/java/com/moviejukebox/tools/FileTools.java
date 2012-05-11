@@ -126,7 +126,7 @@ public class FileTools {
         int bytesCopied = 0;
         byte[] buffer = threadBuffer.get();
         try {
-            while (true) {
+            while (Boolean.TRUE) {
                 int amountRead = is.read(buffer);
                 if (amountRead == -1) {
                     break;
@@ -375,20 +375,20 @@ public class FileTools {
         if (file1.exists()) {
             // If file2 doesn't exist then file1 is newer
             if (!file2.exists()) {
-                return true;
+                return Boolean.TRUE;
             }
         } else {
             // File1 doesn't exist so return false
-            return false;
+            return Boolean.FALSE;
         }
 
         // Compare the file dates. This is only true if the first file is newer than the second, as the second file is the file2 file
         if (file1.lastModified() <= file2.lastModified()) {
             // file1 is older than the file2.
-            return false;
+            return Boolean.FALSE;
         } else {
             // file1 is newer than file2
-            return true;
+            return Boolean.TRUE;
         }
     }
 
@@ -514,7 +514,7 @@ public class FileTools {
      * @return
      */
     public static File findFilenameInCache(String searchFilename, Collection<String> fileExtensions, Jukebox jukebox, String logPrefix) {
-        return findFilenameInCache(searchFilename, fileExtensions, jukebox, logPrefix, false, Movie.UNKNOWN);
+        return findFilenameInCache(searchFilename, fileExtensions, jukebox, logPrefix, Boolean.FALSE, Movie.UNKNOWN);
     }
 
     /**
@@ -555,11 +555,11 @@ public class FileTools {
             jukeboxSubFolder.append(File.separator).append((subFolder.toLowerCase()));
         }
 
-        Collection<File> files = FileTools.fileCache.searchFilename(safeFilename, true);
+        Collection<File> files = FileTools.fileCache.searchFilename(safeFilename, Boolean.TRUE);
 
         if (files.size() > 0) {
             // Copy the synchronized list to avoid ConcurrentModificationException
-            Iterator<File> iter = new ArrayList<File>(FileTools.fileCache.searchFilename(safeFilename, true)).iterator();
+            Iterator<File> iter = new ArrayList<File>(FileTools.fileCache.searchFilename(safeFilename, Boolean.TRUE)).iterator();
 
             while (iter.hasNext() && (searchFile == null)) {
                 File file = iter.next();
@@ -655,7 +655,7 @@ public class FileTools {
                 boolean success = deleteDir(new File(dir, children[i]));
                 if (!success) {
                     // System.out.println("Failed");
-                    return false;
+                    return Boolean.FALSE;
                 }
             }
         }
@@ -862,7 +862,7 @@ public class FileTools {
 
                 for (String name : mutableNames) {
                     FileEx fe = new FileEx(this, name, archiveScanners);
-                    fe._exists = true;
+                    fe._exists = Boolean.TRUE;
                     files.add(fe);
                 }
 
@@ -931,7 +931,7 @@ public class FileTools {
          */
         public File getFile(String path) {
             File f = cachedFiles.get(path.toUpperCase());
-            return (f == null ? new FileEx(path, false) : f);
+            return (f == null ? new FileEx(path, Boolean.FALSE) : f);
         }
 
         /*
@@ -993,7 +993,7 @@ public class FileTools {
         }
 
         public void saveFileList(String filename) throws FileNotFoundException, UnsupportedEncodingException {
-            PrintWriter p = new PrintWriter(new OutputStreamWriter(new FileOutputStream(filename, true), "UTF-8"));
+            PrintWriter p = new PrintWriter(new OutputStreamWriter(new FileOutputStream(filename, Boolean.TRUE), "UTF-8"));
 
             Set<String> names = cachedFiles.keySet();
             String[] sortednames = names.toArray(new String[names.size()]);
