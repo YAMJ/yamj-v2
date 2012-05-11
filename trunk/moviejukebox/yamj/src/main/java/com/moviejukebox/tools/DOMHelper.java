@@ -44,6 +44,8 @@ import org.xml.sax.SAXParseException;
 public class DOMHelper {
 
     private static final Logger logger = Logger.getLogger(DOMHelper.class);
+    private static final String DEFAULT_RETURN = "";
+    private static final String YES = "yes";
 
     /**
      * Add a child element to a parent element
@@ -72,7 +74,7 @@ public class DOMHelper {
         child.appendChild(text);
 
         if (childAttributes != null && !childAttributes.isEmpty()) {
-            for(Map.Entry<String, String> attrib : childAttributes.entrySet()) {
+            for (Map.Entry<String, String> attrib : childAttributes.entrySet()) {
                 child.setAttribute(attrib.getKey(), attrib.getValue());
             }
         }
@@ -110,8 +112,8 @@ public class DOMHelper {
         //set up a transformer
         TransformerFactory transfac = TransformerFactory.newInstance();
         Transformer trans = transfac.newTransformer();
-        trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-        trans.setOutputProperty(OutputKeys.INDENT, "yes");
+        trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, YES);
+        trans.setOutputProperty(OutputKeys.INDENT, YES);
 
         //create string from xml tree
         StringWriter sw = new StringWriter();
@@ -177,7 +179,7 @@ public class DOMHelper {
      * @return
      */
     public static String getValueFromElement(Element element, String tagName) {
-        String returnValue = "";
+        String returnValue = DEFAULT_RETURN;
 
         try {
             NodeList nlElement = element.getElementsByTagName(tagName);
@@ -233,7 +235,7 @@ public class DOMHelper {
             // Define the output properties
             trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
             trans.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            trans.setOutputProperty(OutputKeys.INDENT, "yes");
+            trans.setOutputProperty(OutputKeys.INDENT, YES);
             trans.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
             doc.setXmlStandalone(true);
 

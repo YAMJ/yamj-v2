@@ -1148,23 +1148,29 @@ public class MovieNFOScanner {
                     }
                 }   // Director
 
-                String fpsString = DOMHelper.getValueFromElement(eShow, "fps");
-                if (isValidString(fpsString)) {
+                String tempString = DOMHelper.getValueFromElement(eShow, "fps");
+                if (isValidString(tempString)) {
                     float fps;
                     try {
-                        fps = Float.parseFloat(fpsString);
+                        fps = Float.parseFloat(tempString);
                     } catch (NumberFormatException error) {
-                        logger.warn("MovieNFOScanner: Error reading FPS value " + fpsString);
+                        logger.warn("MovieNFOScanner: Error reading FPS value " + tempString);
                         fps = 0.0f;
                     }
                     movie.setFps(fps);
                 }
 
                 // VideoSource: Issue 506 - Even though it's not strictly XBMC standard
-                movie.setVideoSource(DOMHelper.getValueFromElement(eShow, "VideoSource"));
+                tempString = DOMHelper.getValueFromElement(eShow, "VideoSource");
+                if (StringTools.isValidString(tempString)) {
+                    movie.setVideoSource(tempString);
+                }
 
                 // Video Output
-                movie.setVideoOutput(DOMHelper.getValueFromElement(eShow, "VideoOutput"));
+                tempString = DOMHelper.getValueFromElement(eShow, "VideoOutput");
+                if (StringTools.isValidString(tempString)) {
+                    movie.setVideoOutput(tempString);
+                }
 
                 // Parse the video info
                 parseFileInfo(movie, DOMHelper.getElementByName(eShow, "fileinfo"));

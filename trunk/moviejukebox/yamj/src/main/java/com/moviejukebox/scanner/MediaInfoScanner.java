@@ -462,53 +462,54 @@ public class MediaInfoScanner {
             if (movie.getVideoOutput().equals(Movie.UNKNOWN)) {
                 // Guessing Video Output (Issue 988)
                 if (movie.isHD()) {
-                    String normeHD;
+                    StringBuilder normeHD = new StringBuilder();
                     if (movie.isHD1080()) {
-                        normeHD = "1080";
+                        normeHD.append("1080");
                     } else {
-                        normeHD = "720";
+                        normeHD.append("720");
                     }
 
                     infoValue = infosMainVideo.get("Scan type");
                     if (infoValue != null) {
                         if (infoValue.equals("Progressive")) {
-                            normeHD += "p";
+                            normeHD.append("p");
                         } else {
-                            normeHD += "i";
+                            normeHD.append("i");
                         }
                     }
-                    movie.setVideoOutput(normeHD + " " + Math.round(movie.getFps()) + "Hz");
+                    normeHD.append(" ").append(Math.round(movie.getFps())).append("Hz");
+                    movie.setVideoOutput(normeHD.toString());
                 } else {
-                    String videoOutput;
+                    StringBuilder videoOutput = new StringBuilder();
                     switch (Math.round(movie.getFps())) {
                         case 24:
-                            videoOutput = "24";
+                            videoOutput.append("24");
                             break;
                         case 25:
-                            videoOutput = "PAL 25";
+                            videoOutput.append("PAL 25");
                             break;
                         case 30:
-                            videoOutput = "NTSC 30";
+                            videoOutput.append("NTSC 30");
                             break;
                         case 50:
-                            videoOutput = "PAL 50";
+                            videoOutput.append("PAL 50");
                             break;
                         case 60:
-                            videoOutput = "NTSC 60";
+                            videoOutput.append("NTSC 60");
                             break;
                         default:
-                            videoOutput = "NTSC";
+                            videoOutput.append("NTSC");
                             break;
                     }
                     infoValue = infosMainVideo.get("Scan type");
                     if (infoValue != null) {
                         if (infoValue.equals("Progressive")) {
-                            videoOutput += "p";
+                            videoOutput.append("p");
                         } else {
-                            videoOutput += "i";
+                            videoOutput.append("i");
                         }
                     }
-                    movie.setVideoOutput(videoOutput);
+                    movie.setVideoOutput(videoOutput.toString());
                 }
             }
         }
