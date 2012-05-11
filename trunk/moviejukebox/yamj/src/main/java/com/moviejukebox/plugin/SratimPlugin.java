@@ -126,6 +126,12 @@ public class SratimPlugin extends ImdbPlugin {
             String sratimUrl;
 
             String xml = webBrowser.request("http://www.sratim.co.il/browse.php?q=imdb%3A" + imdbId, Charset.forName("UTF-8"));
+            
+            Boolean missingFromSratimDB=xml.contains("לא נמצאו תוצאות העונות לבקשתך");
+            if (missingFromSratimDB)
+            {
+                return Movie.UNKNOWN;
+            }
 
             String detailsUrl = HTMLTools.extractTag(xml, "<a href=\"view.php?", 0, "\"");
             if (subtitleDownload) {
