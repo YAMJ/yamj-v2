@@ -1504,8 +1504,7 @@ public class MovieJukebox {
 
                         @Override
                         public Void call() throws FileNotFoundException, XMLStreamException {
-                            @SuppressWarnings("unused")
-                            ToolSet tools = threadTools.get();
+                            // ToolSet tools = threadTools.get();
                             // Update person XML files with computed index information
                             logger.debug("Writing index data to person: " + person.getName());
                             xmlWriter.writePersonXML(jukebox, person, library);

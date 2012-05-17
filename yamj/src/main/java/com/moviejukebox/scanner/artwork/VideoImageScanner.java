@@ -10,9 +10,8 @@
  *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
  */
-
 /**
- *  VideoImage Scanner
+ * VideoImage Scanner
  *
  * Routines for locating and downloading VideoImage for videos
  *
@@ -33,6 +32,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -45,8 +45,9 @@ import org.apache.log4j.Logger;
 public class VideoImageScanner {
 
     private static final Logger logger = Logger.getLogger(VideoImageScanner.class);
+    private static final String logMessage = "VideoImageScanner: ";
     protected static String skinHome;
-    protected static Collection<String> videoimageExtensions = new ArrayList<String>();
+    protected static final Collection<String> videoimageExtensions = new ArrayList<String>();
     protected static String videoimageToken;
     protected static boolean videoimageOverwrite;
 
@@ -64,7 +65,8 @@ public class VideoImageScanner {
     }
 
     /**
-     * Try to locate a local video image and if that fails, download the image from the Internet.
+     * Try to locate a local video image and if that fails, download the image
+     * from the Internet.
      *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
@@ -77,18 +79,18 @@ public class VideoImageScanner {
             return;
         }
 
-        String genericVideoImageFilename = null;
-        File   genericVideoImageFile = null;
-        String localVideoImageBaseFilename = null;
-        File   localVideoImageFile = null;
-        String fullVideoImageFilename = null;
+        String genericVideoImageFilename;
+        File genericVideoImageFile;
+        String localVideoImageBaseFilename;
+        File localVideoImageFile = null;
+        String fullVideoImageFilename;
         String videoimageExtension = null;
-        String originalFullVideoImageFilename = null;
-        boolean foundLocalVideoImage = false;
-        boolean localOverwrite = false;
+        String originalFullVideoImageFilename;
+        boolean foundLocalVideoImage;
+        boolean localOverwrite;
         int firstPart, lastPart;
 
-        logger.debug("VideoImageScanner: Checking for videoimages for " + movie.getTitle() + " [Season " + movie.getSeason() + "]");
+        logger.debug(logMessage + "Checking for videoimages for " + movie.getTitle() + " [Season " + movie.getSeason() + "]");
 
         // Check for the generic video image for use in the loop later.
         localVideoImageBaseFilename = FileTools.getParentFolder(movie.getFile());
@@ -111,22 +113,22 @@ public class VideoImageScanner {
 
             // Check to see if the file is null, this might be the case if the file is in the middle of a series
             if (mf.getFile() == null) {
-                logger.debug("VideoImageScanner: Missing file - " + mf.getFilename());
+                logger.debug(logMessage + "Missing file - " + mf.getFilename());
                 continue;
             }
 
             // Loop round each of the parts looking for the video_name.videoimageToken.Extension
-            for (int part = firstPart; part <= lastPart; part++ ) {
+            for (int part = firstPart; part <= lastPart; part++) {
                 foundLocalVideoImage = false;   // Reset the "found" variable
                 String partSuffix = "_" + (part - firstPart + 1);
 
                 if (mf.getFile().isDirectory()) {
                     localVideoImageBaseFilename = mf.getFile().getPath();
-                    localVideoImageBaseFilename = new String(localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1)) + videoimageToken;
+                    localVideoImageBaseFilename = new String(localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator) + 1)) + videoimageToken;
                 } else if (mf.getFile().getParent().toString().contains("BDMV" + File.separator + "STREAM")) {
                     localVideoImageBaseFilename = mf.getFile().getPath().toString();
                     localVideoImageBaseFilename = new String(localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.indexOf("BDMV" + File.separator + "STREAM") - 1));
-                    localVideoImageBaseFilename = new String(localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator)+1)) + videoimageToken;
+                    localVideoImageBaseFilename = new String(localVideoImageBaseFilename.substring(localVideoImageBaseFilename.lastIndexOf(File.separator) + 1)) + videoimageToken;
                 } else {
                     localVideoImageBaseFilename = mf.getFile().getName();
                     localVideoImageBaseFilename = new String(localVideoImageBaseFilename.substring(0, localVideoImageBaseFilename.lastIndexOf("."))) + videoimageToken;
@@ -143,7 +145,7 @@ public class VideoImageScanner {
                     // Check for the videoimage filename with the "_part" suffix
                     localVideoImageFile = FileTools.findFileFromExtensions(suffixFullVideoImageFilename, videoimageExtensions);
                     if (localVideoImageFile.exists()) {
-                        logger.debug("VideoImageScanner: File " + localVideoImageFile.getName() + " found");
+                        logger.debug(logMessage + "File " + localVideoImageFile.getName() + " found");
                         foundLocalVideoImage = true;
 
                         // Copy the found videoimage filenames to the originals to ensure the correct filenames are used
@@ -157,7 +159,7 @@ public class VideoImageScanner {
                     // Check for the videoimage filename without the "_part" suffix
                     localVideoImageFile = FileTools.findFileFromExtensions(fullVideoImageFilename, videoimageExtensions);
                     if (localVideoImageFile.exists()) {
-                        logger.debug("VideoImageScanner: File " + localVideoImageFile.getName() + " found");
+                        logger.debug(logMessage + "File " + localVideoImageFile.getName() + " found");
                         foundLocalVideoImage = true;
                         mf.setVideoImageFilename(part, localVideoImageFile.getName());
                         fullVideoImageFilename = localVideoImageFile.getAbsolutePath();
@@ -166,7 +168,7 @@ public class VideoImageScanner {
 
                 // If we don't have a filename, then fill it in here.
                 if (StringTools.isNotValidString(mf.getVideoImageFilename(part))) {
-                    logger.debug("VideoImageScanner: No valid filename was found for part " + part);
+                    logger.debug(logMessage + "No valid filename was found for part " + part);
 
                     if (videoimageExtension == null) {
                         videoimageExtension = "." + PropertiesUtil.getProperty("videoimages.format", "jpg");
@@ -184,7 +186,7 @@ public class VideoImageScanner {
 
                 // If we haven't found a local image, but a generic image exists, use that now.
                 if (!foundLocalVideoImage && genericVideoImageFilename != null) {
-                    logger.debug("VideoImageScanner: Generic Video Image used from " + genericVideoImageFilename);
+                    logger.debug(logMessage + "Generic Video Image used from " + genericVideoImageFilename);
                     // Copy the generic filename over.
                     fullVideoImageFilename = genericVideoImageFilename;
                     foundLocalVideoImage = true;
@@ -202,7 +204,7 @@ public class VideoImageScanner {
                     // Derive the URL to the local file
                     if (StringTools.isNotValidString(mf.getVideoImageURL(part))) {
                         // This occurs when there isn't a videoimage URL in the XML
-                        if (localVideoImageFile != null)  {
+                        if (localVideoImageFile != null) {
                             mf.setVideoImageURL(part, localVideoImageFile.toURI().toString());
                             mf.setVideoImageFilename(part, localVideoImageFile.getName());
                         } else {
@@ -225,27 +227,27 @@ public class VideoImageScanner {
                     // Also check for DIRTY_WATCHED to see if we need to redo the image for the watched flag
                     if (FileTools.isNewer(fullVideoImageFile, finalDestinationFile) || videoimageOverwrite || localOverwrite || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.WATCHED)) {
                         if (processImage(imagePlugin, movie, fullVideoImageFilename, tmpDestFilename, part)) {
-                            logger.debug("VideoImageScanner: " + fullVideoImageFile.getName() + " has been copied to " + tmpDestFilename);
+                            logger.debug(logMessage + fullVideoImageFile.getName() + " has been copied to " + tmpDestFilename);
                         } else {
                             // Processing failed, so try backup image
-                            logger.debug("VideoImageScanner: Failed loading videoimage : " + fullVideoImageFilename);
+                            logger.debug(logMessage + "Failed loading videoimage : " + fullVideoImageFilename);
 
                             // Copy the dummy videoimage to the temp folder
                             FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_videoimage.jpg"), tmpDestFile);
 
                             // Process the dummy videoimage in the temp folder
                             if (processImage(imagePlugin, movie, tmpDestFilename, tmpDestFilename, part)) {
-                                logger.debug("VideoImageScanner: Using default videoimage");
+                                logger.debug(logMessage + "Using default videoimage");
                                 mf.setVideoImageURL(part, Movie.UNKNOWN);   // So we know this is a dummy videoimage
                             } else {
-                                logger.debug("VideoImageScanner: Failed loading default videoimage");
+                                logger.debug(logMessage + "Failed loading default videoimage");
                                 // Copying the default image failed, so leave everything blank
                                 mf.setVideoImageFilename(part, Movie.UNKNOWN);
                                 mf.setVideoImageURL(part, Movie.UNKNOWN);
                             }
                         }
                     } else {
-                        logger.debug("VideoImageScanner: " + finalDestinationFileName + " already exists");
+                        logger.debug(logMessage + finalDestinationFileName + " already exists");
                     }
                 } else {
                     // logger.debug("VideoImageScanner : No local VideoImage found for " + movie.getBaseName() + " attempting to download");
@@ -257,10 +259,11 @@ public class VideoImageScanner {
 
     /**
      * Try to load, process and save the image file
-     * @param imagePlugin       The image plugin to use
-     * @param imageFilename     The filename of the image to process
-     * @param movie             The movie that the image relates to
-     * @return                  True if the image was successfully processed, false otherwise
+     *
+     * @param imagePlugin The image plugin to use
+     * @param imageFilename The filename of the image to process
+     * @param movie The movie that the image relates to
+     * @return True if the image was successfully processed, false otherwise
      */
     private static boolean processImage(MovieImagePlugin imagePlugin, Movie movie, String imageFilename, String targetFilename, int part) {
         boolean imageOK = true;
@@ -281,7 +284,8 @@ public class VideoImageScanner {
     }
 
     /**
-     * Download the videoimage from the URL. Initially this is populated from TheTVDB plugin
+     * Download the videoimage from the URL. Initially this is populated from
+     * TheTVDB plugin
      *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
@@ -299,38 +303,37 @@ public class VideoImageScanner {
             boolean fileOK = true;
 
             // Do not overwrite existing videoimage unless ForceVideoImageOverwrite = true
-            if ((!videoimageFile.exists() && !tmpDestFile.exists()) || videoimageOverwrite) {
+            if ((!videoimageFile.exists() && !tmpDestFile.exists()) || videoimageOverwrite || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.WATCHED)) {
                 videoimageFile.getParentFile().mkdirs();
 
                 // Download the videoimage using the proxy save downloadImage
                 try {
                     FileTools.downloadImage(tmpDestFile, mf.getVideoImageURL(part));
                 } catch (Exception error) {
-                    logger.debug("VideoImageScanner: Failed to download videoimage : " + mf.getVideoImageURL(part) + " error: " + error.getMessage());
+                    logger.debug(logMessage + "Failed to download videoimage : " + mf.getVideoImageURL(part) + " error: " + error.getMessage());
                     fileOK = false;
                 }
 
                 if (fileOK && processImage(imagePlugin, movie, tmpDestFilename, tmpDestFilename, part)) {
-                    logger.debug("VideoImageScanner: Downloaded videoimage for " + mf.getVideoImageFilename(part) + " to " + tmpDestFilename);
+                    logger.debug(logMessage + "Downloaded videoimage for " + mf.getVideoImageFilename(part) + " to " + tmpDestFilename);
                 } else {
                     // failed use dummy
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_videoimage.jpg"), tmpDestFile);
 
                     if (processImage(imagePlugin, movie, tmpDestFilename, tmpDestFilename, part)) {
-                        logger.debug("VideoImageScanner: Using default videoimage");
+                        logger.debug(logMessage + "Using default videoimage");
                         mf.setVideoImageURL(part, Movie.UNKNOWN); // So we know this is a dummy videoimage
                         mf.setVideoImageFilename(part, safeVideoImageFilename); // See MovieFile.java: setVideoImageURL sets setVideoImageFilename=UNKNOWN !!??
                     } else {
                         // Copying the default image failed, so leave everything blank
-                        logger.debug("VideoImageScanner: Failed loading default videoimage");
+                        logger.debug(logMessage + "Failed loading default videoimage");
                         mf.setVideoImageFilename(part, Movie.UNKNOWN);
                         mf.setVideoImageURL(part, Movie.UNKNOWN);
                     }
                 }
             } else {
-                logger.debug("VideoImageScanner: VideoImage exists for " + mf.getVideoImageFilename(part));
+                logger.debug(logMessage + "VideoImage exists for " + mf.getVideoImageFilename(part));
             }
         }
-        return;
     }
 }

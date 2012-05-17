@@ -12,7 +12,6 @@
  */
 package com.moviejukebox.writer;
 
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.*;
 import com.moviejukebox.tools.*;
 import java.io.*;
