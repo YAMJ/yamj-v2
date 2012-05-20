@@ -63,24 +63,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private DateTime mjbGenerationDate = null;
     /*
      * --------------------------------------------------------------------------------
-     * Caching - Dirty Flags More of these flags can be added to further
-     * classify what changed
-     */
-//    public static final String DirtyFlag.NFO = "NFO";
-//    public static final String DirtyFlag.FANART = "FANART";
-//    public static final String DirtyFlag.POSTER = "POSTER";
-//    public static final String DirtyFlag.BANNER = "BANNER";
-//    public static final String DirtyFlag.WATCHED = "WATCHED";
-//    public static final String DirtyFlag.INFO = "INFO"; // Information on the video (default)
-//    public static final String DirtyFlag.RECHECK = "RECHECK"; // The movie needs to be rechecked.
-//    public static final String DirtyFlag.CLEARART = "CLEARART";
-//    public static final String DirtyFlag.CLEARLOGO = "CLEARLOGO";
-//    public static final String DirtyFlag.TVTHUMB = "TVTHUMB";
-//    public static final String DirtyFlag.SEASONTHUMB = "SEASONTHUMB";
-//    public static final String DirtyFlag.MOVIEDISC = "MOVIEDISC";
-
-    /*
-     * --------------------------------------------------------------------------------
      * Properties that control the object
      */
     public static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
