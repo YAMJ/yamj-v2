@@ -14,6 +14,7 @@ MovieJukebox 2.7-SNAPSHOT
  - Fixed defect #2286 VideoImages not updated based on watched status
  - Fixed defect #2419 TV videos with NFO results in "UNKNOWN" XML values
  - Fixed defect #2422 Watched files with no extension in jukebox are not found
+ - Enhancement  #2423 Add 'container' to the NFO file
 
 MovieJukebox 2.6.1 (21-Mar-2012)
 --------------------------------

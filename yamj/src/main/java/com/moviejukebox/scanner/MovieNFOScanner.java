@@ -12,7 +12,6 @@
  */
 package com.moviejukebox.scanner;
 
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
@@ -269,15 +268,13 @@ public class MovieNFOScanner {
         // *** Next step is to check for a directory wide NFO file.
         if (acceptAllNFO) {
             /*
-             * If any NFO file in this directory will do, then we search for all
-             * we can find NOTE: for scanning efficiency, it is better to first
-             * search for specific filenames before we start doing filtered
-             * "listfiles" which scans all the files; A movie collection with
-             * all moviefiles in one directory could take tremendously longer if
-             * for each moviefile found, the entire directory must be listed!!
-             * Therefore, we first check for specific filenames (cfr. old
-             * behaviour) before doing an entire scan of the directory -- and
-             * only if the user has decided to accept any NFO file!
+             * If any NFO file in this directory will do, then we search for all we can find
+             *
+             * NOTE: for scanning efficiency, it is better to first search for specific filenames before we start doing
+             * filtered "listfiles" which scans all the files; A movie collection with all moviefiles in one directory
+             * could take tremendously longer if for each moviefile found, the entire directory must be listed!!
+             * Therefore, we first check for specific filenames (cfr. old behaviour) before doing an entire scan of the
+             * directory -- and only if the user has decided to accept any NFO file!
              */
 
             // Check the current directory
@@ -364,8 +361,8 @@ public class MovieNFOScanner {
     }
 
     /**
-     * Check the NFO file for any of the XML triggers that indicate it's a XML
-     * file If found, process the NFO file as a XML NFO
+     * Check the NFO file for any of the XML triggers that indicate it's a XML file If found, process the NFO file as a
+     * XML NFO
      *
      * @param nfo
      * @param movie
@@ -411,8 +408,8 @@ public class MovieNFOScanner {
     }
 
     /**
-     * Used to parse out the XBMC NFO XML data for movies The specification is
-     * here: http://xbmc.org/wiki/?title=Import_-_Export_Library
+     * Used to parse out the XBMC NFO XML data for movies The specification is here:
+     * http://xbmc.org/wiki/?title=Import_-_Export_Library
      *
      * @param xmlFile
      * @param movie
@@ -700,10 +697,9 @@ public class MovieNFOScanner {
                             String role = Movie.UNKNOWN;
 
                             /*
-                             * There can be multiple actors listed in the nfo in
-                             * the format <actor> <name>Actor Name</name>
-                             * <role>Character Name</role> <name>Actor
-                             * Name</name> <role>Character Name</role> </actor>
+                             * There can be multiple actors listed in the nfo in the format <actor> <name>Actor
+                             * Name</name> <role>Character Name</role> <name>Actor Name</name> <role>Character
+                             * Name</role> </actor>
                              */
                             while (!event.equalsIgnoreCase("</actor>")) {
                                 if (event.equalsIgnoreCase("<name>")) {
@@ -749,6 +745,12 @@ public class MovieNFOScanner {
                             StringBuilder finalLanguage = new StringBuilder();
                             String tmpSubtitleLanguage = Movie.UNKNOWN;
                             while (!fiEvent.equalsIgnoreCase("</fileinfo>")) {
+                                if (fiEvent.equalsIgnoreCase("<container>")) {
+                                    String val = XMLHelper.getCData(r);
+                                    if (isValidString(val)) {
+                                        movie.setContainer(val);
+                                    }
+                                }
                                 if (fiEvent.equalsIgnoreCase("<video>")) {
                                     String nfoWidth = null;
                                     String nfoHeight = null;
@@ -1191,6 +1193,11 @@ public class MovieNFOScanner {
     private static void parseFileInfo(Movie movie, Element eFileInfo) {
         if (eFileInfo == null) {
             return;
+        }
+
+        String container = DOMHelper.getValueFromElement(eFileInfo, "container");
+        if (StringTools.isValidString(container)) {
+            movie.setContainer(container);
         }
 
         Element eStreamDetails = DOMHelper.getElementByName(eFileInfo, "streamdetails");
