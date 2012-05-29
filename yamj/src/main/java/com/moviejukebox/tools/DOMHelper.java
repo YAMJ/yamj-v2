@@ -35,8 +35,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * Generic set of routines to process the DOM model data Used for read XML
- * files.
+ * Generic set of routines to process the DOM model data Used for read XML files.
  *
  * @author Stuart.Boston
  *
@@ -83,8 +82,7 @@ public class DOMHelper {
     }
 
     /**
-     * Append a child element to a parent element with a single attribute/value
-     * pair
+     * Append a child element to a parent element with a single attribute/value pair
      *
      * @param doc
      * @param parentElement
@@ -147,11 +145,12 @@ public class DOMHelper {
      * @throws SAXException
      */
     public static Document getEventDocFromUrl(File xmlFile) throws MalformedURLException, IOException, ParserConfigurationException, SAXException {
-        String url = xmlFile.toURI().toURL().toString();
-        InputStream in = (new URL(url)).openStream();
+        URL url = xmlFile.toURI().toURL();
+        InputStream in = url.openStream();
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc;
+
         // Custom error handler
         db.setErrorHandler(new SaxErrorHandler());
 
@@ -159,6 +158,9 @@ public class DOMHelper {
             doc = db.parse(in);
         } catch (SAXParseException ex) {
             doc = null;
+        } finally {
+            // close the stream
+            in.close();
         }
 
         if (doc == null) {
@@ -249,8 +251,7 @@ public class DOMHelper {
     }
 
     /**
-     * Override the standard Sax ErrorHandler with this one, to minimise noise
-     * about failed parsing errors
+     * Override the standard Sax ErrorHandler with this one, to minimise noise about failed parsing errors
      */
     public static class SaxErrorHandler implements ErrorHandler {
 
