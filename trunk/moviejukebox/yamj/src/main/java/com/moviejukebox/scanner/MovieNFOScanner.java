@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
@@ -55,6 +56,7 @@ public class MovieNFOScanner {
     private static final String TYPE_EPISODE = "episodedetails";
     private static final String TYPE_ROOT = "xml";
     // Other properties
+    private static final String xbmcTvNfoName = "tvshow";
     private static final String splitPattern = "\\||,|/";
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
     private static boolean skipNfoUrl = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", "true");
@@ -102,7 +104,11 @@ public class MovieNFOScanner {
     }
 
     /**
-     * Search the IMDBb id of the specified movie in the NFO file if it exists.
+     * Process the NFO file.
+     *
+     * Will either process the file as an XML NFO file or just pick out the poster and fanart URLs
+     *
+     * Scanning for site specific URLs should be done by each plugin
      *
      * @param movie
      * @param movieDB
@@ -180,13 +186,13 @@ public class MovieNFOScanner {
      * @return A List structure of all the relevant NFO files
      */
     public static List<File> locateNFOs(Movie movie) {
-        List<File> nfos = new ArrayList<File>();
+        List<File> nfoFiles = new ArrayList<File>();
         GenericFileFilter fFilter;
 
         File currentDir = movie.getFirstFile().getFile();
 
         if (currentDir == null) {
-            return nfos;
+            return nfoFiles;
         }
 
         String baseFileName = currentDir.getName();
@@ -207,47 +213,49 @@ public class MovieNFOScanner {
 
         // If "pathFileName" is a file then strip the extension from the file.
         if (currentDir.isFile()) {
-            pathFileName = new String(pathFileName.substring(0, pathFileName.lastIndexOf(".")));
-            baseFileName = new String(baseFileName.substring(0, baseFileName.lastIndexOf(".")));
+            pathFileName = FilenameUtils.removeExtension(pathFileName);
+            baseFileName = FilenameUtils.removeExtension(baseFileName);
         } else {
             // *** First step is to check for VIDEO_TS
             // The movie is a directory, which indicates that this is a VIDEO_TS file
             // So, we should search for the file moviename.nfo in the sub-directory
-            checkNFO(nfos, pathFileName + new String(pathFileName.substring(pathFileName.lastIndexOf(File.separator))));
+            checkNFO(nfoFiles, pathFileName + new String(pathFileName.substring(pathFileName.lastIndexOf(File.separator))));
         }
 
-        if (movie.isTVShow() && !skipTvNfoFiles) {
-            String mfFilename;
-            int pos;
+        // TV Show specific scanning
+        if (movie.isTVShow()) {
+            // Check for the "tvshow.nfo" filename in the parent directory
+            checkNFO(nfoFiles, movie.getFile().getParentFile().getParent() + File.separator + xbmcTvNfoName);
 
-            for (MovieFile mf : movie.getMovieFiles()) {
-                mfFilename = mf.getFile().getParent().toUpperCase();
+            // Check for individual episode files
+            if (!skipTvNfoFiles) {
+                String mfFilename;
 
-                if (mfFilename.contains("BDMV")) {
-                    mfFilename = FileTools.getParentFolder(mf.getFile());
-                    mfFilename = new String(mfFilename.substring(mfFilename.lastIndexOf(File.separator) + 1));
-                } else {
-                    mfFilename = mf.getFile().getName();
-                    pos = mfFilename.lastIndexOf(".");
-                    if (pos > 0) {
-                        mfFilename = new String(mfFilename.substring(0, pos));
+                for (MovieFile mf : movie.getMovieFiles()) {
+                    mfFilename = mf.getFile().getParent().toUpperCase();
+
+                    if (mfFilename.contains("BDMV")) {
+                        mfFilename = FileTools.getParentFolder(mf.getFile());
+                        mfFilename = new String(mfFilename.substring(mfFilename.lastIndexOf(File.separator) + 1));
+                    } else {
+                        mfFilename = FilenameUtils.removeExtension(mf.getFile().getName());
                     }
-                }
 
-                checkNFO(nfos, mf.getFile().getParent() + File.separator + mfFilename);
+                    checkNFO(nfoFiles, mf.getFile().getParent() + File.separator + mfFilename);
+                }
             }
         }
 
         // *** Second step is to check for the filename.nfo file
         // This file should be named exactly the same as the video file with an extension of "nfo" or "NFO"
         // E.G. C:\Movies\Bladerunner.720p.avi => Bladerunner.720p.nfo
-        checkNFO(nfos, pathFileName);
+        checkNFO(nfoFiles, pathFileName);
 
         if (isValidString(NFOdirectory)) {
             // *** Next step if we still haven't found the nfo file is to
             // search the NFO directory as specified in the moviejukebox.properties file
             String sNFOPath = FileTools.getDirPathWithSeparator(movie.getLibraryPath()) + NFOdirectory;
-            checkNFO(nfos, sNFOPath + File.separator + baseFileName);
+            checkNFO(nfoFiles, sNFOPath + File.separator + baseFileName);
         }
 
         // *** Next step is to check for a directory wide NFO file.
@@ -267,13 +275,13 @@ public class MovieNFOScanner {
 
             // Check the current directory
             fFilter = new GenericFileFilter(nfoExtRegex);
-            checkRNFO(nfos, currentDir.getParentFile(), fFilter);
+            checkRNFO(nfoFiles, currentDir.getParentFile(), fFilter);
 
             // Also check the directory above, for the case where movies are in a multi-part named directory (CD/PART/DISK/Etc.)
             Matcher allNfoMatch = partPattern.matcher(currentDir.getAbsolutePath());
             if (allNfoMatch.find()) {
                 logger.debug(logMessage + "Found multi-part directory, checking parent directory for NFOs");
-                checkRNFO(nfos, currentDir.getParentFile().getParentFile(), fFilter);
+                checkRNFO(nfoFiles, currentDir.getParentFile().getParentFile(), fFilter);
             }
         } else {
             // This file should be named the same as the directory that it is in
@@ -283,7 +291,7 @@ public class MovieNFOScanner {
             if (currentDir != null) {
                 // Check the current directory for the video filename
                 fFilter = new GenericFileFilter("(?i)" + movie.getBaseFilename() + nfoExtRegex);
-                checkRNFO(nfos, currentDir, fFilter);
+                checkRNFO(nfoFiles, currentDir, fFilter);
             }
         }
 
@@ -299,7 +307,7 @@ public class MovieNFOScanner {
                 if (!path.isEmpty()) {
                     // Path is not the root
                     if (!path.endsWith(File.separator)) {
-                        checkNFO(nfos, appendToPath(path, currentDir.getName()));
+                        checkNFO(nfoFiles, appendToPath(path, currentDir.getName()));
                     }
                 }
             }
@@ -307,9 +315,9 @@ public class MovieNFOScanner {
 
         // we added the most specific ones first, and we want to parse those the last,
         // so nfo files in sub-directories can override values in directories above.
-        Collections.reverse(nfos);
+        Collections.reverse(nfoFiles);
 
-        return nfos;
+        return nfoFiles;
     }
 
     /**

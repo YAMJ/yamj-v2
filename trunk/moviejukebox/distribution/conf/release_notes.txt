@@ -16,6 +16,7 @@ MovieJukebox 2.7-SNAPSHOT
  - Fixed defect #2422 Watched files with no extension in jukebox are not found
  - Enhancement  #2423 Add 'container' to the NFO file
  - Fixed defect #2424 Sets are always recreated each run
+ - Enhancement  #2428 XBMC tvshow.nfo support
 
 MovieJukebox 2.6.1 (21-Mar-2012)
 --------------------------------
