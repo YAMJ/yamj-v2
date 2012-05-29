@@ -164,7 +164,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     // Media file properties
     Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
     Collection<ExtraFile> extraFiles = new TreeSet<ExtraFile>();
-    private Map<DirtyFlag, Boolean> dirtyFlags = new EnumMap<DirtyFlag, Boolean>(DirtyFlag.class); // List of the dirty flags associated with the Movie
+    private Set<DirtyFlag> dirtyFlags = EnumSet.noneOf(DirtyFlag.class);    // List of the dirty flags associated with the Movie
     private File file;
     private File containerFile;
     // Set information
@@ -248,7 +248,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void addGenre(String genre) {
         if (StringTools.isValidString(genre) && !extra && !genreSkipList.contains(genre.toLowerCase())) {
             setDirty(DirtyFlag.INFO, Boolean.TRUE);
-            //logger.debug("Genre added : " + genre);
+            //logger.debug("Genre added: " + genre);
             genres.add(genre);
         }
     }
@@ -266,7 +266,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void addSet(String set, Integer order) {
         if (StringTools.isValidString(set)) {
             setDirty(DirtyFlag.INFO, Boolean.TRUE);
-            logger.debug("Set added : " + set + ", order : " + order);
+            logger.debug("Set added: " + set + ", order: " + order);
             sets.put(set, order);
         }
     }
@@ -281,7 +281,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                     movieFile.setInfo(mf.getInfo());
                 }
             }
-            logger.debug("Movie addMovieFile : " + movieFile.getFilename());
+            //logger.debug("Movie addMovieFile: " + movieFile.getFilename());
             this.movieFiles.remove(movieFile);
             this.movieFiles.add(movieFile);
         }
@@ -794,9 +794,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     @Override
     public int getSeason() {
         /*
-         * Return the first season as the whole season This could be changed
-         * later to allow multi season movie objects. Do not return a value for
-         * the set master.
+         * Return the first season as the whole season
+         *
+         * This could be changed later to allow multi season movie objects. Do
+         * not return a value for the set master.
          */
         if (movieFiles.size() > 0 && !isSetMaster) {
             return getFirstFile().getSeason();
@@ -893,16 +894,15 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setDirty(DirtyFlag dirtyType, boolean dirty) {
-//        if (dirtyType.equals(DirtyFlag.POSTER)
-//                || dirtyType.equals(DirtyFlag.CLEARART)
-//                || dirtyType.equals(DirtyFlag.CLEARLOGO)
-//                || dirtyType.equals(DirtyFlag.TVTHUMB)
-//                || dirtyType.equals(DirtyFlag.SEASONTHUMB)
-//                || dirtyType.equals(DirtyFlag.MOVIEDISC)) {
-//            SystemTools.logException(dirtyType + " " + String.valueOf(dirty));
-//            logger.info("Existing flags: " + showDirty());
-//        }
-        dirtyFlags.put(dirtyType, dirty);
+        if (dirty) {
+            dirtyFlags.add(dirtyType);
+        } else {
+            dirtyFlags.remove(dirtyType);
+        }
+    }
+
+    public void setDirty(DirtyFlag dirtyType) {
+        dirtyFlags.add(dirtyType);
     }
 
     /**
@@ -924,15 +924,23 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * @return
      */
     public boolean isDirty() {
-        if (!dirtyFlags.isEmpty() && dirtyFlags.containsValue(Boolean.TRUE)) {
-            return Boolean.TRUE;
-        } else {
+        if (dirtyFlags.isEmpty()) {
             return Boolean.FALSE;
+        } else {
+            return Boolean.TRUE;
         }
     }
 
     public String showDirty() {
-        return dirtyFlags.toString();
+        if (dirtyFlags.isEmpty()) {
+            return "NOT DIRTY";
+        } else {
+            return dirtyFlags.toString();
+        }
+    }
+
+    public Set<DirtyFlag> getDirty() {
+        return dirtyFlags;
     }
 
     public void clearDirty() {
@@ -940,11 +948,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public boolean isDirty(DirtyFlag dirtyType) {
-        if (dirtyFlags.get(dirtyType) == null) {
-            setDirty(dirtyType, Boolean.FALSE);
-        }
-
-        return dirtyFlags.get(dirtyType);
+        return dirtyFlags.contains(dirtyType);
     }
 
     /*
@@ -2753,7 +2757,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.indexes = new HashMap<String, String>(aMovie.indexes);
         newMovie.movieFiles = new TreeSet<MovieFile>(aMovie.movieFiles);
         newMovie.extraFiles = new TreeSet<ExtraFile>(aMovie.extraFiles);
-        newMovie.dirtyFlags = new EnumMap<DirtyFlag, Boolean>(aMovie.dirtyFlags);
+        newMovie.dirtyFlags = EnumSet.copyOf(aMovie.dirtyFlags);
         newMovie.codecs = new LinkedHashSet<Codec>(aMovie.codecs);
         newMovie.footerFilename = new ArrayList<String>(aMovie.footerFilename);
 

@@ -1,8 +1,7 @@
 package com.moviejukebox.model;
 
-import java.io.File;
-
 import com.moviejukebox.tools.FileTools;
+import java.io.File;
 
 public class IndexInfo {
     public String categoryName;
@@ -20,7 +19,6 @@ public class IndexInfo {
         this.canSkip = canSkip; // default values
         // "categ_key_"; to be combined with pageid and extension
         baseName = FileTools.makeSafeFilename(FileTools.createPrefix(categoryName, key));
-        pages = 0;
     }
 
     public void checkSkip(int page, String rootPath) {
@@ -33,9 +31,10 @@ public class IndexInfo {
         FileTools.addJukeboxFile(filetest);
     }
 
+    @Override
     public String toString() {
         StringBuilder indexinfo = new StringBuilder("[IndexInfo ");
-        
+
         indexinfo.append("[categoryName=").append(categoryName).append("]");
         indexinfo.append("[key=").append(key).append("]");
         indexinfo.append("[baseName=").append(baseName).append("]");
@@ -44,7 +43,7 @@ public class IndexInfo {
         indexinfo.append("[pages=").append(pages).append("]");
         indexinfo.append("[canSkip=").append(canSkip).append("]");
         indexinfo.append("]");
-        
+
         return indexinfo.toString();
     }
 }
