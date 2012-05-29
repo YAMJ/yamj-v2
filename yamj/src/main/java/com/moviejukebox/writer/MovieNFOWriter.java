@@ -27,6 +27,7 @@ import org.w3c.dom.Element;
 public class MovieNFOWriter {
 
     private static final Logger logger = Logger.getLogger(MovieNFOWriter.class);
+    private static final String logMessage = "MovieNFOWriter: ";
     private static boolean writeSimpleNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeSimpleFiles", Boolean.FALSE.toString());
     private static boolean extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE.toString());
     private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE.toString());
@@ -49,7 +50,7 @@ public class MovieNFOWriter {
         try {
             docNFO = DOMHelper.createDocument();
         } catch (ParserConfigurationException error) {
-            logger.warn("Failed to create NFO file for " + movie.getBaseFilename());
+            logger.warn(logMessage + "Failed to create NFO file for " + movie.getBaseFilename());
             logger.error(SystemTools.getStackTrace(error));
             return;
         }
@@ -58,14 +59,14 @@ public class MovieNFOWriter {
         (new File(nfoFolder)).mkdirs();
         File tempNfoFile = new File(StringTools.appendToPath(nfoFolder, movie.getBaseName() + ".nfo"));
 
-        logger.debug("MovieJukeboxXMLWriter: Writing " + (writeSimpleNfoFiles ? "simple " : "") + "NFO file for " + movie.getBaseName() + ".nfo");
+        logger.debug(logMessage + "Writing " + (writeSimpleNfoFiles ? "simple " : "") + "NFO file for " + movie.getBaseName() + ".nfo");
         FileTools.addJukeboxFile(tempNfoFile.getName());
 
         // Define the root element
         if (movie.isTVShow()) {
-            eRoot = docNFO.createElement("tvshow");
+            eRoot = docNFO.createElement(MovieNFOReader.TYPE_TVSHOW);
         } else {
-            eRoot = docNFO.createElement("movie");
+            eRoot = docNFO.createElement(MovieNFOReader.TYPE_MOVIE);
         }
         docNFO.appendChild(eRoot);
 
@@ -146,9 +147,8 @@ public class MovieNFOWriter {
             }
 
             /*
-             * Process the people information from the video If we are using
-             * people scraping, use that information, otherwise revert to the
-             * standard people
+             * Process the people information from the video If we are using people scraping, use that information,
+             * otherwise revert to the standard people
              */
             if (enablePeople) {
                 eActors = docNFO.createElement("actor");
@@ -265,8 +265,8 @@ public class MovieNFOWriter {
     }
 
     /**
-     * Create an episode detail node for the NFO file This may actually create
-     * more than one node dependent on the number of parts in the file
+     * Create an episode detail node for the NFO file This may actually create more than one node dependent on the
+     * number of parts in the file
      *
      * @param episode
      * @param docNFO
@@ -275,7 +275,7 @@ public class MovieNFOWriter {
     private static void createEpisodeDetails(MovieFile episode, Document docNFO, Element eRoot) {
 
         for (int part = episode.getFirstPart(); part <= episode.getLastPart(); part++) {
-            Element eEpDetails = docNFO.createElement("episodedetails");
+            Element eEpDetails = docNFO.createElement(MovieNFOReader.TYPE_EPISODE);
 
             appendValid(docNFO, eEpDetails, "title", episode.getTitle(part));
             appendValid(docNFO, eEpDetails, "rating", episode.getRating(part));
