@@ -13,6 +13,7 @@
 package com.moviejukebox.tools;
 
 import com.moviejukebox.scanner.MovieNFOScanner;
+import com.moviejukebox.writer.MovieNFOReader;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -45,6 +46,7 @@ public class DOMHelper {
     private static final Logger logger = Logger.getLogger(DOMHelper.class);
     private static final String DEFAULT_RETURN = "";
     private static final String YES = "yes";
+    private static final String TYPE_ROOT = "xml";
 
     /**
      * Add a child element to a parent element
@@ -165,7 +167,7 @@ public class DOMHelper {
 
         if (doc == null) {
             // try wrapping the file in a root
-            String wrappedFile = MovieNFOScanner.wrapInXml(FileTools.readFileToString(xmlFile));
+            String wrappedFile = wrapInXml(FileTools.readFileToString(xmlFile));
             doc = db.parse(new InputSource(new StringReader(wrappedFile)));
         }
 
@@ -290,5 +292,47 @@ public class DOMHelper {
             message.append(" Message: ").append(exception.getMessage());
             return message.toString();
         }
+    }
+
+    /**
+     * Take a file and wrap it in a new root element
+     *
+     * @param fileString
+     * @return
+     */
+    public static String wrapInXml(String fileString) {
+        StringBuilder newOutput = new StringBuilder(fileString);
+
+        int posMovie = fileString.indexOf("<" + MovieNFOReader.TYPE_MOVIE);
+        int posTvShow = fileString.indexOf("<" + MovieNFOReader.TYPE_TVSHOW);
+        int posEpisode = fileString.indexOf("<" + MovieNFOReader.TYPE_EPISODE);
+
+        boolean posValid = Boolean.FALSE;
+
+        if (posMovie == -1) {
+            posMovie = fileString.length();
+        } else {
+            posValid = Boolean.TRUE;
+        }
+
+        if (posTvShow == -1) {
+            posTvShow = fileString.length();
+        } else {
+            posValid = Boolean.TRUE;
+        }
+
+        if (posEpisode == -1) {
+            posEpisode = fileString.length();
+        } else {
+            posValid = Boolean.TRUE;
+        }
+
+        if (posValid) {
+            int pos = Math.min(posMovie, Math.min(posTvShow, posEpisode));
+            newOutput.insert(pos, "<" + TYPE_ROOT + ">");
+            newOutput.append("</").append(TYPE_ROOT).append(">");
+        }
+
+        return newOutput.toString();
     }
 }
