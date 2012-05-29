@@ -32,7 +32,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -65,8 +64,7 @@ public class VideoImageScanner {
     }
 
     /**
-     * Try to locate a local video image and if that fails, download the image
-     * from the Internet.
+     * Try to locate a local video image and if that fails, download the image from the Internet.
      *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
@@ -225,7 +223,7 @@ public class VideoImageScanner {
                     // Can't check the file size because the jukebox videoimage may have been re-sized
                     // This may mean that the local art is different to the jukebox art even if the local file date is newer
                     // Also check for DIRTY_WATCHED to see if we need to redo the image for the watched flag
-                    if (FileTools.isNewer(fullVideoImageFile, finalDestinationFile) || videoimageOverwrite || localOverwrite || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.WATCHED)) {
+                    if (FileTools.isNewer(fullVideoImageFile, finalDestinationFile) || videoimageOverwrite || localOverwrite || movie.isDirty(DirtyFlag.RECHECK) || movie.isDirty(DirtyFlag.WATCHED)) {
                         if (processImage(imagePlugin, movie, fullVideoImageFilename, tmpDestFilename, part)) {
                             logger.debug(logMessage + fullVideoImageFile.getName() + " has been copied to " + tmpDestFilename);
                         } else {
@@ -284,8 +282,7 @@ public class VideoImageScanner {
     }
 
     /**
-     * Download the videoimage from the URL. Initially this is populated from
-     * TheTVDB plugin
+     * Download the videoimage from the URL. Initially this is populated from TheTVDB plugin
      *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
@@ -303,7 +300,7 @@ public class VideoImageScanner {
             boolean fileOK = true;
 
             // Do not overwrite existing videoimage unless ForceVideoImageOverwrite = true
-            if ((!videoimageFile.exists() && !tmpDestFile.exists()) || videoimageOverwrite || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.WATCHED)) {
+            if ((!videoimageFile.exists() && !tmpDestFile.exists()) || videoimageOverwrite || movie.isDirty(DirtyFlag.RECHECK) || movie.isDirty(DirtyFlag.NFO) || movie.isDirty(DirtyFlag.WATCHED)) {
                 videoimageFile.getParentFile().mkdirs();
 
                 // Download the videoimage using the proxy save downloadImage
