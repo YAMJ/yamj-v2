@@ -1413,7 +1413,6 @@ public class MovieJukeboxXMLWriter {
                             // Add the existing file to the cache so they aren't deleted
                             for (int current = 1; current <= last; current++) {
                                 String name = idx.baseName + current + EXT_XML;
-                                logger.info("Index name: " + name);
                                 FileTools.addJukeboxFile(name);
                             }
                         } else {
