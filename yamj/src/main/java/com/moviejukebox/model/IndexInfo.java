@@ -1,9 +1,15 @@
 package com.moviejukebox.model;
 
 import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.PropertiesUtil;
 import java.io.File;
 
 public class IndexInfo {
+
+//    private static Logger logger = Logger.getLogger(IndexInfo.class);
+    private static boolean skipHtmlGeneration = PropertiesUtil.getBooleanProperty("mjb.skipHtmlGeneration", "true");
+    private static final String EXT_XML = ".xml";
+    private static final String EXT_HTML = ".html";
     public String categoryName;
     public String key;
     public String baseName;
@@ -22,13 +28,20 @@ public class IndexInfo {
     }
 
     public void checkSkip(int page, String rootPath) {
-        String filetest = rootPath + File.separator + baseName + page + ".xml";
-        canSkip = canSkip && FileTools.fileCache.fileExists(filetest);
-        FileTools.addJukeboxFile(filetest);
-        // not nice, but no need to do this again in HTMLWriter
-        filetest = rootPath + File.separator + baseName + page + ".html";
-        canSkip = canSkip && FileTools.fileCache.fileExists(filetest);
-        FileTools.addJukeboxFile(filetest);
+        StringBuilder filetest = new StringBuilder(rootPath);
+        filetest.append(File.separator).append(baseName).append(page).append(EXT_XML);
+
+        canSkip = canSkip && FileTools.fileCache.fileExists(filetest.toString());
+        FileTools.addJukeboxFile(filetest.toString());
+
+        // Don't check if we aren't using HTML
+        if (!skipHtmlGeneration) {
+            // not nice, but no need to do this again in HTMLWriter
+            filetest = new StringBuilder(rootPath);
+            filetest.append(File.separator).append(baseName).append(page).append(EXT_HTML);
+            canSkip = canSkip && FileTools.fileCache.fileExists(filetest.toString());
+            FileTools.addJukeboxFile(filetest.toString());
+        }
     }
 
     @Override

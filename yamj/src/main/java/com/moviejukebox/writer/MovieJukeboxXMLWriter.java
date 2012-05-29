@@ -1382,7 +1382,7 @@ public class MovieJukeboxXMLWriter {
                         }
 
                         for (int current = 1; current <= last; current++) {
-                            if (Library.INDEX_SET.equalsIgnoreCase(categoryName) && setReindex) {
+                            if (setReindex && Library.INDEX_SET.equalsIgnoreCase(categoryName)) {
                                 idx.canSkip = false;
                             } else {
                                 idx.checkSkip(current, jukebox.getJukeboxRootLocationDetails());
@@ -1408,6 +1408,14 @@ public class MovieJukeboxXMLWriter {
 
                         if (skipIndex) {
                             logOutput.append("' - no change detected, skipping XML generation.");
+                            logger.debug(logOutput.toString());
+
+                            // Add the existing file to the cache so they aren't deleted
+                            for (int current = 1; current <= last; current++) {
+                                String name = idx.baseName + current + EXT_XML;
+                                logger.info("Index name: " + name);
+                                FileTools.addJukeboxFile(name);
+                            }
                         } else {
                             logOutput.append("' - generating ");
                             logOutput.append(last);
@@ -1704,8 +1712,9 @@ public class MovieJukeboxXMLWriter {
     }
 
     /**
-     * Write the element with the indexed attribute. If there is a non-null
-     * value in the indexValue, this will be appended to the element.
+     * Write the element with the indexed attribute.
+     *
+     * If there is a non-null value in the indexValue, this will be appended to the element.
      *
      * @param doc
      * @param parentElement
@@ -1722,8 +1731,9 @@ public class MovieJukeboxXMLWriter {
     }
 
     /**
-     * Create the index filename for a category & value. Will return "null" if
-     * no index found
+     * Create the index filename for a category & value.
+     *
+     * Will return "null" if no index found
      *
      * @param library
      * @param categoryName
@@ -1821,30 +1831,23 @@ public class MovieJukeboxXMLWriter {
 
         // Removed for the time being until the artwork scanner is in place
         /*
-         * Element eArtwork = doc.createElement("artwork"); for (ArtworkType
-         * artworkType : ArtworkType.values()) { Collection<Artwork> artworkList
-         * = movie.getArtwork(artworkType); if (artworkList.size() > 0) {
-         * Element eArtworkType;
+         * Element eArtwork = doc.createElement("artwork"); for (ArtworkType artworkType : ArtworkType.values()) {
+         * Collection<Artwork> artworkList = movie.getArtwork(artworkType); if (artworkList.size() > 0) { Element
+         * eArtworkType;
          *
-         * for (Artwork artwork : artworkList) { eArtworkType =
-         * doc.createElement(artworkType.toString());
-         * eArtworkType.setAttribute("count",
-         * String.valueOf(artworkList.size()));
+         * for (Artwork artwork : artworkList) { eArtworkType = doc.createElement(artworkType.toString());
+         * eArtworkType.setAttribute("count", String.valueOf(artworkList.size()));
          *
-         * DOMHelper.appendChild(doc, eArtworkType, "sourceSite",
-         * artwork.getSourceSite()); DOMHelper.appendChild(doc, eArtworkType,
-         * "url", artwork.getUrl());
+         * DOMHelper.appendChild(doc, eArtworkType, "sourceSite", artwork.getSourceSite()); DOMHelper.appendChild(doc,
+         * eArtworkType, "url", artwork.getUrl());
          *
-         * for (ArtworkFile artworkFile : artwork.getSizes()) {
-         * DOMHelper.appendChild(doc, eArtworkType,
-         * artworkFile.getSize().toString(), artworkFile.getFilename(),
-         * "downloaded", String.valueOf(artworkFile.isDownloaded())); }
-         * eArtwork.appendChild(eArtworkType); } } else { // Write a dummy node
-         * Element eArtworkType = doc.createElement(artworkType.toString());
+         * for (ArtworkFile artworkFile : artwork.getSizes()) { DOMHelper.appendChild(doc, eArtworkType,
+         * artworkFile.getSize().toString(), artworkFile.getFilename(), "downloaded",
+         * String.valueOf(artworkFile.isDownloaded())); } eArtwork.appendChild(eArtworkType); } } else { // Write a
+         * dummy node Element eArtworkType = doc.createElement(artworkType.toString());
          * eArtworkType.setAttribute("count", String.valueOf(0));
          *
-         * DOMHelper.appendChild(doc, eArtworkType, "url", Movie.UNKNOWN);
-         * DOMHelper.appendChild(doc, eArtworkType,
+         * DOMHelper.appendChild(doc, eArtworkType, "url", Movie.UNKNOWN); DOMHelper.appendChild(doc, eArtworkType,
          * ArtworkSize.LARGE.toString(), Movie.UNKNOWN, "downloaded", "false");
          *
          * eArtwork.appendChild(eArtworkType); } } eMovie.appendChild(eArtwork);
@@ -2292,9 +2295,8 @@ public class MovieJukeboxXMLWriter {
     }
 
     /**
-     * Persist a movie into an XML file. Doesn't overwrite an already existing
-     * XML file for the specified movie unless, movie's data has changed or
-     * forceXMLOverwrite is true.
+     * Persist a movie into an XML file. Doesn't overwrite an already existing XML file for the specified movie unless,
+     * movie's data has changed or forceXMLOverwrite is true.
      */
     public void writeMovieXML(Jukebox jukebox, Movie movie, Library library) {
         String baseName = movie.getBaseName();

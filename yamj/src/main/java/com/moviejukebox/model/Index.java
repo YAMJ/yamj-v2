@@ -1,23 +1,22 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.model;
 
+import com.moviejukebox.tools.StringTools;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
-
-import com.moviejukebox.tools.StringTools;
 
 public class Index extends TreeMap<String, List<Movie>> {
     private int maxCategories = -1;
@@ -60,7 +59,7 @@ public class Index extends TreeMap<String, List<Movie>> {
             list = new ArrayList<Movie>();
             put(category, list);
         }
-        
+
         if (!list.contains(movie)) {
             list.add(movie);
         }
@@ -76,16 +75,16 @@ public class Index extends TreeMap<String, List<Movie>> {
         }
 
         List<Movie> list = get(category);
-        
+
         if (list == null || list.isEmpty()) {
             return;
         }
-        
+
         if (list.contains(movie)) {
             list.remove(movie);
         }
     }
-    
+
     public int getMaxCategories() {
         return maxCategories;
     }
