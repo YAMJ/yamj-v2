@@ -13,7 +13,6 @@
 package com.moviejukebox.tools;
 
 import com.moviejukebox.MovieJukebox;
-import com.moviejukebox.model.Movie;
 import static com.moviejukebox.tools.StringTools.formatFileSize;
 import java.io.PrintWriter;
 import java.io.StringWriter;

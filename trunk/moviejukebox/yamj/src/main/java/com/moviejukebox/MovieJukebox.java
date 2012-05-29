@@ -64,6 +64,7 @@ public class MovieJukebox {
     private boolean forceThumbnailOverwrite;
     private boolean forceBannerOverwrite;
     private boolean forceSkinOverwrite;
+    private boolean forceIndexOverwrite;
     private boolean forceFooterOverwrite;
     // Scanner Tokens
     private static String posterToken;
@@ -607,6 +608,7 @@ public class MovieJukebox {
         this.forceThumbnailOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceThumbnailsOverwrite", "false");
         this.forceBannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", "false");
         this.forceSkinOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceSkinOverwrite", "false");
+        this.forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false");
         this.forceFooterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFooterOverwrite", "false");
         this.skinHome = getProperty("mjb.skin.dir", "./skins/default");
 
@@ -1288,18 +1290,9 @@ public class MovieJukebox {
                         /*
                          * The master's movie XML is used for generating the
                          * playlist it will be overwritten by the index XML
-                         *
-                         * Issue 1886: Html indexes recreated every time
-                         * commented next 2 lines because generated XML file not
-                         * useful
-                         *
-                         * //logger.debug("Writing index data for master: " +
-                         * movie.getBaseName());
-                         * //xmlWriter.writeMovieXML(jukebox, movie, library);
                          */
 
                         logger.debug("Updating set poster for: " + movie.getOriginalTitle() + "...");
-
                         // If we can find a set poster file, use it; otherwise, stick with the first movie's poster
                         String oldPosterFilename = movie.getPosterFilename();
 
@@ -1432,7 +1425,6 @@ public class MovieJukebox {
                 }
 
                 logger.info("Writing Category XML...");
-                boolean forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false");
                 library.setDirty(library.isDirty() || forceIndexOverwrite);
                 xmlWriter.writeCategoryXML(jukebox, library, "Categories", library.isDirty());
 

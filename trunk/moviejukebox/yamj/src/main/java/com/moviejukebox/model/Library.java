@@ -355,6 +355,7 @@ public class Library implements Map<String, Movie> {
 
     protected static Map<String, Movie> buildIndexMasters(String prefix, Index index, List<Movie> indexMovies) {
         Map<String, Movie> masters = new HashMap<String, Movie>();
+        boolean dirtyInfo = Boolean.FALSE;
 
         for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
             String indexName = indexEntry.getKey();
@@ -376,7 +377,6 @@ public class Library implements Map<String, Movie> {
 
             // We can't clone the movie because of the Collection objects in there, so we'll have to copy it
             Movie indexMaster = Movie.newInstance(indexMovieList.get(setIndex));
-            indexMaster.setDirty(false);
 
             indexMaster.setSetMaster(true);
             indexMaster.setSetSize(indexMovieList.size());
@@ -394,6 +394,9 @@ public class Library implements Map<String, Movie> {
             int maxRating = 0;
             int sumRating = 0;
             int currentRating;
+
+            // Clear any set dirty flags and just use those from the files.
+            indexMaster.clearDirty();
 
             // We Can't use a TreeSet because MF.compareTo just compares part #
             // so it fails when we combine multiple seasons into one collection
@@ -430,18 +433,27 @@ public class Library implements Map<String, Movie> {
 
                 // Update the master fileDate to be the latest of all the members so this indexes correctly in the New category
                 indexMaster.addFileDate(movie.getFileDate());
+
+                // Check the dirty status of the movie to see if the set needs to be updated
+                indexMaster.getDirty().addAll(movie.getDirty());
+                // the dirty info flag is overwritten by
+                dirtyInfo |= movie.isDirty(DirtyFlag.INFO);
             }
 
             indexMaster.setMovieType(countTV > 0 ? Movie.TYPE_TVSHOW : Movie.TYPE_MOVIE);
             indexMaster.setVideoType(countHD > 0 ? Movie.TYPE_VIDEO_HD : null);
             indexMaster.setWatchedFile(watched);
             indexMaster.setTop250(top250);
+
             if (setsRating.equalsIgnoreCase("max") || (setsRating.equalsIgnoreCase("average") && (indexMovieList.size() > 0))) {
                 HashMap<String, Integer> ratings = new HashMap<String, Integer>();
                 ratings.put("setrating", setsRating.equalsIgnoreCase("max") ? maxRating : (sumRating / indexMovieList.size()));
                 indexMaster.setRatings(ratings);
             }
+
             indexMaster.setMovieFiles(masterMovieFileCollection);
+            // Keep the current dirty setting
+            indexMaster.setDirty(DirtyFlag.INFO, dirtyInfo);
 
             masters.put(indexName, indexMaster);
 
@@ -454,6 +466,7 @@ public class Library implements Map<String, Movie> {
             sb.append(" - top250: ").append(indexMaster.getTop250());
             sb.append(" - watched: ").append(indexMaster.isWatched());
             sb.append(" - rating: ").append(indexMaster.getRating());
+            sb.append(" - dirty: ").append(indexMaster.showDirty());
             logger.debug(sb.toString());
 
         }
@@ -1663,8 +1676,10 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Determine the year banding for the category. If the year is this year or
-     * last year, return those, otherwise return the decade the year resides in
+     * Determine the year banding for the category.
+     *
+     * If the year is this year or last year, return those, otherwise return the
+     * decade the year resides in
      *
      * @param filmYear The year to check
      * @return "This Year", "Last Year" or the decade range (1990-1999)
@@ -1704,18 +1719,18 @@ public class Library implements Map<String, Movie> {
     public List<Movie> getMatchingMoviesList(String indexName, List<Movie> boxedSetMovies, String categorie) {
         List<Movie> response = new ArrayList<Movie>();
         List<Movie> list = this.unCompressedIndexes.get(indexName).get(categorie);
-        
+
         if (list == null) {
             return response;
         }
-        
+
         for (Movie movie : boxedSetMovies) {
             if (list.contains(movie)) {
                 logger.debug("Movie " + movie.getTitle() + " match for " + indexName + "[" + categorie + "]");
                 response.add(movie);
             }
         }
-        
+
         return response;
     }
 

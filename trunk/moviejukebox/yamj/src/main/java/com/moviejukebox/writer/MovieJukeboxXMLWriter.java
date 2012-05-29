@@ -813,59 +813,8 @@ public class MovieJukeboxXMLWriter {
         return true;
     }
 
-    public Map<String, Integer> parseMovieXMLForSets(File xmlFile) {
-        Map<String, Integer> sets = new HashMap<String, Integer>();
-
-        Document xmlDoc;
-        try {
-            xmlDoc = DOMHelper.getEventDocFromUrl(xmlFile);
-        } catch (MalformedURLException error) {
-            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for set. Please fix it or remove it.");
-            logger.error(SystemTools.getStackTrace(error));
-            return sets;
-        } catch (IOException error) {
-            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for set. Please fix it or remove it.");
-            logger.error(SystemTools.getStackTrace(error));
-            return sets;
-        } catch (ParserConfigurationException error) {
-            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for set. Please fix it or remove it.");
-            logger.error(SystemTools.getStackTrace(error));
-            return sets;
-        } catch (SAXException error) {
-            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for set. Please fix it or remove it.");
-            logger.error(SystemTools.getStackTrace(error));
-            return sets;
-        }
-
-        NodeList nlElements;
-        Node nDetails;
-
-        nlElements = xmlDoc.getElementsByTagName("set");
-
-        for (int looper = 0; looper < nlElements.getLength(); looper++) {
-            nDetails = nlElements.item(looper);
-            if (nDetails.getNodeType() == Node.ELEMENT_NODE) {
-                Element eSet = (Element) nDetails;
-
-                String setOrder = eSet.getAttribute("order");
-                if (StringTools.isValidString(setOrder)) {
-                    try {
-                        sets.put(eSet.getTextContent(), Integer.parseInt(setOrder));
-                    } catch (NumberFormatException error) {
-                        sets.put(eSet.getTextContent(), null);
-                    }
-                } else {
-                    sets.put(eSet.getTextContent(), null);
-                }
-            }
-        }
-
-        return sets;
-    }
-
     public boolean parseSetXML(File xmlSetFile, Movie setMaster, List<Movie> moviesList) {
-
-        boolean forceDirtyFlag = false;
+        boolean forceDirtyFlag = Boolean.FALSE;
 
         try {
             Collection<String> xmlSetMovieNames = new ArrayList<String>();
@@ -901,7 +850,6 @@ public class MovieJukeboxXMLWriter {
             } else {
                 forceDirtyFlag = true;
             }
-
         } catch (Exception error) {
             logger.error("Failed parsing " + xmlSetFile.getAbsolutePath() + ": please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
@@ -913,7 +861,6 @@ public class MovieJukeboxXMLWriter {
         return true;
     }
 
-    @SuppressWarnings("unchecked")
     public boolean parsePersonXML(File xmlFile, Person person) {
         try {
             XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -1143,7 +1090,7 @@ public class MovieJukeboxXMLWriter {
                             cm.remove(Library.INDEX_NEW_TV);
                         }
 
-                        for (Map.Entry<String,String> catOriginalName : cm.entrySet()) {
+                        for (Map.Entry<String, String> catOriginalName : cm.entrySet()) {
                             String catNewName = catOriginalName.getValue();
                             if (category.getValue().containsKey(catNewName)) {
                                 Element eCatIndex = processCategoryIndex(xmlDoc, catNewName, catOriginalName.getKey(), category.getValue().get(catNewName),
@@ -1456,9 +1403,18 @@ public class MovieJukeboxXMLWriter {
                             }
                         }
 
+                        StringBuilder logOutput = new StringBuilder("Category '");
+                        logOutput.append(categoryPath);
+
                         if (skipIndex) {
-                            logger.debug("Category " + categoryPath + " - no change detected, skipping XML generation.");
+                            logOutput.append("' - no change detected, skipping XML generation.");
                         } else {
+                            logOutput.append("' - generating ");
+                            logOutput.append(last);
+                            logOutput.append(" XML file");
+                            logOutput.append(last == 1 ? "." : "s.");
+                            logger.debug(logOutput.toString());
+
                             int next;
                             for (int current = 1; current <= last; current++) {
                                 // All pages are handled here
@@ -1560,7 +1516,7 @@ public class MovieJukeboxXMLWriter {
                     cm.remove(Library.INDEX_NEW_TV);
                 }
 
-                for (Map.Entry<String,String> catOriginalName : cm.entrySet()) {
+                for (Map.Entry<String, String> catOriginalName : cm.entrySet()) {
                     String catNewName = catOriginalName.getValue();
                     if (category.getValue().containsKey(catNewName)) {
                         indexSize = index.get(catNewName).size();
