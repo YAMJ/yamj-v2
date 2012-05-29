@@ -1395,7 +1395,7 @@ public class MovieJukebox {
                 boolean createPosters = PropertiesUtil.getBooleanProperty("mjb.sets.createPosters", "false");
 
                 for (IndexInfo idx : library.getGeneratedIndexes()) {
-                    if (!idx.canSkip && idx.categoryName.equals("Set")) {
+                    if (!idx.canSkip && idx.categoryName.equals(Library.INDEX_SET)) {
                         idxName = new StringBuilder(idx.categoryName);
                         idxName.append("_").append(FileTools.makeSafeFilename(idx.key)).append("_1");
 
