@@ -16,7 +16,6 @@ import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.DatabasePluginController;
-import com.moviejukebox.tools.AspectRatioTools;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GenericFileFilter;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -113,7 +112,9 @@ public class MovieNFOScanner {
             }
 
             // If the XML wasn't found or parsed correctly, then fall back to the old method
-            if (!parsedXmlNfo) {
+            if (parsedXmlNfo) {
+                logger.debug(logMessage + "Successfully scanned " + nfoFile.getName() + " as XBMC format");
+            } else {
                 DatabasePluginController.scanNFO(nfo, movie);
 
                 logger.debug(logMessage + "Scanning NFO for Poster URL");
