@@ -18,12 +18,12 @@ import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This is the new bean for the Person
  *
- * @author ilgizar Initial code copied from
- * com.moviejukebox.themoviedb.model.Filmography
+ * @author ilgizar Initial code copied from com.moviejukebox.themoviedb.model.Filmography
  *
  */
 public class Filmography {
@@ -264,10 +264,9 @@ public class Filmography {
 
     public void setCastId(String castId) {
         if (isValidString(castId) && !castId.equalsIgnoreCase(Integer.toString(this.castId))) {
-            try {
+            if (StringUtils.isNumeric(castId)) {
                 this.castId = Integer.parseInt(castId);
                 setDirty();
-            } catch (Exception ignore) {
             }
         }
     }
@@ -281,10 +280,9 @@ public class Filmography {
 
     public void setOrder(String order) {
         if (isValidString(order) && !order.equalsIgnoreCase(Integer.toString(this.order))) {
-            try {
+            if (StringUtils.isNumeric(order)) {
                 this.order = Integer.parseInt(order);
                 setDirty();
-            } catch (Exception ignore) {
             }
         }
     }

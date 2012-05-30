@@ -42,7 +42,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
     private static final Logger logger = Logger.getLogger(MovieMeterPlugin.class);
     public static String MOVIEMETER_PLUGIN_ID = "moviemeter";
     private MovieMeterPluginSession session;
-    protected String preferredSearchEngine;
+    private String preferredSearchEngine;
     private int preferredPlotLength;
 
     public MovieMeterPlugin() {

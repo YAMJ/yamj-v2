@@ -31,15 +31,16 @@ import org.apache.log4j.Logger;
 public class FilmwebPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(FilmwebPlugin.class);
+    private static final String logMessage = "FilmwebPlugin: ";
     public static String FILMWEB_PLUGIN_ID = "filmweb";
 //    private static Pattern googlePattern = Pattern.compile(">(http://[^\"/?&]*filmweb.pl[^<\\s]*)");
     private static Pattern googlePattern = Pattern.compile("(http://[^\"/?&]*filmweb.pl[^\"&<\\s]*)");
     private static Pattern yahooPattern = Pattern.compile("http%3a(//[^\"/?&]*filmweb.pl[^\"]*)\"");
     private static Pattern filmwebPattern = Pattern.compile("searchResultTitle\"? href=\"([^\"]*)\"");
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
-    protected String filmwebPreferredSearchEngine;
-    protected int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
-    protected int preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
+    private String filmwebPreferredSearchEngine;
+    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+    private int preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
 
     public FilmwebPlugin() {
         super(); // use IMDB if filmweb doesn't know movie
@@ -51,13 +52,37 @@ public class FilmwebPlugin extends ImdbPlugin {
         return FILMWEB_PLUGIN_ID;
     }
 
-    protected void init() {
+    public String getFilmwebPreferredSearchEngine() {
+        return filmwebPreferredSearchEngine;
+    }
+
+    public void setFilmwebPreferredSearchEngine(String filmwebPreferredSearchEngine) {
+        this.filmwebPreferredSearchEngine = filmwebPreferredSearchEngine;
+    }
+
+    public int getPreferredOutlineLength() {
+        return preferredOutlineLength;
+    }
+
+    public void setPreferredOutlineLength(int preferredOutlineLength) {
+        this.preferredOutlineLength = preferredOutlineLength;
+    }
+
+    public int getPreferredPlotLength() {
+        return preferredPlotLength;
+    }
+
+    public void setPreferredPlotLength(int preferredPlotLength) {
+        this.preferredPlotLength = preferredPlotLength;
+    }
+
+    public void init() {
         filmwebPreferredSearchEngine = PropertiesUtil.getProperty("filmweb.id.search", "filmweb");
         try {
             // first request to filmweb site to skip welcome screen with ad banner
             webBrowser.request("http://www.filmweb.pl");
         } catch (IOException error) {
-            logger.error("Error : " + error.getMessage());
+            logger.error(logMessage + "Error : " + error.getMessage());
         }
     }
 
@@ -95,8 +120,7 @@ public class FilmwebPlugin extends ImdbPlugin {
     }
 
     /**
-     * retrieve the filmweb url matching the specified movie name and year. This
-     * routine is base on a yahoo request.
+     * retrieve the filmweb url matching the specified movie name and year. This routine is base on a yahoo request.
      */
     private String getFilmwebUrlFromYahoo(String movieName, String year) {
         try {
@@ -122,15 +146,14 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
         } catch (Exception error) {
-            logger.error("Failed retreiving filmweb url for movie : " + movieName);
-            logger.error("Error : " + error.getMessage());
+            logger.error(logMessage + "Failed retreiving filmweb url for movie : " + movieName);
+            logger.error(logMessage + "Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
 
     /**
-     * retrieve the filmweb url matching the specified movie name and year. This
-     * routine is base on a google request.
+     * retrieve the filmweb url matching the specified movie name and year. This routine is base on a google request.
      */
     private String getFilmwebUrlFromGoogle(String movieName, String year) {
         try {
@@ -151,15 +174,14 @@ public class FilmwebPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
         } catch (Exception error) {
-            logger.error("Failed retreiving filmweb url for movie : " + movieName);
-            logger.error("Error : " + error.getMessage());
+            logger.error(logMessage + "Failed retreiving filmweb url for movie : " + movieName);
+            logger.error(logMessage + "Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
 
     /**
-     * retrieve the filmweb url matching the specified movie name and year. This
-     * routine is base on a filmweb request.
+     * retrieve the filmweb url matching the specified movie name and year. This routine is base on a filmweb request.
      */
     private String getFilmwebUrlFromFilmweb(String movieName, String year) {
         try {
@@ -177,8 +199,8 @@ public class FilmwebPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
         } catch (Exception error) {
-            logger.error("Failed retreiving filmweb url for movie : " + movieName);
-            logger.error("Error : " + error.getMessage());
+            logger.error(logMessage + "Failed retreiving filmweb url for movie : " + movieName);
+            logger.error(logMessage + "Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -291,7 +313,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
         } catch (Exception error) {
-            logger.error("Failed retreiving filmweb informations for movie : " + movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
+            logger.error(logMessage + "Failed retreiving filmweb informations for movie : " + movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
             logger.error(SystemTools.getStackTrace(error));
         }
         return Boolean.TRUE;
@@ -364,8 +386,8 @@ public class FilmwebPlugin extends ImdbPlugin {
                 super.scanTVShowTitles(movie);
             }
         } catch (IOException error) {
-            logger.error("Failed retreiving episodes titles for movie : " + movie.getTitle());
-            logger.error("Error : " + error.getMessage());
+            logger.error(logMessage + "Failed retreiving episodes titles for movie : " + movie.getTitle());
+            logger.error(logMessage + "Error : " + error.getMessage());
         }
     }
 
@@ -376,7 +398,7 @@ public class FilmwebPlugin extends ImdbPlugin {
     @Override
     public boolean scanNFO(String nfo, Movie movie) {
         super.scanNFO(nfo, movie); // use IMDB if filmweb doesn't know movie
-        logger.debug("Scanning NFO for filmweb url");
+        logger.debug(logMessage + "Scanning NFO for filmweb url");
         Matcher m = nfoPattern.matcher(nfo);
         boolean found = Boolean.FALSE;
         while (m.find()) {
@@ -387,9 +409,9 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
         }
         if (found) {
-            logger.debug("Filmweb url found in nfo = " + movie.getId(FILMWEB_PLUGIN_ID));
+            logger.debug(logMessage + "Filmweb url found in NFO = " + movie.getId(FILMWEB_PLUGIN_ID));
         } else {
-            logger.debug("No filmweb url found in nfo !");
+            logger.debug(logMessage + "No filmweb url found in NFO !");
         }
         return found;
     }

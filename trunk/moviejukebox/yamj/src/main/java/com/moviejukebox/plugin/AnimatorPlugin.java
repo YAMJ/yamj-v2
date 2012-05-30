@@ -12,10 +12,10 @@
  */
 
 /*
-Plugin to retrieve movie data from Russian animation database www.animator.ru and www.allmults.org
-Written by Ilgizar Mubassarov (based on KinopoiskPlugin.java)
+ Plugin to retrieve movie data from Russian animation database www.animator.ru and www.allmults.org
+ Written by Ilgizar Mubassarov (based on KinopoiskPlugin.java)
 
-animator.sites: [all, animator, allmults] - where find movie data
+ animator.sites: [all, animator, allmults] - where find movie data
  */
 package com.moviejukebox.plugin;
 
@@ -47,11 +47,11 @@ public class AnimatorPlugin extends ImdbPlugin {
     private static final Logger logger = Logger.getLogger(AnimatorPlugin.class);
     public static String ANIMATOR_PLUGIN_ID = "animator";
 //  Define plot length
-    int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
-    String preferredSites = PropertiesUtil.getProperty("animator.sites", "all");
-    String[] listSites = preferredSites.split(",");
-    boolean animatorDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "animator") != -1);
-    boolean multsDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "allmults") != -1);
+    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+    private String preferredSites = PropertiesUtil.getProperty("animator.sites", "all");
+    private String[] listSites = preferredSites.split(",");
+    private boolean animatorDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "animator") != -1);
+    private boolean multsDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "allmults") != -1);
 
     @Override
     public String getPluginID() {
@@ -73,7 +73,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             String year = mediaFile.getYear();
 // Let's replace dash (-) by space ( ) in Title.
             String name = mediaFile.getTitle();
-            name.replace('-', ' ');
+            name = name.replace('-', ' ');
             animatorId = getAnimatorId(name, year, mediaFile.getSeason());
 
             if (StringTools.isValidString(year) && StringTools.isNotValidString(animatorId)) {

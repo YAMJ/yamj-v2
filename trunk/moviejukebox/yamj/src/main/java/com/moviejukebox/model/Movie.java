@@ -18,8 +18,8 @@ import com.moviejukebox.plugin.MovieDatabasePlugin;
 import com.moviejukebox.tools.*;
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Map.Entry;
 import java.util.*;
+import java.util.Map.Entry;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.StringUtils;
@@ -120,7 +120,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String budget = UNKNOWN;                                        // Issue 2012: Financial information about movie
     private Map<String, String> openweek = new HashMap<String, String>();
     private Map<String, String> gross = new HashMap<String, String>();
-    private Collection<String> DidYouKnow = new ArrayList<String>();        // Issue 2013: Add trivia
+    private Collection<String> didYouKnow = new ArrayList<String>();        // Issue 2013: Add trivia
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
     private String formatType = TYPE_FILE;
@@ -162,8 +162,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String last = UNKNOWN;
     private Map<String, String> indexes = new HashMap<String, String>();
     // Media file properties
-    Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
-    Collection<ExtraFile> extraFiles = new TreeSet<ExtraFile>();
+    private Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
+    private Collection<ExtraFile> extraFiles = new TreeSet<ExtraFile>();
     private Set<DirtyFlag> dirtyFlags = EnumSet.noneOf(DirtyFlag.class);    // List of the dirty flags associated with the Movie
     private File file;
     private File containerFile;
@@ -560,7 +560,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public Collection<String> getDidYouKnow() {
-        return DidYouKnow;
+        return didYouKnow;
     }
 
     public String getCompany() {
@@ -1016,21 +1016,21 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void addDidYouKnow(String fact) {
-        if (fact != null && !DidYouKnow.contains(fact)) {
+        if (fact != null && !didYouKnow.contains(fact)) {
             setDirty(DirtyFlag.INFO, Boolean.TRUE);
-            DidYouKnow.add(fact);
+            didYouKnow.add(fact);
         }
     }
 
     public void setDidYouKnow(Collection<String> facts) {
         if (facts != null && !facts.isEmpty()) {
-            DidYouKnow = facts;
+            didYouKnow = facts;
             setDirty(DirtyFlag.INFO, Boolean.TRUE);
         }
     }
 
     public void clearDidYouKnow() {
-        DidYouKnow.clear();
+        didYouKnow.clear();
         setDirty(DirtyFlag.INFO, Boolean.TRUE);
     }
 
@@ -1113,7 +1113,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void addWriter(String key, String name, String URL) {
         if (name != null) {
             String Name = name;
-            if (name.indexOf(":") > 0) {
+            if (name.contains(":")) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[1])) {
                     Name = names[1];
@@ -1244,7 +1244,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void addDirector(String key, String name, String URL) {
         if (name != null) {
             String directorName = name;
-            if (name.indexOf(":") > 0) {
+            if (name.contains(":")) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[1])) {
                     directorName = names[1];
@@ -1737,7 +1737,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (!isSetMaster()) {
             synchronized (this) {
                 if (tmstmp == null) {
-                    tmstmp = new Long(0);
+                    tmstmp = Long.valueOf(0);
                     for (MovieFile mf : getMovieFiles()) {
                         tmstmp = Math.max(tmstmp, mf.getLastModified());
                     }

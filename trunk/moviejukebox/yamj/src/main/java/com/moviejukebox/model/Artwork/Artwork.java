@@ -138,6 +138,41 @@ public class Artwork {
         this.url = url;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 79 * hash + (this.type != null ? this.type.hashCode() : 0);
+        hash = 79 * hash + (this.sourceSite != null ? this.sourceSite.hashCode() : 0);
+        hash = 79 * hash + (this.url != null ? this.url.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return Boolean.FALSE;
+        }
+
+        if (getClass() != obj.getClass()) {
+            return Boolean.FALSE;
+        }
+
+        final Artwork other = (Artwork) obj;
+        if (this.type != other.type) {
+            return Boolean.FALSE;
+        }
+
+        if ((this.sourceSite == null) ? (other.sourceSite != null) : !this.sourceSite.equals(other.sourceSite)) {
+            return Boolean.FALSE;
+        }
+
+        if ((this.url == null) ? (other.url != null) : !this.url.equals(other.url)) {
+            return Boolean.FALSE;
+        }
+
+        return Boolean.TRUE;
+    }
+
     public int compareTo(Artwork anotherArtwork) {
         if (this.sourceSite.equals(anotherArtwork.getSourceSite())
                 && this.type.equals(anotherArtwork.getType())

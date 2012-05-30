@@ -22,6 +22,7 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang3.StringUtils;
@@ -29,10 +30,12 @@ import org.apache.log4j.Logger;
 
 public class Library implements Map<String, Movie> {
 
+    private static final Logger logger = Logger.getLogger(Library.class);
+    // Constants
     public static final String TV_SERIES = "TVSeries";
     public static final String SET = "Set";
+    // Library values
     private Collection<IndexInfo> generatedIndexes = Collections.synchronizedCollection(new ArrayList<IndexInfo>());
-    private static final Logger logger = Logger.getLogger(Library.class);
     private static boolean filterGenres;
     private static boolean filterCertificationn;
     private static boolean singleSeriesPage;
@@ -124,6 +127,13 @@ public class Library implements Map<String, Movie> {
     public static final String INDEX_MOVIES = "Movies";
     public static final String INDEX_ACTOR = "Actor";
     public static final String INDEX_CATEGORIES = "Categories";
+    // Comparators
+    private static LastModifiedComparator cmpLast = new LastModifiedComparator();
+    private static Top250Comparator cmp250 = new Top250Comparator();
+    private static RatingComparator cmpRatingAsc = new RatingComparator(false);
+    private static RatingComparator cmpRatingDesc = new RatingComparator(true);
+    private static ReleaseComparator cmpReleaseAsc = new ReleaseComparator(true);
+    private static ReleaseComparator cmpReleaseDesc = new ReleaseComparator(false);
 
     static {
         categoryMinCountMaster = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3");
@@ -205,11 +215,16 @@ public class Library implements Map<String, Movie> {
     }
 
     private static void getSortProperty(String indexKey, String defSort, String defAsc) {
+        String spIndexKey;
+
         if (indexKey.indexOf(" ") > -1) {
-            indexKey.replaceAll(" ", "");
+            spIndexKey = indexKey.replaceAll(" ", "");
+        } else {
+            spIndexKey = indexKey;
         }
-        sortKeys.put(indexKey, PropertiesUtil.getProperty("indexing.sort." + indexKey.toLowerCase(), defSort));
-        sortAsc.put(indexKey, PropertiesUtil.getBooleanProperty("indexing.sort." + indexKey.toLowerCase() + ".asc", defAsc));
+
+        sortKeys.put(indexKey, PropertiesUtil.getProperty("indexing.sort." + spIndexKey.toLowerCase(), defSort));
+        sortAsc.put(indexKey, PropertiesUtil.getBooleanProperty("indexing.sort." + spIndexKey.toLowerCase() + ".asc", defAsc));
     }
 
     public Library() {
@@ -519,7 +534,6 @@ public class Library implements Map<String, Movie> {
 
             for (final String indexStr : indexList.split(",")) {
                 tasks.submit(new Callable<Void>() {
-
                     @Override
                     public Void call() {
                         SystemTools.showMemory();
@@ -599,7 +613,6 @@ public class Library implements Map<String, Movie> {
             for (final Map.Entry<String, Index> indexesEntry : indexes.entrySet()) {
                 for (final Map.Entry<String, List<Movie>> indexEntry : indexesEntry.getValue().entrySet()) {
                     tasks.submit(new Callable<Void>() {
-
                         @Override
                         public Void call() {
                             Comparator<Movie> comp = getComparator(indexesEntry.getKey(), indexEntry.getKey());
@@ -687,7 +700,6 @@ public class Library implements Map<String, Movie> {
                     continue;
                 }
                 tasks.submit(new Callable<Void>() {
-
                     @Override
                     public Void call() {
                         SystemTools.showMemory();
@@ -705,8 +717,7 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Trim the new category to the required length, add the trimmed video list
-     * to the NEW category
+     * Trim the new category to the required length, add the trimmed video list to the NEW category
      *
      * @param catName The name of the category: "New-TV" or "New-Movie"
      * @param catCount The maximum size of the category
@@ -900,8 +911,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Index the videos by the property values This is slightly different from
-     * the other indexes as there may be multiple entries for each of the videos
+     * Index the videos by the property values This is slightly different from the other indexes as there may be
+     * multiple entries for each of the videos
      *
      * @param moviesList
      * @return
@@ -1108,20 +1119,20 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Calculate the minimum/maximum count for a category/movie based on it's
-     * property value.
+     * Calculate the minimum/maximum count for a category/movie based on it's property value.
      *
      * @param categoryName
      * @return
      */
     public static int calcCategoryCount(String categoryName, boolean getMinimum, boolean byMovie) {
-        int categoryMaxCount;
-        try {
-            categoryMaxCount = PropertiesUtil.getIntProperty("mjb." + (byMovie ? "movies." : "categories.") + (getMinimum ? "minCount." : "maxCount.") + categoryName, String.valueOf(getMinimum ? categoryMinCountMaster : byMovie ? movieMaxCountMaster : categoryMaxCountMaster));
-        } catch (Exception ignore) {
-            categoryMaxCount = getMinimum ? categoryMinCountMaster : byMovie ? movieMaxCountMaster : categoryMaxCountMaster;
-        }
-        return categoryMaxCount;
+        StringBuilder propertyName = new StringBuilder("mjb.");
+        propertyName.append(byMovie ? "movies." : "categories.");
+        propertyName.append(getMinimum ? "minCount." : "maxCount.");
+        propertyName.append(categoryName);
+
+        int defaultValue = getMinimum ? categoryMinCountMaster : (byMovie ? movieMaxCountMaster : categoryMaxCountMaster);
+
+        return PropertiesUtil.getIntProperty(propertyName.toString(), String.valueOf(defaultValue));
     }
 
     protected static Index indexByCountry(List<Movie> list) {
@@ -1294,8 +1305,7 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Checks if there is a master (will be shown in the index) genre for the
-     * specified one.
+     * Checks if there is a master (will be shown in the index) genre for the specified one.
      *
      * @param genre Genre to find the master for
      * @return Genre itself or master if available.
@@ -1314,8 +1324,7 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Checks if there is a master (will be shown in the index) Certification
-     * for the specified one.
+     * Checks if there is a master (will be shown in the index) Certification for the specified one.
      *
      * @param certification Certification to find the master for
      * @return Certification itself or master if available.
@@ -1339,11 +1348,6 @@ public class Library implements Map<String, Movie> {
     public void clear() {
         library.clear();
         people.clear();
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return library.clone();
     }
 
     @Override
@@ -1468,7 +1472,7 @@ public class Library implements Map<String, Movie> {
                     }
 
                 }
-            } catch (Exception error) {
+            } catch (ConfigurationException error) {
                 logger.error("Failed parsing moviejukebox genre input file: " + xmlGenreFile.getName());
                 logger.error(SystemTools.getStackTrace(error));
             }
@@ -1496,7 +1500,7 @@ public class Library implements Map<String, Movie> {
                     defaultCertification = conf.getString("default");
                     logger.info("Found default certification: " + defaultCertification);
                 }
-            } catch (Exception error) {
+            } catch (ConfigurationException error) {
                 logger.error("Failed parsing moviejukebox certification input file: " + xmlCertificationFile.getName());
                 logger.error(SystemTools.getStackTrace(error));
             }
@@ -1524,7 +1528,7 @@ public class Library implements Map<String, Movie> {
                         //logger.debug("Added category '" + origName + "' with name '" + newName + "'");
                     }
                 }
-            } catch (Exception error) {
+            } catch (ConfigurationException error) {
                 logger.error("Failed parsing moviejukebox category input file: " + xmlFile.getName());
                 logger.error(SystemTools.getStackTrace(error));
             }
@@ -1538,8 +1542,7 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the first category in the first index that has any movies in it For
-     * Issue 436
+     * Find the first category in the first index that has any movies in it For Issue 436
      */
     public String getDefaultCategory() {
         for (Index index : indexes.values()) {
@@ -1551,12 +1554,6 @@ public class Library implements Map<String, Movie> {
         }
         return null;
     }
-    static LastModifiedComparator cmpLast = new LastModifiedComparator();
-    static Top250Comparator cmp250 = new Top250Comparator();
-    static RatingComparator cmpRatingAsc = new RatingComparator(false);
-    static RatingComparator cmpRatingDesc = new RatingComparator(true);
-    static ReleaseComparator cmpReleaseAsc = new ReleaseComparator(true);
-    static ReleaseComparator cmpReleaseDesc = new ReleaseComparator(false);
 
     protected static Comparator<Movie> getComparator(String category, String key) {
         Comparator<Movie> cmpMovie = null;
@@ -1613,9 +1610,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the un-modified category name. The Category name could be changed by
-     * the use of the Category XML file. This function will return the original,
-     * unchanged name
+     * Find the un-modified category name. The Category name could be changed by the use of the Category XML file. This
+     * function will return the original, unchanged name
      *
      * @param newCategory
      * @return
@@ -1631,9 +1627,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the renamed category name from the original name The Category name
-     * could be changed by the use of the Category XML file. This function will
-     * return the new name.
+     * Find the renamed category name from the original name The Category name could be changed by the use of the
+     * Category XML file. This function will return the new name.
      *
      * @param test
      * @return
@@ -1678,8 +1673,7 @@ public class Library implements Map<String, Movie> {
     /**
      * Determine the year banding for the category.
      *
-     * If the year is this year or last year, return those, otherwise return the
-     * decade the year resides in
+     * If the year is this year or last year, return those, otherwise return the decade the year resides in
      *
      * @param filmYear The year to check
      * @return "This Year", "Last Year" or the decade range (1990-1999)

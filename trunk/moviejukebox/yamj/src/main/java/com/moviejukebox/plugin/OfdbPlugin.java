@@ -29,8 +29,8 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     private static final Logger logger = Logger.getLogger(OfdbPlugin.class);
     public static String OFDB_PLUGIN_ID = "ofdb";
     private static final String PLOT_MARKER = "<a href=\"plot/";
-    boolean getplot;
-    boolean gettitle;
+    private boolean getplot;
+    private boolean gettitle;
     private int preferredPlotLength;
     private int preferredOutlineLength;
     private ImdbPlugin imdbp;
@@ -178,7 +178,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         if (beginIndex < 0) {
             return Movie.UNKNOWN;
         }
-        
+
         StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), separator);
         for (int i = 0; i < skip; i++) {
             st.nextToken();

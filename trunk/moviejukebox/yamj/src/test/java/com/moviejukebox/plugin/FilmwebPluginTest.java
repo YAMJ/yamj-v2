@@ -45,37 +45,37 @@ public class FilmwebPluginTest extends TestCase {
     }
 
     public void testGetFilmwebUrlFromGoogle() {
-        filmwebPlugin.filmwebPreferredSearchEngine = "google";
+        filmwebPlugin.setFilmwebPreferredSearchEngine("google");
         filmwebPlugin.setRequestResult("<font color=\"green\">http://www.filmweb.pl/Seksmisja - 84k</font>");
         assertEquals("http://www.filmweb.pl/Seksmisja", filmwebPlugin.getFilmwebUrl("Seksmisja", null));
     }
 
     public void testGetFilmwebUrlFromGoogleWithId() {
-        filmwebPlugin.filmwebPreferredSearchEngine = "google";
+        filmwebPlugin.setFilmwebPreferredSearchEngine("google");
         filmwebPlugin.setRequestResult("<font color=\"green\">http://www.filmweb.pl/serial/4400-2004-122684 - 90k</font>");
         assertEquals("http://www.filmweb.pl/serial/4400-2004-122684", filmwebPlugin.getFilmwebUrl("4400", null));
     }
 
     public void testGetFilmwebUrlFromYahoo() {
-        filmwebPlugin.filmwebPreferredSearchEngine = "yahoo";
+        filmwebPlugin.setFilmwebPreferredSearchEngine("yahoo");
         filmwebPlugin.setRequestResult("<a data-bk=\"5034.1\" href=\"http://www.filmweb.pl/Seksmisja\" class=\"yschttl spt\" dirtyhref=\"http://rds.yahoo.com/_ylt=A0oG7hxsZvVMxwEAUx9XNyoA;_ylu=X3oDMTE1azRuN3ZwBHNlYwNzcgRwb3MDMQRjb2xvA2FjMgR2dGlkA1NSVDAwMV8xODc-/SIG=11jrti008/EXP=1291237356/**http%3a//www.filmweb.pl/Seksmisja\"><b>Seksmisja</b> (1983) - Filmweb</a>");
         assertEquals("http://www.filmweb.pl/Seksmisja", filmwebPlugin.getFilmwebUrl("Seksmisja", null));
     }
 
     public void testGetFilmwebUrlFromYahooWithId() {
-        filmwebPlugin.filmwebPreferredSearchEngine = "yahoo";
+        filmwebPlugin.setFilmwebPreferredSearchEngine("yahoo");
         filmwebPlugin.setRequestResult("<a href=\"http://search.yahoo.com/web/advanced?ei=UTF-8&p=4400+site%3Afilmweb.pl&y=Search\">Advanced Search</a><a class=\"yschttl\" href=\"http://rds.yahoo.com/_ylt=A0geu5RTv7FI.jUB.DtXNyoA;_ylu=X3oDMTE1aGEzbmUyBHNlYwNzcgRwb3MDMQRjb2xvA2FjMgR2dGlkA01BUDAxMV8xMDg-/SIG=11rlibf7n/EXP=1219694803/**http%3a//www.filmweb.pl/serial/4400-2004-122684\" ><b>4400</b> / <b>4400</b>, The (2004) - Film - FILMWEB.pl</a>");
         assertEquals("http://www.filmweb.pl/serial/4400-2004-122684", filmwebPlugin.getFilmwebUrl("The 4400", null));
     }
 
     public void testGetFilmwebUrlFromFilmweb() {
-        filmwebPlugin.filmwebPreferredSearchEngine = "filmweb";
+        filmwebPlugin.setFilmwebPreferredSearchEngine("filmweb");
         filmwebPlugin.setRequestResult("<a class=\"searchResultTitle\" href=\"/John.Rambo\"><b>John</b> <b>Rambo</b> / <b>Rambo</b> </a>");
         assertEquals("http://www.filmweb.pl/John.Rambo", filmwebPlugin.getFilmwebUrl("john rambo", null));
     }
 
     public void testGetFilmwebUrlFromFilmwebWithId() {
-        filmwebPlugin.filmwebPreferredSearchEngine = "filmweb";
+        filmwebPlugin.setFilmwebPreferredSearchEngine("filmweb");
         filmwebPlugin.setRequestResult("<a class=\"searchResultTitle\" href=\"/serial/4400-2004-122684\"><b>4400</b> / <b>4400</b>, The </a>");
         assertEquals("http://www.filmweb.pl/serial/4400-2004-122684", filmwebPlugin.getFilmwebUrl("The 4400", null));
     }
@@ -196,20 +196,20 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals(
                StringTools.trimToLength(
                    "9 sierpnia 1991 roku telewizja transmituje epokowy eksperyment: dwóch śmiałków - Maks (Jerzy Stuhr) i Albert (Olgierd Łukaszewicz), zostaje poddanych hibernacji. Podczas ich snu wybucha wojna nuklearna. Uczestnicy eksperymentu budzą się w 2044 roku. Od opiekującej się nimi doktor Lamii dowiadują się, że w ciągu ostatnich kilkudziesięciu lat geny męskie zostały całkowicie zniszczone promieniowaniem, a oni są prawdopodobnie jedynymi osobnikami płci męskiej, którzy przetrwali kataklizm. Niezwykła<span> społeczność kobiet, w jakiej znaleźli się bohaterowie, egzystuje w całkowicie sztucznych warunkach, głęboko pod powierzchnią ziemi. Władzę dyktatorską pełni tu Jej Ekscelencja, która darzy męskich osobników szczególnym zainteresowaniem. Maks i Albert znajdują się pod stałą obserwacją i ścisłą kontrolą. Takie życie na dłuższą metę wydaje im się jednak niemożliwe. Zdesperowani postanawiają więc uciec. ",
-                   filmwebPlugin.preferredOutlineLength),
+                   filmwebPlugin.getPreferredOutlineLength()),
                 movie.getOutline());
     }
 
     public void testUpdateMediaInfoPlot() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Waleczne.Serce");
-        filmwebPlugin.preferredPlotLength = Integer.MAX_VALUE;
+        filmwebPlugin.setPreferredPlotLength(Integer.MAX_VALUE);
         filmwebPlugin.setRequestResult("<div class=\"filmDescription comBox\">\n  \t<h2>\n  \t\t<a href=\"/Waleczne.Serce/descs\" class=\"hdrBig icoBig icoBigArticles\">\n  \t\t\t opisy filmu   \t\t</a>\t\t\n\t\t\t\t\t<span class=\"hdrAddInfo\">(10)</span>\n\t\t\t\t\n  \t\t  \t\t<a href=\"\t\t\t/Waleczne.Serce/contribute/descriptions\t\" class=\"add-button\" title=\"dodaj  opis filmu \" rel=\"nofollow\">  \t\t\t<span>dodaj  opis filmu </span>\n\n  \t\t</a>\n\t\t<span class=\"imgRepInNag\">Braveheart - Waleczne Serce</span>\n  \t</h2>\n\t\n\t\t\t\t\t   \t   \t\t<p class=\"cl\"><span class=\"filmDescrBg\" property=\"v:summary\">Pod koniec XIII wieku Szkocja dostaje się pod panowanie angielskiego króla, Edwarda I. Przejęcie władzy odbywa się w wyjątkowo krwawych okolicznościach. Jednym ze świadków gwałtów i morderstw jest kilkunastoletni chłopak, William Wallace. Po latach spędzonych pod opieką wuja dorosły William wraca do rodzinnej wioski. Jedną z pierwszych osób, które spotyka, jest Murron - przyjaciółka z lat dzieciństwa. Dawne uczucie przeradza się w wielką i szczerą miłość. Niestety wkrótce dziewczyna ginie z rąk<span> angielskich żołnierzy. Wydarzenie to staje się to momentem przełomowym w życiu młodego Szkota. William decyduje się bowiem na straceńczą walkę z okupantem i po brawurowym ataku zdobywa warownię wroga. Dzięki ogromnej odwadze zostaje wykreowany na przywódcę powstania przeciw angielskiej tyranii...</span> <a href=\"#\" class=\"see-more\">więcej </a></span></p>\n   \t\t  </div>");
         filmwebPlugin.updateMediaInfo(movie);
 
         assertEquals(
             StringTools.trimToLength(
                 "Pod koniec XIII wieku Szkocja dostaje się pod panowanie angielskiego króla, Edwarda I. Przejęcie władzy odbywa się w wyjątkowo krwawych okolicznościach. Jednym ze świadków gwałtów i morderstw jest kilkunastoletni chłopak, William Wallace. Po latach spędzonych pod opieką wuja dorosły William wraca do rodzinnej wioski. Jedną z pierwszych osób, które spotyka, jest Murron - przyjaciółka z lat dzieciństwa. Dawne uczucie przeradza się w wielką i szczerą miłość. Niestety wkrótce dziewczyna ginie z rąk angielskich żołnierzy. Wydarzenie to staje się to momentem przełomowym w życiu młodego Szkota. William decyduje się bowiem na straceńczą walkę z okupantem i po brawurowym ataku zdobywa warownię wroga. Dzięki ogromnej odwadze zostaje wykreowany na przywódcę powstania przeciw angielskiej tyranii...",
-                filmwebPlugin.preferredPlotLength),
+                filmwebPlugin.getPreferredPlotLength()),
                 movie.getPlot());
     }
 

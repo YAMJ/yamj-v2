@@ -39,7 +39,7 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
  */
 public final class MovieMeterPluginSession {
 
-    public static String SESSION_FILENAME = "./temp/moviemeter.session";
+    private static String SESSION_FILENAME = "./temp/moviemeter.session";
     private static String MOVIEMETER_API_KEY = PropertiesUtil.getProperty("API_KEY_MovieMeter");
     private static final Logger logger = Logger.getLogger(MovieMeterPluginSession.class);
     private String key;
@@ -152,7 +152,7 @@ public final class MovieMeterPluginSession {
     public HashMap getMovieByTitle(String movieName) {
 
         HashMap result = null;
-        Object[] films = null;
+        Object[] films;
         Object[] params = new Object[]{getKey(), movieName};
         try {
             if (!isValid()) {
@@ -185,7 +185,7 @@ public final class MovieMeterPluginSession {
     public HashMap getMovieByTitleAndYear(String movieName, String year) {
 
         HashMap result = null;
-        Object[] films = null;
+        Object[] films;
         Object[] params = new Object[]{getKey(), movieName};
         try {
             if (!isValid()) {

@@ -43,11 +43,11 @@ public class PhotoScanner {
 
     private static final Logger logger = Logger.getLogger(PhotoScanner.class);
     private static final String logMessage = "PhotoScanner: ";
-    protected static Collection<String> photoExtensions = new ArrayList<String>();
-    protected static boolean photoOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", "false");
-    protected static Collection<String> photoImageName;
-    protected static String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-    protected static String peopleFolder;
+    private static Collection<String> photoExtensions = new ArrayList<String>();
+    private static boolean photoOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", "false");
+    private static Collection<String> photoImageName;
+    private static String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+    private static String peopleFolder;
 
     static {
         // We get valid extensions

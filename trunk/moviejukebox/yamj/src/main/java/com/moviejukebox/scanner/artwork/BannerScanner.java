@@ -49,11 +49,11 @@ public class BannerScanner {
 
     private static final Logger logger = Logger.getLogger(BannerScanner.class);
     private static final String logMessage = "BannerScanner: ";
-    protected static Collection<String> bannerExtensions = new ArrayList<String>();
-    protected static String bannerToken;
-    protected static boolean bannerOverwrite;
-    protected static final boolean useFolderBanner;
-    protected static Collection<String> bannerImageName;
+    private static Collection<String> bannerExtensions = new ArrayList<String>();
+    private static String bannerToken;
+    private static boolean bannerOverwrite;
+    private static final boolean useFolderBanner;
+    private static Collection<String> bannerImageName;
 
     static {
 
@@ -64,7 +64,6 @@ public class BannerScanner {
         }
 
         bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
-
         bannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", "false");
 
         // See if we use the folder banner artwork

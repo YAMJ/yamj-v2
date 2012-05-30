@@ -33,7 +33,7 @@ public class MovieListingPluginBase implements MovieListingPlugin {
     protected boolean groupByType = true;
     protected boolean blankUNKNOWN = true;
     protected String baseFilename = "";
-    protected String destination = "";
+    private String destination = "";
 
     /**
      * @param jukeboxRoot
