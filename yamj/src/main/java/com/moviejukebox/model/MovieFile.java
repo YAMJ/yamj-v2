@@ -60,12 +60,10 @@ public class MovieFile implements Comparable<MovieFile> {
     private String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
     private String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");
     private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
-
         {
             String scannerTypes = PropertiesUtil.getProperty("filename.scanner.types", "ZCD,VOD");
 
             HashMap<String, String> scannerTypeDefaults = new HashMap<String, String>() {
-
                 {
                     put("ZCD", "ISO,IMG,VOB,MDF,NRG,BIN");
                     put("VOD", "");
@@ -507,9 +505,6 @@ public class MovieFile implements Comparable<MovieFile> {
                     playLinkMap.put(e.getKey(), PropertiesUtil.getProperty("filename.scanner.types.suffix." + e.getKey().toUpperCase(), ""));
                 }
             }
-        } catch (Exception error) {
-            logger.error("Error calculating playlink for file " + filePlayLink.getName());
-            logger.error(SystemTools.getStackTrace(error));
         } finally {
             // Default to VOD if there's no other type found
             if (playLinkMap.isEmpty()) {
@@ -550,14 +545,10 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     public void setWatchedDateString(String watchedDate) {
-        try {
-            if (StringTools.isNotValidString(watchedDate)) {
-                this.watchedDate = 0;
-            } else {
-                this.watchedDate = DateTime.parse(watchedDate).toMillis();
-            }
-        } catch (Exception error) {
+        if (StringTools.isNotValidString(watchedDate)) {
             this.watchedDate = 0;
+        } else {
+            this.watchedDate = DateTime.parse(watchedDate).toMillis();
         }
     }
 

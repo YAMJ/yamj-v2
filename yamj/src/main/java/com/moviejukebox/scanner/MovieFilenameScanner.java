@@ -45,9 +45,9 @@ import org.apache.log4j.Logger;
 public class MovieFilenameScanner {
 
     private static final Logger logger = Logger.getLogger(MovieFilenameScanner.class);
-    protected static boolean skipEpisodeTitle;
-    protected static boolean useParentRegex;
-    protected static boolean archiveScanRar;
+    private static boolean skipEpisodeTitle;
+    private static boolean useParentRegex;
+    private static boolean archiveScanRar;
     private static String[] skipKeywords;
     private static String[] skipRegexKeywords;
     private static final List<Pattern> skipPatterns = new ArrayList<Pattern>();
@@ -57,8 +57,8 @@ public class MovieFilenameScanner {
      */
     private static String[] extrasKeywords;
     private static final List<Pattern> extrasPatterns = new ArrayList<Pattern>();
-    protected static final Pattern USE_PARENT_PATTERN;
-    protected static final Pattern RAR_EXT_PATTERN = Pattern.compile("(rar|001)$");
+    private static final Pattern USE_PARENT_PATTERN;
+    private static final Pattern RAR_EXT_PATTERN = Pattern.compile("(rar|001)$");
 
     static {
         setExtrasKeywords(new String[]{"trailer"});

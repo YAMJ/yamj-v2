@@ -498,20 +498,20 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             if (mapping != null) {
                 AnidbTvdbEpisodeMapping episodeMapping = findEpisodeMapping(episodeNumber, mapping);
                 s = getSeriesFromTvdb(mapping.getTvdbId());
-                if (episodeMapping != null) {
+//                if (episodeMapping != null) {
                     //ep = getEpisodeFromTvdb(s.getId(), episodeMapping.getTvdbSeason(), episodeMapping.getTvdbEpisodeNumber());
-                } else {
-                    if (Character.isDigit(episodeNumber.charAt(0))) {
+//                } else {
+//                    if (Character.isDigit(episodeNumber.charAt(0))) {
                         //ep = getEpisodeFromTvdb(s.getId(), 1, epNo);
-                    } else {
+//                    } else {
                         //ep = getEpisodeFromTvdb(s.getId(), 1, epNo);
-                    }
-                }
+//                    }
+//                }
             } else {
                 s = getSeriesFromTvdb(movie.getTitle());
-                if (s != null) {
+//                if (s != null) {
                     //ep = getEpisodeFromTvdb(s.getId(), 1, epNo);
-                }
+//                }
             }
             if (s != null) {
                 // This should hopefully not be necessary once the new artwork scanner is done?

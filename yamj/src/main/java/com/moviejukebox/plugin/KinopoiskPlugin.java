@@ -38,14 +38,14 @@ public class KinopoiskPlugin extends ImdbPlugin {
     private static final Logger logger = Logger.getLogger(KinopoiskPlugin.class);
     public static String KINOPOISK_PLUGIN_ID = "kinopoisk";
     // Define plot length
-    int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     @Deprecated
-    String preferredRating = PropertiesUtil.getProperty("kinopoisk.rating", "imdb");
+    private String preferredRating = PropertiesUtil.getProperty("kinopoisk.rating", "imdb");
     private TheTvDBPlugin tvdb;
     // Shows what name is on the first position with respect to divider
-    String titleLeader = PropertiesUtil.getProperty("kinopoisk.title.leader", "english");
-    String titleDivider = PropertiesUtil.getProperty("kinopoisk.title.divider", " - ");
-    boolean joinTitles = PropertiesUtil.getBooleanProperty("kinopoisk.title.join", "true");
+    private String titleLeader = PropertiesUtil.getProperty("kinopoisk.title.leader", "english");
+    private String titleDivider = PropertiesUtil.getProperty("kinopoisk.title.divider", " - ");
+    private boolean joinTitles = PropertiesUtil.getBooleanProperty("kinopoisk.title.join", "true");
     // Set NFO information priority
     private boolean NFOpriority = PropertiesUtil.getBooleanProperty("kinopoisk.NFOpriority", "false");
     private boolean NFOplot = false;

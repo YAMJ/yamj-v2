@@ -45,10 +45,10 @@ public class VideoImageScanner {
 
     private static final Logger logger = Logger.getLogger(VideoImageScanner.class);
     private static final String logMessage = "VideoImageScanner: ";
-    protected static String skinHome;
-    protected static final Collection<String> videoimageExtensions = new ArrayList<String>();
-    protected static String videoimageToken;
-    protected static boolean videoimageOverwrite;
+    private static String skinHome;
+    private static final Collection<String> videoimageExtensions = new ArrayList<String>();
+    private static String videoimageToken;
+    private static boolean videoimageOverwrite;
 
     static {
 

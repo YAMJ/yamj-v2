@@ -1,34 +1,39 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.model;
 
 import java.io.File;
 
 public final class Jukebox {
-    // Pointers to the target (final) Jukebox directory
-    protected static String jukeboxRootLocation;
-    protected static File   jukeboxRootLocationFile;
-    protected static String jukeboxRootLocationDetails;
-    protected static File   jukeboxRootLocationDetailsFile;
-    
-    // Pointers to the temp Jukebox directory
-    protected static String jukeboxTempLocation;
-    protected static File   jukeboxTempLocationFile;
-    protected static String jukeboxTempLocationDetails;
-    protected static File   jukeboxTempLocationDetailsFile;
-    
-    // The name of the details directory name
-    protected static String detailsDirName;
+    /*
+     * Pointers to the target (final) Jukebox directory
+     */
+
+    private String jukeboxRootLocation;
+    private File jukeboxRootLocationFile;
+    private String jukeboxRootLocationDetails;
+    private File jukeboxRootLocationDetailsFile;
+    /*
+     * Pointers to the temp Jukebox directory
+     */
+    private String jukeboxTempLocation;
+    private File jukeboxTempLocationFile;
+    private String jukeboxTempLocationDetails;
+    private File jukeboxTempLocationDetailsFile;
+    /*
+     * The name of the details directory name
+     */
+    private String detailsDirName;
 
     public Jukebox(String jukeboxRootLocation, String jukeboxTempLocation, String detailsDirName) {
         setDetailsDirName(detailsDirName);
@@ -104,12 +109,12 @@ public final class Jukebox {
      */
     public final void setJukeboxRootLocation(String jukeboxRootLocation) {
         // First set the two string directory names
-        Jukebox.jukeboxRootLocation = jukeboxRootLocation;
-        Jukebox.jukeboxRootLocationDetails = addDetailsName(jukeboxRootLocation);
-        
+        this.jukeboxRootLocation = jukeboxRootLocation;
+        this.jukeboxRootLocationDetails = addDetailsName(jukeboxRootLocation);
+
         // Now create the File pointers from those string directory names
-        Jukebox.jukeboxRootLocationFile = new File(Jukebox.jukeboxRootLocation);
-        Jukebox.jukeboxRootLocationDetailsFile = new File(Jukebox.jukeboxRootLocationDetails);
+        this.jukeboxRootLocationFile = new File(this.jukeboxRootLocation);
+        this.jukeboxRootLocationDetailsFile = new File(this.jukeboxRootLocationDetails);
     }
 
     /**
@@ -117,29 +122,29 @@ public final class Jukebox {
      */
     public final void setJukeboxTempLocation(String jukeboxTempLocation) {
         // First set the two string directory names
-        Jukebox.jukeboxTempLocation = jukeboxTempLocation;
-        Jukebox.jukeboxTempLocationDetails = addDetailsName(jukeboxTempLocation);
-        
+        this.jukeboxTempLocation = jukeboxTempLocation;
+        this.jukeboxTempLocationDetails = addDetailsName(jukeboxTempLocation);
+
         // Now create the File pointers from those string directory names
-        Jukebox.jukeboxTempLocationFile = new File(Jukebox.jukeboxTempLocation);
-        Jukebox.jukeboxTempLocationDetailsFile = new File(Jukebox.jukeboxTempLocationDetails);
+        this.jukeboxTempLocationFile = new File(this.jukeboxTempLocation);
+        this.jukeboxTempLocationDetailsFile = new File(this.jukeboxTempLocationDetails);
     }
 
     /**
-     * This sets the details directory name to use
-     * This MUST be set first
+     * This sets the details directory name to use This MUST be set first
+     *
      * @param detailsDirName the detailsDirName to set
      */
     public final void setDetailsDirName(String detailsDirName) {
-        Jukebox.detailsDirName = detailsDirName;
+        this.detailsDirName = detailsDirName;
     }
 
     private String addDetailsName(String rootDirectory) {
         if (rootDirectory.endsWith(File.separator)) {
             // To deal with the jukebox directory in the root of a drive and already having a "/" or "\" at the end
-            return (rootDirectory + Jukebox.detailsDirName);
+            return (rootDirectory + this.detailsDirName);
         } else {
-            return (rootDirectory + File.separator + Jukebox.detailsDirName);
+            return (rootDirectory + File.separator + this.detailsDirName);
         }
     }
 

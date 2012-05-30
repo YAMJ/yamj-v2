@@ -208,8 +208,6 @@ public class FanartTvPlugin {
                             logger.debug(logMessage + "All required artwork was found for " + movie.getBaseName() + " " + requiredArtworkTypes.toString());
                             break;
                         }
-                    } else {
-//                        logger.debug(logMessage + "No more " + ftType.toString().toLowerCase() + " are required, skipping.");
                     }
                 }
             }

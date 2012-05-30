@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.tools;
 
@@ -28,7 +28,7 @@ public class AspectRatioTools {
         // Don't create the aspectList if it's already populated
         if (aspectList == null || aspectList.isEmpty()) {
             createAspectList();
-            
+
             if (aspectRationPrecision > 3) {
                 aspectRationPrecision = 3;
             }
@@ -127,13 +127,14 @@ public class AspectRatioTools {
 
         if (!found) {
             if (ratioValue > aspectRatioFind.getMaxFloat()) {
-//                System.out.println("Too big! Using last value");
+                // Too big! Use last value
+                return aspectRatioFind;
             } else if (ratioValue < aspectList.get(0).getMinFloat()) {
-//                System.out.println("Too small! Using lowest value");
-                aspectRatioFind = aspectList.get(0);
+                // Too small! Use lowest value
+                return aspectList.get(0);
             } else {
-//                System.out.println("Some other error!");
-                aspectRatioFind = null;
+                // Some other error!
+                return null;
             }
         }
 
@@ -142,7 +143,7 @@ public class AspectRatioTools {
 
     /**
      * Populate the aspect list with the values These are static values because calculated values give slight wrong figures
-     * 
+     *
      * @param aspectList
      */
     private void createAspectList() {
@@ -226,7 +227,7 @@ public class AspectRatioTools {
 
         /**
          * Test to see if a passed value is in the range of this aspect ratio
-         * 
+         *
          * @param ratioValue
          * @return
          */

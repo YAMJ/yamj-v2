@@ -35,12 +35,12 @@ import org.apache.log4j.Logger;
 public class FilmKatalogusPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(FilmKatalogusPlugin.class);
+    private static final String logMessage = "FilmKatalogusPlugin: ";
     public static String FILMKAT_PLUGIN_ID = "filmkatalogus";
-    boolean getplot = true;
-    boolean gettitle = true;
-    protected int preferredPlotLength;
-    protected int preferredOutlineLength;
-    protected TheTvDBPlugin tvdb;
+    private boolean getplot = true;
+    private boolean gettitle = true;
+    private int preferredPlotLength;
+    private TheTvDBPlugin tvdb;
 
     public FilmKatalogusPlugin() {
         super(); // use IMDB as basis
@@ -58,8 +58,6 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
         if (preferredPlotLength < 50) {
             preferredPlotLength = 500;
         }
-
-        preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "150");
 
         gettitle = PropertiesUtil.getBooleanProperty("filmkatalogus.gettitle", "true");
         getplot = PropertiesUtil.getBooleanProperty("filmkatalogus.getplot", "true");
@@ -79,7 +77,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
         }
 
         if (getplot || gettitle) {
-            logger.info("FilmKatalogusPlugin: Id found in nfo = " + mediaFile.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
+            logger.info(logMessage + "Id found in nfo = " + mediaFile.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
             getHunPlot(mediaFile);
         }
 
@@ -161,7 +159,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             return null;
 
         } catch (Exception error) {
-            logger.error("FilmKatalogusPlugin: Failed retreiving information for " + movie.getTitle());
+            logger.error(logMessage + "Failed retreiving information for " + movie.getTitle());
             logger.error(SystemTools.getStackTrace(error));
             return null;
         }
@@ -178,7 +176,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             if (beginIndex != -1) {
                 StringTokenizer filmKatID = new StringTokenizer(nfo.substring(beginIndex + 3), "/ \n,:!&é\"'(--è_çà)=$<>");
                 movie.setId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID, filmKatID.nextToken());
-                logger.debug("FilmKatalogusPlugin: Id found in nfo = " + movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
+                logger.debug(logMessage + "Id found in nfo = " + movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
                 result = true;
             }
         }
