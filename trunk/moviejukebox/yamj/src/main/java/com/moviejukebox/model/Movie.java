@@ -346,14 +346,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
             Filmography person = new Filmography();
 
-            if (key.indexOf(":") > -1) {
+            if (key.indexOf(':') > -1) {
                 String[] keys = key.split(":");
                 person.setId(keys[0], keys[1]);
             } else {
                 person.setId(key);
             }
 
-            if (name.indexOf(":") > -1) {
+            if (name.indexOf(':') > -1) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[0])) {
                     person.setName(names[0]);
@@ -1036,7 +1036,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void addActor(String key, String name, String character, String URL, String doublage) {
         if (name != null) {
             String Name = name;
-            if (name.indexOf(":") > -1) {
+            if (name.indexOf(':') > -1) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[1])) {
                     Name = names[1];
@@ -1776,7 +1776,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setFormatType(String formatType) {
-        this.formatType=validateString(formatType, this.formatType);
+        this.formatType = validateString(formatType, this.formatType);
     }
 
     public String getFormatType() {
@@ -1784,7 +1784,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setVideoType(String videoType) {
-        this.videoType=validateString(videoType, this.videoType);
+        this.videoType = validateString(videoType, this.videoType);
     }
 
     public String getVideoType() {
@@ -1842,7 +1842,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setLibraryDescription(String libraryDescription) {
-        this.libraryDescription=validateString(libraryDescription, this.libraryDescription);
+        this.libraryDescription = validateString(libraryDescription, this.libraryDescription);
     }
 
     public long getPrebuf() {
@@ -2393,7 +2393,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setTagline(String tagline) {
-        this.tagline=validateString(tagline, this.tagline);
+        this.tagline = validateString(tagline, this.tagline);
     }
 
     // Read the watched flag

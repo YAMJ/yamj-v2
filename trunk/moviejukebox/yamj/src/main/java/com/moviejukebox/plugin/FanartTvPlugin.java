@@ -161,7 +161,6 @@ public class FanartTvPlugin {
 
                     ftQuantity = requiredArtworkTypes.get(ftType);
                     if (ftQuantity > 0 && ftSingle.getLanguage().equalsIgnoreCase(requiredLanguage)) {
-//                        logger.info("Need " + ftQuantity + " more");
                         boolean foundOK = Boolean.FALSE;
 
 //                        logger.info(logMessage + "Processing: " + ftSingle.toString());   // XXX DEBUG

@@ -23,13 +23,14 @@ import org.hibernate.service.ServiceRegistryBuilder;
 public class HibernateUtil {
 
     private static final Logger logger = Logger.getLogger(HibernateUtil.class);
+    private static final String logMessage = "HibernateUtil: ";
     private static SessionFactory sessionFactory = buildSessionFactory();
     private static ServiceRegistry serviceRegistry;
 
     /**
      * Create a session factory from the hibernate.cfg.xml file See here:
-     * http://stackoverflow.com/questions/1921865/how-to-connect-to-mutiple-databases-in-hibernate
-     * When we need more databases
+     * http://stackoverflow.com/questions/1921865/how-to-connect-to-mutiple-databases-in-hibernate When we need more
+     * databases
      *
      * @return
      */
@@ -42,7 +43,7 @@ public class HibernateUtil {
             return sessionFactory;
         } catch (Throwable ex) {
             // Make sure you log the exception, as it might be swallowed
-            System.err.println("Initial SessionFactory creation failed." + ex);
+            System.err.println(logMessage + "Initial SessionFactory creation failed." + ex);
             throw new ExceptionInInitializerError(ex);
         }
     }
@@ -75,7 +76,7 @@ public class HibernateUtil {
      */
     public static boolean saveObject(Object objectToSave, Serializable objectKey) {
         if (objectToSave == null) {
-            logger.info(objectToSave.getClass().getSimpleName() + " is null, not saving");
+            logger.info(logMessage + "Object is null, not saving");
             return false;
         }
 
@@ -84,11 +85,11 @@ public class HibernateUtil {
             session.beginTransaction();
 
             if (session.get(objectToSave.getClass(), objectKey) == null) {
-                logger.info("Saving " + objectToSave.getClass().getSimpleName() + ": '" + objectKey + "'");
+                logger.info(logMessage + "Saving " + objectToSave.getClass().getSimpleName() + ": '" + objectKey + "'");
                 session.save(objectToSave);
                 return true;
             } else {
-                logger.info(objectToSave.getClass().getSimpleName() + " '" + objectKey + "' already exists.");
+                logger.info(logMessage + objectToSave.getClass().getSimpleName() + " '" + objectKey + "' already exists.");
                 return false;
             }
         } finally {
@@ -121,9 +122,9 @@ public class HibernateUtil {
         }
 
         if (dbObject == null) {
-            logger.info("No " + className + " with id '" + key + "' found");
+            logger.info(logMessage + "No " + className + " with id '" + key + "' found");
         } else {
-            logger.info("Found " + className + " with id '" + key + "'");
+            logger.info(logMessage + "Found " + className + " with id '" + key + "'");
         }
 
         return dbObject;

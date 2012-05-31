@@ -176,7 +176,7 @@ public class MovieJukebox {
                     PropertiesUtil.setProperty("mjb.showMemory", "true");
                 } else if (arg.startsWith("-D")) {
                     String propLine = arg.length() > 2 ? new String(arg.substring(2)) : args[++i];
-                    int propDiv = propLine.indexOf("=");
+                    int propDiv = propLine.indexOf('=');
                     if (-1 != propDiv) {
                         cmdLineProps.put(new String(propLine.substring(0, propDiv)), new String(propLine.substring(propDiv + 1)));
                     }
@@ -669,22 +669,18 @@ public class MovieJukebox {
          * ******************************************************************************
          * @author Gabriel Corneanu
          *
-         * The tools used for parallel processing are NOT thread safe (some
-         * operations are, but not all) therefore all are added to a container
-         * which is instantiated one per thread
+         * The tools used for parallel processing are NOT thread safe (some operations are, but not all) therefore all
+         * are added to a container which is instantiated one per thread
          *
-         * - xmlWriter looks thread safe - htmlWriter was not thread safe, -
-         * getTransformer is fixed (simple workaround) - MovieImagePlugin : not
-         * clear, made thread specific for safety - MediaInfoScanner : not sure,
-         * made thread specific
+         * - xmlWriter looks thread safe - htmlWriter was not thread safe, - getTransformer is fixed (simple workaround)
+         * - MovieImagePlugin : not clear, made thread specific for safety - MediaInfoScanner : not sure, made thread
+         * specific
          *
-         * Also important: The library itself is not thread safe for
-         * modifications (API says so) it could be adjusted with concurrent
-         * versions, but it needs many changes it seems that it is safe for
-         * subsequent reads (iterators), so leave for now...
+         * Also important: The library itself is not thread safe for modifications (API says so) it could be adjusted
+         * with concurrent versions, but it needs many changes it seems that it is safe for subsequent reads
+         * (iterators), so leave for now...
          *
-         * - DatabasePluginController is also fixed to be thread safe (plugins
-         * map for each thread)
+         * - DatabasePluginController is also fixed to be thread safe (plugins map for each thread)
          *
          */
         class ToolSet {
@@ -708,7 +704,6 @@ public class MovieJukebox {
         }
 
         final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
-
             @Override
             protected ToolSet initialValue() {
                 return new ToolSet();
@@ -844,7 +839,6 @@ public class MovieJukebox {
         for (final MediaLibraryPath mediaLibraryPath : mediaLibraryPaths) {
             // Multi-thread parallel processing
             tasks.submit(new Callable<Void>() {
-
                 @Override
                 public Void call() {
                     logger.debug("Scanning media library " + mediaLibraryPath.getPath());
@@ -895,7 +889,6 @@ public class MovieJukebox {
 
                 // Multi-thread parallel processing
                 tasks.submit(new Callable<Void>() {
-
                     @Override
                     public Void call() throws FileNotFoundException, XMLStreamException {
 
@@ -1087,7 +1080,6 @@ public class MovieJukebox {
 
                         // Multi-thread parallel processing
                         tasks.submit(new Callable<Void>() {
-
                             @Override
                             public Void call() throws FileNotFoundException, XMLStreamException {
 
@@ -1132,7 +1124,6 @@ public class MovieJukebox {
 
                             // Multi-thread parallel processing
                             tasks.submit(new Callable<Void>() {
-
                                 @Override
                                 public Void call() throws FileNotFoundException, XMLStreamException {
 
@@ -1280,7 +1271,6 @@ public class MovieJukebox {
             for (final Movie movie : indexMasters) {
                 // Multi-tread: Start Parallel Processing
                 tasks.submit(new Callable<Void>() {
-
                     @Override
                     public Void call() throws FileNotFoundException, XMLStreamException {
                         ToolSet tools = threadTools.get();
@@ -1449,7 +1439,6 @@ public class MovieJukebox {
 
                 // Multi-tread: Start Parallel Processing
                 tasks.submit(new Callable<Void>() {
-
                     @Override
                     public Void call() throws FileNotFoundException, XMLStreamException {
                         ToolSet tools = threadTools.get();
@@ -1493,7 +1482,6 @@ public class MovieJukebox {
                 for (final Person person : library.getPeople()) {
                     // Multi-tread: Start Parallel Processing
                     tasks.submit(new Callable<Void>() {
-
                         @Override
                         public Void call() throws FileNotFoundException, XMLStreamException {
                             // ToolSet tools = threadTools.get();
@@ -1653,8 +1641,7 @@ public class MovieJukebox {
     /**
      * Clean up the jukebox folder of any extra files that are not needed.
      *
-     * If the jukeboxClean parameter is not set, just report on the files that
-     * would be cleaned.
+     * If the jukeboxClean parameter is not set, just report on the files that would be cleaned.
      */
     private void cleanJukeboxFolder() {
         boolean cleanReport = PropertiesUtil.getBooleanProperty("mjb.jukeboxCleanReport", "false");
@@ -1711,15 +1698,12 @@ public class MovieJukebox {
     }
 
     /**
-     * Generates a movie XML file which contains data in the <tt>Movie</tt>
-     * bean.
+     * Generates a movie XML file which contains data in the <tt>Movie</tt> bean.
      *
-     * When an XML file exists for the specified movie file, it is loaded into
-     * the specified <tt>Movie</tt> object.
+     * When an XML file exists for the specified movie file, it is loaded into the specified <tt>Movie</tt> object.
      *
-     * When no XML file exist, scanners are called in turn, in order to add
-     * information to the specified <tt>movie</tt> object. Once scanned, the
-     * <tt>movie</tt> object is persisted.
+     * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt>
+     * object. Once scanned, the <tt>movie</tt> object is persisted.
      */
     public boolean updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
@@ -1776,12 +1760,12 @@ public class MovieJukebox {
             }
 
             // If we are overwiting the indexes, we need to check for an update to the library description
-            if (PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false")) {
+            if (forceIndexOverwrite) {
                 for (MediaLibraryPath mlp : mediaLibraryPaths) {
                     // Check to see if the paths match and then update the description and quit
                     String mlpPath = mlp.getPath().concat(File.separator);
                     if (movie.getFile().getAbsolutePath().startsWith(mlpPath) && !movie.getLibraryDescription().equals(mlp.getDescription())) {
-                        logger.debug("Changing libray description for movie '" + movie.getTitle() + "' from " + movie.getLibraryDescription() + " to " + mlp.getDescription());
+                        logger.debug("Changing libray description for video '" + movie.getTitle() + "' from '" + movie.getLibraryDescription() + "' to '" + mlp.getDescription() + "'");
                         library.addDirtyLibrary(movie.getLibraryDescription());
                         movie.setLibraryDescription(mlp.getDescription());
                         movie.setDirty(DirtyFlag.INFO, true);
@@ -1849,12 +1833,13 @@ public class MovieJukebox {
                         for (MediaLibraryPath mlp : mediaLibraryPaths) {
                             // Check to see if the paths match and then update the description and quit
                             if (scannedFilename.startsWith(mlp.getPlayerRootPath())) {
-                                boolean flag = true;
+                                boolean flag = Boolean.TRUE;
                                 for (String exclude : mlp.getExcludes()) {
                                     flag &= (scannedFilename.toUpperCase().indexOf(exclude.toUpperCase()) == -1);
                                 }
+
                                 if (flag) {
-                                    logger.debug("Changing libray description for movie '" + movie.getTitle() + "' from " + movie.getLibraryDescription() + " to " + mlp.getDescription());
+                                    logger.debug("Changing libray description for video '" + movie.getTitle() + "' from '" + movie.getLibraryDescription() + "' to '" + mlp.getDescription() + "'");
                                     library.addDirtyLibrary(movie.getLibraryDescription());
                                     movie.setLibraryDescription(mlp.getDescription());
                                     break;
@@ -1993,11 +1978,9 @@ public class MovieJukebox {
     }
 
     /**
-     * Update the movie poster for the specified movie. When an existing
-     * thumbnail is found for the movie, it is not overwritten, unless the
-     * mjb.forceThumbnailOverwrite is set to true in the property file. When the
-     * specified movie does not contain a valid URL for the poster, a dummy
-     * image is used instead.
+     * Update the movie poster for the specified movie. When an existing thumbnail is found for the movie, it is not
+     * overwritten, unless the mjb.forceThumbnailOverwrite is set to true in the property file. When the specified movie
+     * does not contain a valid URL for the poster, a dummy image is used instead.
      *
      * @param tempJukeboxDetailsRoot
      */
@@ -2035,11 +2018,10 @@ public class MovieJukebox {
     /**
      * Update the banner for the specified TV Show.
      *
-     * When an existing banner is found for the movie, it is not overwritten,
-     * unless the mjb.forcePosterOverwrite is set to true in the property file.
+     * When an existing banner is found for the movie, it is not overwritten, unless the mjb.forcePosterOverwrite is set
+     * to true in the property file.
      *
-     * When the specified movie does not contain a valid URL for the banner, a
-     * dummy image is used instead.
+     * When the specified movie does not contain a valid URL for the banner, a dummy image is used instead.
      *
      */
     public void updateTvBanner(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
@@ -2215,7 +2197,7 @@ public class MovieJukebox {
                 // Generate and save both images
                 if (perspectiveDirection.equalsIgnoreCase("both")) {
                     // Calculate mirror thumbnail name.
-                    String dstMirror = new String(dst.substring(0, dst.lastIndexOf("."))) + "_mirror" + new String(dst.substring(dst.lastIndexOf(".")));
+                    String dstMirror = new String(dst.substring(0, dst.lastIndexOf('.'))) + "_mirror" + new String(dst.substring(dst.lastIndexOf('.')));
 
                     // Generate left & save as copy
                     logger.debug("Generating mirror thumbnail from " + src + " to " + dstMirror);
@@ -2317,7 +2299,7 @@ public class MovieJukebox {
                 // Generate and save both images
                 if (perspectiveDirection.equalsIgnoreCase("both")) {
                     // Calculate mirror poster name.
-                    String dstMirror = new String(dst.substring(0, dst.lastIndexOf("."))) + "_mirror" + new String(dst.substring(dst.lastIndexOf(".")));
+                    String dstMirror = new String(dst.substring(0, dst.lastIndexOf('.'))) + "_mirror" + new String(dst.substring(dst.lastIndexOf('.')));
 
                     // Generate left & save as copy
                     logger.debug("Generating mirror poster from " + src + " to " + dstMirror);

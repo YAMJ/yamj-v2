@@ -244,8 +244,8 @@ public class MediaInfoScanner {
 
         while (line != null) {
             // In case of new format : Text #1, Audio #1
-            if (line.indexOf("#") >= 0) {
-                line = new String(line.substring(0, line.indexOf("#"))).trim();
+            if (line.indexOf('#') >= 0) {
+                line = new String(line.substring(0, line.indexOf('#'))).trim();
             }
 
             // Get cat ArrayList from cat name.^M
@@ -528,7 +528,7 @@ public class MediaInfoScanner {
             if (infoValue != null) {
                 // Issue 1227 - Make some clean up in mediainfo datas.
                 if (infoValue.contains("/")) {
-                    infoValue = new String(infoValue.substring(0, infoValue.indexOf("/"))).trim(); // In this case, language are "doubled", just take the first one.
+                    infoValue = new String(infoValue.substring(0, infoValue.indexOf('/'))).trim(); // In this case, language are "doubled", just take the first one.
                 }
                 infoLanguage = " (" + infoValue + ")";
                 // Add determination of language.
@@ -575,7 +575,7 @@ public class MediaInfoScanner {
             if (StringTools.isValidString(infoValue)) {
                 // Issue 1227 - Make some clean up in mediainfo datas.
                 if (infoValue.contains("/")) {
-                    infoValue = new String(infoValue.substring(0, infoValue.indexOf("/"))).trim(); // In this case, languages are "doubled", just take the first one.
+                    infoValue = new String(infoValue.substring(0, infoValue.indexOf('/'))).trim(); // In this case, languages are "doubled", just take the first one.
                 }
                 infoLanguage = MovieFilenameScanner.determineLanguage(infoValue);
             }
@@ -664,7 +664,7 @@ public class MediaInfoScanner {
 
         if (StringUtils.isNotBlank(codecChannels)) {
             if (codecChannels.contains("/")) {
-                codecChannels = codecChannels.substring(0, codecChannels.indexOf("/"));
+                codecChannels = codecChannels.substring(0, codecChannels.indexOf('/'));
             }
             Matcher codecMatch = PATTERN_CHANNELS.matcher(codecChannels);
             if (codecMatch.matches()) {

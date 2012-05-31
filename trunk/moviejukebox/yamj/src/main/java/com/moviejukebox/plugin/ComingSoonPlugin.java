@@ -458,7 +458,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         while (st1.hasMoreTokens()) {
             String candidate1 = st1.nextToken();
 
-            candidate1.replaceAll("[,.\\!\\?\"']", "");
+            candidate1 = candidate1.replaceAll("[,.\\!\\?\"']", "");
 
             boolean gotMatch = false;
             int wordCounter = 0;
