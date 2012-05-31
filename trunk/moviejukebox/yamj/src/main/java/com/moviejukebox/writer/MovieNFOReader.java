@@ -19,8 +19,8 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.scanner.MovieFilenameScanner;
-import static com.moviejukebox.tools.StringTools.isValidString;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.StringTools.isValidString;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -627,6 +627,11 @@ public class MovieNFOReader {
      * @return true if the rating was successfully parsed.
      */
     private static Boolean parseRating(String ratingString, Movie movie) {
+        if (StringUtils.isBlank(ratingString)) {
+            // Rating is blank, so skip it
+            return Boolean.TRUE;
+        }
+
         if (StringTools.isValidString(ratingString)) {
             try {
                 float rating = Float.parseFloat(ratingString);
@@ -711,10 +716,12 @@ public class MovieNFOReader {
             movie.setYear(tempYear);
             return Boolean.TRUE;
         } else {
-            if (StringUtils.isNotBlank(tempYear)) {
+            if (StringUtils.isBlank(tempYear)) {
+                // The year is blank, so skip it.
+                return Boolean.TRUE;
+            }else{
                 return Boolean.FALSE;
             }
         }
-        return Boolean.FALSE;
     }
 }
