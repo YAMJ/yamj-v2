@@ -414,14 +414,15 @@ public class MovieNFOReader {
     private static void movieDate(Movie movie, String dateString) {
         if (StringTools.isValidString(dateString)) {
             try {
+                DateTime dateTime;
                 if (dateString.length() == 4) {
-                    // Assume just the year an append "-01-01" to the end
-                    dateString += "-01-01";
                     // Warn the user
                     logger.debug(logMessage + "Partial date detected in premiered field of NFO for " + movie.getBaseFilename());
+                    // Assume just the year an append "-01-01" to the end
+                    dateTime = new DateTime(dateString + "-01-01");
+                } else {
+                    dateTime = new DateTime(dateString);
                 }
-
-                DateTime dateTime = new DateTime(dateString);
 
                 movie.setReleaseDate(dateTime.toString(Movie.dateFormatString));
                 movie.setOverrideYear(Boolean.TRUE);

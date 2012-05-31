@@ -229,15 +229,15 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
      * this..
      */
     protected String removeIllegalHtmlChars(String result) {
-        result = result.replaceAll("\u0093", "&quot;");
-        result = result.replaceAll("\u0094", "&quot;");
-        result = result.replaceAll("\u00E4", "&auml;");
-        result = result.replaceAll("\u00E5", "&aring;");
-        result = result.replaceAll("\u00F6", "&ouml;");
-        result = result.replaceAll("\u00C4", "&Auml;");
-        result = result.replaceAll("\u00C5", "&Aring;");
-        result = result.replaceAll("\u00D6", "&Ouml;");
-        return result;
+        String cleanResult = result.replaceAll("\u0093", "&quot;");
+        cleanResult = cleanResult.replaceAll("\u0094", "&quot;");
+        cleanResult = cleanResult.replaceAll("\u00E4", "&auml;");
+        cleanResult = cleanResult.replaceAll("\u00E5", "&aring;");
+        cleanResult = cleanResult.replaceAll("\u00F6", "&ouml;");
+        cleanResult = cleanResult.replaceAll("\u00C4", "&Auml;");
+        cleanResult = cleanResult.replaceAll("\u00C5", "&Aring;");
+        cleanResult = cleanResult.replaceAll("\u00D6", "&Ouml;");
+        return cleanResult;
     }
 
     private void getFilmdeltaTitle(Movie movie, String fdeltaHtml) {

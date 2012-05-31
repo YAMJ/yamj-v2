@@ -249,13 +249,13 @@ public class AnimatorPlugin extends ImdbPlugin {
         try {
             String originalTitle = movie.getTitle();
             String[] listID = animatorId.split(":");
-            animatorId = listID[0];
+            String newAnimatorId = listID[0];   // Get the first one
             String allmultsId = listID[1];
 
             String xml = "";
             String xml2 = "";
-            if (!animatorId.equals(Movie.UNKNOWN)) {
-                xml = "http://www.animator.ru/db/?p=show_film&fid=" + animatorId;
+            if (!newAnimatorId.equals(Movie.UNKNOWN)) {
+                xml = "http://www.animator.ru/db/?p=show_film&fid=" + newAnimatorId;
 //logger.log(Level.SEVERE, "ANIMATOR URL: " + xml);
                 xml = webBrowser.request(xml);
             }
@@ -271,7 +271,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             xml2 = xml2.replace((CharSequence) "&#133;", (CharSequence) "&hellip;");
             xml2 = xml2.replace((CharSequence) "&#151;", (CharSequence) "&mdash;");
 
-            if (!animatorId.equals(Movie.UNKNOWN)) {
+            if (!newAnimatorId.equals(Movie.UNKNOWN)) {
 // Title (animator.ru)
                 for (String tit : HTMLTools.extractTags(xml, "<td align=\"left\" class=\"FilmName\">", "</B>", "«", "»")) {
                     originalTitle = tit;
@@ -287,7 +287,7 @@ public class AnimatorPlugin extends ImdbPlugin {
 
             StringBuilder plot = new StringBuilder();
 // Plot (animator.ru)
-            if (!animatorId.equals(Movie.UNKNOWN)) {
+            if (!newAnimatorId.equals(Movie.UNKNOWN)) {
                 for (String subPlot : HTMLTools.extractTags(xml, "<td align=\"left\" class=\"FilmComments\"", "</td>")) {
                     if (!subPlot.isEmpty()) {
                         if (plot.length() > 0) {
@@ -473,13 +473,13 @@ public class AnimatorPlugin extends ImdbPlugin {
 
 // Poster + Fanart (animator.ru)
             String posterURL = Movie.UNKNOWN;
-            if (!animatorId.equals(Movie.UNKNOWN)) {
+            if (!newAnimatorId.equals(Movie.UNKNOWN)) {
                 int tmp = xml.indexOf("<img src=\"../film_img/");
                 if (tmp != -1) {
                     posterURL = "http://www.animator.ru/film_img/" + new String(xml.substring(tmp + 22, xml.indexOf("\" ", tmp)));
                 } else if (xml.indexOf("<img id=SlideShow ") != -1) {
-                    posterURL = "http://www.animator.ru/film_img/variants/film_" + animatorId + "_00.jpg";
-                    String fanURL = "http://www.animator.ru/film_img/variants/film_" + animatorId + "_01.jpg";
+                    posterURL = "http://www.animator.ru/film_img/variants/film_" + newAnimatorId + "_00.jpg";
+                    String fanURL = "http://www.animator.ru/film_img/variants/film_" + newAnimatorId + "_01.jpg";
                     if (StringTools.isValidString(fanURL)) {
                         movie.setFanartURL(fanURL);
                         movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);

@@ -67,13 +67,17 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
 
         // Search CDON to get an URL to the movie page
         // if title starts with "the" -> remove it to get better results
+        String newTitle;
         if (title.toLowerCase().startsWith("the")) {
-            title = new String(title.substring(4, title.length()));
+            newTitle = new String(title.substring(4, title.length()));
+        } else {
+            newTitle = title;
         }
+
         try {
             //try getting the search results from cdon.se
             StringBuilder stringQuery = new StringBuilder("http://cdon.se/search?q=");
-            String searchTitle = URLEncoder.encode(title, "UTF-8");
+            String searchTitle = URLEncoder.encode(newTitle, "UTF-8");
             if (tvSeason >= 0) {
                 searchTitle += ("+" + URLEncoder.encode("säsong", "UTF-8"));
                 searchTitle += ("+" + tvSeason);
@@ -88,19 +92,19 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             xml = webBrowser.request(stringQuery.toString());
         } catch (Exception error) {
             //there was an error getting the web page, catch the exception
-            logger.error(logMessage + "An exception happened while retreiving CDON id for movie : " + title);
+            logger.error(logMessage + "An exception happened while retreiving CDON id for movie : " + newTitle);
             logger.error(logMessage + "the exception was caused by: " + error.getCause());
         }
 
         //check that the result page contains some movie info
         if (xml.contains("<table class=\"product-list\"")) {
             //find the movie url in the search result page
-            response = findMovieFromProductList(xml, title, year);
+            response = findMovieFromProductList(xml, newTitle, year);
 
             //else there was no results matching, return Movie.UNKNOWN
         } else {
             response = Movie.UNKNOWN;
-            logger.debug(logMessage + "could not find movie: " + title);
+            logger.debug(logMessage + "could not find movie: " + newTitle);
         }
         return response;
     }
@@ -169,19 +173,20 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
 
     //function to extract the url of a movie detail page from the td it is in
     private String extractMovieDetailUrl(String title, String response) {
+        String newResponse = response;
         // Split string to extract the url
-        if (response.contains("http")) {
-            String[] splitMovieURL = response.split("\\s");
+        if (newResponse.contains("http")) {
+            String[] splitMovieURL = newResponse.split("\\s");
             //movieDetailPage is in splitMovieURL[13]
-            response = splitMovieURL[13].replaceAll("href|=|\"", "");
-            logger.debug(logMessage + "found cdon movie url = " + response);
+            newResponse = splitMovieURL[13].replaceAll("href|=|\"", "");
+            logger.debug(logMessage + "Found cdon movie url = " + newResponse);
         } else {
             //something went wrong and we do not have an url in the result
             //set response to Movie.UNKNOWN and write to the log
-            response = Movie.UNKNOWN;
-            logger.debug(logMessage + "error extracting movie url for: " + title);
+            newResponse = Movie.UNKNOWN;
+            logger.debug(logMessage + "Error extracting movie url for: " + title);
         }
-        return response;
+        return newResponse;
     }
 
     /*
@@ -201,23 +206,28 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
      */
     @Override
     public IImage getPosterUrl(String id) {
-        if (!id.contains("http")) {
-            id = getIdFromMovieInfo(id, null);
+        String newId = id;
+
+        if (!newId.contains("http")) {
+            newId = getIdFromMovieInfo(newId, null);
         }
+
         String posterURL = Movie.UNKNOWN;
-        String xml = "";
+
         try {
-            xml = getCdonMovieDetailsPage(id);
+            String xml = getCdonMovieDetailsPage(newId);
             // extract poster url and return it
-            posterURL = extractCdonPosterUrl(xml, id);
+            posterURL = extractCdonPosterUrl(xml, newId);
         } catch (Exception error) {
-            logger.error(logMessage + "Failed retreiving Cdon poster for movie : " + id);
+            logger.error(logMessage + "Failed retreiving Cdon poster for movie : " + newId);
             logger.error(SystemTools.getStackTrace(error));
         }
+
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
             return new Image(posterURL);
         }
-        logger.debug(logMessage + "No poster found for movie: " + id);
+
+        logger.debug(logMessage + "No poster found for movie: " + newId);
         return Image.UNKNOWN;
     }
 

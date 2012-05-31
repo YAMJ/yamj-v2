@@ -35,7 +35,6 @@ import org.pojava.datetime.DateTime;
 @XmlType
 public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInformation {
     /*
-     * --------------------------------------------------------------------------------
      * Static & Final variables that are used for control and don't relate
      * specifically to the Movie object
      */
@@ -1485,14 +1484,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setSubtitles(String subtitles) {
-        if (StringUtils.isBlank(subtitles)) {
-            subtitles = UNKNOWN;
-        }
-
-        if (!subtitles.equals(this.subtitles)) {
-            setDirty(DirtyFlag.INFO);
-            this.subtitles = subtitles;
-        }
+        this.subtitles = validateString(subtitles, this.subtitles);
     }
 
     public void setTitle(String name) {
@@ -1776,13 +1768,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setMovieType(String movieType) {
-        if (StringUtils.isBlank(movieType)) {
-            movieType = TYPE_UNKNOWN;
-        }
-        if (!this.movieType.equals(movieType)) {
-            setDirty(DirtyFlag.INFO);
-            this.movieType = movieType;
-        }
+        this.movieType = validateString(movieType, this.movieType);
     }
 
     public String getMovieType() {
@@ -1790,13 +1776,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setFormatType(String formatType) {
-        if (StringUtils.isBlank(formatType)) {
-            formatType = TYPE_FILE;
-        }
-        if (!this.formatType.equals(formatType)) {
-            setDirty(DirtyFlag.INFO);
-            this.formatType = formatType;
-        }
+        this.formatType=validateString(formatType, this.formatType);
     }
 
     public String getFormatType() {
@@ -1804,13 +1784,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setVideoType(String videoType) {
-        if (StringUtils.isBlank(videoType)) {
-            videoType = UNKNOWN;
-        }
-        if (!this.videoType.equals(videoType)) {
-            setDirty(DirtyFlag.INFO);
-            this.videoType = videoType;
-        }
+        this.videoType=validateString(videoType, this.videoType);
     }
 
     public String getVideoType() {
@@ -1868,13 +1842,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setLibraryDescription(String libraryDescription) {
-        if (StringUtils.isBlank(libraryDescription)) {
-            libraryDescription = UNKNOWN;
-        }
-        if (!libraryDescription.equals(this.libraryDescription)) {
-            this.libraryDescription = libraryDescription;
-            setDirty(DirtyFlag.INFO);
-        }
+        this.libraryDescription=validateString(libraryDescription, this.libraryDescription);
     }
 
     public long getPrebuf() {
@@ -2425,14 +2393,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setTagline(String tagline) {
-        if (StringUtils.isBlank(tagline)) {
-            tagline = UNKNOWN;
-        }
-
-        if (!tagline.equalsIgnoreCase(this.tagline)) {
-            setDirty(DirtyFlag.INFO);
-            this.tagline = tagline;
-        }
+        this.tagline=validateString(tagline, this.tagline);
     }
 
     // Read the watched flag

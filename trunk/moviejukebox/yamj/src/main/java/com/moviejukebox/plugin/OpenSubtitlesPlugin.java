@@ -620,13 +620,13 @@ public class OpenSubtitlesPlugin {
         return str.toString();
     }
 
-    private static String addEncje(String a) {
-        a = a.replace("&", "&amp;");
-        a = a.replace("<", "&lt;");
-        a = a.replace(">", "&gt;");
-        a = a.replace("'", "&apos;");
-        a = a.replace("\"", "&quot;");
-        return a;
+    private static String addEncje(String inputString) {
+        String cleanString = inputString.replace("&", "&amp;");
+        cleanString = cleanString.replace("<", "&lt;");
+        cleanString = cleanString.replace(">", "&gt;");
+        cleanString = cleanString.replace("'", "&apos;");
+        cleanString = cleanString.replace("\"", "&quot;");
+        return cleanString;
     }
 
     private static String tuBase64(byte s[]) {

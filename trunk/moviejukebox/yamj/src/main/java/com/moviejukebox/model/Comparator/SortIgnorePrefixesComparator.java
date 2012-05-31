@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.model.Comparator;
 
@@ -37,8 +37,7 @@ public class SortIgnorePrefixesComparator implements Comparator<Object> {
 
         for (String prefix : sortIgnorePrefixes) {
             if (lowerTitle.startsWith(prefix.toLowerCase())) {
-                title = new String(title.substring(prefix.length()));
-                break;
+                return title.substring(prefix.length());
             }
         }
 
