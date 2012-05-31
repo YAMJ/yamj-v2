@@ -16,14 +16,14 @@ import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 
 /**
- * This class will take an object and try to initialise all the collections
- * within that object
+ * This class will take an object and try to initialise all the collections within that object
  *
  * @author stuart.boston
  */
 public class CacheInitializer {
 
     private static final Logger logger = Logger.getLogger(CacheInitializer.class);
+    private static final String logMessage = "CacheInitializer: ";
 
     protected CacheInitializer() {
         throw new UnsupportedOperationException("This class cannot be initialised");
@@ -31,7 +31,7 @@ public class CacheInitializer {
 
     public static <T> void initialize(T dbObject) {
         if (dbObject == null) {
-            logger.warn("Object of type " + dbObject.getClass().getSimpleName() + " is null");
+            logger.warn(logMessage + "Object is null");
             return;
         }
 
@@ -45,7 +45,7 @@ public class CacheInitializer {
             initialize((com.moviejukebox.thetvdb.model.Banners) dbObject);
         } else {
             // Not sure if this warning should be here. Some Classes do not need to be initilized
-            logger.debug("No initializer found for class of type " + dbObject.getClass().getSimpleName());
+            logger.debug(logMessage + "No initializer found for class of type " + dbObject.getClass().getSimpleName());
         }
     }
 

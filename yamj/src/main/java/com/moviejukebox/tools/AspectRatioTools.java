@@ -12,14 +12,14 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.model.Movie;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.moviejukebox.model.Movie;
-
 public class AspectRatioTools {
+
     private static List<AspectRatio> aspectList = new ArrayList<AspectRatio>();
     private static int aspectRationPrecision = PropertiesUtil.getIntProperty("mjb.aspectRatioPrecision", "3");
     private static DecimalFormatSymbols symbols = new DecimalFormatSymbols();
@@ -44,6 +44,7 @@ public class AspectRatioTools {
 
     /**
      * Fully clean the aspect ratio
+     *
      * @param uncleanRatio
      * @return
      */
@@ -52,11 +53,11 @@ public class AspectRatioTools {
             return Movie.UNKNOWN;
         }
 
-        String newAspectRatio = new String(uncleanRatio); // We can't alter the parameter, so use a new one
+        String newAspectRatio = uncleanRatio; // We can't alter the parameter, so use a new one
         boolean appendRatio = false;
 
         // Format the aspect slightly and change "16/9" to "16:9"
-        newAspectRatio.replaceAll("/", ":");
+        newAspectRatio = newAspectRatio.replaceAll("/", ":");
 
         // If we don't have a ":" then we should add ":1" after processing
         if (!newAspectRatio.contains(":")) {
@@ -75,21 +76,21 @@ public class AspectRatioTools {
         // Check that we got a return value and then try and format it.
         if (aspectRatioFind != null) {
             switch (aspectRationPrecision) {
-            case 1:
-                newAspectRatio = new DecimalFormat("#.0", symbols).format(aspectRatioFind.getRatio1digit());
-                break;
-            case 2:
-                newAspectRatio = new DecimalFormat("#.00", symbols).format(aspectRatioFind.getRatio2digit());
-                break;
-            default:
-                newAspectRatio = new DecimalFormat("#.000", symbols).format(aspectRatioFind.getRatio3digit());
-                break;
+                case 1:
+                    newAspectRatio = new DecimalFormat("#.0", symbols).format(aspectRatioFind.getRatio1digit());
+                    break;
+                case 2:
+                    newAspectRatio = new DecimalFormat("#.00", symbols).format(aspectRatioFind.getRatio2digit());
+                    break;
+                default:
+                    newAspectRatio = new DecimalFormat("#.000", symbols).format(aspectRatioFind.getRatio3digit());
+                    break;
             }
         }
 
         // Add the ratio back to the end of the value if needed
         if (appendRatio) {
-            newAspectRatio = new String(newAspectRatio + ":1");
+            newAspectRatio = newAspectRatio + ":1";
         }
 
         return newAspectRatio;
@@ -97,6 +98,7 @@ public class AspectRatioTools {
 
     /**
      * Return the AspectRatio object for the corresponding ratio value
+     *
      * @param ratioValue
      * @return
      */
@@ -110,6 +112,7 @@ public class AspectRatioTools {
 
     /**
      * Return the AspectRatio object for the corresponding ratio value
+     *
      * @param ratioValue
      * @return
      */
@@ -142,7 +145,8 @@ public class AspectRatioTools {
     }
 
     /**
-     * Populate the aspect list with the values These are static values because calculated values give slight wrong figures
+     * Populate the aspect list with the values These are static values because calculated values give slight wrong
+     * figures
      *
      * @param aspectList
      */
@@ -191,10 +195,12 @@ public class AspectRatioTools {
 
     /**
      * The aspect ratio class.
+     *
      * @author stuart.boston
      *
      */
     public class AspectRatio {
+
         private String ratioName;
         private float minFloat;
         private float maxFloat;
@@ -204,6 +210,7 @@ public class AspectRatioTools {
 
         /**
          * Constructor for Aspect Ratio
+         *
          * @param ratioName
          * @param minFloat
          * @param maxFloat
@@ -223,7 +230,8 @@ public class AspectRatioTools {
         /**
          * Default constructor
          */
-        public AspectRatio() {}
+        public AspectRatio() {
+        }
 
         /**
          * Test to see if a passed value is in the range of this aspect ratio
@@ -304,7 +312,5 @@ public class AspectRatioTools {
             builder.append(ratio1digit);
             return builder.toString();
         }
-
     }
-
 }

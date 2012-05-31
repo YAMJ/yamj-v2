@@ -13,8 +13,8 @@
 package com.moviejukebox.tools;
 
 import java.io.*;
-import java.util.Map.Entry;
 import java.util.*;
+import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import org.apache.log4j.Logger;
@@ -25,8 +25,9 @@ import org.apache.log4j.Logger;
  */
 public class PropertiesUtil {
 
-    private static final String PROPERTIES_CHARSET = "UTF-8";
     private static final Logger logger = Logger.getLogger(PropertiesUtil.class);
+    private static final String logMessage= "PropertiesUtil: ";
+    private static final String PROPERTIES_CHARSET = "UTF-8";
     private static Properties props = new Properties();
     private static String propertiesFilename = "preferences.xsl";
 
@@ -172,8 +173,8 @@ public class PropertiesUtil {
     }
 
     /**
-     * Collect keywords list and appropriate keyword values. Example:
-     * my.languages = EN,FR my.languages.EN = English my.languages.FR = French
+     * Collect keywords list and appropriate keyword values. Example: my.languages = EN,FR my.languages.EN = English
+     * my.languages.FR = French
      *
      * @param prefix Key for keywords list and prefix for value searching.
      * @return Ordered keyword list and map.
@@ -201,6 +202,8 @@ public class PropertiesUtil {
 
     public static void writeProperties() {
         Writer out = null;
+        OutputStreamWriter osw = null;
+        FileOutputStream fos = null;
 
         // Save the properties in order
         List<String> propertiesList = new ArrayList<String>();
@@ -211,9 +214,11 @@ public class PropertiesUtil {
         Collections.sort(propertiesList);
 
         try {
-            logger.debug("PropertiesUtil: Writing skin preferences file to " + getPropertiesFilename(true));
+            logger.debug(logMessage+"Writing skin preferences file to " + getPropertiesFilename(true));
 
-            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(getPropertiesFilename(true)), "UTF-8"));
+            fos = new FileOutputStream(getPropertiesFilename(true));
+            osw = new OutputStreamWriter(fos, "UTF-8");
+            out = new BufferedWriter(osw);
 
             out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             out.write("<!-- This file is written automatically by YAMJ -->\n");
@@ -233,13 +238,31 @@ public class PropertiesUtil {
             out.close();
         } catch (IOException error) {
             // Can't write to file
-            logger.error("PropertiesUtil: Can't write to file");
+            logger.error(logMessage+"Can't write to file");
             logger.error(SystemTools.getStackTrace(error));
         } catch (Exception error) {
             // Some other error
-            logger.error("PropertiesUtil: Error with file");
+            logger.error(logMessage+"Error with file");
             logger.error(SystemTools.getStackTrace(error));
         } finally {
+            if (fos != null) {
+                try {
+                    fos.flush();
+                    fos.close();
+                } catch (Exception error) {
+                    // ignore this error
+                }
+            }
+
+            if (osw != null) {
+                try {
+                    osw.flush();
+                    osw.close();
+                } catch (Exception error) {
+                    // ignore this error
+                }
+            }
+
             if (out != null) {
                 try {
                     out.flush();

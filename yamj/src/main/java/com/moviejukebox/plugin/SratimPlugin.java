@@ -534,7 +534,7 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     private static String breakLongLines(String text, int lineMaxChar, int lineMax) {
-        String ret = new String();
+        StringBuilder ret = new StringBuilder();
 
         int scanPos = 0;
         int lastBreakPos = 0;
@@ -555,23 +555,23 @@ public class SratimPlugin extends ImdbPlugin {
 
                 lineCount++;
                 if (lineCount == lineMax) {
-                    return (ret + "..." + logicalToVisual(new String(text.substring(lineStart, lastBreakPos)).trim()));
+                    return (ret + "..." + logicalToVisual(text.substring(lineStart, lastBreakPos).trim()));
                 }
 
-                ret = ret + logicalToVisual(new String(text.substring(lineStart, lastBreakPos)).trim());
+                ret.append(logicalToVisual(text.substring(lineStart, lastBreakPos).trim()));
 
                 lineStart = lastBreakPos;
                 lastBreakPos = 0;
 
-                ret = ret + lineBreak;
+                ret.append(lineBreak);
             }
 
             scanPos++;
         }
 
-        ret = ret + logicalToVisual(new String(text.substring(lineStart, scanPos)).trim());
+        ret.append(logicalToVisual(text.substring(lineStart, scanPos).trim()));
 
-        return ret;
+        return ret.toString();
     }
 
     protected String extractTag(String src, String tagStart, String tagEnd) {

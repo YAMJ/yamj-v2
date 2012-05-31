@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
  */
 public class XMLWriter {
 
-    private static int indent = 4;
     private static String indentString = "    ";
     private int indentCount = 0;
 
@@ -117,19 +116,5 @@ public class XMLWriter {
             printWriter.print(indentString);
         }
         printWriter.flush();
-    }
-
-    @SuppressWarnings("unused")
-    private int getIndent() {
-        return indent;
-    }
-
-    @SuppressWarnings("unused")
-    private void setIndent(int indent) {
-        this.indent  = indent;
-        indentString = "";
-        for (int i = 0; i < indent; i++) {
-            indentString += " ";
-        }
     }
 }
