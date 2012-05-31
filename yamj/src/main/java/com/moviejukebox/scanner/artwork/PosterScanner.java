@@ -383,16 +383,16 @@ public class PosterScanner {
         }
 
         // Adjust poster width / height by the ValidateMatch figure
-        posterWidth = (posterWidth * posterValidateMatch) / 100;
-        posterHeight = (posterHeight * posterValidateMatch) / 100;
+        int newPosterWidth = (posterWidth * posterValidateMatch) / 100;
+        int newPosterHeight = (posterHeight * posterValidateMatch) / 100;
 
-        if (urlWidth < posterWidth) {
-            logger.debug(logMessage + posterImage + " rejected: URL width (" + urlWidth + ") is smaller than poster width (" + posterWidth + ")");
+        if (urlWidth < newPosterWidth) {
+            logger.debug(logMessage + posterImage + " rejected: URL width (" + urlWidth + ") is smaller than poster width (" + newPosterWidth + ")");
             return false;
         }
 
-        if (urlHeight < posterHeight) {
-            logger.debug(logMessage + posterImage + " rejected: URL height (" + urlHeight + ") is smaller than poster height (" + posterHeight + ")");
+        if (urlHeight < newPosterHeight) {
+            logger.debug(logMessage + posterImage + " rejected: URL height (" + urlHeight + ") is smaller than poster height (" + newPosterHeight + ")");
             return false;
         }
         return true;

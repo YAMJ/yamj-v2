@@ -484,16 +484,16 @@ public class FanartScanner {
         }
 
         // Adjust fanart width / height by the ValidateMatch figure
-        artworkWidth = artworkWidth * (artworkValidateMatch / 100);
-        artworkHeight = artworkHeight * (artworkValidateMatch / 100);
+        int newArtworkWidth = artworkWidth * (artworkValidateMatch / 100);
+        int newArtworkHeight = artworkHeight * (artworkValidateMatch / 100);
 
-        if (urlWidth < artworkWidth) {
-            logger.debug(logMessage + artworkImage + " rejected: URL width (" + urlWidth + ") is smaller than fanart width (" + artworkWidth + ")");
+        if (urlWidth < newArtworkWidth) {
+            logger.debug(logMessage + artworkImage + " rejected: URL width (" + urlWidth + ") is smaller than fanart width (" + newArtworkWidth + ")");
             return false;
         }
 
-        if (urlHeight < artworkHeight) {
-            logger.debug(logMessage + artworkImage + " rejected: URL height (" + urlHeight + ") is smaller than fanart height (" + artworkHeight + ")");
+        if (urlHeight < newArtworkHeight) {
+            logger.debug(logMessage + artworkImage + " rejected: URL height (" + urlHeight + ") is smaller than fanart height (" + newArtworkHeight + ")");
             return false;
         }
         return true;

@@ -136,15 +136,15 @@ public class WebBrowser {
                 sendHeader(cnx);
                 readHeader(cnx);
 
-                if (charset == null) {
-                    charset = getCharset(cnx);
-                }
-
                 BufferedReader in = null;
                 try {
 
                     // If we fail to get the URL information we need to exit gracefully
-                    in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), charset));
+                    if (charset == null) {
+                        in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), getCharset(cnx)));
+                    } else {
+                        in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), charset));
+                    }
 
                     String line;
                     while ((line = in.readLine()) != null) {
@@ -154,7 +154,7 @@ public class WebBrowser {
                     // We have HTTP connections, so these are always valid
                     content.flush();
                 } catch (Exception error) {
-                    logger.error("WebBrowser: Error getting URL " + url.toString());
+                    logger.error("WebBrowser: Error getting URL " + url.toString() + ", " + error.getMessage());
                 } finally {
                     if (in != null) {
                         in.close();
@@ -223,8 +223,7 @@ public class WebBrowser {
     }
 
     /**
-     * Check the URL to see if it's one of the special cases that needs to be
-     * worked around
+     * Check the URL to see if it's one of the special cases that needs to be worked around
      *
      * @param URL The URL to check
      * @param cnx The connection that has been opened

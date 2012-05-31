@@ -284,6 +284,8 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
 
+            int currentScore = scoreToBeat;
+
             String comingSoonId = Movie.UNKNOWN;
 
             StringBuilder sb = new StringBuilder("http://www.comingsoon.it/Film/Database/?titoloFilm=");
@@ -309,7 +311,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
                 if (movieList.size() > 0) {
 
-                    for (int i = 0; i < movieList.size() && scoreToBeat > 0; i++) {
+                    for (int i = 0; i < movieList.size() && currentScore > 0; i++) {
                         String lId = (String) movieList.get(i)[0];
                         String lTitle = (String) movieList.get(i)[1];
                         String lOrig = (String) movieList.get(i)[2];
@@ -317,7 +319,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                         int difference = compareTitles(movieName, lTitle);
                         int differenceOrig = compareTitles(movieName, lOrig);
                         difference = (differenceOrig < difference ? differenceOrig : difference);
-                        if (difference < scoreToBeat) {
+                        if (difference < currentScore) {
                             if (difference == 0) {
                                 logger.debug("ComingSoon: Found perfect match for: " + lTitle + ", " + lOrig);
                                 searchPage = COMINGSOON_MAX_SEARCH_PAGES; //End loop
@@ -325,7 +327,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                                 logger.debug("ComingSoon: Found a match for: " + lTitle + ", " + lOrig + ", difference " + difference);
                             }
                             comingSoonId = lId;
-                            scoreToBeat = difference;
+                            currentScore = difference;
                         }
                     }
                 } else {
@@ -333,9 +335,9 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 }
             }
 
-            if (StringTools.isValidString(year) && scoreToBeat > 0) {
+            if (StringTools.isValidString(year) && currentScore > 0) {
                 logger.debug("ComingSoon: Perfect match not found, trying removing by year...");
-                String newComingSoonId = getComingSoonIdFromComingSoon(movieName, Movie.UNKNOWN, scoreToBeat);
+                String newComingSoonId = getComingSoonIdFromComingSoon(movieName, Movie.UNKNOWN, currentScore);
                 comingSoonId = (StringTools.isNotValidString(newComingSoonId) ? comingSoonId : newComingSoonId);
             }
 
@@ -433,9 +435,8 @@ public class ComingSoonPlugin extends ImdbPlugin {
     }
 
     /**
-     * Returns difference between two titles. Since ComingSoon returns strange
-     * results on some researches, difference is defined as follows: abs(word
-     * count difference) - (searchedTitle word count - matched words);
+     * Returns difference between two titles. Since ComingSoon returns strange results on some researches, difference is
+     * defined as follows: abs(word count difference) - (searchedTitle word count - matched words);
      *
      * @param searchedTitle
      * @param returnedTitle

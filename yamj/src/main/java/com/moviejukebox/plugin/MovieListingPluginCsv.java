@@ -23,8 +23,7 @@ import java.util.Collection;
 import org.apache.log4j.Logger;
 
 /**
- * User: JDGJr
- * Date: Feb 15, 2009
+ * User: JDGJr Date: Feb 15, 2009
  */
 public class MovieListingPluginCsv extends MovieListingPluginBase implements MovieListingPlugin {
 
@@ -158,33 +157,34 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
     } // prepOutput()
 
     /**
-     * @param str
+     * @param newString
      * @param bAddComma
      * @return String cleaned up, optional comma appended
      */
-    protected String prepOutput(String str, boolean bAddComma) {
-        if (null == str) {
-            str = "";
-        } else if (blankUNKNOWN && (UNKNOWN.equals(str) || UNDEFINED.equals(str))) {
+    protected String prepOutput(String inputString, boolean bAddComma) {
+        String newString;
+        if (null == inputString || (blankUNKNOWN && (UNKNOWN.equals(inputString) || UNDEFINED.equals(inputString)))) {
             // clean 'UNKNOWN' values
-            str = "";
+            newString = "";
+        } else {
+            newString = inputString;
         }
 
         // remove quotes from the string (before encapsulation)
-        if (str.contains("\"")) {
-            str = str.replace("\"", "");
+        if (newString.contains("\"")) {
+            newString = newString.replace("\"", "");
         }
 
         // enclose strings with commas in quotes
-        if (str.contains(",")) {
-            str = "\"" + str + "\"";
+        if (newString.contains(",")) {
+            newString = "\"" + newString + "\"";
         }
 
         // add trailing comma unless otherwise requested
         if (bAddComma) {
-            str += ",";
+            newString += ",";
         }
-        return str;
+        return newString;
     } // encloseInQuotes()
 
     /**

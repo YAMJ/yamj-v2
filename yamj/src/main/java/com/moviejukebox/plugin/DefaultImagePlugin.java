@@ -398,11 +398,14 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             }
 
             if (addPerspective) {
+                String perspDir;
                 if (perspectiveDirection == null) { // make sure the perspectiveDirection is populated {
-                    perspectiveDirection = PropertiesUtil.getProperty(imageType + ".perspectiveDirection", "right");
+                    perspDir = PropertiesUtil.getProperty(imageType + ".perspectiveDirection", "right");
+                } else {
+                    perspDir = perspectiveDirection;
                 }
 
-                bi = GraphicTools.create3DPicture(bi, isFooter ? FOOTER : imageType, perspectiveDirection);
+                bi = GraphicTools.create3DPicture(bi, isFooter ? FOOTER : imageType, perspDir);
             }
         }
 
@@ -500,10 +503,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      * Draw the TV and HD logos onto the image
      *
      * @param movie The source movie
-     * @param bi The image to draw on
+     * @param newBi The image to draw on
      * @return The new image with the added logos
      */
     protected BufferedImage drawLogos(Movie movie, BufferedImage bi, String imageType, boolean beforeMainOverlay) {
+        BufferedImage newBi = bi;
+
         // Issue 1937: Overlay configuration XML
         if (xmlOverlay) {
             for (logoOverlay layer : overlayLayers) {
@@ -775,7 +780,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     stateOverlay state = states.get(i);
                     String name = layer.names.get(i);
                     if (!blockLanguage && name.equalsIgnoreCase("language")) {
-                        bi = drawLanguage(movie, bi, getOverlayX(bi.getWidth(), 62, state.left, state.align), getOverlayY(bi.getHeight(), 40, state.top, state.valign));
+                        newBi = drawLanguage(movie, newBi, getOverlayX(newBi.getWidth(), 62, state.left, state.align), getOverlayY(newBi.getHeight(), 40, state.top, state.valign));
                         continue;
                     }
 
@@ -795,55 +800,55 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             || (blockSubTitle && name.equalsIgnoreCase("subtitle"))
                             || (blockLanguage && name.equalsIgnoreCase("language")))
                             && (overlayBlocks.get(name) != null)) {
-                        bi = drawBlock(movie, bi, name, filename, state.left, state.align, state.width, state.top, state.valign, state.height);
+                        newBi = drawBlock(movie, newBi, name, filename, state.left, state.align, state.width, state.top, state.valign, state.height);
                         continue;
                     }
 
                     try {
                         BufferedImage biSet = GraphicTools.loadJPEGImage(overlayResources + filename);
 
-                        Graphics2D g2d = bi.createGraphics();
-                        g2d.drawImage(biSet, getOverlayX(bi.getWidth(), biSet.getWidth(), state.left, state.align), getOverlayY(bi.getHeight(), biSet.getHeight(), state.top, state.valign), state.width.matches("\\d+") ? Integer.parseInt(state.width) : biSet.getWidth(), state.height.matches("\\d+") ? Integer.parseInt(state.height) : biSet.getHeight(), null);
+                        Graphics2D g2d = newBi.createGraphics();
+                        g2d.drawImage(biSet, getOverlayX(newBi.getWidth(), biSet.getWidth(), state.left, state.align), getOverlayY(newBi.getHeight(), biSet.getHeight(), state.top, state.valign), state.width.matches("\\d+") ? Integer.parseInt(state.width) : biSet.getWidth(), state.height.matches("\\d+") ? Integer.parseInt(state.height) : biSet.getHeight(), null);
                         g2d.dispose();
                     } catch (IOException error) {
                         logger.warn("Failed drawing overlay to image file: Please check that " + filename + " is in the resources directory.");
                     }
 
                     if (name.equalsIgnoreCase("set")) {
-                        bi = drawSetSize(movie, bi);
+                        newBi = drawSetSize(movie, newBi);
                         continue;
                     }
                 }
             }
         } else if (beforeMainOverlay) {
             if (addHDLogo) {
-                bi = drawLogoHD(movie, bi, addTVLogo);
+                newBi = drawLogoHD(movie, newBi, addTVLogo);
             }
 
             if (addTVLogo) {
-                bi = drawLogoTV(movie, bi, addHDLogo);
+                newBi = drawLogoTV(movie, newBi, addHDLogo);
             }
 
             if (addLanguage) {
-                bi = drawLanguage(movie, bi, 1, 1);
+                newBi = drawLanguage(movie, newBi, 1, 1);
             }
 
             if (addSubTitle) {
-                bi = drawSubTitle(movie, bi);
+                newBi = drawSubTitle(movie, newBi);
             }
 
             // Should only really happen on set's thumbnails.
             if (imageType.equalsIgnoreCase(THUMBNAIL) && movie.isSetMaster()) {
                 // Draw the set logo if requested.
                 if (addSetLogo) {
-                    bi = drawSet(movie, bi);
+                    newBi = drawSet(movie, newBi);
                     logger.debug("Drew set logo on " + movie.getTitle());
                 }
-                bi = drawSetSize(movie, bi);
+                newBi = drawSetSize(movie, newBi);
             }
         }
 
-        return bi;
+        return newBi;
     }
 
     /**
@@ -973,8 +978,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     }
 
     /**
-     * Draw an overlay on the image, such as a box cover specific for
-     * videosource, container, certification if wanted
+     * Draw an overlay on the image, such as a box cover specific for videosource, container, certification if wanted
      *
      * @param movie
      * @param bi

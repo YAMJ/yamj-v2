@@ -499,18 +499,18 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 AnidbTvdbEpisodeMapping episodeMapping = findEpisodeMapping(episodeNumber, mapping);
                 s = getSeriesFromTvdb(mapping.getTvdbId());
 //                if (episodeMapping != null) {
-                    //ep = getEpisodeFromTvdb(s.getId(), episodeMapping.getTvdbSeason(), episodeMapping.getTvdbEpisodeNumber());
+                //ep = getEpisodeFromTvdb(s.getId(), episodeMapping.getTvdbSeason(), episodeMapping.getTvdbEpisodeNumber());
 //                } else {
 //                    if (Character.isDigit(episodeNumber.charAt(0))) {
-                        //ep = getEpisodeFromTvdb(s.getId(), 1, epNo);
+                //ep = getEpisodeFromTvdb(s.getId(), 1, epNo);
 //                    } else {
-                        //ep = getEpisodeFromTvdb(s.getId(), 1, epNo);
+                //ep = getEpisodeFromTvdb(s.getId(), 1, epNo);
 //                    }
 //                }
             } else {
                 s = getSeriesFromTvdb(movie.getTitle());
 //                if (s != null) {
-                    //ep = getEpisodeFromTvdb(s.getId(), 1, epNo);
+                //ep = getEpisodeFromTvdb(s.getId(), 1, epNo);
 //                }
             }
             if (s != null) {
@@ -782,7 +782,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             episodeMappingDao.delete(pd2);
             try {
                 mappingDao.callBatchTasks(new Callable<Void>() {
-
                     @Override
                     public Void call() throws Exception {
                         for (AnidbTvdbMapping m : handler.mappings) {
@@ -792,7 +791,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                     }
                 });
                 episodeMappingDao.callBatchTasks(new Callable<Void>() {
-
                     @Override
                     public Void call() throws Exception {
                         for (AnidbTvdbEpisodeMapping m : handler.episodeMappings) {
@@ -1159,42 +1157,57 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         return anime;
     }
 
+    /**
+     * Add categories and reload anime from database.
+     *
+     * @param anime
+     * @param anidbResult
+     * @throws SQLException
+     * @throws UdpConnectionException
+     * @throws AniDbException
+     */
     private void createCategories(AnidbAnime anime, Anime anidbResult) throws SQLException, UdpConnectionException, AniDbException {
-        /*
-         * Add categories and reload anime from database
-         */
         /*
          * Response was most likely truncated if we got less than five
          * categories
          */
+        Anime ccAnidbResult;
         if (anidbResult.getCategoryList() == null || anidbResult.getCategoryWeightList() == null || anidbResult.getCategoryList().size() < 5) {
-            anidbResult = anidbConn.getAnime(anime.getAnimeId(), categoryMask);
+            ccAnidbResult = anidbConn.getAnime(anime.getAnimeId(), categoryMask);
+        } else {
+            ccAnidbResult = anidbResult;
         }
-        for (int i = 0; i < anidbResult.getCategoryList().size(); ++i) {
+
+        for (int i = 0; i < ccAnidbResult.getCategoryList().size(); ++i) {
             AnidbCategory category = new AnidbCategory();
             category.setAnime(anime);
-            category.setCategoryName(anidbResult.getCategoryList().get(i));
-            category.setWeight(Integer.parseInt(anidbResult.getCategoryWeightList().get(i)));
+            category.setCategoryName(ccAnidbResult.getCategoryList().get(i));
+            category.setWeight(Integer.parseInt(ccAnidbResult.getCategoryWeightList().get(i)));
             categoryDao.create(category);
         }
     }
 
     private AnidbAnime getAnimeFromCache(String name) {
-        AnidbAnime anime = null;
+        AnidbAnime anime;
+
         if ((anime = (AnidbAnime) CacheMemory.getFromCache(CacheMemory.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeNameEnglish", name))) != null) {
             return anime;
         }
+
         if ((anime = (AnidbAnime) CacheMemory.getFromCache(CacheMemory.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeNameRomaji", name))) != null) {
             return anime;
         }
+
         return null;
     }
 
     private AnidbAnime getAnimeFromCache(long aid) {
-        AnidbAnime anime = null;
+        AnidbAnime anime;
+
         if ((anime = (AnidbAnime) CacheMemory.getFromCache(CacheMemory.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeId", Long.toString(aid)))) != null) {
             return anime;
         }
+        
         return null;
     }
 

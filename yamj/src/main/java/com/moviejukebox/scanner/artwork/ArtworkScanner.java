@@ -571,16 +571,16 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         }
 
         // Adjust artwork width / height by the ValidateMatch figure
-        artworkWidth = artworkWidth * (artworkValidateMatch / 100);
-        artworkHeight = artworkHeight * (artworkValidateMatch / 100);
+        int newArtworkWidth = artworkWidth * (artworkValidateMatch / 100);
+        int newArtworkHeight = artworkHeight * (artworkValidateMatch / 100);
 
-        if (urlWidth < artworkWidth) {
-            logger.debug(logMessage + artworkImage + " rejected: URL width (" + urlWidth + ") is smaller than artwork width (" + artworkWidth + ")");
+        if (urlWidth < newArtworkWidth) {
+            logger.debug(logMessage + artworkImage + " rejected: URL width (" + urlWidth + ") is smaller than artwork width (" + newArtworkWidth + ")");
             return Boolean.FALSE;
         }
 
-        if (urlHeight < artworkHeight) {
-            logger.debug(logMessage + artworkImage + " rejected: URL height (" + urlHeight + ") is smaller than artwork height (" + artworkHeight + ")");
+        if (urlHeight < newArtworkHeight) {
+            logger.debug(logMessage + artworkImage + " rejected: URL height (" + urlHeight + ") is smaller than artwork height (" + newArtworkHeight + ")");
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
