@@ -16,13 +16,13 @@ import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.BooleanYesNoAdapter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
@@ -39,16 +39,16 @@ public class MovieFile implements Comparable<MovieFile> {
     private int lastPart = 1;
     private boolean newFile = Boolean.TRUE;             // is new file or already exists in XML data
     private boolean subtitlesExchange = false;  // Are the subtitles for this file already downloaded/uploaded to the server
-    private Map<String, String> playLink = null;
-    private LinkedHashMap<Integer, String> titles = new LinkedHashMap<Integer, String>();
-    private LinkedHashMap<Integer, String> plots = new LinkedHashMap<Integer, String>();
-    private LinkedHashMap<Integer, String> videoImageURL = new LinkedHashMap<Integer, String>();
-    private LinkedHashMap<Integer, String> videoImageFilename = new LinkedHashMap<Integer, String>();
-    private LinkedHashMap<Integer, String> airsAfterSeason = new LinkedHashMap<Integer, String>();
-    private LinkedHashMap<Integer, String> airsBeforeSeason = new LinkedHashMap<Integer, String>();
-    private LinkedHashMap<Integer, String> airsBeforeEpisode = new LinkedHashMap<Integer, String>();
-    private LinkedHashMap<Integer, String> firstAired = new LinkedHashMap<Integer, String>();
-    private LinkedHashMap<Integer, String> ratings = new LinkedHashMap<Integer, String>();
+    private Map<String, String> playLink = new HashMap<String, String>();
+    private Map<Integer, String> titles = new LinkedHashMap<Integer, String>();
+    private Map<Integer, String> plots = new LinkedHashMap<Integer, String>();
+    private Map<Integer, String> videoImageURL = new LinkedHashMap<Integer, String>();
+    private Map<Integer, String> videoImageFilename = new LinkedHashMap<Integer, String>();
+    private Map<Integer, String> airsAfterSeason = new LinkedHashMap<Integer, String>();
+    private Map<Integer, String> airsBeforeSeason = new LinkedHashMap<Integer, String>();
+    private Map<Integer, String> airsBeforeEpisode = new LinkedHashMap<Integer, String>();
+    private Map<Integer, String> firstAired = new LinkedHashMap<Integer, String>();
+    private Map<Integer, String> ratings = new LinkedHashMap<Integer, String>();
     private File file;
     private MovieFileNameDTO info;
     private boolean watched = false;
@@ -112,10 +112,12 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     public void setTitle(int part, String title) {
-        if (title == null || title.isEmpty()) {
-            title = Movie.UNKNOWN;
+        if (StringUtils.isBlank(title)) {
+            // Use UNKNOWN as the title.
+            titles.put(part, Movie.UNKNOWN);
+        } else {
+            titles.put(part, title);
         }
-        titles.put(part, title);
     }
 
     public void setTitle(String title) {
@@ -130,10 +132,12 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     public void setPlot(int part, String plot) {
-        if (plot == null || plot.isEmpty()) {
-            plot = Movie.UNKNOWN;
+        if (StringUtils.isBlank(plot)) {
+            // Use UNKNOWN as the plot
+            plots.put(part, Movie.UNKNOWN);
+        } else {
+            plots.put(part, plot);
         }
-        plots.put(part, plot);
     }
 
     public String getRating(int part) {
@@ -143,9 +147,11 @@ public class MovieFile implements Comparable<MovieFile> {
 
     public void setRating(int part, String rating) {
         if (StringUtils.isBlank(rating)) {
-            rating = Movie.UNKNOWN;
+            // Use UNKNOWN as the rating
+            ratings.put(part, Movie.UNKNOWN);
+        } else {
+            ratings.put(part, rating);
         }
-        ratings.put(part, rating);
     }
 
     public String getVideoImageURL(int part) {
@@ -159,19 +165,23 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     public void setVideoImageURL(int part, String videoImageURL) {
-        if (videoImageURL == null || videoImageURL.isEmpty()) {
-            videoImageURL = Movie.UNKNOWN;
+        if (StringUtils.isBlank(videoImageURL)) {
+            // Use UNKNOWN as the image URL
+            this.videoImageURL.put(part, Movie.UNKNOWN);
+        } else {
+            this.videoImageURL.put(part, videoImageURL);
         }
-        this.videoImageURL.put(part, videoImageURL);
+
         // Clear the videoImageFilename associated with this part
         this.videoImageFilename.put(part, Movie.UNKNOWN);
     }
 
     public void setVideoImageFilename(int part, String videoImageFilename) {
-        if (videoImageFilename == null || videoImageFilename.isEmpty()) {
-            videoImageFilename = Movie.UNKNOWN;
+        if (StringUtils.isBlank(videoImageFilename)) {
+            this.videoImageFilename.put(part, Movie.UNKNOWN);
+        } else {
+            this.videoImageFilename.put(part, videoImageFilename);
         }
-        this.videoImageFilename.put(part, videoImageFilename);
     }
 
     @XmlAttribute
@@ -206,7 +216,7 @@ public class MovieFile implements Comparable<MovieFile> {
      */
     @XmlAttribute
     public String getTitle() {
-        if (titles.size() == 0) {
+        if (titles.isEmpty()) {
             return Movie.UNKNOWN;
         }
 
@@ -367,23 +377,14 @@ public class MovieFile implements Comparable<MovieFile> {
 
     //this is expensive too
     public synchronized Map<String, String> getPlayLink() {
-        if (playLink == null) {
+        if (playLink.isEmpty()) {
             playLink = calculatePlayLink();
         }
         return playLink;
     }
 
-    public void addPlayLink(String key, String value) {
+    public synchronized void addPlayLink(String key, String value) {
         playLink.put(key, value);
-    }
-
-    @SuppressWarnings("unused")
-    private void setPlayLink(Map<String, String> playLink) {
-        if (playLink == null || playLink.containsValue("")) {
-            this.playLink = calculatePlayLink();
-        } else {
-            this.playLink = playLink;
-        }
     }
 
     public static class PartDataDTO {
@@ -454,7 +455,7 @@ public class MovieFile implements Comparable<MovieFile> {
         fromPartDataList(videoImageFilename, list);
     }
 
-    private static List<PartDataDTO> toPartDataList(LinkedHashMap<Integer, String> map) {
+    private static List<PartDataDTO> toPartDataList(Map<Integer, String> map) {
         List<PartDataDTO> list = new ArrayList<PartDataDTO>();
 
         for (Map.Entry<Integer, String> part : map.entrySet()) {
@@ -464,7 +465,7 @@ public class MovieFile implements Comparable<MovieFile> {
         return list;
     }
 
-    private static void fromPartDataList(LinkedHashMap<Integer, String> map, List<PartDataDTO> list) {
+    private static void fromPartDataList(Map<Integer, String> map, List<PartDataDTO> list) {
         map.clear();
         for (PartDataDTO p : list) {
             map.put(p.part, p.value);
@@ -474,7 +475,7 @@ public class MovieFile implements Comparable<MovieFile> {
     /**
      * Calculate the playlink additional information for the file
      */
-    private Map<String, String> calculatePlayLink() {
+    private synchronized Map<String, String> calculatePlayLink() {
         Map<String, String> playLinkMap = new HashMap<String, String>();
         File filePlayLink = this.getFile();
 
@@ -499,7 +500,7 @@ public class MovieFile implements Comparable<MovieFile> {
             }
 
             for (Map.Entry<String, Pattern> e : TYPE_SUFFIX_MAP.entrySet()) {
-                Matcher matcher = e.getValue().matcher(getExtension(filePlayLink));
+                Matcher matcher = e.getValue().matcher(FilenameUtils.getExtension(filePlayLink.getName()));
                 if (matcher.find()) {
                     //logger.finest(filename + " matched to " + e.getKey());
                     playLinkMap.put(e.getKey(), PropertiesUtil.getProperty("filename.scanner.types.suffix." + e.getKey().toUpperCase(), ""));
@@ -514,24 +515,6 @@ public class MovieFile implements Comparable<MovieFile> {
         }
 
         return playLinkMap;
-    }
-
-    /**
-     * Return the extension of the file, this will be blank for directories
-     *
-     * @param file
-     * @return
-     */
-    private String getExtension(File file) {
-        String extFilename = file.getName();
-
-        if (file.isFile()) {
-            int i = extFilename.lastIndexOf(".");
-            if (i > 0) {
-                return new String(extFilename.substring(i + 1));
-            }
-        }
-        return "";
     }
 
     // Read the watched flag
@@ -583,9 +566,10 @@ public class MovieFile implements Comparable<MovieFile> {
 
     public void setAirsAfterSeason(int part, String season) {
         if (StringUtils.isBlank(season)) {
-            season = Movie.UNKNOWN;
+            this.airsAfterSeason.put(part, Movie.UNKNOWN);
+        } else {
+            this.airsAfterSeason.put(part, season);
         }
-        this.airsAfterSeason.put(part, season);
     }
 
     @XmlElement(name = "airsAfterSeason")
@@ -604,9 +588,10 @@ public class MovieFile implements Comparable<MovieFile> {
 
     public void setAirsBeforeSeason(int part, String season) {
         if (StringUtils.isBlank(season)) {
-            season = Movie.UNKNOWN;
+            this.airsBeforeSeason.put(part, Movie.UNKNOWN);
+        } else {
+            this.airsBeforeSeason.put(part, season);
         }
-        this.airsBeforeSeason.put(part, season);
     }
 
     @XmlElement(name = "airsAfterSeason")
@@ -625,9 +610,10 @@ public class MovieFile implements Comparable<MovieFile> {
 
     public void setAirsBeforeEpisode(int part, String episode) {
         if (StringUtils.isBlank(episode)) {
-            episode = Movie.UNKNOWN;
+            this.airsBeforeEpisode.put(part, Movie.UNKNOWN);
+        } else {
+            this.airsBeforeEpisode.put(part, episode);
         }
-        this.airsBeforeEpisode.put(part, episode);
     }
 
     @XmlElement(name = "airsAfterEpisode")
@@ -646,9 +632,10 @@ public class MovieFile implements Comparable<MovieFile> {
 
     public void setFirstAired(int part, String airDate) {
         if (StringUtils.isBlank(airDate)) {
-            airDate = Movie.UNKNOWN;
+            this.firstAired.put(part, Movie.UNKNOWN);
+        } else {
+            this.firstAired.put(part, airDate);
         }
-        this.firstAired.put(part, airDate);
     }
 
     @XmlElement(name = "firstAired")
