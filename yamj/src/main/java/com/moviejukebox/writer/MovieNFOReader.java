@@ -90,11 +90,17 @@ public class MovieNFOReader {
         }
 
         NodeList nlMovies;
+
+        // Determine if the NFO file is for a TV Show or Movie so the default ID can be set
+        boolean isTv;
         if (movie.isTVShow()) {
             nlMovies = xmlDoc.getElementsByTagName(TYPE_TVSHOW);
+            isTv = Boolean.TRUE;
         } else {
             nlMovies = xmlDoc.getElementsByTagName(TYPE_MOVIE);
+            isTv = Boolean.FALSE;
         }
+
         Node nMovie;
         for (int loopMovie = 0; loopMovie < nlMovies.getLength(); loopMovie++) {
             nMovie = nlMovies.item(loopMovie);
@@ -118,7 +124,7 @@ public class MovieNFOReader {
                 }
 
                 // Get all of the other IDs
-                parseIds(eCommon.getElementsByTagName("id"), movie);
+                parseIds(eCommon.getElementsByTagName("id"), movie, isTv);
 
                 // Get the watched status
                 try {
@@ -655,8 +661,9 @@ public class MovieNFOReader {
      *
      * @param nlElements
      * @param movie
+     * @param isTv
      */
-    private static void parseIds(NodeList nlElements, Movie movie) {
+    private static void parseIds(NodeList nlElements, Movie movie, boolean isTv) {
         Node nElements;
         for (int looper = 0; looper < nlElements.getLength(); looper++) {
             nElements = nlElements.item(looper);
@@ -665,9 +672,15 @@ public class MovieNFOReader {
 
                 String movieDb = eId.getAttribute("moviedb");
                 if (StringTools.isNotValidString(movieDb)) {
-                    movieDb = ImdbPlugin.IMDB_PLUGIN_ID;
+                    // Decide which default plugin ID to use
+                    if(isTv){
+                        movieDb = TheTvDBPlugin.THETVDB_PLUGIN_ID;
+                    }else{
+                        movieDb = ImdbPlugin.IMDB_PLUGIN_ID;
+                    }
                 }
                 movie.setId(movieDb, eId.getTextContent());
+                logger.debug(logMessage + "Found " + movieDb + " ID: " + eId.getTextContent());
             }
         }
     }
@@ -719,7 +732,7 @@ public class MovieNFOReader {
             if (StringUtils.isBlank(tempYear)) {
                 // The year is blank, so skip it.
                 return Boolean.TRUE;
-            }else{
+            } else {
                 return Boolean.FALSE;
             }
         }
