@@ -19,6 +19,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
@@ -27,13 +28,12 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 /**
  * The MovieMeterPluginSession communicates with XML-RPC webservice of www.moviemeter.nl.
  *
- * The session is stored in a file, since the webservice accepts a maximum of 100 sessions per IP-address and
- * 50 requests per session. So when you rerun the applications, it tries to reuse the session.
+ * The session is stored in a file, since the webservice accepts a maximum of 100 sessions per IP-address and 50
+ * requests per session. So when you rerun the applications, it tries to reuse the session.
  *
- * Version 0.1 : Initial release
- * Version 0.2 : Rewrote some log lines
- * Version 0.3 (18-06-2009) : New API key needed for MovieMeter.nl
- * Version 0.4 : Moved API key to properties file
+ * Version 0.1 : Initial release Version 0.2 : Rewrote some log lines Version 0.3 (18-06-2009) : New API key needed for
+ * MovieMeter.nl Version 0.4 : Moved API key to properties file
+ *
  * @author RdeTuinman
  *
  */
@@ -64,6 +64,7 @@ public final class MovieMeterPluginSession {
 
     /**
      * Creates a new session to www.moviemeter.nl or if a session exists on disk, it is checked and resumed if valid.
+     *
      * @throws XmlRpcException
      */
     public MovieMeterPluginSession() throws XmlRpcException {
@@ -77,13 +78,17 @@ public final class MovieMeterPluginSession {
         try {
             fileRead = new FileReader(SESSION_FILENAME);
             bufRead = new BufferedReader(fileRead);
+
             String line = bufRead.readLine();
 
-            String[] savedSession = line.split(",");
-            if (savedSession.length == 3) {
-                setKey(savedSession[0]);
-                setTimestamp(Integer.parseInt(savedSession[1]));
-                setCounter(Integer.parseInt(savedSession[2]));
+            // If there are no more lines of text to read, readLine() will return null.
+            if (StringUtils.isNotBlank(line)) {
+                String[] savedSession = line.split(",");
+                if (savedSession.length == 3) {
+                    setKey(savedSession[0]);
+                    setTimestamp(Integer.parseInt(savedSession[1]));
+                    setCounter(Integer.parseInt(savedSession[2]));
+                }
             }
         } catch (IOException ex) {
             logger.debug("MovieMeterPluginSession: Error creating session: " + ex.getMessage());
@@ -114,6 +119,7 @@ public final class MovieMeterPluginSession {
 
     /**
      * Creates a new session to www.moviemeter.nl
+     *
      * @param API_KEY
      * @throws XmlRpcException
      */
@@ -145,6 +151,7 @@ public final class MovieMeterPluginSession {
 
     /**
      * Searches www.moviemeter.nl for the movieName
+     *
      * @param movieName
      * @return the first summary result as a HashMap
      */
@@ -176,7 +183,9 @@ public final class MovieMeterPluginSession {
     }
 
     /**
-     * Searches www.moviemeter.nl for the movieName and matches the year. If there is no match on year, the first result is returned
+     * Searches www.moviemeter.nl for the movieName and matches the year. If there is no match on year, the first result
+     * is returned
+     *
      * @param movieName
      * @param year The year of the movie. If no year is known, specify null
      * @return the summary result as a HashMap
@@ -216,7 +225,8 @@ public final class MovieMeterPluginSession {
     }
 
     /**
-     * Searches www.moviemeter.nl for the movieName and matches the year. If there is no match on year, the first result is returned
+     * Searches www.moviemeter.nl for the movieName and matches the year. If there is no match on year, the first result
+     * is returned
      *
      * @param movieName
      * @param year
@@ -237,6 +247,7 @@ public final class MovieMeterPluginSession {
 
     /**
      * Given the moviemeterId this returns the detailed result of www.moviemeter.nl
+     *
      * @param moviemeterId
      * @return the detailed result as a HashMap
      */
@@ -260,6 +271,7 @@ public final class MovieMeterPluginSession {
 
     /**
      * Checks if the current session is valid
+     *
      * @return true of false
      */
     public boolean isValid() {
@@ -306,14 +318,21 @@ public final class MovieMeterPluginSession {
      */
     private void saveSessionToFile() {
         FileOutputStream fout = null;
+        PrintStream ps = null;
+
         try {
             fout = new FileOutputStream(SESSION_FILENAME);
-            new PrintStream(fout).println(getKey() + "," + getTimestamp() + "," + getCounter());
+            ps = new PrintStream(fout);
+            ps.println(getKey() + "," + getTimestamp() + "," + getCounter());
         } catch (FileNotFoundException ignore) {
             logger.debug("MovieMeterPluginSession: " + ignore.getMessage());
         } catch (IOException error) {
             logger.error("MovieMeterPluginSession: " + error.getMessage());
         } finally {
+            if (ps != null) {
+                ps.close();
+            }
+
             if (fout != null) {
                 try {
                     fout.close();
