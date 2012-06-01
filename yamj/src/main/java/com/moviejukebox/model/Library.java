@@ -82,7 +82,7 @@ public class Library implements Map<String, Movie> {
     private static List<String> dirtyLibraries = new ArrayList<String>();
     // Issue 1897: Cast enhancement
     private TreeMap<String, Person> people = new TreeMap<String, Person>();
-    private static boolean isDirty = false;
+    private boolean isDirty = false;
     private static boolean peopleScan = false;
     private static boolean peopleScrape = true;
     private static boolean peopleExclusive = false;

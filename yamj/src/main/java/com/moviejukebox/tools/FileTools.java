@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 public class FileTools {
 
     private static final Logger logger = Logger.getLogger(FileTools.class);
+    private static final String logMessage = "FileTools: ";
     static final int BUFF_SIZE = 16 * 1024;
     private static final Collection<String> subtitleExtensions = new ArrayList<String>();
 
@@ -166,7 +167,7 @@ public class FileTools {
         try {
             srcFile = new File(src);
         } catch (Exception error) {
-            logger.error("Failed copying file " + src + " to " + dst);
+            logger.error(logMessage+"Failed copying file " + src + " to " + dst);
             logger.error(SystemTools.getStackTrace(error));
             return;
         }
@@ -174,7 +175,7 @@ public class FileTools {
         try {
             dstFile = new File(dst);
         } catch (Exception error) {
-            logger.error("Failed copying file " + src + " to " + dst);
+            logger.error(logMessage+"Failed copying file " + src + " to " + dst);
             logger.error(SystemTools.getStackTrace(error));
             return;
         }
@@ -184,7 +185,7 @@ public class FileTools {
     public static void copyFile(File src, File dst) {
         try {
             if (!src.exists()) {
-                logger.error("FileTools: The specified " + src + " file does not exist!");
+                logger.error(logMessage + "The specified " + src + " file does not exist!");
                 return;
             }
 
@@ -212,7 +213,7 @@ public class FileTools {
             }
 
         } catch (IOException error) {
-            logger.error("Failed copying file " + src + " to " + dst);
+            logger.error(logMessage+"Failed copying file " + src + " to " + dst);
             logger.error(SystemTools.getStackTrace(error));
         }
     }
@@ -249,7 +250,7 @@ public class FileTools {
         try {
             File srcDir = new File(srcPathName);
             if (!srcDir.exists()) {
-                logger.error("FileTools: Source directory " + srcPathName + " does not exist!");
+                logger.error(logMessage + "Source directory " + srcPathName + " does not exist!");
                 return;
             }
 
@@ -257,7 +258,7 @@ public class FileTools {
             dstDir.mkdirs();
 
             if (!dstDir.exists()) {
-                logger.error("FileTools: Target directory " + dstPathName + " does not exist!");
+                logger.error(logMessage + "Target directory " + dstPathName + " does not exist!");
                 return;
             }
 
@@ -289,7 +290,7 @@ public class FileTools {
                                 if (updateDisplay) {
                                     System.out.print("\r    Copying directory " + displayPath + " (" + currentFile + "/" + totalSize + ")");
                                     if (logger.isTraceEnabled()) {
-                                        logger.trace("Copying: " + file.getName());
+                                        logger.trace(logMessage+"Copying: " + file.getName());
                                     }
                                 }
                                 copyFile(file, dstDir);
@@ -299,11 +300,11 @@ public class FileTools {
                     if (updateDisplay) {
                         System.out.print("\n");
                     }
-                    logger.debug("Copied " + totalSize + " files from " + srcDir.getCanonicalPath());
+                    logger.debug(logMessage+"Copied " + totalSize + " files from " + srcDir.getCanonicalPath());
                 }
             }
-        } catch (Exception error) {
-            logger.error("FileTools: Failed to copy " + srcPathName + " to " + dstPathName);
+        } catch (IOException error) {
+            logger.error(logMessage + "Failed to copy " + srcPathName + " to " + dstPathName);
             logger.error(SystemTools.getStackTrace(error));
         }
     }
@@ -327,7 +328,7 @@ public class FileTools {
                     }
                 }
             } catch (IOException error) {
-                logger.error("Failed reading file " + file.getName());
+                logger.error(logMessage+"Failed reading file " + file.getName());
             }
         }
 
@@ -349,7 +350,7 @@ public class FileTools {
             out = new FileWriter(outFile);
             out.write(outputString);
         } catch (Exception ignore) {
-            logger.debug("Error writing string to " + filename);
+            logger.debug(logMessage+"Error writing string to " + filename);
         } finally {
             try {
                 out.close();
@@ -435,7 +436,7 @@ public class FileTools {
         }
 
         if (!newFilename.equals(filename)) {
-            logger.debug("Encoded filename string " + filename + " to " + newFilename);
+            logger.debug(logMessage+"Encoded filename string " + filename + " to " + newFilename);
         }
 
         return newFilename;
@@ -491,7 +492,7 @@ public class FileTools {
             localFile = fileCache.getFile(fullBaseFilename + "." + extension);
             if (localFile.exists()) {
                 if (logger.isTraceEnabled()) {
-                    logger.trace("FileTools: Found " + localFile + " in the file cache");
+                    logger.trace(logMessage + "Found " + localFile + " in the file cache");
                 }
                 return localFile;
             }
@@ -676,7 +677,7 @@ public class FileTools {
             generatedFileNames.add(filename);
 
             if (logger.isTraceEnabled()) {
-                logger.trace("FileTools: Adding " + filename + " to safe jukebox files");
+                logger.trace(logMessage + "Adding " + filename + " to safe jukebox files");
             }
         }
     }
@@ -753,12 +754,12 @@ public class FileTools {
         // archive scanner supporting constructors
         public FileEx(String pathname, IArchiveScanner[] archiveScanners) {
             super(pathname);
-            this.archiveScanners = archiveScanners;
+            this.archiveScanners = archiveScanners.clone();
         }
 
         public FileEx(File parent, String child, IArchiveScanner[] archiveScanners) {
             this(parent, child);
-            this.archiveScanners = archiveScanners;
+            this.archiveScanners = archiveScanners.clone();
         }
 
         @Override

@@ -25,7 +25,6 @@ import com.moviejukebox.tools.WebBrowser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
@@ -46,7 +45,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private String languageCode;
     private String countryCode;
     private boolean downloadFanart;
-    private static String fanartToken;
+    private static String fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
     private String fanartExtension;
     private int preferredPlotLength;
     private int preferredOutlineLength;
@@ -79,7 +78,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         logger.debug(logMessage + "Using `" + countryCode + "` as the country code");
 
         downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", "false");
-        fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
         preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
@@ -303,17 +301,13 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // Release Date
         if (overwriteCheck(moviedb.getReleaseDate(), movie.getReleaseDate())) {
             movie.setReleaseDate(moviedb.getReleaseDate());
-            try {
-                String year = moviedb.getReleaseDate();
-                // Check if this is the default year and skip it
-                if (!"1900-01-01".equals(year)) {
-                    year = (new DateTime(year)).toString("yyyy");
-                    movie.setYear(year);
-                } else {
-                    movie.setYear(Movie.UNKNOWN);
-                }
-            } catch (Exception ignore) {
-                // Don't set the year
+            String year = moviedb.getReleaseDate();
+            // Check if this is the default year and skip it
+            if (!"1900-01-01".equals(year)) {
+                year = (new DateTime(year)).toString("yyyy");
+                movie.setYear(year);
+            } else {
+                movie.setYear(Movie.UNKNOWN);
             }
         }
 

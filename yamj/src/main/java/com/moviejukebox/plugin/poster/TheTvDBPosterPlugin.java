@@ -33,8 +33,8 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private String language;
     private String language2nd;
     private TheTVDB tvDB;
-    private static String webhost = "thetvdb.com";
-    private static boolean isHibernateEnabled = Boolean.FALSE;
+    private static final String WEB_HOST = "thetvdb.com";
+    private boolean isHibernateEnabled = Boolean.FALSE;
 
     public TheTvDBPosterPlugin() {
         super();
@@ -71,7 +71,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 
         try {
             if (StringTools.isValidString(title)) {
-                ThreadExecutor.enterIO(webhost);
+                ThreadExecutor.enterIO(WEB_HOST);
                 try {
                     seriesList = tvDB.searchSeries(title, language);
                     // Try Alternative Language
@@ -122,7 +122,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     public IImage getPosterUrl(String id, int season) {
         String posterURL = Movie.UNKNOWN;
 
-        ThreadExecutor.enterIO(webhost);
+        ThreadExecutor.enterIO(WEB_HOST);
 
         try {
             if (!(id.equals(Movie.UNKNOWN) || (id.equals("-1"))) || (id.equals("0"))) {
