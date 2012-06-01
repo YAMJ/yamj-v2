@@ -970,10 +970,11 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
         @Override
         public void characters(char ch[], int start, int length) {
+            char ch2[] = ch.clone();
             if (name) {
-                nameString.append(ch, start, length);
+                nameString.append(ch2, start, length);
             } else if (mapping) {
-                lastMapping += new String(ch, start, length);
+                lastMapping += new String(ch2, start, length);
             }
         }
     }
@@ -1207,7 +1208,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         if ((anime = (AnidbAnime) CacheMemory.getFromCache(CacheMemory.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeId", Long.toString(aid)))) != null) {
             return anime;
         }
-        
+
         return null;
     }
 

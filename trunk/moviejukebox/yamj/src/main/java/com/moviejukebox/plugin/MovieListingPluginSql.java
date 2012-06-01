@@ -31,8 +31,9 @@ import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 
 public class MovieListingPluginSql extends MovieListingPluginBase implements MovieListingPlugin {
+
     private static final Logger logger = Logger.getLogger(MovieListingPluginSql.class);
-    private static Connection mjbConn = null;
+    private Connection mjbConn = null;
     private static String dbLocation = PropertiesUtil.getProperty("mjb.sql.location", "./");
     private static String dbName = PropertiesUtil.getProperty("mjb.sql.dbname", "listing.db");
 
@@ -42,7 +43,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
         mjbConn = MjbSqlDb.getConnection();
 
         int videoId = 0;
-        int joinId = 0;
+        int joinId;
         VideoDTO videoDTO;
 
         for (Movie movie : library.values()) {
@@ -171,7 +172,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
 
             VideoFileDTO vfDTO;
             VideoFilePartDTO vfpDTO;
-            int videoFileId = 0;
+            int videoFileId;
             int audioCodecId = 0;
             int videoCodecId = 0;
 
@@ -287,6 +288,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
 
     /**
      * Add a genre to the database
+     *
      * @param genre
      */
     private int addGenre(String genre, int videoId) {
@@ -312,6 +314,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
 
     /**
      * Add an artwork to the database
+     *
      * @param artworkFilename
      * @param artworkUrl
      * @param artworkType
@@ -340,6 +343,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
 
     /**
      * Add a person to the person list
+     *
      * @param person
      * @param job
      */

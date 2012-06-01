@@ -41,7 +41,6 @@ import org.apache.log4j.Logger;
  * @author quickfinga
  * @author artem.gratchev
  */
-@SuppressWarnings("serial")
 public class MovieFilenameScanner {
 
     private static final Logger logger = Logger.getLogger(MovieFilenameScanner.class);
@@ -725,13 +724,13 @@ public class MovieFilenameScanner {
     }
 
     public static String[] getSkipKeywords() {
-        return skipKeywords;
+        return skipKeywords.clone();
     }
 
     public static void setSkipKeywords(String[] skipKeywords, boolean caseSensitive) {
-        MovieFilenameScanner.skipKeywords = skipKeywords;
+        MovieFilenameScanner.skipKeywords = skipKeywords.clone();
         skipPatterns.clear();
-        for (String s : skipKeywords) {
+        for (String s : MovieFilenameScanner.skipKeywords) {
             if (caseSensitive) {
                 skipPatterns.add(wpatt(Pattern.quote(s)));
             } else {
@@ -741,12 +740,12 @@ public class MovieFilenameScanner {
     }
 
     public static String[] getSkipRegexKeywords() {
-        return skipRegexKeywords;
+        return skipRegexKeywords.clone();
     }
 
     public static void setSkipRegexKeywords(String[] skipRegexKeywords, boolean caseSensitive) {
-        MovieFilenameScanner.skipRegexKeywords = skipRegexKeywords;
-        for (String s : skipRegexKeywords) {
+        MovieFilenameScanner.skipRegexKeywords = skipRegexKeywords.clone();
+        for (String s : MovieFilenameScanner.skipRegexKeywords) {
             if (caseSensitive) {
                 skipPatterns.add(patt(s));
             } else {
@@ -756,25 +755,25 @@ public class MovieFilenameScanner {
     }
 
     public static String[] getExtrasKeywords() {
-        return extrasKeywords;
+        return extrasKeywords.clone();
     }
 
     public static void setExtrasKeywords(String[] extrasKeywords) {
-        MovieFilenameScanner.extrasKeywords = extrasKeywords;
+        MovieFilenameScanner.extrasKeywords = extrasKeywords.clone();
         extrasPatterns.clear();
-        for (String s : extrasKeywords) {
+        for (String s : MovieFilenameScanner.extrasKeywords) {
             extrasPatterns.add(pattInSBrackets(Pattern.quote(s)));
         }
     }
 
     public static String[] getMovieVersionKeywords() {
-        return movieVersionKeywords;
+        return movieVersionKeywords.clone();
     }
 
     public static void setMovieVersionKeywords(String[] movieVersionKeywords) {
-        MovieFilenameScanner.movieVersionKeywords = movieVersionKeywords;
+        MovieFilenameScanner.movieVersionKeywords = movieVersionKeywords.clone();
         movieVersionPatterns.clear();
-        for (String s : movieVersionKeywords) {
+        for (String s : MovieFilenameScanner.movieVersionKeywords) {
             movieVersionPatterns.add(
                     iwpatt(s.replace(" ", WORD_DELIMITERS_MATCH_PATTERN.pattern())));
         }
