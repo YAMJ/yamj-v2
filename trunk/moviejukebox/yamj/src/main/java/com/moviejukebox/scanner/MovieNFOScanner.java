@@ -105,9 +105,9 @@ public class MovieNFOScanner {
             String nfo = FileTools.readFileToString(nfoFile);
             boolean parsedXmlNfo = Boolean.FALSE;   // Was the NFO XML parsed correctly or at all
 
-            if (StringUtils.containsIgnoreCase(nfo, "<" + TYPE_MOVIE + ">")
-                    || StringUtils.containsIgnoreCase(nfo, "<" + TYPE_TVSHOW + ">")
-                    || StringUtils.containsIgnoreCase(nfo, "<" + TYPE_EPISODE + ">")) {
+            if (StringUtils.containsIgnoreCase(nfo, "<" + TYPE_MOVIE)
+                    || StringUtils.containsIgnoreCase(nfo, "<" + TYPE_TVSHOW)
+                    || StringUtils.containsIgnoreCase(nfo, "<" + TYPE_EPISODE)) {
                 parsedXmlNfo = MovieNFOReader.parseNfo(nfoFile, movie);
             }
 
