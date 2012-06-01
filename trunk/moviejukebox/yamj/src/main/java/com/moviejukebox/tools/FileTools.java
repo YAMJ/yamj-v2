@@ -40,7 +40,6 @@ public class FileTools {
      * Gabriel Corneanu: One buffer for each thread to allow threaded copies
      */
     private static final ThreadLocal<byte[]> threadBuffer = new ThreadLocal<byte[]>() {
-
         @Override
         protected byte[] initialValue() {
             return new byte[BUFF_SIZE];
@@ -443,9 +442,8 @@ public class FileTools {
     }
 
     /**
-     * Returns the given path in canonical form i.e. no duplicated separators,
-     * no ".", ".."..., and ending without trailing separator the only exception
-     * is a root! the canonical form for a root INCLUDES the separator
+     * Returns the given path in canonical form i.e. no duplicated separators, no ".", ".."..., and ending without
+     * trailing separator the only exception is a root! the canonical form for a root INCLUDES the separator
      */
     public static String getCanonicalPath(String path) {
         try {
@@ -456,8 +454,7 @@ public class FileTools {
     }
 
     /**
-     * when concatenating paths and the source MIGHT be a root, use this
-     * function to safely add the separator
+     * when concatenating paths and the source MIGHT be a root, use this function to safely add the separator
      */
     public static String getDirPathWithSeparator(String path) {
         return path.endsWith(File.separator) ? path : path + File.separator;
@@ -480,8 +477,8 @@ public class FileTools {
 
     /**
      * *
-     * Pass in the filename and a list of extensions, this function will scan
-     * for the filename plus extensions and return the File
+     * Pass in the filename and a list of extensions, this function will scan for the filename plus extensions and
+     * return the File
      *
      * @param filename
      * @param fileExtensions
@@ -500,12 +497,11 @@ public class FileTools {
             }
         }
 
-        return (localFile != null ? localFile : new File(localFile + Movie.UNKNOWN)); //just in case
+        return (localFile == null ? new File(Movie.UNKNOWN) : localFile); //just in case
     }
 
     /**
-     * Search for the filename in the cache and look for each with the
-     * extensions
+     * Search for the filename in the cache and look for each with the extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -518,8 +514,7 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the
-     * extensions
+     * Search for the filename in the cache and look for each with the extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -533,8 +528,7 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the
-     * extensions
+     * Search for the filename in the cache and look for each with the extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -595,9 +589,8 @@ public class FileTools {
     }
 
     /**
-     * Download the image for the specified URL into the specified file.
-     * Utilises the WebBrowser downloadImage function to allow for proxy
-     * connections.
+     * Download the image for the specified URL into the specified file. Utilises the WebBrowser downloadImage function
+     * to allow for proxy connections.
      *
      * @param imageFile
      * @param imageURL
@@ -689,8 +682,7 @@ public class FileTools {
     }
 
     /**
-     * Process the movie and add all the files to the jukebox cleaning exclusion
-     * list
+     * Process the movie and add all the files to the jukebox cleaning exclusion list
      *
      * @param movie
      */
@@ -726,8 +718,7 @@ public class FileTools {
     }
 
     /**
-     * Special File with "cached" attributes used to minimize file system access
-     * which slows down everything
+     * Special File with "cached" attributes used to minimize file system access which slows down everything
      *
      * @author Gabriel Corneanu
      */
@@ -894,8 +885,8 @@ public class FileTools {
     }
 
     /**
-     * cached File instances the key is always absolute path in upper-case, so
-     * it will NOT work for case only differences
+     * cached File instances the key is always absolute path in upper-case, so it will NOT work for case only
+     * differences
      *
      * @author Gabriel Corneanu
      */

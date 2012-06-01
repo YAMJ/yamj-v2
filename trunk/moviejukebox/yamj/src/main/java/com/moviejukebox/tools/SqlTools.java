@@ -20,16 +20,17 @@ import java.sql.Statement;
 import org.apache.log4j.Logger;
 
 public class SqlTools {
-    private static final Logger logger = Logger.getLogger(SqlTools.class);
-    private static Connection connection = null;
 
+    private static final Logger logger = Logger.getLogger(SqlTools.class);
+    private static final String logMessage = "SqlTools: ";
+    private static Connection connection = null;
     private static String INSERT_VIDEO = "insert into VIDEO (TITLE, POSTER, PATH) values (?, ?, ?)";
 
     static {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (Exception error) {
-            logger.error("SqlTools: Error getting database driver");
+            logger.error(logMessage + "Error getting database driver");
         }
     }
 
@@ -39,9 +40,9 @@ public class SqlTools {
             connection.setAutoCommit(false);
             createTables();
             connection.commit();
-            logger.info("SqlTools: Opened database - " + databaseName);
+            logger.info(logMessage + "Opened database - " + databaseName);
         } catch (Exception error) {
-            logger.error("SqlTools: Error opening database: " + error.getMessage());
+            logger.error(logMessage + "Error opening database: " + error.getMessage());
         }
     }
 
@@ -49,10 +50,10 @@ public class SqlTools {
         try {
             if (connection != null) {
                 connection.close();
+                logger.info(logMessage + "Closed database - " + connection.getCatalog());
             }
-            logger.info("SqlTools: Closed database - " + connection.getCatalog());
         } catch (Exception error) {
-            logger.error("SqlTools: Error closing database: " + error.getMessage());
+            logger.error(logMessage + "Error closing database: " + error.getMessage());
         }
     }
 
@@ -78,7 +79,7 @@ public class SqlTools {
             stmt.executeBatch();
 
         } catch (Exception error) {
-            logger.error("SqlTools: Error creating tables: " + error.getMessage());
+            logger.error(logMessage + "Error creating tables: " + error.getMessage());
         }
     }
 
@@ -104,7 +105,7 @@ public class SqlTools {
             stmt.executeBatch();
         } catch (Throwable tw) {
             throw new RuntimeException("Delete photo tables error. "
-                + tw.getMessage(), tw);
+                    + tw.getMessage(), tw);
         } finally {
             closeDatabase();
         }
@@ -122,9 +123,7 @@ public class SqlTools {
             pstmt.executeUpdate();
             connection.commit();
         } catch (Exception error) {
-            logger.error("SqlTools: Error inserting into VIDEO table: " + error.getMessage());
+            logger.error(logMessage + "Error inserting into VIDEO table: " + error.getMessage());
         }
     }
-
-
 }
