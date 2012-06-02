@@ -335,7 +335,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             for (String tmp : HTMLTools.extractTags(xml, "class=\"FilmType\"><i", "</td>", "", "</i>")) {
                 for (String temp : tmp.split(",")) {
                     if (!temp.equals("")) {
-                        if (temp.indexOf(" мин.") > 0) {
+                        if (temp.indexOf(" мин.") > -1) {
                             time = new String(temp.substring(0, temp.indexOf(" мин.") + 4));
                             break;
                         }

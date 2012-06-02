@@ -14,6 +14,11 @@ package com.moviejukebox.model;
 
 import java.io.File;
 
+/**
+ * Holds information about the jukebox and the various directories associated with it
+ *
+ * @author Stuart
+ */
 public final class Jukebox {
     /*
      * Pointers to the target (final) Jukebox directory
@@ -44,70 +49,70 @@ public final class Jukebox {
     /**
      * @return the jukeboxRootLocation
      */
-    public final String getJukeboxRootLocation() {
+    public String getJukeboxRootLocation() {
         return jukeboxRootLocation;
     }
 
     /**
      * @return the jukeboxRootLocationFile
      */
-    public final File getJukeboxRootLocationFile() {
+    public File getJukeboxRootLocationFile() {
         return jukeboxRootLocationFile;
     }
 
     /**
      * @return the jukeboxRootLocationDetails
      */
-    public final String getJukeboxRootLocationDetails() {
+    public String getJukeboxRootLocationDetails() {
         return jukeboxRootLocationDetails;
     }
 
     /**
      * @return the jukeboxRootLocationDetailsFile
      */
-    public final File getJukeboxRootLocationDetailsFile() {
+    public File getJukeboxRootLocationDetailsFile() {
         return jukeboxRootLocationDetailsFile;
     }
 
     /**
      * @return the jukeboxTempLocation
      */
-    public final String getJukeboxTempLocation() {
+    public String getJukeboxTempLocation() {
         return jukeboxTempLocation;
     }
 
     /**
      * @return the jukeboxTempLocationFile
      */
-    public final File getJukeboxTempLocationFile() {
+    public File getJukeboxTempLocationFile() {
         return jukeboxTempLocationFile;
     }
 
     /**
      * @return the jukeboxTempLocationDetails
      */
-    public final String getJukeboxTempLocationDetails() {
+    public String getJukeboxTempLocationDetails() {
         return jukeboxTempLocationDetails;
     }
 
     /**
      * @return the jukeboxTempLocationDetailsFile
      */
-    public final File getJukeboxTempLocationDetailsFile() {
+    public File getJukeboxTempLocationDetailsFile() {
         return jukeboxTempLocationDetailsFile;
     }
 
     /**
      * @return the detailsDirName
      */
-    public final String getDetailsDirName() {
+    public String getDetailsDirName() {
         return detailsDirName;
     }
 
     /**
      * @param jukeboxRootLocation the jukeboxRootLocation to set
      */
-    public final void setJukeboxRootLocation(String jukeboxRootLocation) {
+    public void setJukeboxRootLocation(String jukeboxRootLocation) {
         // First set the two string directory names
         this.jukeboxRootLocation = jukeboxRootLocation;
         this.jukeboxRootLocationDetails = addDetailsName(jukeboxRootLocation);
@@ -120,7 +125,7 @@ public final class Jukebox {
     /**
      * @param jukeboxTempLocation the jukeboxTempLocation to set
      */
-    public final void setJukeboxTempLocation(String jukeboxTempLocation) {
+    public void setJukeboxTempLocation(String jukeboxTempLocation) {
         // First set the two string directory names
         this.jukeboxTempLocation = jukeboxTempLocation;
         this.jukeboxTempLocationDetails = addDetailsName(jukeboxTempLocation);
@@ -135,7 +140,7 @@ public final class Jukebox {
      *
      * @param detailsDirName the detailsDirName to set
      */
-    public final void setDetailsDirName(String detailsDirName) {
+    public void setDetailsDirName(String detailsDirName) {
         this.detailsDirName = detailsDirName;
     }
 

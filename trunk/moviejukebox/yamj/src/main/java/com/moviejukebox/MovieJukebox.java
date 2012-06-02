@@ -12,17 +12,16 @@
  */
 package com.moviejukebox;
 
-import com.moviejukebox.model.DirtyFlag;
-import com.moviejukebox.fanarttv.model.FTArtworkType;
-import com.moviejukebox.model.Comparator.PersonComparator;
 import com.moviejukebox.model.*;
 import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.model.Comparator.PersonComparator;
 import com.moviejukebox.plugin.*;
 import com.moviejukebox.scanner.*;
 import com.moviejukebox.scanner.artwork.*;
-import static com.moviejukebox.tools.PropertiesUtil.*;
-import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.PropertiesUtil.*;
+import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
+import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.writer.CompleteMoviesWriter;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxLibraryReader;

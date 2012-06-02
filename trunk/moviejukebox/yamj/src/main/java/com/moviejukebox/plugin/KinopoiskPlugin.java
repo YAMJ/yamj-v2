@@ -487,7 +487,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 // Run time
                 if (movie.getRuntime().equals(Movie.UNKNOWN) || etalonFlag) {
                     for (String runtime : HTMLTools.extractTags(item, ">время<", "</tr>", "<td", "</td>")) {
-                        if (runtime.indexOf("<span") > 0) {
+                        if (runtime.contains("<span")) {
                             runtime = runtime.substring(0, runtime.indexOf("<span"));
                         }
                         movie.setRuntime(runtime);
@@ -694,7 +694,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         if (wholeArts.indexOf("<table class=\"fotos") != -1) {
                             String picture = HTMLTools.extractTag(wholeArts, "src=\"http://st.kinopoisk.ru/images/wallpaper/sm_", 0, ".jpg");
                             if (StringTools.isValidString(picture)) {
-                                if (picture.indexOf("_") > 0) {
+                                if (picture.contains("_")) {
                                     picture = picture.substring(0, picture.indexOf("_"));
                                 }
                                 String size = HTMLTools.extractTag(wholeArts, "<u><a href=\"/picture/" + picture + "/w_size/", 0, "/");

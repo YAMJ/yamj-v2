@@ -514,7 +514,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         int beginIndex = actorBlock.indexOf("<td class=\"char\">");
                         String character = Movie.UNKNOWN;
                         if (beginIndex > 0) {
-                            if (actorBlock.indexOf("<a href=\"/character/") > 0) {
+                            if (actorBlock.indexOf("<a href=\"/character/") > -1) {
                                 character = actorBlock.substring(actorBlock.indexOf("/\">", beginIndex) + 3, actorBlock.indexOf("</a>", beginIndex));
                             } else {
                                 character = actorBlock.substring(actorBlock.indexOf("\">", beginIndex) + 2, actorBlock.indexOf("</td>", beginIndex));
@@ -852,7 +852,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     String name = HTMLTools.extractTag(actorBlock, "<a ", 1);
                     String character = Movie.UNKNOWN;
                     if (beginIndex > 0) {
-                        if (actorBlock.indexOf("<a href=\"/character/") > 0) {
+                        if (actorBlock.indexOf("<a href=\"/character/") > -1) {
                             character = HTMLTools.extractTag(actorBlock, "<a href=\"/character/", 1);
                         } else {
                             character = HTMLTools.removeHtmlTags(actorBlock.substring(actorBlock.indexOf(">", beginIndex) + 2, actorBlock.indexOf("</td>", beginIndex)));
@@ -882,7 +882,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         ArrayList<String> akaList = HTMLTools.extractTags(releaseInfoXML, "Also Known As (AKA)", "</table>", "<td>", "</td>", Boolean.FALSE);
 
         // Does the "original title" exist on the page?
-        if (akaList.toString().indexOf("original title") > 0) {
+        if (akaList.toString().indexOf("original title") > -1) {
             // This table comes back as a single list, so we have to save the last entry in case it's the one we need
             String previousEntry = "";
             boolean foundAka = Boolean.FALSE;
@@ -1001,7 +1001,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             site = "http://www.imdb.com/";
         }
         String awardXML = webBrowser.request(site + "title/" + imdbId + "/awards");
-        if (awardXML.indexOf("Category/Recipient(s)") > 0) {
+        if (awardXML.indexOf("Category/Recipient(s)") > -1) {
             Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
             for (String awardBlock : HTMLTools.extractTags(awardXML, "<table style=\"margin-top: 8px; margin-bottom: 8px\" cellspacing=\"2\" cellpadding=\"2\" border=\"1\">", "</table>", "bgcolor=\"#ffffdb\"", "<td colspan=\"4\" align=\"center\" valign=\"top\"")) {
                 String name = HTMLTools.extractTag(awardBlock, "<big><a href=", "</a></big>");
@@ -1011,7 +1011,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 event.setName(name);
 
                 for (String yearBlock : HTMLTools.extractTags(awardBlock + "<end>", "</th>", "<end>", "<tr", "<td colspan=\"4\">")) {
-                    if (yearBlock.indexOf("Sections/Awards") > 0) {
+                    if (yearBlock.indexOf("Sections/Awards") > -1) {
                         String tmpString = HTMLTools.extractTag(yearBlock, "<a href=", "</a>");
                         String yearStr = tmpString.substring(tmpString.indexOf(">") + 1).substring(0, 4);
                         int year = yearStr.equals("????") ? -1 : Integer.parseInt(yearStr);
@@ -1024,7 +1024,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         name = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("<b>" + title + "</b>")), namePattern, "</td>");
                         if (title.equals("Won") || title.equals("2nd place")) {
                             won = count;
-                            if (yearBlock.indexOf("<b>Nominated</b>") > 0) {
+                            if (yearBlock.indexOf("<b>Nominated</b>") > -1) {
                                 nominated = Integer.parseInt(HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf(namePattern + name + "</td>") + 1), "<td rowspan=\"", "\""));
                             }
                         } else if (title.equals("Nominated")) {
@@ -1060,9 +1060,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         Collection<String> wons = new ArrayList<String>();
         String blockContent;
         for (String nameBlock : HTMLTools.extractTags(yearBlock + "<end>", won ? "<b>Won</b>" : "<b>Nominated</b>", won && (nominated > 0) ? "<b>Nominated</b>" : "<end>", "<td valign=\"top\"", "</td>")) {
-            if (nameBlock.indexOf("<a ") > -1 && nameBlock.indexOf("<a ") < nameBlock.indexOf("<br>") && nameBlock.indexOf("<small>") > 0) {
+            if (nameBlock.indexOf("<a ") > -1 && nameBlock.indexOf("<a ") < nameBlock.indexOf("<br>") && nameBlock.indexOf("<small>") > -1) {
                 blockContent = HTMLTools.extractTag(nameBlock, "<small>", "</small>");
-            } else if (nameBlock.indexOf("<br>") > 0) {
+            } else if (nameBlock.indexOf("<br>") > -1) {
                 blockContent = nameBlock.substring(0, nameBlock.indexOf("<br>"));
             } else {
                 blockContent = nameBlock;

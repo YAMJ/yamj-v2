@@ -234,7 +234,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             return getComingSoonIdFromSearch("http://search.yahoo.com/search?vc=&p=", movieName, year);
         } else if (searchIdPreference.equalsIgnoreCase("google")) {
             return getComingSoonIdFromSearch("http://www.google.com/search?hl=it&q=", movieName, year);
-        } else if (searchIdPreference.indexOf(",") > 0) {
+        } else if (searchIdPreference.contains(",")) {
             StringTokenizer st = new StringTokenizer(searchIdPreference, ",");
             while (st.hasMoreTokens()) {
                 String id = getComingSoonId(movieName, year, st.nextToken().trim());

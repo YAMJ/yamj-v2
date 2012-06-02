@@ -13,7 +13,6 @@
 package com.moviejukebox.tools;
 
 import java.io.Serializable;
-import java.util.Collection;
 import org.apache.log4j.Logger;
 
 /**
