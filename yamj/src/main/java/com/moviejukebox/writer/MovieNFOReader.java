@@ -249,6 +249,10 @@ public class MovieNFOReader {
 
         Element eStreamDetails = DOMHelper.getElementByName(eFileInfo, "streamdetails");
 
+        if (eStreamDetails == null) {
+            return;
+        }
+
         // Video
         NodeList nlStreams = eStreamDetails.getElementsByTagName("video");
         Node nStreams;
@@ -360,6 +364,9 @@ public class MovieNFOReader {
      */
     private static EpisodeDetail parseSingleEpisodeDetail(Element eEpisodeDetails) {
         EpisodeDetail epDetail = new EpisodeDetail();
+        if (eEpisodeDetails == null) {
+            return epDetail;
+        }
 
         epDetail.setTitle(DOMHelper.getValueFromElement(eEpisodeDetails, "title"));
 
@@ -571,6 +578,10 @@ public class MovieNFOReader {
      * @param movie
      */
     private static void parseCertification(Element eCommon, Movie movie) {
+        if (eCommon == null) {
+            return;
+        }
+
         String tempCert;
         if (getCertificationFromMPAA) {
             tempCert = DOMHelper.getValueFromElement(eCommon, "mpaa");
@@ -673,9 +684,9 @@ public class MovieNFOReader {
                 String movieDb = eId.getAttribute("moviedb");
                 if (StringTools.isNotValidString(movieDb)) {
                     // Decide which default plugin ID to use
-                    if(isTv){
+                    if (isTv) {
                         movieDb = TheTvDBPlugin.THETVDB_PLUGIN_ID;
-                    }else{
+                    } else {
                         movieDb = ImdbPlugin.IMDB_PLUGIN_ID;
                     }
                 }
@@ -692,6 +703,10 @@ public class MovieNFOReader {
      * @param movie
      */
     private static void parseTitle(Element eCommon, Movie movie) {
+        if (eCommon == null) {
+            return;
+        }
+
         // Determine title elements
         String titleMain = DOMHelper.getValueFromElement(eCommon, "title");
         String titleSort = DOMHelper.getValueFromElement(eCommon, "sorttitle");

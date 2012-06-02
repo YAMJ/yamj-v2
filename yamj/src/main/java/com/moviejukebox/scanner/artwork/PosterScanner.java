@@ -27,6 +27,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 import java.awt.Dimension;
+import java.awt.color.CMMException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -167,14 +168,13 @@ public class PosterScanner {
         }
 
         /**
-         * This part will look for a filename with the same name as the
-         * directory for the poster or for folder.* poster The intention is for
-         * you to be able to create the season / TV series art for the whole
-         * series and not for the first show. Useful if you change the files
-         * regularly.
+         * This part will look for a filename with the same name as the directory for the poster or for folder.* poster
+         * The intention is for you to be able to create the season / TV series art for the whole series and not for the
+         * first show. Useful if you change the files regularly.
          *
          * @author Stuart.Boston
-         * @version 1.0 @date 18th October 2008
+         * @version 1.0
+         * @date 18th October 2008
          */
         if (!foundLocalPoster) {
             // If no poster has been found, try the foldername
@@ -274,12 +274,11 @@ public class PosterScanner {
     }
 
     /**
-     * Locate the PosterURL from the Internet. This is the main method and
-     * should be called instead of the individual getPosterFrom* methods.
+     * Locate the PosterURL from the Internet. This is the main method and should be called instead of the individual
+     * getPosterFrom* methods.
      *
      * @param movie The movieBean to search for
-     * @return The posterImage with poster url that was found (Maybe
-     * Image.UNKNOWN)
+     * @return The posterImage with poster url that was found (Maybe Image.UNKNOWN)
      */
     public static IImage getPosterURL(Movie movie) {
         String posterSearchToken;
@@ -496,24 +495,31 @@ public class PosterScanner {
         Dimension imageSize = new Dimension(0, 0);
 
         ImageInputStream in = null;
+        ImageReader reader = null;
+
         try {
             in = ImageIO.createImageInputStream(imageFile);
-            @SuppressWarnings("rawtypes")
             Iterator readers = ImageIO.getImageReaders(in);
             if (readers.hasNext()) {
-                ImageReader reader = (ImageReader) readers.next();
-                try {
-                    reader.setInput(in);
+                reader = (ImageReader) readers.next();
+                reader.setInput(in);
+                if (reader != null) {
                     return new Dimension(reader.getWidth(0), reader.getHeight(0));
-                } catch (IOException e) {
-                    logger.error(logMessage + "Failed to read image dimensions for " + imageFile.getName());
-                } finally {
-                    reader.dispose();
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException ex) {
+            logger.error(logMessage + "Failed to read image dimensions for " + imageFile.getName());
+            logger.error(logMessage + "Error: " + ex.getMessage());
+            return imageSize;
+        } catch (CMMException ex) {
+            logger.error(logMessage + "Failed to read image dimensions for " + imageFile.getName());
+            logger.error(logMessage + "Error: " + ex.getMessage());
             return imageSize;
         } finally {
+            if (reader != null) {
+                reader.dispose();
+            }
+
             if (in != null) {
                 try {
                     in.close();
