@@ -246,11 +246,9 @@ public class TrailersLandPlugin extends TrailersPlugin {
 
                         //logger.debug(trailersPluginName + " Plugin: evaluating url " +  url);
 
-                        if (tr.candidateUrl(url)) {
-                            if (!found) {
-                                found = true;
-                                remaining--;
-                            }
+                        if (tr.candidateUrl(url) && !found) {
+                            found = true;
+                            remaining--;
                             //logger.debug(trailersPluginName + " Plugin: current best url is " + url);
                         }
 

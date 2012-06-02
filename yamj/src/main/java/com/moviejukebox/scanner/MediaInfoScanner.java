@@ -395,22 +395,20 @@ public class MediaInfoScanner {
             HashMap<String, String> infosMainVideo = infosVideo.get(0);
 
             // Check that movie is not multi part
-            if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                if (movie.getMovieFiles().size() == 1) {
-                    // Duration
-                    infoValue = infosMainVideo.get("Duration");
-                    if (infoValue != null) {
+            if (movie.getRuntime().equals(Movie.UNKNOWN) && movie.getMovieFiles().size() == 1) {
+                // Duration
+                infoValue = infosMainVideo.get("Duration");
+                if (infoValue != null) {
 
-                        int duration;
-                        try {
-                            duration = Integer.parseInt(infoValue) / 1000;
-                            // Issue 1176 - Prevent lost of NFO Data
-                            if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                                movie.setRuntime(StringTools.formatDuration(duration));
-                            }
-                        } catch (NumberFormatException nfe) {
-                            logger.debug(nfe.getMessage());
+                    int duration;
+                    try {
+                        duration = Integer.parseInt(infoValue) / 1000;
+                        // Issue 1176 - Prevent lost of NFO Data
+                        if (movie.getRuntime().equals(Movie.UNKNOWN)) {
+                            movie.setRuntime(StringTools.formatDuration(duration));
                         }
+                    } catch (NumberFormatException nfe) {
+                        logger.debug(nfe.getMessage());
                     }
                 }
             }
@@ -725,8 +723,7 @@ public class MediaInfoScanner {
     }
 
     /**
-     * Look for the mediaInfo filename and return it. Will check first for the
-     * mediainfo-rar file and then mediainfo
+     * Look for the mediaInfo filename and return it. Will check first for the mediainfo-rar file and then mediainfo
      *
      * @param osName
      * @return

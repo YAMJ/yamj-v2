@@ -343,7 +343,7 @@ public class HTMLTools {
                             radix = 16;
                         }
                         try {
-                            Character c = new Character((char)Integer.parseInt(new String(entity.substring(start, entity.length() - 1)), radix));
+                            Character c = new Character((char) Integer.parseInt(new String(entity.substring(start, entity.length() - 1)), radix));
                             result.append(c);
                         } // when the number of the entity can't be parsed, add the entity as-is
                         catch (NumberFormatException error) {
@@ -393,7 +393,7 @@ public class HTMLTools {
         if (url != null && url.length() != 0) {
             try {
                 returnUrl = URLEncoder.encode(url, "UTF-8");
-                returnUrl = returnUrl.replace((CharSequence)"+", (CharSequence)"%20"); // why does URLEncoder do that??!!
+                returnUrl = returnUrl.replace((CharSequence) "+", (CharSequence) "%20"); // why does URLEncoder do that??!!
             } catch (UnsupportedEncodingException ignored) {
                 logger.info("Could not decode URL string: " + returnUrl + ", will proceed with undecoded string.");
             }
@@ -479,11 +479,8 @@ public class HTMLTools {
 
             value = HTMLTools.decodeHtml(st.nextToken().trim());
 
-            if (checkDirty) {
-                // Why those check ?
-                if (value.indexOf("uiv=\"content-ty") != -1 || value.indexOf("cast") != -1 || value.indexOf("title") != -1 || value.indexOf("<") != -1) {
-                    value = Movie.UNKNOWN;
-                }
+            if (checkDirty && value.indexOf("uiv=\"content-ty") != -1 || value.indexOf("cast") != -1 || value.indexOf("title") != -1 || value.indexOf("<") != -1) {
+                value = Movie.UNKNOWN;
             }
         }
 
@@ -582,17 +579,12 @@ public class HTMLTools {
     }
 
     /**
-     * Example: src = "<a id="specialID"><br/>
-     * <img src="a.gif"/>my text</a> findStr = "specialID" result = "my text"
+     * Example: src = "<a id="specialID"><br/> <img src="a.gif"/>my text</a> findStr = "specialID" result = "my text"
      *
-     * @param src
-     *            html text
-     * @param findStr
-     *            string to find in src
-     * @param skip
-     *            count of found texts to skip
-     * @param fromIndex
-     *            begin index in src
+     * @param src html text
+     * @param findStr string to find in src
+     * @param skip count of found texts to skip
+     * @param fromIndex begin index in src
      * @return string from html text which is plain text without html tags
      */
     public static String getTextAfterElem(String src, String findStr, int skip, int fromIndex) {

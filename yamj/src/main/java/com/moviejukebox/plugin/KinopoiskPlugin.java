@@ -345,7 +345,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                         newTitle = newTitle.replace('\u00A0', ' ').trim();
                         if (movie.getSeason() != -1) {
-                            newTitle = newTitle + ", сезон " + String.valueOf(movie.getSeason());
+                            newTitle = newTitle + ", сезон " + movie.getSeason();
                         }
 
                         // Original title

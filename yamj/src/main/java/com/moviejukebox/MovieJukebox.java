@@ -2084,7 +2084,7 @@ public class MovieJukebox {
         }
     }
 
-    public synchronized static MovieImagePlugin getImagePlugin(String className) {
+    public static synchronized MovieImagePlugin getImagePlugin(String className) {
         MovieImagePlugin imagePlugin;
 
         try {

@@ -212,11 +212,9 @@ public class FilmwebPlugin extends ImdbPlugin {
         try {
             String xml = webBrowser.request(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
 
-            if (HTMLTools.extractTag(xml, "<title>").contains("Serial")) {
-                if (!movie.isTVShow()) {
-                    movie.setMovieType(Movie.TYPE_TVSHOW);
-                    return Boolean.FALSE;
-                }
+            if (HTMLTools.extractTag(xml, "<title>").contains("Serial") && !movie.isTVShow()) {
+                movie.setMovieType(Movie.TYPE_TVSHOW);
+                return Boolean.FALSE;
             }
 
             if (!movie.isOverrideTitle()) {

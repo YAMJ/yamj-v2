@@ -366,12 +366,11 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         // Run time
         String runtime = HTMLTools.extractTag(fdeltaHtml, "Land, &aring;r, l&auml;ngd", 7);
         String[] newRunTime = runtime.split("\\s");
-        if (newRunTime.length > 2) {
-            // Issue 1176 - Prevent lost of NFO Data
-            if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                movie.setRuntime(newRunTime[1]);
-                logger.debug(logMessage + "scraped runtime: " + movie.getRuntime());
-            }
+
+        // Issue 1176 - Prevent lost of NFO Data
+        if (newRunTime.length > 2 && movie.getRuntime().equals(Movie.UNKNOWN)) {
+            movie.setRuntime(newRunTime[1]);
+            logger.debug(logMessage + "scraped runtime: " + movie.getRuntime());
         }
     }
 }

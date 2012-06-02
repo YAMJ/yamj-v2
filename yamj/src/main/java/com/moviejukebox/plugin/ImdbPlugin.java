@@ -14,8 +14,8 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.*;
 import com.moviejukebox.scanner.artwork.FanartScanner;
-import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.StringTools.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.NumberFormat;
@@ -172,11 +172,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             xml = webBrowser.request(xml, siteDef.getCharset());
 
-            if (xml.contains("\"tv-extra\"") || xml.contains("\"tv-series-series\"")) {
-                if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
-                    movie.setMovieType(Movie.TYPE_TVSHOW);
-                    return Boolean.FALSE;
-                }
+            if ((xml.contains("\"tv-extra\"") || xml.contains("\"tv-series-series\""))
+                    && !movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
+                movie.setMovieType(Movie.TYPE_TVSHOW);
+                return Boolean.FALSE;
             }
 
             // We can work out if this is the new site by looking for " - IMDb" at the end of the title

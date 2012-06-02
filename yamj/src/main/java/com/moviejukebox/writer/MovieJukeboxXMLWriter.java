@@ -13,10 +13,10 @@
 package com.moviejukebox.writer;
 
 import com.moviejukebox.MovieJukebox;
+import com.moviejukebox.model.*;
 import com.moviejukebox.model.Comparator.CertificationComparator;
 import com.moviejukebox.model.Comparator.IndexComparator;
 import com.moviejukebox.model.Comparator.SortIgnorePrefixesComparator;
-import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.*;
 import static com.moviejukebox.tools.XMLHelper.parseCData;
@@ -24,8 +24,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Map.Entry;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
@@ -1249,7 +1249,6 @@ public class MovieJukeboxXMLWriter {
             while (itr.hasNext()) {
                 final Map.Entry<String, List<Movie>> group = itr.next();
                 tasks.submit(new Callable<Void>() {
-
                     @Override
                     public Void call() throws XMLStreamException, FileNotFoundException {
                         List<Movie> movies = group.getValue();
@@ -2168,10 +2167,8 @@ public class MovieJukeboxXMLWriter {
             // Write the fileURL
             String filename = mf.getFilename();
             // Issue 1237: Add "VIDEO_TS.IFO" for PlayOnHD VIDEO_TS path names
-            if (isPlayOnHD) {
-                if (filename.toUpperCase().endsWith("VIDEO_TS")) {
-                    filename = filename + "/VIDEO_TS.IFO";
-                }
+            if (isPlayOnHD && filename.toUpperCase().endsWith("VIDEO_TS")) {
+                filename = filename + "/VIDEO_TS.IFO";
             }
 
             // If attribute was set, save it back out.

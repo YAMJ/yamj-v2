@@ -18,14 +18,14 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 /**
- * User: JDGJr
- * Date: Feb 14, 2009
+ * User: JDGJr Date: Feb 14, 2009
  */
 public class CSVWriter {
-    private static final Logger logger = Logger.getLogger(CSVWriter.class);
 
+    private static final Logger logger = Logger.getLogger(CSVWriter.class);
+    private static final String logMessage = "CSVWriter: ";
+    private static final String S_EOL = System.getProperty("line.separator");
     private FileWriter writer;
-    static private String sEOL = System.getProperty("line.separator");
 
     /**
      * @param csvFile
@@ -34,7 +34,7 @@ public class CSVWriter {
         try {
             writer = new FileWriter(csvFile);
         } catch (Exception ex) {
-            logger.error("Error creating CSV file: " + csvFile);
+            logger.error(logMessage + "Error creating CSV file: " + csvFile);
         }
     }
 
@@ -42,7 +42,7 @@ public class CSVWriter {
      * @param str
      */
     public void line(String str) throws IOException {
-        writer.write(str + sEOL);
+        writer.write(str + S_EOL);
     }
 
     /**
@@ -61,5 +61,4 @@ public class CSVWriter {
         } catch (Exception ignore) {
         }
     }
-
 } // class CSVWriter

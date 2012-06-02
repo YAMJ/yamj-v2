@@ -282,7 +282,7 @@ public class MovieNFOReader {
                 String aChannels = DOMHelper.getValueFromElement(eStreams, "channels");
 
                 // If the codec is lowercase, covert it to uppercase, otherwise leave it alone
-                if (aCodec.toLowerCase().equals(aCodec)) {
+                if (aCodec.equalsIgnoreCase(aCodec)) {
                     aCodec = aCodec.toUpperCase();
                 }
 

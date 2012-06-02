@@ -2005,7 +2005,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      *
      * @param fileDate
      */
-    synchronized public void addFileDate(Date fileDate) {
+    public synchronized void addFileDate(Date fileDate) {
         if (this.fileDate == null) {
             this.fileDate = fileDate;
         } else if (fileDate.after(this.fileDate)) {

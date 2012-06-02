@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
  * @author ilgizar
  */
 public class ReleaseComparator extends YearComparator {
+
     private Locale locale = Locale.ENGLISH;
     private String dateLocale = PropertiesUtil.getProperty("mjb.locale", "en_US");
     private static final Logger logger = Logger.getLogger(ReleaseComparator.class);
@@ -42,7 +43,7 @@ public class ReleaseComparator extends YearComparator {
 
     private void setLocale() {
         if (isValidString(dateLocale) && (dateLocale.length() == 2 || dateLocale.length() == 5)) {
-            locale  = new Locale(dateLocale.substring(0, 2), dateLocale.length() == 2 ? "" : dateLocale.substring(3, 5));
+            locale = new Locale(dateLocale.substring(0, 2), dateLocale.length() == 2 ? "" : dateLocale.substring(3, 5));
         }
     }
 
@@ -167,10 +168,8 @@ public class ReleaseComparator extends YearComparator {
     }
 
     private String correctShortMonth(String month) {
-        if (dateLocale.equals("ru_RU")) {
-            if (month.equals("мая")) {
-                return "май";
-            }
+        if (dateLocale.equals("ru_RU") && month.equals("мая")) {
+            return "май";
         }
         return month;
     }
