@@ -167,7 +167,7 @@ public class FileTools {
         try {
             srcFile = new File(src);
         } catch (Exception error) {
-            logger.error(logMessage+"Failed copying file " + src + " to " + dst);
+            logger.error(logMessage + "Failed copying file " + src + " to " + dst);
             logger.error(SystemTools.getStackTrace(error));
             return;
         }
@@ -175,7 +175,7 @@ public class FileTools {
         try {
             dstFile = new File(dst);
         } catch (Exception error) {
-            logger.error(logMessage+"Failed copying file " + src + " to " + dst);
+            logger.error(logMessage + "Failed copying file " + src + " to " + dst);
             logger.error(SystemTools.getStackTrace(error));
             return;
         }
@@ -213,7 +213,7 @@ public class FileTools {
             }
 
         } catch (IOException error) {
-            logger.error(logMessage+"Failed copying file " + src + " to " + dst);
+            logger.error(logMessage + "Failed copying file " + src + " to " + dst);
             logger.error(SystemTools.getStackTrace(error));
         }
     }
@@ -290,7 +290,7 @@ public class FileTools {
                                 if (updateDisplay) {
                                     System.out.print("\r    Copying directory " + displayPath + " (" + currentFile + "/" + totalSize + ")");
                                     if (logger.isTraceEnabled()) {
-                                        logger.trace(logMessage+"Copying: " + file.getName());
+                                        logger.trace(logMessage + "Copying: " + file.getName());
                                     }
                                 }
                                 copyFile(file, dstDir);
@@ -300,7 +300,7 @@ public class FileTools {
                     if (updateDisplay) {
                         System.out.print("\n");
                     }
-                    logger.debug(logMessage+"Copied " + totalSize + " files from " + srcDir.getCanonicalPath());
+                    logger.debug(logMessage + "Copied " + totalSize + " files from " + srcDir.getCanonicalPath());
                 }
             }
         } catch (IOException error) {
@@ -328,7 +328,7 @@ public class FileTools {
                     }
                 }
             } catch (IOException error) {
-                logger.error(logMessage+"Failed reading file " + file.getName());
+                logger.error(logMessage + "Failed reading file " + file.getName());
             }
         }
 
@@ -350,7 +350,7 @@ public class FileTools {
             out = new FileWriter(outFile);
             out.write(outputString);
         } catch (Exception ignore) {
-            logger.debug(logMessage+"Error writing string to " + filename);
+            logger.debug(logMessage + "Error writing string to " + filename);
         } finally {
             try {
                 out.close();
@@ -436,7 +436,7 @@ public class FileTools {
         }
 
         if (!newFilename.equals(filename)) {
-            logger.debug(logMessage+"Encoded filename string " + filename + " to " + newFilename);
+            logger.debug(logMessage + "Encoded filename string " + filename + " to " + newFilename);
         }
 
         return newFilename;
@@ -754,12 +754,20 @@ public class FileTools {
         // archive scanner supporting constructors
         public FileEx(String pathname, IArchiveScanner[] archiveScanners) {
             super(pathname);
-            this.archiveScanners = archiveScanners.clone();
+            if (archiveScanners == null) {
+                this.archiveScanners = null;
+            } else {
+                this.archiveScanners = (IArchiveScanner[]) archiveScanners.clone();
+            }
         }
 
         public FileEx(File parent, String child, IArchiveScanner[] archiveScanners) {
             this(parent, child);
-            this.archiveScanners = archiveScanners.clone();
+            if (archiveScanners == null) {
+                this.archiveScanners = null;
+            } else {
+                this.archiveScanners = (IArchiveScanner[]) archiveScanners.clone();
+            }
         }
 
         @Override
