@@ -33,9 +33,8 @@ public class ThreadExecutor<T> implements ThreadFactory {
     private static final Map<String, Semaphore> grouplimits = new HashMap<String, Semaphore>();
 
     /**
-     * Handle IO slots allocation to avoid throttling / ban on source sites Find
-     * the proper semaphore for each host: - Map each unique host to a group
-     * (hostgrp) - Max each group (rule) to a semaphore
+     * Handle IO slots allocation to avoid throttling / ban on source sites Find the proper semaphore for each host: -
+     * Map each unique host to a group (hostgrp) - Max each group (rule) to a semaphore
      *
      * @author Gabriel Corneanu
      */
@@ -61,13 +60,10 @@ public class ThreadExecutor<T> implements ThreadFactory {
     }
 
     /**
-     * Helper class Encapsulates a fixed thread pool ExecutorService Saves
-     * futures, used just to catch inner exceptions Usage patter: - create with
-     * thread count and io slots - submit tasks (Callable) - call waitFor; this
-     * logs
+     * Helper class Encapsulates a fixed thread pool ExecutorService Saves futures, used just to catch inner exceptions
+     * Usage patter: - create with thread count and io slots - submit tasks (Callable) - call waitFor; this logs
      *
-     * - in addition processing threads should call pairs EnterIO, LeaveIO to
-     * switch from running to io state
+     * - in addition processing threads should call pairs EnterIO, LeaveIO to switch from running to io state
      *
      * @author Gabriel Corneanu
      */
@@ -81,7 +77,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
     /*
      * Thread descendant class used for our execution scheduling
      */
-    static private class ScheduledThread extends Thread {
+    private static class ScheduledThread extends Thread {
 
         private Semaphore sRun, sIo, sIotarget;
         private Stack<String> hosts = new Stack<String>();
@@ -167,7 +163,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
         }
     }
 
-    static public void enterIO(URL url) {
+    public static void enterIO(URL url) {
         if (!(Thread.currentThread() instanceof ScheduledThread)) {
             // logger.info(getStackTrace(new Throwable("ThreadExecutor: Unmanaged thread call to EnterIO; ignored.")));
             // If this isn't a managed thread, then just exit.
@@ -192,7 +188,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
         enterIO(u);
     }
 
-    static public void leaveIO() {
+    public static void leaveIO() {
         if (!(Thread.currentThread() instanceof ScheduledThread)) {
             //logger.info(getStackTrace(new Throwable("ThreadExecutor: Unmanaged thread call to LeaveIO; ignored.")));
             // If this isn't a managed thread, then just exit.

@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 public class FilmAffinityInfo {
+
     private Logger logger = Logger.getLogger(FilmAffinityInfo.class);
     private WebBrowser webBrowser;
 
@@ -42,19 +43,15 @@ public class FilmAffinityInfo {
      * To isolate every title (with id) from search results
      */
     private Pattern linkPattern = Pattern.compile("<b><a href=\"/es/(film[0-9]{6}\\.html)\">([^<]+)</a></b>");
-
     public static final String FILMAFFINITY_PLUGIN_ID = "filmaffinity";
-
 
     public FilmAffinityInfo() {
         webBrowser = new WebBrowser();
     }
 
-
     public String getIdFromMovieInfo(String title, String year) {
         return getIdFromMovieInfo(title, year, -1);
     }
-
 
     public String getIdFromMovieInfo(String title, String year, int tvSeason) {
         String response = Movie.UNKNOWN;
@@ -100,10 +97,10 @@ public class FilmAffinityInfo {
                     }
 
                     titleMatcher = titlePattern.matcher(linkMatcher.group(2));
-                    if (titleMatcher.matches()) {
-                        if ((titleMatcher.group(1) != null && titleMatcher.group(1).equalsIgnoreCase(title)) || (titleMatcher.group(3) != null && titleMatcher.group(3).equalsIgnoreCase(title))) {
-                            response = linkMatcher.group(1);
-                        }
+                    if (titleMatcher.matches()
+                            && ((titleMatcher.group(1) != null && titleMatcher.group(1).equalsIgnoreCase(title))
+                            || (titleMatcher.group(3) != null && titleMatcher.group(3).equalsIgnoreCase(title)))) {
+                        response = linkMatcher.group(1);
                     }
 
                     linkMatcher = linkPattern.matcher(xml);
@@ -120,8 +117,6 @@ public class FilmAffinityInfo {
         }
         return response;
     }
-
-
     /*
      * Normalize the FilmAffinity ID.
      * This permits use several types of ID:
@@ -130,27 +125,23 @@ public class FilmAffinityInfo {
      * [0-9]{6}.html
      * [0-9]{6}
      */
+
     public String arrangeId(String id) {
         Matcher matcher = Pattern.compile("(film[0-9]{6}\\.html)|(film[0-9]{6})|([0-9]{6}\\.html)|([0-9]{6})").matcher(id);
 
         if (matcher.matches()) {
             if (matcher.group(1) != null) {
                 return matcher.group(1);
+            } else if (matcher.group(2) != null) {
+                return matcher.group(2) + ".html";
+            } else if (matcher.group(3) != null) {
+                return "film" + matcher.group(3);
+            } else {
+                return "film" + matcher.group(4) + ".html";
             }
-            else if (matcher.group(2) != null ) {
-                return matcher.group(2)+".html";
-            }
-            else if (matcher.group(3) != null) {
-                return "film"+matcher.group(3);
-            }
-            else {
-                return "film"+matcher.group(4)+".html";
-            }
-        }
-        else {
+        } else {
             return Movie.UNKNOWN;
         }
 
     }
-
 }

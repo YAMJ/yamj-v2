@@ -24,8 +24,7 @@ import java.util.EnumSet;
 import org.apache.log4j.Logger;
 
 /**
- * This function will validate the current movie object and return true if the
- * movie needs to be re-scanned.
+ * This function will validate the current movie object and return true if the movie needs to be re-scanned.
  *
  * @author Stuart
  */
@@ -161,12 +160,10 @@ public class RecheckScanner {
                 return true;
             }
 
-            if (isNotValidString(movie.getFanartURL())) {
-                if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
-                    logger.debug(logMessage + movie.getBaseName() + " is missing fanart, will rescan");
-                    recheckCount++;
-                    return true;
-                }
+            if (isNotValidString(movie.getFanartURL()) && ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow()))) {
+                logger.debug(logMessage + movie.getBaseName() + " is missing fanart, will rescan");
+                recheckCount++;
+                return true;
             }
 
             // Fanart.TV checking

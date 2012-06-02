@@ -212,14 +212,12 @@ public class TVRagePlugin extends ImdbPlugin {
                             file.setTitle(part, episode.getTitle());
                         }
 
-                        if (includeEpisodePlots) {
-                            if (isNotValidString(file.getPlot(part))) {
-                                String episodePlot = episode.getSummary();
-                                if (isValidString(episodePlot)) {
-                                    episodePlot = trimToLength(episodePlot, preferredPlotLength, true, plotEnding);
-                                    file.setPlot(part, episodePlot);
+                        if (includeEpisodePlots && isNotValidString(file.getPlot(part))) {
+                            String episodePlot = episode.getSummary();
+                            if (isValidString(episodePlot)) {
+                                episodePlot = trimToLength(episodePlot, preferredPlotLength, true, plotEnding);
+                                file.setPlot(part, episodePlot);
                                 }
-                            }
                         }
 
                         if (includeVideoImages) {

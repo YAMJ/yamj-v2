@@ -31,24 +31,15 @@ public class FilmaffinityPlugin extends ImdbPlugin {
     /*
      * Literals of web of each movie info
      */
-//    private final String FA_ORIGINAL_TITLE = "<b>T\u00CDTULO ORIGINAL</b>";
-//    private final String FA_YEAR = "<b>A\u00D1O</b>";
-//    private final String FA_RUNTIME = "<b>DURACI\u00D3N</b>";
-//    private final String FA_DIRECTOR = "<b>DIRECTOR</b>";
-//    private final String FA_WRITER = "<b>GUI\u00D3N</b>";
-//    private final String FA_CAST = "<b>REPARTO</b>";
-//    private final String FA_GENRE = "<b>G\u00C9NERO</b>";
-//    private final String FA_COMPANY = "<b>PRODUCTORA</b>";
-//    private final String FA_PLOT = "<b>SINOPSIS</b>";
-    private final String FA_ORIGINAL_TITLE = "<th>T&Iacute;TULO ORIGINAL</th>";
-    private final String FA_YEAR = "<th>A&Ntilde;O</th>";
-    private final String FA_RUNTIME = "<th>DURACI&Oacute;N</th>";
-    private final String FA_DIRECTOR = "<th>DIRECTOR</th>";
-    private final String FA_WRITER = "<th>GUI&Oacute;N</th>";
-    private final String FA_CAST = "<th>REPARTO</th>";
-    private final String FA_GENRE = "<th>G&Eacute;NERO</th>";
-    private final String FA_COMPANY = "<th>PRODUCTORA</th>";
-    private final String FA_PLOT = "<th>SINOPSIS</th>";
+    private static final String FA_ORIGINAL_TITLE = "<th>T&Iacute;TULO ORIGINAL</th>";
+    private static final String FA_YEAR = "<th>A&Ntilde;O</th>";
+    private static final String FA_RUNTIME = "<th>DURACI&Oacute;N</th>";
+    private static final String FA_DIRECTOR = "<th>DIRECTOR</th>";
+    private static final String FA_WRITER = "<th>GUI&Oacute;N</th>";
+    private static final String FA_CAST = "<th>REPARTO</th>";
+    private static final String FA_GENRE = "<th>G&Eacute;NERO</th>";
+    private static final String FA_COMPANY = "<th>PRODUCTORA</th>";
+    private static final String FA_PLOT = "<th>SINOPSIS</th>";
     private FilmAffinityInfo filmAffinityInfo;
 
     public FilmaffinityPlugin() {
