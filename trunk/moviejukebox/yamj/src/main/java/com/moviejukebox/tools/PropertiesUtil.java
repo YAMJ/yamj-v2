@@ -29,7 +29,7 @@ public class PropertiesUtil {
     private static final String logMessage = "PropertiesUtil: ";
     private static final String PROPERTIES_CHARSET = "UTF-8";
     private static Properties props = new Properties();
-    private static String propertiesFilename = "preferences.xsl";
+    private static final String PREFERENCES_FILENAME = "preferences.xsl";
 
     public static boolean setPropertiesStreamName(String streamName) {
         return setPropertiesStreamName(streamName, true);
@@ -180,7 +180,7 @@ public class PropertiesUtil {
      * @return Ordered keyword list and map.
      */
     public static KeywordMap getKeywordMap(String prefix, String defaultValue) {
-        KeywordMap m = new KeywordMap();
+        KeywordMap keywordMap = new KeywordMap();
 
         String languages = getProperty(prefix, defaultValue);
         if (!isBlank(languages)) {
@@ -189,15 +189,15 @@ public class PropertiesUtil {
                 if (lang == null) {
                     continue;
                 }
-                m.keywords.add(lang);
+                keywordMap.keywords.add(lang);
                 String values = getProperty(prefix + "." + lang);
                 if (values != null) {
-                    m.put(lang, values);
+                    keywordMap.put(lang, values);
                 }
             }
         }
 
-        return m;
+        return keywordMap;
     }
 
     public static void writeProperties() {
@@ -234,6 +234,7 @@ public class PropertiesUtil {
             }
 
             out.write("</xsl:stylesheet>\n");
+            out.flush();
         } catch (IOException error) {
             // Can't write to file
             logger.error(logMessage + "Can't write to file");
@@ -274,9 +275,9 @@ public class PropertiesUtil {
 
     public static String getPropertiesFilename(boolean fullPath) {
         if (fullPath) {
-            return StringTools.appendToPath(getProperty("mjb.skin.dir", "./skins/default"), propertiesFilename);
+            return StringTools.appendToPath(getProperty("mjb.skin.dir", "./skins/default"), PREFERENCES_FILENAME);
         } else {
-            return propertiesFilename;
+            return PREFERENCES_FILENAME;
         }
     }
 }
