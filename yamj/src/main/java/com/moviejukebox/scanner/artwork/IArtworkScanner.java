@@ -18,17 +18,17 @@ import com.moviejukebox.model.Movie;
 
 public interface IArtworkScanner {
 
-    public String scan(Jukebox jukebox, Movie movie);
+    String scan(Jukebox jukebox, Movie movie);
 
-    public String scanLocalArtwork(Jukebox jukebox, Movie movie);
+    String scanLocalArtwork(Jukebox jukebox, Movie movie);
 
-    public String scanOnlineArtwork(Movie movie);
+    String scanOnlineArtwork(Movie movie);
 
-    public boolean validateArtwork(IImage artworkImage);
+    boolean validateArtwork(IImage artworkImage);
 
-    public boolean validateArtwork(IImage artworkImage, int artworkWidth, int artworkHeight, boolean checkAspect);
+    boolean validateArtwork(IImage artworkImage, int artworkWidth, int artworkHeight, boolean checkAspect);
 
-    public boolean saveArtworkToJukebox(Jukebox jukebox, Movie movie);
+    boolean saveArtworkToJukebox(Jukebox jukebox, Movie movie);
 
     /**
      * Updates the correct Filename based on the artwork type
@@ -36,16 +36,16 @@ public interface IArtworkScanner {
      * @param movie
      * @param artworkFilename
      */
-    abstract void setArtworkFilename(Movie movie, String artworkFilename);
+    void setArtworkFilename(Movie movie, String artworkFilename);
 
     /**
-     * Returns the correct Filename based on the artwork type This should be
-     * overridden at the artwork specific class level
+     * Returns the correct Filename based on the artwork type This should be overridden at the artwork specific class
+     * level
      *
      * @param movie
      * @return
      */
-    abstract String getArtworkFilename(Movie movie);
+    String getArtworkFilename(Movie movie);
 
     /**
      * Updates the correct URL based on the artwork type
@@ -53,7 +53,7 @@ public interface IArtworkScanner {
      * @param movie
      * @param artworkUrl
      */
-    abstract void setArtworkUrl(Movie movie, String artworkUrl);
+    void setArtworkUrl(Movie movie, String artworkUrl);
 
     /**
      * Returns the correct URL based on the artwork type
@@ -61,21 +61,20 @@ public interface IArtworkScanner {
      * @param movie
      * @return
      */
-    abstract String getArtworkUrl(Movie movie);
+    String getArtworkUrl(Movie movie);
 
     /**
      * Sets the correct image plugin for the artwork type
      */
-    abstract void setArtworkImagePlugin();
+    void setArtworkImagePlugin();
 
     /**
-     * Return the value of the appropriate "dirty" setting for the artwork and
-     * movie
+     * Return the value of the appropriate "dirty" setting for the artwork and movie
      *
      * @param movie
      * @return
      */
-    abstract boolean isDirtyArtwork(Movie movie);
+    boolean isDirtyArtwork(Movie movie);
 
     /**
      * Set the appropriate "dirty" setting for the artwork and movie
@@ -83,21 +82,21 @@ public interface IArtworkScanner {
      * @param movie
      * @param dirty
      */
-    abstract void setDirtyArtwork(Movie movie, boolean dirty);
+    void setDirtyArtwork(Movie movie, boolean dirty);
 
     /**
      * Determine if the artwork type is required.
      *
      * @return true if the artwork is required
      */
-    abstract boolean isSearchRequired();
+    boolean isSearchRequired();
 
     /**
      * Determine if the artwork type is required for local searching
      *
      * @return
      */
-    abstract boolean isSearchLocal();
+    boolean isSearchLocal();
 
     /**
      * Determine if an online search should be performed for a particular video.
@@ -107,18 +106,16 @@ public interface IArtworkScanner {
      * @param movie
      * @return true if online scraping should be done
      */
-    abstract boolean isSearchOnline(Movie movie);
+    boolean isSearchOnline(Movie movie);
 
     /**
-     * Determine if an online search should be performed for a particular
-     * artwork.
+     * Determine if an online search should be performed for a particular artwork.
      *
-     * This only checks the properties and can't determine if the specific video
-     * artwork should be downloaded.
+     * This only checks the properties and can't determine if the specific video artwork should be downloaded.
      *
      * @return true if online scraping should be done
      */
-    abstract boolean isSearchOnline();
+    boolean isSearchOnline();
 
     /**
      * Create a operating system safe filename for the artwork
@@ -126,5 +123,5 @@ public interface IArtworkScanner {
      * @param movie
      * @return
      */
-    abstract String makeSafeArtworkFilename(Movie movie);
+    String makeSafeArtworkFilename(Movie movie);
 }

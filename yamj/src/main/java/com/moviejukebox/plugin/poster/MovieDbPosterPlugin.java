@@ -22,20 +22,18 @@ import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 import java.net.URL;
 import java.util.List;
-import java.util.logging.Level;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
-    
+
     private static final Logger logger = Logger.getLogger(MovieDbPosterPlugin.class);
     private static final String logMessage = "MovieDbPosterPlugin: ";
     private String apiKey = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
     private String languageCode;
-    private String countryCode;
     private TheMovieDb TMDb;
     private static final String DEFAULT_POSTER_SIZE = "original";
-    
+
     public MovieDbPosterPlugin() {
         super();
 
@@ -43,20 +41,14 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         if (!isNeeded()) {
             return;
         }
-        
+
         languageCode = PropertiesUtil.getProperty("themoviedb.language", "en");
-        countryCode = PropertiesUtil.getProperty("themoviedb.country", "");     // Don't default this as we might get it from the language (old setting)
 
         if (languageCode.length() > 2) {
-            if (StringUtils.isBlank(countryCode)) {
-                // Guess that the last 2 characters of the language code is the country code.
-                countryCode = new String(languageCode.substring(languageCode.length() - 2)).toUpperCase();
-            }
             languageCode = new String(languageCode.substring(0, 2)).toLowerCase();
         }
         logger.debug(logMessage + "Using `" + languageCode + "` as the language code");
-        logger.debug(logMessage + "Using `" + countryCode + "` as the country code");
-        
+
         try {
             TMDb = new TheMovieDb(apiKey);
         } catch (MovieDbException ex) {
@@ -70,7 +62,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         // Set the timeouts
         TMDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
     }
-    
+
     @Override
     public String getIdFromMovieInfo(String title, String year) {
         List<MovieDb> movieList;
@@ -80,7 +72,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
             logger.warn(logMessage + "Failed to get TMDB ID for " + title + "(" + year + ")");
             return Movie.UNKNOWN;
         }
-        
+
         if (movieList.isEmpty()) {
             return Movie.UNKNOWN;
         } else {
@@ -88,7 +80,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                 // Only one movie so return that id
                 return String.valueOf(movieList.get(0).getId());
             }
-            
+
             for (MovieDb moviedb : movieList) {
                 if (TheMovieDb.compareMovies(moviedb, title, year)) {
                     return String.valueOf(moviedb.getId());
@@ -97,16 +89,16 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         }
         return Movie.UNKNOWN;
     }
-    
+
     @Override
     public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
-    
+
     @Override
     public IImage getPosterUrl(String id) {
         URL posterURL;
-        
+
         if (StringUtils.isNumeric(id)) {
             try {
                 MovieDb moviedb = TMDb.getMovieInfo(Integer.parseInt(id), languageCode);
@@ -121,16 +113,16 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
             return Image.UNKNOWN;
         }
     }
-    
+
     @Override
     public String getName() {
         return "themoviedb";
     }
-    
+
     @Override
     public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
         String id = getId(ident);
-        
+
         if (StringTools.isNotValidString(id)) {
             id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear());
             // Id found
@@ -138,16 +130,16 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                 ident.setId(getName(), id);
             }
         }
-        
+
         if (StringTools.isValidString(id)) {
             return getPosterUrl(id);
         }
         return Image.UNKNOWN;
     }
-    
+
     private String getId(Identifiable ident) {
         String response = Movie.UNKNOWN;
-        
+
         if (ident != null) {
             String imdbID = ident.getId(TheMovieDbPlugin.IMDB_PLUGIN_ID);
             String tmdbID = ident.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID);

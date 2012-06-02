@@ -18,27 +18,26 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 public interface IMovieBasicInformation {
 
-    public abstract String getBaseName();
+    String getBaseName();
 
-    public abstract String getLanguage();
+    String getLanguage();
 
-    public abstract int getSeason();
+    int getSeason();
 
-    public abstract String getTitle();
+    String getTitle();
 
-    public abstract String getTitleSort();
+    String getTitleSort();
 
-    public abstract String getOriginalTitle();
+    String getOriginalTitle();
 
-    public abstract String getYear();
+    String getYear();
 
     @XmlAttribute(name = "isTV")
-    public abstract boolean isTVShow();
+    boolean isTVShow();
 
     @XmlJavaTypeAdapter(BooleanYesNoAdapter.class)
-    public abstract Boolean isTrailerExchange();
+    Boolean isTrailerExchange();
 
     @XmlAttribute(name = "isSet")
-    public abstract boolean isSetMaster();
-
+    boolean isSetMaster();
 }

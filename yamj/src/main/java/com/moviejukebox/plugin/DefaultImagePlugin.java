@@ -13,8 +13,8 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.fanarttv.model.FTArtworkType;
-import com.moviejukebox.model.Comparator.ValueComparator;
 import com.moviejukebox.model.*;
+import com.moviejukebox.model.Comparator.ValueComparator;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -24,10 +24,15 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.TreeMap;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 public class DefaultImagePlugin implements MovieImagePlugin {
@@ -47,14 +52,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static final String MOVIELOGO = FTArtworkType.MOVIELOGO.toString().toLowerCase();
     private static final List<String> validImageTypes = Collections.synchronizedList(new ArrayList<String>());
     private static final Logger logger = Logger.getLogger(DefaultImagePlugin.class);
-    private String skinHome;
     private String overlayRoot;
     private String overlayResources;
-    private boolean addReflectionEffect;
-    private boolean addPerspective;
-    private boolean imageNormalize;
     //stretch images
-    private boolean imageStretch;
     private boolean addHDLogo;
     private boolean addTVLogo;
     private boolean addSetLogo;
@@ -62,13 +62,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean blockSubTitle;
     private boolean addLanguage;
     private boolean blockLanguage;
-    private boolean addOverlay;
-    private int imageWidth;
-    private int imageHeight;
-    private float ratio;
     private boolean highdefDiff;
-    private boolean addTextTitle;
-    private boolean addTextSeason;
     private boolean addTextSetSize;
     private static String textAlignment;
     private static String textFont;
@@ -76,15 +70,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static String textFontColor;
     private static String textFontShadow;
     private static int textOffset;
-    private int overlayOffsetX;
-    private int overlayOffsetY;
     private String imageType;
     private boolean roundCorners;
     private int cornerRadius;
     // cornerQuality/rcqfactor to improve roundCorner Quality
-    private int cornerQuality;
     private float rcqFactor;
-    private boolean addFrame;
     private int frameSize;
     private static String frameColorHD;
     private static String frameColor720;
@@ -145,7 +135,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     public DefaultImagePlugin() {
         // Generic properties
-        skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+        String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
         boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", "true");
         overlayRoot = PropertiesUtil.getProperty("mjb.overlay.dir", Movie.UNKNOWN);
         overlayRoot = (skinRoot ? (skinHome + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
@@ -173,9 +163,16 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     @Override
     public BufferedImage generate(Movie movie, BufferedImage imageGraphic, String gImageType, String perspectiveDirection) {
-        imageType = gImageType.toLowerCase();
+        boolean addReflectionEffect = PropertiesUtil.getBooleanProperty(imageType + ".reflection", "false");
+        boolean addPerspective = PropertiesUtil.getBooleanProperty(imageType + ".perspective", "false");
+        boolean imageNormalize = PropertiesUtil.getBooleanProperty(imageType + ".normalize", "false");
+        boolean imageStretch = PropertiesUtil.getBooleanProperty(imageType + ".stretch", "false");
+        boolean addOverlay = PropertiesUtil.getBooleanProperty(imageType + ".overlay", "false");
 
         boolean isFooter = false;
+
+        imageType = gImageType.toLowerCase();
+
         viIndex = 0;
         if (imageType.indexOf(FOOTER) == 0) {
             isFooter = true;
@@ -192,12 +189,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         }
 
         // Specific Properties (dependent upon the imageType)
-        imageWidth = PropertiesUtil.getIntProperty(imageType + ".width", "400");
-        imageHeight = PropertiesUtil.getIntProperty(imageType + ".height", "600");
-        addReflectionEffect = PropertiesUtil.getBooleanProperty(imageType + ".reflection", "false");
-        addPerspective = PropertiesUtil.getBooleanProperty(imageType + ".perspective", "false");
-        imageNormalize = PropertiesUtil.getBooleanProperty(imageType + ".normalize", "false");
-        imageStretch = PropertiesUtil.getBooleanProperty(imageType + ".stretch", "false");
+        int imageWidth = PropertiesUtil.getIntProperty(imageType + ".width", "400");
+        int imageHeight = PropertiesUtil.getIntProperty(imageType + ".height", "600");
         addHDLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoHD", "false");
         addTVLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoTV", "false");
 
@@ -209,14 +202,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         blockLanguage = tmpLanguage.equalsIgnoreCase("block");
         addLanguage = tmpLanguage.equalsIgnoreCase("true") || blockLanguage;
 
-        addOverlay = PropertiesUtil.getBooleanProperty(imageType + ".overlay", "false");
-
         String tmpSetLogo = PropertiesUtil.getProperty(imageType + ".logoSet", "false");
         countSetLogo = tmpSetLogo.equalsIgnoreCase("count");
         addSetLogo = tmpSetLogo.equalsIgnoreCase("true") || countSetLogo; // Note: This should only be for thumbnails
 
-        addTextTitle = PropertiesUtil.getBooleanProperty(imageType + ".addText.title", "false");
-        addTextSeason = PropertiesUtil.getBooleanProperty(imageType + ".addText.season", "false");
+        boolean addTextTitle = PropertiesUtil.getBooleanProperty(imageType + ".addText.title", "false");
+        boolean addTextSeason = PropertiesUtil.getBooleanProperty(imageType + ".addText.season", "false");
         addTextSetSize = PropertiesUtil.getBooleanProperty(imageType + ".addText.setSize", "false"); // Note: This should only be for thumbnails
         textAlignment = PropertiesUtil.getProperty(imageType + ".addText.alignment", "left");
         textFont = PropertiesUtil.getProperty(imageType + ".addText.font", "Helvetica");
@@ -226,13 +217,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         textOffset = PropertiesUtil.getIntProperty(imageType + ".addText.offset", "10");
         roundCorners = PropertiesUtil.getBooleanProperty(imageType + ".roundCorners", "false");
         cornerRadius = PropertiesUtil.getIntProperty(imageType + ".cornerRadius", "25");
-        cornerQuality = PropertiesUtil.getIntProperty(imageType + ".cornerQuality", "0");
+        int cornerQuality = PropertiesUtil.getIntProperty(imageType + ".cornerQuality", "0");
 
-        overlayOffsetX = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetX", "0");
-        overlayOffsetY = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetY", "0");
+        int overlayOffsetX = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetX", "0");
+        int overlayOffsetY = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetY", "0");
         overlaySource = PropertiesUtil.getProperty(imageType + ".overlay.source", "default");
 
-        addFrame = PropertiesUtil.getBooleanProperty(imageType + ".addFrame", "false");
+        boolean addFrame = PropertiesUtil.getBooleanProperty(imageType + ".addFrame", "false");
         frameSize = PropertiesUtil.getIntProperty(imageType + ".frame.size", "5");
         frameColorSD = PropertiesUtil.getProperty(imageType + ".frame.colorSD", "255/255/255");
         frameColorHD = PropertiesUtil.getProperty(imageType + ".frame.colorHD", "255/255/255");
@@ -325,7 +316,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             fillOverlayParams(PropertiesUtil.getProperty(imageType + ".xmlOverlayFile", "overlay-default.xml"));
         }
 
-        ratio = (float) imageWidth / (float) imageHeight;
+        float ratio = (float) imageWidth / (float) imageHeight;
 
         if (roundCorners) {
             rcqFactor = (float) cornerQuality / 10 + 1;
@@ -550,14 +541,14 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     value = value.substring(0, pos);
                                 }
                             } else {
-                                while (value.indexOf(" (") > 0 && value.indexOf(" (") < value.indexOf(")")) {
-                                    value = value.substring(0, value.indexOf(" (")) + value.substring(value.indexOf(")") + 1);
+                                while (value.contains(" (") && value.indexOf(" (") < value.indexOf(')')) {
+                                    value = value.substring(0, value.indexOf(" (")) + value.substring(value.indexOf(')') + 1);
                                 }
                             }
                         } else if (name.equalsIgnoreCase("audiolang") || name.equalsIgnoreCase("alang") || name.equalsIgnoreCase("AL")) {
                             value = "";
                             for (String tmp : movie.getAudioCodec().split(Movie.SPACE_SLASH_SPACE)) {
-                                if (tmp.indexOf(" (") > 0 && tmp.indexOf(" (") < tmp.indexOf(")")) {
+                                if (tmp.contains(" (") && tmp.indexOf(" (") < tmp.indexOf(")")) {
                                     tmp = tmp.substring(tmp.indexOf(" (") + 2, tmp.indexOf(")"));
                                 } else {
                                     tmp = Movie.UNKNOWN;
@@ -566,7 +557,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     value = tmp;
                                     break;
                                 }
-                                if (!value.equals("")) {
+                                if (StringUtils.isNotBlank(value)) {
                                     value += Movie.SPACE_SLASH_SPACE;
                                 }
                                 value += tmp;
@@ -1737,11 +1728,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             }
             ArrayList<String> arr = data.get(condition);
             if (arr != null) {
-                for (int i = 0; i < arr.size(); i++) {
+                for (int loop = 0; loop < arr.size(); loop++) {
                     if (name.equalsIgnoreCase("keywords")) {
-                        result = value.indexOf(arr.get(i).toString().toLowerCase()) > -1;
+                        result = value.indexOf(arr.get(loop).toLowerCase()) > -1;
                     } else {
-                        result = arr.get(i).toString().equalsIgnoreCase(value);
+                        result = arr.get(loop).equalsIgnoreCase(value);
                     }
                     if (result) {
                         break;

@@ -12,7 +12,6 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.scanner.MovieNFOScanner;
 import com.moviejukebox.writer.MovieNFOReader;
 import java.io.*;
 import java.net.MalformedURLException;

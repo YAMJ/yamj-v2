@@ -35,20 +35,11 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     private static final int MAX_WIDTH = 1920;
     private static final int MAX_HEIGHT = 1080;
     private static final Logger logger = Logger.getLogger(DefaultBackgroundPlugin.class);
-    private int backgroundWidth;
-    private int backgroundHeight;
-    private boolean upscaleImage;
-    private boolean addPerspective;
-    private boolean addOverlay;
-    private String skinHome;
-    private String overlayRoot;
     private String overlayResources;
     private boolean highdefDiff;
     private boolean roundCorners;
     private int cornerRadius;
-    private int cornerQuality;
     private float rcqFactor;
-    private boolean addFrame;
     private int frameSize;
     private static String frameColorHD;
     private static String frameColor720;
@@ -58,9 +49,9 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     public DefaultBackgroundPlugin() {
         // These are the default values for the width and height.
         // Each plugin should determine their own values
-        skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+        String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
         boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", "false");
-        overlayRoot = PropertiesUtil.getProperty("mjb.overlay.dir", Movie.UNKNOWN);
+        String overlayRoot = PropertiesUtil.getProperty("mjb.overlay.dir", Movie.UNKNOWN);
         overlayRoot = (skinRoot ? (skinHome + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
         overlayResources = overlayRoot + PropertiesUtil.getProperty("mjb.overlay.resources", "resources") + File.separator;
         highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
@@ -78,15 +69,15 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
             newImageType = imageType;
         }
 
-        backgroundWidth = checkWidth(movie.isTVShow(), newImageType);
-        backgroundHeight = checkHeight(movie.isTVShow(), newImageType);
+        int backgroundWidth = checkWidth(movie.isTVShow(), newImageType);
+        int backgroundHeight = checkHeight(movie.isTVShow(), newImageType);
 
-        upscaleImage = PropertiesUtil.getBooleanProperty(newImageType + ".upscale", "true");
+        boolean upscaleImage = PropertiesUtil.getBooleanProperty(newImageType + ".upscale", "true");
 
-        addPerspective = PropertiesUtil.getBooleanProperty(newImageType + ".perspective", "false");
-        addOverlay = PropertiesUtil.getBooleanProperty(newImageType + ".overlay", "false");
+        boolean addPerspective = PropertiesUtil.getBooleanProperty(newImageType + ".perspective", "false");
+        boolean addOverlay = PropertiesUtil.getBooleanProperty(newImageType + ".overlay", "false");
 
-        addFrame = PropertiesUtil.getBooleanProperty(newImageType + ".addFrame", "false");
+        boolean addFrame = PropertiesUtil.getBooleanProperty(newImageType + ".addFrame", "false");
         frameSize = PropertiesUtil.getIntProperty(newImageType + ".frame.size", "5");
         frameColorSD = PropertiesUtil.getProperty(newImageType + ".frame.colorSD", "255/255/255");
         frameColorHD = PropertiesUtil.getProperty(newImageType + ".frame.colorHD", "255/255/255");
@@ -95,7 +86,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
 
         roundCorners = PropertiesUtil.getBooleanProperty(newImageType + ".roundCorners", "false");
         cornerRadius = PropertiesUtil.getIntProperty(newImageType + ".cornerRadius", "25");
-        cornerQuality = PropertiesUtil.getIntProperty(newImageType + ".cornerQuality", "0");
+        int cornerQuality = PropertiesUtil.getIntProperty(newImageType + ".cornerQuality", "0");
 
         if (roundCorners) {
             rcqFactor = (float) cornerQuality / 10 + 1;
@@ -153,8 +144,8 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
      * @return the width of the fanart
      */
     public static int checkWidth(boolean isTvShow, String imageType) {
-        String widthProperty = null;
-        int backgroundWidth = 0;
+        String widthProperty;
+        int backgroundWidth;
 
         if (isTvShow) {
             widthProperty = PropertiesUtil.getProperty(imageType + ".tv.width");
@@ -180,8 +171,8 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
      * @return the width of the fanart
      */
     public static int checkHeight(boolean isTvShow, String imageType) {
-        String heightProperty = null;
-        int backgroundHeight = 0;
+        String heightProperty;
+        int backgroundHeight;
 
         if (isTvShow) {
             heightProperty = PropertiesUtil.getProperty(imageType + ".tv.height");

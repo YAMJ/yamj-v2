@@ -234,12 +234,12 @@ public class WebBrowser {
         // TODO: Move these workarounds into a property file so they can be overridden at runtime
 
         // A workaround for the need to use a referrer for thetvdb.com
-        if (checkUrl.indexOf("thetvdb") > 0) {
+        if (checkUrl.contains("thetvdb")) {
             checkCnx.setRequestProperty("Referer", "http://forums.thetvdb.com/");
         }
 
         // A workaround for the kinopoisk.ru site
-        if (checkUrl.indexOf("kinopoisk") > 0) {
+        if (checkUrl.contains("kinopoisk")) {
             checkCnx.setRequestProperty("Accept", "text/html, text/plain");
             checkCnx.setRequestProperty("Accept-Language", "ru");
             checkCnx.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.2) Gecko/20100115 Firefox/3.6");
