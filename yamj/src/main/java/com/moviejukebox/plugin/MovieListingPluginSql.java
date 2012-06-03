@@ -25,6 +25,7 @@ import com.moviejukebox.tools.StringTools;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import static com.moviejukebox.tools.StringTools.processRuntime;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.Map;
 import org.apache.log4j.Logger;
@@ -33,23 +34,29 @@ import org.pojava.datetime.DateTime;
 public class MovieListingPluginSql extends MovieListingPluginBase implements MovieListingPlugin {
 
     private static final Logger logger = Logger.getLogger(MovieListingPluginSql.class);
+    private static final String logMessage = "MovieListingPluginSql: ";
     private Connection mjbConn = null;
     private static String dbLocation = PropertiesUtil.getProperty("mjb.sql.location", "./");
     private static String dbName = PropertiesUtil.getProperty("mjb.sql.dbname", "listing.db");
 
     @Override
     public void generate(Jukebox jukebox, Library library) {
-        MjbSqlDb mjbSqlDb = new MjbSqlDb(dbLocation, dbName);
+        MjbSqlDb mjbSqlDb;
+        try {
+            mjbSqlDb = new MjbSqlDb(dbLocation, dbName);
+        } catch (SQLException ex) {
+            logger.error(logMessage + "Failed to generate the listing: " + ex.getMessage());
+            return;
+        }
         mjbConn = MjbSqlDb.getConnection();
 
-        int videoId = 0;
+        int videoId;
         int joinId;
         VideoDTO videoDTO;
 
         for (Movie movie : library.values()) {
-            logger.info("MovieListingPluginSql: Writing movie to Database - " + movie.getTitle());
+            logger.info(logMessage + "Writing movie to Database - " + movie.getTitle());
             videoDTO = new VideoDTO();
-            videoId = 0;
 
             videoDTO.setId(0);  // Set the ID to 0 to get the database to generate the next available ID
             videoDTO.setMjbVersion(movie.getMjbVersion());
@@ -93,8 +100,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             try {
                 videoId = dbWriter.insertVideo(mjbConn, videoDTO);
                 mjbConn.commit();
-            } catch (Throwable error) {
-                logger.error("SQL: Error adding the video to the database: " + error.getMessage());
+            } catch (SQLException error) {
+                logger.error(logMessage + "Error adding the video to the database: " + error.getMessage());
                 continue;
             }
 
@@ -131,8 +138,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                     dbWriter.insertVideoSite(mjbConn, vsDTO);
                 }
                 mjbConn.commit();
-            } catch (Throwable tw) {
-                logger.error("SQL: Error adding Video Site IDs to the database: " + tw.getMessage());
+            } catch (SQLException ex) {
+                logger.error(logMessage + "Error adding Video Site IDs to the database: " + ex.getMessage());
             }
 
             try {
@@ -142,8 +149,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                     dbWriter.joinCountry(mjbConn, videoId, joinId);
                 }
                 mjbConn.commit();
-            } catch (Throwable tw) {
-                logger.error("SQL: Error adding Country to the database: " + tw.getMessage());
+            } catch (SQLException ex) {
+                logger.error(logMessage + "Error adding Country to the database: " + ex.getMessage());
             }
 
             try {
@@ -153,8 +160,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                     dbWriter.joinCompany(mjbConn, videoId, joinId);
                 }
                 mjbConn.commit();
-            } catch (Throwable tw) {
-                logger.error("SQL: Error adding Company to the database: " + tw.getMessage());
+            } catch (SQLException ex) {
+                logger.error(logMessage + "Error adding Company to the database: " + ex.getMessage());
             }
 
             try {
@@ -164,8 +171,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                     dbWriter.joinLanguage(mjbConn, videoId, joinId);
                 }
                 mjbConn.commit();
-            } catch (Throwable tw) {
-                logger.error("SQL: Error adding Languages to the database: " + tw.getMessage());
+            } catch (SQLException ex) {
+                logger.error(logMessage + "Error adding Languages to the database: " + ex.getMessage());
             }
 
             // Process the video files
@@ -230,8 +237,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                 }
                 mjbConn.commit();
 
-            } catch (Throwable error) {
-                logger.error("SQL: Error updating VideoFile & VideoFilePart: " + error.getMessage());
+            } catch (SQLException error) {
+                logger.error(logMessage + "Error updating VideoFile & VideoFilePart: " + error.getMessage());
             }
 
         } // For movie loop
@@ -253,7 +260,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             mjbConn.commit();
 
             return joinId;
-        } catch (Throwable tw) {
+        } catch (SQLException ex) {
             return joinId;
         }
 
@@ -305,8 +312,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             joinId = dbWriter.insertGenre(mjbConn, genreDTO);
             dbWriter.joinGenre(mjbConn, videoId, joinId);
             mjbConn.commit();
-        } catch (Throwable tw) {
-            logger.error("SQL: Error adding Genres to the database: " + tw.getMessage());
+        } catch (SQLException ex) {
+            logger.error(logMessage + "Error adding Genres to the database: " + ex.getMessage());
         }
 
         return joinId;
@@ -335,8 +342,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             joinId = dbWriter.updateArtwork(mjbConn, artwork);
 
             mjbConn.commit();
-        } catch (Throwable tw) {
-            logger.error("SQL: Error adding Artwork to the database: " + tw.getMessage());
+        } catch (SQLException ex) {
+            logger.error(logMessage + "Error adding Artwork to the database: " + ex.getMessage());
         }
         return joinId;
     }
@@ -368,8 +375,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             joinId = dbWriter.insertPerson(mjbConn, personDTO);
             dbWriter.joinPerson(mjbConn, videoId, joinId);
             mjbConn.commit();
-        } catch (Throwable tw) {
-            logger.error("SQL: Error adding People to the database: " + tw.getMessage());
+        } catch (SQLException ex) {
+            logger.error(logMessage + "Error adding People to the database: " + ex.getMessage());
         }
         return joinId;
     }
