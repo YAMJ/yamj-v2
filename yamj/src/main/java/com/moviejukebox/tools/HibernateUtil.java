@@ -14,6 +14,7 @@ package com.moviejukebox.tools;
 
 import java.io.Serializable;
 import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -41,9 +42,8 @@ public class HibernateUtil {
             serviceRegistry = new ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
             sessionFactory = configuration.buildSessionFactory(serviceRegistry);
             return sessionFactory;
-        } catch (Throwable ex) {
-            // Make sure you log the exception, as it might be swallowed
-            System.err.println(logMessage + "Initial SessionFactory creation failed." + ex);
+        } catch (HibernateException ex) {
+            logger.debug(logMessage + "Initial SessionFactory creation failed." + ex);
             throw new ExceptionInInitializerError(ex);
         }
     }

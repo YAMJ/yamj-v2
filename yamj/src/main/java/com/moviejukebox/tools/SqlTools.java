@@ -16,6 +16,7 @@ import com.moviejukebox.model.Movie;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
 import org.apache.log4j.Logger;
 
@@ -29,8 +30,12 @@ public class SqlTools {
     static {
         try {
             Class.forName("org.sqlite.JDBC");
-        } catch (Exception error) {
-            logger.error(logMessage + "Error getting database driver");
+        } catch (ExceptionInInitializerError error) {
+            logger.error(logMessage + "Error getting database driver: " + error.getMessage());
+        } catch (LinkageError error) {
+            logger.error(logMessage + "Error getting database driver: " + error.getMessage());
+        } catch (ClassNotFoundException error) {
+            logger.error(logMessage + "Error getting database driver: " + error.getMessage());
         }
     }
 
@@ -41,7 +46,7 @@ public class SqlTools {
             createTables();
             connection.commit();
             logger.info(logMessage + "Opened database - " + databaseName);
-        } catch (Exception error) {
+        } catch (SQLException error) {
             logger.error(logMessage + "Error opening database: " + error.getMessage());
         }
     }
@@ -52,13 +57,13 @@ public class SqlTools {
                 connection.close();
                 logger.info(logMessage + "Closed database - " + connection.getCatalog());
             }
-        } catch (Exception error) {
+        } catch (SQLException error) {
             logger.error(logMessage + "Error closing database: " + error.getMessage());
         }
     }
 
     public static void createTables() {
-        Statement stmt = null;
+        Statement stmt;
         try {
             stmt = connection.createStatement();
 
@@ -78,13 +83,13 @@ public class SqlTools {
 
             stmt.executeBatch();
 
-        } catch (Exception error) {
+        } catch (SQLException error) {
             logger.error(logMessage + "Error creating tables: " + error.getMessage());
         }
     }
 
     public static void deleteTables() {
-        Statement stmt = null;
+        Statement stmt;
         try {
             stmt = connection.createStatement();
 
@@ -103,9 +108,8 @@ public class SqlTools {
             stmt.addBatch("DELETE FROM VIDEO_PLS_ITEM");
 
             stmt.executeBatch();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Delete photo tables error. "
-                    + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Delete photo tables error. " + ex.getMessage(), ex);
         } finally {
             closeDatabase();
         }
@@ -113,7 +117,7 @@ public class SqlTools {
     }
 
     public static void insertIntoVideo(Movie movie) {
-        PreparedStatement pstmt = null;
+        PreparedStatement pstmt;
 
         try {
             pstmt = connection.prepareStatement(INSERT_VIDEO);
@@ -122,7 +126,7 @@ public class SqlTools {
             pstmt.setString(3, movie.getBaseFilename());
             pstmt.executeUpdate();
             connection.commit();
-        } catch (Exception error) {
+        } catch (SQLException error) {
             logger.error(logMessage + "Error inserting into VIDEO table: " + error.getMessage());
         }
     }

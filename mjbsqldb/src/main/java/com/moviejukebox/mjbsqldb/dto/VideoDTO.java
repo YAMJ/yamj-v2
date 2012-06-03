@@ -1,36 +1,37 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 
 package com.moviejukebox.mjbsqldb.dto;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class VideoDTO implements Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     public static final String TABLE_NAME   = "VIDEO";
     public static final String TABLE_KEY    = "ID";
-    public static final String CREATE_TABLE = "create table if not exists " + TABLE_NAME + 
+    public static final String CREATE_TABLE = "create table if not exists " + TABLE_NAME +
                 " (ID integer primary key, MJB_VERSION text, MJB_REVISION integer, MJB_UPDATE_DATE text, BASEFILENAME text, TITLE text, TITLE_SORT text, TITLE_ORIGINAL text, RELEASE_DATE text, RATING integer, TOP250 integer, PLOT text, OUTLINE text, QUOTE text, TAGLINE text, RUNTIME integer, VIDEO_TYPE text, SEASON integer, SUBTITLES text, LIBRARY_DESCRIPTION text, CERTIFICATION_ID integer)";
-    public static final String INSERT_TABLE = "insert into " + TABLE_NAME + 
+    public static final String INSERT_TABLE = "insert into " + TABLE_NAME +
                 " (ID, MJB_VERSION, MJB_REVISION, MJB_UPDATE_DATE, BASEFILENAME, TITLE, TITLE_SORT, TITLE_ORIGINAL, RELEASE_DATE, RATING, TOP250, PLOT, OUTLINE, QUOTE, TAGLINE, RUNTIME, VIDEO_TYPE, SEASON, SUBTITLES, LIBRARY_DESCRIPTION, CERTIFICATION_ID) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     public static final String DROP_TABLE   = "drop table if exists " + TABLE_NAME;
 
     // Type of the Video
     public static final String TYPE_MOVIE  = "MOVIE";
     public static final String TYPE_TVSHOW = "TVSHOW";
-    
+
     private int     id;             // Our generated ID
     private String  mjbVersion;     // Version of YAMJ that was used to write this record
     private int     mjbRevision;    // Revision of YAMJ
@@ -52,11 +53,11 @@ public class VideoDTO implements Serializable {
     private String  subtitles;      // Should this be separate?
     private String  libraryDescription;
     private int     certificationId;
-    
+
     public VideoDTO() {
         this.id = 0;    // Set to the default of 0 (zero)
     }
-    
+
     public VideoDTO(int id, String mjbVersion, int mjbRevision, String mjbUpdateDate, String baseFilename, String title, String titleSort, String titleOriginal,
                     String releaseDate, int rating, int top250, String plot, String outline, String quote, String tagline, int runtime, String videoType,
                     int season, String subtitles, String libraryDescription, int certificationId) {
@@ -83,7 +84,7 @@ public class VideoDTO implements Serializable {
         this.certificationId = certificationId;
     }
 
-    public void populateDTO(ResultSet rs) throws Throwable {
+    public void populateDTO(ResultSet rs) throws SQLException {
         setId(rs.getInt("ID"));
         setMjbVersion(rs.getString("MJB_VERSION"));
         setMjbRevision(rs.getInt("MJB_REVISION"));
@@ -110,43 +111,43 @@ public class VideoDTO implements Serializable {
     public int getId() {
         return id;
     }
-    
+
     public void setId(int id) {
         this.id = id;
     }
-    
+
     public String getTitle() {
         return title;
     }
-    
+
     public void setTitle(String title) {
         this.title = title;
     }
-    
+
     public String getPlot() {
         return plot;
     }
-    
+
     public void setPlot(String plot) {
         this.plot = plot;
     }
-    
+
     public int getRating() {
         return rating;
     }
-    
+
     public void setRating(int rating) {
         this.rating = rating;
     }
-    
+
     public int getRuntime() {
         return runtime;
     }
-    
+
     public void setRuntime(int runtime) {
         this.runtime = runtime;
     }
-    
+
     public String getVideoType() {
         return videoType;
     }
@@ -287,5 +288,5 @@ public class VideoDTO implements Serializable {
                         + ", runtime=" + runtime + ", videoType=" + videoType + ", season=" + season + ", subtitles=" + subtitles + ", libraryDescription="
                         + libraryDescription + ", certificationId=" + certificationId + "]";
     }
-    
+
 }

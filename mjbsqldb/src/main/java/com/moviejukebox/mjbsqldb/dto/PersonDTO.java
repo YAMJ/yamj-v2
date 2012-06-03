@@ -1,29 +1,30 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 
 package com.moviejukebox.mjbsqldb.dto;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class PersonDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static final String TABLE_NAME   = "PERSON";
     public static final String TABLE_KEY    = "ID";
-    public static final String CREATE_TABLE = "create table if not exists " + TABLE_NAME + 
+    public static final String CREATE_TABLE = "create table if not exists " + TABLE_NAME +
                 " (ID integer primary key, NAME text, JOB text, FOREIGN_KEY text, URL text, BIOGRAPHY text, BIRTHDAY text)";
-    public static final String INSERT_TABLE = "insert into " + TABLE_NAME + 
+    public static final String INSERT_TABLE = "insert into " + TABLE_NAME +
                 " (ID, NAME, JOB, FOREIGN_KEY, URL, BIOGRAPHY, BIRTHDAY) values (?, ?, ?, ?, ?, ?, ?)";
     public static final String DROP_TABLE   = "drop table if exists " + TABLE_NAME;
 
@@ -34,11 +35,11 @@ public class PersonDTO implements Serializable {
     private String  url;
     private String  biography;
     private String  birthday;
-    
+
     public PersonDTO() {
         this.id = 0;    // Set to the default of 0 (zero)
     }
-    
+
     public PersonDTO(int id, String name, String job, String foreignKey, String url, String biography, String birthday) {
         this.id = id;
         this.name = name;
@@ -49,7 +50,7 @@ public class PersonDTO implements Serializable {
         this.birthday = birthday;
     }
 
-    public void populateDTO(ResultSet rs) throws Throwable {
+    public void populateDTO(ResultSet rs) throws SQLException {
         setId(rs.getInt("ID"));
         setName(rs.getString("NAME"));
         setJob(rs.getString("JOB"));
@@ -58,7 +59,7 @@ public class PersonDTO implements Serializable {
         setBiography(rs.getString("BIOGRAPHY"));
         setBirthday(rs.getString("BIRTHDAY"));
     }
-    
+
     public int getId() {
         return id;
     }
@@ -120,5 +121,5 @@ public class PersonDTO implements Serializable {
         return "PersonDTO [id=" + id + ", name=" + name + ", job=" + job + ", foreignKey=" + foreignKey + ", url=" + url + ", biography=" + biography
                         + ", birthday=" + birthday + "]";
     }
-    
+
 }

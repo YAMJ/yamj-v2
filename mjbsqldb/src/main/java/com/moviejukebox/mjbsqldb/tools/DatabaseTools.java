@@ -1,23 +1,17 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 
 package com.moviejukebox.mjbsqldb.tools;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import com.moviejukebox.mjbsqldb.dto.ArtworkDTO;
 import com.moviejukebox.mjbsqldb.dto.CertificationDTO;
@@ -31,6 +25,12 @@ import com.moviejukebox.mjbsqldb.dto.VideoDTO;
 import com.moviejukebox.mjbsqldb.dto.VideoFileDTO;
 import com.moviejukebox.mjbsqldb.dto.VideoFilePartDTO;
 import com.moviejukebox.mjbsqldb.dto.VideoSiteDTO;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Class to set up the database and the tables.
@@ -43,18 +43,18 @@ public class DatabaseTools {
     /**
      * Create the database at the end of the connection
      * The database file must already exist and be open
-     * @throws Throwable
+     * @throws SQLException
      */
-    public static void createTables(Connection connection, float version) throws Throwable {
+    public static void createTables(Connection connection, float version) throws SQLException {
         if (connection == null) {
-            throw new RuntimeException("Error: No connection specified!");
+            throw new SQLException("Error: No connection specified!");
         }
-        
+
         Statement stmt = null;
         try {
             String dbDate = dateFormat.format(new Date());
             stmt = connection.createStatement();
-            
+
             stmt.addBatch(ArtworkDTO.CREATE_TABLE);
             stmt.addBatch(CertificationDTO.CREATE_TABLE);
             stmt.addBatch(CodecDTO.CREATE_TABLE);
@@ -67,7 +67,7 @@ public class DatabaseTools {
             stmt.addBatch(VideoFileDTO.CREATE_TABLE);
             stmt.addBatch(VideoFilePartDTO.CREATE_TABLE);
             stmt.addBatch(VideoSiteDTO.CREATE_TABLE);
-            
+
             // Create the join tables
             stmt.addBatch("CREATE TABLE IF NOT EXISTS VIDEO_GENRE    (VIDEO_ID INTEGER, GENRE_ID INTEGER)");
             stmt.addBatch("CREATE TABLE IF NOT EXISTS VIDEO_COMPANY  (VIDEO_ID INTEGER, COMPANY_ID INTEGER)");
@@ -79,11 +79,11 @@ public class DatabaseTools {
             stmt.addBatch("CREATE TABLE IF NOT EXISTS DB_VERSION    (DB_VERSION FLOAT PRIMARY KEY, DB_DATE TEXT)");
             stmt.addBatch("DELETE FROM DB_VERSION");
             stmt.addBatch("INSERT INTO DB_VERSION VALUES(" + version + ", '" + dbDate + "')");
-            
+
             stmt.executeBatch();
             connection.commit();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error creating database tables: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new SQLException("Error creating database tables: " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(stmt);
         }
@@ -92,11 +92,11 @@ public class DatabaseTools {
     /**
      * Remove all the tables from the database
      * The connection must be open
-     * @throws Throwable
+     * @throws SQLException
      */
-    public static void deleteTables(Connection connection) throws Throwable {
+    public static void deleteTables(Connection connection) throws SQLException {
         if (connection == null) {
-            throw new RuntimeException("Error: No connection specified!");
+            throw new SQLException("Error: No connection specified!");
         }
 
         Statement stmt = null;
@@ -124,8 +124,8 @@ public class DatabaseTools {
             stmt.addBatch("DROP TABLE IF EXISTS VIDEO_SITE");
 
             stmt.executeBatch();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error deleting the tables: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new SQLException("Error deleting the tables: " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(stmt);
         }
@@ -134,9 +134,9 @@ public class DatabaseTools {
     /**
      * Get the database version
      * @return (float) database version
-     * @throws Throwable
+     * @throws SQLException
      */
-    public static float getDatabaseVersion(Connection connection) {
+    public static float getDatabaseVersion(Connection connection) throws SQLException {
         Statement stmt = null;
         ResultSet rs = null;
 
@@ -147,14 +147,14 @@ public class DatabaseTools {
             if (rs.next()) {
                 return rs.getFloat("db_version");
             }
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error: Unable to get database version: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new SQLException("Error: Unable to get database version: " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(rs);
             SQLTools.close(stmt);
         }
 
-        throw new RuntimeException("Error: Unable to get database version.");
+        throw new SQLException("Error: Unable to get database version.");
     }
-    
+
 }

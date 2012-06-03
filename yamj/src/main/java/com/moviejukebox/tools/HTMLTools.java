@@ -29,8 +29,10 @@ public class HTMLTools {
     private static final Logger logger = Logger.getLogger(HTMLTools.class);
 
     static {
-        // Html encoding mapping according to the HTML 4.0 spec
-        // http://www.w3.org/TR/REC-html40/sgml/entities.html
+        /*
+         * Html encoding mapping according to the HTML 4.0 spec
+         * http://www.w3.org/TR/REC-html40/sgml/entities.html
+         */
 
         // Special characters for HTML
         AGGRESSIVE_HTML_ENCODE_MAP.put('\u0026', "&amp;");
@@ -343,7 +345,7 @@ public class HTMLTools {
                             radix = 16;
                         }
                         try {
-                            Character c = new Character((char) Integer.parseInt(new String(entity.substring(start, entity.length() - 1)), radix));
+                            Character c = Character.valueOf((char) Integer.parseInt(entity.substring(start, entity.length() - 1), radix));
                             result.append(c);
                         } // when the number of the entity can't be parsed, add the entity as-is
                         catch (NumberFormatException error) {
