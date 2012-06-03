@@ -1,29 +1,29 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.model.Comparator;
 
-import java.util.Comparator;
-
 import com.moviejukebox.model.Movie;
 import static com.moviejukebox.tools.StringTools.isValidString;
+import java.util.Comparator;
 
 /**
  * @author ilgizar
  */
-public class YearComparator implements Comparator<Movie> {
-    private boolean ascending = true;
+public class MovieYearComparator implements Comparator<Movie> {
 
-    public YearComparator(boolean ascending) {
+    private boolean ascending = Boolean.TRUE;
+
+    public MovieYearComparator(boolean ascending) {
         this.ascending = ascending;
     }
 

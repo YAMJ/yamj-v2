@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 public class Library implements Map<String, Movie> {
 
     private static final Logger logger = Logger.getLogger(Library.class);
+    private static final String logMessage = "Library: ";
     // Constants
     public static final String TV_SERIES = "TVSeries";
     public static final String SET = "Set";
@@ -92,8 +93,9 @@ public class Library implements Map<String, Movie> {
     private static final int finalYear = currentYear - 2;
     private static final int currentDecade = (finalYear / 10) * 10;
     // Sorting params
-    private static Map<String, String> sortKeys = new HashMap<String, String>();
-    private static Map<String, Boolean> sortAsc = new HashMap<String, Boolean>();
+    private static final Map<String, String> sortKeys = new HashMap<String, String>();
+    private static final Map<String, Boolean> sortAsc = new HashMap<String, Boolean>();
+    private static final List<String> sortComp = new ArrayList<String>();
     // Index Names
     public static final String INDEX_OTHER = "Other";
     public static final String INDEX_GENRES = "Genres";
@@ -127,13 +129,6 @@ public class Library implements Map<String, Movie> {
     public static final String INDEX_MOVIES = "Movies";
     public static final String INDEX_ACTOR = "Actor";
     public static final String INDEX_CATEGORIES = "Categories";
-    // Comparators
-    private static LastModifiedComparator cmpLast = new LastModifiedComparator();
-    private static Top250Comparator cmp250 = new Top250Comparator();
-    private static RatingComparator cmpRatingAsc = new RatingComparator(false);
-    private static RatingComparator cmpRatingDesc = new RatingComparator(true);
-    private static ReleaseComparator cmpReleaseAsc = new ReleaseComparator(true);
-    private static ReleaseComparator cmpReleaseDesc = new ReleaseComparator(false);
 
     static {
         categoryMinCountMaster = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3");
@@ -187,47 +182,76 @@ public class Library implements Map<String, Movie> {
         peopleScrape = PropertiesUtil.getBooleanProperty("mjb.people.scrape", "true");
         peopleExclusive = PropertiesUtil.getBooleanProperty("mjb.people.exclusive", "false");
 
-        getSortProperty(INDEX_PERSON, INDEX_TITLE, "true");
-        getSortProperty(INDEX_CAST, INDEX_TITLE, "true");
-        getSortProperty(INDEX_DIRECTOR, INDEX_TITLE, "true");
-        getSortProperty(INDEX_WRITER, INDEX_TITLE, "true");
-        getSortProperty(INDEX_RATINGS, INDEX_RATING, "false");
-        getSortProperty(INDEX_GENRES, INDEX_TITLE, "true");
-        getSortProperty(INDEX_TITLE, INDEX_TITLE, "true");
-        getSortProperty(INDEX_CERTIFICATION, INDEX_TITLE, "true");
-        getSortProperty(INDEX_YEAR, INDEX_TITLE, "true");
-        getSortProperty(INDEX_LIBRARY, INDEX_TITLE, "true");
-        getSortProperty(INDEX_COUNTRY, INDEX_TITLE, "true");
-        getSortProperty(INDEX_AWARD, INDEX_TITLE, "true");
+        // Compile the sorting comparator list
+        if (sortComp.isEmpty()) {
+            sortComp.add(INDEX_NEW);
+            sortComp.add(INDEX_TITLE);
+            sortComp.add(INDEX_RATING);
+            sortComp.add(INDEX_TOP250);
+            sortComp.add(INDEX_YEAR);
+        }
+        logger.debug(logMessage + "Valid sort types are: " + sortComp.toString());
 
-        getSortProperty(INDEX_RATING, INDEX_RATING, "true");
-        getSortProperty(INDEX_HD, INDEX_TITLE, "true");
-        getSortProperty(INDEX_HD1080, INDEX_TITLE, "true");
-        getSortProperty(INDEX_HD720, INDEX_TITLE, "true");
-        getSortProperty(INDEX_3D, INDEX_TITLE, "true");
-        getSortProperty(INDEX_WATCHED, INDEX_TITLE, "true");
-        getSortProperty(INDEX_UNWATCHED, INDEX_TITLE, "true");
-        getSortProperty(INDEX_ALL, INDEX_TITLE, "true");
-        getSortProperty(INDEX_TVSHOWS, INDEX_TITLE, "true");
-        getSortProperty(INDEX_MOVIES, INDEX_TITLE, "true");
+        if (sortKeys.isEmpty()) {
+            setSortProperty(INDEX_PERSON, INDEX_TITLE, "true");
+            setSortProperty(INDEX_CAST, INDEX_TITLE, "true");
+            setSortProperty(INDEX_DIRECTOR, INDEX_TITLE, "true");
+            setSortProperty(INDEX_WRITER, INDEX_TITLE, "true");
+            setSortProperty(INDEX_RATINGS, INDEX_RATING, "false");
+            setSortProperty(INDEX_GENRES, INDEX_TITLE, "true");
+            setSortProperty(INDEX_TITLE, INDEX_TITLE, "true");
+            setSortProperty(INDEX_CERTIFICATION, INDEX_TITLE, "true");
+            setSortProperty(INDEX_YEAR, INDEX_TITLE, "true");
+            setSortProperty(INDEX_LIBRARY, INDEX_TITLE, "true");
+            setSortProperty(INDEX_COUNTRY, INDEX_TITLE, "true");
+            setSortProperty(INDEX_AWARD, INDEX_TITLE, "true");
+
+            setSortProperty(INDEX_RATING, INDEX_RATING, "true");
+            setSortProperty(INDEX_HD, INDEX_TITLE, "true");
+            setSortProperty(INDEX_HD1080, INDEX_TITLE, "true");
+            setSortProperty(INDEX_HD720, INDEX_TITLE, "true");
+            setSortProperty(INDEX_3D, INDEX_TITLE, "true");
+            setSortProperty(INDEX_WATCHED, INDEX_TITLE, "true");
+            setSortProperty(INDEX_UNWATCHED, INDEX_TITLE, "true");
+            setSortProperty(INDEX_ALL, INDEX_TITLE, "true");
+            setSortProperty(INDEX_TVSHOWS, INDEX_TITLE, "true");
+            setSortProperty(INDEX_MOVIES, INDEX_TITLE, "true");
+            setSortProperty(INDEX_TOP250, INDEX_TOP250, "true");
+
+            // Sort the new categories by descending order
+            setSortProperty(INDEX_NEW, INDEX_NEW, "false");
+            setSortProperty(INDEX_NEW_MOVIE, INDEX_NEW, "false");
+            setSortProperty(INDEX_NEW_TV, INDEX_NEW, "false");
+        }
 
         getNewCategoryProperties();
     }
 
-    private static void getSortProperty(String indexKey, String defSort, String defAsc) {
+    private static void setSortProperty(String indexKey, String defaultSort, String defaultOrder) {
         String spIndexKey;
 
-        if (indexKey.indexOf(" ") > -1) {
+        if (indexKey.contains(" ")) {
             spIndexKey = indexKey.replaceAll(" ", "");
         } else {
             spIndexKey = indexKey;
         }
 
-        sortKeys.put(indexKey, PropertiesUtil.getProperty("indexing.sort." + spIndexKey.toLowerCase(), defSort));
-        sortAsc.put(indexKey, PropertiesUtil.getBooleanProperty("indexing.sort." + spIndexKey.toLowerCase() + ".asc", defAsc));
+        String sortType = PropertiesUtil.getProperty("indexing.sort." + spIndexKey.toLowerCase(), defaultSort);
+
+        if (StringTools.isNotValidString(sortType) || !sortComp.contains(sortType)) {
+            logger.warn(logMessage + "Invalid sort type '" + sortType + "' for category '" + spIndexKey + "' using defailt of " + defaultSort);
+            sortType = defaultSort;
+        }
+
+        sortKeys.put(indexKey, sortType);
+        sortAsc.put(indexKey, PropertiesUtil.getBooleanProperty("indexing.sort." + spIndexKey.toLowerCase() + ".asc", defaultOrder));
     }
 
     public Library() {
+        logger.debug(logMessage + "Library sorting:");
+        for (Entry<String, String> sk : sortKeys.entrySet()) {
+            logger.debug(logMessage + "  Category='" + sk.getKey() + "', OrderBy='" + sk.getValue() + "'" + (sortAsc.get(sk.getKey()) ? " (Ascending)" : " (Descending)"));
+        }
     }
 
     /**
@@ -615,11 +639,11 @@ public class Library implements Map<String, Movie> {
                     tasks.submit(new Callable<Void>() {
                         @Override
                         public Void call() {
-                            Comparator<Movie> comp = getComparator(indexesEntry.getKey(), indexEntry.getKey());
-                            if (null != comp) {
-                                Collections.sort(indexEntry.getValue(), comp);
-                            } else {
+                            Comparator<Movie> cmpMovie = getComparator(indexesEntry.getKey(), indexEntry.getKey());
+                            if (cmpMovie == null) {
                                 Collections.sort(indexEntry.getValue());
+                            } else {
+                                Collections.sort(indexEntry.getValue(), cmpMovie);
                             }
                             return null;
                         }
@@ -663,18 +687,18 @@ public class Library implements Map<String, Movie> {
 
                 // If we have new videos, then create the super "New" category
                 if ((newMovies + newTVShows) > 0) {
-                    StringBuilder logMessage = new StringBuilder("Creating new category with ");
+                    StringBuilder categoryMessage = new StringBuilder("Creating new category with ");
                     if (newMovies > 0) {
-                        logMessage.append(newMovies).append(" new movie").append(newMovies > 1 ? "s" : "");
+                        categoryMessage.append(newMovies).append(" new movie").append(newMovies > 1 ? "s" : "");
                     }
                     if (newTVShows > 0) {
-                        logMessage.append(newMovies > 0 ? " & " : "");
-                        logMessage.append(newTVShows).append(" new TV Show").append(newTVShows > 1 ? "s" : "");
+                        categoryMessage.append(newMovies > 0 ? " & " : "");
+                        categoryMessage.append(newTVShows).append(" new TV Show").append(newTVShows > 1 ? "s" : "");
                     }
 
-                    logger.debug(logMessage.toString());
+                    logger.debug(categoryMessage.toString());
                     otherIndexes.put(categoriesMap.get(INDEX_NEW), newList);
-                    Collections.sort(otherIndexes.get(categoriesMap.get(INDEX_NEW)), cmpLast);
+                    Collections.sort(otherIndexes.get(categoriesMap.get(INDEX_NEW)), new LastModifiedComparator());
                 }
             }
 
@@ -1366,18 +1390,8 @@ public class Library implements Map<String, Movie> {
     }
 
     @Override
-    public boolean equals(Object arg0) {
-        return library.equals(arg0);
-    }
-
-    @Override
     public Movie get(Object key) {
         return library.get(key);
-    }
-
-    @Override
-    public int hashCode() {
-        return library.hashCode();
     }
 
     @Override
@@ -1453,7 +1467,6 @@ public class Library implements Map<String, Movie> {
         return indexes;
     }
 
-    @SuppressWarnings("unchecked")
     private static void fillGenreMap(String xmlGenreFilename) {
         File xmlGenreFile = new File(xmlGenreFilename);
         if (xmlGenreFile.exists() && xmlGenreFile.isFile() && xmlGenreFilename.toUpperCase().endsWith("XML")) {
@@ -1509,7 +1522,6 @@ public class Library implements Map<String, Movie> {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private static void fillCategoryMap(String xmlCategoryFilename) {
         File xmlFile = new File(xmlCategoryFilename);
         if (xmlFile.exists() && xmlFile.isFile() && xmlCategoryFilename.toUpperCase().endsWith("XML")) {
@@ -1564,9 +1576,9 @@ public class Library implements Map<String, Movie> {
             if (key.equals(categoriesMap.get(INDEX_NEW))
                     || key.equals(categoriesMap.get(INDEX_NEW_TV))
                     || key.equals(categoriesMap.get(INDEX_NEW_MOVIE))) {
-                cmpMovie = cmpLast;
+                cmpMovie = new LastModifiedComparator(sortAsc.get(key));
             } else if (key.equals(categoriesMap.get(INDEX_TOP250))) {
-                cmpMovie = cmp250;
+                cmpMovie = new MovieTop250Comparator(sortAsc.get(INDEX_TOP250));
             } else if (key.equals(categoriesMap.get(INDEX_ALL))) {
                 cmpMovie = getComparator(INDEX_ALL);
             } else if (key.equals(categoriesMap.get(INDEX_TVSHOWS))) {
@@ -1599,13 +1611,31 @@ public class Library implements Map<String, Movie> {
         Comparator<Movie> cmpMovie = null;
         String sortKey = sortKeys.get(category);
         boolean ascending = sortAsc.get(category);
-        if (StringTools.isValidString(sortKey) && !sortKey.equalsIgnoreCase(INDEX_TITLE)) {
-            if (sortKey.equalsIgnoreCase(INDEX_YEAR)) {
-                cmpMovie = ascending ? cmpReleaseAsc : cmpReleaseDesc;
-            } else if (sortKey.equalsIgnoreCase(INDEX_RATING)) {
-                cmpMovie = ascending ? cmpRatingAsc : cmpRatingDesc;
-            }
+
+        if (StringTools.isNotValidString(sortKey)) {
+            return cmpMovie;
         }
+
+        if (sortKey.equalsIgnoreCase(INDEX_NEW)) {
+            cmpMovie = new LastModifiedComparator(ascending);
+        } else if (sortKey.equalsIgnoreCase(INDEX_TITLE)) {
+            cmpMovie = new MovieTitleComparator(ascending);
+        } else if (sortKey.equalsIgnoreCase(INDEX_RATING)) {
+            cmpMovie = new MovieRatingComparator(ascending);
+        } else if (sortKey.equalsIgnoreCase(INDEX_TOP250)) {
+            cmpMovie = new MovieTop250Comparator(ascending);
+        } else if (sortKey.equalsIgnoreCase(INDEX_YEAR)) {
+            cmpMovie = new MovieReleaseComparator(ascending);
+        }
+
+//        if (StringTools.isValidString(sortKey) && !sortKey.equalsIgnoreCase(INDEX_TITLE)) {
+//            if (sortKey.equalsIgnoreCase(INDEX_YEAR)) {
+//                cmpMovie = new MovieReleaseComparator(ascending);
+//            } else if (sortKey.equalsIgnoreCase(INDEX_RATING)) {
+//                cmpMovie = new MovieRatingComparator(ascending);
+//            }
+//        }
+
         return cmpMovie;
     }
 

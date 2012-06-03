@@ -1,25 +1,25 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.model.Comparator;
 
-import java.util.Comparator;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
+import java.util.Comparator;
 
 public class MovieSetComparator implements Comparator<Movie> {
+
     private String set;
-    private static boolean specialsAtEnd = PropertiesUtil.getBooleanProperty("mjb.sets.specialsAtEnd", "false");
+    private static final boolean specialsAtEnd = PropertiesUtil.getBooleanProperty("mjb.sets.specialsAtEnd", "false");
 
     public MovieSetComparator(String set) {
         this.set = set;
@@ -33,13 +33,13 @@ public class MovieSetComparator implements Comparator<Movie> {
                 if (m1.getSeason() == 0) {
                     return 1;
                 }
-                
+
                 if (m2.getSeason() == 0) {
                     return -1;
                 }
             }
         }
-        
+
         Integer o1 = m1.getSetOrder(set);
         Integer o2 = m2.getSetOrder(set);
 
@@ -66,5 +66,4 @@ public class MovieSetComparator implements Comparator<Movie> {
             return c;
         }
     }
-
 }

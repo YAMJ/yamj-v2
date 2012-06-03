@@ -4,8 +4,11 @@
 
 MovieJukebox 2.7-SNAPSHOT
 -------------------------
+ - Enhancement  #1208 Sort movies by year ascending / descending
  - Fixed defect #1368 Support XML NFO files without a root element
- - Fixed defect #2040 Extras naming wrong if extra is BluRay dir
+ - Enhancement  #1571 Category ordered by rating
+ - Enhancement  #1660 Group Movies by release date
+ - Fixed defect #2040 Extras naming wrong if extra is BluRay directory
  - Fixed defect #2245 Trailer URL from NFO is lost after a rescan
  - Fixed defect #2398 Report extended channel count for audio formats with core/extended channels
  - Fixed defect #2403 Local posters are copied to the jukebox each run

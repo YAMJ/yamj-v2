@@ -12,11 +12,10 @@
  */
 package com.moviejukebox.model.Comparator;
 
+import com.moviejukebox.tools.PropertiesUtil;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.StringTokenizer;
-
-import com.moviejukebox.tools.PropertiesUtil;
 
 public class SortIgnorePrefixesComparator implements Comparator<Object> {
 
