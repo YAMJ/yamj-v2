@@ -644,12 +644,12 @@ public class MovieJukeboxHTMLWriter {
             try {
                 transformer.transform(xmlSource, xmlResult);
                 return;  // If the transform didn't throw an error, return
-            } catch (Throwable tw) {
+            } catch (TransformerException ex) {
                 int retryTimes = maxRetryCount - ++retryCount;
 
                 if (retryTimes == 0) {
                     // We've exceeded the maximum number of retries, so throw the exception and quit
-                    throw new Exception(tw);
+                    throw new Exception(ex);
                 } else {
                     logger.debug("HTMLWriter: Failed generating HTML, will retry "
                             + retryTimes + " more time" + (retryTimes == 1 ? ". " : "s. ") + message);

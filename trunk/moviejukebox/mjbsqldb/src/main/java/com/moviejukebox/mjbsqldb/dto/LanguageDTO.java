@@ -1,29 +1,30 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 
 package com.moviejukebox.mjbsqldb.dto;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class LanguageDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static final String TABLE_NAME   = "LANGUAGE";
     public static final String TABLE_KEY    = "ID";
-    public static final String CREATE_TABLE = "create table if not exists " + TABLE_NAME + 
+    public static final String CREATE_TABLE = "create table if not exists " + TABLE_NAME +
                 " (ID integer primary key, LANGUAGE TEXT, SHORT_CODE TEXT, MEDIUM_CODE TEXT, LONG_CODE TEXT)";
-    public static final String INSERT_TABLE = "insert into " + TABLE_NAME + 
+    public static final String INSERT_TABLE = "insert into " + TABLE_NAME +
                 " (ID, LANGUAGE, SHORT_CODE, MEDIUM_CODE, LONG_CODE) values (?, ?, ?, ?, ?)";
     public static final String DROP_TABLE   = "drop table if exists " + TABLE_NAME;
 
@@ -32,11 +33,11 @@ public class LanguageDTO implements Serializable {
     private String  shortCode;
     private String  mediumCode;
     private String  longCode;
-    
+
     public LanguageDTO() {
         this.id = 0;    // Set to the default of 0 (zero)
     }
-    
+
     public LanguageDTO(int id, String language, String shortCode, String mediumCode, String longCode) {
         this.id = id;
         this.language = language;
@@ -45,18 +46,18 @@ public class LanguageDTO implements Serializable {
         this.longCode = longCode;
     }
 
-    public void populateDTO(ResultSet rs) throws Throwable {
+    public void populateDTO(ResultSet rs) throws SQLException {
         setId(rs.getInt("ID"));
         setLanguage(rs.getString("LANGUAGE"));
         setShortCode(rs.getString("SHORT_CODE"));
         setMediumCode(rs.getString("MEDIUM_CODE"));
         setLongCode(rs.getString("LONG_CODE"));
     }
-    
+
     public int getId() {
         return id;
     }
-    
+
     public void setId(int id) {
         this.id = id;
     }

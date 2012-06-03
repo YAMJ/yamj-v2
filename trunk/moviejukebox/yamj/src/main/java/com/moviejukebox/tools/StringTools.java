@@ -31,14 +31,15 @@ import org.apache.commons.lang3.StringUtils;
 import com.moviejukebox.model.Movie;
 
 public class StringTools {
+
     private static final Pattern CLEAN_STRING_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
     private static final long KB = 1024;
-    private static final long MB = KB*KB;
-    private static final long GB = KB*KB*KB;
+    private static final long MB = KB * KB;
+    private static final long GB = KB * KB * KB;
     private static final DecimalFormat FILESIZE_FORMAT_0 = new DecimalFormat("0");
     private static final DecimalFormat FILESIZE_FORMAT_1 = new DecimalFormat("0.#");
     private static final DecimalFormat FILESIZE_FORMAT_2 = new DecimalFormat("0.##");
-    private static Map<Character, Character> charReplacementMap = new HashMap<Character, Character>();
+    private static final Map<Character, Character> charReplacementMap = new HashMap<Character, Character>();
 
     static {
         // Populate the charReplacementMap
@@ -49,13 +50,10 @@ public class StringTools {
             String token = tokenizer.nextToken();
             int idx = token.indexOf("-");
             if (idx > 0) {
-                try {
-                    String key = new String(token.substring(0, idx).trim());
-                    String value = new String(token.substring(idx + 1).trim());
-                    if (key.length() == 1 && value.length() == 1) {
-                        charReplacementMap.put(new Character(key.charAt(0)), new Character(value.charAt(0)));
-                    }
-                } catch (Exception ignore) {
+                String key = token.substring(0, idx).trim();
+                String value = token.substring(idx + 1).trim();
+                if (key.length() == 1 && value.length() == 1) {
+                    charReplacementMap.put(Character.valueOf(key.charAt(0)), Character.valueOf(value.charAt(0)));
                 }
             }
         }
@@ -63,6 +61,7 @@ public class StringTools {
 
     /**
      * Check the passed character against the replacement list.
+     *
      * @param charToReplace
      * @return
      */
@@ -77,6 +76,7 @@ public class StringTools {
 
     /**
      * Change all the characters in a string to the safe replacements
+     *
      * @param stringToReplace
      * @return
      */
@@ -97,12 +97,13 @@ public class StringTools {
 
     /**
      * Append a string to the end of a path ensuring that there are the correct number of File.separators
+     *
      * @param basePath
      * @param additionalPath
      * @return
      */
     public static String appendToPath(String basePath, String additionalPath) {
-        return (basePath.trim() + (basePath.trim().endsWith(File.separator)?"":File.separator) + additionalPath.trim());
+        return (basePath.trim() + (basePath.trim().endsWith(File.separator) ? "" : File.separator) + additionalPath.trim());
     }
 
     public static String cleanString(String sourceString) {
@@ -111,6 +112,7 @@ public class StringTools {
 
     /**
      * Convert a date to a string using the Movie dateFormat
+     *
      * @param convertDate
      * @return converted date in the format specified in Movie.dateFormatString
      */
@@ -120,6 +122,7 @@ public class StringTools {
 
     /**
      * Convert a date to a string using a Simple Date Format
+     *
      * @param convertDate
      * @param dateFormat
      * @return
@@ -134,6 +137,7 @@ public class StringTools {
 
     /**
      * Convert a date to a string using a String date format
+     *
      * @param convertDate
      * @param dateFormatString
      * @return
@@ -179,7 +183,7 @@ public class StringTools {
                 appendText = " KB";
                 divider = KB;
             } else if (fileSize < GB) {
-            appendText = " MB";
+                appendText = " MB";
                 divider = MB;
             } else {
                 appendText = " GB";
@@ -198,15 +202,15 @@ public class StringTools {
             }
 
             // build string
-            returnSize = df.format( (float) ((float) fileSize / (float) divider)) + appendText;
+            returnSize = df.format((float) ((float) fileSize / (float) divider)) + appendText;
         }
 
         return returnSize;
     }
 
     /**
-     * Check the string passed to see if it is invalid.
-     * Invalid strings are "UNKNOWN", null or blank
+     * Check the string passed to see if it is invalid. Invalid strings are "UNKNOWN", null or blank
+     *
      * @param testString The string to test
      * @return True if the string is invalid, false otherwise
      */
@@ -216,6 +220,7 @@ public class StringTools {
 
     /**
      * Check the string passed to see if it contains a value.
+     *
      * @param testString The string to test
      * @return False if the string is empty, null or UNKNOWN, True otherwise
      */
@@ -234,6 +239,7 @@ public class StringTools {
 
     /**
      * Take a string runtime in various formats and try to output this in minutes
+     *
      * @param runtime
      * @return
      */
@@ -290,10 +296,11 @@ public class StringTools {
 
     /**
      * Check that the passed string is no longer than the required length and trim it if necessary
-     * @param sourceString      The string to check
-     * @param requiredLength    The required length (Maximum)
-     * @param trimToWord        Trim the source string to the last space to avoid partial words
-     * @param endingSuffix      The ending to append if the string is longer than the required length
+     *
+     * @param sourceString The string to check
+     * @param requiredLength The required length (Maximum)
+     * @param trimToWord Trim the source string to the last space to avoid partial words
+     * @param endingSuffix The ending to append if the string is longer than the required length
      * @return
      */
     public static String trimToLength(String sourceString, int requiredLength, boolean trimToWord, String endingSuffix) {
@@ -319,8 +326,9 @@ public class StringTools {
     }
 
     /**
-     * Cast a generic list to a specfic class
-     * See: http://stackoverflow.com/questions/367626/how-do-i-fix-the-expression-of-type-list-needs-unchecked-conversion
+     * Cast a generic list to a specfic class See:
+     * http://stackoverflow.com/questions/367626/how-do-i-fix-the-expression-of-type-list-needs-unchecked-conversion
+     *
      * @param <T>
      * @param objClass
      * @param c
@@ -328,13 +336,15 @@ public class StringTools {
      */
     public static <T> List<T> castList(Class<? extends T> objClass, Collection<?> c) {
         List<T> r = new ArrayList<T>(c.size());
-        for(Object o: c)
-          r.add(objClass.cast(o));
+        for (Object o : c) {
+            r.add(objClass.cast(o));
+        }
         return r;
     }
 
     /**
      * Split a list using a regex and return a list of trimmed strings
+     *
      * @param stringToSplit
      * @param regexDelim
      * @return
@@ -357,5 +367,4 @@ public class StringTools {
         }
         return keywords.toArray(new String[keywords.size()]);
     }
-
 }

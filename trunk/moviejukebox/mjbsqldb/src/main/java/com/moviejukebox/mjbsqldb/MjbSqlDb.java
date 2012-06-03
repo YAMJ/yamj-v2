@@ -10,20 +10,22 @@
  *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
  */
-
 package com.moviejukebox.mjbsqldb;
 
 import com.moviejukebox.mjbsqldb.tools.DatabaseTools;
 import com.moviejukebox.mjbsqldb.tools.SQLTools;
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sqlite.SQLiteJDBCLoader;
 
 public class MjbSqlDb {
+
     private static final float VERSION = 1.4f;
     protected static Connection connection = null;
 
@@ -31,8 +33,12 @@ public class MjbSqlDb {
         // Set up the driver
         try {
             Class.forName("org.sqlite.JDBC");
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error initializing the database driver: " + tw.getMessage(), tw);
+        } catch (ExceptionInInitializerError ex) {
+            throw new RuntimeException("Error initializing the database driver: " + ex.getMessage(), ex);
+        } catch (LinkageError ex) {
+            throw new RuntimeException("Error initializing the database driver: " + ex.getMessage(), ex);
+        } catch (ClassNotFoundException ex) {
+            throw new RuntimeException("Error initializing the database driver: " + ex.getMessage(), ex);
         }
         System.out.println(String.format("Driver running in %s mode", SQLiteJDBCLoader.isNativeMode() ? "native" : "pure-java"));
 
@@ -40,12 +46,13 @@ public class MjbSqlDb {
 
     /**
      * Create or Open the database specified
+     *
      * @param dbPath
      * @param dbName
      */
-    public MjbSqlDb(String dbPath, String dbName) {
+    public MjbSqlDb(String dbPath, String dbName) throws SQLException {
         if (StringUtils.isBlank(dbPath) || StringUtils.isBlank(dbName)) {
-            throw new RuntimeException("Error: Path or database name is blank: ");
+            throw new SQLException("Error: Path or database name is blank: ");
         }
 
         if (StringUtils.isBlank(dbPath)) {
@@ -70,7 +77,7 @@ public class MjbSqlDb {
             Float dbVersion;
             try {
                 dbVersion = DatabaseTools.getDatabaseVersion(connection);
-            } catch (Exception error) {
+            } catch (SQLException error) {
                 System.out.println("Database version out of date. Updating...");
                 dbVersion = 0.0f;
             }
@@ -83,9 +90,12 @@ public class MjbSqlDb {
             // Create the tables (if they don't exist)
             DatabaseTools.createTables(connection, VERSION);
 
-        } catch (Throwable tw) {
+        } catch (IOException ex) {
             SQLTools.close(connection);
-            throw new RuntimeException("Error opening the database: " + tw.getMessage(), tw);
+            throw new RuntimeException("Error opening the database: " + ex.getMessage(), ex);
+        } catch (SQLException ex) {
+            SQLTools.close(connection);
+            throw new RuntimeException("Error opening the database: " + ex.getMessage(), ex);
         }
     }
 
@@ -100,10 +110,10 @@ public class MjbSqlDb {
 
     /**
      * Return the connection to the database
+     *
      * @return
      */
     public static Connection getConnection() {
         return connection;
     }
-
 }

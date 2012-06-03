@@ -13,12 +13,13 @@
 package com.moviejukebox.model.Comparator;
 
 import com.moviejukebox.model.Movie;
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
  * @author altman.matthew
  */
-public class MovieRatingComparator implements Comparator<Movie> {
+public class MovieRatingComparator implements Comparator<Movie>, Serializable {
 
     private boolean ascending;
 

@@ -78,12 +78,12 @@ public class MovieReleaseComparator extends MovieYearComparator {
             SimpleDateFormat srcDate = new SimpleDateFormat("dd MMM yyyy", locale);
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(0)));
-            } catch (ParseException e) {
+            } catch (ParseException ex) {
             }
 
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(1) + " " + correctShortMonth(dateMatch.group(2).substring(0, 3)) + " " + dateMatch.group(3)));
-            } catch (ParseException e) {
+            } catch (ParseException ex) {
             }
 
             srcDate = new SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH);
@@ -102,18 +102,18 @@ public class MovieReleaseComparator extends MovieYearComparator {
                 SimpleDateFormat srcDate = new SimpleDateFormat("MMM yyyy", locale);
                 try {
                     return dstDate.format(srcDate.parse(dateMatch.group(0)));
-                } catch (ParseException e) {
+                } catch (ParseException ex) {
                 }
 
                 try {
                     return dstDate.format(srcDate.parse(correctShortMonth(dateMatch.group(1).substring(0, 3)) + " " + dateMatch.group(2)));
-                } catch (ParseException e) {
+                } catch (ParseException ex) {
                 }
 
                 srcDate = new SimpleDateFormat("MMM yyyy", Locale.ENGLISH);
                 try {
                     return dstDate.format(srcDate.parse(dateMatch.group(0)));
-                } catch (ParseException e) {
+                } catch (ParseException ex) {
                     logger.debug(logMessage + "Unparseable date: " + dateMatch.group(0) + " (" + dateLocale + ")");
                 }
 

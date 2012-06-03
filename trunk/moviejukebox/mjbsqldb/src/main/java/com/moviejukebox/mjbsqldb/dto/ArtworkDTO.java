@@ -1,20 +1,21 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 
 package com.moviejukebox.mjbsqldb.dto;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class ArtworkDTO implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -30,28 +31,28 @@ public class ArtworkDTO implements Serializable {
                 "RELATED_ID integer, " +
                 "FOREIGN_KEY text" +
                 ")";
-    public static final String INSERT_TABLE = "insert into " + TABLE_NAME + 
+    public static final String INSERT_TABLE = "insert into " + TABLE_NAME +
                 " (ID, FILENAME, URL, TYPE, RELATED_ID, FOREIGN_KEY) values (?, ?, ?, ?, ?, ?)";
     public static final String DROP_TABLE   = "drop table if exists " + TABLE_NAME;
-    
+
     public static final String TYPE_POSTER = "POSTER";
     public static final String TYPE_PERSON = "PERSON";
     public static final String TYPE_BANNER = "BANNER";
     public static final String TYPE_FANART = "FANART";
     public static final String TYPE_VIDEOIMAGE = "VIDEOIMAGE";
-    
+
     private int     id;
     private String  filename;
     private String  url;
     private String  type;
     private int     relatedId; // This will be the id of the movie/person that the image corresponds to
-    private String  foreignKey; 
-    
+    private String  foreignKey;
+
     public ArtworkDTO() {
         super();
         this.id = 0;    // Set to the default of 0 (zero)
     }
-    
+
     public ArtworkDTO(int id, String filename, String url, String type, int relatedId, String foreignKey) {
         super();
         this.id = id;
@@ -61,8 +62,8 @@ public class ArtworkDTO implements Serializable {
         this.relatedId = relatedId;
         this.foreignKey = foreignKey;
     }
-    
-    public void populateDTO(ResultSet rs) throws Throwable {
+
+    public void populateDTO(ResultSet rs) throws SQLException {
         setId(rs.getInt("ID"));
         setFilename(rs.getString("FILENAME"));
         setUrl(rs.getString("URL"));
@@ -74,7 +75,7 @@ public class ArtworkDTO implements Serializable {
     public int getId() {
         return id;
     }
-    
+
     public void setId(int id) {
         this.id = id;
     }

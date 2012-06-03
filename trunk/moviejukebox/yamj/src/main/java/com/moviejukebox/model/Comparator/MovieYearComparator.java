@@ -14,12 +14,13 @@ package com.moviejukebox.model.Comparator;
 
 import com.moviejukebox.model.Movie;
 import static com.moviejukebox.tools.StringTools.isValidString;
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
  * @author ilgizar
  */
-public class MovieYearComparator implements Comparator<Movie> {
+public class MovieYearComparator implements Comparator<Movie>, Serializable {
 
     private boolean ascending = Boolean.TRUE;
 

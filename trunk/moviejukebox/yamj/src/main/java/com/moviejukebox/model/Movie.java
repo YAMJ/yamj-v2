@@ -1922,7 +1922,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                     videoOutput = "1080p 30Hz";
                     break;
                 case 50:
-                    if (!videoOutput.equals("")) {
+                    if (StringUtils.isNotBlank(videoOutput)) {
                         videoOutput += " ";
                     }
                     videoOutput += "50Hz";
@@ -1931,13 +1931,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                     videoOutput = "1080p 59.94Hz";
                     break;
                 case 60:
-                    if (!videoOutput.equals("")) {
+                    if (StringUtils.isNotBlank(videoOutput)) {
                         videoOutput += " ";
                     }
                     videoOutput += "60Hz";
                     break;
                 default:
-                    if (videoOutput.equals("")) {
+                    if (StringUtils.isBlank(videoOutput)) {
                         videoOutput = Movie.UNKNOWN;
                     } else {
                         videoOutput += " 60Hz";
@@ -1951,23 +1951,15 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 case 24:
                     videoOutput = "24p";
                     break;
-                case 25:
-                    videoOutput = "PAL";
-                    break;
                 case 29:
-                    videoOutput = "NTSC";
-                    break;
                 case 30:
-                    videoOutput = "NTSC";
-                    break;
-                case 49:
-                    videoOutput = "PAL";
-                    break;
-                case 50:
-                    videoOutput = "PAL";
-                    break;
                 case 60:
                     videoOutput = "NTSC";
+                    break;
+                case 25:
+                case 49:
+                case 50:
+                    videoOutput = "PAL";
                     break;
                 default:
                     videoOutput = Movie.UNKNOWN;

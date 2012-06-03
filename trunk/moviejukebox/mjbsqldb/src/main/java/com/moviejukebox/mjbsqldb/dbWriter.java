@@ -17,6 +17,7 @@ import com.moviejukebox.mjbsqldb.dto.*;
 import com.moviejukebox.mjbsqldb.tools.SQLTools;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class dbWriter {
     // Join tables
@@ -26,11 +27,11 @@ public class dbWriter {
     private static final String JOIN_LANGUAGE = "insert into VIDEO_LANGUAGE (VIDEO_ID, LANGUAGE_ID) values (?, ?)";
     private static final String JOIN_PERSON   = "insert into VIDEO_PERSON   (VIDEO_ID, PERSON_ID)   values (?, ?)";
 
-    public static int deleteIdFromTable(Connection connection, String tableName, String columnName, int tableId) {
+    public static int deleteIdFromTable(Connection connection, String tableName, String columnName, int tableId) throws SQLException {
         return deleteIdFromTable(connection, tableName, columnName, tableId, null, null);
     }
 
-    public static int deleteIdFromTable(Connection connection, String tableName, String columnName1, int tableId1, String columnName2, String tableId2) {
+    public static int deleteIdFromTable(Connection connection, String tableName, String columnName1, int tableId1, String columnName2, String tableId2) throws SQLException {
         PreparedStatement pstmt = null;
         try {
             if (columnName2 == null) {
@@ -39,8 +40,8 @@ public class dbWriter {
                 pstmt = connection.prepareStatement("DELETE FROM " + tableName + " WHERE " + columnName1 + "=" + tableId1 + " AND " + columnName2 + "=" + tableId2);
             }
             pstmt.execute();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error deleting row from " + tableName + " table: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new SQLException("Error deleting row from " + tableName + " table: " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(pstmt);
         }
@@ -48,7 +49,7 @@ public class dbWriter {
         return 0;
     }
 
-    public static int insertArtwork(Connection connection, ArtworkDTO artworkDTO) throws Throwable {
+    public static int insertArtwork(Connection connection, ArtworkDTO artworkDTO) throws SQLException {
         // See if we have a value (non-zero) ID
         if (artworkDTO.getId() == 0) {
             // See if the ID exists already
@@ -74,14 +75,14 @@ public class dbWriter {
             pstmt.executeUpdate();
 
             return artworkDTO.getId();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error inserting Artwork:  " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error inserting Artwork:  " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(pstmt);
         }
     }
 
-    public static int insertCertification(Connection connection, CertificationDTO certificationDTO) throws Throwable {
+    public static int insertCertification(Connection connection, CertificationDTO certificationDTO) throws SQLException {
         // See if we have a value (non-zero) ID
         if (certificationDTO.getId() == 0) {
             // See if the ID exists already
@@ -104,14 +105,14 @@ public class dbWriter {
             connection.commit();
 
             return certificationDTO.getId();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error inserting Certification:  " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error inserting Certification:  " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(pstmt);
         }
     }
 
-    public static int insertCodec(Connection connection, CodecDTO codecDTO) throws Throwable {
+    public static int insertCodec(Connection connection, CodecDTO codecDTO) throws SQLException {
         // See if we have a value (non-zero) ID
         if (codecDTO.getId() == 0) {
             // See if the ID exists already
@@ -135,14 +136,14 @@ public class dbWriter {
             connection.commit();
 
             return codecDTO.getId();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error inserting Codec " + codecDTO.toString() + ":  " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error inserting Codec " + codecDTO.toString() + ":  " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(pstmt);
         }
     }
 
-    public static int insertCompany(Connection connection, CompanyDTO companyDTO) throws Throwable {
+    public static int insertCompany(Connection connection, CompanyDTO companyDTO) throws SQLException {
         // See if we have a value (non-zero) ID
         if (companyDTO.getId() == 0) {
             // See if the ID exists already
@@ -165,14 +166,14 @@ public class dbWriter {
             pstmt.executeUpdate();
 
             return companyDTO.getId();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error inserting Company:  " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error inserting Company:  " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(pstmt);
         }
     }
 
-    public static int insertCountry(Connection connection, CountryDTO countryDTO) throws Throwable {
+    public static int insertCountry(Connection connection, CountryDTO countryDTO) throws SQLException {
         // See if we have a value (non-zero) ID
         if (countryDTO.getId() == 0) {
             // See if the ID exists already
@@ -195,14 +196,14 @@ public class dbWriter {
             pstmt.executeUpdate();
 
             return countryDTO.getId();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error inserting Country:  " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error inserting Country:  " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(pstmt);
         }
     }
 
-    public static int insertGenre(Connection connection, GenreDTO genreDTO) throws Throwable {
+    public static int insertGenre(Connection connection, GenreDTO genreDTO) throws SQLException {
         // See if we have a value (non-zero) ID
         if (genreDTO.getId() == 0) {
             // See if the ID exists already
@@ -225,14 +226,14 @@ public class dbWriter {
             pstmt.executeUpdate();
 
             return genreDTO.getId();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error inserting Genre:  " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error inserting Genre:  " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(pstmt);
         }
     }
 
-    public static int insertLanguage(Connection connection, LanguageDTO languageDTO) throws Throwable {
+    public static int insertLanguage(Connection connection, LanguageDTO languageDTO) throws SQLException {
         // See if we have a value (non-zero) ID
         if (languageDTO.getId() == 0) {
             // See if the ID exists already
@@ -257,14 +258,14 @@ public class dbWriter {
             pstmt.executeUpdate();
 
             return languageDTO.getId();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error inserting Language:  " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error inserting Language:  " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(pstmt);
         }
     }
 
-    public static int insertPerson(Connection connection, PersonDTO personDTO) throws Throwable {
+    public static int insertPerson(Connection connection, PersonDTO personDTO) throws SQLException {
         // See if we have a value (non-zero) ID
         if (personDTO.getId() == 0) {
             // See if the ID exists already
@@ -291,14 +292,14 @@ public class dbWriter {
             pstmt.executeUpdate();
 
             return personDTO.getId();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error inserting Person:  " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error inserting Person:  " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(pstmt);
         }
     }
 
-    public static int insertVideo(Connection connection, VideoDTO videoDTO) throws Throwable {
+    public static int insertVideo(Connection connection, VideoDTO videoDTO) throws SQLException {
         // See if we have a value (non-zero) ID
         if (videoDTO.getId() == 0) {
             // See if the ID exists already
@@ -340,14 +341,14 @@ public class dbWriter {
             pstmt.executeUpdate();
 
             return videoDTO.getId();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error inserting Video:  " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error inserting Video:  " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(pstmt);
         }
     }
 
-    public static int insertVideoFile(Connection connection, VideoFileDTO videoFileDTO) throws Throwable {
+    public static int insertVideoFile(Connection connection, VideoFileDTO videoFileDTO) throws SQLException {
         // See if we have a value (non-zero) ID
         if (videoFileDTO.getId() == 0) {
             // See if the ID exists already
@@ -385,14 +386,14 @@ public class dbWriter {
             pstmt.executeUpdate();
 
             return videoFileDTO.getId();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error inserting Video File:  " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error inserting Video File:  " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(pstmt);
         }
     }
 
-    public static int insertVideoFilePart(Connection connection, VideoFilePartDTO videoFilePartDTO) throws Throwable {
+    public static int insertVideoFilePart(Connection connection, VideoFilePartDTO videoFilePartDTO) throws SQLException {
         // See if we have a value (non-zero) ID
         if (videoFilePartDTO.getId() == 0) {
             // See if the ID exists already
@@ -418,14 +419,14 @@ public class dbWriter {
             pstmt.executeUpdate();
 
             return videoFilePartDTO.getId();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error inserting Video File Part:  " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error inserting Video File Part:  " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(pstmt);
         }
     }
 
-    public static String insertVideoSite(Connection connection, VideoSiteDTO videoSiteDTO) throws Throwable {
+    public static String insertVideoSite(Connection connection, VideoSiteDTO videoSiteDTO) throws SQLException {
         if (videoSiteDTO.getVideoId() == 0) {
             return "";
         }
@@ -441,8 +442,8 @@ public class dbWriter {
                 pstmt.executeUpdate();
 
                 return videoSiteDTO.getSiteId();
-            } catch (Throwable tw) {
-                throw new RuntimeException("Error inserting Video Site: " + tw.getMessage(), tw);
+            } catch (SQLException ex) {
+                throw new RuntimeException("Error inserting Video Site: " + ex.getMessage(), ex);
             } finally {
                 SQLTools.close(pstmt);
             }
@@ -485,8 +486,8 @@ public class dbWriter {
             pstmt.setInt(1, videoId);
             pstmt.setInt(2, joinId);
             pstmt.executeUpdate();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error writing to join table:  " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error writing to join table:  " + ex.getMessage(), ex);
         } finally {
             SQLTools.close(pstmt);
         }
@@ -497,9 +498,9 @@ public class dbWriter {
      * @param connection
      * @param artwork
      * @return
-     * @throws Throwable
+     * @throws SQLException
      */
-    public static int updateArtwork (Connection connection, ArtworkDTO artwork) throws Throwable {
+    public static int updateArtwork (Connection connection, ArtworkDTO artwork) throws SQLException {
         try {
             // Check for the ID. If > 0 then we need to delete first
             if (artwork.getId() > 0) {
@@ -509,13 +510,13 @@ public class dbWriter {
             insertArtwork(connection, artwork);
 
             connection.commit();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error updating artwork table: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error updating artwork table: " + ex.getMessage(), ex);
         }
         return artwork.getId();
     }
 
-    public static int updateCertification(Connection connection, CertificationDTO certification) throws Throwable {
+    public static int updateCertification(Connection connection, CertificationDTO certification) throws SQLException {
         try {
             if (certification.getId() > 0) {
                 deleteIdFromTable(connection, "certification", "id", certification.getId());
@@ -524,13 +525,13 @@ public class dbWriter {
             insertCertification(connection, certification);
 
             connection.commit();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error updating certification table: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error updating certification table: " + ex.getMessage(), ex);
         }
         return certification.getId();
     }
 
-    public static int updateCodec(Connection connection, CodecDTO codec) throws Throwable {
+    public static int updateCodec(Connection connection, CodecDTO codec) throws SQLException {
         try {
             if (codec.getId() > 0) {
                 deleteIdFromTable(connection, "codec", "id", codec.getId());
@@ -539,13 +540,13 @@ public class dbWriter {
             insertCodec(connection, codec);
 
             connection.commit();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error updating codec table: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error updating codec table: " + ex.getMessage(), ex);
         }
         return codec.getId();
     }
 
-    public static int updateCompany(Connection connection, CompanyDTO company) throws Throwable {
+    public static int updateCompany(Connection connection, CompanyDTO company) throws SQLException {
         try {
             if (company.getId() > 0) {
                 deleteIdFromTable(connection, "company", "id", company.getId());
@@ -554,13 +555,13 @@ public class dbWriter {
             insertCompany(connection, company);
 
             connection.commit();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error updating company table: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error updating company table: " + ex.getMessage(), ex);
         }
         return company.getId();
     }
 
-    public static int updateCountry(Connection connection, CountryDTO country) throws Throwable {
+    public static int updateCountry(Connection connection, CountryDTO country) throws SQLException {
         try {
             if (country.getId() > 0) {
                 deleteIdFromTable(connection, "country", "id", country.getId());
@@ -569,13 +570,13 @@ public class dbWriter {
             insertCountry(connection, country);
 
             connection.commit();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error updating country table: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error updating country table: " + ex.getMessage(), ex);
         }
         return country.getId();
     }
 
-    public static int updateGenre(Connection connection, GenreDTO genre) throws Throwable {
+    public static int updateGenre(Connection connection, GenreDTO genre) throws SQLException {
         try {
             if (genre.getId() > 0) {
                 deleteIdFromTable(connection, "genre", "id", genre.getId());
@@ -584,13 +585,13 @@ public class dbWriter {
             insertGenre(connection, genre);
 
             connection.commit();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error updating genre table: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error updating genre table: " + ex.getMessage(), ex);
         }
         return genre.getId();
     }
 
-    public static int updateLanguage(Connection connection, LanguageDTO language) throws Throwable {
+    public static int updateLanguage(Connection connection, LanguageDTO language) throws SQLException {
         try {
             if (language.getId() > 0) {
                 deleteIdFromTable(connection, "language", "id", language.getId());
@@ -599,13 +600,13 @@ public class dbWriter {
             insertLanguage(connection, language);
 
             connection.commit();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error updating language table: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error updating language table: " + ex.getMessage(), ex);
         }
         return language.getId();
     }
 
-    public static int updatePerson(Connection connection, PersonDTO person) throws Throwable {
+    public static int updatePerson(Connection connection, PersonDTO person) throws SQLException {
         try {
             if (person.getId() > 0) {
                 deleteIdFromTable(connection, "person", "id", person.getId());
@@ -614,13 +615,13 @@ public class dbWriter {
             insertPerson(connection, person);
 
             connection.commit();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error updating person table: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error updating person table: " + ex.getMessage(), ex);
         }
         return person.getId();
     }
 
-    public static int updateVideo(Connection connection, VideoDTO video) throws Throwable {
+    public static int updateVideo(Connection connection, VideoDTO video) throws SQLException {
         try {
             if (video.getId() > 0) {
                 deleteIdFromTable(connection, "video", "id", video.getId());
@@ -629,13 +630,13 @@ public class dbWriter {
             insertVideo(connection, video);
 
             connection.commit();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error updating video table: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error updating video table: " + ex.getMessage(), ex);
         }
         return video.getId();
     }
 
-    public static int updateVideoFile(Connection connection, VideoFileDTO videoFile) throws Throwable {
+    public static int updateVideoFile(Connection connection, VideoFileDTO videoFile) throws SQLException {
         try {
             if (videoFile.getId() > 0) {
                 deleteIdFromTable(connection, "video_file", "id", videoFile.getId());
@@ -644,13 +645,13 @@ public class dbWriter {
             insertVideoFile(connection, videoFile);
 
             connection.commit();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error updating Video File table: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error updating Video File table: " + ex.getMessage(), ex);
         }
         return videoFile.getId();
     }
 
-    public static int updateVideoFilePart(Connection connection, VideoFilePartDTO videoFilePart) throws Throwable {
+    public static int updateVideoFilePart(Connection connection, VideoFilePartDTO videoFilePart) throws SQLException {
         try {
             if (videoFilePart.getId() > 0) {
                 deleteIdFromTable(connection, "video_file_part", "id", videoFilePart.getId());
@@ -659,13 +660,13 @@ public class dbWriter {
             insertVideoFilePart(connection, videoFilePart);
 
             connection.commit();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error updating artwork table: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error updating artwork table: " + ex.getMessage(), ex);
         }
         return videoFilePart.getId();
     }
 
-    public static int updateVideoSite(Connection connection, VideoSiteDTO videoSite) throws Throwable {
+    public static int updateVideoSite(Connection connection, VideoSiteDTO videoSite) throws SQLException {
         try {
             try {
                 deleteIdFromTable(connection, "video_site", "video_id", videoSite.getVideoId(), "site", videoSite.getSite());
@@ -675,8 +676,8 @@ public class dbWriter {
             insertVideoSite(connection, videoSite);
 
             connection.commit();
-        } catch (Throwable tw) {
-            throw new RuntimeException("Error updating Video Site table: " + tw.getMessage(), tw);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error updating Video Site table: " + ex.getMessage(), ex);
         }
         return videoSite.getVideoId();
     }
