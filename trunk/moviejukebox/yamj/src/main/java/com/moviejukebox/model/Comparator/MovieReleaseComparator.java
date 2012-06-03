@@ -25,18 +25,19 @@ import org.apache.log4j.Logger;
 /**
  * @author ilgizar
  */
-public class ReleaseComparator extends YearComparator {
+public class MovieReleaseComparator extends MovieYearComparator {
 
+    private static final Logger logger = Logger.getLogger(MovieReleaseComparator.class);
+    private static final String logMessage = "ReleaseComparator: ";
     private Locale locale = Locale.ENGLISH;
     private String dateLocale = PropertiesUtil.getProperty("mjb.locale", "en_US");
-    private static final Logger logger = Logger.getLogger(ReleaseComparator.class);
 
-    public ReleaseComparator() {
-        super(true);
+    public MovieReleaseComparator() {
+        super(Boolean.TRUE);
         setLocale();
     }
 
-    public ReleaseComparator(boolean ascending) {
+    public MovieReleaseComparator(boolean ascending) {
         super(ascending);
         setLocale();
     }
@@ -89,7 +90,7 @@ public class ReleaseComparator extends YearComparator {
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(0)));
             } catch (ParseException e) {
-                logger.debug("ReleaseComparator: Unparseable date: " + dateMatch.group(0) + " (" + dateLocale + ")");
+                logger.debug(logMessage + "Unparseable date: " + dateMatch.group(0) + " (" + dateLocale + ")");
             }
 
             return Movie.UNKNOWN;
@@ -113,7 +114,7 @@ public class ReleaseComparator extends YearComparator {
                 try {
                     return dstDate.format(srcDate.parse(dateMatch.group(0)));
                 } catch (ParseException e) {
-                    logger.debug("ReleaseComparator: Unparseable date: " + dateMatch.group(0) + " (" + dateLocale + ")");
+                    logger.debug(logMessage + "Unparseable date: " + dateMatch.group(0) + " (" + dateLocale + ")");
                 }
 
                 return Movie.UNKNOWN;

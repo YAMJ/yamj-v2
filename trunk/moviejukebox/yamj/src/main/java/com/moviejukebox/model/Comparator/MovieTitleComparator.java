@@ -1,0 +1,38 @@
+/*
+ *      Copyright (c) 2004-2012 YAMJ Members
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      Web: http://code.google.com/p/moviejukebox/
+ *
+ *      This software is licensed under a Creative Commons License
+ *      See this page: http://code.google.com/p/moviejukebox/wiki/License
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
+ */
+package com.moviejukebox.model.Comparator;
+
+import com.moviejukebox.model.Movie;
+import java.util.Comparator;
+
+public class MovieTitleComparator implements Comparator<Movie> {
+
+    private boolean ascending;
+
+    public MovieTitleComparator() {
+        this.ascending = Boolean.TRUE;
+    }
+
+    public MovieTitleComparator(Boolean ascending) {
+        this.ascending = ascending;
+    }
+
+    @Override
+    public int compare(Movie movie1, Movie movie2) {
+        if (ascending) {
+            return movie1.getTitleSort().compareTo(movie2.getTitleSort());
+        } else {
+            return movie2.getTitleSort().compareTo(movie1.getTitleSort());
+        }
+    }
+}

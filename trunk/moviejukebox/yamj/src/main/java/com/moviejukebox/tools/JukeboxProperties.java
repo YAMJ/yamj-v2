@@ -31,9 +31,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Save a pre-defined list of attributes of the jukebox and properties for use
- * in subsequent processing runs to determine if an attribute has changed and
- * force a rescan of the appropriate data
+ * Save a pre-defined list of attributes of the jukebox and properties for use in subsequent processing runs to
+ * determine if an attribute has changed and force a rescan of the appropriate data
  *
  * @author stuart.boston
  *
@@ -94,7 +93,7 @@ public class JukeboxProperties {
         propInfo.add(new PropertyInformation("thumbnails.logoSet", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Thumbnails)));
         propInfo.add(new PropertyInformation("thumbnails.language", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Thumbnails)));
 
-        // Banners 
+        // Banners
         propInfo.add(new PropertyInformation("mjb.includeWideBanners", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Banners)));
         propInfo.add(new PropertyInformation("banners.width", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Banners)));
         propInfo.add(new PropertyInformation("banners.height", EnumSet.of(PropertyOverwrites.HTML, PropertyOverwrites.Banners)));
@@ -143,13 +142,65 @@ public class JukeboxProperties {
         propInfo.add(new PropertyInformation("movielogo.width", EnumSet.of(PropertyOverwrites.Movielogo)));
         propInfo.add(new PropertyInformation("movielogo.height", EnumSet.of(PropertyOverwrites.Movielogo)));
 
+        // Library sorting
+        propInfo.add(new PropertyInformation("indexing.sort.3d", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.3d.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.all", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.all.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.award", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.award.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.cast", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.cast.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.certification", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.certification.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.country", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.country.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.director", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.director.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.genres", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.genres.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.hd", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.hd-1080", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.hd-1080.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.hd-720", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.hd-720.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.hd.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.library", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.library.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.movies", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.movies.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.new", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.new-movie", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.new-movie.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.new-tv", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.new-tv.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.new.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.person", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.person.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.rating", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.rating.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.ratings", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.ratings.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.title", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.title.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.top250", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.top250.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.tvshows", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.tvshows.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.unwatched", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.unwatched.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.watched", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.watched.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.writer", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.writer.asc", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.year", EnumSet.of(PropertyOverwrites.Index)));
+        propInfo.add(new PropertyInformation("indexing.sort.year.asc", EnumSet.of(PropertyOverwrites.Index)));
     }
 
     /**
-     * Check to see if the file needs to be processed (if it exists) or just
-     * created Note: This *MIGHT* cause issues with some programs that assume
-     * all XML files in the jukebox folder are videos or indexes. However, they
-     * should just deal with this themselves :-)
+     * Check to see if the file needs to be processed (if it exists) or just created Note: This *MIGHT* cause issues
+     * with some programs that assume all XML files in the jukebox folder are videos or indexes. However, they should
+     * just deal with this themselves :-)
      *
      * @param jukebox
      * @param mediaLibraryPaths
@@ -327,8 +378,7 @@ public class JukeboxProperties {
     }
 
     /**
-     * Determine the file date from the passed filename, if the filename is
-     * invalid return UNKNOWN
+     * Determine the file date from the passed filename, if the filename is invalid return UNKNOWN
      *
      * @param tempFilename
      * @return
@@ -347,8 +397,7 @@ public class JukeboxProperties {
     }
 
     /**
-     * Read the attributes from the file and compare and set any force
-     * overwrites needed
+     * Read the attributes from the file and compare and set any force overwrites needed
      *
      * @param mjbDetails
      * @param mediaLibraryPaths
@@ -457,8 +506,8 @@ public class JukeboxProperties {
     }
 
     /**
-     * Compare the current XML file details with the stored ones Any errors with
-     * this check will return "true" to ensure no properties are overwritten
+     * Compare the current XML file details with the stored ones Any errors with this check will return "true" to ensure
+     * no properties are overwritten
      *
      * @param eJukebox
      * @return
@@ -507,8 +556,7 @@ public class JukeboxProperties {
     /**
      * Enumeration of the Overwrite properties
      *
-     * These are case sensitive and should be exactly as needed when setting the
-     * force???Overwrite property
+     * These are case sensitive and should be exactly as needed when setting the force???Overwrite property
      */
     public static enum PropertyOverwrites {
 
@@ -518,8 +566,7 @@ public class JukeboxProperties {
     }
 
     /**
-     * Class to define the property name and the impact on each of the overwrite
-     * flags. If the
+     * Class to define the property name and the impact on each of the overwrite flags. If the
      *
      * @author stuart.boston
      *
@@ -555,8 +602,7 @@ public class JukeboxProperties {
         }
 
         /**
-         * Merge two PropertyInformation objects. Sets the overwrite flags to
-         * true.
+         * Merge two PropertyInformation objects. Sets the overwrite flags to true.
          *
          * @param newPI
          */
