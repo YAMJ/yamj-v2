@@ -10,7 +10,6 @@
  *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
  */
-
 package com.moviejukebox.mjbsqldb.tools;
 
 import com.moviejukebox.mjbsqldb.dto.ArtworkDTO;
@@ -34,15 +33,21 @@ import java.util.Date;
 
 /**
  * Class to set up the database and the tables.
+ *
  * @author stuart.boston
  *
  */
 public class DatabaseTools {
+
     public static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    private DatabaseTools() {
+        throw new RuntimeException("Class cannot be initialised!");
+    }
+
     /**
-     * Create the database at the end of the connection
-     * The database file must already exist and be open
+     * Create the database at the end of the connection The database file must already exist and be open
+     *
      * @throws SQLException
      */
     public static void createTables(Connection connection, float version) throws SQLException {
@@ -90,8 +95,8 @@ public class DatabaseTools {
     }
 
     /**
-     * Remove all the tables from the database
-     * The connection must be open
+     * Remove all the tables from the database The connection must be open
+     *
      * @throws SQLException
      */
     public static void deleteTables(Connection connection) throws SQLException {
@@ -133,6 +138,7 @@ public class DatabaseTools {
 
     /**
      * Get the database version
+     *
      * @return (float) database version
      * @throws SQLException
      */
@@ -156,5 +162,4 @@ public class DatabaseTools {
 
         throw new SQLException("Error: Unable to get database version.");
     }
-
 }
