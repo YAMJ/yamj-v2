@@ -2064,6 +2064,11 @@ public class MovieJukebox {
     }
 
     public void updateFooter(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin, Integer inx, boolean forceFooterOverwrite) {
+        if (movie.getFooterFilename() == null || movie.getFooterFilename().isEmpty()) {
+            logger.debug("MovieJukebox: Footer update not required for " + movie.getBaseName());
+            return;
+        }
+
         String footerFilename = movie.getFooterFilename().get(inx);
         File footerFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + footerFilename);
         String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + footerFilename;
