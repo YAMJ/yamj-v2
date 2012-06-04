@@ -22,27 +22,16 @@ import java.sql.SQLException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.sqlite.SQLiteJDBCLoader;
 
 public class MjbSqlDb {
 
+    private static final Logger LOGGER = Logger.getLogger(MjbSqlDb.class);
+    private static final String LOG_MESSAGE = "MjbSqlDB: ";
     private static final float VERSION = 1.4f;
-    protected static Connection connection = null;
-
-    static {
-        // Set up the driver
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ExceptionInInitializerError ex) {
-            throw new RuntimeException("Error initializing the database driver: " + ex.getMessage(), ex);
-        } catch (LinkageError ex) {
-            throw new RuntimeException("Error initializing the database driver: " + ex.getMessage(), ex);
-        } catch (ClassNotFoundException ex) {
-            throw new RuntimeException("Error initializing the database driver: " + ex.getMessage(), ex);
-        }
-        System.out.println(String.format("Driver running in %s mode", SQLiteJDBCLoader.isNativeMode() ? "native" : "pure-java"));
-
-    }
+    private Connection connection = null;
+    private boolean driverOk = initDriver();
 
     /**
      * Create or Open the database specified
@@ -51,6 +40,10 @@ public class MjbSqlDb {
      * @param dbName
      */
     public MjbSqlDb(String dbPath, String dbName) throws SQLException {
+        if(!driverOk){
+            throw new SQLException("SQL Driver failed to initialise");
+        }
+
         if (StringUtils.isBlank(dbPath) || StringUtils.isBlank(dbName)) {
             throw new SQLException("Error: Path or database name is blank: ");
         }
@@ -66,36 +59,61 @@ public class MjbSqlDb {
             if (!dbFile.exists()) {
                 // Create the database file
                 FileUtils.forceMkdir(dbFile.getParentFile());
-                dbFile.createNewFile();
+                if (!dbFile.createNewFile()) {
+                    throw new SQLException("Error opening the database");
+                }
             }
+        } catch (IOException ex) {
+            SQLTools.close(connection);
+            throw new SQLException("Error opening the database: " + ex.getMessage(), ex);
+        }
 
+        try {
             // Create the connection
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dbLocation);
-            connection.setAutoCommit(false);
+            if (connection == null) {
+                connection = DriverManager.getConnection("jdbc:sqlite:" + dbLocation);
+                connection.setAutoCommit(false);
+            }
 
             // Check the version of the database against the program version
             Float dbVersion;
             try {
                 dbVersion = DatabaseTools.getDatabaseVersion(connection);
             } catch (SQLException error) {
-                System.out.println("Database version out of date. Updating...");
+                LOGGER.info(LOG_MESSAGE + "Database version out of date. Updating...");
                 dbVersion = 0.0f;
             }
 
             if (VERSION > dbVersion) {
-                System.out.println("Updating database structure...");
+                LOGGER.info(LOG_MESSAGE + "Updating database structure...");
                 // This is overkill, but OK for the time being
                 DatabaseTools.deleteTables(connection);
             }
             // Create the tables (if they don't exist)
             DatabaseTools.createTables(connection, VERSION);
 
-        } catch (IOException ex) {
-            SQLTools.close(connection);
-            throw new RuntimeException("Error opening the database: " + ex.getMessage(), ex);
         } catch (SQLException ex) {
             SQLTools.close(connection);
-            throw new RuntimeException("Error opening the database: " + ex.getMessage(), ex);
+            throw new SQLException("Error opening the database: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Set up the driver
+     *
+     * @throws SQLException
+     */
+    private boolean initDriver() throws SQLException {
+        try {
+            Class.forName("org.sqlite.JDBC");
+            LOGGER.info(LOG_MESSAGE + "Driver running in " + (SQLiteJDBCLoader.isNativeMode() ? "native" : "pure-java") + " mode");
+            return Boolean.TRUE;
+        } catch (ExceptionInInitializerError ex) {
+            throw new SQLException("Error initializing the database driver: " + ex.getMessage(), ex);
+        } catch (LinkageError ex) {
+            throw new SQLException("Error initializing the database driver: " + ex.getMessage(), ex);
+        } catch (ClassNotFoundException ex) {
+            throw new SQLException("Error initializing the database driver: " + ex.getMessage(), ex);
         }
     }
 
@@ -113,7 +131,7 @@ public class MjbSqlDb {
      *
      * @return
      */
-    public static Connection getConnection() {
+    public Connection getConnection() {
         return connection;
     }
 }

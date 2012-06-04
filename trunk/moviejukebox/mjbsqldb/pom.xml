@@ -7,7 +7,7 @@
         <version>7</version>
         <relativePath />
     </parent>
-    
+
     <prerequisites>
         <maven>3.0.3</maven>
     </prerequisites>
@@ -65,6 +65,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
         </dependency>
     </dependencies>
 

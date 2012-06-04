@@ -13,7 +13,7 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.mjbsqldb.MjbSqlDb;
-import com.moviejukebox.mjbsqldb.dbWriter;
+import com.moviejukebox.mjbsqldb.DatabaseWriter;
 import com.moviejukebox.mjbsqldb.dto.*;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
@@ -35,9 +35,9 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
 
     private static final Logger logger = Logger.getLogger(MovieListingPluginSql.class);
     private static final String logMessage = "MovieListingPluginSql: ";
+    private static final String dbLocation = PropertiesUtil.getProperty("mjb.sql.location", "./");
+    private static final String dbName = PropertiesUtil.getProperty("mjb.sql.dbname", "listing.db");
     private Connection mjbConn = null;
-    private static String dbLocation = PropertiesUtil.getProperty("mjb.sql.location", "./");
-    private static String dbName = PropertiesUtil.getProperty("mjb.sql.dbname", "listing.db");
 
     @Override
     public void generate(Jukebox jukebox, Library library) {
@@ -48,7 +48,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             logger.error(logMessage + "Failed to generate the listing: " + ex.getMessage());
             return;
         }
-        mjbConn = MjbSqlDb.getConnection();
+        mjbConn = mjbSqlDb.getConnection();
 
         int videoId;
         int joinId;
@@ -98,7 +98,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
 
             // *** Commit the Video to the database and get the Video ID
             try {
-                videoId = dbWriter.insertVideo(mjbConn, videoDTO);
+                videoId = DatabaseWriter.insertVideo(mjbConn, videoDTO);
                 mjbConn.commit();
             } catch (SQLException error) {
                 logger.error(logMessage + "Error adding the video to the database: " + error.getMessage());
@@ -135,7 +135,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                 // Create the video site IDs
                 for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
                     VideoSiteDTO vsDTO = new VideoSiteDTO(videoId, e.getKey(), e.getValue());
-                    dbWriter.insertVideoSite(mjbConn, vsDTO);
+                    DatabaseWriter.insertVideoSite(mjbConn, vsDTO);
                 }
                 mjbConn.commit();
             } catch (SQLException ex) {
@@ -145,8 +145,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             try {
                 // Add the country
                 if (StringTools.isValidString(movie.getCountry())) {
-                    joinId = dbWriter.insertCountry(mjbConn, new CountryDTO(0, movie.getCountry(), ""));
-                    dbWriter.joinCountry(mjbConn, videoId, joinId);
+                    joinId = DatabaseWriter.insertCountry(mjbConn, new CountryDTO(0, movie.getCountry(), ""));
+                    DatabaseWriter.joinCountry(mjbConn, videoId, joinId);
                 }
                 mjbConn.commit();
             } catch (SQLException ex) {
@@ -156,8 +156,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             try {
                 // Add the company
                 if (StringTools.isValidString(movie.getCompany())) {
-                    joinId = dbWriter.insertCompany(mjbConn, new CompanyDTO(0, movie.getCompany(), ""));
-                    dbWriter.joinCompany(mjbConn, videoId, joinId);
+                    joinId = DatabaseWriter.insertCompany(mjbConn, new CompanyDTO(0, movie.getCompany(), ""));
+                    DatabaseWriter.joinCompany(mjbConn, videoId, joinId);
                 }
                 mjbConn.commit();
             } catch (SQLException ex) {
@@ -167,8 +167,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             try {
                 // Add the language
                 if (StringTools.isValidString(movie.getLanguage())) {
-                    joinId = dbWriter.insertLanguage(mjbConn, determineLanguage(movie.getLanguage()));
-                    dbWriter.joinLanguage(mjbConn, videoId, joinId);
+                    joinId = DatabaseWriter.insertLanguage(mjbConn, determineLanguage(movie.getLanguage()));
+                    DatabaseWriter.joinLanguage(mjbConn, videoId, joinId);
                 }
                 mjbConn.commit();
             } catch (SQLException ex) {
@@ -186,12 +186,12 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             try {
                 // Add the audio codec
                 if (StringTools.isValidString(movie.getAudioCodec())) {
-                    audioCodecId = dbWriter.insertCodec(mjbConn, new CodecDTO(0, movie.getAudioCodec(), CodecDTO.TYPE_AUDIO));
+                    audioCodecId = DatabaseWriter.insertCodec(mjbConn, new CodecDTO(0, movie.getAudioCodec(), CodecDTO.TYPE_AUDIO));
                 }
 
                 // Add the video codec
                 if (StringTools.isValidString(movie.getVideoCodec())) {
-                    videoCodecId = dbWriter.insertCodec(mjbConn, new CodecDTO(0, movie.getVideoCodec(), CodecDTO.TYPE_VIDEO));
+                    videoCodecId = DatabaseWriter.insertCodec(mjbConn, new CodecDTO(0, movie.getVideoCodec(), CodecDTO.TYPE_VIDEO));
                 }
 
                 for (MovieFile mf : movie.getFiles()) {
@@ -219,7 +219,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                     vfDTO.setFirstPart(mf.getFirstPart());
                     vfDTO.setLastPart(mf.getLastPart());
 
-                    videoFileId = dbWriter.insertVideoFile(mjbConn, vfDTO);
+                    videoFileId = DatabaseWriter.insertVideoFile(mjbConn, vfDTO);
                     mjbConn.commit();
 
                     // Process the video file parts
@@ -231,7 +231,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                         vfpDTO.setTitle(mf.getTitle(part));
                         vfpDTO.setPlot(mf.getPlot(part));
                         vfpDTO.setSeason(movie.getSeason());
-                        dbWriter.insertVideoFilePart(mjbConn, vfpDTO);
+                        DatabaseWriter.insertVideoFilePart(mjbConn, vfpDTO);
                     }
                     mjbConn.commit();
                 }
@@ -256,7 +256,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
         CertificationDTO certDTO = new CertificationDTO(0, certification);
 
         try {
-            joinId = dbWriter.insertCertification(mjbConn, certDTO);
+            joinId = DatabaseWriter.insertCertification(mjbConn, certDTO);
             mjbConn.commit();
 
             return joinId;
@@ -309,8 +309,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
 
         try {
             // Write the Genres to the database
-            joinId = dbWriter.insertGenre(mjbConn, genreDTO);
-            dbWriter.joinGenre(mjbConn, videoId, joinId);
+            joinId = DatabaseWriter.insertGenre(mjbConn, genreDTO);
+            DatabaseWriter.joinGenre(mjbConn, videoId, joinId);
             mjbConn.commit();
         } catch (SQLException ex) {
             logger.error(logMessage + "Error adding Genres to the database: " + ex.getMessage());
@@ -339,7 +339,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
 
         try {
             // Write the Artwork to the database
-            joinId = dbWriter.updateArtwork(mjbConn, artwork);
+            joinId = DatabaseWriter.updateArtwork(mjbConn, artwork);
 
             mjbConn.commit();
         } catch (SQLException ex) {
@@ -372,8 +372,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
 
         try {
             // Write the People to the database
-            joinId = dbWriter.insertPerson(mjbConn, personDTO);
-            dbWriter.joinPerson(mjbConn, videoId, joinId);
+            joinId = DatabaseWriter.insertPerson(mjbConn, personDTO);
+            DatabaseWriter.joinPerson(mjbConn, videoId, joinId);
             mjbConn.commit();
         } catch (SQLException ex) {
             logger.error(logMessage + "Error adding People to the database: " + ex.getMessage());
