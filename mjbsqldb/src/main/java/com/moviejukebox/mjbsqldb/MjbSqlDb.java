@@ -13,7 +13,6 @@
 package com.moviejukebox.mjbsqldb;
 
 import com.moviejukebox.mjbsqldb.tools.DatabaseTools;
-import com.moviejukebox.mjbsqldb.tools.SQLTools;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -40,7 +39,7 @@ public class MjbSqlDb {
      * @param dbName
      */
     public MjbSqlDb(String dbPath, String dbName) throws SQLException {
-        if(!driverOk){
+        if (!driverOk) {
             throw new SQLException("SQL Driver failed to initialise");
         }
 
@@ -64,16 +63,14 @@ public class MjbSqlDb {
                 }
             }
         } catch (IOException ex) {
-            SQLTools.close(connection);
+            connection.close();
             throw new SQLException("Error opening the database: " + ex.getMessage(), ex);
         }
 
         try {
             // Create the connection
-            if (connection == null) {
-                connection = DriverManager.getConnection("jdbc:sqlite:" + dbLocation);
-                connection.setAutoCommit(false);
-            }
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbLocation);
+            connection.setAutoCommit(false);
 
             // Check the version of the database against the program version
             Float dbVersion;
@@ -93,7 +90,7 @@ public class MjbSqlDb {
             DatabaseTools.createTables(connection, VERSION);
 
         } catch (SQLException ex) {
-            SQLTools.close(connection);
+            connection.close();
             throw new SQLException("Error opening the database: " + ex.getMessage(), ex);
         }
     }
@@ -122,7 +119,11 @@ public class MjbSqlDb {
      */
     public void close() {
         if (connection != null) {
-            SQLTools.close(connection);
+            try {
+                connection.close();
+            } catch (SQLException ex) {
+                LOGGER.debug(LOG_MESSAGE + "Failed to properly close the connection: " + ex.getMessage());
+            }
         }
     }
 

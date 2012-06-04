@@ -37,12 +37,12 @@ import java.util.Date;
  * @author stuart.boston
  *
  */
-public class DatabaseTools {
+public final class DatabaseTools {
 
-    public static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private DatabaseTools() {
-        throw new RuntimeException("Class cannot be initialised!");
+        throw new IllegalArgumentException("Class cannot be initialised!");
     }
 
     /**
@@ -57,7 +57,7 @@ public class DatabaseTools {
 
         Statement stmt = null;
         try {
-            String dbDate = dateFormat.format(new Date());
+            String dbDate = DATE_FORMAT.format(new Date());
             stmt = connection.createStatement();
 
             stmt.addBatch(ArtworkDTO.CREATE_TABLE);
@@ -90,7 +90,7 @@ public class DatabaseTools {
         } catch (SQLException ex) {
             throw new SQLException("Error creating database tables: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(stmt);
+            stmt.close();
         }
     }
 
@@ -132,7 +132,7 @@ public class DatabaseTools {
         } catch (SQLException ex) {
             throw new SQLException("Error deleting the tables: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(stmt);
+            stmt.close();
         }
     }
 
@@ -156,8 +156,8 @@ public class DatabaseTools {
         } catch (SQLException ex) {
             throw new SQLException("Error: Unable to get database version: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
 
         throw new SQLException("Error: Unable to get database version.");
