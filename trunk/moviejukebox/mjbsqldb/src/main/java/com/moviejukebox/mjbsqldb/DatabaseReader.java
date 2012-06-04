@@ -13,7 +13,6 @@
 package com.moviejukebox.mjbsqldb;
 
 import com.moviejukebox.mjbsqldb.dto.*;
-import com.moviejukebox.mjbsqldb.tools.SQLTools;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,6 +26,7 @@ public class DatabaseReader {
     private static final String SQL_SELECT = "SELECT * FROM ";
     private static final String SQL_ID = " ID: ";
     private static final String SQL_WHERE = " WHERE ";
+    private static final String SQL_ERROR="Error getting ";
 
     /**
      * Get the last used ID for the table
@@ -61,8 +61,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting the ID for " + tableName + ": " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -163,10 +163,10 @@ public class DatabaseReader {
             }
             return "";
         } catch (SQLException ex) {
-            throw new SQLException("Error getting " + VideoSiteDTO.TABLE_NAME + SQL_ID + ex.getMessage(), ex);
+            throw new SQLException(SQL_ERROR + VideoSiteDTO.TABLE_NAME + SQL_ID + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
 
     }
@@ -221,10 +221,10 @@ public class DatabaseReader {
             }
             return 0;
         } catch (SQLException ex) {
-            throw new SQLException("Error getting " + tableName + SQL_ID + ex.getMessage(), ex);
+            throw new SQLException(SQL_ERROR + tableName + SQL_ID + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -254,10 +254,10 @@ public class DatabaseReader {
             }
             return 0;
         } catch (SQLException ex) {
-            throw new SQLException("Error getting " + tableName + SQL_ID + ex.getMessage(), ex);
+            throw new SQLException(SQL_ERROR + tableName + SQL_ID + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -295,10 +295,10 @@ public class DatabaseReader {
             }
             return 0;
         } catch (SQLException ex) {
-            throw new SQLException("Error getting " + VideoFilePartDTO.TABLE_NAME + SQL_ID + ex.getMessage(), ex);
+            throw new SQLException(SQL_ERROR + VideoFilePartDTO.TABLE_NAME + SQL_ID + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -340,8 +340,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error checking for Video: " + title + ". " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -374,8 +374,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting artwork: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -407,8 +407,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting certification: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -440,8 +440,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting codec: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -473,8 +473,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting company: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -506,8 +506,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting country: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -539,8 +539,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting genre: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -572,8 +572,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting language: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -605,8 +605,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting person: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -638,8 +638,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting video: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -671,8 +671,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting video file: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -708,8 +708,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting video files: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -741,8 +741,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting video file part: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -778,8 +778,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting video file parts: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 
@@ -814,8 +814,8 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting video site: " + ex.getMessage(), ex);
         } finally {
-            SQLTools.close(rs);
-            SQLTools.close(stmt);
+            rs.close();
+            stmt.close();
         }
     }
 }
