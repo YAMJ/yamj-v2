@@ -235,7 +235,7 @@ public class Library implements Map<String, Movie> {
         } else {
             spIndexKey = indexKey;
         }
-        spIndexKey=spIndexKey.toLowerCase();
+        spIndexKey = spIndexKey.toLowerCase();
 
         String sortType = PropertiesUtil.getProperty("indexing.sort." + spIndexKey, defaultSort).toLowerCase();
 
@@ -1577,7 +1577,11 @@ public class Library implements Map<String, Movie> {
             if (key.equals(categoriesMap.get(INDEX_NEW))
                     || key.equals(categoriesMap.get(INDEX_NEW_TV))
                     || key.equals(categoriesMap.get(INDEX_NEW_MOVIE))) {
-                cmpMovie = new LastModifiedComparator(sortAsc.get(key));
+                if (sortAsc.get(key) == null) {
+                    cmpMovie = new LastModifiedComparator(Boolean.FALSE);
+                } else {
+                    cmpMovie = new LastModifiedComparator(sortAsc.get(key));
+                }
             } else if (key.equals(categoriesMap.get(INDEX_TOP250))) {
                 cmpMovie = new MovieTop250Comparator(sortAsc.get(key));
             } else if (key.equals(categoriesMap.get(INDEX_ALL))) {
