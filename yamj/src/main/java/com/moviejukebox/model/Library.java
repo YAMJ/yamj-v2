@@ -184,11 +184,11 @@ public class Library implements Map<String, Movie> {
 
         // Compile the sorting comparator list
         if (sortComp.isEmpty()) {
-            sortComp.add(INDEX_NEW);
-            sortComp.add(INDEX_TITLE);
-            sortComp.add(INDEX_RATING);
-            sortComp.add(INDEX_TOP250);
-            sortComp.add(INDEX_YEAR);
+            sortComp.add(INDEX_NEW.toLowerCase());
+            sortComp.add(INDEX_TITLE.toLowerCase());
+            sortComp.add(INDEX_RATING.toLowerCase());
+            sortComp.add(INDEX_TOP250.toLowerCase());
+            sortComp.add(INDEX_YEAR.toLowerCase());
         }
         logger.debug(logMessage + "Valid sort types are: " + sortComp.toString());
 
@@ -235,16 +235,17 @@ public class Library implements Map<String, Movie> {
         } else {
             spIndexKey = indexKey;
         }
+        spIndexKey=spIndexKey.toLowerCase();
 
-        String sortType = PropertiesUtil.getProperty("indexing.sort." + spIndexKey.toLowerCase(), defaultSort);
+        String sortType = PropertiesUtil.getProperty("indexing.sort." + spIndexKey, defaultSort).toLowerCase();
 
         if (StringTools.isNotValidString(sortType) || !sortComp.contains(sortType)) {
             logger.warn(logMessage + "Invalid sort type '" + sortType + "' for category '" + spIndexKey + "' using defailt of " + defaultSort);
-            sortType = defaultSort;
+            sortType = defaultSort.toLowerCase();
         }
 
         sortKeys.put(indexKey, sortType);
-        sortAsc.put(indexKey, PropertiesUtil.getBooleanProperty("indexing.sort." + spIndexKey.toLowerCase() + ".asc", defaultOrder));
+        sortAsc.put(indexKey, PropertiesUtil.getBooleanProperty("indexing.sort." + spIndexKey + ".asc", defaultOrder));
     }
 
     public Library() {
@@ -1578,7 +1579,7 @@ public class Library implements Map<String, Movie> {
                     || key.equals(categoriesMap.get(INDEX_NEW_MOVIE))) {
                 cmpMovie = new LastModifiedComparator(sortAsc.get(key));
             } else if (key.equals(categoriesMap.get(INDEX_TOP250))) {
-                cmpMovie = new MovieTop250Comparator(sortAsc.get(INDEX_TOP250));
+                cmpMovie = new MovieTop250Comparator(sortAsc.get(key));
             } else if (key.equals(categoriesMap.get(INDEX_ALL))) {
                 cmpMovie = getComparator(INDEX_ALL);
             } else if (key.equals(categoriesMap.get(INDEX_TVSHOWS))) {
