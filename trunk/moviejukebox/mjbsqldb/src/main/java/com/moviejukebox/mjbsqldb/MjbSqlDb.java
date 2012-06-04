@@ -63,7 +63,6 @@ public class MjbSqlDb {
                 }
             }
         } catch (IOException ex) {
-            connection.close();
             throw new SQLException("Error opening the database: " + ex.getMessage(), ex);
         }
 
