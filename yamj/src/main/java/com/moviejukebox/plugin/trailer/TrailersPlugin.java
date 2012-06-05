@@ -95,7 +95,7 @@ public class TrailersPlugin implements ITrailersPlugin {
             int index = name.lastIndexOf(".");
             basename = index == -1 ? name : new String(name.substring(0, index));
         }
-        
+
         if (StringTools.isValidString(trailersScanerPath)) {
             parentPath = trailersScanerPath;
             (new File(parentPath)).mkdirs();

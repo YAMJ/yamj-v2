@@ -410,7 +410,7 @@ public class JukeboxProperties {
 
         // Try to open and read the document file
         try {
-            docMjbDetails = DOMHelper.getEventDocFromUrl(mjbDetails);
+            docMjbDetails = DOMHelper.getDocFromFile(mjbDetails);
         } catch (Exception error) {
             logger.warn(logMessage + "Failed creating the file, no checks performed");
             logger.warn(SystemTools.getStackTrace(error));

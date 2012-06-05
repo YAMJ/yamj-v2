@@ -173,7 +173,7 @@ public class MovieJukeboxXMLWriter {
         Document xmlDoc;
 
         try {
-            xmlDoc = DOMHelper.getEventDocFromUrl(xmlFile);
+            xmlDoc = DOMHelper.getDocFromFile(xmlFile);
         } catch (MalformedURLException error) {
             logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));

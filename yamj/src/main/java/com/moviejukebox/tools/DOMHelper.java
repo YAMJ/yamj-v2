@@ -43,6 +43,7 @@ import org.xml.sax.SAXParseException;
 public class DOMHelper {
 
     private static final Logger logger = Logger.getLogger(DOMHelper.class);
+    private static final String logMessage = "DOMHelper: ";
     private static final String DEFAULT_RETURN = "";
     private static final String YES = "yes";
     private static final String TYPE_ROOT = "xml";
@@ -136,6 +137,36 @@ public class DOMHelper {
     }
 
     /**
+     * Get a DOM document from the supplied string
+     *
+     * @param docString
+     * @return
+     */
+    public static Document getDocFromString(String docString) {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        InputSource is = new InputSource(new StringReader(docString));
+        DocumentBuilder db;
+        Document doc = null;
+
+        try {
+            db = dbf.newDocumentBuilder();
+            doc = db.parse(is);
+            return doc;
+        } catch (SAXException ex) {
+            String errorString = docString.substring(0, Math.min(40, docString.length()));
+            logger.warn(logMessage + "Failed to get document from " + errorString + " Error: " + ex.getMessage());
+        } catch (IOException ex) {
+            String errorString = docString.substring(0, Math.min(40, docString.length()));
+            logger.warn(logMessage + "Failed to get document from " + errorString + " Error: " + ex.getMessage());
+        } catch (ParserConfigurationException ex) {
+            String errorString = docString.substring(0, Math.min(40, docString.length()));
+            logger.warn(logMessage + "Failed to get document from " + errorString + " Error: " + ex.getMessage());
+        }
+
+        return doc;
+    }
+
+    /**
      * Get a DOM document from the supplied file
      *
      * @param xmlFile
@@ -145,7 +176,7 @@ public class DOMHelper {
      * @throws ParserConfigurationException
      * @throws SAXException
      */
-    public static Document getEventDocFromUrl(File xmlFile) throws MalformedURLException, IOException, ParserConfigurationException, SAXException {
+    public static Document getDocFromFile(File xmlFile) throws MalformedURLException, ParserConfigurationException, SAXException, IOException {
         URL url = xmlFile.toURI().toURL();
         InputStream in = url.openStream();
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -245,8 +276,8 @@ public class DOMHelper {
             trans.transform(new DOMSource(doc), new StreamResult(localFile));
             return true;
         } catch (Exception error) {
-            logger.error("Error writing the document to " + localFile);
-            logger.error("Message: " + error.getMessage());
+            logger.error(logMessage + "Error writing the document to " + localFile);
+            logger.error(logMessage + "Message: " + error.getMessage());
             return false;
         }
     }

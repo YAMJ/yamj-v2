@@ -70,7 +70,7 @@ public class MovieNFOReader {
         Document xmlDoc;
 
         try {
-            xmlDoc = DOMHelper.getEventDocFromUrl(nfoFile);
+            xmlDoc = DOMHelper.getDocFromFile(nfoFile);
         } catch (MalformedURLException error) {
             logger.error(logMessage + "Failed parsing NFO file: " + nfoFile.getName() + ". Please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
