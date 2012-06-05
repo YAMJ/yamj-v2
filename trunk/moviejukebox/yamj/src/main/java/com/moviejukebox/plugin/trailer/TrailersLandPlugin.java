@@ -39,11 +39,11 @@ public class TrailersLandPlugin extends TrailersPlugin {
     private static String TRAILERSLAND_MOVIE_URL = "film/";
     private static String TRAILERSLAND_TRAILER_URL = "trailer/";
     private static String TRAILERSLAND_TRAILER_FILE_URL = "wrapping/tls.php?";
-    protected int trailerMaxCount;
-    protected String trailerMaxResolution;
-    protected String trailerAllowedFormats;
-    protected String trailerPreferredLanguages;
-    protected String trailerPreferredTypes;
+    private int trailerMaxCount;
+    private String trailerMaxResolution;
+    private String trailerAllowedFormats;
+    private String trailerPreferredLanguages;
+    private String trailerPreferredTypes;
 
     public TrailersLandPlugin() {
         super();
