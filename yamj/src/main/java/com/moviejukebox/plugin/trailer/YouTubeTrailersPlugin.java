@@ -96,6 +96,7 @@ public class YouTubeTrailersPlugin extends TrailersPlugin {
             sb.append(movie.getBaseName());
             logger.debug(sb.toString());
         }
+        movie.setTrailerExchange(Boolean.TRUE);
         return Boolean.TRUE;
     }
 
