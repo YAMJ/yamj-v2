@@ -31,9 +31,9 @@ public class MovieTitleComparator implements Comparator<Movie>, Serializable {
     @Override
     public int compare(Movie movie1, Movie movie2) {
         if (ascending) {
-            return movie1.getTitleSort().compareTo(movie2.getTitleSort());
+            return movie1.getStrippedTitleSort().compareTo(movie2.getStrippedTitleSort());
         } else {
-            return movie2.getTitleSort().compareTo(movie1.getTitleSort());
+            return movie2.getStrippedTitleSort().compareTo(movie1.getStrippedTitleSort());
         }
     }
 }
