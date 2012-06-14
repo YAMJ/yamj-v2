@@ -30,6 +30,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
@@ -284,7 +285,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     private void getFilmdeltaGenres(Movie movie, String fdeltaHtml) {
         LinkedList<String> newGenres = new LinkedList<String>();
 
-        ArrayList<String> filmdeltaGenres = HTMLTools.extractTags(fdeltaHtml, "<h4>Genre</h4>", "</div>", "<h5>", "</h5>");
+        List<String> filmdeltaGenres = HTMLTools.extractTags(fdeltaHtml, "<h4>Genre</h4>", "</div>", "<h5>", "</h5>");
         for (String genre : filmdeltaGenres) {
             if (genre.length() > 0) {
                 genre = new String(genre.substring(0, genre.length() - 5));
@@ -298,7 +299,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     }
 
     private void getFilmdeltaDirector(Movie movie, String fdeltaHtml) {
-        ArrayList<String> filmdeltaDirectors = HTMLTools.extractTags(fdeltaHtml, "<h4>Regiss&ouml;r</h4>", "</div>", "<h5>", "</h5>");
+        List<String> filmdeltaDirectors = HTMLTools.extractTags(fdeltaHtml, "<h4>Regiss&ouml;r</h4>", "</div>", "<h5>", "</h5>");
         StringBuilder newDirector = new StringBuilder();
 
         if (!filmdeltaDirectors.isEmpty()) {

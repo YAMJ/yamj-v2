@@ -1033,28 +1033,30 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void addActor(String key, String name, String character, String URL, String doublage) {
-        if (name != null) {
-            String Name = name;
-            if (name.indexOf(':') > -1) {
-                String[] names = name.split(":");
+    public void addActor(String actorKey, String actorName, String character, String actorUrl, String doublage) {
+        if (actorName != null) {
+            String name = actorName;
+            if (actorName.indexOf(':') > -1) {
+                String[] names = actorName.split(":");
                 if (StringTools.isValidString(names[1])) {
-                    Name = names[1];
+                    name = names[1];
                 } else if (StringTools.isValidString(names[0])) {
-                    Name = names[0];
+                    name = names[0];
                 }
             }
-            Name = Name.trim();
+
+            name = name.trim();
             boolean found = Boolean.FALSE;
             for (Filmography p : people) {
-                if (p.getName().equalsIgnoreCase(Name) && p.getDepartment().equals("Actors")) {
+                if (p.getName().equalsIgnoreCase(name) && p.getDepartment().equals("Actors")) {
                     found = Boolean.TRUE;
                     break;
                 }
             }
+
             if (!found) {
-                addActor(Name);
-                addPerson(key, name, URL, StringUtils.capitalize(Filmography.JOB_ACTOR), character, doublage);
+                addActor(name);
+                addPerson(actorKey, actorName, actorUrl, StringUtils.capitalize(Filmography.JOB_ACTOR), character, doublage);
             }
         }
     }
@@ -1093,31 +1095,31 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void addWriter(String key, String name, String URL) {
-        if (name != null) {
-            String Name = name;
-            if (name.contains(":")) {
-                String[] names = name.split(":");
+    public void addWriter(String writerKey, String writerName, String writerUrl) {
+        if (writerName != null) {
+            String name = writerName;
+            if (writerName.contains(":")) {
+                String[] names = writerName.split(":");
                 if (StringTools.isValidString(names[1])) {
-                    Name = names[1];
+                    name = names[1];
                 } else if (StringTools.isValidString(names[0])) {
-                    Name = names[0];
+                    name = names[0];
                 }
             }
 
-            Name = Name.trim();
+            name = name.trim();
             boolean found = Boolean.FALSE;
 
             for (Filmography p : people) {
-                if (p.getName().equalsIgnoreCase(Name) && p.getDepartment().equals("Writing")) {
+                if (p.getName().equalsIgnoreCase(name) && p.getDepartment().equals("Writing")) {
                     found = Boolean.TRUE;
                     break;
                 }
             }
 
             if (!found) {
-                addWriter(Name);
-                addPerson(key, name, URL, "Writer");
+                addWriter(name);
+                addPerson(writerKey, writerName, writerUrl, "Writer");
             }
         }
     }

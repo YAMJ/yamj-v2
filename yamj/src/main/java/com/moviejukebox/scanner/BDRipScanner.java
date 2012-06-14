@@ -210,9 +210,9 @@ public class BDRipScanner {
         byte[] fileType = new byte[8];
         System.arraycopy(data, 0, fileType, 0, fileType.length);
 
-        String FileType = new String(fileType);
-        if ((FileType.equals("MPLS0100") && FileType.equals("MPLS0200")) /*|| data[45] != 1*/) {
-            logger.info("Invalid playlist file " + FileType);
+        String fileTypeString = new String(fileType);
+        if ((fileTypeString.equals("MPLS0100") && fileTypeString.equals("MPLS0200")) /*|| data[45] != 1*/) {
+            logger.info("Invalid playlist file " + fileTypeString);
             return ret;
         }
 

@@ -118,7 +118,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         return retval;
     }
 
-    protected String getPreferredValue(ArrayList<String> values) {
+    protected String getPreferredValue(List<String> values) {
         String value = Movie.UNKNOWN;
         for (String text : values) {
             String country = null;
@@ -411,13 +411,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             Pattern getYear = Pattern.compile("(?:\\s*" + "\\((\\d{4})(?:/[^\\)]+)?\\)|<a href=\"/year/(\\d{4}))");
             Matcher m = getYear.matcher(xml);
             if (m.find()) {
-                String Year = m.group(1);
-                if (Year == null || Year.isEmpty()) {
-                    Year = m.group(2);
+                String year = m.group(1);
+                if (year == null || year.isEmpty()) {
+                    year = m.group(2);
                 }
 
-                if (Year != null && !Year.isEmpty()) {
-                    movie.setYear(Year);
+                if (year != null && !year.isEmpty()) {
+                    movie.setYear(year);
                 }
             }
         }
@@ -619,7 +619,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // RUNTIME
         if (StringTools.isNotValidString(movie.getRuntime())) {
             String runtime = siteDef2.getRuntime() + ":</h4>";
-            ArrayList<String> runtimes = HTMLTools.extractTags(xml, runtime, "</div>", null, "|", Boolean.FALSE);
+            List<String> runtimes = HTMLTools.extractTags(xml, runtime, "</div>", null, "|", Boolean.FALSE);
             runtime = getPreferredValue(runtimes);
 
             // Strip any extraneous characters from the runtime
@@ -774,13 +774,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             Pattern getYear = Pattern.compile("(?:\\s*" + "\\((\\d{4})(?:/[^\\)]+)?\\)|<a href=\"/year/(\\d{4}))");
             Matcher m = getYear.matcher(xml);
             if (m.find()) {
-                String Year = m.group(1);
-                if (isNotValidString(Year)) {
-                    Year = m.group(2);
+                String year = m.group(1);
+                if (isNotValidString(year)) {
+                    year = m.group(2);
                 }
 
-                if (isValidString(Year) && isNotValidString(movie.getYear())) {
-                    movie.setYear(Year);
+                if (isValidString(year) && isNotValidString(movie.getYear())) {
+                    movie.setYear(year);
                 }
             }
         }
@@ -878,7 +878,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // therefore we need to look for the preferredCountry and then work backwards
 
         // Just extract the AKA section from the page
-        ArrayList<String> akaList = HTMLTools.extractTags(releaseInfoXML, "Also Known As (AKA)", "</table>", "<td>", "</td>", Boolean.FALSE);
+        List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "Also Known As (AKA)", "</table>", "<td>", "</td>", Boolean.FALSE);
 
         // Does the "original title" exist on the page?
         if (akaList.toString().indexOf("original title") > -1) {
@@ -1656,7 +1656,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                             }
                         }
                     }
-                    String URL = siteDef.getSite() + "title/" + id + "/";
+
+                    String url = siteDef.getSite() + "title/" + id + "/";
                     String character = Movie.UNKNOWN;
                     if (job.equalsIgnoreCase("actor") || job.equalsIgnoreCase("actress")) {
                         beginIndex = fg.indexOf("href=\"/title/" + id);
@@ -1690,7 +1691,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         film.setCharacter(character);
                         film.setDepartment();
                         film.setRating(Integer.toString(rating));
-                        film.setUrl(URL);
+                        film.setUrl(url);
                         filmography.put(key, film);
                     }
                 }

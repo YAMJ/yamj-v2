@@ -271,39 +271,39 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         int cornerRadius2 = 0;
 
         if (!movie.isHD()) {
-            String[] ColorSD = frameColorSD.split("/");
-            int SD[] = new int[ColorSD.length];
-            for (int i = 0; i < ColorSD.length; i++) {
-                SD[i] = Integer.parseInt(ColorSD[i]);
+            String[] colorSD = frameColorSD.split("/");
+            int lengthSD[] = new int[colorSD.length];
+            for (int i = 0; i < colorSD.length; i++) {
+                lengthSD[i] = Integer.parseInt(colorSD[i]);
             }
-            newGraphics.setPaint(new Color(SD[0], SD[1], SD[2]));
+            newGraphics.setPaint(new Color(lengthSD[0], lengthSD[1], lengthSD[2]));
         } else if (highdefDiff) {
             if (movie.isHD()) {
                 // Otherwise use the 720p
-                String[] Color720 = frameColor720.split("/");
-                int LO[] = new int[Color720.length];
-                for (int i = 0; i < Color720.length; i++) {
-                    LO[i] = Integer.parseInt(Color720[i]);
+                String[] color720 = frameColor720.split("/");
+                int length720[] = new int[color720.length];
+                for (int i = 0; i < color720.length; i++) {
+                    length720[i] = Integer.parseInt(color720[i]);
                 }
-                newGraphics.setPaint(new Color(LO[0], LO[1], LO[2]));
+                newGraphics.setPaint(new Color(length720[0], length720[1], length720[2]));
             }
 
             if (movie.isHD1080()) {
-                String[] Color1080 = frameColor1080.split("/");
-                int HI[] = new int[Color1080.length];
-                for (int i = 0; i < Color1080.length; i++) {
-                    HI[i] = Integer.parseInt(Color1080[i]);
+                String[] color1080 = frameColor1080.split("/");
+                int length1080[] = new int[color1080.length];
+                for (int i = 0; i < color1080.length; i++) {
+                    length1080[i] = Integer.parseInt(color1080[i]);
                 }
-                newGraphics.setPaint(new Color(HI[0], HI[1], HI[2]));
+                newGraphics.setPaint(new Color(length1080[0], length1080[1], length1080[2]));
             }
         } else {
             // We don't care, so use the default HD logo.
-            String[] ColorHD = frameColorHD.split("/");
-            int HD[] = new int[ColorHD.length];
-            for (int i = 0; i < ColorHD.length; i++) {
-                HD[i] = Integer.parseInt(ColorHD[i]);
+            String[] colorHD = frameColorHD.split("/");
+            int lengthHD[] = new int[colorHD.length];
+            for (int i = 0; i < colorHD.length; i++) {
+                lengthHD[i] = Integer.parseInt(colorHD[i]);
             }
-            newGraphics.setPaint(new Color(HD[0], HD[1], HD[2]));
+            newGraphics.setPaint(new Color(lengthHD[0], lengthHD[1], lengthHD[2]));
         }
 
         if (roundCorners) {

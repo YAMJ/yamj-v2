@@ -83,9 +83,9 @@ public class FilmUpITPlugin extends ImdbPlugin {
             }
 
             if (movie.getGenres().isEmpty()) {
-                for (String tmp_genre : extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
+                for (String tmpGenre : extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
                         "</font></td></tr>").split(",")) {
-                    for (String genre : tmp_genre.split("/")) {
+                    for (String genre : tmpGenre.split("/")) {
                         movie.addGenre(genre.trim());
                     }
                 }
@@ -105,9 +105,9 @@ public class FilmUpITPlugin extends ImdbPlugin {
 
             String opinionsPageID = extractTag(xml, "/opinioni/op.php?uid=", "\"");
             if (StringTools.isValidString(opinionsPageID)) {
-                int PageID = Integer.parseInt(opinionsPageID);
-                updateRate(movie, PageID);
-                logger.debug("Opinions page UID = " + PageID);
+                int pageID = Integer.parseInt(opinionsPageID);
+                updateRate(movie, pageID);
+                logger.debug("Opinions page UID = " + pageID);
             }
 
             if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
@@ -148,9 +148,9 @@ public class FilmUpITPlugin extends ImdbPlugin {
     public boolean scan(Movie mediaFile) {
         boolean retval = false;
         try {
-            String FilmUpITId = mediaFile.getId(FILMUPIT_PLUGIN_ID);
-            if (StringTools.isNotValidString(FilmUpITId)) {
-                FilmUpITId = getFilmUpITId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile);
+            String filmUpITId = mediaFile.getId(FILMUPIT_PLUGIN_ID);
+            if (StringTools.isNotValidString(filmUpITId)) {
+                filmUpITId = getFilmUpITId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile);
             }
 
             // we also get imdb Id for extra infos
@@ -159,8 +159,8 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 logger.debug("Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
 
-            if (StringTools.isValidString(FilmUpITId)) {
-                mediaFile.setId(FILMUPIT_PLUGIN_ID, FilmUpITId);
+            if (StringTools.isValidString(filmUpITId)) {
+                mediaFile.setId(FILMUPIT_PLUGIN_ID, filmUpITId);
                 if (mediaFile.isTVShow()) {
                     super.scan(mediaFile);
                 } else {
@@ -186,7 +186,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
      * @throws ParseException
      */
     private String getFilmUpITId(String movieName, String year, Identifiable mediaFile) throws ParseException {
-        String FilmUpITId = Movie.UNKNOWN;
+        String filmUpITId = Movie.UNKNOWN;
 
         try {
             StringBuilder sb = new StringBuilder("http://filmup.leonardo.it/cgi-bin/search.cgi?ps=10&fmt=long&q=");
@@ -194,12 +194,12 @@ public class FilmUpITPlugin extends ImdbPlugin {
             sb.append("&ul=%25%2Fsc_%25&x=0&y=0&m=any&wf=0020&wm=wrd&sy=0");
             String xml = webBrowser.request(sb.toString());
 
-            String FilmUpITStartResult;
-            String FilmUpITMediaPrefix;
-            FilmUpITStartResult = "<DT>1.";
-            FilmUpITMediaPrefix = "sc_";
+            String filmUpITStartResult;
+            String filmUpITMediaPrefix;
+            filmUpITStartResult = "<DT>1.";
+            filmUpITMediaPrefix = "sc_";
 
-            for (String searchResult : extractTags(xml, FilmUpITStartResult, "<DD>", FilmUpITMediaPrefix, ".htm")) {
+            for (String searchResult : extractTags(xml, filmUpITStartResult, "<DD>", filmUpITMediaPrefix, ".htm")) {
                 // logger.debug("SearchResult = " + searchResult);
                 return searchResult;
             }
@@ -210,7 +210,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
         } catch (Exception error) {
             logger.error("Failed to retrieve FilmUp ID for movie : " + movieName);
             logger.error("We fall back to ImdbPlugin");
-            throw new ParseException(FilmUpITId, 0);
+            throw new ParseException(filmUpITId, 0);
         }
     }
 

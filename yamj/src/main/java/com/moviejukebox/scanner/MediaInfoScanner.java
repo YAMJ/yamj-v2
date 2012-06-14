@@ -40,7 +40,7 @@ public class MediaInfoScanner {
     // mediaInfo repository
     private static final File mediaInfoPath = new File(PropertiesUtil.getProperty("mediainfo.home", "./mediaInfo/"));
     // mediaInfo command line, depend on OS
-    private static final ArrayList<String> mediaInfoExe = new ArrayList<String>();
+    private static final List<String> mediaInfoExe = new ArrayList<String>();
     private static final String mediaInfoFilenameWindows = "MediaInfo.exe";
     private static final String mediaInfoRarFilenameWindows = "MediaInfo-rar.exe";
     private static final String mediaInfoFilenameLinux = "mediainfo";
@@ -56,7 +56,7 @@ public class MediaInfoScanner {
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
-    private static final ArrayList<String> mediaInfoDiskImages = new ArrayList<String>();
+    private static final List<String> mediaInfoDiskImages = new ArrayList<String>();
 
     static {
         logger.debug("Operating System Name   : " + OS_NAME);
@@ -187,7 +187,7 @@ public class MediaInfoScanner {
 
         try {
             // Create the command line
-            ArrayList<String> commandMedia = new ArrayList<String>(mediaInfoExe);
+            List<String> commandMedia = new ArrayList<String>(mediaInfoExe);
             commandMedia.add(movieFilePath);
 
             ProcessBuilder pb = new ProcessBuilder(commandMedia);
@@ -197,10 +197,10 @@ public class MediaInfoScanner {
 
             Process p = pb.start();
 
-            HashMap<String, String> infosGeneral = new HashMap<String, String>();
-            ArrayList<HashMap<String, String>> infosVideo = new ArrayList<HashMap<String, String>>();
-            ArrayList<HashMap<String, String>> infosAudio = new ArrayList<HashMap<String, String>>();
-            ArrayList<HashMap<String, String>> infosText = new ArrayList<HashMap<String, String>>();
+            Map<String, String> infosGeneral = new HashMap<String, String>();
+            List<Map<String, String>> infosVideo = new ArrayList<Map<String, String>>();
+            List<Map<String, String>> infosAudio = new ArrayList<Map<String, String>>();
+            List<Map<String, String>> infosText = new ArrayList<Map<String, String>>();
 
             parseMediaInfo(p, infosGeneral, infosVideo, infosAudio, infosText);
 
@@ -222,16 +222,16 @@ public class MediaInfoScanner {
     }
 
     public void parseMediaInfo(InputStream in,
-            HashMap<String, String> infosGeneral,
-            ArrayList<HashMap<String, String>> infosVideo,
-            ArrayList<HashMap<String, String>> infosAudio,
-            ArrayList<HashMap<String, String>> infosText) throws IOException {
+            Map<String, String> infosGeneral,
+            List<Map<String, String>> infosVideo,
+            List<Map<String, String>> infosAudio,
+            List<Map<String, String>> infosText) throws IOException {
         BufferedReader input = new BufferedReader(new InputStreamReader(in));
         // Improvement, less code line, each cat have same code, so use the same for all.
-        Map<String, ArrayList<HashMap<String, String>>> matches = new HashMap<String, ArrayList<HashMap<String, String>>>();
+        Map<String, List<Map<String, String>>> matches = new HashMap<String, List<Map<String, String>>>();
         // Create a fake one for General, we got only one, but to use the same algo we must create this one.
         String generalKey[] = {"General", "Géneral", "* Général"};
-        matches.put(generalKey[0], new ArrayList<HashMap<String, String>>());
+        matches.put(generalKey[0], new ArrayList<Map<String, String>>());
         matches.put(generalKey[1], matches.get(generalKey[0])); // Issue 1311 - Create a "link" between General and Général
         matches.put(generalKey[2], matches.get(generalKey[0])); // Issue 1311 - Create a "link" between General and * Général
         matches.put("Video", infosVideo);
@@ -249,7 +249,7 @@ public class MediaInfoScanner {
             }
 
             // Get cat ArrayList from cat name.^M
-            ArrayList<HashMap<String, String>> currentCat = matches.get(line);
+            List<Map<String, String>> currentCat = matches.get(line);
 
             if (currentCat != null) {
                 //logger.debug("Current category : " + line);
@@ -270,9 +270,9 @@ public class MediaInfoScanner {
         // Setting General Info - Beware of lose data if infosGeneral already have some ...
         try {
             for (int i = 0; i < generalKey.length; i++) {
-                ArrayList<HashMap<String, String>> arrayList = matches.get(generalKey[i]);
+                List<Map<String, String>> arrayList = matches.get(generalKey[i]);
                 if (arrayList.size() > 0) {
-                    HashMap<String, String> datas = arrayList.get(0);
+                    Map<String, String> datas = arrayList.get(0);
                     if (datas.size() > 0) {
                         infosGeneral.putAll(datas);
                         break;
@@ -286,14 +286,14 @@ public class MediaInfoScanner {
         input.close();
     }
 
-    private void parseMediaInfo(Process p, HashMap<String, String> infosGeneral, ArrayList<HashMap<String, String>> infosVideo,
-            ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) throws IOException {
+    private void parseMediaInfo(Process proc, Map<String, String> infosGeneral, List<Map<String, String>> infosVideo,
+            List<Map<String, String>> infosAudio, List<Map<String, String>> infosText) throws IOException {
 
-        this.parseMediaInfo(p.getInputStream(), infosGeneral, infosVideo, infosAudio, infosText);
+        this.parseMediaInfo(proc.getInputStream(), infosGeneral, infosVideo, infosAudio, infosText);
     }
 
-    private void updateMovieInfo(Movie movie, HashMap<String, String> infosGeneral, ArrayList<HashMap<String, String>> infosVideo,
-            ArrayList<HashMap<String, String>> infosAudio, ArrayList<HashMap<String, String>> infosText) {
+    private void updateMovieInfo(Movie movie, Map<String, String> infosGeneral, List<Map<String, String>> infosVideo,
+            List<Map<String, String>> infosAudio, List<Map<String, String>> infosText) {
 
         String infoValue;
 
@@ -392,7 +392,7 @@ public class MediaInfoScanner {
             // At this point there is only a codec pulled from the filename, so we can clear that now
             movie.getCodecs().clear();
 
-            HashMap<String, String> infosMainVideo = infosVideo.get(0);
+            Map<String, String> infosMainVideo = infosVideo.get(0);
 
             // Check that movie is not multi part
             if (movie.getRuntime().equals(Movie.UNKNOWN) && movie.getMovieFiles().size() == 1) {
@@ -519,7 +519,7 @@ public class MediaInfoScanner {
         ArrayList<String> foundLanguages = new ArrayList<String>();
 
         for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
-            HashMap<String, String> infosCurAudio = infosAudio.get(numAudio);
+            Map<String, String> infosCurAudio = infosAudio.get(numAudio);
 
             String infoLanguage = "";
             infoValue = infosCurAudio.get("Language");
@@ -560,7 +560,7 @@ public class MediaInfoScanner {
 
         // Cycle through Text Streams
         for (int numText = 0; numText < infosText.size(); numText++) {
-            HashMap<String, String> infosCurText = infosText.get(numText);
+            Map<String, String> infosCurText = infosText.get(numText);
 
             String infoLanguage = "";
             infoValue = infosCurText.get("Language");
@@ -631,7 +631,7 @@ public class MediaInfoScanner {
      * @param Video
      * @return
      */
-    protected Codec getCodecInfo(CodecType codecType, HashMap<String, String> codecInfos) {
+    protected Codec getCodecInfo(CodecType codecType, Map<String, String> codecInfos) {
         Codec codec = new Codec(codecType);
 
         codec.setCodec(codecInfos.get(Codec.MI_CODEC));

@@ -1108,10 +1108,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             addAnimeToCache(res);
             return res;
         }
-        Anime _anime = anidbConn.getAnime(aid, anidbMask);
+        Anime animeAid = anidbConn.getAnime(aid, anidbMask);
         AnidbAnime anime = null;
-        if (_anime != null) {
-            anime = new AnidbAnime(_anime);
+        if (animeAid != null) {
+            anime = new AnidbAnime(animeAid);
             String animePlot = anidbConn.getAnimeDescription(aid);
             anime.setDescription(animePlot);
             animeDao.create(anime);
@@ -1119,7 +1119,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             /*
              * Add categories and reload anime from database
              */
-            createCategories(anime, _anime);
+            createCategories(anime, animeAid);
             anime = animeDao.queryForId(Long.toString(anime.getAnimeId()));
             addAnimeToCache(anime);
         }
@@ -1140,18 +1140,18 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             addAnimeToCache(anime);
             return anime;
         }
-        Anime _anime = anidbConn.getAnime(name, anidbMask);
-        if (_anime != null) {
+        Anime animeAid = anidbConn.getAnime(name, anidbMask);
+        if (animeAid != null) {
             // We shouldn't get something we already have, but check to make sure
-            anime = animeDao.queryForId(Long.toString(_anime.getAnimeId()));
+            anime = animeDao.queryForId(Long.toString(animeAid.getAnimeId()));
             if (anime != null) {
                 return anime;
             }
-            anime = new AnidbAnime(_anime);
+            anime = new AnidbAnime(animeAid);
             String animePlot = anidbConn.getAnimeDescription(anime.getAnimeId());
             anime.setDescription(animePlot);
             animeDao.create(anime);
-            createCategories(anime, _anime);
+            createCategories(anime, animeAid);
             anime = animeDao.queryForId(Long.toString(anime.getAnimeId()));
             addAnimeToCache(anime);
         }

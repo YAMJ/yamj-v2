@@ -20,19 +20,21 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 public class MediaInfoScannerTest {
 
     private static MediaInfoScanner toTest = new MediaInfoScanner();
     private static final String testDir = "src/test/java/TestFiles/MediaInfo/";
-    HashMap<String, String> infosGeneral = new HashMap<String, String>();
-    ArrayList<HashMap<String, String>> infosVideo = new ArrayList<HashMap<String, String>>();
-    ArrayList<HashMap<String, String>> infosAudio = new ArrayList<HashMap<String, String>>();
-    ArrayList<HashMap<String, String>> infosText = new ArrayList<HashMap<String, String>>();
+    Map<String, String> infosGeneral = new HashMap<String, String>();
+    List<Map<String, String>> infosVideo = new ArrayList<Map<String, String>>();
+    List<Map<String, String>> infosAudio = new ArrayList<Map<String, String>>();
+    List<Map<String, String>> infosText = new ArrayList<Map<String, String>>();
 
     @Test
     public void testStaticFile() {
@@ -70,13 +72,13 @@ public class MediaInfoScannerTest {
 
         Codec codec;
         int counter = 1;
-        for (HashMap<String, String> codecInfo : infosVideo) {
+        for (Map<String, String> codecInfo : infosVideo) {
             codec = toTest.getCodecInfo(CodecType.VIDEO, codecInfo);
             System.out.println(counter++ + " = " + codec.toString());
         }
 
         counter = 1;
-        for (HashMap<String, String> codecInfo : infosAudio) {
+        for (Map<String, String> codecInfo : infosAudio) {
             codec = toTest.getCodecInfo(CodecType.AUDIO, codecInfo);
             System.out.println(counter++ + " = " + codec.toString());
         }
@@ -84,13 +86,13 @@ public class MediaInfoScannerTest {
         getMediaInfoTestFile("AVI_DTS_MA_7.1.AVI.txt");
 
         counter = 1;
-        for (HashMap<String, String> codecInfo : infosVideo) {
+        for (Map<String, String> codecInfo : infosVideo) {
             codec = toTest.getCodecInfo(CodecType.VIDEO, codecInfo);
             System.out.println(counter++ + " = " + codec.toString());
         }
 
         counter = 1;
-        for (HashMap<String, String> codecInfo : infosAudio) {
+        for (Map<String, String> codecInfo : infosAudio) {
             codec = toTest.getCodecInfo(CodecType.AUDIO, codecInfo);
             System.out.println(counter++ + " = " + codec.toString());
         }

@@ -67,8 +67,8 @@ public class ScopeDkPlugin extends ImdbPlugin {
             }
 
             if (movie.getGenres().isEmpty()) {
-                for (String tmp_genre : extractTag(xml, "<th>Genre</th>", "</td>").split(",")) {
-                    movie.addGenre(removeHtmlTags(tmp_genre));
+                for (String tmpGenre : extractTag(xml, "<th>Genre</th>", "</td>").split(",")) {
+                    movie.addGenre(removeHtmlTags(tmpGenre));
 
                 }
             }
@@ -124,7 +124,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
      * @throws ParseException
      */
     private String getScopeDkId(String movieName, String year, Identifiable mediaFile) throws ParseException {
-        String FilmUpITId = Movie.UNKNOWN;
+        String filmUpITId = Movie.UNKNOWN;
 
         try {
             StringBuilder sb = new StringBuilder("http://www.scope.dk/sogning.php?sog=");// 9&type=film");
@@ -161,7 +161,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
         } catch (Exception error) {
             logger.error("Failed to retrieve Scope ID for movie : " + movieName);
             logger.error("We fall back to ImdbPlugin");
-            throw new ParseException(FilmUpITId, 0);
+            throw new ParseException(filmUpITId, 0);
         }
     }
 

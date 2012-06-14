@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -115,22 +116,22 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean blockClones;
     private boolean addEpisode;
     private boolean blockEpisode;
-    private HashMap<String, ArrayList<String>> keywordsRating = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> keywordsVideoSource = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> keywordsVideoOut = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> keywordsVideoCodec = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> keywordsAudioCodec = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> keywordsAudioChannels = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> keywordsAudioLang = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> keywordsContainer = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> keywordsAspectRatio = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> keywordsFPS = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> keywordsCertification = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> keywordsKeywords = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> keywordsCountry = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> keywordsCompany = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> keywordsAward = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, logosBlock> overlayBlocks = new HashMap<String, logosBlock>();
+    private Map<String, ArrayList<String>> keywordsRating = new HashMap<String, ArrayList<String>>();
+    private Map<String, ArrayList<String>> keywordsVideoSource = new HashMap<String, ArrayList<String>>();
+    private Map<String, ArrayList<String>> keywordsVideoOut = new HashMap<String, ArrayList<String>>();
+    private Map<String, ArrayList<String>> keywordsVideoCodec = new HashMap<String, ArrayList<String>>();
+    private Map<String, ArrayList<String>> keywordsAudioCodec = new HashMap<String, ArrayList<String>>();
+    private Map<String, ArrayList<String>> keywordsAudioChannels = new HashMap<String, ArrayList<String>>();
+    private Map<String, ArrayList<String>> keywordsAudioLang = new HashMap<String, ArrayList<String>>();
+    private Map<String, ArrayList<String>> keywordsContainer = new HashMap<String, ArrayList<String>>();
+    private Map<String, ArrayList<String>> keywordsAspectRatio = new HashMap<String, ArrayList<String>>();
+    private Map<String, ArrayList<String>> keywordsFPS = new HashMap<String, ArrayList<String>>();
+    private Map<String, ArrayList<String>> keywordsCertification = new HashMap<String, ArrayList<String>>();
+    private Map<String, ArrayList<String>> keywordsKeywords = new HashMap<String, ArrayList<String>>();
+    private Map<String, ArrayList<String>> keywordsCountry = new HashMap<String, ArrayList<String>>();
+    private Map<String, ArrayList<String>> keywordsCompany = new HashMap<String, ArrayList<String>>();
+    private Map<String, ArrayList<String>> keywordsAward = new HashMap<String, ArrayList<String>>();
+    private Map<String, logosBlock> overlayBlocks = new HashMap<String, logosBlock>();
     private int viIndex;
 
     public DefaultImagePlugin() {
@@ -417,39 +418,39 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         int cornerRadius2 = 0;
 
         if (!movie.isHD()) {
-            String[] ColorSD = frameColorSD.split("/");
-            int SD[] = new int[ColorSD.length];
-            for (int i = 0; i < ColorSD.length; i++) {
-                SD[i] = Integer.parseInt(ColorSD[i]);
+            String[] colorSD = frameColorSD.split("/");
+            int lengthSD[] = new int[colorSD.length];
+            for (int i = 0; i < colorSD.length; i++) {
+                lengthSD[i] = Integer.parseInt(colorSD[i]);
             }
-            newGraphics.setPaint(new Color(SD[0], SD[1], SD[2]));
+            newGraphics.setPaint(new Color(lengthSD[0], lengthSD[1], lengthSD[2]));
         } else if (highdefDiff) {
             if (movie.isHD()) {
                 // Otherwise use the 720p
-                String[] Color720 = frameColor720.split("/");
-                int LO[] = new int[Color720.length];
-                for (int i = 0; i < Color720.length; i++) {
-                    LO[i] = Integer.parseInt(Color720[i]);
+                String[] color720 = frameColor720.split("/");
+                int length720[] = new int[color720.length];
+                for (int i = 0; i < color720.length; i++) {
+                    length720[i] = Integer.parseInt(color720[i]);
                 }
-                newGraphics.setPaint(new Color(LO[0], LO[1], LO[2]));
+                newGraphics.setPaint(new Color(length720[0], length720[1], length720[2]));
             }
 
             if (movie.isHD1080()) {
-                String[] Color1080 = frameColor1080.split("/");
-                int HI[] = new int[Color1080.length];
-                for (int i = 0; i < Color1080.length; i++) {
-                    HI[i] = Integer.parseInt(Color1080[i]);
+                String[] color1080 = frameColor1080.split("/");
+                int length1080[] = new int[color1080.length];
+                for (int i = 0; i < color1080.length; i++) {
+                    length1080[i] = Integer.parseInt(color1080[i]);
                 }
-                newGraphics.setPaint(new Color(HI[0], HI[1], HI[2]));
+                newGraphics.setPaint(new Color(length1080[0], length1080[1], length1080[2]));
             }
         } else {
             // We don't care, so use the default HD logo.
-            String[] ColorHD = frameColorHD.split("/");
-            int HD[] = new int[ColorHD.length];
-            for (int i = 0; i < ColorHD.length; i++) {
-                HD[i] = Integer.parseInt(ColorHD[i]);
+            String[] colorHD = frameColorHD.split("/");
+            int lengthHD[] = new int[colorHD.length];
+            for (int i = 0; i < colorHD.length; i++) {
+                lengthHD[i] = Integer.parseInt(colorHD[i]);
             }
-            newGraphics.setPaint(new Color(HD[0], HD[1], HD[2]));
+            newGraphics.setPaint(new Color(lengthHD[0], lengthHD[1], lengthHD[2]));
         }
 
         if (roundCorners) {
@@ -1673,7 +1674,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         }
     }
 
-    protected void fillOverlayKeywords(HashMap<String, ArrayList<String>> data, String value) {
+    protected void fillOverlayKeywords(Map<String, ArrayList<String>> data, String value) {
         data.clear();
         if (StringTools.isValidString(value)) {
             String[] temp = value.split(" ; ");
@@ -1692,7 +1693,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 || condition.equalsIgnoreCase(value)
                 || condition.equalsIgnoreCase("default"));
         if (!result) {
-            HashMap<String, ArrayList<String>> data;
+            Map<String, ArrayList<String>> data;
             if (name.equalsIgnoreCase("rating")) {
                 data = keywordsRating;
             } else if (name.equalsIgnoreCase("videosource") || name.equalsIgnoreCase("source") || name.equalsIgnoreCase("VS")) {
