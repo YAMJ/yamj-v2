@@ -19,6 +19,7 @@ import java.util.Collection;
  * @author ilgizar
  */
 public class Award {
+
     private String name = Movie.UNKNOWN;
     private int won = 0;
     private int nominated = 0;
@@ -35,7 +36,7 @@ public class Award {
     }
 
     public int getWon() {
-        return (wons != null && wons.size() > 0)?wons.size():won;
+        return (wons != null && wons.size() > 0) ? wons.size() : won;
     }
 
     public void setWon(int won) {
@@ -43,7 +44,7 @@ public class Award {
     }
 
     public int getNominated() {
-        return (nominations != null && nominations.size() > 0)?nominations.size():nominated;
+        return (nominations != null && nominations.size() > 0) ? nominations.size() : nominated;
     }
 
     public void setNominated(int nominated) {

@@ -25,7 +25,6 @@ import java.util.Map;
  */
 public class Artwork {
 
-    private static final String UNKNOWN = Movie.UNKNOWN;
     private ArtworkType type;       // The type of the artwork.
     private String sourceSite; // Where the artwork originated from
     private String url;        // The original URL of the artwork (may be used as key)
@@ -44,6 +43,7 @@ public class Artwork {
         this.sourceSite = sourceSite;
         this.url = url;
 
+        this.sizes = new EnumMap<ArtworkSize, ArtworkFile>(ArtworkSize.class);
         for (ArtworkFile artworkFile : sizes) {
             this.addSize(artworkFile);
         }
@@ -69,9 +69,9 @@ public class Artwork {
      * Create a blank Artwork object
      */
     public Artwork() {
-        this.sourceSite = UNKNOWN;
+        this.sourceSite = Movie.UNKNOWN;
         this.type = null;
-        this.url = UNKNOWN;
+        this.url = Movie.UNKNOWN;
         this.sizes = new EnumMap<ArtworkSize, ArtworkFile>(ArtworkSize.class);
     }
 
