@@ -12,8 +12,8 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.mjbsqldb.MjbSqlDb;
 import com.moviejukebox.mjbsqldb.DatabaseWriter;
+import com.moviejukebox.mjbsqldb.MjbSqlDb;
 import com.moviejukebox.mjbsqldb.dto.*;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;

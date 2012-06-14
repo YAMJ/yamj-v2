@@ -201,9 +201,9 @@ public class PropertiesUtil {
     }
 
     public static void writeProperties() {
-        Writer out = null;
-        OutputStreamWriter osw = null;
         FileOutputStream fos = null;
+        OutputStreamWriter osw = null;
+        Writer out = null;
 
         // Save the properties in order
         List<String> propertiesList = new ArrayList<String>();
@@ -244,10 +244,10 @@ public class PropertiesUtil {
             logger.error(logMessage + "Error with file");
             logger.error(SystemTools.getStackTrace(error));
         } finally {
-            if (fos != null) {
+            if (out != null) {
                 try {
-                    fos.flush();
-                    fos.close();
+                    out.flush();
+                    out.close();
                 } catch (Exception error) {
                     // ignore this error
                 }
@@ -262,10 +262,10 @@ public class PropertiesUtil {
                 }
             }
 
-            if (out != null) {
+            if (fos != null) {
                 try {
-                    out.flush();
-                    out.close();
+                    fos.flush();
+                    fos.close();
                 } catch (Exception error) {
                     // ignore this error
                 }

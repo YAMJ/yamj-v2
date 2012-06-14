@@ -1324,21 +1324,49 @@ public class SratimPlugin extends ImdbPlugin {
         return found;
     }
 
-    protected StringWriter getContent(URLConnection connection) throws IOException {
+    protected StringWriter getContent(URLConnection connection) {
         StringWriter content = new StringWriter(10 * 1024);
-        InputStreamReader inputStream = new InputStreamReader(connection.getInputStream(), Charset.defaultCharset());
-        BufferedReader in = new BufferedReader(inputStream);
-        String line;
+        InputStreamReader inputStream = null;
+        BufferedReader in = null;
 
-        while ((line = in.readLine()) != null) {
-            content.write(line);
+        try {
+            inputStream = new InputStreamReader(connection.getInputStream(), Charset.defaultCharset());
+            in = new BufferedReader(inputStream);
+            String line;
+            while ((line = in.readLine()) != null) {
+                content.write(line);
+            }
+            content.flush();
+            return content;
+        } catch (IOException ex) {
+            return content;
+        } finally {
+
+            try {
+                if (content != null) {
+                    content.flush();
+                    content.close();
+                }
+            } catch (IOException ex) {
+                logger.debug(logMessage + "Failed to close content stream: " + ex.getMessage());
+            }
+
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+                logger.debug(logMessage + "Failed to close content stream: " + ex.getMessage());
+            }
+
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException ex) {
+                logger.debug(logMessage + "Failed to close content stream: " + ex.getMessage());
+            }
         }
-
-        content.flush();
-        in.close();
-        inputStream.close();
-
-        return content;
     }
 
     public static String removeChar(String str, char c) {

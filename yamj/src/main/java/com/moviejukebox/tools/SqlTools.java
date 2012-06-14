@@ -63,7 +63,7 @@ public class SqlTools {
     }
 
     public static void createTables() {
-        Statement stmt;
+        Statement stmt = null;
         try {
             stmt = connection.createStatement();
 
@@ -85,11 +85,19 @@ public class SqlTools {
 
         } catch (SQLException error) {
             logger.error(logMessage + "Error creating tables: " + error.getMessage());
+        } finally {
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException ex) {
+                logger.debug(logMessage + "Failed to close database resource: " + ex.getMessage());
+            }
         }
     }
 
     public static void deleteTables() {
-        Statement stmt;
+        Statement stmt = null;
         try {
             stmt = connection.createStatement();
 
@@ -112,12 +120,20 @@ public class SqlTools {
             throw new RuntimeException("Delete photo tables error. " + ex.getMessage(), ex);
         } finally {
             closeDatabase();
+
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException ex) {
+                logger.debug(logMessage + "Failed to close database resource: " + ex.getMessage());
+            }
         }
 
     }
 
     public static void insertIntoVideo(Movie movie) {
-        PreparedStatement pstmt;
+        PreparedStatement pstmt = null;
 
         try {
             pstmt = connection.prepareStatement(INSERT_VIDEO);
@@ -128,6 +144,14 @@ public class SqlTools {
             connection.commit();
         } catch (SQLException error) {
             logger.error(logMessage + "Error inserting into VIDEO table: " + error.getMessage());
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            } catch (SQLException ex) {
+                logger.debug(logMessage + "Failed to close database resource: " + ex.getMessage());
+            }
         }
     }
 }

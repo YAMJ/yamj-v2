@@ -179,6 +179,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 conn.setDoOutput(true);
 
                 OutputStreamWriter osWriter = null;
+                InputStreamReader inReader = null;
                 BufferedReader bReader = null;
                 StringBuilder xmlLines = new StringBuilder();
 
@@ -187,13 +188,16 @@ public class AnimatorPlugin extends ImdbPlugin {
                     osWriter.write(sb);
                     osWriter.flush();
 
-                    bReader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "cp1251"));
+                    inReader = new InputStreamReader(conn.getInputStream(), "cp1251");
+                    bReader = new BufferedReader(inReader);
 
                     String line;
 
                     while ((line = bReader.readLine()) != null) {
                         xmlLines.append(line);
                     }
+
+                    osWriter.flush();
                 } finally {
                     if (osWriter != null) {
                         osWriter.close();
@@ -201,6 +205,10 @@ public class AnimatorPlugin extends ImdbPlugin {
 
                     if (bReader != null) {
                         bReader.close();
+                    }
+
+                    if (inReader != null) {
+                        inReader.close();
                     }
                 }
 
