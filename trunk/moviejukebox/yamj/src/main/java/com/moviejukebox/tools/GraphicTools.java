@@ -393,16 +393,16 @@ public class GraphicTools {
             logger.error("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveBottom");
         }
 
-        int Top3d = (int) (h * perspectiveTop / 100);
-        int Bot3d = (int) (h * perspectiveBottom / 100);
+        int top3d = (int) (h * perspectiveTop / 100);
+        int bot3d = (int) (h * perspectiveBottom / 100);
 
         PerspectiveFilter perspectiveFilter = new PerspectiveFilter();
         // Top Left (x/y), Top Right (x/y), Bottom Right (x/y), Bottom Left (x/y)
 
         if (perspectiveDirection.equalsIgnoreCase("right")) {
-            perspectiveFilter.setCorners(0, 0, w, Top3d, w, h - Bot3d, 0, h);
+            perspectiveFilter.setCorners(0, 0, w, top3d, w, h - bot3d, 0, h);
         } else {
-            perspectiveFilter.setCorners(0, Top3d, w, 0, w, h, 0, h - Bot3d);
+            perspectiveFilter.setCorners(0, top3d, w, 0, w, h, 0, h - bot3d);
         }
         return perspectiveFilter.filter(bi, null);
     }

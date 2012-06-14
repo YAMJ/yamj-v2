@@ -271,25 +271,27 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
         lang.setId(0);
         lang.setLanguage(language);
 
-        String short_code = "", medium_code = "", long_code = "";
+        String shortCode = "";
+        String mediumCode = "";
+        String longCode = "";
 
         for (String langStr : MovieFilenameScanner.getLanguageList(language).split(" ")) {
             if (langStr.length() == 2) {
-                short_code = langStr;
+                shortCode = langStr;
                 continue;
             }
 
             if (langStr.length() == 3) {
-                medium_code = langStr;
+                mediumCode = langStr;
                 continue;
             }
 
-            long_code = langStr;
+            longCode = langStr;
         }
 
-        lang.setShortCode(short_code);
-        lang.setMediumCode(medium_code);
-        lang.setLongCode(long_code);
+        lang.setShortCode(shortCode);
+        lang.setMediumCode(mediumCode);
+        lang.setLongCode(longCode);
         return lang;
     }
 

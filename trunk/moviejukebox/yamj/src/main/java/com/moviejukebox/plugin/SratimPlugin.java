@@ -25,6 +25,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -326,71 +327,71 @@ public class SratimPlugin extends ImdbPlugin {
 
     // Resolving Natural Types
     private static void resolveNaturalType(char[] stringToResolve, int[] charType, int defaultDirection) {
-        int Pos, CheckPos;
-        int Before, After;
+        int pos, checkPos;
+        int before, after;
 
-        Pos = 0;
+        pos = 0;
 
-        while (Pos < stringToResolve.length) {
+        while (pos < stringToResolve.length) {
             // Check if this is natural type and we need to cahnge it
-            if (charType[Pos] == BCT_N) {
+            if (charType[pos] == BCT_N) {
                 // Search for the type of the previous strong type
-                CheckPos = Pos - 1;
+                checkPos = pos - 1;
 
                 while (true) {
-                    if (CheckPos < 0) {
+                    if (checkPos < 0) {
                         // Default language
-                        Before = defaultDirection;
+                        before = defaultDirection;
                         break;
                     }
 
-                    if (charType[CheckPos] == BCT_R) {
-                        Before = BCT_R;
+                    if (charType[checkPos] == BCT_R) {
+                        before = BCT_R;
                         break;
                     }
 
-                    if (charType[CheckPos] == BCT_L) {
-                        Before = BCT_L;
+                    if (charType[checkPos] == BCT_L) {
+                        before = BCT_L;
                         break;
                     }
 
-                    CheckPos--;
+                    checkPos--;
                 }
 
-                CheckPos = Pos + 1;
+                checkPos = pos + 1;
 
                 // Search for the type of the next strong type
                 while (true) {
-                    if (CheckPos >= stringToResolve.length) {
+                    if (checkPos >= stringToResolve.length) {
                         // Default language
-                        After = defaultDirection;
+                        after = defaultDirection;
                         break;
                     }
 
-                    if (charType[CheckPos] == BCT_R) {
-                        After = BCT_R;
+                    if (charType[checkPos] == BCT_R) {
+                        after = BCT_R;
                         break;
                     }
 
-                    if (charType[CheckPos] == BCT_L) {
-                        After = BCT_L;
+                    if (charType[checkPos] == BCT_L) {
+                        after = BCT_L;
                         break;
                     }
 
-                    CheckPos++;
+                    checkPos++;
                 }
 
                 // Change the natural depanded on the strong type before and after
-                if ((Before == BCT_R) && (After == BCT_R)) {
-                    charType[Pos] = BCT_R;
-                } else if ((Before == BCT_L) && (After == BCT_L)) {
-                    charType[Pos] = BCT_L;
+                if ((before == BCT_R) && (after == BCT_R)) {
+                    charType[pos] = BCT_R;
+                } else if ((before == BCT_L) && (after == BCT_L)) {
+                    charType[pos] = BCT_L;
                 } else {
-                    charType[Pos] = defaultDirection;
+                    charType[pos] = defaultDirection;
                 }
             }
 
-            Pos++;
+            pos++;
         }
 
         /*
@@ -402,24 +403,24 @@ public class SratimPlugin extends ImdbPlugin {
 
     // Resolving Implicit Levels
     private static void resolveImplictLevels(char[] stringToResolve, int[] charType, int[] level) {
-        int Pos;
+        int pos;
 
-        Pos = 0;
+        pos = 0;
 
-        while (Pos < stringToResolve.length) {
-            if (charType[Pos] == BCT_L) {
-                level[Pos] = 2;
+        while (pos < stringToResolve.length) {
+            if (charType[pos] == BCT_L) {
+                level[pos] = 2;
             }
 
-            if (charType[Pos] == BCT_R) {
-                level[Pos] = 1;
+            if (charType[pos] == BCT_R) {
+                level[pos] = 1;
             }
 
-            if (charType[Pos] == BCT_EN) {
-                level[Pos] = 2;
+            if (charType[pos] == BCT_EN) {
+                level[pos] = 2;
             }
 
-            Pos++;
+            pos++;
         }
     }
 
@@ -453,32 +454,31 @@ public class SratimPlugin extends ImdbPlugin {
 
     // Convert logical string to visual
     private static void logicalToVisual(char[] stringToConvert, int defaultDirection) {
-        int[] CharType;
-        int[] Level;
+        int[] charType;
+        int[] level;
+        int len;
 
-        int Len;
-
-        Len = stringToConvert.length;
+        len = stringToConvert.length;
 
         // Allocate CharType and Level arrays
-        CharType = new int[Len];
+        charType = new int[len];
 
-        Level = new int[Len];
+        level = new int[len];
 
         // Set the string char types
-        setStringCharType(stringToConvert, CharType);
+        setStringCharType(stringToConvert, charType);
 
         // Resolving Weak Types
-        resolveWeakType(stringToConvert, CharType);
+        resolveWeakType(stringToConvert, charType);
 
         // Resolving Natural Types
-        resolveNaturalType(stringToConvert, CharType, defaultDirection);
+        resolveNaturalType(stringToConvert, charType, defaultDirection);
 
         // Resolving Implicit Levels
-        resolveImplictLevels(stringToConvert, CharType, Level);
+        resolveImplictLevels(stringToConvert, charType, level);
 
         // Reordering Resolved Levels
-        reorderResolvedLevels(stringToConvert, Level);
+        reorderResolvedLevels(stringToConvert, level);
     }
 
     private static boolean isCharNatural(char c) {
@@ -502,8 +502,8 @@ public class SratimPlugin extends ImdbPlugin {
         return (new String(ret));
     }
 
-    private static ArrayList<String> logicalToVisual(ArrayList<String> text) {
-        ArrayList<String> ret = new ArrayList<String>();
+    private static List<String> logicalToVisual(List<String> text) {
+        List<String> ret = new ArrayList<String>();
 
         for (int i = 0; i < text.size(); i++) {
             ret.add(logicalToVisual(text.get(i)));
@@ -602,8 +602,8 @@ public class SratimPlugin extends ImdbPlugin {
         return src.replaceAll("\\<.*?>", "");
     }
 
-    protected ArrayList<String> removeHtmlTags(ArrayList<String> src) {
-        ArrayList<String> output = new ArrayList<String>();
+    protected List<String> removeHtmlTags(List<String> src) {
+        List<String> output = new ArrayList<String>();
 
         for (int i = 0; i < src.size(); i++) {
             output.add(removeHtmlTags(src.get(i)));

@@ -77,11 +77,11 @@ public class MovieJukebox {
     private static String bannerExtension;
     private static String fanartExtension;
     private static Integer footerCount;
-    private static ArrayList<String> footerName = new ArrayList<String>();
-    private static ArrayList<Boolean> footerEnable = new ArrayList<Boolean>();
-    private static ArrayList<Integer> footerWidth = new ArrayList<Integer>();
-    private static ArrayList<Integer> footerHeight = new ArrayList<Integer>();
-    private static ArrayList<String> footerExtension = new ArrayList<String>();
+    private static List<String> footerName = new ArrayList<String>();
+    private static List<Boolean> footerEnable = new ArrayList<Boolean>();
+    private static List<Integer> footerWidth = new ArrayList<Integer>();
+    private static List<Integer> footerHeight = new ArrayList<Integer>();
+    private static List<String> footerExtension = new ArrayList<String>();
     private static boolean fanartMovieDownload;
     private static boolean fanartTvDownload;
     private static boolean videoimageDownload;
@@ -481,11 +481,11 @@ public class MovieJukebox {
         for (final MediaLibraryPath mediaLibrary : mediaLibraryPaths) {
             String mediaLibraryRoot = mediaLibrary.getPath();
             logger.debug("Dumping media library " + mediaLibraryRoot);
-            File scan_dir = new File(mediaLibraryRoot);
-            if (scan_dir.isFile()) {
-                mediaLibraryRoot = scan_dir.getParentFile().getAbsolutePath();
+            File scanDir = new File(mediaLibraryRoot);
+            if (scanDir.isFile()) {
+                mediaLibraryRoot = scanDir.getParentFile().getAbsolutePath();
             } else {
-                mediaLibraryRoot = scan_dir.getAbsolutePath();
+                mediaLibraryRoot = scanDir.getAbsolutePath();
             }
             // Create library root dir into dump (keeping full path)
 

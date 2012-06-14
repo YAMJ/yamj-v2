@@ -12,22 +12,22 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import java.net.URLEncoder;
-
-import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.FilmUpITPlugin;
 import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.WebBrowser;
+import java.net.URLEncoder;
 import org.apache.log4j.Logger;
 
 public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
 
     private WebBrowser webBrowser;
     private static final Logger logger = Logger.getLogger(FilmUpItPosterPlugin.class);
+    private static final String logMessage = "FilmUpItPosterPlugin: ";
 
     public FilmUpItPosterPlugin() {
         super();
@@ -49,20 +49,18 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
             sb.append("&ul=%25%2Fsc_%25&x=0&y=0&m=any&wf=0020&wm=wrd&sy=0");
             String xml = webBrowser.request(sb.toString());
 
-            String FilmUpITStartResult;
-            String FilmUpITMediaPrefix;
-            FilmUpITStartResult = "<DT>1.";
-            FilmUpITMediaPrefix = "sc_";
+            String filmUpITStartResult = "<DT>1.";
+            String filmUpITMediaPrefix = "sc_";
 
-            for (String searchResult : HTMLTools.extractTags(xml, FilmUpITStartResult, "<DD>", FilmUpITMediaPrefix, ".htm", false)) {
+            for (String searchResult : HTMLTools.extractTags(xml, filmUpITStartResult, "<DD>", filmUpITMediaPrefix, ".htm", false)) {
                 return searchResult;
             }
 
-            logger.debug("FilmUpItPosterPlugin: No ID Found with request : " + sb.toString());
+            logger.debug(logMessage + "No ID Found with request : " + sb.toString());
             return Movie.UNKNOWN;
 
         } catch (Exception error) {
-            logger.error("FilmUpItPosterPlugin: Failed to retrieve FilmUp ID for movie : " + title);
+            logger.error(logMessage + "Failed to retrieve FilmUp ID for movie : " + title);
         }
         return response;
     }
@@ -70,7 +68,7 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
     @Override
     public IImage getPosterUrl(String id) {
         String posterURL = Movie.UNKNOWN;
-        String xml = "";
+        String xml;
 
         try {
             xml = webBrowser.request("http://filmup.leonardo.it/sc_" + id + ".htm");
@@ -81,11 +79,11 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
             String tmpPosterURL = HTMLTools.extractTag(xml, "\"../loc/", "\"");
             if (StringTools.isValidString(tmpPosterURL)) {
                 posterURL = "http://filmup.leonardo.it/posters/loc/" + tmpPosterURL;
-                logger.debug("FilmUpItPosterPlugin: Movie PosterURL : " + posterPageUrl);
+                logger.debug(logMessage + "Movie PosterURL : " + posterPageUrl);
             }
 
         } catch (Exception error) {
-            logger.error("FilmUpItPosterPlugin: Failed retreiving poster : " + id);
+            logger.error(logMessage + "Failed retreiving poster : " + id);
             logger.error(SystemTools.getStackTrace(error));
         }
 

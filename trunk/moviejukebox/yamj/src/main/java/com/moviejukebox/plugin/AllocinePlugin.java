@@ -18,8 +18,8 @@ import com.moviejukebox.allocine.jaxb.Tvseries;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.FanartScanner;
-import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.StringTools.*;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.List;
@@ -61,22 +61,22 @@ public class AllocinePlugin extends ImdbPlugin {
     @Override
     protected void updateTVShowInfo(Movie movie) {
 
-        String AllocineId = movie.getId(ALLOCINE_PLUGIN_ID);
-        if (!movie.isTVShow() || !movie.hasNewMovieFiles() || isNotValidString(AllocineId)) {
+        String allocineId = movie.getId(ALLOCINE_PLUGIN_ID);
+        if (!movie.isTVShow() || !movie.hasNewMovieFiles() || isNotValidString(allocineId)) {
             return;
         }
 
         try {
-            String cacheKey = CacheMemory.generateCacheKey(CACHE_SERIES, AllocineId);
+            String cacheKey = CacheMemory.generateCacheKey(CACHE_SERIES, allocineId);
             TvSeriesInfos tvSeriesInfos = (TvSeriesInfos) CacheMemory.getFromCache(cacheKey);
             if (tvSeriesInfos == null) {
-                tvSeriesInfos = allocineAPI.getTvSeriesInfos(AllocineId);
+                tvSeriesInfos = allocineAPI.getTvSeriesInfos(allocineId);
                 // Add to the cache
                 CacheMemory.addToCache(cacheKey, tvSeriesInfos);
             }
 
             if (tvSeriesInfos.isNotValid()) {
-                logger.error("AllocinePlugin: Can't find informations for TvShow with id: " + AllocineId);
+                logger.error("AllocinePlugin: Can't find informations for TvShow with id: " + allocineId);
                 return;
             }
 
@@ -183,7 +183,7 @@ public class AllocinePlugin extends ImdbPlugin {
                 }
             } catch (Exception e) {
                 logger.warn("AllocinePlugin: Can't find informations for season " + currentSeason
-                        + " for TvSeries with id " + AllocineId + " (" + movie.getBaseName() + ")");
+                        + " for TvSeries with id " + allocineId + " (" + movie.getBaseName() + ")");
             }
 
             // Call the TvDBPlugin to download fanart and/or videoimages
@@ -200,10 +200,10 @@ public class AllocinePlugin extends ImdbPlugin {
             }
         } catch (JAXBException error) {
             logger.error("AllocinePlugin: Failed retrieving allocine infos for TvShow "
-                    + AllocineId + ". Perhaps the allocine XML API has changed ...");
+                    + allocineId + ". Perhaps the allocine XML API has changed ...");
             logger.error(SystemTools.getStackTrace(error));
         } catch (Exception error) {
-            logger.error("AllocinePlugin: Failed retrieving allocine infos for TvShow : " + AllocineId);
+            logger.error("AllocinePlugin: Failed retrieving allocine infos for TvShow : " + allocineId);
             logger.error(SystemTools.getStackTrace(error));
         }
     }
@@ -242,11 +242,11 @@ public class AllocinePlugin extends ImdbPlugin {
      */
     private boolean updateMovieInfo(Movie movie) {
 
-        String AllocineId = movie.getId(ALLOCINE_PLUGIN_ID);
+        String allocineId = movie.getId(ALLOCINE_PLUGIN_ID);
 
-		MovieInfos movieInfos = getMovieInfos(AllocineId);
+		MovieInfos movieInfos = getMovieInfos(allocineId);
 		if (movieInfos == null) {
-		    logger.error("AllocinePlugin: Can't find informations for movie with id: " + AllocineId);
+		    logger.error("AllocinePlugin: Can't find informations for movie with id: " + allocineId);
 		    return false;
 		}
 

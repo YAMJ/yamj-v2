@@ -24,24 +24,21 @@ import org.apache.log4j.Logger;
  *
  * Copyright (2003) Mediterranean
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2, or any later version.
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either version 2, or any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place, Boston, MA 02111.
+ * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 59 Temple Place, Boston, MA 02111.
  *
  * Contact: mediterranean@users.sourceforge.net
  */
 public class DVDRipScanner {
 
     private static final Logger logger = Logger.getLogger(DVDRipScanner.class);
+    private static final String logMessage = "DVDRipScanner: ";
 
     public DVDRipScanner() {
     }
@@ -49,7 +46,7 @@ public class DVDRipScanner {
     public FilePropertiesMovie executeGetDVDInfo(File mediaRep) {
         try {
 
-            /* Gets the path... */
+            // Gets the path...
             File selectedFile = mediaRep;
 
             if (selectedFile.getName().equalsIgnoreCase("AUDIO_TS") || selectedFile.getName().equalsIgnoreCase("VIDEO_TS")) { //$NON-NLS-1$
@@ -58,17 +55,17 @@ public class DVDRipScanner {
 
             File[] list = selectedFile.listFiles();
 
-            String video_ts = "";
+            String videoTS = "";
 
-            for (int i = 0; i < list.length && !video_ts.equalsIgnoreCase("VIDEO_TS"); i++) {
-                video_ts = list[i].getName();
+            for (int i = 0; i < list.length && !videoTS.equalsIgnoreCase("VIDEO_TS"); i++) {
+                videoTS = list[i].getName();
             }
 
-            if (!video_ts.equalsIgnoreCase("VIDEO_TS")) {
+            if (!videoTS.equalsIgnoreCase("VIDEO_TS")) {
                 return null;
             }
 
-            selectedFile = new File(selectedFile.getAbsolutePath(), video_ts);
+            selectedFile = new File(selectedFile.getAbsolutePath(), videoTS);
 
             /* Get the ifo files */
             list = selectedFile.listFiles();
@@ -86,7 +83,7 @@ public class DVDRipScanner {
             File[] ifo = (File[]) ifoList.toArray(new File[ifoList.size()]);
 
             if (ifo == null || ifo.length == 0) {
-                logger.info("DVDRipScanner: No Ifo Found with disk format.");
+                logger.info(logMessage + "No Ifo Found with disk format.");
             } else {
 
                 int longestDuration = 0;
@@ -104,12 +101,12 @@ public class DVDRipScanner {
                         }
 
                     } catch (Exception error) {
-                        logger.debug("DVDRipScanner: Error when parsing file:" + ifo[i]);
+                        logger.debug(logMessage + "Error when parsing file:" + ifo[i]);
                     }
                 }
 
                 if (longestDurationIndex == -1) {
-                    logger.info("DVDRipScanner: Error retrieving file durations for IFO file, processing skipped.");
+                    logger.info(logMessage + "Error retrieving file durations for IFO file, processing skipped.");
                     return null;
                 } else {
                     return fileProperties[longestDurationIndex];

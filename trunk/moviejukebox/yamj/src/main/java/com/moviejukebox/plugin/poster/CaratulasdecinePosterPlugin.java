@@ -21,7 +21,7 @@ import com.moviejukebox.tools.WebBrowser;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
@@ -38,9 +38,9 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
         super();
 
         // Check to see if we are needed
-        if (!isNeeded()) {
-            return;
-        }
+//        if (!isNeeded()) {
+//            return;
+//        }
     }
 
     /**
@@ -55,7 +55,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
     private String getMovieId(String xml, String title) throws IOException {
         String movieId = Movie.UNKNOWN;
 
-        ArrayList<String> foundTitles = HTMLTools.extractTags(xml, SEARCH_START, SEARCH_END, TITLE_START, TITLE_END, false);
+        List<String> foundTitles = HTMLTools.extractTags(xml, SEARCH_START, SEARCH_END, TITLE_START, TITLE_END, false);
 
         for (String searchTitle : foundTitles) {
             String cleanTitle = HTMLTools.stripTags(searchTitle);

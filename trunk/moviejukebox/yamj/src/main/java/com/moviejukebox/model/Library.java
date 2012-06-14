@@ -516,27 +516,27 @@ public class Library implements Map<String, Movie> {
 
     protected static void compressSetMovies(List<Movie> movies, Index index, Map<String, Movie> masters, String indexName, String subIndexName) {
         // Construct an index that includes only the intersection of movies and index
-        Index in_movies = new Index();
-        for (Map.Entry<String, List<Movie>> index_entry : index.entrySet()) {
-            for (Movie m : index_entry.getValue()) {
+        Index inMovies = new Index();
+        for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
+            for (Movie m : indexEntry.getValue()) {
                 if (movies.contains(m)) {
-                    in_movies.addMovie(index_entry.getKey(), m);
+                    inMovies.addMovie(indexEntry.getKey(), m);
                 }
             }
         }
 
         // Now, for each list of movies in in_movies, if the list has more than the minSetCount movies
         // remove them all from the movies list, and insert the corresponding master
-        for (Map.Entry<String, List<Movie>> in_movies_entry : in_movies.entrySet()) {
-            List<Movie> lm = in_movies_entry.getValue();
-            if (lm.size() >= minSetCount && (!setsRequireAll || lm.size() == index.get(in_movies_entry.getKey()).size())) {
+        for (Map.Entry<String, List<Movie>> inMoviesEntry : inMovies.entrySet()) {
+            List<Movie> lm = inMoviesEntry.getValue();
+            if (lm.size() >= minSetCount && (!setsRequireAll || lm.size() == index.get(inMoviesEntry.getKey()).size())) {
                 boolean tvSet = keepTVExplodeSet && lm.get(0).isTVShow();
                 boolean explodeSet = categoriesExplodeSet.contains(indexName) || (indexName.equalsIgnoreCase(INDEX_OTHER) && categoriesExplodeSet.contains(subIndexName));
                 if (!beforeSortExplodeSet || !explodeSet || tvSet) {
                     movies.removeAll(lm);
                 }
                 if (!beforeSortExplodeSet || !explodeSet || tvSet || !removeExplodeSet) {
-                    movies.add(masters.get(in_movies_entry.getKey()));
+                    movies.add(masters.get(inMoviesEntry.getKey()));
                 }
             }
         }
@@ -1063,9 +1063,9 @@ public class Library implements Map<String, Movie> {
                     movie.addIndex(INDEX_SET, movie.getOriginalTitle());
                 }
 
-                for (String set_key : movie.getSetsKeys()) {
-                    index.addMovie(set_key, movie);
-                    movie.addIndex(INDEX_SET, set_key);
+                for (String setKey : movie.getSetsKeys()) {
+                    index.addMovie(setKey, movie);
+                    movie.addIndex(INDEX_SET, setKey);
                 }
             }
         }

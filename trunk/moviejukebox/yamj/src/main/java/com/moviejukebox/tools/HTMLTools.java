@@ -293,13 +293,13 @@ public class HTMLTools {
         DEFENSIVE_HTML_ENCODE_MAP.put('\u2665', "&hearts;");
         DEFENSIVE_HTML_ENCODE_MAP.put('\u2666', "&diams;");
 
-        Set<Map.Entry<Character, String>> aggresive_entries = AGGRESSIVE_HTML_ENCODE_MAP.entrySet();
-        for (Map.Entry<Character, String> entry : aggresive_entries) {
+        Set<Map.Entry<Character, String>> aggresiveEntries = AGGRESSIVE_HTML_ENCODE_MAP.entrySet();
+        for (Map.Entry<Character, String> entry : aggresiveEntries) {
             HTML_DECODE_MAP.put(entry.getValue(), entry.getKey());
         }
 
-        Set<Map.Entry<Character, String>> defensive_entries = DEFENSIVE_HTML_ENCODE_MAP.entrySet();
-        for (Map.Entry<Character, String> entry : defensive_entries) {
+        Set<Map.Entry<Character, String>> defensiveEntries = DEFENSIVE_HTML_ENCODE_MAP.entrySet();
+        for (Map.Entry<Character, String> entry : defensiveEntries) {
             HTML_DECODE_MAP.put(entry.getValue(), entry.getKey());
         }
     }
@@ -309,31 +309,31 @@ public class HTMLTools {
             return source;
         }
 
-        int current_index = 0;
-        int delimiter_start_index;
-        int delimiter_end_index;
+        int currentIndex = 0;
+        int delimiterStartIndex;
+        int delimiterEndIndex;
 
         StringBuilder result = null;
 
-        while (current_index <= source.length()) {
-            delimiter_start_index = source.indexOf('&', current_index);
-            if (delimiter_start_index != -1) {
-                delimiter_end_index = source.indexOf(';', delimiter_start_index + 1);
-                if (delimiter_end_index != -1) {
+        while (currentIndex <= source.length()) {
+            delimiterStartIndex = source.indexOf('&', currentIndex);
+            if (delimiterStartIndex != -1) {
+                delimiterEndIndex = source.indexOf(';', delimiterStartIndex + 1);
+                if (delimiterEndIndex != -1) {
                     // ensure that the string builder is setup correctly
                     if (null == result) {
                         result = new StringBuilder();
                     }
 
                     // add the text that leads up to this match
-                    if (delimiter_start_index > current_index) {
-                        result.append(new String(source.substring(current_index, delimiter_start_index)));
+                    if (delimiterStartIndex > currentIndex) {
+                        result.append(new String(source.substring(currentIndex, delimiterStartIndex)));
                     }
 
                     // add the decoded entity
-                    String entity = new String(source.substring(delimiter_start_index, delimiter_end_index + 1));
+                    String entity = new String(source.substring(delimiterStartIndex, delimiterEndIndex + 1));
 
-                    current_index = delimiter_end_index + 1;
+                    currentIndex = delimiterEndIndex + 1;
 
                     // try to decoded numeric entities
                     if (entity.charAt(1) == '#') {
@@ -371,8 +371,8 @@ public class HTMLTools {
 
         if (null == result) {
             return source;
-        } else if (current_index < source.length()) {
-            result.append(new String(source.substring(current_index)));
+        } else if (currentIndex < source.length()) {
+            result.append(new String(source.substring(currentIndex)));
         }
 
         return result.toString();
@@ -415,7 +415,7 @@ public class HTMLTools {
         return url;
     }
 
-    public static ArrayList<String> extractHtmlTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
+    public static List<String> extractHtmlTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
         ArrayList<String> tags = new ArrayList<String>();
         int index = src.indexOf(sectionStart);
         if (index == -1) {
@@ -509,19 +509,19 @@ public class HTMLTools {
         }
     }
 
-    public static ArrayList<String> extractTags(String src, String sectionStart) {
+    public static List<String> extractTags(String src, String sectionStart) {
         return extractTags(src, sectionStart, "</div>");
     }
 
-    public static ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd) {
+    public static List<String> extractTags(String src, String sectionStart, String sectionEnd) {
         return extractTags(src, sectionStart, sectionEnd, null, "|");
     }
 
-    public static ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
+    public static List<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
         return extractTags(src, sectionStart, sectionEnd, startTag, endTag, true);
     }
 
-    public static ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag, boolean forceCloseTag) {
+    public static List<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag, boolean forceCloseTag) {
         ArrayList<String> tags = new ArrayList<String>();
         int startIndex = src.indexOf(sectionStart);
         if (startIndex == -1) {
@@ -615,8 +615,8 @@ public class HTMLTools {
     }
 
     public static String stripTags(String s) {
-        Pattern strip_tags_regex = Pattern.compile("([^\\<]*)(?:\\<[^\\>]*\\>)?");
-        Matcher m = strip_tags_regex.matcher(s);
+        Pattern stripTagsRegex = Pattern.compile("([^\\<]*)(?:\\<[^\\>]*\\>)?");
+        Matcher m = stripTagsRegex.matcher(s);
 
         StringBuilder res = new StringBuilder();
         while (m.find()) {

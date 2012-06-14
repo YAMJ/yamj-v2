@@ -63,7 +63,7 @@ public class AnimatorPlugin extends ImdbPlugin {
         boolean retval = false;
         String animatorId = mediaFile.getId(ANIMATOR_PLUGIN_ID);
         if (StringTools.isNotValidString(animatorId)) {
-// It's better to remove everything after dash (-) before call of English plugins...
+            // It's better to remove everything after dash (-) before call of English plugins...
             final String previousTitle = mediaFile.getTitle();
             int dash = previousTitle.indexOf('-');
             if (dash != -1) {
@@ -71,18 +71,18 @@ public class AnimatorPlugin extends ImdbPlugin {
             }
 
             String year = mediaFile.getYear();
-// Let's replace dash (-) by space ( ) in Title.
+            // Let's replace dash (-) by space ( ) in Title.
             String name = mediaFile.getTitle();
             name = name.replace('-', ' ');
             animatorId = getAnimatorId(name, year, mediaFile.getSeason());
 
             if (StringTools.isValidString(year) && StringTools.isNotValidString(animatorId)) {
-// Trying without specifying the year
+                // Trying without specifying the year
                 animatorId = getAnimatorId(name, Movie.UNKNOWN, mediaFile.getSeason());
             }
             mediaFile.setId(ANIMATOR_PLUGIN_ID, animatorId);
         } else {
-// If ID is specified in NFO, set original title to unknown
+            // If ID is specified in NFO, set original title to unknown
             mediaFile.setTitle(Movie.UNKNOWN);
         }
 
@@ -122,16 +122,16 @@ public class AnimatorPlugin extends ImdbPlugin {
             String allmultsId = Movie.UNKNOWN;
 
             String sb = movieName;
-// Unaccenting letters
+            // Unaccenting letters
             sb = Normalizer.normalize(sb, Normalizer.Form.NFD);
-// Return simple letters 'й' & 'Й'
+            // Return simple letters 'й' & 'Й'
             sb = sb.replaceAll("И" + (char) 774, "Й");
             sb = sb.replaceAll("и" + (char) 774, "й");
             sb = sb.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 
             sb = "text=" + URLEncoder.encode(sb, "Cp1251").replace(" ", "+");
 
-// Get ID from animator.ru
+            // Get ID from animator.ru
             if (animatorDiscovery) {
                 String uri = "http://www.animator.ru/db/?p=search&SearchMask=1&" + sb;
                 if (StringTools.isValidString(year)) {
@@ -139,17 +139,17 @@ public class AnimatorPlugin extends ImdbPlugin {
                     uri = uri + "&year1=" + year;
                 }
                 String xml = webBrowser.request(uri);
-// Checking for zero results
+                // Checking for zero results
                 if (xml.indexOf("[соответствие фразы]") != -1) {
-// It's search results page, searching a link to the movie page
+                    // It's search results page, searching a link to the movie page
                     int beginIndex;
                     if (xml.indexOf("Найдено ") != -1) {
                         for (String tmp : HTMLTools.extractTags(xml, "Найдено ", "</td>", "<a href=", "<br><br>")) {
                             if (tmp.indexOf("[соответствие фразы]") >= 0) {
                                 beginIndex = tmp.indexOf(" г.)");
                                 if (beginIndex >= 0) {
-                                    String Year = new String(tmp.substring(beginIndex - 4, beginIndex));
-                                    if (Year.equals(year)) {
+                                    String year2 = new String(tmp.substring(beginIndex - 4, beginIndex));
+                                    if (year2.equals(year)) {
                                         beginIndex = tmp.indexOf("http://www.animator.ru/db/?p=show_film&fid=", beginIndex);
                                         if (beginIndex >= 0) {
                                             StringTokenizer st = new StringTokenizer(new String(tmp.substring(beginIndex + 43)), " ");
@@ -161,7 +161,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                             }
                         }
                         if (!animatorId.equals("") && !animatorId.equals(Movie.UNKNOWN)) {
-// Check if ID is integer
+                            // Check if ID is integer
                             try {
                                 Integer.parseInt(animatorId);
                             } catch (Exception ignore) {
@@ -172,7 +172,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 }
             }
 
-// Get ID from allmults.org
+            // Get ID from allmults.org
             if (multsDiscovery) {
                 URL url = new URL("http://allmults.org/search.php");
                 URLConnection conn = url.openConnection();
@@ -218,9 +218,9 @@ public class AnimatorPlugin extends ImdbPlugin {
                         if (pos != -1) {
                             int temp = tmp.indexOf(" alt=\"");
                             if (temp != -1) {
-                                String Year = new String(tmp.substring(temp + 6, tmp.indexOf("\"", temp + 6) - 1));
-                                Year = new String(Year.substring(Year.length() - 4));
-                                if (Year.equals(year)) {
+                                String year2 = new String(tmp.substring(temp + 6, tmp.indexOf("\"", temp + 6) - 1));
+                                year2 = new String(year2.substring(year2.length() - 4));
+                                if (year2.equals(year)) {
                                     temp = tmp.indexOf(" src=\"/images/multiki/");
                                     if (temp != -1) {
                                         allmultsId = new String(tmp.substring(temp + 22, tmp.indexOf(".jpg", temp + 22)));
@@ -264,29 +264,29 @@ public class AnimatorPlugin extends ImdbPlugin {
             String xml2 = "";
             if (!newAnimatorId.equals(Movie.UNKNOWN)) {
                 xml = "http://www.animator.ru/db/?p=show_film&fid=" + newAnimatorId;
-//logger.log(Level.SEVERE, "ANIMATOR URL: " + xml);
+                //logger.log(Level.SEVERE, "ANIMATOR URL: " + xml);
                 xml = webBrowser.request(xml);
             }
             if (!allmultsId.equals(Movie.UNKNOWN)) {
                 xml2 = "http://allmults.org/multik.php?id=" + allmultsId;
-//logger.log(Level.SEVERE, "ALLMULTS URL: " + xml2);
+                //logger.log(Level.SEVERE, "ALLMULTS URL: " + xml2);
                 xml2 = webBrowser.request(xml2);
             }
 
-// Work-around for issue #649
+            // Work-around for issue #649
             xml = xml.replace((CharSequence) "&#133;", (CharSequence) "&hellip;");
             xml = xml.replace((CharSequence) "&#151;", (CharSequence) "&mdash;");
             xml2 = xml2.replace((CharSequence) "&#133;", (CharSequence) "&hellip;");
             xml2 = xml2.replace((CharSequence) "&#151;", (CharSequence) "&mdash;");
 
             if (!newAnimatorId.equals(Movie.UNKNOWN)) {
-// Title (animator.ru)
+                // Title (animator.ru)
                 for (String tit : HTMLTools.extractTags(xml, "<td align=\"left\" class=\"FilmName\">", "</B>", "«", "»")) {
                     originalTitle = tit;
                     break;
                 }
             } else {
-// Title (allmults.org)
+                // Title (allmults.org)
                 for (String tit : HTMLTools.extractTags(xml2, "<b>Название:", "<b>", "", "<br>")) {
                     originalTitle = tit;
                     break;
@@ -294,7 +294,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             }
 
             StringBuilder plot = new StringBuilder();
-// Plot (animator.ru)
+            // Plot (animator.ru)
             if (!newAnimatorId.equals(Movie.UNKNOWN)) {
                 for (String subPlot : HTMLTools.extractTags(xml, "<td align=\"left\" class=\"FilmComments\"", "</td>")) {
                     if (!subPlot.isEmpty()) {
@@ -314,7 +314,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                     }
                 }
             }
-// Plot (allmults.org)
+            // Plot (allmults.org)
             if (plot.length() == 0 && !allmultsId.equals(Movie.UNKNOWN)) {
                 for (String subPlot : HTMLTools.extractTags(xml2, "Описание:", "<p class=\"postinfo\">", "<br", "</p>")) {
                     if (!subPlot.isEmpty()) {
@@ -335,8 +335,8 @@ public class AnimatorPlugin extends ImdbPlugin {
             newPlot = StringTools.trimToLength(newPlot, preferredPlotLength, true, plotEnding);
             movie.setPlot(newPlot);
 
-// Genre + Run time (animator.ru)
-//            String MultType = "";
+            // Genre + Run time (animator.ru)
+            // String MultType = "";
             String time = Movie.UNKNOWN;
             LinkedList<String> newGenres = new LinkedList<String>();
             newGenres.addFirst("мультфильм");
@@ -351,7 +351,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                     }
                 }
             }
-// Genre (allmults.org)
+            // Genre (allmults.org)
             if (newGenres.size() == 0 && !allmultsId.equals(Movie.UNKNOWN)) {
                 for (String tmp : HTMLTools.extractTags(xml2, "<b>Жанр:", "<b>", "", "<br>")) {
                     for (String temp : tmp.split(",")) {
@@ -361,7 +361,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                     }
                 }
             }
-// Run time (allmults.org)
+            // Run time (allmults.org)
             if (time.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
                 for (String tmp : HTMLTools.extractTags(xml2, "<b>Продолжительность:", "<b>", "", "<br>")) {
                     time = tmp;
@@ -374,24 +374,24 @@ public class AnimatorPlugin extends ImdbPlugin {
             Collection<String> newDirectors = new ArrayList<String>();
             Collection<String> newWriters = new ArrayList<String>();
             Collection<String> newCast = new ArrayList<String>();
-// Director, Writers, Cast (animator.ru)
+            // Director, Writers, Cast (animator.ru)
             for (String item : HTMLTools.extractTags(xml, "<table cellpadding=0 cellspacing=0 width=380", "</table>", "<tr>", "</tr>")) {
                 item = "<td>" + item + "</tr>";
-// Director
+                // Director
                 for (String tmp : HTMLTools.extractTags(item, ">режиссер", "</tr>", "<td class=\"PersonsList\"", "</td>")) {
                     for (String writer : HTMLTools.extractTags(tmp, "<span class=\"MiddleLinks\"", "</span>")) {
                         newDirectors.add(writer);
                     }
                 }
 
-// Writers
+                // Writers
                 for (String tmpWriter : HTMLTools.extractTags(item, ">сценарист", "</tr>", "<td class=\"PersonsList\"", "</td>")) {
                     for (String writer : HTMLTools.extractTags(tmpWriter, "<span class=\"MiddleLinks\"", "</span>")) {
                         newWriters.add(writer);
                     }
                 }
 
-// Cast
+                // Cast
                 for (String actor : HTMLTools.extractTags(item, ">роли озвучивали", "</tr>", "<nobr", "</nobr>")) {
                     String act = "";
                     for (String tmpAct : HTMLTools.extractTags(actor, "<span class=\"MiddleLinks\"", "</span>")) {
@@ -419,7 +419,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                     }
                 }
             }
-// Director (allmults.org)
+            // Director (allmults.org)
             if (newDirectors.isEmpty() && !allmultsId.equals(Movie.UNKNOWN)) {
                 for (String tmp : HTMLTools.extractTags(xml2, "<b>Режиссер:", "<p ", "", "</p>")) {
                     if (!tmp.equals("")) {
@@ -437,27 +437,27 @@ public class AnimatorPlugin extends ImdbPlugin {
                 movie.setCast(newCast);
             }
 
-            String Country = Movie.UNKNOWN;
-            String Year = Movie.UNKNOWN;
-// Year + Country (animator.ru)
+            String country = Movie.UNKNOWN;
+            String year2 = Movie.UNKNOWN;
+            // Year + Country (animator.ru)
             for (String year : HTMLTools.extractTags(xml, "p=films&year=", " г.</span>")) {
-                Country = (Integer.parseInt(year) > 1990) ? "Россия" : "СССР";
-                Year = year;
+                country = (Integer.parseInt(year) > 1990) ? "Россия" : "СССР";
+                year2 = year;
                 break;
             }
-// Year (allmults.org)
-            if (Year.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
+            // Year (allmults.org)
+            if (year2.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
                 for (String tmp : HTMLTools.extractTags(xml2, "<b>Год:", "<br>", "<a href=", "</a>")) {
                     if (!tmp.equals("")) {
-                        Year = tmp;
+                        year2 = tmp;
                     }
                 }
             }
-// Country (allmults.org)
-            if (Country.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
+            // Country (allmults.org)
+            if (country.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
                 for (String tmp : HTMLTools.extractTags(xml2, "<b>Страна:", "<br>", "<a href=", "</a>")) {
                     if (!tmp.equals("")) {
-                        Country = tmp;
+                        country = tmp;
                     }
                 }
             }
@@ -469,17 +469,17 @@ public class AnimatorPlugin extends ImdbPlugin {
 //                Country = "USSR";
 //            }
 
-            movie.setYear(Year);
-            movie.setCountry(Country);
+            movie.setYear(year2);
+            movie.setCountry(country);
 
-// Company
-            String Company = Movie.UNKNOWN;
+            // Company
+            String company = Movie.UNKNOWN;
             for (String comp : HTMLTools.extractTags(xml, "onclick=\"showStudia", "</span>")) {
-                Company = comp;
+                company = comp;
             }
-            movie.setCompany(Company);
+            movie.setCompany(company);
 
-// Poster + Fanart (animator.ru)
+            // Poster + Fanart (animator.ru)
             String posterURL = Movie.UNKNOWN;
             if (!newAnimatorId.equals(Movie.UNKNOWN)) {
                 int tmp = xml.indexOf("<img src=\"../film_img/");
@@ -494,7 +494,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                     }
                 }
             }
-// Poster (allmults.org)
+            // Poster (allmults.org)
             if (posterURL.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
                 posterURL = "http://allmults.org/images/multiki/" + allmultsId + ".jpg";
             }
@@ -504,7 +504,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 movie.setPosterFilename(movie.getBaseName() + ".jpg");
             }
 
-// Finally set title
+            // Finally set title
             movie.setTitle(originalTitle);
         } catch (Exception error) {
             logger.error("Failed retreiving movie data from Animator : " + animatorId);
