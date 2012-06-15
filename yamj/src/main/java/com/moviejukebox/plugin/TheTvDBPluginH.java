@@ -32,6 +32,7 @@ import org.pojava.datetime.DateTime;
 
 /**
  * TheTVDBPlugin with added hibernate code
+ *
  * @author Stuart.Boston
  */
 public class TheTvDBPluginH extends ImdbPlugin {
@@ -43,9 +44,9 @@ public class TheTvDBPluginH extends ImdbPlugin {
     private static final String defaultLanguage = "en";
     public static final String CACHE_SERIES = "Series";
     public static final String CACHE_BANNERS = "Banners";
-    private static TheTVDB tvDB;
-    private static String language;
-    private static String language2nd;
+    private static TheTVDB tvDB = new TheTVDB(API_KEY);
+    private static String language = PropertiesUtil.getProperty("thetvdb.language", defaultLanguage);
+    private static String language2nd = initLanguage2();
     private boolean forceBannerOverwrite;
     private boolean forceFanartOverwrite;
     private boolean includeEpisodePlots;
@@ -60,13 +61,6 @@ public class TheTvDBPluginH extends ImdbPlugin {
 
     public TheTvDBPluginH() {
         super();
-        tvDB = new TheTVDB(API_KEY);
-        language = PropertiesUtil.getProperty("thetvdb.language", defaultLanguage);
-        language2nd = PropertiesUtil.getProperty("thetvdb.language.secondary", defaultLanguage);
-        // We do not need use the same secondary language... So clearing when equal.
-        if (language2nd.equalsIgnoreCase(language)) {
-            language2nd = "";
-        }
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
         includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
@@ -86,6 +80,15 @@ public class TheTvDBPluginH extends ImdbPlugin {
 
         // Set the timeout values
         tvDB.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+    }
+
+    private static String initLanguage2() {
+        String lang = PropertiesUtil.getProperty("thetvdb.language.secondary", defaultLanguage).trim();
+        // We do not need use the same secondary language... So clearing when equal.
+        if (lang.equalsIgnoreCase(language)) {
+            lang = "";
+        }
+        return lang;
     }
 
     @Override

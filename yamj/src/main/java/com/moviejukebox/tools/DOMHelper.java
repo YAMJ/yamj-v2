@@ -175,7 +175,7 @@ public class DOMHelper {
      * @throws ParserConfigurationException
      * @throws SAXException
      */
-    public static Document getDocFromFile(File xmlFile) throws MalformedURLException, ParserConfigurationException, SAXException, IOException {
+    public static Document getDocFromFile(File xmlFile) throws ParserConfigurationException, SAXException, IOException {
         URL url = xmlFile.toURI().toURL();
         InputStream in = url.openStream();
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

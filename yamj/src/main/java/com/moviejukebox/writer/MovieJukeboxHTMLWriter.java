@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 public class MovieJukeboxHTMLWriter {
 
     private static final Logger logger = Logger.getLogger(MovieJukeboxHTMLWriter.class);
+    private static final String logMessage = "HTMLWriter: ";
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";
     private static final String EXT_XSL = ".xsl";
@@ -113,13 +114,13 @@ public class MovieJukeboxHTMLWriter {
 
                         doTransform(transformer, xmlSource, xmlResult, "Movie: " + movie.getBaseFilename());
                     } else {
-                        logger.error("HTMLWriter: Unable to transform XML for video " + movie.getBaseFilename() + " source: " + (xmlSource == null ? true : false)
+                        logger.error(logMessage + "Unable to transform XML for video " + movie.getBaseFilename() + " source: " + (xmlSource == null ? true : false)
                                 + " result: " + (xmlResult == null ? true : false));
                     }
                 }
             }
         } catch (Exception error) {
-            logger.error("HTMLWriter: Failed generating HTML for movie " + movie.getBaseFilename());
+            logger.error(logMessage + "Failed generating HTML for movie " + movie.getBaseFilename());
             logger.error(SystemTools.getStackTrace(error));
         }
     }
@@ -161,13 +162,13 @@ public class MovieJukeboxHTMLWriter {
                         Transformer transformer = getTransformer(skinFile, jukebox.getJukeboxRootLocationDetails());
                         doTransform(transformer, xmlSource, xmlResult, "Person: " + person.getName());
                     } else {
-                        logger.error("HTMLWriter: Unable to transform XML for person " + person.getName() + " source: " + (xmlSource == null ? true : false)
+                        logger.error(logMessage + "Unable to transform XML for person " + person.getName() + " source: " + (xmlSource == null ? true : false)
                                 + " result: " + (xmlResult == null ? true : false));
                     }
                 }
             }
         } catch (Exception error) {
-            logger.error("HTMLWriter: Failed generating HTML for person " + person.getName());
+            logger.error(logMessage + "Failed generating HTML for person " + person.getName());
             logger.error(SystemTools.getStackTrace(error));
         }
     }
@@ -212,7 +213,7 @@ public class MovieJukeboxHTMLWriter {
             }
             if (partCount > 0) {
                 // Note this will skip playlist generation for any movie that has an "mjb.playlist.ignoreextensions" entry.
-                logger.debug("HTMLWriter: Playlist for " + movie.getTitle() + " skipped - All parts are in mjb.playlist.IgnoreExtensions");
+                logger.debug(logMessage + "Playlist for " + movie.getTitle() + " skipped - All parts are in mjb.playlist.IgnoreExtensions");
                 return fileNames;
             } // Issue 884
 
@@ -237,7 +238,7 @@ public class MovieJukeboxHTMLWriter {
                 fileNames.add(baseName + filenameSuffix);
             }
         } catch (Exception error) {
-            logger.error("HTMLWriter: Failed generating playlist for movie " + movie);
+            logger.error(logMessage + "Failed generating playlist for movie " + movie);
             logger.error(SystemTools.getStackTrace(error));
         }
 
@@ -250,7 +251,7 @@ public class MovieJukeboxHTMLWriter {
                     }
                 }
             } catch (Exception error) {
-                logger.error("HTMLWriter: Failed generating playlist for movie " + movie);
+                logger.error(logMessage + "Failed generating playlist for movie " + movie);
                 logger.error(SystemTools.getStackTrace(error));
             }
         }
@@ -259,8 +260,9 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Remove blank lines from the file The PCH does not like blank lines in the playlist.jsp files, so this routine will remove them This routine is only
-     * called for the base playlist as this is transformed with the playlist.xsl file and therefore could end up with blank lines in it
+     * Remove blank lines from the file The PCH does not like blank lines in the playlist.jsp files, so this routine
+     * will remove them This routine is only called for the base playlist as this is transformed with the playlist.xsl
+     * file and therefore could end up with blank lines in it
      *
      * @param filename
      */
@@ -285,7 +287,7 @@ public class MovieJukeboxHTMLWriter {
             outFile.flush();
 
         } catch (Exception error) {
-            logger.debug("HTMLWriter: Failed deleting blank lines from " + filename);
+            logger.debug(logMessage + "Failed deleting blank lines from " + filename);
             logger.error(SystemTools.getStackTrace(error));
         } finally {
             try {
@@ -307,7 +309,8 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Generate playlist with old simple method. The playlist is to be used for playing episodes starting from each episode separately.
+     * Generate playlist with old simple method. The playlist is to be used for playing episodes starting from each
+     * episode separately.
      *
      * @param rootPath
      * @param tempRootPath
@@ -378,7 +381,7 @@ public class MovieJukeboxHTMLWriter {
                 homePage = FileTools.createPrefix("Other", HTMLTools.encodeUrl(FileTools.makeSafeFilename(defCat))) + "1";
             } else {
                 // figure out something better to do here
-                logger.info("HTMLWriter: No categories were found, so you should specify mjb.homePage in the config file.");
+                logger.info(logMessage + "No categories were found, so you should specify mjb.homePage in the config file.");
             }
         }
 
@@ -415,7 +418,7 @@ public class MovieJukeboxHTMLWriter {
 
             doTransform(transformer, xmlSource, xmlResult, "Jukebox index");
         } catch (Exception error) {
-            logger.error("HTMLWriter: Failed generating jukebox index.");
+            logger.error(logMessage + "Failed generating jukebox index.");
             logger.error(SystemTools.getStackTrace(error));
         }
     }
@@ -442,7 +445,7 @@ public class MovieJukeboxHTMLWriter {
                     homePage = FileTools.createPrefix("Other", HTMLTools.encodeUrl(FileTools.makeSafeFilename(defCat))) + "1";
                 } else {
                     // figure out something better to do here
-                    logger.info("HTMLWriter: No categories were found, so you should specify mjb.homePage in the config file.");
+                    logger.info(logMessage + "No categories were found, so you should specify mjb.homePage in the config file.");
                 }
             }
 
@@ -470,7 +473,7 @@ public class MovieJukeboxHTMLWriter {
             writer.close();
             fos.close();
         } catch (Exception error) {
-            logger.error("HTMLWriter: Failed generating HTML library index.");
+            logger.error(logMessage + "Failed generating HTML library index.");
             logger.error(SystemTools.getStackTrace(error));
         }
     }
@@ -508,16 +511,16 @@ public class MovieJukeboxHTMLWriter {
             doTransform(transformer, xmlSource, xmlResult, "Playlist generation");
 
         } catch (Exception error) {
-            logger.error("HTMLWriter: Failed generating HTML library category index.");
+            logger.error(logMessage + "Failed generating HTML library category index.");
             logger.error(SystemTools.getStackTrace(error));
         }
     }
 
-    public void generateMoviesIndexHTML(final Jukebox jukebox, final Library library, ThreadExecutor<Void> tasks) throws InterruptedException, Throwable {
+    public void generateMoviesIndexHTML(final Jukebox jukebox, final Library library, ThreadExecutor<Void> tasks) throws Throwable {
         tasks.restart();
         for (final IndexInfo idx : library.getGeneratedIndexes()) {
             if (idx.canSkip) { // this is evaluated during XML indexing
-                logger.debug("HTMLWriter: Category " + idx.categoryName + " " + idx.key + " no change detected, skipping HTML generation.");
+                logger.debug(logMessage + "Category " + idx.categoryName + " " + idx.key + " no change detected, skipping HTML generation.");
 
                 // Add the index files to the cache so they aren't deleted
                 for (int page = 1; page <= idx.pages; page++) {
@@ -525,9 +528,8 @@ public class MovieJukeboxHTMLWriter {
                     FileTools.addJukeboxFile(idx.baseName + page + EXT_HTML);
                 }
             } else {
-                logger.debug("HTMLWriter: Category " + idx.categoryName + " " + idx.key + " generate HTML.");
+                logger.debug(logMessage + "Category " + idx.categoryName + " " + idx.key + " generate HTML.");
                 tasks.submit(new Callable<Void>() {
-
                     @Override
                     public Void call() {
                         for (int page = 1; page <= idx.pages; page++) {
@@ -540,10 +542,9 @@ public class MovieJukeboxHTMLWriter {
         }
 
         tasks.waitFor();
-
     }
 
-    private void writeSingleIndexPage(Jukebox jukebox, IndexInfo idx, int page) throws TransformerFactoryConfigurationError {
+    private void writeSingleIndexPage(Jukebox jukebox, IndexInfo idx, int page) {
         try {
             File detailsDir = jukebox.getJukeboxTempLocationDetailsFile();
             detailsDir.mkdirs();
@@ -571,10 +572,10 @@ public class MovieJukeboxHTMLWriter {
                 Transformer transformer;
 
                 if (transformCatKey.exists()) {
-                    logger.debug("HTMLWriter: Using CategoryKey transformation " + transformCatKey.getName() + " for " + xmlFile.getName());
+                    logger.debug(logMessage + "Using CategoryKey transformation " + transformCatKey.getName() + " for " + xmlFile.getName());
                     transformer = getTransformer(transformCatKey, jukebox.getJukeboxTempLocationDetails());
                 } else if (transformCategory.exists()) {
-                    logger.debug("HTMLWriter: Using Category transformation " + transformCategory.getName() + " for " + xmlFile.getName());
+                    logger.debug(logMessage + "Using Category transformation " + transformCategory.getName() + " for " + xmlFile.getName());
                     transformer = getTransformer(transformCategory, jukebox.getJukeboxTempLocationDetails());
                 } else {
                     transformer = getTransformer(transformBase, jukebox.getJukeboxTempLocationDetails());
@@ -587,7 +588,7 @@ public class MovieJukeboxHTMLWriter {
                 doTransform(transformer, xmlSource, xmlResult, "Category page");
             }
         } catch (Exception error) {
-            logger.error("HTMLWriter: Failed generating HTML library index for Category: " + idx.categoryName + ", Key: " + idx.key + ", Page: " + page);
+            logger.error(logMessage + "Failed generating HTML library index for Category: " + idx.categoryName + ", Key: " + idx.key + ", Page: " + page);
             logger.error(SystemTools.getStackTrace(error));
         }
     }
@@ -631,10 +632,11 @@ public class MovieJukeboxHTMLWriter {
 
     /**
      * Try to safely perform the transformation. Will retry up to maxRetryCount times before throwing the error
+     *
      * @param transformer
      * @param xmlSource
      * @param xmlResult
-     * @param message   Message to print if there is an error
+     * @param message Message to print if there is an error
      * @throws Exception
      */
     private void doTransform(Transformer transformer, Source xmlSource, Result xmlResult, String message) throws Exception {
@@ -651,7 +653,7 @@ public class MovieJukeboxHTMLWriter {
                     // We've exceeded the maximum number of retries, so throw the exception and quit
                     throw new Exception(ex);
                 } else {
-                    logger.debug("HTMLWriter: Failed generating HTML, will retry "
+                    logger.debug(logMessage + "Failed generating HTML, will retry "
                             + retryTimes + " more time" + (retryTimes == 1 ? ". " : "s. ") + message);
                     Thread.sleep(500);  // Sleep for 1/2 second to hopefully let the issue go away
                 }

@@ -22,7 +22,7 @@ import java.util.List;
 public class CertificationComparator implements Comparator<String>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private List<String> ordering = null;
+    private transient List<String> ordering = null;
 
     public CertificationComparator(List<String> ordering) {
         this.ordering = ordering;

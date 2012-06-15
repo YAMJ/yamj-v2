@@ -911,7 +911,7 @@ public class SratimPlugin extends ImdbPlugin {
         }
     }
 
-    protected void updateTVShowInfo(Movie movie, String mainXML) throws MalformedURLException, IOException {
+    protected void updateTVShowInfo(Movie movie, String mainXML) throws IOException {
         scanTVShowTitles(movie, mainXML);
     }
 

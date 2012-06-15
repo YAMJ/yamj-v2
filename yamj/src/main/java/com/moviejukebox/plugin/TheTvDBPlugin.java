@@ -12,7 +12,6 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.tools.cache.CacheMemory;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;
@@ -23,8 +22,9 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.*;
-import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.StringTools.*;
+import com.moviejukebox.tools.cache.CacheMemory;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -43,9 +43,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private static final String defaultLanguage = "en";
     public static final String CACHE_SERIES = "Series";
     public static final String CACHE_BANNERS = "Banners";
-    private static TheTVDB tvDB;
-    private static String language;
-    private static String language2nd;
+    private static TheTVDB tvDB = new TheTVDB(API_KEY);
+    private static String language = PropertiesUtil.getProperty("thetvdb.language", defaultLanguage).trim();
+    private static String language2nd = initLanguage2();
     private boolean forceBannerOverwrite;
     private boolean forceFanartOverwrite;
     private boolean includeEpisodePlots;
@@ -60,13 +60,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     public TheTvDBPlugin() {
         super();
-        tvDB = new TheTVDB(API_KEY);
-        language = PropertiesUtil.getProperty("thetvdb.language", defaultLanguage).trim();
-        language2nd = PropertiesUtil.getProperty("thetvdb.language.secondary", defaultLanguage).trim();
-        // We do not need use the same secondary language... So clearing when equal.
-        if (language2nd.equalsIgnoreCase(language)) {
-            language2nd = "";
-        }
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
         includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
@@ -86,6 +79,15 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
         // Set the timeout values
         tvDB.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+    }
+
+    private static String initLanguage2() {
+        String lang = PropertiesUtil.getProperty("thetvdb.language.secondary", defaultLanguage).trim();
+        // We do not need use the same secondary language... So clearing when equal.
+        if (lang.equalsIgnoreCase(language)) {
+            lang = "";
+        }
+        return lang;
     }
 
     @Override

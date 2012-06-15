@@ -27,22 +27,17 @@ public class TrailerScanner {
 
     private static final Logger logger = Logger.getLogger(TrailerScanner.class);
     private static final String logMessage = "TrailersScanner: ";
-    private static long trailersRescanDaysMillis;
+    private static final long MILLIS_IN_DAY = 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
+    // Convert trailers.rescan.days from DAYS to MILLISECONDS for comparison purposes
+    private static long trailersRescanDaysMillis = ((long) PropertiesUtil.getIntProperty("trailers.rescan.days", "15")) * MILLIS_IN_DAY;
     private static boolean trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
-    private static String trailersScanner;
-    private static String trailerPluginList = Movie.UNKNOWN;
+    private static String trailersScanner = PropertiesUtil.getProperty("trailers.scanner", "apple");
+    private String trailerPluginList = Movie.UNKNOWN;
     private static final Map<String, ITrailersPlugin> trailerPlugins = Collections.synchronizedMap(new HashMap<String, ITrailersPlugin>());
-    private static TrailersPlugin trailersPlugin;
+    private static TrailersPlugin trailersPlugin = new TrailersPlugin();
 
     public TrailerScanner() {
-        trailersRescanDaysMillis = PropertiesUtil.getIntProperty("trailers.rescan.days", "15");
-        // Convert trailers.rescan.days from DAYS to MILLISECONDS for comparison purposes
-        trailersRescanDaysMillis *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
-
         if (trailersScannerEnable) {
-            trailersScanner = PropertiesUtil.getProperty("trailers.scanner", "apple");
-            trailersPlugin = new TrailersPlugin();
-
             synchronized (trailerPlugins) {
                 ServiceLoader<ITrailersPlugin> trailerPluginsSet = ServiceLoader.load(ITrailersPlugin.class);
 
@@ -56,8 +51,7 @@ public class TrailerScanner {
     }
 
     /**
-     * This function will check movie trailers and return true if trailers needs
-     * to be re-scanned.
+     * This function will check movie trailers and return true if trailers needs to be re-scanned.
      *
      * @param movie
      * @return

@@ -26,8 +26,8 @@ import java.util.Map;
 public class IndexComparator implements Comparator<Map.Entry<String, List<Movie>>>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private Library library = null;
-    private String categoryName = null;
+    private transient Library library = null;
+    private transient String categoryName = null;
 
     public IndexComparator(Library library, String categoryName) {
         this.library = library;

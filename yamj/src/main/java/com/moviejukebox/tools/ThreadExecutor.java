@@ -172,7 +172,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
         ((ScheduledThread) Thread.currentThread()).enterIO(url);
     }
 
-    static public void enterIO(String url) {
+    public static void enterIO(String url) {
         URL u;
         try {
             u = new URL(url);

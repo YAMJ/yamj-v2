@@ -18,10 +18,9 @@ import java.io.Serializable;
 import org.apache.log4j.Logger;
 
 /**
- * Utility class to provide a caching mechanism for data across threads
- * Initially this will be stored in memory, but ideally should be cached to a
- * database Many sites provide a "last modified" date/time attribute, so we
- * should consider also caching that in the database
+ * Utility class to provide a caching mechanism for data across threads Initially this will be stored in memory, but
+ * ideally should be cached to a database Many sites provide a "last modified" date/time attribute, so we should
+ * consider also caching that in the database
  *
  * @author Stuart.Boston
  *
@@ -31,6 +30,10 @@ public class CacheDB {
     private static final Logger logger = Logger.getLogger(CacheDB.class);
     private static boolean cacheEnabled = initCacheState();
 
+    public CacheDB() {
+        throw new IllegalArgumentException("Class cannot be initalised!");
+    }
+
     public static boolean initCacheState() {
         boolean isEnabled = PropertiesUtil.getBooleanProperty("mjb.cache", "true");
         logger.debug("Cache state is " + (isEnabled ? "enabled" : "disabled"));
@@ -38,8 +41,7 @@ public class CacheDB {
     }
 
     /**
-     * Add an item to the cache. If the item currently exists in the cache it
-     * will be removed before being added.
+     * Add an item to the cache. If the item currently exists in the cache it will be removed before being added.
      *
      * @param key
      * @param value

@@ -15,6 +15,7 @@ package com.moviejukebox.tools.cache;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
 
@@ -30,10 +31,10 @@ public class CacheMemory {
 
     private static final ConcurrentHashMap<String, Object> mjbCache = new ConcurrentHashMap<String, Object>();
     private static final Logger logger = Logger.getLogger(CacheMemory.class);
-    private static boolean cacheEnabled = true;
+    private static boolean cacheEnabled = initCacheState();
 
     public CacheMemory() {
-        setCacheState(PropertiesUtil.getBooleanProperty("mjb.cache", "true"));
+        throw new IllegalArgumentException("Class cannot be initalised!");
     }
 
     /**
@@ -131,7 +132,7 @@ public class CacheMemory {
      *
      * @return cache key
      */
-    public static String generateCacheKey(ArrayList<String> cacheKeys) {
+    public static String generateCacheKey(List<String> cacheKeys) {
         if (!cacheEnabled) {
             return "";
         }
@@ -152,6 +153,10 @@ public class CacheMemory {
      */
     public static void setCacheState(boolean cacheState) {
         cacheEnabled = cacheState;
+    }
+
+    public static boolean initCacheState() {
+        return PropertiesUtil.getBooleanProperty("mjb.cache", "true");
     }
 
     /**

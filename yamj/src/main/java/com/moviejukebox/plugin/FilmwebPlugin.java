@@ -20,7 +20,6 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -389,7 +388,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         }
     }
 
-    protected void updateTVShowInfo(Movie movie, String mainXML) throws MalformedURLException, IOException {
+    protected void updateTVShowInfo(Movie movie, String mainXML) throws IOException {
         scanTVShowTitles(movie, mainXML);
     }
 
