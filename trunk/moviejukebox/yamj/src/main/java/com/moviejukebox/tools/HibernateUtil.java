@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.tools.cache.CacheInitializer;
 import java.io.Serializable;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;

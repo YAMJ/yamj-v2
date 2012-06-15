@@ -21,6 +21,7 @@ import java.util.Comparator;
  */
 public class MovieRatingComparator implements Comparator<Movie>, Serializable {
 
+    private static final long serialVersionUID = 1L;
     private boolean ascending;
 
     public MovieRatingComparator() {

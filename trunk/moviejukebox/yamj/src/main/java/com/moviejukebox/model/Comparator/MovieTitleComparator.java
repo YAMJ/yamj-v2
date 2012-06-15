@@ -18,6 +18,7 @@ import java.util.Comparator;
 
 public class MovieTitleComparator implements Comparator<Movie>, Serializable {
 
+    private static final long serialVersionUID = 1L;
     private boolean ascending;
 
     public MovieTitleComparator() {

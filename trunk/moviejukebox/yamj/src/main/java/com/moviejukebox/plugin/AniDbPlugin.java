@@ -1,4 +1,5 @@
 /*
+/*
  *      Copyright (c) 2004-2012 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
  *
@@ -32,12 +33,12 @@ import com.moviejukebox.model.Person;
 import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.Banners;
 import com.moviejukebox.thetvdb.model.Series;
-import com.moviejukebox.tools.CacheMemory;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import static com.moviejukebox.tools.StringTools.cleanString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.cache.CacheMemory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

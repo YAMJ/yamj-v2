@@ -12,11 +12,13 @@
  */
 package com.moviejukebox.model.Comparator;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Map;
 
-public class ValueComparator implements Comparator<Object> {
+public class ValueComparator implements Comparator<Object>, Serializable {
 
+    private static final long serialVersionUID = 1L;
     private Map<String, Integer> base;
 
     public ValueComparator(Map<String, Integer> base) {

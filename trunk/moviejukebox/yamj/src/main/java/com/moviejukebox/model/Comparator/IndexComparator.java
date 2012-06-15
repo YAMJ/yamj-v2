@@ -15,6 +15,7 @@ package com.moviejukebox.model.Comparator;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.FileTools;
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -22,8 +23,9 @@ import java.util.Map;
 /**
  * @author ilgizar
  */
-public class IndexComparator implements Comparator<Map.Entry<String, List<Movie>>> {
+public class IndexComparator implements Comparator<Map.Entry<String, List<Movie>>>, Serializable {
 
+    private static final long serialVersionUID = 1L;
     private Library library = null;
     private String categoryName = null;
 

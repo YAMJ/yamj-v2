@@ -20,6 +20,7 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.*;
 import static com.moviejukebox.tools.StringTools.*;
+import com.moviejukebox.tools.cache.CacheMemory;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.List;
@@ -211,23 +212,23 @@ public class AllocinePlugin extends ImdbPlugin {
     /**
      * Get Movie Informations from Allocine ID
 	 *
-     * @param  AllocineId   The allocine ID of the Movie
+     * @param  allocineId   The allocine ID of the Movie
      * @return              The MovieInfo object
      */
-    public MovieInfos getMovieInfos(String AllocineId) {
+    public MovieInfos getMovieInfos(String allocineId) {
         MovieInfos movieInfos;
 
-        String cacheKey = CacheMemory.generateCacheKey(CACHE_MOVIE, AllocineId);
+        String cacheKey = CacheMemory.generateCacheKey(CACHE_MOVIE, allocineId);
         movieInfos = (MovieInfos) CacheMemory.getFromCache(cacheKey);
         if (movieInfos == null) {
             try {
-                movieInfos = allocineAPI.getMovieInfos(AllocineId);
+                movieInfos = allocineAPI.getMovieInfos(allocineId);
             } catch (JAXBException error) {
                 logger.error("AllocinePlugin: Failed retrieving allocine infos for movie "
-                            + AllocineId + ". Perhaps the allocine XML API has changed ...");
+                            + allocineId + ". Perhaps the allocine XML API has changed ...");
                 logger.error(SystemTools.getStackTrace(error));
             } catch (Exception error) {
-                logger.error("AllocinePlugin: Failed retrieving allocine infos for movie : " + AllocineId);
+                logger.error("AllocinePlugin: Failed retrieving allocine infos for movie : " + allocineId);
                 logger.error(SystemTools.getStackTrace(error));
             }
             // Add to the cache

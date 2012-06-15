@@ -10,7 +10,7 @@
  *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
  */
-package com.moviejukebox.tools;
+package com.moviejukebox.tools.cache;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;

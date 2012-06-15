@@ -723,9 +723,9 @@ public class FileTools {
      *
      * @author Gabriel Corneanu
      */
-    @SuppressWarnings("serial")
     public static class FileEx extends File {
 
+        private static final long serialVersionUID = 1L;
         private volatile Boolean _isdir = null;
         private volatile Boolean _exists = null;
         private volatile Boolean _isfile = null;

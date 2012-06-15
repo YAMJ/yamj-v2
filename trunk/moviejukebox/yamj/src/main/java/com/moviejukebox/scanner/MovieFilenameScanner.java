@@ -40,9 +40,10 @@ import org.apache.log4j.Logger;
  * @author quickfinga
  * @author artem.gratchev
  */
-public class MovieFilenameScanner {
+public final class MovieFilenameScanner {
 
     private static final Logger logger = Logger.getLogger(MovieFilenameScanner.class);
+    private static final String logMessage = "MovieFilenameScanner: ";
     private static boolean skipEpisodeTitle;
     private static boolean useParentRegex;
     private static boolean archiveScanRar;
@@ -63,11 +64,11 @@ public class MovieFilenameScanner {
         skipEpisodeTitle = PropertiesUtil.getBooleanProperty("filename.scanner.skip.episodeTitle", "false");
         useParentRegex = PropertiesUtil.getBooleanProperty("filename.scanner.useParentRegex", "false");
         String patternString = PropertiesUtil.getProperty("filename.scanner.parentRegex", "");
-        logger.debug("MovieFilenameScanner: useParentPattern >>" + patternString + "<<");
+        logger.debug(logMessage + "useParentPattern >>" + patternString + "<<");
         if (StringTools.isValidString(patternString)) {
             USE_PARENT_PATTERN = ipatt(patternString);
         } else {
-            logger.debug("MovieFilenameScanner: Invalid parentPattern, ignoring");
+            logger.debug(logMessage + "Invalid parentPattern, ignoring");
             USE_PARENT_PATTERN = null;
             useParentRegex = Boolean.FALSE;
         }
@@ -355,7 +356,7 @@ public class MovieFilenameScanner {
                 this.file = file.getParentFile();
             }
 
-            logger.debug("MovieFilenameScanner: UseParentPattern matched for " + file.getName() + " - Using parent folder name: " + this.file.getName());
+            logger.debug(logMessage + "UseParentPattern matched for " + file.getName() + " - Using parent folder name: " + this.file.getName());
         } else {
             this.file = file;
         }
@@ -484,7 +485,7 @@ public class MovieFilenameScanner {
                 if (idString.length == 2) {
                     dto.setId(idString[0].toLowerCase(), idString[1]);
                 } else {
-                    logger.debug("MovieFilenameScanner: Error decoding ID from filename: " + matcher.group(1));
+                    logger.debug(logMessage + "Error decoding ID from filename: " + matcher.group(1));
                 }
             }
         }

@@ -345,9 +345,9 @@ public class Filmography {
         return photoFilename;
     }
 
-    public void setPhotoURL(String URL) {
-        if (isValidString(URL) && !photoURL.equalsIgnoreCase(URL)) {
-            photoURL = URL;
+    public void setPhotoURL(String url) {
+        if (isValidString(url) && !photoURL.equalsIgnoreCase(url)) {
+            photoURL = url;
             setDirty();
         }
     }

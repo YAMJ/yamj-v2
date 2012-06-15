@@ -12,6 +12,7 @@
  */
 package com.moviejukebox;
 
+import com.moviejukebox.tools.cache.CacheMemory;
 import com.moviejukebox.model.*;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.Comparator.PersonComparator;
@@ -106,8 +107,8 @@ public class MovieJukebox {
     private static String mjbRevision = SystemTools.getRevision();
     private static String mjbBuildDate = SystemTools.getBuildDate();
     private static boolean trailersScannerEnable;
-    private static int MaxThreadsProcess = 1;
-    private static int MaxThreadsDownload = 1;
+    private static int maxThreadsProcess = 1;
+    private static int maxThreadsDownload = 1;
     private static boolean enableWatchScanner;
     private static boolean enableCompleteMovies;
 
@@ -726,18 +727,18 @@ public class MovieJukebox {
         boolean processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", "true");
 
         // Multi-thread: Processing thread settings
-        MaxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", "0"));
-        if (MaxThreadsProcess <= 0) {
-            MaxThreadsProcess = Runtime.getRuntime().availableProcessors();
+        maxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", "0"));
+        if (maxThreadsProcess <= 0) {
+            maxThreadsProcess = Runtime.getRuntime().availableProcessors();
         }
 
-        MaxThreadsDownload = Integer.parseInt(getProperty("mjb.MaxThreadsDownload", "0"));
-        if (MaxThreadsDownload <= 0) {
-            MaxThreadsDownload = MaxThreadsProcess;
+        maxThreadsDownload = Integer.parseInt(getProperty("mjb.MaxThreadsDownload", "0"));
+        if (maxThreadsDownload <= 0) {
+            maxThreadsDownload = maxThreadsProcess;
         }
 
-        logger.info("Using " + MaxThreadsProcess + " processing threads and " + MaxThreadsDownload + " downloading threads...");
-        if (MaxThreadsDownload + MaxThreadsProcess == 2) {
+        logger.info("Using " + maxThreadsProcess + " processing threads and " + maxThreadsDownload + " downloading threads...");
+        if (maxThreadsDownload + maxThreadsProcess == 2) {
             // Display the note about the performance, otherwise assume that the user knows how to change
             // these parameters as they aren't set to the minimum
             logger.info("See README.TXT for increasing performance using these settings.");
@@ -832,7 +833,7 @@ public class MovieJukebox {
             FileTools.fileCache.addDir(peopleFolderHandle, 0);
         }
 
-        ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(MaxThreadsProcess, MaxThreadsDownload);
+        ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(maxThreadsProcess, maxThreadsDownload);
 
         final Library library = new Library();
         for (final MediaLibraryPath mediaLibraryPath : mediaLibraryPaths) {
@@ -993,7 +994,7 @@ public class MovieJukebox {
                         }
                         logger.info("Finished: " + movieTitleExt + " (" + count + "/" + library.size() + ")");
                         // Show memory every (processing count) movies
-                        if (showMemory && (count % MaxThreadsProcess) == 0) {
+                        if (showMemory && (count % maxThreadsProcess) == 0) {
                             SystemTools.showMemory();
                         }
 
@@ -1091,7 +1092,7 @@ public class MovieJukebox {
                                 logger.info("Finished: " + personName + " (" + count + "/" + peopleCount + ")");
 
                                 // Show memory every (processing count) movies
-                                if (showMemory && (count % MaxThreadsProcess) == 0) {
+                                if (showMemory && (count % maxThreadsProcess) == 0) {
                                     SystemTools.showMemory();
                                 }
 
@@ -1135,7 +1136,7 @@ public class MovieJukebox {
                                     logger.info("Finished: " + personName + " (" + count + "/" + peopleCount + ")");
 
                                     // Show memory every (processing count) movies
-                                    if (showMemory && (count % MaxThreadsProcess) == 0) {
+                                    if (showMemory && (count % maxThreadsProcess) == 0) {
                                         SystemTools.showMemory();
                                     }
 
@@ -1972,7 +1973,7 @@ public class MovieJukebox {
         }
 
         if (backdropDownload) {
-            BackdropScanner.scan(imagePlugin, jukebox, person);
+            BackdropScanner.scan(jukebox, person);
         }
     }
 

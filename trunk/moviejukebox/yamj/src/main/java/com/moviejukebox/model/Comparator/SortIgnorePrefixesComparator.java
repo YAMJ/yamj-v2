@@ -13,12 +13,14 @@
 package com.moviejukebox.model.Comparator;
 
 import com.moviejukebox.tools.PropertiesUtil;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.StringTokenizer;
 
-public class SortIgnorePrefixesComparator implements Comparator<Object> {
+public class SortIgnorePrefixesComparator implements Comparator<Object>, Serializable {
 
+    private static final long serialVersionUID = 1L;
     private final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
     private boolean inited = false;
 
@@ -57,5 +59,4 @@ public class SortIgnorePrefixesComparator implements Comparator<Object> {
         }
         inited = true;
     }
-
 }

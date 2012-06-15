@@ -27,8 +27,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map.Entry;
 import java.util.*;
+import java.util.Map.Entry;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -174,7 +174,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
                 String pluginType = getPropertyName();
 
-                if ((artworkImage != null) || (pluginType != null)) {
+                if (artworkImage != null) {
                     artworkImage = artworkImagePlugin.generate(movie, artworkImage, pluginType, null);
                     GraphicTools.saveImageToDisk(artworkImage, artworkPath);
                 } else {
@@ -953,8 +953,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * @param addTypeToOutput
      */
     protected final void debugProperty(String propName, Object propValue, boolean addTypeToOutput) {
-        StringBuilder property = new StringBuilder(logMessage + "DEBUG - ");
-        property.append("'");
+        StringBuilder property = new StringBuilder(logMessage);
+        property.append("DEBUG - '");
         if (addTypeToOutput) {
             property.append(artworkTypeName);
         }

@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.tools.cache.CacheMemory;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkFile;
 import com.moviejukebox.model.Artwork.ArtworkSize;

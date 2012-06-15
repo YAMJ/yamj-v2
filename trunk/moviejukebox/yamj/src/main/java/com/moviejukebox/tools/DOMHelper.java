@@ -132,8 +132,7 @@ public class DOMHelper {
     public static Document createDocument() throws ParserConfigurationException {
         DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
-        Document doc = docBuilder.newDocument();
-        return doc;
+        return docBuilder.newDocument();
     }
 
     /**

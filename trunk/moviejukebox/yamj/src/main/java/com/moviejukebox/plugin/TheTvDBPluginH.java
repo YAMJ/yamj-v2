@@ -24,6 +24,7 @@ import com.moviejukebox.thetvdb.TheTVDB;
 import com.moviejukebox.thetvdb.model.*;
 import com.moviejukebox.tools.*;
 import static com.moviejukebox.tools.StringTools.*;
+import com.moviejukebox.tools.cache.CacheDB;
 import java.util.List;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;

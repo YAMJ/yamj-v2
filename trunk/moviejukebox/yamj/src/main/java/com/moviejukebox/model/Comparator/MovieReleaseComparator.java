@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
  */
 public class MovieReleaseComparator extends MovieYearComparator {
 
+    private static final long serialVersionUID = 1L;
     private static final Logger logger = Logger.getLogger(MovieReleaseComparator.class);
     private static final String logMessage = "ReleaseComparator: ";
     private Locale locale = Locale.ENGLISH;

@@ -21,7 +21,6 @@ package com.moviejukebox.scanner.artwork;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
-import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -29,7 +28,7 @@ import com.moviejukebox.tools.StringTools;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
@@ -43,12 +42,12 @@ public class BackdropScanner {
 
     private static final Logger logger = Logger.getLogger(BackdropScanner.class);
     private static final String logMessage = "BackdropScanner: ";
-    protected static Collection<String> backdropExtensions = new ArrayList<String>();
+    protected static final List<String> backdropExtensions = new ArrayList<String>();
     protected static boolean backdropOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBackdropOverwrite", "false");
-    protected static Collection<String> backdropImageName;
+    protected static List<String> backdropImageName;
     protected static String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-    protected static String peopleFolder;
-    protected static String backdropToken;
+    protected static String peopleFolder = getPeopleFolder();
+    protected static String backdropToken = PropertiesUtil.getProperty("mjb.scanner.backdropToken", ".backdrop");
     protected static int backdropWidth;
     protected static int backdropHeight;
 
@@ -58,16 +57,17 @@ public class BackdropScanner {
         while (st.hasMoreTokens()) {
             backdropExtensions.add(st.nextToken());
         }
+    }
 
-        backdropToken = PropertiesUtil.getProperty("mjb.scanner.backdropToken", ".backdrop");
-
+    private static String getPeopleFolder() {
         // Issue 1947: Cast enhancement - option to save all related files to a specific folder
-        peopleFolder = PropertiesUtil.getProperty("mjb.people.folder", "");
-        if (StringTools.isNotValidString(peopleFolder)) {
-            peopleFolder = "";
-        } else if (!peopleFolder.endsWith(File.separator)) {
-            peopleFolder += File.separator;
+        String pFolder = PropertiesUtil.getProperty("mjb.people.folder", "");
+        if (StringTools.isNotValidString(pFolder)) {
+            return "";
+        } else if (!pFolder.endsWith(File.separator)) {
+            pFolder += File.separator;
         }
+        return pFolder;
     }
 
     /**
@@ -78,7 +78,7 @@ public class BackdropScanner {
      * @param tempJukeboxDetailsRoot
      * @param person
      */
-    public static boolean scan(MovieImagePlugin imagePlugin, Jukebox jukebox, Person person) {
+    public static boolean scan(Jukebox jukebox, Person person) {
         String localBackdropBaseFilename = person.getFilename();
         boolean foundLocalBackdrop = false;
 
@@ -88,21 +88,20 @@ public class BackdropScanner {
             foundLocalBackdrop = true;
             person.setBackdropFilename();
         } else {
-            downloadBackdrop(imagePlugin, jukebox, person);
+            downloadBackdrop(jukebox, person);
         }
         return foundLocalBackdrop;
     }
 
     /**
-     * Download the backdrop from the URL. Initially this is populated from
-     * TheTVDB plugin
+     * Download the backdrop from the URL. Initially this is populated from TheTVDB plugin
      *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
      * @param tempJukeboxDetailsRoot
      * @param person
      */
-    private static void downloadBackdrop(MovieImagePlugin imagePlugin, Jukebox jukebox, Person person) {
+    private static void downloadBackdrop(Jukebox jukebox, Person person) {
         String prevBackdropFilename = person.getBackdropFilename();
         person.setBackdropFilename();
         String safeBackdropFilename = person.getBackdropFilename();

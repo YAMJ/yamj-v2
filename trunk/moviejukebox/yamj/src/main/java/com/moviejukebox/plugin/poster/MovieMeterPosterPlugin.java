@@ -12,12 +12,6 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.StringTokenizer;
-
-import org.apache.xmlrpc.XmlRpcException;
-
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
@@ -25,7 +19,11 @@ import com.moviejukebox.plugin.MovieMeterPluginSession;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.net.URLEncoder;
+import java.util.Map;
+import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
+import org.apache.xmlrpc.XmlRpcException;
 
 public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
     private WebBrowser webBrowser;
@@ -106,7 +104,7 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
             } else {
                 logger.debug("Searching moviemeter.nl for title: " + title);
 
-                HashMap filmInfo = session.getMovieDetailsByTitleAndYear(title, year);
+                Map filmInfo = session.getMovieDetailsByTitleAndYear(title, year);
                 response = filmInfo.get("filmId").toString();
             }
 
@@ -124,7 +122,7 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
         String posterURL = Movie.UNKNOWN;
         if (StringTools.isValidString(id)) {
             try {
-                HashMap filmInfo = session.getMovieDetailsById(Integer.valueOf(id));
+                Map filmInfo = session.getMovieDetailsById(Integer.valueOf(id));
                 posterURL = filmInfo.get("thumbnail").toString().replaceAll("thumbs/", "");
 
             } catch (Exception e) {
