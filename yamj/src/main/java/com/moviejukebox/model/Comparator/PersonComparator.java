@@ -13,13 +13,15 @@
 package com.moviejukebox.model.Comparator;
 
 import com.moviejukebox.model.Person;
+import java.io.Serializable;
 import java.util.Comparator;
 
-public class PersonComparator implements Comparator<Person>{
+public class PersonComparator implements Comparator<Person>, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Override
     public int compare(Person first, Person second) {
         return second.getPopularity().compareTo(first.getPopularity());
     }
-
 }

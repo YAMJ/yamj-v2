@@ -18,7 +18,9 @@ import com.moviejukebox.tools.SystemTools;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
@@ -42,6 +44,7 @@ public final class MovieMeterPluginSession {
     private static String SESSION_FILENAME = "./temp/moviemeter.session";
     private static String MOVIEMETER_API_KEY = PropertiesUtil.getProperty("API_KEY_MovieMeter");
     private static final Logger logger = Logger.getLogger(MovieMeterPluginSession.class);
+    private static final String logMessage = "MovieMeterPluginSession: ";
     private String key;
     private Integer timestamp;
     private Integer counter;
@@ -70,7 +73,7 @@ public final class MovieMeterPluginSession {
     public MovieMeterPluginSession() throws XmlRpcException {
         init();
 
-        logger.debug("MovieMeterPluginSession: Getting stored session");
+        logger.debug(logMessage + "Getting stored session");
         // Read previous session
         FileReader fileRead = null;
         BufferedReader bufRead = null;
@@ -91,7 +94,7 @@ public final class MovieMeterPluginSession {
                 }
             }
         } catch (IOException ex) {
-            logger.debug("MovieMeterPluginSession: Error creating session: " + ex.getMessage());
+            logger.debug(logMessage + "Error creating session: " + ex.getMessage());
         } finally {
             if (fileRead != null) {
                 try {
@@ -110,7 +113,7 @@ public final class MovieMeterPluginSession {
             }
         }
 
-        logger.debug("MovieMeterPluginSession: Stored session: " + getKey());
+        logger.debug(logMessage + "Stored session: " + getKey());
 
         if (!isValid()) {
             createNewSession(MOVIEMETER_API_KEY);
@@ -120,23 +123,22 @@ public final class MovieMeterPluginSession {
     /**
      * Creates a new session to www.moviemeter.nl
      *
-     * @param API_KEY
+     * @param apiKey
      * @throws XmlRpcException
      */
-    @SuppressWarnings("rawtypes")
-    private void createNewSession(String API_KEY) throws XmlRpcException {
-        HashMap session = null;
-        Object[] params = new Object[]{API_KEY};
+    private void createNewSession(String apiKey) throws XmlRpcException {
+        Map session = Collections.EMPTY_MAP;
+        Object[] params = new Object[]{apiKey};
 
         try {
             session = (HashMap) client.execute("api.startSession", params);
         } catch (Exception error) {
-            logger.warn("MovieMeterPluginSession: Unable to contact website");
+            logger.warn(logMessage + "Unable to contact website");
         }
 
         if (session != null) {
             if (session.size() > 0) {
-                logger.debug("MovieMeterPluginSession: Created new session with moviemeter.nl");
+                logger.debug(logMessage + "Created new session with moviemeter.nl");
                 setKey((String) session.get("session_key"));
                 setTimestamp((Integer) session.get("valid_till"));
                 setCounter(0);
@@ -155,10 +157,9 @@ public final class MovieMeterPluginSession {
      * @param movieName
      * @return the first summary result as a HashMap
      */
-    @SuppressWarnings("rawtypes")
-    public HashMap getMovieByTitle(String movieName) {
+    public Map getMovieByTitle(String movieName) {
 
-        HashMap result = null;
+        Map result = Collections.EMPTY_MAP;
         Object[] films;
         Object[] params = new Object[]{getKey(), movieName};
         try {
@@ -168,7 +169,7 @@ public final class MovieMeterPluginSession {
             films = (Object[]) client.execute("film.search", params);
             increaseCounter();
             if (films != null && films.length > 0) {
-                logger.debug("MovieMeterPluginSession: MovieMeterPlugin: Search for " + movieName + " returned " + films.length + " results");
+                logger.debug(logMessage + "MovieMeterPlugin: Search for " + movieName + " returned " + films.length + " results");
                 for (int i = 0; i < films.length; i++) {
                     logger.info("Film " + i + ": " + films[i]);
                 }
@@ -190,10 +191,9 @@ public final class MovieMeterPluginSession {
      * @param year The year of the movie. If no year is known, specify null
      * @return the summary result as a HashMap
      */
-    @SuppressWarnings("rawtypes")
-    public HashMap getMovieByTitleAndYear(String movieName, String year) {
+    public Map getMovieByTitleAndYear(String movieName, String year) {
 
-        HashMap result = null;
+        Map result = Collections.EMPTY_MAP;
         Object[] films;
         Object[] params = new Object[]{getKey(), movieName};
         try {
@@ -203,7 +203,7 @@ public final class MovieMeterPluginSession {
             films = (Object[]) client.execute("film.search", params);
             increaseCounter();
             if (films != null && films.length > 0) {
-                logger.debug("MovieMeterPluginSession: Searching for " + movieName + " returned " + films.length + " results");
+                logger.debug(logMessage + "Searching for " + movieName + " returned " + films.length + " results");
 
                 if (StringTools.isValidString(year)) {
                     for (int i = 0; i < films.length; i++) {
@@ -232,11 +232,10 @@ public final class MovieMeterPluginSession {
      * @param year
      * @return the detailed result as a HashMap
      */
-    @SuppressWarnings("rawtypes")
-    public HashMap getMovieDetailsByTitleAndYear(String movieName, String year) {
+    public Map getMovieDetailsByTitleAndYear(String movieName, String year) {
 
-        HashMap result = null;
-        HashMap filmInfo = getMovieByTitleAndYear(movieName, year);
+        Map result = Collections.EMPTY_MAP;
+        Map filmInfo = getMovieByTitleAndYear(movieName, year);
 
         if (filmInfo != null) {
             result = getMovieDetailsById(Integer.parseInt((String) filmInfo.get("filmId")));
@@ -251,10 +250,9 @@ public final class MovieMeterPluginSession {
      * @param moviemeterId
      * @return the detailed result as a HashMap
      */
-    @SuppressWarnings("rawtypes")
-    public HashMap getMovieDetailsById(Integer moviemeterId) {
+    public Map getMovieDetailsById(Integer moviemeterId) {
 
-        HashMap result = null;
+        Map result = Collections.EMPTY_MAP;
         Object[] params = new Object[]{getKey(), moviemeterId};
         try {
             if (!isValid()) {
@@ -300,7 +298,7 @@ public final class MovieMeterPluginSession {
 
             return true;
         } catch (XmlRpcException error) {
-            logger.debug("MovieMeterPluginSession: " + error.getMessage());
+            logger.debug(logMessage + "" + error.getMessage());
             return false;
         } catch (MalformedURLException error) {
             logger.error(SystemTools.getStackTrace(error));
@@ -325,9 +323,9 @@ public final class MovieMeterPluginSession {
             ps = new PrintStream(fout);
             ps.println(getKey() + "," + getTimestamp() + "," + getCounter());
         } catch (FileNotFoundException ignore) {
-            logger.debug("MovieMeterPluginSession: " + ignore.getMessage());
+            logger.debug(logMessage + "" + ignore.getMessage());
         } catch (IOException error) {
-            logger.error("MovieMeterPluginSession: " + error.getMessage());
+            logger.error(logMessage + "" + error.getMessage());
         } finally {
             if (ps != null) {
                 ps.close();

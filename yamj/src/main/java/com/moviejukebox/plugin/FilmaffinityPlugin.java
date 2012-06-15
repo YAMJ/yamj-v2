@@ -184,11 +184,6 @@ public class FilmaffinityPlugin extends ImdbPlugin {
     }
 
     @Override
-    public void scanTVShowTitles(Movie movie) {
-        super.scanTVShowTitles(movie);
-    }
-
-    @Override
     public boolean scanNFO(String nfo, Movie movie) {
         Pattern filtroFAiD = Pattern.compile("http://www.filmaffinity.com/es/film([0-9]{6})\\.html|filmaffinity=((?:film)?[0-9]{6}(?:\\.html)?)|<id moviedb=\"filmaffinity\">((?:film)?[0-9]{6}(?:\\.html)?)</id>", Pattern.CASE_INSENSITIVE);
         Matcher nfoMatcher = filtroFAiD.matcher(nfo);

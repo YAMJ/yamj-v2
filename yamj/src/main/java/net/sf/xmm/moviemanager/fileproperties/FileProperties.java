@@ -3,24 +3,19 @@
  *
  * Copyright (2003) Mediterranean
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2, or any later version.
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either version 2, or any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place, Boston, MA 02111.
+ * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 59 Temple Place, Boston, MA 02111.
  *
- * Contact: mediterranean@users.sourceforge.net
- * -----------------------------------------------------
- * gaelead modifications :
- * - org.apache.log4j.Logger switched to org.apache.log4j.Logger
- * - removed all unused code
- **/
+ * Contact: mediterranean@users.sourceforge.net ----------------------------------------------------- gaelead
+ * modifications : - org.apache.log4j.Logger switched to org.apache.log4j.Logger - removed all unused code
+ *
+ */
 package net.sf.xmm.moviemanager.fileproperties;
 
 import java.io.BufferedReader;
@@ -97,14 +92,16 @@ abstract class FileProperties {
      * Returns a 16-bit integer.
      */
     protected int getUnsignedInt16(byte byte1, byte byte2) throws Exception {
-        return (new Byte(byte2).intValue() | new Byte(byte1).intValue() << 8);
+//        return (new Byte(byte2).intValue() | new Byte(byte1).intValue() << 8);
+        return (Integer.valueOf(byte2) | Integer.valueOf(byte1) << 8);
     }
 
     /**
      * Returns an unsigned 32-bit integer.
      */
     protected int getUnsignedInt32(byte byte1, byte byte2) throws Exception {
-        return (new Byte(byte2).intValue() | new Byte(byte1).intValue() << 16);
+//        return (new Byte(byte2).intValue() | new Byte(byte1).intValue() << 16);
+        return (Integer.valueOf(byte2) | Integer.valueOf(byte1) << 16);
     }
 
     /**
@@ -183,18 +180,18 @@ abstract class FileProperties {
     String fromByteToAscii(int id, int numberOfBytes) throws Exception {
         /* Transforms the id in a string... */
         StringBuilder buffer = new StringBuilder(4);
+        int newId = id;
 
         for (int i = 0; i < numberOfBytes; i++) {
-            int c = id & 0xff;
+            int c = newId & 0xff;
             buffer.append((char) c);
-            id >>= 8;
+            newId >>= 8;
         }
-        return new String(buffer);
+        return buffer.toString();
     }
 
     /**
-     * Returns the decimal value of a specified number of bytes from a specific
-     * part of a byte.
+     * Returns the decimal value of a specified number of bytes from a specific part of a byte.
      */
     int getDecimalValue(int[] bits, int start, int stop, boolean printBits) {
 
@@ -241,8 +238,7 @@ abstract class FileProperties {
     }
 
     /**
-     * Searches in the inputStream stream the name following the string id
-     * (Separated by a \t).
+     * Searches in the inputStream stream the name following the string id (Separated by a \t).
      */
     protected String findName(InputStream stream, String id) throws Exception {
 
@@ -252,7 +248,7 @@ abstract class FileProperties {
 
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(stream));
-        String line = null;
+        String line;
 
         while ((line = reader.readLine()) != null) {
             if (line.length() > 0) {

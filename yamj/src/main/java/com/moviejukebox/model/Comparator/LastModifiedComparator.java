@@ -13,13 +13,15 @@
 package com.moviejukebox.model.Comparator;
 
 import com.moviejukebox.model.Movie;
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
  * @author altman.matthew
  */
-public class LastModifiedComparator implements Comparator<Movie> {
+public class LastModifiedComparator implements Comparator<Movie>, Serializable {
 
+    private static final long serialVersionUID = 1L;
     private boolean ascending;//Sort the videos in ascending date order (oldest first)
 
     public LastModifiedComparator() {

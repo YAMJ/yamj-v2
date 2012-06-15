@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.tools.cache.CacheMemory;
 import com.moviejukebox.fanarttv.FanartTv;
 import com.moviejukebox.fanarttv.FanartTvException;
 import com.moviejukebox.fanarttv.model.FTArtworkType;

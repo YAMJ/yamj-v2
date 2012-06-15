@@ -77,7 +77,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
     /*
      * Thread descendant class used for our execution scheduling
      */
-    private static class ScheduledThread extends Thread {
+    private static final class ScheduledThread extends Thread {
 
         private Semaphore sRun, sIo, sIotarget;
         private Stack<String> hosts = new Stack<String>();

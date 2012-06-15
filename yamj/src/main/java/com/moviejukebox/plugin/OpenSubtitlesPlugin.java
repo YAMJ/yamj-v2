@@ -31,11 +31,13 @@ import java.security.MessageDigest;
 import java.util.Scanner;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 public class OpenSubtitlesPlugin {
 
     private static final Logger logger = Logger.getLogger(OpenSubtitlesPlugin.class);
+    private static final String logMessage = "OpenSubtitles Plugin: ";
     private static String login = PropertiesUtil.getProperty("opensubtitles.username", "");
     private static String pass = PropertiesUtil.getProperty("opensubtitles.password", "");
     private static String useragent = "moviejukebox 1.0.15";
@@ -49,12 +51,12 @@ public class OpenSubtitlesPlugin {
         if (!sublanguageid.equals("")) {
 
             // Part of opensubtitles.org protocol requirements
-            logger.info("OpenSubtitles Plugin: Subtitles service allowed by www.OpenSubtitles.org");
+            logger.info(logMessage + "Subtitles service allowed by www.OpenSubtitles.org");
 
             // Login to opensubtitles.org system
             logIn();
         } else {
-            logger.debug("OpenSubtitles Plugin: No language selected in moviejukebox.properties");
+            logger.debug(logMessage + "No language selected in moviejukebox.properties");
         }
     }
 
@@ -70,14 +72,14 @@ public class OpenSubtitlesPlugin {
                 getValue("status", ret);
                 token = getValue("token", ret);
                 if (token.equals("")) {
-                    logger.error("OpenSubtitles Plugin: Login error." + "\n" + ret);
+                    logger.error(logMessage + "Login error." + "\n" + ret);
                 } else {
-                    logger.error("OpenSubtitles Plugin: Login successful.");
+                    logger.error(logMessage + "Login successful.");
                 }
                 // String l1 = login.equals("") ? "Anonymous" : login;
             }
         } catch (Exception error) {
-            logger.error("OpenSubtitles Plugin: Login Failed");
+            logger.error(logMessage + "Login Failed");
         }
     }
 
@@ -98,7 +100,7 @@ public class OpenSubtitlesPlugin {
             String xml = generateXMLRPC("LogOut", p1);
             sendRPC(xml);
         } catch (Exception error) {
-            logger.error("OpenSubtitles Plugin: Logout Failed");
+            logger.error(logMessage + "Logout Failed");
         }
 
     }
@@ -113,13 +115,13 @@ public class OpenSubtitlesPlugin {
 
             // Check to see if we scrape the library, if we don't then skip the download
             if (!movie.isScrapeLibrary()) {
-                logger.debug("OpenSubtitles Plugin: Skipped for " + movie.getTitle() + " due to scrape library flag");
+                logger.debug(logMessage + "Skipped for " + movie.getTitle() + " due to scrape library flag");
                 return;
             }
 
             // Check that the login was successful
             if (token.equals("")) {
-                logger.debug("OpenSubtitles Plugin: Login failed");
+                logger.debug(logMessage + "Login failed");
                 return;
             }
 
@@ -155,7 +157,7 @@ public class OpenSubtitlesPlugin {
             }
 
             if (allSubtitleExchange) {
-                logger.debug("OpenSubtitles Plugin: All subtitles exist for " + movie.getTitle());
+                logger.debug(logMessage + "All subtitles exist for " + movie.getTitle());
                 // Don't return yet, we might want to upload the files.
                 //return;
             }
@@ -224,7 +226,7 @@ public class OpenSubtitlesPlugin {
                 }
             }
         } else {
-            logger.debug("OpenSubtitles Plugin: Skipping subtitle download for " + movie.getTitle() + ", subtitles already exist: " + movie.getSubtitles());
+            logger.debug(logMessage + "Skipping subtitle download for " + movie.getTitle() + ", subtitles already exist: " + movie.getSubtitles());
         }
     }
 
@@ -261,11 +263,11 @@ public class OpenSubtitlesPlugin {
             }
 
             if (subDownloadLink.equals("")) {
-                logger.debug("OpenSubtitles Plugin: Subtitle not found for " + movieFile.getName());
+                logger.debug(logMessage + "Subtitle not found for " + movieFile.getName());
                 return false;
             }
 
-            logger.debug("OpenSubtitles Plugin: Download subtitle for " + movie.getBaseName());
+            logger.debug(logMessage + "Download subtitle for " + movie.getBaseName());
 
             URL url = new URL(subDownloadLink);
             HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
@@ -274,7 +276,7 @@ public class OpenSubtitlesPlugin {
 
             int code = connection.getResponseCode();
             if (code != HttpURLConnection.HTTP_OK) {
-                logger.error("OpenSubtitles Plugin: Download Failed");
+                logger.error(logMessage + "Download Failed");
                 return false;
             }
 
@@ -282,7 +284,7 @@ public class OpenSubtitlesPlugin {
             connection.disconnect();
 
             String subLanguageID = getValue("SubLanguageID", ret);
-            if (subLanguageID != null) {
+            if (StringUtils.isNotBlank(subLanguageID)) {
                 movie.setSubtitles(subLanguageID);
             } else {
                 movie.setSubtitles("YES");
@@ -291,7 +293,7 @@ public class OpenSubtitlesPlugin {
             return true;
 
         } catch (Exception error) {
-            logger.error("OpenSubtitles Plugin: Download Exception (Movie Not Found)");
+            logger.error(logMessage + "Download Exception (Movie Not Found)");
             return false;
         }
 
@@ -358,11 +360,11 @@ public class OpenSubtitlesPlugin {
             String alreadyindb = getIntValue("alreadyindb", ret);
 
             if (!alreadyindb.equals("0")) {
-                logger.debug("OpenSubtitles Plugin: Subtitle already in db for " + movie.getBaseName());
+                logger.debug(logMessage + "Subtitle already in db for " + movie.getBaseName());
                 return true;
             }
 
-            logger.debug("OpenSubtitles Plugin: Upload Subtitle for " + movie.getBaseName());
+            logger.debug(logMessage + "Upload Subtitle for " + movie.getBaseName());
 
             // Upload the subtitle
             xml = generateXMLRPCUS(idmovieimdb, subhash, subcontent, subfilename, moviehash, moviebytesize, movietimems, movieframes, moviefps, moviefilename);
@@ -372,7 +374,7 @@ public class OpenSubtitlesPlugin {
             return true;
 
         } catch (Exception error) {
-            logger.error("OpenSubtitles Plugin: Upload Failed");
+            logger.error(logMessage + "Upload Failed");
             return false;
         } finally {
             try {
@@ -559,7 +561,6 @@ public class OpenSubtitlesPlugin {
     }
 
     private static String getValue(String find, String xml) {
-        String str = "";
         int a = xml.indexOf(find);
         if (a != -1) {
             int b = xml.indexOf("<string>", a);
@@ -568,7 +569,7 @@ public class OpenSubtitlesPlugin {
                 return xml.substring(b + 8, c);
             }
         }
-        return str;
+        return "";
     }
 
     private static String getIntValue(String find, String xml) {

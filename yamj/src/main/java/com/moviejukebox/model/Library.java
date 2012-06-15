@@ -1441,8 +1441,7 @@ public class Library implements Map<String, Movie> {
 
     @Override
     public List<Movie> values() {
-        List<Movie> retour = new ArrayList<Movie>(library.values());
-        return retour;
+        return new ArrayList<Movie>(library.values());
     }
 
     public List<Movie> getMoviesList() {

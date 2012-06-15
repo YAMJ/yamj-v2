@@ -64,13 +64,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * --------------------------------------------------------------------------------
      * Properties that control the object
      */
-    public static final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
+    public static final List<String> sortIgnorePrefixes = new ArrayList<String>();
     private int highdef720 = PropertiesUtil.getIntProperty("highdef.720.width", "1280");    // Get the minimum width for a high-definition movies
     private int highdef1080 = PropertiesUtil.getIntProperty("highdef.1080.width", "1920");  // Get the minimum width for a high-definition movies
     private String[] ratingSource = PropertiesUtil.getProperty("mjb.rating.source", "average").split(",");
     private String tmpRatingIgnore = PropertiesUtil.getProperty("mjb.rating.ignore", "");
     private List<String> ratingIgnore = StringTools.isValidString(tmpRatingIgnore) ? Arrays.asList(tmpRatingIgnore.split(",")) : new ArrayList<String>();
-    private static final HashSet<String> genreSkipList = new HashSet<String>();   // List of genres to ignore
+    private static final Set<String> genreSkipList = new HashSet<String>();   // List of genres to ignore
     private static String titleSortType = PropertiesUtil.getProperty("mjb.sortTitle", "title");
     /*
      * --------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String budget = UNKNOWN;                                        // Issue 2012: Financial information about movie
     private Map<String, String> openweek = new HashMap<String, String>();
     private Map<String, String> gross = new HashMap<String, String>();
-    private Collection<String> didYouKnow = new ArrayList<String>();        // Issue 2013: Add trivia
+    private List<String> didYouKnow = new ArrayList<String>();        // Issue 2013: Add trivia
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
     private String formatType = TYPE_FILE;
@@ -134,7 +134,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String posterFilename = UNKNOWN; // The poster filename
     private String detailPosterFilename = UNKNOWN; // The resized poster for skins
     private String thumbnailFilename = UNKNOWN; // The thumbnail version of the poster for skins
-    private ArrayList<String> footerFilename = new ArrayList<String>(); // The footer image for skins
+    private List<String> footerFilename = new ArrayList<String>(); // The footer image for skins
     private String fanartURL = UNKNOWN; // The fanart URL
     private String fanartFilename = UNKNOWN; // The resized fanart file
     private String bannerURL = UNKNOWN; // The TV Show banner URL
@@ -326,22 +326,22 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         addPerson(key, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
     }
 
-    public void addPerson(String key, String name, String URL) {
-        addPerson(key, name, URL, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
+    public void addPerson(String key, String name, String url) {
+        addPerson(key, name, url, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
     }
 
-    public void addPerson(String key, String name, String URL, String job) {
-        addPerson(key, name, URL, job, Movie.UNKNOWN, Movie.UNKNOWN);
+    public void addPerson(String key, String name, String url, String job) {
+        addPerson(key, name, url, job, Movie.UNKNOWN, Movie.UNKNOWN);
     }
 
-    public void addPerson(String key, String name, String URL, String job, String character) {
-        addPerson(key, name, URL, job, character, Movie.UNKNOWN);
+    public void addPerson(String key, String name, String url, String job, String character) {
+        addPerson(key, name, url, job, character, Movie.UNKNOWN);
     }
 
-    public void addPerson(String key, String name, String URL, String job, String character, String doublage) {
+    public void addPerson(String key, String name, String url, String job, String character, String doublage) {
         if (StringUtils.isNotBlank(name)
                 && StringUtils.isNotBlank(key)
-                && StringUtils.isNotBlank(URL)
+                && StringUtils.isNotBlank(url)
                 && StringUtils.isNotBlank(job)) {
 
             Filmography person = new Filmography();
@@ -367,7 +367,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 person.setName(name);
             }
 
-            person.setUrl(URL);
+            person.setUrl(url);
             person.setCharacter(character);
             person.setDoublage(doublage);
             person.setJob(job);
@@ -1005,7 +1005,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void setDidYouKnow(Collection<String> facts) {
+    public void setDidYouKnow(List<String> facts) {
         if (facts != null && !facts.isEmpty()) {
             didYouKnow = facts;
             setDirty(DirtyFlag.INFO);
@@ -2111,7 +2111,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     // ***** Footer
     @XmlElement(name = "footer")
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
-    public ArrayList<String> getFooterFilename() {
+    public List<String> getFooterFilename() {
         return this.footerFilename;
     }
 

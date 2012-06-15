@@ -162,9 +162,9 @@ public class PropertiesUtil {
     /**
      * Store list (ordered) and keyword map.
      */
-    @SuppressWarnings("serial")
     public static class KeywordMap extends HashMap<String, String> {
 
+        private static final long serialVersionUID = 1L;
         private final List<String> keywords = new ArrayList<String>();
 
         public List<String> getKeywords() {

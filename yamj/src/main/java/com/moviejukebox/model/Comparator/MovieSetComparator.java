@@ -14,10 +14,12 @@ package com.moviejukebox.model.Comparator;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
+import java.io.Serializable;
 import java.util.Comparator;
 
-public class MovieSetComparator implements Comparator<Movie> {
+public class MovieSetComparator implements Comparator<Movie>, Serializable {
 
+    private static final long serialVersionUID = 1L;
     private String set;
     private static final boolean SPECIALS_AT_END = PropertiesUtil.getBooleanProperty("mjb.sets.specialsAtEnd", "false");
 

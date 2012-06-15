@@ -22,6 +22,7 @@ import java.util.Comparator;
  */
 public class MovieYearComparator implements Comparator<Movie>, Serializable {
 
+    private static final long serialVersionUID = 1L;
     private boolean ascending = Boolean.TRUE;
 
     public MovieYearComparator(boolean ascending) {

@@ -12,14 +12,16 @@
  */
 package com.moviejukebox.model.Comparator;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 
 /**
  * @author altman.matthew
  */
-public class CertificationComparator implements Comparator<String> {
+public class CertificationComparator implements Comparator<String>, Serializable {
 
+    private static final long serialVersionUID = 1L;
     private List<String> ordering = null;
 
     public CertificationComparator(List<String> ordering) {

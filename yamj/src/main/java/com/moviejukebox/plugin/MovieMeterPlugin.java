@@ -18,7 +18,9 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.net.URLEncoder;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
@@ -64,13 +66,12 @@ public class MovieMeterPlugin extends ImdbPlugin {
         return MOVIEMETER_PLUGIN_ID;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public boolean scan(Movie mediaFile) {
         logger.debug("MovieMeterPlugin: Start fetching info from moviemeter.nl for : year=" + mediaFile.getYear() + ", title=" + mediaFile.getTitle());
         String moviemeterId = mediaFile.getId(MOVIEMETER_PLUGIN_ID);
 
-        HashMap filmInfo = null;
+        Map filmInfo = Collections.EMPTY_MAP;
 
         if (StringTools.isNotValidString(moviemeterId)) {
             logger.debug("MovieMeterPlugin: Preferred search engine for moviemeter id: " + preferredSearchEngine);

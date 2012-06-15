@@ -29,11 +29,13 @@ import org.apache.log4j.Logger;
 public class GraphicTools {
 
     private static final Logger logger = Logger.getLogger(GraphicTools.class);
+    private static final String logMessage = "GraphicsTools: ";
     private static float quality;
     private static int jpegQuality;
 
     /**
      * Load a JPG image from a file (input stream)
+     *
      * @param fis
      * @return
      */
@@ -43,18 +45,18 @@ public class GraphicTools {
         try {
             bi = ImageIO.read(fis);
         } catch (IIOException error) {
-            logger.warn("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + error.getMessage());
+            logger.warn(logMessage + "Error reading image file. Possibly corrupt image, please try another image. " + error.getMessage());
             logger.warn(SystemTools.getStackTrace(error));
             return null;
         } catch (OutOfMemoryError error) {
-            logger.error("GraphicsTools: Error processing image file - Out of memory. Please run YAMJ again to fix.");
+            logger.error(logMessage + "Error processing image file - Out of memory. Please run YAMJ again to fix.");
             return null;
         } catch (IllegalArgumentException error) {
-            logger.warn("GraphicsTools: Error processing image file - Raster bands error");
+            logger.warn(logMessage + "Error processing image file - Raster bands error");
             logger.warn(SystemTools.getStackTrace(error));
             return null;
         } catch (Exception error) {
-            logger.warn("GraphicsTools: Error processing image file. Possibly corrupt image, please try another image. " + error.getMessage());
+            logger.warn(logMessage + "Error processing image file. Possibly corrupt image, please try another image. " + error.getMessage());
             logger.warn(SystemTools.getStackTrace(error));
             return null;
         } finally {
@@ -71,6 +73,7 @@ public class GraphicTools {
 
     /**
      * Load a JPG image from a filename
+     *
      * @param filename
      * @return
      * @throws IOException
@@ -81,6 +84,7 @@ public class GraphicTools {
 
     /**
      * Load a JPG image from a file
+     *
      * @param fileImage
      * @return
      * @throws IOException
@@ -94,18 +98,17 @@ public class GraphicTools {
 
     /**
      * Load a JPG image from an URL
+     *
      * @param url
      * @return
      */
     public static BufferedImage loadJPEGImage(URL url) {
-        BufferedImage bi = null;
         try {
-            bi = ImageIO.read(url);
-        } catch (Exception ignore) {
-            logger.error("GraphicsTools: Error reading image file. Possibly corrupt image, please try another image. " + ignore.getMessage());
-            bi = null;
+            return ImageIO.read(url);
+        } catch (IOException ex) {
+            logger.error(logMessage + "Error reading image file. Possibly corrupt image, please try another image. " + ex.getMessage());
+            return null;
         }
-        return bi;
     }
 
     public static void saveImageAsJpeg(BufferedImage bi, String filename) {
@@ -139,14 +142,13 @@ public class GraphicTools {
             writer.dispose();
 
         } catch (Exception error) {
-            logger.error("GraphicsTools: Failed Saving thumbnail file: " + filename);
+            logger.error(logMessage + "Failed Saving thumbnail file: " + filename);
             logger.error(SystemTools.getStackTrace(error));
         }
     }
 
     public static BufferedImage createBlankImage(int width, int height) {
-        BufferedImage bufImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        return bufImage;
+        return new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
     }
 
     public static void saveImageAsPng(BufferedImage bi, String filename) {
@@ -159,13 +161,14 @@ public class GraphicTools {
             File outputFile = new File(filename);
             ImageIO.write(bi, "png", outputFile);
         } catch (Exception error) {
-            logger.error("GraphicsTools: Failed Saving thumbnail file: " + filename);
+            logger.error(logMessage + "Failed Saving thumbnail file: " + filename);
             logger.error(SystemTools.getStackTrace(error));
         }
     }
 
     /**
      * Save the buffered image to disk as either a JPG or PNG
+     *
      * @param bi
      * @param filename
      */
@@ -181,6 +184,7 @@ public class GraphicTools {
 
     /**
      * Bi-cubic image scaling
+     *
      * @param nMaxWidth
      * @param nMaxHeight
      * @param imgSrc

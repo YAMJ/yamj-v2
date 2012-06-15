@@ -81,7 +81,7 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                     }
                 }
                 // Search the forum if no answer
-                if (returnString == Movie.UNKNOWN) {
+                if (returnString.equalsIgnoreCase(Movie.UNKNOWN)) {
                     sb = new StringBuilder("http://www.moviecovers.com/forum/search-mysql.html?forum=MovieCovers&query=");
                     sb.append(URLEncoder.encode(formattedTitle, "iso-8859-1"));
                     // logger.debug("MovieCoversPosterPlugin: We have to explore the forums: " + sb);
@@ -93,7 +93,7 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                             if ( (filmURL.endsWith(formattedTitleNormalized)) || (filmURL.endsWith(formattedTitle)) ) {
                                 content = webBrowser.request("http://www.moviecovers.com/forum/fil.html?query=" + new String(filmURL.substring(0,filmURL.length()-formattedTitle.length()-2)));
                                 if (content != null) {
-                                    int sizePoster = 0;
+                                    int sizePoster;
                                     int oldSizePoster = 0;
                                     // A quick trick to find a " fr " reference in the comments
                                     int indexFR = content.toUpperCase().indexOf(" FR ");

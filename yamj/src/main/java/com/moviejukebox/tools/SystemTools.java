@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.tools.cache.CacheMemory;
 import com.moviejukebox.MovieJukebox;
 import static com.moviejukebox.tools.StringTools.formatFileSize;
 import java.io.PrintWriter;
@@ -25,7 +26,7 @@ public class SystemTools {
 
     private static final Logger logger = Logger.getLogger(SystemTools.class);
     private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", "false");
-    private static final long cacheOff = (long) (PropertiesUtil.getIntProperty("mjb.cacheOffSize", "50") * 1024 * 1024);
+    private static final long cacheOff = ((long) (PropertiesUtil.getIntProperty("mjb.cacheOffSize", "50")) * 1024L * 1024L);
 
     /**
      * Show the memory available to the program and optionally try to force a
