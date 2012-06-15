@@ -266,7 +266,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @throws IOException
      */
     @Deprecated
-    private boolean updateInfoOld(Movie movie, String xml) throws MalformedURLException, IOException {
+    private boolean updateInfoOld(Movie movie, String xml) throws IOException {
         if (movie.getRating() == -1) {
             String rating = HTMLTools.extractTag(xml, "<div class=\"starbar-meta\">", "</b>").replace(",", ".");
             movie.addRating(IMDB_PLUGIN_ID, parseRating(HTMLTools.stripTags(rating)));
@@ -555,7 +555,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @throws MalformedURLException
      * @throws IOException
      */
-    private boolean updateInfoNew(Movie movie, String xml) throws MalformedURLException, IOException {
+    private boolean updateInfoNew(Movie movie, String xml) throws IOException {
         logger.debug(logMessage + "Detected new IMDb format for '" + movie.getBaseName() + "'");
         Collection<String> peopleList;
         String releaseInfoXML = Movie.UNKNOWN;  // Store the release info page for release info & AKAs
@@ -993,7 +993,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @throws MalformedURLException
      * @throws IOException
      */
-    private boolean updateAwards(Movie movie) throws MalformedURLException, IOException {
+    private boolean updateAwards(Movie movie) throws IOException {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
         String site = siteDef.getSite();
         if (!siteDef.getSite().contains(".imdb.com")) {
@@ -1086,7 +1086,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @throws MalformedURLException
      * @throws IOException
      */
-    private boolean updateBusiness(Movie movie) throws MalformedURLException, IOException, NumberFormatException {
+    private boolean updateBusiness(Movie movie) throws IOException, NumberFormatException {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
         String site = siteDef.getSite();
         if (!siteDef.getSite().contains(".imdb.com")) {
@@ -1132,7 +1132,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @throws MalformedURLException
      * @throws IOException
      */
-    private boolean updateTrivia(Movie movie) throws MalformedURLException, IOException {
+    private boolean updateTrivia(Movie movie) throws IOException {
         if (triviaMax == 0) {
             return Boolean.FALSE;
         }
@@ -1242,7 +1242,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @throws IOException
      * @throws MalformedURLException
      */
-    protected void updateTVShowInfo(Movie movie) throws MalformedURLException, IOException {
+    protected void updateTVShowInfo(Movie movie) throws IOException {
         scanTVShowTitles(movie);
     }
 
@@ -1503,7 +1503,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @throws MalformedURLException
      * @throws IOException
      */
-    private boolean updateInfoNew(Person person, String xml) throws MalformedURLException, IOException {
+    private boolean updateInfoNew(Person person, String xml) throws IOException {
         person.setUrl(getImdbUrl(person));
 
         if (xml.indexOf("Alternate Names:") > -1) {

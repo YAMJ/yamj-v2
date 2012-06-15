@@ -39,13 +39,13 @@ public class WebBrowser {
     private static final String logMessage = "WebBrowser: ";
     private Map<String, String> browserProperties;
     private Map<String, Map<String, String>> cookies;
-    private static String mjbProxyHost;
-    private static String mjbProxyPort;
-    private static String mjbProxyUsername;
-    private static String mjbProxyPassword;
-    private static String mjbEncodedPassword;
-    private static int mjbTimeoutConnect = 25000;
-    private static int mjbTimeoutRead = 90000;
+    private static String mjbProxyHost = PropertiesUtil.getProperty("mjb.ProxyHost", null);
+    private static String mjbProxyPort = PropertiesUtil.getProperty("mjb.ProxyPort", null);
+    private static String mjbProxyUsername = PropertiesUtil.getProperty("mjb.ProxyUsername", null);
+    private static String mjbProxyPassword = PropertiesUtil.getProperty("mjb.ProxyPassword", null);
+    private static String mjbEncodedPassword = encodePassword();
+    private static int mjbTimeoutConnect = PropertiesUtil.getIntProperty("mjb.Timeout.Connect", "25000");
+    private static int mjbTimeoutRead = PropertiesUtil.getIntProperty("mjb.Timeout.Read", "90000");
     private int imageRetryCount;
 
     public WebBrowser() {
@@ -58,37 +58,21 @@ public class WebBrowser {
 
         cookies = new HashMap<String, Map<String, String>>();
 
-        mjbProxyHost = PropertiesUtil.getProperty("mjb.ProxyHost", null);
-        mjbProxyPort = PropertiesUtil.getProperty("mjb.ProxyPort", null);
-        mjbProxyUsername = PropertiesUtil.getProperty("mjb.ProxyUsername", null);
-        mjbProxyPassword = PropertiesUtil.getProperty("mjb.ProxyPassword", null);
-
-        try {
-            mjbTimeoutConnect = PropertiesUtil.getIntProperty("mjb.Timeout.Connect", "25000");
-        } catch (Exception ignore) {
-            // If the conversion fails use the default value
-            mjbTimeoutConnect = 25000;
-        }
-
-        try {
-            mjbTimeoutRead = PropertiesUtil.getIntProperty("mjb.Timeout.Read", "90000");
-        } catch (Exception ignore) {
-            // If the conversion fails use the default value
-            mjbTimeoutRead = 90000;
-        }
-
         imageRetryCount = PropertiesUtil.getIntProperty("mjb.imageRetryCount", "3");
         if (imageRetryCount < 1) {
             imageRetryCount = 1;
         }
 
-        if (mjbProxyUsername != null) {
-            mjbEncodedPassword = mjbProxyUsername + ":" + mjbProxyPassword;
-            mjbEncodedPassword = "Basic " + new String(Base64.encodeBase64((mjbProxyUsername + ":" + mjbProxyPassword).getBytes()));
-        }
-
         if (logger.isTraceEnabled()) {
             showStatus();
+        }
+    }
+
+    private static String encodePassword() {
+        if (mjbProxyUsername != null) {
+            return ("Basic " + new String(Base64.encodeBase64((mjbProxyUsername + ":" + mjbProxyPassword).getBytes())));
+        } else {
+            return "";
         }
     }
 

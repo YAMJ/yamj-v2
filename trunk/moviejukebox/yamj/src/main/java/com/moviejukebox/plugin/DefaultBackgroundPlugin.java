@@ -41,10 +41,10 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     private int cornerRadius;
     private float rcqFactor;
     private int frameSize;
-    private static String frameColorHD;
-    private static String frameColor720;
-    private static String frameColor1080;
-    private static String frameColorSD;
+    private String frameColorSD;
+    private String frameColorHD;
+    private String frameColor720;
+    private String frameColor1080;
 
     public DefaultBackgroundPlugin() {
         // These are the default values for the width and height.
@@ -79,6 +79,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
 
         boolean addFrame = PropertiesUtil.getBooleanProperty(newImageType + ".addFrame", "false");
         frameSize = PropertiesUtil.getIntProperty(newImageType + ".frame.size", "5");
+
         frameColorSD = PropertiesUtil.getProperty(newImageType + ".frame.colorSD", "255/255/255");
         frameColorHD = PropertiesUtil.getProperty(newImageType + ".frame.colorHD", "255/255/255");
         frameColor720 = PropertiesUtil.getProperty(newImageType + ".frame.color720", "255/255/255");

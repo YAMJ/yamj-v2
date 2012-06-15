@@ -54,8 +54,8 @@ public class MovieJukeboxXMLWriter {
     private static final Logger logger = Logger.getLogger(MovieJukeboxXMLWriter.class);
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";
-    private static boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", Boolean.FALSE.toString());
-    private static boolean forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", Boolean.FALSE.toString());
+    private static boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
+    private static boolean forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false");
     private int nbMoviesPerPage;
     private int nbMoviesPerLine;
     private int nbTvShowsPerPage;
@@ -70,35 +70,35 @@ public class MovieJukeboxXMLWriter {
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
     private boolean includeEpisodeRating;
-    private static boolean isPlayOnHD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", Boolean.FALSE.toString());
-    private static boolean isExtendedURL = PropertiesUtil.getBooleanProperty("mjb.scanner.mediainfo.rar.extended.url", Boolean.FALSE.toString());
+    private static boolean isPlayOnHD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", "false");
+    private static boolean isExtendedURL = PropertiesUtil.getBooleanProperty("mjb.scanner.mediainfo.rar.extended.url", "false");
     private static String defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
     private List<String> categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
-    private boolean removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", Boolean.FALSE.toString());
-    private boolean keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", Boolean.TRUE.toString());
-    private boolean beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", Boolean.FALSE.toString());
-    private static List<String> categoriesDisplayList = Collections.emptyList();
+    private boolean removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", "false");
+    private boolean keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", "true");
+    private boolean beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", "false");
+    private static List<String> categoriesDisplayList = initDisplayList();
     private static List<String> categoriesLimitList = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.limitList", "Cast,Director,Writer,Person").split(","));
-    private static boolean writeNfoFiles;
+    private static boolean writeNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeFiles", "false");
     private boolean setsExcludeTV;
-    private static String peopleFolder;
-    private static boolean enableWatchScanner;
+    private static String peopleFolder = initPeopleFolder();
+    private static boolean enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", "true");
     // Should we scrape people information
-    private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE.toString());
-    private static boolean addPeopleInfo = PropertiesUtil.getBooleanProperty("mjb.people.addInfo", Boolean.FALSE.toString());
+    private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", "false");
+    private static boolean addPeopleInfo = PropertiesUtil.getBooleanProperty("mjb.people.addInfo", "false");
     // Should we scrape the award information
-    private static boolean enableAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", Boolean.FALSE.toString()) || PropertiesUtil.getProperty("mjb.scrapeAwards", "").equalsIgnoreCase("won");
+    private static boolean enableAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", "false") || PropertiesUtil.getProperty("mjb.scrapeAwards", "").equalsIgnoreCase("won");
     // Should we scrape the business information
-    private static boolean enableBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", Boolean.FALSE.toString());
+    private static boolean enableBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", "false");
     // Should we scrape the trivia information
-    private static boolean enableTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", Boolean.FALSE.toString());
+    private static boolean enableTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", "false");
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     // Should we reindex the New / Watched / Unwatched categories?
     private boolean reindexNew = Boolean.FALSE;
     private boolean reindexWatched = Boolean.FALSE;
     private boolean reindexUnwatched = Boolean.FALSE;
-    private boolean XMLcompatible = PropertiesUtil.getBooleanProperty("mjb.XMLcompatible", Boolean.FALSE.toString());
-    private boolean sortLibrary = PropertiesUtil.getBooleanProperty("indexing.sort.libraries", Boolean.TRUE.toString());
+    private boolean XMLcompatible = PropertiesUtil.getBooleanProperty("mjb.XMLcompatible", "false");
+    private boolean sortLibrary = PropertiesUtil.getBooleanProperty("indexing.sort.libraries", "true");
 
     public MovieJukeboxXMLWriter() {
         nbMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerPage", "10");
@@ -109,26 +109,13 @@ public class MovieJukeboxXMLWriter {
         nbSetMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbSetThumbnailsPerLine", "0"); // If 0 then use the Movies setting
         nbTVSetMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbTVSetThumbnailsPerPage", "0"); // If 0 then use the TV SHOW setting
         nbTVSetMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbTVSetThumbnailsPerLine", "0"); // If 0 then use the TV SHOW setting
-        fullMovieInfoInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullMovieInfoInIndexes", Boolean.FALSE.toString());
-        fullCategoriesInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullCategoriesInIndexes", Boolean.TRUE.toString());
-        includeMoviesInCategories = PropertiesUtil.getBooleanProperty("mjb.includeMoviesInCategories", Boolean.FALSE.toString());
-        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", Boolean.FALSE.toString());
-        includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE.toString());
-        includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", Boolean.FALSE.toString());
-        setsExcludeTV = PropertiesUtil.getBooleanProperty("mjb.sets.excludeTV", Boolean.FALSE.toString());
-        writeNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeFiles", Boolean.FALSE.toString());
-        enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", Boolean.TRUE.toString());
-
-        // Set up the display list
-        populateDisplayList();
-
-        // Issue 1947: Cast enhancement - option to save all related files to a specific folder
-        peopleFolder = PropertiesUtil.getProperty("mjb.people.folder", "");
-        if (StringTools.isNotValidString(peopleFolder)) {
-            peopleFolder = "";
-        } else if (!peopleFolder.endsWith(File.separator)) {
-            peopleFolder += File.separator;
-        }
+        fullMovieInfoInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullMovieInfoInIndexes", "false");
+        fullCategoriesInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullCategoriesInIndexes", "true");
+        includeMoviesInCategories = PropertiesUtil.getBooleanProperty("mjb.includeMoviesInCategories", "false");
+        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
+        includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
+        includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");
+        setsExcludeTV = PropertiesUtil.getBooleanProperty("mjb.sets.excludeTV", "false");
 
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
@@ -155,12 +142,33 @@ public class MovieJukeboxXMLWriter {
         }
     }
 
-    protected final void populateDisplayList() {
+    /**
+     * Set up the people folder
+     *
+     * @return
+     */
+    private static String initPeopleFolder() {
+        // Issue 1947: Cast enhancement - option to save all related files to a specific folder
+        String folder = PropertiesUtil.getProperty("mjb.people.folder", "");
+        if (StringTools.isNotValidString(folder)) {
+            folder = "";
+        } else if (!folder.endsWith(File.separator)) {
+            folder += File.separator;
+        }
+        return folder;
+    }
+
+    /**
+     * Set up the display list
+     *
+     * @return
+     */
+    private static List<String> initDisplayList() {
         String strCategoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.displayList", "");
         if (strCategoriesDisplayList.length() == 0) {
             strCategoriesDisplayList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
         }
-        categoriesDisplayList = Arrays.asList(strCategoriesDisplayList.split(","));
+        return Arrays.asList(strCategoriesDisplayList.split(","));
     }
 
     /**

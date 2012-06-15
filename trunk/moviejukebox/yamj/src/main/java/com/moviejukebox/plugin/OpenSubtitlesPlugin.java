@@ -532,7 +532,7 @@ public class OpenSubtitlesPlugin {
      * Scanner in; in = new Scanner(connection.getInputStream()); while (in.hasNextLine()) { str += in.nextLine(); } ; return str; } ;
      */
 
-    private static String sendRPC(String xml) throws MalformedURLException, IOException {
+    private static String sendRPC(String xml) throws IOException {
 
         StringBuilder str = new StringBuilder();
         String strona = OSdbServer;

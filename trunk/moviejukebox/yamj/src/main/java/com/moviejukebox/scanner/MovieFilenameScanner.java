@@ -83,25 +83,25 @@ public final class MovieFilenameScanner {
     // Number at the end of string preceded with '-'
     private static final Pattern SET_INDEX_PATTERN = patt("-\\s*(\\d+)\\s*$");
     private static final String[] AUDIO_CODECS_ARRAY = new String[]{"AC3", "DTS", "DD", "AAC", "FLAC"};
-    protected static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})(?:(\\s|\\.|x))??((?:(e|x)\\s??[0-9]+)+)");
-    protected static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)(\\s|\\.)??[ex-]");
-    protected static final Pattern EPISODE_PATTERN = ipatt("[ex]\\s??([0-9]+)");
-    protected static final String TOKEN_DELIMITERS_STRING = ".[]()";
-    protected static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
+    private static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})(?:(\\s|\\.|x))??((?:(e|x)\\s??[0-9]+)+)");
+    private static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)(\\s|\\.)??[ex-]");
+    private static final Pattern EPISODE_PATTERN = ipatt("[ex]\\s??([0-9]+)");
+    private static final String TOKEN_DELIMITERS_STRING = ".[]()";
+    private static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
     private static final String NOTOKEN_DELIMITERS_STRING = " _-,";
-    protected static final String WORD_DELIMITERS_STRING = NOTOKEN_DELIMITERS_STRING + TOKEN_DELIMITERS_STRING;
-    protected static final char[] WORD_DELIMITERS_ARRAY = WORD_DELIMITERS_STRING.toCharArray();
+    private static final String WORD_DELIMITERS_STRING = NOTOKEN_DELIMITERS_STRING + TOKEN_DELIMITERS_STRING;
+    private static final char[] WORD_DELIMITERS_ARRAY = WORD_DELIMITERS_STRING.toCharArray();
     protected static final Pattern TOKEN_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(TOKEN_DELIMITERS_STRING) + "]|$|^)");
-    protected static final Pattern NOTOKEN_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(NOTOKEN_DELIMITERS_STRING) + "])");
-    protected static final Pattern WORD_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(WORD_DELIMITERS_STRING) + "]|$|^)");
+    private static final Pattern NOTOKEN_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(NOTOKEN_DELIMITERS_STRING) + "])");
+    private static final Pattern WORD_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(WORD_DELIMITERS_STRING) + "]|$|^)");
     // Last 4 digits or last 4 digits in parenthesis.
-    protected static final Pattern MOVIE_YEAR_PATTERN = patt("\\({0,1}(\\d{4})(?:/|\\\\|\\||-){0,1}(I*)\\){0,1}$");
+    private static final Pattern MOVIE_YEAR_PATTERN = patt("\\({0,1}(\\d{4})(?:/|\\\\|\\||-){0,1}(I*)\\){0,1}$");
     // One or more '.[]_ '
-    protected static final Pattern TITLE_CLEANUP_DIV_PATTERN = patt("([\\. _\\[\\]]+)");
+    private static final Pattern TITLE_CLEANUP_DIV_PATTERN = patt("([\\. _\\[\\]]+)");
     // '-' or '(' at the end
-    protected static final Pattern TITLE_CLEANUP_CUT_PATTERN = patt("-$|\\($");
+    private static final Pattern TITLE_CLEANUP_CUT_PATTERN = patt("-$|\\($");
     // All symbols between '-' and '/' but not after '/TVSHOW/' or '/PART/'
-    protected static final Pattern SECOND_TITLE_PATTERN = patt("(?<!/TVSHOW/|/PART/)-([^/]+)");
+    private static final Pattern SECOND_TITLE_PATTERN = patt("(?<!/TVSHOW/|/PART/)-([^/]+)");
     // Parts/disks markers. CAUTION: Grouping is used for part number detection/parsing.
     private static final List<Pattern> PART_PATTERNS = new ArrayList<Pattern>() {
         {
