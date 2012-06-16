@@ -152,7 +152,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     // File information
     private Date fileDate = null;
     private long fileSize = 0;
-    private Long lastModifiedTimeStamp = null;      // cache value
+    private long lastModifiedTimeStamp = Long.valueOf(0);      // cache value
     private boolean watchedFile = Boolean.FALSE;    // Watched / Unwatched - Set from the .watched files
     private boolean watchedNFO = Boolean.FALSE;     // Watched / Unwatched - Set from the NFO file
     // Navigation data
@@ -1626,16 +1626,15 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public long getLastModifiedTimestamp() {
         if (!isSetMaster()) {
             synchronized (this) {
-                if (lastModifiedTimeStamp == null) {
-                    lastModifiedTimeStamp = Long.valueOf(0);
+                if (lastModifiedTimeStamp == 0L) {
                     for (MovieFile mf : getMovieFiles()) {
                         lastModifiedTimeStamp = Math.max(lastModifiedTimeStamp, mf.getLastModified());
                     }
                 }
                 //make sure the fileDate is correct too
                 addFileDate(new Date(lastModifiedTimeStamp));
+                return lastModifiedTimeStamp;
             }
-            return lastModifiedTimeStamp;
         } else {
             // Sets don't hold the time/date of their files, so just return the time of the file
             return getFileDate().getTime();
@@ -2012,7 +2011,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      *
      * @param fileDate
      */
-    public void setFileDate(Date fileDate) {
+    public synchronized void setFileDate(Date fileDate) {
         this.fileDate = fileDate;
     }
 

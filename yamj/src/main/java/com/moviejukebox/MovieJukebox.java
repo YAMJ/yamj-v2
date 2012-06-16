@@ -52,8 +52,7 @@ public class MovieJukebox {
     private String skinHome;
     private static String userPropertiesName = "./moviejukebox.properties";
     // Jukebox parameters
-    protected static Jukebox jukebox;
-    protected static String jukeboxLocation;
+    private static Jukebox jukebox;
     private static boolean jukeboxPreserve = false;
     private static boolean jukeboxClean = false;
     // Time Stamps
@@ -685,22 +684,21 @@ public class MovieJukebox {
          */
         class ToolSet {
 
-            public MovieImagePlugin imagePlugin = getImagePlugin(getProperty("mjb.image.plugin", "com.moviejukebox.plugin.DefaultImagePlugin"));
-            public MovieImagePlugin backgroundPlugin = getBackgroundPlugin(getProperty("mjb.background.plugin",
-                    "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
-            public MediaInfoScanner miScanner = new MediaInfoScanner();
-            public OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
-            public RottenTomatoesPlugin rtPlugin = new RottenTomatoesPlugin();
-            public TrailerScanner trailerScanner = new TrailerScanner();
+            private MovieImagePlugin imagePlugin = MovieJukebox.getImagePlugin(getProperty("mjb.image.plugin", "com.moviejukebox.plugin.DefaultImagePlugin"));
+            private MovieImagePlugin backgroundPlugin = MovieJukebox.getBackgroundPlugin(getProperty("mjb.background.plugin", "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
+            private MediaInfoScanner miScanner = new MediaInfoScanner();
+            private OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
+            private RottenTomatoesPlugin rtPlugin = new RottenTomatoesPlugin();
+            private TrailerScanner trailerScanner = new TrailerScanner();
             // Fanart.TV TV Artwork Scanners
-            public ArtworkScanner clearArtScanner = new FanartTvScanner(ArtworkType.ClearArt);
-            public ArtworkScanner clearLogoScanner = new FanartTvScanner(ArtworkType.ClearLogo);
-            public ArtworkScanner tvThumbScanner = new FanartTvScanner(ArtworkType.TvThumb);
-            public ArtworkScanner seasonThumbScanner = new FanartTvScanner(ArtworkType.SeasonThumb);
+            private ArtworkScanner clearArtScanner = new FanartTvScanner(ArtworkType.ClearArt);
+            private ArtworkScanner clearLogoScanner = new FanartTvScanner(ArtworkType.ClearLogo);
+            private ArtworkScanner tvThumbScanner = new FanartTvScanner(ArtworkType.TvThumb);
+            private ArtworkScanner seasonThumbScanner = new FanartTvScanner(ArtworkType.SeasonThumb);
             // Fanart.TV Movie Artwork Scanners
-            public ArtworkScanner movieArtScanner = new FanartTvScanner(ArtworkType.MovieArt);
-            public ArtworkScanner movieLogoScanner = new FanartTvScanner(ArtworkType.MovieLogo);
-            public ArtworkScanner movieDiscScanner = new FanartTvScanner(ArtworkType.MovieDisc);
+            private ArtworkScanner movieArtScanner = new FanartTvScanner(ArtworkType.MovieArt);
+            private ArtworkScanner movieLogoScanner = new FanartTvScanner(ArtworkType.MovieLogo);
+            private ArtworkScanner movieDiscScanner = new FanartTvScanner(ArtworkType.MovieDisc);
         }
 
         final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
@@ -2007,8 +2005,8 @@ public class MovieJukebox {
                     logger.debug("Downloading poster for " + movie.getBaseName() + " to " + tmpDestFile.getName());
                     FileTools.downloadImage(tmpDestFile, movie.getPosterURL());
                     logger.debug("Downloaded poster for " + movie.getBaseName());
-                } catch (Exception error) {
-                    logger.debug("Failed downloading movie poster : " + movie.getPosterURL());
+                } catch (IOException error) {
+                    logger.debug("Failed downloading movie poster: " + movie.getPosterURL() + " - Error: " + error.getMessage());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), tmpDestFile);
                 }
             }
@@ -2046,8 +2044,8 @@ public class MovieJukebox {
                 try {
                     logger.debug("Downloading banner for " + movie.getBaseName() + " to " + tmpDestFile.getName() + " [calling plugin]");
                     FileTools.downloadImage(tmpDestFile, movie.getBannerURL());
-                } catch (Exception error) {
-                    logger.debug("Failed downloading banner: " + movie.getBannerURL());
+                } catch (IOException error) {
+                    logger.debug("Failed downloading banner: " + movie.getBannerURL() + " - Error: " + error.getMessage());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), tmpDestFile);
                 }
             }
@@ -2058,8 +2056,8 @@ public class MovieJukebox {
                     bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                     GraphicTools.saveImageToDisk(bannerImage, tmpDestFilename);
                 }
-            } catch (Exception error) {
-                logger.debug("MovieJukebox: Failed generate banner : " + tmpDestFilename);
+            } catch (IOException error) {
+                logger.debug("MovieJukebox: Failed generate banner : " + tmpDestFilename + " - Error: " + error.getMessage());
             }
         }
     }
@@ -2078,69 +2076,74 @@ public class MovieJukebox {
         if (forceFooterOverwrite || (!tmpDestFile.exists() && !footerFile.exists())) {
             footerFile.getParentFile().mkdirs();
 
-            try {
-                BufferedImage footerImage = GraphicTools.createBlankImage(footerWidth.get(inx), footerHeight.get(inx));
-                if (footerImage != null) {
-                    footerImage = imagePlugin.generate(movie, footerImage, "footer" + footerName.get(inx), null);
-                    GraphicTools.saveImageToDisk(footerImage, tmpDestFilename);
-                }
-            } catch (Exception error) {
-                logger.debug("MovieJukebox: Failed generate footer " + inx + " (" + footerName.get(inx) + "): " + tmpDestFilename);
+            BufferedImage footerImage = GraphicTools.createBlankImage(footerWidth.get(inx), footerHeight.get(inx));
+            if (footerImage != null) {
+                footerImage = imagePlugin.generate(movie, footerImage, "footer" + footerName.get(inx), null);
+                GraphicTools.saveImageToDisk(footerImage, tmpDestFilename);
             }
         }
     }
 
     public static synchronized MovieImagePlugin getImagePlugin(String className) {
-        MovieImagePlugin imagePlugin;
-
         try {
             Thread t = Thread.currentThread();
             ClassLoader cl = t.getContextClassLoader();
             Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
-            imagePlugin = pluginClass.newInstance();
-        } catch (Exception error) {
-            imagePlugin = new DefaultImagePlugin();
-            logger.error("Failed instanciating imagePlugin: " + className);
-            logger.error("Default poster plugin will be used instead.");
-            logger.error(SystemTools.getStackTrace(error));
+            return pluginClass.newInstance();
+        } catch (InstantiationException ex) {
+            logger.error("Failed instanciating ImagePlugin: " + className + " - Error: " + ex.getMessage());
+            logger.error(SystemTools.getStackTrace(ex));
+        } catch (IllegalAccessException ex) {
+            logger.error("Failed accessing ImagePlugin: " + className + " - Error: " + ex.getMessage());
+            logger.error(SystemTools.getStackTrace(ex));
+        } catch (ClassNotFoundException ex) {
+            logger.error("ImagePlugin class not found: " + className + " - Error: " + ex.getMessage());
+            logger.error(SystemTools.getStackTrace(ex));
         }
-
-        return imagePlugin;
+        logger.error("Default poster plugin will be used instead.");
+        return new DefaultImagePlugin();
     }
 
     public static MovieImagePlugin getBackgroundPlugin(String className) {
-        MovieImagePlugin backgroundPlugin;
-
         try {
             Thread t = Thread.currentThread();
             ClassLoader cl = t.getContextClassLoader();
             Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
-            backgroundPlugin = pluginClass.newInstance();
-        } catch (Exception error) {
-            backgroundPlugin = new DefaultBackgroundPlugin();
-            logger.error("Failed instanciating BackgroundPlugin: " + className);
-            logger.error("Default background plugin will be used instead.");
-            logger.error(SystemTools.getStackTrace(error));
+            return pluginClass.newInstance();
+        } catch (InstantiationException ex) {
+            logger.error("Failed instanciating BackgroundPlugin: " + className + " - Error: " + ex.getMessage());
+            logger.error(SystemTools.getStackTrace(ex));
+        } catch (IllegalAccessException ex) {
+            logger.error("Failed accessing BackgroundPlugin: " + className + " - Error: " + ex.getMessage());
+            logger.error(SystemTools.getStackTrace(ex));
+        } catch (ClassNotFoundException ex) {
+            logger.error("BackgroundPlugin class not found: " + className + " - Error: " + ex.getMessage());
+            logger.error(SystemTools.getStackTrace(ex));
         }
 
-        return backgroundPlugin;
+        logger.error("Default background plugin will be used instead.");
+        return new DefaultBackgroundPlugin();
     }
 
     public static MovieListingPlugin getListingPlugin(String className) {
-        MovieListingPlugin listingPlugin;
         try {
             Thread t = Thread.currentThread();
             ClassLoader cl = t.getContextClassLoader();
             Class<? extends MovieListingPlugin> pluginClass = cl.loadClass(className).asSubclass(MovieListingPlugin.class);
-            listingPlugin = pluginClass.newInstance();
-        } catch (Exception error) {
-            listingPlugin = new MovieListingPluginBase();
-            logger.error("Failed instantiating ListingPlugin: " + className);
-            logger.error("No listing plugin will be used.");
-            logger.error(SystemTools.getStackTrace(error));
+            return pluginClass.newInstance();
+        } catch (InstantiationException ex) {
+            logger.error("Failed instanciating ListingPlugin: " + className + " - Error: " + ex.getMessage());
+            logger.error(SystemTools.getStackTrace(ex));
+        } catch (IllegalAccessException ex) {
+            logger.error("Failed accessing ListingPlugin: " + className + " - Error: " + ex.getMessage());
+            logger.error(SystemTools.getStackTrace(ex));
+        } catch (ClassNotFoundException ex) {
+            logger.error("ListingPlugin class not found: " + className + " - Error: " + ex.getMessage());
+            logger.error(SystemTools.getStackTrace(ex));
         }
 
-        return listingPlugin;
+        logger.error("No listing plugin will be used.");
+        return new MovieListingPluginBase();
     } // getListingPlugin()
 
     /**
