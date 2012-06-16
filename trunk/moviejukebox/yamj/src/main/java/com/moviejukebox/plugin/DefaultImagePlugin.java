@@ -65,23 +65,23 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean blockLanguage;
     private boolean highdefDiff;
     private boolean addTextSetSize;
-    private static String textAlignment;
-    private static String textFont;
-    private static int textFontSize;
-    private static String textFontColor;
-    private static String textFontShadow;
-    private static int textOffset;
+    private String textAlignment;
+    private String textFont;
+    private int textFontSize;
+    private String textFontColor;
+    private String textFontShadow;
+    private int textOffset;
     private String imageType;
     private boolean roundCorners;
     private int cornerRadius;
     // cornerQuality/rcqfactor to improve roundCorner Quality
     private float rcqFactor;
     private int frameSize;
-    private static String frameColorHD;
-    private static String frameColor720;
-    private static String frameColor1080;
-    private static String frameColorSD;
-    private static String overlaySource;
+    private String frameColorHD;
+    private String frameColor720;
+    private String frameColor1080;
+    private String frameColorSD;
+    private String overlaySource;
     // Issue 1937: Overlay configuration XML
     private List<LogoOverlay> overlayLayers = new ArrayList<LogoOverlay>();
     private boolean xmlOverlay;
@@ -1260,7 +1260,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         return bi;
     }
 
-    private static BufferedImage drawText(BufferedImage bi, String outputText, boolean verticalAlign) {
+    private BufferedImage drawText(BufferedImage bi, String outputText, boolean verticalAlign) {
         Graphics2D g2d = bi.createGraphics();
         g2d.setFont(new Font(textFont, Font.BOLD, textFontSize));
         FontMetrics fm = g2d.getFontMetrics();
