@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
 
-@SuppressWarnings("serial")
 @XmlType
 public class MovieFile implements Comparable<MovieFile> {
 
@@ -543,7 +542,7 @@ public class MovieFile implements Comparable<MovieFile> {
         if (watchedDate == 0) {
             return Movie.UNKNOWN;
         } else {
-            return new DateTime(watchedDate).toString(Movie.dateFormatLongString);
+            return new DateTime(watchedDate).toString(StringTools.getDateFormatLongString());
         }
     }
 

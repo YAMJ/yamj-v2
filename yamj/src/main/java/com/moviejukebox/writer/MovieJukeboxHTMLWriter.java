@@ -39,9 +39,7 @@ public class MovieJukeboxHTMLWriter {
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";
     private static final String EXT_XSL = ".xsl";
-    private boolean forceHTMLOverwrite;
-    private int nbMoviesPerPage;
-    private int nbTvShowsPerPage;
+    private boolean forceHTMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", "false");
     private String peopleFolder;
     private static String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
     private static TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -53,12 +51,6 @@ public class MovieJukeboxHTMLWriter {
     private static int maxRetryCount = 3;   // The number of times to retry writing a HTML page
 
     public MovieJukeboxHTMLWriter() {
-        forceHTMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", "false");
-        nbMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerPage", "10");
-        nbTvShowsPerPage = PropertiesUtil.getIntProperty("mjb.nbTvThumbnailsPerPage", "0"); // If 0 then use the Movies setting
-        if (nbTvShowsPerPage == 0) {
-            nbTvShowsPerPage = nbMoviesPerPage;
-        }
 
         // Issue 1947: Cast enhancement - option to save all related files to a specific folder
         peopleFolder = PropertiesUtil.getProperty("mjb.people.folder", "");

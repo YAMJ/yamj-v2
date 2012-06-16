@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.model.Movie;
 import java.io.File;
 import java.text.BreakIterator;
 import java.text.DecimalFormat;
@@ -25,14 +26,12 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
-
-import com.moviejukebox.model.Movie;
 
 public class StringTools {
 
     private static final Pattern CLEAN_STRING_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
+    // Number formatting
     private static final long KB = 1024;
     private static final long MB = KB * KB;
     private static final long GB = KB * KB * KB;
@@ -40,6 +39,9 @@ public class StringTools {
     private static final DecimalFormat FILESIZE_FORMAT_1 = new DecimalFormat("0.#");
     private static final DecimalFormat FILESIZE_FORMAT_2 = new DecimalFormat("0.##");
     private static final Map<Character, Character> charReplacementMap = new HashMap<Character, Character>();
+    // Date formatting
+    private static final String DATE_FORMAT_STRING = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
+    private static final String DATE_FORMAT_LONG_STRING = DATE_FORMAT_STRING + " HH:mm:ss";
 
     static {
         // Populate the charReplacementMap
@@ -111,20 +113,36 @@ public class StringTools {
     }
 
     /**
-     * Convert a date to a string using the Movie dateFormat
+     * Convert a date to a string using the Movie DATE_FORMAT
      *
      * @param convertDate
-     * @return converted date in the format specified in Movie.dateFormatString
+     * @return converted date in the format specified in Movie.DATE_FORMAT_STRING
      */
     public static String convertDateToString(Date convertDate) {
-        return convertDateToString(convertDate, Movie.dateFormat);
+        return convertDateToString(convertDate, getDateFormat());
+    }
+
+    public static String getDateFormatString() {
+        return DATE_FORMAT_STRING;
+    }
+
+    public static String getDateFormatLongString() {
+        return DATE_FORMAT_LONG_STRING;
+    }
+
+    public static SimpleDateFormat getDateFormat() {
+        return new SimpleDateFormat(DATE_FORMAT_STRING);
+    }
+
+    public static SimpleDateFormat getDateFormatLong() {
+        return new SimpleDateFormat(DATE_FORMAT_LONG_STRING);
     }
 
     /**
      * Convert a date to a string using a Simple Date Format
      *
      * @param convertDate
-     * @param dateFormat
+     * @param DATE_FORMAT
      * @return
      */
     public static String convertDateToString(Date convertDate, SimpleDateFormat dateFormat) {
@@ -139,7 +157,7 @@ public class StringTools {
      * Convert a date to a string using a String date format
      *
      * @param convertDate
-     * @param dateFormatString
+     * @param DATE_FORMAT_STRING
      * @return
      */
     public static String convertDateToString(Date convertDate, String dateFormatString) {
@@ -171,7 +189,7 @@ public class StringTools {
      */
     public static String formatFileSize(long fileSize) {
 
-        String returnSize = Movie.UNKNOWN;
+        String returnSize;
         if (fileSize < KB) {
             returnSize = fileSize + " Bytes";
         } else {
@@ -244,7 +262,7 @@ public class StringTools {
      * @return
      */
     public static int processRuntime(String runtime) {
-        int returnValue = -1;
+        int returnValue;
         // See if we can convert this to a number and assume it's correct if we can
         try {
             returnValue = Integer.parseInt(runtime);

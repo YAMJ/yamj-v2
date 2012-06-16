@@ -30,17 +30,17 @@ public class FileTools {
     private static final Logger logger = Logger.getLogger(FileTools.class);
     private static final String logMessage = "FileTools: ";
     static final int BUFF_SIZE = 16 * 1024;
-    private static final Collection<String> subtitleExtensions = new ArrayList<String>();
+    private static final Collection<String> SUBTITLE_EXTENSIONS = new ArrayList<String>();
 
     static {
-        if (subtitleExtensions.isEmpty()) {
-            subtitleExtensions.addAll(Arrays.asList(PropertiesUtil.getProperty("filename.scanner.subtitle", "SRT,SUB,SSA,SMI,PGS").split(",")));
+        if (SUBTITLE_EXTENSIONS.isEmpty()) {
+            SUBTITLE_EXTENSIONS.addAll(Arrays.asList(PropertiesUtil.getProperty("filename.scanner.subtitle", "SRT,SUB,SSA,SMI,PGS").split(",")));
         }
     }
     /**
      * Gabriel Corneanu: One buffer for each thread to allow threaded copies
      */
-    private static final ThreadLocal<byte[]> threadBuffer = new ThreadLocal<byte[]>() {
+    private static final ThreadLocal<byte[]> THREAD_BUFFER = new ThreadLocal<byte[]>() {
         @Override
         protected byte[] initialValue() {
             return new byte[BUFF_SIZE];
@@ -70,9 +70,9 @@ public class FileTools {
             return newFilename;
         }
     };
-    private static final Collection<ReplaceEntry> unsafeChars = new ArrayList<ReplaceEntry>();
-    private static final Character encodeEscapeChar;
-    private static final Collection<String> generatedFileNames = Collections.synchronizedCollection(new ArrayList<String>());
+    private static final Collection<ReplaceEntry> UNSAFE_CHARS = new ArrayList<ReplaceEntry>();
+    private static final Character ENCODE_ESCAPE_CHAR;
+    private static final Collection<String> GENERATED_FILENAMES = Collections.synchronizedCollection(new ArrayList<String>());
     private static boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
     private static int footerImageEnabled = PropertiesUtil.getIntProperty("mjb.footer.count", "0");
     private static String indexFilesPrefix = getProperty("mjb.indexFilesPrefix", "");
@@ -82,7 +82,7 @@ public class FileTools {
         String encodeEscapeCharString = PropertiesUtil.getProperty("mjb.charset.filenameEncodingEscapeChar", "$");
         if (encodeEscapeCharString.length() > 0) {
             // What to do if the user specifies a >1 character long string? I guess just use the first char.
-            encodeEscapeChar = encodeEscapeCharString.charAt(0);
+            ENCODE_ESCAPE_CHAR = encodeEscapeCharString.charAt(0);
 
             String repChars = PropertiesUtil.getProperty("mjb.charset.unsafeFilenameChars", "<>:\"/\\|?*");
             for (String repChar : repChars.split("")) {
@@ -90,14 +90,14 @@ public class FileTools {
                     char ch = repChar.charAt(0);
                     // Don't encode characters that are hex digits
                     // Also, don't encode the escape char -- it is safe by definition!
-                    if (!Character.isDigit(ch) && -1 == "AaBbCcDdEeFf".indexOf(ch) && !encodeEscapeChar.equals(ch)) {
+                    if (!Character.isDigit(ch) && -1 == "AaBbCcDdEeFf".indexOf(ch) && !ENCODE_ESCAPE_CHAR.equals(ch)) {
                         String hex = Integer.toHexString(ch).toUpperCase();
-                        unsafeChars.add(new ReplaceEntry(repChar, encodeEscapeChar + hex));
+                        UNSAFE_CHARS.add(new ReplaceEntry(repChar, ENCODE_ESCAPE_CHAR + hex));
                     }
                 }
             }
         } else {
-            encodeEscapeChar = null;
+            ENCODE_ESCAPE_CHAR = null;
         }
 
         // Parse transliteration map: (source_character [-] transliteration_sequence [,])+
@@ -117,14 +117,14 @@ public class FileTools {
                 // TODO Allow empty transliteration?
                 continue;
             }
-            unsafeChars.add(new ReplaceEntry(character.toUpperCase(), translation.toUpperCase()));
-            unsafeChars.add(new ReplaceEntry(character.toLowerCase(), translation.toLowerCase()));
+            UNSAFE_CHARS.add(new ReplaceEntry(character.toUpperCase(), translation.toUpperCase()));
+            UNSAFE_CHARS.add(new ReplaceEntry(character.toLowerCase(), translation.toLowerCase()));
         }
     }
 
     public static int copy(InputStream is, OutputStream os, WebStats stats) throws IOException {
         int bytesCopied = 0;
-        byte[] buffer = threadBuffer.get();
+        byte[] buffer = THREAD_BUFFER.get();
         try {
             while (Boolean.TRUE) {
                 int amountRead = is.read(buffer);
@@ -431,7 +431,7 @@ public class FileTools {
     public static String makeSafeFilename(String filename) {
         String newFilename = filename;
 
-        for (ReplaceEntry rep : unsafeChars) {
+        for (ReplaceEntry rep : UNSAFE_CHARS) {
             newFilename = rep.check(newFilename);
         }
 
@@ -664,7 +664,7 @@ public class FileTools {
      * @param filenames
      */
     public static void addJukeboxFiles(Collection<String> filenames) {
-        generatedFileNames.addAll(filenames);
+        GENERATED_FILENAMES.addAll(filenames);
     }
 
     /**
@@ -674,7 +674,7 @@ public class FileTools {
      */
     public static void addJukeboxFile(String filename) {
         if (StringTools.isValidString(filename)) {
-            generatedFileNames.add(filename);
+            GENERATED_FILENAMES.add(filename);
 
             if (logger.isTraceEnabled()) {
                 logger.trace(logMessage + "Adding " + filename + " to safe jukebox files");
@@ -715,7 +715,7 @@ public class FileTools {
     }
 
     public static Collection<String> getJukeboxFiles() {
-        return generatedFileNames;
+        return GENERATED_FILENAMES;
     }
 
     /**
@@ -1014,6 +1014,6 @@ public class FileTools {
      */
     public static File findSubtitles(File fileToScan) {
         String basename = FilenameUtils.removeExtension(fileToScan.getAbsolutePath().toUpperCase());
-        return FileTools.findFileFromExtensions(basename, subtitleExtensions);
+        return FileTools.findFileFromExtensions(basename, SUBTITLE_EXTENSIONS);
     }
 }

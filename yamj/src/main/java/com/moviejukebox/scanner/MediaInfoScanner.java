@@ -38,13 +38,13 @@ public class MediaInfoScanner {
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
     private static final Pattern PATTERN_CHANNELS = Pattern.compile(".*(\\d{1,2}).*");
     // mediaInfo repository
-    private static final File mediaInfoPath = new File(PropertiesUtil.getProperty("mediainfo.home", "./mediaInfo/"));
+    private static final File MI_PATH = new File(PropertiesUtil.getProperty("mediainfo.home", "./mediaInfo/"));
     // mediaInfo command line, depend on OS
-    private static final List<String> mediaInfoExe = new ArrayList<String>();
-    private static final String mediaInfoFilenameWindows = "MediaInfo.exe";
-    private static final String mediaInfoRarFilenameWindows = "MediaInfo-rar.exe";
-    private static final String mediaInfoFilenameLinux = "mediainfo";
-    private static final String mediaInfoRarFilenameLinux = "mediainfo-rar";
+    private static final List<String> MI_EXE = new ArrayList<String>();
+    private static final String MI_FILENAME_WINDOWS = "MediaInfo.exe";
+    private static final String MI_RAR_FILENAME_WINDOWS = "MediaInfo-rar.exe";
+    private static final String MI_FILENAME_LINUX = "mediainfo";
+    private static final String MI_RAR_FILENAME_LINUX = "mediainfo-rar";
     private static boolean isMediaInfoRar = false;
     public static final String OS_NAME = System.getProperty("os.name");
     public static final String OS_VERSION = System.getProperty("os.version");
@@ -56,7 +56,7 @@ public class MediaInfoScanner {
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
-    private static final List<String> mediaInfoDiskImages = new ArrayList<String>();
+    private static final List<String> MI_DISK_IMAGES = new ArrayList<String>();
 
     static {
         logger.debug("Operating System Name   : " + OS_NAME);
@@ -66,17 +66,17 @@ public class MediaInfoScanner {
         File checkMediainfo = findMediaInfo();
 
         if (OS_NAME.contains("Windows")) {
-            if (mediaInfoExe.isEmpty()) {
-                mediaInfoExe.add("cmd.exe");
-                mediaInfoExe.add("/E:1900");
-                mediaInfoExe.add("/C");
-                mediaInfoExe.add(checkMediainfo.getName());
-                mediaInfoExe.add("-f");
+            if (MI_EXE.isEmpty()) {
+                MI_EXE.add("cmd.exe");
+                MI_EXE.add("/E:1900");
+                MI_EXE.add("/C");
+                MI_EXE.add(checkMediainfo.getName());
+                MI_EXE.add("-f");
             }
         } else {
-            if (mediaInfoExe.isEmpty()) {
-                mediaInfoExe.add("./" + checkMediainfo.getName());
-                mediaInfoExe.add("-f");
+            if (MI_EXE.isEmpty()) {
+                MI_EXE.add("./" + checkMediainfo.getName());
+                MI_EXE.add("-f");
             }
         }
 
@@ -95,7 +95,7 @@ public class MediaInfoScanner {
 
         // Add a list of supported extensions
         for (String ext : PropertiesUtil.getProperty("mediainfo.rar.diskExtensions", "iso,img,rar,001").split(",")) {
-            mediaInfoDiskImages.add(ext.toLowerCase());
+            MI_DISK_IMAGES.add(ext.toLowerCase());
         }
     }
     // DVD rip infos Scanner
@@ -107,7 +107,7 @@ public class MediaInfoScanner {
     }
 
     public boolean extendedExtention(String filename) {
-        if (isMediaInfoRar && (mediaInfoDiskImages.contains(FilenameUtils.getExtension(filename).toLowerCase()))) {
+        if (isMediaInfoRar && (MI_DISK_IMAGES.contains(FilenameUtils.getExtension(filename).toLowerCase()))) {
             return true;
         }
         return false;
@@ -124,7 +124,7 @@ public class MediaInfoScanner {
                     currentMovie.setRuntime(StringTools.formatDuration(mainMovieIFO.getDuration()));
                 }
             }
-        } else if (!isMediaInfoRar && (mediaInfoDiskImages.contains(FilenameUtils.getExtension(currentMovie.getFile().getName())))) {
+        } else if (!isMediaInfoRar && (MI_DISK_IMAGES.contains(FilenameUtils.getExtension(currentMovie.getFile().getName())))) {
             // extracting IFO files from ISO file
             AbstractFile abstractIsoFile;
 
@@ -172,7 +172,7 @@ public class MediaInfoScanner {
             // Clean up
             FileTools.deleteDir(randomDirName);
         } else {
-            if (isMediaInfoRar && mediaInfoDiskImages.contains(FilenameUtils.getExtension(currentMovie.getFile().getName()))) {
+            if (isMediaInfoRar && MI_DISK_IMAGES.contains(FilenameUtils.getExtension(currentMovie.getFile().getName()))) {
                 logger.debug("MediaInfoScanner: Using MediaInfo-rar to scan " + currentMovie.getFile().getName());
             }
             scan(currentMovie, currentMovie.getFile().getAbsolutePath());
@@ -187,13 +187,13 @@ public class MediaInfoScanner {
 
         try {
             // Create the command line
-            List<String> commandMedia = new ArrayList<String>(mediaInfoExe);
+            List<String> commandMedia = new ArrayList<String>(MI_EXE);
             commandMedia.add(movieFilePath);
 
             ProcessBuilder pb = new ProcessBuilder(commandMedia);
 
             // set up the working directory.
-            pb.directory(mediaInfoPath);
+            pb.directory(MI_PATH);
 
             Process p = pb.start();
 
@@ -681,7 +681,7 @@ public class MediaInfoScanner {
 
         try {
             // Create the command line
-            ArrayList<String> commandMedia = new ArrayList<String>(mediaInfoExe);
+            ArrayList<String> commandMedia = new ArrayList<String>(MI_EXE);
             // Technically, mediaInfoExe has "-f" in it from above, but "-s"
             // will over-ride it anyway.
             // "-s" will dump just "$size $path" inside RAR/ISO.
@@ -691,7 +691,7 @@ public class MediaInfoScanner {
             ProcessBuilder pb = new ProcessBuilder(commandMedia);
 
             // set up the working directory.
-            pb.directory(mediaInfoPath);
+            pb.directory(MI_PATH);
 
             Process p = pb.start();
 
@@ -732,19 +732,19 @@ public class MediaInfoScanner {
         File mediaInfoFile;
 
         if (OS_NAME.contains("Windows")) {
-            mediaInfoFile = new File(mediaInfoPath.getAbsolutePath() + File.separator + mediaInfoRarFilenameWindows);
+            mediaInfoFile = new File(MI_PATH.getAbsolutePath() + File.separator + MI_RAR_FILENAME_WINDOWS);
             if (!mediaInfoFile.exists()) {
                 // Fall back to the normal filename
-                mediaInfoFile = new File(mediaInfoPath.getAbsolutePath() + File.separator + mediaInfoFilenameWindows);
+                mediaInfoFile = new File(MI_PATH.getAbsolutePath() + File.separator + MI_FILENAME_WINDOWS);
             } else {
                 // Enable the extra mediainfo-rar features
                 isMediaInfoRar = true;
             }
         } else {
-            mediaInfoFile = new File(mediaInfoPath.getAbsolutePath() + File.separator + mediaInfoRarFilenameLinux);
+            mediaInfoFile = new File(MI_PATH.getAbsolutePath() + File.separator + MI_RAR_FILENAME_LINUX);
             if (!mediaInfoFile.exists()) {
                 // Fall back to the normal filename
-                mediaInfoFile = new File(mediaInfoPath.getAbsolutePath() + File.separator + mediaInfoFilenameLinux);
+                mediaInfoFile = new File(MI_PATH.getAbsolutePath() + File.separator + MI_FILENAME_LINUX);
             } else {
                 // Enable the extra mediainfo-rar features
                 isMediaInfoRar = true;

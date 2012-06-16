@@ -67,7 +67,7 @@ public class MovieFilenameScannerTest extends TestCase {
     }
 
     public void testPatterns() {
-        Matcher matcher = MovieFilenameScanner.TOKEN_DELIMITERS_MATCH_PATTERN.matcher("a]bc.def");
+        Matcher matcher = MovieFilenameScanner.getTokenDelimitersMatchPattern().matcher("a]bc.def");
         assertTrue(matcher.find());
         assertEquals(0, matcher.start());
         assertEquals(0, matcher.end());

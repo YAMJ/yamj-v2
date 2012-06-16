@@ -1786,7 +1786,7 @@ public class MovieJukeboxXMLWriter {
 
         DOMHelper.appendChild(doc, eMovie, "mjbVersion", SystemTools.getVersion());
         DOMHelper.appendChild(doc, eMovie, "mjbRevision", SystemTools.getRevision());
-        DOMHelper.appendChild(doc, eMovie, "xmlGenerationDate", Movie.dateFormatLong.format(new Date()));
+        DOMHelper.appendChild(doc, eMovie, "xmlGenerationDate", StringTools.convertDateToString(new Date(), StringTools.getDateFormatLongString()));
         DOMHelper.appendChild(doc, eMovie, "baseFilenameBase", movie.getBaseFilename());
         DOMHelper.appendChild(doc, eMovie, "baseFilename", movie.getBaseName());
         DOMHelper.appendChild(doc, eMovie, "title", movie.getTitle());
@@ -1922,7 +1922,7 @@ public class MovieJukeboxXMLWriter {
             DOMHelper.appendChild(doc, eMovie, "trailerLastScan", Movie.UNKNOWN);
         } else {
             try {
-                DOMHelper.appendChild(doc, eMovie, "trailerLastScan", Movie.dateFormat.format(movie.getTrailerLastScan()));
+                DOMHelper.appendChild(doc, eMovie, "trailerLastScan", StringTools.getDateFormat().format(movie.getTrailerLastScan()));
             } catch (Exception error) {
                 DOMHelper.appendChild(doc, eMovie, "trailerLastScan", Movie.UNKNOWN);
             }
@@ -1953,7 +1953,7 @@ public class MovieJukeboxXMLWriter {
         } else {
             // Try to catch any date re-formatting errors
             try {
-                DOMHelper.appendChild(doc, eMovie, "fileDate", Movie.dateFormat.format(movie.getFileDate()));
+                DOMHelper.appendChild(doc, eMovie, "fileDate", StringTools.getDateFormat().format(movie.getFileDate()));
             } catch (ArrayIndexOutOfBoundsException error) {
                 DOMHelper.appendChild(doc, eMovie, "fileDate", Movie.UNKNOWN);
             }
