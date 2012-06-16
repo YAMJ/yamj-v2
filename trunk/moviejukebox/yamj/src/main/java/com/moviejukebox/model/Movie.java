@@ -39,10 +39,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * specifically to the Movie object
      */
 
-    public static final String dateFormatString = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
-    public static final String dateFormatLongString = dateFormatString + " HH:mm:ss";
-    public static final SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatString);
-    public static final SimpleDateFormat dateFormatLong = new SimpleDateFormat(dateFormatLongString);
     private static final Logger logger = Logger.getLogger(Movie.class);
     public static final String UNKNOWN = "UNKNOWN";
     public static final String NOTRATED = "Not Rated";
@@ -64,13 +60,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * --------------------------------------------------------------------------------
      * Properties that control the object
      */
-    public static final List<String> sortIgnorePrefixes = new ArrayList<String>();
+    private static final List<String> SORT_IGNORE_PREFIXES = new ArrayList<String>();
     private int highdef720 = PropertiesUtil.getIntProperty("highdef.720.width", "1280");    // Get the minimum width for a high-definition movies
     private int highdef1080 = PropertiesUtil.getIntProperty("highdef.1080.width", "1920");  // Get the minimum width for a high-definition movies
     private String[] ratingSource = PropertiesUtil.getProperty("mjb.rating.source", "average").split(",");
     private String tmpRatingIgnore = PropertiesUtil.getProperty("mjb.rating.ignore", "");
     private List<String> ratingIgnore = StringTools.isValidString(tmpRatingIgnore) ? Arrays.asList(tmpRatingIgnore.split(",")) : new ArrayList<String>();
-    private static final Set<String> genreSkipList = new HashSet<String>();   // List of genres to ignore
+    private static final Set<String> GENRE_SKIP_LIST = new HashSet<String>();   // List of genres to ignore
     private static String titleSortType = PropertiesUtil.getProperty("mjb.sortTitle", "title");
     /*
      * --------------------------------------------------------------------------------
@@ -178,10 +174,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * --------------------------------------------------------------------------------
      */
     static {
-        if (genreSkipList.isEmpty()) {
+        if (GENRE_SKIP_LIST.isEmpty()) {
             StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("mjb.genre.skip", ""), ",;|");
             while (st.hasMoreTokens()) {
-                genreSkipList.add(st.nextToken().toLowerCase());
+                GENRE_SKIP_LIST.add(st.nextToken().toLowerCase());
             }
         }
     }
@@ -235,7 +231,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     @XmlElement
     public String getMjbGenerationDateString() {
-        return getMjbGenerationDate().toString(dateFormatLongString);
+        return getMjbGenerationDate().toString(StringTools.getDateFormatLongString());
     }
 
     public DateTime getMjbGenerationDate() {
@@ -246,7 +242,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void addGenre(String genre) {
-        if (StringTools.isValidString(genre) && !extra && !genreSkipList.contains(genre.toLowerCase())) {
+        if (StringTools.isValidString(genre) && !extra && !GENRE_SKIP_LIST.contains(genre.toLowerCase())) {
             setDirty(DirtyFlag.INFO);
             //logger.debug("Genre added: " + genre);
             genres.add(genre);
@@ -478,7 +474,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String getStrippedTitle(String title) {
         String lowerTitle = title.toLowerCase();
 
-        for (String prefix : sortIgnorePrefixes) {
+        for (String prefix : SORT_IGNORE_PREFIXES) {
             if (lowerTitle.startsWith(prefix.toLowerCase())) {
                 return new String(title.substring(prefix.length()));
             }
@@ -1250,14 +1246,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setGenres(Collection<String> genresToAdd) {
         if (!extra) {
             // Only check if the skip list isn't empty
-            if (!genreSkipList.isEmpty()) {
+            if (!GENRE_SKIP_LIST.isEmpty()) {
                 // remove any unwanted genres from the new collection
                 Collection<String> genresFinal = new TreeSet<String>();
 
                 Iterator<String> genreIterator = genresToAdd.iterator();
                 while (genreIterator.hasNext()) {
                     String genreToAdd = genreIterator.next();
-                    if (!genreSkipList.contains(genreToAdd.toLowerCase())) {
+                    if (!GENRE_SKIP_LIST.contains(genreToAdd.toLowerCase())) {
                         genresFinal.add(genreToAdd);
                     }
                 }
@@ -1722,7 +1718,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      */
     public void setTrailerLastScan(String lastScan) {
         try {
-            setTrailerLastScan(dateFormat.parse(lastScan).getTime());
+            SimpleDateFormat sdf = StringTools.getDateFormat();
+            setTrailerLastScan(sdf.parse(lastScan).getTime());
         } catch (Exception error) {
             setTrailerLastScan(0);
         }
@@ -1864,7 +1861,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public static void addSortIgnorePrefixes(String prefix) {
-        sortIgnorePrefixes.add(prefix);
+        SORT_IGNORE_PREFIXES.add(prefix);
     }
 
     /**
@@ -2423,7 +2420,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (returnDate == 0) {
             return Movie.UNKNOWN;
         } else {
-            return new DateTime(returnDate).toString(dateFormatLongString);
+            return new DateTime(returnDate).toString(StringTools.getDateFormatLongString());
         }
     }
 
@@ -2631,5 +2628,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             this.codecs.add(codec);
             setDirty(DirtyFlag.INFO);
         }
+    }
+
+    public static List<String> getSortIgnorePrefixes() {
+        return SORT_IGNORE_PREFIXES;
     }
 }

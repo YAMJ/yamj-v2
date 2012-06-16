@@ -404,7 +404,7 @@ public class MovieNFOReader {
         if (isValidString(tempValue)) {
             try {
                 DateTime dateTime = new DateTime(tempValue);
-                epDetail.setFirstAired(dateTime.toString(Movie.dateFormatString));
+                epDetail.setFirstAired(dateTime.toString(StringTools.getDateFormatString()));
             } catch (Exception ignore) {
                 // Set the aired date if there is an exception
                 epDetail.setFirstAired(tempValue);
@@ -437,7 +437,7 @@ public class MovieNFOReader {
                     dateTime = new DateTime(dateString);
                 }
 
-                movie.setReleaseDate(dateTime.toString(Movie.dateFormatString));
+                movie.setReleaseDate(dateTime.toString(StringTools.getDateFormatString()));
                 movie.setOverrideYear(Boolean.TRUE);
                 movie.setYear(dateTime.toString("yyyy"));
             } catch (Exception ex) {

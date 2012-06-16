@@ -65,7 +65,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             } else {
                 videoDTO.setMjbRevision(0);
             }
-            videoDTO.setMjbUpdateDate(StringTools.convertDateToString(new Date(), Movie.dateFormatLong));
+            videoDTO.setMjbUpdateDate(StringTools.convertDateToString(new Date(), StringTools.getDateFormatLong()));
             videoDTO.setBaseFilename(movie.getBaseFilename());
             videoDTO.setTitle(movie.getTitle());
             videoDTO.setTitleSort(movie.getTitleSort());
@@ -211,7 +211,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                     vfDTO.setVideoOutput(movie.getVideoOutput());
                     vfDTO.setAspect(movie.getAspectRatio());
                     vfDTO.setFps(movie.getFps());
-                    vfDTO.setFileDate((new DateTime(mf.getLastModified())).toString(Movie.dateFormatLongString));
+                    vfDTO.setFileDate((new DateTime(mf.getLastModified())).toString(StringTools.getDateFormatLongString()));
                     vfDTO.setFileSize(mf.getSize());
                     vfDTO.setFileLocation(mf.getFile().getAbsolutePath());
                     vfDTO.setFileUrl(mf.getFilename());

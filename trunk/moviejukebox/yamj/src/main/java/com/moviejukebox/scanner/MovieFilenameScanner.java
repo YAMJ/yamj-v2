@@ -49,13 +49,13 @@ public final class MovieFilenameScanner {
     private static boolean archiveScanRar;
     private static String[] skipKeywords;
     private static String[] skipRegexKeywords;
-    private static final List<Pattern> skipPatterns = new ArrayList<Pattern>();
+    private static final List<Pattern> SKIP_PATTERNS = new ArrayList<Pattern>();
     private static boolean languageDetection = Boolean.TRUE;
     /**
      * All symbols within brackets [] if there is an EXTRA keyword
      */
     private static String[] extrasKeywords;
-    private static final List<Pattern> extrasPatterns = new ArrayList<Pattern>();
+    private static final List<Pattern> EXTRAS_PATTERNS = new ArrayList<Pattern>();
     private static final Pattern USE_PARENT_PATTERN;
     private static final Pattern RAR_EXT_PATTERN = Pattern.compile("(rar|001)$");
 
@@ -75,7 +75,7 @@ public final class MovieFilenameScanner {
         archiveScanRar = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", "false");
     }
     private static String[] movieVersionKeywords;
-    private static final List<Pattern> movieVersionPatterns = new ArrayList<Pattern>();
+    private static final List<Pattern> MOVIE_VERSION_PATTERNS = new ArrayList<Pattern>();
     // Allow the use of [IMDB tt123456] to define the IMDB reference
     private static final Pattern IMDB_PATTERN = patt("\\[ID ([^\\[\\]]*)\\]");
     // Everything in format [SET something] (case insensitive)
@@ -87,11 +87,11 @@ public final class MovieFilenameScanner {
     private static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)(\\s|\\.)??[ex-]");
     private static final Pattern EPISODE_PATTERN = ipatt("[ex]\\s??([0-9]+)");
     private static final String TOKEN_DELIMITERS_STRING = ".[]()";
-    private static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
+//    private static final char[] TOKEN_DELIMITERS_ARRAY = TOKEN_DELIMITERS_STRING.toCharArray();
     private static final String NOTOKEN_DELIMITERS_STRING = " _-,";
     private static final String WORD_DELIMITERS_STRING = NOTOKEN_DELIMITERS_STRING + TOKEN_DELIMITERS_STRING;
-    private static final char[] WORD_DELIMITERS_ARRAY = WORD_DELIMITERS_STRING.toCharArray();
-    protected static final Pattern TOKEN_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(TOKEN_DELIMITERS_STRING) + "]|$|^)");
+//    private static final char[] WORD_DELIMITERS_ARRAY = WORD_DELIMITERS_STRING.toCharArray();
+    private static final Pattern TOKEN_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(TOKEN_DELIMITERS_STRING) + "]|$|^)");
     private static final Pattern NOTOKEN_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(NOTOKEN_DELIMITERS_STRING) + "])");
     private static final Pattern WORD_DELIMITERS_MATCH_PATTERN = patt("(?:[" + Pattern.quote(WORD_DELIMITERS_STRING) + "]|$|^)");
     // Last 4 digits or last 4 digits in parenthesis.
@@ -162,6 +162,7 @@ public final class MovieFilenameScanner {
          */
         protected abstract void put(String key, Collection<String> tokens);
     }
+
     /**
      * Mapping exact tokens to language.
      *
@@ -176,7 +177,7 @@ public final class MovieFilenameScanner {
      *
      * Language markers, found with this pattern are counted as token delimiters (they will cut movie title)
      */
-    private static final TokensPatternMap strictLanguageMap = new TokensPatternMap() {
+    private static final TokensPatternMap STRICT_LANGUAGE_MAP = new TokensPatternMap() {
         @Override
         protected void put(String key, Collection<String> tokens) {
             StringBuilder tokenBuilder = new StringBuilder();
@@ -193,6 +194,7 @@ public final class MovieFilenameScanner {
             put("English", "ENG EN ENGLISH eng en english Eng");
         }
     };
+
     /**
      * Mapping loose language markers.
      *
@@ -201,7 +203,7 @@ public final class MovieFilenameScanner {
      *
      * Markers in this map are case insensitive.
      */
-    private static final TokensPatternMap looseLanguageMap = new TokensPatternMap() {
+    private static final TokensPatternMap LOOSE_LANGUAGE_MAP = new TokensPatternMap() {
         /**
          * {
          *
@@ -228,6 +230,7 @@ public final class MovieFilenameScanner {
             put("English", "ENG EN ENGLISH");
         }
     };
+
     private static final Map<Integer, Pattern> FPS_MAP = new HashMap<Integer, Pattern>() {
         {
             for (int i : new int[]{23, 24, 25, 29, 30, 50, 59, 60}) {
@@ -235,6 +238,7 @@ public final class MovieFilenameScanner {
             }
         }
     };
+
     private static final Map<String, Pattern> AUDIO_CODEC_MAP = new HashMap<String, Pattern>() {
         {
             for (String s : AUDIO_CODECS_ARRAY) {
@@ -242,6 +246,7 @@ public final class MovieFilenameScanner {
             }
         }
     };
+
     private static final Map<String, Pattern> VIDEO_CODEC_MAP = new HashMap<String, Pattern>() {
         {
             put("XviD", iwpatt("XVID"));
@@ -256,7 +261,8 @@ public final class MovieFilenameScanner {
             }
         }
     };
-    private static final TokensPatternMap videoSourceMap = new TokensPatternMap() {
+
+    private static final TokensPatternMap VIDEO_SOURCE_MAP = new TokensPatternMap() {
         {
             put("SDTV", "TVRip,PAL,NTSC");
             put("D-THEATER", "DTH,DTHEATER");
@@ -277,10 +283,19 @@ public final class MovieFilenameScanner {
             put(key, iwpatt(patt.toString()));
         }
     };
+
     private final MovieFileNameDTO dto = new MovieFileNameDTO();
     private final File file;
     private final String filename;
     private String rest;
+
+    /**
+     * Used for testing
+     * @return
+     */
+    public static Pattern getTokenDelimitersMatchPattern() {
+        return TOKEN_DELIMITERS_MATCH_PATTERN;
+    }
 
     /**
      * @param regex
@@ -399,13 +414,13 @@ public final class MovieFilenameScanner {
         }
 
         // Remove version info
-        for (Pattern pattern : movieVersionPatterns) {
+        for (Pattern pattern : MOVIE_VERSION_PATTERNS) {
             rest = pattern.matcher(rest).replaceAll("./.");
         }
 
         // EXTRAS (Including Trailers)
         {
-            for (Pattern pattern : extrasPatterns) {
+            for (Pattern pattern : EXTRAS_PATTERNS) {
                 Matcher matcher = pattern.matcher(rest);
                 if (matcher.find()) {
                     dto.setExtra(Boolean.TRUE);
@@ -420,7 +435,7 @@ public final class MovieFilenameScanner {
         dto.setAudioCodec(seekPatternAndUpdateRest(AUDIO_CODEC_MAP, dto.getAudioCodec()));
         dto.setVideoCodec(seekPatternAndUpdateRest(VIDEO_CODEC_MAP, dto.getVideoCodec()));
         dto.setHdResolution(seekPatternAndUpdateRest(HD_RESOLUTION_MAP, dto.getHdResolution()));
-        dto.setVideoSource(seekPatternAndUpdateRest(videoSourceMap, dto.getVideoSource(), PART_PATTERNS));
+        dto.setVideoSource(seekPatternAndUpdateRest(VIDEO_SOURCE_MAP, dto.getVideoSource(), PART_PATTERNS));
 
         // SEASON + EPISODES
         {
@@ -493,7 +508,7 @@ public final class MovieFilenameScanner {
         // LANGUAGES
         if (languageDetection) {
             for (;;) {
-                String language = seekPatternAndUpdateRest(strictLanguageMap, null);
+                String language = seekPatternAndUpdateRest(STRICT_LANGUAGE_MAP, null);
                 if (language == null) {
                     break;
                 }
@@ -548,7 +563,7 @@ public final class MovieFilenameScanner {
 
                     // Loose language search
                     if (token.length() >= 2 && token.indexOf('-') < 0) {
-                        for (Map.Entry<String, Pattern> e : looseLanguageMap.entrySet()) {
+                        for (Map.Entry<String, Pattern> e : LOOSE_LANGUAGE_MAP.entrySet()) {
                             Matcher matcher = e.getValue().matcher(token);
                             if (matcher.find()) {
                                 dto.getLanguages().add(e.getKey());
@@ -610,7 +625,7 @@ public final class MovieFilenameScanner {
     private String cleanUp(String filename) {
         // SKIP
         String rFilename = filename; // We can't modify the parameter, so copy it
-        for (Pattern p : skipPatterns) {
+        for (Pattern p : SKIP_PATTERNS) {
             rFilename = p.matcher(rFilename).replaceAll("./.");
         }
         return rFilename;
@@ -625,7 +640,7 @@ public final class MovieFilenameScanner {
      */
     //TODO : Extract this from here, it's not specific on MovieFileNameScanner
     public static String determineLanguage(String language) {
-        for (Map.Entry<String, Pattern> e : strictLanguageMap.entrySet()) {
+        for (Map.Entry<String, Pattern> e : STRICT_LANGUAGE_MAP.entrySet()) {
             Matcher matcher = e.getValue().matcher(language);
             if (matcher.find()) {
                 return e.getKey();
@@ -642,8 +657,8 @@ public final class MovieFilenameScanner {
      */
     //TODO : Extract this from here, it's not specific on MovieFileNameScanner
     public static String getLanguageList(String language) {
-        if (looseLanguageMap.containsKey(language)) {
-            Pattern langPatt = looseLanguageMap.get(language);
+        if (LOOSE_LANGUAGE_MAP.containsKey(language)) {
+            Pattern langPatt = LOOSE_LANGUAGE_MAP.get(language);
             return langPatt.toString().toLowerCase();
         } else {
             return "";
@@ -717,12 +732,12 @@ public final class MovieFilenameScanner {
 
     public static void setSkipKeywords(String[] skipKeywords, boolean caseSensitive) {
         MovieFilenameScanner.skipKeywords = skipKeywords.clone();
-        skipPatterns.clear();
+        SKIP_PATTERNS.clear();
         for (String s : MovieFilenameScanner.skipKeywords) {
             if (caseSensitive) {
-                skipPatterns.add(wpatt(Pattern.quote(s)));
+                SKIP_PATTERNS.add(wpatt(Pattern.quote(s)));
             } else {
-                skipPatterns.add(iwpatt(Pattern.quote(s)));
+                SKIP_PATTERNS.add(iwpatt(Pattern.quote(s)));
             }
         }
     }
@@ -735,9 +750,9 @@ public final class MovieFilenameScanner {
         MovieFilenameScanner.skipRegexKeywords = skipRegexKeywords.clone();
         for (String s : MovieFilenameScanner.skipRegexKeywords) {
             if (caseSensitive) {
-                skipPatterns.add(patt(s));
+                SKIP_PATTERNS.add(patt(s));
             } else {
-                skipPatterns.add(ipatt(s));
+                SKIP_PATTERNS.add(ipatt(s));
             }
         }
     }
@@ -748,9 +763,9 @@ public final class MovieFilenameScanner {
 
     public static void setExtrasKeywords(String[] extrasKeywords) {
         MovieFilenameScanner.extrasKeywords = extrasKeywords.clone();
-        extrasPatterns.clear();
+        EXTRAS_PATTERNS.clear();
         for (String s : MovieFilenameScanner.extrasKeywords) {
-            extrasPatterns.add(pattInSBrackets(Pattern.quote(s)));
+            EXTRAS_PATTERNS.add(pattInSBrackets(Pattern.quote(s)));
         }
     }
 
@@ -760,9 +775,9 @@ public final class MovieFilenameScanner {
 
     public static void setMovieVersionKeywords(String[] movieVersionKeywords) {
         MovieFilenameScanner.movieVersionKeywords = movieVersionKeywords.clone();
-        movieVersionPatterns.clear();
+        MOVIE_VERSION_PATTERNS.clear();
         for (String s : MovieFilenameScanner.movieVersionKeywords) {
-            movieVersionPatterns.add(
+            MOVIE_VERSION_PATTERNS.add(
                     iwpatt(s.replace(" ", WORD_DELIMITERS_MATCH_PATTERN.pattern())));
         }
     }
@@ -791,8 +806,8 @@ public final class MovieFilenameScanner {
      * Clear language detection patterns.
      */
     public static void clearLanguages() {
-        strictLanguageMap.clear();
-        looseLanguageMap.clear();
+        STRICT_LANGUAGE_MAP.clear();
+        LOOSE_LANGUAGE_MAP.clear();
     }
 
     /**
@@ -803,12 +818,12 @@ public final class MovieFilenameScanner {
      * @param loosePattern Loose pattern for second-pass detection.
      */
     public static void addLanguage(String key, String strictPattern, String loosePattern) {
-        strictLanguageMap.put(key, strictPattern);
-        looseLanguageMap.put(key, loosePattern);
+        STRICT_LANGUAGE_MAP.put(key, strictPattern);
+        LOOSE_LANGUAGE_MAP.put(key, loosePattern);
     }
 
     public static void setSourceKeywords(List<String> keywords, Map<String, String> keywordMap) {
-        videoSourceMap.clear();
-        videoSourceMap.putAll(keywords, keywordMap);
+        VIDEO_SOURCE_MAP.clear();
+        VIDEO_SOURCE_MAP.putAll(keywords, keywordMap);
     }
 }

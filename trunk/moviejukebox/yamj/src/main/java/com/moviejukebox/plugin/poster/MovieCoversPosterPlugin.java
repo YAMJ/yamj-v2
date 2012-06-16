@@ -62,7 +62,7 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                     formattedTitle = new String(formattedTitle.substring(0, formattedTitle.length() - 5));
                 }
                 String formattedTitleNormalized = formattedTitle;
-                for (String prefix : Movie.sortIgnorePrefixes) {
+                for (String prefix : Movie.getSortIgnorePrefixes()) {
                     if (formattedTitle.startsWith(prefix.toUpperCase())) {
                         formattedTitleNormalized = new String(formattedTitle.substring(prefix.length())) + " (" + prefix.toUpperCase().replace(" ","") + ")";
                         break;

@@ -89,7 +89,6 @@ public class MovieJukebox {
     private static boolean photoDownload;
     private static boolean backdropDownload;
     private static boolean enableRottenTomatoes;
-    private boolean moviejukeboxListing;
     private boolean setIndexFanart;
     private static boolean skipIndexGeneration = false;
     private static boolean skipHtmlGeneration = false;
@@ -715,7 +714,6 @@ public class MovieJukebox {
         final File jukeboxDetailsRootFile = new FileTools.FileEx(jukebox.getJukeboxRootLocationDetails());
 
         MovieListingPlugin listingPlugin = getListingPlugin(getProperty("mjb.listing.plugin", "com.moviejukebox.plugin.MovieListingPluginBase"));
-        this.moviejukeboxListing = PropertiesUtil.getBooleanProperty("mjb.listing.generate", "false");
 
         videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
         bannerDownload = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", "false");
@@ -723,6 +721,7 @@ public class MovieJukebox {
         photoDownload = PropertiesUtil.getBooleanProperty("mjb.includePhoto", "false");
         backdropDownload = PropertiesUtil.getBooleanProperty("mjb.includeBackdrop", "false");
         boolean processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", "true");
+        boolean moviejukeboxListing = PropertiesUtil.getBooleanProperty("mjb.listing.generate", "false");
 
         // Multi-thread: Processing thread settings
         maxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", "0"));
