@@ -23,11 +23,7 @@ public final class DatabaseWriter {
     private static final Logger LOGGER = Logger.getLogger(DatabaseWriter.class);
     private static final String LOG_MESSAGE = "dbWriter: ";
     // Join tables
-    private static final String JOIN_GENRE = "insert into VIDEO_GENRE    (VIDEO_ID, GENRE_ID)    values (?, ?)";
-    private static final String JOIN_COMPANY = "insert into VIDEO_COMPANY  (VIDEO_ID, COMPANY_ID)  values (?, ?)";
-    private static final String JOIN_COUNTRY = "insert into VIDEO_COUNTRY  (VIDEO_ID, COUNTRY_ID)  values (?, ?)";
-    private static final String JOIN_LANGUAGE = "insert into VIDEO_LANGUAGE (VIDEO_ID, LANGUAGE_ID) values (?, ?)";
-    private static final String JOIN_PERSON = "insert into VIDEO_PERSON   (VIDEO_ID, PERSON_ID)   values (?, ?)";
+    private static final String JOIN_TABLES = "insert into ? (VIDEO_ID, ?) values (?, ?)";
     // Delete Ids
     private static final String DELETE_ID_1_COL = "delete from ? where ? = ?";
     private static final String DELETE_ID_2_COL = "delete from ? where ? = ? and ? = ?";
@@ -470,23 +466,23 @@ public final class DatabaseWriter {
     }
 
     public static void joinCompany(Connection connection, int videoId, int companyId) throws SQLException {
-        joinTable(connection, JOIN_COMPANY, videoId, companyId);
+        joinTable(connection, "VIDEO_COMPANY", "COMPANY_ID", videoId, companyId);
     }
 
     public static void joinCountry(Connection connection, int videoId, int countryId) throws SQLException {
-        joinTable(connection, JOIN_COUNTRY, videoId, countryId);
+        joinTable(connection, "VIDEO_COUNTRY", "COUNTRY_ID", videoId, countryId);
     }
 
     public static void joinGenre(Connection connection, int videoId, int genreId) throws SQLException {
-        joinTable(connection, JOIN_GENRE, videoId, genreId);
+        joinTable(connection, "VIDEO_GENRE", "GENRE_ID", videoId, genreId);
     }
 
     public static void joinLanguage(Connection connection, int videoId, int languageId) throws SQLException {
-        joinTable(connection, JOIN_LANGUAGE, videoId, languageId);
+        joinTable(connection, "VIDEO_LANGUAGE", "LANGUAGE_ID", videoId, languageId);
     }
 
     public static void joinPerson(Connection connection, int videoId, int personId) throws SQLException {
-        joinTable(connection, JOIN_PERSON, videoId, personId);
+        joinTable(connection, "VIDEO_PERSON", "PERSON_ID", videoId, personId);
     }
 
     /**
@@ -497,15 +493,17 @@ public final class DatabaseWriter {
      * @param videoId
      * @param joinId
      */
-    private static void joinTable(Connection connection, String insertCommand, int videoId, int joinId) throws SQLException {
+    private static void joinTable(Connection connection, String joinTable, String joinColumn, int videoId, int joinId) throws SQLException {
         PreparedStatement pstmt = null;
         try {
-            pstmt = connection.prepareStatement(insertCommand);
-            pstmt.setInt(1, videoId);
-            pstmt.setInt(2, joinId);
+            pstmt = connection.prepareStatement(JOIN_TABLES);
+            pstmt.setString(1, joinTable);
+            pstmt.setString(2, joinColumn);
+            pstmt.setInt(3, videoId);
+            pstmt.setInt(4, joinId);
             pstmt.executeUpdate();
         } catch (SQLException ex) {
-            throw new SQLException("Error writing to join table:  " + ex.getMessage(), ex);
+            throw new SQLException("Error writing to join table (" + joinTable + "):  " + ex.getMessage(), ex);
         } finally {
             pstmt.close();
         }

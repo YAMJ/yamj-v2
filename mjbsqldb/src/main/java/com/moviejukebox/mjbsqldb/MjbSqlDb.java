@@ -44,7 +44,7 @@ public class MjbSqlDb {
         }
 
         if (StringUtils.isBlank(dbPath) || StringUtils.isBlank(dbName)) {
-            throw new SQLException("Error: Path or database name is blank: ");
+            throw new SQLException("Path or database name is blank: ");
         }
 
         if (StringUtils.isBlank(dbPath)) {
@@ -62,25 +62,12 @@ public class MjbSqlDb {
                     throw new SQLException("Error opening the database");
                 }
             }
-        } catch (IOException ex) {
-            throw new SQLException("Error opening the database: " + ex.getMessage(), ex);
-        }
 
-        try {
             // Create the connection
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbLocation);
             connection.setAutoCommit(false);
 
-            // Check the version of the database against the program version
-            Float dbVersion;
-            try {
-                dbVersion = DatabaseTools.getDatabaseVersion(connection);
-            } catch (SQLException error) {
-                LOGGER.info(LOG_MESSAGE + "Database version out of date. Updating...");
-                dbVersion = 0.0f;
-            }
-
-            if (VERSION > dbVersion) {
+            if (VERSION > getDbVersion()) {
                 LOGGER.info(LOG_MESSAGE + "Updating database structure...");
                 // This is overkill, but OK for the time being
                 DatabaseTools.deleteTables(connection);
@@ -88,9 +75,25 @@ public class MjbSqlDb {
             // Create the tables (if they don't exist)
             DatabaseTools.createTables(connection, VERSION);
 
+        } catch (IOException ex) {
+            throw new SQLException("Error opening the database: " + ex.getMessage(), ex);
         } catch (SQLException ex) {
             connection.close();
             throw new SQLException("Error opening the database: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Check the version of the database against the program version
+     *
+     * @return
+     */
+    private float getDbVersion() {
+        try {
+            return DatabaseTools.getDatabaseVersion(connection);
+        } catch (SQLException error) {
+            LOGGER.info(LOG_MESSAGE + "Database version out of date. Updating...");
+            return 0.0f;
         }
     }
 
