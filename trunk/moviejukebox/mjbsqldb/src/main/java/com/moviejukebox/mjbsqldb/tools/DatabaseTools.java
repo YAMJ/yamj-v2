@@ -156,8 +156,13 @@ public final class DatabaseTools {
         } catch (SQLException ex) {
             throw new SQLException("Error: Unable to get database version: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (stmt != null) {
+                stmt.close();
+            }
         }
 
         throw new SQLException("Error: Unable to get database version.");

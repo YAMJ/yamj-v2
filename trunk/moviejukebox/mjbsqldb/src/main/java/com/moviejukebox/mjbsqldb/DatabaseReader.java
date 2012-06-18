@@ -23,9 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class DatabaseReader {
 
-    private static final String SQL_SELECT = "SELECT * FROM ";
     private static final String SQL_ID = " ID: ";
-    private static final String SQL_WHERE = " WHERE ";
     private static final String SQL_ERROR = "Error getting ";
     // Prepared statements
     private static final String SELECT_MAX = "select MAX(?) from ?";
