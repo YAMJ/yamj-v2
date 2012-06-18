@@ -14,9 +14,9 @@ package com.moviejukebox.mjbsqldb;
 
 import com.moviejukebox.mjbsqldb.dto.*;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +26,17 @@ public class DatabaseReader {
     private static final String SQL_SELECT = "SELECT * FROM ";
     private static final String SQL_ID = " ID: ";
     private static final String SQL_WHERE = " WHERE ";
-    private static final String SQL_ERROR="Error getting ";
+    private static final String SQL_ERROR = "Error getting ";
+    // Prepared statements
+    private static final String SELECT_MAX = "select MAX(?) from ?";
+    private static final String SELECT_VIDEO_SITE_ID = "SELECT SITE_ID FROM ? WHERE VIDEO_ID=? AND SITE='?'";
+    private static final String SELECT_TABLE_ID_1_SEARCH = "select id from ? where ? = '?'";
+    private static final String SELECT_TABLE_ID_2_SEARCH = "select id from ? where ? = '?' and ? = '?'";
+    private static final String SELECT_VIDEO_FILE_PART_ID = "select ? from ? where FILE_ID=? and PART=?";
+    private static final String SELECT_VIDEO_EXISTS = "select ? from ? where TITLE = '?'";
+    private static final String SELECT_ALL_TABLE = "select * from ? where ? = ?";
+    private static final String SELECT_VIDEO_ID_TABLE = "select * from ? where VIDEO_ID = ?";
+    private static final String SELECT_VIDEO_SITE = "select * from ? where ? = ? and SITE='?'";
 
     /**
      * Get the last used ID for the table
@@ -41,17 +51,16 @@ public class DatabaseReader {
             throw new SQLException("Error: No connection specified!");
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
-            StringBuilder sqlText = new StringBuilder("select MAX(");
-            sqlText.append(idColumnName);
-            sqlText.append(") from ");
-            sqlText.append(tableName);
+            pstmt = connection.prepareStatement(SELECT_MAX);
+            pstmt.setString(1, idColumnName);
+            pstmt.setString(2, tableName);
 
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 // update the id by 1 to create the next id
@@ -62,7 +71,7 @@ public class DatabaseReader {
             throw new SQLException("Error getting the ID for " + tableName + ": " + ex.getMessage(), ex);
         } finally {
             rs.close();
-            stmt.close();
+            pstmt.close();
         }
     }
 
@@ -143,30 +152,33 @@ public class DatabaseReader {
             return "";
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
+            pstmt = connection.prepareStatement(SELECT_VIDEO_SITE_ID);
+            pstmt.setString(1, VideoSiteDTO.TABLE_NAME);
+            pstmt.setInt(2, videoId);
+            pstmt.setString(3, site);
 
-            StringBuilder sqlText = new StringBuilder("SELECT SITE_ID FROM ");
-            sqlText.append(VideoSiteDTO.TABLE_NAME);
-            sqlText.append(" WHERE VIDEO_ID=");
-            sqlText.append(videoId);
-            sqlText.append(" AND SITE='");
-            sqlText.append(site);
-            sqlText.append("'");
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
-            rs = stmt.executeQuery(sqlText.toString());
             if (rs.next()) {
                 return rs.getString(1);
             }
+
             return "";
         } catch (SQLException ex) {
             throw new SQLException(SQL_ERROR + VideoSiteDTO.TABLE_NAME + SQL_ID + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
 
     }
@@ -196,25 +208,19 @@ public class DatabaseReader {
             return 0;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
+            pstmt = connection.prepareStatement(SELECT_TABLE_ID_2_SEARCH);
+            pstmt.setString(1, tableName);
+            pstmt.setString(2, columnName1);
+            pstmt.setString(3, searchTerm1);
+            pstmt.setString(4, columnName2);
+            pstmt.setString(5, searchTerm2);
 
-            StringBuilder sqlText = new StringBuilder("SELECT ID FROM ");
-            sqlText.append(tableName);
-            sqlText.append(SQL_WHERE);
-            sqlText.append(columnName1);
-            sqlText.append("='");
-            sqlText.append(searchTerm1);
-            sqlText.append("' AND ");
-            sqlText.append(columnName2);
-            sqlText.append("='");
-            sqlText.append(searchTerm2);
-            sqlText.append("'");
-
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 return rs.getInt(1);
@@ -223,8 +229,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException(SQL_ERROR + tableName + SQL_ID + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -233,21 +244,17 @@ public class DatabaseReader {
             return 0;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
+            pstmt = connection.prepareStatement(SELECT_TABLE_ID_1_SEARCH);
+            pstmt.setString(1, tableName);
+            pstmt.setString(2, columnName);
+            pstmt.setString(3, searchTerm);
 
-            StringBuilder sqlText = new StringBuilder("SELECT ID FROM ");
-            sqlText.append(tableName);
-            sqlText.append(SQL_WHERE);
-            sqlText.append(columnName);
-            sqlText.append("='");
-            sqlText.append(searchTerm);
-            sqlText.append("'");
-
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 return rs.getInt(1);
@@ -256,8 +263,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException(SQL_ERROR + tableName + SQL_ID + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -274,21 +286,18 @@ public class DatabaseReader {
     }
 
     public static int getVideoFilePartId(Connection connection, int fileId, int part) throws SQLException {
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
+            pstmt = connection.prepareStatement(SELECT_VIDEO_FILE_PART_ID);
+            pstmt.setString(1, VideoFilePartDTO.TABLE_KEY);
+            pstmt.setString(2, VideoFilePartDTO.TABLE_NAME);
+            pstmt.setInt(3, fileId);
+            pstmt.setInt(4, part);
 
-            StringBuilder sqlText = new StringBuilder("SELECT ");
-            sqlText.append(VideoFilePartDTO.TABLE_KEY);
-            sqlText.append(" FROM ");
-            sqlText.append(VideoFilePartDTO.TABLE_NAME);
-            sqlText.append(" WHERE FILE_ID=");
-            sqlText.append(fileId);
-            sqlText.append(" AND PART=");
-            sqlText.append(part);
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 return rs.getInt(1);
@@ -297,8 +306,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException(SQL_ERROR + VideoFilePartDTO.TABLE_NAME + SQL_ID + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -320,28 +334,29 @@ public class DatabaseReader {
             return false;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
+            pstmt = connection.prepareStatement(SELECT_VIDEO_EXISTS);
+            pstmt.setString(1, VideoDTO.TABLE_KEY);
+            pstmt.setString(2, VideoDTO.TABLE_NAME);
+            pstmt.setString(3, title);
 
-            StringBuilder sqlText = new StringBuilder("select ");
-            sqlText.append(VideoDTO.TABLE_KEY);
-            sqlText.append(" from ");
-            sqlText.append(VideoDTO.TABLE_NAME);
-            sqlText.append(" where TITLE='");
-            sqlText.append(title);
-            sqlText.append("'");
-            rs = stmt.executeQuery(sqlText.toString());
-
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             return rs.next();
         } catch (SQLException ex) {
             throw new SQLException("Error checking for Video: " + title + ". " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -352,19 +367,17 @@ public class DatabaseReader {
             return artwork;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
+            pstmt = connection.prepareStatement(SELECT_ALL_TABLE);
+            pstmt.setString(1, ArtworkDTO.TABLE_NAME);
+            pstmt.setString(2, ArtworkDTO.TABLE_KEY);
+            pstmt.setInt(3, artworkId);
 
-            StringBuilder sqlText = new StringBuilder(SQL_SELECT);
-            sqlText.append(ArtworkDTO.TABLE_NAME);
-            sqlText.append(SQL_WHERE);
-            sqlText.append(ArtworkDTO.TABLE_KEY);
-            sqlText.append("=");
-            sqlText.append(artworkId);
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 artwork.populateDTO(rs);
@@ -374,8 +387,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting artwork: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -386,18 +404,17 @@ public class DatabaseReader {
             return cert;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
-            StringBuilder sqlText = new StringBuilder(SQL_SELECT);
-            sqlText.append(CertificationDTO.TABLE_NAME);
-            sqlText.append(SQL_WHERE);
-            sqlText.append(CertificationDTO.TABLE_KEY);
-            sqlText.append("=");
-            sqlText.append(certId);
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt = connection.prepareStatement(SELECT_ALL_TABLE);
+            pstmt.setString(1, CertificationDTO.TABLE_NAME);
+            pstmt.setString(2, CertificationDTO.TABLE_KEY);
+            pstmt.setInt(3, certId);
+
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 cert.populateDTO(rs);
@@ -407,8 +424,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting certification: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -419,18 +441,17 @@ public class DatabaseReader {
             return codec;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
-            StringBuilder sqlText = new StringBuilder(SQL_SELECT);
-            sqlText.append(CodecDTO.TABLE_NAME);
-            sqlText.append(SQL_WHERE);
-            sqlText.append(CodecDTO.TABLE_KEY);
-            sqlText.append("=");
-            sqlText.append(codecId);
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt = connection.prepareStatement(SELECT_ALL_TABLE);
+            pstmt.setString(1, CodecDTO.TABLE_NAME);
+            pstmt.setString(2, CodecDTO.TABLE_KEY);
+            pstmt.setInt(3, codecId);
+
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 codec.populateDTO(rs);
@@ -440,8 +461,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting codec: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -452,18 +478,17 @@ public class DatabaseReader {
             return company;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
-            StringBuilder sqlText = new StringBuilder(SQL_SELECT);
-            sqlText.append(CompanyDTO.TABLE_NAME);
-            sqlText.append(SQL_WHERE);
-            sqlText.append(CompanyDTO.TABLE_KEY);
-            sqlText.append("=");
-            sqlText.append(companyId);
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt = connection.prepareStatement(SELECT_ALL_TABLE);
+            pstmt.setString(1, CompanyDTO.TABLE_NAME);
+            pstmt.setString(2, CompanyDTO.TABLE_KEY);
+            pstmt.setInt(3, companyId);
+
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 company.populateDTO(rs);
@@ -473,8 +498,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting company: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -485,18 +515,17 @@ public class DatabaseReader {
             return country;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
-            StringBuilder sqlText = new StringBuilder(SQL_SELECT);
-            sqlText.append(CountryDTO.TABLE_NAME);
-            sqlText.append(SQL_WHERE);
-            sqlText.append(CountryDTO.TABLE_KEY);
-            sqlText.append("=");
-            sqlText.append(countryId);
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt = connection.prepareStatement(SELECT_ALL_TABLE);
+            pstmt.setString(1, CountryDTO.TABLE_NAME);
+            pstmt.setString(2, CountryDTO.TABLE_KEY);
+            pstmt.setInt(3, countryId);
+
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 country.populateDTO(rs);
@@ -506,8 +535,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting country: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -518,18 +552,17 @@ public class DatabaseReader {
             return genre;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
-            StringBuilder sqlText = new StringBuilder(SQL_SELECT);
-            sqlText.append(GenreDTO.TABLE_NAME);
-            sqlText.append(SQL_WHERE);
-            sqlText.append(GenreDTO.TABLE_KEY);
-            sqlText.append("=");
-            sqlText.append(genreId);
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt = connection.prepareStatement(SELECT_ALL_TABLE);
+            pstmt.setString(1, GenreDTO.TABLE_NAME);
+            pstmt.setString(2, GenreDTO.TABLE_KEY);
+            pstmt.setInt(3, genreId);
+
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 genre.populateDTO(rs);
@@ -539,8 +572,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting genre: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -551,18 +589,17 @@ public class DatabaseReader {
             return language;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
-            StringBuilder sqlText = new StringBuilder(SQL_SELECT);
-            sqlText.append(LanguageDTO.TABLE_NAME);
-            sqlText.append(SQL_WHERE);
-            sqlText.append(LanguageDTO.TABLE_KEY);
-            sqlText.append("=");
-            sqlText.append(languageId);
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt = connection.prepareStatement(SELECT_ALL_TABLE);
+            pstmt.setString(1, LanguageDTO.TABLE_NAME);
+            pstmt.setString(2, LanguageDTO.TABLE_KEY);
+            pstmt.setInt(3, languageId);
+
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 language.populateDTO(rs);
@@ -572,8 +609,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting language: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -584,18 +626,17 @@ public class DatabaseReader {
             return person;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
-            StringBuilder sqlText = new StringBuilder(SQL_SELECT);
-            sqlText.append(PersonDTO.TABLE_NAME);
-            sqlText.append(SQL_WHERE);
-            sqlText.append(PersonDTO.TABLE_KEY);
-            sqlText.append("=");
-            sqlText.append(personId);
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt = connection.prepareStatement(SELECT_ALL_TABLE);
+            pstmt.setString(1, PersonDTO.TABLE_NAME);
+            pstmt.setString(2, PersonDTO.TABLE_KEY);
+            pstmt.setInt(3, personId);
+
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 person.populateDTO(rs);
@@ -605,8 +646,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting person: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -617,18 +663,17 @@ public class DatabaseReader {
             return video;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
-            StringBuilder sqlText = new StringBuilder(SQL_SELECT);
-            sqlText.append(VideoDTO.TABLE_NAME);
-            sqlText.append(SQL_WHERE);
-            sqlText.append(VideoDTO.TABLE_KEY);
-            sqlText.append("=");
-            sqlText.append(videoId);
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt = connection.prepareStatement(SELECT_ALL_TABLE);
+            pstmt.setString(1, VideoDTO.TABLE_NAME);
+            pstmt.setString(2, VideoDTO.TABLE_KEY);
+            pstmt.setInt(3, videoId);
+
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 video.populateDTO(rs);
@@ -638,8 +683,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting video: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -650,18 +700,17 @@ public class DatabaseReader {
             return videoFile;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
-            StringBuilder sqlText = new StringBuilder(SQL_SELECT);
-            sqlText.append(VideoFileDTO.TABLE_NAME);
-            sqlText.append(SQL_WHERE);
-            sqlText.append(VideoFileDTO.TABLE_KEY);
-            sqlText.append("=");
-            sqlText.append(videoFileId);
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt = connection.prepareStatement(SELECT_ALL_TABLE);
+            pstmt.setString(1, VideoFileDTO.TABLE_NAME);
+            pstmt.setString(2, VideoFileDTO.TABLE_KEY);
+            pstmt.setInt(3, videoFileId);
+
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 videoFile.populateDTO(rs);
@@ -671,8 +720,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting video file: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -684,18 +738,19 @@ public class DatabaseReader {
             return videoFiles;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
             vf = new VideoFileDTO();
 
-            stmt = connection.createStatement();
-            StringBuilder sqlText = new StringBuilder(SQL_SELECT);
-            sqlText.append(VideoFileDTO.TABLE_NAME);
-            sqlText.append(" WHERE VIDEO_ID=");
-            sqlText.append(videoId);
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt = connection.prepareStatement(SELECT_VIDEO_ID_TABLE);
+            pstmt.setString(1, VideoFileDTO.TABLE_NAME);
+            pstmt.setString(2, SQL_ID);
+            pstmt.setInt(2, videoId);
+
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             while (rs.next()) {
                 vf.populateDTO(rs);
@@ -708,8 +763,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting video files: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -720,18 +780,17 @@ public class DatabaseReader {
             return videoPartFile;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
-            StringBuilder sqlText = new StringBuilder(SQL_SELECT);
-            sqlText.append(VideoFilePartDTO.TABLE_NAME);
-            sqlText.append(SQL_WHERE);
-            sqlText.append(VideoFilePartDTO.TABLE_KEY);
-            sqlText.append("=");
-            sqlText.append(videoFilePartId);
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt = connection.prepareStatement(SELECT_ALL_TABLE);
+            pstmt.setString(1, VideoFilePartDTO.TABLE_NAME);
+            pstmt.setString(2, VideoFilePartDTO.TABLE_KEY);
+            pstmt.setInt(3, videoFilePartId);
+
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 videoPartFile.populateDTO(rs);
@@ -741,8 +800,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting video file part: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -754,18 +818,18 @@ public class DatabaseReader {
             return videoFileParts;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
             vf = new VideoFilePartDTO();
 
-            stmt = connection.createStatement();
-            StringBuilder sqlText = new StringBuilder(SQL_SELECT);
-            sqlText.append(VideoFilePartDTO.TABLE_NAME);
-            sqlText.append(" WHERE VIDEO_ID=");
-            sqlText.append(videoId);
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt = connection.prepareStatement(SELECT_VIDEO_ID_TABLE);
+            pstmt.setString(1, VideoFilePartDTO.TABLE_NAME);
+            pstmt.setInt(2, videoId);
+
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             while (rs.next()) {
                 vf.populateDTO(rs);
@@ -778,8 +842,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting video file parts: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -790,21 +859,18 @@ public class DatabaseReader {
             return videoSite;
         }
 
-        Statement stmt = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
 
         try {
-            stmt = connection.createStatement();
-            StringBuilder sqlText = new StringBuilder(SQL_SELECT);
-            sqlText.append(VideoSiteDTO.TABLE_NAME);
-            sqlText.append(SQL_WHERE);
-            sqlText.append(VideoSiteDTO.TABLE_KEY);
-            sqlText.append("=");
-            sqlText.append(videoId);
-            sqlText.append("SITE='");
-            sqlText.append(site);
-            sqlText.append("'");
-            rs = stmt.executeQuery(sqlText.toString());
+            pstmt = connection.prepareStatement(SELECT_VIDEO_SITE);
+            pstmt.setString(1, VideoSiteDTO.TABLE_NAME);
+            pstmt.setString(2, VideoSiteDTO.TABLE_KEY);
+            pstmt.setInt(3, videoId);
+            pstmt.setString(4, site);
+
+            pstmt.execute();
+            rs = pstmt.getResultSet();
 
             if (rs.next()) {
                 videoSite.populateDTO(rs);
@@ -814,8 +880,13 @@ public class DatabaseReader {
         } catch (SQLException ex) {
             throw new SQLException("Error getting video site: " + ex.getMessage(), ex);
         } finally {
-            rs.close();
-            stmt.close();
+            if (rs != null) {
+                rs.close();
+            }
+
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 }

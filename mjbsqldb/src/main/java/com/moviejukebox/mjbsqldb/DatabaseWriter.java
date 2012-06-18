@@ -28,6 +28,9 @@ public final class DatabaseWriter {
     private static final String JOIN_COUNTRY = "insert into VIDEO_COUNTRY  (VIDEO_ID, COUNTRY_ID)  values (?, ?)";
     private static final String JOIN_LANGUAGE = "insert into VIDEO_LANGUAGE (VIDEO_ID, LANGUAGE_ID) values (?, ?)";
     private static final String JOIN_PERSON = "insert into VIDEO_PERSON   (VIDEO_ID, PERSON_ID)   values (?, ?)";
+    // Delete Ids
+    private static final String DELETE_ID_1_COL = "delete from ? where ? = ?";
+    private static final String DELETE_ID_2_COL = "delete from ? where ? = ? and ? = ?";
 
     private DatabaseWriter() {
         throw new IllegalArgumentException("Class cannot be initialised!");
@@ -41,9 +44,17 @@ public final class DatabaseWriter {
         PreparedStatement pstmt = null;
         try {
             if (columnName2 == null) {
-                pstmt = connection.prepareStatement("DELETE FROM " + tableName + " WHERE " + columnName1 + "=" + tableId1);
+                pstmt = connection.prepareStatement(DELETE_ID_1_COL);
+                pstmt.setString(1, tableName);
+                pstmt.setString(2, columnName1);
+                pstmt.setInt(3, tableId1);
             } else {
-                pstmt = connection.prepareStatement("DELETE FROM " + tableName + " WHERE " + columnName1 + "=" + tableId1 + " AND " + columnName2 + "=" + tableId2);
+                pstmt = connection.prepareStatement(DELETE_ID_2_COL);
+                pstmt.setString(1, tableName);
+                pstmt.setString(2, columnName1);
+                pstmt.setInt(3, tableId1);
+                pstmt.setString(2, columnName2);
+                pstmt.setString(3, tableId2);
             }
             pstmt.execute();
         } catch (SQLException ex) {
