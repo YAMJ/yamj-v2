@@ -89,7 +89,7 @@
                 <xsl:when test="director/@index != ''">
                   <a>
                     <xsl:attribute name="href"><xsl:value-of select="director/@index" />.html</xsl:attribute>
-                    <xsl:value-of select="director" /> 
+                    <xsl:value-of select="director" />
                   </a>
                 </xsl:when>
                 <xsl:otherwise>
@@ -128,11 +128,11 @@
                   <xsl:when test="@index != ''">
                     <a>
                       <xsl:attribute name="href"><xsl:value-of select="@index" />.html</xsl:attribute>
-                      <xsl:value-of select="." /> 
+                      <xsl:value-of select="." />
                     </a>
                   </xsl:when>
                   <xsl:otherwise>
-                    <xsl:value-of select="." /> 
+                    <xsl:value-of select="." />
                   </xsl:otherwise>
                 </xsl:choose>
               </xsl:for-each>
@@ -144,7 +144,7 @@
             <xsl:if test="certification != 'UNKNOWN'">
               <xsl:if test="count(genres) != 0 or runtime != 'UNKNOWN'">, </xsl:if>
                 <a>
-                  <xsl:attribute name="href">Rating_<xsl:value-of select="certification" />_1.html</xsl:attribute>
+                  <xsl:attribute name="href">Certification_<xsl:value-of select="certification" />_1.html</xsl:attribute>
                 <xsl:value-of select="certification" />
                 </a>
             </xsl:if>
@@ -163,7 +163,7 @@
             </td>
           </tr>
         </xsl:if>
-        
+
         <tr class="divider"><td colspan="2" /></tr>
 
         <xsl:if test="plot != 'UNKNOWN'">
@@ -180,7 +180,7 @@
                     </xsl:otherwise>
                   </xsl:choose>
                 </xsl:variable>
-  
+
                 <xsl:call-template name="string-replace-plot-BR">
                       <xsl:with-param name="text" select='$plotTruncated' />
                 </xsl:call-template>
@@ -199,11 +199,11 @@
                   <xsl:when test="@index != ''">
                     <a>
                       <xsl:attribute name="href"><xsl:value-of select="@index" />.html</xsl:attribute>
-                      <xsl:value-of select="." /> 
+                      <xsl:value-of select="." />
                     </a>
                   </xsl:when>
                   <xsl:otherwise>
-                    <xsl:value-of select="." /> 
+                    <xsl:value-of select="." />
                   </xsl:otherwise>
                 </xsl:choose>
               </xsl:for-each>
@@ -270,7 +270,7 @@
                   </xsl:otherwise>
                             </xsl:choose>
                 </xsl:otherwise>
-                </xsl:choose>   
+                </xsl:choose>
                 </a>
               </td>
             </tr>

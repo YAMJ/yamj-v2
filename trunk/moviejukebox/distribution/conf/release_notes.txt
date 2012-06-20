@@ -20,6 +20,7 @@ MovieJukebox 2.7-SNAPSHOT
  - Enhancement  #2423 Add 'container' to the NFO file
  - Fixed defect #2424 Sets are always recreated each run
  - Enhancement  #2428 XBMC tvshow.nfo support
+ - Fixed defect #2437 Clicking movie Rating gives dead link in skins gfb107 and gfb107-sd
 
 MovieJukebox 2.6.1 (21-Mar-2012)
 --------------------------------
