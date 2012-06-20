@@ -50,7 +50,7 @@ public class StringTools {
         StringTokenizer tokenizer = new StringTokenizer(temp, ",");
         while (tokenizer.hasMoreTokens()) {
             String token = tokenizer.nextToken();
-            int idx = token.indexOf("-");
+            int idx = token.indexOf('-');
             if (idx > 0) {
                 String key = token.substring(0, idx).trim();
                 String value = token.substring(idx + 1).trim();

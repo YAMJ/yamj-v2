@@ -123,7 +123,7 @@ public class KinopoiskTrailersPlugin extends TrailersPlugin {
                 return Movie.UNKNOWN;
             }
 
-            String xmlUrl = new String(siteName + xml.substring(beginIndex, xml.indexOf("/\"", beginIndex)));
+            String xmlUrl = siteName + xml.substring(beginIndex, xml.indexOf("/\"", beginIndex));
             if (StringTools.isNotValidString(xmlUrl)) {
                 logger.debug(trailersPluginName + " Plugin: no downloadable trailer found for movie: " + movie.getTitle());
                 return Movie.UNKNOWN;
@@ -134,8 +134,8 @@ public class KinopoiskTrailersPlugin extends TrailersPlugin {
             if (beginUrl >= 0) {
                 while (true) {
                     int markerUrl = trailerXml.indexOf("http://", beginUrl);
-                    String tmpUrl = new String(trailerXml.substring(markerUrl, trailerXml.indexOf("\"", markerUrl)));
-                    String ext = new String(tmpUrl.substring(tmpUrl.lastIndexOf(".") + 1).toUpperCase());
+                    String tmpUrl = new String(trailerXml.substring(markerUrl, trailerXml.indexOf('\"', markerUrl)));
+                    String ext = tmpUrl.substring(tmpUrl.lastIndexOf('.') + 1).toUpperCase();
                     if (extensions.contains(ext)) {
                         trailerUrl = tmpUrl;
                     }

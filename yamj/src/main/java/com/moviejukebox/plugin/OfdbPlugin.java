@@ -185,7 +185,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         }
 
         String value = HTMLTools.decodeHtml(st.nextToken().trim());
-        if (value.indexOf("uiv=\"content-ty") != -1 || value.indexOf("cast") != -1 || value.indexOf("title") != -1 || value.indexOf("<") != -1) {
+        if (value.indexOf("uiv=\"content-ty") != -1 || value.indexOf("cast") != -1 || value.indexOf("title") != -1 || value.indexOf('<') != -1) {
             value = Movie.UNKNOWN;
         }
 

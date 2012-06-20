@@ -234,7 +234,7 @@ public class MovieNFOWriter {
                         DOMHelper.appendChild(docNFO, eCodec, "aspect", movie.getAspectRatio());
                         String movieResolution = movie.getResolution();
                         if (StringTools.isValidString(movieResolution) && movieResolution.contains("x")) {
-                            int locX = movieResolution.indexOf("x");
+                            int locX = movieResolution.indexOf('x');
                             if (locX > 0) {
                                 DOMHelper.appendChild(docNFO, eCodec, "width", movieResolution.substring(0, locX));
                                 DOMHelper.appendChild(docNFO, eCodec, "height", movieResolution.substring(locX + 1));

@@ -21,7 +21,6 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteOrder;
@@ -144,7 +143,7 @@ public class OpenSubtitlesPlugin {
 
 
                 String path = mf.getFile().getAbsolutePath();
-                int index = path.lastIndexOf(".");
+                int index = path.lastIndexOf('.');
                 String basename = path.substring(0, index + 1);
 
                 File subtitleFile = FileTools.fileCache.getFile(basename + "srt");
@@ -170,7 +169,7 @@ public class OpenSubtitlesPlugin {
 
                     // Check if this movie already have subtitles for it
                     String path = mf.getFile().getAbsolutePath();
-                    int index = path.lastIndexOf(".");
+                    int index = path.lastIndexOf('.');
                     String basename = path.substring(0, index + 1);
 
                     File subtitleFile = FileTools.fileCache.getFile(basename + "srt");
@@ -206,7 +205,7 @@ public class OpenSubtitlesPlugin {
 
                     // Check if this movie already have subtitles for it
                     String path = mf.getFile().getAbsolutePath();
-                    int index = path.lastIndexOf(".");
+                    int index = path.lastIndexOf('.');
                     String basename = path.substring(0, index + 1);
 
                     File subtitleFile = new File(basename + "srt");
@@ -251,7 +250,7 @@ public class OpenSubtitlesPlugin {
 
                     // Try to find the subtitle using file name
                     String subfilename = subtitleFile.getName();
-                    int index = subfilename.lastIndexOf(".");
+                    int index = subfilename.lastIndexOf('.');
 
                     String query = subfilename.substring(0, index);
 

@@ -254,7 +254,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 sb = sb + "&m_act[content_find]=serial";
             } else {
                 if (StringTools.isValidString(year)) {
-                    if (year.indexOf("-") > -1) {
+                    if (year.indexOf('-') > -1) {
                         String[] years = year.split("-");
                         sb = sb + "&m_act[from_year]=" + years[0];
                         sb = sb + "&m_act[to_year]=" + years[1];
@@ -695,7 +695,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             String picture = HTMLTools.extractTag(wholeArts, "src=\"http://st.kinopoisk.ru/images/wallpaper/sm_", 0, ".jpg");
                             if (StringTools.isValidString(picture)) {
                                 if (picture.contains("_")) {
-                                    picture = picture.substring(0, picture.indexOf("_"));
+                                    picture = picture.substring(0, picture.indexOf('_'));
                                 }
                                 String size = HTMLTools.extractTag(wholeArts, "<u><a href=\"/picture/" + picture + "/w_size/", 0, "/");
                                 wholeArts = webBrowser.request("http://www.kinopoisk.ru/picture/" + picture + "/w_size/" + size);
@@ -1054,8 +1054,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     String bd = HTMLTools.extractTag(xml, "<td class=\"birth\"", "</td>");
                     if (StringTools.isValidString(bd) && bd.indexOf("</a>") > -1) {
                         bd = HTMLTools.removeHtmlTags(bd).replaceAll("^[^>]*>", "");
-                        if (bd.indexOf("•") > -1) {
-                            bd = bd.substring(0, bd.indexOf("•")).replace(",", "").trim();
+                        if (bd.indexOf('•') > -1) {
+                            bd = bd.substring(0, bd.indexOf('•')).replace(",", "").trim();
                         }
                         if (StringTools.isValidString(bd)) {
                             date = bd;
@@ -1067,7 +1067,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     String dd = HTMLTools.extractTag(xml, ">дата смерти</td><td>", "</td>");
                     if (StringTools.isValidString(dd)) {
                         dd = HTMLTools.removeHtmlTags(dd);
-                        dd = dd.substring(0, dd.indexOf("•")).replace(",", "").trim();
+                        dd = dd.substring(0, dd.indexOf('•')).replace(",", "").trim();
                         if (StringTools.isValidString(dd)) {
                             date += "/" + dd;
                         }
@@ -1173,8 +1173,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                 continue;
                             }
                             String year = Movie.UNKNOWN;
-                            if (title.lastIndexOf("(") > -1) {
-                                year = HTMLTools.extractTag(title.substring(title.lastIndexOf("(")), "(", ")");
+                            if (title.lastIndexOf('(') > -1) {
+                                year = HTMLTools.extractTag(title.substring(title.lastIndexOf('(')), "(", ")");
                                 title = title.replace("(" + year + ")", "").trim();
                             }
                             String name = HTMLTools.extractTag(item, "<span class=\"role\">", "</span>").replaceAll("\u00A0", " ").trim();

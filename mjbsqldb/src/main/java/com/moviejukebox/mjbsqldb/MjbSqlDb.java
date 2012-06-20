@@ -78,7 +78,9 @@ public class MjbSqlDb {
         } catch (IOException ex) {
             throw new SQLException("Error opening the database: " + ex.getMessage(), ex);
         } catch (SQLException ex) {
-            connection.close();
+            if (connection != null) {
+                connection.close();
+            }
             throw new SQLException("Error opening the database: " + ex.getMessage(), ex);
         }
     }

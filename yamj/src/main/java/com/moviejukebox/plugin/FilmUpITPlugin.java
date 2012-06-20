@@ -360,7 +360,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
         if (beginIndex != -1) {
             int beginIdIndex = nfo.indexOf("sc_", beginIndex);
             if (beginIdIndex != -1) {
-                int endIdIndex = nfo.indexOf(".", beginIdIndex);
+                int endIdIndex = nfo.indexOf('.', beginIdIndex);
                 if (endIdIndex != -1) {
                     logger.debug("Filmup Id found in nfo = " + nfo.substring(beginIdIndex + 3, endIdIndex));
                     movie.setId(FilmUpITPlugin.FILMUPIT_PLUGIN_ID, nfo.substring(beginIdIndex + 3, endIdIndex));
