@@ -536,7 +536,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 String rating = HTMLTools.extractTag(xml, "<li class=\"current-rating\"", 1, "<>", false).trim();
                 logger.debug("ComingSoon: found rating " + rating);
                 if (StringTools.isValidString(rating)) {
-                    rating = new String(rating.substring(rating.indexOf(" ") + 1, rating.indexOf("/")));
+                    rating = new String(rating.substring(rating.indexOf(' ') + 1, rating.indexOf('/')));
                     int ratingInt = (int) (Float.parseFloat(rating.replace(',', '.')) * 20); // Rating is 0 to 5, we normalize to 100
                     if (ratingInt > 0) {
                         movie.addRating(COMINGSOON_PLUGIN_ID, ratingInt);

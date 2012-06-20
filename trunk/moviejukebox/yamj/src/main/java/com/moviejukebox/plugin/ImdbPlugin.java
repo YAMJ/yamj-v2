@@ -1004,7 +1004,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
             for (String awardBlock : HTMLTools.extractTags(awardXML, "<table style=\"margin-top: 8px; margin-bottom: 8px\" cellspacing=\"2\" cellpadding=\"2\" border=\"1\">", "</table>", "bgcolor=\"#ffffdb\"", "<td colspan=\"4\" align=\"center\" valign=\"top\"")) {
                 String name = HTMLTools.extractTag(awardBlock, "<big><a href=", "</a></big>");
-                name = name.substring(name.indexOf(">") + 1);
+                name = name.substring(name.indexOf('>') + 1);
 
                 AwardEvent event = new AwardEvent();
                 event.setName(name);
@@ -1012,12 +1012,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 for (String yearBlock : HTMLTools.extractTags(awardBlock + "<end>", "</th>", "<end>", "<tr", "<td colspan=\"4\">")) {
                     if (yearBlock.indexOf("Sections/Awards") > -1) {
                         String tmpString = HTMLTools.extractTag(yearBlock, "<a href=", "</a>");
-                        String yearStr = tmpString.substring(tmpString.indexOf(">") + 1).substring(0, 4);
+                        String yearStr = tmpString.substring(tmpString.indexOf('>') + 1).substring(0, 4);
                         int year = yearStr.equals("????") ? -1 : Integer.parseInt(yearStr);
                         int won = 0;
                         int nominated = 0;
                         tmpString = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("/" + (yearStr.equals("????") ? "0000" : yearStr) + "\">" + yearStr)), "<td rowspan=\"", "</b></td>");
-                        int count = Integer.parseInt(tmpString.substring(0, tmpString.indexOf("\"")));
+                        int count = Integer.parseInt(tmpString.substring(0, tmpString.indexOf('\"')));
                         String title = tmpString.substring(tmpString.indexOf("<b>") + 3);
                         String namePattern = " align=\"center\" valign=\"middle\">";
                         name = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("<b>" + title + "</b>")), namePattern, "</td>");

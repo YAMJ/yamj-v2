@@ -611,7 +611,7 @@ public class MovieNFOReader {
                 if (countryPos > 0) {
                     // We've found the country, so extract just that tag
                     tempCert = new String(tempCert.substring(countryPos));
-                    int pos = tempCert.indexOf(":");
+                    int pos = tempCert.indexOf(':');
                     if (pos > 0) {
                         int endPos = tempCert.indexOf(" /");
                         if (endPos > 0) {
@@ -624,7 +624,7 @@ public class MovieNFOReader {
                     }
                 } else {
                     // The country wasn't found in the value, so grab the last one
-                    int pos = tempCert.lastIndexOf(":");
+                    int pos = tempCert.lastIndexOf(':');
                     if (pos > 0) {
                         // Strip the country code from the rating for certification like "UK:PG-12"
                         tempCert = new String(tempCert.substring(pos + 1));

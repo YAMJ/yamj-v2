@@ -214,7 +214,7 @@ public class FanartScanner {
                     if (fanartImage != null) {
                         fanartImage = backgroundPlugin.generate(movie, fanartImage, "fanart", null);
                         if (PropertiesUtil.getBooleanProperty("fanart.perspective", "false")) {
-                            destFileName = destFileName.subSequence(0, destFileName.lastIndexOf(".") + 1) + "png";
+                            destFileName = destFileName.subSequence(0, destFileName.lastIndexOf('.') + 1) + "png";
                             movie.setFanartFilename(destFileName);
                         }
                         GraphicTools.saveImageToDisk(fanartImage, destFileName);

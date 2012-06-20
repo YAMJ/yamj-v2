@@ -92,7 +92,7 @@ public class TrailersPlugin implements ITrailersPlugin {
             parentPath = new String(parentPath.substring(0, parentPath.toUpperCase().indexOf("BDMV") - 1));
             basename = new String(parentPath.substring(parentPath.lastIndexOf(File.separator) + 1));
         } else {
-            int index = name.lastIndexOf(".");
+            int index = name.lastIndexOf('.');
             basename = index == -1 ? name : new String(name.substring(0, index));
         }
 
@@ -101,7 +101,7 @@ public class TrailersPlugin implements ITrailersPlugin {
             (new File(parentPath)).mkdirs();
         }
 
-        String trailerExt = new String(trailerUrl.substring(trailerUrl.lastIndexOf(".")));
+        String trailerExt = new String(trailerUrl.substring(trailerUrl.lastIndexOf('.')));
         String trailerBasename = basename + ".[TRAILER-" + title + "]" + trailerExt;
         if (trailersSafeFilename) {
             trailerBasename = FileTools.makeSafeFilename(trailerBasename);

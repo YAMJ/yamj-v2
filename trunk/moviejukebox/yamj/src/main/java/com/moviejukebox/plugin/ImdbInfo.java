@@ -286,7 +286,7 @@ public class ImdbInfo {
                 String formattedMovieName;
                 if (StringTools.isValidString(otherMovieName)) {
                     if (StringTools.isValidString(year) && otherMovieName.endsWith(")") && otherMovieName.contains("(")) {
-                        otherMovieName = otherMovieName.substring(0, otherMovieName.lastIndexOf("(") - 1);
+                        otherMovieName = otherMovieName.substring(0, otherMovieName.lastIndexOf('(') - 1);
                         formattedMovieName = otherMovieName + "</a> (" + year + ")";
                     } else {
                         formattedMovieName = otherMovieName + "</a>";

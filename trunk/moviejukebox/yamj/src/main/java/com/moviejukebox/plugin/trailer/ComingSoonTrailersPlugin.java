@@ -105,7 +105,7 @@ public class ComingSoonTrailersPlugin extends TrailersPlugin {
 
             String xmlUrl = Movie.UNKNOWN;
 
-            if (trailerPreferredFormat.indexOf(",") < 0) {
+            if (trailerPreferredFormat.indexOf(',') < 0) {
                 xmlUrl = parseVideoPage(xml, trailerPreferredFormat);
             } else {
                 StringTokenizer st = new StringTokenizer(trailerPreferredFormat, ",");
@@ -125,7 +125,7 @@ public class ComingSoonTrailersPlugin extends TrailersPlugin {
             String trailerXml = webBrowser.request(xmlUrl);
             int beginUrl = trailerXml.indexOf("http://");
             if (beginUrl >= 0) {
-                trailerUrl = new String(trailerXml.substring(beginUrl, trailerXml.indexOf("\"", beginUrl)));
+                trailerUrl = new String(trailerXml.substring(beginUrl, trailerXml.indexOf('\"', beginUrl)));
             } else {
                 logger.error(trailersPluginName + " Plugin: cannot find trailer URL in XML. Layout changed?");
             }

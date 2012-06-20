@@ -12,17 +12,16 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
@@ -54,7 +53,7 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
 
     private List<String> getResult(String html) {
         List<String> result = new ArrayList<String>();
-        String tmp = null;
+        String tmp;
         String tempHtml = html;
 
         while ((tmp = getUrl(tempHtml)) != null) {
@@ -92,7 +91,7 @@ public class MotechnetPosterPlugin extends AbstractMoviePosterPlugin {
                 }
 
                 if (StringTools.isValidString(response)) {
-                    int pos = response.indexOf("/");
+                    int pos = response.indexOf('/');
                     if (pos > -1) {
                         response = new String(response.substring(0, pos));
                     }

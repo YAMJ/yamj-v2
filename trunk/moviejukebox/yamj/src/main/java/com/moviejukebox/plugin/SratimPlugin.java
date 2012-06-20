@@ -18,7 +18,6 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.*;
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -514,7 +513,7 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     private static String removeTrailDot(String text) {
-        int dot = text.lastIndexOf(".");
+        int dot = text.lastIndexOf('.');
 
         if (dot == -1) {
             return text;
@@ -740,7 +739,7 @@ public class SratimPlugin extends ImdbPlugin {
 
                 index += 30;
 
-                endIndex = newMainXML.indexOf("\"", index);
+                endIndex = newMainXML.indexOf('\"', index);
                 if (endIndex == -1) {
                     return;
                 }
@@ -768,7 +767,7 @@ public class SratimPlugin extends ImdbPlugin {
 
                 index += 15;
 
-                endIndex = newMainXML.indexOf("<", index);
+                endIndex = newMainXML.indexOf('<', index);
                 if (endIndex == -1) {
                     return;
                 }
@@ -825,7 +824,7 @@ public class SratimPlugin extends ImdbPlugin {
 
                     index += 55;
 
-                    endIndex = seasonXML.indexOf("\"", index);
+                    endIndex = seasonXML.indexOf('\"', index);
                     if (endIndex == -1) {
                         return;
                     }
@@ -839,7 +838,7 @@ public class SratimPlugin extends ImdbPlugin {
 
                     index += 7;
 
-                    endIndex = seasonXML.indexOf(":", index);
+                    endIndex = seasonXML.indexOf(':', index);
                     if (endIndex == -1) {
                         return;
                     }
@@ -924,7 +923,7 @@ public class SratimPlugin extends ImdbPlugin {
 
         // Get the file base name
         String path = mf.getFile().getName().toUpperCase();
-        int lindex = path.lastIndexOf(".");
+        int lindex = path.lastIndexOf('.');
         if (lindex == -1) {
             return;
         }
@@ -1001,7 +1000,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             index += 30;
 
-            endIndex = mainXML.indexOf("\"", index);
+            endIndex = mainXML.indexOf('\"', index);
             if (endIndex == -1) {
                 break;
             }
@@ -1018,7 +1017,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             index += 18;
 
-            endIndex = mainXML.indexOf(".", index);
+            endIndex = mainXML.indexOf('.', index);
             if (endIndex == -1) {
                 break;
             }
@@ -1035,7 +1034,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             index += 46;
 
-            endIndex = mainXML.indexOf("\"", index);
+            endIndex = mainXML.indexOf('\"', index);
             if (endIndex == -1) {
                 break;
             }
@@ -1054,7 +1053,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             index += 6;
 
-            endIndex = mainXML.indexOf(",", index);
+            endIndex = mainXML.indexOf(',', index);
             if (endIndex == -1) {
                 break;
             }
@@ -1071,7 +1070,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             index += 5;
 
-            endIndex = mainXML.indexOf("<", index);
+            endIndex = mainXML.indexOf('<', index);
             if (endIndex == -1) {
                 break;
             }
@@ -1088,7 +1087,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             index += 32;
 
-            endIndex = mainXML.indexOf(" ", index);
+            endIndex = mainXML.indexOf(' ', index);
             if (endIndex == -1) {
                 break;
             }
@@ -1196,7 +1195,7 @@ public class SratimPlugin extends ImdbPlugin {
 
         // reconstruct movie filename with full path
         String orgName = mf.getFile().getAbsolutePath();
-        File subtitleFile = new File(new String(orgName.substring(0, orgName.lastIndexOf("."))));
+        File subtitleFile = new File(new String(orgName.substring(0, orgName.lastIndexOf('.'))));
         if (!downloadSubtitleZip(movie, "http://www.sratim.co.il/downloadsubtitle.php?id=" + bestID, subtitleFile, bluRay)) {
             logger.error(logMessage + "Error - Subtitle download failed");
             return;
@@ -1417,7 +1416,7 @@ public class SratimPlugin extends ImdbPlugin {
 
     protected String extractMovieTitle(String xml) {
         String tmpTitle = removeHtmlTags(extractTag(xml, "<title>", "</title>"));
-        int index = tmpTitle.indexOf("(");
+        int index = tmpTitle.indexOf('(');
         if (index == -1) {
             return "None";
         }

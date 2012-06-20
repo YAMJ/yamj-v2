@@ -537,9 +537,9 @@ public class AllocinePlugin extends ImdbPlugin {
         logger.debug("AllocinePlugin: Scanning NFO for Allocine Id");
         int beginIndex = nfo.indexOf("http://www.allocine.fr/");
         if (beginIndex != -1) {
-            int beginIdIndex = nfo.indexOf("=", beginIndex);
+            int beginIdIndex = nfo.indexOf('=', beginIndex);
             if (beginIdIndex != -1) {
-                int endIdIndex = nfo.indexOf(".", beginIdIndex);
+                int endIdIndex = nfo.indexOf('.', beginIdIndex);
                 if (endIdIndex != -1) {
                     logger.debug("AllocinePlugin: Allocine Id found in nfo = " + new String(nfo.substring(beginIdIndex + 1, endIdIndex)));
                     movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, new String(nfo.substring(beginIdIndex + 1, endIdIndex)));

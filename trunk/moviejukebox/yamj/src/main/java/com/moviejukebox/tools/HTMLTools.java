@@ -481,7 +481,7 @@ public class HTMLTools {
 
             value = HTMLTools.decodeHtml(st.nextToken().trim());
 
-            if (checkDirty && value.indexOf("uiv=\"content-ty") != -1 || value.indexOf("cast") != -1 || value.indexOf("title") != -1 || value.indexOf("<") != -1) {
+            if (checkDirty && value.indexOf("uiv=\"content-ty") != -1 || value.indexOf("cast") != -1 || value.indexOf("title") != -1 || value.indexOf('<') != -1) {
                 value = Movie.UNKNOWN;
             }
         }
