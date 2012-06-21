@@ -58,6 +58,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     //  ???.height
     private static final Logger logger = Logger.getLogger(ArtworkScanner.class);
     protected String logMessage;                        // The start of the log message
+    private static final String SPLITTER = ",;|";
+    private static final String FALSE = "false";
     protected final WebBrowser webBrowser = new WebBrowser();
     protected MovieImagePlugin artworkImagePlugin;
     protected String skinHome;                          // Location of the skin files used to get the dummy images from for missing artwork
@@ -92,15 +94,15 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     public ArtworkScanner(ArtworkType conArtworkType) {
         setArtworkType(conArtworkType);
 
-        StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty(conArtworkType + ".scanner.imageName", ""), ",;|");
+        StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty(conArtworkType + ".scanner.imageName", ""), SPLITTER);
         while (st.hasMoreTokens()) {
             artworkImageName.add(st.nextToken());
         }
 
         // Get artwork scanner behaviour
-        artworkSearchLocal = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.searchForExistingArtwork", "false");
-        artworkDownloadMovie = PropertiesUtil.getBooleanProperty(artworkTypeName + ".movie.download", "false");
-        artworkDownloadTv = PropertiesUtil.getBooleanProperty(artworkTypeName + ".tv.download", "false");
+        artworkSearchLocal = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.searchForExistingArtwork", FALSE);
+        artworkDownloadMovie = PropertiesUtil.getBooleanProperty(artworkTypeName + ".movie.download", FALSE);
+        artworkDownloadTv = PropertiesUtil.getBooleanProperty(artworkTypeName + ".tv.download", FALSE);
 
         setArtworkExtensions(PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkExtensions", "jpg,png,gif"));
         artworkToken = PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkToken", "");
@@ -133,9 +135,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Save the artwork to the jukebox
      *
-     * TODO: Parameter to control if the original artwork is saved in the
-     * jukebox or not. We should save this in an "originalArtwork" folder or
-     * something
+     * TODO: Parameter to control if the original artwork is saved in the jukebox or not. We should save this in an
+     * "originalArtwork" folder or something
      *
      * @return the status of the save. True if saved correctly, false otherwise.
      */
@@ -278,9 +279,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * @return
      */
     public static boolean isRequired(String artworkTypeString) {
-        boolean sArtworkLocalSearch = PropertiesUtil.getBooleanProperty(artworkTypeString + ".scanner.searchForExistingArtwork", "false");
-        boolean sArtworkMovieDownload = PropertiesUtil.getBooleanProperty(artworkTypeString + ".movie.download", "false");
-        boolean sArtworkTvDownload = PropertiesUtil.getBooleanProperty(artworkTypeString + ".tv.download", "false");
+        boolean sArtworkLocalSearch = PropertiesUtil.getBooleanProperty(artworkTypeString + ".scanner.searchForExistingArtwork", FALSE);
+        boolean sArtworkMovieDownload = PropertiesUtil.getBooleanProperty(artworkTypeString + ".movie.download", FALSE);
+        boolean sArtworkTvDownload = PropertiesUtil.getBooleanProperty(artworkTypeString + ".tv.download", FALSE);
 
         return (sArtworkLocalSearch || sArtworkMovieDownload || sArtworkTvDownload);
     }
@@ -384,8 +385,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Scan for any local artwork and return the path to it.
      *
-     * This should only be called by the scanLocalArtwork method in the derived
-     * classes.
+     * This should only be called by the scanLocalArtwork method in the derived classes.
      *
      * Note: This will update the movie information for this artwork
      *
@@ -405,7 +405,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
         logger.debug(logMessage + "Searching for '" + artworkFilename + "'");
 
-        StringTokenizer st = new StringTokenizer(artworkPriority, ",;|");
+        StringTokenizer st = new StringTokenizer(artworkPriority, SPLITTER);
 
         while (st.hasMoreTokens() && movieArtwork.equalsIgnoreCase(Movie.UNKNOWN)) {
             String artworkSearch = st.nextToken().toLowerCase().trim();
@@ -462,8 +462,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     public abstract void setArtworkUrl(Movie movie, String artworkUrl);
 
     /**
-     * Updates the artwork by either copying the local file or downloading the
-     * artwork
+     * Updates the artwork by either copying the local file or downloading the artwork
      *
      * @param jukebox
      * @param movie
@@ -504,8 +503,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
                     try {
                         logger.debug("Saving " + artworkType + " for " + movie.getBaseName() + " to " + tmpDestFile.getName());
                         FileTools.downloadImage(tmpDestFile, artworkUrl);
-                    } catch (Exception error) {
-                        logger.debug("Failed downloading " + artworkType + ": " + artworkUrl);
+                    } catch (IOException ex) {
+                        logger.debug("Failed downloading " + artworkType + ": " + artworkUrl + " - " + ex.getMessage());
                         FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + artworkDummy), tmpDestFile);
                     }
                 } else {
@@ -525,8 +524,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Get the size of the file at the end of the URL
      *
-     * Taken from:
-     * http://forums.sun.com/thread.jspa?threadID=528155&messageID=2537096
+     * Taken from: http://forums.sun.com/thread.jspa?threadID=528155&messageID=2537096
      *
      * @param posterImage Artwork image to check
      * @param posterWidth The width to check
@@ -632,11 +630,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Determine if the artwork should be overwritten
      *
-     * Checks to see if the artwork exists in the jukebox folders (temp and
-     * final)
+     * Checks to see if the artwork exists in the jukebox folders (temp and final)
      *
-     * Checks the overwrite parameters Checks to see if the local artwork is
-     * newer
+     * Checks the overwrite parameters Checks to see if the local artwork is newer
      *
      * @param movie
      * @return
@@ -696,8 +692,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Scan an absolute or relative path for the movie images.
      *
-     * The relative path should include the directory of the movie as well as
-     * the library root
+     * The relative path should include the directory of the movie as well as the library root
      *
      * @param movie
      * @return UNKNOWN or Absolute Path
@@ -806,8 +801,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     }
 
     /**
-     * Scan for artwork named like
-     * <videoFileName><artworkToken>.<artworkExtensions>
+     * Scan for artwork named like <videoFileName><artworkToken>.<artworkExtensions>
      *
      * @param movie
      * @return UNKNOWN or Absolute Path
@@ -817,8 +811,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     }
 
     /**
-     * Scan for artwork named like
-     * <videoFileName><artworkToken>.<artworkExtensions>
+     * Scan for artwork named like <videoFileName><artworkToken>.<artworkExtensions>
      *
      * @param movie
      * @param additionalPath A sub-directory of the movie to scan
@@ -843,16 +836,24 @@ public abstract class ArtworkScanner implements IArtworkScanner {
             ClassLoader cl = artThread.getContextClassLoader();
             Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
             artworkImagePlugin = pluginClass.newInstance();
-        } catch (Exception error) {
-            // Use the background plugin for fanart, the image plugin for all others
-            if (artworkType == ArtworkType.Fanart) {
-                artworkImagePlugin = new DefaultBackgroundPlugin();
-            } else {
-                artworkImagePlugin = new DefaultImagePlugin();
-            }
-            logger.error("Failed instanciating imagePlugin: " + className);
-            logger.error("Default plugin will be used instead.");
-            logger.error(SystemTools.getStackTrace(error));
+            return;
+        } catch (ClassNotFoundException ex) {
+            logger.error(logMessage + "Error instanciating imagePlugin: " + className + " - class not found!");
+            logger.error(SystemTools.getStackTrace(ex));
+        } catch (InstantiationException ex) {
+            logger.error(logMessage + "Failed instanciating imagePlugin: " + className);
+            logger.error(SystemTools.getStackTrace(ex));
+        } catch (IllegalAccessException ex) {
+            logger.error(logMessage + "Unable instanciating imagePlugin: " + className);
+            logger.error(SystemTools.getStackTrace(ex));
+        }
+
+        logger.error(logMessage + "Default plugin will be used instead.");
+        // Use the background plugin for fanart, the image plugin for all others
+        if (artworkType == ArtworkType.Fanart) {
+            artworkImagePlugin = new DefaultBackgroundPlugin();
+        } else {
+            artworkImagePlugin = new DefaultImagePlugin();
         }
     }
 
@@ -863,15 +864,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         // This should return a value, but if it doesn't then we'll default to "posters"
         String dimensionType = getPropertyName();
 
-        try {
-            artworkWidth = PropertiesUtil.getIntProperty(dimensionType + ".width", "0");
-            artworkHeight = PropertiesUtil.getIntProperty(dimensionType + ".height", "0");
-        } catch (Exception ignore) {
-            logger.error(logMessage + "Number format error with " + dimensionType + ".width and/or " + dimensionType + ".height");
-            logger.error(logMessage + "Please ensure these are set correctly in your skin.properties file.");
-            artworkWidth = 0;
-            artworkHeight = 0;
-        }
+        artworkWidth = PropertiesUtil.getIntProperty(dimensionType + ".width", "0");
+        artworkHeight = PropertiesUtil.getIntProperty(dimensionType + ".height", "0");
 
         if ((artworkWidth == 0) || (artworkHeight == 0)) {
             // There was an issue with the correct properties, so use poster as a default.
@@ -892,7 +886,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * @param artworkExtensions
      */
     private void setArtworkExtensions(String extensions) {
-        StringTokenizer st = new StringTokenizer(extensions, ",;|");
+        StringTokenizer st = new StringTokenizer(extensions, SPLITTER);
         while (st.hasMoreTokens()) {
             artworkExtensions.add(st.nextToken());
         }
@@ -904,7 +898,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * @param artworkImageName
      */
     private void setArtworkImageName(String artworkImageNameString) {
-        StringTokenizer st = new StringTokenizer(artworkImageNameString, ",;|");
+        StringTokenizer st = new StringTokenizer(artworkImageNameString, SPLITTER);
 
         while (st.hasMoreTokens()) {
             artworkImageName.add(st.nextToken());
@@ -1000,8 +994,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Return the name used in the properties file for this artwork type
      *
-     * This is needed because of the disconnection between what was originally
-     * in the properties files and making it generic enough for this scanner
+     * This is needed because of the disconnection between what was originally in the properties files and making it
+     * generic enough for this scanner
      *
      * @return
      */
@@ -1012,8 +1006,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Return the name used in the properties file for this artwork type
      *
-     * This is needed because of the disconnection between what was originally
-     * in the properties files and making it generic enough for this scanner
+     * This is needed because of the disconnection between what was originally in the properties files and making it
+     * generic enough for this scanner
      *
      * @return
      */

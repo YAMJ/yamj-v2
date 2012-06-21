@@ -176,7 +176,7 @@ public class MovieJukeboxXMLWriter {
      */
     public boolean parseMovieXML(File xmlFile, Movie movie) {
 
-        boolean forceDirtyFlag = false; // force dirty flag for example when extras have been deleted
+        boolean forceDirtyFlag = Boolean.FALSE; // force dirty flag for example when extras have been deleted
 
         Document xmlDoc;
 
@@ -185,19 +185,19 @@ public class MovieJukeboxXMLWriter {
         } catch (MalformedURLException error) {
             logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
-            return false;
+            return Boolean.FALSE;
         } catch (IOException error) {
             logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
-            return false;
+            return Boolean.FALSE;
         } catch (ParserConfigurationException error) {
             logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
-            return false;
+            return Boolean.FALSE;
         } catch (SAXException error) {
             logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
-            return false;
+            return Boolean.FALSE;
         }
 
         NodeList nlMovies;  // Main list of movies, there should only be 1
@@ -241,7 +241,7 @@ public class MovieJukeboxXMLWriter {
                 }
 
                 if (StringTools.isNotValidString(movie.getBaseName())) {
-                    movie.setBaseFilename(DOMHelper.getValueFromElement(eMovie, "baseFilename"));
+                    movie.setBaseName(DOMHelper.getValueFromElement(eMovie, "baseFilename"));
                 }
 
                 // Get the title fields
@@ -759,7 +759,7 @@ public class MovieJukeboxXMLWriter {
                             movieFile.setWatchedDateString(DOMHelper.getValueFromElement(eFile, "watchedDate"));
 
                             // This is not a new file
-                            movieFile.setNewFile(false);
+                            movieFile.setNewFile(Boolean.FALSE);
 
                             // Add the movie file to the movie
                             movie.addMovieFile(movieFile);
@@ -818,7 +818,7 @@ public class MovieJukeboxXMLWriter {
         movie.clearDirty();
         movie.setDirty(DirtyFlag.INFO, forceDirtyFlag || movie.hasNewMovieFiles() || movie.hasNewExtraFiles());
 
-        return true;
+        return Boolean.TRUE;
     }
 
     public boolean parseSetXML(File xmlSetFile, Movie setMaster, List<Movie> moviesList) {
