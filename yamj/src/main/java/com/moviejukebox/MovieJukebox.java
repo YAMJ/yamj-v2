@@ -2349,6 +2349,9 @@ public class MovieJukebox {
 
     public static void setJukeboxPreserve(boolean bJukeboxPreserve) {
         jukeboxPreserve = bJukeboxPreserve;
+        if (bJukeboxPreserve) {
+            logger.info("Existing jukebox video information will be preserved.");
+        }
     }
 
     @XmlRootElement(name = "jukebox")

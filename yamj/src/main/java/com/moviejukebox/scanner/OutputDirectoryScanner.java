@@ -16,13 +16,16 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 import java.io.File;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
 public class OutputDirectoryScanner {
-    private static final Logger logger = Logger.getLogger(OutputDirectoryScanner.class);
 
+    private static final Logger logger = Logger.getLogger(OutputDirectoryScanner.class);
+    private static final String logMessage = "OutputDirectoryScanner: ";
     private String scanDir;
 
     public OutputDirectoryScanner(String scanDir) {
@@ -30,15 +33,15 @@ public class OutputDirectoryScanner {
     }
 
     public void scan(Library library) {
-    /*
-        Map<String, Movie> xmlLibrary = new HashMap<String, Movie>();
-        scanXMLFiles(xmlLibrary);
+        /*
+         Map<String, Movie> xmlLibrary = new HashMap<String, Movie>();
+         scanXMLFiles(xmlLibrary);
 
-        // Because the XML can have additional info, the key is not stable between rns
+         // Because the XML can have additional info, the key is not stable between rns
 
-    protected void scanXMLFiles(Map<String, Movie> library) {
-    */
-        logger.debug("OutputDirectoryScanner: scanning " + scanDir);
+         protected void scanXMLFiles(Map<String, Movie> library) {
+         */
+        logger.debug(logMessage + "Scanning " + scanDir);
         File scanDirFile = new FileTools.FileEx(scanDir);
         if (null != scanDirFile) {
 
@@ -49,7 +52,7 @@ public class OutputDirectoryScanner {
 
                     String filename = file.getName();
 
-                    if (filename.length() > 4 && ".xml".equalsIgnoreCase(new String(filename.substring(filename.length() - 4)))) {
+                    if (filename.length() > 4 && FilenameUtils.getExtension(filename).equalsIgnoreCase("xml")) {
                         FileTools.fileCache.fileAdd(file);
                         String filenameUpper = filename.toUpperCase();
                         boolean skip = filenameUpper.equals("CATEGORIES.XML");
@@ -66,7 +69,7 @@ public class OutputDirectoryScanner {
                             continue;
                         }
 
-                        logger.debug("  Found XML file: " + filename);
+                        logger.debug(logMessage + "  Found XML file: " + filename);
 
                         Movie movie = new Movie();
                         /*
@@ -78,30 +81,28 @@ public class OutputDirectoryScanner {
                         movie.mergeFileNameDTO(dto);
                         String key = Library.getMovieKey(movie);
 
-                        if (!library.containsKey(key)) {
-                            if (xmlWriter.parseMovieXML(file, movie) && movie.getBaseName() != null) {
-                                logger.debug("  Parsed movie: " + movie.getTitle());
+                        if (library.containsKey(key)) {
+                            logger.debug(logMessage + "  Video already in library: " + key);
+                        } else {
+                            if (xmlWriter.parseMovieXML(file, movie) && StringTools.isValidString(movie.getBaseName())) {
+                                logger.debug(logMessage + "  Parsed movie: " + movie.getTitle());
 
                                 if (!library.containsKey(Library.getMovieKey(movie))) {
-                                    logger.debug("  Adding unscanned movie " + Library.getMovieKey(movie));
+                                    logger.debug(logMessage + "  Adding unscanned video " + Library.getMovieKey(movie));
                                     movie.setFile(file);
                                     library.addMovie(key, movie);
                                 }
 
                             } else {
-                                logger.debug("  Failed parsing movie");
+                                logger.debug(logMessage + "  Invalid video XML file");
                             }
-
-                        } else {
-                            logger.debug("  Movie already in library: " + key);
                         }
-
                     } else {
-                        logger.debug("  Skipping file: " + filename);
+                        logger.debug(logMessage + "  Skipping file: " + filename);
                     }
                 }
             } else {
-                logger.debug("  Specified path is not a directory: " + scanDir);
+                logger.debug(logMessage + "  Specified path is not a directory: " + scanDir);
             }
         }
     }
