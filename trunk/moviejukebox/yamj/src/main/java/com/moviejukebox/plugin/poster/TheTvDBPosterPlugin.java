@@ -28,8 +28,9 @@ import org.pojava.datetime.DateTime;
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 
     private static final Logger logger = Logger.getLogger(TheTvDBPosterPlugin.class);
+    private static final String logMessage = "TheTvDBPosterPlugin: ";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
-    private static final String defaultLanguage = "en";
+    private static final String DEFAULT_LANGUAGE = "en";
     private String language;
     private String language2nd;
     private TheTVDB tvDB;
@@ -52,8 +53,8 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         // Set the timeout values
         tvDB.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
 
-        language = PropertiesUtil.getProperty("thetvdb.language", defaultLanguage);
-        language2nd = PropertiesUtil.getProperty("thetvdb.language.secondary", defaultLanguage);
+        language = PropertiesUtil.getProperty("thetvdb.language", DEFAULT_LANGUAGE);
+        language2nd = PropertiesUtil.getProperty("thetvdb.language.secondary", DEFAULT_LANGUAGE);
         // We do not need use the same secondary language... So clearing when equal.
         if (language2nd.equalsIgnoreCase(language)) {
             language2nd = "";
@@ -69,52 +70,48 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         String response = Movie.UNKNOWN;
         List<Series> seriesList = null;
 
-        try {
-            if (StringTools.isValidString(title)) {
-                ThreadExecutor.enterIO(WEB_HOST);
-                try {
-                    seriesList = tvDB.searchSeries(title, language);
-                    // Try Alternative Language
-                    if ((seriesList == null || seriesList.isEmpty()) && StringTools.isValidString(language2nd)) {
-                        seriesList = tvDB.searchSeries(title, language2nd);
+        if (StringTools.isValidString(title)) {
+            ThreadExecutor.enterIO(WEB_HOST);
+            try {
+                seriesList = tvDB.searchSeries(title, language);
+                // Try Alternative Language
+                if ((seriesList == null || seriesList.isEmpty()) && StringTools.isValidString(language2nd)) {
+                    seriesList = tvDB.searchSeries(title, language2nd);
+                }
+            } finally {
+                ThreadExecutor.leaveIO();
+            }
+        }
+
+        if (seriesList != null && !seriesList.isEmpty()) {
+            Series series = null;
+            for (Series s : seriesList) {
+                if (s.getFirstAired() != null && !s.getFirstAired().isEmpty()) {
+                    if (StringTools.isValidString(year)) {
+                        try {
+                            DateTime firstAired = DateTime.parse(s.getFirstAired());
+                            if (Integer.parseInt(firstAired.toString("yyyy")) == Integer.parseInt(year)) {
+                                series = s;
+                                break;
+                            }
+                        } catch (Exception ignore) {
+                        }
+                    } else {
+                        series = s;
+                        break;
                     }
-                } finally {
-                    ThreadExecutor.leaveIO();
                 }
             }
 
-            if (seriesList != null && !seriesList.isEmpty()) {
-                Series series = null;
-                for (Series s : seriesList) {
-                    if (s.getFirstAired() != null && !s.getFirstAired().isEmpty()) {
-                        if (StringTools.isValidString(year)) {
-                            try {
-                                DateTime firstAired = DateTime.parse(s.getFirstAired());
-                                if (Integer.parseInt(firstAired.toString("yyyy")) == Integer.parseInt(year)) {
-                                    series = s;
-                                    break;
-                                }
-                            } catch (Exception ignore) {
-                            }
-                        } else {
-                            series = s;
-                            break;
-                        }
-                    }
-                }
+            if (series == null) {
+                series = seriesList.get(0);
+            }
 
-                if (series == null) {
-                    series = seriesList.get(0);
-                }
-
+            if (series != null) {
                 response = String.valueOf(series.getId());
             }
-
-        } catch (Exception e) {
-            logger.error("TheTvDBPosterPlugin: Failed to retrieve TheTvDb Id for: " + title);
-            logger.error("Error : " + e.getMessage());
-            logger.error(SystemTools.getStackTrace(e));
         }
+
         return response;
     }
 
@@ -157,6 +154,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                     } else {
                         series = TheTvDBPlugin.getSeries(id);
                     }
+
                     if (series != null && StringTools.isValidString(series.getPoster())) {
                         urlNormal = series.getPoster();
                     }
@@ -168,13 +166,9 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
 
             if (StringTools.isValidString(posterURL)) {
-                logger.debug("TheTvDBPosterPlugin: Used poster " + posterURL);
+                logger.debug(logMessage + "Used poster " + posterURL);
                 return new Image(posterURL);
             }
-        } catch (Exception e) {
-            logger.error("TheTvDBPosterPlugin: Failed to retrieve poster for TheTvDb Id for: " + id);
-            logger.error("Error : " + e.getMessage());
-            logger.error(SystemTools.getStackTrace(e));
         } finally {
             ThreadExecutor.leaveIO();
         }
@@ -188,7 +182,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     }
 
     @Override
-    public String getName() {
+    public final String getName() {
         return "thetvdb";
     }
 
@@ -228,12 +222,10 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 
     private String findPosterURL(final Banners bannerList, final int season, final String languageId) {
         for (Banner banner : bannerList.getSeasonList()) {
-            if (banner.getSeason() == season) {
-                if (banner.getBannerType2() == BannerType.Season) {
-                    if (banner.getLanguage().equalsIgnoreCase(languageId)) {
-                        return banner.getUrl();
-                    }
-                }
+            if ((banner.getSeason() == season)
+                    && (banner.getBannerType2() == BannerType.Season)
+                    && (banner.getLanguage().equalsIgnoreCase(languageId))) {
+                return banner.getUrl();
             }
         }
         return null;
@@ -242,10 +234,6 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     @Override
     public final boolean isNeeded() {
         String searchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "");
-        if (searchPriority.toLowerCase().contains(this.getName())) {
-            return true;
-        } else {
-            return false;
-        }
+        return searchPriority.toLowerCase().contains(this.getName());
     }
 }
