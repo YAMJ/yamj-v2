@@ -25,11 +25,12 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
 public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
+
     private static final Logger logger = Logger.getLogger(GooglePosterPlugin.class);
+    private static final String logMessage = "GooglePosterPlugin: ";
     private WebBrowser webBrowser;
 
     // private int nbRetry;
-
     public GooglePosterPlugin() {
         super();
 
@@ -59,12 +60,11 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
             // int tryLeft = nbRetry;
             int startSearch = 0;
             // while (tryLeft-- > 0 && Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl())) {
-            // logger.debug("GooglePosterPlugin: Try " + (nbRetry - tryLeft) + "/" + nbRetry);
+            // logger.debug(logMessage+"Try " + (nbRetry - tryLeft) + "/" + nbRetry);
             String searchString = "imgurl=";
             int beginIndex = xml.indexOf(searchString, startSearch) + 7;
 
             if (beginIndex != -1) {
-                startSearch = beginIndex + searchString.length();
                 StringTokenizer st = new StringTokenizer(new String(xml.substring(beginIndex)), "\"&");
                 // QuickFix to "too much translation issue" space char -> %20 -> %2520
                 posterImage.setUrl(st.nextToken().replace("%2520", "%20"));
@@ -78,8 +78,8 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
             // }
             // }
         } catch (Exception error) {
-            logger.error("GooglePosterPlugin: Failed retreiving poster URL from google images : " + title);
-            logger.error("Error : " + error.getMessage());
+            logger.error(logMessage + "Failed retreiving poster URL from google images : " + title);
+            logger.error(logMessage + "Error : " + error.getMessage());
         }
         return posterImage;
     }
@@ -93,18 +93,4 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
     public String getName() {
         return "google";
     }
-
-    @SuppressWarnings("unused")
-    private boolean checkPosterUrl(String posterURL) {
-        try {
-            URL url = new URL(posterURL);
-            InputStream in = url.openStream();
-            in.close();
-            return true;
-        } catch (IOException ignore) {
-            logger.debug("GooglePosterPlugin: ValidatePoster error: " + ignore.getMessage() + ": can't open url");
-            return false; // Quit and return a false poster
-        }
-    }
-
 }
