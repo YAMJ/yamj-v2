@@ -1570,7 +1570,7 @@ public class Library implements Map<String, Movie> {
     protected static Comparator<Movie> getComparator(String category, String key) {
         Comparator<Movie> cmpMovie = null;
 
-        String originalKey = getOriginalCategory(key);
+        String originalKey = getOriginalCategory(key, Boolean.TRUE);
 
         if (category.equals(SET)) {
             cmpMovie = new MovieSetComparator(originalKey);
@@ -1652,14 +1652,19 @@ public class Library implements Map<String, Movie> {
      * @param newCategory
      * @return
      */
-    public static String getOriginalCategory(String newCategory) {
+    public static String getOriginalCategory(String newCategory, boolean returnCategory) {
         for (Map.Entry<String, String> singleCategory : categoriesMap.entrySet()) {
             if (singleCategory.getValue().equals(newCategory)) {
                 return singleCategory.getKey();
             }
         }
 
-        return Movie.UNKNOWN;
+        // Check to see if we should return the original category that was passed
+        if (returnCategory) {
+            return newCategory;
+        } else {
+            return Movie.UNKNOWN;
+        }
     }
 
     /**
