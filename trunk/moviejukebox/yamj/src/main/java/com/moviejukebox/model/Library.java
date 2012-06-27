@@ -197,6 +197,7 @@ public class Library implements Map<String, Movie> {
             setSortProperty(INDEX_CAST, INDEX_TITLE, "true");
             setSortProperty(INDEX_DIRECTOR, INDEX_TITLE, "true");
             setSortProperty(INDEX_WRITER, INDEX_TITLE, "true");
+            setSortProperty(INDEX_RATINGS, INDEX_RATING, "false");
             setSortProperty(INDEX_GENRES, INDEX_TITLE, "true");
             setSortProperty(INDEX_TITLE, INDEX_TITLE, "true");
             setSortProperty(INDEX_CERTIFICATION, INDEX_TITLE, "true");
