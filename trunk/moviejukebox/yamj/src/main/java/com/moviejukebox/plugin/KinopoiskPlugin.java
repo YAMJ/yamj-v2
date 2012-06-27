@@ -588,7 +588,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
 
                 valueFounded = false;
-                for (String critics : HTMLTools.extractTags(xml, ">Рейтинг кинокритиков<", ">о рейтинге критиков<", "class=\"star\"", "</span>")) {
+                for (String critics : HTMLTools.extractTags(xml, ">Рейтинг кинокритиков<", ">о рейтинге критиков<", "class=\"star\"><s></s", "</div")) {
                     int plus = 0;
                     int minus = 0;
                     int kinopoiskCritics = 0;
@@ -597,7 +597,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     } catch (Exception ignore) {
                         // Ignore
                     }
-                    for (String tmp : HTMLTools.extractTags(xml, ">Рейтинг кинокритиков<", ">о рейтинге критиков<", "class=\"plus\"", "</span")) {
+                    for (String tmp : HTMLTools.extractTags(xml, ">Рейтинг кинокритиков<", ">о рейтинге критиков<", "class=\"el1\"", "</span")) {
                         try {
                             plus = Integer.parseInt(tmp);
                         } catch (Exception ignore) {
@@ -605,7 +605,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                         break;
                     }
-                    for (String tmp : HTMLTools.extractTags(xml, ">Рейтинг кинокритиков<", ">о рейтинге критиков<", "class=\"minus\"", "</span")) {
+                    for (String tmp : HTMLTools.extractTags(xml, ">Рейтинг кинокритиков<", ">о рейтинге критиков<", "class=\"el2\"", "</span")) {
                         try {
                             minus = Integer.parseInt(tmp);
                         } catch (Exception ignore) {
