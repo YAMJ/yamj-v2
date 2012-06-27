@@ -197,7 +197,6 @@ public class Library implements Map<String, Movie> {
             setSortProperty(INDEX_CAST, INDEX_TITLE, "true");
             setSortProperty(INDEX_DIRECTOR, INDEX_TITLE, "true");
             setSortProperty(INDEX_WRITER, INDEX_TITLE, "true");
-            setSortProperty(INDEX_RATINGS, INDEX_RATING, "false");
             setSortProperty(INDEX_GENRES, INDEX_TITLE, "true");
             setSortProperty(INDEX_TITLE, INDEX_TITLE, "true");
             setSortProperty(INDEX_CERTIFICATION, INDEX_TITLE, "true");
@@ -206,7 +205,7 @@ public class Library implements Map<String, Movie> {
             setSortProperty(INDEX_COUNTRY, INDEX_TITLE, "true");
             setSortProperty(INDEX_AWARD, INDEX_TITLE, "true");
 
-            setSortProperty(INDEX_RATING, INDEX_RATING, "true");
+            setSortProperty(INDEX_RATING, INDEX_RATING, "false");
             setSortProperty(INDEX_HD, INDEX_TITLE, "true");
             setSortProperty(INDEX_HD1080, INDEX_TITLE, "true");
             setSortProperty(INDEX_HD720, INDEX_TITLE, "true");
@@ -1570,38 +1569,40 @@ public class Library implements Map<String, Movie> {
     protected static Comparator<Movie> getComparator(String category, String key) {
         Comparator<Movie> cmpMovie = null;
 
+        String originalKey = getOriginalCategory(key);
+
         if (category.equals(SET)) {
-            cmpMovie = new MovieSetComparator(key);
+            cmpMovie = new MovieSetComparator(originalKey);
         } else if (category.equals(INDEX_OTHER)) {
-            if (key.equals(categoriesMap.get(INDEX_NEW))
-                    || key.equals(categoriesMap.get(INDEX_NEW_TV))
-                    || key.equals(categoriesMap.get(INDEX_NEW_MOVIE))) {
-                if (SORT_ASC.get(key) == null) {
+            if (originalKey.equals(categoriesMap.get(INDEX_NEW))
+                    || originalKey.equals(categoriesMap.get(INDEX_NEW_TV))
+                    || originalKey.equals(categoriesMap.get(INDEX_NEW_MOVIE))) {
+                if (SORT_ASC.get(originalKey) == null) {
                     cmpMovie = new LastModifiedComparator(Boolean.FALSE);
                 } else {
-                    cmpMovie = new LastModifiedComparator(SORT_ASC.get(key));
+                    cmpMovie = new LastModifiedComparator(SORT_ASC.get(originalKey));
                 }
-            } else if (key.equals(categoriesMap.get(INDEX_TOP250))) {
-                cmpMovie = new MovieTop250Comparator(SORT_ASC.get(key));
-            } else if (key.equals(categoriesMap.get(INDEX_ALL))) {
+            } else if (originalKey.equals(categoriesMap.get(INDEX_TOP250))) {
+                cmpMovie = new MovieTop250Comparator(SORT_ASC.get(INDEX_TOP250));
+            } else if (originalKey.equals(categoriesMap.get(INDEX_ALL))) {
                 cmpMovie = getComparator(INDEX_ALL);
-            } else if (key.equals(categoriesMap.get(INDEX_TVSHOWS))) {
+            } else if (originalKey.equals(categoriesMap.get(INDEX_TVSHOWS))) {
                 cmpMovie = getComparator(INDEX_TVSHOWS);
-            } else if (key.equals(categoriesMap.get(INDEX_MOVIES))) {
+            } else if (originalKey.equals(categoriesMap.get(INDEX_MOVIES))) {
                 cmpMovie = getComparator(INDEX_MOVIES);
-            } else if (key.equals(categoriesMap.get(INDEX_WATCHED))) {
+            } else if (originalKey.equals(categoriesMap.get(INDEX_WATCHED))) {
                 cmpMovie = getComparator(INDEX_WATCHED);
-            } else if (key.equals(categoriesMap.get(INDEX_UNWATCHED))) {
+            } else if (originalKey.equals(categoriesMap.get(INDEX_UNWATCHED))) {
                 cmpMovie = getComparator(INDEX_UNWATCHED);
-            } else if (key.equals(categoriesMap.get(INDEX_RATING))) {
+            } else if (originalKey.equals(categoriesMap.get(INDEX_RATING))) {
                 cmpMovie = getComparator(INDEX_RATING);
-            } else if (key.equals(categoriesMap.get(INDEX_HD))) {
+            } else if (originalKey.equals(categoriesMap.get(INDEX_HD))) {
                 cmpMovie = getComparator(INDEX_HD);
-            } else if (key.equals(categoriesMap.get(INDEX_HD1080))) {
+            } else if (originalKey.equals(categoriesMap.get(INDEX_HD1080))) {
                 cmpMovie = getComparator(INDEX_HD1080);
-            } else if (key.equals(categoriesMap.get(INDEX_HD720))) {
+            } else if (originalKey.equals(categoriesMap.get(INDEX_HD720))) {
                 cmpMovie = getComparator(INDEX_HD720);
-            } else if (key.equals(categoriesMap.get(INDEX_3D))) {
+            } else if (originalKey.equals(categoriesMap.get(INDEX_3D))) {
                 cmpMovie = getComparator(INDEX_3D);
             }
         } else {
