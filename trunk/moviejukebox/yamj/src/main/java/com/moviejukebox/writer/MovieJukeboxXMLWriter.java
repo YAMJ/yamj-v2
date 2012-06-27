@@ -1640,7 +1640,7 @@ public class MovieJukeboxXMLWriter {
 
         // The category changes only occur for "Other" category
         if (Library.INDEX_OTHER.equals(categoryKey)) {
-            eCategory.setAttribute("originalName", Library.getOriginalCategory(encakey));
+            eCategory.setAttribute("originalName", Library.getOriginalCategory(encakey, Boolean.TRUE));
         }
 
         // if currently writing this page then add current attribute with value true
@@ -2127,12 +2127,8 @@ public class MovieJukeboxXMLWriter {
         for (Entry<String, String> index : movie.getIndexes().entrySet()) {
             Element eIndexEntry = doc.createElement("index");
             eIndexEntry.setAttribute("type", index.getKey());
-            originalName = Library.getOriginalCategory(index.getKey());
-            if (StringTools.isValidString(originalName)) {
-                eIndexEntry.setAttribute("originalName", originalName);
-            } else {
-                eIndexEntry.setAttribute("originalName", index.getKey());
-            }
+            originalName = Library.getOriginalCategory(index.getKey(), Boolean.TRUE);
+            eIndexEntry.setAttribute("originalName", originalName);
             eIndexEntry.setAttribute("encoded", FileTools.makeSafeFilename(index.getValue()));
             eIndexEntry.setTextContent(index.getValue());
             eIndexes.appendChild(eIndexEntry);
@@ -2400,12 +2396,8 @@ public class MovieJukeboxXMLWriter {
         for (Entry<String, String> index : person.getIndexes().entrySet()) {
             Element eIndexEntry = doc.createElement("index");
             eIndexEntry.setAttribute("type", index.getKey());
-            originalName = Library.getOriginalCategory(index.getKey());
-            if (StringTools.isValidString(originalName)) {
-                eIndexEntry.setAttribute("originalName", originalName);
-            } else {
-                eIndexEntry.setAttribute("originalName", index.getKey());
-            }
+            originalName = Library.getOriginalCategory(index.getKey(), Boolean.TRUE);
+            eIndexEntry.setAttribute("originalName", originalName);
             eIndexEntry.setAttribute("encoded", FileTools.makeSafeFilename(index.getValue()));
             eIndexEntry.setTextContent(index.getValue());
             eIndexes.appendChild(eIndexEntry);
