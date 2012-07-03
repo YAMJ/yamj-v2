@@ -97,38 +97,38 @@ public class Library implements Map<String, Movie> {
     private static final Map<String, Boolean> SORT_ASC = new HashMap<String, Boolean>();
     private static final List<String> SORT_COMP = new ArrayList<String>();
     // Index Names
-    public static final String INDEX_OTHER = "Other";
-    public static final String INDEX_GENRES = "Genres";
-    public static final String INDEX_TITLE = "Title";
-    public static final String INDEX_CERTIFICATION = "Certification";
-    public static final String INDEX_YEAR = "Year";
-    public static final String INDEX_LIBRARY = "Library";
-    public static final String INDEX_CAST = "Cast";
-    public static final String INDEX_DIRECTOR = "Director";
-    public static final String INDEX_COUNTRY = "Country";
-    public static final String INDEX_WRITER = "Writer";
+    public static final String INDEX_3D = "3D";
+    public static final String INDEX_ACTOR = "Actor";
+    public static final String INDEX_ALL = "All";
     public static final String INDEX_AWARD = "Award";
-    public static final String INDEX_PERSON = "Person";
-    public static final String INDEX_RATINGS = "Ratings";
-    public static final String INDEX_NEW = "New";
-    public static final String INDEX_NEW_TV = "New-TV";
-    public static final String INDEX_NEW_MOVIE = "New-Movie";
+    public static final String INDEX_CAST = "Cast";
+    public static final String INDEX_CATEGORIES = "Categories";
+    public static final String INDEX_CERTIFICATION = "Certification";
+    public static final String INDEX_COUNTRY = "Country";
+    public static final String INDEX_DIRECTOR = "Director";
     public static final String INDEX_EXTRAS = "Extras";
+    public static final String INDEX_GENRES = "Genres";
     public static final String INDEX_HD = "HD";
     public static final String INDEX_HD1080 = "HD-1080";
     public static final String INDEX_HD720 = "HD-720";
-    public static final String INDEX_3D = "3D";
-    public static final String INDEX_SETS = "Sets";
-    public static final String INDEX_SET = "Set";
-    public static final String INDEX_TOP250 = "Top250";
-    public static final String INDEX_RATING = "Rating";
-    public static final String INDEX_WATCHED = "Watched";
-    public static final String INDEX_UNWATCHED = "Unwatched";
-    public static final String INDEX_ALL = "All";
-    public static final String INDEX_TVSHOWS = "TV Shows";
+    public static final String INDEX_LIBRARY = "Library";
     public static final String INDEX_MOVIES = "Movies";
-    public static final String INDEX_ACTOR = "Actor";
-    public static final String INDEX_CATEGORIES = "Categories";
+    public static final String INDEX_NEW = "New";
+    public static final String INDEX_NEW_MOVIE = "New-Movie";
+    public static final String INDEX_NEW_TV = "New-TV";
+    public static final String INDEX_OTHER = "Other";
+    public static final String INDEX_PERSON = "Person";
+    public static final String INDEX_RATING = "Rating";
+    public static final String INDEX_RATINGS = "Ratings";
+    public static final String INDEX_SET = "Set";
+    public static final String INDEX_SETS = "Sets";
+    public static final String INDEX_TITLE = "Title";
+    public static final String INDEX_TOP250 = "Top250";
+    public static final String INDEX_TVSHOWS = "TV Shows";
+    public static final String INDEX_UNWATCHED = "Unwatched";
+    public static final String INDEX_WATCHED = "Watched";
+    public static final String INDEX_WRITER = "Writer";
+    public static final String INDEX_YEAR = "Year";
 
     static {
         categoryMinCountMaster = PropertiesUtil.getIntProperty("mjb.categories.minCount", "3");
@@ -182,6 +182,15 @@ public class Library implements Map<String, Movie> {
         peopleScrape = PropertiesUtil.getBooleanProperty("mjb.people.scrape", "true");
         peopleExclusive = PropertiesUtil.getBooleanProperty("mjb.people.exclusive", "false");
 
+        populateSortOrder();
+
+        getNewCategoryProperties();
+    }
+
+    /**
+     * Create the sort order for the indexes
+     */
+    private static void populateSortOrder() {
         // Compile the sorting comparator list
         if (SORT_COMP.isEmpty()) {
             SORT_COMP.add(INDEX_NEW.toLowerCase());
@@ -190,6 +199,7 @@ public class Library implements Map<String, Movie> {
             SORT_COMP.add(INDEX_TOP250.toLowerCase());
             SORT_COMP.add(INDEX_YEAR.toLowerCase());
         }
+
         logger.debug(logMessage + "Valid sort types are: " + SORT_COMP.toString());
 
         if (SORT_KEYS.isEmpty()) {
@@ -224,9 +234,24 @@ public class Library implements Map<String, Movie> {
             setSortProperty(INDEX_NEW_TV, INDEX_NEW, "false");
         }
 
-        getNewCategoryProperties();
+        StringBuilder msg;
+        logger.debug(logMessage + "Library sorting:");
+        for (Entry<String, String> sk : SORT_KEYS.entrySet()) {
+            msg = new StringBuilder(logMessage);
+            msg.append("  Category='").append(sk.getKey());
+            msg.append("', OrderBy='").append(sk.getValue()).append("'");
+            msg.append(SORT_ASC.get(sk.getKey()) ? " (Ascending)" : " (Descending)");
+            logger.debug(msg.toString());
+        }
     }
 
+    /**
+     * Populate the index sorting with the key and the comparator.
+     *
+     * @param indexKey
+     * @param defaultSort
+     * @param defaultOrder
+     */
     private static void setSortProperty(String indexKey, String defaultSort, String defaultOrder) {
         String spIndexKey;
 
@@ -249,10 +274,6 @@ public class Library implements Map<String, Movie> {
     }
 
     public Library() {
-        logger.debug(logMessage + "Library sorting:");
-        for (Entry<String, String> sk : SORT_KEYS.entrySet()) {
-            logger.debug(logMessage + "  Category='" + sk.getKey() + "', OrderBy='" + sk.getValue() + "'" + (SORT_ASC.get(sk.getKey()) ? " (Ascending)" : " (Descending)"));
-        }
     }
 
     /**
@@ -1573,37 +1594,33 @@ public class Library implements Map<String, Movie> {
         String originalKey = getOriginalCategory(key, Boolean.TRUE);
 
         if (category.equals(SET)) {
-            cmpMovie = new MovieSetComparator(originalKey);
+            cmpMovie = new MovieSetComparator(key);
         } else if (category.equals(INDEX_OTHER)) {
-            if (originalKey.equals(categoriesMap.get(INDEX_NEW))
-                    || originalKey.equals(categoriesMap.get(INDEX_NEW_TV))
-                    || originalKey.equals(categoriesMap.get(INDEX_NEW_MOVIE))) {
-                if (SORT_ASC.get(originalKey) == null) {
-                    cmpMovie = new LastModifiedComparator(Boolean.FALSE);
-                } else {
-                    cmpMovie = new LastModifiedComparator(SORT_ASC.get(originalKey));
-                }
-            } else if (originalKey.equals(categoriesMap.get(INDEX_TOP250))) {
+            if (key.equals(categoriesMap.get(INDEX_NEW))
+                    || key.equals(categoriesMap.get(INDEX_NEW_TV))
+                    || key.equals(categoriesMap.get(INDEX_NEW_MOVIE))) {
+                cmpMovie = new LastModifiedComparator(SORT_ASC.get(originalKey));
+            } else if (key.equals(categoriesMap.get(INDEX_TOP250))) {
                 cmpMovie = new MovieTop250Comparator(SORT_ASC.get(INDEX_TOP250));
-            } else if (originalKey.equals(categoriesMap.get(INDEX_ALL))) {
+            } else if (key.equals(categoriesMap.get(INDEX_ALL))) {
                 cmpMovie = getComparator(INDEX_ALL);
-            } else if (originalKey.equals(categoriesMap.get(INDEX_TVSHOWS))) {
+            } else if (key.equals(categoriesMap.get(INDEX_TVSHOWS))) {
                 cmpMovie = getComparator(INDEX_TVSHOWS);
-            } else if (originalKey.equals(categoriesMap.get(INDEX_MOVIES))) {
+            } else if (key.equals(categoriesMap.get(INDEX_MOVIES))) {
                 cmpMovie = getComparator(INDEX_MOVIES);
-            } else if (originalKey.equals(categoriesMap.get(INDEX_WATCHED))) {
+            } else if (key.equals(categoriesMap.get(INDEX_WATCHED))) {
                 cmpMovie = getComparator(INDEX_WATCHED);
-            } else if (originalKey.equals(categoriesMap.get(INDEX_UNWATCHED))) {
+            } else if (key.equals(categoriesMap.get(INDEX_UNWATCHED))) {
                 cmpMovie = getComparator(INDEX_UNWATCHED);
-            } else if (originalKey.equals(categoriesMap.get(INDEX_RATING))) {
+            } else if (key.equals(categoriesMap.get(INDEX_RATING))) {
                 cmpMovie = getComparator(INDEX_RATING);
-            } else if (originalKey.equals(categoriesMap.get(INDEX_HD))) {
+            } else if (key.equals(categoriesMap.get(INDEX_HD))) {
                 cmpMovie = getComparator(INDEX_HD);
-            } else if (originalKey.equals(categoriesMap.get(INDEX_HD1080))) {
+            } else if (key.equals(categoriesMap.get(INDEX_HD1080))) {
                 cmpMovie = getComparator(INDEX_HD1080);
-            } else if (originalKey.equals(categoriesMap.get(INDEX_HD720))) {
+            } else if (key.equals(categoriesMap.get(INDEX_HD720))) {
                 cmpMovie = getComparator(INDEX_HD720);
-            } else if (originalKey.equals(categoriesMap.get(INDEX_3D))) {
+            } else if (key.equals(categoriesMap.get(INDEX_3D))) {
                 cmpMovie = getComparator(INDEX_3D);
             }
         } else {
@@ -1613,7 +1630,13 @@ public class Library implements Map<String, Movie> {
         return cmpMovie;
     }
 
-    protected static Comparator<Movie> getComparator(String category) {
+    /**
+     * Get the comparator for the category.
+     *
+     * @param category
+     * @return
+     */
+    private static Comparator<Movie> getComparator(String category) {
         Comparator<Movie> cmpMovie = null;
         String sortKey = SORT_KEYS.get(category);
         boolean ascending = SORT_ASC.get(category);
