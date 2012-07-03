@@ -1,24 +1,25 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.model;
 
 import java.nio.charset.Charset;
+import org.apache.commons.lang3.StringUtils;
 
 public class ImdbSiteDataDefinition {
     private String site;
     private String director;
     private String cast;
-    private String release_date;
+    private String releaseDate;
     private String runtime;
     private String country;
     private String company;
@@ -27,7 +28,7 @@ public class ImdbSiteDataDefinition {
     private String plot;
     private String rated;
     private String certification;
-    private String original_air_date;
+    private String originalAirDate;
     private String writer;
     private String taglines;
     private Charset charset;
@@ -52,7 +53,7 @@ public class ImdbSiteDataDefinition {
         this.site = site;
         this.director = director;
         this.cast= cast;
-        this.release_date = releaseDate;
+        this.releaseDate = releaseDate;
         this.runtime = runtime;
         this.country = country;
         this.company = company;
@@ -61,11 +62,11 @@ public class ImdbSiteDataDefinition {
         this.plot = plot;
         this.rated = rated;
         this.certification = certification;
-        this.original_air_date = originalAirDate;
+        this.originalAirDate = originalAirDate;
         this.writer = writer;
         this.taglines = taglines;
-        
-        if (charsetName == null || charsetName.length() == 0) {
+
+        if (StringUtils.isBlank(charsetName)) {
             this.charset = Charset.defaultCharset();
         } else {
             this.charset = Charset.forName(charsetName);
@@ -85,7 +86,7 @@ public class ImdbSiteDataDefinition {
     }
 
     public String getReleaseDate() {
-        return release_date;
+        return releaseDate;
     }
 
     public String getRuntime() {
@@ -121,7 +122,7 @@ public class ImdbSiteDataDefinition {
     }
 
     public String getOriginalAirDate() {
-        return original_air_date;
+        return originalAirDate;
     }
 
     public String getWriter() {
@@ -135,5 +136,5 @@ public class ImdbSiteDataDefinition {
     public Charset getCharset() {
         return charset;
     }
-    
+
 }
