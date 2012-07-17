@@ -436,7 +436,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         String personXML = webBrowser.request(getImdbUrl(movie, siteDef) + "fullcredits", siteDef.getCharset());
         int peopleCount = 0;
 
-        if (movie.getPerson("Directing").isEmpty() && directorMax > 0 && peopleCount < peopleMax) {
+        if (movie.getPerson(Filmography.DEPT_DIRECTING).isEmpty() && directorMax > 0 && peopleCount < peopleMax) {
             // Issue 1897: Cast enhancement
             if (isValidString(personXML)) {
                 peopleCount += extractDirectors(movie, personXML, siteDef);
@@ -473,7 +473,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         /**
          * Check for writer(s) *
          */
-        if (movie.getPerson("Writing").isEmpty() && writerMax > 0 && peopleCount < peopleMax) {
+        if (movie.getPerson(Filmography.DEPT_WRITING).isEmpty() && writerMax > 0 && peopleCount < peopleMax) {
             // Issue 1897: Cast enhancement
             if (isValidString(personXML)) {
                 peopleCount += extractWriters(movie, personXML, siteDef);
@@ -502,7 +502,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        if (movie.getPerson("Actors").isEmpty() && actorMax > 0 && peopleCount < peopleMax) {
+        if (movie.getPerson(Filmography.DEPT_ACTORS).isEmpty() && actorMax > 0 && peopleCount < peopleMax) {
             // Issue 1897: Cast enhancement
             int count = 0;
             for (int scrapeStep = 0; scrapeStep < 2; scrapeStep++) {
@@ -802,19 +802,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         int peopleCount = 0;
 
         // DIRECTOR(S)
-        if (movie.getPerson("Directing").isEmpty() && directorMax > 0 && peopleCount < peopleMax) {
+        if (movie.getPerson(Filmography.DEPT_DIRECTING).isEmpty() && directorMax > 0 && peopleCount < peopleMax) {
             // Issue 1897: Cast enhancement
             peopleCount += extractDirectors(movie, personXML, siteDef2);
         }
 
         // WRITER(S)
-        if (movie.getPerson("Writing").isEmpty() && writerMax > 0 && peopleCount < peopleMax) {
+        if (movie.getPerson(Filmography.DEPT_WRITING).isEmpty() && writerMax > 0 && peopleCount < peopleMax) {
             // Issue 1897: Cast enhancement
             peopleCount += extractWriters(movie, personXML, siteDef2);
         }
 
         // CAST
-        if (movie.getPerson("Actors").isEmpty() && actorMax > 0 && peopleCount < peopleMax) {
+        if (movie.getPerson(Filmography.DEPT_ACTORS).isEmpty() && actorMax > 0 && peopleCount < peopleMax) {
             // Issue 1897: Cast enhancement
             int count = 0;
             peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", "</table>", "<td class=\"name\"", "</tr>");
