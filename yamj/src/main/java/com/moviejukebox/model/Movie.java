@@ -370,9 +370,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             person.setDepartment();
 
             int countActor = 0;
-            if (person.getDepartment().equalsIgnoreCase("Actors")) {
+            if (person.getDepartment().equalsIgnoreCase(Filmography.DEPT_ACTORS)) {
                 for (Filmography member : people) {
-                    if (member.getDepartment().equalsIgnoreCase("Actors")) {
+                    if (member.getDepartment().equalsIgnoreCase(Filmography.DEPT_ACTORS)) {
                         countActor++;
                     }
                 }
@@ -1044,7 +1044,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             name = name.trim();
             boolean found = Boolean.FALSE;
             for (Filmography p : people) {
-                if (p.getName().equalsIgnoreCase(name) && p.getDepartment().equals("Actors")) {
+                if (p.getName().equalsIgnoreCase(name) && p.getDepartment().equals(Filmography.DEPT_ACTORS)) {
                     found = Boolean.TRUE;
                     break;
                 }
@@ -1064,7 +1064,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             Collection<Filmography> pList = new ArrayList<Filmography>();
 
             for (Filmography p : people) {
-                if (p.getDepartment().equals("Actors")) {
+                if (p.getDepartment().equals(Filmography.DEPT_ACTORS)) {
                     pList.add(p);
                 }
             }
@@ -1107,7 +1107,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             boolean found = Boolean.FALSE;
 
             for (Filmography p : people) {
-                if (p.getName().equalsIgnoreCase(name) && p.getDepartment().equals("Writing")) {
+                if (p.getName().equalsIgnoreCase(name) && p.getDepartment().equals(Filmography.DEPT_WRITING)) {
                     found = Boolean.TRUE;
                     break;
                 }
@@ -1126,7 +1126,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             this.writers.addAll(writers);
             Collection<Filmography> pList = new ArrayList<Filmography>();
             for (Filmography p : people) {
-                if (p.getDepartment().equals("Writing")) {
+                if (p.getDepartment().equals(Filmography.DEPT_WRITING)) {
                     pList.add(p);
                 }
             }
@@ -1179,7 +1179,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             this.directors.addAll(directors);
             Collection<Filmography> pList = new ArrayList<Filmography>();
             for (Filmography p : people) {
-                if (p.getDepartment().equals("Directing")) {
+                if (p.getDepartment().equals(Filmography.DEPT_DIRECTING)) {
                     pList.add(p);
                 }
             }
@@ -1219,7 +1219,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             directorName = directorName.trim();
             boolean found = Boolean.FALSE;
             for (Filmography p : people) {
-                if (p.getName().equalsIgnoreCase(directorName) && p.getDepartment().equals("Directing")) {
+                if (p.getName().equalsIgnoreCase(directorName) && p.getDepartment().equals(Filmography.DEPT_DIRECTING)) {
                     found = Boolean.TRUE;
                     break;
                 }

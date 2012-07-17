@@ -1038,14 +1038,21 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
             StringBuilder fullLanguage = new StringBuilder();
             for (String language : languages) {
-                if (fullLanguage.length() > 0) {
-                    fullLanguage.append("_");
+                // CHeck the language is valid before adding it
+                if (StringTools.isValidString(language)) {
+                    if (fullLanguage.length() > 0) {
+                        fullLanguage.append("_");
+                    }
+                    fullLanguage.append(language.trim());
                 }
-                fullLanguage.append(language.trim());
+            }
+
+            // If there isn't a valid language, quit
+            if(StringTools.isNotValidString(fullLanguage.toString())) {
+                return bi;
             }
 
             try {
-
                 Graphics2D g2d = bi.createGraphics();
                 File imageFile = new File(getResourcesPath() + "languages" + File.separator + fullLanguage + ".png");
                 if (imageFile.exists()) {
@@ -1094,11 +1101,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
 
                 g2d.dispose();
-            } catch (IOException e) {
-                logger.warn("Failed drawing Language logo to thumbnail file: " + movie.getBaseName());
+            } catch (IOException ex) {
+                logger.warn("Exception drawing Language logo to thumbnail file '" + movie.getBaseName() + "': " + ex.getMessage());
                 logger.warn("Please check that language specific graphic (" + lang + ".png) is in the resources/languages directory.");
             }
-
         }
 
         return bi;
