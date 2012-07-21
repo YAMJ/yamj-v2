@@ -133,7 +133,8 @@ public class SratimPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
 
-            String detailsUrl = HTMLTools.extractTag(xml, "<a href=\"view.php?", 0, "\"");
+            String tmp_url = HTMLTools.extractTag(xml,"<div class=\"browse_title_name\"","</div>");
+            String detailsUrl = HTMLTools.extractTag(tmp_url, "<a href=\"view.php?", 0, "\"");
             if (subtitleDownload) {
                 String subtitlesID = HTMLTools.extractTag(xml, "<a href=\"subtitles.php?", 0, "\"");
                 int subid = subtitlesID.lastIndexOf("mid=");
