@@ -137,8 +137,12 @@ public class MovieNFOReader {
                 parseSets(eCommon.getElementsByTagName("set"), movie);
 
                 // Rating
-                if (!parseRating(DOMHelper.getValueFromElement(eCommon, "rating"), movie)) {
+                int rating = parseRating(DOMHelper.getValueFromElement(eCommon, "rating"));
+
+                if (rating < 0) {
                     logger.error(logMessage + "Failed parsing rating in NFO file: " + nfoFile.getName() + ". Please fix it or remove it.");
+                } else {
+                    movie.addRating(NFO_PLUGIN_ID, rating);
                 }
 
                 // Runtime
@@ -383,21 +387,10 @@ public class MovieNFOReader {
         epDetail.setPlot(DOMHelper.getValueFromElement(eEpisodeDetails, "plot"));
 
         tempValue = DOMHelper.getValueFromElement(eEpisodeDetails, "rating");
-        if (StringUtils.isNotBlank(tempValue)) {
-            try {
-                float rating = Float.parseFloat(tempValue);
-                if (rating != 0.0f) {
-                    if (rating <= 10f) {
-                        String val = String.valueOf(Math.round(rating * 10f));
-                        epDetail.setRating(val);
-                    } else {
-                        String val = String.valueOf(Math.round(rating * 1f));
-                        epDetail.setRating(val);
-                    }
-                }
-            } catch (NumberFormatException ex) {
-                logger.debug(logMessage + "Failed to convert rating '" + tempValue + "'");
-            }
+        int rating = parseRating(tempValue);
+        if (rating > -1) {
+            // Looks like a valid rating
+            epDetail.setRating(String.valueOf(rating));
         }
 
         tempValue = DOMHelper.getValueFromElement(eEpisodeDetails, "aired");
@@ -643,28 +636,31 @@ public class MovieNFOReader {
      * @param movie
      * @return true if the rating was successfully parsed.
      */
-    private static Boolean parseRating(String ratingString, Movie movie) {
-        if (StringUtils.isBlank(ratingString)) {
+    private static int parseRating(String ratingString) {
+        if (StringTools.isNotValidString(ratingString)) {
             // Rating is blank, so skip it
-            return Boolean.TRUE;
+            return -1;
         }
 
         if (StringTools.isValidString(ratingString)) {
             try {
                 float rating = Float.parseFloat(ratingString);
-                if (rating != 0.0f) {
+                if (rating > 0.0f) {
                     if (rating <= 10.0f) {
-                        movie.addRating(NFO_PLUGIN_ID, Math.round(rating * 10f));
+                        return Math.round(rating * 10f);
                     } else {
-                        movie.addRating(NFO_PLUGIN_ID, Math.round(rating * 1f));
+                        return Math.round(rating * 1f);
                     }
+                } else {
+                    // Negative or zero, so return zero
+                    return 0;
                 }
-                return Boolean.TRUE;
-            } catch (NumberFormatException nfe) {
-                return Boolean.FALSE;
+            } catch (NumberFormatException ex) {
+                logger.trace(logMessage + "Failed to transform rating " + ratingString);
+                return -1;
             }
         }
-        return Boolean.FALSE;
+        return -1;
     }
 
     /**
