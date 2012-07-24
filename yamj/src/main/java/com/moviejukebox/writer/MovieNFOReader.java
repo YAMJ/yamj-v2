@@ -139,9 +139,7 @@ public class MovieNFOReader {
                 // Rating
                 int rating = parseRating(DOMHelper.getValueFromElement(eCommon, "rating"));
 
-                if (rating < 0) {
-                    logger.error(logMessage + "Failed parsing rating in NFO file: " + nfoFile.getName() + ". Please fix it or remove it.");
-                } else {
+                if (rating > -1) {
                     movie.addRating(NFO_PLUGIN_ID, rating);
                 }
 
@@ -638,11 +636,9 @@ public class MovieNFOReader {
      */
     private static int parseRating(String ratingString) {
         if (StringTools.isNotValidString(ratingString)) {
-            // Rating is blank, so skip it
+            // Rating isn't valid, so skip it
             return -1;
-        }
-
-        if (StringTools.isValidString(ratingString)) {
+        } else {
             try {
                 float rating = Float.parseFloat(ratingString);
                 if (rating > 0.0f) {
@@ -660,7 +656,6 @@ public class MovieNFOReader {
                 return -1;
             }
         }
-        return -1;
     }
 
     /**
