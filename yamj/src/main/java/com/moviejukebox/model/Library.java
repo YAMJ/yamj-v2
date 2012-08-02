@@ -265,7 +265,7 @@ public class Library implements Map<String, Movie> {
         String sortType = PropertiesUtil.getProperty("indexing.sort." + spIndexKey, defaultSort).toLowerCase();
 
         if (StringTools.isNotValidString(sortType) || !SORT_COMP.contains(sortType)) {
-            logger.warn(logMessage + "Invalid sort type '" + sortType + "' for category '" + spIndexKey + "' using defailt of " + defaultSort);
+            logger.warn(logMessage + "Invalid sort type '" + sortType + "' for category '" + spIndexKey + "' using default of " + defaultSort);
             sortType = defaultSort.toLowerCase();
         }
 

@@ -79,7 +79,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
     private boolean clearAward = PropertiesUtil.getBooleanProperty("kinopoisk.clear.award", "false");
     private boolean clearTrivia = PropertiesUtil.getBooleanProperty("kinopoisk.clear.trivia", "false");
     private boolean translitCountry = PropertiesUtil.getBooleanProperty("kinopoisk.translit.country", "false");
-    private String etalonId = PropertiesUtil.getProperty("kinopoisk.etalon", "251733");
+    private String etalonId = PropertiesUtil.getProperty("kinopoisk.etalon", "448");
     // Personal information
     private int peopleMax = PropertiesUtil.getIntProperty("plugin.people.maxCount", "15");
     private int actorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", "10");
@@ -443,7 +443,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
                 // Certification from MPAA
                 if (!NFOcertification) {
-                    for (String mpaaTag : HTMLTools.extractTags(xml, ">рейтинг MPAA<", "</tr>", "<a href=\"/level/38", "</a>")) {
+                    for (String mpaaTag : HTMLTools.extractTags(xml, ">рейтинг MPAA<", "</tr>", "<a href=\"/film", "</a>")) {
                         // Now need scan for 'alt' attribute of 'img'
                         String key = "alt=\"рейтинг ";
                         int pos = mpaaTag.indexOf(key);
@@ -510,13 +510,13 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 // Release date
                 if (!NFOrelease) {
                     String releaseDate = "";
-                    for (String release : HTMLTools.extractTags(item, ">премьера (мир)<", "</tr>", "<a href=\"/level/80", "</a>")) {
+                    for (String release : HTMLTools.extractTags(item, ">премьера (мир)<", "</tr>", "<a href=\"/film/", "</a>")) {
                         releaseDate = release;
                         releaseFounded = true;
                         break;
                     }
                     if (releaseDate.equals("")) {
-                        for (String release : HTMLTools.extractTags(item, ">премьера (РФ)<", "</tr>", "<a href=\"/level/8", "</a>")) {
+                        for (String release : HTMLTools.extractTags(item, ">премьера (РФ)<", "</tr>", "<a href=\"/film/", "</a>")) {
                             releaseDate = release;
                             releaseFounded = true;
                             break;
@@ -554,7 +554,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             // Rating
             if (!NFOrating) {
                 valueFounded = false;
-                for (String rating : HTMLTools.extractTags(xml, "<a href=\"/level/83/film/" + kinopoiskId + "/\"", "</a>", "<span", "</span>")) {
+                for (String rating : HTMLTools.extractTags(xml, "<a href=\"/film/" + kinopoiskId + "/votes/\"", "</a>", "<span", "</span>")) {
                     try {
                         int kinopoiskRating = (int) (Float.parseFloat(rating) * 10);
                         movie.addRating(KINOPOISK_PLUGIN_ID, kinopoiskRating);
@@ -774,10 +774,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 if (clearAward) {
                     movie.clearAwards();
                 }
-                xml = webBrowser.request("http://www.kinopoisk.ru/level/94/film/" + kinopoiskId);
+                xml = webBrowser.request("http://www.kinopoisk.ru/awards/film/" + kinopoiskId);
                 Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
                 if (StringTools.isValidString(xml)) {
-                    int beginIndex = xml.indexOf("/level/94/award/");
+                    int beginIndex = xml.indexOf("/awards/award/");
                     if (beginIndex != -1) {
                         for (String item : HTMLTools.extractTags(xml, "<table cellspacing=0 cellpadding=0 border=0 width=100%>", "<br /><br /><br /><br /><br /><br />", "<table cellspacing=0 cellpadding=0 border=0 width=100% ", "</table>")) {
                             String name = Movie.UNKNOWN;
@@ -786,7 +786,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             int nominated = 0;
                             Collection<String> wons = new ArrayList<String>();
                             Collection<String> nominations = new ArrayList<String>();
-                            for (String tmp : HTMLTools.extractTags(item, "<td height=40 class=\"news\" style=\"padding:10px\">", "</td>", "<a href=\"/level/94/award/", "</a>")) {
+                            for (String tmp : HTMLTools.extractTags(item, "<td height=40 class=\"news\" style=\"padding:10px\">", "</td>", "<a href=\"/awards/award/", "</a>")) {
                                 int coma = tmp.indexOf(",");
                                 name = tmp.substring(0, coma);
                                 year = Integer.parseInt(tmp.substring(coma + 2, coma + 6));
@@ -968,7 +968,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             int count = 0;
             for (String item : HTMLTools.extractTags(xml, "<a name=\"" + mode + "\">", "<a href=\"#top\" class=\"continue\">", "<div class=\"dub ", "<div class=\"clear\"></div></div>")) {
-                String name = HTMLTools.extractTag(item, "<div class=\"name\"><a href=\"/level/4/people/", "</a>");
+                String name = HTMLTools.extractTag(item, "<div class=\"name\"><a href=\"/name/", "</a>");
                 int beginIndex = name.indexOf("/\">");
                 String personID = name.substring(0, beginIndex);
                 name = name.substring(beginIndex + 3);
@@ -981,7 +981,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 if (mode.equals("actor")) {
                     role = HTMLTools.extractTag(item, "<div class=\"role\">", "</div>").replaceAll("^\\.+\\s", "").replaceAll("\\s.$", "");
                     if (item.indexOf("<div class=\"dubInfo\">") > -1) {
-                        dubler = HTMLTools.extractTag(HTMLTools.extractTag(item, "<div class=\"dubInfo\">", "</span></div>"), "<div class=\"name\"><a href=\"/level/4/people/", "</a>");
+                        dubler = HTMLTools.extractTag(HTMLTools.extractTag(item, "<div class=\"dubInfo\">", "</span></div>"), "<div class=\"name\"><a href=\"/name/", "</a>");
                         dubler = dubler.substring(dubler.indexOf("/\">") + 3);
                     }
                 }
@@ -1007,11 +1007,11 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
                 if (!found) {
                     if (mode.equals("actor")) {
-                        movie.addActor(KINOPOISK_PLUGIN_ID + ":" + personID, origName + ":" + name, role, "http://www.kinopoisk.ru/level/4/people/" + personID + "/", dubler);
+                        movie.addActor(KINOPOISK_PLUGIN_ID + ":" + personID, origName + ":" + name, role, "http://www.kinopoisk.ru/name/" + personID + "/", dubler);
                     } else if (mode.equals("director")) {
-                        movie.addDirector(KINOPOISK_PLUGIN_ID + ":" + personID, origName + ":" + name, "http://www.kinopoisk.ru/level/4/people/" + personID + "/");
+                        movie.addDirector(KINOPOISK_PLUGIN_ID + ":" + personID, origName + ":" + name, "http://www.kinopoisk.ru/name/" + personID + "/");
                     } else if (mode.equals("writer")) {
-                        movie.addWriter(KINOPOISK_PLUGIN_ID + ":" + personID, origName + ":" + name, "http://www.kinopoisk.ru/level/4/people/" + personID + "/");
+                        movie.addWriter(KINOPOISK_PLUGIN_ID + ":" + personID, origName + ":" + name, "http://www.kinopoisk.ru/name/" + personID + "/");
                     }
                 }
                 if (count == personMax || currentPeopleCount == peopleMax) {
@@ -1042,7 +1042,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
         boolean returnStatus = false;
 
         try {
-            String xml = webBrowser.request("http://www.kinopoisk.ru/level/4/people/" + kinopoiskId + "/view_info/ok/");
+            String xml = webBrowser.request("http://www.kinopoisk.ru/name/" + kinopoiskId + "/view_info/ok/");
             if (StringTools.isValidString(xml)) {
                 if (StringTools.isNotValidString(person.getName())) {
                     person.setName(HTMLTools.extractTag(xml, "<span style=\"font-size:13px;color:#666\">", "</span>"));
@@ -1132,7 +1132,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             if (!preferredRating.equals("imdb")) {
-                xml = webBrowser.request("http://www.kinopoisk.ru/level/4/people/" + kinopoiskId + "/sort/rating/");
+                xml = webBrowser.request("http://www.kinopoisk.ru/name/" + kinopoiskId + "/sort/rating/");
                 if (StringTools.isValidString(xml)) {
                     TreeMap<Float, Filmography> newFilmography = new TreeMap<Float, Filmography>();
                     for (String block : HTMLTools.extractTags(xml, "<center><div style='position: relative' ></div></center>", "<tr><td><br /><br /><br /><br /><br /><br /></td></tr>", "<tr><td colspan=3 height=4><spacer type=block height=4></td></tr>", "</div>        </td></tr>")) {
@@ -1292,7 +1292,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     int beginInx = xml.indexOf("id_actor = ");
                     if (beginInx == -1) {
                         // It's search results page, searching a link to the person page
-                        beginIndex = xml.indexOf("/level/4/people/", beginIndex);
+                        beginIndex = xml.indexOf("/name/", beginIndex);
                         if (beginIndex != -1) {
                             StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 16), "/");
                             personId = st.nextToken();
