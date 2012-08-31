@@ -837,18 +837,27 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             // Cast enhancement
-            if (!NFOcast || !NFOdirectors || !NFOwriters) {
-                xml = webBrowser.request("http://www.kinopoisk.ru/level/19/film/" + kinopoiskId);
+            if ((!NFOcast || !NFOdirectors || !NFOwriters) || etalonFlag) {
+                xml = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/cast");
                 if (StringTools.isValidString(xml)) {
                     int peopleCount = 0;
-                    if (!NFOdirectors) {
+                    if (!NFOdirectors || etalonFlag) {
                         peopleCount = scanMoviePerson(movie, xml, "director", writerMax, peopleCount);
+                        if (etalonFlag && peopleCount == 0) {
+                            logger.error(logMessage + "Site design changed - failed get directors!");
+                        }
                     }
-                    if (!NFOwriters) {
+                    if (!NFOwriters || etalonFlag) {
                         peopleCount = scanMoviePerson(movie, xml, "writer", writerMax, peopleCount);
+                        if (etalonFlag && peopleCount == 0) {
+                            logger.error(logMessage + "Site design changed - failed get writers!");
+                        }
                     }
-                    if (!NFOcast) {
+                    if (!NFOcast || etalonFlag) {
                         peopleCount = scanMoviePerson(movie, xml, "actor", actorMax, peopleCount);
+                        if (etalonFlag && peopleCount == 0) {
+                            logger.error(logMessage + "Site design changed - failed get cast!");
+                        }
                     }
                     Collection<Filmography> outcast = new ArrayList<Filmography>();
                     for (Filmography p : movie.getPeople()) {
@@ -967,7 +976,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             int count = 0;
-            for (String item : HTMLTools.extractTags(xml, "<a name=\"" + mode + "\">", "<a href=\"#top\" class=\"continue\">", "<div class=\"dub ", "<div class=\"clear\"></div></div>")) {
+            for (String item : HTMLTools.extractTags(xml, "<a name=\"" + mode + "\">", "<a name=\"", "<div class=\"dub ", "<div class=\"clear\"></div>")) {
                 String name = HTMLTools.extractTag(item, "<div class=\"name\"><a href=\"/name/", "</a>");
                 int beginIndex = name.indexOf("/\">");
                 String personID = name.substring(0, beginIndex);
