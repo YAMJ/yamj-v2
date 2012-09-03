@@ -185,8 +185,16 @@ public class KinopoiskPlugin extends ImdbPlugin {
         boolean result = false;
         logger.debug(logMessage + "Scanning NFO for Kinopoisk Id");
         int beginIndex = nfo.indexOf("kinopoisk.ru/level/1/film/");
+        StringTokenizer st = null;
         if (beginIndex != -1) {
-            StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 26), "/");
+            st = new StringTokenizer(nfo.substring(beginIndex + 26), "/");
+        } else {
+            beginIndex = nfo.indexOf("kinopoisk.ru/film/");
+            if (beginIndex != -1) {
+                st = new StringTokenizer(nfo.substring(beginIndex + 18), "/");
+            }
+        }
+        if (st != null) {
             movie.setId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID, st.nextToken());
             logger.debug(logMessage + "Kinopoisk Id found in nfo = " + movie.getId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID));
             result = true;
@@ -271,7 +279,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             if (xml.indexOf("class=\"search_results\"") < 0) {
                 // Checking direct movie page
                 if (xml.indexOf("class=\"moviename-big\"") > -1) {
-                    return HTMLTools.extractTag(xml, "/level/19/film/", "/");
+                    return HTMLTools.extractTag(xml, "id_film = ", ";");
                 }
                 return Movie.UNKNOWN;
             }
@@ -327,7 +335,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
         try {
             String originalTitle = movie.getTitle();
             String newTitle = originalTitle;
-            String xml = webBrowser.request("http://www.kinopoisk.ru/level/1/film/" + kinopoiskId);
+            String xml = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId);
             boolean etalonFlag = kinopoiskId.equals(etalonId);
             // Work-around for issue #649
             xml = xml.replace((CharSequence) "&#133;", (CharSequence) "&hellip;");
@@ -649,7 +657,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     posterURL = Movie.UNKNOWN;
 
                     // Load page with all poster
-                    String wholeArts = webBrowser.request("http://www.kinopoisk.ru/level/17/film/" + kinopoiskId + "/");
+                    String wholeArts = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/posters/");
                     if (StringTools.isValidString(wholeArts)) {
                         if (wholeArts.indexOf("<table class=\"fotos") != -1) {
                             String picture = HTMLTools.extractTag(wholeArts, "src=\"http://st.kinopoisk.ru/images/poster/sm_", 0, "\"");
@@ -712,7 +720,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
                     if (kadr && StringTools.isNotValidString(fanURL)) {
                         // Load page with all videoimage
-                        wholeArts = webBrowser.request("http://www.kinopoisk.ru/level/13/film/" + kinopoiskId + "/");
+                        wholeArts = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/stills/");
                         if (StringTools.isValidString(wholeArts)) {
                             // Looking for photos table
                             int photosInd = wholeArts.indexOf("<table class=\"fotos");
@@ -742,7 +750,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Studio/Company
             if (!NFOcompany) {
-                xml = webBrowser.request("http://www.kinopoisk.ru/level/91/film/" + kinopoiskId);
+                xml = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/studio/");
                 valueFounded = false;
                 if (StringTools.isValidString(xml)) {
                     Collection<String> studio = new ArrayList<String>();
@@ -873,7 +881,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Business
             if (scrapeBusiness || etalonFlag) {
-                xml = webBrowser.request("http://www.kinopoisk.ru/level/85/film/" + kinopoiskId);
+                xml = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/box/");
                 if (StringTools.isValidString(xml)) {
                     valueFounded = false;
                     for (String tmp : HTMLTools.extractTags(xml, ">Итого:<", "</table>", "<font color=\"#ff6600\"", "</h3>")) {
@@ -935,10 +943,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     triviaMax = 1;
                 }
                 if (triviaMax != 0) {
-                    xml = webBrowser.request("http://www.kinopoisk.ru/level/1/film/" + kinopoiskId + "/view_info/ok/#trivia");
+                    xml = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/view_info/ok/#trivia");
                     if (StringTools.isValidString(xml)) {
                         int i = 0;
-                        for (String tmp : HTMLTools.extractTags(xml, ">Знаете ли вы, что...<", "</ul>", "<li class='trivia", "</li>")) {
+                        for (String tmp : HTMLTools.extractTags(xml, ">Знаете ли вы, что...<", "</ul>", "<li class=\"trivia", "</li>")) {
                             if (i < triviaMax || triviaMax == -1) {
                                 movie.addDidYouKnow(tmp);
                                 valueFounded = true;
@@ -948,9 +956,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             }
                         }
                     }
-                    if (!valueFounded && etalonFlag) {
-                        logger.error(logMessage + "Site design changed - failed get trivia!");
-                    }
+                }
+                if (!valueFounded && etalonFlag) {
+                    logger.error(logMessage + "Site design changed - failed get trivia!");
                 }
             }
 
@@ -1114,8 +1122,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     person.setPhotoURL("http://st.kinopoisk.ru/images/actor/" + kinopoiskId + ".jpg");
                 }
 
-                if (xml.indexOf("/level/12/people/" + kinopoiskId + "/") > -1 && StringTools.isNotValidString(person.getBackdropURL())) {
-                    xml = webBrowser.request("http://www.kinopoisk.ru/level/12/people/" + kinopoiskId + "/");
+                if (xml.indexOf("/film/" + kinopoiskId + "/cast/") > -1 && StringTools.isNotValidString(person.getBackdropURL())) {
+                    xml = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/cast/");
                     if (StringTools.isValidString(xml)) {
                         String size = Movie.UNKNOWN;
                         if (xml.indexOf("/w_size/1600/") > -1) {
