@@ -209,13 +209,13 @@ public class MovieNFOReader {
                 }
 
                 // VideoSource: Issue 506 - Even though it's not strictly XBMC standard
-                tempString = DOMHelper.getValueFromElement(eCommon, "VideoSource");
+                tempString = DOMHelper.getValueFromElement(eCommon, "videosource");
                 if (StringTools.isValidString(tempString)) {
                     movie.setVideoSource(tempString);
                 }
 
                 // Video Output
-                tempString = DOMHelper.getValueFromElement(eCommon, "VideoOutput");
+                tempString = DOMHelper.getValueFromElement(eCommon, "videooutput");
                 if (StringTools.isValidString(tempString)) {
                     movie.setVideoOutput(tempString);
                 }
