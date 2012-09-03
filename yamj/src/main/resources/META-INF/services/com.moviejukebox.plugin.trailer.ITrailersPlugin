@@ -2,4 +2,5 @@ com.moviejukebox.plugin.trailer.AppleTrailersPlugin
 com.moviejukebox.plugin.trailer.ComingSoonTrailersPlugin
 com.moviejukebox.plugin.trailer.KinopoiskTrailersPlugin
 com.moviejukebox.plugin.trailer.TrailersLandPlugin
+com.moviejukebox.plugin.trailer.TrailerAddictPlugin
 com.moviejukebox.plugin.trailer.YouTubeTrailersPlugin

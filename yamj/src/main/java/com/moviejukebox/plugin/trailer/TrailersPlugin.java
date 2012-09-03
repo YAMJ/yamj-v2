@@ -17,14 +17,17 @@ import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.downloader.Downloader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -38,6 +41,7 @@ public class TrailersPlugin implements ITrailersPlugin {
     private static boolean trailersDownload = PropertiesUtil.getBooleanProperty("trailers.download", "false");
     private static boolean trailersSafeFilename = PropertiesUtil.getBooleanProperty("trailers.safeFilename", "false");
     private static boolean trailersOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceTrailersOverwrite", "false");
+    private static boolean trailersShowProgress = PropertiesUtil.getBooleanProperty("trailers.showProgress", "true");
 
     public TrailersPlugin() {
         webBrowser = new WebBrowser();
@@ -45,7 +49,7 @@ public class TrailersPlugin implements ITrailersPlugin {
 
     @Override
     public boolean generate(Movie movie) {
-        return false;
+        return Boolean.FALSE;
     }
 
     @Override
@@ -75,9 +79,9 @@ public class TrailersPlugin implements ITrailersPlugin {
 
     public boolean downloadTrailer(Movie movie, String trailerUrl, String title, MovieFile tmf) {
         if (!trailersDownload) {
-            return false;
+            return Boolean.FALSE;
         }
-        boolean isExchangeOk = false;
+        boolean isExchangeOk = Boolean.FALSE;
 
         // Copied from AppleTrailersPlugin.java
         MovieFile mf = movie.getFirstFile();
@@ -101,8 +105,8 @@ public class TrailersPlugin implements ITrailersPlugin {
             (new File(parentPath)).mkdirs();
         }
 
-        String trailerExt = new String(trailerUrl.substring(trailerUrl.lastIndexOf('.')));
-        String trailerBasename = basename + ".[TRAILER-" + title + "]" + trailerExt;
+        String trailerExt = FilenameUtils.getExtension(trailerUrl);
+        String trailerBasename = basename + ".[TRAILER-" + title + "]." + trailerExt;
         if (trailersSafeFilename) {
             trailerBasename = FileTools.makeSafeFilename(trailerBasename);
         }
@@ -115,30 +119,30 @@ public class TrailersPlugin implements ITrailersPlugin {
         }
         String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
 
-        logger.debug(trailersPluginName + " Plugin: Found trailer: " + trailerUrl);
-        logger.debug(trailersPluginName + " Plugin: Download path: " + trailerFileName);
-        logger.debug(trailersPluginName + " Plugin:      Play URL: " + trailerPlayFileName);
+        logger.debug(trailersPluginName + " Plugin: Found trailer: " + trailerUrl);          // XXX DEBUG
+        logger.debug(trailersPluginName + " Plugin: Download path: " + trailerFileName);     // XXX DEBUG
+        logger.debug(trailersPluginName + " Plugin:      Play URL: " + trailerPlayFileName); // XXX DEBUG
         File trailerFile = new File(trailerFileName);
 
         // Check if the file already exists - after jukebox directory was deleted for example
         if (trailerFile.exists()) {
-            logger.debug(trailersPluginName + " Plugin: Trailer file (" + trailerPlayFileName + ") already exist for " + movie.getBaseName());
+            logger.debug(trailersPluginName + " Plugin: Trailer file (" + trailerPlayFileName + ") already exists for " + movie.getBaseName());
             tmf.setFilename(trailerPlayFileName);
             movie.addExtraFile(new ExtraFile(tmf));
-            isExchangeOk = true;
+            isExchangeOk = Boolean.TRUE;
         } else if (trailerDownload(movie, trailerUrl, trailerFile)) {
             tmf.setFilename(trailerPlayFileName);
             movie.addExtraFile(new ExtraFile(tmf));
-            isExchangeOk = true;
+            isExchangeOk = Boolean.TRUE;
         }
 
-        movie.setTrailerExchange(true);
+        movie.setTrailerExchange(Boolean.TRUE);
 
         return isExchangeOk;
     }
 
     public boolean existsTrailerFiles(Movie movie) {
-        boolean fileExists = true;
+        boolean fileExists = Boolean.TRUE;
         if (!movie.getExtraFiles().isEmpty() && trailersDownload) {
             String trailersPath = (StringUtils.isNotBlank(trailersScanerPath)) ? trailersScanerPath : movie.getFirstFile().getFile().getParent();
             for (ExtraFile extraFile : movie.getExtraFiles()) {
@@ -152,13 +156,14 @@ public class TrailersPlugin implements ITrailersPlugin {
         return fileExists;
     }
 
-    public boolean trailerDownload(final IMovieBasicInformation movie, String trailerUrlString, File trailerFile) {
+    @Deprecated
+    private boolean trailerDownloadOld(final IMovieBasicInformation movie, String trailerUrlString, File trailerFile) {
         // Copied from AppleTrailersPlugin.java
         URL url;
         try {
             url = new URL(trailerUrlString);
         } catch (MalformedURLException e) {
-            return false;
+            return Boolean.FALSE;
         }
 
         ThreadExecutor.enterIO(url);
@@ -169,7 +174,6 @@ public class TrailersPlugin implements ITrailersPlugin {
             final WebStats stats = WebStats.make(url);
             // after make!
             timer.schedule(new TimerTask() {
-
                 private String lastStatus = "";
 
                 @Override
@@ -187,27 +191,53 @@ public class TrailersPlugin implements ITrailersPlugin {
             }, 1000, 1000);
 
             connection = (HttpURLConnection) (url.openConnection());
-            connection.setRequestProperty("User-Agent", "QuickTime/7.6.9");
+//            connection.setRequestProperty("User-Agent", "QuickTime/7.6.9");
+            connection.setRequestProperty("User-agent", "Mozilla/4.0 (compatible)");
             InputStream inputStream = connection.getInputStream();
 
             int code = connection.getResponseCode();
             if (code != HttpURLConnection.HTTP_OK) {
                 logger.error(trailersPluginName + " Plugin: Download Failed");
-                return false;
+                return Boolean.FALSE;
             }
 
             FileTools.copy(inputStream, new FileOutputStream(trailerFile), stats);
             System.out.println("Downloading trailer for " + movie.getTitle() + ": " + stats.statusString()); // Output the final stat information (100%)
 
-            return true;
-        } catch (Exception error) {
-            logger.error(trailersPluginName + " Plugin: Download Exception");
-            return false;
+            return Boolean.TRUE;
+        } catch (IOException ex) {
+            logger.error(trailersPluginName + " Plugin: Download Exception: " + ex.getMessage());
+            return Boolean.FALSE;
         } finally {
             timer.cancel();         // Close the timer
             if (connection != null) {
                 connection.disconnect();
             }
+            ThreadExecutor.leaveIO();
+        }
+    }
+
+    /**
+     * Download the trailer into a local file.
+     *
+     * @param movie
+     * @param trailerUrlString
+     * @param trailerFile
+     * @return Doe
+     */
+    public boolean trailerDownload(final IMovieBasicInformation movie, String trailerUrlString, File trailerFile) {
+        ThreadExecutor.enterIO(trailerUrlString);
+        try {
+            Downloader dl = new Downloader(trailerFile.getAbsolutePath(), trailerUrlString, trailersShowProgress);
+            if (dl.isDownloadOk()) {
+                logger.info("Trailer downloaded in " + dl.getDownloadTime());
+
+                // Looks like it was downloaded OK
+                return Boolean.TRUE;
+            }
+            // Looks like the download failed for some reason
+            return Boolean.FALSE;
+        } finally {
             ThreadExecutor.leaveIO();
         }
     }

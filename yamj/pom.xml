@@ -19,40 +19,57 @@
     <name>YAMJ Core</name>
     <description>Static analysis of MovieJukebox project</description>
 
+    <properties>
+        <skipTests>true</skipTests>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
     <dependencies>
         <dependency>
-            <groupId>com.moviejukebox</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>allocine-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.moviejukebox</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>fanarttvapi</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.moviejukebox</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mjbsqldb</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.moviejukebox</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>thetvdbapi</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.moviejukebox</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>themoviedbapi</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.moviejukebox</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>tvrageapi</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.moviejukebox</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>apirottentomatoes</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>API-TrailerAddict</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>api-imdb</artifactId>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -126,16 +143,19 @@
             <artifactId>ormlite-core</artifactId>
             <type>jar</type>
         </dependency>
+
         <dependency>
             <groupId>com.j256.ormlite</groupId>
             <artifactId>ormlite-jdbc</artifactId>
             <type>jar</type>
         </dependency>
+
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.6</version>
         </dependency>
+
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
@@ -148,6 +168,7 @@
         <developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox/yamj</developerConnection>
         <url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox/yamj</url>
     </scm>
+    
     <build>
         <plugins>
             <plugin>
@@ -204,6 +225,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <skipTests>${skipTests}</skipTests>
                     <argLine>-Dfile.encoding=UTF-8</argLine>
                     <excludes>
                         <exclude>**/*PosterPluginTestCase.class</exclude>
@@ -263,10 +285,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    </properties>
 
     <url>http://code.google.com/p/moviejukebox/</url>
     <issueManagement>
