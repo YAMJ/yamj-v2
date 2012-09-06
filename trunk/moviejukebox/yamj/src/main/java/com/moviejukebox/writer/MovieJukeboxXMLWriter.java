@@ -54,6 +54,7 @@ public class MovieJukeboxXMLWriter {
     private static final Logger logger = Logger.getLogger(MovieJukeboxXMLWriter.class);
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";
+    private static final String evFileSuffix = "_small";   // String to append to the eversion categories file if needed
     private static boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
     private static boolean forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false");
     private int nbMoviesPerPage;
@@ -1046,20 +1047,6 @@ public class MovieJukeboxXMLWriter {
         Element eLibrary = xmlDoc.createElement("library");
         int libraryCount = 0;
 
-        if (includeMoviesInCategories) {
-            Element eMovie;
-            for (Movie movie : library.getMoviesList()) {
-                if (fullMovieInfoInIndexes) {
-                    eMovie = writeMovie(xmlDoc, movie, library);
-                } else {
-                    eMovie = writeMovieForIndex(xmlDoc, movie);
-                }
-
-                // Add the movie
-                eLibrary.appendChild(eMovie);
-            }
-        }
-
         // Issue 1148, generate category in the order specified in properties
         logger.info("  Indexing " + filename + "...");
         for (String categoryName : categoriesDisplayList) {
@@ -1069,7 +1056,7 @@ public class MovieJukeboxXMLWriter {
             for (Entry<String, Index> category : library.getIndexes().entrySet()) {
                 // Category not empty and match the current cat.
                 if (!category.getValue().isEmpty() && categoryName.equalsIgnoreCase(category.getKey())
-                        && (filename.equals("Categories") || filename.equals(category.getKey()))) {
+                        && (filename.equals(Library.INDEX_CATEGORIES) || filename.equals(category.getKey()))) {
                     Element eCategory = xmlDoc.createElement("category");
 
                     eCategory.setAttribute("name", category.getKey());
@@ -1160,7 +1147,35 @@ public class MovieJukeboxXMLWriter {
         // Add the movie count to the library
         eLibrary.setAttribute("count", String.valueOf(libraryCount));
 
+        // Add the library node to the document
         xmlDoc.appendChild(eLibrary);
+
+        // Add in the movies to the categories if needed
+        if (includeMoviesInCategories) {
+            // For the Categories file we want to split out a version without the movies for Eversion
+            if (Library.INDEX_CATEGORIES.equals(filename)) {
+                logger.debug("Writing non-movie categories file...");
+                // Create the eversion filename
+                File xmlEvFile = new File(jukebox.getJukeboxTempLocationDetailsFile(), filename + evFileSuffix + EXT_XML);
+                // Add the eversion file to the cleanup list
+                FileTools.addJukeboxFile(xmlEvFile.getName());
+
+                // Write out the current index before adding the movies
+                DOMHelper.writeDocumentToFile(xmlDoc, xmlEvFile);
+            }
+
+            Element eMovie;
+            for (Movie movie : library.getMoviesList()) {
+                if (fullMovieInfoInIndexes) {
+                    eMovie = writeMovie(xmlDoc, movie, library);
+                } else {
+                    eMovie = writeMovieForIndex(xmlDoc, movie);
+                }
+
+                // Add the movie
+                eLibrary.appendChild(eMovie);
+            }
+        }
 
         DOMHelper.writeDocumentToFile(xmlDoc, xmlFile);
     }
@@ -1720,7 +1735,8 @@ public class MovieJukeboxXMLWriter {
     /**
      * Write the element with the indexed attribute.
      *
-     * If there is a non-null value in the indexValue, this will be appended to the element.
+     * If there is a non-null value in the indexValue, this will be appended to
+     * the element.
      *
      * @param doc
      * @param parentElement
@@ -2295,8 +2311,9 @@ public class MovieJukeboxXMLWriter {
     }
 
     /**
-     * Persist a movie into an XML file. Doesn't overwrite an already existing XML file for the specified movie unless,
-     * movie's data has changed or forceXMLOverwrite is true.
+     * Persist a movie into an XML file. Doesn't overwrite an already existing
+     * XML file for the specified movie unless, movie's data has changed or
+     * forceXMLOverwrite is true.
      */
     public void writeMovieXML(Jukebox jukebox, Movie movie, Library library) {
         String baseName = movie.getBaseName();
