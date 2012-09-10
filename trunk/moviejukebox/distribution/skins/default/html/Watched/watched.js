@@ -38,40 +38,45 @@
  * The values for wScript and wFiles will be overwritten by watched.properties.js
  * ========================================================================== */
 
-
+var wStatusSaved = 0;
 function watched(wAction) {
- var wExt = ".watched";
-  var wScript = "http://localhost.drives:8883/"+wScriptLocation+"watched.cgi";
- var wFiles = "/opt/sybhttpd/localhost.drives/"+wlocation;
- var wSrc = "";
+    var wExt = ".watched";
+    var wScript = "http://localhost.drives:8883/"+wScriptLocation+"watched.cgi";
+    var wFiles = "/opt/sybhttpd/localhost.drives/"+wlocation;
+    var wSrc = "";
 
- if ( curFocus == "" ) {
-  wSrc = wScript + "?" + wFiles + baseFilename + wExt;
- } else {
-  wSrc = wScript + "?" + wFiles + curFocus.href.substring(curFocus.href.lastIndexOf("/")+1, curFocus.href.lastIndexOf(".")) + wExt;
- }
+    if ( curFocus == "" ) {
+        wSrc = wScript + "?" + wFiles + baseFilename + wExt;
+    } else {
+        wSrc = wScript + "?" + wFiles + curFocus.href.substring(curFocus.href.lastIndexOf("/")+1, curFocus.href.lastIndexOf(".")) + wExt;
+    }
+    switch(wAction) {
+        case 0: // Check existence only
+            wSrc += "&0&watchedCallback";
+            break;
 
- switch(wAction) {
-   case 0: // Check existence only
-    wSrc += "&0&watchedCallback";
-    break;
-
-   default:
-    wSrc += "&1&watchedCallback";
-    break;
-  }
-  try {
-   document.getElementById("watchedjs").setAttribute('src', unescape(wSrc));
-  } catch(e) { }
+        default:
+            wSrc += "&1&watchedCallback";
+            break;
+    }
+    try {
+        //With the new value 2, the watched file will be created only if it does not already exists
+        if (!(wAction == 2 && wStatusSaved == 1)){
+            document.getElementById("watchedjs").setAttribute('src', unescape(wSrc));
+        }
+    } catch(e) { }
 }
 
 function watchedCallback(wAction, wStatus) {
-  var watchedStr = wStatus == 1 ? "Yes" : "No";
-  if ( wStatus > 1) { watchedStr = "Unknown: " + wStatus + "::" + wAction; }
+    var watchedStr = wStatus == 1 ? "Yes" : "No";
+    wStatusSaved = wStatus;
+    if ( wStatus > 1) {
+        watchedStr = "Unknown: " + wStatus + "::" + wAction;
+    }
 
-  try {
-   // This is were you would do some Dynamic stuff, change text, pic etc
-   document.getElementById("watched").firstChild.nodeValue = watchedStr;
-   document.getElementById("watchedjs").setAttribute('src', "empty.js");
-  } catch(e) { }
+    try {
+        // This is were you would do some Dynamic stuff, change text, pic etc
+        document.getElementById("watched").firstChild.nodeValue = watchedStr;
+        document.getElementById("watchedjs").setAttribute('src', "empty.js");
+    } catch(e) { }
 }
