@@ -297,10 +297,16 @@ public class GraphicTools {
         return imgSrc.getSubimage(x1, y1, l, h);
     }
 
-    /*
-     * Reflection effect
+    /**
+     * Creates the reflection effect
+     *
      * graphicType should be "posters", "thumbnails" or "videoimage" and is used
-     * to determine the settings that are extracted from the skin.properties file.
+     * to determine the settings that are extracted from the skin.properties
+     * file.
+     *
+     * @param avatar
+     * @param graphicType
+     * @return
      */
     public static BufferedImage createReflectedPicture(BufferedImage avatar, String graphicType) {
         int avatarWidth = avatar.getWidth();
@@ -318,8 +324,14 @@ public class GraphicTools {
         return buffer;
     }
 
-    /*
+    /**
      * Create a gradient mask for the image
+     *
+     * @param avatarWidth
+     * @param avatarHeight
+     * @param reflectionHeight
+     * @param graphicType
+     * @return
      */
     public static BufferedImage createGradientMask(int avatarWidth, int avatarHeight, float reflectionHeight, String graphicType) {
         BufferedImage gradient = new BufferedImage(avatarWidth, avatarHeight, BufferedImage.TYPE_4BYTE_ABGR_PRE);
@@ -345,8 +357,14 @@ public class GraphicTools {
         return gradient;
     }
 
-    /*
+    /**
      * Create the reflection effect for the image
+     *
+     * @param avatar
+     * @param avatarWidth
+     * @param avatarHeight
+     * @param reflectionHeight
+     * @return
      */
     public static BufferedImage createReflection(BufferedImage avatar, int avatarWidth, int avatarHeight, float reflectionHeight) {
         // Increase the height of the image to cater for the reflection.
@@ -374,10 +392,17 @@ public class GraphicTools {
         g2.dispose();
     }
 
-    /*
-     * 3D effect
+    /**
+     * Creates the 3D effect
+     *
      * graphicType should be "posters", "thumbnails" or "videoimage" and is used
-     * to determine the settings that are extracted from the skin.properties file.
+     * to determine the settings that are extracted from the skin.properties
+     * file.
+     *
+     * @param bi
+     * @param graphicType
+     * @param perspectiveDirection
+     * @return
      */
     public static BufferedImage create3DPicture(BufferedImage bi, String graphicType, String perspectiveDirection) {
         int w = bi.getWidth();
