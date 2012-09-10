@@ -42,7 +42,7 @@ var curFocus = "";
 <script>
   var wloc=location.href;
   wScriptLocation=wloc.substring(38,wloc.lastIndexOf("/"))+"/Watched/";
-  
+
   var movieLocation="<xsl:call-template name="substring-after-last"><xsl:with-param name="string" select="files/file[1]/fileURL" /><xsl:with-param name="delimiter" select="'file:///opt/sybhttpd/localhost.drives/'" /></xsl:call-template>"
   movieLocation=movieLocation.substring(0,movieLocation.lastIndexOf("/"))+"/";
 
@@ -114,7 +114,7 @@ var curFocus = "";
         </xsl:if>
         <tr>
           <td class="title1" valign="top" colspan="2">
-            <xsl:value-of select="title"/> 
+            <xsl:value-of select="title"/>
             <xsl:if test="season &gt; 0"> Season <xsl:value-of select="season" /></xsl:if>
             <xsl:if test="season = 0"> Specials</xsl:if>
             <xsl:if test="year != 'UNKNOWN'">
@@ -147,7 +147,7 @@ var curFocus = "";
                   </xsl:when>
                   <xsl:when test="rating &gt; 74">
                     <img src="pictures/RT-Cert.png" height="48"/>
-                  </xsl:when>  
+                  </xsl:when>
                 </xsl:choose>
                     </td>
               </xsl:when>
@@ -185,7 +185,7 @@ var curFocus = "";
             </xsl:choose>
          </tr>
         <tr>
-          <td class="title2" valign="top" colspan="2">By 
+          <td class="title2" valign="top" colspan="2">By
             <xsl:choose>
                 <xsl:when test="people/person[@job='Director']/@name != ''">
                     <xsl:choose>
@@ -196,7 +196,7 @@ var curFocus = "";
                              <xsl:value-of select="people/person[@job='Director']" />
                              <xsl:text>.html</xsl:text>
                             </xsl:attribute>
-                            <xsl:value-of select="people/person[@job='Director']/@name" /> 
+                            <xsl:value-of select="people/person[@job='Director']/@name" />
                           </a>
                         </xsl:when>
                         <xsl:otherwise>
@@ -210,7 +210,7 @@ var curFocus = "";
                         <xsl:when test="director/@index != ''">
                           <a>
                             <xsl:attribute name="href"><xsl:value-of select="director/@index" />.html</xsl:attribute>
-                            <xsl:value-of select="director" /> 
+                            <xsl:value-of select="director" />
                           </a>
                         </xsl:when>
                         <xsl:otherwise>
@@ -222,7 +222,7 @@ var curFocus = "";
             </xsl:choose>
             <xsl:if test="company != 'UNKNOWN'">
               <xsl:if test="director != 'UNKNOWN'">, </xsl:if>
-              <xsl:value-of select="company" /> 
+              <xsl:value-of select="company" />
             </xsl:if>
             <xsl:if test="country != 'UNKNOWN'">
               <xsl:text> (</xsl:text>
@@ -245,7 +245,7 @@ var curFocus = "";
         <xsl:choose>
             <xsl:when test="count(people/person[@department = 'Actors']) != 0">
               <tr>
-                <td class="title2" colspan="2">With 
+                <td class="title2" colspan="2">With
                     <xsl:for-each select="people/person[@department = 'Actors']">
                         <xsl:sort select="@order" data-type="number" order="ascending"/>
                         <xsl:if test="position() &lt;= $actors.max">
@@ -258,11 +258,11 @@ var curFocus = "";
                                    <xsl:value-of select="." />
                                    <xsl:text>.html</xsl:text>
                                   </xsl:attribute>
-                                  <xsl:value-of select="@name" /> 
+                                  <xsl:value-of select="@name" />
                                 </a>
                               </xsl:when>
                               <xsl:otherwise>
-                                <xsl:value-of select="@name" /> 
+                                <xsl:value-of select="@name" />
                               </xsl:otherwise>
                             </xsl:choose>
                         </xsl:if>
@@ -273,18 +273,18 @@ var curFocus = "";
             <xsl:otherwise>
                 <xsl:if test="count(cast/actor) != 0">
                   <tr>
-                    <td class="title2" colspan="2">With 
+                    <td class="title2" colspan="2">With
                       <xsl:for-each select="cast/actor[position() &lt;= $actors.max]">
                         <xsl:if test="position()!=1">, </xsl:if>
                         <xsl:choose>
                           <xsl:when test="@index != ''">
                             <a>
                               <xsl:attribute name="href"><xsl:value-of select="@index" />.html</xsl:attribute>
-                              <xsl:value-of select="." /> 
+                              <xsl:value-of select="." />
                             </a>
                           </xsl:when>
                           <xsl:otherwise>
-                            <xsl:value-of select="." /> 
+                            <xsl:value-of select="." />
                           </xsl:otherwise>
                         </xsl:choose>
                       </xsl:for-each>
@@ -303,26 +303,26 @@ var curFocus = "";
                   <xsl:when test="@index != ''">
                     <a>
                       <xsl:attribute name="href"><xsl:value-of select="@index" />.html</xsl:attribute>
-                      <xsl:value-of select="." /> 
+                      <xsl:value-of select="." />
                     </a>
                   </xsl:when>
                   <xsl:otherwise>
-                    <xsl:value-of select="." /> 
+                    <xsl:value-of select="." />
                   </xsl:otherwise>
                 </xsl:choose>
               </xsl:for-each>
             </xsl:if>
             <xsl:if test="runtime != 'UNKNOWN'">
               <xsl:if test="count(genres) != 0">, </xsl:if>
-              <xsl:value-of select="runtime" /> 
+              <xsl:value-of select="runtime" />
             </xsl:if>
             <xsl:if test="certification != 'UNKNOWN'">
               <xsl:if test="count(genres) != 0 or runtime != 'UNKNOWN'">, </xsl:if>
-              <xsl:value-of select="certification" /> 
+              <xsl:value-of select="certification" />
             </xsl:if>
             <xsl:if test="language != 'UNKNOWN'">
               <xsl:if test="count(genres) != 0 or runtime != 'UNKNOWN' or certification != 'UNKNOWN'">, </xsl:if>
-              <xsl:value-of select="language" /> 
+              <xsl:value-of select="language" />
             </xsl:if>
           </td>
         </tr>
@@ -341,11 +341,11 @@ var curFocus = "";
                   <xsl:with-param name="text" select="plot"/>
                 </xsl:call-template>
               </xsl:variable>
-              
+
                 <xsl:call-template name="string-replace-plot-BR">
                     <xsl:with-param name="text" select='$plotLinebreakPreserved' />
                 </xsl:call-template>
-              
+
             </td>
           </tr>
         </xsl:if>
@@ -387,7 +387,7 @@ var curFocus = "";
                   Library
                 </xsl:if>
               </td>
-              
+
                 <xsl:choose>
                 <xsl:when test="libraryDescription != 'UNKNOWN'">
                   <td class="normal" width="16%" valign="top">
@@ -405,7 +405,7 @@ var curFocus = "";
           </table></center>
           </td>
         </tr>
-        
+
         <tr class="spacer" colspan="2"><td colspan="2"> </td></tr>
 
         <xsl:choose>
@@ -418,14 +418,14 @@ var curFocus = "";
                     <xsl:if test="@firstPart!=@lastPart">-<xsl:value-of select="@lastPart"/></xsl:if>.
                   </td>
                 </xsl:if>
-                
+
                 <td align="center" colspan="2">
-                   
+
                   <a class="link">
                     <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
                     <xsl:attribute name="TVID">Play</xsl:attribute>
                     <xsl:attribute name="name">Play</xsl:attribute>
-
+                    <xsl:attribute name="onclick">watched(2);</xsl:attribute>
                     <xsl:if test="@vod"><xsl:attribute name="vod"><xsl:value-of select="@vod" /></xsl:attribute></xsl:if>
                     <xsl:if test="@zcd"><xsl:attribute name="zcd"><xsl:value-of select="@zcd" /></xsl:attribute></xsl:if>
                     <xsl:if test="@rar"><xsl:attribute name="rar"><xsl:value-of select="@rar" /></xsl:attribute></xsl:if>
@@ -469,7 +469,7 @@ var curFocus = "";
                   </xsl:attribute>
                   <xsl:attribute name="TVID">Play</xsl:attribute>
                   <xsl:attribute name="name">Play</xsl:attribute>
-
+                  <xsl:attribute name="onclick">watched(2);</xsl:attribute>
                   <xsl:attribute name="vod">playlist</xsl:attribute>
                   <img src="pictures/play.png" onfocussrc="pictures/play_selected.png"/>
                 </a>
@@ -512,6 +512,7 @@ var curFocus = "";
                         <xsl:if test="position() = 1">
                           <a id="playLink" tvid="Play" vod="playlist">
                             <xsl:attribute name="href"><xsl:value-of select="fileURL" /></xsl:attribute>
+                            <xsl:attribute name="onclick">watched(2);</xsl:attribute>
                           </a>
                         </xsl:if>
                         <a>
@@ -523,7 +524,8 @@ var curFocus = "";
                           <xsl:attribute name="onkeyrightset">e<xsl:value-of select="position()+1"/></xsl:attribute>
                           <xsl:attribute name="onfocus">show(<xsl:value-of select="@firstPart"/>)</xsl:attribute>
                           <xsl:attribute name="onblur">hide()</xsl:attribute>
-                          
+                          <xsl:attribute name="onclick">watched(2);</xsl:attribute>
+
                           <xsl:if test="@vod"><xsl:attribute name="vod"><xsl:value-of select="@vod" /></xsl:attribute></xsl:if>
                           <xsl:if test="@zcd"><xsl:attribute name="zcd"><xsl:value-of select="@zcd" /></xsl:attribute></xsl:if>
                           <xsl:if test="@rar"><xsl:attribute name="rar"><xsl:value-of select="@rar" /></xsl:attribute></xsl:if>
@@ -542,8 +544,8 @@ var curFocus = "";
                           </img>
                         </a>
                         <a class="link">
-                          <xsl:if test="position() = 1"> 
-                            <xsl:attribute name="class">firstMovie</xsl:attribute> 
+                          <xsl:if test="position() = 1">
+                            <xsl:attribute name="class">firstMovie</xsl:attribute>
                           </xsl:if>
 
                           <xsl:value-of select="@firstPart"/>
@@ -575,7 +577,7 @@ var curFocus = "";
             </tr>
           </xsl:otherwise>
         </xsl:choose>
-        
+
         <xsl:if test="count(extras) != 0">
           <tr>
             <td>
@@ -634,7 +636,7 @@ var curFocus = "";
             </xsl:when>
             <xsl:otherwise>
               <xsl:value-of select="@firstPart" />
-              <xsl:if test="@firstPart!=@lastPart"> - <xsl:value-of select="@lastPart" /></xsl:if>. 
+              <xsl:if test="@firstPart!=@lastPart"> - <xsl:value-of select="@lastPart" /></xsl:if>.
               <xsl:value-of select="@title" />
             </xsl:otherwise>
           </xsl:choose>
@@ -643,7 +645,7 @@ var curFocus = "";
     </td>
   </tr>
 </table>
-<!--  
+<!--
 <xsl:if test="count(sets/set) > 0">
   <div align="center">
     <table width="80%">
@@ -682,9 +684,9 @@ var curFocus = "";
   <xsl:choose>
     <xsl:when test="contains($string, $delimiter)">
       <xsl:call-template name="substring-after-last">
-	<xsl:with-param	name="string"
-	  select="substring-after($string, $delimiter)"	/>
-	<xsl:with-param	name="delimiter" select="$delimiter" />
+        <xsl:with-param name="string"
+            select="substring-after($string, $delimiter)" />
+        <xsl:with-param name="delimiter" select="$delimiter" />
       </xsl:call-template>
     </xsl:when>
     <xsl:otherwise><xsl:value-of select="$string" /></xsl:otherwise>

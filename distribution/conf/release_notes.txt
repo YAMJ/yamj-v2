@@ -19,13 +19,14 @@ MovieJukebox 2.7-SNAPSHOT
  - Fixed defect #2422 Watched files with no extension in jukebox are not found
  - Enhancement  #2423 Add 'container' to the NFO file
  - Fixed defect #2424 Sets are always recreated each run
+ - Enhancement  #2425 Automatic creation of a .watched file when playing a video (Default skin)
  - Enhancement  #2428 XBMC tvshow.nfo support
  - Fixed defect #2437 Clicking movie Rating gives dead link in skins gfb107 and gfb107-sd
  - Fixed defect #2438 TheTVDBPlugin broken
  - Fixed defect #2443 Indexing sorting does not work for renamed indexes
  - Fixed defect #2453 Kinopoisk fix due to changed web pages
  - Fixed defect #2470 Kinopoisk fix due to changed web pages
- - Fixed defect #2480 Disable playlist creation (for iSkin)
+ - Enhancement  #2480 Disable playlist creation (for iSkin)
 
 MovieJukebox 2.6.1 (21-Mar-2012)
 --------------------------------
