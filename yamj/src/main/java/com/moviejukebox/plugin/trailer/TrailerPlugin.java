@@ -82,10 +82,10 @@ public class TrailerPlugin implements ITrailerPlugin {
      * @return
      */
     public boolean isScanForTrailer(Movie movie) {
-        if (trailersScanHdOnly && movie.isHD()) {
-            return Boolean.TRUE;
+        if (trailersScanHdOnly && !movie.isHD()) {
+            return Boolean.FALSE;
         }
-        return Boolean.FALSE;
+        return Boolean.TRUE;
     }
 
     public boolean downloadTrailer(Movie movie, String trailerUrl, String title, MovieFile tmf) {
