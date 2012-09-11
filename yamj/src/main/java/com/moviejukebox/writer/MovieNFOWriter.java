@@ -221,7 +221,7 @@ public class MovieNFOWriter {
 
                 Element eCodec;
                 for (Codec codec : movie.getCodecs()) {
-                    if (codec.getCodecType() == Codec.CodecType.AUDIO) {
+                    if (codec.getCodecType() == CodecType.AUDIO) {
                         eCodec = docNFO.createElement("audio");
                         if (StringTools.isValidString(codec.getCodecLanguage())) {
                             DOMHelper.appendChild(docNFO, eCodec, "language", codec.getCodecLanguage());

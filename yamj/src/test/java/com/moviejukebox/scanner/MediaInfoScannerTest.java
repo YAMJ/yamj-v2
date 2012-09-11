@@ -13,7 +13,7 @@
 package com.moviejukebox.scanner;
 
 import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.Codec.CodecType;
+import com.moviejukebox.model.CodecType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

@@ -13,6 +13,8 @@
 package com.moviejukebox.writer;
 
 import com.moviejukebox.model.Codec;
+import com.moviejukebox.model.CodecSource;
+import com.moviejukebox.model.CodecType;
 import com.moviejukebox.model.EpisodeDetail;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
@@ -265,7 +267,10 @@ public class MovieNFOReader {
 
                 String temp = DOMHelper.getValueFromElement(eStreams, "codec");
                 if (isValidString(temp)) {
-                    movie.addCodec(new Codec(Codec.CodecType.VIDEO, temp));
+                    Codec videoCodec = new Codec(CodecType.VIDEO);
+                    videoCodec.setCodecSource(CodecSource.NFO);
+                    videoCodec.setCodec(temp);
+                    movie.addCodec(videoCodec);
                 }
 
                 temp = DOMHelper.getValueFromElement(eStreams, "aspect");
@@ -296,7 +301,8 @@ public class MovieNFOReader {
                     aLanguage = MovieFilenameScanner.determineLanguage(aLanguage);
                 }
 
-                Codec audioCodec = new Codec(Codec.CodecType.AUDIO, aCodec);
+                Codec audioCodec = new Codec(CodecType.AUDIO, aCodec);
+                audioCodec.setCodecSource(CodecSource.NFO);
                 audioCodec.setCodecLanguage(aLanguage);
                 audioCodec.setCodecChannels(aChannels);
                 movie.addCodec(audioCodec);
@@ -306,7 +312,7 @@ public class MovieNFOReader {
         // Update the language
         StringBuilder movieLanguage = new StringBuilder();
         for (Codec codec : movie.getCodecs()) {
-            if (codec.getCodecType() == Codec.CodecType.AUDIO) {
+            if (codec.getCodecType() == CodecType.AUDIO) {
                 if (movieLanguage.length() > 0) {
                     movieLanguage.append(languageDelimiter);
                 }

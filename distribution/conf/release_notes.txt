@@ -15,6 +15,9 @@ MovieJukebox 2.7-SNAPSHOT
  - Fixed defect #2408 Year 0 bug in NFO file
  - Fixed defect #2212 Issue with sorttitle and sorting.strip.prefixes
  - Fixed defect #2286 VideoImages not updated based on watched status
+ - Fixed defect #2393 Codec problems due to MediaInfo/NFO interference
+ - Fixed defect #2400 Duplicate Mediainfo and Filename audio data problem
+ - Fixed defect #2407 Filename codec overrides MediaInfo
  - Fixed defect #2419 TV videos with NFO results in "UNKNOWN" XML values
  - Fixed defect #2422 Watched files with no extension in jukebox are not found
  - Enhancement  #2423 Add 'container' to the NFO file
@@ -119,7 +122,7 @@ MovieJukebox 2.6 (20-Mar-2012)
  - Enhancement  #2332 Option to scrape to movie persons only with photo
  - Fixed defect #2337 Issue with Filmweb plugin
  - Fixed defect #2338 Library indexing exception
- - Enhancement  #2348 Optional sotring person index
+ - Enhancement  #2348 Optional sorting person index
  - Enhancement  #2349 Encoded filename of the index basename like categories has but only if the index exists
  - Enhancement  #2350 Personal information to person index
  - Enhancement  #2353 Make compatible XML values instead slash divided
