@@ -28,10 +28,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class YouTubeTrailersPlugin extends TrailersPlugin {
+public class YouTubeTrailersPlugin extends TrailerPlugin {
 
     private static final Logger logger = Logger.getLogger(YouTubeTrailersPlugin.class);
-    private static final String logMessage = "YouTubeTrailersPlugin: ";
     private static final String TRAILER_TITLE = "TRAILER-";
     // API Key
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_YouTube");
@@ -45,11 +44,13 @@ public class YouTubeTrailersPlugin extends TrailersPlugin {
     private static final String TRAILER_VERSION = "&v=2";
     // Properties
     private boolean hdWanted = PropertiesUtil.getBooleanProperty("youtubetrailer.hdwanted", "true");
-    private String trailerLanguage = PropertiesUtil.getProperty("youtubetrailer.language", "en");
+//    private String trailerLanguage = PropertiesUtil.getProperty("youtubetrailer.language", "en");
     private int maxTrailers = PropertiesUtil.getIntProperty("youtubetrailer.maxtrailers", "1");
 
     public YouTubeTrailersPlugin() {
         super();
+        trailersPluginName = "YouTubeTrailers";
+        logMessage = "YouTubeTrailersPlugin: ";
     }
 
     @Override
@@ -150,7 +151,7 @@ public class YouTubeTrailersPlugin extends TrailersPlugin {
                 String title = DOMHelper.getValueFromElement(eTrailer, "media:title");
                 String ytId = DOMHelper.getValueFromElement(eTrailer, "yt:videoid");
 
-                addTrailer(movie, new YouTubeTrailer(TRAILER_BASE_URL+ytId, title));
+                addTrailer(movie, new YouTubeTrailer(TRAILER_BASE_URL + ytId, title));
             }
         }
 

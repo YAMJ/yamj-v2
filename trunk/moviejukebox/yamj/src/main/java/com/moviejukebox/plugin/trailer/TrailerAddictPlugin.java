@@ -31,15 +31,15 @@ import org.apache.log4j.Logger;
  * @author iuk
  *
  */
-public class TrailerAddictPlugin extends TrailersPlugin {
+public class TrailerAddictPlugin extends TrailerPlugin {
 
     private static final Logger logger = Logger.getLogger(TrailerAddictPlugin.class);
-    private static final String logMessage = "TrailerAddict: ";
     private int trailerMaxCount;
 
     public TrailerAddictPlugin() {
         super();
         trailersPluginName = "TrailerAddict";
+        logMessage = "TrailerAddictPlugin: ";
         trailerMaxCount = PropertiesUtil.getIntProperty("traileraddict.max", "3");
     }
 
@@ -74,7 +74,7 @@ public class TrailerAddictPlugin extends TrailersPlugin {
 
             String trailerUrl = getDownloadUrl(trailer);
             if (StringTools.isValidString(trailerUrl)) {
-                if (getDownload()) {
+                if (isDownload()) {
                     if (!downloadTrailer(movie, trailerUrl, FileTools.makeSafeFilename(trailer.getCombinedTitle()), tmf)) {
                         return Boolean.FALSE;
                     }
