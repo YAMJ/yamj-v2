@@ -29,32 +29,24 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-public class AppleTrailersPlugin extends TrailersPlugin {
+public class AppleTrailersPlugin extends TrailerPlugin {
 
     private static final Logger logger = Logger.getLogger(AppleTrailersPlugin.class);
     private static String configResolution = PropertiesUtil.getProperty("appletrailers.resolution", "");
     private static boolean configDownload = PropertiesUtil.getBooleanProperty("appletrailers.download", "false");
     private static String configTrailerTypes = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec,640w");
-    private static int configMax;
+    private static int configMax = PropertiesUtil.getIntProperty("appletrailers.max", "0");
     private static boolean configTypesInclude = PropertiesUtil.getBooleanProperty("appletrailers.typesinclude", "true");
     private static String configReplaceUrl = PropertiesUtil.getProperty("appletrailers.replaceurl", "www.apple.com");
-
-    static {
-        try {
-            configMax = PropertiesUtil.getIntProperty("appletrailers.max", "0");
-        } catch (Exception ignored) {
-            configMax = 0;
-        }
-    };
 
     public AppleTrailersPlugin() {
         super();
         trailersPluginName = "AppleTrailers";
+        logMessage = "AppleTrailersPlugin: ";
     }
 
     @Override
     public final boolean generate(Movie movie) {
-
         // Check if trailer resolution was selected
         if (configResolution.equals("")) {
             return false;
@@ -67,7 +59,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
         movie.setTrailerLastScan(new Date().getTime()); // Set the last scan to now
 
         if (Movie.UNKNOWN.equalsIgnoreCase(trailerPageUrl)) {
-            logger.debug(trailersPluginName + " Plugin: Trailer not found for " + movie.getBaseName());
+            logger.debug(logMessage + "Trailer not found for " + movie.getBaseName());
             return false;
         }
 
@@ -81,7 +73,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
         int trailerDownloadCnt = 0;
 
         if (bestTrailersUrl.isEmpty()) {
-            logger.debug(trailersPluginName + " Plugin: No trailers found for " + movie.getBaseName());
+            logger.debug(logMessage + "No trailers found for " + movie.getBaseName());
             return false;
         }
 
@@ -90,7 +82,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
         for (String trailerRealUrl : bestTrailersUrl) {
 
             if (trailerDownloadCnt >= configMax) {
-                logger.debug(trailersPluginName + " Plugin: Downloaded maximum of " + configMax + (configMax == 1 ? " trailer" : " trailers"));
+                logger.debug(logMessage + "Downloaded maximum of " + configMax + (configMax == 1 ? " trailer" : " trailers"));
                 break;
             }
 
@@ -100,7 +92,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
 
             // Is the found trailer one of the types to download/link to?
             if (!isValidTrailer(getFilenameFromUrl(trailerRealUrl))) {
-                logger.debug(trailersPluginName + " Plugin: Trailer skipped: " + getFilenameFromUrl(trailerRealUrl));
+                logger.debug(logMessage + "Trailer skipped: " + getFilenameFromUrl(trailerRealUrl));
                 continue; // Quit the rest of the trailer loop.
             }
 
@@ -110,7 +102,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
             trailerRealUrl = trailerRealUrl.replace("images.apple.com", configReplaceUrl);
             trailerRealUrl = trailerRealUrl.replace("movies.apple.com", configReplaceUrl);
 
-            logger.debug(trailersPluginName + " Plugin: Trailer found for " + movie.getBaseName() + " (" + getFilenameFromUrl(trailerRealUrl) + ")");
+            logger.debug(logMessage + "Trailer found for " + movie.getBaseName() + " (" + getFilenameFromUrl(trailerRealUrl) + ")");
             trailerDownloadCnt++;
 
             // Check if we need to download the trailer, or just link to it
@@ -146,7 +138,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
 
         try {
             String searchURL = "http://trailers.apple.com/trailers/home/scripts/quickfind.php?callback=searchCallback&q="
-                            + URLEncoder.encode(movieName, "UTF-8");
+                    + URLEncoder.encode(movieName, "UTF-8");
 
             String xml = webBrowser.request(searchURL);
 
@@ -201,7 +193,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
             }
 
         } catch (Exception error) {
-            logger.error(trailersPluginName + " Plugin: Failed retreiving trailer for movie : " + movieName);
+            logger.error(logMessage + "Failed retreiving trailer for movie : " + movieName);
             logger.error(SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
         }
@@ -269,7 +261,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
             // }
 
         } catch (Exception error) {
-            logger.error(trailersPluginName + " Plugin: Error : " + error.getMessage());
+            logger.error(logMessage + "Error : " + error.getMessage());
             logger.error(SystemTools.getStackTrace(error));
         }
     }
@@ -302,7 +294,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
 
     private void selectBestTrailer(Set<String> trailersUrl, Set<String> bestTrailersUrl) {
 
-        String[] resolutionArray = { "1080p", "720p", "480p", "640", "480" };
+        String[] resolutionArray = {"1080p", "720p", "480p", "640", "480"};
         boolean startSearch = false;
 
         for (String resolution : resolutionArray) {
@@ -332,7 +324,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
     private String getTrailerRealUrl(String trailerUrl) {
         try {
             URL url = new URL(trailerUrl);
-            HttpURLConnection connection = (HttpURLConnection)(url.openConnection());
+            HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
             InputStream inputStream = connection.getInputStream();
 
             byte buf[] = new byte[1024];
@@ -360,7 +352,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
             return absRealURL;
 
         } catch (Exception error) {
-            logger.error(trailersPluginName + " Plugin: Error : " + error.getMessage());
+            logger.error(logMessage + "Error : " + error.getMessage());
             logger.error(SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
         }
@@ -417,7 +409,7 @@ public class AppleTrailersPlugin extends TrailersPlugin {
                     intValue = 0x0027;
                 }
 
-                char c = (char)intValue;
+                char c = (char) intValue;
 
                 newString.append(c);
                 loop += 6;

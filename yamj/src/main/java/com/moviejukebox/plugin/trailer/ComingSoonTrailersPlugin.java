@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
  *
  */
 
-public class ComingSoonTrailersPlugin extends TrailersPlugin {
+public class ComingSoonTrailersPlugin extends TrailerPlugin {
 
     private static final Logger logger = Logger.getLogger(ComingSoonTrailersPlugin.class);
     private static String COMINGSOON_VIDEO_URL = "Film/Scheda/Video/?";
@@ -43,6 +43,7 @@ public class ComingSoonTrailersPlugin extends TrailersPlugin {
     public ComingSoonTrailersPlugin() {
         super();
         trailersPluginName = "ComingSoonTrailers";
+        logMessage = "ComingSoonTrailersPlugin: ";
 
         trailerMaxResolution = PropertiesUtil.getProperty("comingsoontrailers.maxResolution", "1080p");
         trailerPreferredFormat = PropertiesUtil.getProperty("comingsoontrailers.preferredFormat", "wmv,mov");
@@ -60,16 +61,16 @@ public class ComingSoonTrailersPlugin extends TrailersPlugin {
         String trailerUrl = getTrailerUrl(movie);
 
         if (StringTools.isNotValidString(trailerUrl)) {
-            logger.debug(trailersPluginName + " Plugin: no trailer found");
+            logger.debug(logMessage + "No trailer found");
             return false;
         }
 
-        logger.debug(trailersPluginName + " Plugin: found trailer at URL " + trailerUrl);
+        logger.debug(logMessage + "Found trailer at URL " + trailerUrl);
 
         MovieFile tmf = new MovieFile();
         tmf.setTitle("TRAILER-" + trailerLabel);
 
-        if (getDownload()) {
+        if (isDownload()) {
             return downloadTrailer(movie, trailerUrl, trailerLabel, tmf);
         } else {
             tmf.setFilename(trailerUrl);
@@ -95,11 +96,11 @@ public class ComingSoonTrailersPlugin extends TrailersPlugin {
 
         try {
             String searchUrl = ComingSoonPlugin.COMINGSOON_BASE_URL + COMINGSOON_VIDEO_URL + ComingSoonPlugin.COMINGSOON_KEY_PARAM + comingSoonId;
-            logger.debug(trailersPluginName + " Plugin: searching for trailer at URL " + searchUrl);
+            logger.debug(logMessage + "Searching for trailer at URL " + searchUrl);
             String xml = webBrowser.request(searchUrl);
             if (xml.indexOf(ComingSoonPlugin.COMINGSOON_SEARCH_URL + ComingSoonPlugin.COMINGSOON_KEY_PARAM + comingSoonId) < 0) {
                 // No link to movie page found. We have been redirected to the general video page
-                logger.debug(trailersPluginName + " Plugin: no video found for movie " + movie.getTitle());
+                logger.debug(logMessage + "No video found for movie " + movie.getTitle());
                 return Movie.UNKNOWN;
             }
 
@@ -127,12 +128,12 @@ public class ComingSoonTrailersPlugin extends TrailersPlugin {
             if (beginUrl >= 0) {
                 trailerUrl = new String(trailerXml.substring(beginUrl, trailerXml.indexOf('\"', beginUrl)));
             } else {
-                logger.error(trailersPluginName + " Plugin: cannot find trailer URL in XML. Layout changed?");
+                logger.error(logMessage + "Cannot find trailer URL in XML. Layout changed?");
             }
 
 
         } catch (Exception error) {
-            logger.error(trailersPluginName + " Plugin: Failed retreiving trailer for movie: " + movie.getTitle());
+            logger.error(logMessage + "Failed retreiving trailer for movie: " + movie.getTitle());
             logger.error(SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
         }
@@ -151,7 +152,7 @@ public class ComingSoonTrailersPlugin extends TrailersPlugin {
         } else if (format.equalsIgnoreCase("wmv")) {
             extension = "wvx";
         } else {
-            logger.info(trailersPluginName + " Plugin: unknown trailer format " + format);
+            logger.info(logMessage + "Unknown trailer format " + format);
             return Movie.UNKNOWN;
         }
 
@@ -170,7 +171,7 @@ public class ComingSoonTrailersPlugin extends TrailersPlugin {
         if (indexOfTrailer >= 0 ) {
             int beginUrl = new String(xml.substring(0, indexOfTrailer)).lastIndexOf("http://");
             trailerUrl = new String(xml.substring(beginUrl, xml.indexOf("\"", beginUrl)));
-            logger.debug(trailersPluginName + " Plugin: found trailer XML URL " + trailerUrl);
+            logger.debug(logMessage + "Found trailer XML URL " + trailerUrl);
         }
 
         return trailerUrl;

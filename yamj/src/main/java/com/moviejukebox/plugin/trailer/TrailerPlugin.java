@@ -19,31 +19,25 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.*;
 import com.moviejukebox.tools.downloader.Downloader;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Timer;
-import java.util.TimerTask;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-public class TrailersPlugin implements ITrailersPlugin {
+public class TrailerPlugin implements ITrailerPlugin {
 
-    private static final Logger logger = Logger.getLogger(TrailersPlugin.class);
-    public String trailersPluginName = "AbstractTrailers";
+    private static final Logger logger = Logger.getLogger(TrailerPlugin.class);
+    protected String logMessage = "TrailerPlugin: ";
     protected WebBrowser webBrowser;
+    protected String trailersPluginName = "Abstract";
     private static String trailersScanerPath = PropertiesUtil.getProperty("trailers.path.scaner", "");
     private static String trailersPlayerPath = PropertiesUtil.getProperty("trailers.path.player", "");
     private static boolean trailersDownload = PropertiesUtil.getBooleanProperty("trailers.download", "false");
     private static boolean trailersSafeFilename = PropertiesUtil.getBooleanProperty("trailers.safeFilename", "false");
     private static boolean trailersOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceTrailersOverwrite", "false");
     private static boolean trailersShowProgress = PropertiesUtil.getBooleanProperty("trailers.showProgress", "true");
+    private static boolean trailersScanHdOnly = PropertiesUtil.getBooleanProperty("trailers.scanHdOnly", "false");
 
-    public TrailersPlugin() {
+    public TrailerPlugin() {
         webBrowser = new WebBrowser();
     }
 
@@ -65,16 +59,33 @@ public class TrailersPlugin implements ITrailersPlugin {
         return trailersPlayerPath;
     }
 
-    public boolean getDownload() {
+    public boolean isDownload() {
         return trailersDownload;
     }
 
-    public boolean getSafeFilename() {
+    public boolean isSafeFilename() {
         return trailersSafeFilename;
     }
 
-    public boolean getOverwrite() {
+    public boolean isOverwrite() {
         return trailersOverwrite;
+    }
+
+    public static boolean isScanHdOnly() {
+        return trailersScanHdOnly;
+    }
+
+    /**
+     * Should trailers be searched for the video?
+     *
+     * @param movie
+     * @return
+     */
+    public boolean isScanForTrailer(Movie movie) {
+        if (trailersScanHdOnly && movie.isHD()) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
     }
 
     public boolean downloadTrailer(Movie movie, String trailerUrl, String title, MovieFile tmf) {
@@ -119,14 +130,14 @@ public class TrailersPlugin implements ITrailersPlugin {
         }
         String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
 
-        logger.debug(trailersPluginName + " Plugin: Found trailer: " + trailerUrl);          // XXX DEBUG
-        logger.debug(trailersPluginName + " Plugin: Download path: " + trailerFileName);     // XXX DEBUG
-        logger.debug(trailersPluginName + " Plugin:      Play URL: " + trailerPlayFileName); // XXX DEBUG
+        logger.debug(logMessage + "Found trailer: " + trailerUrl);          // XXX DEBUG
+        logger.debug(logMessage + "Download path: " + trailerFileName);     // XXX DEBUG
+        logger.debug(logMessage + "     Play URL: " + trailerPlayFileName); // XXX DEBUG
         File trailerFile = new File(trailerFileName);
 
         // Check if the file already exists - after jukebox directory was deleted for example
         if (trailerFile.exists()) {
-            logger.debug(trailersPluginName + " Plugin: Trailer file (" + trailerPlayFileName + ") already exists for " + movie.getBaseName());
+            logger.debug(logMessage + "Trailer file (" + trailerPlayFileName + ") already exists for " + movie.getBaseName());
             tmf.setFilename(trailerPlayFileName);
             movie.addExtraFile(new ExtraFile(tmf));
             isExchangeOk = Boolean.TRUE;
@@ -154,67 +165,6 @@ public class TrailersPlugin implements ITrailersPlugin {
             }
         }
         return fileExists;
-    }
-
-    @Deprecated
-    private boolean trailerDownloadOld(final IMovieBasicInformation movie, String trailerUrlString, File trailerFile) {
-        // Copied from AppleTrailersPlugin.java
-        URL url;
-        try {
-            url = new URL(trailerUrlString);
-        } catch (MalformedURLException e) {
-            return Boolean.FALSE;
-        }
-
-        ThreadExecutor.enterIO(url);
-        HttpURLConnection connection = null;
-        Timer timer = new Timer();
-        try {
-            logger.info(trailersPluginName + " Plugin: Download trailer for " + movie.getBaseName());
-            final WebStats stats = WebStats.make(url);
-            // after make!
-            timer.schedule(new TimerTask() {
-                private String lastStatus = "";
-
-                @Override
-                public void run() {
-                    String status = stats.calculatePercentageComplete();
-                    // only print if percentage changed
-                    if (status.equals(lastStatus)) {
-                        return;
-                    }
-                    lastStatus = status;
-                    // this runs in a thread, so there is no way to output on one line...
-                    // try to keep it visible at least...
-                    System.out.println("Downloading trailer for " + movie.getTitle() + ": " + stats.statusString());
-                }
-            }, 1000, 1000);
-
-            connection = (HttpURLConnection) (url.openConnection());
-//            connection.setRequestProperty("User-Agent", "QuickTime/7.6.9");
-            connection.setRequestProperty("User-agent", "Mozilla/4.0 (compatible)");
-            InputStream inputStream = connection.getInputStream();
-
-            int code = connection.getResponseCode();
-            if (code != HttpURLConnection.HTTP_OK) {
-                logger.error(trailersPluginName + " Plugin: Download Failed");
-                return Boolean.FALSE;
-            }
-
-            FileTools.copy(inputStream, new FileOutputStream(trailerFile), stats);
-            System.out.println("Downloading trailer for " + movie.getTitle() + ": " + stats.statusString()); // Output the final stat information (100%)
-
-            return Boolean.TRUE;
-        } catch (IOException ex) {
-            logger.error(trailersPluginName + " Plugin: Download Exception: " + ex.getMessage());
-            return Boolean.FALSE;
-        } finally {
-            timer.cancel();         // Close the timer
-            if (connection != null) {
-                connection.disconnect();
-            }
-            ThreadExecutor.leaveIO();
-        }
     }
 
     /**

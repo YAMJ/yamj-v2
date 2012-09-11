@@ -13,8 +13,8 @@
 package com.moviejukebox.scanner;
 
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.plugin.trailer.ITrailersPlugin;
-import com.moviejukebox.plugin.trailer.TrailersPlugin;
+import com.moviejukebox.plugin.trailer.ITrailerPlugin;
+import com.moviejukebox.plugin.trailer.TrailerPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import java.util.*;
 import org.apache.log4j.Logger;
@@ -33,15 +33,15 @@ public class TrailerScanner {
     private static boolean trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
     private static String trailersScanner = PropertiesUtil.getProperty("trailers.scanner", "apple");
     private String trailerPluginList = Movie.UNKNOWN;
-    private static final Map<String, ITrailersPlugin> trailerPlugins = Collections.synchronizedMap(new HashMap<String, ITrailersPlugin>());
-    private static TrailersPlugin trailersPlugin = new TrailersPlugin();
+    private static final Map<String, ITrailerPlugin> trailerPlugins = Collections.synchronizedMap(new HashMap<String, ITrailerPlugin>());
+    private static TrailerPlugin trailersPlugin = new TrailerPlugin();
 
     public TrailerScanner() {
         if (trailersScannerEnable) {
             synchronized (trailerPlugins) {
-                ServiceLoader<ITrailersPlugin> trailerPluginsSet = ServiceLoader.load(ITrailersPlugin.class);
+                ServiceLoader<ITrailerPlugin> trailerPluginsSet = ServiceLoader.load(ITrailerPlugin.class);
 
-                for (ITrailersPlugin trailerPlugin : trailerPluginsSet) {
+                for (ITrailerPlugin trailerPlugin : trailerPluginsSet) {
                     trailerPlugins.put(trailerPlugin.getName().toLowerCase().trim(), trailerPlugin);
                 }
 
@@ -59,24 +59,29 @@ public class TrailerScanner {
     public boolean isTrailersNeedRescan(Movie movie) {
         // Can the movie have trailers?
         if (!movie.canHaveTrailers()) {
-            return false;
+            return Boolean.FALSE;
+        }
+
+        if (!trailersPlugin.isScanForTrailer(movie)) {
+            logger.debug(logMessage + "Scanning skipped because " + movie.getBaseName() + " is not HD");
+            return Boolean.FALSE;
         }
 
         // Does the trailer need to be overwritten?
-        if (trailersPlugin.getOverwrite()) {
-            return true;
+        if (trailersPlugin.isOverwrite()) {
+            return Boolean.TRUE;
         }
 
         // Check if this movie was already checked for trailers
         if (movie.isTrailerExchange()) {
-            logger.debug("Trailers Plugin: Movie " + movie.getTitle() + " has previously been checked for trailers, skipping.");
-            return false;
+            logger.debug(logMessage + "Movie " + movie.getTitle() + " has previously been checked for trailers, skipping.");
+            return Boolean.FALSE;
         }
 
         // Check if we need to scan or rescan for trailers
         long now = new Date().getTime();
         if ((now - movie.getTrailerLastScan()) < trailersRescanDaysMillis) {
-            return false;
+            return Boolean.FALSE;
         }
 
         return true;
@@ -85,16 +90,16 @@ public class TrailerScanner {
     public boolean getTrailers(Movie movie) {
         // Check if we need to scan at all
         if (!isTrailersNeedRescan(movie)) {
-            return false;
+            return Boolean.FALSE;
         }
 
-        boolean result = false;
+        boolean result = Boolean.FALSE;
         String trailersSearchToken;
 
         StringTokenizer st = new StringTokenizer(trailersScanner, ",");
         while (st.hasMoreTokens() && !result) {
             trailersSearchToken = st.nextToken();
-            ITrailersPlugin trailerPlugin = trailerPlugins.get(trailersSearchToken);
+            ITrailerPlugin trailerPlugin = trailerPlugins.get(trailersSearchToken);
             if (trailerPlugin == null) {
                 logger.error(logMessage + "'" + trailersSearchToken + "' plugin doesn't exist, please check your moviejukebox properties. Valid plugins are : " + trailerPluginList);
             } else {
@@ -103,9 +108,9 @@ public class TrailerScanner {
         }
 
         // Update trailerExchange
-        if (result == false) {
+        if (result == Boolean.FALSE) {
             // Set trailerExchange to true if trailersRescanDaysMillis is < 0 (disable)
-            result = trailersRescanDaysMillis < 0 ? true : false;
+            result = trailersRescanDaysMillis < 0 ? Boolean.TRUE : Boolean.FALSE;
         }
         movie.setTrailerExchange(result);
 

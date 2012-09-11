@@ -27,6 +27,7 @@ MovieJukebox 2.7-SNAPSHOT
  - Fixed defect #2453 Kinopoisk fix due to changed web pages
  - Fixed defect #2470 Kinopoisk fix due to changed web pages
  - Enhancement  #2480 Disable playlist creation (for iSkin)
+ - Enhancement  #2482 Scan for trailers for HD videos only
 
 MovieJukebox 2.6.1 (21-Mar-2012)
 --------------------------------

@@ -14,7 +14,7 @@ package com.moviejukebox.plugin.trailer;
 
 import com.moviejukebox.model.Movie;
 
-public interface ITrailersPlugin {
+public interface ITrailerPlugin {
 
     boolean generate(Movie movie);
 
