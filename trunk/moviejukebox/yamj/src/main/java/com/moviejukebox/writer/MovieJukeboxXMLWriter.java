@@ -431,10 +431,10 @@ public class MovieJukeboxXMLWriter {
                                         Element eCodec = (Element) nCodec;
 
                                         Codec codec;
-                                        if (Codec.CodecType.VIDEO.toString().equalsIgnoreCase(codecType)) {
-                                            codec = new Codec(Codec.CodecType.VIDEO);
+                                        if (CodecType.VIDEO.toString().equalsIgnoreCase(codecType)) {
+                                            codec = new Codec(CodecType.VIDEO);
                                         } else {
-                                            codec = new Codec(Codec.CodecType.AUDIO);
+                                            codec = new Codec(CodecType.AUDIO);
                                         }
                                         codec.setCodecId(eCodec.getAttribute("codecId"));
                                         codec.setCodecIdHint(eCodec.getAttribute("codecIdHint"));
@@ -443,11 +443,18 @@ public class MovieJukeboxXMLWriter {
                                         codec.setCodecFormatVersion(eCodec.getAttribute("formatVersion"));
                                         codec.setCodecLanguage(eCodec.getAttribute("language"));
                                         codec.setCodecBitRate(eCodec.getAttribute("bitrate"));
-                                        String tmpChannels = eCodec.getAttribute("channels");
-                                        if (StringUtils.isNotBlank(tmpChannels)) {
+                                        String tmpValue = eCodec.getAttribute("channels");
+                                        if (StringUtils.isNotBlank(tmpValue)) {
                                             codec.setCodecChannels(Integer.parseInt(eCodec.getAttribute("channels")));
                                         }
                                         codec.setCodec(eCodec.getTextContent().trim());
+
+                                        tmpValue = eCodec.getAttribute("source");
+                                        if (StringTools.isValidString(tmpValue)) {
+                                            codec.setCodecSource(CodecSource.fromString(tmpValue));
+                                        } else {
+                                            codec.setCodecSource(CodecSource.UNKNOWN);
+                                        }
 
                                         movie.addCodec(codec);
                                     }
@@ -2289,15 +2296,15 @@ public class MovieJukeboxXMLWriter {
             codecAttribs.put("formatVersion", codec.getCodecFormatVersion());
             codecAttribs.put("codecId", codec.getCodecId());
             codecAttribs.put("codecIdHint", codec.getCodecIdHint());
-            if (codec.getCodecType() == Codec.CodecType.AUDIO) {
+            codecAttribs.put("source", codec.getCodecSource().toString());
+            codecAttribs.put("bitrate", codec.getCodecBitRate());
+            if (codec.getCodecType() == CodecType.AUDIO) {
                 codecAttribs.put("language", codec.getCodecLanguage());
                 codecAttribs.put("langugageFull", codec.getCodecFullLanguage());
                 codecAttribs.put("channels", String.valueOf(codec.getCodecChannels()));
-                codecAttribs.put("bitrate", codec.getCodecBitRate());
                 DOMHelper.appendChild(doc, eCodecAudio, "codec", codec.getCodec(), codecAttribs);
                 countAudio++;
             } else {
-                codecAttribs.put("bitrate", codec.getCodecBitRate());
                 DOMHelper.appendChild(doc, eCodecVideo, "codec", codec.getCodec(), codecAttribs);
                 countVideo++;
             }

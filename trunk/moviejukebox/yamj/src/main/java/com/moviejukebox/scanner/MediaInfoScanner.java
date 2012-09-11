@@ -13,7 +13,8 @@
 package com.moviejukebox.scanner;
 
 import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.Codec.CodecType;
+import com.moviejukebox.model.CodecSource;
+import com.moviejukebox.model.CodecType;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.*;
 import com.mucommander.file.AbstractFile;
@@ -414,7 +415,7 @@ public class MediaInfoScanner {
             }
 
             // Add the video codec to the list
-            Codec codecToAdd = getCodecInfo(Codec.CodecType.VIDEO, infosMainVideo);
+            Codec codecToAdd = getCodecInfo(CodecType.VIDEO, infosMainVideo);
             if (overallBitrate && StringTools.isNotValidString(codecToAdd.getCodecBitRate())) {
                 infoValue = infosGeneral.get(Codec.MI_CODEC_OVERALL_BITRATE);
                 if (StringUtils.isNotBlank(infoValue)) {
@@ -542,7 +543,7 @@ public class MediaInfoScanner {
             }
 
             // Add the audio codec to the list
-            Codec codecToAdd = getCodecInfo(Codec.CodecType.AUDIO, infosCurAudio);
+            Codec codecToAdd = getCodecInfo(CodecType.AUDIO, infosCurAudio);
             movie.addCodec(codecToAdd);
         }
 
@@ -633,6 +634,7 @@ public class MediaInfoScanner {
      */
     protected Codec getCodecInfo(CodecType codecType, Map<String, String> codecInfos) {
         Codec codec = new Codec(codecType);
+        codec.setCodecSource(CodecSource.MEDIAINFO);
 
         codec.setCodec(codecInfos.get(Codec.MI_CODEC));
         codec.setCodecFormat(codecInfos.get(Codec.MI_CODEC_FORMAT));
@@ -653,7 +655,7 @@ public class MediaInfoScanner {
                 codec.setCodecBitRate(infoValue);
                 break;
             }
-            if (codecType.equals(Codec.CodecType.AUDIO) && key.equals(Codec.MI_CODEC_BITRATE)) {
+            if (codecType.equals(CodecType.AUDIO) && key.equals(Codec.MI_CODEC_BITRATE)) {
                 break;
             }
         }

@@ -31,6 +31,7 @@ public class Codec {
     private String codecLanguage = Movie.UNKNOWN;
     private String codecFullLanguage = Movie.UNKNOWN;   // Determined automatically from the codecLanguage
     private String codecBitRate = Movie.UNKNOWN;
+    private CodecSource codecSource = CodecSource.UNKNOWN;
     private int codecChannels = 0;
     /*
      * List of the expected names in the MediaInfo data
@@ -54,6 +55,7 @@ public class Codec {
      */
     public Codec(CodecType codecType) {
         this.codecType = codecType;
+        this.codecSource = CodecSource.UNKNOWN;
     }
 
     /**
@@ -63,6 +65,7 @@ public class Codec {
      */
     protected Codec() {
         this.codecType = CodecType.AUDIO;
+        this.codecSource = CodecSource.UNKNOWN;
     }
 
     /**
@@ -74,8 +77,10 @@ public class Codec {
     public Codec(CodecType codecType, String codec) {
         this.codecType = codecType;
         this.codec = codec;
+        this.codecSource = CodecSource.UNKNOWN;
     }
 
+    //<editor-fold defaultstate="collapsed" desc="Setter Methods">
     public void setCodec(String codec) {
         if (StringUtils.isBlank(codec)) {
             this.codecFormat = Movie.UNKNOWN;
@@ -161,6 +166,12 @@ public class Codec {
         this.codecFullLanguage = codecFullLanguage;
     }
 
+    public void setCodecSource(CodecSource codecSource) {
+        this.codecSource = codecSource;
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Getter Methods">
     public String getCodec() {
         return codec;
     }
@@ -205,6 +216,11 @@ public class Codec {
         return codecFullLanguage;
     }
 
+    public CodecSource getCodecSource() {
+        return codecSource;
+    }
+    //</editor-fold>
+
     /**
      * Check to see if this is a MediaInfo codec or an empty NFO codec
      *
@@ -215,12 +231,6 @@ public class Codec {
                 && StringTools.isValidString(codecFormat)
                 && StringTools.isValidString(codecId));
     }
-
-    public enum CodecType {
-
-        AUDIO,
-        VIDEO;
-    };
 
     @Override
     public String toString() {
@@ -235,8 +245,27 @@ public class Codec {
         sb.append("], [codecLanguage=").append(codecLanguage);
         sb.append("], [codecBitRate=").append(codecBitRate);
         sb.append("], [codecChannels=").append(codecChannels);
+        sb.append("], [codecSource=").append(codecSource.toString());
         sb.append("]]");
         return sb.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + (this.codecType != null ? this.codecType.hashCode() : 0);
+        hash = 97 * hash + (this.codec != null ? this.codec.hashCode() : 0);
+        hash = 97 * hash + (this.codecFormat != null ? this.codecFormat.hashCode() : 0);
+        hash = 97 * hash + (this.codecId != null ? this.codecId.hashCode() : 0);
+        hash = 97 * hash + (this.codecIdHint != null ? this.codecIdHint.hashCode() : 0);
+        hash = 97 * hash + (this.codecFormatVersion != null ? this.codecFormatVersion.hashCode() : 0);
+        hash = 97 * hash + (this.codecFormatProfile != null ? this.codecFormatProfile.hashCode() : 0);
+        hash = 97 * hash + (this.codecLanguage != null ? this.codecLanguage.hashCode() : 0);
+        hash = 97 * hash + (this.codecFullLanguage != null ? this.codecFullLanguage.hashCode() : 0);
+        hash = 97 * hash + (this.codecBitRate != null ? this.codecBitRate.hashCode() : 0);
+        hash = 97 * hash + (this.codecSource != null ? this.codecSource.hashCode() : 0);
+        hash = 97 * hash + this.codecChannels;
+        return hash;
     }
 
     @Override
@@ -272,24 +301,19 @@ public class Codec {
         if ((this.codecLanguage == null) ? (other.codecLanguage != null) : !this.codecLanguage.equals(other.codecLanguage)) {
             return false;
         }
+        if ((this.codecFullLanguage == null) ? (other.codecFullLanguage != null) : !this.codecFullLanguage.equals(other.codecFullLanguage)) {
+            return false;
+        }
+        if ((this.codecBitRate == null) ? (other.codecBitRate != null) : !this.codecBitRate.equals(other.codecBitRate)) {
+            return false;
+        }
+        if (this.codecSource != other.codecSource) {
+            return false;
+        }
         if (this.codecChannels != other.codecChannels) {
             return false;
         }
         return true;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 17 * hash + (this.codecType != null ? this.codecType.hashCode() : 0);
-        hash = 17 * hash + (this.codec != null ? this.codec.hashCode() : 0);
-        hash = 17 * hash + (this.codecFormat != null ? this.codecFormat.hashCode() : 0);
-        hash = 17 * hash + (this.codecId != null ? this.codecId.hashCode() : 0);
-        hash = 17 * hash + (this.codecIdHint != null ? this.codecIdHint.hashCode() : 0);
-        hash = 17 * hash + (this.codecFormatVersion != null ? this.codecFormatVersion.hashCode() : 0);
-        hash = 17 * hash + (this.codecFormatProfile != null ? this.codecFormatProfile.hashCode() : 0);
-        hash = 17 * hash + (this.codecLanguage != null ? this.codecLanguage.hashCode() : 0);
-        hash = 17 * hash + this.codecChannels;
-        return hash;
-    }
 }
