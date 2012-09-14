@@ -154,7 +154,13 @@ public class PosterScanner {
 
         // Try searching the fileCache for the filename, but only for non-fixed filenames
         if (!foundLocalPoster && !SEARCH_FOR_EXISTING_POSTER.equalsIgnoreCase(EXISTING_FIXED)) {
-            localPosterFile = FileTools.findFilenameInCache(localPosterBaseFilename, POSTER_EXTENSIONS, jukebox, logMessage, Boolean.TRUE);
+            Boolean searchInJukebox = Boolean.TRUE;
+            // if the poster URL is invalid, but the poster filename is valid, then this is likely a recheck, so don't search on the jukebox folder
+            if (StringTools.isNotValidString(movie.getPosterURL()) && StringTools.isValidString(movie.getPosterFilename())) {
+                searchInJukebox = Boolean.FALSE;
+            }
+
+            localPosterFile = FileTools.findFilenameInCache(localPosterBaseFilename, POSTER_EXTENSIONS, jukebox, logMessage, searchInJukebox);
             if (localPosterFile != null) {
                 foundLocalPoster = true;
             }
