@@ -122,7 +122,7 @@ public class FileTools {
         }
     }
 
-    public static int copy(InputStream is, OutputStream os, WebStats stats) throws IOException {
+    public static int copy(InputStream is, OutputStream os) throws IOException {
         int bytesCopied = 0;
         byte[] buffer = THREAD_BUFFER.get();
         try {
@@ -132,9 +132,6 @@ public class FileTools {
                     break;
                 } else {
                     bytesCopied += amountRead;
-                    if (stats != null) {
-                        stats.bytes(amountRead);
-                    }
                 }
                 os.write(buffer, 0, amountRead);
             }
@@ -155,10 +152,6 @@ public class FileTools {
             }
         }
         return bytesCopied;
-    }
-
-    public static int copy(InputStream is, OutputStream os) throws IOException {
-        return copy(is, os, null);
     }
 
     public static void copyFile(String src, String dst) {

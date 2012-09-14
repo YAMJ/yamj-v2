@@ -19,6 +19,14 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.*;
 import com.moviejukebox.tools.downloader.Downloader;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -178,7 +186,10 @@ public class TrailerPlugin implements ITrailerPlugin {
     public boolean trailerDownload(final IMovieBasicInformation movie, String trailerUrlString, File trailerFile) {
         ThreadExecutor.enterIO(trailerUrlString);
         try {
+            logger.debug(logMessage + "Attempting to download URL " + trailerUrlString + ", saving to " + trailerFile.getAbsolutePath());
+
             Downloader dl = new Downloader(trailerFile.getAbsolutePath(), trailerUrlString, trailersShowProgress);
+
             if (dl.isDownloadOk()) {
                 logger.info("Trailer downloaded in " + dl.getDownloadTime());
 
@@ -191,4 +202,5 @@ public class TrailerPlugin implements ITrailerPlugin {
             ThreadExecutor.leaveIO();
         }
     }
+
 }

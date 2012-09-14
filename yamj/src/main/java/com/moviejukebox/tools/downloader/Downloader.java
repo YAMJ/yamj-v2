@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.tools.downloader;
 
+import com.moviejukebox.tools.WebBrowser;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -42,12 +43,14 @@ public final class Downloader implements RBCWrapperDelegate {
     private boolean showProgress = Boolean.TRUE;
     private boolean downloadOk;
     private long downloadTime;
+    public static final String USER_AGENT_APPLE = "QuickTime/7.6.2";
+    public static final String USER_AGENT_NORMAL = "Mozilla/4.0 (compatible)";
 
     public Downloader(String localPath, String remoteURL, boolean showProgress) {
         this.showProgress = showProgress;
         this.downloadOk = Boolean.FALSE;
-        // The time the download started
         this.downloadTime = 0L;
+        // The time the download started
         long startTime = System.currentTimeMillis();
 
         FileOutputStream fos = null;
@@ -63,7 +66,19 @@ public final class Downloader implements RBCWrapperDelegate {
                 return;
             }
 
-            rbc = new RBCWrapper(Channels.newChannel(url.openStream()), contentLength, this);
+            WebBrowser wb = new WebBrowser();
+            HttpURLConnection connection = (HttpURLConnection) wb.openProxiedConnection(url);
+
+            if (remoteURL.toLowerCase().contains(".apple.")) {
+                LOGGER.debug(logMessage + "Using Apple user agent - '" + USER_AGENT_APPLE + "'");
+                connection.setRequestProperty("User-Agent", USER_AGENT_APPLE);
+            } else {
+                LOGGER.debug(logMessage + "Using normal user agent - '" + USER_AGENT_NORMAL + "'");
+                connection.setRequestProperty("User-Agent", USER_AGENT_NORMAL);
+            }
+
+            rbc = new RBCWrapper(Channels.newChannel(connection.getInputStream()), contentLength, this);
+//            rbc = new RBCWrapper(Channels.newChannel(url.openStream()), contentLength, this);
             fos = new FileOutputStream(localPath);
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 
@@ -98,6 +113,7 @@ public final class Downloader implements RBCWrapperDelegate {
 
     /**
      * Format the download time
+     *
      * @return
      */
     public String getDownloadTime() {
@@ -117,6 +133,12 @@ public final class Downloader implements RBCWrapperDelegate {
         }
     }
 
+    /**
+     * Get the content length from the header
+     *
+     * @param url
+     * @return
+     */
     private int contentLength(URL url) {
         HttpURLConnection connection;
         int contentLength = -1;
@@ -126,8 +148,8 @@ public final class Downloader implements RBCWrapperDelegate {
 
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("HEAD");
-
             contentLength = connection.getContentLength();
+            connection.disconnect();
         } catch (IOException ex) {
             LOGGER.trace(logMessage + "Failed to get length from header: " + ex.getMessage());
         }
