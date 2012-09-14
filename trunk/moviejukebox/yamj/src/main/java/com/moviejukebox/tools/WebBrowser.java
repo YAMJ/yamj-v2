@@ -140,14 +140,16 @@ public class WebBrowser {
                     // Attempt to force close connection
                     // We have HTTP connections, so these are always valid
                     content.flush();
-                } catch (Exception error) {
-                    logger.error(logMessage + "Error getting URL " + url.toString() + ", " + error.getMessage());
+                } catch (FileNotFoundException ex) {
+                    logger.error(logMessage + "URL not found: " + url.toString());
+                } catch (IOException ex) {
+                    logger.error(logMessage + "Error getting URL " + url.toString() + ", " + ex.getMessage());
                 } finally {
                     if (in != null) {
                         in.close();
                     }
                 }
-            } catch (SocketTimeoutException error) {
+            } catch (SocketTimeoutException ex) {
                 logger.error(logMessage + "Timeout Error with " + url.toString());
             } finally {
                 if (cnx != null) {
@@ -210,7 +212,8 @@ public class WebBrowser {
     }
 
     /**
-     * Check the URL to see if it's one of the special cases that needs to be worked around
+     * Check the URL to see if it's one of the special cases that needs to be
+     * worked around
      *
      * @param URL The URL to check
      * @param cnx The connection that has been opened

@@ -16,7 +16,9 @@ import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -38,6 +40,10 @@ public class AppleTrailersPlugin extends TrailerPlugin {
     private static int configMax = PropertiesUtil.getIntProperty("appletrailers.max", "0");
     private static boolean configTypesInclude = PropertiesUtil.getBooleanProperty("appletrailers.typesinclude", "true");
     private static String configReplaceUrl = PropertiesUtil.getProperty("appletrailers.replaceurl", "www.apple.com");
+    private static final String EXTENSIONS = "mov|m4v";
+    private static final String SUBDOMAINS = "movies|images|trailers";
+    private static final Pattern TRAILER_URL_PATTERN = Pattern.compile("http://(" + SUBDOMAINS + ").apple.com/movies/[^\\\"]+\\.(" + EXTENSIONS + ")");
+    private static final String[] RESOLUTION_ARRAY = {"1080p", "720p", "480p", "640", "480"};
 
     public AppleTrailersPlugin() {
         super();
@@ -192,7 +198,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
                 }
             }
 
-        } catch (Exception error) {
+        } catch (IOException error) {
             logger.error(logMessage + "Failed retreiving trailer for movie : " + movieName);
             logger.error(SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
@@ -212,80 +218,50 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             // New URL
             String trailerPageUrlNew = trailerPageUrl.replace("//www.apple.com/", "//trailers.apple.com/");
 
-            String trailerPageUrlHD = getAbsUrl(trailerPageUrlNew, "hd");
-            String xmlHD = getSubPage(trailerPageUrlHD);
-            // Try to find the movie link on the HD page
-            getTrailerMovieUrl(xmlHD, trailersUrl);
-
             String trailerPageUrlWebInc = getAbsUrl(trailerPageUrlNew, "includes/playlists/web.inc");
             String xmlWebInc = getSubPage(trailerPageUrlWebInc);
             // Try to find the movie link on the WebInc page
             getTrailerMovieUrl(xmlWebInc, trailersUrl);
 
-            String trailerPageUrlHDWebInc = getAbsUrl(trailerPageUrlNew, "hd/includes/playlists/web.inc");
-            String xmlHDWebInc = getSubPage(trailerPageUrlHDWebInc);
-            // Try to find the movie link on the WebInc HD page
-            getTrailerMovieUrl(xmlHDWebInc, trailersUrl);
+            // Search for the 'HD' Page
+            String trailerPageUrlHD = getAbsUrl(trailerPageUrlNew, "hd");
+            String xmlHD = getSubPage(trailerPageUrlHD);
 
-            // // Go over the href links and check the sub pages
-            //
-            // int index = 0;
-            // int endIndex = 0;
-            // while (true) {
-            // index = xml.indexOf("href=\"", index);
-            // if (index == -1) {
-            // break;
-            // }
-            //
-            // index += 6;
-            //
-            // endIndex = xml.indexOf("\"", index);
-            // if (endIndex == -1) {
-            // break;
-            // }
-            //
-            // String href = xml.substring(index, endIndex);
-            //
-            // index = endIndex + 1;
-            //
-            // String absHref = getAbsUrl(trailerPageUrl, href);
-            //
-            // // Check if this href is a sub page of this trailer
-            // if (absHref.startsWith(trailerPageUrl)) {
-            //
-            // String subXml = getSubPage(absHref);
-            //
-            // // Try to find the movie link on the sub page
-            // getTrailerMovieUrl(subXml, trailersUrl);
-            // }
-            // }
+            // Only search if the HD URL is valid
+            if (StringTools.isValidString(xmlHD)) {
+                // Try to find the movie link on the HD page
+                getTrailerMovieUrl(xmlHD, trailersUrl);
 
-        } catch (Exception error) {
-            logger.error(logMessage + "Error : " + error.getMessage());
-            logger.error(SystemTools.getStackTrace(error));
+                String trailerPageUrlHDWebInc = getAbsUrl(trailerPageUrlHD, "includes/playlists/web.inc");
+                String xmlHDWebInc = getSubPage(trailerPageUrlHDWebInc);
+                // Try to find the movie link on the WebInc HD page
+                getTrailerMovieUrl(xmlHDWebInc, trailersUrl);
+            } else {
+                logger.debug(logMessage + "No valid HD URL found for " + trailerPageUrl);
+            }
+        } catch (IOException ex) {
+            logger.error(logMessage + "Error : " + ex.getMessage());
+            logger.error(SystemTools.getStackTrace(ex));
         }
     }
 
     // Get sub page url - if error return empty page
     private String getSubPage(String url) {
-
-        String ret = "";
         Level oldlevel = logger.getLevel();
 
         try {
             // Don't log error getting URL
             logger.setLevel(Level.OFF);
-            ret = webBrowser.request(url);
-            logger.setLevel(oldlevel);
-            return ret;
+            return webBrowser.request(url);
         } catch (Exception error) {
+            return "";
+        } finally {
             logger.setLevel(oldlevel);
-            return ret;
         }
     }
 
     private void getTrailerMovieUrl(String xml, Set<String> trailersUrl) {
-        Matcher m = Pattern.compile("http://(movies|images|trailers).apple.com/movies/[^\"]+?-(tlr|trailer)[^\"]+?\\.(mov|m4v)").matcher(xml);
+        Matcher m = TRAILER_URL_PATTERN.matcher(xml);
         while (m.find()) {
             String movieUrl = m.group();
             trailersUrl.add(movieUrl);
@@ -294,10 +270,9 @@ public class AppleTrailersPlugin extends TrailerPlugin {
 
     private void selectBestTrailer(Set<String> trailersUrl, Set<String> bestTrailersUrl) {
 
-        String[] resolutionArray = {"1080p", "720p", "480p", "640", "480"};
         boolean startSearch = false;
 
-        for (String resolution : resolutionArray) {
+        for (String resolution : RESOLUTION_ARRAY) {
             if (configResolution.equals(resolution)) {
                 startSearch = true;
             }
