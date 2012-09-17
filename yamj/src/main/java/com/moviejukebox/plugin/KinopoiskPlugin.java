@@ -272,7 +272,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
             }
 
-            sb = "http://s.kinopoisk.ru/index.php?level=7&from=forma&result=adv&m_act[from]=forma&m_act[what]=content" + sb;
+            sb = "http://kinopoisk.ru/index.php?level=7&from=forma&result=adv&m_act[from]=forma&m_act[what]=content" + sb;
             String xml = webBrowser.request(sb);
 
             // Checking for zero results
