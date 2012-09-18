@@ -42,6 +42,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.apache.sanselan.ImageReadException;
 
 public class MovieJukebox {
 
@@ -2071,8 +2072,10 @@ public class MovieJukebox {
                     bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                     GraphicTools.saveImageToDisk(bannerImage, tmpDestFilename);
                 }
-            } catch (IOException error) {
-                logger.debug("MovieJukebox: Failed generate banner : " + tmpDestFilename + " - Error: " + error.getMessage());
+            } catch (ImageReadException ex) {
+                logger.debug("MovieJukebox: Failed read banner: " + tmpDestFilename + " - Error: " + ex.getMessage());
+            } catch (IOException ex) {
+                logger.debug("MovieJukebox: Failed generate banner: " + tmpDestFilename + " - Error: " + ex.getMessage());
             }
         }
     }
@@ -2269,15 +2272,15 @@ public class MovieJukebox {
      */
     public static void createPoster(MovieImagePlugin posterManager, Jukebox jukebox, String skinHome, Movie movie,
             boolean forcePosterOverwrite) {
-        try {
-            // Issue 201 : we now download to local temporary directory
-            String safePosterFilename = movie.getPosterFilename();
-            String safeDetailPosterFilename = movie.getDetailPosterFilename();
-            File src = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + safePosterFilename);
-            File oldsrc = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename);
-            String dst = jukebox.getJukeboxTempLocationDetails() + File.separator + safeDetailPosterFilename;
-            String olddst = jukebox.getJukeboxRootLocationDetails() + File.separator + safeDetailPosterFilename;
-            File fin;
+
+        // Issue 201 : we now download to local temporary directory
+        String safePosterFilename = movie.getPosterFilename();
+        String safeDetailPosterFilename = movie.getDetailPosterFilename();
+        File src = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + safePosterFilename);
+        File oldsrc = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename);
+        String dst = jukebox.getJukeboxTempLocationDetails() + File.separator + safeDetailPosterFilename;
+        String olddst = jukebox.getJukeboxRootLocationDetails() + File.separator + safeDetailPosterFilename;
+        File fin;
 
 //            logger.info("Dirty     : " + movie.isDirty(DirtyFlag.POSTER));
 //            logger.info("FPO       : " + forcePosterOverwrite);
@@ -2287,76 +2290,88 @@ public class MovieJukebox {
 //            logger.info("src       : " + src.getAbsolutePath());
 //            logger.info("oldsrc    : " + oldsrc.getAbsolutePath());
 
-            if (movie.isDirty(DirtyFlag.POSTER)
-                    || forcePosterOverwrite
-                    || !FileTools.fileCache.fileExists(olddst)
-                    || src.exists()) {
-                // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
-                if (src.exists()) {
-                    logger.debug("CreatePoster: New file exists (" + src + ")");
-                    fin = src;
-                } else {
-                    logger.debug("CreatePoster: Using old file (" + oldsrc + ")");
-                    fin = oldsrc;
-                }
+        if (movie.isDirty(DirtyFlag.POSTER)
+                || forcePosterOverwrite
+                || !FileTools.fileCache.fileExists(olddst)
+                || src.exists()) {
+            // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
+            if (src.exists()) {
+                logger.debug("CreatePoster: New file exists (" + src + ")");
+                fin = src;
+            } else {
+                logger.debug("CreatePoster: Using old file (" + oldsrc + ")");
+                fin = oldsrc;
+            }
 
-                BufferedImage bi = null;
+            BufferedImage bi = null;
+            try {
+                bi = GraphicTools.loadJPEGImage(fin);
+            } catch (IOException ex) {
+                logger.warn("Error processing the poster file: " + fin.getAbsolutePath());
+                logger.error(SystemTools.getStackTrace(ex));
+            } catch (ImageReadException ex) {
+                logger.warn("Error reading the poster file: " + fin.getAbsolutePath());
+                logger.error(SystemTools.getStackTrace(ex));
+            }
+
+            if (bi == null) {
+                // There was an error with the URL, assume it's a bad URL and clear it so we try again
+                movie.setPosterURL(Movie.UNKNOWN);
+                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), oldsrc);
                 try {
-                    bi = GraphicTools.loadJPEGImage(fin);
-                } catch (Exception error) {
-                    logger.warn("Error reading the poster file: " + fin.getAbsolutePath());
-                }
-
-                if (bi == null) {
-                    logger.info("Using dummy poster image for " + movie.getOriginalTitle());
-                    // There was an error with the URL, assume it's a bad URL and clear it so we try again
-                    movie.setPosterURL(Movie.UNKNOWN);
-                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), oldsrc);
                     bi = GraphicTools.loadJPEGImage(src);
-                }
-                logger.debug("Generating poster from " + src + " to " + dst);
-
-                // Perspective code.
-                String perspectiveDirection = getProperty("posters.perspectiveDirection", "right");
-
-                // Generate and save both images
-                if (perspectiveDirection.equalsIgnoreCase("both")) {
-                    // Calculate mirror poster name.
-                    String dstMirror = new String(dst.substring(0, dst.lastIndexOf('.'))) + "_mirror" + new String(dst.substring(dst.lastIndexOf('.')));
-
-                    // Generate left & save as copy
-                    logger.debug("Generating mirror poster from " + src + " to " + dstMirror);
-                    BufferedImage biMirror = posterManager.generate(movie, bi, "posters", "left");
-                    GraphicTools.saveImageToDisk(biMirror, dstMirror);
-
-                    // Generate right as per normal
-                    logger.debug("Generating right poster from " + src + " to " + dst);
-                    bi = posterManager.generate(movie, bi, "posters", "right");
-                    GraphicTools.saveImageToDisk(bi, dst);
-                }
-
-                // Only generate the right image
-                if (perspectiveDirection.equalsIgnoreCase("right")) {
-                    bi = posterManager.generate(movie, bi, "posters", "right");
-
-                    // Save the right perspective image.
-                    GraphicTools.saveImageToDisk(bi, dst);
-                    logger.debug("Generating right poster from " + src + " to " + dst);
-                }
-
-                // Only generate the left image
-                if (perspectiveDirection.equalsIgnoreCase("left")) {
-                    bi = posterManager.generate(movie, bi, "posters", "left");
-
-                    // Save the right perspective image.
-                    GraphicTools.saveImageToDisk(bi, dst);
-                    logger.debug("Generating left poster from " + src + " to " + dst);
+                    logger.info("Using dummy poster image for " + movie.getOriginalTitle());
+                } catch (IOException ex) {
+                    logger.warn("Error processing the dummy poster file: " + src.getAbsolutePath());
+                    logger.error(SystemTools.getStackTrace(ex));
+                } catch (ImageReadException ex) {
+                    logger.warn("Error reading the dummy poster file: " + src.getAbsolutePath());
+                    logger.error(SystemTools.getStackTrace(ex));
                 }
             }
-        } catch (Exception error) {
-            logger.error("Failed creating poster for " + movie.getOriginalTitle());
-            logger.error(SystemTools.getStackTrace(error));
+            logger.debug("Generating poster from " + src + " to " + dst);
+
+            // Perspective code.
+            String perspectiveDirection = getProperty("posters.perspectiveDirection", "right");
+
+            // Generate and save both images
+            if (perspectiveDirection.equalsIgnoreCase("both")) {
+                // Calculate mirror poster name.
+                String dstMirror = new String(dst.substring(0, dst.lastIndexOf('.'))) + "_mirror" + new String(dst.substring(dst.lastIndexOf('.')));
+
+                // Generate left & save as copy
+                logger.debug("Generating mirror poster from " + src + " to " + dstMirror);
+                BufferedImage biMirror = posterManager.generate(movie, bi, "posters", "left");
+                GraphicTools.saveImageToDisk(biMirror, dstMirror);
+
+                // Generate right as per normal
+                logger.debug("Generating right poster from " + src + " to " + dst);
+                bi = posterManager.generate(movie, bi, "posters", "right");
+                GraphicTools.saveImageToDisk(bi, dst);
+            }
+
+            // Only generate the right image
+            if (perspectiveDirection.equalsIgnoreCase("right")) {
+                bi = posterManager.generate(movie, bi, "posters", "right");
+
+                // Save the right perspective image.
+                GraphicTools.saveImageToDisk(bi, dst);
+                logger.debug("Generating right poster from " + src + " to " + dst);
+            }
+
+            // Only generate the left image
+            if (perspectiveDirection.equalsIgnoreCase("left")) {
+                bi = posterManager.generate(movie, bi, "posters", "left");
+
+                // Save the right perspective image.
+                GraphicTools.saveImageToDisk(bi, dst);
+                logger.debug("Generating left poster from " + src + " to " + dst);
+            }
         }
+//        } catch (Exception error) {
+//            logger.error("Failed creating poster for " + movie.getOriginalTitle());
+//            logger.error(SystemTools.getStackTrace(error));
+//        }
     }
 
     public static boolean isJukeboxPreserve() {

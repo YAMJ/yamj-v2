@@ -25,6 +25,7 @@ import java.util.Iterator;
 import javax.imageio.*;
 import javax.imageio.stream.FileImageOutputStream;
 import org.apache.log4j.Logger;
+import org.apache.sanselan.ImageReadException;
 
 public class GraphicTools {
 
@@ -39,6 +40,7 @@ public class GraphicTools {
      * @param fis
      * @return
      */
+    @Deprecated
     private static BufferedImage loadJPEGImage(InputStream fis) {
         // Create BufferedImage
         BufferedImage bi = null;
@@ -63,8 +65,8 @@ public class GraphicTools {
             if (fis != null) {
                 try {
                     fis.close();
-                } catch (Exception error) {
-                    logger.warn(SystemTools.getStackTrace(error));
+                } catch (Exception ex) {
+                    logger.warn(SystemTools.getStackTrace(ex));
                 }
             }
         }
@@ -78,7 +80,7 @@ public class GraphicTools {
      * @return
      * @throws IOException
      */
-    public static BufferedImage loadJPEGImage(String filename) throws IOException {
+    public static BufferedImage loadJPEGImage(String filename) throws IOException, ImageReadException {
         return loadJPEGImage(new File(filename));
     }
 
@@ -89,11 +91,9 @@ public class GraphicTools {
      * @return
      * @throws IOException
      */
-    public static BufferedImage loadJPEGImage(File fileImage) throws IOException {
-        InputStream inImage = FileTools.createFileInputStream(fileImage);
-        BufferedImage biImage = loadJPEGImage(inImage);
-        inImage.close();
-        return biImage;
+    public static BufferedImage loadJPEGImage(File fileImage) throws IOException, ImageReadException {
+        JpegReader jr = new JpegReader();
+        return jr.readImage(fileImage);
     }
 
     /**
