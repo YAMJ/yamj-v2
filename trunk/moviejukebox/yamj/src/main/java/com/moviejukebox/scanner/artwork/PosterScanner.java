@@ -24,6 +24,7 @@ import com.moviejukebox.plugin.poster.ITvShowPosterPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import java.awt.Dimension;
 import java.awt.color.CMMException;
 import java.io.File;
@@ -34,6 +35,7 @@ import java.util.*;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -167,9 +169,11 @@ public class PosterScanner {
         }
 
         /**
-         * This part will look for a filename with the same name as the directory for the poster or for folder.* poster
-         * The intention is for you to be able to create the season / TV series art for the whole series and not for the
-         * first show. Useful if you change the files regularly.
+         * This part will look for a filename with the same name as the
+         * directory for the poster or for folder.* poster The intention is for
+         * you to be able to create the season / TV series art for the whole
+         * series and not for the first show. Useful if you change the files
+         * regularly.
          *
          * @author Stuart.Boston
          * @version 1.0
@@ -273,11 +277,12 @@ public class PosterScanner {
     }
 
     /**
-     * Locate the PosterURL from the Internet. This is the main method and should be called instead of the individual
-     * getPosterFrom* methods.
+     * Locate the PosterURL from the Internet. This is the main method and
+     * should be called instead of the individual getPosterFrom* methods.
      *
      * @param movie The movieBean to search for
-     * @return The posterImage with poster url that was found (Maybe Image.UNKNOWN)
+     * @return The posterImage with poster url that was found (Maybe
+     * Image.UNKNOWN)
      */
     public static IImage getPosterURL(Movie movie) {
         String posterSearchToken;
@@ -397,16 +402,50 @@ public class PosterScanner {
     }
 
     /**
-     * Read an URL and get the dimensions of the image
+     * Read an URL and get the dimensions of the image.
+     *
+     * This will try to determine the image type from the URL, if that fails
+     * then it will default to JPEG.
+     *
+     * If the reading of the image fails, then the other type (PNG or JPEG) will
+     * be used instead in case there was an incorrectly named extension
      *
      * @param imageUrl
      * @return
      */
     public static Dimension getUrlDimensions(String imageUrl) {
+        String imageExtension = FilenameUtils.getExtension(imageUrl);
+        if (StringUtils.isBlank(imageExtension)) {
+            imageExtension = "jpeg";
+        }
+
+        Dimension imageDimension = getUrlDimensions(imageUrl, imageExtension);
+
+        if (imageDimension.equals(new Dimension(0, 0))) {
+            logger.info(logMessage + "Looks like an invalid image, trying a different reader");
+            if (imageExtension.equals("png")) {
+                imageExtension = "jpeg";
+            } else {
+                imageExtension = "png";
+            }
+            imageDimension = getUrlDimensions(imageUrl, imageExtension);
+        }
+
+        return imageDimension;
+    }
+
+    /**
+     * Read an URL and get the dimensions of the image using a specific image
+     * type
+     *
+     * @param imageUrl
+     * @param imageType
+     * @return
+     */
+    public static Dimension getUrlDimensions(String imageUrl, String imageType) {
         Dimension imageDimension = new Dimension(0, 0);
 
-        @SuppressWarnings("rawtypes")
-        Iterator readers = ImageIO.getImageReadersBySuffix("jpeg");
+        Iterator readers = ImageIO.getImageReadersBySuffix(imageType);
         ImageReader reader = (ImageReader) readers.next();
 
         InputStream in = null;
@@ -419,11 +458,11 @@ public class PosterScanner {
             reader.setInput(iis, true);
 
             imageDimension.setSize(reader.getWidth(0), reader.getHeight(0));
-            return imageDimension;
-        } catch (IOException error) {
-            logger.debug(logMessage + "getUrlDimensions error: " + error.getMessage() + ": can't open url");
-            return imageDimension; // Quit and return a false poster
+        } catch (IOException ex) {
+            logger.debug(logMessage + "getUrlDimensions error: " + ex.getMessage() + ": can't open url: " + imageUrl);
         } finally {
+            reader.dispose();
+
             try {
                 if (in != null) {
                     in.close();
@@ -441,6 +480,7 @@ public class PosterScanner {
             }
         }
 
+        return imageDimension;
     }
 
     public static void register(String key, IPosterPlugin posterPlugin) {
