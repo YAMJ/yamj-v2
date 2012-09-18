@@ -21,20 +21,22 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
  * Simple movie filename scanner.
  *
- * Scans a movie filename for keywords commonly used in scene released video files.
+ * Scans a movie filename for keywords commonly used in scene released video
+ * files.
  *
  * Main pattern for file scanner is the following:
  *
  * <MovieTitle>[Keyword*].<container>
  *
- * The movie title is in the first position of the filename. It is followed by zero or more keywords. The file extension
- * match the container name.
+ * The movie title is in the first position of the filename. It is followed by
+ * zero or more keywords. The file extension match the container name.
  *
  * @author jjulien
  * @author quickfinga
@@ -51,9 +53,7 @@ public final class MovieFilenameScanner {
     private static String[] skipRegexKeywords;
     private static final List<Pattern> SKIP_PATTERNS = new ArrayList<Pattern>();
     private static boolean languageDetection = Boolean.TRUE;
-    /**
-     * All symbols within brackets [] if there is an EXTRA keyword
-     */
+    //All symbols within brackets [] if there is an EXTRA keyword
     private static String[] extrasKeywords;
     private static final List<Pattern> EXTRAS_PATTERNS = new ArrayList<Pattern>();
     private static final Pattern USE_PARENT_PATTERN;
@@ -111,7 +111,8 @@ public final class MovieFilenameScanner {
         }
     };
     /**
-     * Detect if the file/folder name is incomplete and additional info must be taken from parent folder.
+     * Detect if the file/folder name is incomplete and additional info must be
+     * taken from parent folder.
      *
      * CAUTION: Grouping is used for part number detection/parsing.
      */
@@ -162,20 +163,21 @@ public final class MovieFilenameScanner {
          */
         protected abstract void put(String key, Collection<String> tokens);
     }
-
     /**
      * Mapping exact tokens to language.
      *
-     * Strict mapping is case sensitive and must be obvious, it must avoid confusing movie name words and language
-     * markers.
+     * Strict mapping is case sensitive and must be obvious, it must avoid
+     * confusing movie name words and language markers.
      *
-     * For example the English word "it" and Italian language marker "it", or "French" as part of the title and "french"
-     * as language marker.
+     * For example the English word "it" and Italian language marker "it", or
+     * "French" as part of the title and "french" as language marker.
      *
-     * However, described above is important only by file naming with token delimiters (see tokens description constants
-     * TOKEN_DELIMITERS*). Language detection in non-token separated titles will be skipped automatically.
+     * However, described above is important only by file naming with token
+     * delimiters (see tokens description constants TOKEN_DELIMITERS*). Language
+     * detection in non-token separated titles will be skipped automatically.
      *
-     * Language markers, found with this pattern are counted as token delimiters (they will cut movie title)
+     * Language markers, found with this pattern are counted as token delimiters
+     * (they will cut movie title)
      */
     private static final TokensPatternMap STRICT_LANGUAGE_MAP = new TokensPatternMap() {
         @Override
@@ -194,12 +196,12 @@ public final class MovieFilenameScanner {
             put("English", "ENG EN ENGLISH eng en english Eng");
         }
     };
-
     /**
      * Mapping loose language markers.
      *
-     * The second pass of language detection is being started after movie title detection. Language markers will be
-     * scanned with loose pattern in order to find out more languages without chance to confuse with movie title.
+     * The second pass of language detection is being started after movie title
+     * detection. Language markers will be scanned with loose pattern in order
+     * to find out more languages without chance to confuse with movie title.
      *
      * Markers in this map are case insensitive.
      */
@@ -230,7 +232,6 @@ public final class MovieFilenameScanner {
             put("English", "ENG EN ENGLISH");
         }
     };
-
     private static final Map<Integer, Pattern> FPS_MAP = new HashMap<Integer, Pattern>() {
         {
             for (int i : new int[]{23, 24, 25, 29, 30, 50, 59, 60}) {
@@ -238,7 +239,6 @@ public final class MovieFilenameScanner {
             }
         }
     };
-
     private static final Map<String, Pattern> AUDIO_CODEC_MAP = new HashMap<String, Pattern>() {
         {
             for (String s : AUDIO_CODECS_ARRAY) {
@@ -246,7 +246,6 @@ public final class MovieFilenameScanner {
             }
         }
     };
-
     private static final Map<String, Pattern> VIDEO_CODEC_MAP = new HashMap<String, Pattern>() {
         {
             put("XviD", iwpatt("XVID"));
@@ -261,7 +260,6 @@ public final class MovieFilenameScanner {
             }
         }
     };
-
     private static final TokensPatternMap VIDEO_SOURCE_MAP = new TokensPatternMap() {
         {
             put("SDTV", "TVRip,PAL,NTSC");
@@ -283,7 +281,6 @@ public final class MovieFilenameScanner {
             put(key, iwpatt(patt.toString()));
         }
     };
-
     private final MovieFileNameDTO dto = new MovieFileNameDTO();
     private final File file;
     private final String filename;
@@ -291,6 +288,7 @@ public final class MovieFilenameScanner {
 
     /**
      * Used for testing
+     *
      * @return
      */
     public static Pattern getTokenDelimitersMatchPattern() {
@@ -351,8 +349,6 @@ public final class MovieFilenameScanner {
     }
 
     private MovieFilenameScanner(File file) {
-        // TODO: Not sure why the file/filename are FINAL here. perhaps we should look at this.
-
         // CHECK FOR USE_PARENT_PATTERN matches
         if (useParentRegex && USE_PARENT_PATTERN.matcher(file.getName()).find()) {
             // Check the container to see if it's a RAR file and go up a further directory
@@ -382,13 +378,12 @@ public final class MovieFilenameScanner {
         // EXTENSION AND CONTAINER
         if (this.file.isFile()) {
             // Extract and strip extension
-            int i = rest.lastIndexOf('.');
-            if (i > 0) {
-                dto.setExtension(new String(rest.substring(i + 1)));
-                rest = new String(rest.substring(0, i));
-            } else {
-                dto.setExtension("");
+            String ext = FilenameUtils.getExtension(rest);
+            if (ext.length() > 0) {
+                rest = FilenameUtils.removeExtension(rest);
             }
+            dto.setExtension(ext);
+
             dto.setContainer(dto.getExtension().toUpperCase());
         } else {
             // For DVD images
@@ -666,7 +661,8 @@ public final class MovieFilenameScanner {
     }
 
     /**
-     * Replace all dividers with spaces and trim trailing spaces and redundant braces/minuses at the end.
+     * Replace all dividers with spaces and trim trailing spaces and redundant
+     * braces/minuses at the end.
      *
      * @param token String to clean up.
      * @return Prepared title.

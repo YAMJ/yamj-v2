@@ -12,6 +12,9 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.imdbapi.ImdbApi;
+import com.moviejukebox.imdbapi.model.ImdbMovieDetails;
+import com.moviejukebox.imdbapi.search.SearchObject;
 import com.moviejukebox.model.ImdbSiteDataDefinition;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
@@ -22,6 +25,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -41,6 +45,7 @@ public class ImdbInfo {
     private WebBrowser webBrowser;
     private String objectType = OBJECT_MOVIE;
     private ImdbSiteDataDefinition siteDef;
+    private static final String[] SEARCH_ORDER = {"Titles (Exact Matches)", "Popular Titles", "Titles (Partial Matches)", "Titles (Approx Matches)"};
 
     static {
         MATCHES_DATA_PER_SITE.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", "ISO-8859-1", "Director|Directed by", "Cast", "Release Date", "Runtime", "Country",
@@ -91,7 +96,8 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb matching the specified movie name and year. This routine is based on a IMDb request.
+     * Retrieve the IMDb matching the specified movie name and year. This
+     * routine is based on a IMDb request.
      */
     public String getImdbId(String movieName, String year) {
         objectType = OBJECT_MOVIE;
@@ -102,7 +108,7 @@ public class ImdbInfo {
         } else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
             return Movie.UNKNOWN;
         } else {
-            return getImdbIdFromImdb(movieName, year);
+            return getImdbIdFromImdbApi(movieName, year);
         }
     }
 
@@ -167,7 +173,8 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb Id matching the specified movie name and year. This routine is base on a yahoo request.
+     * Retrieve the IMDb Id matching the specified movie name and year. This
+     * routine is base on a yahoo request.
      *
      * @param movieName The name of the Movie to search for
      * @param year The year of the movie
@@ -203,7 +210,8 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb matching the specified movie name and year. This routine is base on a Google request.
+     * Retrieve the IMDb matching the specified movie name and year. This
+     * routine is base on a Google request.
      *
      * @param movieName The name of the Movie to search for
      * @param year The year of the movie
@@ -248,7 +256,8 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb matching the specified movie name and year. This routine is base on a IMDb request.
+     * Retrieve the IMDb matching the specified movie name and year. This
+     * routine is base on a IMDb request.
      */
     private String getImdbIdFromImdb(String movieName, String year) {
         /*
@@ -354,6 +363,60 @@ public class ImdbInfo {
         // If we don't have an ID try google
         logger.debug(logMessage + "Failed to find an exact match on IMDb, trying Google");
         return getImdbIdFromGoogle(movieName, year);
+    }
+
+    /**
+     * Retrieve the IMDb ID using the ImdbAPI.
+     *
+     * @param movieName
+     * @param year
+     * @return
+     */
+    private String getImdbIdFromImdbApi(final String movieName, final String year) {
+        Map<String, List<SearchObject>> result = ImdbApi.getSearch(movieName);
+
+        if (result == null || result.isEmpty()) {
+            logger.debug(logMessage + "No results found for " + movieName);
+            return Movie.UNKNOWN;
+        }
+
+        String imdbId = Movie.UNKNOWN;
+        ImdbMovieDetails imdbMovie;
+        for (String searchType : SEARCH_ORDER) {
+            imdbMovie = matchSearchObject(result.get(searchType), movieName, year);
+            if (imdbMovie != null) {
+                logger.debug(logMessage + "Match found in " + searchType + ": " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
+                imdbId = imdbMovie.getImdbId();
+                break;
+            }
+        }
+
+        return imdbId;
+    }
+
+    /**
+     * Loops around the search results looking for a close match based on year
+     *
+     * @param resultList
+     * @param movieName
+     * @param year
+     * @return
+     */
+    private ImdbMovieDetails matchSearchObject(final List<SearchObject> resultList, final String movieName, final String year) {
+        if (!resultList.isEmpty() && resultList.get(0).getClass() != ImdbMovieDetails.class) {
+            logger.debug(logMessage + "No valid results found for this search type");
+            return null;
+        }
+
+        for (SearchObject searchResult : resultList) {
+            ImdbMovieDetails imdbMovie = (ImdbMovieDetails) searchResult;
+            logger.debug(logMessage + "Checking: " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
+            if (year.equals(String.valueOf(imdbMovie.getYear()))) {
+                return (ImdbMovieDetails) searchResult;
+            }
+        }
+
+        return null;
     }
 
     public ImdbSiteDataDefinition getSiteDef() {

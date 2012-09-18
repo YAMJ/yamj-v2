@@ -1247,7 +1247,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * Retrieves the long plot description from IMDB if it exists, else "UNKNOWN"
+     * Retrieves the long plot description from IMDB if it exists, else
+     * "UNKNOWN"
      *
      * @param movie
      * @return long plot
