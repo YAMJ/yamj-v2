@@ -15,6 +15,7 @@ MovieJukebox 2.7-SNAPSHOT
  - Fixed defect #2408 Year 0 bug in NFO file
  - Fixed defect #2212 Issue with sorttitle and sorting.strip.prefixes
  - Fixed defect #2286 VideoImages not updated based on watched status
+ - Fixed defect #2312 Incorrectly named images (PNG as JPEG) are not downloaded
  - Fixed defect #2393 Codec problems due to MediaInfo/NFO interference
  - Fixed defect #2400 Duplicate Mediainfo and Filename audio data problem
  - Fixed defect #2407 Filename codec overrides MediaInfo

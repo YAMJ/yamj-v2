@@ -67,7 +67,7 @@ public class JpegReader {
         hasAdobeMarker = Boolean.FALSE;
 
         if (!file.exists()) {
-            logger.warn(logMessage + "File does not exist: " + file.getName());
+            logger.debug(logMessage + "Error reading file, does not exist: " + file.getName());
             return null;
         }
 
