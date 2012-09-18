@@ -161,6 +161,12 @@
             <artifactId>hibernate-core</artifactId>
             <version>4.1.2</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.apache.sanselan</groupId>
+            <artifactId>sanselan</artifactId>
+            <version>0.97-incubator</version>
+        </dependency>
     </dependencies>
 
     <scm>
@@ -168,7 +174,7 @@
         <developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox/yamj</developerConnection>
         <url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox/yamj</url>
     </scm>
-    
+
     <build>
         <plugins>
             <plugin>

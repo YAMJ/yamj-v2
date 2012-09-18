@@ -26,6 +26,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import org.apache.log4j.Logger;
+import org.apache.sanselan.ImageReadException;
 
 /**
  * @author altman.matthew
@@ -139,8 +140,8 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     }
 
     /**
-     * Checks for older Background width property in case the skin hasn't been updated. TODO: Remove this procedure at
-     * some point
+     * Checks for older Background width property in case the skin hasn't been
+     * updated. TODO: Remove this procedure at some point
      *
      * @return the width of the fanart
      */
@@ -166,8 +167,8 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     }
 
     /**
-     * Checks for older Background width property in case the skin hasn't been updated. TODO: Remove this procedure at
-     * some point
+     * Checks for older Background width property in case the skin hasn't been
+     * updated. TODO: Remove this procedure at some point
      *
      * @return the width of the fanart
      */
@@ -193,8 +194,8 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     }
 
     /**
-     * Draw an overlay on the fanarts (shading, static menu backgrounds, etc.) specific for TV, Movie, SET and Extras
-     * backgrounds
+     * Draw an overlay on the fanarts (shading, static menu backgrounds, etc.)
+     * specific for TV, Movie, SET and Extras backgrounds
      *
      * @param movie
      * @param bi
@@ -226,8 +227,9 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
             source = "blank";
         }
 
+        String overlayFilename = "overlay_fanart_" + source + ".png";
         try {
-            BufferedImage biOverlay = GraphicTools.loadJPEGImage(getResourcesPath() + "overlay_fanart_" + source + ".png");
+            BufferedImage biOverlay = GraphicTools.loadJPEGImage(getResourcesPath() + overlayFilename);
 
             BufferedImage returnBI = new BufferedImage(biOverlay.getWidth(), biOverlay.getHeight(), BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2BI = returnBI.createGraphics();
@@ -242,7 +244,9 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
             g2BI.dispose();
 
             return returnBI;
-        } catch (IOException error) {
+        } catch (ImageReadException ex) {
+            logger.warn("Failed to read " + overlayFilename + ", please ensure it is valid");
+        } catch (IOException ex) {
             logger.warn("Failed drawing overlay to " + movie.getBaseName() + ". Please check that overlay_fanart_" + source + ".png is in the resources directory.");
         }
 
