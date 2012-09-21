@@ -403,7 +403,7 @@ public class ImdbInfo {
      * @return
      */
     private ImdbMovieDetails matchSearchObject(final List<SearchObject> resultList, final String movieName, final String year) {
-        if (!resultList.isEmpty() && resultList.get(0).getClass() != ImdbMovieDetails.class) {
+        if (resultList == null || (!resultList.isEmpty() && resultList.get(0).getClass() != ImdbMovieDetails.class)) {
             logger.debug(logMessage + "No valid results found for this search type");
             return null;
         }
