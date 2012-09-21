@@ -17,7 +17,6 @@ import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.*;
 import static com.moviejukebox.tools.StringTools.*;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.regex.Matcher;
