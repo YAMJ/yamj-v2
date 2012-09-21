@@ -55,8 +55,35 @@ public class MovieJukeboxXMLWriter {
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";
     private static final String evFileSuffix = "_small";   // String to append to the eversion categories file if needed
-    private static boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
-    private static boolean forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false");
+    private static final String FALSE = "false";
+    private static final String TRUE = "true";
+    private static final String WON = "won";
+    private static final String MOVIE = "movie";
+    private static final String MOVIEDB = "moviedb";
+    private static final String BASE_FILENAME = "baseFilename";
+    private static final String TITLE = "title";
+    private static final String ORIGINAL_TITLE = "originalTitle";
+    private static final String YEAR = "year";
+    private static final String COUNTRY = "country";
+    private static final String ORDER = "order";
+    private static final String LANGUAGE = "language";
+    private static final String YES = "YES";
+    private static final String TRAILER_LAST_SCAN = "trailerLastScan";
+    private static final String CHARACTER = "character";
+    private static final String NAME = "name";
+    private static final String DEPARTMENT = "department";
+    private static final String JOB = "job";
+    private static final String URL = "url";
+    private static final String ID = "id_";
+    private static final String SEASON = "season";
+    private static final String PART = "part";
+    private static final String RATING = "rating";
+    private static final String COUNT = "count";
+    private static final String INDEX = "index";
+    private static final String ORIGINAL_NAME = "originalName";
+    private static final String DETAILS="details";
+    private static boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", FALSE);
+    private static boolean forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", FALSE);
     private int nbMoviesPerPage;
     private int nbMoviesPerLine;
     private int nbTvShowsPerPage;
@@ -71,35 +98,35 @@ public class MovieJukeboxXMLWriter {
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
     private boolean includeEpisodeRating;
-    private static boolean isPlayOnHD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", "false");
-    private static boolean isExtendedURL = PropertiesUtil.getBooleanProperty("mjb.scanner.mediainfo.rar.extended.url", "false");
+    private static boolean isPlayOnHD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", FALSE);
+    private static boolean isExtendedURL = PropertiesUtil.getBooleanProperty("mjb.scanner.mediainfo.rar.extended.url", FALSE);
     private static String defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
     private List<String> categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
-    private boolean removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", "false");
-    private boolean keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", "true");
-    private boolean beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", "false");
+    private boolean removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", FALSE);
+    private boolean keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", TRUE);
+    private boolean beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", FALSE);
     private static List<String> categoriesDisplayList = initDisplayList();
     private static List<String> categoriesLimitList = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.limitList", "Cast,Director,Writer,Person").split(","));
-    private static boolean writeNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeFiles", "false");
+    private static boolean writeNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeFiles", FALSE);
     private boolean setsExcludeTV;
     private static String peopleFolder = initPeopleFolder();
-    private static boolean enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", "true");
+    private static boolean enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", TRUE);
     // Should we scrape people information
-    private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", "false");
-    private static boolean addPeopleInfo = PropertiesUtil.getBooleanProperty("mjb.people.addInfo", "false");
+    private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", FALSE);
+    private static boolean addPeopleInfo = PropertiesUtil.getBooleanProperty("mjb.people.addInfo", FALSE);
     // Should we scrape the award information
-    private static boolean enableAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", "false") || PropertiesUtil.getProperty("mjb.scrapeAwards", "").equalsIgnoreCase("won");
+    private static boolean enableAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", FALSE) || PropertiesUtil.getProperty("mjb.scrapeAwards", "").equalsIgnoreCase(WON);
     // Should we scrape the business information
-    private static boolean enableBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", "false");
+    private static boolean enableBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", FALSE);
     // Should we scrape the trivia information
-    private static boolean enableTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", "false");
+    private static boolean enableTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", FALSE);
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     // Should we reindex the New / Watched / Unwatched categories?
     private boolean reindexNew = Boolean.FALSE;
     private boolean reindexWatched = Boolean.FALSE;
     private boolean reindexUnwatched = Boolean.FALSE;
-    private boolean XMLcompatible = PropertiesUtil.getBooleanProperty("mjb.XMLcompatible", "false");
-    private boolean sortLibrary = PropertiesUtil.getBooleanProperty("indexing.sort.libraries", "true");
+    private boolean XMLcompatible = PropertiesUtil.getBooleanProperty("mjb.XMLcompatible", FALSE);
+    private boolean sortLibrary = PropertiesUtil.getBooleanProperty("indexing.sort.libraries", TRUE);
 
     public MovieJukeboxXMLWriter() {
         nbMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerPage", "10");
@@ -110,13 +137,13 @@ public class MovieJukeboxXMLWriter {
         nbSetMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbSetThumbnailsPerLine", "0"); // If 0 then use the Movies setting
         nbTVSetMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbTVSetThumbnailsPerPage", "0"); // If 0 then use the TV SHOW setting
         nbTVSetMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbTVSetThumbnailsPerLine", "0"); // If 0 then use the TV SHOW setting
-        fullMovieInfoInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullMovieInfoInIndexes", "false");
-        fullCategoriesInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullCategoriesInIndexes", "true");
-        includeMoviesInCategories = PropertiesUtil.getBooleanProperty("mjb.includeMoviesInCategories", "false");
-        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
-        includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
-        includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");
-        setsExcludeTV = PropertiesUtil.getBooleanProperty("mjb.sets.excludeTV", "false");
+        fullMovieInfoInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullMovieInfoInIndexes", FALSE);
+        fullCategoriesInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullCategoriesInIndexes", TRUE);
+        includeMoviesInCategories = PropertiesUtil.getBooleanProperty("mjb.includeMoviesInCategories", FALSE);
+        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", FALSE);
+        includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
+        includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", FALSE);
+        setsExcludeTV = PropertiesUtil.getBooleanProperty("mjb.sets.excludeTV", FALSE);
 
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
@@ -207,7 +234,7 @@ public class MovieJukeboxXMLWriter {
         NodeList nlElements;    // Reusable NodeList for the other elements
         Node nElements;         // Reusable Node for the other elements
 
-        nlMovies = xmlDoc.getElementsByTagName("movie");
+        nlMovies = xmlDoc.getElementsByTagName(MOVIE);
         for (int loopMovie = 0; loopMovie < nlMovies.getLength(); loopMovie++) {
             nMovie = nlMovies.item(loopMovie);
             if (nMovie.getNodeType() == Node.ELEMENT_NODE) {
@@ -220,7 +247,7 @@ public class MovieJukeboxXMLWriter {
                     if (nElements.getNodeType() == Node.ELEMENT_NODE) {
                         Element eId = (Element) nElements;
 
-                        String movieDb = eId.getAttribute("moviedb");
+                        String movieDb = eId.getAttribute(MOVIEDB);
                         if (StringTools.isNotValidString(movieDb)) {
                             movieDb = ImdbPlugin.IMDB_PLUGIN_ID;
                         }
@@ -242,16 +269,16 @@ public class MovieJukeboxXMLWriter {
                 }
 
                 if (StringTools.isNotValidString(movie.getBaseName())) {
-                    movie.setBaseName(DOMHelper.getValueFromElement(eMovie, "baseFilename"));
+                    movie.setBaseName(DOMHelper.getValueFromElement(eMovie, BASE_FILENAME));
                 }
 
                 // Get the title fields
-                movie.setTitle(DOMHelper.getValueFromElement(eMovie, "title"));
+                movie.setTitle(DOMHelper.getValueFromElement(eMovie, TITLE));
                 movie.setTitleSort(DOMHelper.getValueFromElement(eMovie, "titleSort"));
-                movie.setOriginalTitle(DOMHelper.getValueFromElement(eMovie, "originalTitle"));
+                movie.setOriginalTitle(DOMHelper.getValueFromElement(eMovie, ORIGINAL_TITLE));
 
                 // Get the year. We don't care about the attribute as that is the index
-                movie.setYear(DOMHelper.getValueFromElement(eMovie, "year"));
+                movie.setYear(DOMHelper.getValueFromElement(eMovie, YEAR));
 
                 // Get the release date
                 movie.setReleaseDate(DOMHelper.getValueFromElement(eMovie, "releaseDate"));
@@ -259,7 +286,7 @@ public class MovieJukeboxXMLWriter {
                 // get the show status
                 movie.setShowStatus(DOMHelper.getValueFromElement(eMovie, "showStatus"));
 
-                // Get the ratings. We don't care about the "rating" as this is a calulated value.
+                // Get the ratings. We don't care about the RATING as this is a calulated value.
                 // So just get the childnodes of the "ratings" node
                 nlElements = eMovie.getElementsByTagName("ratings");
                 if (nlElements.getLength() > 0) {
@@ -269,7 +296,7 @@ public class MovieJukeboxXMLWriter {
                         if (nElements.getNodeType() == Node.ELEMENT_NODE) {
                             Element eRating = (Element) nElements;
 
-                            String movieDb = eRating.getAttribute("moviedb");
+                            String movieDb = eRating.getAttribute(MOVIEDB);
                             if (StringTools.isNotValidString(movieDb)) {
                                 movieDb = ImdbPlugin.IMDB_PLUGIN_ID;
                             }
@@ -353,7 +380,7 @@ public class MovieJukeboxXMLWriter {
                 }   // End of writers
 
                 // Get the country
-                movie.setCountry(DOMHelper.getValueFromElement(eMovie, "country"));
+                movie.setCountry(DOMHelper.getValueFromElement(eMovie, COUNTRY));
 
                 // Get the genres
                 nlElements = eMovie.getElementsByTagName("genres");
@@ -389,7 +416,7 @@ public class MovieJukeboxXMLWriter {
                         nElements = nlElements.item(looper);
                         if (nElements.getNodeType() == Node.ELEMENT_NODE) {
                             Element eSet = (Element) nElements;
-                            String order = eSet.getAttribute("order");
+                            String order = eSet.getAttribute(ORDER);
                             if (StringTools.isValidString(order)) {
                                 movie.addSet(eSet.getTextContent(), Integer.parseInt(order));
                             } else {
@@ -403,16 +430,16 @@ public class MovieJukeboxXMLWriter {
                 movie.setCertification(DOMHelper.getValueFromElement(eMovie, "certification"));
 
                 // Get language
-                movie.setLanguage(DOMHelper.getValueFromElement(eMovie, "language"));
+                movie.setLanguage(DOMHelper.getValueFromElement(eMovie, LANGUAGE));
 
                 // Get subtitles
                 movie.setSubtitles(DOMHelper.getValueFromElement(eMovie, "subtitles"));
 
                 // Get the TrailerExchange
-                movie.setTrailerExchange(DOMHelper.getValueFromElement(eMovie, "trailerExchange").equalsIgnoreCase("YES"));
+                movie.setTrailerExchange(DOMHelper.getValueFromElement(eMovie, "trailerExchange").equalsIgnoreCase(YES));
 
                 // Get trailerLastScan date/time
-                movie.setTrailerLastScan(DOMHelper.getValueFromElement(eMovie, "trailerLastScan"));
+                movie.setTrailerLastScan(DOMHelper.getValueFromElement(eMovie, TRAILER_LAST_SCAN));
 
                 // Get file container
                 movie.setContainer(DOMHelper.getValueFromElement(eMovie, "container"));
@@ -441,7 +468,7 @@ public class MovieJukeboxXMLWriter {
                                         codec.setCodecFormat(eCodec.getAttribute("format"));
                                         codec.setCodecFormatProfile(eCodec.getAttribute("formatProfile"));
                                         codec.setCodecFormatVersion(eCodec.getAttribute("formatVersion"));
-                                        codec.setCodecLanguage(eCodec.getAttribute("language"));
+                                        codec.setCodecLanguage(eCodec.getAttribute(LANGUAGE));
                                         codec.setCodecBitRate(eCodec.getAttribute("bitrate"));
                                         String tmpValue = eCodec.getAttribute("channels");
                                         if (StringUtils.isNotBlank(tmpValue)) {
@@ -500,7 +527,7 @@ public class MovieJukeboxXMLWriter {
                         if (nElements.getNodeType() == Node.ELEMENT_NODE) {
                             Element eAwardEvent = (Element) nElements;
                             AwardEvent awardEvent = new AwardEvent();
-                            awardEvent.setName(eAwardEvent.getAttribute("name"));
+                            awardEvent.setName(eAwardEvent.getAttribute(NAME));
 
                             Node nAward;
                             for (int loopAwards = 0; loopAwards < eAwardEvent.getChildNodes().getLength(); loopAwards++) {
@@ -511,8 +538,8 @@ public class MovieJukeboxXMLWriter {
 
                                     award.setName(eAward.getTextContent());
                                     award.setNominated(Integer.parseInt(eAward.getAttribute("nominated")));
-                                    award.setWon(Integer.parseInt(eAward.getAttribute("won")));
-                                    award.setYear(Integer.parseInt(eAward.getAttribute("year")));
+                                    award.setWon(Integer.parseInt(eAward.getAttribute(WON)));
+                                    award.setYear(Integer.parseInt(eAward.getAttribute(YEAR)));
                                     String tmpAward = eAward.getAttribute("wons");
                                     if (StringTools.isValidString(tmpAward)) {
                                         award.setWons(Arrays.asList(tmpAward.split(Movie.SPACE_SLASH_SPACE)));
@@ -543,23 +570,23 @@ public class MovieJukeboxXMLWriter {
                             Filmography person = new Filmography();
 
                             person.setCastId(ePerson.getAttribute("cast_id"));
-                            person.setCharacter(ePerson.getAttribute("character"));
-                            person.setDepartment(ePerson.getAttribute("department"));
+                            person.setCharacter(ePerson.getAttribute(CHARACTER));
+                            person.setDepartment(ePerson.getAttribute(DEPARTMENT));
                             person.setDoublage(ePerson.getAttribute("doublage"));
                             person.setId(ePerson.getAttribute("id"));
-                            person.setJob(ePerson.getAttribute("job"));
-                            person.setName(ePerson.getAttribute("name"));
-                            person.setOrder(ePerson.getAttribute("order"));
-                            person.setTitle(ePerson.getAttribute("title"));
-                            person.setUrl(ePerson.getAttribute("url"));
+                            person.setJob(ePerson.getAttribute(JOB));
+                            person.setName(ePerson.getAttribute(NAME));
+                            person.setOrder(ePerson.getAttribute(ORDER));
+                            person.setTitle(ePerson.getAttribute(TITLE));
+                            person.setUrl(ePerson.getAttribute(URL));
                             person.setPhotoFilename(ePerson.getAttribute("photoFile"));
                             person.setFilename(ePerson.getTextContent());
 
                             // Get any "id_???" values
                             for (int loopAttr = 0; loopAttr < ePerson.getAttributes().getLength(); loopAttr++) {
                                 Node nPersonAttr = ePerson.getAttributes().item(loopAttr);
-                                if (nPersonAttr.getNodeName().startsWith("id_")) {
-                                    String name = nPersonAttr.getNodeName().replace("id_", "");
+                                if (nPersonAttr.getNodeName().startsWith(ID)) {
+                                    String name = nPersonAttr.getNodeName().replace(ID, "");
                                     person.setId(name, nPersonAttr.getNodeValue());
                                 }
                             }
@@ -582,9 +609,9 @@ public class MovieJukeboxXMLWriter {
                             if (nCountry.getNodeType() == Node.ELEMENT_NODE) {
                                 Element eCountry = (Element) nCountry;
                                 if (eCountry.getNodeName().equalsIgnoreCase("gross")) {
-                                    movie.setGross(eCountry.getAttribute("country"), eCountry.getTextContent());
+                                    movie.setGross(eCountry.getAttribute(COUNTRY), eCountry.getTextContent());
                                 } else if (eCountry.getNodeName().equalsIgnoreCase("openweek")) {
-                                    movie.setOpenWeek(eCountry.getAttribute("country"), eCountry.getTextContent());
+                                    movie.setOpenWeek(eCountry.getAttribute(COUNTRY), eCountry.getTextContent());
                                 }
                             }
                         }   // End of budget info
@@ -610,12 +637,12 @@ public class MovieJukeboxXMLWriter {
                             Element eFile = (Element) nElements;
                             MovieFile movieFile = new MovieFile();
 
-                            String attr = eFile.getAttribute("title");
+                            String attr = eFile.getAttribute(TITLE);
                             if (StringTools.isValidString(attr)) {
                                 movieFile.setTitle(attr);
                             }
 
-                            attr = eFile.getAttribute("season");
+                            attr = eFile.getAttribute(SEASON);
                             if (StringUtils.isNumeric(attr)) {
                                 movieFile.setSeason(Integer.parseInt(attr));
                             }
@@ -632,7 +659,7 @@ public class MovieJukeboxXMLWriter {
 
                             attr = eFile.getAttribute("subtitlesExchange");
                             if (StringTools.isValidString(attr)) {
-                                movieFile.setSubtitlesExchange(attr.equalsIgnoreCase("YES"));
+                                movieFile.setSubtitlesExchange(attr.equalsIgnoreCase(YES));
                             }
 
                             attr = eFile.getAttribute("watched");
@@ -673,7 +700,7 @@ public class MovieJukeboxXMLWriter {
                                     Node nFileParts = nlFileParts.item(looperFile);
                                     if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
                                         Element eFileParts = (Element) nFileParts;
-                                        String part = eFileParts.getAttribute("part");
+                                        String part = eFileParts.getAttribute(PART);
                                         if (StringUtils.isNumeric(part)) {
                                             movieFile.setTitle(NumberUtils.toInt(part, 0), eFileParts.getTextContent());
                                         } else {
@@ -690,7 +717,7 @@ public class MovieJukeboxXMLWriter {
                                     Node nFileParts = nlFileParts.item(looperFile);
                                     if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
                                         Element eFileParts = (Element) nFileParts;
-                                        int part = NumberUtils.toInt(eFileParts.getAttribute("part"), 1);
+                                        int part = NumberUtils.toInt(eFileParts.getAttribute(PART), 1);
 
                                         movieFile.setAirsAfterSeason(part, eFileParts.getAttribute("afterSeason"));
                                         movieFile.setAirsBeforeEpisode(part, eFileParts.getAttribute("beforeEpisode"));
@@ -706,7 +733,7 @@ public class MovieJukeboxXMLWriter {
                                     Node nFileParts = nlFileParts.item(looperFile);
                                     if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
                                         Element eFileParts = (Element) nFileParts;
-                                        int part = NumberUtils.toInt(eFileParts.getAttribute("part"), 1);
+                                        int part = NumberUtils.toInt(eFileParts.getAttribute(PART), 1);
                                         movieFile.setFirstAired(part, eFileParts.getTextContent());
                                     }
                                 }
@@ -719,7 +746,7 @@ public class MovieJukeboxXMLWriter {
                                     Node nFileParts = nlFileParts.item(looperFile);
                                     if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
                                         Element eFileParts = (Element) nFileParts;
-                                        int part = NumberUtils.toInt(eFileParts.getAttribute("part"), 1);
+                                        int part = NumberUtils.toInt(eFileParts.getAttribute(PART), 1);
                                         movieFile.setPlot(part, eFileParts.getTextContent());
                                     }
                                 }
@@ -732,7 +759,7 @@ public class MovieJukeboxXMLWriter {
                                     Node nFileParts = nlFileParts.item(looperFile);
                                     if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
                                         Element eFileParts = (Element) nFileParts;
-                                        int part = NumberUtils.toInt(eFileParts.getAttribute("part"), 1);
+                                        int part = NumberUtils.toInt(eFileParts.getAttribute(PART), 1);
                                         movieFile.setRating(part, eFileParts.getTextContent());
                                     }
                                 }
@@ -745,7 +772,7 @@ public class MovieJukeboxXMLWriter {
                                     Node nFileParts = nlFileParts.item(looperFile);
                                     if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
                                         Element eFileParts = (Element) nFileParts;
-                                        int part = NumberUtils.toInt(eFileParts.getAttribute("part"), 1);
+                                        int part = NumberUtils.toInt(eFileParts.getAttribute(PART), 1);
                                         movieFile.setVideoImageURL(part, HTMLTools.decodeUrl(eFileParts.getTextContent()));
                                     }
                                 }
@@ -758,7 +785,7 @@ public class MovieJukeboxXMLWriter {
                                     Node nFileParts = nlFileParts.item(looperFile);
                                     if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
                                         Element eFileParts = (Element) nFileParts;
-                                        int part = NumberUtils.toInt(eFileParts.getAttribute("part"), 1);
+                                        int part = NumberUtils.toInt(eFileParts.getAttribute(PART), 1);
                                         movieFile.setVideoImageFilename(part, HTMLTools.decodeUrl(eFileParts.getTextContent()));
                                     }
                                 }
@@ -784,7 +811,7 @@ public class MovieJukeboxXMLWriter {
                         if (nElements.getNodeType() == Node.ELEMENT_NODE) {
                             Element eExtra = (Element) nElements;
 
-                            String extraTitle = eExtra.getAttribute("title");
+                            String extraTitle = eExtra.getAttribute(TITLE);
                             String extraFilename = eExtra.getTextContent();
 
                             if (!extraTitle.isEmpty() && !extraFilename.isEmpty()) {
@@ -975,43 +1002,43 @@ public class MovieJukeboxXMLWriter {
                             film.setId(attr.getValue());
                             continue;
                         }
-                        if (ns.toLowerCase().contains("id_")) {
+                        if (ns.toLowerCase().contains(ID)) {
                             person.setId(ns.substring(3), attr.getValue());
                             continue;
                         }
-                        if (ns.equalsIgnoreCase("name")) {
+                        if (ns.equalsIgnoreCase(NAME)) {
                             film.setName(attr.getValue());
                             continue;
                         }
-                        if (ns.equalsIgnoreCase("title")) {
+                        if (ns.equalsIgnoreCase(TITLE)) {
                             film.setTitle(attr.getValue());
                             continue;
                         }
-                        if (ns.equalsIgnoreCase("originalTitle")) {
+                        if (ns.equalsIgnoreCase(ORIGINAL_TITLE)) {
                             film.setOriginalTitle(attr.getValue());
                             continue;
                         }
-                        if (ns.equalsIgnoreCase("year")) {
+                        if (ns.equalsIgnoreCase(YEAR)) {
                             film.setYear(attr.getValue());
                             continue;
                         }
-                        if (ns.equalsIgnoreCase("rating")) {
+                        if (ns.equalsIgnoreCase(RATING)) {
                             film.setRating(attr.getValue());
                             continue;
                         }
-                        if (ns.equalsIgnoreCase("character")) {
+                        if (ns.equalsIgnoreCase(CHARACTER)) {
                             film.setCharacter(attr.getValue());
                             continue;
                         }
-                        if (ns.equalsIgnoreCase("job")) {
+                        if (ns.equalsIgnoreCase(JOB)) {
                             film.setJob(attr.getValue());
                             continue;
                         }
-                        if (ns.equalsIgnoreCase("department")) {
+                        if (ns.equalsIgnoreCase(DEPARTMENT)) {
                             film.setDepartment(attr.getValue());
                             continue;
                         }
-                        if (ns.equalsIgnoreCase("url")) {
+                        if (ns.equalsIgnoreCase(URL)) {
                             film.setUrl(attr.getValue());
                             continue;
                         }
@@ -1066,7 +1093,7 @@ public class MovieJukeboxXMLWriter {
                         && (filename.equals(Library.INDEX_CATEGORIES) || filename.equals(category.getKey()))) {
                     Element eCategory = xmlDoc.createElement("category");
 
-                    eCategory.setAttribute("name", category.getKey());
+                    eCategory.setAttribute(NAME, category.getKey());
 
                     if ("Other".equalsIgnoreCase(categoryName)) {
                         // Process the other category using the order listed in the category.xml file
@@ -1142,7 +1169,7 @@ public class MovieJukeboxXMLWriter {
                     if (categoryCount > 0) {
                         if (!isPlayOnHD) {
                             // Add the correct count to the index
-                            eCategory.setAttribute("count", String.valueOf(categoryCount));
+                            eCategory.setAttribute(COUNT, String.valueOf(categoryCount));
                         }
                         eLibrary.appendChild(eCategory);
                         libraryCount++;
@@ -1152,7 +1179,7 @@ public class MovieJukeboxXMLWriter {
         }
 
         // Add the movie count to the library
-        eLibrary.setAttribute("count", String.valueOf(libraryCount));
+        eLibrary.setAttribute(COUNT, String.valueOf(libraryCount));
 
         // Add the library node to the document
         xmlDoc.appendChild(eLibrary);
@@ -1225,15 +1252,15 @@ public class MovieJukeboxXMLWriter {
 
         String indexFilename = FileTools.makeSafeFilename(FileTools.createPrefix(categoryKey, indexName)) + "1";
 
-        Element eCategory = doc.createElement("index");
-        eCategory.setAttribute("name", indexName);
-        eCategory.setAttribute("originalName", indexOriginalName);
+        Element eCategory = doc.createElement(INDEX);
+        eCategory.setAttribute(NAME, indexName);
+        eCategory.setAttribute(ORIGINAL_NAME, indexOriginalName);
 
         if (includeMoviesInCategories) {
             eCategory.setAttribute("filename", indexFilename);
 
             for (Identifiable movie : indexMovies) {
-                DOMHelper.appendChild(doc, eCategory, "movie", String.valueOf(allMovies.indexOf(movie)));
+                DOMHelper.appendChild(doc, eCategory, MOVIE, String.valueOf(allMovies.indexOf(movie)));
             }
         } else {
             eCategory.setTextContent(indexFilename);
@@ -1251,7 +1278,7 @@ public class MovieJukeboxXMLWriter {
         int indexCount = 0;
         int indexSize = library.getIndexes().size();
 
-        final boolean setReindex = PropertiesUtil.getBooleanProperty("mjb.sets.reindex", "true");
+        final boolean setReindex = PropertiesUtil.getBooleanProperty("mjb.sets.reindex", TRUE);
 
         StringBuilder loggerString;
 
@@ -1522,9 +1549,9 @@ public class MovieJukeboxXMLWriter {
             }
 
             eCategory = xmlDoc.createElement("category");
-            eCategory.setAttribute("name", categoryKey);
+            eCategory.setAttribute(NAME, categoryKey);
             if (isCurrentKey) {
-                eCategory.setAttribute("current", "true");
+                eCategory.setAttribute("current", TRUE);
             }
 
             int indexSize;
@@ -1580,7 +1607,7 @@ public class MovieJukeboxXMLWriter {
             // Only output the category if there are entries
             if (categoryCount > 0) {
                 // Write the actual count of the category
-                eCategory.setAttribute("count", String.valueOf(categoryCount));
+                eCategory.setAttribute(COUNT, String.valueOf(categoryCount));
                 eLibrary.appendChild(eCategory);
                 libraryCount++;
             }
@@ -1610,7 +1637,7 @@ public class MovieJukeboxXMLWriter {
         // FIXME: The count here is off. It needs to be correct
         Element eMovies = xmlDoc.createElement("movies");
         eMovies.setAttribute("cols", String.valueOf(idx.videosPerLine));
-        eMovies.setAttribute("count", String.valueOf(idx.videosPerPage));
+        eMovies.setAttribute(COUNT, String.valueOf(idx.videosPerPage));
 
         //eMovies.setAttribute("indexCount", String.valueOf(library.getMovieCountForIndex(idx.categoryName, idx.key)));
         eMovies.setAttribute("indexCount", String.valueOf(indexCount));
@@ -1630,7 +1657,7 @@ public class MovieJukeboxXMLWriter {
         eLibrary.appendChild(eMovies);
 
         // Add the correct count to the library node
-        eLibrary.setAttribute("count", String.valueOf(libraryCount));
+        eLibrary.setAttribute(COUNT, String.valueOf(libraryCount));
 
         // Add the Library node to the document
         xmlDoc.appendChild(eLibrary);
@@ -1657,17 +1684,17 @@ public class MovieJukeboxXMLWriter {
 
         String prefix = FileTools.makeSafeFilename(FileTools.createPrefix(categoryKey, encakey));
 
-        Element eCategory = doc.createElement("index");
-        eCategory.setAttribute("name", categoryName);
+        Element eCategory = doc.createElement(INDEX);
+        eCategory.setAttribute(NAME, categoryName);
 
         // The category changes only occur for "Other" category
         if (Library.INDEX_OTHER.equals(categoryKey)) {
-            eCategory.setAttribute("originalName", Library.getOriginalCategory(encakey, Boolean.TRUE));
+            eCategory.setAttribute(ORIGINAL_NAME, Library.getOriginalCategory(encakey, Boolean.TRUE));
         }
 
         // if currently writing this page then add current attribute with value true
         if (isCurrentCat) {
-            eCategory.setAttribute("current", "true");
+            eCategory.setAttribute("current", TRUE);
             eCategory.setAttribute("first", prefix + '1');
             eCategory.setAttribute("previous", prefix + previous);
             eCategory.setAttribute("next", prefix + next);
@@ -1689,7 +1716,7 @@ public class MovieJukeboxXMLWriter {
      * @return
      */
     private Element writeMovieForIndex(Document doc, Movie movie) {
-        Element eMovie = doc.createElement("movie");
+        Element eMovie = doc.createElement(MOVIE);
 
         eMovie.setAttribute("isExtra", Boolean.toString(movie.isExtra()));
         eMovie.setAttribute("isSet", Boolean.toString(movie.isSetMaster()));
@@ -1698,17 +1725,17 @@ public class MovieJukeboxXMLWriter {
         }
         eMovie.setAttribute("isTV", Boolean.toString(movie.isTVShow()));
 
-        DOMHelper.appendChild(doc, eMovie, "details", HTMLTools.encodeUrl(movie.getBaseName()) + EXT_HTML);
+        DOMHelper.appendChild(doc, eMovie, DETAILS, HTMLTools.encodeUrl(movie.getBaseName()) + EXT_HTML);
         DOMHelper.appendChild(doc, eMovie, "baseFilenameBase", movie.getBaseFilename());
-        DOMHelper.appendChild(doc, eMovie, "baseFilename", movie.getBaseName());
-        DOMHelper.appendChild(doc, eMovie, "title", movie.getTitle());
+        DOMHelper.appendChild(doc, eMovie, BASE_FILENAME, movie.getBaseName());
+        DOMHelper.appendChild(doc, eMovie, TITLE, movie.getTitle());
         DOMHelper.appendChild(doc, eMovie, "titleSort", movie.getTitleSort());
-        DOMHelper.appendChild(doc, eMovie, "originalTitle", movie.getOriginalTitle());
+        DOMHelper.appendChild(doc, eMovie, ORIGINAL_TITLE, movie.getOriginalTitle());
         DOMHelper.appendChild(doc, eMovie, "detailPosterFile", HTMLTools.encodeUrl(movie.getDetailPosterFilename()));
         DOMHelper.appendChild(doc, eMovie, "thumbnail", HTMLTools.encodeUrl(movie.getThumbnailFilename()));
         DOMHelper.appendChild(doc, eMovie, "bannerFile", HTMLTools.encodeUrl(movie.getBannerFilename()));
         DOMHelper.appendChild(doc, eMovie, "certification", movie.getCertification());
-        DOMHelper.appendChild(doc, eMovie, "season", Integer.toString(movie.getSeason()));
+        DOMHelper.appendChild(doc, eMovie, SEASON, Integer.toString(movie.getSeason()));
 
         // Return the generated movie
         return eMovie;
@@ -1729,7 +1756,7 @@ public class MovieJukeboxXMLWriter {
 
         if (items.size() > 0) {
             Element eSet = doc.createElement(set);
-            eSet.setAttribute("count", String.valueOf(items.size()));
+            eSet.setAttribute(COUNT, String.valueOf(items.size()));
             for (String item : items) {
                 writeIndexedElement(doc, eSet, element, item, createIndexAttribute(library, cat, item));
             }
@@ -1742,8 +1769,7 @@ public class MovieJukeboxXMLWriter {
     /**
      * Write the element with the indexed attribute.
      *
-     * If there is a non-null value in the indexValue, this will be appended to
-     * the element.
+     * If there is a non-null value in the indexValue, this will be appended to the element.
      *
      * @param doc
      * @param parentElement
@@ -1755,7 +1781,7 @@ public class MovieJukeboxXMLWriter {
         if (indexValue == null) {
             DOMHelper.appendChild(doc, parentElement, attributeName, attributeValue);
         } else {
-            DOMHelper.appendChild(doc, parentElement, attributeName, attributeValue, "index", indexValue);
+            DOMHelper.appendChild(doc, parentElement, attributeName, attributeValue, INDEX, indexValue);
         }
     }
 
@@ -1794,7 +1820,7 @@ public class MovieJukeboxXMLWriter {
      * @return
      */
     private Element writeMovie(Document doc, Movie movie, Library library) {
-        Element eMovie = doc.createElement("movie");
+        Element eMovie = doc.createElement(MOVIE);
 
         eMovie.setAttribute("isExtra", Boolean.toString(movie.isExtra()));
         eMovie.setAttribute("isSet", Boolean.toString(movie.isSetMaster()));
@@ -1804,30 +1830,30 @@ public class MovieJukeboxXMLWriter {
         eMovie.setAttribute("isTV", Boolean.toString(movie.isTVShow()));
 
         for (Map.Entry<String, String> e : movie.getIdMap().entrySet()) {
-            DOMHelper.appendChild(doc, eMovie, "id", e.getValue(), "moviedb", e.getKey());
+            DOMHelper.appendChild(doc, eMovie, "id", e.getValue(), MOVIEDB, e.getKey());
         }
 
         DOMHelper.appendChild(doc, eMovie, "mjbVersion", SystemTools.getVersion());
         DOMHelper.appendChild(doc, eMovie, "mjbRevision", SystemTools.getRevision());
         DOMHelper.appendChild(doc, eMovie, "xmlGenerationDate", StringTools.convertDateToString(new Date(), StringTools.getDateFormatLongString()));
         DOMHelper.appendChild(doc, eMovie, "baseFilenameBase", movie.getBaseFilename());
-        DOMHelper.appendChild(doc, eMovie, "baseFilename", movie.getBaseName());
-        DOMHelper.appendChild(doc, eMovie, "title", movie.getTitle());
+        DOMHelper.appendChild(doc, eMovie, BASE_FILENAME, movie.getBaseName());
+        DOMHelper.appendChild(doc, eMovie, TITLE, movie.getTitle());
         DOMHelper.appendChild(doc, eMovie, "titleSort", movie.getTitleSort());
-        DOMHelper.appendChild(doc, eMovie, "originalTitle", movie.getOriginalTitle());
+        DOMHelper.appendChild(doc, eMovie, ORIGINAL_TITLE, movie.getOriginalTitle());
 
-        DOMHelper.appendChild(doc, eMovie, "year", movie.getYear(), "Year", Library.getYearCategory(movie.getYear()));
+        DOMHelper.appendChild(doc, eMovie, YEAR, movie.getYear(), "Year", Library.getYearCategory(movie.getYear()));
 
         DOMHelper.appendChild(doc, eMovie, "releaseDate", movie.getReleaseDate());
         DOMHelper.appendChild(doc, eMovie, "showStatus", movie.getShowStatus());
 
         // This is the main rating
-        DOMHelper.appendChild(doc, eMovie, "rating", Integer.toString(movie.getRating()));
+        DOMHelper.appendChild(doc, eMovie, RATING, Integer.toString(movie.getRating()));
 
         // This is the list of ratings
         Element eRatings = doc.createElement("ratings");
         for (String site : movie.getRatings().keySet()) {
-            DOMHelper.appendChild(doc, eRatings, "rating", Integer.toString(movie.getRating(site)), "moviedb", site);
+            DOMHelper.appendChild(doc, eRatings, RATING, Integer.toString(movie.getRating(site)), MOVIEDB, site);
         }
         eMovie.appendChild(eRatings);
 
@@ -1838,7 +1864,7 @@ public class MovieJukeboxXMLWriter {
             DOMHelper.appendChild(doc, eMovie, "watchedDate", movie.getWatchedDateString());
         }
         DOMHelper.appendChild(doc, eMovie, "top250", Integer.toString(movie.getTop250()));
-        DOMHelper.appendChild(doc, eMovie, "details", HTMLTools.encodeUrl(movie.getBaseName()) + EXT_HTML);
+        DOMHelper.appendChild(doc, eMovie, DETAILS, HTMLTools.encodeUrl(movie.getBaseName()) + EXT_HTML);
         DOMHelper.appendChild(doc, eMovie, "posterURL", HTMLTools.encodeUrl(movie.getPosterURL()));
         DOMHelper.appendChild(doc, eMovie, "posterFile", HTMLTools.encodeUrl(movie.getPosterFilename()));
         DOMHelper.appendChild(doc, eMovie, "fanartURL", HTMLTools.encodeUrl(movie.getFanartURL()));
@@ -1865,19 +1891,19 @@ public class MovieJukeboxXMLWriter {
          * eArtworkType;
          *
          * for (Artwork artwork : artworkList) { eArtworkType = doc.createElement(artworkType.toString());
-         * eArtworkType.setAttribute("count", String.valueOf(artworkList.size()));
+         * eArtworkType.setAttribute(COUNT, String.valueOf(artworkList.size()));
          *
          * DOMHelper.appendChild(doc, eArtworkType, "sourceSite", artwork.getSourceSite()); DOMHelper.appendChild(doc,
-         * eArtworkType, "url", artwork.getUrl());
+         * eArtworkType, URL, artwork.getUrl());
          *
          * for (ArtworkFile artworkFile : artwork.getSizes()) { DOMHelper.appendChild(doc, eArtworkType,
          * artworkFile.getSize().toString(), artworkFile.getFilename(), "downloaded",
          * String.valueOf(artworkFile.isDownloaded())); } eArtwork.appendChild(eArtworkType); } } else { // Write a
          * dummy node Element eArtworkType = doc.createElement(artworkType.toString());
-         * eArtworkType.setAttribute("count", String.valueOf(0));
+         * eArtworkType.setAttribute(COUNT, String.valueOf(0));
          *
-         * DOMHelper.appendChild(doc, eArtworkType, "url", Movie.UNKNOWN); DOMHelper.appendChild(doc, eArtworkType,
-         * ArtworkSize.LARGE.toString(), Movie.UNKNOWN, "downloaded", "false");
+         * DOMHelper.appendChild(doc, eArtworkType, URL, Movie.UNKNOWN); DOMHelper.appendChild(doc, eArtworkType,
+         * ArtworkSize.LARGE.toString(), Movie.UNKNOWN, "downloaded", FALSE);
          *
          * eArtwork.appendChild(eArtworkType); } } eMovie.appendChild(eArtwork);
          */
@@ -1887,7 +1913,7 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "quote", movie.getQuote());
         DOMHelper.appendChild(doc, eMovie, "tagline", movie.getTagline());
 
-        writeIndexedElement(doc, eMovie, "country", movie.getCountry(), createIndexAttribute(library, Library.INDEX_COUNTRY, movie.getCountry()));
+        writeIndexedElement(doc, eMovie, COUNTRY, movie.getCountry(), createIndexAttribute(library, Library.INDEX_COUNTRY, movie.getCountry()));
         if (XMLcompatible) {
             Element eCountry = doc.createElement("countries");
             int cnt = 0;
@@ -1895,7 +1921,7 @@ public class MovieJukeboxXMLWriter {
                 writeIndexedElement(doc, eCountry, "land", country, createIndexAttribute(library, Library.INDEX_COUNTRY, country));
                 cnt++;
             }
-            eCountry.setAttribute("count", String.valueOf(cnt));
+            eCountry.setAttribute(COUNT, String.valueOf(cnt));
             eMovie.appendChild(eCountry);
         }
 
@@ -1907,15 +1933,15 @@ public class MovieJukeboxXMLWriter {
                 DOMHelper.appendChild(doc, eCompany, "credit", company);
                 cnt++;
             }
-            eCompany.setAttribute("count", String.valueOf(cnt));
+            eCompany.setAttribute(COUNT, String.valueOf(cnt));
             eMovie.appendChild(eCompany);
         }
 
         DOMHelper.appendChild(doc, eMovie, "runtime", movie.getRuntime());
         DOMHelper.appendChild(doc, eMovie, "certification", Library.getIndexingCertification(movie.getCertification()));
-        DOMHelper.appendChild(doc, eMovie, "season", Integer.toString(movie.getSeason()));
+        DOMHelper.appendChild(doc, eMovie, SEASON, Integer.toString(movie.getSeason()));
 
-        DOMHelper.appendChild(doc, eMovie, "language", movie.getLanguage());
+        DOMHelper.appendChild(doc, eMovie, LANGUAGE, movie.getLanguage());
         if (XMLcompatible) {
             Element eLanguage = doc.createElement("languages");
             int cnt = 0;
@@ -1923,7 +1949,7 @@ public class MovieJukeboxXMLWriter {
                 DOMHelper.appendChild(doc, eLanguage, "lang", language);
                 cnt++;
             }
-            eLanguage.setAttribute("count", String.valueOf(cnt));
+            eLanguage.setAttribute(COUNT, String.valueOf(cnt));
             eMovie.appendChild(eLanguage);
         }
 
@@ -1935,19 +1961,19 @@ public class MovieJukeboxXMLWriter {
                 DOMHelper.appendChild(doc, eSubtitle, "subtitle", subtitle);
                 cnt++;
             }
-            eSubtitle.setAttribute("count", String.valueOf(cnt));
+            eSubtitle.setAttribute(COUNT, String.valueOf(cnt));
             eMovie.appendChild(eSubtitle);
         }
 
-        DOMHelper.appendChild(doc, eMovie, "trailerExchange", movie.isTrailerExchange() ? "YES" : "NO");
+        DOMHelper.appendChild(doc, eMovie, "trailerExchange", movie.isTrailerExchange() ? YES : "NO");
 
         if (movie.getTrailerLastScan() == 0) {
-            DOMHelper.appendChild(doc, eMovie, "trailerLastScan", Movie.UNKNOWN);
+            DOMHelper.appendChild(doc, eMovie, TRAILER_LAST_SCAN, Movie.UNKNOWN);
         } else {
             try {
-                DOMHelper.appendChild(doc, eMovie, "trailerLastScan", StringTools.getDateFormat().format(movie.getTrailerLastScan()));
+                DOMHelper.appendChild(doc, eMovie, TRAILER_LAST_SCAN, StringTools.getDateFormat().format(movie.getTrailerLastScan()));
             } catch (Exception error) {
-                DOMHelper.appendChild(doc, eMovie, "trailerLastScan", Movie.UNKNOWN);
+                DOMHelper.appendChild(doc, eMovie, TRAILER_LAST_SCAN, Movie.UNKNOWN);
             }
         }
 
@@ -1991,7 +2017,7 @@ public class MovieJukeboxXMLWriter {
 
         if (movie.getGenres().size() > 0) {
             Element eGenres = doc.createElement("genres");
-            eGenres.setAttribute("count", String.valueOf(movie.getGenres().size()));
+            eGenres.setAttribute(COUNT, String.valueOf(movie.getGenres().size()));
             for (String genre : movie.getGenres()) {
                 writeIndexedElement(doc, eGenres, "genre", genre, createIndexAttribute(library, Library.INDEX_GENRES, Library.getIndexingGenre(genre)));
             }
@@ -2001,16 +2027,16 @@ public class MovieJukeboxXMLWriter {
         Collection<String> items = movie.getSetsKeys();
         if (items.size() > 0) {
             Element eSets = doc.createElement("sets");
-            eSets.setAttribute("count", String.valueOf(items.size()));
+            eSets.setAttribute(COUNT, String.valueOf(items.size()));
             for (String item : items) {
                 Element eSetItem = doc.createElement("set");
                 Integer order = movie.getSetOrder(item);
                 if (null != order) {
-                    eSetItem.setAttribute("order", String.valueOf(order));
+                    eSetItem.setAttribute(ORDER, String.valueOf(order));
                 }
                 String index = createIndexAttribute(library, Library.INDEX_SET, item);
                 if (null != index) {
-                    eSetItem.setAttribute("index", index);
+                    eSetItem.setAttribute(INDEX, index);
                 }
 
                 eSetItem.setTextContent(item);
@@ -2042,22 +2068,22 @@ public class MovieJukeboxXMLWriter {
             Collection<AwardEvent> awards = movie.getAwards();
             if (awards != null && awards.size() > 0) {
                 Element eAwards = doc.createElement("awards");
-                eAwards.setAttribute("count", String.valueOf(awards.size()));
+                eAwards.setAttribute(COUNT, String.valueOf(awards.size()));
                 for (AwardEvent event : awards) {
                     Element eEvent = doc.createElement("event");
-                    eEvent.setAttribute("name", event.getName());
-                    eEvent.setAttribute("count", String.valueOf(event.getAwards().size()));
+                    eEvent.setAttribute(NAME, event.getName());
+                    eEvent.setAttribute(COUNT, String.valueOf(event.getAwards().size()));
                     for (Award award : event.getAwards()) {
                         Element eAwardItem = doc.createElement("award");
-                        eAwardItem.setAttribute("name", award.getName());
-                        eAwardItem.setAttribute("won", Integer.toString(award.getWon()));
+                        eAwardItem.setAttribute(NAME, award.getName());
+                        eAwardItem.setAttribute(WON, Integer.toString(award.getWon()));
                         eAwardItem.setAttribute("nominated", Integer.toString(award.getNominated()));
-                        eAwardItem.setAttribute("year", Integer.toString(award.getYear()));
+                        eAwardItem.setAttribute(YEAR, Integer.toString(award.getYear()));
                         if (award.getWons() != null && award.getWons().size() > 0) {
                             eAwardItem.setAttribute("wons", StringUtils.join(award.getWons(), Movie.SPACE_SLASH_SPACE));
                             if (XMLcompatible) {
                                 for (String won : award.getWons()) {
-                                    DOMHelper.appendChild(doc, eAwardItem, "won", won);
+                                    DOMHelper.appendChild(doc, eAwardItem, WON, won);
                                 }
                             }
                         }
@@ -2085,29 +2111,29 @@ public class MovieJukeboxXMLWriter {
             Collection<Filmography> people = movie.getPeople();
             if (people != null && people.size() > 0) {
                 Element ePeople = doc.createElement("people");
-                ePeople.setAttribute("count", String.valueOf(people.size()));
+                ePeople.setAttribute(COUNT, String.valueOf(people.size()));
                 for (Filmography person : people) {
                     Element ePerson = doc.createElement("person");
 
-                    ePerson.setAttribute("name", person.getName());
+                    ePerson.setAttribute(NAME, person.getName());
                     ePerson.setAttribute("doublage", person.getDoublage());
-                    ePerson.setAttribute("title", person.getTitle());
-                    ePerson.setAttribute("character", person.getCharacter());
-                    ePerson.setAttribute("job", person.getJob());
+                    ePerson.setAttribute(TITLE, person.getTitle());
+                    ePerson.setAttribute(CHARACTER, person.getCharacter());
+                    ePerson.setAttribute(JOB, person.getJob());
                     ePerson.setAttribute("id", person.getId());
                     for (Map.Entry<String, String> personID : person.getIdMap().entrySet()) {
                         if (!personID.getKey().equals(ImdbPlugin.IMDB_PLUGIN_ID)) {
-                            ePerson.setAttribute("id_" + personID.getKey(), personID.getValue());
+                            ePerson.setAttribute(ID + personID.getKey(), personID.getValue());
                         }
                     }
-                    ePerson.setAttribute("department", person.getDepartment());
-                    ePerson.setAttribute("url", person.getUrl());
-                    ePerson.setAttribute("order", Integer.toString(person.getOrder()));
+                    ePerson.setAttribute(DEPARTMENT, person.getDepartment());
+                    ePerson.setAttribute(URL, person.getUrl());
+                    ePerson.setAttribute(ORDER, Integer.toString(person.getOrder()));
                     ePerson.setAttribute("cast_id", Integer.toString(person.getCastId()));
                     ePerson.setAttribute("photoFile", person.getPhotoFilename());
                     String inx = createIndexAttribute(library, Library.INDEX_PERSON, person.getName());
                     if (inx != null) {
-                        ePerson.setAttribute("index", inx);
+                        ePerson.setAttribute(INDEX, inx);
                     }
                     ePerson.setTextContent(person.getFilename());
                     ePeople.appendChild(ePerson);
@@ -2122,11 +2148,11 @@ public class MovieJukeboxXMLWriter {
             eBusiness.setAttribute("budget", movie.getBudget());
 
             for (Map.Entry<String, String> gross : movie.getGross().entrySet()) {
-                DOMHelper.appendChild(doc, eBusiness, "gross", gross.getValue(), "country", gross.getKey());
+                DOMHelper.appendChild(doc, eBusiness, "gross", gross.getValue(), COUNTRY, gross.getKey());
             }
 
             for (Map.Entry<String, String> openweek : movie.getOpenWeek().entrySet()) {
-                DOMHelper.appendChild(doc, eBusiness, "openweek", openweek.getValue(), "country", openweek.getKey());
+                DOMHelper.appendChild(doc, eBusiness, "openweek", openweek.getValue(), COUNTRY, openweek.getKey());
             }
 
             eMovie.appendChild(eBusiness);
@@ -2135,7 +2161,7 @@ public class MovieJukeboxXMLWriter {
         // Issue 2013: Add trivia
         if (enableTrivia) {
             Element eTrivia = doc.createElement("didyouknow");
-            eTrivia.setAttribute("count", String.valueOf(movie.getDidYouKnow().size()));
+            eTrivia.setAttribute(COUNT, String.valueOf(movie.getDidYouKnow().size()));
 
             for (String trivia : movie.getDidYouKnow()) {
                 DOMHelper.appendChild(doc, eTrivia, "trivia", trivia);
@@ -2148,10 +2174,10 @@ public class MovieJukeboxXMLWriter {
         Element eIndexes = doc.createElement("indexes");
         String originalName;
         for (Entry<String, String> index : movie.getIndexes().entrySet()) {
-            Element eIndexEntry = doc.createElement("index");
+            Element eIndexEntry = doc.createElement(INDEX);
             eIndexEntry.setAttribute("type", index.getKey());
             originalName = Library.getOriginalCategory(index.getKey(), Boolean.TRUE);
-            eIndexEntry.setAttribute("originalName", originalName);
+            eIndexEntry.setAttribute(ORIGINAL_NAME, originalName);
             eIndexEntry.setAttribute("encoded", FileTools.makeSafeFilename(index.getValue()));
             eIndexEntry.setTextContent(index.getValue());
             eIndexes.appendChild(eIndexEntry);
@@ -2162,11 +2188,11 @@ public class MovieJukeboxXMLWriter {
         Element eFiles = doc.createElement("files");
         for (MovieFile mf : movie.getFiles()) {
             Element eFileItem = doc.createElement("file");
-            eFileItem.setAttribute("season", Integer.toString(mf.getSeason()));
+            eFileItem.setAttribute(SEASON, Integer.toString(mf.getSeason()));
             eFileItem.setAttribute("firstPart", Integer.toString(mf.getFirstPart()));
             eFileItem.setAttribute("lastPart", Integer.toString(mf.getLastPart()));
-            eFileItem.setAttribute("title", mf.getTitle());
-            eFileItem.setAttribute("subtitlesExchange", mf.isSubtitlesExchange() ? "YES" : "NO");
+            eFileItem.setAttribute(TITLE, mf.getTitle());
+            eFileItem.setAttribute("subtitlesExchange", mf.isSubtitlesExchange() ? YES : "NO");
 
             // Fixes an issue with null file lengths
             try {
@@ -2185,7 +2211,7 @@ public class MovieJukeboxXMLWriter {
                 eFileItem.setAttribute(e.getKey().toLowerCase(), e.getValue());
             }
 
-            eFileItem.setAttribute("watched", mf.isWatched() ? "true" : "false");
+            eFileItem.setAttribute("watched", mf.isWatched() ? TRUE : FALSE);
 
             if (mf.getFile() != null) {
                 DOMHelper.appendChild(doc, eFileItem, "fileLocation", mf.getFile().getAbsolutePath());
@@ -2216,18 +2242,18 @@ public class MovieJukeboxXMLWriter {
             DOMHelper.appendChild(doc, eFileItem, "fileURL", filename);
 
             for (int part = mf.getFirstPart(); part <= mf.getLastPart(); ++part) {
-                DOMHelper.appendChild(doc, eFileItem, "fileTitle", mf.getTitle(part), "part", Integer.toString(part));
+                DOMHelper.appendChild(doc, eFileItem, "fileTitle", mf.getTitle(part), PART, Integer.toString(part));
 
                 // Only write out these for TV Shows
                 if (movie.isTVShow()) {
                     Map<String, String> tvAttribs = new HashMap<String, String>();
-                    tvAttribs.put("part", Integer.toString(part));
+                    tvAttribs.put(PART, Integer.toString(part));
                     tvAttribs.put("afterSeason", mf.getAirsAfterSeason(part));
                     tvAttribs.put("beforeSeason", mf.getAirsBeforeSeason(part));
                     tvAttribs.put("beforeEpisode", mf.getAirsBeforeEpisode(part));
                     DOMHelper.appendChild(doc, eFileItem, "airsInfo", String.valueOf(part), tvAttribs);
 
-                    DOMHelper.appendChild(doc, eFileItem, "firstAired", mf.getFirstAired(part), "part", String.valueOf(part));
+                    DOMHelper.appendChild(doc, eFileItem, "firstAired", mf.getFirstAired(part), PART, String.valueOf(part));
                 }
 
                 if (StringTools.isValidString(mf.getWatchedDateString())) {
@@ -2235,16 +2261,16 @@ public class MovieJukeboxXMLWriter {
                 }
 
                 if (includeEpisodePlots) {
-                    DOMHelper.appendChild(doc, eFileItem, "filePlot", mf.getPlot(part), "part", String.valueOf(part));
+                    DOMHelper.appendChild(doc, eFileItem, "filePlot", mf.getPlot(part), PART, String.valueOf(part));
                 }
 
                 if (includeEpisodeRating) {
-                    DOMHelper.appendChild(doc, eFileItem, "fileRating", mf.getRating(part), "part", String.valueOf(part));
+                    DOMHelper.appendChild(doc, eFileItem, "fileRating", mf.getRating(part), PART, String.valueOf(part));
                 }
 
                 if (includeVideoImages) {
-                    DOMHelper.appendChild(doc, eFileItem, "fileImageURL", HTMLTools.encodeUrl(mf.getVideoImageURL(part)), "part", String.valueOf(part));
-                    DOMHelper.appendChild(doc, eFileItem, "fileImageFile", HTMLTools.encodeUrl(mf.getVideoImageFilename(part)), "part", String.valueOf(part));
+                    DOMHelper.appendChild(doc, eFileItem, "fileImageURL", HTMLTools.encodeUrl(mf.getVideoImageURL(part)), PART, String.valueOf(part));
+                    DOMHelper.appendChild(doc, eFileItem, "fileImageFile", HTMLTools.encodeUrl(mf.getVideoImageFilename(part)), PART, String.valueOf(part));
                 }
             }
             eFiles.appendChild(eFileItem);
@@ -2256,7 +2282,7 @@ public class MovieJukeboxXMLWriter {
             Element eExtras = doc.createElement("extras");
             for (ExtraFile ef : extraFiles) {
                 Element eExtraItem = doc.createElement("extra");
-                eExtraItem.setAttribute("title", ef.getTitle());
+                eExtraItem.setAttribute(TITLE, ef.getTitle());
                 if (ef.getPlayLink() != null) {
                     // Playlink values
                     for (Map.Entry<String, String> e : ef.getPlayLink().entrySet()) {
@@ -2299,7 +2325,7 @@ public class MovieJukeboxXMLWriter {
             codecAttribs.put("source", codec.getCodecSource().toString());
             codecAttribs.put("bitrate", codec.getCodecBitRate());
             if (codec.getCodecType() == CodecType.AUDIO) {
-                codecAttribs.put("language", codec.getCodecLanguage());
+                codecAttribs.put(LANGUAGE, codec.getCodecLanguage());
                 codecAttribs.put("langugageFull", codec.getCodecFullLanguage());
                 codecAttribs.put("channels", String.valueOf(codec.getCodecChannels()));
                 DOMHelper.appendChild(doc, eCodecAudio, "codec", codec.getCodec(), codecAttribs);
@@ -2309,8 +2335,8 @@ public class MovieJukeboxXMLWriter {
                 countVideo++;
             }
         }
-        eCodecAudio.setAttribute("count", String.valueOf(countAudio));
-        eCodecVideo.setAttribute("count", String.valueOf(countVideo));
+        eCodecAudio.setAttribute(COUNT, String.valueOf(countAudio));
+        eCodecVideo.setAttribute(COUNT, String.valueOf(countVideo));
         eCodecs.appendChild(eCodecAudio);
         eCodecs.appendChild(eCodecVideo);
 
@@ -2318,9 +2344,8 @@ public class MovieJukeboxXMLWriter {
     }
 
     /**
-     * Persist a movie into an XML file. Doesn't overwrite an already existing
-     * XML file for the specified movie unless, movie's data has changed or
-     * forceXMLOverwrite is true.
+     * Persist a movie into an XML file. Doesn't overwrite an already existing XML file for the specified movie unless,
+     * movie's data has changed or forceXMLOverwrite is true.
      */
     public void writeMovieXML(Jukebox jukebox, Movie movie, Library library) {
         String baseName = movie.getBaseName();
@@ -2339,7 +2364,7 @@ public class MovieJukeboxXMLWriter {
                 return;
             }
 
-            Element eDetails = xmlDoc.createElement("details");
+            Element eDetails = xmlDoc.createElement(DETAILS);
             xmlDoc.appendChild(eDetails);
 
             Element eMovie = writeMovie(xmlDoc, movie, library);
@@ -2363,14 +2388,14 @@ public class MovieJukeboxXMLWriter {
             DOMHelper.appendChild(doc, ePerson, "id", e.getValue(), "persondb", e.getKey());
         }
 
-        DOMHelper.appendChild(doc, ePerson, "name", person.getName());
-        DOMHelper.appendChild(doc, ePerson, "title", person.getTitle());
-        DOMHelper.appendChild(doc, ePerson, "baseFilename", person.getFilename());
+        DOMHelper.appendChild(doc, ePerson, NAME, person.getName());
+        DOMHelper.appendChild(doc, ePerson, TITLE, person.getTitle());
+        DOMHelper.appendChild(doc, ePerson, BASE_FILENAME, person.getFilename());
 
         if (person.getAka().size() > 0) {
             Element eAka = doc.createElement("aka");
             for (String aka : person.getAka()) {
-                DOMHelper.appendChild(doc, eAka, "name", aka);
+                DOMHelper.appendChild(doc, eAka, NAME, aka);
             }
             ePerson.appendChild(eAka);
         }
@@ -2379,7 +2404,7 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, ePerson, "birthday", person.getYear());
         DOMHelper.appendChild(doc, ePerson, "birthplace", person.getBirthPlace());
         DOMHelper.appendChild(doc, ePerson, "birthname", person.getBirthName());
-        DOMHelper.appendChild(doc, ePerson, "url", person.getUrl());
+        DOMHelper.appendChild(doc, ePerson, URL, person.getUrl());
         DOMHelper.appendChild(doc, ePerson, "photoFile", person.getPhotoFilename());
         DOMHelper.appendChild(doc, ePerson, "photoURL", person.getPhotoURL());
         DOMHelper.appendChild(doc, ePerson, "backdropFile", person.getBackdropFilename());
@@ -2390,23 +2415,23 @@ public class MovieJukeboxXMLWriter {
             Element eFilmography = doc.createElement("filmography");
 
             for (Filmography film : person.getFilmography()) {
-                Element eMovie = doc.createElement("movie");
+                Element eMovie = doc.createElement(MOVIE);
                 eMovie.setAttribute("id", film.getId());
 
                 for (Map.Entry<String, String> e : film.getIdMap().entrySet()) {
                     if (!e.getKey().equals(ImdbPlugin.IMDB_PLUGIN_ID)) {
-                        eMovie.setAttribute("id_" + e.getKey(), e.getValue());
+                        eMovie.setAttribute(ID + e.getKey(), e.getValue());
                     }
                 }
-                eMovie.setAttribute("name", film.getName());
-                eMovie.setAttribute("title", film.getTitle());
-                eMovie.setAttribute("originalTitle", film.getOriginalTitle());
-                eMovie.setAttribute("year", film.getYear());
-                eMovie.setAttribute("rating", film.getRating());
-                eMovie.setAttribute("character", film.getCharacter());
-                eMovie.setAttribute("job", film.getJob());
-                eMovie.setAttribute("department", film.getDepartment());
-                eMovie.setAttribute("url", film.getUrl());
+                eMovie.setAttribute(NAME, film.getName());
+                eMovie.setAttribute(TITLE, film.getTitle());
+                eMovie.setAttribute(ORIGINAL_TITLE, film.getOriginalTitle());
+                eMovie.setAttribute(YEAR, film.getYear());
+                eMovie.setAttribute(RATING, film.getRating());
+                eMovie.setAttribute(CHARACTER, film.getCharacter());
+                eMovie.setAttribute(JOB, film.getJob());
+                eMovie.setAttribute(DEPARTMENT, film.getDepartment());
+                eMovie.setAttribute(URL, film.getUrl());
                 eMovie.setTextContent(film.getFilename());
 
                 eFilmography.appendChild(eMovie);
@@ -2418,10 +2443,10 @@ public class MovieJukeboxXMLWriter {
         Element eIndexes = doc.createElement("indexes");
         String originalName;
         for (Entry<String, String> index : person.getIndexes().entrySet()) {
-            Element eIndexEntry = doc.createElement("index");
+            Element eIndexEntry = doc.createElement(INDEX);
             eIndexEntry.setAttribute("type", index.getKey());
             originalName = Library.getOriginalCategory(index.getKey(), Boolean.TRUE);
-            eIndexEntry.setAttribute("originalName", originalName);
+            eIndexEntry.setAttribute(ORIGINAL_NAME, originalName);
             eIndexEntry.setAttribute("encoded", FileTools.makeSafeFilename(index.getValue()));
             eIndexEntry.setTextContent(index.getValue());
             eIndexes.appendChild(eIndexEntry);
@@ -2446,7 +2471,7 @@ public class MovieJukeboxXMLWriter {
         if (!finalXmlFile.exists() || forceXMLOverwrite || person.isDirty()) {
             try {
                 Document personDoc = DOMHelper.createDocument();
-                Element eDetails = personDoc.createElement("details");
+                Element eDetails = personDoc.createElement(DETAILS);
                 eDetails.appendChild(writePerson(personDoc, person));
                 personDoc.appendChild(eDetails);
                 DOMHelper.writeDocumentToFile(personDoc, tempXmlFile);
