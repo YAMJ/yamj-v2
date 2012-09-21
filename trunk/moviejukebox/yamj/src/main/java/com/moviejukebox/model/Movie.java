@@ -2633,26 +2633,36 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         setDirty(DirtyFlag.INFO);
     }
 
-    public void addCodec(Codec newCodec) {
+    /**
+     * Add a codec to the video file.
+     *
+     * @param newCodec
+     */
+    public void addCodec(final Codec newCodec) {
         // Check to see if the codec already exists
         boolean alreadyExists = Boolean.FALSE;
         // Store the codecs to delete in an array to prevent a concurent modification exception
         ArrayList<Codec> codecsToDelete = new ArrayList<Codec>();
 
         for (Codec existingCodec : codecs) {
-            if (existingCodec.equals(newCodec)) {
-                alreadyExists = Boolean.TRUE;
-                break;
+            if (existingCodec.getCodecType() != newCodec.getCodecType()) {
+                // Codecs are not the same type.
+                continue;
             }
 
-            // Check to see if the codec is better than an existing one
-            if (existingCodec.getCodecType() == newCodec.getCodecType()) {
+            // Checks to see if the Type, Codec, Language and Channels are the same
+            if (existingCodec.equals(newCodec)) {
+                // Check to see if the codec is better than an existing one
                 if (existingCodec.getCodecSource().isBetter(newCodec.getCodecSource())) {
+                    // Found an existing codec which is better
                     alreadyExists = Boolean.TRUE;
                     break;
                 } else {
+                    // Found an existing codec, but newer is better source
                     codecsToDelete.add(existingCodec);
                 }
+
+                break;
             }
         }
 
