@@ -24,7 +24,6 @@ import com.moviejukebox.plugin.poster.ITvShowPosterPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 import java.awt.Dimension;
 import java.awt.color.CMMException;
 import java.io.File;

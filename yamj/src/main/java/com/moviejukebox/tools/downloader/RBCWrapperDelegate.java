@@ -24,5 +24,5 @@ package com.moviejukebox.tools.downloader;
  */
 public interface RBCWrapperDelegate {
 
-    public void rbcProgressCallback(RBCWrapper rbc, double progress);
+    void rbcProgressCallback(RBCWrapper rbc, double progress);
 }
