@@ -17,8 +17,9 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
+import static com.moviejukebox.tools.StringTools.getDateFormatLong;
 import java.io.File;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -48,7 +49,7 @@ public class JukeboxProperties {
     private static final String CATEGORY = "Category";
     private static final String GENRE = "Genre";
     private static final String CERTIFICATION = "Certification";
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-kk:mm:ss");
+//    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-kk:mm:ss");
     private static final int MINIMUM_REVISION = 3061;
 
     static {
@@ -257,9 +258,10 @@ public class JukeboxProperties {
         }
 
         try {
+            DateFormat df = getDateFormatLong();
             // Start with a blank document
             docMjbDetails = DOMHelper.createDocument();
-            docMjbDetails.appendChild(docMjbDetails.createComment("This file was created on: " + DATE_FORMAT.format(System.currentTimeMillis())));
+            docMjbDetails.appendChild(docMjbDetails.createComment("This file was created on: " + df.format(System.currentTimeMillis())));
 
             //create the root element and add it to the document
             eRoot = docMjbDetails.createElement("root");
@@ -274,7 +276,7 @@ public class JukeboxProperties {
             DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxRevision", SystemTools.getRevision());
 
             // Save the run date
-            DOMHelper.appendChild(docMjbDetails, eJukebox, "RunTime", DATE_FORMAT.format(System.currentTimeMillis()));
+            DOMHelper.appendChild(docMjbDetails, eJukebox, "RunTime", df.format(System.currentTimeMillis()));
 
             // Save the details directory name
             DOMHelper.appendChild(docMjbDetails, eJukebox, "DetailsDirName", jukebox.getDetailsDirName());
@@ -312,7 +314,7 @@ public class JukeboxProperties {
                 }
 
                 if (SkinProperties.getFileDate() > 0) {
-                    DOMHelper.appendChild(docMjbDetails, eSkin, "filedate", DATE_FORMAT.format(SkinProperties.getFileDate()));
+                    DOMHelper.appendChild(docMjbDetails, eSkin, "filedate", df.format(SkinProperties.getFileDate()));
                 }
             }
 
@@ -387,7 +389,8 @@ public class JukeboxProperties {
         if (StringTools.isValidString(tempFilename)) {
             try {
                 File tempFile = new File(tempFilename);
-                return DATE_FORMAT.format(tempFile.lastModified());
+                DateFormat df = getDateFormatLong();
+                return df.format(tempFile.lastModified());
             } catch (Exception ignore) {
                 return Movie.UNKNOWN;
             }
