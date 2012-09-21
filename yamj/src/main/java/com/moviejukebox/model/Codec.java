@@ -253,18 +253,11 @@ public class Codec {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 97 * hash + (this.codecType != null ? this.codecType.hashCode() : 0);
-        hash = 97 * hash + (this.codec != null ? this.codec.hashCode() : 0);
-        hash = 97 * hash + (this.codecFormat != null ? this.codecFormat.hashCode() : 0);
-        hash = 97 * hash + (this.codecId != null ? this.codecId.hashCode() : 0);
-        hash = 97 * hash + (this.codecIdHint != null ? this.codecIdHint.hashCode() : 0);
-        hash = 97 * hash + (this.codecFormatVersion != null ? this.codecFormatVersion.hashCode() : 0);
-        hash = 97 * hash + (this.codecFormatProfile != null ? this.codecFormatProfile.hashCode() : 0);
-        hash = 97 * hash + (this.codecLanguage != null ? this.codecLanguage.hashCode() : 0);
-        hash = 97 * hash + (this.codecFullLanguage != null ? this.codecFullLanguage.hashCode() : 0);
-        hash = 97 * hash + (this.codecBitRate != null ? this.codecBitRate.hashCode() : 0);
-        hash = 97 * hash + (this.codecSource != null ? this.codecSource.hashCode() : 0);
-        hash = 97 * hash + this.codecChannels;
+        hash = 17 * hash + (this.codecType != null ? this.codecType.hashCode() : 0);
+        hash = 17 * hash + (this.codec != null ? this.codec.hashCode() : 0);
+        hash = 17 * hash + (this.codecLanguage != null ? this.codecLanguage.hashCode() : 0);
+        hash = 17 * hash + (this.codecSource != null ? this.codecSource.hashCode() : 0);
+        hash = 17 * hash + this.codecChannels;
         return hash;
     }
 
@@ -273,46 +266,28 @@ public class Codec {
         if (obj == null) {
             return false;
         }
+
         if (getClass() != obj.getClass()) {
             return false;
         }
+
         final Codec other = (Codec) obj;
         if (this.codecType != other.codecType) {
             return false;
         }
+
         if ((this.codec == null) ? (other.codec != null) : !this.codec.equals(other.codec)) {
             return false;
         }
-        if ((this.codecFormat == null) ? (other.codecFormat != null) : !this.codecFormat.equals(other.codecFormat)) {
-            return false;
-        }
-        if ((this.codecId == null) ? (other.codecId != null) : !this.codecId.equals(other.codecId)) {
-            return false;
-        }
-        if ((this.codecIdHint == null) ? (other.codecIdHint != null) : !this.codecIdHint.equals(other.codecIdHint)) {
-            return false;
-        }
-        if ((this.codecFormatVersion == null) ? (other.codecFormatVersion != null) : !this.codecFormatVersion.equals(other.codecFormatVersion)) {
-            return false;
-        }
-        if ((this.codecFormatProfile == null) ? (other.codecFormatProfile != null) : !this.codecFormatProfile.equals(other.codecFormatProfile)) {
-            return false;
-        }
+
         if ((this.codecLanguage == null) ? (other.codecLanguage != null) : !this.codecLanguage.equals(other.codecLanguage)) {
             return false;
         }
-        if ((this.codecFullLanguage == null) ? (other.codecFullLanguage != null) : !this.codecFullLanguage.equals(other.codecFullLanguage)) {
-            return false;
-        }
-        if ((this.codecBitRate == null) ? (other.codecBitRate != null) : !this.codecBitRate.equals(other.codecBitRate)) {
-            return false;
-        }
-        if (this.codecSource != other.codecSource) {
-            return false;
-        }
+
         if (this.codecChannels != other.codecChannels) {
             return false;
         }
+
         return true;
     }
 

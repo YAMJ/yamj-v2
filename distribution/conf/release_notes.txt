@@ -28,6 +28,7 @@ MovieJukebox 2.7-SNAPSHOT
  - Fixed defect #2437 Clicking movie Rating gives dead link in skins gfb107 and gfb107-sd
  - Fixed defect #2438 TheTVDBPlugin broken
  - Fixed defect #2443 Indexing sorting does not work for renamed indexes
+ - Fixed defect #2451 Language Flags broken if streamdetails / audio set in NFO
  - Fixed defect #2453 Kinopoisk fix due to changed web pages
  - Fixed defect #2457 Apple trailers no longer downloading
  - Fixed defect #2470 Kinopoisk fix due to changed web pages
