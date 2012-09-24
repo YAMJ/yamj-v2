@@ -28,10 +28,12 @@ import org.apache.log4j.Logger;
 
 public class FileTools {
 
-    private static final Logger logger = Logger.getLogger(FileTools.class);
-    private static final String logMessage = "FileTools: ";
+    private static final Logger LOGGER = Logger.getLogger(FileTools.class);
+    private static final String LOG_MESSAGE = "FileTools: ";
     static final int BUFF_SIZE = 16 * 1024;
     private static final Collection<String> SUBTITLE_EXTENSIONS = new ArrayList<String>();
+    // Literals
+    private static final String TO = " to ";
 
     static {
         if (SUBTITLE_EXTENSIONS.isEmpty()) {
@@ -161,16 +163,16 @@ public class FileTools {
         try {
             srcFile = new File(src);
         } catch (Exception error) {
-            logger.error(logMessage + "Failed copying file " + src + " to " + dst);
-            logger.error(SystemTools.getStackTrace(error));
+            LOGGER.error(LOG_MESSAGE + "Failed copying file " + src + TO + dst);
+            LOGGER.error(SystemTools.getStackTrace(error));
             return;
         }
 
         try {
             dstFile = new File(dst);
         } catch (Exception error) {
-            logger.error(logMessage + "Failed copying file " + src + " to " + dst);
-            logger.error(SystemTools.getStackTrace(error));
+            LOGGER.error(LOG_MESSAGE + "Failed copying file " + src + TO + dst);
+            LOGGER.error(SystemTools.getStackTrace(error));
             return;
         }
         copyFile(srcFile, dstFile);
@@ -179,7 +181,7 @@ public class FileTools {
     public static void copyFile(File src, File dst) {
         try {
             if (!src.exists()) {
-                logger.error(logMessage + "The specified " + src + " file does not exist!");
+                LOGGER.error(LOG_MESSAGE + "The specified " + src + " file does not exist!");
                 return;
             }
 
@@ -207,8 +209,8 @@ public class FileTools {
             }
 
         } catch (IOException error) {
-            logger.error(logMessage + "Failed copying file " + src + " to " + dst);
-            logger.error(SystemTools.getStackTrace(error));
+            LOGGER.error(LOG_MESSAGE + "Failed copying file " + src + TO + dst);
+            LOGGER.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -244,7 +246,7 @@ public class FileTools {
         try {
             File srcDir = new File(srcPathName);
             if (!srcDir.exists()) {
-                logger.error(logMessage + "Source directory " + srcPathName + " does not exist!");
+                LOGGER.error(LOG_MESSAGE + "Source directory " + srcPathName + " does not exist!");
                 return;
             }
 
@@ -252,7 +254,7 @@ public class FileTools {
             dstDir.mkdirs();
 
             if (!dstDir.exists()) {
-                logger.error(logMessage + "Target directory " + dstPathName + " does not exist!");
+                LOGGER.error(LOG_MESSAGE + "Target directory " + dstPathName + " does not exist!");
                 return;
             }
 
@@ -283,8 +285,8 @@ public class FileTools {
                             } else {
                                 if (updateDisplay) {
                                     System.out.print("\r    Copying directory " + displayPath + " (" + currentFile + "/" + totalSize + ")");
-                                    if (logger.isTraceEnabled()) {
-                                        logger.trace(logMessage + "Copying: " + file.getName());
+                                    if (LOGGER.isTraceEnabled()) {
+                                        LOGGER.trace(LOG_MESSAGE + "Copying: " + file.getName());
                                     }
                                 }
                                 copyFile(file, dstDir);
@@ -294,12 +296,12 @@ public class FileTools {
                     if (updateDisplay) {
                         System.out.print("\n");
                     }
-                    logger.debug(logMessage + "Copied " + totalSize + " files from " + srcDir.getCanonicalPath());
+                    LOGGER.debug(LOG_MESSAGE + "Copied " + totalSize + " files from " + srcDir.getCanonicalPath());
                 }
             }
         } catch (IOException error) {
-            logger.error(logMessage + "Failed to copy " + srcPathName + " to " + dstPathName);
-            logger.error(SystemTools.getStackTrace(error));
+            LOGGER.error(LOG_MESSAGE + "Failed to copy " + srcPathName + TO + dstPathName);
+            LOGGER.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -322,7 +324,7 @@ public class FileTools {
                     }
                 }
             } catch (IOException error) {
-                logger.error(logMessage + "Failed reading file " + file.getName());
+                LOGGER.error(LOG_MESSAGE + "Failed reading file " + file.getName());
             }
         }
 
@@ -344,7 +346,7 @@ public class FileTools {
             out = new FileWriter(outFile);
             out.write(outputString);
         } catch (Exception ignore) {
-            logger.debug(logMessage + "Error writing string to " + filename);
+            LOGGER.debug(LOG_MESSAGE + "Error writing string to " + filename);
         } finally {
             try {
                 out.close();
@@ -430,7 +432,7 @@ public class FileTools {
         }
 
         if (!newFilename.equals(filename)) {
-            logger.debug(logMessage + "Encoded filename string " + filename + " to " + newFilename);
+            LOGGER.debug(LOG_MESSAGE + "Encoded filename string " + filename + TO + newFilename);
         }
 
         return newFilename;
@@ -485,8 +487,8 @@ public class FileTools {
         for (String extension : fileExtensions) {
             localFile = fileCache.getFile(fullBaseFilename + "." + extension);
             if (localFile.exists()) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace(logMessage + "Found " + localFile + " in the file cache");
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace(LOG_MESSAGE + "Found " + localFile + " in the file cache");
                 }
                 return localFile;
             }
@@ -572,12 +574,12 @@ public class FileTools {
             }
 
             if (searchFile != null) {
-                logger.debug(logPrefix + "Using first one found: " + searchFile.getAbsolutePath());
+                LOGGER.debug(logPrefix + "Using first one found: " + searchFile.getAbsolutePath());
             } else {
-                logger.debug(logPrefix + "No matching files found for " + safeFilename);
+                LOGGER.debug(logPrefix + "No matching files found for " + safeFilename);
             }
         } else {
-            logger.debug(logPrefix + "No scanned files found for " + searchFilename);
+            LOGGER.debug(logPrefix + "No scanned files found for " + searchFilename);
         }
 
         return searchFile;
@@ -670,8 +672,8 @@ public class FileTools {
         if (StringTools.isValidString(filename)) {
             GENERATED_FILENAMES.add(filename);
 
-            if (logger.isTraceEnabled()) {
-                logger.trace(logMessage + "Adding " + filename + " to safe jukebox files");
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace(LOG_MESSAGE + "Adding " + filename + " to safe jukebox files");
             }
         }
     }
