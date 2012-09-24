@@ -582,17 +582,13 @@ public class MediaInfoScanner {
             String infoFormat = "";
             infoValue = infosCurText.get("Format");
 
-            // Issue 1450 - If we are here, we have subtitles, but didn't have the language, setting an UNKNOWN value to make it appear
-            if (infoValue == null || infoValue.trim().length() == 0) {
-                infoValue = Movie.UNKNOWN;
-            }
-
-            if (infoValue != null) {
+            if (StringTools.isValidString(infoValue)) {
                 infoFormat = infoValue;
             } else {
-                // take care of label for "Format" in mediaInfo 0.6.1.1
+                // Issue 1450 - If we are here, we have subtitles, but didn't have the language
+                // Take care of label for "Format" in mediaInfo 0.6.1.1
                 infoValue = infosCurText.get("Codec");
-                if (infoValue != null) {
+                if (StringTools.isValidString(infoValue)) {
                     infoFormat = infoValue;
                 }
             }
@@ -725,7 +721,8 @@ public class MediaInfoScanner {
     }
 
     /**
-     * Look for the mediaInfo filename and return it. Will check first for the mediainfo-rar file and then mediainfo
+     * Look for the mediaInfo filename and return it. Will check first for the
+     * mediainfo-rar file and then mediainfo
      *
      * @param osName
      * @return

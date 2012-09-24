@@ -763,7 +763,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Trim the new category to the required length, add the trimmed video list to the NEW category
+     * Trim the new category to the required length, add the trimmed video list
+     * to the NEW category
      *
      * @param catName The name of the category: "New-TV" or "New-Movie"
      * @param catCount The maximum size of the category
@@ -957,8 +958,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Index the videos by the property values This is slightly different from the other indexes as there may be
-     * multiple entries for each of the videos
+     * Index the videos by the property values This is slightly different from
+     * the other indexes as there may be multiple entries for each of the videos
      *
      * @param moviesList
      * @return
@@ -1165,7 +1166,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Calculate the minimum/maximum count for a category/movie based on it's property value.
+     * Calculate the minimum/maximum count for a category/movie based on it's
+     * property value.
      *
      * @param categoryName
      * @return
@@ -1319,7 +1321,7 @@ public class Library implements Map<String, Movie> {
         Index index = new Index(true);
         for (Movie movie : list) {
             if (!movie.isExtra() && (movie.getRating() > 0)) {
-                String rating = Integer.toString((int) Math.floor(movie.getRating() / 10));
+                String rating = Double.toString(Math.floor((double) movie.getRating() / (double) 10));
                 rating = rating + ".0-" + rating + ".9";
                 logger.debug("Adding " + movie.getTitle() + " to ratings list for " + rating);
                 index.addMovie(rating, movie);
@@ -1351,7 +1353,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Checks if there is a master (will be shown in the index) genre for the specified one.
+     * Checks if there is a master (will be shown in the index) genre for the
+     * specified one.
      *
      * @param genre Genre to find the master for
      * @return Genre itself or master if available.
@@ -1370,7 +1373,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Checks if there is a master (will be shown in the index) Certification for the specified one.
+     * Checks if there is a master (will be shown in the index) Certification
+     * for the specified one.
      *
      * @param certification Certification to find the master for
      * @return Certification itself or master if available.
@@ -1575,7 +1579,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the first category in the first index that has any movies in it For Issue 436
+     * Find the first category in the first index that has any movies in it For
+     * Issue 436
      */
     public String getDefaultCategory() {
         for (Index index : indexes.values()) {
@@ -1669,8 +1674,9 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the un-modified category name. The Category name could be changed by the use of the Category XML file. This
-     * function will return the original, unchanged name
+     * Find the un-modified category name. The Category name could be changed by
+     * the use of the Category XML file. This function will return the original,
+     * unchanged name
      *
      * @param newCategory
      * @return
@@ -1691,8 +1697,9 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the renamed category name from the original name The Category name could be changed by the use of the
-     * Category XML file. This function will return the new name.
+     * Find the renamed category name from the original name The Category name
+     * could be changed by the use of the Category XML file. This function will
+     * return the new name.
      *
      * @param test
      * @return
@@ -1737,7 +1744,8 @@ public class Library implements Map<String, Movie> {
     /**
      * Determine the year banding for the category.
      *
-     * If the year is this year or last year, return those, otherwise return the decade the year resides in
+     * If the year is this year or last year, return those, otherwise return the
+     * decade the year resides in
      *
      * @param filmYear The year to check
      * @return "This Year", "Last Year" or the decade range (1990-1999)

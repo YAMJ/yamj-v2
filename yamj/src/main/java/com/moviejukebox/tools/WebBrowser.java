@@ -344,9 +344,7 @@ public class WebBrowser {
      * @param urlString
      * @return
      */
-    public String getUrl(String urlString) {
-        String response = urlString;
-
+    public String getUrl(final String urlString) {
         URL url;
         try {
             url = new URL(urlString);
@@ -361,15 +359,13 @@ public class WebBrowser {
             URLConnection cnx = openProxiedConnection(url);
             sendHeader(cnx);
             readHeader(cnx);
-            response = cnx.getURL().toString();
+            return cnx.getURL().toString();
         } catch (IOException ex) {
             logger.warn(logMessage + "Unable to retrieve URL: " + urlString + " - Error: " + ex.getMessage());
             return Movie.UNKNOWN;
         } finally {
             ThreadExecutor.leaveIO();
         }
-
-        return response;
     }
 
     public static String getMjbProxyHost() {

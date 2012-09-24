@@ -540,8 +540,8 @@ public class PosterScanner {
             Iterator readers = ImageIO.getImageReaders(in);
             if (readers.hasNext()) {
                 reader = (ImageReader) readers.next();
-                reader.setInput(in);
                 if (reader != null) {
+                    reader.setInput(in);
                     return new Dimension(reader.getWidth(0), reader.getHeight(0));
                 }
             }
