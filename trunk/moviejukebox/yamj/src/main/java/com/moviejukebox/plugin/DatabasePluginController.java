@@ -15,6 +15,8 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.SystemTools;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,11 +51,11 @@ public class DatabasePluginController {
                 movieDatabasePlugin.put("ALTERNATE", getMovieDatabasePlugin(alternatePlugin));
             }
 
-            String tmpAutoDetect = PropertiesUtil.getProperty("mjb.internet.plugin.autodetect", "false").toLowerCase();
-            autoDetect = !tmpAutoDetect.equalsIgnoreCase("false");
+            String tmpAutoDetect = PropertiesUtil.getProperty("mjb.internet.plugin.autodetect", FALSE).toLowerCase();
+            autoDetect = !tmpAutoDetect.equalsIgnoreCase(FALSE);
             if (autoDetect) {
                 String pluginID;
-                boolean emptyList = tmpAutoDetect.equalsIgnoreCase("true");
+                boolean emptyList = tmpAutoDetect.equalsIgnoreCase(TRUE);
                 ServiceLoader<MovieDatabasePlugin> movieDBPluginsSet = ServiceLoader.load(MovieDatabasePlugin.class);
                 for (MovieDatabasePlugin movieDBPlugin : movieDBPluginsSet) {
                     pluginID = movieDBPlugin.getPluginID().toLowerCase();

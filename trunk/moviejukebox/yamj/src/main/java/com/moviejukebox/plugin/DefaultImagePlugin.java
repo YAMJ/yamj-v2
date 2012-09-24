@@ -17,6 +17,8 @@ import com.moviejukebox.model.*;
 import com.moviejukebox.model.Comparator.ValueComparator;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.awt.*;
@@ -138,11 +140,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     public DefaultImagePlugin() {
         // Generic properties
         String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-        boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", "true");
+        boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", TRUE);
         overlayRoot = PropertiesUtil.getProperty("mjb.overlay.dir", Movie.UNKNOWN);
         overlayRoot = (skinRoot ? (skinHome + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
         overlayResources = overlayRoot + PropertiesUtil.getProperty("mjb.overlay.resources", "resources") + File.separator;
-        highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
+        highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", FALSE);
 
         synchronized (validImageTypes) {
             if (validImageTypes.isEmpty()) {
@@ -165,11 +167,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     @Override
     public BufferedImage generate(Movie movie, BufferedImage imageGraphic, String gImageType, String perspectiveDirection) {
-        boolean addReflectionEffect = PropertiesUtil.getBooleanProperty(imageType + ".reflection", "false");
-        boolean addPerspective = PropertiesUtil.getBooleanProperty(imageType + ".perspective", "false");
-        boolean imageNormalize = PropertiesUtil.getBooleanProperty(imageType + ".normalize", "false");
-        boolean imageStretch = PropertiesUtil.getBooleanProperty(imageType + ".stretch", "false");
-        boolean addOverlay = PropertiesUtil.getBooleanProperty(imageType + ".overlay", "false");
+        boolean addReflectionEffect = PropertiesUtil.getBooleanProperty(imageType + ".reflection", FALSE);
+        boolean addPerspective = PropertiesUtil.getBooleanProperty(imageType + ".perspective", FALSE);
+        boolean imageNormalize = PropertiesUtil.getBooleanProperty(imageType + ".normalize", FALSE);
+        boolean imageStretch = PropertiesUtil.getBooleanProperty(imageType + ".stretch", FALSE);
+        boolean addOverlay = PropertiesUtil.getBooleanProperty(imageType + ".overlay", FALSE);
 
         boolean isFooter = false;
 
@@ -193,31 +195,31 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         // Specific Properties (dependent upon the imageType)
         int imageWidth = PropertiesUtil.getIntProperty(imageType + ".width", "400");
         int imageHeight = PropertiesUtil.getIntProperty(imageType + ".height", "600");
-        addHDLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoHD", "false");
-        addTVLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoTV", "false");
+        addHDLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoHD", FALSE);
+        addTVLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoTV", FALSE);
 
-        String tmpSubTitle = PropertiesUtil.getProperty(imageType + ".logoSubTitle", "false");
+        String tmpSubTitle = PropertiesUtil.getProperty(imageType + ".logoSubTitle", FALSE);
         blockSubTitle = tmpSubTitle.equalsIgnoreCase("block");
-        addSubTitle = tmpSubTitle.equalsIgnoreCase("true") || blockSubTitle;
+        addSubTitle = tmpSubTitle.equalsIgnoreCase(TRUE) || blockSubTitle;
 
-        String tmpLanguage = PropertiesUtil.getProperty(imageType + ".language", "false");
+        String tmpLanguage = PropertiesUtil.getProperty(imageType + ".language", FALSE);
         blockLanguage = tmpLanguage.equalsIgnoreCase("block");
-        addLanguage = tmpLanguage.equalsIgnoreCase("true") || blockLanguage;
+        addLanguage = tmpLanguage.equalsIgnoreCase(TRUE) || blockLanguage;
 
-        String tmpSetLogo = PropertiesUtil.getProperty(imageType + ".logoSet", "false");
+        String tmpSetLogo = PropertiesUtil.getProperty(imageType + ".logoSet", FALSE);
         countSetLogo = tmpSetLogo.equalsIgnoreCase("count");
-        addSetLogo = tmpSetLogo.equalsIgnoreCase("true") || countSetLogo; // Note: This should only be for thumbnails
+        addSetLogo = tmpSetLogo.equalsIgnoreCase(TRUE) || countSetLogo; // Note: This should only be for thumbnails
 
-        boolean addTextTitle = PropertiesUtil.getBooleanProperty(imageType + ".addText.title", "false");
-        boolean addTextSeason = PropertiesUtil.getBooleanProperty(imageType + ".addText.season", "false");
-        addTextSetSize = PropertiesUtil.getBooleanProperty(imageType + ".addText.setSize", "false"); // Note: This should only be for thumbnails
+        boolean addTextTitle = PropertiesUtil.getBooleanProperty(imageType + ".addText.title", FALSE);
+        boolean addTextSeason = PropertiesUtil.getBooleanProperty(imageType + ".addText.season", FALSE);
+        addTextSetSize = PropertiesUtil.getBooleanProperty(imageType + ".addText.setSize", FALSE); // Note: This should only be for thumbnails
         textAlignment = PropertiesUtil.getProperty(imageType + ".addText.alignment", "left");
         textFont = PropertiesUtil.getProperty(imageType + ".addText.font", "Helvetica");
         textFontSize = PropertiesUtil.getIntProperty(imageType + ".addText.fontSize", "36");
         textFontColor = PropertiesUtil.getProperty(imageType + ".addText.fontColor", "LIGHT_GRAY");
         textFontShadow = PropertiesUtil.getProperty(imageType + ".addText.fontShadow", "DARK_GRAY");
         textOffset = PropertiesUtil.getIntProperty(imageType + ".addText.offset", "10");
-        roundCorners = PropertiesUtil.getBooleanProperty(imageType + ".roundCorners", "false");
+        roundCorners = PropertiesUtil.getBooleanProperty(imageType + ".roundCorners", FALSE);
         cornerRadius = PropertiesUtil.getIntProperty(imageType + ".cornerRadius", "25");
         int cornerQuality = PropertiesUtil.getIntProperty(imageType + ".cornerQuality", "0");
 
@@ -225,7 +227,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         int overlayOffsetY = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetY", "0");
         overlaySource = PropertiesUtil.getProperty(imageType + ".overlay.source", "default");
 
-        boolean addFrame = PropertiesUtil.getBooleanProperty(imageType + ".addFrame", "false");
+        boolean addFrame = PropertiesUtil.getBooleanProperty(imageType + ".addFrame", FALSE);
         frameSize = PropertiesUtil.getIntProperty(imageType + ".frame.size", "5");
         frameColorSD = PropertiesUtil.getProperty(imageType + ".frame.colorSD", "255/255/255");
         frameColorHD = PropertiesUtil.getProperty(imageType + ".frame.colorHD", "255/255/255");
@@ -233,57 +235,57 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         frameColor1080 = PropertiesUtil.getProperty(imageType + ".frame.color1080", "255/255/255");
 
         // Issue 1937: Overlay configuration XML
-        String tmpRating = PropertiesUtil.getProperty(imageType + ".rating", "false");
+        String tmpRating = PropertiesUtil.getProperty(imageType + ".rating", FALSE);
         realRating = tmpRating.equalsIgnoreCase("real");
-        addRating = tmpRating.equalsIgnoreCase("true") || realRating;
+        addRating = tmpRating.equalsIgnoreCase(TRUE) || realRating;
 
-        String tmpAudioCodec = PropertiesUtil.getProperty(imageType + ".audiocodec", "false");
+        String tmpAudioCodec = PropertiesUtil.getProperty(imageType + ".audiocodec", FALSE);
         blockAudioCodec = tmpAudioCodec.equalsIgnoreCase("block");
-        addAudioCodec = tmpAudioCodec.equalsIgnoreCase("true") || blockAudioCodec;
+        addAudioCodec = tmpAudioCodec.equalsIgnoreCase(TRUE) || blockAudioCodec;
 
-        String tmpAudioChannels = PropertiesUtil.getProperty(imageType + ".audiochannels", "false");
+        String tmpAudioChannels = PropertiesUtil.getProperty(imageType + ".audiochannels", FALSE);
         blockAudioChannels = tmpAudioChannels.equalsIgnoreCase("block");
-        addAudioChannels = tmpAudioChannels.equalsIgnoreCase("true") || blockAudioChannels;
+        addAudioChannels = tmpAudioChannels.equalsIgnoreCase(TRUE) || blockAudioChannels;
 
-        String tmpAudioLang = PropertiesUtil.getProperty(imageType + ".audiolang", "false");
+        String tmpAudioLang = PropertiesUtil.getProperty(imageType + ".audiolang", FALSE);
         blockAudioLang = tmpAudioCodec.equalsIgnoreCase("block");
-        addAudioLang = tmpAudioLang.equalsIgnoreCase("true") || blockAudioLang;
+        addAudioLang = tmpAudioLang.equalsIgnoreCase(TRUE) || blockAudioLang;
 
-        addVideoSource = PropertiesUtil.getBooleanProperty(imageType + ".videosource", "false");
-        addVideoOut = PropertiesUtil.getBooleanProperty(imageType + ".videoout", "false");
-        addVideoCodec = PropertiesUtil.getBooleanProperty(imageType + ".videocodec", "false");
-        addContainer = PropertiesUtil.getBooleanProperty(imageType + ".container", "false");
-        addAspectRatio = PropertiesUtil.getBooleanProperty(imageType + ".aspect", "false");
-        addFPS = PropertiesUtil.getBooleanProperty(imageType + ".fps", "false");
-        addCertification = PropertiesUtil.getBooleanProperty(imageType + ".certification", "false");
+        addVideoSource = PropertiesUtil.getBooleanProperty(imageType + ".videosource", FALSE);
+        addVideoOut = PropertiesUtil.getBooleanProperty(imageType + ".videoout", FALSE);
+        addVideoCodec = PropertiesUtil.getBooleanProperty(imageType + ".videocodec", FALSE);
+        addContainer = PropertiesUtil.getBooleanProperty(imageType + ".container", FALSE);
+        addAspectRatio = PropertiesUtil.getBooleanProperty(imageType + ".aspect", FALSE);
+        addFPS = PropertiesUtil.getBooleanProperty(imageType + ".fps", FALSE);
+        addCertification = PropertiesUtil.getBooleanProperty(imageType + ".certification", FALSE);
 
-        String tmpWatched = PropertiesUtil.getProperty(imageType + ".watched", "false");
+        String tmpWatched = PropertiesUtil.getProperty(imageType + ".watched", FALSE);
         blockWatched = tmpWatched.equalsIgnoreCase("block");
-        addWatched = tmpWatched.equalsIgnoreCase("true") || blockWatched;
+        addWatched = tmpWatched.equalsIgnoreCase(TRUE) || blockWatched;
 
-        String tmpEpisode = PropertiesUtil.getProperty(imageType + ".episode", "false");
+        String tmpEpisode = PropertiesUtil.getProperty(imageType + ".episode", FALSE);
         blockEpisode = tmpEpisode.equalsIgnoreCase("block");
-        addEpisode = tmpEpisode.equalsIgnoreCase("true") || blockEpisode;
+        addEpisode = tmpEpisode.equalsIgnoreCase(TRUE) || blockEpisode;
 
-        addTop250 = PropertiesUtil.getBooleanProperty(imageType + ".top250", "false");
-        addKeywords = PropertiesUtil.getBooleanProperty(imageType + ".keywords", "false");
-        blockClones = PropertiesUtil.getBooleanProperty(imageType + ".clones", "false");
+        addTop250 = PropertiesUtil.getBooleanProperty(imageType + ".top250", FALSE);
+        addKeywords = PropertiesUtil.getBooleanProperty(imageType + ".keywords", FALSE);
+        blockClones = PropertiesUtil.getBooleanProperty(imageType + ".clones", FALSE);
 
-        String tmpCountry = PropertiesUtil.getProperty(imageType + ".country", "false");
+        String tmpCountry = PropertiesUtil.getProperty(imageType + ".country", FALSE);
         blockCountry = tmpCountry.equalsIgnoreCase("block");
-        addCountry = tmpCountry.equalsIgnoreCase("true") || blockCountry;
+        addCountry = tmpCountry.equalsIgnoreCase(TRUE) || blockCountry;
 
-        String tmpCompany = PropertiesUtil.getProperty(imageType + ".company", "false");
+        String tmpCompany = PropertiesUtil.getProperty(imageType + ".company", FALSE);
         blockCompany = tmpCompany.equalsIgnoreCase("block");
-        addCompany = tmpCompany.equalsIgnoreCase("true") || blockCompany;
+        addCompany = tmpCompany.equalsIgnoreCase(TRUE) || blockCompany;
 
-        String tmpAward = PropertiesUtil.getProperty(imageType + ".award", "false");
+        String tmpAward = PropertiesUtil.getProperty(imageType + ".award", FALSE);
         blockAward = tmpAward.equalsIgnoreCase("block");
         countAward = tmpAward.equalsIgnoreCase("count");
-        addAward = tmpAward.equalsIgnoreCase("true") || blockAward || countAward;
-        awardEventName = PropertiesUtil.getBooleanProperty(imageType + ".award.useEventName", "false");
+        addAward = tmpAward.equalsIgnoreCase(TRUE) || blockAward || countAward;
+        awardEventName = PropertiesUtil.getBooleanProperty(imageType + ".award.useEventName", FALSE);
 
-        xmlOverlay = PropertiesUtil.getBooleanProperty(imageType + ".xmlOverlay", "false");
+        xmlOverlay = PropertiesUtil.getBooleanProperty(imageType + ".xmlOverlay", FALSE);
         if (xmlOverlay) {
             String tmp = PropertiesUtil.getProperty("overlay.keywords.rating", "");
             fillOverlayKeywords(keywordsRating, tmp);
@@ -514,13 +516,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     String value = Movie.UNKNOWN;
                     if (checkLogoEnabled(name)) {
                         if (name.equalsIgnoreCase("set")) {
-                            value = ((imageType.equalsIgnoreCase(THUMBNAIL) || imageType.equalsIgnoreCase(BANNER) || imageType.equalsIgnoreCase(FOOTER)) && movie.isSetMaster()) ? countSetLogo ? Integer.toString(movie.getSetSize()) : "true" : countSetLogo ? "0" : "false";
+                            value = ((imageType.equalsIgnoreCase(THUMBNAIL) || imageType.equalsIgnoreCase(BANNER) || imageType.equalsIgnoreCase(FOOTER)) && movie.isSetMaster()) ? countSetLogo ? Integer.toString(movie.getSetSize()) : TRUE : countSetLogo ? "0" : FALSE;
                         } else if (name.equalsIgnoreCase("TV")) {
-                            value = movie.isTVShow() ? "true" : "false";
+                            value = movie.isTVShow() ? TRUE : FALSE;
                         } else if (name.equalsIgnoreCase("HD")) {
-                            value = movie.isHD() ? highdefDiff ? movie.isHD1080() ? "hd1080" : "hd720" : "hd" : "false";
+                            value = movie.isHD() ? highdefDiff ? movie.isHD1080() ? "hd1080" : "hd720" : "hd" : FALSE;
                         } else if (name.equalsIgnoreCase("subtitle") || name.equalsIgnoreCase("ST")) {
-                            value = (StringTools.isNotValidString(movie.getSubtitles()) || movie.getSubtitles().equalsIgnoreCase("NO")) ? "false" : (blockSubTitle ? movie.getSubtitles() : "true");
+                            value = (StringTools.isNotValidString(movie.getSubtitles()) || movie.getSubtitles().equalsIgnoreCase("NO")) ? FALSE : (blockSubTitle ? movie.getSubtitles() : TRUE);
                         } else if (name.equalsIgnoreCase("language")) {
                             value = movie.getLanguage();
                         } else if (name.equalsIgnoreCase("rating")) {
@@ -585,7 +587,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             value = movie.getCertification();
                         } else if (name.equalsIgnoreCase("watched")) {
                             if (imageType.equalsIgnoreCase(VIDEOIMAGE)) {
-                                value = movie.getFiles().toArray(new MovieFile[movie.getFiles().size()])[viIndex].isWatched() ? "true" : "false";
+                                value = movie.getFiles().toArray(new MovieFile[movie.getFiles().size()])[viIndex].isWatched() ? TRUE : FALSE;
                             } else if (movie.isTVShow() && blockWatched) {
                                 StringBuilder sbWatched = new StringBuilder();
                                 boolean first = true;
@@ -595,11 +597,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     } else {
                                         sbWatched.append(Movie.SPACE_SLASH_SPACE);
                                     }
-                                    sbWatched.append(mf.isWatched() ? "true" : "false");
+                                    sbWatched.append(mf.isWatched() ? TRUE : FALSE);
                                 }
                                 value = sbWatched.toString();
                             } else {
-                                value = movie.isWatched() ? "true" : "false";
+                                value = movie.isWatched() ? TRUE : FALSE;
                             }
                         } else if (name.equalsIgnoreCase("episode")) {
                             if (movie.isTVShow()) {
@@ -625,7 +627,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                 }
                             }
                         } else if (name.equalsIgnoreCase("top250")) {
-                            value = movie.getTop250() > 0 ? "true" : "false";
+                            value = movie.getTop250() > 0 ? TRUE : FALSE;
                         } else if (name.equalsIgnoreCase("keywords")) {
                             value = movie.getBaseFilename().toLowerCase();
                         } else if (name.equalsIgnoreCase("country")) {
@@ -657,7 +659,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                             } else if (countAward) {
                                                 awardCount++;
                                             } else {
-                                                value = "true";
+                                                value = TRUE;
                                                 break;
                                             }
                                         }
@@ -686,7 +688,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                 }
                                 value += sbAwards.toString();
                             }
-                            value = (StringTools.isNotValidString(value) && !countAward) ? blockAward ? Movie.UNKNOWN : "false" : countAward ? Integer.toString(awardCount) : value;
+                            value = (StringTools.isNotValidString(value) && !countAward) ? blockAward ? Movie.UNKNOWN : FALSE : countAward ? Integer.toString(awardCount) : value;
                         } else {
                             value = PropertiesUtil.getProperty(name, Movie.UNKNOWN);
                         }
@@ -1483,7 +1485,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     LogoOverlay overlay = new LogoOverlay();
 
                     String after = layer.getString("[@after]");
-                    if (StringTools.isValidString(after) && after.equalsIgnoreCase("true")) {
+                    if (StringTools.isValidString(after) && after.equalsIgnoreCase(TRUE)) {
                         overlay.before = false;
                     }
 
@@ -1627,7 +1629,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     String clones = block.getString("clones");
                     overlayBlocks.put(name, new LogosBlock(dir.equalsIgnoreCase("horizontal"),
                             size.equalsIgnoreCase("static"),
-                            cols, rows, hmargin, vmargin, StringTools.isNotValidString(clones) ? blockClones : (clones.equalsIgnoreCase("true") ? true : (clones.equalsIgnoreCase("false") ? false : blockClones))));
+                            cols, rows, hmargin, vmargin, StringTools.isNotValidString(clones) ? blockClones : (clones.equalsIgnoreCase(TRUE) ? true : (clones.equalsIgnoreCase(FALSE) ? false : blockClones))));
                 }
             } catch (Exception error) {
                 logger.error("Failed parsing moviejukebox overlay configuration file: " + xmlOverlayFile.getName());

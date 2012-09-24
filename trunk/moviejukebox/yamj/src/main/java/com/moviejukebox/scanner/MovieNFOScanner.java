@@ -19,6 +19,7 @@ import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GenericFileFilter;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.StringTools.appendToPath;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import com.moviejukebox.writer.MovieNFOReader;
@@ -53,12 +54,12 @@ public class MovieNFOScanner {
     // For now, this is deprecated and we should see if there are issues before looking at a solution as the DOM Parser seems a lot more stable
 //    private static String forceNFOEncoding = PropertiesUtil.getProperty("mjb.forceNFOEncoding", "AUTO");
     private static String NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
-    private static final boolean acceptAllNFO = PropertiesUtil.getBooleanProperty("filename.nfo.acceptAllNfo", "false");
+    private static final boolean acceptAllNFO = PropertiesUtil.getBooleanProperty("filename.nfo.acceptAllNfo", FALSE);
     private static String nfoExtRegex;
     private static final String[] NFOExtensions = PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",");
     private static Pattern partPattern = Pattern.compile("(?i)(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)");
-    private static boolean archiveScanRar = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", "false");
-    private static boolean skipTvNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.skipTVNFOFiles", "false");
+    private static boolean archiveScanRar = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", FALSE);
+    private static boolean skipTvNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.skipTVNFOFiles", FALSE);
 
     static {
         if (acceptAllNFO) {

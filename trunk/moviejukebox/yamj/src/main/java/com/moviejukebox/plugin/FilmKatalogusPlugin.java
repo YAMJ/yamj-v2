@@ -21,6 +21,7 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.net.URLEncoder;
@@ -59,8 +60,8 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             preferredPlotLength = 500;
         }
 
-        gettitle = PropertiesUtil.getBooleanProperty("filmkatalogus.gettitle", "true");
-        getplot = PropertiesUtil.getBooleanProperty("filmkatalogus.getplot", "true");
+        gettitle = PropertiesUtil.getBooleanProperty("filmkatalogus.gettitle", TRUE);
+        getplot = PropertiesUtil.getBooleanProperty("filmkatalogus.getplot", TRUE);
     }
 
     @Override

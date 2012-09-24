@@ -15,6 +15,7 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -42,8 +43,8 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
         preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
 
-        getplot = PropertiesUtil.getBooleanProperty("ofdb.getplot", "true");
-        gettitle = PropertiesUtil.getBooleanProperty("ofdb.gettitle", "true");
+        getplot = PropertiesUtil.getBooleanProperty("ofdb.getplot", TRUE);
+        gettitle = PropertiesUtil.getBooleanProperty("ofdb.gettitle", TRUE);
 
         webBrowser = new WebBrowser();
     }

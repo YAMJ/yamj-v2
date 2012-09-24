@@ -15,6 +15,8 @@ package com.moviejukebox.model;
 import com.moviejukebox.model.Comparator.*;
 import static com.moviejukebox.tools.FileTools.*;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
@@ -135,14 +137,14 @@ public class Library implements Map<String, Movie> {
         categoryMaxCountMaster = PropertiesUtil.getIntProperty("mjb.categories.maxCount", "0");
         movieMaxCountMaster = PropertiesUtil.getIntProperty("mjb.movies.maxCount", "0");
         minSetCount = PropertiesUtil.getIntProperty("mjb.sets.minSetCount", "2");
-        setsRequireAll = PropertiesUtil.getBooleanProperty("mjb.sets.requireAll", "false");
+        setsRequireAll = PropertiesUtil.getBooleanProperty("mjb.sets.requireAll", FALSE);
         setsRating = PropertiesUtil.getProperty("mjb.sets.rating", "first");
         categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
-        removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", "false");
-        keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", "true");
-        beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", "false");
-        removeTitleExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet.title", "false");
-        singleSeriesPage = PropertiesUtil.getBooleanProperty("mjb.singleSeriesPage", "false");
+        removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", FALSE);
+        keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", TRUE);
+        beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", FALSE);
+        removeTitleExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet.title", FALSE);
+        singleSeriesPage = PropertiesUtil.getBooleanProperty("mjb.singleSeriesPage", FALSE);
         indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
         String awardTmp = PropertiesUtil.getProperty("mjb.categories.award.events", "");
         awardEventList = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
@@ -152,15 +154,15 @@ public class Library implements Map<String, Movie> {
         awardNominated = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
         awardTmp = PropertiesUtil.getProperty("mjb.categories.award.won", "");
         awardWon = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
-        scrapeWonAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", "false").equalsIgnoreCase("won");
-        splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
-        processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", "true");
-        hideWatched = PropertiesUtil.getBooleanProperty("mjb.Library.hideWatched", "true");
-        ENABLE_WATCH_SCANNER = PropertiesUtil.getBooleanProperty("watched.scanner.enable", "true");
-        filterGenres = PropertiesUtil.getBooleanProperty("mjb.filter.genres", "false");
+        scrapeWonAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", FALSE).equalsIgnoreCase("won");
+        splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", FALSE);
+        processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", TRUE);
+        hideWatched = PropertiesUtil.getBooleanProperty("mjb.Library.hideWatched", TRUE);
+        ENABLE_WATCH_SCANNER = PropertiesUtil.getBooleanProperty("watched.scanner.enable", TRUE);
+        filterGenres = PropertiesUtil.getBooleanProperty("mjb.filter.genres", FALSE);
         fillGenreMap(PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres-default.xml"));
 
-        filterCertificationn = PropertiesUtil.getBooleanProperty("mjb.filter.certification", "false");
+        filterCertificationn = PropertiesUtil.getBooleanProperty("mjb.filter.certification", FALSE);
         fillCertificationMap(PropertiesUtil.getProperty("mjb.xmlCertificationFile", "certification-default.xml"));
 
         maxGenresPerMovie = PropertiesUtil.getIntProperty("genres.max", "3");
@@ -176,11 +178,11 @@ public class Library implements Map<String, Movie> {
 
         fillCategoryMap(PropertiesUtil.getProperty("mjb.xmlCategoryFile", "categories-default.xml"));
 
-        charGroupEnglish = PropertiesUtil.getBooleanProperty("indexing.character.groupEnglish", "false");
-        completePerson = PropertiesUtil.getBooleanProperty("indexing.completePerson", "true");
-        peopleScan = PropertiesUtil.getBooleanProperty("mjb.people", "false");
-        peopleScrape = PropertiesUtil.getBooleanProperty("mjb.people.scrape", "true");
-        peopleExclusive = PropertiesUtil.getBooleanProperty("mjb.people.exclusive", "false");
+        charGroupEnglish = PropertiesUtil.getBooleanProperty("indexing.character.groupEnglish", FALSE);
+        completePerson = PropertiesUtil.getBooleanProperty("indexing.completePerson", TRUE);
+        peopleScan = PropertiesUtil.getBooleanProperty("mjb.people", FALSE);
+        peopleScrape = PropertiesUtil.getBooleanProperty("mjb.people.scrape", TRUE);
+        peopleExclusive = PropertiesUtil.getBooleanProperty("mjb.people.exclusive", FALSE);
 
         populateSortOrder();
 
@@ -203,35 +205,35 @@ public class Library implements Map<String, Movie> {
         logger.debug(logMessage + "Valid sort types are: " + SORT_COMP.toString());
 
         if (SORT_KEYS.isEmpty()) {
-            setSortProperty(INDEX_PERSON, INDEX_TITLE, "true");
-            setSortProperty(INDEX_CAST, INDEX_TITLE, "true");
-            setSortProperty(INDEX_DIRECTOR, INDEX_TITLE, "true");
-            setSortProperty(INDEX_WRITER, INDEX_TITLE, "true");
-            setSortProperty(INDEX_RATINGS, INDEX_RATING, "false");
-            setSortProperty(INDEX_GENRES, INDEX_TITLE, "true");
-            setSortProperty(INDEX_TITLE, INDEX_TITLE, "true");
-            setSortProperty(INDEX_CERTIFICATION, INDEX_TITLE, "true");
-            setSortProperty(INDEX_YEAR, INDEX_TITLE, "true");
-            setSortProperty(INDEX_LIBRARY, INDEX_TITLE, "true");
-            setSortProperty(INDEX_COUNTRY, INDEX_TITLE, "true");
-            setSortProperty(INDEX_AWARD, INDEX_TITLE, "true");
+            setSortProperty(INDEX_PERSON, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_CAST, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_DIRECTOR, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_WRITER, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_RATINGS, INDEX_RATING, FALSE);
+            setSortProperty(INDEX_GENRES, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_TITLE, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_CERTIFICATION, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_YEAR, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_LIBRARY, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_COUNTRY, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_AWARD, INDEX_TITLE, TRUE);
 
-            setSortProperty(INDEX_RATING, INDEX_RATING, "false");
-            setSortProperty(INDEX_HD, INDEX_TITLE, "true");
-            setSortProperty(INDEX_HD1080, INDEX_TITLE, "true");
-            setSortProperty(INDEX_HD720, INDEX_TITLE, "true");
-            setSortProperty(INDEX_3D, INDEX_TITLE, "true");
-            setSortProperty(INDEX_WATCHED, INDEX_TITLE, "true");
-            setSortProperty(INDEX_UNWATCHED, INDEX_TITLE, "true");
-            setSortProperty(INDEX_ALL, INDEX_TITLE, "true");
-            setSortProperty(INDEX_TVSHOWS, INDEX_TITLE, "true");
-            setSortProperty(INDEX_MOVIES, INDEX_TITLE, "true");
-            setSortProperty(INDEX_TOP250, INDEX_TOP250, "true");
+            setSortProperty(INDEX_RATING, INDEX_RATING, FALSE);
+            setSortProperty(INDEX_HD, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_HD1080, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_HD720, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_3D, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_WATCHED, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_UNWATCHED, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_ALL, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_TVSHOWS, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_MOVIES, INDEX_TITLE, TRUE);
+            setSortProperty(INDEX_TOP250, INDEX_TOP250, TRUE);
 
             // Sort the new categories by descending order
-            setSortProperty(INDEX_NEW, INDEX_NEW, "false");
-            setSortProperty(INDEX_NEW_MOVIE, INDEX_NEW, "false");
-            setSortProperty(INDEX_NEW_TV, INDEX_NEW, "false");
+            setSortProperty(INDEX_NEW, INDEX_NEW, FALSE);
+            setSortProperty(INDEX_NEW_MOVIE, INDEX_NEW, FALSE);
+            setSortProperty(INDEX_NEW_TV, INDEX_NEW, FALSE);
         }
 
         StringBuilder msg;
@@ -1556,7 +1558,7 @@ public class Library implements Map<String, Movie> {
 
                 List<HierarchicalConfiguration> categories = c.configurationsAt("category");
                 for (HierarchicalConfiguration category : categories) {
-                    boolean enabled = Boolean.parseBoolean(category.getString("enable", "true"));
+                    boolean enabled = Boolean.parseBoolean(category.getString("enable", TRUE));
 
                     if (enabled) {
                         String origName = category.getString("[@name]");

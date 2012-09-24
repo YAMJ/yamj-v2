@@ -16,6 +16,8 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -51,11 +53,11 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         // These are the default values for the width and height.
         // Each plugin should determine their own values
         String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-        boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", "false");
+        boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", FALSE);
         String overlayRoot = PropertiesUtil.getProperty("mjb.overlay.dir", Movie.UNKNOWN);
         overlayRoot = (skinRoot ? (skinHome + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
         overlayResources = overlayRoot + PropertiesUtil.getProperty("mjb.overlay.resources", "resources") + File.separator;
-        highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", "false");
+        highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", FALSE);
     }
 
     @Override
@@ -73,12 +75,12 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         int backgroundWidth = checkWidth(movie.isTVShow(), newImageType);
         int backgroundHeight = checkHeight(movie.isTVShow(), newImageType);
 
-        boolean upscaleImage = PropertiesUtil.getBooleanProperty(newImageType + ".upscale", "true");
+        boolean upscaleImage = PropertiesUtil.getBooleanProperty(newImageType + ".upscale", TRUE);
 
-        boolean addPerspective = PropertiesUtil.getBooleanProperty(newImageType + ".perspective", "false");
-        boolean addOverlay = PropertiesUtil.getBooleanProperty(newImageType + ".overlay", "false");
+        boolean addPerspective = PropertiesUtil.getBooleanProperty(newImageType + ".perspective", FALSE);
+        boolean addOverlay = PropertiesUtil.getBooleanProperty(newImageType + ".overlay", FALSE);
 
-        boolean addFrame = PropertiesUtil.getBooleanProperty(newImageType + ".addFrame", "false");
+        boolean addFrame = PropertiesUtil.getBooleanProperty(newImageType + ".addFrame", FALSE);
         frameSize = PropertiesUtil.getIntProperty(newImageType + ".frame.size", "5");
 
         frameColorSD = PropertiesUtil.getProperty(newImageType + ".frame.colorSD", "255/255/255");
@@ -86,7 +88,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         frameColor720 = PropertiesUtil.getProperty(newImageType + ".frame.color720", "255/255/255");
         frameColor1080 = PropertiesUtil.getProperty(newImageType + ".frame.color1080", "255/255/255");
 
-        roundCorners = PropertiesUtil.getBooleanProperty(newImageType + ".roundCorners", "false");
+        roundCorners = PropertiesUtil.getBooleanProperty(newImageType + ".roundCorners", FALSE);
         cornerRadius = PropertiesUtil.getIntProperty(newImageType + ".cornerRadius", "25");
         int cornerQuality = PropertiesUtil.getIntProperty(newImageType + ".cornerQuality", "0");
 

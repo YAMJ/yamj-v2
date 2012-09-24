@@ -16,6 +16,8 @@ import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import static com.moviejukebox.tools.StringTools.getDateFormatLong;
 import java.io.File;
@@ -207,7 +209,7 @@ public class JukeboxProperties {
      * @param mediaLibraryPaths
      */
     public static void readDetailsFile(Jukebox jukebox, Collection<MediaLibraryPath> mediaLibraryPaths) {
-        boolean monitor = PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", "false");
+        boolean monitor = PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", FALSE);
 
         // Read the mjbDetails file that stores the jukebox properties we want to watch
         File mjbDetails = new File(jukebox.getJukeboxRootLocationDetailsFile(), "jukebox_details.xml");
@@ -221,7 +223,7 @@ public class JukeboxProperties {
                     logger.debug(logMessage + "Found " + pi.getOverwrites().size() + " overwites to set.");
                     for (PropertyOverwrites po : pi.getOverwrites()) {
                         logger.debug("Setting 'force" + po.toString() + "Overwrite = true' due to property file changes");
-                        PropertiesUtil.setProperty("mjb.force" + po.toString() + "Overwrite", "true");
+                        PropertiesUtil.setProperty("mjb.force" + po.toString() + "Overwrite", TRUE);
                     }
                 } else {
                     logger.debug(logMessage + "Properties haven't changed, no updates necessary");
@@ -509,7 +511,7 @@ public class JukeboxProperties {
     }
 
     /**
-     * Compare the current XML file details with the stored ones Any errors with this check will return "true" to ensure
+     * Compare the current XML file details with the stored ones Any errors with this check will return TRUE to ensure
      * no properties are overwritten
      *
      * @param eJukebox

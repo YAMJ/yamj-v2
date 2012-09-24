@@ -12,7 +12,6 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.tools.cache.CacheMemory;
 import com.moviejukebox.fanarttv.FanartTv;
 import com.moviejukebox.fanarttv.FanartTvException;
 import com.moviejukebox.fanarttv.model.FTArtworkType;
@@ -20,6 +19,8 @@ import com.moviejukebox.fanarttv.model.FTSourceType;
 import com.moviejukebox.fanarttv.model.FanartTvArtwork;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import com.moviejukebox.tools.cache.CacheMemory;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -51,7 +52,7 @@ public class FanartTvPlugin {
             artworkPropertyName.append(artworkType.getSourceType().toString().toLowerCase());
             artworkPropertyName.append(".download");
 
-            if (PropertiesUtil.getBooleanProperty(artworkPropertyName.toString(), "false")) {
+            if (PropertiesUtil.getBooleanProperty(artworkPropertyName.toString(), FALSE)) {
                 artworkTypes.put(artworkType, 1);
             }
         }

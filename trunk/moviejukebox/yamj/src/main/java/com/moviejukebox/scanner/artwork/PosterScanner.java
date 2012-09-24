@@ -23,6 +23,8 @@ import com.moviejukebox.plugin.poster.IPosterPlugin;
 import com.moviejukebox.plugin.poster.ITvShowPosterPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import java.awt.Dimension;
 import java.awt.color.CMMException;
@@ -61,7 +63,7 @@ public class PosterScanner {
     private static final String SEARCH_FOR_EXISTING_POSTER = PropertiesUtil.getProperty("poster.scanner.searchForExistingCoverArt", EXISTING_MOVIE);
     // See if we use folder.* image or not
     // Note: We need the useFolderImage because of the special "folder.jpg" case in windows.
-    private static final Boolean USE_FOLDER_IMAGE = PropertiesUtil.getBooleanProperty("poster.scanner.useFolderImage", "false");
+    private static final Boolean USE_FOLDER_IMAGE = PropertiesUtil.getBooleanProperty("poster.scanner.useFolderImage", FALSE);
     // We get the fixed name property
     private static final String FIXED_POSTER_NAME = PropertiesUtil.getProperty("poster.scanner.fixedCoverArtName", "folder");
     private static final Collection<String> POSTER_EXTENSIONS = new ArrayList<String>();
@@ -100,9 +102,9 @@ public class PosterScanner {
 
         posterWidth = PropertiesUtil.getIntProperty("posters.width", "0");
         posterHeight = PropertiesUtil.getIntProperty("posters.height", "0");
-        posterValidate = PropertiesUtil.getBooleanProperty("poster.scanner.Validate", "true");
+        posterValidate = PropertiesUtil.getBooleanProperty("poster.scanner.Validate", TRUE);
         posterValidateMatch = PropertiesUtil.getIntProperty("poster.scanner.ValidateMatch", "75");
-        posterValidateAspect = PropertiesUtil.getBooleanProperty("poster.scanner.ValidateAspect", "true");
+        posterValidateAspect = PropertiesUtil.getBooleanProperty("poster.scanner.ValidateAspect", TRUE);
 
         // Load plugins
         posterPlugins = new HashMap<String, IPosterPlugin>();

@@ -16,6 +16,7 @@ import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.DOMHelper;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -30,7 +31,7 @@ import org.w3c.dom.NodeList;
 
 public class YouTubeTrailersPlugin extends TrailerPlugin {
 
-    private static final Logger logger = Logger.getLogger(YouTubeTrailersPlugin.class);
+    private static final Logger LOGGER = Logger.getLogger(YouTubeTrailersPlugin.class);
     private static final String TRAILER_TITLE = "TRAILER-";
     // API Key
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_YouTube");
@@ -43,7 +44,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
     private static final String TRAILER_MAX_RESULTS = "&max-results=";
     private static final String TRAILER_VERSION = "&v=2";
     // Properties
-    private boolean hdWanted = PropertiesUtil.getBooleanProperty("youtubetrailer.hdwanted", "true");
+    private boolean hdWanted = PropertiesUtil.getBooleanProperty("youtubetrailer.hdwanted", TRUE);
 //    private String trailerLanguage = PropertiesUtil.getProperty("youtubetrailer.language", "en");
     private int maxTrailers = PropertiesUtil.getIntProperty("youtubetrailer.maxtrailers", "1");
 
@@ -56,7 +57,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
     @Override
     public final boolean generate(Movie movie) {
         if (movie.isTVShow()) {
-            logger.debug(logMessage + movie.getBaseName() + " is a TV Show, skipping trailer search");
+            LOGGER.debug(logMessage + movie.getBaseName() + " is a TV Show, skipping trailer search");
             return Boolean.FALSE;
         }
 
@@ -68,7 +69,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         if (ytTrailers.isEmpty()) {
             sb.append("No trailers found for ");
             sb.append(movie.getBaseName());
-            logger.debug(sb.toString());
+            LOGGER.debug(sb.toString());
             return Boolean.FALSE;
         } else {
             sb.append("Found ");
@@ -82,7 +83,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
             } else {
                 sb.append(" saving them all to the movie");
             }
-            logger.debug(sb.toString());
+            LOGGER.debug(sb.toString());
         }
 
         for (YouTubeTrailer ytTrailer : ytTrailers) {
@@ -95,7 +96,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
             sb.append(ytTrailer.url);
             sb.append(" to ");
             sb.append(movie.getBaseName());
-            logger.debug(sb.toString());
+            LOGGER.debug(sb.toString());
         }
         movie.setTrailerExchange(Boolean.TRUE);
         return Boolean.TRUE;
@@ -133,7 +134,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         try {
             webPage = webBrowser.request(searchUrl);
         } catch (IOException ex) {
-            logger.warn(logMessage + "Failed to retrieve webpage. Error: " + ex.getMessage());
+            LOGGER.warn(logMessage + "Failed to retrieve webpage. Error: " + ex.getMessage());
             return trailers;
         }
 
@@ -163,7 +164,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         try {
             stringUrl.append(URLEncoder.encode(title, "UTF-8"));
         } catch (UnsupportedEncodingException ex) {
-            logger.warn(logMessage + "Failed to encode movie title: " + title + " - " + ex.getMessage());
+            LOGGER.warn(logMessage + "Failed to encode movie title: " + title + " - " + ex.getMessage());
             // Something went wrong with the encoding, try the default string
             stringUrl.append(title);
         }
@@ -178,7 +179,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         stringUrl.append(TRAILER_VERSION);
         stringUrl.append(TRAILER_KEY).append(API_KEY);
 
-        logger.info(logMessage + "Trailer Search URL: " + stringUrl.toString());
+        LOGGER.info(logMessage + "Trailer Search URL: " + stringUrl.toString());
         return stringUrl.toString();
     }
 

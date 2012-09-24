@@ -18,6 +18,8 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,7 +33,7 @@ public class WatchedScanner {
     private static final String logMessage = "Watched Scanner: ";
     private static Collection<String> watchedExtensions = Arrays.asList(PropertiesUtil.getProperty("mjb.watchedExtensions", "watched").split(",;\\|"));
     private static String watchedLocation = PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo");
-    private static String withExtension = PropertiesUtil.getProperty("mjb.watched.withExtension", "true");
+    private static String withExtension = PropertiesUtil.getProperty("mjb.watched.withExtension", TRUE);
     private static boolean warned = Boolean.FALSE;
 
     protected WatchedScanner() {
@@ -85,7 +87,7 @@ public class WatchedScanner {
                 filename = mf.getFile().getName();
             }
 
-            if ("true".equalsIgnoreCase(withExtension) || "both".equalsIgnoreCase(withExtension) || movie.isBluray()) {
+            if (TRUE.equalsIgnoreCase(withExtension) || "both".equalsIgnoreCase(withExtension) || movie.isBluray()) {
                 if (withJukebox) {
                     foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, logMessage, Boolean.TRUE);
                 } else {
@@ -93,7 +95,7 @@ public class WatchedScanner {
                 }
             }
 
-            if (foundFile == null && ("false".equalsIgnoreCase(withExtension) || "both".equalsIgnoreCase(withExtension)) && !movie.isBluray()) {
+            if (foundFile == null && (FALSE.equalsIgnoreCase(withExtension) || "both".equalsIgnoreCase(withExtension)) && !movie.isBluray()) {
                 // Remove the extension from the filename
                 filename = FilenameUtils.removeExtension(filename);
                 // Check again without the extension

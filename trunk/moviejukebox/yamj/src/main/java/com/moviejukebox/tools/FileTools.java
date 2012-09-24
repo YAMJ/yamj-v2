@@ -16,6 +16,7 @@ import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.IArchiveScanner;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import java.io.*;
 import java.nio.channels.FileChannel;
@@ -73,7 +74,7 @@ public class FileTools {
     private static final Collection<ReplaceEntry> UNSAFE_CHARS = new ArrayList<ReplaceEntry>();
     private static final Character ENCODE_ESCAPE_CHAR;
     private static final Collection<String> GENERATED_FILENAMES = Collections.synchronizedCollection(new ArrayList<String>());
-    private static boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
+    private static boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
     private static int footerImageEnabled = PropertiesUtil.getIntProperty("mjb.footer.count", "0");
     private static String indexFilesPrefix = getProperty("mjb.indexFilesPrefix", "");
 
@@ -719,11 +720,11 @@ public class FileTools {
     public static class FileEx extends File {
 
         private static final long serialVersionUID = 1L;
-        private volatile Boolean _isdir = null;
-        private volatile Boolean _exists = null;
-        private volatile Boolean _isfile = null;
-        private volatile Long _len = null;
-        private volatile Long _lastModified = null;
+        private volatile Boolean isDir = null;
+        private volatile Boolean fileExists = null;
+        private volatile Boolean isfile = null;
+        private volatile Long fileLen = null;
+        private volatile Long fileLastModified = null;
         private IArchiveScanner[] archiveScanners;
 
         //Standard constructors
@@ -741,7 +742,7 @@ public class FileTools {
 
         private FileEx(String pathname, boolean exists) {
             this(pathname);
-            _exists = exists;
+            fileExists = exists;
         }
 
         // archive scanner supporting constructors
@@ -765,62 +766,62 @@ public class FileTools {
 
         @Override
         public boolean isDirectory() {
-            if (_isdir == null) {
+            if (isDir == null) {
                 synchronized (this) {
-                    if (_isdir == null) {
-                        _isdir = super.isDirectory();
+                    if (isDir == null) {
+                        isDir = super.isDirectory();
                     }
                 }
             }
-            return _isdir;
+            return isDir;
         }
 
         @Override
         public boolean exists() {
-            if (_exists == null) {
+            if (fileExists == null) {
                 synchronized (this) {
-                    if (_exists == null) {
-                        _exists = super.exists();
+                    if (fileExists == null) {
+                        fileExists = super.exists();
                     }
                 }
             }
-            return _exists;
+            return fileExists;
         }
 
         @Override
         public boolean isFile() {
-            if (_isfile == null) {
+            if (isfile == null) {
                 synchronized (this) {
-                    if (_isfile == null) {
-                        _isfile = super.isFile();
+                    if (isfile == null) {
+                        isfile = super.isFile();
                     }
                 }
             }
-            return _isfile;
+            return isfile;
         }
 
         @Override
         public long length() {
-            if (_len == null) {
+            if (fileLen == null) {
                 synchronized (this) {
-                    if (_len == null) {
-                        _len = super.length();
+                    if (fileLen == null) {
+                        fileLen = super.length();
                     }
                 }
             }
-            return _len;
+            return fileLen;
         }
 
         @Override
         public long lastModified() {
-            if (_lastModified == null) {
+            if (fileLastModified == null) {
                 synchronized (this) {
-                    if (_lastModified == null) {
-                        _lastModified = super.lastModified();
+                    if (fileLastModified == null) {
+                        fileLastModified = super.lastModified();
                     }
                 }
             }
-            return _lastModified;
+            return fileLastModified;
         }
 
         @Override
@@ -831,13 +832,13 @@ public class FileTools {
             }
             return new FileEx(p, archiveScanners);
         }
-        private volatile File[] _listFiles;
+        private volatile File[] listFiles;
 
         @Override
         public File[] listFiles() {
             synchronized (this) {
-                if (_listFiles != null) {
-                    return _listFiles;
+                if (listFiles != null) {
+                    return listFiles;
                 }
 
                 String[] nameStrings = list();
@@ -855,13 +856,13 @@ public class FileTools {
 
                 for (String name : mutableNames) {
                     FileEx fe = new FileEx(this, name, archiveScanners);
-                    fe._exists = Boolean.TRUE;
+                    fe.fileExists = Boolean.TRUE;
                     files.add(fe);
                 }
 
-                _listFiles = (File[]) files.toArray(new File[files.size()]);
+                listFiles = (File[]) files.toArray(new File[files.size()]);
             }
-            return _listFiles;
+            return listFiles;
         }
 
         @Override

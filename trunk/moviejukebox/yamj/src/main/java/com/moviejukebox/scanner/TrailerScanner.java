@@ -16,6 +16,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.trailer.ITrailerPlugin;
 import com.moviejukebox.plugin.trailer.TrailerPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.util.*;
 import org.apache.log4j.Logger;
 
@@ -30,7 +31,7 @@ public class TrailerScanner {
     private static final long MILLIS_IN_DAY = 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
     // Convert trailers.rescan.days from DAYS to MILLISECONDS for comparison purposes
     private static long trailersRescanDaysMillis = ((long) PropertiesUtil.getIntProperty("trailers.rescan.days", "15")) * MILLIS_IN_DAY;
-    private static boolean trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
+    private static boolean trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", TRUE);
     private static String trailersScanner = PropertiesUtil.getProperty("trailers.scanner", "apple");
     private String trailerPluginList = Movie.UNKNOWN;
     private static final Map<String, ITrailerPlugin> trailerPlugins = Collections.synchronizedMap(new HashMap<String, ITrailerPlugin>());

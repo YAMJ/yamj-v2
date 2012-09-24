@@ -26,6 +26,8 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.*;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.File;
 import java.net.URLEncoder;
 import java.text.Normalizer;
@@ -46,39 +48,39 @@ public class KinopoiskPlugin extends ImdbPlugin {
     // Shows what name is on the first position with respect to divider
     private String titleLeader = PropertiesUtil.getProperty("kinopoisk.title.leader", "english");
     private String titleDivider = PropertiesUtil.getProperty("kinopoisk.title.divider", " - ");
-    private boolean joinTitles = PropertiesUtil.getBooleanProperty("kinopoisk.title.join", "true");
+    private boolean joinTitles = PropertiesUtil.getBooleanProperty("kinopoisk.title.join", TRUE);
     // Set NFO information priority
-    private boolean NFOpriority = PropertiesUtil.getBooleanProperty("kinopoisk.NFOpriority", "false");
-    private boolean NFOplot = false;
-    private boolean NFOcast = false;
-    private boolean NFOgenres = false;
-    private boolean NFOdirectors = false;
-    private boolean NFOwriters = false;
-    private boolean NFOcertification = false;
-    private boolean NFOcountry = false;
-    private String NFOyear = "";
-    private boolean NFOtagline = false;
-    private boolean NFOrating = false;
-    private boolean NFOtop250 = false;
-    private boolean NFOcompany = false;
-    private boolean NFOrelease = false;
-    private boolean NFOfanart = false;
-    private boolean NFOposter = false;
-    private boolean NFOawards = false;
-    private String tmpAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", "false");
+    private boolean nfoPriority = PropertiesUtil.getBooleanProperty("kinopoisk.NFOpriority", FALSE);
+    private boolean nfoPlot = false;
+    private boolean nfoCast = false;
+    private boolean nfoGenres = false;
+    private boolean nfoDirectors = false;
+    private boolean nfoWriters = false;
+    private boolean nfoCertification = false;
+    private boolean nfoCountry = false;
+    private String nfoYear = "";
+    private boolean nfoTagline = false;
+    private boolean nfoRating = false;
+    private boolean nfoTop250 = false;
+    private boolean nfoCompany = false;
+    private boolean nfoRelease = false;
+    private boolean nfoFanart = false;
+    private boolean nfoPoster = false;
+    private boolean nfoAwards = false;
+    private String tmpAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", FALSE);
     private boolean scrapeWonAwards = tmpAwards.equalsIgnoreCase("won");
-    private boolean scrapeAwards = tmpAwards.equalsIgnoreCase("true") || scrapeWonAwards;
-    private boolean scrapeBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", "false");
-    private boolean scrapeTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", "false");
+    private boolean scrapeAwards = tmpAwards.equalsIgnoreCase(TRUE) || scrapeWonAwards;
+    private boolean scrapeBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", FALSE);
+    private boolean scrapeTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", FALSE);
     // Set priority fanart & poster by kinopoisk.ru
-    private boolean fanArt = PropertiesUtil.getBooleanProperty("kinopoisk.fanart", "false");
-    private boolean poster = PropertiesUtil.getBooleanProperty("kinopoisk.poster", "false");
-    private boolean kadr = PropertiesUtil.getBooleanProperty("kinopoisk.kadr", "false");
+    private boolean fanArt = PropertiesUtil.getBooleanProperty("kinopoisk.fanart", FALSE);
+    private boolean poster = PropertiesUtil.getBooleanProperty("kinopoisk.poster", FALSE);
+    private boolean kadr = PropertiesUtil.getBooleanProperty("kinopoisk.kadr", FALSE);
     private boolean companyAll = PropertiesUtil.getProperty("kinopoisk.company", "first").equalsIgnoreCase("all");
     private boolean countryAll = PropertiesUtil.getProperty("kinopoisk.country", "first").equalsIgnoreCase("all");
-    private boolean clearAward = PropertiesUtil.getBooleanProperty("kinopoisk.clear.award", "false");
-    private boolean clearTrivia = PropertiesUtil.getBooleanProperty("kinopoisk.clear.trivia", "false");
-    private boolean translitCountry = PropertiesUtil.getBooleanProperty("kinopoisk.translit.country", "false");
+    private boolean clearAward = PropertiesUtil.getBooleanProperty("kinopoisk.clear.award", FALSE);
+    private boolean clearTrivia = PropertiesUtil.getBooleanProperty("kinopoisk.clear.trivia", FALSE);
+    private boolean translitCountry = PropertiesUtil.getBooleanProperty("kinopoisk.translit.country", FALSE);
     private String etalonId = PropertiesUtil.getProperty("kinopoisk.etalon", "448");
     // Personal information
     private int peopleMax = PropertiesUtil.getIntProperty("plugin.people.maxCount", "15");
@@ -88,9 +90,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
     private int filmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", "20");
     private int biographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", "500");
     private int filmography = PropertiesUtil.getIntProperty("plugin.filmography.max", "20");
-    private boolean skipVG = PropertiesUtil.getBooleanProperty("plugin.people.skip.VG", "true");
-    private boolean skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", "false");
-    private boolean skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", "false");
+    private boolean skipVG = PropertiesUtil.getBooleanProperty("plugin.people.skip.VG", TRUE);
+    private boolean skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", FALSE);
+    private boolean skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", FALSE);
     private List<String> jobsInclude = Arrays.asList(PropertiesUtil.getProperty("plugin.filmography.jobsInclude", "Director,Writer,Actor,Actress").split(","));
     private int triviaMax = PropertiesUtil.getIntProperty("plugin.trivia.maxCount", "15");
     private String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
@@ -112,24 +114,24 @@ public class KinopoiskPlugin extends ImdbPlugin {
         boolean retval = false;
         String kinopoiskId = mediaFile.getId(KINOPOISK_PLUGIN_ID);
 
-        if (NFOpriority) {
+        if (nfoPriority) {
             // checked NFO data
-            NFOplot = StringTools.isValidString(mediaFile.getPlot());
-            NFOcast = mediaFile.getPerson("Actors").size() > 0;
-            NFOgenres = mediaFile.getGenres().size() > 0;
-            NFOdirectors = mediaFile.getPerson("Directing").size() > 0;
-            NFOwriters = mediaFile.getPerson("Writing").size() > 0;
-            NFOcertification = StringTools.isValidString(mediaFile.getCertification());
-            NFOcountry = StringTools.isValidString(mediaFile.getCountry());
-            NFOyear = StringTools.isValidString(mediaFile.getYear()) ? mediaFile.getYear() : "";
-            NFOtagline = StringTools.isValidString(mediaFile.getTagline());
-            NFOrating = mediaFile.getRating() > -1;
-            NFOtop250 = mediaFile.getTop250() > -1;
-            NFOcompany = StringTools.isValidString(mediaFile.getCompany());
-            NFOrelease = StringTools.isValidString(mediaFile.getCompany());
-            NFOfanart = StringTools.isValidString(mediaFile.getFanartURL());
-            NFOposter = StringTools.isValidString(mediaFile.getPosterURL());
-            NFOawards = mediaFile.getAwards().size() > 0;
+            nfoPlot = StringTools.isValidString(mediaFile.getPlot());
+            nfoCast = mediaFile.getPerson("Actors").size() > 0;
+            nfoGenres = mediaFile.getGenres().size() > 0;
+            nfoDirectors = mediaFile.getPerson("Directing").size() > 0;
+            nfoWriters = mediaFile.getPerson("Writing").size() > 0;
+            nfoCertification = StringTools.isValidString(mediaFile.getCertification());
+            nfoCountry = StringTools.isValidString(mediaFile.getCountry());
+            nfoYear = StringTools.isValidString(mediaFile.getYear()) ? mediaFile.getYear() : "";
+            nfoTagline = StringTools.isValidString(mediaFile.getTagline());
+            nfoRating = mediaFile.getRating() > -1;
+            nfoTop250 = mediaFile.getTop250() > -1;
+            nfoCompany = StringTools.isValidString(mediaFile.getCompany());
+            nfoRelease = StringTools.isValidString(mediaFile.getCompany());
+            nfoFanart = StringTools.isValidString(mediaFile.getFanartURL());
+            nfoPoster = StringTools.isValidString(mediaFile.getPosterURL());
+            nfoAwards = mediaFile.getAwards().size() > 0;
         }
 
         if (StringTools.isNotValidString(kinopoiskId)) {
@@ -379,7 +381,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             // Plot
-            if (!NFOplot) {
+            if (!nfoPlot) {
                 StringBuilder plot = new StringBuilder();
                 for (String subPlot : HTMLTools.extractTags(xml, "<span class=\"_reachbanner_\"", "</span>", "", "<")) {
                     if (!subPlot.isEmpty()) {
@@ -397,7 +399,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     newPlot = plot.toString();
                 }
 
-                if (!NFOplot) {
+                if (!nfoPlot) {
                     newPlot = StringTools.trimToLength(newPlot, preferredPlotLength, true, plotEnding);
                     movie.setPlot(newPlot);
                 }
@@ -419,7 +421,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 item = "<td>" + item + "</tr>";
 
                 // Genres
-                if (!NFOgenres) {
+                if (!nfoGenres) {
                     LinkedList<String> newGenres = new LinkedList<String>();
                     boolean genresFound;
                     genresFound = false;
@@ -450,7 +452,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
 
                 // Certification from MPAA
-                if (!NFOcertification) {
+                if (!nfoCertification) {
                     for (String mpaaTag : HTMLTools.extractTags(xml, ">рейтинг MPAA<", "</tr>", "<a href=\"/film", "</a>")) {
                         // Now need scan for 'alt' attribute of 'img'
                         String key = "alt=\"рейтинг ";
@@ -469,7 +471,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
 
                 // Country
-                if (!NFOcountry) {
+                if (!nfoCountry) {
                     Collection<String> country = HTMLTools.extractTags(item, ">страна<", "</tr>", "<a href=\"/level/10", "</a>");
                     if (country != null && country.size() > 0) {
                         String strCountry = countryAll ? StringUtils.join(country, Movie.SPACE_SLASH_SPACE) : new ArrayList<String>(country).get(0);
@@ -482,14 +484,14 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
 
                 // Year
-                if (!movie.isOverrideYear() && NFOyear.equals("")) {
+                if (!movie.isOverrideYear() && nfoYear.equals("")) {
                     for (String year : HTMLTools.extractTags(item, ">год<", "</tr>", "<a href=\"/level/10", "</a>")) {
                         movie.setYear(year);
                         yearFounded = true;
                         break;
                     }
-                } else if (!NFOyear.equals("")) {
-                    movie.setYear(NFOyear);
+                } else if (!nfoYear.equals("")) {
+                    movie.setYear(nfoYear);
                 }
 
                 // Run time
@@ -505,7 +507,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
 
                 // Tagline
-                if (!NFOtagline) {
+                if (!nfoTagline) {
                     for (String tagline : HTMLTools.extractTags(item, ">слоган<", "</tr>", "<td ", "</td>")) {
                         if (tagline.length() > 0) {
                             movie.setTagline(tagline.replace("\u00AB", "\"").replace("\u00BB", "\""));
@@ -516,7 +518,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
 
                 // Release date
-                if (!NFOrelease) {
+                if (!nfoRelease) {
                     String releaseDate = "";
                     for (String release : HTMLTools.extractTags(item, ">премьера (мир)<", "</tr>", "<a href=\"/film/", "</a>")) {
                         releaseDate = release;
@@ -560,7 +562,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             // Rating
-            if (!NFOrating) {
+            if (!nfoRating) {
                 valueFounded = false;
                 for (String rating : HTMLTools.extractTags(xml, "<a href=\"/film/" + kinopoiskId + "/votes/\"", "</a>", "<span", "</span>")) {
                     try {
@@ -633,7 +635,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             // Top250
             // Clear previous rating : if KinoPoisk is selected as search engine -
             // it means user wants KinoPoisk's rating, not global.
-            if (!NFOtop250) {
+            if (!nfoTop250) {
                 movie.setTop250(-1);
                 String top250 = HTMLTools.extractTag(xml, "<a href=\"/level/20/#", 0, "\"");
                 valueFounded = false;
@@ -650,7 +652,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Poster
             String posterURL = movie.getPosterURL();
-            if (StringTools.isNotValidString(posterURL) || (!NFOposter && poster) || etalonFlag) {
+            if (StringTools.isNotValidString(posterURL) || (!nfoPoster && poster) || etalonFlag) {
                 valueFounded = false;
                 if (poster || etalonFlag) {
                     String previousURL = posterURL;
@@ -690,7 +692,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Fanart
             String fanURL = movie.getFanartURL();
-            if (StringTools.isNotValidString(fanURL) || (!NFOfanart && (fanArt || kadr)) || etalonFlag) {
+            if (StringTools.isNotValidString(fanURL) || (!nfoFanart && (fanArt || kadr)) || etalonFlag) {
                 valueFounded = false;
                 try {
                     String previousURL = fanURL;
@@ -749,7 +751,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             // Studio/Company
-            if (!NFOcompany) {
+            if (!nfoCompany) {
                 xml = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/studio/");
                 valueFounded = false;
                 if (StringTools.isValidString(xml)) {
@@ -778,7 +780,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             // Awards
-            if ((scrapeAwards && !NFOawards) || etalonFlag) {
+            if ((scrapeAwards && !nfoAwards) || etalonFlag) {
                 if (clearAward) {
                     movie.clearAwards();
                 }
@@ -845,23 +847,23 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             // Cast enhancement
-            if ((!NFOcast || !NFOdirectors || !NFOwriters) || etalonFlag) {
+            if ((!nfoCast || !nfoDirectors || !nfoWriters) || etalonFlag) {
                 xml = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/cast");
                 if (StringTools.isValidString(xml)) {
                     int peopleCount = 0;
-                    if (!NFOdirectors || etalonFlag) {
+                    if (!nfoDirectors || etalonFlag) {
                         peopleCount = scanMoviePerson(movie, xml, "director", writerMax, peopleCount);
                         if (etalonFlag && peopleCount == 0) {
                             logger.error(logMessage + "Site design changed - failed get directors!");
                         }
                     }
-                    if (!NFOwriters || etalonFlag) {
+                    if (!nfoWriters || etalonFlag) {
                         peopleCount = scanMoviePerson(movie, xml, "writer", writerMax, peopleCount);
                         if (etalonFlag && peopleCount == 0) {
                             logger.error(logMessage + "Site design changed - failed get writers!");
                         }
                     }
-                    if (!NFOcast || etalonFlag) {
+                    if (!nfoCast || etalonFlag) {
                         peopleCount = scanMoviePerson(movie, xml, "actor", actorMax, peopleCount);
                         if (etalonFlag && peopleCount == 0) {
                             logger.error(logMessage + "Site design changed - failed get cast!");

@@ -16,6 +16,7 @@ import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -39,8 +40,8 @@ public class MovieListingPluginBase implements MovieListingPlugin {
      * @param jukeboxRoot
      */
     protected void initialize(Jukebox jukebox) {
-        groupByType = PropertiesUtil.getBooleanProperty("mjb.listing.GroupByType", "true");
-        blankUNKNOWN = PropertiesUtil.getBooleanProperty("mjb.listing.clear.UNKNOWN", "true");
+        groupByType = PropertiesUtil.getBooleanProperty("mjb.listing.GroupByType", TRUE);
+        blankUNKNOWN = PropertiesUtil.getBooleanProperty("mjb.listing.clear.UNKNOWN", TRUE);
         baseFilename = PropertiesUtil.getProperty("mjb.listing.output.filename", "MovieJukebox-listing");
         destination = PropertiesUtil.getProperty("mjb.listing.output.destination", jukebox.getJukeboxRootLocation());
     } // initialize()

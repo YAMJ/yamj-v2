@@ -19,6 +19,7 @@ import com.moviejukebox.themoviedb.MovieDbException;
 import com.moviejukebox.themoviedb.TheMovieDb;
 import com.moviejukebox.themoviedb.model.*;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
@@ -41,7 +42,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public static final String IMDB_PLUGIN_ID = "imdb";
     private static final String webhost = "themoviedb.org";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
-    private TheMovieDb TMDb;
+    private TheMovieDb tmdb;
     private String languageCode;
     private String countryCode;
     private boolean downloadFanart;
@@ -52,17 +53,17 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
     public TheMovieDbPlugin() {
         try {
-            TMDb = new TheMovieDb(API_KEY);
+            tmdb = new TheMovieDb(API_KEY);
         } catch (MovieDbException ex) {
             logger.warn(logMessage + "Failed to initialise TheMovieDB API: " + ex.getMessage());
             return;
         }
 
         // Set the proxy
-        TMDb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+        tmdb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
 
         // Set the timeouts
-        TMDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+        tmdb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
 
         languageCode = PropertiesUtil.getProperty("themoviedb.language", "en");
         countryCode = PropertiesUtil.getProperty("themoviedb.country", "");     // Don't default this as we might get it from the language (old setting)
@@ -77,7 +78,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         logger.debug(logMessage + "Using `" + languageCode + "` as the language code");
         logger.debug(logMessage + "Using `" + countryCode + "` as the country code");
 
-        downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", "false");
+        downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", FALSE);
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
         preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
@@ -105,7 +106,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 // Search based on TMdb ID
                 logger.debug(logMessage + "Using TMDb ID (" + tmdbID + ") for " + movie.getBaseFilename());
                 try {
-                    moviedb = TMDb.getMovieInfo(Integer.parseInt(tmdbID), languageCode);
+                    moviedb = tmdb.getMovieInfo(Integer.parseInt(tmdbID), languageCode);
                 } catch (MovieDbException ex) {
                     logger.debug(logMessage + "Failed to get movie info using TMDB ID: " + tmdbID + " - " + ex.getMessage());
                     moviedb = null;
@@ -116,7 +117,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 // Search based on IMDb ID
                 logger.debug(logMessage + "Using IMDb ID (" + imdbID + ") for " + movie.getBaseFilename());
                 try {
-                    moviedb = TMDb.getMovieInfoImdb(imdbID, languageCode);
+                    moviedb = tmdb.getMovieInfoImdb(imdbID, languageCode);
                     tmdbID = String.valueOf(moviedb.getId());
                     if (StringTools.isNotValidString(tmdbID)) {
                         logger.debug(logMessage + "No TMDb ID found for movie!");
@@ -134,7 +135,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 }
                 try {
                     // Search using movie name
-                    movieList = TMDb.searchMovie(movieSearch.toString(), languageCode, false);
+                    movieList = tmdb.searchMovie(movieSearch.toString(), languageCode, false);
                     String movieYear = (StringTools.isValidString(movie.getYear()) ? movie.getYear() : "");
                     // Iterate over the list until we find a match
                     for (MovieDb m : movieList) {
@@ -163,7 +164,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             } else {
                 try {
                     // Get the full information on the film
-                    moviedb = TMDb.getMovieInfo(moviedb.getId(), languageCode);
+                    moviedb = tmdb.getMovieInfo(moviedb.getId(), languageCode);
                 } catch (MovieDbException ex) {
                     logger.debug(logMessage + "Failed to download remaining information for " + movie.getBaseName());
                 }
@@ -174,14 +175,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             if (moviedb != null) {
                 try {
                     // Get the release information
-                    movieReleaseInfo = TMDb.getMovieReleaseInfo(moviedb.getId(), countryCode);
+                    movieReleaseInfo = tmdb.getMovieReleaseInfo(moviedb.getId(), countryCode);
                 } catch (MovieDbException ex) {
                     logger.debug(logMessage + "Failed to get release information");
                 }
 
                 try {
                     // Get the cast information
-                    moviePeople = TMDb.getMovieCasts(moviedb.getId());
+                    moviePeople = tmdb.getMovieCasts(moviedb.getId());
                 } catch (MovieDbException ex) {
                     logger.debug(logMessage + "Failed to get cast information");
                 }

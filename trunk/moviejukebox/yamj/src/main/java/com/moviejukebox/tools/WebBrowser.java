@@ -13,6 +13,7 @@
 package com.moviejukebox.tools;
 
 import com.moviejukebox.model.Movie;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -86,7 +87,7 @@ public class WebBrowser {
 
     public URLConnection openProxiedConnection(URL url) throws IOException {
         if (mjbProxyHost != null) {
-            System.getProperties().put("proxySet", "true");
+            System.getProperties().put("proxySet", TRUE);
             System.getProperties().put("proxyHost", mjbProxyHost);
             System.getProperties().put("proxyPort", mjbProxyPort);
         }
