@@ -1246,9 +1246,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                 String originalTitle = film.getOriginalTitle().replace("ё", "е").replace("Ё", "Е").trim();
                                 String year = film.getYear();
 
-                                if (StringTools.isValidString(year)) {
-                                    year = year.substring(0, 4);
-                                }
+                                // UNUSED
+//                                if (StringTools.isValidString(year)) {
+//                                    year = year.substring(0, 4);
+//                                }
 
                                 for (Filmography f : newFilmography.values()) {
                                     String name2 = f.getName().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
@@ -1256,9 +1257,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                     String originalTitle2 = f.getOriginalTitle().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
                                     String year2 = f.getYear();
 
-                                    if (StringTools.isValidString(year2)) {
-                                        year2 = year2.substring(0, 4);
-                                    }
+                                // UNUSED
+//                                    if (StringTools.isValidString(year2)) {
+//                                        year2 = year2.substring(0, 4);
+//                                    }
 
                                     if (name2.equalsIgnoreCase(name2) || name2.equalsIgnoreCase(title) || name2.equalsIgnoreCase(originalTitle)
                                             || title2.equalsIgnoreCase(name2) || title2.equalsIgnoreCase(title) || title2.equalsIgnoreCase(originalTitle)

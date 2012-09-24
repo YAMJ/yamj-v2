@@ -202,8 +202,7 @@ public class BDRipScanner {
 
         /* Some ported code from the bdinfo free project */
         byte[] data = new byte[(int) fileReader.length()];
-        @SuppressWarnings("unused")
-        int dataLength = fileReader.read(data, 0, data.length);
+//        int dataLength = fileReader.read(data, 0, data.length);   // Not used
 
         fileReader.close();
 
@@ -223,12 +222,12 @@ public class BDRipScanner {
                 ((int) data[11]);
 
         int playlistLength = data.length - playlistIndex - 4;
-        @SuppressWarnings("unused")
-        int playlistLengthCorrect =
-                (((int) data[playlistIndex] & 0xFF) << 24) +
-                (((int) data[playlistIndex + 1] & 0xFF) << 16) +
-                (((int) data[playlistIndex + 2] & 0xFF) << 8) +
-                (((int) data[playlistIndex + 3] & 0xFF));
+        // Not used
+//        int playlistLengthCorrect =
+//                (((int) data[playlistIndex] & 0xFF) << 24) +
+//                (((int) data[playlistIndex + 1] & 0xFF) << 16) +
+//                (((int) data[playlistIndex + 2] & 0xFF) << 8) +
+//                (((int) data[playlistIndex + 3] & 0xFF));
 
         byte[] playlistData = new byte[playlistLength];
         System.arraycopy(data, playlistIndex + 4,
