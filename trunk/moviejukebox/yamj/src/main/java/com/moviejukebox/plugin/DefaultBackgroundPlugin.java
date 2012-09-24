@@ -48,6 +48,8 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     private String frameColorHD;
     private String frameColor720;
     private String frameColor1080;
+    // Literal Strings
+    private static final String COLOUR_WHITE = "255/255/255";
 
     public DefaultBackgroundPlugin() {
         // These are the default values for the width and height.
@@ -83,10 +85,10 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         boolean addFrame = PropertiesUtil.getBooleanProperty(newImageType + ".addFrame", FALSE);
         frameSize = PropertiesUtil.getIntProperty(newImageType + ".frame.size", "5");
 
-        frameColorSD = PropertiesUtil.getProperty(newImageType + ".frame.colorSD", "255/255/255");
-        frameColorHD = PropertiesUtil.getProperty(newImageType + ".frame.colorHD", "255/255/255");
-        frameColor720 = PropertiesUtil.getProperty(newImageType + ".frame.color720", "255/255/255");
-        frameColor1080 = PropertiesUtil.getProperty(newImageType + ".frame.color1080", "255/255/255");
+        frameColorSD = PropertiesUtil.getProperty(newImageType + ".frame.colorSD", COLOUR_WHITE);
+        frameColorHD = PropertiesUtil.getProperty(newImageType + ".frame.colorHD", COLOUR_WHITE);
+        frameColor720 = PropertiesUtil.getProperty(newImageType + ".frame.color720", COLOUR_WHITE);
+        frameColor1080 = PropertiesUtil.getProperty(newImageType + ".frame.color1080", COLOUR_WHITE);
 
         roundCorners = PropertiesUtil.getBooleanProperty(newImageType + ".roundCorners", FALSE);
         cornerRadius = PropertiesUtil.getIntProperty(newImageType + ".cornerRadius", "25");

@@ -35,27 +35,32 @@ import org.apache.log4j.Logger;
 
 public class OpenSubtitlesPlugin {
 
-    private static final Logger logger = Logger.getLogger(OpenSubtitlesPlugin.class);
-    private static final String logMessage = "OpenSubtitles Plugin: ";
+    private static final Logger LOGGER = Logger.getLogger(OpenSubtitlesPlugin.class);
+    private static final String LOG_MESSAGE = "OpenSubtitles Plugin: ";
+    private static final String SUB_LANGUAGE_ID = PropertiesUtil.getProperty("opensubtitles.language", "");
     private static String login = PropertiesUtil.getProperty("opensubtitles.username", "");
     private static String pass = PropertiesUtil.getProperty("opensubtitles.password", "");
     private static String useragent = "moviejukebox 1.0.15";
     //private static String useragent = "Yet Another Movie Jukebox";
-    private static String OSdbServer = "http://api.opensubtitles.org/xml-rpc";
+    private static final String OS_DB_SERVER = "http://api.opensubtitles.org/xml-rpc";
     private static String token = "";
-    private static final String sublanguageid = PropertiesUtil.getProperty("opensubtitles.language", "");
+    // Literals
+    private static final String OS_METHOD_START = "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
+    private static final String OS_METHOD_END = "</methodName><params><param><value><string>";
+    private static final String OS_PARAM = "</string></value></param><param><value><struct>";
+    private static final String OS_MEMBER = "</struct></value></member>";
+    private static final String OS_PARAMS = "</struct></value></param></params></methodCall>";
 
     static {
         // Check if subtitle language was selected
-        if (!sublanguageid.equals("")) {
-
+        if (StringUtils.isBlank(SUB_LANGUAGE_ID)) {
             // Part of opensubtitles.org protocol requirements
-            logger.info(logMessage + "Subtitles service allowed by www.OpenSubtitles.org");
+            LOGGER.info(LOG_MESSAGE + "Subtitles service allowed by www.OpenSubtitles.org");
 
             // Login to opensubtitles.org system
             logIn();
         } else {
-            logger.debug(logMessage + "No language selected in moviejukebox.properties");
+            LOGGER.debug(LOG_MESSAGE + "No language selected in moviejukebox.properties");
         }
     }
 
@@ -71,26 +76,26 @@ public class OpenSubtitlesPlugin {
                 getValue("status", ret);
                 token = getValue("token", ret);
                 if (token.equals("")) {
-                    logger.error(logMessage + "Login error." + "\n" + ret);
+                    LOGGER.error(LOG_MESSAGE + "Login error." + "\n" + ret);
                 } else {
-                    logger.error(logMessage + "Login successful.");
+                    LOGGER.error(LOG_MESSAGE + "Login successful.");
                 }
                 // String l1 = login.equals("") ? "Anonymous" : login;
             }
         } catch (Exception error) {
-            logger.error(logMessage + "Login Failed");
+            LOGGER.error(LOG_MESSAGE + "Login Failed");
         }
     }
 
     public static void logOut() {
 
         // Check if subtitle language was selected
-        if (sublanguageid.equals("")) {
+        if (StringUtils.isBlank(SUB_LANGUAGE_ID)) {
             return;
         }
 
         // Check that the login was successful
-        if (token.equals("")) {
+        if (StringUtils.isBlank(token)) {
             return;
         }
 
@@ -99,7 +104,7 @@ public class OpenSubtitlesPlugin {
             String xml = generateXMLRPC("LogOut", p1);
             sendRPC(xml);
         } catch (Exception error) {
-            logger.error(logMessage + "Logout Failed");
+            LOGGER.error(LOG_MESSAGE + "Logout Failed");
         }
 
     }
@@ -108,19 +113,19 @@ public class OpenSubtitlesPlugin {
 
         if (StringTools.isNotValidString(movie.getSubtitles()) || movie.getSubtitles().equalsIgnoreCase("NO") || movie.isTVShow()) {
             // Check if subtitle language was selected
-            if (sublanguageid.equals("")) {
+            if (StringUtils.isBlank(SUB_LANGUAGE_ID)) {
                 return;
             }
 
             // Check to see if we scrape the library, if we don't then skip the download
             if (!movie.isScrapeLibrary()) {
-                logger.debug(logMessage + "Skipped for " + movie.getTitle() + " due to scrape library flag");
+                LOGGER.debug(LOG_MESSAGE + "Skipped for " + movie.getTitle() + " due to scrape library flag");
                 return;
             }
 
             // Check that the login was successful
-            if (token.equals("")) {
-                logger.debug(logMessage + "Login failed");
+            if (StringUtils.isBlank(token)) {
+                LOGGER.debug(LOG_MESSAGE + "Login failed");
                 return;
             }
 
@@ -156,7 +161,7 @@ public class OpenSubtitlesPlugin {
             }
 
             if (allSubtitleExchange) {
-                logger.debug(logMessage + "All subtitles exist for " + movie.getTitle());
+                LOGGER.debug(LOG_MESSAGE + "All subtitles exist for " + movie.getTitle());
                 // Don't return yet, we might want to upload the files.
                 //return;
             }
@@ -225,7 +230,7 @@ public class OpenSubtitlesPlugin {
                 }
             }
         } else {
-            logger.debug(logMessage + "Skipping subtitle download for " + movie.getTitle() + ", subtitles already exist: " + movie.getSubtitles());
+            LOGGER.debug(LOG_MESSAGE + "Skipping subtitle download for " + movie.getTitle() + ", subtitles already exist: " + movie.getSubtitles());
         }
     }
 
@@ -262,11 +267,11 @@ public class OpenSubtitlesPlugin {
             }
 
             if (subDownloadLink.equals("")) {
-                logger.debug(logMessage + "Subtitle not found for " + movieFile.getName());
+                LOGGER.debug(LOG_MESSAGE + "Subtitle not found for " + movieFile.getName());
                 return false;
             }
 
-            logger.debug(logMessage + "Download subtitle for " + movie.getBaseName());
+            LOGGER.debug(LOG_MESSAGE + "Download subtitle for " + movie.getBaseName());
 
             URL url = new URL(subDownloadLink);
             HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
@@ -275,7 +280,7 @@ public class OpenSubtitlesPlugin {
 
             int code = connection.getResponseCode();
             if (code != HttpURLConnection.HTTP_OK) {
-                logger.error(logMessage + "Download Failed");
+                LOGGER.error(LOG_MESSAGE + "Download Failed");
                 return false;
             }
 
@@ -292,7 +297,7 @@ public class OpenSubtitlesPlugin {
             return true;
 
         } catch (Exception error) {
-            logger.error(logMessage + "Download Exception (Movie Not Found)");
+            LOGGER.error(LOG_MESSAGE + "Download Exception (Movie Not Found)");
             return false;
         }
 
@@ -359,11 +364,11 @@ public class OpenSubtitlesPlugin {
             String alreadyindb = getIntValue("alreadyindb", ret);
 
             if (!alreadyindb.equals("0")) {
-                logger.debug(logMessage + "Subtitle already in db for " + movie.getBaseName());
+                LOGGER.debug(LOG_MESSAGE + "Subtitle already in db for " + movie.getBaseName());
                 return true;
             }
 
-            logger.debug(logMessage + "Upload Subtitle for " + movie.getBaseName());
+            LOGGER.debug(LOG_MESSAGE + "Upload Subtitle for " + movie.getBaseName());
 
             // Upload the subtitle
             xml = generateXMLRPCUS(idmovieimdb, subhash, subcontent, subfilename, moviehash, moviebytesize, movietimems, movieframes, moviefps, moviefilename);
@@ -373,7 +378,7 @@ public class OpenSubtitlesPlugin {
             return true;
 
         } catch (Exception error) {
-            logger.error(logMessage + "Upload Failed");
+            LOGGER.error(LOG_MESSAGE + "Upload Failed");
             return false;
         } finally {
             try {
@@ -403,110 +408,110 @@ public class OpenSubtitlesPlugin {
     }
 
     private static String generateXMLRPCSS(String moviehash, String moviebytesize) {
-        String str = "";
-        str += "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
-        str += "SearchSubtitles";
-        str += "</methodName><params><param><value><string>";
-        str += token;
-        str += "</string></value></param><param><value><struct>";
+        StringBuilder sb = new StringBuilder(OS_METHOD_START);
+        sb.append("SearchSubtitles");
+        sb.append(OS_METHOD_END);
+        sb.append(token);
+        sb.append(OS_PARAM);
 
-        str += "<member><value><struct>";
+        sb.append("<member><value><struct>");
 
-        str += addymember("sublanguageid", sublanguageid);
-        str += addymember("moviehash", moviehash);
-        str += addymember("moviebytesize", moviebytesize);
+        sb.append(addymember("sublanguageid", SUB_LANGUAGE_ID));
+        sb.append(addymember("moviehash", moviehash));
+        sb.append(addymember("moviebytesize", moviebytesize));
 
-        str += "</struct></value></member>";
+        sb.append(OS_MEMBER);
 
-        str += "</struct></value></param></params></methodCall>";
-        return str;
+        sb.append(OS_PARAMS);
+        return sb.toString();
     }
 
-    ;
-
     private static String generateXMLRPCSS(String query) {
-        String str = "";
-        str += "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
-        str += "SearchSubtitles";
-        str += "</methodName><params><param><value><string>";
-        str += token;
-        str += "</string></value></param><param><value><struct>";
+        StringBuilder sb = new StringBuilder(OS_METHOD_START);
+        sb.append("SearchSubtitles");
+        sb.append(OS_METHOD_END);
+        sb.append(token);
+        sb.append(OS_PARAM);
 
-        str += "<member><value><struct>";
+        sb.append("<member><value><struct>");
 
-        str += addymember("sublanguageid", sublanguageid);
-        str += addymember("query", query);
+        sb.append(addymember("sublanguageid", SUB_LANGUAGE_ID));
+        sb.append(addymember("query", query));
 
-        str += "</struct></value></member>";
+        sb.append(OS_MEMBER);
 
-        str += "</struct></value></param></params></methodCall>";
-        return str;
+        sb.append(OS_PARAMS);
+        return sb.toString();
     }
 
     ;
 
     private static String generateXMLRPCUS(String idmovieimdb, String subhash[], String subcontent[], String subfilename[], String moviehash[],
             String moviebytesize[], String movietimems[], String movieframes[], String moviefps[], String moviefilename[]) {
-        String str = "";
-        str += "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
-        str += "UploadSubtitles";
-        str += "</methodName><params><param><value><string>";
-        str += token;
-        str += "</string></value></param><param><value><struct>";
+        StringBuilder sb = new StringBuilder(OS_METHOD_START);
+        sb.append("UploadSubtitles");
+        sb.append(OS_METHOD_END);
+        sb.append(token);
+        sb.append(OS_PARAM);
 
         for (int i = 0; i < subhash.length; i++) {
-            str += "<member><name>" + "cd" + (i + 1) + "</name><value><struct>";
-            str += addymember("movietimems", movietimems[i]);
-            str += addymember("moviebytesize", moviebytesize[i]);
-            str += addymember("subfilename", subfilename[i]);
-            str += addymember("subcontent", subcontent[i]);
-            str += addymember("subhash", subhash[i]);
-            str += addymember("movieframes", movieframes[i]);
-            str += addymember("moviefps", moviefps[i]);
-            str += addymember("moviefilename", moviefilename[i]);
-            str += addymember("moviehash", moviehash[i]);
+            sb.append("<member><name>");
+            sb.append("cd");
+            sb.append(i + 1);
+            sb.append("</name><value><struct>");
+            sb.append(addymember("movietimems", movietimems[i]));
+            sb.append(addymember("moviebytesize", moviebytesize[i]));
+            sb.append(addymember("subfilename", subfilename[i]));
+            sb.append(addymember("subcontent", subcontent[i]));
+            sb.append(addymember("subhash", subhash[i]));
+            sb.append(addymember("movieframes", movieframes[i]));
+            sb.append(addymember("moviefps", moviefps[i]));
+            sb.append(addymember("moviefilename", moviefilename[i]));
+            sb.append(addymember("moviehash", moviehash[i]));
 
-            str += "</struct></value></member>";
+            sb.append(OS_MEMBER);
         }
 
-        str += "<member><name>baseinfo</name><value><struct>";
-        str += addymember("sublanguageid", sublanguageid);
-        str += addymember("idmovieimdb", idmovieimdb);
-        str += addymember("subauthorcomment", "");
-        str += addymember("movieaka", "");
-        str += addymember("moviereleasename", "");
+        sb.append("<member><name>baseinfo</name><value><struct>");
+        sb.append(addymember("sublanguageid", SUB_LANGUAGE_ID));
+        sb.append(addymember("idmovieimdb", idmovieimdb));
+        sb.append(addymember("subauthorcomment", ""));
+        sb.append(addymember("movieaka", ""));
+        sb.append(addymember("moviereleasename", ""));
 
-        str += "</struct></value></member>";
+        sb.append(OS_MEMBER);
 
-        str += "</struct></value></param></params></methodCall>";
-        return str;
+        sb.append(OS_PARAMS);
+        return sb.toString();
     }
 
     private static String generateXMLRPCTUS(String subhash[], String subfilename[], String moviehash[], String moviebytesize[], String movietimems[],
             String movieframes[], String moviefps[], String moviefilename[]) {
-        String str = "";
-        str += "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
-        str += "TryUploadSubtitles";
-        str += "</methodName><params><param><value><string>";
-        str += token;
-        str += "</string></value></param><param><value><struct>";
+        StringBuilder sb = new StringBuilder(OS_METHOD_START);
+        sb.append("TryUploadSubtitles");
+        sb.append(OS_METHOD_END);
+        sb.append(token);
+        sb.append(OS_PARAM);
 
         for (int i = 0; i < subhash.length; i++) {
-            str += "<member><name>" + "cd" + (i + 1) + "</name><value><struct>";
-            str += addymember("movietimems", movietimems[i]);
-            str += addymember("moviebytesize", moviebytesize[i]);
-            str += addymember("subfilename", subfilename[i]);
-            str += addymember("subhash", subhash[i]);
-            str += addymember("movieframes", movieframes[i]);
-            str += addymember("moviefps", moviefps[i]);
-            str += addymember("moviefilename", moviefilename[i]);
-            str += addymember("moviehash", moviehash[i]);
+            sb.append("<member><name>");
+            sb.append("cd");
+            sb.append(i + 1);
+            sb.append("</name><value><struct>");
+            sb.append(addymember("movietimems", movietimems[i]));
+            sb.append(addymember("moviebytesize", moviebytesize[i]));
+            sb.append(addymember("subfilename", subfilename[i]));
+            sb.append(addymember("subhash", subhash[i]));
+            sb.append(addymember("movieframes", movieframes[i]));
+            sb.append(addymember("moviefps", moviefps[i]));
+            sb.append(addymember("moviefilename", moviefilename[i]));
+            sb.append(addymember("moviehash", moviehash[i]));
 
-            str += "</struct></value></member>";
+            sb.append(OS_MEMBER);
         }
 
-        str += "</struct></value></param></params></methodCall>";
-        return str;
+        sb.append(OS_PARAMS);
+        return sb.toString();
     }
 
     ;
@@ -519,7 +524,7 @@ public class OpenSubtitlesPlugin {
      *
      * // connection.setRequestProperty("Accept","text/html"); connection.setRequestProperty("Content-Type", "text/xml"); connection.setDoOutput(true);
      * //PrintWriter out= new PrintWriter(connection.getOutputStream()); //out.print(logowanie); String str2 =
-     * "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>" + "DetectLanguage" + "</methodName><params>" + "<param><value><string>" + token +
+     * PART_1 + "DetectLanguage" + "</methodName><params>" + "<param><value><string>" + token +
      * "</string></value></param>" + "<param><value>" + "<struct><value><string>";
      *
      *
@@ -534,7 +539,7 @@ public class OpenSubtitlesPlugin {
     private static String sendRPC(String xml) throws IOException {
 
         StringBuilder str = new StringBuilder();
-        String strona = OSdbServer;
+        String strona = OS_DB_SERVER;
         String logowanie = xml;
         URL url = new URL(strona);
         URLConnection connection = url.openConnection();
@@ -596,20 +601,24 @@ public class OpenSubtitlesPlugin {
 
     @SuppressWarnings("unused")
     private static String generateXMLRPCDetectLang(String body) {
-        String str = "";
-        str += "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
-        str += "DetectLanguage" + "</methodName><params>";
+        StringBuilder sb = new StringBuilder(OS_METHOD_START);
+        sb.append("DetectLanguage");
+        sb.append("</methodName><params>");
 
-        str += "<param><value><string>" + token + "</string></value></param>";
-        str += "<param><value>" + body + " </value></param>";
+        sb.append("<param><value><string>");
+        sb.append(token);
+        sb.append("</string></value></param>");
+        sb.append("<param><value>");
+        sb.append(body);
+        sb.append(" </value></param>");
 
-        str += "</params></methodCall>";
-        return str;
+        sb.append("</params></methodCall>");
+        return sb.toString();
     }
 
     private static String generateXMLRPC(String procname, String s[]) {
         StringBuilder str = new StringBuilder();
-        str.append("<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>");
+        str.append(OS_METHOD_START);
         str.append(procname).append("</methodName><params>");
 
         for (int i = 0; i < s.length; i++) {

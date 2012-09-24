@@ -58,6 +58,32 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static final Logger logger = Logger.getLogger(DefaultImagePlugin.class);
     private String overlayRoot;
     private String overlayResources;
+    // Literals
+    private static final String LEFT = "left";
+    private static final String RIGHT = "right";
+    private static final String BLOCK = "block";
+    private static final String DEFAULT = "default";
+    private static final String COLOUR_WHITE = "255/255/255";
+    private static final String VIDEOSOURCE = "videosource";
+    private static final String LANGUAGE = "language";
+    private static final String ACODEC = "acodec";
+    private static final String ALANG = "alang";
+    private static final String AUDIOCODEC = "audiocodec";
+    private static final String AUDIOLANG = "audiolang";
+    private static final String AUDIOCHANNELS = "audiochannels";
+    private static final String CHANNELS = "channels";
+    private static final String CONTAINER = "container";
+    private static final String CERTIFICATION = "certification";
+    private static final String KEYWORDS = "keywords";
+    private static final String COUNTRY = "country";
+    private static final String COMPANY = "company";
+    private static final String AWARD = "award";
+    private static final String EQUAL = "equal";
+    private static final String AUTO = "auto";
+    private static final String TOP = "top";
+    private static final String D_PLUS = "\\d+";
+    private static final String MSG_VALID = ", please ensure it is valid";
+    private static final String MSG_RESOURCES = " is in the resources directory.";
     //stretch images
     private boolean addHDLogo;
     private boolean addTVLogo;
@@ -199,11 +225,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addTVLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoTV", FALSE);
 
         String tmpSubTitle = PropertiesUtil.getProperty(imageType + ".logoSubTitle", FALSE);
-        blockSubTitle = tmpSubTitle.equalsIgnoreCase("block");
+        blockSubTitle = tmpSubTitle.equalsIgnoreCase(BLOCK);
         addSubTitle = tmpSubTitle.equalsIgnoreCase(TRUE) || blockSubTitle;
 
         String tmpLanguage = PropertiesUtil.getProperty(imageType + ".language", FALSE);
-        blockLanguage = tmpLanguage.equalsIgnoreCase("block");
+        blockLanguage = tmpLanguage.equalsIgnoreCase(BLOCK);
         addLanguage = tmpLanguage.equalsIgnoreCase(TRUE) || blockLanguage;
 
         String tmpSetLogo = PropertiesUtil.getProperty(imageType + ".logoSet", FALSE);
@@ -213,7 +239,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         boolean addTextTitle = PropertiesUtil.getBooleanProperty(imageType + ".addText.title", FALSE);
         boolean addTextSeason = PropertiesUtil.getBooleanProperty(imageType + ".addText.season", FALSE);
         addTextSetSize = PropertiesUtil.getBooleanProperty(imageType + ".addText.setSize", FALSE); // Note: This should only be for thumbnails
-        textAlignment = PropertiesUtil.getProperty(imageType + ".addText.alignment", "left");
+        textAlignment = PropertiesUtil.getProperty(imageType + ".addText.alignment", LEFT);
         textFont = PropertiesUtil.getProperty(imageType + ".addText.font", "Helvetica");
         textFontSize = PropertiesUtil.getIntProperty(imageType + ".addText.fontSize", "36");
         textFontColor = PropertiesUtil.getProperty(imageType + ".addText.fontColor", "LIGHT_GRAY");
@@ -225,14 +251,14 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
         int overlayOffsetX = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetX", "0");
         int overlayOffsetY = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetY", "0");
-        overlaySource = PropertiesUtil.getProperty(imageType + ".overlay.source", "default");
+        overlaySource = PropertiesUtil.getProperty(imageType + ".overlay.source", DEFAULT);
 
         boolean addFrame = PropertiesUtil.getBooleanProperty(imageType + ".addFrame", FALSE);
         frameSize = PropertiesUtil.getIntProperty(imageType + ".frame.size", "5");
-        frameColorSD = PropertiesUtil.getProperty(imageType + ".frame.colorSD", "255/255/255");
-        frameColorHD = PropertiesUtil.getProperty(imageType + ".frame.colorHD", "255/255/255");
-        frameColor720 = PropertiesUtil.getProperty(imageType + ".frame.color720", "255/255/255");
-        frameColor1080 = PropertiesUtil.getProperty(imageType + ".frame.color1080", "255/255/255");
+        frameColorSD = PropertiesUtil.getProperty(imageType + ".frame.colorSD", COLOUR_WHITE);
+        frameColorHD = PropertiesUtil.getProperty(imageType + ".frame.colorHD", COLOUR_WHITE);
+        frameColor720 = PropertiesUtil.getProperty(imageType + ".frame.color720", COLOUR_WHITE);
+        frameColor1080 = PropertiesUtil.getProperty(imageType + ".frame.color1080", COLOUR_WHITE);
 
         // Issue 1937: Overlay configuration XML
         String tmpRating = PropertiesUtil.getProperty(imageType + ".rating", FALSE);
@@ -240,15 +266,15 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addRating = tmpRating.equalsIgnoreCase(TRUE) || realRating;
 
         String tmpAudioCodec = PropertiesUtil.getProperty(imageType + ".audiocodec", FALSE);
-        blockAudioCodec = tmpAudioCodec.equalsIgnoreCase("block");
+        blockAudioCodec = tmpAudioCodec.equalsIgnoreCase(BLOCK);
         addAudioCodec = tmpAudioCodec.equalsIgnoreCase(TRUE) || blockAudioCodec;
 
         String tmpAudioChannels = PropertiesUtil.getProperty(imageType + ".audiochannels", FALSE);
-        blockAudioChannels = tmpAudioChannels.equalsIgnoreCase("block");
+        blockAudioChannels = tmpAudioChannels.equalsIgnoreCase(BLOCK);
         addAudioChannels = tmpAudioChannels.equalsIgnoreCase(TRUE) || blockAudioChannels;
 
         String tmpAudioLang = PropertiesUtil.getProperty(imageType + ".audiolang", FALSE);
-        blockAudioLang = tmpAudioCodec.equalsIgnoreCase("block");
+        blockAudioLang = tmpAudioCodec.equalsIgnoreCase(BLOCK);
         addAudioLang = tmpAudioLang.equalsIgnoreCase(TRUE) || blockAudioLang;
 
         addVideoSource = PropertiesUtil.getBooleanProperty(imageType + ".videosource", FALSE);
@@ -260,11 +286,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         addCertification = PropertiesUtil.getBooleanProperty(imageType + ".certification", FALSE);
 
         String tmpWatched = PropertiesUtil.getProperty(imageType + ".watched", FALSE);
-        blockWatched = tmpWatched.equalsIgnoreCase("block");
+        blockWatched = tmpWatched.equalsIgnoreCase(BLOCK);
         addWatched = tmpWatched.equalsIgnoreCase(TRUE) || blockWatched;
 
         String tmpEpisode = PropertiesUtil.getProperty(imageType + ".episode", FALSE);
-        blockEpisode = tmpEpisode.equalsIgnoreCase("block");
+        blockEpisode = tmpEpisode.equalsIgnoreCase(BLOCK);
         addEpisode = tmpEpisode.equalsIgnoreCase(TRUE) || blockEpisode;
 
         addTop250 = PropertiesUtil.getBooleanProperty(imageType + ".top250", FALSE);
@@ -272,15 +298,15 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         blockClones = PropertiesUtil.getBooleanProperty(imageType + ".clones", FALSE);
 
         String tmpCountry = PropertiesUtil.getProperty(imageType + ".country", FALSE);
-        blockCountry = tmpCountry.equalsIgnoreCase("block");
+        blockCountry = tmpCountry.equalsIgnoreCase(BLOCK);
         addCountry = tmpCountry.equalsIgnoreCase(TRUE) || blockCountry;
 
         String tmpCompany = PropertiesUtil.getProperty(imageType + ".company", FALSE);
-        blockCompany = tmpCompany.equalsIgnoreCase("block");
+        blockCompany = tmpCompany.equalsIgnoreCase(BLOCK);
         addCompany = tmpCompany.equalsIgnoreCase(TRUE) || blockCompany;
 
         String tmpAward = PropertiesUtil.getProperty(imageType + ".award", FALSE);
-        blockAward = tmpAward.equalsIgnoreCase("block");
+        blockAward = tmpAward.equalsIgnoreCase(BLOCK);
         countAward = tmpAward.equalsIgnoreCase("count");
         addAward = tmpAward.equalsIgnoreCase(TRUE) || blockAward || countAward;
         awardEventName = PropertiesUtil.getBooleanProperty(imageType + ".award.useEventName", FALSE);
@@ -395,7 +421,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             if (addPerspective) {
                 String perspDir;
                 if (perspectiveDirection == null) { // make sure the perspectiveDirection is populated {
-                    perspDir = PropertiesUtil.getProperty(imageType + ".perspectiveDirection", "right");
+                    perspDir = PropertiesUtil.getProperty(imageType + ".perspectiveDirection", RIGHT);
                 } else {
                     perspDir = perspectiveDirection;
                 }
@@ -523,17 +549,17 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             value = movie.isHD() ? highdefDiff ? movie.isHD1080() ? "hd1080" : "hd720" : "hd" : FALSE;
                         } else if (name.equalsIgnoreCase("subtitle") || name.equalsIgnoreCase("ST")) {
                             value = (StringTools.isNotValidString(movie.getSubtitles()) || movie.getSubtitles().equalsIgnoreCase("NO")) ? FALSE : (blockSubTitle ? movie.getSubtitles() : TRUE);
-                        } else if (name.equalsIgnoreCase("language")) {
+                        } else if (name.equalsIgnoreCase(LANGUAGE)) {
                             value = movie.getLanguage();
                         } else if (name.equalsIgnoreCase("rating")) {
                             value = ((!movie.isTVShow() && !movie.isSetMaster()) || (movie.isTVShow() && movie.isSetMaster())) ? Integer.toString(realRating ? movie.getRating() : (movie.getRating() / 10) * 10) : Movie.UNKNOWN;
-                        } else if (name.equalsIgnoreCase("videosource") || name.equalsIgnoreCase("source") || name.equalsIgnoreCase("VS")) {
+                        } else if (name.equalsIgnoreCase(VIDEOSOURCE) || name.equalsIgnoreCase("source") || name.equalsIgnoreCase("VS")) {
                             value = movie.getVideoSource();
                         } else if (name.equalsIgnoreCase("videoout") || name.equalsIgnoreCase("out") || name.equalsIgnoreCase("VO")) {
                             value = movie.getVideoOutput();
                         } else if (name.equalsIgnoreCase("videocodec") || name.equalsIgnoreCase("vcodec") || name.equalsIgnoreCase("VC")) {
                             value = movie.getVideoCodec();
-                        } else if (name.equalsIgnoreCase("audiocodec") || name.equalsIgnoreCase("acodec") || name.equalsIgnoreCase("AC")) {
+                        } else if (name.equalsIgnoreCase(AUDIOCODEC) || name.equalsIgnoreCase(ACODEC) || name.equalsIgnoreCase("AC")) {
                             value = movie.getAudioCodec();
                             if (!blockAudioCodec) {
                                 int pos = value.indexOf(Movie.SPACE_SLASH_SPACE);
@@ -549,7 +575,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     value = value.substring(0, value.indexOf(" (")) + value.substring(value.indexOf(')') + 1);
                                 }
                             }
-                        } else if (name.equalsIgnoreCase("audiolang") || name.equalsIgnoreCase("alang") || name.equalsIgnoreCase("AL")) {
+                        } else if (name.equalsIgnoreCase(AUDIOLANG) || name.equalsIgnoreCase(ALANG) || name.equalsIgnoreCase("AL")) {
                             value = "";
                             for (String tmp : movie.getAudioCodec().split(Movie.SPACE_SLASH_SPACE)) {
                                 if (tmp.contains(" (") && tmp.indexOf(" (") < tmp.indexOf(")")) {
@@ -569,7 +595,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             if (value.equals("")) {
                                 value = Movie.UNKNOWN;
                             }
-                        } else if (name.equalsIgnoreCase("audiochannels") || name.equalsIgnoreCase("channels")) {
+                        } else if (name.equalsIgnoreCase(AUDIOCHANNELS) || name.equalsIgnoreCase(CHANNELS)) {
                             value = movie.getAudioChannels();
                             if (!blockAudioChannels) {
                                 int pos = value.indexOf(Movie.SPACE_SLASH_SPACE);
@@ -577,13 +603,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     value = value.substring(0, pos);
                                 }
                             }
-                        } else if (name.equalsIgnoreCase("container")) {
+                        } else if (name.equalsIgnoreCase(CONTAINER)) {
                             value = movie.getContainer();
                         } else if (name.equalsIgnoreCase("aspect")) {
                             value = movie.getAspectRatio();
                         } else if (name.equalsIgnoreCase("fps")) {
                             value = Float.toString(movie.getFps());
-                        } else if (name.equalsIgnoreCase("certification")) {
+                        } else if (name.equalsIgnoreCase(CERTIFICATION)) {
                             value = movie.getCertification();
                         } else if (name.equalsIgnoreCase("watched")) {
                             if (imageType.equalsIgnoreCase(VIDEOIMAGE)) {
@@ -628,9 +654,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             }
                         } else if (name.equalsIgnoreCase("top250")) {
                             value = movie.getTop250() > 0 ? TRUE : FALSE;
-                        } else if (name.equalsIgnoreCase("keywords")) {
+                        } else if (name.equalsIgnoreCase(KEYWORDS)) {
                             value = movie.getBaseFilename().toLowerCase();
-                        } else if (name.equalsIgnoreCase("country")) {
+                        } else if (name.equalsIgnoreCase(COUNTRY)) {
                             value = movie.getCountry();
                             if (!blockCountry) {
                                 int pos = value.indexOf(Movie.SPACE_SLASH_SPACE);
@@ -638,7 +664,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     value = value.substring(0, pos);
                                 }
                             }
-                        } else if (name.equalsIgnoreCase("company")) {
+                        } else if (name.equalsIgnoreCase(COMPANY)) {
                             value = movie.getCompany();
                             if (!blockCompany) {
                                 int pos = value.indexOf(Movie.SPACE_SLASH_SPACE);
@@ -646,7 +672,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     value = value.substring(0, pos);
                                 }
                             }
-                        } else if (name.equalsIgnoreCase("award")) {
+                        } else if (name.equalsIgnoreCase(AWARD)) {
                             value = "";
                             int awardCount = 0;
                             HashMap<String, Integer> awards = new HashMap<String, Integer>();
@@ -702,7 +728,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     String value = states.get(inx).value;
                     String filename = Movie.UNKNOWN;
                     if (checkLogoEnabled(name)) {
-                        if (!blockLanguage && name.equalsIgnoreCase("language") && StringTools.isValidString(value)) {
+                        if (!blockLanguage && name.equalsIgnoreCase(LANGUAGE) && StringTools.isValidString(value)) {
                             filename = "languages/English.png";
                         }
                         String[] values = value.split(Movie.SPACE_SLASH_SPACE);
@@ -774,7 +800,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 for (int i = 0; i < layer.names.size(); i++) {
                     StateOverlay state = states.get(i);
                     String name = layer.names.get(i);
-                    if (!blockLanguage && name.equalsIgnoreCase("language")) {
+                    if (!blockLanguage && name.equalsIgnoreCase(LANGUAGE)) {
                         newBi = drawLanguage(movie, newBi, getOverlayX(newBi.getWidth(), 62, state.left, state.align), getOverlayY(newBi.getHeight(), 40, state.top, state.valign));
                         continue;
                     }
@@ -784,16 +810,16 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         continue;
                     }
 
-                    if (((blockAudioCodec && ((name.equalsIgnoreCase("audiocodec") || name.equalsIgnoreCase("acodec") || name.equalsIgnoreCase("AC"))))
-                            || (blockAudioChannels && (name.equalsIgnoreCase("audiochannels") || name.equalsIgnoreCase("channels")))
-                            || (blockAudioLang && (name.equalsIgnoreCase("audiolang") || name.equalsIgnoreCase("alang") || name.equalsIgnoreCase("AL")))
-                            || (blockCountry && name.equalsIgnoreCase("country"))
-                            || (blockCompany && name.equalsIgnoreCase("company"))
-                            || (blockAward && name.equalsIgnoreCase("award"))
+                    if (((blockAudioCodec && ((name.equalsIgnoreCase(AUDIOCODEC) || name.equalsIgnoreCase(ACODEC) || name.equalsIgnoreCase("AC"))))
+                            || (blockAudioChannels && (name.equalsIgnoreCase(AUDIOCHANNELS) || name.equalsIgnoreCase(CHANNELS)))
+                            || (blockAudioLang && (name.equalsIgnoreCase(AUDIOLANG) || name.equalsIgnoreCase(ALANG) || name.equalsIgnoreCase("AL")))
+                            || (blockCountry && name.equalsIgnoreCase(COUNTRY))
+                            || (blockCompany && name.equalsIgnoreCase(COMPANY))
+                            || (blockAward && name.equalsIgnoreCase(AWARD))
                             || (blockWatched && name.equalsIgnoreCase("watched"))
                             || (blockEpisode && name.equalsIgnoreCase("episode"))
                             || (blockSubTitle && name.equalsIgnoreCase("subtitle"))
-                            || (blockLanguage && name.equalsIgnoreCase("language")))
+                            || (blockLanguage && name.equalsIgnoreCase(LANGUAGE)))
                             && (overlayBlocks.get(name) != null)) {
                         newBi = drawBlock(movie, newBi, name, filename, state.left, state.align, state.width, state.top, state.valign, state.height);
                         continue;
@@ -803,12 +829,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         BufferedImage biSet = GraphicTools.loadJPEGImage(overlayResources + filename);
 
                         Graphics2D g2d = newBi.createGraphics();
-                        g2d.drawImage(biSet, getOverlayX(newBi.getWidth(), biSet.getWidth(), state.left, state.align), getOverlayY(newBi.getHeight(), biSet.getHeight(), state.top, state.valign), state.width.matches("\\d+") ? Integer.parseInt(state.width) : biSet.getWidth(), state.height.matches("\\d+") ? Integer.parseInt(state.height) : biSet.getHeight(), null);
+                        g2d.drawImage(biSet, getOverlayX(newBi.getWidth(), biSet.getWidth(), state.left, state.align), getOverlayY(newBi.getHeight(), biSet.getHeight(), state.top, state.valign), state.width.matches(D_PLUS) ? Integer.parseInt(state.width) : biSet.getWidth(), state.height.matches(D_PLUS) ? Integer.parseInt(state.height) : biSet.getHeight(), null);
                         g2d.dispose();
                     } catch (ImageReadException ex) {
-                        logger.warn("Failed to read " + overlayResources + filename + ", please ensure it is valid");
+                        logger.warn("Failed to read " + overlayResources + filename + MSG_VALID);
                     } catch (IOException ex) {
-                        logger.warn("Failed drawing overlay to image file: Please check that " + filename + " is in the resources directory.");
+                        logger.warn("Failed drawing overlay to image file: Please check that " + filename + MSG_RESOURCES);
                     }
 
                     if (name.equalsIgnoreCase("set")) {
@@ -875,9 +901,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             g2d.drawImage(biSubTitle, bi.getWidth() - biSubTitle.getWidth() - 5, 5, null);
             g2d.dispose();
         } catch (ImageReadException ex) {
-            logger.warn("Failed to read " + logoFilename + ", please ensure it is valid");
+            logger.warn("Failed to read " + logoFilename + MSG_VALID);
         } catch (IOException error) {
-            logger.warn("Failed drawing SubTitle logo to thumbnail file: Please check that " + logoFilename + " is in the resources directory.");
+            logger.warn("Failed drawing SubTitle logo to thumbnail file: Please check that " + logoFilename + MSG_RESOURCES);
         }
 
         return bi;
@@ -936,9 +962,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
             g2d.dispose();
         } catch (ImageReadException ex) {
-            logger.warn("Failed to read " + logoFilename + ", please ensure it is valid");
+            logger.warn("Failed to read " + logoFilename + MSG_VALID);
         } catch (IOException error) {
-            logger.warn("Failed drawing HD logo to thumbnail file: Please check that " + logoFilename + " is in the resources directory.");
+            logger.warn("Failed drawing HD logo to thumbnail file: Please check that " + logoFilename + MSG_RESOURCES);
         }
 
         return bi;
@@ -972,9 +998,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
                 g2d.dispose();
             } catch (ImageReadException ex) {
-                logger.warn("Failed to read " + logoFilename + ", please ensure it is valid");
+                logger.warn("Failed to read " + logoFilename + MSG_VALID);
             } catch (IOException error) {
-                logger.warn("Failed drawing TV logo to thumbnail file: Please check that " + logoFilename + " is in the resources directory.");
+                logger.warn("Failed drawing TV logo to thumbnail file: Please check that " + logoFilename + MSG_RESOURCES);
                 logger.error(SystemTools.getStackTrace(error));
             }
         }
@@ -983,8 +1009,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     }
 
     /**
-     * Draw an overlay on the image, such as a box cover specific for
-     * videosource, container, certification if wanted
+     * Draw an overlay on the image, such as a box cover specific for videosource, container, certification if wanted
      *
      * @param movie
      * @param bi
@@ -995,14 +1020,14 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private BufferedImage drawOverlay(Movie movie, BufferedImage bi, int offsetX, int offsetY) {
 
         String source;
-        if (overlaySource.equalsIgnoreCase("videosource")) {
+        if (overlaySource.equalsIgnoreCase(VIDEOSOURCE)) {
             source = movie.getVideoSource();
-        } else if (overlaySource.equalsIgnoreCase("certification")) {
+        } else if (overlaySource.equalsIgnoreCase(CERTIFICATION)) {
             source = movie.getCertification();
-        } else if (overlaySource.equalsIgnoreCase("container")) {
+        } else if (overlaySource.equalsIgnoreCase(CONTAINER)) {
             source = movie.getContainer();
         } else {
-            source = "default";
+            source = DEFAULT;
         }
 
         // Make sure the source is formatted correctly
@@ -1010,7 +1035,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
         // Check for a blank or an UNKNOWN source and correct it
         if (StringTools.isNotValidString(source)) {
-            source = "default";
+            source = DEFAULT;
         }
 
         String overlayFilename = source + "_overlay_" + imageType + ".png";
@@ -1032,9 +1057,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
             return returnBI;
         } catch (ImageReadException ex) {
-            logger.warn("Failed to read " + overlayFilename + ", please ensure it is valid");
+            logger.warn("Failed to read " + overlayFilename + MSG_VALID);
         } catch (IOException ex) {
-            logger.warn("Failed drawing overlay to " + movie.getBaseName() + ". Please check that " + overlayFilename + " is in the resources directory.");
+            logger.warn("Failed drawing overlay to " + movie.getBaseName() + ". Please check that " + overlayFilename + MSG_RESOURCES);
         }
 
         return bi;
@@ -1121,7 +1146,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
                 g2d.dispose();
             } catch (ImageReadException ex) {
-                logger.warn("Failed to read " + languageFilename + ", please ensure it is valid");
+                logger.warn("Failed to read " + languageFilename + MSG_VALID);
             } catch (IOException ex) {
                 logger.warn("Exception drawing Language logo to thumbnail file '" + movie.getBaseName() + "': " + ex.getMessage());
                 logger.warn("Please check that language specific graphic (" + languageFilename + ") is in the resources/languages directory.");
@@ -1142,8 +1167,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 BufferedImage biSet = GraphicTools.loadJPEGImage(overlayResources + filenames[currentFilenameNumber]);
                 List<String> uniqueFiles = new ArrayList<String>();
                 uniqueFiles.add(filenames[0]);
-                int lWidth = width.matches("\\d+") ? Integer.parseInt(width) : biSet.getWidth();
-                int lHeight = height.matches("\\d+") ? Integer.parseInt(height) : biSet.getHeight();
+                int lWidth = width.matches(D_PLUS) ? Integer.parseInt(width) : biSet.getWidth();
+                int lHeight = height.matches(D_PLUS) ? Integer.parseInt(height) : biSet.getHeight();
                 LogosBlock block = overlayBlocks.get(name);
                 int cols = block.cols;
                 int rows = block.rows;
@@ -1200,29 +1225,29 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
                         currentFilenameNumber = i;
                         biSet = GraphicTools.loadJPEGImage(overlayResources + filenames[currentFilenameNumber]);
-                        if (block.size || width.equalsIgnoreCase("equal") || width.matches("\\d+")) {
+                        if (block.size || width.equalsIgnoreCase(EQUAL) || width.matches(D_PLUS)) {
                             offsetX = (left > 0 ? 1 : -1) * col * (lWidth + block.hmargin);
-                        } else if (width.equalsIgnoreCase("auto")) {
+                        } else if (width.equalsIgnoreCase(AUTO)) {
                             lWidth = biSet.getWidth();
                             offsetX = block.dir ? col == 0 ? 0 : offsetX : row == 0 ? (offsetX + maxWidth) : offsetX;
                         }
-                        if (block.size || height.equalsIgnoreCase("equal") || height.matches("\\d+")) {
+                        if (block.size || height.equalsIgnoreCase(EQUAL) || height.matches(D_PLUS)) {
                             offsetY = (top > 0 ? 1 : -1) * row * (lHeight + block.vmargin);
-                        } else if (height.equalsIgnoreCase("auto")) {
+                        } else if (height.equalsIgnoreCase(AUTO)) {
                             lHeight = biSet.getHeight();
                             offsetY = block.dir ? col == 0 ? (offsetY + maxHeight) : offsetY : row == 0 ? 0 : offsetY;
                         }
                         g2d.drawImage(biSet, getOverlayX(bi.getWidth(), lWidth, left + offsetX, align),
                                 getOverlayY(bi.getHeight(), lHeight, top + offsetY, valign),
                                 lWidth, lHeight, null);
-                        if (!block.size && width.equalsIgnoreCase("auto")) {
+                        if (!block.size && width.equalsIgnoreCase(AUTO)) {
                             if (block.dir) {
                                 offsetX += (left > 0 ? 1 : -1) * lWidth;
                             } else {
                                 maxWidth = (maxWidth < lWidth || row == 0) ? lWidth : maxWidth;
                             }
                         }
-                        if (!block.size && height.equalsIgnoreCase("auto")) {
+                        if (!block.size && height.equalsIgnoreCase(AUTO)) {
                             if (block.dir) {
                                 maxHeight = (maxHeight < lHeight || col == 0) ? lHeight : maxHeight;
                             } else {
@@ -1233,7 +1258,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
                 g2d.dispose();
             } catch (ImageReadException ex) {
-                logger.warn("Failed to read " + filenames[currentFilenameNumber] + ", please ensure it is valid");
+                logger.warn("Failed to read " + filenames[currentFilenameNumber] + MSG_VALID);
             } catch (IOException e) {
                 logger.warn("Failed drawing overlay block logo (" + filenames[currentFilenameNumber] + ") to thumbnail file: " + movie.getBaseName());
             }
@@ -1257,7 +1282,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             g2d.drawImage(biSet, bi.getWidth() - biSet.getWidth() - 5, 1, null);
             g2d.dispose();
         } catch (ImageReadException ex) {
-            logger.warn("Failed to read " + setFilename + ", please ensure it is valid");
+            logger.warn("Failed to read " + setFilename + MSG_VALID);
         } catch (IOException error) {
             logger.warn("Failed drawing set logo to thumbnail for " + movie.getBaseFilename());
             logger.warn("Please check that set graphic (set.png) is in the resources directory. " + error.getMessage());
@@ -1307,9 +1332,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         int leftAlignment;
         int topAlignment;
 
-        if (textAlignment.equalsIgnoreCase("left")) {
+        if (textAlignment.equalsIgnoreCase(LEFT)) {
             leftAlignment = textOffset;
-        } else if (textAlignment.equalsIgnoreCase("right")) {
+        } else if (textAlignment.equalsIgnoreCase(RIGHT)) {
             leftAlignment = imageWidth - textWidth - textOffset;
         } else {
             leftAlignment = (imageWidth / 2) - (textWidth / 2);
@@ -1382,10 +1407,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
         protected Integer left = 0;
         protected Integer top = 0;
-        protected String align = "left";
-        protected String valign = "top";
-        protected String width = "equal";
-        protected String height = "equal";
+        protected String align = LEFT;
+        protected String valign = TOP;
+        protected String width = EQUAL;
+        protected String height = EQUAL;
 
         public PositionOverlay() {
         }
@@ -1459,8 +1484,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             this.dir = dir;
             this.size = size;
             this.clones = clones;
-            this.cols = cols.equalsIgnoreCase("auto") ? 0 : Integer.parseInt(cols);
-            this.rows = rows.equalsIgnoreCase("auto") ? 0 : Integer.parseInt(rows);
+            this.cols = cols.equalsIgnoreCase(AUTO) ? 0 : Integer.parseInt(cols);
+            this.rows = rows.equalsIgnoreCase(AUTO) ? 0 : Integer.parseInt(rows);
             this.hmargin = Integer.parseInt(hmargin);
             this.vmargin = Integer.parseInt(vmargin);
         }
@@ -1489,8 +1514,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         overlay.before = false;
                     }
 
-                    String left = layer.getString("left");
-                    String top = layer.getString("top");
+                    String left = layer.getString(LEFT);
+                    String top = layer.getString(TOP);
                     String align = layer.getString("align");
                     String valign = layer.getString("valign");
                     String width = layer.getString("width");
@@ -1509,16 +1534,16 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         } catch (Exception ignore) {
                         }
                     }
-                    if (StringTools.isValidString(align) && (align.equalsIgnoreCase("left") || align.equalsIgnoreCase("center") || align.equalsIgnoreCase("right"))) {
+                    if (StringTools.isValidString(align) && (align.equalsIgnoreCase(LEFT) || align.equalsIgnoreCase("center") || align.equalsIgnoreCase(RIGHT))) {
                         overlay.align = align;
                     }
-                    if (StringTools.isValidString(valign) && (valign.equalsIgnoreCase("top") || valign.equalsIgnoreCase("center") || valign.equalsIgnoreCase("bottom"))) {
+                    if (StringTools.isValidString(valign) && (valign.equalsIgnoreCase(TOP) || valign.equalsIgnoreCase("center") || valign.equalsIgnoreCase("bottom"))) {
                         overlay.valign = valign;
                     }
-                    if (StringTools.isValidString(width) && (width.equalsIgnoreCase("equal") || width.equalsIgnoreCase("auto") || width.matches("\\d+"))) {
+                    if (StringTools.isValidString(width) && (width.equalsIgnoreCase(EQUAL) || width.equalsIgnoreCase(AUTO) || width.matches(D_PLUS))) {
                         overlay.width = width;
                     }
-                    if (StringTools.isValidString(height) && (height.equalsIgnoreCase("equal") || height.equalsIgnoreCase("auto") || height.matches("\\d+"))) {
+                    if (StringTools.isValidString(height) && (height.equalsIgnoreCase(EQUAL) || height.equalsIgnoreCase(AUTO) || height.matches(D_PLUS))) {
                         overlay.height = height;
                     }
 
@@ -1607,7 +1632,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     index++;
                 }
 
-                List<HierarchicalConfiguration> blocks = c.configurationsAt("block");
+                List<HierarchicalConfiguration> blocks = c.configurationsAt(BLOCK);
                 overlayBlocks.clear();
                 for (HierarchicalConfiguration block : blocks) {
                     String name = block.getString("name");
@@ -1617,11 +1642,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     String dir = block.getString("dir");
                     dir = StringTools.isNotValidString(dir) ? "horizontal" : dir;
                     String size = block.getString("size");
-                    size = StringTools.isNotValidString(size) ? "auto" : size;
+                    size = StringTools.isNotValidString(size) ? AUTO : size;
                     String cols = block.getString("cols");
-                    cols = StringTools.isNotValidString(cols) ? "auto" : cols;
+                    cols = StringTools.isNotValidString(cols) ? AUTO : cols;
                     String rows = block.getString("rows");
-                    rows = StringTools.isNotValidString(rows) ? "auto" : rows;
+                    rows = StringTools.isNotValidString(rows) ? AUTO : rows;
                     String hmargin = block.getString("hmargin");
                     hmargin = StringTools.isNotValidString(hmargin) ? "0" : hmargin;
                     String vmargin = block.getString("vmargin");
@@ -1641,7 +1666,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     }
 
     protected boolean checkLogoEnabled(String name) {
-        if (name.equalsIgnoreCase("language")) {
+        if (name.equalsIgnoreCase(LANGUAGE)) {
             return addLanguage;
         } else if (name.equalsIgnoreCase("subtitle")) {
             return addSubTitle;
@@ -1653,25 +1678,25 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             return addHDLogo;
         } else if (name.equalsIgnoreCase("rating")) {
             return addRating;
-        } else if (name.equalsIgnoreCase("videosource") || name.equalsIgnoreCase("source") || name.equalsIgnoreCase("VS")) {
+        } else if (name.equalsIgnoreCase(VIDEOSOURCE) || name.equalsIgnoreCase("source") || name.equalsIgnoreCase("VS")) {
             return addVideoSource;
         } else if (name.equalsIgnoreCase("videoout") || name.equalsIgnoreCase("out") || name.equalsIgnoreCase("VO")) {
             return addVideoOut;
         } else if (name.equalsIgnoreCase("videocodec") || name.equalsIgnoreCase("vcodec") || name.equalsIgnoreCase("VC")) {
             return addVideoCodec;
-        } else if (name.equalsIgnoreCase("audiocodec") || name.equalsIgnoreCase("acodec") || name.equalsIgnoreCase("AC")) {
+        } else if (name.equalsIgnoreCase(AUDIOCODEC) || name.equalsIgnoreCase(ACODEC) || name.equalsIgnoreCase("AC")) {
             return addAudioCodec;
-        } else if (name.equalsIgnoreCase("audiochannels") || name.equalsIgnoreCase("channels")) {
+        } else if (name.equalsIgnoreCase(AUDIOCHANNELS) || name.equalsIgnoreCase(CHANNELS)) {
             return addAudioChannels;
-        } else if (name.equalsIgnoreCase("audiolang") || name.equalsIgnoreCase("alang") || name.equalsIgnoreCase("AL")) {
+        } else if (name.equalsIgnoreCase(AUDIOLANG) || name.equalsIgnoreCase(ALANG) || name.equalsIgnoreCase("AL")) {
             return addAudioLang;
-        } else if (name.equalsIgnoreCase("container")) {
+        } else if (name.equalsIgnoreCase(CONTAINER)) {
             return addContainer;
         } else if (name.equalsIgnoreCase("aspect")) {
             return addAspectRatio;
         } else if (name.equalsIgnoreCase("fps")) {
             return addFPS;
-        } else if (name.equalsIgnoreCase("certification")) {
+        } else if (name.equalsIgnoreCase(CERTIFICATION)) {
             return addCertification;
         } else if (name.equalsIgnoreCase("watched")) {
             return addWatched;
@@ -1679,22 +1704,22 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             return addEpisode;
         } else if (name.equalsIgnoreCase("top250")) {
             return addTop250;
-        } else if (name.equalsIgnoreCase("keywords")) {
+        } else if (name.equalsIgnoreCase(KEYWORDS)) {
             return addKeywords;
-        } else if (name.equalsIgnoreCase("country")) {
+        } else if (name.equalsIgnoreCase(COUNTRY)) {
             return addCountry;
-        } else if (name.equalsIgnoreCase("company")) {
+        } else if (name.equalsIgnoreCase(COMPANY)) {
             return addCompany;
-        } else if (name.equalsIgnoreCase("award")) {
+        } else if (name.equalsIgnoreCase(AWARD)) {
             return addAward;
         }
         return !PropertiesUtil.getProperty(name, Movie.UNKNOWN).equals(Movie.UNKNOWN);
     }
 
     protected int getOverlayX(int fieldWidth, int itemWidth, Integer left, String align) {
-        if (align.equalsIgnoreCase("left")) {
+        if (align.equalsIgnoreCase(LEFT)) {
             return (int) (left >= 0 ? left : fieldWidth + left);
-        } else if (align.equalsIgnoreCase("right")) {
+        } else if (align.equalsIgnoreCase(RIGHT)) {
             return (int) (left >= 0 ? fieldWidth - left - itemWidth : -left - itemWidth);
         } else {
             return (int) (left == 0 ? ((fieldWidth - itemWidth) / 2) : left > 0 ? (fieldWidth / 2 + left) : (fieldWidth / 2 + left - itemWidth));
@@ -1702,7 +1727,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     }
 
     protected int getOverlayY(int fieldHeight, int itemHeight, Integer top, String align) {
-        if (align.equalsIgnoreCase("top")) {
+        if (align.equalsIgnoreCase(TOP)) {
             return (int) (top >= 0 ? top : fieldHeight + top);
         } else if (align.equalsIgnoreCase("bottom")) {
             return (int) (top >= 0 ? fieldHeight - top - itemHeight : -top - itemHeight);
@@ -1726,40 +1751,40 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     }
 
     protected boolean cmpOverlayValue(String name, String condition, String value) {
-        boolean result = ((name.equalsIgnoreCase("keywords") && value.indexOf(condition.toLowerCase()) > -1)
+        boolean result = ((name.equalsIgnoreCase(KEYWORDS) && value.indexOf(condition.toLowerCase()) > -1)
                 || condition.equalsIgnoreCase(value)
-                || condition.equalsIgnoreCase("default"));
+                || condition.equalsIgnoreCase(DEFAULT));
         if (!result) {
             Map<String, ArrayList<String>> data;
             if (name.equalsIgnoreCase("rating")) {
                 data = keywordsRating;
-            } else if (name.equalsIgnoreCase("videosource") || name.equalsIgnoreCase("source") || name.equalsIgnoreCase("VS")) {
+            } else if (name.equalsIgnoreCase(VIDEOSOURCE) || name.equalsIgnoreCase("source") || name.equalsIgnoreCase("VS")) {
                 data = keywordsVideoSource;
             } else if (name.equalsIgnoreCase("videoout") || name.equalsIgnoreCase("out") || name.equalsIgnoreCase("VO")) {
                 data = keywordsVideoOut;
             } else if (name.equalsIgnoreCase("videocodec") || name.equalsIgnoreCase("vcodec") || name.equalsIgnoreCase("VC")) {
                 data = keywordsVideoCodec;
-            } else if (name.equalsIgnoreCase("audiocodec") || name.equalsIgnoreCase("acodec") || name.equalsIgnoreCase("AC")) {
+            } else if (name.equalsIgnoreCase(AUDIOCODEC) || name.equalsIgnoreCase(ACODEC) || name.equalsIgnoreCase("AC")) {
                 data = keywordsAudioCodec;
-            } else if (name.equalsIgnoreCase("audiochannels") || name.equalsIgnoreCase("channels")) {
+            } else if (name.equalsIgnoreCase(AUDIOCHANNELS) || name.equalsIgnoreCase(CHANNELS)) {
                 data = keywordsAudioChannels;
-            } else if (name.equalsIgnoreCase("audiolang") || name.equalsIgnoreCase("alang") || name.equalsIgnoreCase("AL")) {
+            } else if (name.equalsIgnoreCase(AUDIOLANG) || name.equalsIgnoreCase(ALANG) || name.equalsIgnoreCase("AL")) {
                 data = keywordsAudioLang;
-            } else if (name.equalsIgnoreCase("container")) {
+            } else if (name.equalsIgnoreCase(CONTAINER)) {
                 data = keywordsContainer;
             } else if (name.equalsIgnoreCase("aspect")) {
                 data = keywordsAspectRatio;
             } else if (name.equalsIgnoreCase("fps")) {
                 data = keywordsFPS;
-            } else if (name.equalsIgnoreCase("certification")) {
+            } else if (name.equalsIgnoreCase(CERTIFICATION)) {
                 data = keywordsCertification;
-            } else if (name.equalsIgnoreCase("keywords")) {
+            } else if (name.equalsIgnoreCase(KEYWORDS)) {
                 data = keywordsKeywords;
-            } else if (name.equalsIgnoreCase("country")) {
+            } else if (name.equalsIgnoreCase(COUNTRY)) {
                 data = keywordsCountry;
-            } else if (name.equalsIgnoreCase("company")) {
+            } else if (name.equalsIgnoreCase(COMPANY)) {
                 data = keywordsCompany;
-            } else if (name.equalsIgnoreCase("award")) {
+            } else if (name.equalsIgnoreCase(AWARD)) {
                 data = keywordsAward;
             } else {
                 return false;
@@ -1767,7 +1792,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             ArrayList<String> arr = data.get(condition);
             if (arr != null) {
                 for (int loop = 0; loop < arr.size(); loop++) {
-                    if (name.equalsIgnoreCase("keywords")) {
+                    if (name.equalsIgnoreCase(KEYWORDS)) {
                         result = value.indexOf(arr.get(loop).toLowerCase()) > -1;
                     } else {
                         result = arr.get(loop).equalsIgnoreCase(value);
