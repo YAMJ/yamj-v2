@@ -34,11 +34,11 @@ import org.apache.log4j.Logger;
 public class TrailersLandPlugin extends TrailerPlugin {
 
     private static final Logger logger = Logger.getLogger(TrailersLandPlugin.class);
-    private static String TRAILERSLAND_BASE_URL = "http://www.trailersland.com/";
-    private static String TRAILERSLAND_SEARCH_URL = "cerca/ricerca=";
-    private static String TRAILERSLAND_MOVIE_URL = "film/";
-    private static String TRAILERSLAND_TRAILER_URL = "trailer/";
-    private static String TRAILERSLAND_TRAILER_FILE_URL = "wrapping/tls.php?";
+    private static String tlBaseUrl = "http://www.trailersland.com/";
+    private static String tlSearchUrl = "cerca/ricerca=";
+    private static String tlMovieUrl = "film/";
+    private static String tlTrailerUrl = "trailer/";
+    private static String tlTrailerFileUrl = "wrapping/tls.php?";
     private int trailerMaxCount;
     private String trailerMaxResolution;
     private String trailerAllowedFormats;
@@ -51,7 +51,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
         logMessage = "TrailersLandPlugin: ";
 
         trailerMaxCount = (int) PropertiesUtil.getLongProperty("trailersland.max", "3");
-        trailerMaxResolution = PropertiesUtil.getProperty("trailersland.maxResolution", "1080p");
+        trailerMaxResolution = PropertiesUtil.getProperty("trailersland.maxResolution", RESOLUTION_1080P);
         trailerAllowedFormats = PropertiesUtil.getProperty("trailersland.allowedFormats", "wmv,mov,mp4,avi,mkv,mpg");
         trailerPreferredLanguages = PropertiesUtil.getProperty("trailersland.preferredLanguages", "ita,sub-ita,en");
         trailerPreferredTypes = PropertiesUtil.getProperty("trailersland.preferredTypes", "trailer,teaser");
@@ -108,7 +108,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
         String searchUrl;
 
         try {
-            searchUrl = TRAILERSLAND_BASE_URL + TRAILERSLAND_SEARCH_URL + URLEncoder.encode(title, "iso-8859-1");
+            searchUrl = tlBaseUrl + tlSearchUrl + URLEncoder.encode(title, "iso-8859-1");
         } catch (UnsupportedEncodingException e) {
             logger.error(logMessage + "Unsupported encoding, cannot build search URL");
             return Movie.UNKNOWN;
@@ -128,11 +128,11 @@ public class TrailersLandPlugin extends TrailerPlugin {
 
         int indexRes = xml.indexOf("<div id=\"film_informazioni_ricerca\"");
         if (indexRes >= 0) {
-            int indexMovieUrl = xml.indexOf(TRAILERSLAND_BASE_URL + TRAILERSLAND_MOVIE_URL, indexRes + 1);
+            int indexMovieUrl = xml.indexOf(tlBaseUrl + tlMovieUrl, indexRes + 1);
             if (indexMovieUrl >= 0) {
                 int endMovieUrl = xml.indexOf('"', indexMovieUrl + 1);
                 if (endMovieUrl >= 0) {
-                    trailersLandId = xml.substring(indexMovieUrl + TRAILERSLAND_BASE_URL.length() + TRAILERSLAND_MOVIE_URL.length(), endMovieUrl);
+                    trailersLandId = xml.substring(indexMovieUrl + tlBaseUrl.length() + tlMovieUrl.length(), endMovieUrl);
                     logger.debug(logMessage + "Found Trailers Land Id " + trailersLandId);
                 }
             } else {
@@ -170,7 +170,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
 
         String xml;
         try {
-            xml = webBrowser.request(TRAILERSLAND_BASE_URL + TRAILERSLAND_MOVIE_URL + trailersLandId);
+            xml = webBrowser.request(tlBaseUrl + tlMovieUrl + trailersLandId);
         } catch (IOException error) {
             logger.error(logMessage + "Failed retreiving movie details for movie : " + movie.getTitle());
             logger.error(SystemTools.getStackTrace(error));
@@ -183,7 +183,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
         int indexEndVideo = xml.indexOf("</table", indexVideo + 1);
 
         if (indexVideo >= 0 && indexVideo < indexEndVideo) {
-            int nextIndex = xml.indexOf(TRAILERSLAND_BASE_URL + TRAILERSLAND_TRAILER_URL, indexVideo);
+            int nextIndex = xml.indexOf(tlBaseUrl + tlTrailerUrl, indexVideo);
             while (nextIndex >= 0 && nextIndex < indexEndVideo) {
                 int endIndex = xml.indexOf('"', nextIndex + 1);
                 String trailerPageUrl = xml.substring(nextIndex, endIndex);
@@ -199,7 +199,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
                     //    logger.debug(trailersPluginName + " Plugin: discarding page URL " + trailerPageUrl);
                 }
 
-                nextIndex = xml.indexOf(TRAILERSLAND_BASE_URL + TRAILERSLAND_TRAILER_URL, endIndex + 1);
+                nextIndex = xml.indexOf(tlBaseUrl + tlTrailerUrl, endIndex + 1);
             }
         } else {
             logger.error(logMessage + "Video section not found. Layout changed?");
@@ -232,7 +232,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
                     return null;
                 }
 
-                int nextIndex = trailerXml.indexOf(TRAILERSLAND_BASE_URL + TRAILERSLAND_TRAILER_FILE_URL);
+                int nextIndex = trailerXml.indexOf(tlBaseUrl + tlTrailerFileUrl);
 
                 if (nextIndex < 0) {
                     logger.error(logMessage + "No downloadable files found. Layout changed?");
@@ -252,7 +252,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
                             //logger.debug(trailersPluginName + " Plugin: current best url is " + url);
                         }
 
-                        nextIndex = trailerXml.indexOf(TRAILERSLAND_BASE_URL + TRAILERSLAND_TRAILER_FILE_URL, endIndex + 1);
+                        nextIndex = trailerXml.indexOf(tlBaseUrl + tlTrailerFileUrl, endIndex + 1);
                     }
                     if (!found) {
                         trailerList.remove(i);
@@ -331,7 +331,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
 
         public void parseName() {
             String trailerPageUrl = getPageUrl();
-            int nameIndex = TRAILERSLAND_BASE_URL.length() + TRAILERSLAND_TRAILER_URL.length();
+            int nameIndex = tlBaseUrl.length() + tlTrailerUrl.length();
 
             if (trailerPageUrl.indexOf("teaser", nameIndex) >= 0 || trailerPageUrl.indexOf("tesaer", nameIndex) >= 0) { // Some typo are present...
                 setType("teaser");
@@ -352,13 +352,13 @@ public class TrailersLandPlugin extends TrailerPlugin {
 
         private boolean isResValid(String res) {
 
-            if (res.equals("sd")) {
+            if (res.equals(RESOLUTION_SD)) {
                 return true;
             }
-            if (res.equals("720p") && (trailerMaxResolution.equals("1080p") || trailerMaxResolution.equals("720p"))) {
+            if (res.equals(RESOLUTION_720P) && (trailerMaxResolution.equals(RESOLUTION_1080P) || trailerMaxResolution.equals(RESOLUTION_720P))) {
                 return true;
             }
-            if (res.equals("1080p") && trailerMaxResolution.equals("1080p")) {
+            if (res.equals(RESOLUTION_1080P) && trailerMaxResolution.equals(RESOLUTION_1080P)) {
                 return true;
             }
 
@@ -376,13 +376,13 @@ public class TrailersLandPlugin extends TrailerPlugin {
                 return true;
             }
 
-            if (thisRes.equals("1080p")) {
+            if (thisRes.equals(RESOLUTION_1080P)) {
                 return false;
             }
-            if (thisRes.equals("720p") && res.equals("1080p")) {
+            if (thisRes.equals(RESOLUTION_720P) && res.equals(RESOLUTION_1080P)) {
                 return true;
             }
-            if (thisRes.equals("sd") && (res.equals("1080p") || res.equals("720p"))) {
+            if (thisRes.equals(RESOLUTION_SD) && (res.equals(RESOLUTION_1080P) || res.equals(RESOLUTION_720P))) {
                 return true;
             }
 
@@ -407,13 +407,13 @@ public class TrailersLandPlugin extends TrailerPlugin {
 
                 String resolution;
                 if (params.indexOf("sd_file") >= 0) {
-                    resolution = "sd";
+                    resolution = RESOLUTION_SD;
                 } else if (params.indexOf("480") >= 0) {
-                    resolution = "sd";
+                    resolution = RESOLUTION_SD;
                 } else if (params.indexOf("720") >= 0) {
-                    resolution = "720p";
+                    resolution = RESOLUTION_720P;
                 } else if (params.indexOf("1080") >= 0) {
-                    resolution = "1080p";
+                    resolution = RESOLUTION_1080P;
                 } else {
                     logger.error(logMessage + "Cannot guess trailer resolution for params " + params + ". Layout changed?");
                     return false;

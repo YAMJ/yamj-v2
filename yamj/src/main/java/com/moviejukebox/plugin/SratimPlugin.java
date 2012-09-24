@@ -16,6 +16,8 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -70,12 +72,12 @@ public class SratimPlugin extends ImdbPlugin {
         plotLineMaxChar = PropertiesUtil.getIntProperty("sratim.plotLineMaxChar", "50");
         plotLineMax = PropertiesUtil.getIntProperty("sratim.plotLineMax", "2");
 
-        subtitleDownload = PropertiesUtil.getBooleanProperty("sratim.subtitle", "false");
+        subtitleDownload = PropertiesUtil.getBooleanProperty("sratim.subtitle", FALSE);
         preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
-        keepEnglishTitle = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishTitles", "false");
-        keepEnglishGenres = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishGenres", "false");
-        keepImdbCast = PropertiesUtil.getBooleanProperty("sratim.keepImdbCast", "false");
-        bidiSupport = PropertiesUtil.getBooleanProperty("sratim.BidiSupport", "true");
+        keepEnglishTitle = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishTitles", FALSE);
+        keepEnglishGenres = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishGenres", FALSE);
+        keepImdbCast = PropertiesUtil.getBooleanProperty("sratim.keepImdbCast", FALSE);
+        bidiSupport = PropertiesUtil.getBooleanProperty("sratim.BidiSupport", TRUE);
 
         lineBreak = PropertiesUtil.getProperty("mjb.lineBreak", "{br}");
     }
@@ -1404,7 +1406,7 @@ public class SratimPlugin extends ImdbPlugin {
 
     private int findEndOfHebrewSubtitlesSection(String mainXML) {
         int result = mainXML.length();
-        boolean onlyHeb = PropertiesUtil.getBooleanProperty("sratim.downloadOnlyHebrew", "false");
+        boolean onlyHeb = PropertiesUtil.getBooleanProperty("sratim.downloadOnlyHebrew", FALSE);
         if (onlyHeb) {
             String pattern = "images/Flags/2.png";
             int nonHeb = mainXML.indexOf(pattern);

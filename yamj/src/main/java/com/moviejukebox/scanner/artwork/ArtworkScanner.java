@@ -21,6 +21,8 @@ import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultImagePlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -59,7 +61,6 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     private static final Logger logger = Logger.getLogger(ArtworkScanner.class);
     protected String logMessage;                        // The start of the log message
     private static final String SPLITTER = ",;|";
-    private static final String FALSE = "false";
     protected final WebBrowser webBrowser = new WebBrowser();
     protected MovieImagePlugin artworkImagePlugin;
     protected String skinHome;                          // Location of the skin files used to get the dummy images from for missing artwork
@@ -114,9 +115,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         artworkFormat = PropertiesUtil.getProperty(artworkTypeName + ".format", "jpg");
         setArtworkImageName(PropertiesUtil.getProperty(artworkTypeName + ".scanner.imageName", ""));
 
-        artworkValidate = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.Validate", "true");
+        artworkValidate = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.Validate", TRUE);
         artworkValidateMatch = PropertiesUtil.getIntProperty(artworkTypeName + ".scanner.ValidateMatch", "75");
-        artworkValidateAspect = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.ValidateAspect", "true");
+        artworkValidateAspect = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.ValidateAspect", TRUE);
 
         artworkDirectory = PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkDirectory", "");
 

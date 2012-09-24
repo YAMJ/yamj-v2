@@ -15,6 +15,8 @@ package com.moviejukebox.model;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.BooleanYesNoAdapter;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import java.io.File;
 import java.util.*;
@@ -52,10 +54,10 @@ public class MovieFile implements Comparable<MovieFile> {
     private MovieFileNameDTO info;
     private boolean watched = false;
     private long watchedDate = 0;
-    private boolean playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", "true");
-    private boolean includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
-    private boolean includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
-    private boolean includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");
+    private boolean playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", TRUE);
+    private boolean includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", FALSE);
+    private boolean includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
+    private boolean includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", FALSE);
     private String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
     private String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");
     private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {

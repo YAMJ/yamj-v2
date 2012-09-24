@@ -19,6 +19,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.cache.CacheMemory;
 import java.net.URLEncoder;
@@ -46,9 +47,9 @@ public class AllocinePlugin extends ImdbPlugin {
         super();
         allocineAPI = new XMLAllocineAPIHelper(PropertiesUtil.getProperty("API_KEY_Allocine"));
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
-        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
-        includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
-        downloadFanart = PropertiesUtil.getBooleanProperty("fanart.tv.download", "false");
+        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", FALSE);
+        includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
+        downloadFanart = PropertiesUtil.getBooleanProperty("fanart.tv.download", FALSE);
     }
 
     @Override

@@ -12,9 +12,10 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.tools.cache.CacheMemory;
 import com.moviejukebox.MovieJukebox;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.StringTools.formatFileSize;
+import com.moviejukebox.tools.cache.CacheMemory;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -25,7 +26,7 @@ import org.apache.log4j.Logger;
 public class SystemTools {
 
     private static final Logger logger = Logger.getLogger(SystemTools.class);
-    private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", "false");
+    private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", FALSE);
     private static final long cacheOff = ((long) (PropertiesUtil.getIntProperty("mjb.cacheOffSize", "50")) * 1024L * 1024L);
 
     /**
@@ -119,7 +120,7 @@ public class SystemTools {
     public static boolean validateInstallation() {
         boolean installationIsValid = Boolean.TRUE;
 
-        if (PropertiesUtil.getBooleanProperty("mjb.skipCheckJars", "false")) {
+        if (PropertiesUtil.getBooleanProperty("mjb.skipCheckJars", FALSE)) {
             return installationIsValid;
         }
 

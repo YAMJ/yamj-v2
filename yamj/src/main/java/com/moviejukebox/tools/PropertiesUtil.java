@@ -30,6 +30,8 @@ public class PropertiesUtil {
     private static final String PROPERTIES_CHARSET = "UTF-8";
     private static Properties props = new Properties();
     private static final String PREFERENCES_FILENAME = "preferences.xsl";
+    public static final String TRUE = "true";
+    public static final String FALSE = "false";
 
     public static boolean setPropertiesStreamName(String streamName) {
         return setPropertiesStreamName(streamName, true);
@@ -173,8 +175,8 @@ public class PropertiesUtil {
     }
 
     /**
-     * Collect keywords list and appropriate keyword values. Example: my.languages = EN,FR my.languages.EN = English
-     * my.languages.FR = French
+     * Collect keywords list and appropriate keyword values. Example:
+     * my.languages = EN,FR my.languages.EN = English my.languages.FR = French
      *
      * @param prefix Key for keywords list and prefix for value searching.
      * @return Ordered keyword list and map.

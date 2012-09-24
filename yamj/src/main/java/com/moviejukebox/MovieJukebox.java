@@ -158,22 +158,22 @@ public class MovieJukebox {
                     PropertiesUtil.setProperty("mjb.jukeboxRoot", jukeboxRoot);
                 } else if ("-c".equalsIgnoreCase(arg)) {
                     jukeboxClean = true;
-                    PropertiesUtil.setProperty("mjb.jukeboxClean", "true");
+                    PropertiesUtil.setProperty("mjb.jukeboxClean", TRUE);
                 } else if ("-k".equalsIgnoreCase(arg)) {
                     setJukeboxPreserve(true);
                 } else if ("-p".equalsIgnoreCase(arg)) {
                     userPropertiesName = args[++i];
                 } else if ("-i".equalsIgnoreCase(arg)) {
                     skipIndexGeneration = true;
-                    PropertiesUtil.setProperty("mjb.skipIndexGeneration", "true");
+                    PropertiesUtil.setProperty("mjb.skipIndexGeneration", TRUE);
                 } else if ("-h".equalsIgnoreCase(arg)) {
                     skipHtmlGeneration = true;
-                    PropertiesUtil.setProperty("mjb.skipHtmlGeneration", "true");
+                    PropertiesUtil.setProperty("mjb.skipHtmlGeneration", TRUE);
                 } else if ("-dump".equalsIgnoreCase(arg)) {
                     dumpLibraryStructure = true;
                 } else if ("-memory".equalsIgnoreCase(arg)) {
                     showMemory = true;
-                    PropertiesUtil.setProperty("mjb.showMemory", "true");
+                    PropertiesUtil.setProperty("mjb.showMemory", TRUE);
                 } else if (arg.startsWith("-D")) {
                     String propLine = arg.length() > 2 ? new String(arg.substring(2)) : args[++i];
                     int propDiv = propLine.indexOf('=');
@@ -224,7 +224,7 @@ public class MovieJukebox {
 
         // Load the overlay.properties file (ignore the error)
         String overlayRoot = getProperty("mjb.overlay.dir", Movie.UNKNOWN);
-        overlayRoot = (PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", "true") ? (getProperty("mjb.skin.dir", "./skins/default") + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
+        overlayRoot = (PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", TRUE) ? (getProperty("mjb.skin.dir", "./skins/default") + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
         setPropertiesStreamName(overlayRoot + "overlay.properties", false);
 
         // Load the apikeys.properties file
@@ -260,13 +260,13 @@ public class MovieJukebox {
 
         // Check for mjb.skipIndexGeneration and set as necessary
         // This duplicates the "-i" functionality, but allows you to have it in the property file
-        if (PropertiesUtil.getBooleanProperty("mjb.skipIndexGeneration", "false")) {
+        if (PropertiesUtil.getBooleanProperty("mjb.skipIndexGeneration", FALSE)) {
             skipIndexGeneration = true;
         }
 
-        if (PropertiesUtil.getBooleanProperty("mjb.people", "false")) {
+        if (PropertiesUtil.getBooleanProperty("mjb.people", FALSE)) {
             peopleScan = true;
-            peopleScrape = PropertiesUtil.getBooleanProperty("mjb.people.scrape", "true");
+            peopleScrape = PropertiesUtil.getBooleanProperty("mjb.people.scrape", TRUE);
             peopleMax = PropertiesUtil.getIntProperty("mjb.people.maxCount", "10");
             popularity = PropertiesUtil.getIntProperty("mjb.people.popularity", "5");
 
@@ -285,29 +285,29 @@ public class MovieJukebox {
 
         // Check for mjb.skipHtmlGeneration and set as necessary
         // This duplicates the "-h" functionality, but allows you to have it in the property file
-        if (PropertiesUtil.getBooleanProperty("mjb.skipHtmlGeneration", "false")) {
+        if (PropertiesUtil.getBooleanProperty("mjb.skipHtmlGeneration", FALSE)) {
             skipHtmlGeneration = true;
         }
 
         // Look for the parameter in the properties file if it's not been set on the command line
-        // This way we don't overwrite the setting if it's not found and defaults to "false"
-        if (PropertiesUtil.getBooleanProperty("mjb.showMemory", "false")) {
+        // This way we don't overwrite the setting if it's not found and defaults to FALSE
+        if (PropertiesUtil.getBooleanProperty("mjb.showMemory", FALSE)) {
             showMemory = true;
         }
 
         // This duplicates the "-c" functionality, but allows you to have it in the property file
-        if (PropertiesUtil.getBooleanProperty("mjb.jukeboxClean", "false")) {
+        if (PropertiesUtil.getBooleanProperty("mjb.jukeboxClean", FALSE)) {
             jukeboxClean = true;
         }
 
         MovieFilenameScanner.setSkipKeywords(tokenizeToArray(getProperty("filename.scanner.skip.keywords", ""), ",;| "),
-                PropertiesUtil.getBooleanProperty("filename.scanner.skip.caseSensitive", "true"));
+                PropertiesUtil.getBooleanProperty("filename.scanner.skip.caseSensitive", TRUE));
         MovieFilenameScanner.setSkipRegexKeywords(tokenizeToArray(getProperty("filename.scanner.skip.keywords.regex", ""), ","),
-                PropertiesUtil.getBooleanProperty("filename.scanner.skip.caseSensitive.regex", "true"));
+                PropertiesUtil.getBooleanProperty("filename.scanner.skip.caseSensitive.regex", TRUE));
         MovieFilenameScanner.setExtrasKeywords(tokenizeToArray(getProperty("filename.extras.keywords", "trailer,extra,bonus"), ",;| "));
         MovieFilenameScanner.setMovieVersionKeywords(tokenizeToArray(getProperty("filename.movie.versions.keywords",
                 "remastered,directors cut,extended cut,final cut"), ",;|"));
-        MovieFilenameScanner.setLanguageDetection(PropertiesUtil.getBooleanProperty("filename.scanner.language.detection", "true"));
+        MovieFilenameScanner.setLanguageDetection(PropertiesUtil.getBooleanProperty("filename.scanner.language.detection", TRUE));
         final KeywordMap languages = PropertiesUtil.getKeywordMap("filename.scanner.language.keywords", null);
         if (languages.size() > 0) {
             MovieFilenameScanner.clearLanguages();
@@ -336,8 +336,8 @@ public class MovieJukebox {
             }
         }
 
-        enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", "true");
-        enableCompleteMovies = PropertiesUtil.getBooleanProperty("complete.movies.enable", "true");
+        enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", TRUE);
+        enableCompleteMovies = PropertiesUtil.getBooleanProperty("complete.movies.enable", TRUE);
 
         // Check to see if don't have a root, check the property file
         if (StringTools.isNotValidString(movieLibraryRoot)) {
@@ -406,7 +406,7 @@ public class MovieJukebox {
         boolean renameFile = false;
 
         String libraryName = "_Library";
-        if (PropertiesUtil.getBooleanProperty("mjb.appendLibraryToLogFile", "false")) {
+        if (PropertiesUtil.getBooleanProperty("mjb.appendLibraryToLogFile", FALSE)) {
             renameFile = true;
             for (final MediaLibraryPath mediaLibrary : mediaLibraryPaths) {
                 if (isValidString(mediaLibrary.getDescription())) {
@@ -419,7 +419,7 @@ public class MovieJukebox {
             newLogFilename.append(libraryName);
         }
 
-        if (PropertiesUtil.getBooleanProperty("mjb.appendDateToLogFile", "false")) {
+        if (PropertiesUtil.getBooleanProperty("mjb.appendDateToLogFile", FALSE)) {
             renameFile = true;
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kkmmss");
@@ -604,20 +604,20 @@ public class MovieJukebox {
 
         jukebox = new Jukebox(jukeboxRoot, jukeboxTempLocation, detailsDirName);
 
-        this.forcePosterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePostersOverwrite", "false");
-        this.forceThumbnailOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceThumbnailsOverwrite", "false");
-        this.forceBannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", "false");
-        this.forceSkinOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceSkinOverwrite", "false");
-        this.forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", "false");
-        this.forceFooterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFooterOverwrite", "false");
+        this.forcePosterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePostersOverwrite", FALSE);
+        this.forceThumbnailOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceThumbnailsOverwrite", FALSE);
+        this.forceBannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", FALSE);
+        this.forceSkinOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceSkinOverwrite", FALSE);
+        this.forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", FALSE);
+        this.forceFooterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFooterOverwrite", FALSE);
         this.skinHome = getProperty("mjb.skin.dir", "./skins/default");
 
-        MovieJukebox.skipPlaylistGeneration = PropertiesUtil.getBooleanProperty("mjb.skipPlaylistGeneration", "false");
+        MovieJukebox.skipPlaylistGeneration = PropertiesUtil.getBooleanProperty("mjb.skipPlaylistGeneration", FALSE);
 
-        MovieJukebox.fanartMovieDownload = PropertiesUtil.getBooleanProperty("fanart.movie.download", "false");
-        MovieJukebox.fanartTvDownload = PropertiesUtil.getBooleanProperty("fanart.tv.download", "false");
+        MovieJukebox.fanartMovieDownload = PropertiesUtil.getBooleanProperty("fanart.movie.download", FALSE);
+        MovieJukebox.fanartTvDownload = PropertiesUtil.getBooleanProperty("fanart.tv.download", FALSE);
 
-        this.setIndexFanart = PropertiesUtil.getBooleanProperty("mjb.sets.indexFanart", "false");
+        this.setIndexFanart = PropertiesUtil.getBooleanProperty("mjb.sets.indexFanart", FALSE);
 
         fanartToken = getProperty("mjb.scanner.fanartToken", ".fanart");
         bannerToken = getProperty("mjb.scanner.bannerToken", ".banner");
@@ -632,7 +632,7 @@ public class MovieJukebox {
 
         footerCount = PropertiesUtil.getIntProperty("mjb.footer.count", "0");
         for (int i = 0; i < MovieJukebox.footerCount; i++) {
-            footerEnable.add(PropertiesUtil.getBooleanProperty("mjb.footer." + i + ".enable", "false"));
+            footerEnable.add(PropertiesUtil.getBooleanProperty("mjb.footer." + i + ".enable", FALSE));
             String fName = getProperty("mjb.footer." + i + ".name", "footer." + i);
             footerName.add(fName);
             footerWidth.add(PropertiesUtil.getIntProperty(fName + ".width", "400"));
@@ -640,7 +640,7 @@ public class MovieJukebox {
             footerExtension.add(getProperty(fName + ".format", "png"));
         }
 
-        trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", "true");
+        trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", TRUE);
 
         defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
 
@@ -723,13 +723,13 @@ public class MovieJukebox {
 
         MovieListingPlugin listingPlugin = getListingPlugin(getProperty("mjb.listing.plugin", "com.moviejukebox.plugin.MovieListingPluginBase"));
 
-        videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
-        bannerDownload = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", "false");
-        enableRottenTomatoes = PropertiesUtil.getBooleanProperty("mjb.enableRottenTomatoes", "false");
-        photoDownload = PropertiesUtil.getBooleanProperty("mjb.includePhoto", "false");
-        backdropDownload = PropertiesUtil.getBooleanProperty("mjb.includeBackdrop", "false");
-        boolean processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", "true");
-        boolean moviejukeboxListing = PropertiesUtil.getBooleanProperty("mjb.listing.generate", "false");
+        videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
+        bannerDownload = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", FALSE);
+        enableRottenTomatoes = PropertiesUtil.getBooleanProperty("mjb.enableRottenTomatoes", FALSE);
+        photoDownload = PropertiesUtil.getBooleanProperty("mjb.includePhoto", FALSE);
+        backdropDownload = PropertiesUtil.getBooleanProperty("mjb.includeBackdrop", FALSE);
+        boolean processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", TRUE);
+        boolean moviejukeboxListing = PropertiesUtil.getBooleanProperty("mjb.listing.generate", FALSE);
 
         // Multi-thread: Processing thread settings
         maxThreadsProcess = Integer.parseInt(getProperty("mjb.MaxThreadsProcess", "0"));
@@ -785,7 +785,7 @@ public class MovieJukebox {
         // Save the current state of the preferences to the skin directory for use by the skin
         // The forceHtmlOverwrite is set by the user or by the JukeboxProperties if there has been a skin change
 
-        if (PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", "false")
+        if (PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", FALSE)
                 || !(new File(PropertiesUtil.getPropertiesFilename(true))).exists()) {
             PropertiesUtil.writeProperties();
         }
@@ -877,7 +877,7 @@ public class MovieJukebox {
         tasks.restart();
         if (library.size() > 0) {
             // Issue 1882: Separate index files for each category
-            boolean separateCategories = PropertiesUtil.getBooleanProperty("mjb.separateCategories", "false");
+            boolean separateCategories = PropertiesUtil.getBooleanProperty("mjb.separateCategories", FALSE);
 
             logger.info("Searching for information on the video files...");
             int movieCounter = 0;
@@ -1387,7 +1387,7 @@ public class MovieJukebox {
                 // Issue 2235: Update artworks after masterSet changed
                 ToolSet tools = threadTools.get();
                 StringBuilder idxName;
-                boolean createPosters = PropertiesUtil.getBooleanProperty("mjb.sets.createPosters", "false");
+                boolean createPosters = PropertiesUtil.getBooleanProperty("mjb.sets.createPosters", FALSE);
 
                 for (IndexInfo idx : library.getGeneratedIndexes()) {
                     if (!idx.canSkip && idx.categoryName.equals(Library.INDEX_SET)) {
@@ -1652,7 +1652,7 @@ public class MovieJukebox {
      * would be cleaned.
      */
     private void cleanJukeboxFolder() {
-        boolean cleanReport = PropertiesUtil.getBooleanProperty("mjb.jukeboxCleanReport", "false");
+        boolean cleanReport = PropertiesUtil.getBooleanProperty("mjb.jukeboxCleanReport", FALSE);
 
         if (jukeboxClean) {
             logger.info("Cleaning up the jukebox directory...");
@@ -1717,8 +1717,8 @@ public class MovieJukebox {
      * <tt>movie</tt> object is persisted.
      */
     public boolean updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
-        boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
-        boolean checkNewer = PropertiesUtil.getBooleanProperty("filename.nfo.checknewer", "true");
+        boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", FALSE);
+        boolean checkNewer = PropertiesUtil.getBooleanProperty("filename.nfo.checknewer", TRUE);
 
         /*
          * For each video in the library, if an XML file for this video already
@@ -1954,7 +1954,7 @@ public class MovieJukebox {
     }
 
     public void updatePersonData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Person person, MovieImagePlugin imagePlugin) throws FileNotFoundException, XMLStreamException {
-        boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", "false");
+        boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", FALSE);
         person.setFilename();
         File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + person.getFilename() + ".xml");
 

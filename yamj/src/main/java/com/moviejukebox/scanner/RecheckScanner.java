@@ -17,6 +17,8 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.ArtworkScanner;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
 import com.moviejukebox.tools.SystemTools;
 import java.util.Date;
@@ -36,24 +38,24 @@ public class RecheckScanner {
      * Recheck variables
      */
     private static final int RECHECK_MAX = PropertiesUtil.getIntProperty("mjb.recheck.Max", "50");
-    private static final boolean RECHECK_XML = PropertiesUtil.getBooleanProperty("mjb.recheck.XML", "true");
-    private static final boolean RECHECK_VERSION = PropertiesUtil.getBooleanProperty("mjb.recheck.Version", "true");
+    private static final boolean RECHECK_XML = PropertiesUtil.getBooleanProperty("mjb.recheck.XML", TRUE);
+    private static final boolean RECHECK_VERSION = PropertiesUtil.getBooleanProperty("mjb.recheck.Version", TRUE);
     private static final int RECHECK_DAYS = PropertiesUtil.getIntProperty("mjb.recheck.Days", "30");
     private static final int RECHECK_MIN_DAYS = PropertiesUtil.getIntProperty("mjb.recheck.minDays", "7");
     private static final int RECHECK_REVISION = PropertiesUtil.getIntProperty("mjb.recheck.Revision", "25");
-    private static final boolean RECHECK_UNKNOWN = PropertiesUtil.getBooleanProperty("mjb.recheck.Unknown", "true");
+    private static final boolean RECHECK_UNKNOWN = PropertiesUtil.getBooleanProperty("mjb.recheck.Unknown", TRUE);
     // How many rechecks have been performed
     private static int recheckCount = 0;
 
     /*
      * Property values
      */
-    private static final boolean FANART_MOVIE_DOWNLOAD = PropertiesUtil.getBooleanProperty("fanart.movie.download", "false");
-    private static final boolean FANART_TV_DOWNLOAD = PropertiesUtil.getBooleanProperty("fanart.tv.download", "false");
-    private static final boolean VIDEOIMAGE_DOWNLOAD = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", "false");
-    private static final boolean BANNER_DOWNLOAD = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", "false");
-    private static final boolean INCLUDE_EPISODE_RATING = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", "false");
-    private static final boolean INCLUDE_PEOPLE = PropertiesUtil.getBooleanProperty("mjb.people", "false");
+    private static final boolean FANART_MOVIE_DOWNLOAD = PropertiesUtil.getBooleanProperty("fanart.movie.download", FALSE);
+    private static final boolean FANART_TV_DOWNLOAD = PropertiesUtil.getBooleanProperty("fanart.tv.download", FALSE);
+    private static final boolean VIDEOIMAGE_DOWNLOAD = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
+    private static final boolean BANNER_DOWNLOAD = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", FALSE);
+    private static final boolean INCLUDE_EPISODE_RATING = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", FALSE);
+    private static final boolean INCLUDE_PEOPLE = PropertiesUtil.getBooleanProperty("mjb.people", FALSE);
     private static final EnumSet<ArtworkType> ARTWORK_REQUIRED = ArtworkScanner.getRequiredArtworkTypes();
 
     public static boolean scan(Movie movie) {
@@ -219,7 +221,7 @@ public class RecheckScanner {
             }
 
             if (movie.isTVShow()) {
-                boolean recheckEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", "false");
+                boolean recheckEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", FALSE);
 
                 if (BANNER_DOWNLOAD && isNotValidString(movie.getBannerURL())) {
                     logger.debug(logMessage + movie.getBaseName() + " is missing banner artwork, will rescan");

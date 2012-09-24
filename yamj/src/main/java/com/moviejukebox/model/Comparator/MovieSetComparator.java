@@ -14,6 +14,7 @@ package com.moviejukebox.model.Comparator;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import java.io.Serializable;
 import java.util.Comparator;
 
@@ -21,7 +22,7 @@ public class MovieSetComparator implements Comparator<Movie>, Serializable {
 
     private static final long serialVersionUID = 1L;
     private String set;
-    private static final boolean SPECIALS_AT_END = PropertiesUtil.getBooleanProperty("mjb.sets.specialsAtEnd", "false");
+    private static final boolean SPECIALS_AT_END = PropertiesUtil.getBooleanProperty("mjb.sets.specialsAtEnd", FALSE);
 
     public MovieSetComparator(String set) {
         this.set = set;

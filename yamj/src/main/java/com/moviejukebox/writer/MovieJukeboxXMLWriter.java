@@ -19,6 +19,8 @@ import com.moviejukebox.model.Comparator.IndexComparator;
 import com.moviejukebox.model.Comparator.SortIgnorePrefixesComparator;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import static com.moviejukebox.tools.XMLHelper.parseCData;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -55,8 +57,6 @@ public class MovieJukeboxXMLWriter {
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";
     private static final String evFileSuffix = "_small";   // String to append to the eversion categories file if needed
-    private static final String FALSE = "false";
-    private static final String TRUE = "true";
     private static final String WON = "won";
     private static final String MOVIE = "movie";
     private static final String MOVIEDB = "moviedb";
@@ -125,7 +125,7 @@ public class MovieJukeboxXMLWriter {
     private boolean reindexNew = Boolean.FALSE;
     private boolean reindexWatched = Boolean.FALSE;
     private boolean reindexUnwatched = Boolean.FALSE;
-    private boolean XMLcompatible = PropertiesUtil.getBooleanProperty("mjb.XMLcompatible", FALSE);
+    private boolean xmlCompatible = PropertiesUtil.getBooleanProperty("mjb.XMLcompatible", FALSE);
     private boolean sortLibrary = PropertiesUtil.getBooleanProperty("indexing.sort.libraries", TRUE);
 
     public MovieJukeboxXMLWriter() {
@@ -1914,7 +1914,7 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "tagline", movie.getTagline());
 
         writeIndexedElement(doc, eMovie, COUNTRY, movie.getCountry(), createIndexAttribute(library, Library.INDEX_COUNTRY, movie.getCountry()));
-        if (XMLcompatible) {
+        if (xmlCompatible) {
             Element eCountry = doc.createElement("countries");
             int cnt = 0;
             for (String country : movie.getCountry().split(Movie.SPACE_SLASH_SPACE)) {
@@ -1926,7 +1926,7 @@ public class MovieJukeboxXMLWriter {
         }
 
         DOMHelper.appendChild(doc, eMovie, "company", movie.getCompany());
-        if (XMLcompatible) {
+        if (xmlCompatible) {
             Element eCompany = doc.createElement("companies");
             int cnt = 0;
             for (String company : movie.getCompany().split(Movie.SPACE_SLASH_SPACE)) {
@@ -1942,7 +1942,7 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, SEASON, Integer.toString(movie.getSeason()));
 
         DOMHelper.appendChild(doc, eMovie, LANGUAGE, movie.getLanguage());
-        if (XMLcompatible) {
+        if (xmlCompatible) {
             Element eLanguage = doc.createElement("languages");
             int cnt = 0;
             for (String language : movie.getLanguage().split(Movie.SPACE_SLASH_SPACE)) {
@@ -1954,7 +1954,7 @@ public class MovieJukeboxXMLWriter {
         }
 
         DOMHelper.appendChild(doc, eMovie, "subtitles", movie.getSubtitles());
-        if (XMLcompatible) {
+        if (xmlCompatible) {
             Element eSubtitle = doc.createElement("subs");
             int cnt = 0;
             for (String subtitle : movie.getSubtitles().split(Movie.SPACE_SLASH_SPACE)) {
@@ -2081,7 +2081,7 @@ public class MovieJukeboxXMLWriter {
                         eAwardItem.setAttribute(YEAR, Integer.toString(award.getYear()));
                         if (award.getWons() != null && award.getWons().size() > 0) {
                             eAwardItem.setAttribute("wons", StringUtils.join(award.getWons(), Movie.SPACE_SLASH_SPACE));
-                            if (XMLcompatible) {
+                            if (xmlCompatible) {
                                 for (String won : award.getWons()) {
                                     DOMHelper.appendChild(doc, eAwardItem, WON, won);
                                 }
@@ -2089,13 +2089,13 @@ public class MovieJukeboxXMLWriter {
                         }
                         if (award.getNominations() != null && award.getNominations().size() > 0) {
                             eAwardItem.setAttribute("nominations", StringUtils.join(award.getNominations(), Movie.SPACE_SLASH_SPACE));
-                            if (XMLcompatible) {
+                            if (xmlCompatible) {
                                 for (String nomination : award.getNominations()) {
                                     DOMHelper.appendChild(doc, eAwardItem, "nomination", nomination);
                                 }
                             }
                         }
-                        if (!XMLcompatible) {
+                        if (!xmlCompatible) {
                             eAwardItem.setTextContent(award.getName());
                         }
                         eEvent.appendChild(eAwardItem);

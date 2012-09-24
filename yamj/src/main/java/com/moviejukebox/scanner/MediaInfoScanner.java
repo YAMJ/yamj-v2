@@ -17,6 +17,7 @@ import com.moviejukebox.model.CodecSource;
 import com.moviejukebox.model.CodecType;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
 import com.mucommander.file.FileFactory;
@@ -51,8 +52,8 @@ public class MediaInfoScanner {
     public static final String OS_VERSION = System.getProperty("os.version");
     public static final String OS_ARCH = System.getProperty("os.arch");
     private static boolean isActivated;
-    private static boolean enableMetadata = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", "false");
-    private static boolean overallBitrate = PropertiesUtil.getBooleanProperty("mediainfo.overallbitrate", "false");
+    private static boolean enableMetadata = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", FALSE);
+    private static boolean overallBitrate = PropertiesUtil.getBooleanProperty("mediainfo.overallbitrate", FALSE);
     private String randomDirName;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);

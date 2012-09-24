@@ -30,6 +30,7 @@ import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -64,10 +65,10 @@ public class BannerScanner {
         }
 
         bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
-        bannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", "false");
+        bannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", FALSE);
 
         // See if we use the folder banner artwork
-        useFolderBanner = PropertiesUtil.getBooleanProperty("banner.scanner.useFolderImage", "false");
+        useFolderBanner = PropertiesUtil.getBooleanProperty("banner.scanner.useFolderImage", FALSE);
         if (useFolderBanner) {
             st = new StringTokenizer(PropertiesUtil.getProperty("banner.scanner.imageName", "banner"), ",;|");
             bannerImageName = new ArrayList<String>();

@@ -19,6 +19,7 @@ import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.FanartTvPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -40,7 +41,7 @@ public class FanartTvScanner extends ArtworkScanner {
         setOverwrite();
         setDownloadByType();
 
-        if (PropertiesUtil.getBooleanProperty("scanner." + artworkTypeName + ".debug", "false")) {
+        if (PropertiesUtil.getBooleanProperty("scanner." + artworkTypeName + ".debug", FALSE)) {
             debugOutput();
         }
     }
@@ -211,7 +212,7 @@ public class FanartTvScanner extends ArtworkScanner {
      */
     private boolean setOverwrite() {
         String propName = "mjb.force" + StringUtils.capitalize(artworkTypeName) + "Overwrite";
-        artworkOverwrite = PropertiesUtil.getBooleanProperty(propName, "false");
+        artworkOverwrite = PropertiesUtil.getBooleanProperty(propName, FALSE);
 //        logger.debug(logMessage + propName + "=" + artworkOverwrite);
         return artworkOverwrite;
     }

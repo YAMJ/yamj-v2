@@ -26,6 +26,7 @@ import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -60,7 +61,7 @@ public class VideoImageScanner {
 
         skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
         videoimageToken = PropertiesUtil.getProperty("videoimage.scanner.videoimageToken", ".videoimage");
-        videoimageOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceVideoImagesOverwrite", "false");
+        videoimageOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceVideoImagesOverwrite", FALSE);
     }
 
     /**

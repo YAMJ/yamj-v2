@@ -17,6 +17,8 @@ import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.downloader.Downloader;
 import java.io.File;
 import org.apache.commons.io.FilenameUtils;
@@ -25,17 +27,21 @@ import org.apache.log4j.Logger;
 
 public class TrailerPlugin implements ITrailerPlugin {
 
-    private static final Logger logger = Logger.getLogger(TrailerPlugin.class);
+    private static final Logger LOGGER = Logger.getLogger(TrailerPlugin.class);
     protected String logMessage = "TrailerPlugin: ";
     protected WebBrowser webBrowser;
     protected String trailersPluginName = "Abstract";
     private static String trailersScanerPath = PropertiesUtil.getProperty("trailers.path.scaner", "");
     private static String trailersPlayerPath = PropertiesUtil.getProperty("trailers.path.player", "");
-    private static boolean trailersDownload = PropertiesUtil.getBooleanProperty("trailers.download", "false");
-    private static boolean trailersSafeFilename = PropertiesUtil.getBooleanProperty("trailers.safeFilename", "false");
-    private static boolean trailersOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceTrailersOverwrite", "false");
-    private static boolean trailersShowProgress = PropertiesUtil.getBooleanProperty("trailers.showProgress", "true");
-    private static boolean trailersScanHdOnly = PropertiesUtil.getBooleanProperty("trailers.scanHdOnly", "false");
+    private static boolean trailersDownload = PropertiesUtil.getBooleanProperty("trailers.download", FALSE);
+    private static boolean trailersSafeFilename = PropertiesUtil.getBooleanProperty("trailers.safeFilename", FALSE);
+    private static boolean trailersOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceTrailersOverwrite", FALSE);
+    private static boolean trailersShowProgress = PropertiesUtil.getBooleanProperty("trailers.showProgress", TRUE);
+    private static boolean trailersScanHdOnly = PropertiesUtil.getBooleanProperty("trailers.scanHdOnly", FALSE);
+    // Resolutions Available
+    protected static final String RESOLUTION_1080P = "1080p";
+    protected static final String RESOLUTION_720P = "720p";
+    protected static final String RESOLUTION_SD = "sd";
 
     public TrailerPlugin() {
         webBrowser = new WebBrowser();
@@ -130,14 +136,14 @@ public class TrailerPlugin implements ITrailerPlugin {
         }
         String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
 
-        logger.debug(logMessage + "Found trailer: " + trailerUrl);          // XXX DEBUG
-        logger.debug(logMessage + "Download path: " + trailerFileName);     // XXX DEBUG
-        logger.debug(logMessage + "     Play URL: " + trailerPlayFileName); // XXX DEBUG
+        LOGGER.debug(logMessage + "Found trailer: " + trailerUrl);          // XXX DEBUG
+        LOGGER.debug(logMessage + "Download path: " + trailerFileName);     // XXX DEBUG
+        LOGGER.debug(logMessage + "     Play URL: " + trailerPlayFileName); // XXX DEBUG
         File trailerFile = new File(trailerFileName);
 
         // Check if the file already exists - after jukebox directory was deleted for example
         if (trailerFile.exists()) {
-            logger.debug(logMessage + "Trailer file (" + trailerPlayFileName + ") already exists for " + movie.getBaseName());
+            LOGGER.debug(logMessage + "Trailer file (" + trailerPlayFileName + ") already exists for " + movie.getBaseName());
             tmf.setFilename(trailerPlayFileName);
             movie.addExtraFile(new ExtraFile(tmf));
             isExchangeOk = Boolean.TRUE;
@@ -178,12 +184,12 @@ public class TrailerPlugin implements ITrailerPlugin {
     public boolean trailerDownload(final IMovieBasicInformation movie, String trailerUrlString, File trailerFile) {
         ThreadExecutor.enterIO(trailerUrlString);
         try {
-            logger.debug(logMessage + "Attempting to download URL " + trailerUrlString + ", saving to " + trailerFile.getAbsolutePath());
+            LOGGER.debug(logMessage + "Attempting to download URL " + trailerUrlString + ", saving to " + trailerFile.getAbsolutePath());
 
             Downloader dl = new Downloader(trailerFile.getAbsolutePath(), trailerUrlString, trailersShowProgress);
 
             if (dl.isDownloadOk()) {
-                logger.info("Trailer downloaded in " + dl.getDownloadTime());
+                LOGGER.info("Trailer downloaded in " + dl.getDownloadTime());
 
                 // Looks like it was downloaded OK
                 return Boolean.TRUE;

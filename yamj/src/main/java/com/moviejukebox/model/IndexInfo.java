@@ -2,12 +2,13 @@ package com.moviejukebox.model;
 
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.File;
 
 public class IndexInfo {
 
 //    private static Logger logger = Logger.getLogger(IndexInfo.class);
-    private static boolean skipHtmlGeneration = PropertiesUtil.getBooleanProperty("mjb.skipHtmlGeneration", "true");
+    private static boolean skipHtmlGeneration = PropertiesUtil.getBooleanProperty("mjb.skipHtmlGeneration", TRUE);
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";
     public String categoryName;

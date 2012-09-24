@@ -22,6 +22,8 @@ import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import java.io.File;
 import java.io.IOException;
@@ -49,10 +51,10 @@ public class MovieNFOReader {
     // Plugin ID
     private static final String NFO_PLUGIN_ID = "NFO";
     // Other properties
-    private static boolean skipNfoUrl = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", "true");
-    private static boolean skipNfoTrailer = PropertiesUtil.getBooleanProperty("filename.nfo.skipTrailer", "false");
+    private static boolean skipNfoUrl = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", TRUE);
+    private static boolean skipNfoTrailer = PropertiesUtil.getBooleanProperty("filename.nfo.skipTrailer", FALSE);
     private static AspectRatioTools aspectTools = new AspectRatioTools();
-    private static boolean getCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", "true");
+    private static boolean getCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", TRUE);
     private static String imdbPreferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
