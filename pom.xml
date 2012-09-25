@@ -4,7 +4,7 @@
     <groupId>com.moviejukebox</groupId>
     <artifactId>moviejukebox</artifactId>
     <name>Yet Another Movie Jukebox</name>
-    <version>2.7</version>
+    <version>2.8-SNAPSHOT</version>
     <description>The MovieJukebox project</description>
     <packaging>pom</packaging>
     <parent>
@@ -37,9 +37,9 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:svn:http://moviejukebox.googlecode.com/svn/tags/moviejukebox-2.7</connection>
-        <developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/tags/moviejukebox-2.7</developerConnection>
-        <url>http://code.google.com/p/moviejukebox/source/browse/tags/moviejukebox-2.7</url>
+        <connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox</connection>
+        <developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox</developerConnection>
+        <url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox</url>
     </scm>
     <modules>
         <module>yamj</module>
