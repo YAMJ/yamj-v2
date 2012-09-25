@@ -2,8 +2,11 @@
 ** MovieJukebox Release Notes
 ***************************************************************
 
-MovieJukebox 2.7-SNAPSHOT
+MovieJukebox 2.8-SNAPSHOT
 -------------------------
+
+MovieJukebox 2.7
+----------------
  - Enhancement  #1208 Sort movies by year ascending / descending
  - Fixed defect #1368 Support XML NFO files without a root element
  - Enhancement  #1571 Category ordered by rating
