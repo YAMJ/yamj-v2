@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.moviejukebox</groupId>
         <artifactId>moviejukebox</artifactId>
-        <version>2.7</version>
+        <version>2.8-SNAPSHOT</version>
     </parent>
     <artifactId>yamj-distribution</artifactId>
     <name>YAMJ Distribution</name>
@@ -28,9 +28,9 @@
     <ciManagement>
     </ciManagement>
     <scm>
-        <connection>scm:svn:http://moviejukebox.googlecode.com/svn/tags/moviejukebox-2.7/yamj-distribution</connection>
-        <developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/tags/moviejukebox-2.7/yamj-distribution</developerConnection>
-        <url>http://code.google.com/p/moviejukebox/source/browse/tags/moviejukebox-2.7/yamj-distribution</url>
+        <connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox/yamj-distribution</connection>
+        <developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox/yamj-distribution</developerConnection>
+        <url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox/yamj-distribution</url>
     </scm>
     <build>
         <plugins>
