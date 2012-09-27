@@ -78,7 +78,7 @@ public class OpenSubtitlesPlugin {
                 if (token.equals("")) {
                     LOGGER.error(LOG_MESSAGE + "Login error." + "\n" + ret);
                 } else {
-                    LOGGER.error(LOG_MESSAGE + "Login successful.");
+                    LOGGER.debug(LOG_MESSAGE + "Login successful.");
                 }
                 // String l1 = login.equals("") ? "Anonymous" : login;
             }
