@@ -4,6 +4,7 @@
 
 MovieJukebox 2.8-SNAPSHOT
 -------------------------
+ - Fixed defect #2496 Image error (CMMException) causes images not to be loaded
 
 MovieJukebox 2.7
 ----------------

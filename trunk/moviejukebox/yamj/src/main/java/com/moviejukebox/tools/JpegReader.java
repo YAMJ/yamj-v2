@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.tools;
 
+import java.awt.color.CMMException;
 import java.awt.color.ColorSpace;
 import java.awt.color.ICC_ColorSpace;
 import java.awt.color.ICC_Profile;
@@ -62,7 +63,7 @@ public class JpegReader {
      * @throws IOException
      * @throws ImageReadException
      */
-    public BufferedImage readImage(File file) throws IOException, ImageReadException {
+    public BufferedImage readImage(File file) throws IOException {
         colorType = COLOR_TYPE_RGB;
         hasAdobeMarker = Boolean.FALSE;
 
@@ -73,32 +74,63 @@ public class JpegReader {
 
         ImageInputStream stream = ImageIO.createImageInputStream(file);
         Iterator<ImageReader> iter = ImageIO.getImageReaders(stream);
+        BufferedImage image = null;
+
         while (iter.hasNext()) {
             ImageReader reader = iter.next();
             reader.setInput(stream);
 
-            BufferedImage image;
-            ICC_Profile profile;
             try {
                 image = reader.read(0);
+            } catch (CMMException ex) {
+                image = readImageCmyk(file, reader);
             } catch (IIOException ex) {
-                colorType = COLOR_TYPE_CMYK;
-                checkAdobeMarker(file);
-                profile = Sanselan.getICCProfile(file);
-                WritableRaster raster = (WritableRaster) reader.readRaster(0, null);
-                if (colorType == COLOR_TYPE_YCCK) {
-                    convertYcckToCmyk(raster);
-                }
-                if (hasAdobeMarker) {
-                    convertInvertedColors(raster);
-                }
-                image = convertCmykToRgb(raster, profile);
+                image = readImageCmyk(file, reader);
             }
 
-            return image;
+            if (image != null) {
+                break;
+            }
         }
 
-        return null;
+        return image;
+    }
+
+    /**
+     * Attempt to read the image as a CYMK or YCCK file.
+     *
+     * @param file
+     * @param reader
+     * @return
+     */
+    private BufferedImage readImageCmyk(File file, ImageReader reader) {
+        colorType = COLOR_TYPE_CMYK;
+        BufferedImage image;
+        try {
+            checkAdobeMarker(file);
+            ICC_Profile profile = Sanselan.getICCProfile(file);
+            WritableRaster raster = (WritableRaster) reader.readRaster(0, null);
+
+            if (colorType == COLOR_TYPE_YCCK) {
+                convertYcckToCmyk(raster);
+            }
+
+            if (hasAdobeMarker) {
+                convertInvertedColors(raster);
+            }
+
+            image = convertCmykToRgb(raster, profile);
+        } catch (IOException ex) {
+            logger.warn(logMessage + "Failed to transform image: " + file.getName() + ", error: " + ex.getMessage());
+            image = null;
+        } catch (ImageReadException ex) {
+            logger.warn(logMessage + "Failed to transform image: " + file.getName() + ", error: " + ex.getMessage());
+            image = null;
+        } catch (CMMException ex) {
+            logger.warn(logMessage + "Failed to transform image: " + file.getName() + ", error: " + ex.getMessage());
+            image = null;
+        }
+        return image;
     }
 
     private void checkAdobeMarker(File file) throws IOException, ImageReadException {
