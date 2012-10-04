@@ -17,22 +17,27 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.DOMHelper;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+import com.moviejukebox.tools.SystemTools;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public class YouTubeTrailersPlugin extends TrailerPlugin {
 
     private static final Logger LOGGER = Logger.getLogger(YouTubeTrailersPlugin.class);
     private static final String TRAILER_TITLE = "TRAILER-";
+    private static final String TEXT_FAILED = "Failed to trailer information for ";
     // API Key
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_YouTube");
     // URL settings
@@ -138,7 +143,28 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
             return trailers;
         }
 
-        Document doc = DOMHelper.getDocFromString(webPage);
+        Document doc;
+
+        try {
+            doc = DOMHelper.getDocFromString(webPage);
+        } catch (MalformedURLException error) {
+            LOGGER.error(logMessage + TEXT_FAILED + movie.getBaseName());
+            LOGGER.error(SystemTools.getStackTrace(error));
+            return trailers;
+        } catch (IOException error) {
+            LOGGER.error(logMessage + TEXT_FAILED + movie.getBaseName());
+            LOGGER.error(SystemTools.getStackTrace(error));
+            return trailers;
+        } catch (ParserConfigurationException error) {
+            LOGGER.error(logMessage + TEXT_FAILED + movie.getBaseName());
+            LOGGER.error(SystemTools.getStackTrace(error));
+            return trailers;
+        } catch (SAXException error) {
+            LOGGER.error(logMessage + TEXT_FAILED + movie.getBaseName());
+            LOGGER.error(SystemTools.getStackTrace(error));
+            return trailers;
+        }
+
         if (doc == null) {
             return trailers;
         }

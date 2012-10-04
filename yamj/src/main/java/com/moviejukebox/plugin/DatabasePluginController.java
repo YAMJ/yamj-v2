@@ -127,16 +127,19 @@ public class DatabasePluginController {
         }
     }
 
-    public static void scanNFO(String nfo, Movie movie) {
+    public static boolean scanNFO(String nfo, Movie movie) {
+        boolean scannedOk = Boolean.FALSE;
         if (!pluginMap.get().get(movie.getMovieType()).scanNFO(nfo, movie) && autoDetect) {
             for (String pluginID : autoDetectList) {
                 MovieDatabasePlugin movieDBPlugin = pluginMap.get().get(pluginID);
-                if (movieDBPlugin.scanNFO(nfo, movie)) {
+                scannedOk = movieDBPlugin.scanNFO(nfo, movie);
+                if (scannedOk) {
                     movie.setMovieScanner(movieDBPlugin);
                     break;
                 }
             }
         }
+        return scannedOk;
     }
 
     public static void scanTVShowTitles(Movie movie) {
