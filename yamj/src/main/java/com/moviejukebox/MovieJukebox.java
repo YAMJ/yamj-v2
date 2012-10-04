@@ -2200,16 +2200,17 @@ public class MovieJukebox {
                 BufferedImage bi = null;
                 try {
                     bi = GraphicTools.loadJPEGImage(fin);
-                } catch (Exception error) {
-                    logger.warn("Error reading the thumbnail file: " + fin.getAbsolutePath());
+                } catch (IOException ex) {
+                    logger.warn("Error reading the thumbnail file: " + fin.getAbsolutePath() + ", error: " + ex.getMessage());
                 }
 
                 if (bi == null) {
                     logger.info("Using dummy thumbnail image for " + movie.getOriginalTitle());
                     // There was an error with the URL, assume it's a bad URL and clear it so we try again
                     movie.setPosterURL(Movie.UNKNOWN);
-                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
-                            new File(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename));
+//                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
+//                            new File(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename));
+                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), src);
                     try {
                         bi = GraphicTools.loadJPEGImage(src);
                     } catch (Exception error) {
