@@ -53,7 +53,7 @@ public class OpenSubtitlesPlugin {
 
     static {
         // Check if subtitle language was selected
-        if (StringUtils.isBlank(SUB_LANGUAGE_ID)) {
+        if (StringUtils.isNotBlank(SUB_LANGUAGE_ID)) {
             // Part of opensubtitles.org protocol requirements
             LOGGER.info(LOG_MESSAGE + "Subtitles service allowed by www.OpenSubtitles.org");
 
