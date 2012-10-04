@@ -90,7 +90,7 @@ public class OpenSubtitlesPlugin {
     public static void logOut() {
 
         // Check if subtitle language was selected
-        if (StringUtils.isNotBlank(SUB_LANGUAGE_ID)) {
+        if (StringUtils.isBlank(SUB_LANGUAGE_ID)) {
             return;
         }
 
