@@ -34,7 +34,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * Generic set of routines to process the DOM model data Used for read XML files.
+ * Generic set of routines to process the DOM model data Used for read XML
+ * files.
  *
  * @author Stuart.Boston
  *
@@ -83,7 +84,8 @@ public class DOMHelper {
     }
 
     /**
-     * Append a child element to a parent element with a single attribute/value pair
+     * Append a child element to a parent element with a single attribute/value
+     * pair
      *
      * @param doc
      * @param parentElement
@@ -140,27 +142,13 @@ public class DOMHelper {
      * @param docString
      * @return
      */
-    public static Document getDocFromString(String docString) {
+    public static Document getDocFromString(String docString) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         InputSource is = new InputSource(new StringReader(docString));
         DocumentBuilder db;
-        Document doc = null;
 
-        try {
-            db = dbf.newDocumentBuilder();
-            doc = db.parse(is);
-            return doc;
-        } catch (SAXException ex) {
-            String errorString = docString.substring(0, Math.min(40, docString.length()));
-            logger.warn(logMessage + "Failed to get document from " + errorString + " Error: " + ex.getMessage());
-        } catch (IOException ex) {
-            String errorString = docString.substring(0, Math.min(40, docString.length()));
-            logger.warn(logMessage + "Failed to get document from " + errorString + " Error: " + ex.getMessage());
-        } catch (ParserConfigurationException ex) {
-            String errorString = docString.substring(0, Math.min(40, docString.length()));
-            logger.warn(logMessage + "Failed to get document from " + errorString + " Error: " + ex.getMessage());
-        }
-
+        db = dbf.newDocumentBuilder();
+        Document doc = db.parse(is);
         return doc;
     }
 
@@ -195,8 +183,13 @@ public class DOMHelper {
 
         if (doc == null) {
             // try wrapping the file in a root
-            String wrappedFile = wrapInXml(FileTools.readFileToString(xmlFile));
-            doc = db.parse(new InputSource(new StringReader(wrappedFile)));
+            StringReader sr = new StringReader(wrapInXml(FileTools.readFileToString(xmlFile)));
+
+            try {
+                doc = db.parse(new InputSource(sr));
+            } finally {
+                sr.close();
+            }
         }
 
         doc.getDocumentElement().normalize();
@@ -281,7 +274,8 @@ public class DOMHelper {
     }
 
     /**
-     * Override the standard Sax ErrorHandler with this one, to minimise noise about failed parsing errors
+     * Override the standard Sax ErrorHandler with this one, to minimise noise
+     * about failed parsing errors
      */
     public static class SaxErrorHandler implements ErrorHandler {
 

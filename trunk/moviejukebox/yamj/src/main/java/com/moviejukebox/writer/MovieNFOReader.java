@@ -15,9 +15,11 @@ package com.moviejukebox.writer;
 import com.moviejukebox.model.Codec;
 import com.moviejukebox.model.CodecSource;
 import com.moviejukebox.model.CodecType;
+import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.EpisodeDetail;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.scanner.MovieFilenameScanner;
@@ -39,6 +41,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 public class MovieNFOReader {
 
@@ -51,6 +54,10 @@ public class MovieNFOReader {
     // Plugin ID
     private static final String NFO_PLUGIN_ID = "NFO";
     // Other properties
+    private static final String XML_START = "<";
+    private static final String XML_END = "</";
+    private static final String TEXT_FAILED = "Failed parsing NFO file: ";
+    private static final String TEXT_FIXIT = ". Does not seem to be an XML format.";
     private static boolean skipNfoUrl = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", TRUE);
     private static boolean skipNfoTrailer = PropertiesUtil.getBooleanProperty("filename.nfo.skipTrailer", FALSE);
     private static AspectRatioTools aspectTools = new AspectRatioTools();
@@ -59,40 +66,226 @@ public class MovieNFOReader {
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
     // Patterns
-    private static final String splitPattern = "\\||,|/";
+//    private static final String splitPattern = "\\||,|/";
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
 
     /**
-     * Used to parse out the XBMC NFO XML data for the XML NFO files.
+     * Try and read a NFO file for information
+     *
+     * First try as XML format file, then check to see if it contains XML and text and split it to read each part
+     *
+     * @param nfoFile
+     * @param movie
+     * @return
+     */
+    public static boolean readNfoFile(File nfoFile, Movie movie) {
+        String nfoText = FileTools.readFileToString(nfoFile);
+        boolean parsedNfo = Boolean.FALSE;   // Was the NFO XML parsed correctly or at all
+        boolean hasXml = Boolean.FALSE;
+
+        if (StringUtils.containsIgnoreCase(nfoText, XML_START + TYPE_MOVIE)
+                || StringUtils.containsIgnoreCase(nfoText, XML_START + TYPE_TVSHOW)
+                || StringUtils.containsIgnoreCase(nfoText, XML_START + TYPE_EPISODE)) {
+            hasXml = Boolean.TRUE;
+        }
+
+        // If the file has XML tags in it, try reading it as a pure XML file
+        if (hasXml) {
+            parsedNfo = readXmlNfo(nfoFile, movie);
+        }
+
+        // If it has XML in it, but didn't parse correctly, try splitting it out
+        if (hasXml && !parsedNfo) {
+//            StringUtils.indexOfAny(nfoText.toLowerCase(), [[TYPE_MOVIE], [TYPE_TVSHOW],[TYPE_EPISODE]]);
+            int posMovie = findPosition(nfoText, TYPE_MOVIE);
+            int posTv = findPosition(nfoText, TYPE_TVSHOW);
+            int posEp = findPosition(nfoText, TYPE_EPISODE);
+            int start = Math.min(posMovie, Math.min(posTv, posEp));
+
+            posMovie = StringUtils.indexOf(nfoText, XML_END + TYPE_MOVIE);
+            posTv = StringUtils.indexOf(nfoText, XML_END + TYPE_TVSHOW);
+            posEp = StringUtils.indexOf(nfoText, XML_END + TYPE_EPISODE);
+            int end = Math.max(posMovie, Math.max(posTv, posEp));
+
+            if ((end > -1) && (end > start)) {
+                end = StringUtils.indexOf(nfoText, '>', end) + 1;
+
+                // Send text to be read
+                String nfoTrimmed = StringUtils.substring(nfoText, start, end);
+                parsedNfo = readXmlNfo(nfoTrimmed, movie, nfoFile.getName());
+
+                nfoTrimmed = StringUtils.remove(nfoText, nfoTrimmed);
+                if (parsedNfo && nfoTrimmed.length() > 0) {
+                    // We have some text left, so scan that with the text scanner
+                    readTextNfo(nfoTrimmed, movie);
+                }
+            }
+        }
+
+        // If the XML wasn't found or parsed correctly, then fall back to the old method
+        if (parsedNfo) {
+            logger.debug(logMessage + "Successfully scanned " + nfoFile.getName() + " as XML format");
+        } else {
+            parsedNfo = MovieNFOReader.readTextNfo(nfoText, movie);
+            if (parsedNfo) {
+                logger.debug(logMessage + "Successfully scanned " + nfoFile.getName() + " as text format");
+            } else {
+                logger.debug(logMessage + "Failed to find any information in " + nfoFile.getName());
+            }
+        }
+
+        return Boolean.FALSE;
+    }
+
+    /**
+     * Find the position of the string or return the maximum
+     *
+     * @param nfoText
+     * @param xmlType
+     * @return
+     */
+    private static int findPosition(final String nfoText, final String xmlType) {
+        int pos = StringUtils.indexOf(nfoText, XML_START + xmlType);
+        return (pos == -1 ? Integer.MAX_VALUE : pos);
+    }
+
+    /**
+     * Used to parse out the XML NFO data from a string.
+     *
+     * @param nfoText
+     * @param movie
+     * @param nfoFilename
+     * @return
+     */
+    public static boolean readXmlNfo(String nfoText, Movie movie, String nfoFilename) {
+        return convertNfoToDoc(null, nfoText, movie, nfoFilename);
+    }
+
+    /**
+     * Used to parse out the XML NFO data from a file.
      *
      * This is generic for movie and TV show files as they are both nearly identical.
      *
      * @param nfoFile
      * @param movie
      */
-    public static boolean parseNfo(File nfoFile, Movie movie) {
+    public static boolean readXmlNfo(File nfoFile, Movie movie) {
+        return convertNfoToDoc(nfoFile, null, movie, nfoFile.getName());
+    }
+
+    /**
+     * Scan a text file for information
+     *
+     * @param nfo
+     * @param movie
+     * @return
+     */
+    public static boolean readTextNfo(String nfo, Movie movie) {
+        boolean foundInfo = DatabasePluginController.scanNFO(nfo, movie);
+
+        logger.debug(logMessage + "Scanning NFO for Poster URL");
+        int urlStartIndex = 0;
+        while (urlStartIndex >= 0 && urlStartIndex < nfo.length()) {
+            int currentUrlStartIndex = nfo.indexOf("http://", urlStartIndex);
+            if (currentUrlStartIndex >= 0) {
+                int currentUrlEndIndex = nfo.indexOf("jpg", currentUrlStartIndex);
+                if (currentUrlEndIndex < 0) {
+                    currentUrlEndIndex = nfo.indexOf("JPG", currentUrlStartIndex);
+                }
+                if (currentUrlEndIndex >= 0) {
+                    int nextUrlStartIndex = nfo.indexOf("http://", currentUrlStartIndex);
+                    // look for shortest http://
+                    while ((nextUrlStartIndex != -1) && (nextUrlStartIndex < currentUrlEndIndex + 3)) {
+                        currentUrlStartIndex = nextUrlStartIndex;
+                        nextUrlStartIndex = nfo.indexOf("http://", currentUrlStartIndex + 1);
+                    }
+
+                    // Check to see if the URL has <fanart> at the beginning and ignore it if it does (Issue 706)
+                    if ((currentUrlStartIndex < 8)
+                            || (new String(nfo.substring(currentUrlStartIndex - 8, currentUrlStartIndex)).compareToIgnoreCase("<fanart>") != 0)) {
+                        String foundUrl = new String(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
+
+                        // Check for some invalid characters to see if the URL is valid
+                        if (foundUrl.contains(" ") || foundUrl.contains("*")) {
+                            urlStartIndex = currentUrlStartIndex + 3;
+                        } else {
+                            logger.debug(logMessage + "Poster URL found in nfo = " + foundUrl);
+                            movie.setPosterURL(new String(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3)));
+                            urlStartIndex = -1;
+                            movie.setDirty(DirtyFlag.POSTER, Boolean.TRUE);
+                            foundInfo = Boolean.TRUE;
+                        }
+                    } else {
+                        logger.debug(logMessage + "Poster URL ignored in NFO because it's a fanart URL");
+                        // Search for the URL again
+                        urlStartIndex = currentUrlStartIndex + 3;
+                    }
+                } else {
+                    urlStartIndex = currentUrlStartIndex + 3;
+                }
+            } else {
+                urlStartIndex = -1;
+            }
+        }
+        return foundInfo;
+    }
+
+    /**
+     * Take either a file or a String and process the NFO
+     *
+     * @param nfoFile
+     * @param nfoString
+     * @param movie
+     * @param nfoFilename
+     * @return
+     */
+    private static boolean convertNfoToDoc(File nfoFile, final String nfoString, Movie movie, final String nfoFilename) {
         Document xmlDoc;
 
+        String filename;
+        if (StringUtils.isBlank(nfoFilename) && nfoFile != null) {
+            filename = nfoFile.getName();
+        } else {
+            filename = nfoFilename;
+        }
+
         try {
-            xmlDoc = DOMHelper.getDocFromFile(nfoFile);
-        } catch (MalformedURLException error) {
-            logger.error(logMessage + "Failed parsing NFO file: " + nfoFile.getName() + ". Please fix it or remove it.");
-            logger.error(SystemTools.getStackTrace(error));
+            if (nfoFile == null) {
+                // Assume we're using the string
+                xmlDoc = DOMHelper.getDocFromString(nfoString);
+            } else {
+                xmlDoc = DOMHelper.getDocFromFile(nfoFile);
+            }
+        } catch (SAXParseException ex) {
+            logger.debug(logMessage + TEXT_FAILED + filename + TEXT_FIXIT);
             return Boolean.FALSE;
-        } catch (IOException error) {
-            logger.error(logMessage + "Failed parsing NFO file: " + nfoFile.getName() + ". Please fix it or remove it.");
-            logger.error(SystemTools.getStackTrace(error));
+        } catch (MalformedURLException ex) {
+            logger.debug(logMessage + TEXT_FAILED + filename + TEXT_FIXIT);
             return Boolean.FALSE;
-        } catch (ParserConfigurationException error) {
-            logger.error(logMessage + "Failed parsing NFO file: " + nfoFile.getName() + ". Please fix it or remove it.");
-            logger.error(SystemTools.getStackTrace(error));
+        } catch (IOException ex) {
+            logger.debug(logMessage + TEXT_FAILED + filename + TEXT_FIXIT);
             return Boolean.FALSE;
-        } catch (SAXException error) {
-            logger.error(logMessage + "Failed parsing NFO file: " + nfoFile.getName() + ". Please fix it or remove it.");
-            logger.error(SystemTools.getStackTrace(error));
+        } catch (ParserConfigurationException ex) {
+            logger.debug(logMessage + TEXT_FAILED + filename + TEXT_FIXIT);
+            return Boolean.FALSE;
+        } catch (SAXException ex) {
+            logger.debug(logMessage + TEXT_FAILED + filename + TEXT_FIXIT);
             return Boolean.FALSE;
         }
 
+        return parseXmlNfo(xmlDoc, movie, filename);
+
+    }
+
+    /**
+     * Parse the XML document for NFO information
+     *
+     * @param xmlDoc
+     * @param movie
+     * @param nfoFilename
+     * @return
+     */
+    private static boolean parseXmlNfo(Document xmlDoc, Movie movie, String nfoFilename) {
         NodeList nlMovies;
 
         // Determine if the NFO file is for a TV Show or Movie so the default ID can be set
@@ -116,7 +309,7 @@ public class MovieNFOReader {
 
                 String tempYear = DOMHelper.getValueFromElement(eCommon, "year");
                 if (!parseYear(tempYear, movie)) {
-                    logger.warn(logMessage + "Invalid year: '" + tempYear + "' in " + nfoFile.getAbsolutePath());
+                    logger.warn(logMessage + "Invalid year: '" + tempYear + "' in " + nfoFilename);
                 }
 
                 // ID specific to TV Shows
@@ -237,6 +430,7 @@ public class MovieNFOReader {
         return Boolean.TRUE;
     }
 
+    //<editor-fold defaultstate="collapsed" desc="XML Document Functions">
     /**
      * Parse the FileInfo section
      *
@@ -751,4 +945,5 @@ public class MovieNFOReader {
             }
         }
     }
+    //</editor-fold>
 }

@@ -90,7 +90,8 @@ public class MovieNFOScanner {
     /**
      * Process the NFO file.
      *
-     * Will either process the file as an XML NFO file or just pick out the poster and fanart URLs
+     * Will either process the file as an XML NFO file or just pick out the
+     * poster and fanart URLs
      *
      * Scanning for site specific URLs should be done by each plugin
      *
@@ -99,69 +100,10 @@ public class MovieNFOScanner {
      */
     public static void scan(Movie movie, List<File> nfoFiles) {
         for (File nfoFile : nfoFiles) {
-            logger.debug(logMessage + "Scanning NFO file for IDs: " + nfoFile.getName());
+            logger.debug(logMessage + "Scanning NFO file for information: " + nfoFile.getName());
             // Set the NFO as dirty so that the information will be re-scanned at the appropriate points.
             movie.setDirty(DirtyFlag.NFO);
-
-            String nfo = FileTools.readFileToString(nfoFile);
-            boolean parsedXmlNfo = Boolean.FALSE;   // Was the NFO XML parsed correctly or at all
-
-            if (StringUtils.containsIgnoreCase(nfo, "<" + TYPE_MOVIE)
-                    || StringUtils.containsIgnoreCase(nfo, "<" + TYPE_TVSHOW)
-                    || StringUtils.containsIgnoreCase(nfo, "<" + TYPE_EPISODE)) {
-                parsedXmlNfo = MovieNFOReader.parseNfo(nfoFile, movie);
-            }
-
-            // If the XML wasn't found or parsed correctly, then fall back to the old method
-            if (parsedXmlNfo) {
-                logger.debug(logMessage + "Successfully scanned " + nfoFile.getName() + " as XBMC format");
-            } else {
-                DatabasePluginController.scanNFO(nfo, movie);
-
-                logger.debug(logMessage + "Scanning NFO for Poster URL");
-                int urlStartIndex = 0;
-                while (urlStartIndex >= 0 && urlStartIndex < nfo.length()) {
-                    int currentUrlStartIndex = nfo.indexOf("http://", urlStartIndex);
-                    if (currentUrlStartIndex >= 0) {
-                        int currentUrlEndIndex = nfo.indexOf("jpg", currentUrlStartIndex);
-                        if (currentUrlEndIndex < 0) {
-                            currentUrlEndIndex = nfo.indexOf("JPG", currentUrlStartIndex);
-                        }
-                        if (currentUrlEndIndex >= 0) {
-                            int nextUrlStartIndex = nfo.indexOf("http://", currentUrlStartIndex);
-                            // look for shortest http://
-                            while ((nextUrlStartIndex != -1) && (nextUrlStartIndex < currentUrlEndIndex + 3)) {
-                                currentUrlStartIndex = nextUrlStartIndex;
-                                nextUrlStartIndex = nfo.indexOf("http://", currentUrlStartIndex + 1);
-                            }
-
-                            // Check to see if the URL has <fanart> at the beginning and ignore it if it does (Issue 706)
-                            if ((currentUrlStartIndex < 8)
-                                    || (new String(nfo.substring(currentUrlStartIndex - 8, currentUrlStartIndex)).compareToIgnoreCase("<fanart>") != 0)) {
-                                String foundUrl = new String(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
-
-                                // Check for some invalid characters to see if the URL is valid
-                                if (foundUrl.contains(" ") || foundUrl.contains("*")) {
-                                    urlStartIndex = currentUrlStartIndex + 3;
-                                } else {
-                                    logger.debug(logMessage + "Poster URL found in nfo = " + foundUrl);
-                                    movie.setPosterURL(new String(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3)));
-                                    urlStartIndex = -1;
-                                    movie.setDirty(DirtyFlag.POSTER, Boolean.TRUE);
-                                }
-                            } else {
-                                logger.debug(logMessage + "Poster URL ignored in NFO because it's a fanart URL");
-                                // Search for the URL again
-                                urlStartIndex = currentUrlStartIndex + 3;
-                            }
-                        } else {
-                            urlStartIndex = currentUrlStartIndex + 3;
-                        }
-                    } else {
-                        urlStartIndex = -1;
-                    }
-                }
-            }
+            MovieNFOReader.readNfoFile(nfoFile, movie);
         }
     }
 
