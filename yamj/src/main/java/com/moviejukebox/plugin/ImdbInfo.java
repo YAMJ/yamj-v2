@@ -45,7 +45,7 @@ public class ImdbInfo {
     private WebBrowser webBrowser;
     private String objectType = OBJECT_MOVIE;
     private ImdbSiteDataDefinition siteDef;
-    private static final String[] SEARCH_ORDER = {"Titles (Exact Matches)", "Popular Titles", "Titles (Partial Matches)", "Titles (Approx Matches)"};
+    private static final String[] SEARCH_ORDER = {"Popular Titles", "Titles (Exact Matches)", "Titles (Partial Matches)", "Titles (Approx Matches)"};
 
     static {
         MATCHES_DATA_PER_SITE.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", "ISO-8859-1", "Director|Directed by", "Cast", "Release Date", "Runtime", "Country",
@@ -411,7 +411,7 @@ public class ImdbInfo {
         for (SearchObject searchResult : resultList) {
             ImdbMovieDetails imdbMovie = (ImdbMovieDetails) searchResult;
             logger.debug(logMessage + "Checking: " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
-            if (year.equals(String.valueOf(imdbMovie.getYear()))) {
+            if (year.equals(String.valueOf(imdbMovie.getYear())) || StringTools.isNotValidString(year)) {
                 return (ImdbMovieDetails) searchResult;
             }
         }
