@@ -158,11 +158,14 @@ public class TrailersLandPlugin extends TrailerPlugin {
     }
 
     protected ArrayList<TrailersLandTrailer> getTrailerUrls(Movie movie) {
+        
+        ArrayList<TrailersLandTrailer> trailerList = new ArrayList<TrailersLandTrailer>();
+        
         String trailersLandId = movie.getId(getName());
         if (StringTools.isNotValidString(trailersLandId)) {
             trailersLandId = getTrailersLandId(movie);
             if (StringTools.isNotValidString(trailersLandId)) {
-                return null;
+                return trailerList;
             } else {
                 movie.setId(getName(), trailersLandId);
             }
@@ -177,7 +180,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
             return null;
         }
 
-        ArrayList<TrailersLandTrailer> trailerList = new ArrayList<TrailersLandTrailer>();
+        
 
         int indexVideo = xml.indexOf("<div id=\"table_video\"");
         int indexEndVideo = xml.indexOf("</table", indexVideo + 1);
