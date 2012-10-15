@@ -38,12 +38,22 @@ public class TrailersLandPluginTest {
     }
 
     @Test
-    public void testGenerate() {
+    public void testGenerate1() {
 
         Movie movie = new Movie();
         movie.setTitle("Paradiso Amaro");
-        movie.setOutline("The Descendants");
+        movie.setOriginalTitle("The Descendants");
         
         assertTrue(tlPlugin.generate(movie));
     }
+    
+    @Test
+    public void testGenerate2() {
+
+        Movie movie = new Movie();
+        movie.setTitle("Bar Sport");
+        
+        assertTrue(tlPlugin.generate(movie));
+    }
+
 }
