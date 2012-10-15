@@ -399,6 +399,8 @@ public class TrailersLandPlugin extends TrailerPlugin {
             if (startIndex >= 0) {
 
                 String fileUrl = url.substring(startIndex + 4);
+                
+                //logger.debug(trailersPluginName + " Plugin: evaulating candidate URL " + fileUrl);
 
                 String ext = fileUrl.substring(fileUrl.lastIndexOf('.') + 1);
                 if (this.evaluateAgainstList(ext, trailerAllowedFormats) < 0) {
@@ -421,6 +423,8 @@ public class TrailersLandPlugin extends TrailerPlugin {
                     logger.error(logMessage + "Cannot guess trailer resolution for params " + params + ". Layout changed?");
                     return false;
                 }
+                
+                //logger.debug(trailersPluginName + " Plugin: resolution is " + resolution);
 
                 if (!isResValid(resolution)) {
                     //logger.debug(trailersPluginName + " Plugin: discarding " + fileUrl + " due to resolution.");
@@ -432,7 +436,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
                     }
                 }
 
-                setUrl(url);
+                setUrl(fileUrl);
                 setRes(resolution);
 
                 return true;
