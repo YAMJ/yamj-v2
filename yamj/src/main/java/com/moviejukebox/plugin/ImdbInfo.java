@@ -45,7 +45,7 @@ public class ImdbInfo {
     private WebBrowser webBrowser;
     private String objectType = OBJECT_MOVIE;
     private ImdbSiteDataDefinition siteDef;
-    private static final String[] SEARCH_ORDER = {"Popular Titles", "Titles (Exact Matches)", "Titles (Partial Matches)", "Titles (Approx Matches)"};
+    private static final String[] SEARCH_ORDER = {"Search results", "Popular Titles", "Titles (Exact Matches)", "Titles (Partial Matches)", "Titles (Approx Matches)"};
 
     static {
         MATCHES_DATA_PER_SITE.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", "ISO-8859-1", "Director|Directed by", "Cast", "Release Date", "Runtime", "Country",
@@ -383,6 +383,7 @@ public class ImdbInfo {
         String imdbId = Movie.UNKNOWN;
         ImdbMovieDetails imdbMovie;
         for (String searchType : SEARCH_ORDER) {
+            logger.trace(logMessage + "Checking search type: " + searchType + " for " + movieName + "(" + year + ")");
             imdbMovie = matchSearchObject(result.get(searchType), movieName, year);
             if (imdbMovie != null) {
                 logger.debug(logMessage + "Match found in " + searchType + ": " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
@@ -404,15 +405,19 @@ public class ImdbInfo {
      */
     private ImdbMovieDetails matchSearchObject(final List<SearchObject> resultList, final String movieName, final String year) {
         if (resultList == null || (!resultList.isEmpty() && resultList.get(0).getClass() != ImdbMovieDetails.class)) {
-            logger.debug(logMessage + "No valid results found for this search type");
+            logger.trace(logMessage + movieName + "(" + year + ") - No results found for this search type");
             return null;
+        } else {
+            logger.trace(logMessage + movieName + "(" + year + ") - Found " + resultList.size() + " results");
         }
 
         for (SearchObject searchResult : resultList) {
-            ImdbMovieDetails imdbMovie = (ImdbMovieDetails) searchResult;
-            logger.debug(logMessage + "Checking: " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
-            if (year.equals(String.valueOf(imdbMovie.getYear())) || StringTools.isNotValidString(year)) {
-                return (ImdbMovieDetails) searchResult;
+            if (searchResult.getClass() == ImdbMovieDetails.class) {
+                ImdbMovieDetails imdbMovie = (ImdbMovieDetails) searchResult;
+                logger.debug(logMessage + "Checking: " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
+                if (year.equals(String.valueOf(imdbMovie.getYear())) || StringTools.isNotValidString(year)) {
+                    return (ImdbMovieDetails) searchResult;
+                }
             }
         }
 
