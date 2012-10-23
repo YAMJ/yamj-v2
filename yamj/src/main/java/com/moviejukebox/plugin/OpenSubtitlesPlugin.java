@@ -17,6 +17,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -50,7 +51,7 @@ public class OpenSubtitlesPlugin {
     private static final String OS_MEMBER = "</struct></value></member>";
     private static final String OS_PARAMS = "</struct></value></param></params></methodCall>";
     // Properties
-    private static final boolean IS_ENABLED = PropertiesUtil.getBooleanProperty("opensubtitles.enable", PropertiesUtil.TRUE);
+    private static final boolean IS_ENABLED = PropertiesUtil.getBooleanProperty("opensubtitles.enable", TRUE);
     private static final String SUB_LANGUAGE_ID = PropertiesUtil.getProperty("opensubtitles.language", "");
     private static String osUsername = PropertiesUtil.getProperty("opensubtitles.username", "");
     private static String osPassword = PropertiesUtil.getProperty("opensubtitles.password", "");
@@ -67,6 +68,8 @@ public class OpenSubtitlesPlugin {
             } else {
                 LOGGER.debug(LOG_MESSAGE + "No language selected in properties file");
             }
+        } else {
+            LOGGER.trace(LOG_MESSAGE + "Plugin disabled.");
         }
     }
 
@@ -91,8 +94,8 @@ public class OpenSubtitlesPlugin {
                 }
                 // String l1 = login.equals("") ? "Anonymous" : login;
             }
-        } catch (Exception error) {
-            LOGGER.error(LOG_MESSAGE + "Login Failed");
+        } catch (Exception ex) {
+            LOGGER.error(LOG_MESSAGE + "Login Failed: " + ex.getMessage());
         }
     }
 
@@ -118,6 +121,9 @@ public class OpenSubtitlesPlugin {
      * @param movie
      */
     public void generate(Movie movie) {
+        if (!IS_ENABLED) {
+            return;
+        }
 
         if (StringTools.isNotValidString(movie.getSubtitles()) || movie.getSubtitles().equalsIgnoreCase("NO") || movie.isTVShow()) {
             // Check if subtitle language was selected
