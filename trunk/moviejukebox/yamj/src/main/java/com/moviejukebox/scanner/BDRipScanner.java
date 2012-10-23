@@ -41,7 +41,8 @@ import org.apache.log4j.Logger;
  */
 public class BDRipScanner {
 
-    private static final Logger logger = Logger.getLogger(BDRipScanner.class);
+    private static final Logger LOGGER = Logger.getLogger(BDRipScanner.class);
+    private static final String LOG_MESSAGE = "BDRipScanner: ";
 
     public class BDPlaylistInfo {
 
@@ -186,8 +187,8 @@ public class BDRipScanner {
             return ret;
 
         } catch (Exception error) {
-            logger.warn("BDRip Scanner: Error processing file " + mediaRep.getName());
-            logger.error(SystemTools.getStackTrace(error));
+            LOGGER.warn(LOG_MESSAGE + "Error processing file " + mediaRep.getName());
+            LOGGER.error(SystemTools.getStackTrace(error));
             return null;
         }
     }
@@ -202,7 +203,8 @@ public class BDRipScanner {
 
         /* Some ported code from the bdinfo free project */
         byte[] data = new byte[(int) fileReader.length()];
-//        int dataLength = fileReader.read(data, 0, data.length);   // Not used
+        int dataLength = fileReader.read(data, 0, data.length);
+        LOGGER.trace(LOG_MESSAGE + "Read data length: " + dataLength);
 
         fileReader.close();
 
@@ -211,23 +213,23 @@ public class BDRipScanner {
 
         String fileTypeString = new String(fileType);
         if ((fileTypeString.equals("MPLS0100") && fileTypeString.equals("MPLS0200")) /*|| data[45] != 1*/) {
-            logger.info("Invalid playlist file " + fileTypeString);
+            LOGGER.info(LOG_MESSAGE + "Invalid playlist file " + fileTypeString);
             return ret;
         }
 
         int playlistIndex =
-                (((int) data[8] & 0xFF) << 24) +
-                (((int) data[9] & 0xFF) << 16) +
-                (((int) data[10] & 0xFF) << 8) +
-                ((int) data[11]);
+                (((int) data[8] & 0xFF) << 24)
+                + (((int) data[9] & 0xFF) << 16)
+                + (((int) data[10] & 0xFF) << 8)
+                + ((int) data[11]);
 
         int playlistLength = data.length - playlistIndex - 4;
-        // Not used
-//        int playlistLengthCorrect =
-//                (((int) data[playlistIndex] & 0xFF) << 24) +
-//                (((int) data[playlistIndex + 1] & 0xFF) << 16) +
-//                (((int) data[playlistIndex + 2] & 0xFF) << 8) +
-//                (((int) data[playlistIndex + 3] & 0xFF));
+        int playlistLengthCorrect =
+                (((int) data[playlistIndex] & 0xFF) << 24)
+                + (((int) data[playlistIndex + 1] & 0xFF) << 16)
+                + (((int) data[playlistIndex + 2] & 0xFF) << 8)
+                + (((int) data[playlistIndex + 3] & 0xFF));
+        LOGGER.trace(LOG_MESSAGE + "Playlist Length Correct: " + playlistLengthCorrect);
 
         byte[] playlistData = new byte[playlistLength];
         System.arraycopy(data, playlistIndex + 4,
@@ -249,16 +251,16 @@ public class BDRipScanner {
             String streamFile = new String(streamFileNameData) + ".M2TS";
 
             long timeIn =
-                    (((long) playlistData[streamFileOffset + 14] & 0xFF) << 24) +
-                    (((long) playlistData[streamFileOffset + 15] & 0xFF) << 16) +
-                    (((long) playlistData[streamFileOffset + 16] & 0xFF) << 8) +
-                    ((long) playlistData[streamFileOffset + 17] & 0xFF);
+                    (((long) playlistData[streamFileOffset + 14] & 0xFF) << 24)
+                    + (((long) playlistData[streamFileOffset + 15] & 0xFF) << 16)
+                    + (((long) playlistData[streamFileOffset + 16] & 0xFF) << 8)
+                    + ((long) playlistData[streamFileOffset + 17] & 0xFF);
 
             long timeOut =
-                    (((long) playlistData[streamFileOffset + 18] & 0xFF) << 24) +
-                    (((long) playlistData[streamFileOffset + 19] & 0xFF) << 16) +
-                    (((long) playlistData[streamFileOffset + 20] & 0xFF) << 8) +
-                    ((long) playlistData[streamFileOffset + 21] & 0xFF);
+                    (((long) playlistData[streamFileOffset + 18] & 0xFF) << 24)
+                    + (((long) playlistData[streamFileOffset + 19] & 0xFF) << 16)
+                    + (((long) playlistData[streamFileOffset + 20] & 0xFF) << 8)
+                    + ((long) playlistData[streamFileOffset + 21] & 0xFF);
 
             long length = (timeOut - timeIn) / 45000;
 
@@ -269,9 +271,9 @@ public class BDRipScanner {
             }
             ret.streamList[streamFileIndex] = streamFile;
 
-            streamFileOffset += 2 +
-                    (((int) playlistData[streamFileOffset] & 0xFF) << 8) +
-                    (((int) playlistData[streamFileOffset + 1] & 0xFF));
+            streamFileOffset += 2
+                    + (((int) playlistData[streamFileOffset] & 0xFF) << 8)
+                    + (((int) playlistData[streamFileOffset + 1] & 0xFF));
         }
 
         return ret;

@@ -8,6 +8,7 @@ MovieJukebox 2.8-SNAPSHOT
  - Fixed defect #2497 Fix language check, to login if language is not blank
  - Fixed defect #2501 IMDB not finding movies
  - Fixed defect #2504 Trailersland trailers not downloaded
+ - Fixed defect #2506 BluRay Disc recognized as DVD Disc
  - Enhancement  #2507 Option to disable OpenSubtitles plugin
 
 MovieJukebox 2.7
