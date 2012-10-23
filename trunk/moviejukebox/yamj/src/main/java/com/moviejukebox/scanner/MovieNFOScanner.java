@@ -15,7 +15,6 @@ package com.moviejukebox.scanner;
 import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GenericFileFilter;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -30,7 +29,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTimeConfig;
 
@@ -45,10 +43,6 @@ public class MovieNFOScanner {
 
     private static final Logger logger = Logger.getLogger(MovieNFOScanner.class);
     private static final String logMessage = "MovieNFOScanner: ";
-    // Types of nodes
-    private static final String TYPE_MOVIE = "movie";
-    private static final String TYPE_TVSHOW = "tvshow";
-    private static final String TYPE_EPISODE = "episodedetails";
     // Other properties
     private static final String xbmcTvNfoName = "tvshow";
     // For now, this is deprecated and we should see if there are issues before looking at a solution as the DOM Parser seems a lot more stable
