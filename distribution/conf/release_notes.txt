@@ -7,6 +7,7 @@ MovieJukebox 2.8-SNAPSHOT
  - Fixed defect #2496 Image error (CMMException) causes images not to be loaded
  - Fixed defect #2497 Fix language check, to login if language is not blank
  - Fixed defect #2504 Trailersland trailers not downloaded
+ - Enhancement  #2507 Option to disable OpenSubtitles plugin
 
 MovieJukebox 2.7
 ----------------

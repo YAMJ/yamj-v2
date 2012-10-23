@@ -10,7 +10,6 @@
  *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
  */
-// Based on some code from the opensubtitles.org subtitle upload java applet
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.DirtyFlag;
@@ -33,50 +32,60 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+/**
+ * Based on some code from the opensubtitles.org subtitle upload java applet
+ */
 public class OpenSubtitlesPlugin {
 
     private static final Logger LOGGER = Logger.getLogger(OpenSubtitlesPlugin.class);
     private static final String LOG_MESSAGE = "OpenSubtitles Plugin: ";
-    private static final String SUB_LANGUAGE_ID = PropertiesUtil.getProperty("opensubtitles.language", "");
-    private static String login = PropertiesUtil.getProperty("opensubtitles.username", "");
-    private static String pass = PropertiesUtil.getProperty("opensubtitles.password", "");
-    private static String useragent = "moviejukebox 1.0.15";
     //private static String useragent = "Yet Another Movie Jukebox";
     private static final String OS_DB_SERVER = "http://api.opensubtitles.org/xml-rpc";
-    private static String token = "";
+    private static String loginToken = "";
     // Literals
+    private static final String OS_USER_AGENT = "moviejukebox 1.0.15";
     private static final String OS_METHOD_START = "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>";
     private static final String OS_METHOD_END = "</methodName><params><param><value><string>";
     private static final String OS_PARAM = "</string></value></param><param><value><struct>";
     private static final String OS_MEMBER = "</struct></value></member>";
     private static final String OS_PARAMS = "</struct></value></param></params></methodCall>";
+    // Properties
+    private static final boolean IS_ENABLED = PropertiesUtil.getBooleanProperty("opensubtitles.enable", PropertiesUtil.TRUE);
+    private static final String SUB_LANGUAGE_ID = PropertiesUtil.getProperty("opensubtitles.language", "");
+    private static String osUsername = PropertiesUtil.getProperty("opensubtitles.username", "");
+    private static String osPassword = PropertiesUtil.getProperty("opensubtitles.password", "");
 
     static {
-        // Check if subtitle language was selected
-        if (StringUtils.isNotBlank(SUB_LANGUAGE_ID)) {
-            // Part of opensubtitles.org protocol requirements
-            LOGGER.info(LOG_MESSAGE + "Subtitles service allowed by www.OpenSubtitles.org");
+        if (IS_ENABLED) {
+            // Check if subtitle language was selected
+            if (StringUtils.isNotBlank(SUB_LANGUAGE_ID)) {
+                // Part of opensubtitles.org protocol requirements
+                LOGGER.info(LOG_MESSAGE + "Subtitles service allowed by www.OpenSubtitles.org");
 
-            // Login to opensubtitles.org system
-            logIn();
-        } else {
-            LOGGER.debug(LOG_MESSAGE + "No language selected in moviejukebox.properties");
+                // Login to opensubtitles.org system
+                logIn();
+            } else {
+                LOGGER.debug(LOG_MESSAGE + "No language selected in properties file");
+            }
         }
     }
 
     public OpenSubtitlesPlugin() {
     }
 
+    /**
+     * Login to OpenSubtitles
+     */
     private static void logIn() {
         try {
-            if (token.equals("")) {
-                String parm[] = {login, pass, "", useragent};
+            if (StringUtils.isBlank(loginToken)) {
+                String parm[] = {osUsername, osPassword, "", OS_USER_AGENT};
                 String xml = generateXMLRPC("LogIn", parm);
                 String ret = sendRPC(xml);
                 getValue("status", ret);
-                token = getValue("token", ret);
-                if (token.equals("")) {
-                    LOGGER.error(LOG_MESSAGE + "Login error." + "\n" + ret);
+                loginToken = getValue("token", ret);
+                if (loginToken.equals("")) {
+                    LOGGER.error(LOG_MESSAGE + "Login error.\n" + ret);
                 } else {
                     LOGGER.debug(LOG_MESSAGE + "Login successful.");
                 }
@@ -87,28 +96,27 @@ public class OpenSubtitlesPlugin {
         }
     }
 
+    /**
+     * Logout of OpenSubtitles
+     */
     public static void logOut() {
-
-        // Check if subtitle language was selected
-        if (StringUtils.isBlank(SUB_LANGUAGE_ID)) {
-            return;
+        // Check if plugin is enabled, subtitle language was selected and that the login was successful
+        if (IS_ENABLED && StringUtils.isNotBlank(SUB_LANGUAGE_ID) && StringUtils.isNotBlank(loginToken)) {
+            try {
+                String p1[] = {loginToken};
+                String xml = generateXMLRPC("LogOut", p1);
+                sendRPC(xml);
+            } catch (Exception error) {
+                LOGGER.error(LOG_MESSAGE + "Logout Failed");
+            }
         }
-
-        // Check that the login was successful
-        if (StringUtils.isBlank(token)) {
-            return;
-        }
-
-        try {
-            String p1[] = {token};
-            String xml = generateXMLRPC("LogOut", p1);
-            sendRPC(xml);
-        } catch (Exception error) {
-            LOGGER.error(LOG_MESSAGE + "Logout Failed");
-        }
-
     }
 
+    /**
+     * Get subtitles for the video
+     *
+     * @param movie
+     */
     public void generate(Movie movie) {
 
         if (StringTools.isNotValidString(movie.getSubtitles()) || movie.getSubtitles().equalsIgnoreCase("NO") || movie.isTVShow()) {
@@ -124,7 +132,7 @@ public class OpenSubtitlesPlugin {
             }
 
             // Check that the login was successful
-            if (StringUtils.isBlank(token)) {
+            if (StringUtils.isBlank(loginToken)) {
                 LOGGER.debug(LOG_MESSAGE + "Login failed");
                 return;
             }
@@ -411,7 +419,7 @@ public class OpenSubtitlesPlugin {
         StringBuilder sb = new StringBuilder(OS_METHOD_START);
         sb.append("SearchSubtitles");
         sb.append(OS_METHOD_END);
-        sb.append(token);
+        sb.append(loginToken);
         sb.append(OS_PARAM);
 
         sb.append("<member><value><struct>");
@@ -430,7 +438,7 @@ public class OpenSubtitlesPlugin {
         StringBuilder sb = new StringBuilder(OS_METHOD_START);
         sb.append("SearchSubtitles");
         sb.append(OS_METHOD_END);
-        sb.append(token);
+        sb.append(loginToken);
         sb.append(OS_PARAM);
 
         sb.append("<member><value><struct>");
@@ -444,14 +452,12 @@ public class OpenSubtitlesPlugin {
         return sb.toString();
     }
 
-    ;
-
     private static String generateXMLRPCUS(String idmovieimdb, String subhash[], String subcontent[], String subfilename[], String moviehash[],
             String moviebytesize[], String movietimems[], String movieframes[], String moviefps[], String moviefilename[]) {
         StringBuilder sb = new StringBuilder(OS_METHOD_START);
         sb.append("UploadSubtitles");
         sb.append(OS_METHOD_END);
-        sb.append(token);
+        sb.append(loginToken);
         sb.append(OS_PARAM);
 
         for (int i = 0; i < subhash.length; i++) {
@@ -490,7 +496,7 @@ public class OpenSubtitlesPlugin {
         StringBuilder sb = new StringBuilder(OS_METHOD_START);
         sb.append("TryUploadSubtitles");
         sb.append(OS_METHOD_END);
-        sb.append(token);
+        sb.append(loginToken);
         sb.append(OS_PARAM);
 
         for (int i = 0; i < subhash.length; i++) {
@@ -513,28 +519,6 @@ public class OpenSubtitlesPlugin {
         sb.append(OS_PARAMS);
         return sb.toString();
     }
-
-    ;
-
-    /*
-     *
-     *
-     * private static String sendRPCDetectLang(byte text[]) throws MalformedURLException, IOException { String str = ""; String strona = OSdbServer; // String
-     * logowanie=xml; URL url = new URL(strona); URLConnection connection = url.openConnection(); connection.setRequestProperty("Connection", "Close");
-     *
-     * // connection.setRequestProperty("Accept","text/html"); connection.setRequestProperty("Content-Type", "text/xml"); connection.setDoOutput(true);
-     * //PrintWriter out= new PrintWriter(connection.getOutputStream()); //out.print(logowanie); String str2 =
-     * PART_1 + "DetectLanguage" + "</methodName><params>" + "<param><value><string>" + token +
-     * "</string></value></param>" + "<param><value>" + "<struct><value><string>";
-     *
-     *
-     * String str3 = "</string></value></struct></value></param></params></methodCall>";
-     *
-     * connection.getOutputStream().write(str2.getBytes("UTF-8")); connection.getOutputStream().write(text);
-     * connection.getOutputStream().write(str3.getBytes("UTF-8"));
-     *
-     * Scanner in; in = new Scanner(connection.getInputStream()); while (in.hasNextLine()) { str += in.nextLine(); } ; return str; } ;
-     */
 
     private static String sendRPC(String xml) throws IOException {
 
@@ -606,7 +590,7 @@ public class OpenSubtitlesPlugin {
         sb.append("</methodName><params>");
 
         sb.append("<param><value><string>");
-        sb.append(token);
+        sb.append(loginToken);
         sb.append("</string></value></param>");
         sb.append("<param><value>");
         sb.append(body);
