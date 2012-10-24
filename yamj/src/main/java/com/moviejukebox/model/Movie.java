@@ -462,7 +462,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
         // Added Year to handle movies like Ocean's Eleven (1960) and Ocean's Eleven (2001)
         text.append(" (").append(this.getYear()).append(") ");
-        strippedTitleSort = text.toString();
+        strippedTitleSort = text.toString().toLowerCase();
         return strippedTitleSort;
     }
 
