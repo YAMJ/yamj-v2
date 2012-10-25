@@ -14,6 +14,7 @@ package com.moviejukebox.scanner;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
+import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
@@ -78,7 +79,8 @@ public final class MovieFilenameScanner {
     private static String[] movieVersionKeywords;
     private static final List<Pattern> MOVIE_VERSION_PATTERNS = new ArrayList<Pattern>();
     // Allow the use of [IMDB tt123456] to define the IMDB reference
-    private static final Pattern IMDB_PATTERN = patt("\\[ID ([^\\[\\]]*)\\]");
+    private static final Pattern ID_PATTERN = patt("\\[ID ([^\\[\\]]*)\\]");
+    private static final Pattern IMDB_PATTERN = patt("(?i)(tt\\d{6,7})\\b");    // Search for tt followed by 6 or 7 digits and then a word boundary
     // Everything in format [SET something] (case insensitive)
     private static final Pattern SET_PATTERN = ipatt("\\[SET(?:\\s|-)([^\\[\\]]*)\\]");
     // Number at the end of string preceded with '-'
@@ -297,6 +299,8 @@ public final class MovieFilenameScanner {
     }
 
     /**
+     * Compile the pattern
+     *
      * @param regex
      * @return Exact pattern
      */
@@ -488,7 +492,7 @@ public final class MovieFilenameScanner {
 
         // Movie ID detection
         {
-            Matcher matcher = IMDB_PATTERN.matcher(rest);
+            Matcher matcher = ID_PATTERN.matcher(rest);
             if (matcher.find()) {
                 rest = cutMatch(rest, matcher, " /ID/ ");
 
@@ -497,6 +501,12 @@ public final class MovieFilenameScanner {
                     dto.setId(idString[0].toLowerCase(), idString[1]);
                 } else {
                     logger.debug(logMessage + "Error decoding ID from filename: " + matcher.group(1));
+                }
+            } else {
+                matcher = IMDB_PATTERN.matcher(rest);
+                if (matcher.find()) {
+                    rest = cutMatch(rest, matcher, " /ID/ ");
+                    dto.setId(ImdbPlugin.IMDB_PLUGIN_ID, matcher.group(1));
                 }
             }
         }
