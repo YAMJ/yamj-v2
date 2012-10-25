@@ -1661,7 +1661,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 logger.error(SystemTools.getStackTrace(error));
             }
         } else {
-            logger.error("The moviejukebox overlay configuration file you specified is invalid: " + xmlOverlayFile.getName());
+            logger.error("The moviejukebox overlay configuration file you specified is invalid: " + xmlOverlayFile.getAbsolutePath());
         }
     }
 
