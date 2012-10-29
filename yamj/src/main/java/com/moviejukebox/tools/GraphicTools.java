@@ -18,6 +18,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -92,8 +93,12 @@ public class GraphicTools {
      * @throws IOException
      */
     public static BufferedImage loadJPEGImage(File fileImage) throws IOException, ImageReadException {
-        JpegReader jr = new JpegReader();
-        return jr.readImage(fileImage);
+        if (fileImage.exists()) {
+            JpegReader jr = new JpegReader();
+            return jr.readImage(fileImage);
+        } else {
+            throw new FileNotFoundException("File " + fileImage.getAbsolutePath() + " does not exist");
+        }
     }
 
     /**
@@ -300,9 +305,8 @@ public class GraphicTools {
     /**
      * Creates the reflection effect
      *
-     * graphicType should be "posters", "thumbnails" or "videoimage" and is used
-     * to determine the settings that are extracted from the skin.properties
-     * file.
+     * graphicType should be "posters", "thumbnails" or "videoimage" and is used to determine the settings that are
+     * extracted from the skin.properties file.
      *
      * @param avatar
      * @param graphicType
@@ -395,9 +399,8 @@ public class GraphicTools {
     /**
      * Creates the 3D effect
      *
-     * graphicType should be "posters", "thumbnails" or "videoimage" and is used
-     * to determine the settings that are extracted from the skin.properties
-     * file.
+     * graphicType should be "posters", "thumbnails" or "videoimage" and is used to determine the settings that are
+     * extracted from the skin.properties file.
      *
      * @param bi
      * @param graphicType

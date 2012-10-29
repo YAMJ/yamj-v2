@@ -58,6 +58,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static final Logger logger = Logger.getLogger(DefaultImagePlugin.class);
     private String overlayRoot;
     private String overlayResources;
+    // Filenames
+    private static final String FILENAME_SET = "set.png";
+    private static final String FILENAME_SUBTITLE = "subtitle.png";
+    private static final String FILENAME_TV = "tv.png";
+    private static final String FILENAME_HD1080 = "hd-1080.png";
+    private static final String FILENAME_HD720 = "hd-720.png";
+    private static final String FILENAME_HD = "hd.png";
     // Literals
     private static final String LEFT = "left";
     private static final String RIGHT = "right";
@@ -887,11 +894,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             return bi;
         }
 
-        String logoFilename = "subtitle.png";
-        File logoFile = new File(getResourcesPath() + logoFilename);
+        File logoFile = new File(getResourcesPath() + FILENAME_SUBTITLE);
 
         if (!logoFile.exists()) {
-            logger.debug("Missing SubTitle logo (" + logoFilename + ") unable to draw logo");
+            logger.debug("Missing SubTitle logo (" + FILENAME_SUBTITLE + ") unable to draw logo");
             return bi;
         }
 
@@ -901,9 +907,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             g2d.drawImage(biSubTitle, bi.getWidth() - biSubTitle.getWidth() - 5, 5, null);
             g2d.dispose();
         } catch (ImageReadException ex) {
-            logger.warn("Failed to read " + logoFilename + MSG_VALID);
+            logger.warn("Failed to read " + FILENAME_SUBTITLE + MSG_VALID);
         } catch (IOException error) {
-            logger.warn("Failed drawing SubTitle logo to thumbnail file: Please check that " + logoFilename + MSG_RESOURCES);
+            logger.warn("Failed drawing SubTitle logo to thumbnail file: Please check that " + FILENAME_SUBTITLE + MSG_RESOURCES);
         }
 
         return bi;
@@ -930,20 +936,20 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         if (highdefDiff) {
             if (movie.isHD1080()) {
                 // Use the 1080p logo
-                logoFilename = "hd-1080.png";
+                logoFilename = FILENAME_HD1080;
             } else {
                 // Otherwise use the 720p
-                logoFilename = "hd-720.png";
+                logoFilename = FILENAME_HD720;
             }
         } else {
             // We don't care, so use the default HD logo.
-            logoFilename = "hd.png";
+            logoFilename = FILENAME_HD;
         }
 
         logoFile = new File(getResourcesPath() + logoFilename);
         if (!logoFile.exists()) {
-            logger.debug("Missing HD logo (" + logoFilename + ") using default hd.png");
-            logoFilename = "hd.png";
+            logger.debug("Missing HD logo (" + logoFilename + ") using default " + FILENAME_HD);
+            logoFilename = FILENAME_HD;
         }
 
         try {
@@ -963,7 +969,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             g2d.dispose();
         } catch (ImageReadException ex) {
             logger.warn("Failed to read " + logoFilename + MSG_VALID);
-        } catch (IOException error) {
+        } catch (IOException ex) {
             logger.warn("Failed drawing HD logo to thumbnail file: Please check that " + logoFilename + MSG_RESOURCES);
         }
 
@@ -979,11 +985,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      * @return The new image file
      */
     private BufferedImage drawLogoTV(Movie movie, BufferedImage bi, Boolean addOtherLogo) {
-        String logoFilename = "tv.png";
-
         if (movie.isTVShow()) {
             try {
-                BufferedImage biTV = GraphicTools.loadJPEGImage(getResourcesPath() + logoFilename);
+                BufferedImage biTV = GraphicTools.loadJPEGImage(getResourcesPath() + FILENAME_TV);
                 Graphics2D g2d = bi.createGraphics();
 
                 if (addOtherLogo && movie.isHD()) {
@@ -998,9 +1002,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
                 g2d.dispose();
             } catch (ImageReadException ex) {
-                logger.warn("Failed to read " + logoFilename + MSG_VALID);
+                logger.warn("Failed to read " + FILENAME_TV + MSG_VALID);
             } catch (IOException error) {
-                logger.warn("Failed drawing TV logo to thumbnail file: Please check that " + logoFilename + MSG_RESOURCES);
+                logger.warn("Failed drawing TV logo to thumbnail file: Please check that " + FILENAME_TV + MSG_RESOURCES);
                 logger.error(SystemTools.getStackTrace(error));
             }
         }
@@ -1274,18 +1278,17 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      * @return the new buffered image
      */
     private BufferedImage drawSet(Movie movie, BufferedImage bi) {
-        String setFilename = "set.png";
         try {
-            BufferedImage biSet = GraphicTools.loadJPEGImage(getResourcesPath() + setFilename);
+            BufferedImage biSet = GraphicTools.loadJPEGImage(getResourcesPath() + FILENAME_SET);
 
             Graphics2D g2d = bi.createGraphics();
             g2d.drawImage(biSet, bi.getWidth() - biSet.getWidth() - 5, 1, null);
             g2d.dispose();
         } catch (ImageReadException ex) {
-            logger.warn("Failed to read " + setFilename + MSG_VALID);
+            logger.warn("Failed to read " + FILENAME_SET + MSG_VALID);
         } catch (IOException error) {
             logger.warn("Failed drawing set logo to thumbnail for " + movie.getBaseFilename());
-            logger.warn("Please check that set graphic (set.png) is in the resources directory. " + error.getMessage());
+            logger.warn("Please check that set graphic (" + FILENAME_SET + ") is in the resources directory. " + error.getMessage());
         }
 
         return bi;
