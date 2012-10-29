@@ -440,6 +440,11 @@ public class MediaInfoScanner {
 
             // Frames per second
             infoValue = infosMainVideo.get("Frame rate");
+            if (infoValue == null) {
+            	// use original frame rate
+                infoValue = infosMainVideo.get("Original frame rate");
+            }
+            
             if (infoValue != null) {
                 int inxDiv = infoValue.indexOf(Movie.SPACE_SLASH_SPACE);
                 if (inxDiv > -1) {
