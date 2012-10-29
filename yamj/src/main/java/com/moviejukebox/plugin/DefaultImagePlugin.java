@@ -25,6 +25,7 @@ import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -838,6 +839,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         Graphics2D g2d = newBi.createGraphics();
                         g2d.drawImage(biSet, getOverlayX(newBi.getWidth(), biSet.getWidth(), state.left, state.align), getOverlayY(newBi.getHeight(), biSet.getHeight(), state.top, state.valign), state.width.matches(D_PLUS) ? Integer.parseInt(state.width) : biSet.getWidth(), state.height.matches(D_PLUS) ? Integer.parseInt(state.height) : biSet.getHeight(), null);
                         g2d.dispose();
+                    } catch (FileNotFoundException ex) {
+                        logger.warn("Failed to load " + overlayResources + filename + MSG_VALID);
                     } catch (ImageReadException ex) {
                         logger.warn("Failed to read " + overlayResources + filename + MSG_VALID);
                     } catch (IOException ex) {
@@ -906,6 +909,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             Graphics2D g2d = bi.createGraphics();
             g2d.drawImage(biSubTitle, bi.getWidth() - biSubTitle.getWidth() - 5, 5, null);
             g2d.dispose();
+        } catch (FileNotFoundException ex) {
+            logger.warn("Failed to load " + logoFile + MSG_VALID);
         } catch (ImageReadException ex) {
             logger.warn("Failed to read " + FILENAME_SUBTITLE + MSG_VALID);
         } catch (IOException error) {
@@ -967,6 +972,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             }
 
             g2d.dispose();
+        } catch (FileNotFoundException ex) {
+            logger.warn("Failed to load " + overlayResources + logoFilename + MSG_VALID);
         } catch (ImageReadException ex) {
             logger.warn("Failed to read " + logoFilename + MSG_VALID);
         } catch (IOException ex) {
@@ -1001,6 +1008,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
 
                 g2d.dispose();
+            } catch (FileNotFoundException ex) {
+                logger.warn("Failed to load " + FILENAME_TV + MSG_VALID);
             } catch (ImageReadException ex) {
                 logger.warn("Failed to read " + FILENAME_TV + MSG_VALID);
             } catch (IOException error) {
@@ -1060,6 +1069,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             g2BI.dispose();
 
             return returnBI;
+        } catch (FileNotFoundException ex) {
+            logger.warn("Failed to load " + overlayFilename + MSG_VALID);
         } catch (ImageReadException ex) {
             logger.warn("Failed to read " + overlayFilename + MSG_VALID);
         } catch (IOException ex) {
@@ -1149,6 +1160,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
 
                 g2d.dispose();
+            } catch (FileNotFoundException ex) {
+                logger.warn("Failed to load " + languageFilename + MSG_VALID);
             } catch (ImageReadException ex) {
                 logger.warn("Failed to read " + languageFilename + MSG_VALID);
             } catch (IOException ex) {
@@ -1261,6 +1274,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     }
                 }
                 g2d.dispose();
+            } catch (FileNotFoundException ex) {
+                logger.warn("Failed to load " + overlayResources + filenames[currentFilenameNumber] + MSG_VALID);
             } catch (ImageReadException ex) {
                 logger.warn("Failed to read " + filenames[currentFilenameNumber] + MSG_VALID);
             } catch (IOException e) {
@@ -1284,6 +1299,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             Graphics2D g2d = bi.createGraphics();
             g2d.drawImage(biSet, bi.getWidth() - biSet.getWidth() - 5, 1, null);
             g2d.dispose();
+        } catch (FileNotFoundException ex) {
+            logger.warn("Failed to load " + FILENAME_SET + MSG_VALID);
         } catch (ImageReadException ex) {
             logger.warn("Failed to read " + FILENAME_SET + MSG_VALID);
         } catch (IOException error) {
