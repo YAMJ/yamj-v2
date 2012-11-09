@@ -12,7 +12,6 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import com.moviejukebox.fanarttv.model.FTArtworkType;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Jukebox;
@@ -21,6 +20,7 @@ import com.moviejukebox.plugin.FanartTvPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
+import com.omertron.fanarttvapi.model.FTArtworkType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 

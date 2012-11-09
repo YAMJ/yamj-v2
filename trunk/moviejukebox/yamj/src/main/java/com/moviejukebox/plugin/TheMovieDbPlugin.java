@@ -15,14 +15,21 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
-import com.moviejukebox.themoviedb.MovieDbException;
-import com.moviejukebox.themoviedb.TheMovieDb;
-import com.moviejukebox.themoviedb.model.*;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
+import com.omertron.themoviedbapi.MovieDbException;
+import com.omertron.themoviedbapi.TheMovieDbApi;
+import com.omertron.themoviedbapi.model.Genre;
+import com.omertron.themoviedbapi.model.Language;
+import com.omertron.themoviedbapi.model.MovieDb;
+import com.omertron.themoviedbapi.model.Person;
+import com.omertron.themoviedbapi.model.PersonType;
+import com.omertron.themoviedbapi.model.ProductionCompany;
+import com.omertron.themoviedbapi.model.ProductionCountry;
+import com.omertron.themoviedbapi.model.ReleaseInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -42,7 +49,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public static final String IMDB_PLUGIN_ID = "imdb";
     private static final String webhost = "themoviedb.org";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
-    private TheMovieDb tmdb;
+    private TheMovieDbApi tmdb;
     private String languageCode;
     private String countryCode;
     private boolean downloadFanart;
@@ -53,7 +60,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
     public TheMovieDbPlugin() {
         try {
-            tmdb = new TheMovieDb(API_KEY);
+            tmdb = new TheMovieDbApi(API_KEY);
         } catch (MovieDbException ex) {
             logger.warn(logMessage + "Failed to initialise TheMovieDB API: " + ex.getMessage());
             return;
@@ -140,14 +147,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     // Iterate over the list until we find a match
                     for (MovieDb m : movieList) {
                         logger.debug(logMessage + "Checking " + m.getTitle() + " " + m.getReleaseDate());
-                        if (TheMovieDb.compareMovies(m, movie.getTitle(), movieYear)) {
+                        if (TheMovieDbApi.compareMovies(m, movie.getTitle(), movieYear)) {
                             moviedb = m;
                             break;
                         }
 
                         // See if the original title is different and then compare it too
                         if (!movie.getTitle().equals(movie.getOriginalTitle())
-                                && TheMovieDb.compareMovies(m, movie.getOriginalTitle(), movieYear)) {
+                                && TheMovieDbApi.compareMovies(m, movie.getOriginalTitle(), movieYear)) {
                             moviedb = m;
                             break;
                         }

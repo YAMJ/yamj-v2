@@ -32,7 +32,7 @@
         </dependency>
 
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.omertron</groupId>
             <artifactId>fanarttvapi</artifactId>
         </dependency>
 
@@ -42,34 +42,41 @@
         </dependency>
 
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.omertron</groupId>
             <artifactId>thetvdbapi</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.omertron</groupId>
             <artifactId>themoviedbapi</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.omertron</groupId>
+            <artifactId>subbabaapi</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.omertron</groupId>
             <artifactId>tvrageapi</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>apirottentomatoes</artifactId>
+            <groupId>com.omertron</groupId>
+            <artifactId>rottentomatoesapi</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>API-TrailerAddict</artifactId>
+            <groupId>com.omertron</groupId>
+            <artifactId>traileraddictapi</artifactId>
         </dependency>
 
+        <!-- Removed for the time being until I can fix the search
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>api-imdb</artifactId>
+            <groupId>com.omertron</groupId>
+            <artifactId>imdbapi</artifactId>
         </dependency>
+        -->
 
         <dependency>
             <groupId>junit</groupId>
@@ -160,7 +167,7 @@
             <artifactId>hibernate-core</artifactId>
             <version>4.1.7.Final</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.sanselan</groupId>
             <artifactId>sanselan</artifactId>

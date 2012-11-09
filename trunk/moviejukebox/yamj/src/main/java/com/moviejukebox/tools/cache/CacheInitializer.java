@@ -37,30 +37,30 @@ public class CacheInitializer {
 
         Class clazz = dbObject.getClass();
 
-        if (clazz == com.moviejukebox.thetvdb.model.Series.class) {
-            initialize((com.moviejukebox.thetvdb.model.Series) dbObject);
-        } else if (clazz == com.moviejukebox.thetvdb.model.Episode.class) {
-            initialize((com.moviejukebox.thetvdb.model.Episode) dbObject);
-        } else if (clazz == com.moviejukebox.thetvdb.model.Banners.class) {
-            initialize((com.moviejukebox.thetvdb.model.Banners) dbObject);
+        if (clazz == com.omertron.thetvdbapi.model.Series.class) {
+            initialize((com.omertron.thetvdbapi.model.Series) dbObject);
+        } else if (clazz == com.omertron.thetvdbapi.model.Episode.class) {
+            initialize((com.omertron.thetvdbapi.model.Episode) dbObject);
+        } else if (clazz == com.omertron.thetvdbapi.model.Banners.class) {
+            initialize((com.omertron.thetvdbapi.model.Banners) dbObject);
         } else {
             // Not sure if this warning should be here. Some Classes do not need to be initilized
             logger.debug(logMessage + "No initializer found for class of type " + dbObject.getClass().getSimpleName());
         }
     }
 
-    private static void initialize(com.moviejukebox.thetvdb.model.Series series) {
+    private static void initialize(com.omertron.thetvdbapi.model.Series series) {
         Hibernate.initialize(series.getActors());
         Hibernate.initialize(series.getGenres());
     }
 
-    private static void initialize(com.moviejukebox.thetvdb.model.Episode episode) {
+    private static void initialize(com.omertron.thetvdbapi.model.Episode episode) {
         Hibernate.initialize(episode.getDirectors());
         Hibernate.initialize(episode.getGuestStars());
         Hibernate.initialize(episode.getWriters());
     }
 
-    private static void initialize(com.moviejukebox.thetvdb.model.Banners banners) {
+    private static void initialize(com.omertron.thetvdbapi.model.Banners banners) {
         Hibernate.initialize(banners.getFanartList());
         Hibernate.initialize(banners.getPosterList());
         Hibernate.initialize(banners.getSeasonList());

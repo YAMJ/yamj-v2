@@ -14,12 +14,12 @@ package com.moviejukebox.plugin.poster;
 
 import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
-import com.moviejukebox.themoviedb.MovieDbException;
-import com.moviejukebox.themoviedb.TheMovieDb;
-import com.moviejukebox.themoviedb.model.MovieDb;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
+import com.omertron.themoviedbapi.MovieDbException;
+import com.omertron.themoviedbapi.TheMovieDbApi;
+import com.omertron.themoviedbapi.model.MovieDb;
 import java.net.URL;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +31,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
     private static final String logMessage = "MovieDbPosterPlugin: ";
     private String apiKey = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
     private String languageCode;
-    private TheMovieDb TMDb;
+    private TheMovieDbApi TMDb;
     private static final String DEFAULT_POSTER_SIZE = "original";
 
     public MovieDbPosterPlugin() {
@@ -50,7 +50,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         logger.debug(logMessage + "Using `" + languageCode + "` as the language code");
 
         try {
-            TMDb = new TheMovieDb(apiKey);
+            TMDb = new TheMovieDbApi(apiKey);
         } catch (MovieDbException ex) {
             logger.warn(logMessage + "Failed to initialise TheMovieDB API.");
             return;
@@ -82,7 +82,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
             }
 
             for (MovieDb moviedb : movieList) {
-                if (TheMovieDb.compareMovies(moviedb, title, year)) {
+                if (TheMovieDbApi.compareMovies(moviedb, title, year)) {
                     return String.valueOf(moviedb.getId());
                 }
             }

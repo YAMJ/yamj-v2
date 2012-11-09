@@ -29,17 +29,17 @@ import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
-import com.moviejukebox.themoviedb.MovieDbException;
-import com.moviejukebox.themoviedb.TheMovieDb;
-import com.moviejukebox.themoviedb.model.MovieDb;
-import com.moviejukebox.thetvdb.TheTVDB;
-import com.moviejukebox.thetvdb.model.Banner;
-import com.moviejukebox.thetvdb.model.BannerType;
-import com.moviejukebox.thetvdb.model.Banners;
-import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.*;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+import com.omertron.themoviedbapi.MovieDbException;
+import com.omertron.themoviedbapi.TheMovieDbApi;
+import com.omertron.themoviedbapi.model.MovieDb;
+import com.omertron.thetvdbapi.TheTVDBApi;
+import com.omertron.thetvdbapi.model.Banner;
+import com.omertron.thetvdbapi.model.BannerType;
+import com.omertron.thetvdbapi.model.Banners;
+import com.omertron.thetvdbapi.model.Series;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -74,8 +74,8 @@ public class FanartScanner {
     private static boolean artworkValidateAspect;
     private static int artworkWidth;
     private static int artworkHeight;
-    private static TheMovieDb TMDb;
-    private static TheTVDB tvDB;
+    private static TheMovieDbApi TMDb;
+    private static TheTVDBApi tvDB;
 
     static {
 
@@ -109,14 +109,14 @@ public class FanartScanner {
         artworkValidateAspect = PropertiesUtil.getBooleanProperty("fanart.scanner.ValidateAspect", TRUE);
 
         try {
-            TMDb = new TheMovieDb(PropertiesUtil.getProperty("API_KEY_TheMovieDB"));
+            TMDb = new TheMovieDbApi(PropertiesUtil.getProperty("API_KEY_TheMovieDB"));
         } catch (MovieDbException ex) {
             logger.warn(logMessage + "Failed to initialise TheMovieDB API. Fanart will not be downloaded.");
             logger.warn(SystemTools.getStackTrace(ex));
             TMDb = null;
         }
 
-        tvDB = new TheTVDB(PropertiesUtil.getProperty("API_KEY_TheTvDB"));
+        tvDB = new TheTVDBApi(PropertiesUtil.getProperty("API_KEY_TheTvDB"));
     }
 
     protected FanartScanner() {

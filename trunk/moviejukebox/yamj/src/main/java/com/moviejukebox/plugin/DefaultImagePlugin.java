@@ -12,7 +12,6 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.fanarttv.model.FTArtworkType;
 import com.moviejukebox.model.*;
 import com.moviejukebox.model.Comparator.ValueComparator;
 import com.moviejukebox.tools.GraphicTools;
@@ -21,6 +20,7 @@ import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import com.omertron.fanarttvapi.model.FTArtworkType;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
