@@ -12,12 +12,15 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.PropertiesUtil;
-import org.apache.log4j.BasicConfigurator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  *
@@ -27,7 +30,7 @@ import org.junit.Test;
 public class ComingSoonPluginTest {
 
     static {
-        PropertiesUtil.setProperty("comingsoon.imdb.scan", "never");
+        PropertiesUtil.setProperty("comingsoon.imdb.scan", "nevwe");
     }
 
     private ComingSoonPlugin csPlugin = new ComingSoonPlugin();
@@ -59,7 +62,8 @@ public class ComingSoonPluginTest {
                         "Matrix",
                         "Gli Aristogatti",
                         "Inception",
-                        "L'arte del sogno"
+                        "L'arte del sogno",
+                        "Lettere da Iwo Jima"
         };
 
         for (int i = 0; i < titleList.length; i++) {
@@ -67,6 +71,19 @@ public class ComingSoonPluginTest {
             movie.setTitle(titleList[i]);
             assertTrue(csPlugin.scan(movie));
             assertEquals(titleList[i], movie.getTitle());
+            assertTrue(movie.getDirectors().size() > 0);
+            assertTrue(movie.getWriters().size() > 0);
+            if (i != 1) {
+                assertTrue(movie.getCast().size() > 0);
+                assertTrue(StringTools.isValidString(movie.getReleaseDate()));
+
+            }
+            assertTrue(StringTools.isValidString(movie.getPlot()));
+            assertTrue(StringTools.isValidString(movie.getYear()));
+            assertTrue(StringTools.isValidString(movie.getRuntime()));
+            assertTrue(StringTools.isValidString(movie.getCountry()));
+            assertTrue(movie.getRating() > -1);
+            
         }
 
     }
