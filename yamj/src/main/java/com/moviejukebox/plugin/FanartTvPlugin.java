@@ -12,15 +12,15 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.fanarttv.FanartTv;
-import com.moviejukebox.fanarttv.FanartTvException;
-import com.moviejukebox.fanarttv.model.FTArtworkType;
-import com.moviejukebox.fanarttv.model.FTSourceType;
-import com.moviejukebox.fanarttv.model.FanartTvArtwork;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.*;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.cache.CacheMemory;
+import com.omertron.fanarttvapi.FanartTvApi;
+import com.omertron.fanarttvapi.FanartTvException;
+import com.omertron.fanarttvapi.model.FTArtworkType;
+import com.omertron.fanarttvapi.model.FTSourceType;
+import com.omertron.fanarttvapi.model.FanartTvArtwork;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -31,7 +31,7 @@ public class FanartTvPlugin {
     private static final String logMessage = "FanartTvPlugin: ";
     public static final String FANARTTV_PLUGIN_ID = "fanarttv";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_FanartTv");
-    private FanartTv ft = new FanartTv(API_KEY);
+    private FanartTvApi ft = new FanartTvApi(API_KEY);
     private static final String webhost = "fanart.tv";
     private static final Map<FTArtworkType, Integer> artworkTypes = new EnumMap<FTArtworkType, Integer>(FTArtworkType.class);
     private static int totalRequiredTv = 0;
@@ -66,7 +66,7 @@ public class FanartTvPlugin {
 
     public FanartTvPlugin() {
         if (!versionInfoShown) {
-            FanartTv.showVersion();
+            FanartTvApi.showVersion();
             versionInfoShown = Boolean.TRUE;
         }
 

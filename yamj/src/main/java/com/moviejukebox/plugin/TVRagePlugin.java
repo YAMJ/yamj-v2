@@ -19,11 +19,11 @@ import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tvrage.TVRage;
-import com.moviejukebox.tvrage.model.CountryDetail;
-import com.moviejukebox.tvrage.model.Episode;
-import com.moviejukebox.tvrage.model.EpisodeList;
-import com.moviejukebox.tvrage.model.ShowInfo;
+import com.omertron.tvrageapi.TVRageApi;
+import com.omertron.tvrageapi.model.CountryDetail;
+import com.omertron.tvrageapi.model.Episode;
+import com.omertron.tvrageapi.model.EpisodeList;
+import com.omertron.tvrageapi.model.ShowInfo;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
@@ -38,7 +38,7 @@ public class TVRagePlugin extends ImdbPlugin {
     public static final String TVRAGE_PLUGIN_ID = "tvrage";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TVRage");
     private static final String webhost = "tvrage.com";
-    private TVRage tvRage;
+    private TVRageApi tvRage;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
     private int preferredPlotLength;
@@ -46,7 +46,7 @@ public class TVRagePlugin extends ImdbPlugin {
 
     public TVRagePlugin() {
         super();
-        tvRage = new TVRage(API_KEY);
+        tvRage = new TVRageApi(API_KEY);
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", FALSE);
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");

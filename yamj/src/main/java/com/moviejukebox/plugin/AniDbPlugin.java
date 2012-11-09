@@ -30,9 +30,6 @@ import com.j256.ormlite.table.TableUtils;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
-import com.moviejukebox.thetvdb.TheTVDB;
-import com.moviejukebox.thetvdb.model.Banners;
-import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
@@ -40,6 +37,9 @@ import static com.moviejukebox.tools.StringTools.cleanString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.cache.CacheMemory;
+import com.omertron.thetvdbapi.TheTVDBApi;
+import com.omertron.thetvdbapi.model.Banners;
+import com.omertron.thetvdbapi.model.Series;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -118,7 +118,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private int movieRegexTitleIndex;
     private int minimumCategoryWeight;
     private int maxGenres;
-    private static TheTVDB tvdb;
+    private static TheTVDBApi tvdb;
     private static Boolean loadedTvdbMappings = false;
 
     static {
@@ -269,7 +269,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         if (tvdb != null) {
             return;
         }
-        tvdb = new TheTVDB(PropertiesUtil.getProperty("API_KEY_TheTVDb"));
+        tvdb = new TheTVDBApi(PropertiesUtil.getProperty("API_KEY_TheTVDb"));
     }
 
     @Override
@@ -483,7 +483,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 LOGGER.error(SystemTools.getStackTrace(error));
             }
             @SuppressWarnings("unused")
-            com.moviejukebox.thetvdb.model.Episode ep = null;
+            com.omertron.thetvdbapi.model.Episode ep = null;
             if (mapping != null) {
 //                AnidbTvdbEpisodeMapping episodeMapping = findEpisodeMapping(episodeNumber, mapping);
                 s = getSeriesFromTvdb(mapping.getTvdbId());
@@ -560,7 +560,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         return null;
     }
 
-    protected com.moviejukebox.thetvdb.model.Episode getEpisodeFromTvdb(final String seriesId, final int season, final int episodeNumber) {
+    protected com.omertron.thetvdbapi.model.Episode getEpisodeFromTvdb(final String seriesId, final int season, final int episodeNumber) {
         synchronized (tvdb) {
             return tvdb.getEpisode(seriesId, season, episodeNumber, "en");
         }
@@ -592,7 +592,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 
     @SuppressWarnings("unused")
-    private void processTvdbResults(Movie m, Series s, com.moviejukebox.thetvdb.model.Episode episode, int epno) {
+    private void processTvdbResults(Movie m, Series s, com.omertron.thetvdbapi.model.Episode episode, int epno) {
 
         if (episode != null) {
             for (MovieFile mf : m.getMovieFiles()) {

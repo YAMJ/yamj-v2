@@ -16,16 +16,25 @@ import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.artwork.PosterScanner;
+import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.WebBrowser;
+import com.omertron.subbabaapi.SubBabaApi;
+import com.omertron.subbabaapi.model.SearchType;
+import com.omertron.subbabaapi.model.SubBabaMovie;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
-    private static final Logger logger = Logger.getLogger(SubBabaPosterPlugin.class);
 
+    private static final Logger LOGGER = Logger.getLogger(SubBabaPosterPlugin.class);
+    private static final String LOG_MESSAGE = "SubBabaPosterPlugin: ";
+    private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_SubBaba");
     private WebBrowser webBrowser;
+    private SubBabaApi subBaba;
 
     public SubBabaPosterPlugin() {
         super();
@@ -35,14 +44,35 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
             return;
         }
 
+        subBaba = new SubBabaApi(API_KEY);
         webBrowser = new WebBrowser();
+    }
+
+    /**
+     * Get the Sub-Baba ID for the movie
+     *
+     * @param title
+     * @param year
+     * @return
+     */
+    @Override
+    public String getIdFromMovieInfo(String title, String year) {
+        List<SubBabaMovie> sbMovies = subBaba.searchByEnglishName(title, SearchType.POSTERS);
+
+        if (sbMovies != null && !sbMovies.isEmpty()) {
+            for (SubBabaMovie sbm : sbMovies) {
+                if (sbm != null && sbm.getId() > 0) {
+                    return Integer.toString(sbm.getId());
+                }
+            }
+        }
+        return Movie.UNKNOWN;
     }
 
     /**
      * retrieve the sub-baba.com poster url matching the specified movie name.
      */
-    @Override
-    public String getIdFromMovieInfo(String title, String year) {
+    public String getIdFromMovieInfo_OLD(String title, String year) {
         String response = Movie.UNKNOWN;
         try {
 //            String searchURL = "http://www.sub-baba.com/search?page=search&type=all&submit=%E7%F4%F9&search=" + URLEncoder.encode(title, "iso-8859-8");
@@ -106,14 +136,22 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
             }
 
         } catch (Exception error) {
-            logger.error("SubBabaPosterPlugin: Failed retreiving SubBaba Id for movie : " + title);
-            logger.error("SubBabaPosterPlugin: Error : " + error.getMessage());
+            LOGGER.error(LOG_MESSAGE + "Failed retreiving SubBaba Id for movie : " + title);
+            LOGGER.error(LOG_MESSAGE + "Error : " + error.getMessage());
         }
         return response;
     }
 
     @Override
     public IImage getPosterUrl(String id) {
+        if (StringUtils.isNumeric(id)) {
+            return Image.UNKNOWN;
+        } else {
+            return Image.UNKNOWN;
+        }
+    }
+
+    public IImage getPosterUrl_OLD(String id) {
         if (!Movie.UNKNOWN.equals(id)) {
             Image posterImage = new Image();
 
@@ -140,7 +178,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
                 posterUrl.append(xml.substring(startIndex, endIndex));
 
             } catch (IOException error) {
-                logger.error("SubBabaPosterPlugin: Failed retreiving SubBaba poster information (" + posterUrl + "): " + error.getMessage());
+                LOGGER.error(LOG_MESSAGE + "Failed retreiving SubBaba poster information (" + posterUrl + "): " + error.getMessage());
             }
 
             // Save the filename to the poster.
@@ -151,7 +189,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
 
             // DVD Cover
             if (imageDimension.getWidth() > imageDimension.getHeight()) {
-                logger.debug("SubBabaPosterPlugin: Detected DVD Cover, cropping image to poster size.");
+                LOGGER.debug(LOG_MESSAGE + "Detected DVD Cover, cropping image to poster size.");
                 posterImage.setSubimage("0, 0, 47, 100");
             }
 
@@ -165,14 +203,17 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
+    @Override
     public String getIdFromMovieInfo(String title, String year, int tvSeason) {
         return getIdFromMovieInfo(title, year);
     }
 
+    @Override
     public IImage getPosterUrl(String title, String year, int tvSeason) {
         return getPosterUrl(title, year);
     }
 
+    @Override
     public IImage getPosterUrl(String id, int season) {
         return getPosterUrl(id);
     }
@@ -181,5 +222,4 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
     public String getName() {
         return "subbaba";
     }
-
 }

@@ -15,12 +15,12 @@ package com.moviejukebox.plugin.poster;
 import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.plugin.TheTvDBPluginH;
-import com.moviejukebox.thetvdb.TheTVDB;
-import com.moviejukebox.thetvdb.model.Banner;
-import com.moviejukebox.thetvdb.model.BannerType;
-import com.moviejukebox.thetvdb.model.Banners;
-import com.moviejukebox.thetvdb.model.Series;
 import com.moviejukebox.tools.*;
+import com.omertron.thetvdbapi.TheTVDBApi;
+import com.omertron.thetvdbapi.model.Banner;
+import com.omertron.thetvdbapi.model.BannerType;
+import com.omertron.thetvdbapi.model.Banners;
+import com.omertron.thetvdbapi.model.Series;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
@@ -33,7 +33,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private static final String DEFAULT_LANGUAGE = "en";
     private String language;
     private String language2nd;
-    private TheTVDB tvDB;
+    private TheTVDBApi tvDB;
     private static final String WEB_HOST = "thetvdb.com";
     private boolean isHibernateEnabled = Boolean.FALSE;
 
@@ -45,7 +45,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             return;
         }
 
-        tvDB = new TheTVDB(API_KEY);
+        tvDB = new TheTVDBApi(API_KEY);
 
         // We need to set the proxy parameters if set.
         tvDB.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());

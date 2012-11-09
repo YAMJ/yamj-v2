@@ -14,13 +14,13 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.rottentomatoes.RottenTomatoes;
-import com.moviejukebox.rottentomatoes.RottenTomatoesException;
-import com.moviejukebox.rottentomatoes.model.RTMovie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
+import com.omertron.rottentomatoesapi.RottenTomatoesApi;
+import com.omertron.rottentomatoesapi.RottenTomatoesException;
+import com.omertron.rottentomatoesapi.model.RTMovie;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -40,14 +40,14 @@ public class RottenTomatoesPlugin {
     private static final String webhost = "rottentomatoes.com";
     private static String logMessage = "RottenTomatoesPlugin: ";
     private static String[] priorityList = PropertiesUtil.getProperty("mjb.rottentomatoes.priority", "critics_score,audience_score,critics_rating,audience_rating").split(",");
-    private RottenTomatoes rt;
+    private RottenTomatoesApi rt;
     private static boolean versionInfoShown = Boolean.FALSE;
 
     public RottenTomatoesPlugin() {
         try {
-            rt = new RottenTomatoes(API_KEY);
+            rt = new RottenTomatoesApi(API_KEY);
             if (!versionInfoShown) {
-                RottenTomatoes.showVersion();
+                RottenTomatoesApi.showVersion();
                 versionInfoShown = Boolean.TRUE;
             }
         } catch (RottenTomatoesException ex) {
