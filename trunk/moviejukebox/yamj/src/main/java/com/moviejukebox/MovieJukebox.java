@@ -35,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.stream.XMLStreamException;
@@ -671,22 +672,18 @@ public class MovieJukebox {
          * ******************************************************************************
          * @author Gabriel Corneanu
          *
-         * The tools used for parallel processing are NOT thread safe (some
-         * operations are, but not all) therefore all are added to a container
-         * which is instantiated one per thread
+         * The tools used for parallel processing are NOT thread safe (some operations are, but not all) therefore all
+         * are added to a container which is instantiated one per thread
          *
-         * - xmlWriter looks thread safe - htmlWriter was not thread safe, -
-         * getTransformer is fixed (simple workaround) - MovieImagePlugin : not
-         * clear, made thread specific for safety - MediaInfoScanner : not sure,
-         * made thread specific
+         * - xmlWriter looks thread safe - htmlWriter was not thread safe, - getTransformer is fixed (simple workaround)
+         * - MovieImagePlugin : not clear, made thread specific for safety - MediaInfoScanner : not sure, made thread
+         * specific
          *
-         * Also important: The library itself is not thread safe for
-         * modifications (API says so) it could be adjusted with concurrent
-         * versions, but it needs many changes it seems that it is safe for
-         * subsequent reads (iterators), so leave for now...
+         * Also important: The library itself is not thread safe for modifications (API says so) it could be adjusted
+         * with concurrent versions, but it needs many changes it seems that it is safe for subsequent reads
+         * (iterators), so leave for now...
          *
-         * - DatabasePluginController is also fixed to be thread safe (plugins
-         * map for each thread)
+         * - DatabasePluginController is also fixed to be thread safe (plugins map for each thread)
          *
          */
         class ToolSet {
@@ -1648,8 +1645,7 @@ public class MovieJukebox {
     /**
      * Clean up the jukebox folder of any extra files that are not needed.
      *
-     * If the jukeboxClean parameter is not set, just report on the files that
-     * would be cleaned.
+     * If the jukeboxClean parameter is not set, just report on the files that would be cleaned.
      */
     private void cleanJukeboxFolder() {
         boolean cleanReport = PropertiesUtil.getBooleanProperty("mjb.jukeboxCleanReport", FALSE);
@@ -1670,7 +1666,21 @@ public class MovieJukebox {
         boolean skip;
 
         String skipPattStr = getProperty("mjb.clean.skip");
-        Pattern skipPatt = null != skipPattStr ? Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE) : null;
+        Pattern skipPatt;
+
+        if (StringTools.isValidString(skipPattStr)) {
+            // Try and convert the string into a pattern
+            try {
+                skipPatt = Pattern.compile(skipPattStr, Pattern.CASE_INSENSITIVE);
+            } catch (PatternSyntaxException ex) {
+                logger.warn("Error converting mjb.clean.skip '" + skipPattStr + "'");
+                logger.warn(ex.getMessage());
+                skipPatt = null;
+            }
+        } else {
+            skipPatt = null;
+        }
+
 
         for (int nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
             // Scan each file in here
@@ -1706,15 +1716,12 @@ public class MovieJukebox {
     }
 
     /**
-     * Generates a movie XML file which contains data in the <tt>Movie</tt>
-     * bean.
+     * Generates a movie XML file which contains data in the <tt>Movie</tt> bean.
      *
-     * When an XML file exists for the specified movie file, it is loaded into
-     * the specified <tt>Movie</tt> object.
+     * When an XML file exists for the specified movie file, it is loaded into the specified <tt>Movie</tt> object.
      *
-     * When no XML file exist, scanners are called in turn, in order to add
-     * information to the specified <tt>movie</tt> object. Once scanned, the
-     * <tt>movie</tt> object is persisted.
+     * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt>
+     * object. Once scanned, the <tt>movie</tt> object is persisted.
      */
     public boolean updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", FALSE);
@@ -1989,11 +1996,9 @@ public class MovieJukebox {
     }
 
     /**
-     * Update the movie poster for the specified movie. When an existing
-     * thumbnail is found for the movie, it is not overwritten, unless the
-     * mjb.forceThumbnailOverwrite is set to true in the property file. When the
-     * specified movie does not contain a valid URL for the poster, a dummy
-     * image is used instead.
+     * Update the movie poster for the specified movie. When an existing thumbnail is found for the movie, it is not
+     * overwritten, unless the mjb.forceThumbnailOverwrite is set to true in the property file. When the specified movie
+     * does not contain a valid URL for the poster, a dummy image is used instead.
      *
      * @param tempJukeboxDetailsRoot
      */
@@ -2031,11 +2036,10 @@ public class MovieJukebox {
     /**
      * Update the banner for the specified TV Show.
      *
-     * When an existing banner is found for the movie, it is not overwritten,
-     * unless the mjb.forcePosterOverwrite is set to true in the property file.
+     * When an existing banner is found for the movie, it is not overwritten, unless the mjb.forcePosterOverwrite is set
+     * to true in the property file.
      *
-     * When the specified movie does not contain a valid URL for the banner, a
-     * dummy image is used instead.
+     * When the specified movie does not contain a valid URL for the banner, a dummy image is used instead.
      *
      */
     public void updateTvBanner(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
