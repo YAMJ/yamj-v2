@@ -341,7 +341,10 @@ public class MovieNFOReader {
                 }
 
                 // Runtime
-                movie.setRuntime(DOMHelper.getValueFromElement(eCommon, "runtime"));
+                String runtime = DOMHelper.getValueFromElement(eCommon, "runtime");
+                if (StringUtils.isNotBlank(runtime)) {
+                	movie.setRuntime(runtime);
+                }
 
                 // Certification
                 parseCertification(eCommon, movie);
