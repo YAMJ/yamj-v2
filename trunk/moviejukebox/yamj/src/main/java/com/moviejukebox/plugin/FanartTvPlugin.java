@@ -39,7 +39,6 @@ public class FanartTvPlugin {
     private static final String DEFAULT_LANGUAGE = "en";
     private static String movieLanguage = getMovieLanguage();
     private static String tvLanguage = getTvLanguage();
-    private static boolean versionInfoShown = Boolean.FALSE;
 
     static {
         // Read the properties for the artwork required and the quantities
@@ -65,11 +64,6 @@ public class FanartTvPlugin {
     }
 
     public FanartTvPlugin() {
-        if (!versionInfoShown) {
-            FanartTvApi.showVersion();
-            versionInfoShown = Boolean.TRUE;
-        }
-
         // We need to set the proxy parameters if set.
         ft.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
 

@@ -40,18 +40,14 @@ public class RottenTomatoesPlugin {
     private static final String webhost = "rottentomatoes.com";
     private static String logMessage = "RottenTomatoesPlugin: ";
     private static String[] priorityList = PropertiesUtil.getProperty("mjb.rottentomatoes.priority", "critics_score,audience_score,critics_rating,audience_rating").split(",");
-    private RottenTomatoesApi rt;
-    private static boolean versionInfoShown = Boolean.FALSE;
+    private RottenTomatoesApi rt = null;
 
     public RottenTomatoesPlugin() {
         try {
             rt = new RottenTomatoesApi(API_KEY);
-            if (!versionInfoShown) {
-                RottenTomatoesApi.showVersion();
-                versionInfoShown = Boolean.TRUE;
-            }
         } catch (RottenTomatoesException ex) {
             logger.error(logMessage + "Failed to get RottenTomatoes API: " + ex.getMessage());
+            return;
         }
 
         // We need to set the proxy parameters if set.
@@ -62,19 +58,24 @@ public class RottenTomatoesPlugin {
     }
 
     public boolean scan(Movie movie) {
+        if (rt == null) {
+            logger.trace(logMessage + "Unable to initialise RT Plugin, no information retrieved.");
+            return Boolean.FALSE;
+        }
+
         if (!movie.isScrapeLibrary()) {
-            return false;
+            return Boolean.FALSE;
         }
 
         if (movie.isTVShow()) {
             logger.debug(logMessage + movie.getBaseName() + " is a TV Show, skipping.");
-            return false;
+            return Boolean.FALSE;
         }
 
         // If we have a rating already, skip unless we are rechecking.
         if (movie.getRating(ROTTENTOMATOES_PLUGIN_ID) >= 0 && !movie.isDirty(DirtyFlag.RECHECK)) {
             logger.debug(logMessage + movie.getBaseName() + " already has a rating");
-            return true;
+            return Boolean.TRUE;
         }
 
         // We seem to have a valid movie, so let's scan
@@ -146,10 +147,10 @@ public class RottenTomatoesPlugin {
                 }
             }
 
-            return true;
+            return Boolean.TRUE;
         } else {
             logger.debug(logMessage + "No RottenTomatoes information found for " + movie.getBaseName());
-            return false;
+            return Boolean.FALSE;
         }
     }
 }
