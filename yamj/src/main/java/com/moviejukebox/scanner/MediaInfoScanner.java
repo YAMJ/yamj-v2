@@ -400,6 +400,10 @@ public class MediaInfoScanner {
             if (movie.getRuntime().equals(Movie.UNKNOWN) && movie.getMovieFiles().size() == 1) {
                 // Duration
                 infoValue = infosMainVideo.get("Duration");
+                if (infoValue == null) {
+                	// use duration from general settings if not found in main movie
+                	infoValue = infosGeneral.get("Duration");
+                }
                 if (infoValue != null) {
 
                     int duration;
