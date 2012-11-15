@@ -14,6 +14,7 @@ MovieJukebox 2.8-SNAPSHOT
  - Fixed defect #2510 Recognise IMDB TT number in filename
  - Fixed defect #2520 Layout change on comingsoon.it
  - Fixed defect #2524 Blank runtime in NFO overwrite mediainfo value
+ - Fixed defect #2493 Updated Sub-Baba poster search to use API, better search results
 
 MovieJukebox 2.7
 ----------------
