@@ -15,6 +15,7 @@ MovieJukebox 2.8-SNAPSHOT
  - Fixed defect #2520 Layout change on comingsoon.it
  - Fixed defect #2524 Blank runtime in NFO overwrite mediainfo value
  - Fixed defect #2493 Updated Sub-Baba poster search to use API, better search results
+ - Fixed defect #2509 Use correct skin properties for image generation
 
 MovieJukebox 2.7
 ----------------
