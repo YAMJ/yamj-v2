@@ -201,6 +201,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     @Override
     public BufferedImage generate(Movie movie, BufferedImage imageGraphic, String gImageType, String perspectiveDirection) {
+        imageType = gImageType.toLowerCase();
+
         boolean addReflectionEffect = PropertiesUtil.getBooleanProperty(imageType + ".reflection", FALSE);
         boolean addPerspective = PropertiesUtil.getBooleanProperty(imageType + ".perspective", FALSE);
         boolean imageNormalize = PropertiesUtil.getBooleanProperty(imageType + ".normalize", FALSE);
@@ -208,8 +210,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         boolean addOverlay = PropertiesUtil.getBooleanProperty(imageType + ".overlay", FALSE);
 
         boolean isFooter = false;
-
-        imageType = gImageType.toLowerCase();
 
         viIndex = 0;
         if (imageType.indexOf(FOOTER) == 0) {
