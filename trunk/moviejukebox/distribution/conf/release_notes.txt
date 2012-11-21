@@ -4,19 +4,20 @@
 
 MovieJukebox 2.8-SNAPSHOT
 -------------------------
+ - Fixed defect #2469 People filmography scan now detects VideoGame, TV and Video
+ - Fixed defect #2493 Updated Sub-Baba poster search to use API, better search results
  - Fixed defect #2496 Image error (CMMException) causes images not to be loaded
  - Fixed defect #2497 Fix language check, to login if language is not blank
  - Fixed defect #2501 IMDB not finding movies
  - Fixed defect #2502 Sort order is case sensitive
  - Fixed defect #2504 Trailersland trailers not downloaded
+ - Fixed defect #2505 TitleSort for TV Shows being overwritten if set in NFO
  - Fixed defect #2506 BluRay Disc recognized as DVD Disc
  - Enhancement  #2507 Option to disable OpenSubtitles plugin
  - Fixed defect #2510 Recognise IMDB TT number in filename
  - Fixed defect #2520 Layout change on comingsoon.it
  - Fixed defect #2524 Blank runtime in NFO overwrite mediainfo value
- - Fixed defect #2493 Updated Sub-Baba poster search to use API, better search results
  - Fixed defect #2509 Use correct skin properties for image generation
- - Fixed defect #2469 People filmography scan now detects VideoGame, TV and Video
 
 MovieJukebox 2.7
 ----------------
