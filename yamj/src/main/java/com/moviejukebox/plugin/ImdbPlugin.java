@@ -1653,11 +1653,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     String id = HTMLTools.extractTag(item, "<a href=\"/title/", "/\">");
                     String name = HTMLTools.extractTag(item, "/\">", HTML_A_END).replaceAll("\"", "");
                     String year = Movie.UNKNOWN;
+                    String itemTail = Movie.UNKNOWN;
                     beginIndex = item.indexOf("</a> (");
                     if (beginIndex > -1) {
-                        year = HTMLTools.extractTag(item.substring(beginIndex), "(", ")");
+                    	itemTail = item.substring(beginIndex);
+                        year = HTMLTools.extractTag(itemTail, "(", ")");
                     }
-                    if ((skipVG && name.endsWith("(VG)")) || (skipTV && name.endsWith("(TV)")) || (skipV && name.endsWith("(V)"))) {
+                    if ((skipVG && (name.endsWith("(VG)") || itemTail.endsWith("(VG)"))) || (skipTV && (name.endsWith("(TV)") || itemTail.endsWith("(TV)"))) || (skipV && (name.endsWith("(V)") || itemTail.endsWith("(V)")))) {
                         continue;
                     } else if (skipTV) {
                         Matcher tvMatcher = tvPattern.matcher(name);
