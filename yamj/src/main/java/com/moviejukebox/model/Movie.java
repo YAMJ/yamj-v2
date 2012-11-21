@@ -67,7 +67,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String tmpRatingIgnore = PropertiesUtil.getProperty("mjb.rating.ignore", "");
     private List<String> ratingIgnore = StringTools.isValidString(tmpRatingIgnore) ? Arrays.asList(tmpRatingIgnore.split(",")) : new ArrayList<String>();
     private static final Set<String> GENRE_SKIP_LIST = new HashSet<String>();   // List of genres to ignore
-    private static String titleSortType = PropertiesUtil.getProperty("mjb.sortTitle", "title");
+    private static final TitleSortType titleSortType = TitleSortType.fromString(PropertiesUtil.getProperty("mjb.sortTitle", "title"));
     /*
      * --------------------------------------------------------------------------------
      * Properties related to the Movie object itself
@@ -829,31 +829,17 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
         // There are three choices for the sort title: title, original, filename
 
-        if ("title".equalsIgnoreCase(titleSortType)) {
+        if (titleSortType == TitleSortType.TITLE) {
             // Set the title sort (so this is only done once)
             setTitleSort(title);
-            return titleSort;
-        }
-
-        if ("filename".equalsIgnoreCase(titleSortType)) {
+        } else if (titleSortType == TitleSortType.FILENAME) {
             // Set the title sort (so this is only done once)
             setTitleSort(baseName);
-            return titleSort;
+        } else if (titleSortType == TitleSortType.ORIGINAL && StringTools.isValidString(originalTitle)) {
+            // Set the title sort (so this is only done once)
+            setTitleSort(originalTitle);
         }
 
-        if ("original".equalsIgnoreCase(titleSortType)) {
-            if (StringTools.isValidString(originalTitle)) {
-                // Set the title sort (so this is only done once)
-                setTitleSort(originalTitle);
-                return titleSort;
-            } else {
-                setTitleSort(title);
-                return titleSort;
-            }
-        }
-
-        // Set the title sort (so this is only done once)
-        setTitleSort(title);
         return titleSort;
     }
 
@@ -1507,7 +1493,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void setTitleSort(String title) {
+    public void setTitleSort(final String title) {
+        if (title.equals(titleSort)) {
+            return;
+        }
+
         String newTitle;
         if (StringUtils.isBlank(title)) {
             newTitle = UNKNOWN;

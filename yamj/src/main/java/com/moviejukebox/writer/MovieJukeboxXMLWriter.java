@@ -63,6 +63,7 @@ public class MovieJukeboxXMLWriter {
     private static final String BASE_FILENAME = "baseFilename";
     private static final String TITLE = "title";
     private static final String ORIGINAL_TITLE = "originalTitle";
+    private static final String SORT_TITLE = "titleSort";
     private static final String YEAR = "year";
     private static final String COUNTRY = "country";
     private static final String ORDER = "order";
@@ -81,7 +82,7 @@ public class MovieJukeboxXMLWriter {
     private static final String COUNT = "count";
     private static final String INDEX = "index";
     private static final String ORIGINAL_NAME = "originalName";
-    private static final String DETAILS="details";
+    private static final String DETAILS = "details";
     private static boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", FALSE);
     private static boolean forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", FALSE);
     private int nbMoviesPerPage;
@@ -274,7 +275,7 @@ public class MovieJukeboxXMLWriter {
 
                 // Get the title fields
                 movie.setTitle(DOMHelper.getValueFromElement(eMovie, TITLE));
-                movie.setTitleSort(DOMHelper.getValueFromElement(eMovie, "titleSort"));
+                movie.setTitleSort(DOMHelper.getValueFromElement(eMovie, SORT_TITLE));
                 movie.setOriginalTitle(DOMHelper.getValueFromElement(eMovie, ORIGINAL_TITLE));
 
                 // Get the year. We don't care about the attribute as that is the index
@@ -1729,7 +1730,7 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "baseFilenameBase", movie.getBaseFilename());
         DOMHelper.appendChild(doc, eMovie, BASE_FILENAME, movie.getBaseName());
         DOMHelper.appendChild(doc, eMovie, TITLE, movie.getTitle());
-        DOMHelper.appendChild(doc, eMovie, "titleSort", movie.getTitleSort());
+        DOMHelper.appendChild(doc, eMovie, SORT_TITLE, movie.getTitleSort());
         DOMHelper.appendChild(doc, eMovie, ORIGINAL_TITLE, movie.getOriginalTitle());
         DOMHelper.appendChild(doc, eMovie, "detailPosterFile", HTMLTools.encodeUrl(movie.getDetailPosterFilename()));
         DOMHelper.appendChild(doc, eMovie, "thumbnail", HTMLTools.encodeUrl(movie.getThumbnailFilename()));
@@ -1769,7 +1770,8 @@ public class MovieJukeboxXMLWriter {
     /**
      * Write the element with the indexed attribute.
      *
-     * If there is a non-null value in the indexValue, this will be appended to the element.
+     * If there is a non-null value in the indexValue, this will be appended to
+     * the element.
      *
      * @param doc
      * @param parentElement
@@ -1839,7 +1841,7 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "baseFilenameBase", movie.getBaseFilename());
         DOMHelper.appendChild(doc, eMovie, BASE_FILENAME, movie.getBaseName());
         DOMHelper.appendChild(doc, eMovie, TITLE, movie.getTitle());
-        DOMHelper.appendChild(doc, eMovie, "titleSort", movie.getTitleSort());
+        DOMHelper.appendChild(doc, eMovie, SORT_TITLE, movie.getTitleSort());
         DOMHelper.appendChild(doc, eMovie, ORIGINAL_TITLE, movie.getOriginalTitle());
 
         DOMHelper.appendChild(doc, eMovie, YEAR, movie.getYear(), "Year", Library.getYearCategory(movie.getYear()));
@@ -2344,8 +2346,9 @@ public class MovieJukeboxXMLWriter {
     }
 
     /**
-     * Persist a movie into an XML file. Doesn't overwrite an already existing XML file for the specified movie unless,
-     * movie's data has changed or forceXMLOverwrite is true.
+     * Persist a movie into an XML file. Doesn't overwrite an already existing
+     * XML file for the specified movie unless, movie's data has changed or
+     * forceXMLOverwrite is true.
      */
     public void writeMovieXML(Jukebox jukebox, Movie movie, Library library) {
         String baseName = movie.getBaseName();

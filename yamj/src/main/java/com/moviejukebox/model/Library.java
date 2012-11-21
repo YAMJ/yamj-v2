@@ -446,7 +446,8 @@ public class Library implements Map<String, Movie> {
             indexMaster.setSetMaster(true);
             indexMaster.setSetSize(indexMovieList.size());
             indexMaster.setTitle(indexName);
-            indexMaster.setTitleSort(indexName);
+            // Do not overwrite the TitleSort with the indexname as this will overwrite the changes that are made in a NFO file
+            // indexMaster.setTitleSort(indexName);
             indexMaster.setOriginalTitle(indexName);
             indexMaster.setBaseFilename(createPrefix(prefix, createCategoryKey(indexName)) + "1");
             indexMaster.setBaseName(makeSafeFilename(indexMaster.getBaseFilename()));
