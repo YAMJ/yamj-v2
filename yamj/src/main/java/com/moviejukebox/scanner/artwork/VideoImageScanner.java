@@ -65,7 +65,8 @@ public class VideoImageScanner {
     }
 
     /**
-     * Try to locate a local video image and if that fails, download the image from the Internet.
+     * Try to locate a local video image and if that fails, download the image
+     * from the Internet.
      *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
@@ -172,6 +173,7 @@ public class VideoImageScanner {
                     if (videoimageExtension == null) {
                         videoimageExtension = "." + PropertiesUtil.getProperty("videoimages.format", "jpg");
                     }
+
                     if (firstPart < lastPart) {
                         localVideoImageBaseFilename += partSuffix + videoimageExtension;
                     } else {
@@ -193,6 +195,7 @@ public class VideoImageScanner {
 
                 // If we've found the VideoImage, copy it to the jukebox, otherwise download it.
                 if (foundLocalVideoImage) {
+                    logger.debug(logMessage + "Found local file: " + fullVideoImageFilename);
                     // Check to see if the URL is UNKNOWN and the local file is found, in which case
                     // the videoimage in the jukebox should be overwritten with this file
                     localOverwrite = false; // first reset the check variable
@@ -283,7 +286,8 @@ public class VideoImageScanner {
     }
 
     /**
-     * Download the videoimage from the URL. Initially this is populated from TheTVDB plugin
+     * Download the videoimage from the URL. Initially this is populated from
+     * TheTVDB plugin
      *
      * @param imagePlugin
      * @param jukeboxDetailsRoot

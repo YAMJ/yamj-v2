@@ -200,14 +200,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     }
 
     @Override
-    public BufferedImage generate(Movie movie, BufferedImage imageGraphic, String gImageType, String perspectiveDirection) {
+    public BufferedImage generate(Movie movie, BufferedImage imageGraphic, final String gImageType, final String perspectiveDirection) {
         imageType = gImageType.toLowerCase();
-
-        boolean addReflectionEffect = PropertiesUtil.getBooleanProperty(imageType + ".reflection", FALSE);
-        boolean addPerspective = PropertiesUtil.getBooleanProperty(imageType + ".perspective", FALSE);
-        boolean imageNormalize = PropertiesUtil.getBooleanProperty(imageType + ".normalize", FALSE);
-        boolean imageStretch = PropertiesUtil.getBooleanProperty(imageType + ".stretch", FALSE);
-        boolean addOverlay = PropertiesUtil.getBooleanProperty(imageType + ".overlay", FALSE);
 
         boolean isFooter = false;
 
@@ -225,6 +219,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             logger.error("The image type '" + imageType + "' cannot be found");
             return imageGraphic;
         }
+
+        // The properties must be loaded after the imageType has been determined
+        boolean addReflectionEffect = PropertiesUtil.getBooleanProperty(imageType + ".reflection", FALSE);
+        boolean addPerspective = PropertiesUtil.getBooleanProperty(imageType + ".perspective", FALSE);
+        boolean imageNormalize = PropertiesUtil.getBooleanProperty(imageType + ".normalize", FALSE);
+        boolean imageStretch = PropertiesUtil.getBooleanProperty(imageType + ".stretch", FALSE);
+        boolean addOverlay = PropertiesUtil.getBooleanProperty(imageType + ".overlay", FALSE);
 
         // Specific Properties (dependent upon the imageType)
         int imageWidth = PropertiesUtil.getIntProperty(imageType + ".width", "400");
@@ -373,6 +374,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 skipResize = true;
             }
 
+            // Normalize the image
             if (imageNormalize) {
                 if (skipResize) {
                     bi = GraphicTools.scaleToSizeNormalized((int) (origHeight * rcqFactor * ratio), (int) (origHeight * rcqFactor), bi);
@@ -1022,7 +1024,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     }
 
     /**
-     * Draw an overlay on the image, such as a box cover specific for videosource, container, certification if wanted
+     * Draw an overlay on the image, such as a box cover specific for
+     * videosource, container, certification if wanted
      *
      * @param movie
      * @param bi
