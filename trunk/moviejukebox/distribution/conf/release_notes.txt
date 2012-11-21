@@ -4,6 +4,7 @@
 
 MovieJukebox 2.8-SNAPSHOT
 -------------------------
+ - Fixed defect #2412 Added imdb.plot description to skin configuration wiki page
  - Fixed defect #2469 People filmography scan now detects VideoGame, TV and Video
  - Fixed defect #2491 TV Episode Image getting cropped at top
  - Fixed defect #2493 Updated Sub-Baba poster search to use API, better search results
