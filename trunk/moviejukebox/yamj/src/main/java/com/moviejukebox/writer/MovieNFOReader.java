@@ -35,7 +35,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.pojava.datetime.DateTime;
+import org.pojava.datetime2.DateTime;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -619,19 +619,20 @@ public class MovieNFOReader {
      * Convert the date string to a date and update the movie object
      *
      * @param movie
-     * @param dateString
+     * @param parseDate
      */
-    private static void movieDate(Movie movie, String dateString) {
-        if (StringTools.isValidString(dateString)) {
+    private static void movieDate(Movie movie, final String dateString) {
+        String parseDate = StringUtils.normalizeSpace(dateString);
+        if (StringTools.isValidString(parseDate)) {
             try {
                 DateTime dateTime;
-                if (dateString.length() == 4) {
+                if (parseDate.length() == 4 && StringUtils.isNumeric(parseDate)) {
                     // Warn the user
                     logger.debug(logMessage + "Partial date detected in premiered field of NFO for " + movie.getBaseFilename());
                     // Assume just the year an append "-01-01" to the end
-                    dateTime = new DateTime(dateString + "-01-01");
+                    dateTime = new DateTime(parseDate + "-01-01");
                 } else {
-                    dateTime = new DateTime(dateString);
+                    dateTime = new DateTime(parseDate);
                 }
 
                 movie.setReleaseDate(DateTimeTools.convertDateToString(dateTime));
@@ -639,8 +640,9 @@ public class MovieNFOReader {
                 movie.setYear(dateTime.toString("yyyy"));
             } catch (Exception ex) {
                 logger.warn(logMessage + "Failed parsing NFO file for movie: " + movie.getBaseFilename() + ". Please fix or remove it.");
-                logger.warn(logMessage + "premiered or releasedate does not contain a valid date: " + dateString);
-                movie.setReleaseDate(dateString);
+                logger.warn(logMessage + "premiered or releasedate does not contain a valid date: " + parseDate);
+                logger.warn(logMessage + SystemTools.getStackTrace(ex));
+                movie.setReleaseDate(parseDate);
             }
         }
     }

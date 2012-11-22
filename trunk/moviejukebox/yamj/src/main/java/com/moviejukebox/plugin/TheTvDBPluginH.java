@@ -34,7 +34,7 @@ import com.omertron.thetvdbapi.model.Series;
 import java.util.List;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
-import org.pojava.datetime.DateTime;
+import org.pojava.datetime2.DateTime;
 
 /**
  * TheTVDBPlugin with added hibernate code

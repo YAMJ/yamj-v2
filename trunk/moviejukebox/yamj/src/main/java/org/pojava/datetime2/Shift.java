@@ -1,4 +1,4 @@
-package org.pojava.datetime;
+package org.pojava.datetime2;
 
 
 /**
@@ -7,9 +7,9 @@ package org.pojava.datetime;
  * manner. A Shift, by contrast, may use a 23, 24 or 25 hour day depending on Daylight Saving
  * Time, or a 28, 29, 30, or 31 day month. The amount of time described by a Shift is dependent
  * on a start time and a time zone, both external to the Shift object itself.
- * 
+ *
  * @author John Pile
- * 
+ *
  */
 public class Shift {
     /**
@@ -32,14 +32,14 @@ public class Shift {
     private int minute = 0;
     private int second = 0;
     private long nanosec = 0;
-    
+
     public Shift() {
         // default constructor
     }
 
     /**
      * Constructor parsing from a string.
-     * 
+     *
      * @param iso8601
      *            String representation of a duration.
      */
@@ -127,7 +127,7 @@ public class Shift {
             shiftMonths(accum * 12);
         }
     }
-    
+
     /**
      * Shift by whole number of months
      * @param accum
@@ -141,7 +141,7 @@ public class Shift {
             shiftDays(accum * 30);
         }
     }
-    
+
     /**
      * Shift by whole number of weeks
      * @param accum
@@ -159,7 +159,7 @@ public class Shift {
     }
 
     /**
-     * 
+     *
      * @param accum
      */
     public void shiftDays(double accum) {
@@ -185,7 +185,7 @@ public class Shift {
         	settleContents();
         }
     }
-    
+
     public void shiftMinutes(double accum) {
         if (accum >= 1.0 || accum <= -1.0) {
             minute += (long) accum;
@@ -197,7 +197,7 @@ public class Shift {
         	settleContents();
         }
     }
-    
+
     public void shiftSeconds(double accum) {
         if (accum >= 1.0 || accum <= -1.0) {
             second += (long) accum;

@@ -1,4 +1,4 @@
-package org.pojava.datetime;
+package org.pojava.datetime2;
 
 /*
  Copyright 2008-09 John Pile
@@ -22,15 +22,15 @@ import java.util.TimeZone;
 
 /**
  * This interface defines methods essential for global configuration of the DateTime object.
- * 
+ *
  * @author John Pile
- * 
+ *
  */
 public interface IDateTimeConfig {
 
     /**
      * British DD/MM/YYYY vs. Western MM/DD/YYYY
-     * 
+     *
      * @return True if parser interprets DD/MM/YYYY vs MM/DD/YYYY.
      */
     public boolean isDmyOrder();
@@ -38,34 +38,34 @@ public interface IDateTimeConfig {
     /**
      * Map of timezones and their offsets. You can customize the default map to add your own
      * timezones by referencing other timezones.
-     * 
+     *
      * @return TimeZones.
      */
     public Map<String, String> getTzMap();
 
     /**
      * Language support for interpreting names of months.
-     * 
+     *
      * @return Array of supported language refs.
      */
     public Object[] getSupportedLanguages();
 
     public String[] getMonthArray(String langAbbr);
-    
+
     public TimeZone getInputTimeZone();
-    
+
     public TimeZone getOutputTimeZone();
-    
+
     public Locale getLocale();
-    
+
     public String getFormat();
-    
+
     public String getBcPrefix();
-    
+
     public int getEpochDOW();
-    
+
     public TimeZone lookupTimeZone(String str);
-    
+
 	public boolean isUnspecifiedCenturyAlwaysInPast();
 
 }

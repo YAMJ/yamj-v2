@@ -1,4 +1,4 @@
-package org.pojava.datetime;
+package org.pojava.datetime2;
 
 import java.text.DateFormatSymbols;
 import java.util.HashMap;
@@ -30,29 +30,29 @@ import java.util.TimeZone;
  * nanoseconds, while three "S" characters represent milliseconds. The upper-case "G" still
  * represents "BC" or "AD", but I added a lower-cased "g" to the format to use "BCE" or "CE".
  * While "Z" still shows time zone offset as "-HHmm", "ZZ" will add a colon, as "-HH:mm".
- * 
+ *
  * Because it does not "compile" the format String, DateTimeFormat can provide a static method
  * with the same performance as a constructed object. It does allow a constructed object for
  * similar behavior to existing formatters, but there is no performance advantage in doing so.
  * In either case, this class is thread-safe, provided your application is not trying to
  * change the internals of Java's TimeZone object as you're using it.
- * 
+ *
  * It is important to understand that the default behavior is to format the output according to
  * the system's time zone. If you want to format the output according to the DateTime object's
  * internal time zone, then pass the time zone as a parameter. For example,
- * 
+ *
  * <pre>
  * DateTimeFormat(&quot;yyyy-MM-dd&quot;, dateTimeObj, dateTimeObj.getTimezone);
  * </pre>
- * 
+ *
  * For this version, you're kind of stuck with an English-only version of dates. I'll be
  * revising that at a future date.
- * 
+ *
  * @author John Pile
- * 
+ *
  */
 public class DateTimeFormat {
-	
+
     /**
      * CE is Common Era, Current Era, or Christian Era, a.k.a. AD.
      */
@@ -61,7 +61,7 @@ public class DateTimeFormat {
     private static Map <Locale, DateFormatSymbols> symbols=new HashMap<Locale,DateFormatSymbols>();
 
     /**
-     * 
+     *
      * @param template
      * 		Format specifier
      */
@@ -70,7 +70,7 @@ public class DateTimeFormat {
     }
 
     /**
-     * 
+     *
      * @param dt
      * 		Format the given DateTime value to a String
      * @return
@@ -81,7 +81,7 @@ public class DateTimeFormat {
     }
 
     /**
-     * 
+     *
      * @param millis
      * 		Format the given millis value to a String
      * @return
@@ -128,7 +128,7 @@ public class DateTimeFormat {
     public static String format(String template, DateTime dt, TimeZone tz) {
         return format(template, dt, tz, dt.config().getLocale());
     }
-    
+
     /**
      * @param template
      * 		Template under which the output is formatted
@@ -183,10 +183,10 @@ public class DateTimeFormat {
     }
 
     /**
-     * 
+     *
      * @param sb Whole output string
      * @param word Individual word being added
-     * @param tm 
+     * @param tm
      * @param dt DateTime
      * @param tz TimeZone
      * @param locale Locale
@@ -242,7 +242,7 @@ public class DateTimeFormat {
                 sb.append(tm.getDay());
             }
             break;
-        case 'E': // 
+        case 'E': //
             if (len > 3) {
                 sb.append(dfs.getWeekdays()[tm.getWeekday()]);
             } else {

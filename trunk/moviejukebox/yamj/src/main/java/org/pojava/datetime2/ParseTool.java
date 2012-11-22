@@ -1,4 +1,4 @@
-package org.pojava.datetime;
+package org.pojava.datetime2;
 
 /*
  Copyright 2008-09 John Pile
@@ -25,7 +25,7 @@ public class ParseTool {
     /**
      * Returns a zero-based offset if the left-most characters of str match all of the
      * characters of any member of list.
-     * 
+     *
      * @param list
      * @param str
      * @return -1 if no match, else indexed offset
@@ -42,7 +42,7 @@ public class ParseTool {
 
     /**
      * True if a string matches /^[-]?[0-9]+$/
-     * 
+     *
      * @param s
      * @return true if string is numeric
      */
@@ -57,7 +57,7 @@ public class ParseTool {
 
     /**
      * True if a string has only digits in it.
-     * 
+     *
      * @param s
      * @return true if string is composed of only digits.
      */
@@ -74,7 +74,7 @@ public class ParseTool {
 
     /**
      * True if a string starts with a digit.
-     * 
+     *
      * @param s
      * @return true if string starts with a digit.
      */
@@ -87,7 +87,7 @@ public class ParseTool {
 
     /**
      * Parse an integer from left-to-right until non-digit reached
-     * 
+     *
      * @param str
      * @return first integer greedily matched from a string
      */

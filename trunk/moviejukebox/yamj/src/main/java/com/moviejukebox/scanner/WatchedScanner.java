@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
-import org.pojava.datetime.DateTime;
+import org.pojava.datetime2.DateTime;
 
 public class WatchedScanner {
 
