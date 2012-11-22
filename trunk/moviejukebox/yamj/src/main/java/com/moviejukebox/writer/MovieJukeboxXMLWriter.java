@@ -39,6 +39,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.pojava.datetime.DateTime;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -1837,7 +1838,7 @@ public class MovieJukeboxXMLWriter {
 
         DOMHelper.appendChild(doc, eMovie, "mjbVersion", SystemTools.getVersion());
         DOMHelper.appendChild(doc, eMovie, "mjbRevision", SystemTools.getRevision());
-        DOMHelper.appendChild(doc, eMovie, "xmlGenerationDate", StringTools.convertDateToString(new Date(), StringTools.getDateFormatLongString()));
+        DOMHelper.appendChild(doc, eMovie, "xmlGenerationDate", DateTimeTools.convertDateToString(new Date(), DateTimeTools.getDateFormatLongString()));
         DOMHelper.appendChild(doc, eMovie, "baseFilenameBase", movie.getBaseFilename());
         DOMHelper.appendChild(doc, eMovie, BASE_FILENAME, movie.getBaseName());
         DOMHelper.appendChild(doc, eMovie, TITLE, movie.getTitle());
@@ -1973,7 +1974,8 @@ public class MovieJukeboxXMLWriter {
             DOMHelper.appendChild(doc, eMovie, TRAILER_LAST_SCAN, Movie.UNKNOWN);
         } else {
             try {
-                DOMHelper.appendChild(doc, eMovie, TRAILER_LAST_SCAN, StringTools.getDateFormat().format(movie.getTrailerLastScan()));
+                DateTime dt = new DateTime(movie.getTrailerLastScan());
+                DOMHelper.appendChild(doc, eMovie, TRAILER_LAST_SCAN, DateTimeTools.convertDateToString(dt));
             } catch (Exception error) {
                 DOMHelper.appendChild(doc, eMovie, TRAILER_LAST_SCAN, Movie.UNKNOWN);
             }
@@ -2004,7 +2006,7 @@ public class MovieJukeboxXMLWriter {
         } else {
             // Try to catch any date re-formatting errors
             try {
-                DOMHelper.appendChild(doc, eMovie, "fileDate", StringTools.getDateFormat().format(movie.getFileDate()));
+                DOMHelper.appendChild(doc, eMovie, "fileDate", DateTimeTools.convertDateToString(movie.getFileDate()));
             } catch (ArrayIndexOutOfBoundsException error) {
                 DOMHelper.appendChild(doc, eMovie, "fileDate", Movie.UNKNOWN);
             }

@@ -20,10 +20,10 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.MovieFilenameScanner;
+import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import static com.moviejukebox.tools.StringTools.isValidString;
-import static com.moviejukebox.tools.StringTools.processRuntime;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
@@ -65,7 +65,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             } else {
                 videoDTO.setMjbRevision(0);
             }
-            videoDTO.setMjbUpdateDate(StringTools.convertDateToString(new Date(), StringTools.getDateFormatLong()));
+            videoDTO.setMjbUpdateDate(DateTimeTools.convertDateToString(new Date(), DateTimeTools.getDateFormatLongString()));
             videoDTO.setBaseFilename(movie.getBaseFilename());
             videoDTO.setTitle(movie.getTitle());
             videoDTO.setTitleSort(movie.getTitleSort());
@@ -82,7 +82,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
             videoDTO.setOutline(movie.getOutline());
             videoDTO.setQuote(movie.getQuote());
             videoDTO.setTagline(movie.getTagline());
-            videoDTO.setRuntime(processRuntime(movie.getRuntime()));
+            videoDTO.setRuntime(DateTimeTools.processRuntime(movie.getRuntime()));
             videoDTO.setSeason(movie.getSeason());
             videoDTO.setSubtitles(movie.getSubtitles());
             videoDTO.setLibraryDescription(movie.getLibraryDescription());
@@ -211,7 +211,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
                     vfDTO.setVideoOutput(movie.getVideoOutput());
                     vfDTO.setAspect(movie.getAspectRatio());
                     vfDTO.setFps(movie.getFps());
-                    vfDTO.setFileDate((new DateTime(mf.getLastModified())).toString(StringTools.getDateFormatLongString()));
+                    vfDTO.setFileDate((new DateTime(mf.getLastModified())).toString(DateTimeTools.getDateFormatLongString()));
                     vfDTO.setFileSize(mf.getSize());
                     vfDTO.setFileLocation(mf.getFile().getAbsolutePath());
                     vfDTO.setFileUrl(mf.getFilename());

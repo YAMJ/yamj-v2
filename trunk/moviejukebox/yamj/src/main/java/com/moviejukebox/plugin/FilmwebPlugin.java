@@ -15,6 +15,7 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -250,7 +251,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
             if (Movie.UNKNOWN.equals(movie.getRuntime())) {
                 String runtime = HTMLTools.getTextAfterElem(xml, "czas trwania:");
-                movie.setRuntime(String.valueOf(StringTools.processRuntime(runtime)));
+                movie.setRuntime(String.valueOf(DateTimeTools.processRuntime(runtime)));
             }
 
             if (Movie.UNKNOWN.equals(movie.getCountry())) {

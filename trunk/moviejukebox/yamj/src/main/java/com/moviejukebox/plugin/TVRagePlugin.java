@@ -14,6 +14,7 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
@@ -158,7 +159,7 @@ public class TVRagePlugin extends ImdbPlugin {
             }
 
             if (isNotValidString(movie.getReleaseDate())) {
-                movie.setReleaseDate(convertDateToString(showInfo.getStartDate()));
+                movie.setReleaseDate(DateTimeTools.convertDateToString(showInfo.getStartDate()));
             }
 
             scanTVShowTitles(movie);

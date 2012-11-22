@@ -72,7 +72,8 @@ public class MovieNFOReader {
     /**
      * Try and read a NFO file for information
      *
-     * First try as XML format file, then check to see if it contains XML and text and split it to read each part
+     * First try as XML format file, then check to see if it contains XML and
+     * text and split it to read each part
      *
      * @param nfoFile
      * @param movie
@@ -164,7 +165,8 @@ public class MovieNFOReader {
     /**
      * Used to parse out the XML NFO data from a file.
      *
-     * This is generic for movie and TV show files as they are both nearly identical.
+     * This is generic for movie and TV show files as they are both nearly
+     * identical.
      *
      * @param nfoFile
      * @param movie
@@ -343,7 +345,7 @@ public class MovieNFOReader {
                 // Runtime
                 String runtime = DOMHelper.getValueFromElement(eCommon, "runtime");
                 if (StringUtils.isNotBlank(runtime)) {
-                	movie.setRuntime(runtime);
+                    movie.setRuntime(runtime);
                 }
 
                 // Certification
@@ -599,8 +601,7 @@ public class MovieNFOReader {
         tempValue = DOMHelper.getValueFromElement(eEpisodeDetails, "aired");
         if (isValidString(tempValue)) {
             try {
-                DateTime dateTime = new DateTime(tempValue);
-                epDetail.setFirstAired(dateTime.toString(StringTools.getDateFormatString()));
+                epDetail.setFirstAired(DateTimeTools.convertDateToString(new DateTime(tempValue)));
             } catch (Exception ignore) {
                 // Set the aired date if there is an exception
                 epDetail.setFirstAired(tempValue);
@@ -633,7 +634,7 @@ public class MovieNFOReader {
                     dateTime = new DateTime(dateString);
                 }
 
-                movie.setReleaseDate(dateTime.toString(StringTools.getDateFormatString()));
+                movie.setReleaseDate(DateTimeTools.convertDateToString(dateTime));
                 movie.setOverrideYear(Boolean.TRUE);
                 movie.setYear(dateTime.toString("yyyy"));
             } catch (Exception ex) {

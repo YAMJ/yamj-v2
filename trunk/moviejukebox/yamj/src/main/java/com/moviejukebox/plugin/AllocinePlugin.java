@@ -299,7 +299,7 @@ public class AllocinePlugin extends ImdbPlugin {
         if (isNotValidString(movie.getRuntime())) {
             int runtime = movieInfos.getRuntime();
             if (runtime > 0) {
-                movie.setRuntime(StringTools.formatDuration(runtime));
+                movie.setRuntime(DateTimeTools.formatDuration(runtime));
             }
         }
 
