@@ -1,4 +1,4 @@
-package org.pojava.datetime;
+package org.pojava.datetime2;
 
 /*
  Copyright 2010 John Pile
@@ -52,27 +52,27 @@ import java.util.regex.Pattern;
  * <p>
  * Some notes on the date interpretations:
  * </p>
- * 
+ *
  * <p>
  * All dates are interpreted in your local time zone, unless a time zone is specified in the String. Time zones are configurable
  * in the DateTimeConfig object, so you can determine for your own application whether CST, for example, would adjust to Central
  * Standard Time or Chinese Standard Time.
  * </p>
- * 
+ *
  * <p>
  * A two-digit year will assume up to 80 years in the past and 20 years in the future. It is prudent in many cases to follow this
  * with a check based on whether you know the date to represent a past or future date. If you know you parsed a birthday, you can
  * compare with today's date and subtract 100 yrs if needed (references to birthdays 20 years in the future are rare). Similarly,
  * if you're dealing with an annuity date, you can add 100 years if the parsed date occurred in the past.
  * </p>
- * 
+ *
  * <p>
  * If you're parsing European dates expecting DD/MM/YYYY instead of MM/DD/YYYY, then you can alter the global DateTimeConfig
  * setting by first calling, " <code>DateTimeConfig.globalEuropeanDateFormat();</code>".
  * </p>
- * 
+ *
  * @author John Pile
- * 
+ *
  */
 public class DateTime implements Serializable, Comparable<DateTime> {
 
@@ -110,7 +110,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * DateTime constructed from time in milliseconds since epoch.
-     * 
+     *
      * @param millis
      *            time
      */
@@ -121,7 +121,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * DateTime constructed from time in milliseconds since epoch.
-     * 
+     *
      * @param millis
      * @param config
      *            time
@@ -133,7 +133,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * DateTime constructed from time in milliseconds since epoch.
-     * 
+     *
      * @param millis
      *            Number of milliseconds since epoch
      * @param tz
@@ -148,7 +148,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * DateTime constructed from time in milliseconds since epoch.
-     * 
+     *
      * @param millis
      *            Number of milliseconds since epoch
      * @param tzId
@@ -163,7 +163,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Construct a DateTime from seconds and fractional seconds.
-     * 
+     *
      * @param seconds
      *            Number of seconds since epoch (typically 1970-01-01)
      * @param nanos
@@ -176,7 +176,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Construct a DateTime from seconds and fractional seconds.
-     * 
+     *
      * @param seconds
      *            Number of seconds since epoch (typically 1970-01-01)
      * @param nanos
@@ -193,7 +193,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Construct a DateTime from seconds and fractional seconds.
-     * 
+     *
      * @param seconds
      *            Number of seconds since epoch (typically 1970-01-01)
      * @param nanos
@@ -210,7 +210,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Construct a DateTime from seconds and fractional seconds.
-     * 
+     *
      * @param seconds
      *            Number of seconds since epoch (typically 1970-01-01)
      * @param nanos
@@ -225,7 +225,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * DateTime constructed from a string using global defaults.
-     * 
+     *
      * @param str
      */
     public DateTime(String str) {
@@ -236,7 +236,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * DateTime constructed from a string using global defaults.
-     * 
+     *
      * @param str
      *            String to parse
      * @param config
@@ -250,7 +250,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * DateTime constructed from a Timestamp includes nanos.
-     * 
+     *
      * @param ts
      *            Timestamp
      */
@@ -261,7 +261,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Derive a time zone descriptor from the right side of the date/time string.
-     * 
+     *
      * @param str
      *            String to parse date/time
      * @return
@@ -309,7 +309,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Compare two DateTime objects to determine ordering.
-     * 
+     *
      * @param other
      *            DateTime to compare to this
      * @return -1, 0, or 1 based on comparison to another DateTime.
@@ -323,7 +323,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Get a timestamp useful for JDBC
-     * 
+     *
      * @return This DateTime as a Timestamp object.
      */
     public Timestamp toTimestamp() {
@@ -336,7 +336,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Get Date/Time as a Java Date object.
-     * 
+     *
      * @return this DateTime truncated and converted to a java.util.Date object.
      */
     public Date toDate() {
@@ -345,7 +345,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Get the TimeZone
-     * 
+     *
      * @return this TimeZone.
      */
     public TimeZone timeZone() {
@@ -355,7 +355,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * By default, the toString method gives a sortable ISO 8601 date and time to nearest second in the same time zone as the
      * system. The default format can be redefined in DateTimeConfig.
-     * 
+     *
      * @return DateTime using the default config options
      */
     @Override
@@ -367,7 +367,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Return a String according to the provided format.
-     * 
+     *
      * @param format
      * @return A formatted string version of the current DateTime.
      */
@@ -377,7 +377,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Return a String according to the provided format.
-     * 
+     *
      * @param format
      * @param tz
      *            Show formatted date & time at the given TimeZone
@@ -389,7 +389,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Return a String according to the provided format.
-     * 
+     *
      * @param format
      * @param locale
      *            Show formatted date & time at the given TimeZone
@@ -401,7 +401,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Return a String according to the provided format.
-     * 
+     *
      * @param tz
      *            Show formatted date & time at the given TimeZone
      * @return A formatted string version of the current DateTime.
@@ -412,7 +412,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Return a String according to the provided format.
-     * 
+     *
      * @param format
      * @param tz
      *            Show formatted date & time at the given TimeZone
@@ -426,7 +426,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Add a fixed duration of time
-     * 
+     *
      * @param dur
      * @return Newly calculated DateTime object.
      */
@@ -437,7 +437,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Add a fixed duration in milliseconds. The Duration object provides fixed multipliers such as SECOND or HOUR.
-     * 
+     *
      * @param milliseconds
      * @return Newly calculated DateTime object.
      */
@@ -448,7 +448,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Add +/- a block of time to a date in it's OutputTimeZone.
-     * 
+     *
      * @param calUnit
      * @param qty
      * @return recalculated DateTime
@@ -460,7 +460,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Add increments of any calendar time unit from a nanosecond to a century. This is different from a Duration in that it will
      * make adjustments to preserve non-linear values such as daylight saving or day-of-month offsets.
-     * 
+     *
      * @param calUnit
      * @param qty
      *            May be positive or negative.
@@ -509,7 +509,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Shift this DateTime +/- a Shift offset.
-     * 
+     *
      * @param shift
      *            a pre-defined shift of various calendar time increments.
      * @return a new DateTime offset by the values specified.
@@ -546,7 +546,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Shift this DateTime +/- a Shift offset specified as an ISO 8601 string.
-     * 
+     *
      * @param iso8601
      *            A string of format "P[#Y][#M][#D][T[#H][#M][#S[.#]]" holding a list of offsets.
      * @return a new DateTime shifted by the specified amounts.
@@ -557,7 +557,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Return numeric day of week, usually Sun=1, Mon=2, ... , Sat=7;
-     * 
+     *
      * @return Numeric day of week, usually Sun=1, Mon=2, ... , Sat=7. See DateTimeConfig.
      */
     public int weekday() {
@@ -575,7 +575,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Parse a time reference that fits in a single word. Supports: YYYYMMDD, [+-]D, [0-9]+Y
-     * 
+     *
      * @param str
      *            Date/Time string to be parsed.
      * @param config
@@ -622,10 +622,10 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Interpret a DateTime from a String using global defaults.
-     * 
+     *
      * @param str
      *            Date/Time string to be parsed.
-     * 
+     *
      * @return New DateTime interpreted from string.
      */
     public static DateTime parse(String str) {
@@ -635,7 +635,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Interpret a DateTime from a String.
-     * 
+     *
      * @param str
      *            Date/Time string to be parsed.
      * @param config
@@ -927,7 +927,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Truncate DateTime down to its nearest time unit as a time. CalendarUnit.(WEEK|DAY|HOUR|MINUTE|SECOND|MILLISECOND)
-     * 
+     *
      * @param unit
      *            Unit of time to which new DateTime will be truncated.
      * @return A newly calculated DateTime.
@@ -1009,7 +1009,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Whole seconds offset from epoch.
-     * 
+     *
      * @return Whole seconds offset from epoch (1970-01-01 00:00:00).
      */
     public long getSeconds() {
@@ -1018,7 +1018,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Whole milliseconds offset from epoch.
-     * 
+     *
      * @return Milliseconds offset from epoch (1970-01-01 00:00:00).
      */
     public long toMillis() {
@@ -1027,7 +1027,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Positive nanosecond offset from Seconds.
-     * 
+     *
      * @return Fractional second in nanoseconds for the given time.
      */
     public int getNanos() {
@@ -1037,7 +1037,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * This compares a DateTime with another DateTime.
-     * 
+     *
      * @param dateTime
      *            DateTime to which this DateTime will be compared.
      * @return True if DateTime values represent the same point in time.
@@ -1057,7 +1057,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     @Override
     /*
      * * Reasonably unique hashCode, since we're providing an equals method.
-     * 
+     *
      * @return a hashCode varying by the most significant fields, millis and nanos.
      */
     public int hashCode() {
@@ -1066,7 +1066,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
 
     /**
      * Return the global configuration used by DateTime.
-     * 
+     *
      * @return the global DateTimeConfig object used by DateTime.
      */
     public IDateTimeConfig config() {

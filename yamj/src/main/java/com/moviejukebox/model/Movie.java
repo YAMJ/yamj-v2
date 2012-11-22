@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.pojava.datetime.DateTime;
+import org.pojava.datetime2.DateTime;
 
 /**
  * Movie bean
@@ -1439,10 +1439,19 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setReleaseDate(final String releaseDate) {
+        String parseDate = UNKNOWN;
 
-        String parseDate = DateTime.parse(releaseDate).toString("yyyy-MM-dd");
+        try {
+            parseDate = DateTime.parse(releaseDate).toString("yyyy-MM-dd");
+        } catch (IllegalArgumentException ex) {
+            logger.debug("Error processing release date '" + releaseDate + "' for " + baseName);
+            // if this just a year, then append "-01-01" to it and try again
+            if (StringUtils.isNumeric(releaseDate) && releaseDate.length() == 4) {
+                setReleaseDate(releaseDate + "-01-01");
+            }
+        }
 
-        this.releaseDate = validateString(releaseDate, this.releaseDate);
+        this.releaseDate = validateString(parseDate, this.releaseDate);
     }
 
     public void setResolution(String resolution) {

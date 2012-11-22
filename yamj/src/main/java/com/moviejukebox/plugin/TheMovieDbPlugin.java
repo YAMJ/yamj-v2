@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.pojava.datetime.DateTime;
+import org.pojava.datetime2.DateTime;
 
 /**
  * @author Stuart.Boston

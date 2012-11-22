@@ -626,12 +626,15 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (StringTools.isNotValidString(releaseInfoXML)) {
                 releaseInfoXML = webBrowser.request(getImdbUrl(movie, siteDef2) + "releaseinfo", siteDef2.getCharset());
             }
-            movie.setReleaseDate(HTMLTools.stripTags(HTMLTools.extractTag(releaseInfoXML, HTML_SLASH_GT + preferredCountry, "</a></td>")).trim());
+
+            String releaseDate = HTMLTools.stripTags(HTMLTools.extractTag(releaseInfoXML, HTML_SLASH_GT + preferredCountry, "</a></td>")).trim();
 
             // Check to see if there's a 4 digit year in the release date and terminate at that point
-            Matcher m = Pattern.compile(".*?\\d{4}+").matcher(movie.getReleaseDate());
+            Matcher m = Pattern.compile(".*?\\d{4}+").matcher(releaseDate);
             if (m.find()) {
                 movie.setReleaseDate(m.group(0));
+            } else {
+                movie.setReleaseDate(releaseDate);
             }
         }
 
@@ -1266,7 +1269,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * Retrieves the long plot description from IMDB if it exists, else "UNKNOWN"
+     * Retrieves the long plot description from IMDB if it exists, else
+     * "UNKNOWN"
      *
      * @param movie
      * @return long plot
@@ -1656,7 +1660,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     String itemTail = Movie.UNKNOWN;
                     beginIndex = item.indexOf("</a> (");
                     if (beginIndex > -1) {
-                    	itemTail = item.substring(beginIndex);
+                        itemTail = item.substring(beginIndex);
                         year = HTMLTools.extractTag(itemTail, "(", ")");
                     }
                     if ((skipVG && (name.endsWith("(VG)") || itemTail.endsWith("(VG)"))) || (skipTV && (name.endsWith("(TV)") || itemTail.endsWith("(TV)"))) || (skipV && (name.endsWith("(V)") || itemTail.endsWith("(V)")))) {

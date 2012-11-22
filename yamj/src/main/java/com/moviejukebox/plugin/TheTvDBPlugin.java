@@ -35,7 +35,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
-import org.pojava.datetime.DateTime;
+import org.pojava.datetime2.DateTime;
 
 /**
  * @author styles

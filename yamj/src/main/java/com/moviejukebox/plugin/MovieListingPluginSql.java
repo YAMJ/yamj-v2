@@ -29,7 +29,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.Map;
 import org.apache.log4j.Logger;
-import org.pojava.datetime.DateTime;
+import org.pojava.datetime2.DateTime;
 
 public class MovieListingPluginSql extends MovieListingPluginBase implements MovieListingPlugin {
 

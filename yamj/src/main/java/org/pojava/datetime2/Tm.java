@@ -1,4 +1,4 @@
-package org.pojava.datetime;
+package org.pojava.datetime2;
 
 /*
  Copyright 2008-10 John Pile
@@ -23,9 +23,9 @@ import java.util.TimeZone;
 /**
  * This class converts a DateTime into year, month, day, hour, minute, second, millisecond,
  * nanosecond. It is similar to the tm struct in C.
- * 
+ *
  * @author John Pile
- * 
+ *
  */
 public class Tm {
 
@@ -64,7 +64,7 @@ public class Tm {
 
     /**
      * Populate year, month, day, hour, min, sec, nano from a DateTime
-     * 
+     *
      * @param dt
      *            DateTime object
      */
@@ -83,7 +83,7 @@ public class Tm {
 
     /**
      * Populate year, month, day, hour, min, sec, nano
-     * 
+     *
      * @param millis
      *            Date/Time in UTC assuming the default time zone.
      */
@@ -108,7 +108,7 @@ public class Tm {
     /**
      * We'll direct the pre-GREG_EPOCH times here for now. Most folks don't use them, so
      * optimizing is not my highest priority.
-     * 
+     *
      * @param millis
      */
     private void initYeOlde(long millis) {
@@ -129,7 +129,7 @@ public class Tm {
 
     /**
      * Calculate date parts.
-     * 
+     *
      * @param dt
      *          DateTime
      * @param timeZone
@@ -187,12 +187,12 @@ public class Tm {
                 month -= 12;
             }
         }
-        
+
     }
 
     /**
      * Return numeric day of week, usually Sun=1, Mon=2, ... , Sat=7;
-     * 
+     *
      * @param millis
      * @param timeZone
      * @return Numeric day of week, usually Sun=1, Mon=2, ... , Sat=7. See DateTimeConfig.
@@ -213,7 +213,7 @@ public class Tm {
 
     /**
      * Determine "time" in milliseconds since epoch, UTC, as of the entered local time.
-     * 
+     *
      * @param year calendar year
      * @param month calendar month
      * @param day calendar day
@@ -226,7 +226,7 @@ public class Tm {
 
     /**
      * Determine "time" in milliseconds since epoch, UTC, as of the entered local time.
-     * 
+     *
      * @param year calendar year
      * @param month calendar month
      * @param day calendar day
@@ -244,7 +244,7 @@ public class Tm {
 
     /**
      * Determine "time" in milliseconds since epoch, UTC, as of the given time zone provided.
-     * 
+     *
      * @param year calendar year
      * @param month calendar month
      * @param day calendar day
@@ -316,7 +316,7 @@ public class Tm {
     /**
      * Returns month between 1 and 12. Differs from C version of tm, but you can always subtract
      * 1 if you want zero-based.
-     * 
+     *
      * @return Month as Jan=1, Feb=2, ..., Dec=12
      */
     public int getMonth() {
@@ -325,7 +325,7 @@ public class Tm {
 
     /**
      * Returns day of month between 1 and 31.
-     * 
+     *
      * @return Day of month.
      */
     public int getDay() {
@@ -334,7 +334,7 @@ public class Tm {
 
     /**
      * Returns hour of day between 0 and 23.
-     * 
+     *
      * @return Hour of day.
      */
     public int getHour() {
@@ -343,7 +343,7 @@ public class Tm {
 
     /**
      * Returns minute of hour between 0 and 59.
-     * 
+     *
      * @return Minute of hour.
      */
     public int getMinute() {
@@ -352,7 +352,7 @@ public class Tm {
 
     /**
      * Returns second of minute between 0 and 59.
-     * 
+     *
      * @return Second of minute.
      */
     public int getSecond() {
@@ -361,7 +361,7 @@ public class Tm {
 
     /**
      * Returns millisecond fraction of second between 0 and 999999.
-     * 
+     *
      * @return Millisecond fraction of second.
      */
     public int getMillisecond() {
@@ -370,7 +370,7 @@ public class Tm {
 
     /**
      * Returns nanosecond fraction of second between 0 and 999999999.
-     * 
+     *
      * @return Nanosecond fraction of second.
      */
     public int getNanosecond() {
@@ -379,7 +379,7 @@ public class Tm {
 
     /**
      * Returns weekday between 1 and 7
-     * 
+     *
      * @return Typically (although configurable) Sun=1 .. Sat=7
      */
     public int getWeekday() {

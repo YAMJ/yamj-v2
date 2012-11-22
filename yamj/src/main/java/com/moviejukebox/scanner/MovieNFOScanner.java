@@ -30,7 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
-import org.pojava.datetime.DateTimeConfig;
+import org.pojava.datetime2.DateTimeConfig;
 
 /**
  * NFO file parser.

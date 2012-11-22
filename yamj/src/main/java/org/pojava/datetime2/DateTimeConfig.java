@@ -1,4 +1,4 @@
-package org.pojava.datetime;
+package org.pojava.datetime2;
 
 /*
  Copyright 2008-09 John Pile

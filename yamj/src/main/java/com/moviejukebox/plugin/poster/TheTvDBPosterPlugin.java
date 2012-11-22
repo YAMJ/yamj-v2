@@ -23,7 +23,7 @@ import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Series;
 import java.util.List;
 import org.apache.log4j.Logger;
-import org.pojava.datetime.DateTime;
+import org.pojava.datetime2.DateTime;
 
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 

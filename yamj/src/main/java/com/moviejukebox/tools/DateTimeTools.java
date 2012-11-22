@@ -18,7 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.pojava.datetime.DateTime;
+import org.pojava.datetime2.DateTime;
 
 public class DateTimeTools {
 

@@ -61,7 +61,7 @@ import net.anidb.udp.mask.AnimeMask;
 import net.anidb.udp.mask.FileMask;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.pojava.datetime.DateTime;
+import org.pojava.datetime2.DateTime;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
