@@ -123,7 +123,7 @@ public class MediaInfoScanner {
                 scan(currentMovie, mainMovieIFO.getLocation());
                 // Issue 1176 - Prevent lost of NFO Data
                 if (currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
-                    currentMovie.setRuntime(StringTools.formatDuration(mainMovieIFO.getDuration()));
+                    currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()));
                 }
             }
         } else if (!isMediaInfoRar && (MI_DISK_IMAGES.contains(FilenameUtils.getExtension(currentMovie.getFile().getName())))) {
@@ -167,7 +167,7 @@ public class MediaInfoScanner {
                 scan(currentMovie, mainMovieIFO.getLocation());
                 // Issue 1176 - Prevent lost of NFO Data
                 if (currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
-                    currentMovie.setRuntime(StringTools.formatDuration(mainMovieIFO.getDuration()));
+                    currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()));
                 }
             }
 
@@ -385,7 +385,7 @@ public class MediaInfoScanner {
             int duration = Integer.parseInt(infoValue) / 1000;
             // Issue 1176 - Prevent lost of NFO Data
             if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                movie.setRuntime(StringTools.formatDuration(duration));
+                movie.setRuntime(DateTimeTools.formatDuration(duration));
             }
         }
         // get Info from first Video Stream
@@ -411,7 +411,7 @@ public class MediaInfoScanner {
                         duration = Integer.parseInt(infoValue) / 1000;
                         // Issue 1176 - Prevent lost of NFO Data
                         if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                            movie.setRuntime(StringTools.formatDuration(duration));
+                            movie.setRuntime(DateTimeTools.formatDuration(duration));
                         }
                     } catch (NumberFormatException nfe) {
                         logger.debug(nfe.getMessage());
@@ -448,7 +448,7 @@ public class MediaInfoScanner {
             	// use original frame rate
                 infoValue = infosMainVideo.get("Original frame rate");
             }
-            
+
             if (infoValue != null) {
                 int inxDiv = infoValue.indexOf(Movie.SPACE_SLASH_SPACE);
                 if (inxDiv > -1) {

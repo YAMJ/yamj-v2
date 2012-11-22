@@ -19,7 +19,6 @@ import com.moviejukebox.model.Movie;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
-import static com.moviejukebox.tools.StringTools.getDateFormatLong;
 import java.io.File;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -260,7 +259,7 @@ public class JukeboxProperties {
         }
 
         try {
-            DateFormat df = getDateFormatLong();
+            DateFormat df = DateTimeTools.getDateFormatLong();
             // Start with a blank document
             docMjbDetails = DOMHelper.createDocument();
             docMjbDetails.appendChild(docMjbDetails.createComment("This file was created on: " + df.format(System.currentTimeMillis())));
@@ -391,7 +390,7 @@ public class JukeboxProperties {
         if (StringTools.isValidString(tempFilename)) {
             try {
                 File tempFile = new File(tempFilename);
-                DateFormat df = getDateFormatLong();
+                DateFormat df = DateTimeTools.getDateFormatLong();
                 return df.format(tempFile.lastModified());
             } catch (Exception ignore) {
                 return Movie.UNKNOWN;

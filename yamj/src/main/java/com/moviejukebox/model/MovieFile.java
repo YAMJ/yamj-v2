@@ -14,6 +14,7 @@ package com.moviejukebox.model;
 
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.BooleanYesNoAdapter;
+import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
@@ -544,7 +545,7 @@ public class MovieFile implements Comparable<MovieFile> {
         if (watchedDate == 0) {
             return Movie.UNKNOWN;
         } else {
-            return new DateTime(watchedDate).toString(StringTools.getDateFormatLongString());
+            return new DateTime(watchedDate).toString(DateTimeTools.getDateFormatLongString());
         }
     }
 

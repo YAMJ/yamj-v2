@@ -17,7 +17,6 @@ import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
 import com.moviejukebox.tools.*;
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import javax.xml.bind.annotation.*;
@@ -231,7 +230,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     @XmlElement
     public String getMjbGenerationDateString() {
-        return getMjbGenerationDate().toString(StringTools.getDateFormatLongString());
+        return getMjbGenerationDate().toString(DateTimeTools.getDateFormatLongString());
     }
 
     public DateTime getMjbGenerationDate() {
@@ -1439,7 +1438,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void setReleaseDate(String releaseDate) {
+    public void setReleaseDate(final String releaseDate) {
+
+        String parseDate = DateTime.parse(releaseDate).toString("yyyy-MM-dd");
+
         this.releaseDate = validateString(releaseDate, this.releaseDate);
     }
 
@@ -1713,9 +1715,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      */
     public void setTrailerLastScan(String lastScan) {
         try {
-            SimpleDateFormat sdf = StringTools.getDateFormat();
-            setTrailerLastScan(sdf.parse(lastScan).getTime());
-        } catch (Exception error) {
+            setTrailerLastScan(DateTime.parse(lastScan).getSeconds());
+        } catch (IllegalArgumentException ex) {
+            logger.debug("Unable to parse TrailerLastScan date from '" + lastScan + "', Error: " + ex.getMessage());
             setTrailerLastScan(0);
         }
     }
@@ -2428,7 +2430,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (returnDate == 0) {
             return Movie.UNKNOWN;
         } else {
-            return new DateTime(returnDate).toString(StringTools.getDateFormatLongString());
+            return new DateTime(returnDate).toString(DateTimeTools.getDateFormatLongString());
         }
     }
 
