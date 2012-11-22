@@ -256,16 +256,16 @@ public class MovieNFOWriter {
 
         // Write out the sets
         if (movie.getSets() != null && movie.getSets().size()>0) {
-        	Element eSets = docNFO.createElement("sets");
-        	for (Entry<String,Integer> entry : movie.getSets().entrySet()) {
-        		Integer order = entry.getValue();
-        		if (order == null) {
-        			DOMHelper.appendChild(docNFO, eSets, "set", entry.getKey());
-        		} else  {
-        			DOMHelper.appendChild(docNFO, eSets, "set", entry.getKey(), "order", order.toString());
-        		}
-        	}
-        	eRoot.appendChild(eSets);
+            Element eSets = docNFO.createElement("sets");
+            for (Entry<String,Integer> entry : movie.getSets().entrySet()) {
+        	    Integer order = entry.getValue();
+                if (order == null) {
+                    DOMHelper.appendChild(docNFO, eSets, "set", entry.getKey());
+                } else  {
+                    DOMHelper.appendChild(docNFO, eSets, "set", entry.getKey(), "order", order.toString());
+                }
+            }
+            eRoot.appendChild(eSets);
         }
         
         // Write out the episode details for any tv show files
