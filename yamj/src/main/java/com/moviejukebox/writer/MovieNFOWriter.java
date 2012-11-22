@@ -15,6 +15,7 @@ package com.moviejukebox.writer;
 import com.moviejukebox.model.*;
 import com.moviejukebox.tools.*;
 import java.io.File;
+import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -253,6 +254,20 @@ public class MovieNFOWriter {
             }
         }   // End of detailed NFO
 
+        // Write out the sets
+        if (movie.getSets() != null && movie.getSets().size()>0) {
+        	Element eSets = docNFO.createElement("sets");
+        	for (Entry<String,Integer> entry : movie.getSets().entrySet()) {
+        		Integer order = entry.getValue();
+        		if (order == null) {
+        			DOMHelper.appendChild(docNFO, eSets, "set", entry.getKey());
+        		} else  {
+        			DOMHelper.appendChild(docNFO, eSets, "set", entry.getKey(), "order", order.toString());
+        		}
+        	}
+        	eRoot.appendChild(eSets);
+        }
+        
         // Write out the episode details for any tv show files
         if (movie.isTVShow()) {
             for (MovieFile episodeFile : movie.getFiles()) {
