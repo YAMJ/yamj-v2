@@ -21,17 +21,59 @@ import org.apache.commons.lang3.StringUtils;
  */
 public enum DirtyFlag {
 
+    /**
+     * The NFO information has changed
+     */
     NFO,
+    /**
+     * The Fanart has changed and may need to be updated/redownloaded
+     */
     FANART,
+    /**
+     * The Poster has changed and may need to be updated/redownloaded
+     */
     POSTER,
+    /**
+     * The Banner has changed and may need to be updated/redownloaded
+     */
     BANNER,
+    /**
+     * The watched value for the video has changed and the information needs to
+     * be updated
+     */
     WATCHED,
+    /**
+     * General information about the video has changed that is not specific to
+     * one of the other dirty flags
+     */
     INFO,
+    /**
+     * The video has been marked for a recheck.
+     *
+     * The video should not necessarily need the information to be downloaded
+     * from scratch and should instead be considered for update especially for
+     * any missing (UNKNOWN) items
+     */
     RECHECK,
+    /**
+     * The ClearArt has changed and may need to be updated/redownloaded
+     */
     CLEARART,
+    /**
+     * The ClearLogo has changed and may need to be updated/redownloaded
+     */
     CLEARLOGO,
+    /**
+     * The TVThumb has changed and may need to be updated/redownloaded
+     */
     TVTHUMB,
+    /**
+     * The SeasonThumb has changed and may need to be updated/redownloaded
+     */
     SEASONTHUMB,
+    /**
+     * The MovieDisc has changed and may need to be updated/redownloaded
+     */
     MOVIEDISC;
 
     /**

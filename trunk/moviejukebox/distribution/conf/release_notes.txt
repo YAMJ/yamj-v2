@@ -20,6 +20,7 @@ MovieJukebox 2.8-SNAPSHOT
  - Enhancement  #2507 Option to disable OpenSubtitles plugin
  - Fixed defect #2509 Use correct skin properties for image generation
  - Fixed defect #2510 Recognise IMDB TT number in filename
+ - Fixed defect #2516 Moving movie from one library to another doesn't update jukebox
  - Fixed defect #2520 Layout change on comingsoon.it
  - Fixed defect #2524 Blank runtime in NFO overwrite mediainfo value
 

@@ -1724,7 +1724,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      */
     public void setTrailerLastScan(String lastScan) {
         try {
-            setTrailerLastScan(DateTime.parse(lastScan).getSeconds());
+            if (StringTools.isValidString(lastScan)) {
+                setTrailerLastScan(DateTime.parse(lastScan).getSeconds());
+            } else {
+                setTrailerLastScan(0);
+            }
         } catch (IllegalArgumentException ex) {
             logger.debug("Unable to parse TrailerLastScan date from '" + lastScan + "', Error: " + ex.getMessage());
             setTrailerLastScan(0);
