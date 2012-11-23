@@ -55,6 +55,8 @@ import org.xml.sax.SAXException;
 public class MovieJukeboxXMLWriter {
 
     private static final Logger logger = Logger.getLogger(MovieJukeboxXMLWriter.class);
+    private static final String LOG_MESSAGE = "XMLWriter: ";
+    // Literals
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";
     private static final String evFileSuffix = "_small";   // String to append to the eversion categories file if needed
@@ -205,27 +207,25 @@ public class MovieJukeboxXMLWriter {
      * Parse a single movie detail XML file
      */
     public boolean parseMovieXML(File xmlFile, Movie movie) {
-
         boolean forceDirtyFlag = Boolean.FALSE; // force dirty flag for example when extras have been deleted
-
         Document xmlDoc;
 
         try {
             xmlDoc = DOMHelper.getDocFromFile(xmlFile);
         } catch (MalformedURLException error) {
-            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
+            logger.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         } catch (IOException error) {
-            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
+            logger.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         } catch (ParserConfigurationException error) {
-            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
+            logger.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         } catch (SAXException error) {
-            logger.error("Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
+            logger.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         }
@@ -514,8 +514,15 @@ public class MovieJukeboxXMLWriter {
                 movie.setNext(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "next")));
                 movie.setLast(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "last")));
 
-                // Get the library description
-                movie.setLibraryDescription(DOMHelper.getValueFromElement(eMovie, "libraryDescription"));
+                // Get the library description, if it's not been set elsewhere (e.g. scanner)
+                String tempLibraryDescription = DOMHelper.getValueFromElement(eMovie, "libraryDescription");
+                if (StringTools.isNotValidString(movie.getLibraryDescription())) {
+                    movie.setLibraryDescription(tempLibraryDescription);
+                } else if (!movie.getLibraryDescription().equals(tempLibraryDescription)) {
+                    // The current description is different to the one in the XML
+                    logger.debug(LOG_MESSAGE + "Different library description! Setting dirty INFO");
+                    forceDirtyFlag = Boolean.TRUE;
+                }
 
                 // Get prebuf
                 movie.setPrebuf(Long.parseLong(DOMHelper.getValueFromElement(eMovie, "prebuf")));
@@ -675,15 +682,14 @@ public class MovieJukeboxXMLWriter {
                                 if (mfFile.exists() || MovieJukebox.isJukeboxPreserve()) {
                                     // Save the file to the MovieFile
                                     movieFile.setFile(mfFile);
-
                                 } else {
                                     // We can't find this file anymore, so skip it.
-                                    logger.debug("Missing video file in the XML file (" + mfFile.getName() + "), it may have been moved or no longer exist.");
+                                    logger.debug(LOG_MESSAGE + "Missing video file in the XML file (" + mfFile.getName() + "), it may have been moved or no longer exist.");
                                     continue;
                                 }
                             } catch (Exception ignore) {
                                 // If there is an error creating the file then don't save anything
-                                logger.debug("XMLWriter: Failed parsing file " + xmlFile.getName());
+                                logger.debug(LOG_MESSAGE + "Failed parsing file " + xmlFile.getName());
                                 continue;
                             }
 
@@ -692,8 +698,6 @@ public class MovieJukeboxXMLWriter {
                             if (DOMHelper.getValueFromElement(eFile, "fileArchiveName") != null) {
                                 movieFile.setArchiveName(DOMHelper.getValueFromElement(eFile, "fileArchiveName"));
                             }
-
-
 
                             // We need to get the part from the fileTitle
                             NodeList nlFileParts = eFile.getElementsByTagName("fileTitle");
@@ -896,7 +900,7 @@ public class MovieJukeboxXMLWriter {
                 forceDirtyFlag = true;
             }
         } catch (Exception error) {
-            logger.error("Failed parsing " + xmlSetFile.getAbsolutePath() + ": please fix it or remove it.");
+            logger.error(LOG_MESSAGE + "Failed parsing " + xmlSetFile.getAbsolutePath() + ": please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
             return false;
         }
@@ -1052,7 +1056,7 @@ public class MovieJukeboxXMLWriter {
             }
             person.setFilename();
         } catch (Exception error) {
-            logger.error("Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
+            logger.error(LOG_MESSAGE + "Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
             return false;
         }
@@ -1434,7 +1438,7 @@ public class MovieJukeboxXMLWriter {
                         // Don't skip the indexing for sets as this overwrites the set files
                         if (Library.INDEX_SET.equalsIgnoreCase(categoryName) && setReindex) {
                             if (logger.isTraceEnabled()) {
-                                logger.trace("Forcing generation of set index.");
+                                logger.trace(LOG_MESSAGE + "Forcing generation of set index.");
                             }
                             skipIndex = false;
                         }
@@ -1525,7 +1529,7 @@ public class MovieJukeboxXMLWriter {
         try {
             xmlDoc = DOMHelper.createDocument();
         } catch (ParserConfigurationException error) {
-            logger.error("Failed writing index page: " + xmlFile.getName());
+            logger.error(LOG_MESSAGE + "Failed writing index page: " + xmlFile.getName());
             logger.error(SystemTools.getStackTrace(error));
             return;
         }
@@ -2206,7 +2210,7 @@ public class MovieJukeboxXMLWriter {
                     eFileItem.setAttribute("size", Long.toString(mf.getSize()));
                 }
             } catch (Exception error) {
-                logger.debug("XML Writer: File length error for file " + mf.getFilename());
+                logger.debug(LOG_MESSAGE + "File length error for file " + mf.getFilename());
                 eFileItem.setAttribute("size", "0");
             }
 
@@ -2231,7 +2235,7 @@ public class MovieJukeboxXMLWriter {
             // If attribute was set, save it back out.
             String archiveName = mf.getArchiveName();
             if (StringTools.isValidString(archiveName)) {
-                logger.debug("MovieJukeboxXMLWriter: getArchivename is '" + archiveName + "' for " + mf.getFilename() + " length " + archiveName.length());
+                logger.debug(LOG_MESSAGE + "getArchivename is '" + archiveName + "' for " + mf.getFilename() + " length " + archiveName.length());
             }
 
             if (StringTools.isValidString(archiveName)) {
@@ -2348,8 +2352,10 @@ public class MovieJukeboxXMLWriter {
     }
 
     /**
-     * Persist a movie into an XML file. Doesn't overwrite an already existing
-     * XML file for the specified movie unless, movie's data has changed or
+     * Persist a movie into an XML file.
+     *
+     * Doesn't overwrite an already existing XML file for the specified movie
+     * unless, movie's data has changed (INFO, RECHECK, WATCHED) or
      * forceXMLOverwrite is true.
      */
     public void writeMovieXML(Jukebox jukebox, Movie movie, Library library) {
@@ -2359,12 +2365,13 @@ public class MovieJukeboxXMLWriter {
 
         FileTools.addJukeboxFile(finalXmlFile.getName());
 
+        logger.info(LOG_MESSAGE + movie.getBaseName() + " = " + movie.showDirty());
         if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.RECHECK) || movie.isDirty(DirtyFlag.WATCHED)) {
             Document xmlDoc;
             try {
                 xmlDoc = DOMHelper.createDocument();
             } catch (ParserConfigurationException error) {
-                logger.error("Failed writing " + tempXmlFile.getAbsolutePath());
+                logger.error(LOG_MESSAGE + "Failed writing " + tempXmlFile.getAbsolutePath());
                 logger.error(SystemTools.getStackTrace(error));
                 return;
             }
@@ -2481,7 +2488,7 @@ public class MovieJukeboxXMLWriter {
                 personDoc.appendChild(eDetails);
                 DOMHelper.writeDocumentToFile(personDoc, tempXmlFile);
             } catch (ParserConfigurationException error) {
-                logger.error("Failed writing person XML for " + tempXmlFile.getName());
+                logger.error(LOG_MESSAGE + "Failed writing person XML for " + tempXmlFile.getName());
                 logger.error(SystemTools.getStackTrace(error));
             }
         }

@@ -672,18 +672,22 @@ public class MovieJukebox {
          * ******************************************************************************
          * @author Gabriel Corneanu
          *
-         * The tools used for parallel processing are NOT thread safe (some operations are, but not all) therefore all
-         * are added to a container which is instantiated one per thread
+         * The tools used for parallel processing are NOT thread safe (some
+         * operations are, but not all) therefore all are added to a container
+         * which is instantiated one per thread
          *
-         * - xmlWriter looks thread safe - htmlWriter was not thread safe, - getTransformer is fixed (simple workaround)
-         * - MovieImagePlugin : not clear, made thread specific for safety - MediaInfoScanner : not sure, made thread
-         * specific
+         * - xmlWriter looks thread safe - htmlWriter was not thread safe, -
+         * getTransformer is fixed (simple workaround) - MovieImagePlugin : not
+         * clear, made thread specific for safety - MediaInfoScanner : not sure,
+         * made thread specific
          *
-         * Also important: The library itself is not thread safe for modifications (API says so) it could be adjusted
-         * with concurrent versions, but it needs many changes it seems that it is safe for subsequent reads
-         * (iterators), so leave for now...
+         * Also important: The library itself is not thread safe for
+         * modifications (API says so) it could be adjusted with concurrent
+         * versions, but it needs many changes it seems that it is safe for
+         * subsequent reads (iterators), so leave for now...
          *
-         * - DatabasePluginController is also fixed to be thread safe (plugins map for each thread)
+         * - DatabasePluginController is also fixed to be thread safe (plugins
+         * map for each thread)
          *
          */
         class ToolSet {
@@ -906,6 +910,7 @@ public class MovieJukebox {
 
                         // First get movie data (title, year, director, genre, etc...)
                         library.toggleDirty(updateMovieData(xmlWriter, tools.miScanner, tools.backgroundPlugin, jukebox, movie, library));
+
                         if (!movie.getMovieType().equals(Movie.REMOVE)) {
                             // Check for watched and unwatched files
                             if (enableWatchScanner) { // Issue 1938
@@ -1645,7 +1650,8 @@ public class MovieJukebox {
     /**
      * Clean up the jukebox folder of any extra files that are not needed.
      *
-     * If the jukeboxClean parameter is not set, just report on the files that would be cleaned.
+     * If the jukeboxClean parameter is not set, just report on the files that
+     * would be cleaned.
      */
     private void cleanJukeboxFolder() {
         boolean cleanReport = PropertiesUtil.getBooleanProperty("mjb.jukeboxCleanReport", FALSE);
@@ -1716,12 +1722,15 @@ public class MovieJukebox {
     }
 
     /**
-     * Generates a movie XML file which contains data in the <tt>Movie</tt> bean.
+     * Generates a movie XML file which contains data in the <tt>Movie</tt>
+     * bean.
      *
-     * When an XML file exists for the specified movie file, it is loaded into the specified <tt>Movie</tt> object.
+     * When an XML file exists for the specified movie file, it is loaded into
+     * the specified <tt>Movie</tt> object.
      *
-     * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt>
-     * object. Once scanned, the <tt>movie</tt> object is persisted.
+     * When no XML file exist, scanners are called in turn, in order to add
+     * information to the specified <tt>movie</tt> object. Once scanned, the
+     * <tt>movie</tt> object is persisted.
      */
     public boolean updateMovieData(MovieJukeboxXMLWriter xmlWriter, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", FALSE);
@@ -1755,13 +1764,14 @@ public class MovieJukebox {
             }
         }
 
-        Collection<MovieFile> scannedFiles = null;
+        Collection<MovieFile> scannedFiles = Collections.EMPTY_LIST;
         // Only parse the XML file if we mean to update the XML file.
         if (xmlFile.exists() && !forceXMLOverwrite) {
             // Parse the XML file
             logger.debug("XML file found for " + movie.getBaseName());
             // Copy scanned files BEFORE parsing the existing XML
             scannedFiles = new ArrayList<MovieFile>(movie.getMovieFiles());
+
             xmlWriter.parseMovieXML(xmlFile, movie);
 
             // Issue 1886: HTML indexes recreated every time
@@ -1811,63 +1821,7 @@ public class MovieJukebox {
 
         // ForceBannerOverwrite is set here to force the re-load of TV Show data including the banners
         if (xmlFile.exists() && !forceXMLOverwrite && !(movie.isTVShow() && forceBannerOverwrite)) {
-            // *** START of routine to check if the file has changed location
-            // Set up some arrays to store the directory scanner files and the XML files
-            Collection<MovieFile> xmlFiles = new ArrayList<MovieFile>(movie.getMovieFiles());
-
-            // Now compare the before and after files
-            Iterator<MovieFile> scanLoop = scannedFiles.iterator();
-            MovieFile sMF;
-            String scannedFilename;
-            String scannedFileLocation;
-
-            for (MovieFile xmlLoop : xmlFiles) {
-                if (xmlLoop.getFile() == null && !jukeboxPreserve) {
-                    // The file from the scanned XML file doesn't exist so delete it from the XML file
-                    movie.removeMovieFile(xmlLoop);
-                    continue;
-                }
-
-                if (scanLoop.hasNext()) {
-                    sMF = scanLoop.next();
-                    scannedFilename = sMF.getFilename();
-                    scannedFileLocation = sMF.getFile().getAbsolutePath();
-                } else {
-                    break; // No more files, so quit
-                }
-
-                // VIDEO_TS.IFO check added for Issue 1851
-                if (((!scannedFilename.equalsIgnoreCase(xmlLoop.getFilename()))
-                        && (!(scannedFilename + "/VIDEO_TS.IFO").equalsIgnoreCase(xmlLoop.getFilename())))
-                        && ((sMF.getArchiveName() != null) && !(scannedFilename + "/" + sMF.getArchiveName()).equalsIgnoreCase(xmlLoop.getFilename()))
-                        || (!scannedFileLocation.equalsIgnoreCase(xmlLoop.getFile().getAbsolutePath()))) {
-                    logger.debug("Detected change of file location for >" + xmlLoop.getFilename() + "< to: >" + scannedFilename + "<");
-                    xmlLoop.setFilename(scannedFilename);
-                    xmlLoop.setNewFile(true);
-                    movie.addMovieFile(xmlLoop);
-
-                    // if we have more than one path, we'll need to change the library details in the movie
-                    if (mediaLibraryPaths.size() > 1) {
-                        for (MediaLibraryPath mlp : mediaLibraryPaths) {
-                            // Check to see if the paths match and then update the description and quit
-                            if (scannedFilename.startsWith(mlp.getPlayerRootPath())) {
-                                boolean flag = Boolean.TRUE;
-                                for (String exclude : mlp.getExcludes()) {
-                                    flag &= (scannedFilename.toUpperCase().indexOf(exclude.toUpperCase()) == -1);
-                                }
-
-                                if (flag) {
-                                    logger.debug("Changing libray description for video '" + movie.getTitle() + "' from '" + movie.getLibraryDescription() + "' to '" + mlp.getDescription() + "'");
-                                    library.addDirtyLibrary(movie.getLibraryDescription());
-                                    movie.setLibraryDescription(mlp.getDescription());
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            // *** END of file location change
+            FileLocationChange.process(movie, library, jukeboxPreserve, scannedFiles, mediaLibraryPaths);
 
             // update new episodes titles if new MovieFiles were added
             DatabasePluginController.scanTVShowTitles(movie);
@@ -1996,9 +1950,11 @@ public class MovieJukebox {
     }
 
     /**
-     * Update the movie poster for the specified movie. When an existing thumbnail is found for the movie, it is not
-     * overwritten, unless the mjb.forceThumbnailOverwrite is set to true in the property file. When the specified movie
-     * does not contain a valid URL for the poster, a dummy image is used instead.
+     * Update the movie poster for the specified movie. When an existing
+     * thumbnail is found for the movie, it is not overwritten, unless the
+     * mjb.forceThumbnailOverwrite is set to true in the property file. When the
+     * specified movie does not contain a valid URL for the poster, a dummy
+     * image is used instead.
      *
      * @param tempJukeboxDetailsRoot
      */
@@ -2036,10 +1992,11 @@ public class MovieJukebox {
     /**
      * Update the banner for the specified TV Show.
      *
-     * When an existing banner is found for the movie, it is not overwritten, unless the mjb.forcePosterOverwrite is set
-     * to true in the property file.
+     * When an existing banner is found for the movie, it is not overwritten,
+     * unless the mjb.forcePosterOverwrite is set to true in the property file.
      *
-     * When the specified movie does not contain a valid URL for the banner, a dummy image is used instead.
+     * When the specified movie does not contain a valid URL for the banner, a
+     * dummy image is used instead.
      *
      */
     public void updateTvBanner(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
