@@ -13,6 +13,7 @@
 package com.moviejukebox.writer;
 
 import com.moviejukebox.model.*;
+import com.moviejukebox.reader.MovieNFOReader;
 import com.moviejukebox.tools.*;
 import java.io.File;
 import java.util.Map.Entry;
@@ -267,7 +268,7 @@ public class MovieNFOWriter {
             }
             eRoot.appendChild(eSets);
         }
-        
+
         // Write out the episode details for any tv show files
         if (movie.isTVShow()) {
             for (MovieFile episodeFile : movie.getFiles()) {

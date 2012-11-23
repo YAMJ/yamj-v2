@@ -15,9 +15,9 @@ package com.moviejukebox.scanner;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
+import com.moviejukebox.reader.MovieJukeboxXMLReader;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.writer.MovieJukeboxXMLWriter;
 import java.io.File;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
@@ -46,7 +46,7 @@ public class OutputDirectoryScanner {
         if (null != scanDirFile) {
 
             if (scanDirFile.isDirectory()) {
-                MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
+                MovieJukeboxXMLReader xmlReader = new MovieJukeboxXMLReader();
 
                 for (File file : scanDirFile.listFiles()) {
 
@@ -84,7 +84,7 @@ public class OutputDirectoryScanner {
                         if (library.containsKey(key)) {
                             logger.debug(logMessage + "  Video already in library: " + key);
                         } else {
-                            if (xmlWriter.parseMovieXML(file, movie) && StringTools.isValidString(movie.getBaseName())) {
+                            if (xmlReader.parseMovieXML(file, movie) && StringTools.isValidString(movie.getBaseName())) {
                                 logger.debug(logMessage + "  Parsed movie: " + movie.getTitle());
 
                                 if (!library.containsKey(Library.getMovieKey(movie))) {

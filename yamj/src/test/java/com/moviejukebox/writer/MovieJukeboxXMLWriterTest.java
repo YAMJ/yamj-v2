@@ -5,14 +5,15 @@
 package com.moviejukebox.writer;
 
 import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.reader.MovieJukeboxXMLReader;
 import java.io.File;
 import org.apache.log4j.BasicConfigurator;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  *
@@ -43,8 +44,8 @@ public class MovieJukeboxXMLWriterTest {
         movie.addExtraFile(ef2);
         // END of extra files
 
-        MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
-        boolean result = xmlWriter.parseMovieXML(xmlFile, movie);
+        MovieJukeboxXMLReader xmlReader = new MovieJukeboxXMLReader();
+        boolean result = xmlReader.parseMovieXML(xmlFile, movie);
 
         // Check that the scan was sucessful
         assertTrue(result);
@@ -77,7 +78,7 @@ public class MovieJukeboxXMLWriterTest {
         System.out.println("parsePersonXML");
         File xmlFile = null;
         Person person = null;
-        MovieJukeboxXMLWriter instance = new MovieJukeboxXMLWriter();
+        MovieJukeboxXMLReader instance = new MovieJukeboxXMLReader();
         boolean expResult = false;
         boolean result = instance.parsePersonXML(xmlFile, person);
         assertEquals(expResult, result);
@@ -91,13 +92,13 @@ public class MovieJukeboxXMLWriterTest {
         File xmlFile = getTestFile("ExampleMultiPartFile.xml");
         Movie movie = new Movie();
 
-        MovieJukeboxXMLWriter xmlWriter = new MovieJukeboxXMLWriter();
-        boolean result = xmlWriter.parseMovieXML(xmlFile, movie);
+        MovieJukeboxXMLReader xmlReader = new MovieJukeboxXMLReader();
+        boolean result = xmlReader.parseMovieXML(xmlFile, movie);
 
         // Check that the scan was sucessful
         assertTrue(result);
         assertEquals("Incorrect number of files", 2, movie.getFiles().size());
-        
+
         for (MovieFile mf : movie.getFiles()) {
             for (int part = mf.getFirstPart(); part <= mf.getLastPart(); part++) {
                 assertTrue("Missing part title", !Movie.UNKNOWN.equalsIgnoreCase(mf.getTitle(part)));

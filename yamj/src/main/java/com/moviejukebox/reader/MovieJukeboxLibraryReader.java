@@ -10,7 +10,7 @@
  *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
  */
-package com.moviejukebox.writer;
+package com.moviejukebox.reader;
 
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.tools.StringTools;
