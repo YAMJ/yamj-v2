@@ -10,7 +10,7 @@
  *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
  */
-package com.moviejukebox.writer;
+package com.moviejukebox.reader;
 
 import com.moviejukebox.model.Codec;
 import com.moviejukebox.model.CodecSource;
@@ -661,12 +661,7 @@ public class MovieNFOReader {
             nElements = nlElements.item(looper);
             if (nElements.getNodeType() == Node.ELEMENT_NODE) {
                 Element eGenre = (Element) nElements;
-                NodeList nlNames = eGenre.getElementsByTagName("name");
-                if ((nlNames != null) && (nlNames.getLength() > 0)) {
-                	parseGenres(nlNames, movie);
-                } else {
-                	movie.addGenres(StringTools.splitList(eGenre.getTextContent(), SPLIT_GENRE));
-                }
+                movie.addGenres(StringTools.splitList(eGenre.getTextContent(), SPLIT_GENRE));
             }
         }
     }

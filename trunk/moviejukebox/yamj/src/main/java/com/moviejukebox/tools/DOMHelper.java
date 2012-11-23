@@ -12,8 +12,9 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.writer.MovieNFOReader;
+import com.moviejukebox.reader.MovieNFOReader;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
