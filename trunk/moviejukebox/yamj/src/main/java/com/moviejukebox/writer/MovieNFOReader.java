@@ -661,7 +661,12 @@ public class MovieNFOReader {
             nElements = nlElements.item(looper);
             if (nElements.getNodeType() == Node.ELEMENT_NODE) {
                 Element eGenre = (Element) nElements;
-                movie.addGenres(StringTools.splitList(eGenre.getTextContent(), SPLIT_GENRE));
+                NodeList nlNames = eGenre.getElementsByTagName("name");
+                if ((nlNames != null) && (nlNames.getLength() > 0)) {
+                	parseGenres(nlNames, movie);
+                } else {
+                	movie.addGenres(StringTools.splitList(eGenre.getTextContent(), SPLIT_GENRE));
+                }
             }
         }
     }

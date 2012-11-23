@@ -5,6 +5,7 @@
 MovieJukebox 2.8-SNAPSHOT
 -------------------------
  - Fixed defect #2412 Added imdb.plot description to skin configuration wiki page
+ - Fixed defect #2449 Handle NFO files with multiline genre elements
  - Fixed defect #2469 People filmography scan now detects VideoGame, TV and Video
  - Fixed defect #2483 Error parsing dates from NFO files
  - Fixed defect #2489 Include sets in generated NFO files
