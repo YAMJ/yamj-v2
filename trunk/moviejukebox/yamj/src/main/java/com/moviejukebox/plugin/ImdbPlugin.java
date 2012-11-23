@@ -419,6 +419,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (isNotValidString(certification)) {
+                certification = getPreferredValue(HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCertification() + HTML_H5_END + "<div class=\"info-content\">", HTML_DIV,
+                        null, "|", false));
+            }
+            
+            if (isNotValidString(certification)) {
                 certification = Movie.NOTRATED;
             }
 
