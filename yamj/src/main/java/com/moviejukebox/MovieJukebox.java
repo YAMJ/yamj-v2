@@ -1817,6 +1817,16 @@ public class MovieJukebox {
         if (xmlFile.exists() && !forceXMLOverwrite && !(movie.isTVShow() && forceBannerOverwrite)) {
             FileLocationChange.process(movie, library, jukeboxPreserve, scannedFiles, mediaLibraryPaths);
 
+            // update mediainfo values for new files
+            if (movie.hasNewMovieFiles()) {
+            	if (movie.isTVShow()) {
+                	// TODO can TV show be handled in the same way?
+            	} else {
+            		logger.debug("Movie has new files; recheck media info");
+            		miScanner.scan(movie);
+            	}
+            }
+            
             // update new episodes titles if new MovieFiles were added
             DatabasePluginController.scanTVShowTitles(movie);
 
