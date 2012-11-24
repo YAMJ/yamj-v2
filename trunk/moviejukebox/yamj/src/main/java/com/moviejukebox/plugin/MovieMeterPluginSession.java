@@ -44,7 +44,7 @@ public final class MovieMeterPluginSession {
     private static String SESSION_FILENAME = "./temp/moviemeter.session";
     private static String MOVIEMETER_API_KEY = PropertiesUtil.getProperty("API_KEY_MovieMeter");
     private static final Logger logger = Logger.getLogger(MovieMeterPluginSession.class);
-    private static final String logMessage = "MovieMeterPluginSession: ";
+    private static final String LOG_MESSAGE = "MovieMeterPluginSession: ";
     private String key;
     private Integer timestamp;
     private Integer counter;
@@ -73,7 +73,7 @@ public final class MovieMeterPluginSession {
     public MovieMeterPluginSession() throws XmlRpcException {
         init();
 
-        logger.debug(logMessage + "Getting stored session");
+        logger.debug(LOG_MESSAGE + "Getting stored session");
         // Read previous session
         FileReader fileRead = null;
         BufferedReader bufRead = null;
@@ -94,7 +94,7 @@ public final class MovieMeterPluginSession {
                 }
             }
         } catch (IOException ex) {
-            logger.debug(logMessage + "Error creating session: " + ex.getMessage());
+            logger.debug(LOG_MESSAGE + "Error creating session: " + ex.getMessage());
         } finally {
             if (fileRead != null) {
                 try {
@@ -113,7 +113,7 @@ public final class MovieMeterPluginSession {
             }
         }
 
-        logger.debug(logMessage + "Stored session: " + getKey());
+        logger.debug(LOG_MESSAGE + "Stored session: " + getKey());
 
         if (!isValid()) {
             createNewSession(MOVIEMETER_API_KEY);
@@ -133,12 +133,12 @@ public final class MovieMeterPluginSession {
         try {
             session = (HashMap) client.execute("api.startSession", params);
         } catch (Exception error) {
-            logger.warn(logMessage + "Unable to contact website");
+            logger.warn(LOG_MESSAGE + "Unable to contact website");
         }
 
         if (session != null) {
             if (session.size() > 0) {
-                logger.debug(logMessage + "Created new session with moviemeter.nl");
+                logger.debug(LOG_MESSAGE + "Created new session with moviemeter.nl");
                 setKey((String) session.get("session_key"));
                 setTimestamp((Integer) session.get("valid_till"));
                 setCounter(0);
@@ -169,7 +169,7 @@ public final class MovieMeterPluginSession {
             films = (Object[]) client.execute("film.search", params);
             increaseCounter();
             if (films != null && films.length > 0) {
-                logger.debug(logMessage + "MovieMeterPlugin: Search for " + movieName + " returned " + films.length + " results");
+                logger.debug(LOG_MESSAGE + "MovieMeterPlugin: Search for " + movieName + " returned " + films.length + " results");
                 for (int i = 0; i < films.length; i++) {
                     logger.info("Film " + i + ": " + films[i]);
                 }
@@ -203,7 +203,7 @@ public final class MovieMeterPluginSession {
             films = (Object[]) client.execute("film.search", params);
             increaseCounter();
             if (films != null && films.length > 0) {
-                logger.debug(logMessage + "Searching for " + movieName + " returned " + films.length + " results");
+                logger.debug(LOG_MESSAGE + "Searching for " + movieName + " returned " + films.length + " results");
 
                 if (StringTools.isValidString(year)) {
                     for (int i = 0; i < films.length; i++) {
@@ -298,7 +298,7 @@ public final class MovieMeterPluginSession {
 
             return true;
         } catch (XmlRpcException error) {
-            logger.debug(logMessage + "" + error.getMessage());
+            logger.debug(LOG_MESSAGE + "" + error.getMessage());
             return false;
         } catch (MalformedURLException error) {
             logger.error(SystemTools.getStackTrace(error));
@@ -323,9 +323,9 @@ public final class MovieMeterPluginSession {
             ps = new PrintStream(fout);
             ps.println(getKey() + "," + getTimestamp() + "," + getCounter());
         } catch (FileNotFoundException ignore) {
-            logger.debug(logMessage + "" + ignore.getMessage());
+            logger.debug(LOG_MESSAGE + "" + ignore.getMessage());
         } catch (IOException error) {
-            logger.error(logMessage + "" + error.getMessage());
+            logger.error(LOG_MESSAGE + "" + error.getMessage());
         } finally {
             if (ps != null) {
                 ps.close();

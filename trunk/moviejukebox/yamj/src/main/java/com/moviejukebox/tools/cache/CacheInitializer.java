@@ -23,7 +23,7 @@ import org.hibernate.Hibernate;
 public class CacheInitializer {
 
     private static final Logger logger = Logger.getLogger(CacheInitializer.class);
-    private static final String logMessage = "CacheInitializer: ";
+    private static final String LOG_MESSAGE = "CacheInitializer: ";
 
     protected CacheInitializer() {
         throw new UnsupportedOperationException("This class cannot be initialised");
@@ -31,7 +31,7 @@ public class CacheInitializer {
 
     public static <T> void initialize(T dbObject) {
         if (dbObject == null) {
-            logger.warn(logMessage + "Object is null");
+            logger.warn(LOG_MESSAGE + "Object is null");
             return;
         }
 
@@ -45,7 +45,7 @@ public class CacheInitializer {
             initialize((com.omertron.thetvdbapi.model.Banners) dbObject);
         } else {
             // Not sure if this warning should be here. Some Classes do not need to be initilized
-            logger.debug(logMessage + "No initializer found for class of type " + dbObject.getClass().getSimpleName());
+            logger.debug(LOG_MESSAGE + "No initializer found for class of type " + dbObject.getClass().getSimpleName());
         }
     }
 

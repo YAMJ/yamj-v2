@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 public class ImdbInfo {
 
     private static final Logger logger = Logger.getLogger(ImdbInfo.class);
-    private static final String logMessage = "ImdbInfo: ";
+    private static final String LOG_MESSAGE = "ImdbInfo: ";
     private static final String DEFAULT_SITE = "us";
     private static final String OBJECT_MOVIE = "movie";
     private static final String OBJECT_PERSON = "person";
@@ -86,7 +86,7 @@ public class ImdbInfo {
         preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
         siteDef = MATCHES_DATA_PER_SITE.get(imdbSite);
         if (siteDef == null) {
-            logger.warn(logMessage + "No site definition for " + imdbSite + " using the default instead " + DEFAULT_SITE);
+            logger.warn(LOG_MESSAGE + "No site definition for " + imdbSite + " using the default instead " + DEFAULT_SITE);
             siteDef = MATCHES_DATA_PER_SITE.get(DEFAULT_SITE);
         }
     }
@@ -122,14 +122,14 @@ public class ImdbInfo {
                 sb.append("search/name?name=");
                 sb.append(URLEncoder.encode(personName, siteDef.getCharset().displayName())).append("&role=").append(movieId);
 
-                logger.debug(logMessage + "Querying IMDB for " + sb.toString());
+                logger.debug(LOG_MESSAGE + "Querying IMDB for " + sb.toString());
                 String xml = webBrowser.request(sb.toString());
 
                 // Check if this is an exact match (we got a person page instead of a results list)
                 Pattern titleregex = Pattern.compile(Pattern.quote("<link rel=\"canonical\" href=\"" + siteDef.getSite() + "name/(nm\\d+)/\""));
                 Matcher titlematch = titleregex.matcher(xml);
                 if (titlematch.find()) {
-                    logger.debug(logMessage + "IMDb returned one match " + titlematch.group(1));
+                    logger.debug(LOG_MESSAGE + "IMDb returned one match " + titlematch.group(1));
                     return titlematch.group(1);
                 }
 
@@ -141,8 +141,8 @@ public class ImdbInfo {
 
             return getImdbPersonId(personName);
         } catch (Exception error) {
-            logger.error(logMessage + "Failed retreiving IMDb Id for person : " + personName);
-            logger.error(logMessage + "Error : " + error.getMessage());
+            logger.error(LOG_MESSAGE + "Failed retreiving IMDb Id for person : " + personName);
+            logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
         }
 
         return Movie.UNKNOWN;
@@ -199,8 +199,8 @@ public class ImdbInfo {
             }
 
         } catch (Exception error) {
-            logger.error(logMessage + "Failed retreiving IMDb Id for movie : " + movieName);
-            logger.error(logMessage + "Error : " + error.getMessage());
+            logger.error(LOG_MESSAGE + "Failed retreiving IMDb Id for movie : " + movieName);
+            logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -215,7 +215,7 @@ public class ImdbInfo {
      */
     private String getImdbIdFromGoogle(String movieName, String year) {
         try {
-            logger.debug(logMessage + "querying Google for " + movieName);
+            logger.debug(LOG_MESSAGE + "querying Google for " + movieName);
 
             StringBuilder sb = new StringBuilder("http://www.google.com/search?q=");
             sb.append(URLEncoder.encode(movieName, "UTF-8"));
@@ -226,7 +226,7 @@ public class ImdbInfo {
 
             sb.append("+site%3Awww.imdb.com&meta=");
 
-            logger.debug(logMessage + "Google search: " + sb.toString());
+            logger.debug(LOG_MESSAGE + "Google search: " + sb.toString());
 
             String xml = webBrowser.request(sb.toString());
             String imdbId = Movie.UNKNOWN;
@@ -245,8 +245,8 @@ public class ImdbInfo {
             }
 
         } catch (Exception error) {
-            logger.error(logMessage + "Failed retreiving IMDb Id for movie : " + movieName);
-            logger.error(logMessage + "Error : " + error.getMessage());
+            logger.error(LOG_MESSAGE + "Failed retreiving IMDb Id for movie : " + movieName);
+            logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -271,7 +271,7 @@ public class ImdbInfo {
          * Note: That even with exact matches there can be more than 1 hit, for example "Star Trek"
          */
 
-//        logger.info(logMessage + "Movie Name: '" + movieName + "' (" + year + ")"); // XXX DEBUG
+//        logger.info(LOG_MESSAGE + "Movie Name: '" + movieName + "' (" + year + ")"); // XXX DEBUG
 
         StringBuilder sb = new StringBuilder(siteDef.getSite());
         sb.append("find?q=");
@@ -279,7 +279,7 @@ public class ImdbInfo {
             sb.append(URLEncoder.encode(movieName, siteDef.getCharset().displayName()));
         } catch (UnsupportedEncodingException ex) {
             // Failed to encode the movie name for some reason!
-            logger.debug(logMessage + "Failed to encode movie name: " + movieName);
+            logger.debug(LOG_MESSAGE + "Failed to encode movie name: " + movieName);
             sb.append(movieName);
         }
 
@@ -290,13 +290,13 @@ public class ImdbInfo {
         sb.append(objectType.equals(OBJECT_MOVIE) ? "tt" : "nm");
         sb.append(";site=aka");
 
-        logger.debug(logMessage + "Querying IMDB for " + sb.toString());
+        logger.debug(LOG_MESSAGE + "Querying IMDB for " + sb.toString());
         String xml;
         try {
             xml = webBrowser.request(sb.toString());
         } catch (IOException ex) {
-            logger.error(logMessage + "Failed retreiving IMDb Id for movie : " + movieName);
-            logger.error(logMessage + "Error : " + ex.getMessage());
+            logger.error(LOG_MESSAGE + "Failed retreiving IMDb Id for movie : " + movieName);
+            logger.error(LOG_MESSAGE + "Error : " + ex.getMessage());
             return Movie.UNKNOWN;
         }
 
@@ -304,7 +304,7 @@ public class ImdbInfo {
         Pattern titleregex = Pattern.compile(Pattern.quote("<link rel=\"canonical\" href=\"" + siteDef.getSite() + (objectType.equals(OBJECT_MOVIE) ? "title/" : "name/")) + (objectType.equals(OBJECT_MOVIE) ? "(tt\\d+)/\"" : "(nm\\d+)/\""));
         Matcher titlematch = titleregex.matcher(xml);
         if (titlematch.find()) {
-            logger.debug(logMessage + "IMDb returned one match " + titlematch.group(1));
+            logger.debug(LOG_MESSAGE + "IMDb returned one match " + titlematch.group(1));
             return titlematch.group(1);
         }
 
@@ -323,7 +323,7 @@ public class ImdbInfo {
                 try {
                     sb.append(URLEncoder.encode(movieName, siteDef.getCharset().displayName()).replace("+", " "));
                 } catch (UnsupportedEncodingException ex) {
-                    logger.debug(logMessage + "Failed to encode movie name: " + movieName);
+                    logger.debug(LOG_MESSAGE + "Failed to encode movie name: " + movieName);
                     sb.append(movieName);
                 }
                 sb.append("</a>");
@@ -334,16 +334,16 @@ public class ImdbInfo {
                 formattedMovieName = otherMovieName;
             }
 
-//            logger.debug(logMessage + "Title search: '" + formattedMovieName + "'"); // XXX DEBUG
+//            logger.debug(LOG_MESSAGE + "Title search: '" + formattedMovieName + "'"); // XXX DEBUG
             for (String searchResult : HTMLTools.extractTags(xml, "<div class=\"media_strip_thumbs\">", "<div id=\"sidebar\">", ".src='/rg/find-" + (objectType.equals(OBJECT_MOVIE) ? "title" : "name") + "-", "</td>", false)) {
-//                logger.debug(logMessage + "Title check  : '" + searchResult + "'"); // XXX DEBUG
+//                logger.debug(LOG_MESSAGE + "Title check  : '" + searchResult + "'"); // XXX DEBUG
                 if (searchResult.toLowerCase().indexOf(formattedMovieName) != -1) {
-//                    logger.debug(logMessage + "Title match  : '" + searchResult + "'"); // XXX DEBUG
+//                    logger.debug(LOG_MESSAGE + "Title match  : '" + searchResult + "'"); // XXX DEBUG
                     return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals(OBJECT_MOVIE) ? "/title/" : "/name/"), "/';\">");
                 } else {
                     for (String otherResult : HTMLTools.extractTags(searchResult, "</';\">", "</p>", "<p class=\"find-aka\">", "</em>", false)) {
                         if (otherResult.toLowerCase().indexOf("\"" + otherMovieName + "\"") != -1) {
-//                            logger.debug(logMessage + "Other Title match: '" + otherResult + "'"); // XXX DEBUG
+//                            logger.debug(LOG_MESSAGE + "Other Title match: '" + otherResult + "'"); // XXX DEBUG
                             return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals(OBJECT_MOVIE) ? "/title/" : "/name/"), "/';\">");
                         }
                     }
@@ -357,7 +357,7 @@ public class ImdbInfo {
         }
 
         // If we don't have an ID try google
-        logger.debug(logMessage + "Failed to find an exact match on IMDb, trying Google");
+        logger.debug(LOG_MESSAGE + "Failed to find an exact match on IMDb, trying Google");
         return getImdbIdFromGoogle(movieName, year);
     }
 
@@ -374,16 +374,16 @@ public class ImdbInfo {
         Map<String, List<SearchObject>> result = ImdbApi.getSearch(movieName);
 
         if (result == null || result.isEmpty()) {
-            logger.debug(logMessage + "No results found for " + movieName);
+            logger.debug(LOG_MESSAGE + "No results found for " + movieName);
             return Movie.UNKNOWN;
         }
 
         ImdbMovieDetails imdbMovie;
         for (String searchType : SEARCH_ORDER) {
-            logger.trace(logMessage + "Checking search type: " + searchType + " for " + movieName + "(" + year + ")");
+            logger.trace(LOG_MESSAGE + "Checking search type: " + searchType + " for " + movieName + "(" + year + ")");
             imdbMovie = matchSearchObject(result.get(searchType), movieName, year);
             if (imdbMovie != null) {
-                logger.debug(logMessage + "Match found in " + searchType + ": " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
+                logger.debug(LOG_MESSAGE + "Match found in " + searchType + ": " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
                 imdbId = imdbMovie.getImdbId();
                 break;
             }
@@ -404,16 +404,16 @@ public class ImdbInfo {
     /*
     private ImdbMovieDetails matchSearchObject(final List<SearchObject> resultList, final String movieName, final String year) {
         if (resultList == null || (!resultList.isEmpty() && resultList.get(0).getClass() != ImdbMovieDetails.class)) {
-            logger.trace(logMessage + movieName + "(" + year + ") - No results found for this search type");
+            logger.trace(LOG_MESSAGE + movieName + "(" + year + ") - No results found for this search type");
             return null;
         } else {
-            logger.trace(logMessage + movieName + "(" + year + ") - Found " + resultList.size() + " results");
+            logger.trace(LOG_MESSAGE + movieName + "(" + year + ") - Found " + resultList.size() + " results");
         }
 
         for (SearchObject searchResult : resultList) {
             if (searchResult.getClass() == ImdbMovieDetails.class) {
                 ImdbMovieDetails imdbMovie = (ImdbMovieDetails) searchResult;
-                logger.debug(logMessage + "Checking: " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
+                logger.debug(LOG_MESSAGE + "Checking: " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
                 if (year.equals(String.valueOf(imdbMovie.getYear())) || StringTools.isNotValidString(year)) {
                     return (ImdbMovieDetails) searchResult;
                 }

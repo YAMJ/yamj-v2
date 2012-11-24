@@ -31,7 +31,7 @@ import org.apache.sanselan.ImageReadException;
 public class GraphicTools {
 
     private static final Logger logger = Logger.getLogger(GraphicTools.class);
-    private static final String logMessage = "GraphicsTools: ";
+    private static final String LOG_MESSAGE = "GraphicsTools: ";
     private static float quality;
     private static int jpegQuality;
 
@@ -48,18 +48,18 @@ public class GraphicTools {
         try {
             bi = ImageIO.read(fis);
         } catch (IIOException error) {
-            logger.warn(logMessage + "Error reading image file. Possibly corrupt image, please try another image. " + error.getMessage());
+            logger.warn(LOG_MESSAGE + "Error reading image file. Possibly corrupt image, please try another image. " + error.getMessage());
             logger.warn(SystemTools.getStackTrace(error));
             return null;
         } catch (OutOfMemoryError error) {
-            logger.error(logMessage + "Error processing image file - Out of memory. Please run YAMJ again to fix.");
+            logger.error(LOG_MESSAGE + "Error processing image file - Out of memory. Please run YAMJ again to fix.");
             return null;
         } catch (IllegalArgumentException error) {
-            logger.warn(logMessage + "Error processing image file - Raster bands error");
+            logger.warn(LOG_MESSAGE + "Error processing image file - Raster bands error");
             logger.warn(SystemTools.getStackTrace(error));
             return null;
         } catch (Exception error) {
-            logger.warn(logMessage + "Error processing image file. Possibly corrupt image, please try another image. " + error.getMessage());
+            logger.warn(LOG_MESSAGE + "Error processing image file. Possibly corrupt image, please try another image. " + error.getMessage());
             logger.warn(SystemTools.getStackTrace(error));
             return null;
         } finally {
@@ -111,7 +111,7 @@ public class GraphicTools {
         try {
             return ImageIO.read(url);
         } catch (IOException ex) {
-            logger.error(logMessage + "Error reading image file. Possibly corrupt image, please try another image. " + ex.getMessage());
+            logger.error(LOG_MESSAGE + "Error reading image file. Possibly corrupt image, please try another image. " + ex.getMessage());
             return null;
         }
     }
@@ -147,7 +147,7 @@ public class GraphicTools {
             writer.dispose();
 
         } catch (Exception error) {
-            logger.error(logMessage + "Failed Saving thumbnail file: " + filename);
+            logger.error(LOG_MESSAGE + "Failed Saving thumbnail file: " + filename);
             logger.error(SystemTools.getStackTrace(error));
         }
     }
@@ -166,7 +166,7 @@ public class GraphicTools {
             File outputFile = new File(filename);
             ImageIO.write(bi, "png", outputFile);
         } catch (Exception error) {
-            logger.error(logMessage + "Failed Saving thumbnail file: " + filename);
+            logger.error(LOG_MESSAGE + "Failed Saving thumbnail file: " + filename);
             logger.error(SystemTools.getStackTrace(error));
         }
     }

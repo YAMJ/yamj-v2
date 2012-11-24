@@ -29,7 +29,7 @@ public class MovieReleaseComparator extends MovieYearComparator {
 
     private static final long serialVersionUID = 1L;
     private static final Logger logger = Logger.getLogger(MovieReleaseComparator.class);
-    private static final String logMessage = "ReleaseComparator: ";
+    private static final String LOG_MESSAGE = "ReleaseComparator: ";
     private Locale locale = Locale.ENGLISH;
     private String dateLocale = PropertiesUtil.getProperty("mjb.locale", "en_US");
 
@@ -91,7 +91,7 @@ public class MovieReleaseComparator extends MovieYearComparator {
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(0)));
             } catch (ParseException e) {
-                logger.debug(logMessage + "Unparseable date: " + dateMatch.group(0) + " (" + dateLocale + ")");
+                logger.debug(LOG_MESSAGE + "Unparseable date: " + dateMatch.group(0) + " (" + dateLocale + ")");
             }
 
             return Movie.UNKNOWN;
@@ -115,7 +115,7 @@ public class MovieReleaseComparator extends MovieYearComparator {
                 try {
                     return dstDate.format(srcDate.parse(dateMatch.group(0)));
                 } catch (ParseException ex) {
-                    logger.debug(logMessage + "Unparseable date: " + dateMatch.group(0) + " (" + dateLocale + ")");
+                    logger.debug(LOG_MESSAGE + "Unparseable date: " + dateMatch.group(0) + " (" + dateLocale + ")");
                 }
 
                 return Movie.UNKNOWN;

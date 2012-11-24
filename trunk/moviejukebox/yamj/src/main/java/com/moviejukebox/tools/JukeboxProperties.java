@@ -42,7 +42,7 @@ import org.w3c.dom.NodeList;
 public class JukeboxProperties {
 
     private static final Logger logger = Logger.getLogger(JukeboxProperties.class);
-    private static final String logMessage = "JukeboxProperties: ";
+    private static final String LOG_MESSAGE = "JukeboxProperties: ";
     private static final Collection<PropertyInformation> propInfo = new ArrayList<PropertyInformation>();
     private static final String JUKEBOX = "jukebox";
     private static final String SKIN = "skin";
@@ -219,13 +219,13 @@ public class JukeboxProperties {
                 PropertyInformation pi = processFile(mjbDetails, mediaLibraryPaths);
 
                 if (pi.getOverwrites().size() > 0) {
-                    logger.debug(logMessage + "Found " + pi.getOverwrites().size() + " overwites to set.");
+                    logger.debug(LOG_MESSAGE + "Found " + pi.getOverwrites().size() + " overwites to set.");
                     for (PropertyOverwrites po : pi.getOverwrites()) {
                         logger.debug("Setting 'force" + po.toString() + "Overwrite = true' due to property file changes");
                         PropertiesUtil.setProperty("mjb.force" + po.toString() + "Overwrite", TRUE);
                     }
                 } else {
-                    logger.debug(logMessage + "Properties haven't changed, no updates necessary");
+                    logger.debug(LOG_MESSAGE + "Properties haven't changed, no updates necessary");
                 }
             }
         } catch (Exception error) {
@@ -250,11 +250,11 @@ public class JukeboxProperties {
         try {
             logger.debug("Creating JukeboxProperties file: " + mjbDetails.getAbsolutePath());
             if (mjbDetails.exists() && !mjbDetails.delete()) {
-                logger.error(logMessage + "Failed to delete " + mjbDetails.getName() + ". Please make sure it's not read only");
+                logger.error(LOG_MESSAGE + "Failed to delete " + mjbDetails.getName() + ". Please make sure it's not read only");
                 return;
             }
         } catch (Exception error) {
-            logger.error(logMessage + "Failed to create/delete " + mjbDetails.getName() + ". Please make sure it's not read only");
+            logger.error(LOG_MESSAGE + "Failed to create/delete " + mjbDetails.getName() + ". Please make sure it's not read only");
             return;
         }
 
@@ -332,7 +332,7 @@ public class JukeboxProperties {
 
             DOMHelper.writeDocumentToFile(docMjbDetails, mjbDetails.getAbsolutePath());
         } catch (Exception error) {
-            logger.error(logMessage + "Error creating " + mjbDetails.getName() + " file");
+            logger.error(LOG_MESSAGE + "Error creating " + mjbDetails.getName() + " file");
             logger.error(SystemTools.getStackTrace(error));
         }
     }
@@ -416,7 +416,7 @@ public class JukeboxProperties {
         try {
             docMjbDetails = DOMHelper.getDocFromFile(mjbDetails);
         } catch (Exception error) {
-            logger.warn(logMessage + "Failed creating the file, no checks performed");
+            logger.warn(LOG_MESSAGE + "Failed creating the file, no checks performed");
             logger.warn(SystemTools.getStackTrace(error));
             return piReturn;
         }
@@ -443,21 +443,21 @@ public class JukeboxProperties {
             if (!validXmlFileDetails("mjb.xmlCategoryFile", CATEGORY, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation(CATEGORY, EnumSet.of(PropertyOverwrites.Index)));
-                logger.debug(logMessage + "Categories has changed, so need to update");
+                logger.debug(LOG_MESSAGE + "Categories has changed, so need to update");
             }
 
             // Check the Genres file
             if (!validXmlFileDetails("mjb.xmlGenreFile", GENRE, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation(GENRE, EnumSet.of(PropertyOverwrites.Index)));
-                logger.debug(logMessage + "Genres has changed, so need to update");
+                logger.debug(LOG_MESSAGE + "Genres has changed, so need to update");
             }
 
             // Check the Certifications file
             if (!validXmlFileDetails("mjb.xmlCertificationFile", CERTIFICATION, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation("Certifications", EnumSet.of(PropertyOverwrites.Index)));
-                logger.debug(logMessage + "Certifications has changed, so need to update");
+                logger.debug(LOG_MESSAGE + "Certifications has changed, so need to update");
             }
 
             // Check the revision of YAMJ
@@ -505,7 +505,7 @@ public class JukeboxProperties {
             }
         }
 
-        logger.debug(logMessage + "Returning: " + piReturn.toString());
+        logger.debug(LOG_MESSAGE + "Returning: " + piReturn.toString());
         return piReturn;
     }
 
@@ -533,7 +533,7 @@ public class JukeboxProperties {
                 return false;
             }
         } catch (Exception ignore) {
-            logger.warn(logMessage + "Error validating " + jukeboxPropertyCategory);
+            logger.warn(LOG_MESSAGE + "Error validating " + jukeboxPropertyCategory);
             return true;
         }
 

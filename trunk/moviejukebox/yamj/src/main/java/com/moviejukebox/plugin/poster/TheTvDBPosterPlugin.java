@@ -28,7 +28,7 @@ import org.pojava.datetime2.DateTime;
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 
     private static final Logger logger = Logger.getLogger(TheTvDBPosterPlugin.class);
-    private static final String logMessage = "TheTvDBPosterPlugin: ";
+    private static final String LOG_MESSAGE = "TheTvDBPosterPlugin: ";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
     private static final String DEFAULT_LANGUAGE = "en";
     private String language;
@@ -166,7 +166,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
 
             if (StringTools.isValidString(posterURL)) {
-                logger.debug(logMessage + "Used poster " + posterURL);
+                logger.debug(LOG_MESSAGE + "Used poster " + posterURL);
                 return new Image(posterURL);
             }
         } finally {

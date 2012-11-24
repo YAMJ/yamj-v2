@@ -38,7 +38,7 @@ import org.apache.log4j.Logger;
 public class KinopoiskPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(KinopoiskPlugin.class);
-    private static final String logMessage = "KinopoiskPlugin: ";
+    private static final String LOG_MESSAGE = "KinopoiskPlugin: ";
     public static String KINOPOISK_PLUGIN_ID = "kinopoisk";
     // Define plot length
     private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
@@ -185,7 +185,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
     @Override
     public boolean scanNFO(String nfo, Movie movie) {
         boolean result = false;
-        logger.debug(logMessage + "Scanning NFO for Kinopoisk Id");
+        logger.debug(LOG_MESSAGE + "Scanning NFO for Kinopoisk Id");
         int beginIndex = nfo.indexOf("kinopoisk.ru/level/1/film/");
         StringTokenizer st = null;
         if (beginIndex != -1) {
@@ -198,10 +198,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
         }
         if (st != null) {
             movie.setId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID, st.nextToken());
-            logger.debug(logMessage + "Kinopoisk Id found in nfo = " + movie.getId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID));
+            logger.debug(LOG_MESSAGE + "Kinopoisk Id found in nfo = " + movie.getId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID));
             result = true;
         } else {
-            logger.debug(logMessage + "No Kinopoisk Id found in nfo !");
+            logger.debug(LOG_MESSAGE + "No Kinopoisk Id found in nfo !");
         }
         super.scanNFO(nfo, movie);
         return result;
@@ -324,8 +324,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
         } catch (Exception error) {
-            logger.error(logMessage + "Failed retreiving Kinopoisk Id for movie : " + movieName);
-            logger.error(logMessage + "Error : " + error.getMessage());
+            logger.error(LOG_MESSAGE + "Failed retreiving Kinopoisk Id for movie : " + movieName);
+            logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -374,7 +374,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
                 } else {
                     if (etalonFlag) {
-                        logger.error(logMessage + "Site design changed - failed get movie title!");
+                        logger.error(LOG_MESSAGE + "Site design changed - failed get movie title!");
                     }
                     newTitle = originalTitle;
                 }
@@ -405,7 +405,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
 
                 if (etalonFlag && (plot.length() == 0)) {
-                    logger.error(logMessage + "Site design changed - failed get plot!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get plot!");
                 }
             }
 
@@ -539,25 +539,25 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
             if (etalonFlag) {
                 if (!genresFounded) {
-                    logger.error(logMessage + "Site design changed - failed get genres!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get genres!");
                 }
                 if (!certificationFounded) {
-                    logger.error(logMessage + "Site design changed - failed get certification!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get certification!");
                 }
                 if (!countryFounded) {
-                    logger.error(logMessage + "Site design changed - failed get country!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get country!");
                 }
                 if (!yearFounded) {
-                    logger.error(logMessage + "Site design changed - failed get year!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get year!");
                 }
                 if (!runtimeFounded) {
-                    logger.error(logMessage + "Site design changed - failed get runtime!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get runtime!");
                 }
                 if (!taglineFounded) {
-                    logger.error(logMessage + "Site design changed - failed get tagline!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get tagline!");
                 }
                 if (!releaseFounded) {
-                    logger.error(logMessage + "Site design changed - failed get release!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get release!");
                 }
             }
 
@@ -575,7 +575,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     break;
                 }
                 if (!valueFounded && etalonFlag) {
-                    logger.error(logMessage + "Site design changed - failed get KinoPoisk rating!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get KinoPoisk rating!");
                 }
 
                 int imdbRating = movie.getRating(IMDB_PLUGIN_ID);
@@ -593,7 +593,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
                     if (!valueFounded && etalonFlag) {
-                        logger.error(logMessage + "Site design changed - failed get IMDB rating!");
+                        logger.error(LOG_MESSAGE + "Site design changed - failed get IMDB rating!");
                     }
                 }
 
@@ -628,7 +628,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     break;
                 }
                 if (!valueFounded && etalonFlag) {
-                    logger.error(logMessage + "Site design changed - failed get KinopoiskCritics rating!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get KinopoiskCritics rating!");
                 }
             }
 
@@ -646,7 +646,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     // Ignore
                 }
                 if (!valueFounded && etalonFlag) {
-                    logger.error(logMessage + "Site design changed - failed get Top250!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get Top250!");
                 }
             }
 
@@ -677,7 +677,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     if (StringTools.isValidString(posterURL)) {
                         movie.setPosterURL(posterURL);
                         movie.setPosterFilename(movie.getBaseName() + ".jpg");
-                        logger.debug(logMessage + "Set poster URL to " + posterURL + " for " + movie.getBaseName());
+                        logger.debug(LOG_MESSAGE + "Set poster URL to " + posterURL + " for " + movie.getBaseName());
                     }
                 }
                 if (StringTools.isNotValidString(movie.getPosterURL())) {
@@ -686,7 +686,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     // movie.setPosterURL(locatePosterURL(movie, ""));
                 }
                 if (!valueFounded && etalonFlag) {
-                    logger.error(logMessage + "Site design changed - failed get poster!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get poster!");
                 }
             }
 
@@ -743,7 +743,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     if (StringTools.isValidString(fanURL)) {
                         movie.setFanartURL(fanURL);
                         movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
-                        logger.debug(logMessage + "Set fanart URL to " + fanURL + " for " + movie.getBaseName());
+                        logger.debug(LOG_MESSAGE + "Set fanart URL to " + fanURL + " for " + movie.getBaseName());
                     }
                 } catch (Exception ignore) {
                     // Ignore
@@ -775,7 +775,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
                 }
                 if (!valueFounded && etalonFlag) {
-                    logger.error(logMessage + "Site design changed - failed get company!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get company!");
                 }
             }
 
@@ -842,7 +842,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 if (awards.size() > 0) {
                     movie.setAwards(awards);
                 } else if (etalonFlag) {
-                    logger.error(logMessage + "Site design changed - failed get award!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get award!");
                 }
             }
 
@@ -854,19 +854,19 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     if (!nfoDirectors || etalonFlag) {
                         peopleCount = scanMoviePerson(movie, xml, "director", writerMax, peopleCount);
                         if (etalonFlag && peopleCount == 0) {
-                            logger.error(logMessage + "Site design changed - failed get directors!");
+                            logger.error(LOG_MESSAGE + "Site design changed - failed get directors!");
                         }
                     }
                     if (!nfoWriters || etalonFlag) {
                         peopleCount = scanMoviePerson(movie, xml, "writer", writerMax, peopleCount);
                         if (etalonFlag && peopleCount == 0) {
-                            logger.error(logMessage + "Site design changed - failed get writers!");
+                            logger.error(LOG_MESSAGE + "Site design changed - failed get writers!");
                         }
                     }
                     if (!nfoCast || etalonFlag) {
                         peopleCount = scanMoviePerson(movie, xml, "actor", actorMax, peopleCount);
                         if (etalonFlag && peopleCount == 0) {
-                            logger.error(logMessage + "Site design changed - failed get cast!");
+                            logger.error(LOG_MESSAGE + "Site design changed - failed get cast!");
                         }
                     }
                     Collection<Filmography> outcast = new ArrayList<Filmography>();
@@ -897,7 +897,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
                     if (!valueFounded && etalonFlag) {
-                        logger.error(logMessage + "Site design changed - failed get business: summary!");
+                        logger.error(LOG_MESSAGE + "Site design changed - failed get business: summary!");
                     }
                     valueFounded = false;
                     for (String tmp : HTMLTools.extractTags(xml, ">Первый уик-энд (США)<", "</table>",
@@ -912,7 +912,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
                     if (!valueFounded && etalonFlag) {
-                        logger.error(logMessage + "Site design changed - failed get business: first weekend!");
+                        logger.error(LOG_MESSAGE + "Site design changed - failed get business: first weekend!");
                     }
                     valueFounded = false;
                     for (String tmp : HTMLTools.extractTags(xml, ">Кассовые сборы<", "</table>", "<tr><td colspan=2", "</h3>")) {
@@ -929,10 +929,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
                     if (!valueFounded && etalonFlag) {
-                        logger.error(logMessage + "Site design changed - failed get business: gross!");
+                        logger.error(LOG_MESSAGE + "Site design changed - failed get business: gross!");
                     }
                 } else if (etalonFlag) {
-                    logger.error(logMessage + "Site design changed - failed get business!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get business!");
                 }
             }
 
@@ -960,14 +960,14 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
                 }
                 if (!valueFounded && etalonFlag) {
-                    logger.error(logMessage + "Site design changed - failed get trivia!");
+                    logger.error(LOG_MESSAGE + "Site design changed - failed get trivia!");
                 }
             }
 
             // Finally set title
             movie.setTitle(newTitle);
         } catch (Exception error) {
-            logger.error(logMessage + "Failed retreiving movie data from Kinopoisk : " + kinopoiskId);
+            logger.error(LOG_MESSAGE + "Failed retreiving movie data from Kinopoisk : " + kinopoiskId);
             logger.error(SystemTools.getStackTrace(error));
         }
         return true;
@@ -1290,7 +1290,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             returnStatus = true;
         } catch (Exception error) {
-            logger.error(logMessage + "Failed retreiving KinopoiskPlugin data for person : " + kinopoiskId);
+            logger.error(LOG_MESSAGE + "Failed retreiving KinopoiskPlugin data for person : " + kinopoiskId);
             logger.error(SystemTools.getStackTrace(error));
         }
         return returnStatus;
@@ -1326,7 +1326,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
             }
         } catch (Exception error) {
-            logger.error(logMessage + "Error : " + error.getMessage());
+            logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
         }
         return personId;
     }

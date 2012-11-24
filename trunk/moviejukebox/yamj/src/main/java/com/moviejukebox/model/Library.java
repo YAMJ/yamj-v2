@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 public class Library implements Map<String, Movie> {
 
     private static final Logger logger = Logger.getLogger(Library.class);
-    private static final String logMessage = "Library: ";
+    private static final String LOG_MESSAGE = "Library: ";
     // Constants
     public static final String TV_SERIES = "TVSeries";
     public static final String SET = "Set";
@@ -204,7 +204,7 @@ public class Library implements Map<String, Movie> {
             SORT_COMP.add(INDEX_YEAR.toLowerCase());
         }
 
-        logger.debug(logMessage + "Valid sort types are: " + SORT_COMP.toString());
+        logger.debug(LOG_MESSAGE + "Valid sort types are: " + SORT_COMP.toString());
 
         if (SORT_KEYS.isEmpty()) {
             setSortProperty(INDEX_PERSON, INDEX_TITLE, TRUE);
@@ -239,9 +239,9 @@ public class Library implements Map<String, Movie> {
         }
 
         StringBuilder msg;
-        logger.debug(logMessage + "Library sorting:");
+        logger.debug(LOG_MESSAGE + "Library sorting:");
         for (Entry<String, String> sk : SORT_KEYS.entrySet()) {
-            msg = new StringBuilder(logMessage);
+            msg = new StringBuilder(LOG_MESSAGE);
             msg.append("  Category='").append(sk.getKey());
             msg.append("', OrderBy='").append(sk.getValue()).append("'");
             msg.append(SORT_ASC.get(sk.getKey()) ? " (Ascending)" : " (Descending)");
@@ -269,7 +269,7 @@ public class Library implements Map<String, Movie> {
         String sortType = PropertiesUtil.getProperty("indexing.sort." + spIndexKey, defaultSort).toLowerCase();
 
         if (StringTools.isNotValidString(sortType) || !SORT_COMP.contains(sortType)) {
-            logger.warn(logMessage + "Invalid sort type '" + sortType + "' for category '" + spIndexKey + "' using default of " + defaultSort);
+            logger.warn(LOG_MESSAGE + "Invalid sort type '" + sortType + "' for category '" + spIndexKey + "' using default of " + defaultSort);
             sortType = defaultSort.toLowerCase();
         }
 

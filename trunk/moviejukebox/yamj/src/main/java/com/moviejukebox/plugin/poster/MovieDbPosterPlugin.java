@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
 
     private static final Logger logger = Logger.getLogger(MovieDbPosterPlugin.class);
-    private static final String logMessage = "MovieDbPosterPlugin: ";
+    private static final String LOG_MESSAGE = "MovieDbPosterPlugin: ";
     private String apiKey = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
     private String languageCode;
     private TheMovieDbApi TMDb;
@@ -47,12 +47,12 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         if (languageCode.length() > 2) {
             languageCode = new String(languageCode.substring(0, 2)).toLowerCase();
         }
-        logger.debug(logMessage + "Using `" + languageCode + "` as the language code");
+        logger.debug(LOG_MESSAGE + "Using `" + languageCode + "` as the language code");
 
         try {
             TMDb = new TheMovieDbApi(apiKey);
         } catch (MovieDbException ex) {
-            logger.warn(logMessage + "Failed to initialise TheMovieDB API.");
+            logger.warn(LOG_MESSAGE + "Failed to initialise TheMovieDB API.");
             return;
         }
 
@@ -69,7 +69,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         try {
             movieList = TMDb.searchMovie(title, languageCode, false);
         } catch (MovieDbException ex) {
-            logger.warn(logMessage + "Failed to get TMDB ID for " + title + "(" + year + ")");
+            logger.warn(LOG_MESSAGE + "Failed to get TMDB ID for " + title + "(" + year + ")");
             return Movie.UNKNOWN;
         }
 
@@ -102,11 +102,11 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         if (StringUtils.isNumeric(id)) {
             try {
                 MovieDb moviedb = TMDb.getMovieInfo(Integer.parseInt(id), languageCode);
-                logger.debug(logMessage + "Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
+                logger.debug(LOG_MESSAGE + "Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
                 posterURL = TMDb.createImageUrl(moviedb.getPosterPath(), DEFAULT_POSTER_SIZE);
                 return new Image(posterURL.toString());
             } catch (MovieDbException ex) {
-                logger.warn(logMessage + "Failed to get the poster URL for TMDB ID " + id + " " + ex.getMessage());
+                logger.warn(LOG_MESSAGE + "Failed to get the poster URL for TMDB ID " + id + " " + ex.getMessage());
                 return Image.UNKNOWN;
             }
         } else {
@@ -153,7 +153,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                 try {
                     moviedb = TMDb.getMovieInfoImdb(imdbID, languageCode);
                 } catch (MovieDbException ex) {
-                    logger.warn(logMessage + "Failed to get TMDB ID for " + imdbID + " - " + ex.getMessage());
+                    logger.warn(LOG_MESSAGE + "Failed to get TMDB ID for " + imdbID + " - " + ex.getMessage());
                     return response;
                 }
                 if (moviedb != null) {
@@ -161,7 +161,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                     if (StringUtils.isNumeric(tmdbID)) {
                         response = tmdbID;
                     } else {
-                        logger.info(logMessage + "No TMDb ID found for movie!");
+                        logger.info(LOG_MESSAGE + "No TMDb ID found for movie!");
                     }
                 }
             }

@@ -38,7 +38,7 @@ public class RottenTomatoesPlugin {
     public static final String ROTTENTOMATOES_PLUGIN_ID = "rottentomatoes";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_RottenTomatoes");
     private static final String webhost = "rottentomatoes.com";
-    private static String logMessage = "RottenTomatoesPlugin: ";
+    private static String LOG_MESSAGE = "RottenTomatoesPlugin: ";
     private static String[] priorityList = PropertiesUtil.getProperty("mjb.rottentomatoes.priority", "critics_score,audience_score,critics_rating,audience_rating").split(",");
     private RottenTomatoesApi rt = null;
 
@@ -46,7 +46,7 @@ public class RottenTomatoesPlugin {
         try {
             rt = new RottenTomatoesApi(API_KEY);
         } catch (RottenTomatoesException ex) {
-            logger.error(logMessage + "Failed to get RottenTomatoes API: " + ex.getMessage());
+            logger.error(LOG_MESSAGE + "Failed to get RottenTomatoes API: " + ex.getMessage());
             return;
         }
 
@@ -59,7 +59,7 @@ public class RottenTomatoesPlugin {
 
     public boolean scan(Movie movie) {
         if (rt == null) {
-            logger.trace(logMessage + "Unable to initialise RT Plugin, no information retrieved.");
+            logger.trace(LOG_MESSAGE + "Unable to initialise RT Plugin, no information retrieved.");
             return Boolean.FALSE;
         }
 
@@ -68,13 +68,13 @@ public class RottenTomatoesPlugin {
         }
 
         if (movie.isTVShow()) {
-            logger.debug(logMessage + movie.getBaseName() + " is a TV Show, skipping.");
+            logger.debug(LOG_MESSAGE + movie.getBaseName() + " is a TV Show, skipping.");
             return Boolean.FALSE;
         }
 
         // If we have a rating already, skip unless we are rechecking.
         if (movie.getRating(ROTTENTOMATOES_PLUGIN_ID) >= 0 && !movie.isDirty(DirtyFlag.RECHECK)) {
-            logger.debug(logMessage + movie.getBaseName() + " already has a rating");
+            logger.debug(LOG_MESSAGE + movie.getBaseName() + " already has a rating");
             return Boolean.TRUE;
         }
 
@@ -118,13 +118,13 @@ public class RottenTomatoesPlugin {
                     }
                 }
             } catch (RottenTomatoesException ex) {
-                logger.warn(logMessage + "Failed to get RottenTomatoes information: " + ex.getMessage());
+                logger.warn(LOG_MESSAGE + "Failed to get RottenTomatoes information: " + ex.getMessage());
             }
         } else {
             try {
                 rtMovie = rt.getDetailedInfo(rtId);
             } catch (RottenTomatoesException ex) {
-                logger.warn(logMessage + "Failed to get RottenTomatoes information: " + ex.getMessage());
+                logger.warn(LOG_MESSAGE + "Failed to get RottenTomatoes information: " + ex.getMessage());
             }
         }
 
@@ -140,7 +140,7 @@ public class RottenTomatoesPlugin {
                     }
 
                     if (ratingFound > 0) {
-                        logger.debug(logMessage + movie.getBaseName() + " - " + type + " found: " + ratingFound);
+                        logger.debug(LOG_MESSAGE + movie.getBaseName() + " - " + type + " found: " + ratingFound);
                         movie.addRating(ROTTENTOMATOES_PLUGIN_ID, ratingFound);
                         break;
                     }
@@ -149,7 +149,7 @@ public class RottenTomatoesPlugin {
 
             return Boolean.TRUE;
         } else {
-            logger.debug(logMessage + "No RottenTomatoes information found for " + movie.getBaseName());
+            logger.debug(LOG_MESSAGE + "No RottenTomatoes information found for " + movie.getBaseName());
             return Boolean.FALSE;
         }
     }

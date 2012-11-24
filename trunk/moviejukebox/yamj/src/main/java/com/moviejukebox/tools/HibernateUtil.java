@@ -25,7 +25,7 @@ import org.hibernate.service.ServiceRegistryBuilder;
 public class HibernateUtil {
 
     private static final Logger logger = Logger.getLogger(HibernateUtil.class);
-    private static final String logMessage = "HibernateUtil: ";
+    private static final String LOG_MESSAGE = "HibernateUtil: ";
     private static SessionFactory sessionFactory = buildSessionFactory();
     private static ServiceRegistry serviceRegistry;
 
@@ -44,7 +44,7 @@ public class HibernateUtil {
             sessionFactory = configuration.buildSessionFactory(serviceRegistry);
             return sessionFactory;
         } catch (HibernateException ex) {
-            logger.debug(logMessage + "Initial SessionFactory creation failed." + ex);
+            logger.debug(LOG_MESSAGE + "Initial SessionFactory creation failed." + ex);
             throw new ExceptionInInitializerError(ex);
         }
     }
@@ -77,7 +77,7 @@ public class HibernateUtil {
      */
     public static boolean saveObject(Object objectToSave, Serializable objectKey) {
         if (objectToSave == null) {
-            logger.info(logMessage + "Object is null, not saving");
+            logger.info(LOG_MESSAGE + "Object is null, not saving");
             return false;
         }
 
@@ -86,11 +86,11 @@ public class HibernateUtil {
             session.beginTransaction();
 
             if (session.get(objectToSave.getClass(), objectKey) == null) {
-                logger.info(logMessage + "Saving " + objectToSave.getClass().getSimpleName() + ": '" + objectKey + "'");
+                logger.info(LOG_MESSAGE + "Saving " + objectToSave.getClass().getSimpleName() + ": '" + objectKey + "'");
                 session.save(objectToSave);
                 return true;
             } else {
-                logger.info(logMessage + objectToSave.getClass().getSimpleName() + " '" + objectKey + "' already exists.");
+                logger.info(LOG_MESSAGE + objectToSave.getClass().getSimpleName() + " '" + objectKey + "' already exists.");
                 return false;
             }
         } finally {
@@ -123,9 +123,9 @@ public class HibernateUtil {
         }
 
         if (dbObject == null) {
-            logger.info(logMessage + "No " + className + " with id '" + key + "' found");
+            logger.info(LOG_MESSAGE + "No " + className + " with id '" + key + "' found");
         } else {
-            logger.info(logMessage + "Found " + className + " with id '" + key + "'");
+            logger.info(LOG_MESSAGE + "Found " + className + " with id '" + key + "'");
         }
 
         return dbObject;

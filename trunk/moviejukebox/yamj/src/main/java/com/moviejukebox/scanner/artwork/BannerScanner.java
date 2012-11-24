@@ -49,7 +49,7 @@ import org.apache.log4j.Logger;
 public class BannerScanner {
 
     private static final Logger logger = Logger.getLogger(BannerScanner.class);
-    private static final String logMessage = "BannerScanner: ";
+    private static final String LOG_MESSAGE = "BannerScanner: ";
     private static Collection<String> bannerExtensions = new ArrayList<String>();
     private static String bannerToken;
     private static boolean bannerOverwrite;
@@ -101,7 +101,7 @@ public class BannerScanner {
 
         // Try searching the fileCache for the filename.
         if (!foundLocalBanner) {
-            localBannerFile = FileTools.findFilenameInCache(localBannerBaseFilename + bannerToken, bannerExtensions, jukebox, logMessage, Boolean.TRUE);
+            localBannerFile = FileTools.findFilenameInCache(localBannerBaseFilename + bannerToken, bannerExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
             if (localBannerFile != null) {
                 foundLocalBanner = true;
             }
@@ -143,7 +143,7 @@ public class BannerScanner {
         // If we've found the banner, copy it to the jukebox, otherwise download it.
         if (foundLocalBanner) {
             fullBannerFilename = localBannerFile.getAbsolutePath();
-            logger.debug(logMessage + "File " + fullBannerFilename + " found");
+            logger.debug(LOG_MESSAGE + "File " + fullBannerFilename + " found");
 
             if (StringTools.isNotValidString(movie.getBannerFilename())) {
                 movie.setBannerFilename(movie.getBaseFilename() + bannerToken + "." + PropertiesUtil.getProperty("banners.format", "jpg"));
@@ -168,7 +168,7 @@ public class BannerScanner {
                     if (bannerImage != null) {
                         bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                         GraphicTools.saveImageToDisk(bannerImage, destFileName);
-                        logger.debug(logMessage + fullBannerFilename + " has been copied to " + destFileName);
+                        logger.debug(LOG_MESSAGE + fullBannerFilename + " has been copied to " + destFileName);
 
                         ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, Movie.UNKNOWN, false);
                         movie.addArtwork(new Artwork(ArtworkType.Banner, "local", fullBannerFilename, artworkFile));
@@ -177,10 +177,10 @@ public class BannerScanner {
                         movie.setBannerURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.debug(logMessage + "Failed loading banner : " + fullBannerFilename);
+                    logger.debug(LOG_MESSAGE + "Failed loading banner : " + fullBannerFilename);
                 }
             } else {
-                logger.debug(logMessage + finalDestinationFileName + " already exists");
+                logger.debug(LOG_MESSAGE + finalDestinationFileName + " already exists");
             }
         } else {
             // logger.debug("BannerScanner : No local Banner found for " + movie.getBaseFilename() + " attempting to download");
@@ -221,7 +221,7 @@ public class BannerScanner {
                 bannerFile.getParentFile().mkdirs();
 
                 try {
-                    logger.debug(logMessage + "Downloading banner for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
+                    logger.debug(LOG_MESSAGE + "Downloading banner for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
 
                     // Download the banner using the proxy save downloadImage
                     FileTools.downloadImage(tmpDestFile, movie.getBannerURL());
@@ -230,17 +230,17 @@ public class BannerScanner {
                     if (bannerImage != null) {
                         bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                         GraphicTools.saveImageToDisk(bannerImage, tmpDestFileName);
-                        logger.debug(logMessage + "Downloaded banner for " + movie.getBannerURL());
+                        logger.debug(LOG_MESSAGE + "Downloaded banner for " + movie.getBannerURL());
                     } else {
                         movie.setBannerFilename(Movie.UNKNOWN);
                         movie.setBannerURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.debug(logMessage + "Failed to download banner: " + movie.getBannerURL());
+                    logger.debug(LOG_MESSAGE + "Failed to download banner: " + movie.getBannerURL());
                     movie.setBannerURL(Movie.UNKNOWN);
                 }
             } else {
-                logger.debug(logMessage + "Banner exists for " + movie.getBaseFilename());
+                logger.debug(LOG_MESSAGE + "Banner exists for " + movie.getBaseFilename());
             }
         }
 

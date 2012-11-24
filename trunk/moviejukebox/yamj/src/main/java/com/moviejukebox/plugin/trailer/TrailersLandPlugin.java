@@ -48,7 +48,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
     public TrailersLandPlugin() {
         super();
         trailersPluginName = "TrailersLand";
-        logMessage = "TrailersLandPlugin: ";
+        LOG_MESSAGE = "TrailersLandPlugin: ";
 
         trailerMaxCount = (int) PropertiesUtil.getLongProperty("trailersland.max", "3");
         trailerMaxResolution = PropertiesUtil.getProperty("trailersland.maxResolution", RESOLUTION_1080P);
@@ -68,10 +68,10 @@ public class TrailersLandPlugin extends TrailerPlugin {
         ArrayList<TrailersLandTrailer> trailerList = getTrailerUrls(movie);
 
         if (trailerList == null) {
-            logger.error(logMessage + "Error while scraping");
+            logger.error(LOG_MESSAGE + "Error while scraping");
             return false;
         } else if (trailerList.isEmpty()) {
-            logger.debug(logMessage + "No trailer found");
+            logger.debug(LOG_MESSAGE + "No trailer found");
             return false;
         }
 
@@ -79,7 +79,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
             TrailersLandTrailer tr = trailerList.get(i);
 
             String trailerUrl = tr.getUrl();
-            logger.info(logMessage + "Found trailer at URL " + trailerUrl);
+            logger.info(LOG_MESSAGE + "Found trailer at URL " + trailerUrl);
 
             String trailerLabel = Integer.toString(trailerList.size() - i) + "-" + tr.getLang() + "-" + tr.getType();
             MovieFile tmf = new MovieFile();
@@ -110,17 +110,17 @@ public class TrailersLandPlugin extends TrailerPlugin {
         try {
             searchUrl = tlBaseUrl + tlSearchUrl + URLEncoder.encode(title, "iso-8859-1");
         } catch (UnsupportedEncodingException e) {
-            logger.error(logMessage + "Unsupported encoding, cannot build search URL");
+            logger.error(LOG_MESSAGE + "Unsupported encoding, cannot build search URL");
             return Movie.UNKNOWN;
         }
 
-        logger.debug(logMessage + "Searching for movie at URL " + searchUrl);
+        logger.debug(LOG_MESSAGE + "Searching for movie at URL " + searchUrl);
 
         String xml;
         try {
             xml = webBrowser.request(searchUrl);
         } catch (IOException error) {
-            logger.error(logMessage + "Failed retreiving TrailersLand Id for movie : " + title);
+            logger.error(LOG_MESSAGE + "Failed retreiving TrailersLand Id for movie : " + title);
             logger.error(SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
         }
@@ -133,13 +133,13 @@ public class TrailersLandPlugin extends TrailerPlugin {
                 int endMovieUrl = xml.indexOf('"', indexMovieUrl + 1);
                 if (endMovieUrl >= 0) {
                     trailersLandId = xml.substring(indexMovieUrl + tlBaseUrl.length() + tlMovieUrl.length(), endMovieUrl);
-                    logger.debug(logMessage + "Found Trailers Land Id " + trailersLandId);
+                    logger.debug(LOG_MESSAGE + "Found Trailers Land Id " + trailersLandId);
                 }
             } else {
-                logger.error(logMessage + "Got search result but no movie. Layout has changed?");
+                logger.error(LOG_MESSAGE + "Got search result but no movie. Layout has changed?");
             }
         } else {
-            logger.debug(logMessage + "No movie found.");
+            logger.debug(LOG_MESSAGE + "No movie found.");
         }
         return trailersLandId;
 
@@ -175,7 +175,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
         try {
             xml = webBrowser.request(tlBaseUrl + tlMovieUrl + trailersLandId);
         } catch (IOException error) {
-            logger.error(logMessage + "Failed retreiving movie details for movie : " + movie.getTitle());
+            logger.error(LOG_MESSAGE + "Failed retreiving movie details for movie : " + movie.getTitle());
             logger.error(SystemTools.getStackTrace(error));
             return null;
         }
@@ -196,7 +196,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
                 tr.setFoundOrder(nextIndex);
 
                 if (tr.validateLang() && tr.validateType()) {
-                    logger.debug(logMessage + "Found trailer page URL " + trailerPageUrl);
+                    logger.debug(LOG_MESSAGE + "Found trailer page URL " + trailerPageUrl);
                     trailerList.add(tr);
                     //} else {
                     //    logger.debug(trailersPluginName + " Plugin: discarding page URL " + trailerPageUrl);
@@ -205,7 +205,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
                 nextIndex = xml.indexOf(tlBaseUrl + tlTrailerUrl, endIndex + 1);
             }
         } else {
-            logger.error(logMessage + "Video section not found. Layout changed?");
+            logger.error(LOG_MESSAGE + "Video section not found. Layout changed?");
         }
 
 
@@ -230,7 +230,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
                 try {
                     trailerXml = webBrowser.request(trailerPageUrl);
                 } catch (IOException error) {
-                    logger.error(logMessage + "Failed retreiving trailer details for movie : " + movie.getTitle());
+                    logger.error(LOG_MESSAGE + "Failed retreiving trailer details for movie : " + movie.getTitle());
                     logger.error(SystemTools.getStackTrace(error));
                     return null;
                 }
@@ -238,7 +238,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
                 int nextIndex = trailerXml.indexOf(tlBaseUrl + tlTrailerFileUrl);
 
                 if (nextIndex < 0) {
-                    logger.error(logMessage + "No downloadable files found. Layout changed?");
+                    logger.error(LOG_MESSAGE + "No downloadable files found. Layout changed?");
                     trailerList.remove(i);
                 } else {
                     boolean found = false;
@@ -259,7 +259,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
                     }
                     if (!found) {
                         trailerList.remove(i);
-                        logger.debug(logMessage + "No valid url found at trailer page " + trailerPageUrl);
+                        logger.debug(LOG_MESSAGE + "No valid url found at trailer page " + trailerPageUrl);
                     }
                 }
             }
@@ -420,7 +420,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
                 } else if (params.indexOf("1080") >= 0) {
                     resolution = RESOLUTION_1080P;
                 } else {
-                    logger.error(logMessage + "Cannot guess trailer resolution for params " + params + ". Layout changed?");
+                    logger.error(LOG_MESSAGE + "Cannot guess trailer resolution for params " + params + ". Layout changed?");
                     return false;
                 }
                 
@@ -441,7 +441,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
 
                 return true;
             } else {
-                logger.error(logMessage + "Couldn't find trailer url. Layout changed?");
+                logger.error(LOG_MESSAGE + "Couldn't find trailer url. Layout changed?");
                 return false;
             }
         }
