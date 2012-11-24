@@ -30,7 +30,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     public static String IMDB_PLUGIN_ID = "imdb";
     private static final Logger logger = Logger.getLogger(ImdbPlugin.class);
-    private static final String logMessage = "ImdbPlugin: ";
+    private static final String LOG_MESSAGE = "ImdbPlugin: ";
     protected String preferredCountry;
     private String imdbPlot;
     protected WebBrowser webBrowser;
@@ -269,7 +269,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
         } catch (Exception error) {
-            logger.error(logMessage + "Failed retreiving IMDb data for movie : " + movie.getId(IMDB_PLUGIN_ID));
+            logger.error(LOG_MESSAGE + "Failed retreiving IMDb data for movie : " + movie.getId(IMDB_PLUGIN_ID));
             logger.error(SystemTools.getStackTrace(error));
         }
         return returnStatus;
@@ -580,7 +580,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @throws IOException
      */
     private boolean updateInfoNew(Movie movie, String xml) throws IOException {
-        logger.debug(logMessage + "Detected new IMDb format for '" + movie.getBaseName() + "'");
+        logger.debug(LOG_MESSAGE + "Detected new IMDb format for '" + movie.getBaseName() + "'");
         Collection<String> peopleList;
         String releaseInfoXML = Movie.UNKNOWN;  // Store the release info page for release info & AKAs
         ImdbSiteDataDefinition siteDef2;
@@ -594,7 +594,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             siteDef2 = imdbInfo.getSiteDef(imdbInfo.getImdbSite() + "2");
             if (siteDef2 == null) {
                 // c2 siteDef doesn't exist, so use labs to atleast return something
-                logger.error(logMessage + "No new format definition found for language '" + imdbInfo.getImdbSite() + "' using default language instead.");
+                logger.error(LOG_MESSAGE + "No new format definition found for language '" + imdbInfo.getImdbSite() + "' using default language instead.");
                 siteDef2 = imdbInfo.getSiteDef("labs");
             }
         }
@@ -1258,8 +1258,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
         } catch (IOException error) {
-            logger.error(logMessage + "Failed retreiving episodes titles for: " + movie.getTitle());
-            logger.error(logMessage + "Error: " + error.getMessage());
+            logger.error(LOG_MESSAGE + "Failed retreiving episodes titles for: " + movie.getTitle());
+            logger.error(LOG_MESSAGE + "Error: " + error.getMessage());
         }
     }
 
@@ -1314,25 +1314,25 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             return result;
         }
 
-        logger.debug(logMessage + logMessage + "Scanning NFO for Imdb Id");
+        logger.debug(LOG_MESSAGE + LOG_MESSAGE + "Scanning NFO for Imdb Id");
         String id = searchIMDB(nfo, movie);
         if (isValidString(id)) {
             movie.setId(IMDB_PLUGIN_ID, id);
-            logger.debug(logMessage + "IMDb Id found in nfo: " + movie.getId(IMDB_PLUGIN_ID));
+            logger.debug(LOG_MESSAGE + "IMDb Id found in nfo: " + movie.getId(IMDB_PLUGIN_ID));
         } else {
             int beginIndex = nfo.indexOf("/tt");
             if (beginIndex != -1) {
                 StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1), "/ \n,:!&Ã©\"'(--Ã¨_Ã§Ã )=$");
                 movie.setId(IMDB_PLUGIN_ID, st.nextToken());
-                logger.debug(logMessage + "IMDb Id found in nfo: " + movie.getId(IMDB_PLUGIN_ID));
+                logger.debug(LOG_MESSAGE + "IMDb Id found in nfo: " + movie.getId(IMDB_PLUGIN_ID));
             } else {
                 beginIndex = nfo.indexOf("/Title?");
                 if (beginIndex != -1 && beginIndex + 7 < nfo.length()) {
                     StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&Ã©\"'(--Ã¨_Ã§Ã )=$");
                     movie.setId(IMDB_PLUGIN_ID, "tt" + st.nextToken());
-                    logger.debug(logMessage + "IMDb Id found in nfo: " + movie.getId(IMDB_PLUGIN_ID));
+                    logger.debug(LOG_MESSAGE + "IMDb Id found in nfo: " + movie.getId(IMDB_PLUGIN_ID));
                 } else {
-                    logger.debug(logMessage + "No IMDb Id found in nfo !");
+                    logger.debug(LOG_MESSAGE + "No IMDb Id found in nfo !");
                     result = Boolean.FALSE;
                 }
             }

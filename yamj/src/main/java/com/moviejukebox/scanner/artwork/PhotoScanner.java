@@ -43,7 +43,7 @@ import org.apache.log4j.Logger;
 public class PhotoScanner {
 
     private static final Logger logger = Logger.getLogger(PhotoScanner.class);
-    private static final String logMessage = "PhotoScanner: ";
+    private static final String LOG_MESSAGE = "PhotoScanner: ";
     private static Collection<String> photoExtensions = new ArrayList<String>();
     private static boolean photoOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", FALSE);
     private static Collection<String> photoImageName;
@@ -80,7 +80,7 @@ public class PhotoScanner {
         boolean foundLocalPhoto = false;
 
         // Try searching the fileCache for the filename.
-        localPhotoFile = FileTools.findFilenameInCache(localPhotoBaseFilename, photoExtensions, jukebox, logMessage, Boolean.TRUE);
+        localPhotoFile = FileTools.findFilenameInCache(localPhotoBaseFilename, photoExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
         if (localPhotoFile != null) {
             foundLocalPhoto = true;
         }
@@ -118,7 +118,7 @@ public class PhotoScanner {
             // Do not overwrite existing photo unless ForcePhotoOverwrite = true
             if (photoOverwrite || person.isDirtyPhoto() || (!photoFile.exists() && !tmpDestFile.exists())) {
                 try {
-                    logger.debug(logMessage + "Downloading photo for " + person.getName() + " to " + tmpDestFileName + " [calling plugin]");
+                    logger.debug(LOG_MESSAGE + "Downloading photo for " + person.getName() + " to " + tmpDestFileName + " [calling plugin]");
 
                     // Download the photo using the proxy save downloadImage
                     FileTools.downloadImage(tmpDestFile, person.getPhotoURL());
@@ -127,17 +127,17 @@ public class PhotoScanner {
                     if (photoImage != null) {
 //                        photoImage = imagePlugin.generate(person, photoImage, "photos", null);
                         GraphicTools.saveImageToDisk(photoImage, tmpDestFileName);
-                        logger.debug(logMessage + "Downloaded photo for " + person.getPhotoURL());
+                        logger.debug(LOG_MESSAGE + "Downloaded photo for " + person.getPhotoURL());
                     } else {
                         person.setPhotoFilename(Movie.UNKNOWN);
                         person.setPhotoURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.debug(logMessage + "Failed to download photo: " + person.getPhotoURL());
+                    logger.debug(LOG_MESSAGE + "Failed to download photo: " + person.getPhotoURL());
                     person.setPhotoURL(Movie.UNKNOWN);
                 }
             } else {
-                logger.debug(logMessage + "Photo exists for " + person.getName());
+                logger.debug(LOG_MESSAGE + "Photo exists for " + person.getName());
             }
         } else if ((photoOverwrite || (!photoFile.exists() && !tmpDestFile.exists()))) {
             if (dummyFile.exists()) {

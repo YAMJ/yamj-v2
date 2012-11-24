@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 public class MovieJukeboxLibraryReader {
 
     private static final Logger logger = Logger.getLogger(MovieJukeboxLibraryReader.class);
-    private static final String logMessage = "LibraryReader: ";
+    private static final String LOG_MESSAGE = "LibraryReader: ";
 
     protected MovieJukeboxLibraryReader() {
         throw new UnsupportedOperationException("Cannot instantiate this class");
@@ -41,7 +41,7 @@ public class MovieJukeboxLibraryReader {
         Collection<MediaLibraryPath> mlp = new ArrayList<MediaLibraryPath>();
 
         if (!libraryFile.exists() || libraryFile.isDirectory()) {
-            logger.error(logMessage + "The moviejukebox library input file you specified is invalid: " + libraryFile.getName());
+            logger.error(LOG_MESSAGE + "The moviejukebox library input file you specified is invalid: " + libraryFile.getName());
             return mlp;
         }
 
@@ -109,19 +109,19 @@ public class MovieJukeboxLibraryReader {
                     mlp.add(medlib);
 
                     if (description != null && !description.isEmpty()) {
-                        logger.info(logMessage + "Found media library: " + description);
+                        logger.info(LOG_MESSAGE + "Found media library: " + description);
                     } else {
-                        logger.info(logMessage + "Found media library: " + path);
+                        logger.info(LOG_MESSAGE + "Found media library: " + path);
                     }
                     // Save the media library to the log file for reference.
-                    logger.debug(logMessage + "Media library: " + medlib);
+                    logger.debug(LOG_MESSAGE + "Media library: " + medlib);
 
                 } else {
-                    logger.info(logMessage + "Skipped invalid media library: " + path);
+                    logger.info(LOG_MESSAGE + "Skipped invalid media library: " + path);
                 }
             }
         } catch (Exception error) {
-            logger.error(logMessage + "Failed parsing moviejukebox library input file: " + libraryFile.getName());
+            logger.error(LOG_MESSAGE + "Failed parsing moviejukebox library input file: " + libraryFile.getName());
             logger.error(SystemTools.getStackTrace(error));
         }
         return mlp;

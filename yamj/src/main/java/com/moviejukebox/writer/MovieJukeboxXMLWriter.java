@@ -1488,7 +1488,7 @@ public class MovieJukeboxXMLWriter {
 
         FileTools.addJukeboxFile(finalXmlFile.getName());
 
-        logger.info(LOG_MESSAGE + movie.getBaseName() + " = " + movie.showDirty());
+        logger.debug(LOG_MESSAGE + movie.getBaseName() + " = " + movie.showDirty());
         if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.RECHECK) || movie.isDirty(DirtyFlag.WATCHED)) {
             Document xmlDoc;
             try {

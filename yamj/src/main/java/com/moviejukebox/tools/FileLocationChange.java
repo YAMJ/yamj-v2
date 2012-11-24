@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 
 public class FileLocationChange {
 
-    private static final Logger LOGGER = Logger.getLogger(FileLocationChange.class);
+    private static final Logger logger = Logger.getLogger(FileLocationChange.class);
     private static final String LOG_MESSAGE = "FileLocationChange: ";
 
     /**
@@ -27,7 +27,7 @@ public class FileLocationChange {
         // Set up some arrays to store the directory scanner files and the XML files
         Collection<MovieFile> xmlFiles = new ArrayList<MovieFile>(movie.getMovieFiles());
 
-        LOGGER.info(LOG_MESSAGE + movie.getBaseName() + " - Found " + scannedFiles.size() + " scanned files and " + xmlFiles.size() + " in XML file");
+        logger.info(LOG_MESSAGE + movie.getBaseName() + " - Found " + scannedFiles.size() + " scanned files and " + xmlFiles.size() + " in XML file");
 
         // Now compare the before and after files
         Iterator<MovieFile> scanLoop = scannedFiles.iterator();
@@ -50,29 +50,29 @@ public class FileLocationChange {
                 break; // No more files, so quit
             }
 
-            LOGGER.info(LOG_MESSAGE + "Scanned: " + scannedFilename);
-            LOGGER.info(LOG_MESSAGE + "xmlLoop: " + xmlLoop.getFilename());
+            logger.info(LOG_MESSAGE + "Scanned: " + scannedFilename);
+            logger.info(LOG_MESSAGE + "xmlLoop: " + xmlLoop.getFilename());
 
-            LOGGER.info(LOG_MESSAGE + "ScanLoc: " + scannedFileLocation);
-            LOGGER.info(LOG_MESSAGE + "XML Loc: " + xmlLoop.getFile().getAbsolutePath());
+            logger.info(LOG_MESSAGE + "ScanLoc: " + scannedFileLocation);
+            logger.info(LOG_MESSAGE + "XML Loc: " + xmlLoop.getFile().getAbsolutePath());
 
             boolean matchFilename = scannedFilename.equalsIgnoreCase(xmlLoop.getFilename());
             boolean matchVideoTs = (scannedFilename + "/VIDEO_TS.IFO").equalsIgnoreCase(xmlLoop.getFilename());
             boolean matchArchive = (sMF.getArchiveName() != null) && !(scannedFilename + "/" + sMF.getArchiveName()).equalsIgnoreCase(xmlLoop.getFilename());
             boolean matchPathLoc = scannedFileLocation.equalsIgnoreCase(xmlLoop.getFile().getAbsolutePath());
 
-            LOGGER.info(LOG_MESSAGE + "1-matchFilename? " + matchFilename);
-            LOGGER.info(LOG_MESSAGE + "2-matchVideoTs?  " + matchVideoTs);
-            LOGGER.info(LOG_MESSAGE + "3-matchArchive?  " + matchArchive);
-            LOGGER.info(LOG_MESSAGE + "Test AND 1-3 =   " + (!matchFilename && !matchVideoTs && !matchArchive));
-            LOGGER.info(LOG_MESSAGE + "4-matchPathLoc?  " + matchPathLoc);
+            logger.info(LOG_MESSAGE + "1-matchFilename? " + matchFilename);
+            logger.info(LOG_MESSAGE + "2-matchVideoTs?  " + matchVideoTs);
+            logger.info(LOG_MESSAGE + "3-matchArchive?  " + matchArchive);
+            logger.info(LOG_MESSAGE + "Test AND 1-3 =   " + (!matchFilename && !matchVideoTs && !matchArchive));
+            logger.info(LOG_MESSAGE + "4-matchPathLoc?  " + matchPathLoc);
 
-            LOGGER.info(LOG_MESSAGE + "Lib Desc: " + movie.getLibraryDescription());
-            LOGGER.info(LOG_MESSAGE + "Lib Path: " + movie.getLibraryPath());
+            logger.info(LOG_MESSAGE + "Lib Desc: " + movie.getLibraryDescription());
+            logger.info(LOG_MESSAGE + "Lib Path: " + movie.getLibraryPath());
 
             // VIDEO_TS.IFO check added for Issue 1851
             if ((!matchFilename && !matchVideoTs && !matchArchive) || !matchPathLoc) {
-                LOGGER.debug(LOG_MESSAGE + "Detected change of file location for >" + xmlLoop.getFilename() + "< to: >" + scannedFilename + "<");
+                logger.debug(LOG_MESSAGE + "Detected change of file location for >" + xmlLoop.getFilename() + "< to: >" + scannedFilename + "<");
                 xmlLoop.setFilename(scannedFilename);
                 xmlLoop.setNewFile(true);
                 movie.addMovieFile(xmlLoop);
@@ -89,7 +89,7 @@ public class FileLocationChange {
                             }
 
                             if (flag) {
-                                LOGGER.debug(LOG_MESSAGE + "Changing libray description for video '" + movie.getTitle() + "' from '" + movie.getLibraryDescription() + "' to '" + mlp.getDescription() + "'");
+                                logger.debug(LOG_MESSAGE + "Changing libray description for video '" + movie.getTitle() + "' from '" + movie.getLibraryDescription() + "' to '" + mlp.getDescription() + "'");
                                 library.addDirtyLibrary(movie.getLibraryDescription());
                                 movie.setLibraryDescription(mlp.getDescription());
                                 break;

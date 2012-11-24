@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
 public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
 
     private static final Logger logger = Logger.getLogger(GooglePosterPlugin.class);
-    private static final String logMessage = "GooglePosterPlugin: ";
+    private static final String LOG_MESSAGE = "GooglePosterPlugin: ";
     private WebBrowser webBrowser;
 
     // private int nbRetry;
@@ -57,7 +57,7 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
             // int tryLeft = nbRetry;
             int startSearch = 0;
             // while (tryLeft-- > 0 && Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl())) {
-            // logger.debug(logMessage+"Try " + (nbRetry - tryLeft) + "/" + nbRetry);
+            // logger.debug(LOG_MESSAGE+"Try " + (nbRetry - tryLeft) + "/" + nbRetry);
             String searchString = "imgurl=";
             int beginIndex = xml.indexOf(searchString, startSearch) + 7;
 
@@ -75,8 +75,8 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
             // }
             // }
         } catch (Exception error) {
-            logger.error(logMessage + "Failed retreiving poster URL from google images : " + title);
-            logger.error(logMessage + "Error : " + error.getMessage());
+            logger.error(LOG_MESSAGE + "Failed retreiving poster URL from google images : " + title);
+            logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
         }
         return posterImage;
     }

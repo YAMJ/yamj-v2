@@ -29,7 +29,7 @@ import org.w3c.dom.Element;
 public class MovieNFOWriter {
 
     private static final Logger logger = Logger.getLogger(MovieNFOWriter.class);
-    private static final String logMessage = "MovieNFOWriter: ";
+    private static final String LOG_MESSAGE = "MovieNFOWriter: ";
     private static boolean writeSimpleNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeSimpleFiles", Boolean.FALSE.toString());
     private static boolean extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE.toString());
     private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE.toString());
@@ -52,7 +52,7 @@ public class MovieNFOWriter {
         try {
             docNFO = DOMHelper.createDocument();
         } catch (ParserConfigurationException error) {
-            logger.warn(logMessage + "Failed to create NFO file for " + movie.getBaseFilename());
+            logger.warn(LOG_MESSAGE + "Failed to create NFO file for " + movie.getBaseFilename());
             logger.error(SystemTools.getStackTrace(error));
             return;
         }
@@ -61,7 +61,7 @@ public class MovieNFOWriter {
         (new File(nfoFolder)).mkdirs();
         File tempNfoFile = new File(StringTools.appendToPath(nfoFolder, movie.getBaseName() + ".nfo"));
 
-        logger.debug(logMessage + "Writing " + (writeSimpleNfoFiles ? "simple " : "") + "NFO file for " + movie.getBaseName() + ".nfo");
+        logger.debug(LOG_MESSAGE + "Writing " + (writeSimpleNfoFiles ? "simple " : "") + "NFO file for " + movie.getBaseName() + ".nfo");
         FileTools.addJukeboxFile(tempNfoFile.getName());
 
         // Define the root element

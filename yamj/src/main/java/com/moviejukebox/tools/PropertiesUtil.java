@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 public class PropertiesUtil {
 
     private static final Logger logger = Logger.getLogger(PropertiesUtil.class);
-    private static final String logMessage = "PropertiesUtil: ";
+    private static final String LOG_MESSAGE = "PropertiesUtil: ";
     private static final String PROPERTIES_CHARSET = "UTF-8";
     private static Properties props = new Properties();
     private static final String PREFERENCES_FILENAME = "preferences.xsl";
@@ -216,7 +216,7 @@ public class PropertiesUtil {
         Collections.sort(propertiesList);
 
         try {
-            logger.debug(logMessage + "Writing skin preferences file to " + getPropertiesFilename(true));
+            logger.debug(LOG_MESSAGE + "Writing skin preferences file to " + getPropertiesFilename(true));
 
             fos = new FileOutputStream(getPropertiesFilename(true));
             osw = new OutputStreamWriter(fos, "UTF-8");
@@ -239,11 +239,11 @@ public class PropertiesUtil {
             out.flush();
         } catch (IOException error) {
             // Can't write to file
-            logger.error(logMessage + "Can't write to file");
+            logger.error(LOG_MESSAGE + "Can't write to file");
             logger.error(SystemTools.getStackTrace(error));
         } catch (Exception error) {
             // Some other error
-            logger.error(logMessage + "Error with file");
+            logger.error(LOG_MESSAGE + "Error with file");
             logger.error(SystemTools.getStackTrace(error));
         } finally {
             if (out != null) {

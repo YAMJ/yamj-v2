@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
 public class FilmKatalogusPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(FilmKatalogusPlugin.class);
-    private static final String logMessage = "FilmKatalogusPlugin: ";
+    private static final String LOG_MESSAGE = "FilmKatalogusPlugin: ";
     public static String FILMKAT_PLUGIN_ID = "filmkatalogus";
     private boolean getplot = true;
     private boolean gettitle = true;
@@ -78,7 +78,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
         }
 
         if (getplot || gettitle) {
-            logger.info(logMessage + "Id found in nfo = " + mediaFile.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
+            logger.info(LOG_MESSAGE + "Id found in nfo = " + mediaFile.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
             getHunPlot(mediaFile);
         }
 
@@ -160,7 +160,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             return null;
 
         } catch (Exception error) {
-            logger.error(logMessage + "Failed retreiving information for " + movie.getTitle());
+            logger.error(LOG_MESSAGE + "Failed retreiving information for " + movie.getTitle());
             logger.error(SystemTools.getStackTrace(error));
             return null;
         }
@@ -177,7 +177,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             if (beginIndex != -1) {
                 StringTokenizer filmKatID = new StringTokenizer(nfo.substring(beginIndex + 3), "/ \n,:!&é\"'(--è_çà)=$<>");
                 movie.setId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID, filmKatID.nextToken());
-                logger.debug(logMessage + "Id found in nfo = " + movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
+                logger.debug(LOG_MESSAGE + "Id found in nfo = " + movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
                 result = true;
             }
         }

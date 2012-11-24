@@ -42,7 +42,7 @@ import org.apache.log4j.Logger;
 public class BackdropScanner {
 
     private static final Logger logger = Logger.getLogger(BackdropScanner.class);
-    private static final String logMessage = "BackdropScanner: ";
+    private static final String LOG_MESSAGE = "BackdropScanner: ";
     protected static final List<String> backdropExtensions = new ArrayList<String>();
     protected static boolean backdropOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBackdropOverwrite", FALSE);
     protected static List<String> backdropImageName;
@@ -84,7 +84,7 @@ public class BackdropScanner {
         boolean foundLocalBackdrop = false;
 
         // Try searching the fileCache for the filename.
-        File localBackdropFile = FileTools.findFilenameInCache(localBackdropBaseFilename + backdropToken, backdropExtensions, jukebox, logMessage, Boolean.TRUE);
+        File localBackdropFile = FileTools.findFilenameInCache(localBackdropBaseFilename + backdropToken, backdropExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
         if (localBackdropFile != null) {
             foundLocalBackdrop = true;
             person.setBackdropFilename();
@@ -117,7 +117,7 @@ public class BackdropScanner {
             // Do not overwrite existing backdrop unless ForceBackdropOverwrite = true
             if (backdropOverwrite || person.isDirtyBackdrop() || (!backdropFile.exists() && !tmpDestFile.exists())) {
                 try {
-                    logger.debug(logMessage + "Downloading backdrop for " + person.getName() + " to " + tmpDestFileName + " [calling plugin]");
+                    logger.debug(LOG_MESSAGE + "Downloading backdrop for " + person.getName() + " to " + tmpDestFileName + " [calling plugin]");
 
                     // Download the backdrop using the proxy save downloadImage
                     FileTools.downloadImage(tmpDestFile, person.getBackdropURL());
@@ -126,17 +126,17 @@ public class BackdropScanner {
                     if (backdropImage != null) {
 //                        backdropImage = imagePlugin.generate(person, backdropImage, "backdrops", null);
                         GraphicTools.saveImageToDisk(backdropImage, tmpDestFileName);
-                        logger.debug(logMessage + "Downloaded backdrop for " + person.getBackdropURL());
+                        logger.debug(LOG_MESSAGE + "Downloaded backdrop for " + person.getBackdropURL());
                     } else {
                         person.setBackdropFilename(Movie.UNKNOWN);
                         person.setBackdropURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.debug(logMessage + "Failed to download backdrop: " + person.getBackdropURL());
+                    logger.debug(LOG_MESSAGE + "Failed to download backdrop: " + person.getBackdropURL());
                     person.setBackdropURL(Movie.UNKNOWN);
                 }
             } else {
-                logger.debug(logMessage + "Backdrop exists for " + person.getName());
+                logger.debug(LOG_MESSAGE + "Backdrop exists for " + person.getName());
             }
         } else if ((backdropOverwrite || (!backdropFile.exists() && !tmpDestFile.exists()))) {
             person.clearBackdropFilename();

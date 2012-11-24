@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 public class TrailerScanner {
 
     private static final Logger logger = Logger.getLogger(TrailerScanner.class);
-    private static final String logMessage = "TrailerScanner: ";
+    private static final String LOG_MESSAGE = "TrailerScanner: ";
     private static final long MILLIS_IN_DAY = 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
     // Convert trailers.rescan.days from DAYS to MILLISECONDS for comparison purposes
     private static long trailersRescanDaysMillis = ((long) PropertiesUtil.getIntProperty("trailers.rescan.days", "15")) * MILLIS_IN_DAY;
@@ -64,7 +64,7 @@ public class TrailerScanner {
         }
 
         if (!trailersPlugin.isScanForTrailer(movie)) {
-            logger.debug(logMessage + "Scanning skipped because " + movie.getBaseName() + " is not HD");
+            logger.debug(LOG_MESSAGE + "Scanning skipped because " + movie.getBaseName() + " is not HD");
             return Boolean.FALSE;
         }
 
@@ -75,7 +75,7 @@ public class TrailerScanner {
 
         // Check if this movie was already checked for trailers
         if (movie.isTrailerExchange()) {
-            logger.debug(logMessage + "Movie " + movie.getTitle() + " has previously been checked for trailers, skipping.");
+            logger.debug(LOG_MESSAGE + "Movie " + movie.getTitle() + " has previously been checked for trailers, skipping.");
             return Boolean.FALSE;
         }
 
@@ -102,7 +102,7 @@ public class TrailerScanner {
             trailersSearchToken = st.nextToken();
             ITrailerPlugin trailerPlugin = trailerPlugins.get(trailersSearchToken);
             if (trailerPlugin == null) {
-                logger.error(logMessage + "'" + trailersSearchToken + "' plugin doesn't exist, please check your moviejukebox properties. Valid plugins are : " + trailerPluginList);
+                logger.error(LOG_MESSAGE + "'" + trailersSearchToken + "' plugin doesn't exist, please check your moviejukebox properties. Valid plugins are : " + trailerPluginList);
             } else {
                 result |= trailerPlugin.generate(movie);
             }

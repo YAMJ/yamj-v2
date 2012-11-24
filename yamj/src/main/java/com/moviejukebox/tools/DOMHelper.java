@@ -44,7 +44,7 @@ import org.xml.sax.SAXParseException;
 public class DOMHelper {
 
     private static final Logger logger = Logger.getLogger(DOMHelper.class);
-    private static final String logMessage = "DOMHelper: ";
+    private static final String LOG_MESSAGE = "DOMHelper: ";
     private static final String DEFAULT_RETURN = "";
     private static final String YES = "yes";
     private static final String TYPE_ROOT = "xml";
@@ -268,8 +268,8 @@ public class DOMHelper {
             trans.transform(new DOMSource(doc), new StreamResult(localFile));
             return true;
         } catch (Exception error) {
-            logger.error(logMessage + "Error writing the document to " + localFile);
-            logger.error(logMessage + "Message: " + error.getMessage());
+            logger.error(LOG_MESSAGE + "Error writing the document to " + localFile);
+            logger.error(LOG_MESSAGE + "Message: " + error.getMessage());
             return false;
         }
     }
