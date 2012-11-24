@@ -12,10 +12,7 @@
  */
 package com.moviejukebox.scanner;
 
-import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.CodecSource;
-import com.moviejukebox.model.CodecType;
-import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.*;
 import com.moviejukebox.tools.*;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
@@ -119,14 +116,44 @@ public class MediaInfoScanner {
     }
 
     public void update(Movie currentMovie) {
-        // update if movie has new files
-        if (currentMovie.hasNewMovieFiles()) {
-           if (currentMovie.isTVShow()) {
-               // TODO can TV show be handled in the same way?
-           } else {
-                logger.debug(LOG_MESSAGE + "Movie has new files; rescan media info");
-                this.scan(currentMovie);
-           }
+        if (currentMovie.getFile().isDirectory()) {
+            // no update needed if movie file is a directory (DVD structure)
+            return;
+        }
+
+        // TODO add check if movie file is newer than generated movie XML
+        //      in order to update possible changed media info values
+        
+        // no update if movie has no new files
+        if (!currentMovie.hasNewMovieFiles()) {
+            return;
+        }
+        
+        // check if main file has changed
+        boolean mainFileIsNew = false;
+        
+        try {
+            // get the canonical path for movie file
+            String movieFilePath = currentMovie.getFile().getCanonicalPath();
+            String newFilePath;
+            for (MovieFile movieFile : currentMovie.getMovieFiles()) {
+                if (movieFile.isNewFile()) {
+                    try {
+                        // just compare paths to be sure that
+                        // the main movie file is new
+                        newFilePath = movieFile.getFile().getCanonicalPath();
+                        if (movieFilePath.equalsIgnoreCase(newFilePath)) {
+                        	mainFileIsNew = true;
+                            break;
+                        }
+                    } catch (Exception ignore) {}
+                }
+            }
+        } catch (Exception ignore) {}
+
+        if (mainFileIsNew) {
+            logger.debug(LOG_MESSAGE + "Main movie file has changed; rescan media info");
+            this.scan(currentMovie);
         }
     }
     
@@ -160,7 +187,7 @@ public class MediaInfoScanner {
 
             try {
                 @SuppressWarnings("unchecked")
-				Vector<ArchiveEntry> allEntries = scannedIsoFile.getEntries();
+                Vector<ArchiveEntry> allEntries = scannedIsoFile.getEntries();
                 Iterator<ArchiveEntry> parcoursEntries = allEntries.iterator();
                 while (parcoursEntries.hasNext()) {
                     ArchiveEntry currentArchiveEntry = (ArchiveEntry) parcoursEntries.next();
@@ -198,7 +225,7 @@ public class MediaInfoScanner {
 
     }
 
-    public void scan(Movie currentMovie, String movieFilePath) {
+    private void scan(Movie currentMovie, String movieFilePath) {
         if (!isActivated) {
             return;
         }
@@ -417,8 +444,8 @@ public class MediaInfoScanner {
                 // Duration
                 infoValue = infosMainVideo.get("Duration");
                 if (infoValue == null) {
-                	// use duration from general settings if not found in main movie
-                	infoValue = infosGeneral.get("Duration");
+                    // use duration from general settings if not found in main movie
+                    infoValue = infosGeneral.get("Duration");
                 }
                 if (infoValue != null) {
 
@@ -458,7 +485,7 @@ public class MediaInfoScanner {
             // Frames per second
             infoValue = infosMainVideo.get("Frame rate");
             if (infoValue == null) {
-            	// use original frame rate
+                // use original frame rate
                 infoValue = infosMainVideo.get("Original frame rate");
             }
 
@@ -468,8 +495,8 @@ public class MediaInfoScanner {
                     infoValue = infoValue.substring(0, inxDiv);
                 }
                 try {
-                	Float fps = Float.parseFloat(infoValue);
-                	movie.setFps(fps);
+                    Float fps = Float.parseFloat(infoValue);
+                    movie.setFps(fps);
                 } catch (NumberFormatException nfe) {
                     logger.debug(nfe.getMessage());
                 }
