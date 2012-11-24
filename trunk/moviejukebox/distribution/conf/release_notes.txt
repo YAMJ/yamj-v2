@@ -25,6 +25,7 @@ MovieJukebox 2.8-SNAPSHOT
  - Fixed defect #2516 Moving movie from one library to another doesn't update jukebox
  - Fixed defect #2520 Layout change on comingsoon.it
  - Fixed defect #2524 Blank runtime in NFO overwrite mediainfo value
+ - Fixed defect #2530 Update mediainfo if filename extension has changed
 
 MovieJukebox 2.7
 ----------------
