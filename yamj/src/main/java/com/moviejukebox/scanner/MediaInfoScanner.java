@@ -119,14 +119,14 @@ public class MediaInfoScanner {
     }
 
     public void update(Movie currentMovie) {
-    	// update if movie has new files
+        // update if movie has new files
         if (currentMovie.hasNewMovieFiles()) {
-        	if (currentMovie.isTVShow()) {
-            	// TODO can TV show be handled in the same way?
-        	} else {
-        		logger.debug(LOG_MESSAGE + "Movie has new files; rescan media info");
-        		this.scan(currentMovie);
-        	}
+           if (currentMovie.isTVShow()) {
+               // TODO can TV show be handled in the same way?
+           } else {
+                logger.debug(LOG_MESSAGE + "Movie has new files; rescan media info");
+                this.scan(currentMovie);
+           }
         }
     }
     
