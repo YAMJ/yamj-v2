@@ -1758,7 +1758,7 @@ public class MovieJukebox {
             }
         }
 
-        Collection<MovieFile> scannedFiles = Collections.EMPTY_LIST;
+        Collection<MovieFile> scannedFiles = Collections.emptyList();
         // Only parse the XML file if we mean to update the XML file.
         if (xmlFile.exists() && !forceXMLOverwrite) {
             // Parse the XML file
@@ -1817,15 +1817,8 @@ public class MovieJukebox {
         if (xmlFile.exists() && !forceXMLOverwrite && !(movie.isTVShow() && forceBannerOverwrite)) {
             FileLocationChange.process(movie, library, jukeboxPreserve, scannedFiles, mediaLibraryPaths);
 
-            // update mediainfo values for new files
-            if (movie.hasNewMovieFiles()) {
-            	if (movie.isTVShow()) {
-                	// TODO can TV show be handled in the same way?
-            	} else {
-            		logger.debug("Movie has new files; recheck media info");
-            		miScanner.scan(movie);
-            	}
-            }
+            // update mediainfo values
+            miScanner.update(movie);
             
             // update new episodes titles if new MovieFiles were added
             DatabasePluginController.scanTVShowTitles(movie);

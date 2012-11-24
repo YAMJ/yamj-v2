@@ -38,6 +38,7 @@ import org.apache.log4j.Logger;
 public class MediaInfoScanner {
 
     private static final Logger logger = Logger.getLogger(MediaInfoScanner.class);
+    private static final String LOG_MESSAGE = "MediaInfoScanner: ";
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
     private static final Pattern PATTERN_CHANNELS = Pattern.compile(".*(\\d{1,2}).*");
     // mediaInfo repository
@@ -86,13 +87,13 @@ public class MediaInfoScanner {
         }
         
         if (!checkMediainfo.canExecute()) {
-            logger.info("MediaInfoScanner: Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
+            logger.info(LOG_MESSAGE + "Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
             isActivated = false;
         } else {
             if (isMediaInfoRar) {
-                logger.info("MediaInfoScanner: MediaInfo-rar tool found, additional scanning functions enabled.");
+                logger.info(LOG_MESSAGE + "MediaInfo-rar tool found, additional scanning functions enabled.");
             } else {
-                logger.info("MediaInfoScanner: MediaInfo tool will be used to extract video data. But not RAR and ISO formats");
+                logger.info(LOG_MESSAGE + "MediaInfo tool will be used to extract video data. But not RAR and ISO formats");
             }
             isActivated = true;
         }
@@ -117,6 +118,18 @@ public class MediaInfoScanner {
         return false;
     }
 
+    public void update(Movie currentMovie) {
+    	// update if movie has new files
+        if (currentMovie.hasNewMovieFiles()) {
+        	if (currentMovie.isTVShow()) {
+            	// TODO can TV show be handled in the same way?
+        	} else {
+        		logger.debug(LOG_MESSAGE + "Movie has new files; rescan media info");
+        		this.scan(currentMovie);
+        	}
+        }
+    }
+    
     public void scan(Movie currentMovie) {
         if (currentMovie.getFile().isDirectory()) {
             // Scan IFO files
@@ -136,7 +149,7 @@ public class MediaInfoScanner {
             try {
                 abstractIsoFile = FileFactory.getFile(currentMovie.getFile().getAbsolutePath());
             } catch (Exception error) {
-                logger.debug("MediaInfoScanner: Error reading disk Image. Please re-rip and try again");
+                logger.debug(LOG_MESSAGE + "Error reading disk Image. Please re-rip and try again");
                 logger.info(error.getMessage());
                 return;
             }
@@ -178,7 +191,7 @@ public class MediaInfoScanner {
             FileTools.deleteDir(randomDirName);
         } else {
             if (isMediaInfoRar && MI_DISK_IMAGES.contains(FilenameUtils.getExtension(currentMovie.getFile().getName()))) {
-                logger.debug("MediaInfoScanner: Using MediaInfo-rar to scan " + currentMovie.getFile().getName());
+                logger.debug(LOG_MESSAGE + "Using MediaInfo-rar to scan " + currentMovie.getFile().getName());
             }
             scan(currentMovie, currentMovie.getFile().getAbsolutePath());
         }
@@ -621,7 +634,7 @@ public class MediaInfoScanner {
                         }
                     }
                 } else {
-                    logger.debug("MediaInfoScanner: Subtitle format skipped: " + infoFormat);
+                    logger.debug(LOG_MESSAGE + "Subtitle format skipped: " + infoFormat);
                 }
 
             }
@@ -684,7 +697,7 @@ public class MediaInfoScanner {
             return null;
         }
 
-        logger.debug("MediaInfoScanner: mini-scan on " + movieFilePath);
+        logger.debug(LOG_MESSAGE + "mini-scan on " + movieFilePath);
 
         try {
             // Create the command line
@@ -718,7 +731,7 @@ public class MediaInfoScanner {
             }
             input.close();
 
-            logger.debug("MediaInfoScanner: Returning with archivename " + mediaArchive);
+            logger.debug(LOG_MESSAGE + "Returning with archivename " + mediaArchive);
 
             return mediaArchive;
 
