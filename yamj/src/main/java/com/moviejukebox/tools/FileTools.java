@@ -189,10 +189,17 @@ public class FileTools {
                 dst.mkdirs();
                 copyFile(src, new File(dst + File.separator + src.getName()));
             } else {
-                // gc: copy using file channels, potentially much faster
-                FileChannel inChannel = new FileInputStream(src).getChannel();
-                FileChannel outChannel = new FileOutputStream(dst).getChannel();
+            	FileInputStream inSource = null;
+            	FileOutputStream outSource = null;
+            	FileChannel inChannel = null;
+            	FileChannel outChannel = null;
                 try {
+                    // gc: copy using file channels, potentially much faster
+                	inSource =  new FileInputStream(src);
+                	outSource =  new FileOutputStream(dst);
+                    inChannel = inSource.getChannel();
+                    outChannel = outSource.getChannel();
+
                     long p = 0, s = inChannel.size();
                     while (p < s) {
                         p += inChannel.transferTo(p, 1024 * 1024, outChannel);
@@ -201,9 +208,15 @@ public class FileTools {
                     if (inChannel != null) {
                         inChannel.close();
                     }
+                    if (inSource != null) {
+                    	inSource.close();
+                    }
 
                     if (outChannel != null) {
                         outChannel.close();
+                    }
+                    if (outSource != null) {
+                    	outSource.close();
                     }
                 }
             }
