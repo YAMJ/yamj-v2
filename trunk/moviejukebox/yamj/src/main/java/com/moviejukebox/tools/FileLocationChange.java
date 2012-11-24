@@ -27,8 +27,6 @@ public class FileLocationChange {
         // Set up some arrays to store the directory scanner files and the XML files
         Collection<MovieFile> xmlFiles = new ArrayList<MovieFile>(movie.getMovieFiles());
 
-        logger.info(LOG_MESSAGE + movie.getBaseName() + " - Found " + scannedFiles.size() + " scanned files and " + xmlFiles.size() + " in XML file");
-
         // Now compare the before and after files
         Iterator<MovieFile> scanLoop = scannedFiles.iterator();
         MovieFile sMF;
@@ -50,25 +48,10 @@ public class FileLocationChange {
                 break; // No more files, so quit
             }
 
-            logger.info(LOG_MESSAGE + "Scanned: " + scannedFilename);
-            logger.info(LOG_MESSAGE + "xmlLoop: " + xmlLoop.getFilename());
-
-            logger.info(LOG_MESSAGE + "ScanLoc: " + scannedFileLocation);
-            logger.info(LOG_MESSAGE + "XML Loc: " + xmlLoop.getFile().getAbsolutePath());
-
             boolean matchFilename = scannedFilename.equalsIgnoreCase(xmlLoop.getFilename());
             boolean matchVideoTs = (scannedFilename + "/VIDEO_TS.IFO").equalsIgnoreCase(xmlLoop.getFilename());
             boolean matchArchive = (sMF.getArchiveName() != null) && !(scannedFilename + "/" + sMF.getArchiveName()).equalsIgnoreCase(xmlLoop.getFilename());
             boolean matchPathLoc = scannedFileLocation.equalsIgnoreCase(xmlLoop.getFile().getAbsolutePath());
-
-            logger.info(LOG_MESSAGE + "1-matchFilename? " + matchFilename);
-            logger.info(LOG_MESSAGE + "2-matchVideoTs?  " + matchVideoTs);
-            logger.info(LOG_MESSAGE + "3-matchArchive?  " + matchArchive);
-            logger.info(LOG_MESSAGE + "Test AND 1-3 =   " + (!matchFilename && !matchVideoTs && !matchArchive));
-            logger.info(LOG_MESSAGE + "4-matchPathLoc?  " + matchPathLoc);
-
-            logger.info(LOG_MESSAGE + "Lib Desc: " + movie.getLibraryDescription());
-            logger.info(LOG_MESSAGE + "Lib Path: " + movie.getLibraryPath());
 
             // VIDEO_TS.IFO check added for Issue 1851
             if ((!matchFilename && !matchVideoTs && !matchArchive) || !matchPathLoc) {
