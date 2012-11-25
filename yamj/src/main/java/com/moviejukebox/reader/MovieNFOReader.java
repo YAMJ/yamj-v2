@@ -513,7 +513,7 @@ public class MovieNFOReader {
         // Update the language
         StringBuilder movieLanguage = new StringBuilder();
         for (Codec codec : movie.getCodecs()) {
-            if ((codec.getCodecType() == CodecType.AUDIO) && (StringTools.isValidString(codec.getCodecLanguage()))) {
+            if (codec.getCodecType() == CodecType.AUDIO) {
                 if (movieLanguage.length() > 0) {
                     movieLanguage.append(languageDelimiter);
                 }
