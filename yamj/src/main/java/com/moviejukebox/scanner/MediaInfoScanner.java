@@ -15,7 +15,6 @@ package com.moviejukebox.scanner;
 import com.moviejukebox.model.*;
 import com.moviejukebox.tools.*;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
 import com.mucommander.file.FileFactory;
@@ -53,14 +52,13 @@ public class MediaInfoScanner {
     private static boolean isActivated;
     private static final boolean enableMetadata = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", FALSE);
     private static final boolean overallBitrate = PropertiesUtil.getBooleanProperty("mediainfo.overallbitrate", FALSE);
-    private static final boolean overrideLanguage = PropertiesUtil.getBooleanProperty("mediainfo.override.language", TRUE);
-    private static final boolean overrideOther = PropertiesUtil.getBooleanProperty("mediainfo.override.other", FALSE);
     private String randomDirName;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
     private static final List<String> MI_DISK_IMAGES = new ArrayList<String>();
-
+    private static final Set<String> MI_OVERRIDE = new HashSet<String>();
+    
     static {
         logger.debug("Operating System Name   : " + OS_NAME);
         logger.debug("Operating System Version: " + OS_VERSION);
@@ -99,7 +97,42 @@ public class MediaInfoScanner {
         for (String ext : PropertiesUtil.getProperty("mediainfo.rar.diskExtensions", "iso,img,rar,001").split(",")) {
             MI_DISK_IMAGES.add(ext.toLowerCase());
         }
+        
+        // Build the list of override values
+        for (String ext : PropertiesUtil.getProperty("mediainfo.override.values", "none").split(",")) {
+            String check = StringUtils.trimToEmpty(ext);
+            if (StringUtils.equalsIgnoreCase(check, "none")) {
+                // check nothing
+                MI_OVERRIDE.clear();
+                break;
+            } else if (StringUtils.equalsIgnoreCase(check, "all")) {
+                // check all
+                MI_OVERRIDE.add("runtime");
+                MI_OVERRIDE.add("language");
+                MI_OVERRIDE.add("duration");
+                MI_OVERRIDE.add("resolution");
+                MI_OVERRIDE.add("aspectratio");
+                MI_OVERRIDE.add("videooutput");
+                break;
+            } else if (StringUtils.equalsIgnoreCase(check, "language")) {
+                MI_OVERRIDE.add("runtime");
+            } else if (StringUtils.equalsIgnoreCase(check, "language")) {
+                MI_OVERRIDE.add("language");
+            } else if (StringUtils.equalsIgnoreCase(check, "duration")) {
+                MI_OVERRIDE.add("duration");
+            } else if (StringUtils.equalsIgnoreCase(check, "resolution")) {
+                MI_OVERRIDE.add("resolution");
+            } else if (StringUtils.equalsIgnoreCase(check, "aspectratio")) {
+                MI_OVERRIDE.add("aspectratio");
+            } else if (StringUtils.equalsIgnoreCase(check, "videooutput")) {
+                MI_OVERRIDE.add("videooutput");
+            }
+        }
+        if (MI_OVERRIDE.size() > 0) {
+            logger.info(LOG_MESSAGE + "Overriding values "+MI_OVERRIDE.toString());
+        }
     }
+    
     // DVD rip infos Scanner
     private DVDRipScanner localDVDRipScanner;
 
@@ -116,6 +149,11 @@ public class MediaInfoScanner {
     }
 
     public void update(Movie currentMovie) {
+        if (MI_OVERRIDE.isEmpty()) {
+            // when no override checks are enabled, then skip the update scan
+            return;
+        }
+        
         if (currentMovie.getFile().isDirectory()) {
             // no update needed if movie file is a directory (DVD structure)
             return;
@@ -143,7 +181,7 @@ public class MediaInfoScanner {
                         // the main movie file is new
                         newFilePath = movieFile.getFile().getCanonicalPath();
                         if (movieFilePath.equalsIgnoreCase(newFilePath)) {
-                        	mainFileIsNew = true;
+                            mainFileIsNew = true;
                             break;
                         }
                     } catch (Exception ignore) {}
@@ -162,9 +200,13 @@ public class MediaInfoScanner {
             // Scan IFO files
             FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(currentMovie.getFile());
             if (mainMovieIFO != null) {
-                scan(currentMovie, mainMovieIFO.getLocation());
-                // Issue 1176 - Prevent lost of NFO Data
-                if (overrideOther || currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
+                if (isActivated) {
+                    scan(currentMovie, mainMovieIFO.getLocation());
+                    // Issue 1176 - Prevent lost of NFO Data
+                    if (currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
+                        currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()));
+                    }
+                } else if (MI_OVERRIDE.contains("runtime") || currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
                     currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()));
                 }
             }
@@ -207,16 +249,20 @@ public class MediaInfoScanner {
             // Scan IFO files
             FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(tempRep);
             if (mainMovieIFO != null) {
-                scan(currentMovie, mainMovieIFO.getLocation());
-                // Issue 1176 - Prevent lost of NFO Data
-                if (overrideOther || currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
+                if (isActivated) {
+                    scan(currentMovie, mainMovieIFO.getLocation());
+                    // Issue 1176 - Prevent lost of NFO Data
+                    if (currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
+                        currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()));
+                    }
+                } else if (MI_OVERRIDE.contains("runtime") || currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
                     currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()));
                 }
             }
 
             // Clean up
             FileTools.deleteDir(randomDirName);
-        } else {
+        } else if (isActivated) {
             if (isMediaInfoRar && MI_DISK_IMAGES.contains(FilenameUtils.getExtension(currentMovie.getFile().getName()))) {
                 logger.debug(LOG_MESSAGE + "Using MediaInfo-rar to scan " + currentMovie.getFile().getName());
             }
@@ -226,10 +272,6 @@ public class MediaInfoScanner {
     }
 
     private void scan(Movie currentMovie, String movieFilePath) {
-        if (!isActivated) {
-            return;
-        }
-
         try {
             // Create the command line
             List<String> commandMedia = new ArrayList<String>(MI_EXE);
@@ -420,17 +462,17 @@ public class MediaInfoScanner {
             movie.setContainer(infoValue);
         }
 
-        infoValue = infosGeneral.get("PlayTime");
-        if (infoValue != null) {
-            if (infoValue.indexOf('.') >= 0) {
-                infoValue = new String(infoValue.substring(0, infoValue.indexOf('.')));
-            }
-            int duration = Integer.parseInt(infoValue) / 1000;
-            // Issue 1176 - Prevent lost of NFO Data
-            if (overrideOther || movie.getRuntime().equals(Movie.UNKNOWN)) {
+        if (MI_OVERRIDE.contains("runtime") || movie.getRuntime().equals(Movie.UNKNOWN)) {
+            infoValue = infosGeneral.get("PlayTime");
+            if (infoValue != null) {
+                if (infoValue.indexOf('.') >= 0) {
+                    infoValue = new String(infoValue.substring(0, infoValue.indexOf('.')));
+                }
+                int duration = Integer.parseInt(infoValue) / 1000;
                 movie.setRuntime(DateTimeTools.formatDuration(duration));
             }
         }
+        
         // get Info from first Video Stream
         // - can evolve to get info from longest Video Stream
         if (infosVideo.size() > 0) {
@@ -440,7 +482,7 @@ public class MediaInfoScanner {
             Map<String, String> infosMainVideo = infosVideo.get(0);
 
             // Check that movie is not multi part
-            if ((overrideOther || movie.getRuntime().equals(Movie.UNKNOWN)) && movie.getMovieFiles().size() == 1) {
+            if ((MI_OVERRIDE.contains("duration") || movie.getRuntime().equals(Movie.UNKNOWN)) && movie.getMovieFiles().size() == 1) {
                 // Duration
                 infoValue = infosMainVideo.get("Duration");
                 if (infoValue == null) {
@@ -470,7 +512,7 @@ public class MediaInfoScanner {
             }
             movie.addCodec(codecToAdd);
 
-            if (overrideOther || movie.getResolution().equals(Movie.UNKNOWN)) {
+            if (MI_OVERRIDE.contains("resolution") || movie.getResolution().equals(Movie.UNKNOWN)) {
                 infoValue = infosMainVideo.get("Width");
                 if (infoValue != null) {
                     int width = Integer.parseInt(infoValue);
@@ -503,14 +545,14 @@ public class MediaInfoScanner {
             }
 
             // Save the aspect ratio for the video
-            if (overrideOther || movie.getAspectRatio().equals(Movie.UNKNOWN)) {
+            if (MI_OVERRIDE.contains("aspectratio") || movie.getAspectRatio().equals(Movie.UNKNOWN)) {
                 infoValue = infosMainVideo.get("Display aspect ratio");
                 if (infoValue != null) {
                     movie.setAspectRatio(aspectTools.cleanAspectRatio(infoValue));
                 }
             }
 
-            if (overrideOther || movie.getVideoOutput().equals(Movie.UNKNOWN)) {
+            if (MI_OVERRIDE.contains("videooutput") || movie.getVideoOutput().equals(Movie.UNKNOWN)) {
                 // Guessing Video Output (Issue 988)
                 if (movie.isHD()) {
                     StringBuilder normeHD = new StringBuilder();
@@ -597,7 +639,7 @@ public class MediaInfoScanner {
             movie.addCodec(codecToAdd);
         }
 
-        if (overrideLanguage && (foundLanguages.size() > 0)) {
+        if ((MI_OVERRIDE.contains("language") || movie.getLanguage().equals(Movie.UNKNOWN)) && foundLanguages.size() > 0) {
             int index = 0;
             for (String language : foundLanguages) {
                 if (index++ > 0) {
