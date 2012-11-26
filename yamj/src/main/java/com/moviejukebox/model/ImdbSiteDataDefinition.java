@@ -21,6 +21,7 @@ public class ImdbSiteDataDefinition {
     private String cast;
     private String releaseDate;
     private String runtime;
+    private String aspectRatio;
     private String country;
     private String company;
     private String genre;
@@ -39,6 +40,7 @@ public class ImdbSiteDataDefinition {
                                   String cast,
                                   String releaseDate,
                                   String runtime,
+                                  String aspectRatio,
                                   String country,
                                   String company,
                                   String genre,
@@ -55,6 +57,7 @@ public class ImdbSiteDataDefinition {
         this.cast= cast;
         this.releaseDate = releaseDate;
         this.runtime = runtime;
+        this.aspectRatio = aspectRatio;
         this.country = country;
         this.company = company;
         this.genre = genre;
@@ -91,6 +94,10 @@ public class ImdbSiteDataDefinition {
 
     public String getRuntime() {
         return runtime;
+    }
+
+    public String getAspectRatio() {
+        return aspectRatio;
     }
 
     public String getCountry() {

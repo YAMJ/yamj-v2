@@ -50,6 +50,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private int triviaMax;
     protected ImdbSiteDataDefinition siteDef;
     protected ImdbInfo imdbInfo;
+    protected AspectRatioTools aspectTools;
     protected static final String plotEnding = "...";
     private boolean skipFaceless;
     private boolean skipVG;
@@ -82,6 +83,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     public ImdbPlugin() {
         imdbInfo = new ImdbInfo();
         siteDef = imdbInfo.getSiteDef();
+        aspectTools = new AspectRatioTools();
 
         webBrowser = new WebBrowser();
 
@@ -303,10 +305,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             movie.setReleaseDate(HTMLTools.extractTag(xml, HTML_H5_START + siteDef.getReleaseDate() + HTML_H5_END, 1));
         }
 
+        // RUNTIME
         if (StringTools.isNotValidString(movie.getRuntime())) {
             movie.setRuntime(getPreferredValue(HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getRuntime() + HTML_H5_END)));
         }
 
+        // ASPECT RATIO
+        updateMovieInfoAspectRatio(movie, xml, this.siteDef);
+        
         if (StringTools.isNotValidString(movie.getCountry())) {
             // HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCountry() + HTML_H5, HTML_DIV, "<a href", HTML_A_END)
             for (String country : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCountry() + HTML_H5_END, HTML_DIV)) {
@@ -657,6 +663,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             movie.setRuntime(runtime);
         }
 
+        // ASPECT RATIO
+        updateMovieInfoAspectRatio(movie, xml, siteDef2);
+        
         // COUNTRY
         if (StringTools.isNotValidString(movie.getCountry())) {
             for (String country : HTMLTools.extractTags(xml, siteDef2.getCountry() + HTML_H4_END, HTML_DIV, "onclick=\"", HTML_A_END)) {
@@ -957,6 +966,38 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         return Boolean.TRUE;
     }
 
+    /**
+     * Scrape aspect ration from IMDb; usable for all sites.
+     * 
+     * @param movie
+     * @param xml
+     * @param sideDef
+     */
+    private void updateMovieInfoAspectRatio(Movie movie, String xml, ImdbSiteDataDefinition sideDef) {
+        if (StringTools.isNotValidString(movie.getAspectRatio())) {
+            // determine start and end string
+            String startString;
+            String endString;
+            if (!getFullInfo && siteDef.getSite().contains("imdb.com")) {
+                startString ="<h4 class=\"inline\">"+siteDef.getAspectRatio()+HTML_H4_END;
+                endString = HTML_DIV;
+            } else {
+                startString = HTML_H5_START+siteDef.getAspectRatio()+HTML_H5_END+"<div class=\"info-content\">";
+                endString = "<a class";
+            }
+
+            // find unclean aspect ratio
+            String uncleanAspectRatio = HTMLTools.extractTag(xml, startString, endString).trim();
+            
+            if (StringTools.isValidString(uncleanAspectRatio)) {
+                // remove spaces and replace , with .
+                uncleanAspectRatio = uncleanAspectRatio.replace(" ","").replace(",",".");
+                // set aspect ratio
+                movie.setAspectRatio(aspectTools.cleanAspectRatio(uncleanAspectRatio));
+            }
+        }
+    }
+    
     private Integer extractDirectors(Movie movie, String personXML, ImdbSiteDataDefinition siteDef) {
         int count = 0;
         boolean found = Boolean.FALSE;
