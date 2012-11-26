@@ -55,7 +55,8 @@ public class WatchedScanner {
         boolean fileWatched;
         boolean returnStatus = Boolean.FALSE;           // Assume no changes
         boolean withJukebox;
-
+        boolean originWatchedFlag = movie.isWatched();  // Used for WATCHEDALL flag
+        
         if ("withVideo".equalsIgnoreCase(watchedLocation)) {
             // Normal scanning
             withJukebox = Boolean.FALSE;
@@ -155,6 +156,11 @@ public class WatchedScanner {
             returnStatus = Boolean.TRUE;
         }
 
+        // Issue 2448 - set WATCHEDALL flag only if movie watched flag has changed
+        if (originWatchedFlag != movie.isWatched()) {
+            movie.setDirty(DirtyFlag.WATCHEDALL, Boolean.TRUE);
+        }
+        
         returnStatus |= movieFileWatchChanged;
         if (returnStatus) {
             logger.debug(LOG_MESSAGE + "The video has one or more files that have changed status.");
