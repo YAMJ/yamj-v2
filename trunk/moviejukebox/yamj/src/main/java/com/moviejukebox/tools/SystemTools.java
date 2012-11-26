@@ -127,12 +127,15 @@ public class SystemTools {
         // List of the jars to check for duplicates
         HashMap<String, List<String>> jarsToCheck = new HashMap<String, List<String>>();
         jarsToCheck.put("allocine-api", new ArrayList<String>());
-        jarsToCheck.put("apirottentomatoes", new ArrayList<String>());
         jarsToCheck.put("fanarttvapi", new ArrayList<String>());
         jarsToCheck.put("mjbsqldb", new ArrayList<String>());
+        jarsToCheck.put("rottentomatoesapi", new ArrayList<String>());
+        jarsToCheck.put("subbabaapi",new ArrayList<String>());
         jarsToCheck.put("themoviedbapi", new ArrayList<String>());
         jarsToCheck.put("thetvdbapi", new ArrayList<String>());
+        jarsToCheck.put("traileraddictapi", new ArrayList<String>());
         jarsToCheck.put("tvrageapi", new ArrayList<String>());
+        jarsToCheck.put("yamj", new ArrayList<String>());
 
         List<String> jarList = Arrays.asList(System.getProperty("java.class.path").split(";"));
         for (String currentJar : jarList) {
