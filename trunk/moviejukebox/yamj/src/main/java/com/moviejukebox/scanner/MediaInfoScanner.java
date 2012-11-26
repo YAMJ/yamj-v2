@@ -57,7 +57,7 @@ public class MediaInfoScanner {
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
     private static final List<String> MI_DISK_IMAGES = new ArrayList<String>();
-    private static final Set<String> MI_OVERRIDE = new HashSet<String>();
+    private static final Set<OverrideFlag> MI_OVERRIDE_FLAGS = new TreeSet<OverrideFlag>();
     
     static {
         logger.debug("Operating System Name   : " + OS_NAME);
@@ -98,38 +98,41 @@ public class MediaInfoScanner {
             MI_DISK_IMAGES.add(ext.toLowerCase());
         }
         
-        // Build the list of override values
-        for (String ext : PropertiesUtil.getProperty("mediainfo.override.values", "none").split(",")) {
-            String check = StringUtils.trimToEmpty(ext);
-            if (StringUtils.equalsIgnoreCase(check, "none")) {
-                // check nothing
-                MI_OVERRIDE.clear();
-                break;
-            } else if (StringUtils.equalsIgnoreCase(check, "all")) {
-                // check all
-                MI_OVERRIDE.add("runtime");
-                MI_OVERRIDE.add("language");
-                MI_OVERRIDE.add("duration");
-                MI_OVERRIDE.add("resolution");
-                MI_OVERRIDE.add("aspectratio");
-                MI_OVERRIDE.add("videooutput");
-                break;
-            } else if (StringUtils.equalsIgnoreCase(check, "language")) {
-                MI_OVERRIDE.add("runtime");
-            } else if (StringUtils.equalsIgnoreCase(check, "language")) {
-                MI_OVERRIDE.add("language");
-            } else if (StringUtils.equalsIgnoreCase(check, "duration")) {
-                MI_OVERRIDE.add("duration");
-            } else if (StringUtils.equalsIgnoreCase(check, "resolution")) {
-                MI_OVERRIDE.add("resolution");
-            } else if (StringUtils.equalsIgnoreCase(check, "aspectratio")) {
-                MI_OVERRIDE.add("aspectratio");
-            } else if (StringUtils.equalsIgnoreCase(check, "videooutput")) {
-                MI_OVERRIDE.add("videooutput");
+        // Build the list of enabled override values
+        for (String flag : PropertiesUtil.getProperty("mediainfo.override.values", "none").split(",")) {
+            OverrideFlag overrideFlag = OverrideFlag.fromString(flag);
+            switch (overrideFlag) {
+                case ALL:
+                    // enable all
+                    MI_OVERRIDE_FLAGS.add(OverrideFlag.LANGUAGE);
+                    MI_OVERRIDE_FLAGS.add(OverrideFlag.RUNTIME);
+                    MI_OVERRIDE_FLAGS.add(OverrideFlag.RESOLUTION);
+                    MI_OVERRIDE_FLAGS.add(OverrideFlag.ASPECTRATIO);
+                    MI_OVERRIDE_FLAGS.add(OverrideFlag.VIDEOOUTPUT);
+                    break;
+                case LANGUAGE:
+                    MI_OVERRIDE_FLAGS.add(OverrideFlag.LANGUAGE);
+                    break;
+                case RUNTIME:
+                    MI_OVERRIDE_FLAGS.add(OverrideFlag.RUNTIME);
+                    break;
+                case RESOLUTION:
+                    MI_OVERRIDE_FLAGS.add(OverrideFlag.RESOLUTION);
+                    break;
+                case ASPECTRATIO:
+                    MI_OVERRIDE_FLAGS.add(OverrideFlag.ASPECTRATIO);
+                    break;
+                case VIDEOOUTPUT:
+                    MI_OVERRIDE_FLAGS.add(OverrideFlag.VIDEOOUTPUT);
+                    break;
+                default:
+                    // do nothing
+                    break;
+                    
             }
         }
-        if (MI_OVERRIDE.size() > 0) {
-            logger.info(LOG_MESSAGE + "Overriding values "+MI_OVERRIDE.toString());
+        if (MI_OVERRIDE_FLAGS.size() > 0) {
+            logger.info(LOG_MESSAGE + "Overriding values "+MI_OVERRIDE_FLAGS.toString());
         }
     }
     
@@ -149,7 +152,7 @@ public class MediaInfoScanner {
     }
 
     public void update(Movie currentMovie) {
-        if (MI_OVERRIDE.isEmpty()) {
+        if (MI_OVERRIDE_FLAGS.isEmpty()) {
             // when no override checks are enabled, then skip the update scan
             return;
         }
@@ -206,7 +209,7 @@ public class MediaInfoScanner {
                     if (currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
                         currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()));
                     }
-                } else if (MI_OVERRIDE.contains("runtime") || currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
+                } else if (OverrideTools.checkOverride(currentMovie.getRuntime(), OverrideFlag.RUNTIME, MI_OVERRIDE_FLAGS)) {
                     currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()));
                 }
             }
@@ -255,7 +258,7 @@ public class MediaInfoScanner {
                     if (currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
                         currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()));
                     }
-                } else if (MI_OVERRIDE.contains("runtime") || currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
+                } else if (OverrideTools.checkOverride(currentMovie.getRuntime(), OverrideFlag.RUNTIME, MI_OVERRIDE_FLAGS)) {
                     currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()));
                 }
             }
@@ -462,7 +465,7 @@ public class MediaInfoScanner {
             movie.setContainer(infoValue);
         }
 
-        if (MI_OVERRIDE.contains("runtime") || movie.getRuntime().equals(Movie.UNKNOWN)) {
+        if (OverrideTools.checkOverride(movie.getRuntime(), OverrideFlag.RUNTIME, MI_OVERRIDE_FLAGS)) {
             infoValue = infosGeneral.get("PlayTime");
             if (infoValue != null) {
                 if (infoValue.indexOf('.') >= 0) {
@@ -482,7 +485,7 @@ public class MediaInfoScanner {
             Map<String, String> infosMainVideo = infosVideo.get(0);
 
             // Check that movie is not multi part
-            if ((MI_OVERRIDE.contains("duration") || movie.getRuntime().equals(Movie.UNKNOWN)) && movie.getMovieFiles().size() == 1) {
+            if ((movie.getMovieFiles().size() == 1) && OverrideTools.checkOverride(movie.getRuntime(), OverrideFlag.RUNTIME, MI_OVERRIDE_FLAGS)) {
                 // Duration
                 infoValue = infosMainVideo.get("Duration");
                 if (infoValue == null) {
@@ -512,7 +515,7 @@ public class MediaInfoScanner {
             }
             movie.addCodec(codecToAdd);
 
-            if (MI_OVERRIDE.contains("resolution") || movie.getResolution().equals(Movie.UNKNOWN)) {
+            if (OverrideTools.checkOverride(movie.getResolution(), OverrideFlag.RESOLUTION, MI_OVERRIDE_FLAGS)) {
                 infoValue = infosMainVideo.get("Width");
                 if (infoValue != null) {
                     int width = Integer.parseInt(infoValue);
@@ -545,14 +548,14 @@ public class MediaInfoScanner {
             }
 
             // Save the aspect ratio for the video
-            if (MI_OVERRIDE.contains("aspectratio") || movie.getAspectRatio().equals(Movie.UNKNOWN)) {
+            if (OverrideTools.checkOverride(movie.getAspectRatio(), OverrideFlag.ASPECTRATIO, MI_OVERRIDE_FLAGS)) {
                 infoValue = infosMainVideo.get("Display aspect ratio");
                 if (infoValue != null) {
                     movie.setAspectRatio(aspectTools.cleanAspectRatio(infoValue));
                 }
             }
 
-            if (MI_OVERRIDE.contains("videooutput") || movie.getVideoOutput().equals(Movie.UNKNOWN)) {
+            if (OverrideTools.checkOverride(movie.getVideoOutput(), OverrideFlag.VIDEOOUTPUT, MI_OVERRIDE_FLAGS)) {
                 // Guessing Video Output (Issue 988)
                 if (movie.isHD()) {
                     StringBuilder normeHD = new StringBuilder();
@@ -639,7 +642,7 @@ public class MediaInfoScanner {
             movie.addCodec(codecToAdd);
         }
 
-        if ((MI_OVERRIDE.contains("language") || movie.getLanguage().equals(Movie.UNKNOWN)) && foundLanguages.size() > 0) {
+        if (OverrideTools.checkOverride(movie.getLanguage(), OverrideFlag.LANGUAGE, MI_OVERRIDE_FLAGS)) {
             int index = 0;
             for (String language : foundLanguages) {
                 if (index++ > 0) {
