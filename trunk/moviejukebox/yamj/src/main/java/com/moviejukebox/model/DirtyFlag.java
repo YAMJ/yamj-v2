@@ -43,10 +43,6 @@ public enum DirtyFlag {
      */
     WATCHED,
     /**
-     * The watched value of a movie has been changed by watched files
-     */
-    WATCHEDALL,
-    /**
      * General information about the video has changed that is not specific to
      * one of the other dirty flags
      */

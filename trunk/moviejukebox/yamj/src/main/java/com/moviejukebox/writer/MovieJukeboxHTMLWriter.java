@@ -90,7 +90,7 @@ public class MovieJukeboxHTMLWriter {
 
                 FileTools.addJukeboxFile(baseName + suffix + EXT_HTML);
 
-                if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.WATCHEDALL)) {
+                if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.WATCHED)) {
                     
                     // Issue 216: If the HTML is deleted the generation fails because it looks in the temp directory and not
                     // the original source directory
