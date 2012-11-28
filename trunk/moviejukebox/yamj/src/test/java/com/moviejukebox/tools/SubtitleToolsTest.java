@@ -26,8 +26,23 @@ public class SubtitleToolsTest extends TestCase {
         MovieFilenameScanner.clearLanguages();
         MovieFilenameScanner.addLanguage("English", "ENG EN ENGLISH eng en english Eng", "ENG EN ENGLISH");
         MovieFilenameScanner.addLanguage("German", "GER,DE,GERMAN,ger,de ,german,Ger", "GER,DE,GERMAN");
+        MovieFilenameScanner.addLanguage("French", "FRA FR FRENCH VF fra fr french vf Fra", "FRA FR FRENCH");
+        MovieFilenameScanner.addLanguage("Italian", "ITA IT ITALIAN ita it italian Ita", "ITA IT ITALIAN");
+        MovieFilenameScanner.addLanguage("Norwegian", "NOR NORWEGIAN nor norwegian Norwegian", "NOR NORWEGIAN");
+
+        // set property for subtitle restriction
+        PropertiesUtil.setProperty("mjb.subtitle.skip", "nor,it");
     }
 
+    @Override
+    protected void tearDown() throws Exception {
+        // set up the file name scanner
+        MovieFilenameScanner.clearLanguages();
+        MovieFilenameScanner.addLanguage("English", "ENG EN ENGLISH eng en english Eng", "ENG EN ENGLISH");
+        MovieFilenameScanner.addLanguage("German", "GER,DE,GERMAN,ger,de ,german,Ger", "GER,DE,GERMAN");
+        
+    }
+    
     public void testAddMovieSubtitles1() {
         String actualSubtitles = Movie.UNKNOWN;
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "eng");
@@ -140,5 +155,18 @@ public class SubtitleToolsTest extends TestCase {
         movie.setSubtitles("German / French");
         SubtitleTools.setMovieSubtitles(movie, subtitles);
         assertEquals("German / French", movie.getSubtitles());
+    }
+
+    public void testRestrictedMovieSubtitles() {
+        List<String> subtitles = new ArrayList<String>();
+        subtitles.add("en");
+        subtitles.add("it");
+        subtitles.add("de");
+        subtitles.add("nor");
+        subtitles.add("ger");
+
+        Movie movie = new Movie();
+        SubtitleTools.setMovieSubtitles(movie, subtitles);
+        assertEquals("English / German", movie.getSubtitles());
     }
 }

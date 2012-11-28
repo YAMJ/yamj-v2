@@ -12,14 +12,30 @@
  */
 package com.moviejukebox.tools;
 
-import java.util.Collection;
+import java.util.*;
+import org.apache.log4j.Logger;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 
 public final class SubtitleTools {
 
-    private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
+    private static final Logger logger = Logger.getLogger(SubtitleTools.class);
+    private static final String LOG_MESSAGE = "SubtitleTools: ";
 
+    private final static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
+    private final static List<String> skippedSubtitles = new ArrayList<String>();
+    
+    static {
+        // process allowed subtitles
+        List<String> types = Arrays.asList(PropertiesUtil.getProperty("mjb.subtitle.skip", "").split(","));
+        for (String type : types) {
+            String determined = MovieFilenameScanner.determineLanguage(type);
+            if (StringTools.isValidString(determined)) {
+                skippedSubtitles.add(determined.toUpperCase());
+            }
+        }
+    }
+    
     /**
      * Set subtitles in the movie.
      * Note: overrides the actual subtitles in movie.
@@ -69,7 +85,7 @@ public final class SubtitleTools {
         // Default value
         String newMovieSubtitles = actualSubtitles;
         
-        if (StringTools.isValidString(infoLanguage)) {
+        if (StringTools.isValidString(infoLanguage) && !isSkippedSubtitle(infoLanguage)) {
             if (StringTools.isNotValidString(actualSubtitles) || actualSubtitles.equalsIgnoreCase("NO") ) {
                 // Overwrite existing sub titles
                 newMovieSubtitles =  infoLanguage;
@@ -87,5 +103,18 @@ public final class SubtitleTools {
         }
         
         return newMovieSubtitles;
+    }
+
+    private static boolean isSkippedSubtitle(String language) {
+        if (skippedSubtitles.isEmpty()) {
+            // enabled if no skipped list
+            return true;
+        }
+        
+        boolean skipped = skippedSubtitles.contains(language.toUpperCase());
+        if (skipped) {
+            logger.debug(LOG_MESSAGE + "Skipping subtite '" + language + "'");
+        }
+        return skipped;
     }
 }
