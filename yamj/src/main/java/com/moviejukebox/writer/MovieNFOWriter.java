@@ -216,11 +216,6 @@ public class MovieNFOWriter {
                 }
             }
 
-            // Add the subtitles
-            if (StringTools.isValidString(movie.getSubtitles())) {
-                DOMHelper.appendChild(docNFO, eRoot, "subtitles", movie.getSubtitles());
-            }
-            
             // Add the fileinfo format
             {
                 Element eFileinfo = docNFO.createElement("fileinfo");
@@ -252,9 +247,13 @@ public class MovieNFOWriter {
                     eStreamDetails.appendChild(eCodec);
                 }
 
+                for (String subtitle : SubtitleTools.getSubtitles(movie)) {
+                    Element eSubtitle = docNFO.createElement("subtitle");
+                    DOMHelper.appendChild(docNFO, eSubtitle, "language", subtitle);
+                    eStreamDetails.appendChild(eSubtitle);
+                }
+                
                 eFileinfo.appendChild(eStreamDetails);
-
-
                 eRoot.appendChild(eFileinfo);
 
             }

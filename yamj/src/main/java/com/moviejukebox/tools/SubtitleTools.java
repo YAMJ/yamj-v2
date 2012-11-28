@@ -22,14 +22,16 @@ public final class SubtitleTools {
     private static final Logger logger = Logger.getLogger(SubtitleTools.class);
     private static final String LOG_MESSAGE = "SubtitleTools: ";
 
-    private final static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
-    private final static List<String> skippedSubtitles = new ArrayList<String>();
+    private static final String SPLIT_PATTERN = "\\||,|/";
+    
+    private static final String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
+    private static final List<String> skippedSubtitles = new ArrayList<String>();
     
     static {
         // process allowed subtitles
         List<String> types = Arrays.asList(PropertiesUtil.getProperty("mjb.subtitle.skip", "").split(","));
         for (String type : types) {
-            String determined = MovieFilenameScanner.determineLanguage(type);
+            String determined = MovieFilenameScanner.determineLanguage(type.trim());
             if (StringTools.isValidString(determined)) {
                 skippedSubtitles.add(determined.toUpperCase());
             }
@@ -116,5 +118,12 @@ public final class SubtitleTools {
             logger.debug(LOG_MESSAGE + "Skipping subtite '" + language + "'");
         }
         return skipped;
+    }
+    
+    public static List<String> getSubtitles(Movie movie) {
+        if (StringTools.isValidString(movie.getSubtitles())) {
+            return StringTools.splitList(movie.getSubtitles(), SPLIT_PATTERN);
+        }
+        return Collections.emptyList();
     }
 }
