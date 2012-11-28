@@ -55,7 +55,6 @@ public class MediaInfoScanner {
     private String randomDirName;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
-    private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
     private static final List<String> MI_DISK_IMAGES = new ArrayList<String>();
     private static final Set<OverrideFlag> MI_OVERRIDE_FLAGS = new TreeSet<OverrideFlag>();
     
@@ -695,16 +694,7 @@ public class MediaInfoScanner {
                         || infoFormat.equalsIgnoreCase("PGS")
                         || infoFormat.equalsIgnoreCase("ASS")
                         || infoFormat.equalsIgnoreCase("VobSub")) {
-                    String oldInfo = movie.getSubtitles(); // Save the current subtitle information (if any)
-                    if (StringTools.isNotValidString(oldInfo) || oldInfo.equalsIgnoreCase("NO")) {
-                        movie.setSubtitles(infoLanguage);
-                    } else {
-                        // Check to see if the language already exists in the list
-                        if (!oldInfo.contains(infoLanguage)) {
-                            // Don't overwrite what is there currently
-                            movie.setSubtitles(oldInfo + subtitleDelimiter + infoLanguage);
-                        }
-                    }
+                    SubtitleTools.addMovieSubtitle(movie, infoLanguage);
                 } else {
                     logger.debug(LOG_MESSAGE + "Subtitle format skipped: " + infoFormat);
                 }

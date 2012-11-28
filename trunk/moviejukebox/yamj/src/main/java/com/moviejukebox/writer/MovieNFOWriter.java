@@ -216,6 +216,11 @@ public class MovieNFOWriter {
                 }
             }
 
+            // Add the subtitles
+            if (StringTools.isValidString(movie.getSubtitles())) {
+                DOMHelper.appendChild(docNFO, eRoot, "subtitles", movie.getSubtitles());
+            }
+            
             // Add the fileinfo format
             {
                 Element eFileinfo = docNFO.createElement("fileinfo");

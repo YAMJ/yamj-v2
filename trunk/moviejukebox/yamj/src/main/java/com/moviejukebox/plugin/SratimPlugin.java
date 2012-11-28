@@ -525,6 +525,7 @@ public class SratimPlugin extends ImdbPlugin {
         return new String(text.substring(0, dot));
     }
 
+    @SuppressWarnings("unused")
     private static String removeTrailBracket(String text) {
         int bracket = text.lastIndexOf(" (");
 
@@ -1205,7 +1206,7 @@ public class SratimPlugin extends ImdbPlugin {
         }
 
         mf.setSubtitlesExchange(true);
-        movie.setSubtitles("YES");
+        SubtitleTools.addMovieSubtitle(movie, "YES");
     }
 
     public boolean downloadSubtitleZip(Movie movie, String subDownloadLink, File subtitleFile, boolean bluray) {

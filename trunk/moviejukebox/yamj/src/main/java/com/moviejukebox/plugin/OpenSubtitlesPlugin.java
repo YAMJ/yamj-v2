@@ -17,6 +17,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.SubtitleTools;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import java.io.*;
@@ -303,9 +304,9 @@ public class OpenSubtitlesPlugin {
 
             String subLanguageID = getValue("SubLanguageID", ret);
             if (StringUtils.isNotBlank(subLanguageID)) {
-                movie.setSubtitles(subLanguageID);
+                SubtitleTools.addMovieSubtitle(movie, subLanguageID);
             } else {
-                movie.setSubtitles("YES");
+                SubtitleTools.addMovieSubtitle(movie, "YES");
             }
 
             return true;
@@ -675,6 +676,7 @@ public class OpenSubtitlesPlugin {
 
         if (sz < 65536) {
             fc.close();
+            fis.close();
             return "NoHash";
         }
 

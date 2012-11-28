@@ -64,9 +64,8 @@ public class MovieNFOReader {
     private static boolean getCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", TRUE);
     private static String imdbPreferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
-    private static String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
     // Patterns
-//    private static final String splitPattern = "\\||,|/";
+    private static final String SPLIT_COMMON = "\\||,|/";
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
 
     /**
@@ -422,9 +421,17 @@ public class MovieNFOReader {
                     movie.setVideoOutput(tempString);
                 }
 
+                // Holds parsed subtitles
+                List<String> subtitles = new ArrayList<String>();
+                
+                // Parse the subtitles
+                parseSubtitles(eCommon.getElementsByTagName("subtitles"), subtitles);
+                
                 // Parse the video info
-                parseFileInfo(movie, DOMHelper.getElementByName(eCommon, "fileinfo"));
-            }
+                parseFileInfo(movie, DOMHelper.getElementByName(eCommon, "fileinfo"), subtitles);
+                
+                // Set subtitles in movie if present
+                SubtitleTools.setMovieSubtitles(movie, subtitles);            }
         }
 
         // Parse the episode details
@@ -435,14 +442,13 @@ public class MovieNFOReader {
         return Boolean.TRUE;
     }
 
-    //<editor-fold defaultstate="collapsed" desc="XML Document Functions">
     /**
      * Parse the FileInfo section
      *
      * @param movie
      * @param eFileInfo
      */
-    private static void parseFileInfo(Movie movie, Element eFileInfo) {
+    private static void parseFileInfo(Movie movie, Element eFileInfo, List<String> subtitles) {
         if (eFileInfo == null) {
             return;
         }
@@ -523,30 +529,33 @@ public class MovieNFOReader {
         movie.setLanguage(movieLanguage.toString());
 
         // Subtitles
-        List<String> subs = new ArrayList<String>();
         nlStreams = eStreamDetails.getElementsByTagName("subtitle");
         for (int looper = 0; looper < nlStreams.getLength(); looper++) {
             nStreams = nlStreams.item(looper);
             if (nStreams.getNodeType() == Node.ELEMENT_NODE) {
                 Element eStreams = (Element) nStreams;
-                subs.add(DOMHelper.getValueFromElement(eStreams, "language"));
+                subtitles.add(DOMHelper.getValueFromElement(eStreams, "language"));
             }
         }
-
-        // If we have some subtitles, add them to the movie
-        if (!subs.isEmpty()) {
-            StringBuilder movieSubs = new StringBuilder();
-            for (String subtitle : subs) {
-                if (movieSubs.length() > 0) {
-                    movieSubs.append(subtitleDelimiter);
-                }
-                movieSubs.append(subtitle);
-            }
-            movie.setSubtitles(movieSubs.toString());
-        }
-
     }
 
+    /**
+     * Parse Subtitles.
+     *
+     * @param nlElements
+     * @param subtitles
+     */
+    private static void parseSubtitles(NodeList nlElements, List<String> subtitles) {
+        Node nElements;
+        for (int looper = 0; looper < nlElements.getLength(); looper++) {
+            nElements = nlElements.item(looper);
+            if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                Element eSubtitle = (Element) nElements;
+                subtitles.addAll(StringTools.splitList(eSubtitle.getTextContent(), SPLIT_COMMON));
+            }
+        }
+    }
+    
     /**
      * Process all the Episode Details
      *
@@ -956,5 +965,4 @@ public class MovieNFOReader {
             }
         }
     }
-    //</editor-fold>
 }
