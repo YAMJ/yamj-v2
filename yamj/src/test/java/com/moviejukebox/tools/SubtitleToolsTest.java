@@ -157,7 +157,7 @@ public class SubtitleToolsTest extends TestCase {
         assertEquals("German / French", movie.getSubtitles());
     }
 
-    public void testRestrictedMovieSubtitles() {
+    public void testSkippedMovieSubtitles() {
         List<String> subtitles = new ArrayList<String>();
         subtitles.add("en");
         subtitles.add("it");
