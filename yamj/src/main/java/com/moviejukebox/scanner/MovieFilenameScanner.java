@@ -210,9 +210,7 @@ public final class MovieFilenameScanner {
      */
     private static final TokensPatternMap LOOSE_LANGUAGE_MAP = new TokensPatternMap() {
         /**
-         * {
-         *
-         * @inheritDoc}
+         * {@inheritDoc}
          */
         @Override
         protected void put(String key, Collection<String> tokens) {
