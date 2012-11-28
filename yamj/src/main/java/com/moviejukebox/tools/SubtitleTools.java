@@ -115,15 +115,21 @@ public final class SubtitleTools {
         
         boolean skipped = skippedSubtitles.contains(language.toUpperCase());
         if (skipped) {
-            logger.debug(LOG_MESSAGE + "Skipping subtite '" + language + "'");
+            logger.debug(LOG_MESSAGE + "Skipping subtitle '" + language + "'");
         }
         return skipped;
     }
     
     public static List<String> getSubtitles(Movie movie) {
-        if (StringTools.isValidString(movie.getSubtitles())) {
-            return StringTools.splitList(movie.getSubtitles(), SPLIT_PATTERN);
+        if (StringTools.isNotValidString(movie.getSubtitles()) ||
+            "YES".equalsIgnoreCase(movie.getSubtitles()) ||
+            "NO".equalsIgnoreCase(movie.getSubtitles()))
+        {
+            // skip none-language subtitles
+            return Collections.emptyList();
         }
-        return Collections.emptyList();
+
+        // write out known subtitle languages
+        return StringTools.splitList(movie.getSubtitles(), SPLIT_PATTERN);
     }
 }
