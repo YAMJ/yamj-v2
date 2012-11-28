@@ -107,8 +107,8 @@ public final class SubtitleTools {
 
     private static boolean isSkippedSubtitle(String language) {
         if (skippedSubtitles.isEmpty()) {
-            // enabled if no skipped list
-            return true;
+            // not skipped if list is empty
+            return false;
         }
         
         boolean skipped = skippedSubtitles.contains(language.toUpperCase());
