@@ -50,7 +50,7 @@ public class AttachmentScanner {
     private static final String LOG_MESSAGE = "AttachmentScanner: ";
     
     // mkvToolnix
-    private static final File MT_PATH = new File(PropertiesUtil.getProperty("attachment.mkvtoolnix.home", "./mkvtoolnix/"));
+    private static final File MT_PATH = new File(PropertiesUtil.getProperty("attachment.mkvtoolnix.home", "./mkvToolnix/"));
     private static final String MT_LANGUAGE = PropertiesUtil.getProperty("attachment.mkvtoolnix.language", "");
 
     // mkvToolnix command line, depend on OS
