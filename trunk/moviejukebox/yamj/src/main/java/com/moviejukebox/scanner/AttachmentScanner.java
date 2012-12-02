@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -80,16 +82,12 @@ public class AttachmentScanner {
     // image tokens
     private static final String fanartToken = PropertiesUtil.getProperty("attachment.token.fanart", ".fanart").toLowerCase();
     private static final String bannerToken = PropertiesUtil.getProperty("attachment.token.banner", ".banner").toLowerCase();
-    private static String videoimageToken = PropertiesUtil.getProperty("attachment.token.videoimage", ".videoimage").toLowerCase();
-    private static String posterToken = PropertiesUtil.getProperty("attachment.token.poster", ".poster").toLowerCase();
+    private static final String videoimageToken = PropertiesUtil.getProperty("attachment.token.videoimage", ".videoimage").toLowerCase();
+    private static final String posterToken = PropertiesUtil.getProperty("attachment.token.poster", ".poster").toLowerCase();
     
     // valid MIME types
-    private static List<String> validTextMimeTypes;
-    private static Map<String,String> validImageMimeTypes; 
-    
-    protected AttachmentScanner() {
-        throw new UnsupportedOperationException("AttachmentScanner is a utility class and cannot be instatiated");
-    }
+    private static final Set<String> validTextMimeTypes = new HashSet<String>(); 
+    private static final Map<String,String> validImageMimeTypes = new HashMap<String,String>();
     
     static {
         File checkMkvInfo = findMkvInfo();
@@ -128,6 +126,19 @@ public class AttachmentScanner {
                 MT_EXTRACT_EXE.add("./" + checkMkvExtract.getName());
             }
         }
+
+        if (validTextMimeTypes.isEmpty()) {
+            validTextMimeTypes.add("text/xml");
+            validTextMimeTypes.add("application/xml");
+            validTextMimeTypes.add("text/html");
+        }
+        
+        if (validImageMimeTypes.isEmpty()) {
+            validImageMimeTypes.put("image/jpeg", ".jpg");
+            validImageMimeTypes.put("image/png", ".png");
+            validImageMimeTypes.put("image/gif", ".gif");
+            validImageMimeTypes.put("image/x-ms-bmp", ".bmp");
+        }
         
         if (!checkMkvInfo.canExecute()) {
             logger.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvinfo'");
@@ -140,49 +151,32 @@ public class AttachmentScanner {
             activated = true;
         }
         
-        if (activated) {
-            // just create temporary directories if MkvToolnix is activated
-            try {
-                String tempLocation = PropertiesUtil.getProperty("attachment.temp.directory", "");
-                if (StringUtils.isBlank(tempLocation)) {
-                    tempLocation = StringTools.appendToPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp"),"attachments");
+        // just create temporary directories if MkvToolnix is activated
+        try {
+            String tempLocation = PropertiesUtil.getProperty("attachment.temp.directory", "");
+            if (StringUtils.isBlank(tempLocation)) {
+                tempLocation = StringTools.appendToPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp"),"attachments");
+            }
+            
+            File tempFile = new File(FileTools.getCanonicalPath(tempLocation));
+            if (tempFile.exists()) {
+                tempDirectory = tempFile;
+            } else {
+                logger.debug(LOG_MESSAGE + "Creating temporary attachment location: (" + tempLocation + ")");
+                boolean status = tempFile.mkdirs();
+                int i = 1;
+                while (!status && i++ <= 10) {
+                    Thread.sleep(1000);
+                    status = tempFile.mkdirs();
                 }
-                
-                File tempFile = new File(FileTools.getCanonicalPath(tempLocation));
-                if (tempFile.exists()) {
+    
+                if (status && i > 10) {
+                    logger.error("Failed creating the temporary attachment directory: (" + tempLocation + ")");
+                } else  {
                     tempDirectory = tempFile;
-                } else {
-                    logger.debug(LOG_MESSAGE + "Creating temporary attachment location: (" + tempLocation + ")");
-                    boolean status = tempFile.mkdirs();
-                    int i = 1;
-                    while (!status && i++ <= 10) {
-                        Thread.sleep(1000);
-                        status = tempFile.mkdirs();
-                    }
-        
-                    if (status && i > 10) {
-                        logger.error("Failed creating the temporary attachment directory: (" + tempLocation + ")");
-                    } else  {
-                        tempDirectory = tempFile;
-                    }
                 }
-            } catch (Exception ignore) {}
-        }
-        
-        if (!isActivated()) {
-            logger.info(LOG_MESSAGE + "Scanner is deactivated");
-        } else {
-            validTextMimeTypes = new ArrayList<String>();
-            validTextMimeTypes.add("text/xml");
-            validTextMimeTypes.add("application/xml");
-            validTextMimeTypes.add("text/html");
-
-            validImageMimeTypes = new HashMap<String,String>();
-            validImageMimeTypes.put("image/jpeg", ".jpg");
-            validImageMimeTypes.put("image/png", ".png");
-            validImageMimeTypes.put("image/gif", ".gif");
-            validImageMimeTypes.put("image/x-ms-bmp", ".bmp");
-        }
+            }
+        } catch (Exception ignore) {}
     }
 
     private static boolean isActivated() {
