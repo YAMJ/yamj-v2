@@ -29,6 +29,7 @@ import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
+import com.moviejukebox.scanner.AttachmentScanner;
 import com.moviejukebox.tools.*;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
@@ -71,10 +72,14 @@ public class FanartScanner {
     private static final Collection<String> fanartImageName = Collections.synchronizedList(new ArrayList<String>());
     private static boolean artworkValidate;
     private static int artworkValidateMatch;
+    @SuppressWarnings("unused")
     private static boolean artworkValidateAspect;
+    @SuppressWarnings("unused")
     private static int artworkWidth;
+    @SuppressWarnings("unused")
     private static int artworkHeight;
     private static TheMovieDbApi TMDb;
+    @SuppressWarnings("unused")
     private static TheTVDBApi tvDB;
 
     static {
@@ -119,10 +124,6 @@ public class FanartScanner {
         tvDB = new TheTVDBApi(PropertiesUtil.getProperty("API_KEY_TheTvDB"));
     }
 
-    protected FanartScanner() {
-        throw new UnsupportedOperationException("FanartScanner is a utility class and cannot be instatiated");
-    }
-
     /**
      * Get the Fanart URL for the movie from the source sites
      *
@@ -149,7 +150,12 @@ public class FanartScanner {
 
         // Try searching the fileCache for the filename.
         if (!foundLocalFanart) {
-            localFanartFile = FileTools.findFilenameInCache(localFanartBaseFilename + fanartToken, fanartExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
+            Boolean searchInJukebox = Boolean.TRUE;
+            // if the fanart URL is invalid, but the fanart filename is valid, then this is likely a recheck, so don't search on the jukebox folder
+            if (StringTools.isNotValidString(movie.getFanartURL()) && StringTools.isValidString(movie.getFanartFilename())) {
+                searchInJukebox = Boolean.FALSE;
+            }            
+            localFanartFile = FileTools.findFilenameInCache(localFanartBaseFilename + fanartToken, fanartExtensions, jukebox, LOG_MESSAGE, searchInJukebox);
             if (localFanartFile != null) {
                 foundLocalFanart = true;
             }
@@ -187,7 +193,13 @@ public class FanartScanner {
                 }
             }
         }
-
+        
+        // Check file attachments
+        if (!foundLocalFanart) {
+            localFanartFile = AttachmentScanner.extractAttachedFanart(movie);
+            foundLocalFanart = (localFanartFile != null);
+        }
+        
         // If we've found the fanart, copy it to the jukebox, otherwise download it.
         if (foundLocalFanart) {
             fullFanartFilename = localFanartFile.getAbsolutePath();

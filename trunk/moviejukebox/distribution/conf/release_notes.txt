@@ -6,6 +6,7 @@ MovieJukebox 2.8-SNAPSHOT
 -------------------------
  - Enhancement  #1461 Skipped subtitles will not be added
  - Enhancement  #1880 Added ability to parse subtitles from NFO
+ - Enhancement  #2238 Support attachments within matroska files
  - Fixed defect #2347 Fixed retrieval of certification from non-US IMDB site
  - Fixed defect #2412 Added imdb.plot description to skin configuration wiki page
  - Fixed defect #2448 Update movie HTML if watched status has changed by watched file

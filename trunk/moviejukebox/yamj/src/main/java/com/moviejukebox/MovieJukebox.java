@@ -1615,6 +1615,9 @@ public class MovieJukebox {
             rootIndex.delete();
 
             FileTools.deleteDir(jukebox.getJukeboxTempLocation());
+            
+            // clean up extracted attachments
+            AttachmentScanner.cleanUp();
         }
 
         // Write the jukebox details file at the END of the run (Issue 1830)
@@ -1805,6 +1808,11 @@ public class MovieJukebox {
                 movie.setDirty(DirtyFlag.RECHECK, true);
             }
 
+            if (AttachmentScanner.rescan(movie, xmlFile)) {
+                forceXMLOverwrite = true;
+                // TODO Need for new dirty flag ATTACHMENT?
+            }
+            
             if (peopleScan && movie.getPeople().isEmpty() && (movie.getCast().size() + movie.getWriters().size() + movie.getDirectors().size()) > 0) {
                 forceXMLOverwrite = true;
                 movie.clearWriters();
@@ -1851,6 +1859,12 @@ public class MovieJukebox {
             // Changing call order, first MediaInfo then NFO. NFO will overwrite any information found by the MediaInfo Scanner.
             miScanner.scan(movie);
 
+            // scan for attachments
+            AttachmentScanner.scan(movie);
+            // extract attached NFO and add to list of NFO files
+            AttachmentScanner.addAttachedNfo(movie, nfoFiles);
+            
+            // scan NFO files
             MovieNFOScanner.scan(movie, nfoFiles);
 
             if (StringTools.isNotValidString(movie.getVideoSource())) {

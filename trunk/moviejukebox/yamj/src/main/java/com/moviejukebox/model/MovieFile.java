@@ -12,6 +12,7 @@
  */
 package com.moviejukebox.model;
 
+import com.moviejukebox.model.Attachment.Attachment;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.BooleanYesNoAdapter;
 import com.moviejukebox.tools.DateTimeTools;
@@ -27,13 +28,11 @@ import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.pojava.datetime2.DateTime;
 
 @XmlType
 public class MovieFile implements Comparable<MovieFile> {
 
-    private static final Logger logger = Logger.getLogger(MovieFile.class);
     private String filename = Movie.UNKNOWN;
     private String archiveName = null;
     private int season = -1;    // The season associated with the movie file
@@ -53,6 +52,8 @@ public class MovieFile implements Comparable<MovieFile> {
     private Map<Integer, String> ratings = new LinkedHashMap<Integer, String>();
     private File file;
     private MovieFileNameDTO info;
+    private List<Attachment> attachments = new ArrayList<Attachment>();
+    private boolean attachmentsScanned = false;
     private boolean watched = false;
     private long watchedDate = 0;
     private boolean playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", TRUE);
@@ -647,6 +648,26 @@ public class MovieFile implements Comparable<MovieFile> {
 
     public void setFirstAired(List<PartDataDTO> list) {
         fromPartDataList(firstAired, list);
+    }
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void addAttachment(Attachment attachment) {
+        this.attachments.add(attachment);
+    }
+    
+    public void clearAttachments() {
+        this.attachments.clear();
+    }
+    
+    public boolean isAttachmentsScanned() {
+        return attachmentsScanned;
+    }
+
+    public void setAttachmentsScanned(boolean attachmentsScanned) {
+        this.attachmentsScanned = attachmentsScanned;
     }
 
     @Override
