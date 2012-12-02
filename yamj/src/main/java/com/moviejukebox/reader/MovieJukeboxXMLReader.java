@@ -13,17 +13,8 @@
 package com.moviejukebox.reader;
 
 import com.moviejukebox.MovieJukebox;
-import com.moviejukebox.model.Award;
-import com.moviejukebox.model.AwardEvent;
-import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.CodecSource;
-import com.moviejukebox.model.CodecType;
-import com.moviejukebox.model.DirtyFlag;
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Filmography;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Person;
+import com.moviejukebox.model.*;
+import com.moviejukebox.model.Attachment.*;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.AspectRatioTools;
 import com.moviejukebox.tools.DOMHelper;
@@ -38,11 +29,7 @@ import static com.moviejukebox.writer.MovieJukeboxXMLWriter.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -660,6 +647,24 @@ public class MovieJukeboxXMLReader {
                                 }
                             }
 
+                            NodeList nlAttachments = eMovie.getElementsByTagName("attachments");
+                            if (nlAttachments.getLength() > 0) {
+                                nlAttachments = nlAttachments.item(0).getChildNodes();
+                                for (int looperAtt = 0; looperAtt < nlAttachments.getLength(); looperAtt++) {
+                                    Node nAttachment = nlAttachments.item(looperAtt);
+                                    if (nAttachment.getNodeType() == Node.ELEMENT_NODE) {
+                                        Element eAttachment = (Element) nAttachment;
+                                        Attachment attachment = new Attachment();
+                                        attachment.setType(AttachmentType.fromString(eAttachment.getAttribute("type")));
+                                        attachment.setAttachmentId(Integer.parseInt(DOMHelper.getValueFromElement(eAttachment, "attachmentId")));
+                                        attachment.setContentType(ContentType.fromString(DOMHelper.getValueFromElement(eAttachment, "contentType")));
+                                        attachment.setMimeType(DOMHelper.getValueFromElement(eAttachment, "mimeType"));
+                                        attachment.setSourceFile(movieFile.getFile());
+                                        movieFile.addAttachment(attachment);
+                                    }
+                                }
+                            }
+                            
                             movieFile.setWatchedDateString(DOMHelper.getValueFromElement(eFile, "watchedDate"));
 
                             // This is not a new file

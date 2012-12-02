@@ -21,6 +21,7 @@ import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.poster.IMoviePosterPlugin;
 import com.moviejukebox.plugin.poster.IPosterPlugin;
 import com.moviejukebox.plugin.poster.ITvShowPosterPlugin;
+import com.moviejukebox.scanner.AttachmentScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
@@ -223,6 +224,12 @@ public class PosterScanner {
          * END OF Folder Poster
          */
 
+        // Check file attachments
+        if (!foundLocalPoster) {
+            localPosterFile = AttachmentScanner.extractAttachedPoster(movie);
+            foundLocalPoster = (localPosterFile != null);
+        }
+        
         if (foundLocalPoster) {
             fullPosterFilename = localPosterFile.getAbsolutePath();
             Dimension imageSize = getFileImageSize(localPosterFile);
@@ -446,6 +453,7 @@ public class PosterScanner {
     public static Dimension getUrlDimensions(String imageUrl, String imageType) {
         Dimension imageDimension = new Dimension(0, 0);
 
+        @SuppressWarnings("rawtypes")
         Iterator readers = ImageIO.getImageReadersBySuffix(imageType);
         ImageReader reader = (ImageReader) readers.next();
 
@@ -539,6 +547,7 @@ public class PosterScanner {
 
         try {
             in = ImageIO.createImageInputStream(imageFile);
+            @SuppressWarnings("rawtypes")
             Iterator readers = ImageIO.getImageReaders(in);
             if (readers.hasNext()) {
                 reader = (ImageReader) readers.next();

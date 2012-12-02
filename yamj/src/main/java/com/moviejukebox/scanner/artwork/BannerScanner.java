@@ -27,6 +27,7 @@ import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
+import com.moviejukebox.scanner.AttachmentScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -101,7 +102,12 @@ public class BannerScanner {
 
         // Try searching the fileCache for the filename.
         if (!foundLocalBanner) {
-            localBannerFile = FileTools.findFilenameInCache(localBannerBaseFilename + bannerToken, bannerExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
+            Boolean searchInJukebox = Boolean.TRUE;
+            // if the banner URL is invalid, but the banner filename is valid, then this is likely a recheck, so don't search on the jukebox folder
+            if (StringTools.isNotValidString(movie.getBannerURL()) && StringTools.isValidString(movie.getBannerFilename())) {
+                searchInJukebox = Boolean.FALSE;
+            }            
+            localBannerFile = FileTools.findFilenameInCache(localBannerBaseFilename + bannerToken, bannerExtensions, jukebox, LOG_MESSAGE, searchInJukebox);
             if (localBannerFile != null) {
                 foundLocalBanner = true;
             }
@@ -140,6 +146,12 @@ public class BannerScanner {
             }
         }
 
+        // Check file attachments
+        if (!foundLocalBanner) {
+            localBannerFile = AttachmentScanner.extractAttachedBanner(movie);
+            foundLocalBanner = (localBannerFile != null);
+        }
+        
         // If we've found the banner, copy it to the jukebox, otherwise download it.
         if (foundLocalBanner) {
             fullBannerFilename = localBannerFile.getAbsolutePath();

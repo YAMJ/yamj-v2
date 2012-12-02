@@ -46,7 +46,6 @@ public class PhotoScanner {
     private static final String LOG_MESSAGE = "PhotoScanner: ";
     private static Collection<String> photoExtensions = new ArrayList<String>();
     private static boolean photoOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", FALSE);
-    private static Collection<String> photoImageName;
     private static String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
     private static String peopleFolder;
 

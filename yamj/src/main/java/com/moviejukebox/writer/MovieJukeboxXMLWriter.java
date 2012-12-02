@@ -13,6 +13,7 @@
 package com.moviejukebox.writer;
 
 import com.moviejukebox.model.*;
+import com.moviejukebox.model.Attachment.*;
 import com.moviejukebox.model.Comparator.CertificationComparator;
 import com.moviejukebox.model.Comparator.IndexComparator;
 import com.moviejukebox.model.Comparator.SortIgnorePrefixesComparator;
@@ -1404,6 +1405,20 @@ public class MovieJukeboxXMLWriter {
                     DOMHelper.appendChild(doc, eFileItem, "fileImageFile", HTMLTools.encodeUrl(mf.getVideoImageFilename(part)), PART, String.valueOf(part));
                 }
             }
+
+            if (mf.getAttachments() != null && !mf.getAttachments().isEmpty()) {
+                Element eAttachments = doc.createElement("attachments");
+                for (Attachment att : mf.getAttachments()) {
+                    Element eAttachment = doc.createElement("attachment");
+                    eAttachment.setAttribute("type", att.getType().toString());
+                    DOMHelper.appendChild(doc, eAttachment, "attachmentId", String.valueOf(att.getAttachmentId()));
+                    DOMHelper.appendChild(doc, eAttachment, "contentType", att.getContentType().toString());
+                    DOMHelper.appendChild(doc, eAttachment, "mimeType", att.getMimeType());
+                    eAttachments.appendChild(eAttachment);
+                }
+                eFileItem.appendChild(eAttachments);
+            }
+            
             eFiles.appendChild(eFileItem);
         }
         eMovie.appendChild(eFiles);
