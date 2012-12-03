@@ -154,7 +154,7 @@ public class StringTools {
      * "UNKNOWN", null or blank
      *
      * @param testString The string to test
-     * @return True if the string is invalid, false otherwise
+     * @return True if the string is invalid, Boolean.FALSE otherwise
      */
     public static boolean isNotValidString(String testString) {
         return !isValidString(testString);
@@ -169,22 +169,30 @@ public class StringTools {
     public static boolean isValidString(String testString) {
         // Checks if a String is whitespace, empty ("") or null.
         if (StringUtils.isBlank(testString)) {
-            return false;
+            return Boolean.FALSE;
         }
 
         if (testString.equalsIgnoreCase(Movie.UNKNOWN)) {
-            return false;
+            return Boolean.FALSE;
         }
 
-        return true;
-    }
-
-    public static String trimToLength(String sourceString, int requiredLength) {
-        return trimToLength(sourceString, requiredLength, true, "...");
+        return Boolean.TRUE;
     }
 
     /**
-     * Check that the passed string is no longer than the required length and
+     * Check that the passed string is not longer than the required length and
+     * trim it if necessary.
+     *
+     * @param sourceString
+     * @param requiredLength
+     * @return
+     */
+    public static String trimToLength(String sourceString, int requiredLength) {
+        return trimToLength(sourceString, requiredLength, Boolean.TRUE, "...");
+    }
+
+    /**
+     * Check that the passed string is not longer than the required length and
      * trim it if necessary
      *
      * @param sourceString The string to check

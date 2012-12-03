@@ -34,6 +34,7 @@ public class FileTools {
     private static final Collection<String> SUBTITLE_EXTENSIONS = new ArrayList<String>();
     // Literals
     private static final String TO = " to ";
+    private static final String BDMV_STREAM = File.separator + "BDMV" + File.separator + "STREAM";
 
     static {
         if (SUBTITLE_EXTENSIONS.isEmpty()) {
@@ -189,14 +190,14 @@ public class FileTools {
                 dst.mkdirs();
                 copyFile(src, new File(dst + File.separator + src.getName()));
             } else {
-            	FileInputStream inSource = null;
-            	FileOutputStream outSource = null;
-            	FileChannel inChannel = null;
-            	FileChannel outChannel = null;
+                FileInputStream inSource = null;
+                FileOutputStream outSource = null;
+                FileChannel inChannel = null;
+                FileChannel outChannel = null;
                 try {
                     // gc: copy using file channels, potentially much faster
-                	inSource =  new FileInputStream(src);
-                	outSource =  new FileOutputStream(dst);
+                    inSource = new FileInputStream(src);
+                    outSource = new FileOutputStream(dst);
                     inChannel = inSource.getChannel();
                     outChannel = outSource.getChannel();
 
@@ -209,14 +210,14 @@ public class FileTools {
                         inChannel.close();
                     }
                     if (inSource != null) {
-                    	inSource.close();
+                        inSource.close();
                     }
 
                     if (outChannel != null) {
                         outChannel.close();
                     }
                     if (outSource != null) {
-                    	outSource.close();
+                        outSource.close();
                     }
                 }
             }
@@ -227,6 +228,13 @@ public class FileTools {
         }
     }
 
+    /**
+     * Copy files from one directory to another
+     *
+     * @param srcPathName The source directory to copy from
+     * @param dstPathName The target directory to copy to
+     * @param updateDisplay Display an update to the console
+     */
     public static void copyDir(String srcPathName, String dstPathName, boolean updateDisplay) {
         copyDir(srcPathName, dstPathName, updateDisplay, null);
     }
@@ -452,8 +460,9 @@ public class FileTools {
     }
 
     /**
-     * Returns the given path in canonical form i.e. no duplicated separators, no ".", ".."..., and ending without
-     * trailing separator the only exception is a root! the canonical form for a root INCLUDES the separator
+     * Returns the given path in canonical form i.e. no duplicated separators,
+     * no ".", ".."..., and ending without trailing separator the only exception
+     * is a root! the canonical form for a root INCLUDES the separator
      */
     public static String getCanonicalPath(String path) {
         try {
@@ -464,14 +473,15 @@ public class FileTools {
     }
 
     /**
-     * when concatenating paths and the source MIGHT be a root, use this function to safely add the separator
+     * when concatenating paths and the source MIGHT be a root, use this
+     * function to safely add the separator
      */
     public static String getDirPathWithSeparator(String path) {
         return path.endsWith(File.separator) ? path : path + File.separator;
     }
 
     public static String getFileExtension(String filename) {
-        return new String(filename.substring(filename.lastIndexOf('.') + 1));
+        return FilenameUtils.getExtension(filename);
     }
 
     /**
@@ -487,8 +497,8 @@ public class FileTools {
 
     /**
      * *
-     * Pass in the filename and a list of extensions, this function will scan for the filename plus extensions and
-     * return the File
+     * Pass in the filename and a list of extensions, this function will scan
+     * for the filename plus extensions and return the File
      *
      * @param filename
      * @param fileExtensions
@@ -511,7 +521,8 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the extensions
+     * Search for the filename in the cache and look for each with the
+     * extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -524,7 +535,8 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the extensions
+     * Search for the filename in the cache and look for each with the
+     * extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -538,7 +550,8 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the extensions
+     * Search for the filename in the cache and look for each with the
+     * extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -599,8 +612,9 @@ public class FileTools {
     }
 
     /**
-     * Download the image for the specified URL into the specified file. Utilises the WebBrowser downloadImage function
-     * to allow for proxy connections.
+     * Download the image for the specified URL into the specified file.
+     * Utilises the WebBrowser downloadImage function to allow for proxy
+     * connections.
      *
      * @param imageFile
      * @param imageURL
@@ -628,7 +642,7 @@ public class FileTools {
         }
 
         // Issue 1070, /BDMV/STREAM is being appended to the parent path
-        if (parentFolder.toUpperCase().endsWith(File.separator + "BDMV" + File.separator + "STREAM")) {
+        if (parentFolder.toUpperCase().endsWith(BDMV_STREAM)) {
             parentFolder = new String(parentFolder.substring(0, parentFolder.length() - 12));
         }
 
@@ -692,7 +706,8 @@ public class FileTools {
     }
 
     /**
-     * Process the movie and add all the files to the jukebox cleaning exclusion list
+     * Process the movie and add all the files to the jukebox cleaning exclusion
+     * list
      *
      * @param movie
      */
@@ -728,7 +743,8 @@ public class FileTools {
     }
 
     /**
-     * Special File with "cached" attributes used to minimize file system access which slows down everything
+     * Special File with "cached" attributes used to minimize file system access
+     * which slows down everything
      *
      * @author Gabriel Corneanu
      */
@@ -903,8 +919,8 @@ public class FileTools {
     }
 
     /**
-     * cached File instances the key is always absolute path in upper-case, so it will NOT work for case only
-     * differences
+     * cached File instances the key is always absolute path in upper-case, so
+     * it will NOT work for case only differences
      *
      * @author Gabriel Corneanu
      */
@@ -915,36 +931,60 @@ public class FileTools {
 
         /**
          * Check whether the file exists
+         *
+         * @param absPath
+         * @return
          */
         public boolean fileExists(String absPath) {
             return cachedFiles.containsKey(absPath.toUpperCase());
         }
 
+        /**
+         * Check whether the file exists
+         *
+         * @param file
+         * @return
+         */
         public boolean fileExists(File file) {
             return cachedFiles.containsKey(file.getAbsolutePath().toUpperCase());
         }
 
         /**
          * Add a file instance to cache
+         *
+         * @param file
          */
         public void fileAdd(File file) {
             cachedFiles.put(file.getAbsolutePath().toUpperCase(), file);
         }
 
-        /*
-         * Retrieve a file from cache If it is NOT found, construct one instance
-         * and mark it as non-existing The exist() test is used very often
-         * throughout the library to search for specific files The path MUST be
-         * canonical (i.e. carefully constructed) We do NOT want here to make it
-         * canonical because it goes to the file system and it's slow
+        /**
+         * Retrieve a file from cache
+         *
+         * If it is NOT found, construct one instance and mark it as
+         * non-existing.
+         *
+         * The exist() test is used very often throughout the library to search
+         * for specific files.
+         *
+         * The path MUST be canonical (i.e. carefully constructed)
+         *
+         * We do NOT want here to make it canonical because it goes to the file
+         * system and it's slow.
+         *
+         * @param path
+         * @return
          */
         public File getFile(String path) {
             File f = cachedFiles.get(path.toUpperCase());
             return (f == null ? new FileEx(path, Boolean.FALSE) : f);
         }
 
-        /*
+        /**
          * Add a full directory listing; used for existing jukebox
+         *
+         * @param dir
+         * @param depth
          */
         public void addDir(File dir, int depth) {
             File[] files = dir.listFiles();
