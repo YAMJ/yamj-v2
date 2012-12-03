@@ -22,6 +22,7 @@ import java.io.*;
 import java.nio.channels.FileChannel;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import org.apache.commons.io.FilenameUtils;
 import static org.apache.commons.lang3.StringUtils.*;
 import org.apache.log4j.Logger;
@@ -1053,7 +1054,6 @@ public class FileTools {
             p.close();
         }
     }
-    
     public static ScannedFilesCache fileCache = new ScannedFilesCache();
 
     /**
@@ -1083,7 +1083,7 @@ public class FileTools {
         //TODO: Do we need to check if the path is already hashed?
 
         dirHash.append(filename.substring(0, 1)).append(File.separator);
-        dirHash.append(filename.substring(0, filename.length() > 1 ? 2 : 1)).append(File.separator);
+        dirHash.append(filename.substring(0, filename.length() > 1 ? 2 : 1).trim()).append(File.separator);
         dirHash.append(filename);
 
         return dirHash.toString();
@@ -1097,5 +1097,28 @@ public class FileTools {
      */
     public static String createDirHash(File file) {
         return createDirHash(file.getName());
+    }
+
+    public static Boolean makeDirectories(File file) {
+        return makeDirectories(file, 10);
+    }
+
+    public static Boolean makeDirectories(final File file, int numOfTries) {
+        boolean status = file.mkdirs();
+        int looper = 1;
+        while (!status && looper++ <= numOfTries) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                // We don't care about being interrupted
+            }
+            status = file.mkdirs();
+        }
+
+        if (status && looper > 10) {
+            logger.error("Failed creating the directory (" + file.getAbsolutePath() + "). Ensure this directory is read/write!");
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
     }
 }

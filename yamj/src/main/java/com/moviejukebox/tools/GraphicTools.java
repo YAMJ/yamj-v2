@@ -101,7 +101,7 @@ public class GraphicTools {
             //Output file:
             File outputFile = new File(filename);
             // Create the output directories if needed
-            outputFile.mkdirs();
+            FileTools.makeDirectories(outputFile);
 
             FileImageOutputStream output = new FileImageOutputStream(outputFile);
             writer.setOutput(output);
@@ -128,7 +128,7 @@ public class GraphicTools {
         try {
             File outputFile = new File(filename);
             // Create the output directories if needed
-            outputFile.mkdirs();
+            FileTools.makeDirectories(outputFile);
             ImageIO.write(bi, "png", outputFile);
         } catch (Exception error) {
             logger.error(LOG_MESSAGE + "Failed Saving thumbnail file: " + filename);
