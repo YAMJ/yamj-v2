@@ -1053,6 +1053,7 @@ public class FileTools {
             p.close();
         }
     }
+    
     public static ScannedFilesCache fileCache = new ScannedFilesCache();
 
     /**
@@ -1064,5 +1065,37 @@ public class FileTools {
     public static File findSubtitles(File fileToScan) {
         String basename = FilenameUtils.removeExtension(fileToScan.getAbsolutePath().toUpperCase());
         return FileTools.findFileFromExtensions(basename, SUBTITLE_EXTENSIONS);
+    }
+
+    /**
+     * Create a directory hash from the filename
+     *
+     * @param filename
+     * @return
+     */
+    public static String createDirHash(String filename) {
+        if (StringTools.isNotValidString(filename)) {
+            return "";
+        }
+
+        StringBuilder dirHash = new StringBuilder();
+
+        //TODO: Do we need to check if the path is already hashed?
+
+        dirHash.append(filename.substring(0, 1)).append(File.separator);
+        dirHash.append(filename.substring(0, filename.length() > 1 ? 2 : 1)).append(File.separator);
+        dirHash.append(filename);
+
+        return dirHash.toString();
+    }
+
+    /**
+     * Create a directory has from the filename of a file
+     *
+     * @param file
+     * @return
+     */
+    public static String createDirHash(File file) {
+        return createDirHash(file.getName());
     }
 }

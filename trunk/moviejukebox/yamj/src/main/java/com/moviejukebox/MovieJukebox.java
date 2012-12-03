@@ -40,6 +40,7 @@ import java.util.regex.PatternSyntaxException;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.stream.XMLStreamException;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -1615,7 +1616,7 @@ public class MovieJukebox {
             rootIndex.delete();
 
             FileTools.deleteDir(jukebox.getJukeboxTempLocation());
-            
+
             // clean up extracted attachments
             AttachmentScanner.cleanUp();
         }
@@ -1812,7 +1813,7 @@ public class MovieJukebox {
                 forceXMLOverwrite = true;
                 // TODO Need for new dirty flag ATTACHMENT?
             }
-            
+
             if (peopleScan && movie.getPeople().isEmpty() && (movie.getCast().size() + movie.getWriters().size() + movie.getDirectors().size()) > 0) {
                 forceXMLOverwrite = true;
                 movie.clearWriters();
@@ -1827,7 +1828,7 @@ public class MovieJukebox {
 
             // update mediainfo values
             miScanner.update(movie);
-            
+
             // update new episodes titles if new MovieFiles were added
             DatabasePluginController.scanTVShowTitles(movie);
 
@@ -1863,7 +1864,7 @@ public class MovieJukebox {
             AttachmentScanner.scan(movie);
             // extract attached NFO and add to list of NFO files
             AttachmentScanner.addAttachedNfo(movie, nfoFiles);
-            
+
             // scan NFO files
             MovieNFOScanner.scan(movie, nfoFiles);
 
@@ -2306,7 +2307,7 @@ public class MovieJukebox {
             // Generate and save both images
             if (perspectiveDirection.equalsIgnoreCase("both")) {
                 // Calculate mirror poster name.
-                String dstMirror = new String(dst.substring(0, dst.lastIndexOf('.'))) + "_mirror" + new String(dst.substring(dst.lastIndexOf('.')));
+                String dstMirror = FilenameUtils.removeExtension(dst) + "_mirror." + FilenameUtils.getExtension(dst);
 
                 // Generate left & save as copy
                 logger.debug("Generating mirror poster from " + src + " to " + dstMirror);
@@ -2337,10 +2338,6 @@ public class MovieJukebox {
                 logger.debug("Generating left poster from " + src + " to " + dst);
             }
         }
-//        } catch (Exception error) {
-//            logger.error("Failed creating poster for " + movie.getOriginalTitle());
-//            logger.error(SystemTools.getStackTrace(error));
-//        }
     }
 
     public static boolean isJukeboxPreserve() {

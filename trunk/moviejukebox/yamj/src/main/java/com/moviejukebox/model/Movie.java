@@ -16,6 +16,7 @@ import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
 import com.moviejukebox.tools.*;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
@@ -67,6 +68,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private List<String> ratingIgnore = StringTools.isValidString(tmpRatingIgnore) ? Arrays.asList(tmpRatingIgnore.split(",")) : new ArrayList<String>();
     private static final Set<String> GENRE_SKIP_LIST = new HashSet<String>();   // List of genres to ignore
     private static final TitleSortType titleSortType = TitleSortType.fromString(PropertiesUtil.getProperty("mjb.sortTitle", "title"));
+    // TODO: This will be removed in the future, once hashing has been completed
+    private static final Boolean DIR_HASH = PropertiesUtil.getBooleanProperty("mjb.dirHash", FALSE);
     /*
      * --------------------------------------------------------------------------------
      * Properties related to the Movie object itself
@@ -2106,7 +2109,12 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setDetailPosterFilename(String detailPosterFilename) {
         if (StringTools.isValidString(detailPosterFilename)) {
-            this.detailPosterFilename = detailPosterFilename;
+            // create the directory hash if needed
+            if (DIR_HASH) {
+                this.detailPosterFilename = FileTools.createDirHash(detailPosterFilename);
+            } else {
+                this.detailPosterFilename = detailPosterFilename;
+            }
         } else {
             this.detailPosterFilename = UNKNOWN;
         }
@@ -2121,7 +2129,12 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setThumbnailFilename(String thumbnailFilename) {
         if (StringTools.isValidString(thumbnailFilename)) {
-            this.thumbnailFilename = thumbnailFilename;
+            // create the directory hash if needed
+            if (DIR_HASH) {
+                this.thumbnailFilename = FileTools.createDirHash(thumbnailFilename);
+            } else {
+                this.thumbnailFilename = thumbnailFilename;
+            }
         } else {
             this.thumbnailFilename = UNKNOWN;
         }
