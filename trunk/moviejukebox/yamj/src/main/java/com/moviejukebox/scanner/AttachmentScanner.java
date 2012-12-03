@@ -20,6 +20,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
@@ -47,6 +48,8 @@ public class AttachmentScanner {
 
     private static final Logger LOGGER = Logger.getLogger(AttachmentScanner.class);
     private static final String LOG_MESSAGE = "AttachmentScanner: ";
+    // Enabled
+    private static final Boolean IS_ENABLED = PropertiesUtil.getBooleanProperty("attachment.scanner.enabled", FALSE);
     // mkvToolnix
     private static final File MT_PATH = new File(PropertiesUtil.getProperty("attachment.mkvtoolnix.home", "./mkvToolnix/"));
     private static final String MT_LANGUAGE = PropertiesUtil.getProperty("attachment.mkvtoolnix.language", "");
@@ -80,111 +83,115 @@ public class AttachmentScanner {
     private static final Map<String, String> VALID_IMAGE_MIME_TYPES = new HashMap<String, String>();
 
     static {
-        File checkMkvInfo = findMkvInfo();
-        File checkMkvExtract = findMkvExtract();
+        if (IS_ENABLED) {
+            File checkMkvInfo = findMkvInfo();
+            File checkMkvExtract = findMkvExtract();
 
-        if (OS_NAME.contains("Windows")) {
-            if (MT_INFO_EXE.isEmpty()) {
-                MT_INFO_EXE.add("cmd.exe");
-                MT_INFO_EXE.add("/E:1900");
-                MT_INFO_EXE.add("/C");
-                MT_INFO_EXE.add(checkMkvInfo.getName());
-                MT_INFO_EXE.add("--ui-language");
-                if (StringUtils.isBlank(MT_LANGUAGE)) {
-                    MT_INFO_EXE.add("en");
-                } else {
-                    MT_INFO_EXE.add(MT_LANGUAGE);
+            if (OS_NAME.contains("Windows")) {
+                if (MT_INFO_EXE.isEmpty()) {
+                    MT_INFO_EXE.add("cmd.exe");
+                    MT_INFO_EXE.add("/E:1900");
+                    MT_INFO_EXE.add("/C");
+                    MT_INFO_EXE.add(checkMkvInfo.getName());
+                    MT_INFO_EXE.add("--ui-language");
+                    if (StringUtils.isBlank(MT_LANGUAGE)) {
+                        MT_INFO_EXE.add("en");
+                    } else {
+                        MT_INFO_EXE.add(MT_LANGUAGE);
+                    }
+                }
+                if (MT_EXTRACT_EXE.isEmpty()) {
+                    MT_EXTRACT_EXE.add("cmd.exe");
+                    MT_EXTRACT_EXE.add("/E:1900");
+                    MT_EXTRACT_EXE.add("/C");
+                    MT_EXTRACT_EXE.add(checkMkvExtract.getName());
+                }
+            } else {
+                if (MT_INFO_EXE.isEmpty()) {
+                    MT_INFO_EXE.add("./" + checkMkvInfo.getName());
+                    MT_INFO_EXE.add("--ui-language");
+                    if (StringUtils.isBlank(MT_LANGUAGE)) {
+                        MT_INFO_EXE.add("en_US");
+                    } else {
+                        MT_INFO_EXE.add(MT_LANGUAGE);
+                    }
+                }
+                if (MT_EXTRACT_EXE.isEmpty()) {
+                    MT_EXTRACT_EXE.add("./" + checkMkvExtract.getName());
                 }
             }
-            if (MT_EXTRACT_EXE.isEmpty()) {
-                MT_EXTRACT_EXE.add("cmd.exe");
-                MT_EXTRACT_EXE.add("/E:1900");
-                MT_EXTRACT_EXE.add("/C");
-                MT_EXTRACT_EXE.add(checkMkvExtract.getName());
+
+            if (VALID_TEXT_MIME_TYPES.isEmpty()) {
+                VALID_TEXT_MIME_TYPES.add("text/xml");
+                VALID_TEXT_MIME_TYPES.add("application/xml");
+                VALID_TEXT_MIME_TYPES.add("text/html");
             }
-        } else {
-            if (MT_INFO_EXE.isEmpty()) {
-                MT_INFO_EXE.add("./" + checkMkvInfo.getName());
-                MT_INFO_EXE.add("--ui-language");
-                if (StringUtils.isBlank(MT_LANGUAGE)) {
-                    MT_INFO_EXE.add("en_US");
-                } else {
-                    MT_INFO_EXE.add(MT_LANGUAGE);
+
+            if (VALID_IMAGE_MIME_TYPES.isEmpty()) {
+                VALID_IMAGE_MIME_TYPES.put("image/jpeg", ".jpg");
+                VALID_IMAGE_MIME_TYPES.put("image/png", ".png");
+                VALID_IMAGE_MIME_TYPES.put("image/gif", ".gif");
+                VALID_IMAGE_MIME_TYPES.put("image/x-ms-bmp", ".bmp");
+            }
+
+            if (!checkMkvInfo.canExecute()) {
+                LOGGER.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvinfo'");
+                IS_ACTIVATED = Boolean.FALSE;
+            } else if (!checkMkvExtract.canExecute()) {
+                LOGGER.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvextract'");
+                IS_ACTIVATED = Boolean.FALSE;
+            } else {
+                LOGGER.info(LOG_MESSAGE + "MkvToolnix will be used to extract matroska attachments");
+                IS_ACTIVATED = Boolean.TRUE;
+            }
+
+            if (IS_ACTIVATED) {
+                // just create temporary directories if MkvToolnix is activated
+                try {
+                    String tempLocation = PropertiesUtil.getProperty("attachment.temp.directory", "");
+                    if (StringUtils.isBlank(tempLocation)) {
+                        tempLocation = StringTools.appendToPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp"), "attachments");
+                    }
+
+                    File tempFile = new File(FileTools.getCanonicalPath(tempLocation));
+                    if (tempFile.exists()) {
+                        TEMP_DIRECTORY = tempFile;
+                    } else {
+                        LOGGER.debug(LOG_MESSAGE + "Creating temporary attachment location: (" + tempLocation + ")");
+                        boolean status = tempFile.mkdirs();
+                        int i = 1;
+                        while (!status && i++ <= 10) {
+                            Thread.sleep(1000);
+                            status = tempFile.mkdirs();
+                        }
+
+                        if (status && i > 10) {
+                            LOGGER.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: (" + tempLocation + ")");
+                            // scanner will not be active without temporary directory
+                            IS_ACTIVATED = Boolean.FALSE;
+                        } else {
+                            TEMP_DIRECTORY = tempFile;
+                        }
+                    }
+                } catch (Exception ex) {
+                    LOGGER.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: " + ex.getMessage());
+                    // scanner will not be active without temporary directory
+                    IS_ACTIVATED = Boolean.FALSE;
                 }
             }
-            if (MT_EXTRACT_EXE.isEmpty()) {
-                MT_EXTRACT_EXE.add("./" + checkMkvExtract.getName());
-            }
-        }
-
-        if (VALID_TEXT_MIME_TYPES.isEmpty()) {
-            VALID_TEXT_MIME_TYPES.add("text/xml");
-            VALID_TEXT_MIME_TYPES.add("application/xml");
-            VALID_TEXT_MIME_TYPES.add("text/html");
-        }
-
-        if (VALID_IMAGE_MIME_TYPES.isEmpty()) {
-            VALID_IMAGE_MIME_TYPES.put("image/jpeg", ".jpg");
-            VALID_IMAGE_MIME_TYPES.put("image/png", ".png");
-            VALID_IMAGE_MIME_TYPES.put("image/gif", ".gif");
-            VALID_IMAGE_MIME_TYPES.put("image/x-ms-bmp", ".bmp");
-        }
-
-        if (!checkMkvInfo.canExecute()) {
-            LOGGER.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvinfo'");
-            IS_ACTIVATED = Boolean.FALSE;
-        } else if (!checkMkvExtract.canExecute()) {
-            LOGGER.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvextract'");
-            IS_ACTIVATED = Boolean.FALSE;
         } else {
-            LOGGER.info(LOG_MESSAGE + "MkvToolnix will be used to extract matroska attachments");
-            IS_ACTIVATED = Boolean.TRUE;
-        }
-
-        if (IS_ACTIVATED) {
-	        // just create temporary directories if MkvToolnix is activated
-	        try {
-	            String tempLocation = PropertiesUtil.getProperty("attachment.temp.directory", "");
-	            if (StringUtils.isBlank(tempLocation)) {
-	                tempLocation = StringTools.appendToPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp"), "attachments");
-	            }
-	
-	            File tempFile = new File(FileTools.getCanonicalPath(tempLocation));
-	            if (tempFile.exists()) {
-	                TEMP_DIRECTORY = tempFile;
-	            } else {
-	                LOGGER.debug(LOG_MESSAGE + "Creating temporary attachment location: (" + tempLocation + ")");
-	                boolean status = tempFile.mkdirs();
-	                int i = 1;
-	                while (!status && i++ <= 10) {
-	                    Thread.sleep(1000);
-	                    status = tempFile.mkdirs();
-	                }
-	
-	                if (status && i > 10) {
-	                    LOGGER.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: (" + tempLocation + ")");
-	                    // scanner will not be active without temporary directory
-	                    IS_ACTIVATED = false;
-	                } else {
-	                    TEMP_DIRECTORY = tempFile;
-	                }
-	            }
-	        } catch (Exception ex) {
-	            LOGGER.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: " + ex.getMessage());
-                // scanner will not be active without temporary directory
-                IS_ACTIVATED = false;
-	        }
+            IS_ACTIVATED = Boolean.FALSE;
         }
     }
 
     protected AttachmentScanner() {
         throw new UnsupportedOperationException("AttachmentScanner is a utility class and cannot be instatiated");
     }
-    
+
     /**
-     * Checks if a file is scanable for attachments.
-     * Therefore the file must exist and the extension must be equal to MKV.
-     * 
+     * Checks if a file is scanable for attachments. Therefore the file must
+     * exist and the extension must be equal to MKV.
+     *
      * @param file the file to scan
      * @return true, if file is scanable, else false
      */
@@ -202,7 +209,7 @@ public class AttachmentScanner {
 
     /**
      * Scan the movie for attachments in each movie file.
-     * 
+     *
      * @param movie
      */
     public static void scan(Movie movie) {
@@ -222,11 +229,11 @@ public class AttachmentScanner {
 
     /**
      * Rescan the movie for attachments in each movie file.
-     * 
+     *
      * @param movie the movie which will be scanned
      * @param xmlFile the xmlFile to use for checking lastModificationDate
-     * @return true, if movieFile is never than xmlFile and attachments
-     *         have been found, else false
+     * @return true, if movieFile is never than xmlFile and attachments have
+     * been found, else false
      */
     public static boolean rescan(Movie movie, File xmlFile) {
         if (!IS_ACTIVATED) {
@@ -284,7 +291,7 @@ public class AttachmentScanner {
 
     /**
      * Scans a matroska movie file for attachments.
-     *  
+     *
      * @param movieFile the movie file to scan
      */
     private static void scanMatroskaAttachments(MovieFile movieFile) {
@@ -428,7 +435,7 @@ public class AttachmentScanner {
 
     /**
      * Determines the content type of the attachment by file name and mime type.
-     * 
+     *
      * @param inFileName
      * @param inMimeType
      * @return the content type, may be null if determination failed
@@ -498,6 +505,10 @@ public class AttachmentScanner {
     }
 
     public static File extractAttachedFanart(Movie movie) {
+        if(!IS_ACTIVATED) {
+            return null;
+        }
+
         File fanartFile = extractToLocalFile(ContentType.FANART, movie, -1);
         if (fanartFile != null) {
             LOGGER.debug(LOG_MESSAGE + "Extracted fanart " + fanartFile.getAbsolutePath());
@@ -506,6 +517,10 @@ public class AttachmentScanner {
     }
 
     public static File extractAttachedPoster(Movie movie) {
+        if(!IS_ACTIVATED) {
+            return null;
+        }
+
         File posterFile = extractToLocalFile(ContentType.POSTER, movie, -1);
         if (posterFile != null) {
             LOGGER.debug(LOG_MESSAGE + "Extracted poster " + posterFile.getAbsolutePath());
@@ -514,6 +529,10 @@ public class AttachmentScanner {
     }
 
     public static File extractAttachedBanner(Movie movie) {
+        if(!IS_ACTIVATED) {
+            return null;
+        }
+
         File bannerFile = extractToLocalFile(ContentType.BANNER, movie, -1);
         if (bannerFile != null) {
             LOGGER.debug(LOG_MESSAGE + "Extracted banner " + bannerFile.getAbsolutePath());
@@ -522,6 +541,10 @@ public class AttachmentScanner {
     }
 
     public static File extractAttachedVideoimage(Movie movie, int part) {
+        if(!IS_ACTIVATED) {
+            return null;
+        }
+
         File videoimageFile = extractToLocalFile(ContentType.VIDEOIMAGE, movie, part);
         if (videoimageFile != null) {
             LOGGER.debug(LOG_MESSAGE + "Extracted videoimage " + videoimageFile.getAbsolutePath());
@@ -667,7 +690,7 @@ public class AttachmentScanner {
             try {
                 returnFile.setLastModified(sourceFile.lastModified());
             } catch (Exception ignore) {
-            	// nothing to do anymore
+                // nothing to do anymore
             }
         }
         return returnFile;
