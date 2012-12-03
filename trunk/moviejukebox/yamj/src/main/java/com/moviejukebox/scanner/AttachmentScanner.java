@@ -58,7 +58,7 @@ public class AttachmentScanner {
     private static final String MT_EXTRACT_FILENAME_WINDOWS = "mkvextract.exe";
     private static final String MT_EXTRACT_FILENAME_LINUX = "mkvextract";
     // flag to indicate if scanner is activated
-    private static boolean ACTIVATED = Boolean.FALSE;
+    private static boolean IS_ACTIVATED = Boolean.FALSE;
     // temporary directory
     private static File TEMP_DIRECTORY = null;
     private static boolean TEMP_CLEANUP = PropertiesUtil.getBooleanProperty("attachment.temp.cleanup", TRUE);
@@ -132,42 +132,48 @@ public class AttachmentScanner {
 
         if (!checkMkvInfo.canExecute()) {
             LOGGER.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvinfo'");
-            ACTIVATED = Boolean.FALSE;
+            IS_ACTIVATED = Boolean.FALSE;
         } else if (!checkMkvExtract.canExecute()) {
             LOGGER.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvextract'");
-            ACTIVATED = Boolean.FALSE;
+            IS_ACTIVATED = Boolean.FALSE;
         } else {
             LOGGER.info(LOG_MESSAGE + "MkvToolnix will be used to extract matroska attachments");
-            ACTIVATED = Boolean.TRUE;
+            IS_ACTIVATED = Boolean.TRUE;
         }
 
-        // just create temporary directories if MkvToolnix is activated
-        try {
-            String tempLocation = PropertiesUtil.getProperty("attachment.temp.directory", "");
-            if (StringUtils.isBlank(tempLocation)) {
-                tempLocation = StringTools.appendToPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp"), "attachments");
-            }
-
-            File tempFile = new File(FileTools.getCanonicalPath(tempLocation));
-            if (tempFile.exists()) {
-                TEMP_DIRECTORY = tempFile;
-            } else {
-                LOGGER.debug(LOG_MESSAGE + "Creating temporary attachment location: (" + tempLocation + ")");
-                boolean status = tempFile.mkdirs();
-                int i = 1;
-                while (!status && i++ <= 10) {
-                    Thread.sleep(1000);
-                    status = tempFile.mkdirs();
-                }
-
-                if (status && i > 10) {
-                    LOGGER.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: (" + tempLocation + ")");
-                } else {
-                    TEMP_DIRECTORY = tempFile;
-                }
-            }
-        } catch (Exception ex) {
-            LOGGER.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: " + ex.getMessage());
+        if (IS_ACTIVATED) {
+	        // just create temporary directories if MkvToolnix is activated
+	        try {
+	            String tempLocation = PropertiesUtil.getProperty("attachment.temp.directory", "");
+	            if (StringUtils.isBlank(tempLocation)) {
+	                tempLocation = StringTools.appendToPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp"), "attachments");
+	            }
+	
+	            File tempFile = new File(FileTools.getCanonicalPath(tempLocation));
+	            if (tempFile.exists()) {
+	                TEMP_DIRECTORY = tempFile;
+	            } else {
+	                LOGGER.debug(LOG_MESSAGE + "Creating temporary attachment location: (" + tempLocation + ")");
+	                boolean status = tempFile.mkdirs();
+	                int i = 1;
+	                while (!status && i++ <= 10) {
+	                    Thread.sleep(1000);
+	                    status = tempFile.mkdirs();
+	                }
+	
+	                if (status && i > 10) {
+	                    LOGGER.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: (" + tempLocation + ")");
+	                    // scanner will not be active without temporary directory
+	                    IS_ACTIVATED = false;
+	                } else {
+	                    TEMP_DIRECTORY = tempFile;
+	                }
+	            }
+	        } catch (Exception ex) {
+	            LOGGER.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: " + ex.getMessage());
+                // scanner will not be active without temporary directory
+                IS_ACTIVATED = false;
+	        }
         }
     }
 
@@ -175,15 +181,6 @@ public class AttachmentScanner {
         throw new UnsupportedOperationException("AttachmentScanner is a utility class and cannot be instatiated");
     }
     
-    /**
-     * Check if the attachment scanner is activated.
-     * 
-     * @return true, if activated, else false
-     */
-    private static boolean isActivated() {
-        return (ACTIVATED && (TEMP_DIRECTORY != null));
-    }
-
     /**
      * Checks if a file is scanable for attachments.
      * Therefore the file must exist and the extension must be equal to MKV.
@@ -209,7 +206,7 @@ public class AttachmentScanner {
      * @param movie
      */
     public static void scan(Movie movie) {
-        if (!isActivated()) {
+        if (!IS_ACTIVATED) {
             return;
         } else if (!Movie.TYPE_FILE.equalsIgnoreCase(movie.getFormatType())) {
             // movie to scan must have file format
@@ -232,7 +229,7 @@ public class AttachmentScanner {
      *         have been found, else false
      */
     public static boolean rescan(Movie movie, File xmlFile) {
-        if (!isActivated()) {
+        if (!IS_ACTIVATED) {
             return Boolean.FALSE;
         } else if (!RECHECK_ENABLED) {
             return Boolean.FALSE;
@@ -486,7 +483,7 @@ public class AttachmentScanner {
     }
 
     public static void addAttachedNfo(Movie movie, List<File> nfoFiles) {
-        if (!isActivated()) {
+        if (!IS_ACTIVATED) {
             return;
         }
 
@@ -533,7 +530,7 @@ public class AttachmentScanner {
     }
 
     private static File extractToLocalFile(ContentType contentType, Movie movie, int part) {
-        if (!isActivated()) {
+        if (!IS_ACTIVATED) {
             return null;
         } else if (!Movie.TYPE_FILE.equalsIgnoreCase(movie.getFormatType())) {
             return null;
@@ -642,7 +639,7 @@ public class AttachmentScanner {
             return returnFile;
         }
 
-        //logger.debug(LOG_MESSAGE + "Extract attachement ("+attachment+")");
+        //LOGGER.debug(LOG_MESSAGE + "Extract attachement (" + attachment + ")");
 
         try {
             // Create the command line
@@ -680,7 +677,7 @@ public class AttachmentScanner {
      * Clean up the temporary directory for attachments
      */
     public static void cleanUp() {
-        if (TEMP_CLEANUP && (TEMP_DIRECTORY != null) && TEMP_DIRECTORY.exists()) {
+        if (IS_ACTIVATED && TEMP_CLEANUP && (TEMP_DIRECTORY != null) && TEMP_DIRECTORY.exists()) {
             FileTools.deleteDir(TEMP_DIRECTORY);
         }
     }
