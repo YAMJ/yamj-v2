@@ -12,8 +12,17 @@
  */
 package com.moviejukebox.scanner;
 
+import com.moviejukebox.model.Attachment.Attachment;
+import com.moviejukebox.model.Attachment.AttachmentType;
+import com.moviejukebox.model.Attachment.ContentType;
+import com.moviejukebox.model.DirtyFlag;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
-
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -25,21 +34,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-
-import com.moviejukebox.model.DirtyFlag;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Attachment.Attachment;
-import com.moviejukebox.model.Attachment.AttachmentType;
-import com.moviejukebox.model.Attachment.ContentType;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 
 /**
  * Scans and extracts attachments within a file i.e. matroska files.
@@ -50,11 +47,9 @@ public class AttachmentScanner {
 
     private static final Logger logger = Logger.getLogger(AttachmentScanner.class);
     private static final String LOG_MESSAGE = "AttachmentScanner: ";
-    
     // mkvToolnix
     private static final File MT_PATH = new File(PropertiesUtil.getProperty("attachment.mkvtoolnix.home", "./mkvToolnix/"));
     private static final String MT_LANGUAGE = PropertiesUtil.getProperty("attachment.mkvtoolnix.language", "");
-
     // mkvToolnix command line, depend on OS
     private static final List<String> MT_INFO_EXE = new ArrayList<String>();
     private static final List<String> MT_EXTRACT_EXE = new ArrayList<String>();
@@ -62,33 +57,27 @@ public class AttachmentScanner {
     private static final String MT_INFO_FILENAME_LINUX = "mkvinfo";
     private static final String MT_EXTRACT_FILENAME_WINDOWS = "mkvextract.exe";
     private static final String MT_EXTRACT_FILENAME_LINUX = "mkvextract";
-    private static boolean activated = false;
-
+    private static boolean activated = Boolean.FALSE;
     // temporary directory
-    private static File tempDirectory;
+    private static File tempDirectory = null;
     private static boolean tempCleanup = PropertiesUtil.getBooleanProperty("attachment.temp.cleanup", TRUE);
-
     // enable/disable recheck
     private static boolean recheckEnabled = PropertiesUtil.getBooleanProperty("attachment.recheck.enabled", TRUE);
-
     // the operating system name
     public static final String OS_NAME = System.getProperty("os.name");
-    
     // properties for NFO handling
     private static final String[] NFOExtensions = PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").toLowerCase().split(",");
-    
     // scan for multiple fanart image names
-    private static final List<String> fanartImageNames = StringTools.splitList(PropertiesUtil.getProperty("attachment.fanart.imageNames", "fanart,backdrop,background"),",");
+    private static final List<String> fanartImageNames = StringTools.splitList(PropertiesUtil.getProperty("attachment.fanart.imageNames", "fanart,backdrop,background"), ",");
     // image tokens
     private static final String fanartToken = PropertiesUtil.getProperty("attachment.token.fanart", ".fanart").toLowerCase();
     private static final String bannerToken = PropertiesUtil.getProperty("attachment.token.banner", ".banner").toLowerCase();
     private static final String videoimageToken = PropertiesUtil.getProperty("attachment.token.videoimage", ".videoimage").toLowerCase();
     private static final String posterToken = PropertiesUtil.getProperty("attachment.token.poster", ".poster").toLowerCase();
-    
     // valid MIME types
-    private static final Set<String> validTextMimeTypes = new HashSet<String>(); 
-    private static final Map<String,String> validImageMimeTypes = new HashMap<String,String>();
-    
+    private static final Set<String> validTextMimeTypes = new HashSet<String>();
+    private static final Map<String, String> validImageMimeTypes = new HashMap<String, String>();
+
     static {
         File checkMkvInfo = findMkvInfo();
         File checkMkvExtract = findMkvExtract();
@@ -132,32 +121,32 @@ public class AttachmentScanner {
             validTextMimeTypes.add("application/xml");
             validTextMimeTypes.add("text/html");
         }
-        
+
         if (validImageMimeTypes.isEmpty()) {
             validImageMimeTypes.put("image/jpeg", ".jpg");
             validImageMimeTypes.put("image/png", ".png");
             validImageMimeTypes.put("image/gif", ".gif");
             validImageMimeTypes.put("image/x-ms-bmp", ".bmp");
         }
-        
+
         if (!checkMkvInfo.canExecute()) {
             logger.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvinfo'");
-            activated = false;
+            activated = Boolean.FALSE;
         } else if (!checkMkvExtract.canExecute()) {
             logger.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvextract'");
-            activated = false;
+            activated = Boolean.FALSE;
         } else {
             logger.info(LOG_MESSAGE + "MkvToolnix will be used to extract matroska attachments");
-            activated = true;
+            activated = Boolean.TRUE;
         }
-        
+
         // just create temporary directories if MkvToolnix is activated
         try {
             String tempLocation = PropertiesUtil.getProperty("attachment.temp.directory", "");
             if (StringUtils.isBlank(tempLocation)) {
-                tempLocation = StringTools.appendToPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp"),"attachments");
+                tempLocation = StringTools.appendToPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp"), "attachments");
             }
-            
+
             File tempFile = new File(FileTools.getCanonicalPath(tempLocation));
             if (tempFile.exists()) {
                 tempDirectory = tempFile;
@@ -169,14 +158,16 @@ public class AttachmentScanner {
                     Thread.sleep(1000);
                     status = tempFile.mkdirs();
                 }
-    
+
                 if (status && i > 10) {
-                    logger.error("Failed creating the temporary attachment directory: (" + tempLocation + ")");
-                } else  {
+                    logger.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: (" + tempLocation + ")");
+                } else {
                     tempDirectory = tempFile;
                 }
             }
-        } catch (Exception ignore) {}
+        } catch (Exception ex) {
+            logger.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: " + ex.getMessage());
+        }
     }
 
     private static boolean isActivated() {
@@ -185,16 +176,16 @@ public class AttachmentScanner {
 
     private static boolean isFileScannable(File file) {
         if (file == null) {
-            return false;
+            return Boolean.FALSE;
         } else if (!file.exists()) {
-            return false;
-        }  else if (!"MKV".equalsIgnoreCase(FileTools.getFileExtension(file.getName()))) {
+            return Boolean.FALSE;
+        } else if (!"MKV".equalsIgnoreCase(FileTools.getFileExtension(file.getName()))) {
             // no matroska file
-            return false;
+            return Boolean.FALSE;
         }
-        return true;
+        return Boolean.TRUE;
     }
-    
+
     public static void scan(Movie movie) {
         if (!isActivated()) {
             return;
@@ -209,47 +200,47 @@ public class AttachmentScanner {
             }
         }
     }
-    
+
     public static boolean rescan(Movie movie, File xmlFile) {
         if (!isActivated()) {
-            return false;
+            return Boolean.FALSE;
         } else if (!recheckEnabled) {
-            return false;
+            return Boolean.FALSE;
         } else if (!Movie.TYPE_FILE.equalsIgnoreCase(movie.getFormatType())) {
             // movie the scan must be a file
-            return false;
+            return Boolean.FALSE;
         }
 
         // holds the return value
-        boolean returnValue = false;
+        boolean returnValue = Boolean.FALSE;
 
         // flag to indicate the first movie
-        boolean firstMovie = true;
-        
+        boolean firstMovie = Boolean.TRUE;
+
         for (MovieFile movieFile : movie.getMovieFiles()) {
             if (isFileScannable(movieFile.getFile())) {
                 if (FileTools.isNewer(movieFile.getFile(), xmlFile)) {
                     // scan attachments
                     scanMatroskaAttachments(movieFile);
-                    
+
                     // check attachments and determine changes
                     for (Attachment attachment : movieFile.getAttachments()) {
                         if (firstMovie) {
                             if (ContentType.NFO == attachment.getContentType()) {
-                                returnValue = true;
+                                returnValue = Boolean.TRUE;
                                 movie.setDirty(DirtyFlag.NFO);
                             } else if (ContentType.POSTER == attachment.getContentType()) {
-                                returnValue = true;
+                                returnValue = Boolean.TRUE;
                                 movie.setDirty(DirtyFlag.POSTER);
                                 // Set to unknown for not taking poster from Jukebox
                                 movie.setPosterURL(Movie.UNKNOWN);
                             } else if (ContentType.FANART == attachment.getContentType()) {
-                                returnValue = true;
+                                returnValue = Boolean.TRUE;
                                 movie.setDirty(DirtyFlag.FANART);
                                 // Set to unknown for not taking fanart from Jukebox
                                 movie.setFanartURL(Movie.UNKNOWN);
                             } else if (ContentType.BANNER == attachment.getContentType()) {
-                                returnValue = true;
+                                returnValue = Boolean.TRUE;
                                 movie.setDirty(DirtyFlag.BANNER);
                                 // Set to unknown for not taking banner from Jukebox
                                 movie.setBannerURL(Movie.UNKNOWN);
@@ -261,23 +252,23 @@ public class AttachmentScanner {
                 }
             }
         }
-        
+
         return returnValue;
     }
-    
+
     private static void scanMatroskaAttachments(MovieFile movieFile) {
         if (movieFile.isAttachmentsScanned()) {
             // attachments has been scanned during rescan of movie
             return;
         }
-        
+
         // clear existing attachments
         movieFile.clearAttachments();
-        
+
         // the file with possible attachments
         File scanFile = movieFile.getFile();
-        
-        logger.debug(LOG_MESSAGE + "Scanning file "+scanFile.getName()); 
+
+        logger.debug(LOG_MESSAGE + "Scanning file " + scanFile.getName());
         int attachmentId = 0;
         try {
             // create the command line
@@ -299,20 +290,20 @@ public class AttachmentScanner {
                     // increase the attachment id
                     attachmentId++;
                     // next line contains file name
-                    String fileNameLine =  localInputReadLine(input);
+                    String fileNameLine = localInputReadLine(input);
                     // next line contains MIME type
-                    String mimeTypeLine =  localInputReadLine(input);
-                    
+                    String mimeTypeLine = localInputReadLine(input);
+
                     Attachment attachment = createMatroskaAttachment(attachmentId, fileNameLine, mimeTypeLine);
                     if (attachment != null) {
                         attachment.setSourceFile(movieFile.getFile());
                         movieFile.addAttachment(attachment);
                     }
                 }
-                
+
                 line = localInputReadLine(input);
             }
-            
+
             if (p.waitFor() != 0) {
                 logger.error(LOG_MESSAGE + "Error during attachment retrieval - ErrorCode=" + p.exitValue());
             }
@@ -323,7 +314,7 @@ public class AttachmentScanner {
         // attachments has been scanned; no double scan of attachments needed
         movieFile.setAttachmentsScanned(Boolean.TRUE);
     }
-    
+
     private static String localInputReadLine(BufferedReader input) {
         String line = null;
         try {
@@ -331,10 +322,10 @@ public class AttachmentScanner {
             while ((line != null) && (line.equals(""))) {
                 line = input.readLine();
             }
-        } catch (IOException ignore) {}
+        } catch (IOException ignore) {
+        }
         return line;
     }
-
 
     /**
      * Look for the mkvinfo filename and return it.
@@ -349,7 +340,7 @@ public class AttachmentScanner {
         } else {
             mkvInfoFile = new File(StringTools.appendToPath(MT_PATH.getAbsolutePath(), MT_INFO_FILENAME_LINUX));
         }
-        
+
         return mkvInfoFile;
     }
 
@@ -366,13 +357,13 @@ public class AttachmentScanner {
         } else {
             mkvExtractFile = new File(StringTools.appendToPath(MT_PATH.getAbsolutePath(), MT_EXTRACT_FILENAME_LINUX));
         }
-        
+
         return mkvExtractFile;
     }
 
     /**
      * Creates an matroska attachment.
-     * 
+     *
      * @param id
      * @param filename
      * @param mimetype
@@ -381,35 +372,39 @@ public class AttachmentScanner {
     private static Attachment createMatroskaAttachment(int id, String filename, String mimetype) {
         String fixedFileName = null;
         if (filename.contains("File name:")) {
-            fixedFileName = filename.substring(filename.indexOf("File name:")+10).trim();
+            fixedFileName = filename.substring(filename.indexOf("File name:") + 10).trim();
         }
         String fixedMimeType = null;
         if (mimetype.contains("Mime type:")) {
-            fixedMimeType = mimetype.substring(mimetype.indexOf("Mime type:")+10).trim();
+            fixedMimeType = mimetype.substring(mimetype.indexOf("Mime type:") + 10).trim();
         }
-        
+
         ContentType type = determineContentType(fixedFileName, fixedMimeType);
- 
+
         Attachment attachment = null;
         if (type == null) {
-            logger.debug(LOG_MESSAGE + "Failed to dertermine attachment type for '"+fixedFileName+"' ("+fixedMimeType+")");
+            logger.debug(LOG_MESSAGE + "Failed to dertermine attachment type for '" + fixedFileName + "' (" + fixedMimeType + ")");
         } else {
             attachment = new Attachment();
             attachment.setType(AttachmentType.MATROSKA);
             attachment.setAttachmentId(id);
             attachment.setContentType(type);
             attachment.setMimeType(fixedMimeType.toLowerCase());
-            logger.debug(LOG_MESSAGE + "Found attachment "+attachment);
+            logger.debug(LOG_MESSAGE + "Found attachment " + attachment);
         }
         return attachment;
     }
 
     private static ContentType determineContentType(String inFileName, String inMimeType) {
-        if (inFileName == null) return null;
-        if (inMimeType == null) return null;
+        if (inFileName == null) {
+            return null;
+        }
+        if (inMimeType == null) {
+            return null;
+        }
         String fileName = inFileName.toLowerCase();
         String mimeType = inMimeType.toLowerCase();
-        
+
         if (validTextMimeTypes.contains(mimeType)) {
             // NFO
             for (String extension : NFOExtensions) {
@@ -420,17 +415,31 @@ public class AttachmentScanner {
         } else if (validImageMimeTypes.containsKey(mimeType)) {
             String check = FilenameUtils.removeExtension(fileName);
             for (String imageName : fanartImageNames) {
-                if (check.endsWith(imageName)) return ContentType.FANART;
+                if (check.endsWith(imageName)) {
+                    return ContentType.FANART;
+                }
             }
-            if (check.endsWith(posterToken)) return ContentType.POSTER;
-            if (check.endsWith(bannerToken)) return ContentType.BANNER;
-            if (check.endsWith(videoimageToken)) return ContentType.VIDEOIMAGE;
+            if (check.endsWith(posterToken)) {
+                return ContentType.POSTER;
+            }
+            if (check.endsWith(bannerToken)) {
+                return ContentType.BANNER;
+            }
+            if (check.endsWith(videoimageToken)) {
+                return ContentType.VIDEOIMAGE;
+            }
             // check for equality (i.e. poster.jpg)
-            if (check.equals(posterToken.substring(1))) return ContentType.POSTER;
-            if (check.equals(bannerToken.substring(1))) return ContentType.BANNER;
-            if (check.equals(videoimageToken.substring(1))) return ContentType.VIDEOIMAGE;
+            if (check.equals(posterToken.substring(1))) {
+                return ContentType.POSTER;
+            }
+            if (check.equals(bannerToken.substring(1))) {
+                return ContentType.BANNER;
+            }
+            if (check.equals(videoimageToken.substring(1))) {
+                return ContentType.VIDEOIMAGE;
+            }
         }
-        
+
         // no content type determined
         return null;
     }
@@ -439,51 +448,50 @@ public class AttachmentScanner {
         if (!isActivated()) {
             return;
         }
-        
+
         // only use attached NFO if there are no locale NFOs
         if (nfoFiles.isEmpty()) {
             File nfoFile = extractToLocalFile(ContentType.NFO, movie, -1);
             if (nfoFile != null) {
-                logger.debug(LOG_MESSAGE +"Extracted nfo "+nfoFile.getAbsolutePath());
+                logger.debug(LOG_MESSAGE + "Extracted nfo " + nfoFile.getAbsolutePath());
                 nfoFiles.add(nfoFile);
             }
         }
     }
-    
-    
+
     public static File extractAttachedFanart(Movie movie) {
         File fanartFile = extractToLocalFile(ContentType.FANART, movie, -1);
         if (fanartFile != null) {
-            logger.debug(LOG_MESSAGE +"Extracted fanart "+fanartFile.getAbsolutePath());
+            logger.debug(LOG_MESSAGE + "Extracted fanart " + fanartFile.getAbsolutePath());
         }
         return fanartFile;
     }
 
     public static File extractAttachedPoster(Movie movie) {
-        File posterFile =  extractToLocalFile(ContentType.POSTER, movie, -1);
+        File posterFile = extractToLocalFile(ContentType.POSTER, movie, -1);
         if (posterFile != null) {
-            logger.debug(LOG_MESSAGE +"Extracted poster "+posterFile.getAbsolutePath());
+            logger.debug(LOG_MESSAGE + "Extracted poster " + posterFile.getAbsolutePath());
         }
         return posterFile;
     }
 
     public static File extractAttachedBanner(Movie movie) {
-        File bannerFile =  extractToLocalFile(ContentType.BANNER, movie, -1);
+        File bannerFile = extractToLocalFile(ContentType.BANNER, movie, -1);
         if (bannerFile != null) {
-            logger.debug(LOG_MESSAGE +"Extracted banner "+bannerFile.getAbsolutePath());
+            logger.debug(LOG_MESSAGE + "Extracted banner " + bannerFile.getAbsolutePath());
         }
         return bannerFile;
     }
 
     public static File extractAttachedVideoimage(Movie movie, int part) {
-        File videoimageFile =  extractToLocalFile(ContentType.VIDEOIMAGE, movie, part);
+        File videoimageFile = extractToLocalFile(ContentType.VIDEOIMAGE, movie, part);
         if (videoimageFile != null) {
-            logger.debug(LOG_MESSAGE +"Extracted videoimage "+videoimageFile.getAbsolutePath());
+            logger.debug(LOG_MESSAGE + "Extracted videoimage " + videoimageFile.getAbsolutePath());
         }
         return videoimageFile;
     }
-    
-    private static File extractToLocalFile(ContentType contentType, Movie movie, int part)  {
+
+    private static File extractToLocalFile(ContentType contentType, Movie movie, int part) {
         if (!isActivated()) {
             return null;
         } else if (!Movie.TYPE_FILE.equalsIgnoreCase(movie.getFormatType())) {
@@ -507,7 +515,7 @@ public class AttachmentScanner {
         }
         return localFile;
     }
-    
+
     private static List<Attachment> findAttachments(Movie movie, ContentType contentType, int part) {
         MovieFile movieFile = null;
         Iterator<MovieFile> it = movie.getMovieFiles().iterator();
@@ -524,7 +532,7 @@ public class AttachmentScanner {
                 }
             }
         }
-        
+
         if (movieFile == null) {
             // no matching movie file found
             return null;
@@ -559,7 +567,7 @@ public class AttachmentScanner {
             // source file must exist
             return null;
         }
-        
+
         // build return file name
         StringBuffer returnFileName = new StringBuffer();
         returnFileName.append(tempDirectory.getAbsolutePath());
@@ -586,7 +594,7 @@ public class AttachmentScanner {
                 returnFileName.append(validImageMimeTypes.get(attachment.getMimeType()));
                 break;
         }
-        
+
         File returnFile = new File(returnFileName.toString());
         if (returnFile.exists()) {
             // already present or extracted
@@ -594,18 +602,18 @@ public class AttachmentScanner {
         }
 
         //logger.debug(LOG_MESSAGE + "Extract attachement ("+attachment+")");
-        
+
         try {
             // Create the command line
             List<String> commandMedia = new ArrayList<String>(MT_EXTRACT_EXE);
             commandMedia.add("attachments");
             commandMedia.add(sourceFile.getAbsolutePath());
-            commandMedia.add(attachment.getAttachmentId()+":"+returnFileName.toString());
-            
+            commandMedia.add(attachment.getAttachmentId() + ":" + returnFileName.toString());
+
             ProcessBuilder pb = new ProcessBuilder(commandMedia);
             pb.directory(MT_PATH);
             Process p = pb.start();
-            
+
             if (p.waitFor() != 0) {
                 logger.error(LOG_MESSAGE + "Error during extraction - ErrorCode=" + p.exitValue());
                 returnFile = null;
@@ -617,18 +625,18 @@ public class AttachmentScanner {
 
         if (returnFile != null) {
             //  need to reset last modification date to last modification date
-             // of source file to fulfill later checks
-             try {
-                 returnFile.setLastModified(sourceFile.lastModified());
-             } catch (Exception ignore) {}
-         }
-         return returnFile;
+            // of source file to fulfill later checks
+            try {
+                returnFile.setLastModified(sourceFile.lastModified());
+            } catch (Exception ignore) {
+            }
+        }
+        return returnFile;
     }
-    
+
     public static void cleanUp() {
         if (tempCleanup && (tempDirectory != null) && tempDirectory.exists()) {
             FileTools.deleteDir(tempDirectory);
         }
     }
-
 }
