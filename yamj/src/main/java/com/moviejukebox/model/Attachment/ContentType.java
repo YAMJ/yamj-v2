@@ -25,6 +25,9 @@ public enum ContentType {
     POSTER,
     FANART,
     BANNER,
+    SET_POSTER, // poster for a set
+    SET_FANART, // fanart for a set
+    SET_BANNER, // banner for a set
     VIDEOIMAGE;
 
     /**
