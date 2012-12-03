@@ -80,8 +80,7 @@ public class Attachment {
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        sb.append(this.getType());
-        sb.append(": Id=");
+        sb.append("Id=");
         sb.append(this.getAttachmentId());
         sb.append(", Content=");
         sb.append(this.getContentType());
