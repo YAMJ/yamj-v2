@@ -171,10 +171,10 @@ public class BannerScanner {
             File finalDestinationFile = FileTools.fileCache.getFile(finalDestinationFileName);
             File fullBannerFile = localBannerFile;
 
-            // Local Banner is newer OR ForcePosterOverwrite OR DirtyPoster
+            // Local Banner is newer OR ForcePosterOverwrite OR DirtyBanner
             // Can't check the file size because the jukebox banner may have been re-sized
             // This may mean that the local art is different to the jukebox art even if the local file date is newer
-            if (bannerOverwrite || movie.isDirty(DirtyFlag.POSTER) || FileTools.isNewer(fullBannerFile, finalDestinationFile)) {
+            if (bannerOverwrite || movie.isDirty(DirtyFlag.BANNER) || FileTools.isNewer(fullBannerFile, finalDestinationFile)) {
                 try {
                     BufferedImage bannerImage = GraphicTools.loadJPEGImage(fullBannerFile);
                     if (bannerImage != null) {
