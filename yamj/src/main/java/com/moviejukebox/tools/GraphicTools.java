@@ -20,7 +20,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Iterator;
 import javax.imageio.*;
@@ -34,45 +33,6 @@ public class GraphicTools {
     private static final String LOG_MESSAGE = "GraphicsTools: ";
     private static float quality;
     private static int jpegQuality;
-
-    /**
-     * Load a JPG image from a file (input stream)
-     *
-     * @param fis
-     * @return
-     */
-    @Deprecated
-    private static BufferedImage loadJPEGImage(InputStream fis) {
-        // Create BufferedImage
-        BufferedImage bi = null;
-        try {
-            bi = ImageIO.read(fis);
-        } catch (IIOException error) {
-            logger.warn(LOG_MESSAGE + "Error reading image file. Possibly corrupt image, please try another image. " + error.getMessage());
-            logger.warn(SystemTools.getStackTrace(error));
-            return null;
-        } catch (OutOfMemoryError error) {
-            logger.error(LOG_MESSAGE + "Error processing image file - Out of memory. Please run YAMJ again to fix.");
-            return null;
-        } catch (IllegalArgumentException error) {
-            logger.warn(LOG_MESSAGE + "Error processing image file - Raster bands error");
-            logger.warn(SystemTools.getStackTrace(error));
-            return null;
-        } catch (Exception error) {
-            logger.warn(LOG_MESSAGE + "Error processing image file. Possibly corrupt image, please try another image. " + error.getMessage());
-            logger.warn(SystemTools.getStackTrace(error));
-            return null;
-        } finally {
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (Exception ex) {
-                    logger.warn(SystemTools.getStackTrace(ex));
-                }
-            }
-        }
-        return bi;
-    }
 
     /**
      * Load a JPG image from a filename
@@ -117,7 +77,7 @@ public class GraphicTools {
     }
 
     public static void saveImageAsJpeg(BufferedImage bi, String filename) {
-        if (bi == null || filename == null || filename.equalsIgnoreCase("")) {
+        if (bi == null || StringTools.isNotValidString(filename)) {
             return;
         }
 
@@ -140,6 +100,9 @@ public class GraphicTools {
 
             //Output file:
             File outputFile = new File(filename);
+            // Create the output directories if needed
+            outputFile.mkdirs();
+
             FileImageOutputStream output = new FileImageOutputStream(outputFile);
             writer.setOutput(output);
             IIOImage image = new IIOImage(bufImage, null, null);
@@ -164,6 +127,8 @@ public class GraphicTools {
         // save image as PNG
         try {
             File outputFile = new File(filename);
+            // Create the output directories if needed
+            outputFile.mkdirs();
             ImageIO.write(bi, "png", outputFile);
         } catch (Exception error) {
             logger.error(LOG_MESSAGE + "Failed Saving thumbnail file: " + filename);
@@ -305,8 +270,9 @@ public class GraphicTools {
     /**
      * Creates the reflection effect
      *
-     * graphicType should be "posters", "thumbnails" or "videoimage" and is used to determine the settings that are
-     * extracted from the skin.properties file.
+     * graphicType should be "posters", "thumbnails" or "videoimage" and is used
+     * to determine the settings that are extracted from the skin.properties
+     * file.
      *
      * @param avatar
      * @param graphicType
@@ -316,9 +282,7 @@ public class GraphicTools {
         int avatarWidth = avatar.getWidth();
         int avatarHeight = avatar.getHeight();
 
-        float reflectionHeight = 12.5f;
-
-        reflectionHeight = PropertiesUtil.getFloatProperty(graphicType + ".reflectionHeight", "12.5");
+        float reflectionHeight = PropertiesUtil.getFloatProperty(graphicType + ".reflectionHeight", "12.5");
 
         BufferedImage gradient = createGradientMask(avatarWidth, avatarHeight, reflectionHeight, graphicType);
         BufferedImage buffer = createReflection(avatar, avatarWidth, avatarHeight, reflectionHeight);
@@ -399,8 +363,9 @@ public class GraphicTools {
     /**
      * Creates the 3D effect
      *
-     * graphicType should be "posters", "thumbnails" or "videoimage" and is used to determine the settings that are
-     * extracted from the skin.properties file.
+     * graphicType should be "posters", "thumbnails" or "videoimage" and is used
+     * to determine the settings that are extracted from the skin.properties
+     * file.
      *
      * @param bi
      * @param graphicType
@@ -416,13 +381,13 @@ public class GraphicTools {
         try {
             perspectiveTop = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveTop", "3"));
         } catch (NumberFormatException nfe) {
-            logger.error("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveTop");
+            logger.error(LOG_MESSAGE + "NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveTop");
         }
 
         try {
             perspectiveBottom = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveBottom", "3"));
         } catch (NumberFormatException nfe) {
-            logger.error("NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveBottom");
+            logger.error(LOG_MESSAGE + "NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveBottom");
         }
 
         int top3d = (int) (h * perspectiveTop / 100);
