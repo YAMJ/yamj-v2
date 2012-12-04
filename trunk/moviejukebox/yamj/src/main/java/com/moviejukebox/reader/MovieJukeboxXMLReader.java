@@ -659,6 +659,7 @@ public class MovieJukeboxXMLReader {
                                         attachment.setAttachmentId(Integer.parseInt(DOMHelper.getValueFromElement(eAttachment, "attachmentId")));
                                         attachment.setContentType(ContentType.fromString(DOMHelper.getValueFromElement(eAttachment, "contentType")));
                                         attachment.setMimeType(DOMHelper.getValueFromElement(eAttachment, "mimeType"));
+                                        attachment.setPart(Integer.parseInt(DOMHelper.getValueFromElement(eAttachment, "part")));
                                         attachment.setSourceFile(movieFile.getFile());
                                         movieFile.addAttachment(attachment);
                                     }

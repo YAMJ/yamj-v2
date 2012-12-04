@@ -30,6 +30,7 @@ public class Attachment {
     private int attachmentId;
     private ContentType contentType;
     private String mimeType;
+    private int part; // only relevant for video images
     private File sourceFile;
     
     @XmlElement
@@ -68,6 +69,15 @@ public class Attachment {
         this.mimeType = mimeType;
     }
 
+    @XmlElement
+    public int getPart() {
+        return part;
+    }
+
+    public void setPart(int part) {
+        this.part = part;
+    }
+
     @XmlTransient
     public File getSourceFile() {
         return sourceFile;
@@ -84,6 +94,8 @@ public class Attachment {
         sb.append(this.getAttachmentId());
         sb.append(", Content=");
         sb.append(this.getContentType());
+        sb.append(", Part=");
+        sb.append(this.getPart());
         sb.append(", MimeType=");
         sb.append(this.getMimeType());
         return sb.toString();
