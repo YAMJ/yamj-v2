@@ -49,7 +49,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public static final String IMDB_PLUGIN_ID = "imdb";
     private static final String webhost = "themoviedb.org";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
-    private TheMovieDbApi tmdb;
+    private TheMovieDbApi TMDb;
     private String languageCode;
     private String countryCode;
     private boolean downloadFanart;
@@ -57,20 +57,21 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private String fanartExtension;
     private int preferredPlotLength;
     private int preferredOutlineLength;
+    private static final Boolean INCLUDE_ADULT = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", FALSE);
 
     public TheMovieDbPlugin() {
         try {
-            tmdb = new TheMovieDbApi(API_KEY);
+            TMDb = new TheMovieDbApi(API_KEY);
         } catch (MovieDbException ex) {
             logger.warn(LOG_MESSAGE + "Failed to initialise TheMovieDB API: " + ex.getMessage());
             return;
         }
 
         // Set the proxy
-        tmdb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+        TMDb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
 
         // Set the timeouts
-        tmdb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+        TMDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
 
         languageCode = PropertiesUtil.getProperty("themoviedb.language", "en");
         countryCode = PropertiesUtil.getProperty("themoviedb.country", "");     // Don't default this as we might get it from the language (old setting)
@@ -113,7 +114,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 // Search based on TMdb ID
                 logger.debug(LOG_MESSAGE + "Using TMDb ID (" + tmdbID + ") for " + movie.getBaseFilename());
                 try {
-                    moviedb = tmdb.getMovieInfo(Integer.parseInt(tmdbID), languageCode);
+                    moviedb = TMDb.getMovieInfo(Integer.parseInt(tmdbID), languageCode);
                 } catch (MovieDbException ex) {
                     logger.debug(LOG_MESSAGE + "Failed to get movie info using TMDB ID: " + tmdbID + " - " + ex.getMessage());
                     moviedb = null;
@@ -124,7 +125,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 // Search based on IMDb ID
                 logger.debug(LOG_MESSAGE + "Using IMDb ID (" + imdbID + ") for " + movie.getBaseFilename());
                 try {
-                    moviedb = tmdb.getMovieInfoImdb(imdbID, languageCode);
+                    moviedb = TMDb.getMovieInfoImdb(imdbID, languageCode);
                     tmdbID = String.valueOf(moviedb.getId());
                     if (StringTools.isNotValidString(tmdbID)) {
                         logger.debug(LOG_MESSAGE + "No TMDb ID found for movie!");
@@ -136,31 +137,30 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             }
 
             if (moviedb == null) {
-                StringBuilder movieSearch = new StringBuilder(movie.getTitle());
-                if (StringTools.isValidString(movie.getYear())) {
-                    movieSearch.append(" ").append(movie.getYear());
-                }
                 try {
                     // Search using movie name
-                    movieList = tmdb.searchMovie(movieSearch.toString(), languageCode, false);
-                    String movieYear = (StringTools.isValidString(movie.getYear()) ? movie.getYear() : "");
+                    int movieYear = 0;
+                    if (StringTools.isValidString(movie.getYear()) && StringUtils.isNumeric(movie.getYear())) {
+                        movieYear = Integer.parseInt(movie.getYear());
+                    }
+                    movieList = TMDb.searchMovie(movie.getTitle(), movieYear, languageCode, INCLUDE_ADULT, 0);
                     // Iterate over the list until we find a match
                     for (MovieDb m : movieList) {
-                        logger.debug(LOG_MESSAGE + "Checking " + m.getTitle() + " " + m.getReleaseDate());
-                        if (TheMovieDbApi.compareMovies(m, movie.getTitle(), movieYear)) {
+                        logger.debug(LOG_MESSAGE + "Checking " + m.getTitle() + " (" + m.getReleaseDate().substring(0,4) + ")");
+                        if (TheMovieDbApi.compareMovies(m, movie.getTitle(), Integer.toString(movieYear))) {
                             moviedb = m;
                             break;
                         }
 
                         // See if the original title is different and then compare it too
                         if (!movie.getTitle().equals(movie.getOriginalTitle())
-                                && TheMovieDbApi.compareMovies(m, movie.getOriginalTitle(), movieYear)) {
+                                && TheMovieDbApi.compareMovies(m, movie.getOriginalTitle(), Integer.toString(movieYear))) {
                             moviedb = m;
                             break;
                         }
                     }
                 } catch (MovieDbException ex) {
-                    logger.debug(LOG_MESSAGE + "Failed to get movie info for " + movieSearch.toString() + " - " + ex.getMessage());
+                    logger.debug(LOG_MESSAGE + "Failed to get movie info for " + movie.getTitle() + " - " + ex.getMessage());
                     moviedb = null;
                 }
             }
@@ -171,7 +171,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             } else {
                 try {
                     // Get the full information on the film
-                    moviedb = tmdb.getMovieInfo(moviedb.getId(), languageCode);
+                    moviedb = TMDb.getMovieInfo(moviedb.getId(), languageCode);
                 } catch (MovieDbException ex) {
                     logger.debug(LOG_MESSAGE + "Failed to download remaining information for " + movie.getBaseName());
                 }
@@ -182,14 +182,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             if (moviedb != null) {
                 try {
                     // Get the release information
-                    movieReleaseInfo = tmdb.getMovieReleaseInfo(moviedb.getId(), countryCode);
+                    movieReleaseInfo = TMDb.getMovieReleaseInfo(moviedb.getId(), countryCode);
                 } catch (MovieDbException ex) {
                     logger.debug(LOG_MESSAGE + "Failed to get release information");
                 }
 
                 try {
                     // Get the cast information
-                    moviePeople = tmdb.getMovieCasts(moviedb.getId());
+                    moviePeople = TMDb.getMovieCasts(moviedb.getId());
                 } catch (MovieDbException ex) {
                     logger.debug(LOG_MESSAGE + "Failed to get cast information");
                 }
@@ -221,22 +221,22 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 logger.debug(LOG_MESSAGE + "Adding " + moviePeople.size() + " people to the cast list");
                 for (Person person : moviePeople) {
                     if (person.getPersonType() == PersonType.CAST) {
-                        logger.debug(LOG_MESSAGE + "Adding cast member " + person.toString());
+                        logger.trace(LOG_MESSAGE + "Adding cast member " + person.toString());
                         movie.addActor(person.getName());
                     } else if (person.getPersonType() == PersonType.CREW) {
-                        logger.debug(LOG_MESSAGE + "Adding crew member " + person.toString());
+                        logger.trace(LOG_MESSAGE + "Adding crew member " + person.toString());
                         if ("Director".equalsIgnoreCase(person.getJob())) {
-                            logger.debug(LOG_MESSAGE + person.getName() + " is a Director");
+                            logger.trace(LOG_MESSAGE + person.getName() + " is a Director");
                             movie.addDirector(person.getName());
                         } else if ("Author".equalsIgnoreCase(person.getJob())) {
-                            logger.debug(LOG_MESSAGE + person.getName() + " is a Writer");
+                            logger.trace(LOG_MESSAGE + person.getName() + " is a Writer");
                             movie.addWriter(person.getName());
                             continue;
                         } else {
-                            logger.debug(LOG_MESSAGE + "Unknown job  " + person.getJob() + " for " + person.toString());
+                            logger.trace(LOG_MESSAGE + "Unknown job  " + person.getJob() + " for " + person.toString());
                         }
                     } else {
-                        logger.debug(LOG_MESSAGE + "Unknown person type " + person.getPersonType() + " for " + person.toString());
+                        logger.trace(LOG_MESSAGE + "Unknown person type " + person.getPersonType() + " for " + person.toString());
                     }
                 }
             } else {
@@ -356,13 +356,13 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             }
             if (moviedb.getSpokenLanguages().size() > 1) {
                 // There was more than one language, so output a message
-                StringBuilder sb = new StringBuilder();
+                StringBuilder spokenLanguages = new StringBuilder();
                 for (Language lang : moviedb.getSpokenLanguages()) {
-                    sb.append(lang.getIsoCode());
-                    sb.append("/");
+                    spokenLanguages.append(lang.getIsoCode());
+                    spokenLanguages.append("/");
                 }
-                sb.deleteCharAt(sb.length() - 1);
-                logger.debug(LOG_MESSAGE + "Additional languages found and not used - " + sb.toString());
+                spokenLanguages.deleteCharAt(spokenLanguages.length() - 1);
+                logger.debug(LOG_MESSAGE + "Additional languages found and not used - " + spokenLanguages.toString());
             }
         }
 
