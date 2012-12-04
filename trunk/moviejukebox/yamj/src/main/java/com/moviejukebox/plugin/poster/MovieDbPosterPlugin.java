@@ -15,6 +15,7 @@ package com.moviejukebox.plugin.poster;
 import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 import com.omertron.themoviedbapi.MovieDbException;
@@ -33,6 +34,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
     private String languageCode;
     private TheMovieDbApi TMDb;
     private static final String DEFAULT_POSTER_SIZE = "original";
+    private static final Boolean INCLUDE_ADULT = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", FALSE);
 
     public MovieDbPosterPlugin() {
         super();
@@ -64,12 +66,17 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     @Override
-    public String getIdFromMovieInfo(String title, String year) {
+    public String getIdFromMovieInfo(String title, String searchYear) {
         List<MovieDb> movieList;
         try {
-            movieList = TMDb.searchMovie(title, languageCode, false);
+            int movieYear = 0;
+            if (StringTools.isValidString(searchYear) && StringUtils.isNumeric(searchYear)) {
+                movieYear = Integer.parseInt(searchYear);
+            }
+
+            movieList = TMDb.searchMovie(title, movieYear, languageCode, INCLUDE_ADULT, 0);
         } catch (MovieDbException ex) {
-            logger.warn(LOG_MESSAGE + "Failed to get TMDB ID for " + title + "(" + year + ")");
+            logger.warn(LOG_MESSAGE + "Failed to get TMDB ID for " + title + "(" + searchYear + ")");
             return Movie.UNKNOWN;
         }
 
@@ -82,7 +89,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
             }
 
             for (MovieDb moviedb : movieList) {
-                if (TheMovieDbApi.compareMovies(moviedb, title, year)) {
+                if (TheMovieDbApi.compareMovies(moviedb, title, searchYear)) {
                     return String.valueOf(moviedb.getId());
                 }
             }
