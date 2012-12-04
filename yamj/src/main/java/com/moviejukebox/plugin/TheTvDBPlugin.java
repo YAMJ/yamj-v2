@@ -235,7 +235,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
     }
 
     private void getFanart(Movie movie) {
-        if (downloadFanart && isNotValidString(movie.getFanartURL()) || (forceFanartOverwrite) || movie.isDirty(DirtyFlag.BANNER)) {
+        if (downloadFanart && isNotValidString(movie.getFanartURL()) || (forceFanartOverwrite) || movie.isDirty(DirtyFlag.FANART)) {
 
             String url = FanartScanner.getFanartURL(movie);
 
