@@ -72,7 +72,7 @@ public class AttachmentScanner {
     // the operating system name
     public static final String OS_NAME = System.getProperty("os.name");
     // properties for NFO handling
-    private static final String[] NFO_EXTENSIONS = PropertiesUtil.getProperty("filename.nfo.extensions", "n").toLowerCase().split(",");
+    private static final String[] NFO_EXTENSIONS = PropertiesUtil.getProperty("filename.nfo.extensions", "nfo").toLowerCase().split(",");
     // image tokens
     private static final String POSTER_TOKEN = PropertiesUtil.getProperty("attachment.token.poster", ".poster").toLowerCase();
     private static final String FANART_TOKEN = PropertiesUtil.getProperty("attachment.token.fanart", ".fanart").toLowerCase();
