@@ -22,7 +22,8 @@ import java.io.*;
 import java.nio.channels.FileChannel;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.io.FilenameUtils;
 import static org.apache.commons.lang3.StringUtils.*;
 import org.apache.log4j.Logger;
@@ -36,6 +37,8 @@ public class FileTools {
     // Literals
     private static final String TO = " to ";
     private static final String BDMV_STREAM = File.separator + "BDMV" + File.separator + "STREAM";
+    // Lock for mkdirs
+    private static Lock fsLock = new ReentrantLock();
 
     static {
         if (SUBTITLE_EXTENSIONS.isEmpty()) {
@@ -461,9 +464,8 @@ public class FileTools {
     }
 
     /**
-     * Returns the given path in canonical form i.e. no duplicated separators,
-     * no ".", ".."..., and ending without trailing separator the only exception
-     * is a root! the canonical form for a root INCLUDES the separator
+     * Returns the given path in canonical form i.e. no duplicated separators, no ".", ".."..., and ending without
+     * trailing separator the only exception is a root! the canonical form for a root INCLUDES the separator
      */
     public static String getCanonicalPath(String path) {
         try {
@@ -474,8 +476,7 @@ public class FileTools {
     }
 
     /**
-     * when concatenating paths and the source MIGHT be a root, use this
-     * function to safely add the separator
+     * when concatenating paths and the source MIGHT be a root, use this function to safely add the separator
      */
     public static String getDirPathWithSeparator(String path) {
         return path.endsWith(File.separator) ? path : path + File.separator;
@@ -498,8 +499,8 @@ public class FileTools {
 
     /**
      * *
-     * Pass in the filename and a list of extensions, this function will scan
-     * for the filename plus extensions and return the File
+     * Pass in the filename and a list of extensions, this function will scan for the filename plus extensions and
+     * return the File
      *
      * @param filename
      * @param fileExtensions
@@ -522,8 +523,7 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the
-     * extensions
+     * Search for the filename in the cache and look for each with the extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -536,8 +536,7 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the
-     * extensions
+     * Search for the filename in the cache and look for each with the extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -551,8 +550,7 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the
-     * extensions
+     * Search for the filename in the cache and look for each with the extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -613,9 +611,8 @@ public class FileTools {
     }
 
     /**
-     * Download the image for the specified URL into the specified file.
-     * Utilises the WebBrowser downloadImage function to allow for proxy
-     * connections.
+     * Download the image for the specified URL into the specified file. Utilises the WebBrowser downloadImage function
+     * to allow for proxy connections.
      *
      * @param imageFile
      * @param imageURL
@@ -707,8 +704,7 @@ public class FileTools {
     }
 
     /**
-     * Process the movie and add all the files to the jukebox cleaning exclusion
-     * list
+     * Process the movie and add all the files to the jukebox cleaning exclusion list
      *
      * @param movie
      */
@@ -744,8 +740,7 @@ public class FileTools {
     }
 
     /**
-     * Special File with "cached" attributes used to minimize file system access
-     * which slows down everything
+     * Special File with "cached" attributes used to minimize file system access which slows down everything
      *
      * @author Gabriel Corneanu
      */
@@ -920,8 +915,8 @@ public class FileTools {
     }
 
     /**
-     * cached File instances the key is always absolute path in upper-case, so
-     * it will NOT work for case only differences
+     * cached File instances the key is always absolute path in upper-case, so it will NOT work for case only
+     * differences
      *
      * @author Gabriel Corneanu
      */
@@ -962,16 +957,13 @@ public class FileTools {
         /**
          * Retrieve a file from cache
          *
-         * If it is NOT found, construct one instance and mark it as
-         * non-existing.
+         * If it is NOT found, construct one instance and mark it as non-existing.
          *
-         * The exist() test is used very often throughout the library to search
-         * for specific files.
+         * The exist() test is used very often throughout the library to search for specific files.
          *
          * The path MUST be canonical (i.e. carefully constructed)
          *
-         * We do NOT want here to make it canonical because it goes to the file
-         * system and it's slow.
+         * We do NOT want here to make it canonical because it goes to the file system and it's slow.
          *
          * @param path
          * @return
@@ -1104,21 +1096,32 @@ public class FileTools {
     }
 
     public static Boolean makeDirectories(final File file, int numOfTries) {
-        boolean status = file.mkdirs();
-        int looper = 1;
-        while (!status && looper++ <= numOfTries) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ex) {
-                // We don't care about being interrupted
-            }
-            status = file.mkdirs();
+        File dir;
+        if (file.isDirectory()) {
+            dir = file;
+        } else {
+            dir = file.getParentFile();
         }
 
-        if (status && looper > 10) {
-            logger.error("Failed creating the directory (" + file.getAbsolutePath() + "). Ensure this directory is read/write!");
-            return Boolean.FALSE;
+        if (dir.exists()) {
+            return Boolean.TRUE;
         }
-        return Boolean.TRUE;
+
+        fsLock.lock();
+        try {
+            boolean status = file.mkdirs();
+            int looper = 1;
+            while (!status && looper++ <= numOfTries) {
+                status = file.mkdirs();
+            }
+            if (status && looper > 10) {
+                logger.error("Failed creating the directory (" + file.getAbsolutePath() + "). Ensure this directory is read/write!");
+                return Boolean.FALSE;
+            }
+            return Boolean.TRUE;
+        } finally {
+            fsLock.unlock();
+        }
+
     }
 }
