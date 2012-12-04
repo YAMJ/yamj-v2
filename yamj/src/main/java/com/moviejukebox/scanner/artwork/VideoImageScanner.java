@@ -23,6 +23,7 @@ import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.MovieImagePlugin;
+import com.moviejukebox.scanner.AttachmentScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -147,10 +148,8 @@ public class VideoImageScanner {
                     if (localVideoImageFile.exists()) {
                         logger.debug(LOG_MESSAGE + "File " + localVideoImageFile.getName() + " found");
                         foundLocalVideoImage = true;
-
-                        // Copy the found videoimage filenames to the originals to ensure the correct filenames are used
-                        mf.setVideoImageFilename(part, localVideoImageFile.getName());
                         fullVideoImageFilename = localVideoImageFile.getAbsolutePath();
+                        mf.setVideoImageFilename(part, localVideoImageFile.getName());
                     }
                 }
 
@@ -161,8 +160,26 @@ public class VideoImageScanner {
                     if (localVideoImageFile.exists()) {
                         logger.debug(LOG_MESSAGE + "File " + localVideoImageFile.getName() + " found");
                         foundLocalVideoImage = true;
-                        mf.setVideoImageFilename(part, localVideoImageFile.getName());
                         fullVideoImageFilename = localVideoImageFile.getAbsolutePath();
+                        mf.setVideoImageFilename(part, localVideoImageFile.getName());
+                    }
+                }
+
+                // Check file attachments
+                if (!foundLocalVideoImage) {
+                    localVideoImageFile = AttachmentScanner.extractAttachedVideoimage(movie, part);
+                    if (localVideoImageFile != null ) {
+                        foundLocalVideoImage = true;
+                        fullVideoImageFilename = localVideoImageFile.getAbsolutePath();
+                        // need to create the commonly used local video image file name
+                        String extension = "." + FileTools.getFileExtension(fullVideoImageFilename);
+                        String attachedImageFilename = localVideoImageBaseFilename;
+                        if (firstPart < lastPart) {
+                            attachedImageFilename += partSuffix + extension;
+                        } else {
+                            attachedImageFilename += extension;
+                        }
+                        mf.setVideoImageFilename(part, attachedImageFilename);
                     }
                 }
 
@@ -182,7 +199,6 @@ public class VideoImageScanner {
 
                     // This is the YAMJ generated filename.
                     mf.setVideoImageFilename(part, localVideoImageBaseFilename);
-
                 }
 
                 // If we haven't found a local image, but a generic image exists, use that now.
@@ -207,8 +223,10 @@ public class VideoImageScanner {
                     if (StringTools.isNotValidString(mf.getVideoImageURL(part))) {
                         // This occurs when there isn't a videoimage URL in the XML
                         if (localVideoImageFile != null) {
+                            // holds the old file name cause setVideoImageURL overrides videoImageFileName
+                            String oldVideoImageFilename = mf.getVideoImageFilename(part);
                             mf.setVideoImageURL(part, localVideoImageFile.toURI().toString());
-                            mf.setVideoImageFilename(part, localVideoImageFile.getName());
+                            mf.setVideoImageFilename(part, oldVideoImageFilename);
                         } else {
                             mf.setVideoImageURL(part, new File(genericVideoImageFilename).toURI().toString());
                             mf.setVideoImageFilename(part, genericVideoImageFilename);

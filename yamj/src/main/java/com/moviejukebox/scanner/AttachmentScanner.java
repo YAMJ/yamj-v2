@@ -13,6 +13,7 @@
 package com.moviejukebox.scanner;
 
 import com.moviejukebox.model.Attachment.Attachment;
+import com.moviejukebox.model.Attachment.AttachmentContent;
 import com.moviejukebox.model.Attachment.AttachmentType;
 import com.moviejukebox.model.Attachment.ContentType;
 import com.moviejukebox.model.DirtyFlag;
@@ -51,7 +52,7 @@ public class AttachmentScanner {
     private static final Logger LOGGER = Logger.getLogger(AttachmentScanner.class);
     private static final String LOG_MESSAGE = "AttachmentScanner: ";
     // Enabled
-    private static final Boolean IS_ENABLED = PropertiesUtil.getBooleanProperty("attachment.scanner.enabled", FALSE);
+    private static final Boolean IS_ENABLED = PropertiesUtil.getBooleanProperty("attachment.scanner.enable", FALSE);
     // mkvToolnix
     private static final File MT_PATH = new File(PropertiesUtil.getProperty("attachment.mkvtoolnix.home", "./mkvToolnix/"));
     private static final String MT_LANGUAGE = PropertiesUtil.getProperty("attachment.mkvtoolnix.language", "");
@@ -67,8 +68,9 @@ public class AttachmentScanner {
     // temporary directory
     private static File TEMP_DIRECTORY = null;
     private static boolean TEMP_CLEANUP = PropertiesUtil.getBooleanProperty("attachment.temp.cleanup", TRUE);
-    // enable/disable recheck
-    private static boolean RECHECK_ENABLED = PropertiesUtil.getBooleanProperty("attachment.recheck.enabled", TRUE);
+    // enable/disable some checks
+    private static boolean RECHECK_ENABLED = PropertiesUtil.getBooleanProperty("attachment.recheck.enable", TRUE);
+    private static boolean INCLUDE_VIDEOIMAGES = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
     // the operating system name
     public static final String OS_NAME = System.getProperty("os.name");
     // properties for NFO handling
@@ -262,8 +264,12 @@ public class AttachmentScanner {
                         returnValue = Boolean.TRUE;
                         movie.setDirty(DirtyFlag.NFO);
                     } else if (ContentType.VIDEOIMAGE == attachment.getContentType()) {
-                        returnValue = Boolean.TRUE;
-                        // no need for dirty flag
+                        if (movie.isTVShow() && INCLUDE_VIDEOIMAGES) {
+                            returnValue = Boolean.TRUE;
+                            // no need for dirty flag
+                        } else {
+                            // no need for video images
+                        }
                     } else if (firstMovieFile) {
                         // all other images are only relevant for first movie
                         if (ContentType.POSTER == attachment.getContentType()) {
@@ -345,7 +351,7 @@ public class AttachmentScanner {
                     // next line contains MIME type
                     String mimeTypeLine = localInputReadLine(input);
 
-                    Attachment attachment = createAttachment(attachmentId, fileNameLine, mimeTypeLine);
+                    Attachment attachment = createAttachment(attachmentId, fileNameLine, mimeTypeLine, movieFile.getFirstPart(), movieFile.getLastPart());
                     if (attachment != null) {
                         attachment.setSourceFile(movieFile.getFile());
                         movieFile.addAttachment(attachment);
@@ -418,9 +424,11 @@ public class AttachmentScanner {
      * @param id
      * @param filename
      * @param mimetype
+     * @param firstParst
+     * @param lastPart
      * @return Attachment or null
      */
-    private static Attachment createAttachment(int id, String filename, String mimetype) {
+    private static Attachment createAttachment(int id, String filename, String mimetype, int firstParst, int lastPart) {
         String fixedFileName = null;
         if (filename.contains("File name:")) {
             fixedFileName = filename.substring(filename.indexOf("File name:") + 10).trim();
@@ -430,30 +438,31 @@ public class AttachmentScanner {
             fixedMimeType = mimetype.substring(mimetype.indexOf("Mime type:") + 10).trim();
         }
 
-        ContentType type = determineContentType(fixedFileName, fixedMimeType);
+        AttachmentContent content = determineContent(fixedFileName, fixedMimeType, firstParst, lastPart);
 
         Attachment attachment = null;
-        if (type == null) {
+        if (content == null) {
             LOGGER.debug(LOG_MESSAGE + "Failed to dertermine attachment type for '" + fixedFileName + "' (" + fixedMimeType + ")");
         } else {
             attachment = new Attachment();
             attachment.setType(AttachmentType.MATROSKA); // one and only type at the moment
             attachment.setAttachmentId(id);
-            attachment.setContentType(type);
+            attachment.setContentType(content.getContentType());
             attachment.setMimeType(fixedMimeType.toLowerCase());
+            attachment.setPart(content.getPart());
             LOGGER.debug(LOG_MESSAGE + "Found attachment " + attachment);
         }
         return attachment;
     }
 
     /**
-     * Determines the content type of the attachment by file name and mime type.
+     * Determines the content of the attachment by file name and mime type.
      *
      * @param inFileName
      * @param inMimeType
-     * @return the content type, may be null if determination failed
+     * @return the content, may be null if determination failed
      */
-    private static ContentType determineContentType(String inFileName, String inMimeType) {
+    private static AttachmentContent determineContent(String inFileName, String inMimeType, int firstPart, int lastPart) {
         if (inFileName == null) {
             return null;
         }
@@ -467,7 +476,7 @@ public class AttachmentScanner {
             // NFO
             for (String extension : NFO_EXTENSIONS) {
                 if (extension.equalsIgnoreCase(FilenameUtils.getExtension(fileName))) {
-                    return ContentType.NFO;
+                    return new AttachmentContent(ContentType.NFO);
                 }
             }
         } else if (VALID_IMAGE_MIME_TYPES.containsKey(mimeType)) {
@@ -484,33 +493,42 @@ public class AttachmentScanner {
             if (check.endsWith(POSTER_TOKEN) || check.equals(POSTER_TOKEN.substring(1))) {
                 if (isSetImage) {
                     // fileName = <any>.<posterToken>.set.<extension>
-                    return ContentType.SET_POSTER;
+                    return new AttachmentContent(ContentType.SET_POSTER);
                 } else {
                     // fileName = <any>.<posterToken>.<extension>
-                    return ContentType.POSTER;
+                    return new AttachmentContent(ContentType.POSTER);
                 }
             }
             if (check.endsWith(FANART_TOKEN) || check.equals(FANART_TOKEN.substring(1))) {
                 if (isSetImage) {
                     // fileName = <any>.<fanartToken>.set.<extension>
-                    return ContentType.SET_FANART;
+                    return new AttachmentContent(ContentType.SET_FANART);
                 } else {
                     // fileName = <any>.<fanartToken>.<extension>
-                    return ContentType.FANART;
+                    return new AttachmentContent(ContentType.FANART);
                 }
             }
             if (check.endsWith(BANNER_TOKEN) || check.equals(BANNER_TOKEN.substring(1))) {
                 if (isSetImage) {
                     // fileName = <any>.<bannerToken>.set.<extension>
-                    return ContentType.SET_BANNER;
+                    return new AttachmentContent(ContentType.SET_BANNER);
                 } else {
                     // fileName = <any>.<bannerToken>.<extension>
-                    return ContentType.BANNER;
+                    return new AttachmentContent(ContentType.BANNER);
                 }
             }
+            // determination of exactly video image part
+            for (int part = firstPart; part <= lastPart; part++) {
+                String checkToken = VIDEOIMAGE_TOKEN + "_" + (part - firstPart + 1);
+                if (check.endsWith(checkToken) || check.equals(checkToken.substring(1))) {
+                    // fileName = <any>.<videoimageToken>_<part>.<extension>
+                    return new AttachmentContent(ContentType.VIDEOIMAGE, part);
+                }
+            }
+            // generic way of video image detection
             if (check.endsWith(VIDEOIMAGE_TOKEN) || check.equals(VIDEOIMAGE_TOKEN.substring(1))) {
                 // fileName = <any>.<videoimageToken>.<extension>
-                return ContentType.VIDEOIMAGE;
+                return new AttachmentContent(ContentType.VIDEOIMAGE);
             }
         }
 
@@ -531,7 +549,7 @@ public class AttachmentScanner {
             return;
         }
 
-        List<Attachment> attachments = findAttachments(movie, ContentType.NFO, 0);
+        List<Attachment> attachments = findAttachments(movie, ContentType.NFO, -1);
         for (Attachment attachment : attachments) {
             File nfoFile = extractAttachment(attachment);
             if (nfoFile != null) {
@@ -632,7 +650,7 @@ public class AttachmentScanner {
         List<Attachment> attachments;
         if (useSetImage) {
             // find set poster attachments
-            attachments = findAttachments(movie, ContentType.POSTER, 0);
+            attachments = findAttachments(movie, ContentType.SET_POSTER, 0);
             // add poster attachments, so they could be used as set poster
             attachments.addAll(findAttachments(movie, ContentType.POSTER, 0));
         } else {
@@ -684,7 +702,7 @@ public class AttachmentScanner {
 
         // find banner attachments
         List<Attachment> attachments = findAttachments(movie, ContentType.VIDEOIMAGE, part);
-
+        
         // extract image and return image file (may be null)
         return extractImage(attachments);
     }
@@ -728,7 +746,7 @@ public class AttachmentScanner {
                     break;
                 } else {
                     MovieFile mv = it.next();
-                    if (mv.getFirstPart() == part) {
+                    if ((mv.getFirstPart() <= part) && (part <= mv.getLastPart())) {
                         // just use movie file with matches requested part
                         searchMovieFiles.add(mv);
                         break;
@@ -740,9 +758,34 @@ public class AttachmentScanner {
         List<Attachment> attachments = new ArrayList<Attachment>();
         if (!searchMovieFiles.isEmpty()) {
             for (MovieFile movieFile : searchMovieFiles) {
-                for (Attachment attachment : movieFile.getAttachments()) {
-                    if (contentType.compareTo(attachment.getContentType()) == 0) {
-                        attachments.add(attachment);
+                if (part <= 0) {
+                    // for NFO and normal images
+                    for (Attachment attachment : movieFile.getAttachments()) {
+                        if (contentType.compareTo(attachment.getContentType()) == 0) {
+                            // add attachment
+                            attachments.add(attachment);
+                        }
+                    }
+                } else {
+                    // special case only used for video images
+                    List<Attachment> genericAttachments = new ArrayList<Attachment>();
+                    
+                    int matching = (part - movieFile.getFirstPart() + 1);
+                    for (Attachment attachment : movieFile.getAttachments()) {
+                        if (contentType.compareTo(attachment.getContentType()) == 0) {
+                            if (attachment.getPart() == matching) { 
+                                // matching part
+                                attachments.add(attachment);
+                            } else if (attachment.getPart() <= 0) {
+                                // generic attachment
+                                genericAttachments.add(attachment);                            }
+                         }
+                    }
+                    
+                    // add generic attachments
+                    // useful when no part matching attachments available
+                    for (Attachment generic : genericAttachments) {
+                        attachments.add(generic);
                     }
                 }
             }
@@ -790,18 +833,15 @@ public class AttachmentScanner {
             case SET_POSTER:
             case SET_FANART:
             case SET_BANNER:
-                returnFileName.append(VALID_IMAGE_MIME_TYPES.get(attachment.getMimeType()));
-                break;
             case VIDEOIMAGE:
-                // TODO video images files must regard files with multiple episodes
-                returnFileName.append(VIDEOIMAGE_TOKEN);
                 returnFileName.append(VALID_IMAGE_MIME_TYPES.get(attachment.getMimeType()));
                 break;
         }
 
         File returnFile = new File(returnFileName.toString());
-        if (returnFile.exists()) {
+        if (returnFile.exists() && (returnFile.lastModified() >= sourceFile.lastModified())) {
             // already present or extracted
+            LOGGER.debug(LOG_MESSAGE + "File to extract already exists; no extraction needed");
             return returnFile;
         }
 

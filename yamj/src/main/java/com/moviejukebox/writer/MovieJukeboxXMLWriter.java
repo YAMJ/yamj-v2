@@ -1414,6 +1414,7 @@ public class MovieJukeboxXMLWriter {
                     DOMHelper.appendChild(doc, eAttachment, "attachmentId", String.valueOf(att.getAttachmentId()));
                     DOMHelper.appendChild(doc, eAttachment, "contentType", att.getContentType().toString());
                     DOMHelper.appendChild(doc, eAttachment, "mimeType", att.getMimeType());
+                    DOMHelper.appendChild(doc, eAttachment, "part", String.valueOf(att.getPart()));
                     eAttachments.appendChild(eAttachment);
                 }
                 eFileItem.appendChild(eAttachments);
