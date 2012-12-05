@@ -422,8 +422,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * Add a new extra file to the movie without marking the movie as dirty.
      *
      * @param extraFile
-     * @param isNewFile Use carefully as this will not cause the movie to be
-     * marked as dirty and may not be written out
+     * @param isNewFile Use carefully as this will not cause the movie to be marked as dirty and may not be written out
      */
     public void addExtraFile(ExtraFile extraFile, boolean isNewFile) {
         // Only add extraFile if it doesn't already exists
@@ -889,8 +888,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Clear ALL the dirty flags, and just set DirtyFlag.INFO to the passed
-     * value
+     * Clear ALL the dirty flags, and just set DirtyFlag.INFO to the passed value
      *
      * @param dirty
      */
@@ -900,9 +898,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Returns true if ANY of the dirty flags are set. Use with caution, it's
-     * better to test individual flags as you need them, rather than this
-     * generic flag
+     * Returns true if ANY of the dirty flags are set. Use with caution, it's better to test individual flags as you
+     * need them, rather than this generic flag
      *
      * @return
      */
@@ -1588,8 +1585,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Validate the testString to ensure it is correct before setting the Dirty
-     * INFO flag if it is different
+     * Validate the testString to ensure it is correct before setting the Dirty INFO flag if it is different
      *
      * @param testString
      * @param currentString
@@ -1686,8 +1682,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Sets the "extra" flag to mark this file as an extra. Will trigger the
-     * "dirty" setting too
+     * Sets the "extra" flag to mark this file as an extra. Will trigger the "dirty" setting too
      *
      * @param extra Boolean flag, true=extra file, false=normal file
      */
@@ -1741,8 +1736,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     /**
      * Set the date of the last trailers scan
      *
-     * @param lastScan date of the last trailers scan (milliseconds offset from
-     * the Epoch)
+     * @param lastScan date of the last trailers scan (milliseconds offset from the Epoch)
      */
     public void setTrailerLastScan(long lastScan) {
         if (lastScan != this.trailerLastScan) {
@@ -1754,8 +1748,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     /**
      * Get the date of the last trailers scan
      *
-     * @return the date of the last trailers scan (milliseconds offset from the
-     * Epoch)
+     * @return the date of the last trailers scan (milliseconds offset from the Epoch)
      */
     public long getTrailerLastScan() {
         return trailerLastScan;
@@ -2015,8 +2008,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Store the latest filedate for a set of movie files. Synchronized so that
-     * the comparisons don't overlap
+     * Store the latest filedate for a set of movie files. Synchronized so that the comparisons don't overlap
      *
      * @param fileDate
      */
@@ -2069,8 +2061,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Should be called only from ArtworkScanner. Avoid calling this inside
-     * MoviePlugin Also called from MovieNFOScanner
+     * Should be called only from ArtworkScanner. Avoid calling this inside MoviePlugin Also called from MovieNFOScanner
      *
      * @param posterURL
      */
@@ -2095,7 +2086,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setPosterFilename(String posterFilename) {
         if (StringTools.isValidString(posterFilename)) {
-            this.posterFilename = posterFilename;
+            // create the directory hash if needed
+            if (DIR_HASH) {
+                this.posterFilename = FileTools.createDirHash(posterFilename);
+            } else {
+                this.posterFilename = posterFilename;
+            }
+
         } else {
             this.posterFilename = UNKNOWN;
         }
@@ -2461,8 +2458,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Look at the associated movie files and return the latest date a file was
-     * watched
+     * Look at the associated movie files and return the latest date a file was watched
      *
      * @return
      */

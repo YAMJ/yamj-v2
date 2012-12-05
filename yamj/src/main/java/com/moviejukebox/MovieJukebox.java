@@ -674,18 +674,22 @@ public class MovieJukebox {
          * ******************************************************************************
          * @author Gabriel Corneanu
          *
-         * The tools used for parallel processing are NOT thread safe (some operations are, but not all) therefore all
-         * are added to a container which is instantiated one per thread
+         * The tools used for parallel processing are NOT thread safe (some
+         * operations are, but not all) therefore all are added to a container
+         * which is instantiated one per thread
          *
-         * - xmlWriter looks thread safe - htmlWriter was not thread safe, - getTransformer is fixed (simple workaround)
-         * - MovieImagePlugin : not clear, made thread specific for safety - MediaInfoScanner : not sure, made thread
-         * specific
+         * - xmlWriter looks thread safe - htmlWriter was not thread safe, -
+         * getTransformer is fixed (simple workaround) - MovieImagePlugin : not
+         * clear, made thread specific for safety - MediaInfoScanner : not sure,
+         * made thread specific
          *
-         * Also important: The library itself is not thread safe for modifications (API says so) it could be adjusted
-         * with concurrent versions, but it needs many changes it seems that it is safe for subsequent reads
-         * (iterators), so leave for now...
+         * Also important: The library itself is not thread safe for
+         * modifications (API says so) it could be adjusted with concurrent
+         * versions, but it needs many changes it seems that it is safe for
+         * subsequent reads (iterators), so leave for now...
          *
-         * - DatabasePluginController is also fixed to be thread safe (plugins map for each thread)
+         * - DatabasePluginController is also fixed to be thread safe (plugins
+         * map for each thread)
          *
          */
         class ToolSet {
@@ -802,17 +806,7 @@ public class MovieJukebox {
 
         // Try and create the temp directory
         logger.debug("Creating temporary jukebox location: " + jukebox.getJukeboxTempLocation());
-        boolean status = jukebox.getJukeboxTempLocationDetailsFile().mkdirs();
-        int i = 1;
-        while (!status && i++ <= 10) {
-            Thread.sleep(1000);
-            status = jukebox.getJukeboxTempLocationDetailsFile().mkdirs();
-        }
-
-        if (status && i > 10) {
-            logger.error("Failed creating the temporary jukebox directory (" + jukebox.getJukeboxTempLocationDetails() + "). Ensure this directory is read/write!");
-            return;
-        }
+        FileTools.makeDirectories(jukebox.getJukeboxTempLocationDetailsFile());
 
         /*
          * ******************************************************************************
@@ -1652,7 +1646,8 @@ public class MovieJukebox {
     /**
      * Clean up the jukebox folder of any extra files that are not needed.
      *
-     * If the jukeboxClean parameter is not set, just report on the files that would be cleaned.
+     * If the jukeboxClean parameter is not set, just report on the files that
+     * would be cleaned.
      */
     private void cleanJukeboxFolder() {
         boolean cleanReport = PropertiesUtil.getBooleanProperty("mjb.jukeboxCleanReport", FALSE);
@@ -1723,12 +1718,15 @@ public class MovieJukebox {
     }
 
     /**
-     * Generates a movie XML file which contains data in the <tt>Movie</tt> bean.
+     * Generates a movie XML file which contains data in the <tt>Movie</tt>
+     * bean.
      *
-     * When an XML file exists for the specified movie file, it is loaded into the specified <tt>Movie</tt> object.
+     * When an XML file exists for the specified movie file, it is loaded into
+     * the specified <tt>Movie</tt> object.
      *
-     * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt>
-     * object. Once scanned, the <tt>movie</tt> object is persisted.
+     * When no XML file exist, scanners are called in turn, in order to add
+     * information to the specified <tt>movie</tt> object. Once scanned, the
+     * <tt>movie</tt> object is persisted.
      */
     public boolean updateMovieData(MovieJukeboxXMLReader xmlReader, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", FALSE);
@@ -1961,9 +1959,11 @@ public class MovieJukebox {
     }
 
     /**
-     * Update the movie poster for the specified movie. When an existing thumbnail is found for the movie, it is not
-     * overwritten, unless the mjb.forceThumbnailOverwrite is set to true in the property file. When the specified movie
-     * does not contain a valid URL for the poster, a dummy image is used instead.
+     * Update the movie poster for the specified movie. When an existing
+     * thumbnail is found for the movie, it is not overwritten, unless the
+     * mjb.forceThumbnailOverwrite is set to true in the property file. When the
+     * specified movie does not contain a valid URL for the poster, a dummy
+     * image is used instead.
      *
      * @param tempJukeboxDetailsRoot
      */
@@ -1971,6 +1971,9 @@ public class MovieJukebox {
         String posterFilename = movie.getPosterFilename();
         File posterFile = new File(jukebox.getJukeboxRootLocationDetails() + File.separator + posterFilename);
         File tmpDestFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + posterFilename);
+
+        FileTools.makeDirectories(posterFile);
+        FileTools.makeDirectories(tmpDestFile);
 
         // Check to see if there is a local poster.
         // Check to see if there are posters in the jukebox directories (target and temp)
@@ -1987,7 +1990,7 @@ public class MovieJukebox {
             } else {
                 try {
                     // Issue 201 : we now download to local temp dir
-                    logger.debug("Downloading poster for " + movie.getBaseName() + " to " + tmpDestFile.getName());
+                    logger.debug("Downloading poster for " + movie.getBaseName() + " to '" + tmpDestFile.getName() + "'");
                     FileTools.downloadImage(tmpDestFile, movie.getPosterURL());
                     logger.debug("Downloaded poster for " + movie.getBaseName());
                 } catch (IOException error) {
@@ -2001,10 +2004,11 @@ public class MovieJukebox {
     /**
      * Update the banner for the specified TV Show.
      *
-     * When an existing banner is found for the movie, it is not overwritten, unless the mjb.forcePosterOverwrite is set
-     * to true in the property file.
+     * When an existing banner is found for the movie, it is not overwritten,
+     * unless the mjb.forcePosterOverwrite is set to true in the property file.
      *
-     * When the specified movie does not contain a valid URL for the banner, a dummy image is used instead.
+     * When the specified movie does not contain a valid URL for the banner, a
+     * dummy image is used instead.
      *
      */
     public void updateTvBanner(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
@@ -2150,40 +2154,42 @@ public class MovieJukebox {
             // Issue 201 : we now download to local temp directory
             String safePosterFilename = movie.getPosterFilename();
             String safeThumbnailFilename = movie.getThumbnailFilename();
-            File src = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + safePosterFilename);
-            File oldsrc = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename);
-            String dst = jukebox.getJukeboxTempLocationDetails() + File.separator + safeThumbnailFilename;
-            String olddst = jukebox.getJukeboxRootLocationDetails() + File.separator + safeThumbnailFilename;
-            File fin;
 
-            if (forceThumbnailOverwrite || !FileTools.fileCache.fileExists(olddst) || src.exists()) {
+            File tmpPosterFile = new File(appendToPath(jukebox.getJukeboxTempLocationDetails(), safePosterFilename));
+            File jkbPosterFile = FileTools.fileCache.getFile(appendToPath(jukebox.getJukeboxRootLocationDetails(), safePosterFilename));
+            String tmpThumbnailFile = appendToPath(jukebox.getJukeboxTempLocationDetails(), safeThumbnailFilename);
+            String jkbThumbnailFile = appendToPath(jukebox.getJukeboxRootLocationDetails(), safeThumbnailFilename);
+            File destinationFile;
+
+            if (movie.isDirty(DirtyFlag.POSTER)
+                    || forceThumbnailOverwrite
+                    || !FileTools.fileCache.fileExists(jkbThumbnailFile)
+                    || tmpPosterFile.exists()) {
                 // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
-                if (src.exists()) {
-                    //logger.debug("New file exists: " + src.getAbsolutePath());
-                    fin = src;
+                if (tmpPosterFile.exists()) {
+                    // logger.debug("Use new file: " + tmpPosterFile.getAbsolutePath());
+                    destinationFile = tmpPosterFile;
                 } else {
-                    //logger.debug("Use old file: " + oldsrc.getAbsolutePath());
-                    fin = oldsrc;
+                    // logger.debug("Use jukebox file: " + jkbPosterFile.getAbsolutePath());
+                    destinationFile = jkbPosterFile;
                 }
 
                 BufferedImage bi = null;
                 try {
-                    bi = GraphicTools.loadJPEGImage(fin);
+                    bi = GraphicTools.loadJPEGImage(destinationFile);
                 } catch (IOException ex) {
-                    logger.warn("Error reading the thumbnail file: " + fin.getAbsolutePath() + ", error: " + ex.getMessage());
+                    logger.warn("Error reading the thumbnail file: " + destinationFile.getAbsolutePath() + ", error: " + ex.getMessage());
                 }
 
                 if (bi == null) {
-                    logger.info("Using dummy thumbnail image for " + movie.getOriginalTitle());
+                    logger.info("Using dummy thumbnail image for " + movie.getBaseName());
                     // There was an error with the URL, assume it's a bad URL and clear it so we try again
                     movie.setPosterURL(Movie.UNKNOWN);
-//                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"),
-//                            new File(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename));
-                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), src);
+                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), tmpPosterFile);
                     try {
-                        bi = GraphicTools.loadJPEGImage(src);
+                        bi = GraphicTools.loadJPEGImage(tmpPosterFile);
                     } catch (Exception error) {
-                        logger.warn("Error reading the dummy image file: " + src.getAbsolutePath());
+                        logger.warn("Error reading the dummy image file: " + tmpPosterFile.getAbsolutePath());
                     }
                 }
 
@@ -2193,17 +2199,17 @@ public class MovieJukebox {
                 // Generate and save both images
                 if (perspectiveDirection.equalsIgnoreCase("both")) {
                     // Calculate mirror thumbnail name.
-                    String dstMirror = new String(dst.substring(0, dst.lastIndexOf('.'))) + "_mirror" + new String(dst.substring(dst.lastIndexOf('.')));
+                    String dstMirror = new String(tmpThumbnailFile.substring(0, tmpThumbnailFile.lastIndexOf('.'))) + "_mirror" + new String(tmpThumbnailFile.substring(tmpThumbnailFile.lastIndexOf('.')));
 
                     // Generate left & save as copy
-                    logger.debug("Generating mirror thumbnail from " + src + " to " + dstMirror);
+                    logger.debug("Generating mirror thumbnail from " + tmpPosterFile + " to " + dstMirror);
                     BufferedImage biMirror = imagePlugin.generate(movie, bi, "thumbnails", "left");
                     GraphicTools.saveImageToDisk(biMirror, dstMirror);
 
                     // Generate right as per normal
-                    logger.debug("Generating right thumbnail from " + src + " to " + dst);
+                    logger.debug("Generating right thumbnail from " + tmpPosterFile + " to " + tmpThumbnailFile);
                     bi = imagePlugin.generate(movie, bi, "thumbnails", "right");
-                    GraphicTools.saveImageToDisk(bi, dst);
+                    GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
                 }
 
                 // Only generate the right image
@@ -2211,8 +2217,8 @@ public class MovieJukebox {
                     bi = imagePlugin.generate(movie, bi, "thumbnails", "right");
 
                     // Save the right perspective image.
-                    GraphicTools.saveImageToDisk(bi, dst);
-                    logger.debug("Generating right thumbnail from " + src + " to " + dst);
+                    GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
+                    logger.debug("Generating right thumbnail from " + tmpPosterFile + " to " + tmpThumbnailFile);
                 }
 
                 // Only generate the left image
@@ -2220,8 +2226,8 @@ public class MovieJukebox {
                     bi = imagePlugin.generate(movie, bi, "thumbnails", "left");
 
                     // Save the right perspective image.
-                    GraphicTools.saveImageToDisk(bi, dst);
-                    logger.debug("Generating left thumbnail from " + src + " to " + dst);
+                    GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
+                    logger.debug("Generating left thumbnail from " + tmpPosterFile + " to " + tmpThumbnailFile);
                 }
             }
         } catch (Exception error) {
@@ -2246,60 +2252,52 @@ public class MovieJukebox {
         // Issue 201 : we now download to local temporary directory
         String safePosterFilename = movie.getPosterFilename();
         String safeDetailPosterFilename = movie.getDetailPosterFilename();
-        File src = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + safePosterFilename);
-        File oldsrc = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + safePosterFilename);
-        String dst = jukebox.getJukeboxTempLocationDetails() + File.separator + safeDetailPosterFilename;
-        String olddst = jukebox.getJukeboxRootLocationDetails() + File.separator + safeDetailPosterFilename;
-        File fin;
-
-//            logger.info("Dirty     : " + movie.isDirty(DirtyFlag.POSTER));
-//            logger.info("FPO       : " + forcePosterOverwrite);
-//            logger.info("old exists: " + FileTools.fileCache.fileExists(olddst));
-//            logger.info("SRC Exists: " + src.exists());
-//            logger.info("olddst    : " + olddst);
-//            logger.info("src       : " + src.getAbsolutePath());
-//            logger.info("oldsrc    : " + oldsrc.getAbsolutePath());
+        File tmpPosterFile = new File(appendToPath(jukebox.getJukeboxTempLocationDetails(), safePosterFilename));
+        File jkbPosterFile = FileTools.fileCache.getFile(appendToPath(jukebox.getJukeboxRootLocationDetails(), safePosterFilename));
+        String tmpThumbnailFile = appendToPath(jukebox.getJukeboxTempLocationDetails(), safeDetailPosterFilename);
+        String jkbThumbnailFile = appendToPath(jukebox.getJukeboxRootLocationDetails(), safeDetailPosterFilename);
+        File destinationFile;
 
         if (movie.isDirty(DirtyFlag.POSTER)
                 || forcePosterOverwrite
-                || !FileTools.fileCache.fileExists(olddst)
-                || src.exists()) {
+                || !FileTools.fileCache.fileExists(jkbThumbnailFile)
+                || tmpPosterFile.exists()) {
             // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
-            if (src.exists()) {
-                logger.debug("CreatePoster: New file exists (" + src + ")");
-                fin = src;
+            if (tmpPosterFile.exists()) {
+                logger.debug("CreatePoster: New file exists (" + tmpPosterFile + ")");
+                destinationFile = tmpPosterFile;
             } else {
-                logger.debug("CreatePoster: Using old file (" + oldsrc + ")");
-                fin = oldsrc;
+                logger.debug("CreatePoster: Using old file (" + jkbPosterFile + ")");
+                destinationFile = jkbPosterFile;
             }
 
             BufferedImage bi = null;
             try {
-                bi = GraphicTools.loadJPEGImage(fin);
+                bi = GraphicTools.loadJPEGImage(destinationFile);
             } catch (IOException ex) {
-                logger.warn("Error processing the poster file: " + fin.getAbsolutePath());
+                logger.warn("Error processing the poster file: " + destinationFile.getAbsolutePath());
                 logger.error(SystemTools.getStackTrace(ex));
             } catch (ImageReadException ex) {
-                logger.warn("Error reading the poster file: " + fin.getAbsolutePath());
+                logger.warn("Error reading the poster file: " + destinationFile.getAbsolutePath());
                 logger.error(SystemTools.getStackTrace(ex));
             }
 
             if (bi == null) {
                 // There was an error with the URL, assume it's a bad URL and clear it so we try again
                 movie.setPosterURL(Movie.UNKNOWN);
-                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), oldsrc);
+                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), jkbPosterFile);
                 try {
-                    bi = GraphicTools.loadJPEGImage(src);
+                    bi = GraphicTools.loadJPEGImage(tmpPosterFile);
                     logger.info("Using dummy poster image for " + movie.getOriginalTitle());
                 } catch (IOException ex) {
-                    logger.warn("Error processing the dummy poster file: " + src.getAbsolutePath());
+                    logger.warn("Error processing the dummy poster file: " + tmpPosterFile.getAbsolutePath());
                     logger.error(SystemTools.getStackTrace(ex));
                 } catch (ImageReadException ex) {
-                    logger.warn("Error reading the dummy poster file: " + src.getAbsolutePath());
+                    logger.warn("Error reading the dummy poster file: " + tmpPosterFile.getAbsolutePath());
                     logger.error(SystemTools.getStackTrace(ex));
                 }
             }
-            logger.debug("Generating poster from " + src + " to " + dst);
+            logger.debug("Generating poster from " + tmpPosterFile + " to " + tmpThumbnailFile);
 
             // Perspective code.
             String perspectiveDirection = getProperty("posters.perspectiveDirection", "right");
@@ -2307,17 +2305,17 @@ public class MovieJukebox {
             // Generate and save both images
             if (perspectiveDirection.equalsIgnoreCase("both")) {
                 // Calculate mirror poster name.
-                String dstMirror = FilenameUtils.removeExtension(dst) + "_mirror." + FilenameUtils.getExtension(dst);
+                String dstMirror = FilenameUtils.removeExtension(tmpThumbnailFile) + "_mirror." + FilenameUtils.getExtension(tmpThumbnailFile);
 
                 // Generate left & save as copy
-                logger.debug("Generating mirror poster from " + src + " to " + dstMirror);
+                logger.debug("Generating mirror poster from " + tmpPosterFile + " to " + dstMirror);
                 BufferedImage biMirror = posterManager.generate(movie, bi, "posters", "left");
                 GraphicTools.saveImageToDisk(biMirror, dstMirror);
 
                 // Generate right as per normal
-                logger.debug("Generating right poster from " + src + " to " + dst);
+                logger.debug("Generating right poster from " + tmpPosterFile + " to " + tmpThumbnailFile);
                 bi = posterManager.generate(movie, bi, "posters", "right");
-                GraphicTools.saveImageToDisk(bi, dst);
+                GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
             }
 
             // Only generate the right image
@@ -2325,8 +2323,8 @@ public class MovieJukebox {
                 bi = posterManager.generate(movie, bi, "posters", "right");
 
                 // Save the right perspective image.
-                GraphicTools.saveImageToDisk(bi, dst);
-                logger.debug("Generating right poster from " + src + " to " + dst);
+                GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
+                logger.debug("Generating right poster from " + tmpPosterFile + " to " + tmpThumbnailFile);
             }
 
             // Only generate the left image
@@ -2334,8 +2332,8 @@ public class MovieJukebox {
                 bi = posterManager.generate(movie, bi, "posters", "left");
 
                 // Save the right perspective image.
-                GraphicTools.saveImageToDisk(bi, dst);
-                logger.debug("Generating left poster from " + src + " to " + dst);
+                GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
+                logger.debug("Generating left poster from " + tmpPosterFile + " to " + tmpThumbnailFile);
             }
         }
     }

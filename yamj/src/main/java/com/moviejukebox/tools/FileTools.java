@@ -34,9 +34,17 @@ public class FileTools {
     private static final String LOG_MESSAGE = "FileTools: ";
     static final int BUFF_SIZE = 16 * 1024;
     private static final Collection<String> SUBTITLE_EXTENSIONS = new ArrayList<String>();
+    private static final Collection<ReplaceEntry> UNSAFE_CHARS = new ArrayList<ReplaceEntry>();
+    private static final Character ENCODE_ESCAPE_CHAR;
+    private static final Collection<String> GENERATED_FILENAMES = Collections.synchronizedCollection(new ArrayList<String>());
+    private static boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
+    private static int footerImageEnabled = PropertiesUtil.getIntProperty("mjb.footer.count", "0");
+    private static String indexFilesPrefix = getProperty("mjb.indexFilesPrefix", "");
     // Literals
     private static final String TO = " to ";
     private static final String BDMV_STREAM = File.separator + "BDMV" + File.separator + "STREAM";
+    // File Cache
+    public static ScannedFilesCache fileCache = new ScannedFilesCache();
     // Lock for mkdirs
     private static Lock fsLock = new ReentrantLock();
 
@@ -78,12 +86,6 @@ public class FileTools {
             return newFilename;
         }
     };
-    private static final Collection<ReplaceEntry> UNSAFE_CHARS = new ArrayList<ReplaceEntry>();
-    private static final Character ENCODE_ESCAPE_CHAR;
-    private static final Collection<String> GENERATED_FILENAMES = Collections.synchronizedCollection(new ArrayList<String>());
-    private static boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
-    private static int footerImageEnabled = PropertiesUtil.getIntProperty("mjb.footer.count", "0");
-    private static String indexFilesPrefix = getProperty("mjb.indexFilesPrefix", "");
 
     static {
         // What to do if the user specifies a blank encodeEscapeChar? I guess disable encoding.
@@ -191,7 +193,7 @@ public class FileTools {
             }
 
             if (dst.isDirectory()) {
-                dst.mkdirs();
+                makeDirectories(dst);
                 copyFile(src, new File(dst + File.separator + src.getName()));
             } else {
                 FileInputStream inSource = null;
@@ -464,8 +466,9 @@ public class FileTools {
     }
 
     /**
-     * Returns the given path in canonical form i.e. no duplicated separators, no ".", ".."..., and ending without
-     * trailing separator the only exception is a root! the canonical form for a root INCLUDES the separator
+     * Returns the given path in canonical form i.e. no duplicated separators,
+     * no ".", ".."..., and ending without trailing separator the only exception
+     * is a root! the canonical form for a root INCLUDES the separator
      */
     public static String getCanonicalPath(String path) {
         try {
@@ -476,7 +479,8 @@ public class FileTools {
     }
 
     /**
-     * when concatenating paths and the source MIGHT be a root, use this function to safely add the separator
+     * when concatenating paths and the source MIGHT be a root, use this
+     * function to safely add the separator
      */
     public static String getDirPathWithSeparator(String path) {
         return path.endsWith(File.separator) ? path : path + File.separator;
@@ -499,8 +503,8 @@ public class FileTools {
 
     /**
      * *
-     * Pass in the filename and a list of extensions, this function will scan for the filename plus extensions and
-     * return the File
+     * Pass in the filename and a list of extensions, this function will scan
+     * for the filename plus extensions and return the File
      *
      * @param filename
      * @param fileExtensions
@@ -523,7 +527,8 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the extensions
+     * Search for the filename in the cache and look for each with the
+     * extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -536,7 +541,8 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the extensions
+     * Search for the filename in the cache and look for each with the
+     * extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -550,7 +556,8 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the extensions
+     * Search for the filename in the cache and look for each with the
+     * extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -611,8 +618,9 @@ public class FileTools {
     }
 
     /**
-     * Download the image for the specified URL into the specified file. Utilises the WebBrowser downloadImage function
-     * to allow for proxy connections.
+     * Download the image for the specified URL into the specified file.
+     * Utilises the WebBrowser downloadImage function to allow for proxy
+     * connections.
      *
      * @param imageFile
      * @param imageURL
@@ -704,7 +712,8 @@ public class FileTools {
     }
 
     /**
-     * Process the movie and add all the files to the jukebox cleaning exclusion list
+     * Process the movie and add all the files to the jukebox cleaning exclusion
+     * list
      *
      * @param movie
      */
@@ -740,7 +749,8 @@ public class FileTools {
     }
 
     /**
-     * Special File with "cached" attributes used to minimize file system access which slows down everything
+     * Special File with "cached" attributes used to minimize file system access
+     * which slows down everything
      *
      * @author Gabriel Corneanu
      */
@@ -753,6 +763,7 @@ public class FileTools {
         private volatile Long fileLen = null;
         private volatile Long fileLastModified = null;
         private IArchiveScanner[] archiveScanners;
+        private volatile File[] listFiles;
 
         //Standard constructors
         public FileEx(String parent, String child) {
@@ -859,7 +870,6 @@ public class FileTools {
             }
             return new FileEx(p, archiveScanners);
         }
-        private volatile File[] listFiles;
 
         @Override
         public File[] listFiles() {
@@ -915,8 +925,8 @@ public class FileTools {
     }
 
     /**
-     * cached File instances the key is always absolute path in upper-case, so it will NOT work for case only
-     * differences
+     * cached File instances the key is always absolute path in upper-case, so
+     * it will NOT work for case only differences
      *
      * @author Gabriel Corneanu
      */
@@ -957,13 +967,16 @@ public class FileTools {
         /**
          * Retrieve a file from cache
          *
-         * If it is NOT found, construct one instance and mark it as non-existing.
+         * If it is NOT found, construct one instance and mark it as
+         * non-existing.
          *
-         * The exist() test is used very often throughout the library to search for specific files.
+         * The exist() test is used very often throughout the library to search
+         * for specific files.
          *
          * The path MUST be canonical (i.e. carefully constructed)
          *
-         * We do NOT want here to make it canonical because it goes to the file system and it's slow.
+         * We do NOT want here to make it canonical because it goes to the file
+         * system and it's slow.
          *
          * @param path
          * @return
@@ -1046,7 +1059,6 @@ public class FileTools {
             p.close();
         }
     }
-    public static ScannedFilesCache fileCache = new ScannedFilesCache();
 
     /**
      * Look for any subtitle files for a file
@@ -1065,15 +1077,12 @@ public class FileTools {
      * @param filename
      * @return
      */
-    public static String createDirHash(String filename) {
-        if (StringTools.isNotValidString(filename)) {
-            return "";
+    public static String createDirHash(final String filename) {
+        // Skip if the filename is invalid OR has already been hashed
+        if (StringTools.isNotValidString(filename) || filename.contains(File.separator)) {
+            return filename;
         }
-
         StringBuilder dirHash = new StringBuilder();
-
-        //TODO: Do we need to check if the path is already hashed?
-
         dirHash.append(filename.substring(0, 1)).append(File.separator);
         dirHash.append(filename.substring(0, filename.length() > 1 ? 2 : 1).trim()).append(File.separator);
         dirHash.append(filename);
@@ -1087,35 +1096,51 @@ public class FileTools {
      * @param file
      * @return
      */
-    public static String createDirHash(File file) {
+    public static String createDirHash(final File file) {
         return createDirHash(file.getName());
     }
 
+    /**
+     * Create all directories up to the level of the file passed
+     *
+     * @param sourceDirectory Source directory or file to create the directories
+     * directories
+     * @return
+     */
     public static Boolean makeDirectories(File file) {
         return makeDirectories(file, 10);
     }
 
-    public static Boolean makeDirectories(final File file, int numOfTries) {
-        File dir;
-        if (file.isDirectory()) {
-            dir = file;
+    /**
+     * Create all directories up to the level of the file passed
+     *
+     * @param sourceDirectory Source directory or file to create the directories
+     * @param numOfTries Number of attempts that will be made to create the
+     * directories
+     * @return
+     */
+    public static Boolean makeDirectories(final File sourceDirectory, int numOfTries) {
+        File targetDirectory;
+        if (sourceDirectory.isDirectory()) {
+            targetDirectory = sourceDirectory;
         } else {
-            dir = file.getParentFile();
+            targetDirectory = sourceDirectory.getParentFile();
         }
 
-        if (dir.exists()) {
+        if (targetDirectory.exists()) {
             return Boolean.TRUE;
         }
+        logger.debug(LOG_MESSAGE + "Creating directories for " + targetDirectory.getAbsolutePath());
 
         fsLock.lock();
         try {
-            boolean status = file.mkdirs();
+            boolean status = targetDirectory.mkdirs();
             int looper = 1;
             while (!status && looper++ <= numOfTries) {
-                status = file.mkdirs();
+                status = targetDirectory.mkdirs();
             }
             if (status && looper > 10) {
-                logger.error("Failed creating the directory (" + file.getAbsolutePath() + "). Ensure this directory is read/write!");
+                logger.error("Failed creating the directory (" + targetDirectory.getAbsolutePath() + "). Ensure this directory is read/write!");
                 return Boolean.FALSE;
             }
             return Boolean.TRUE;

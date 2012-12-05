@@ -100,7 +100,10 @@ public class StringTools {
      * @return
      */
     public static String appendToPath(String basePath, String additionalPath) {
-        return (basePath.trim() + (basePath.trim().endsWith(File.separator) ? "" : File.separator) + additionalPath.trim());
+        StringBuilder newPath = new StringBuilder(basePath.trim());
+        newPath.append((basePath.trim().endsWith(File.separator) ? "" : File.separator));
+        newPath.append(additionalPath.trim());
+        return newPath.toString();
     }
 
     public static String cleanString(String sourceString) {
