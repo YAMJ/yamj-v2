@@ -229,7 +229,7 @@ public class PosterScanner {
             localPosterFile = AttachmentScanner.extractAttachedPoster(movie);
             foundLocalPoster = (localPosterFile != null);
         }
-        
+
         if (foundLocalPoster) {
             fullPosterFilename = localPosterFile.getAbsolutePath();
             Dimension imageSize = getFileImageSize(localPosterFile);
@@ -241,6 +241,10 @@ public class PosterScanner {
 
             File finalJukeboxFile = FileTools.fileCache.getFile(finalJukeboxPosterFileName);
             File tempJukeboxFile = new File(tempJukeboxPosterFileName);
+
+            FileTools.makeDirectories(finalJukeboxFile);
+            FileTools.makeDirectories(tempJukeboxFile);
+
             boolean copyLocalPoster = false;
 
 //            logger.debug(LOG_MESSAGE + "finalJukeboxFile exists: " + finalJukeboxFile.exists());
@@ -261,7 +265,7 @@ public class PosterScanner {
 
             if (copyLocalPoster) {
                 FileTools.copyFile(localPosterFile, tempJukeboxFile);
-                logger.debug(LOG_MESSAGE + fullPosterFilename + " has been copied to " + tempJukeboxPosterFileName);
+                logger.debug(LOG_MESSAGE + "'" + fullPosterFilename + "' has been copied to '" + tempJukeboxPosterFileName + "'");
             }
             // Update poster URL with local poster
             String posterURI = localPosterFile.toURI().toString();
