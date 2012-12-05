@@ -1083,8 +1083,8 @@ public class FileTools {
             return filename;
         }
         StringBuilder dirHash = new StringBuilder();
-        dirHash.append(filename.substring(0, 1)).append(File.separator);
-        dirHash.append(filename.substring(0, filename.length() > 1 ? 2 : 1).trim()).append(File.separator);
+        dirHash.append(filename.substring(0, 1).toLowerCase()).append(File.separator);
+        dirHash.append(filename.substring(0, filename.length() > 1 ? 2 : 1).trim().toLowerCase()).append(File.separator);
         dirHash.append(filename);
 
         return dirHash.toString();
