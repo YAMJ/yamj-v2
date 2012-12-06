@@ -183,8 +183,10 @@ public class WebBrowser {
         URL url = new URL(fixedImageURL);
 
         ThreadExecutor.enterIO(url);
-        boolean success = false;
+        boolean success = Boolean.FALSE;
         int retryCount = imageRetryCount;
+        InputStream inputStream = null;
+        FileOutputStream outputStream = null;
         try {
             while (!success && retryCount > 0) {
                 URLConnection cnx = openProxiedConnection(url);
@@ -193,11 +195,12 @@ public class WebBrowser {
                 readHeader(cnx);
 
                 int reportedLength = cnx.getContentLength();
-                java.io.InputStream inputStream = cnx.getInputStream();
-                int inputStreamLength = FileTools.copy(inputStream, new FileOutputStream(imageFile));
+                inputStream = cnx.getInputStream();
+                outputStream = new FileOutputStream(imageFile);
+                int inputStreamLength = FileTools.copy(inputStream, outputStream);
 
                 if (reportedLength < 0 || reportedLength == inputStreamLength) {
-                    success = true;
+                    success = Boolean.TRUE;
                 } else {
                     retryCount--;
                     logger.debug(LOG_MESSAGE + "Image download attempt failed, bytes expected: " + reportedLength + ", bytes received: " + inputStreamLength);
@@ -205,6 +208,23 @@ public class WebBrowser {
             }
         } finally {
             ThreadExecutor.leaveIO();
+
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException ex) {
+                    // ignore
+                }
+            }
+
+            if (outputStream != null) {
+                try {
+                    outputStream.flush();
+                    outputStream.close();
+                } catch (IOException ex) {
+                    // ignore
+                }
+            }
         }
 
         if (!success) {

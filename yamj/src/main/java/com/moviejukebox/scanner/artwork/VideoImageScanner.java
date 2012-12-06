@@ -324,7 +324,7 @@ public class VideoImageScanner {
 
             // Do not overwrite existing videoimage unless ForceVideoImageOverwrite = true
             if ((!videoimageFile.exists() && !tmpDestFile.exists()) || videoimageOverwrite || movie.isDirty(DirtyFlag.RECHECK) || movie.isDirty(DirtyFlag.NFO) || movie.isDirty(DirtyFlag.WATCHED)) {
-                videoimageFile.getParentFile().mkdirs();
+                FileTools.makeDirectories(videoimageFile);
 
                 // Download the videoimage using the proxy save downloadImage
                 try {
