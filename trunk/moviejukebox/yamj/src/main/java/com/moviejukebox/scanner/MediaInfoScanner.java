@@ -57,7 +57,7 @@ public class MediaInfoScanner {
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     private static final List<String> MI_DISK_IMAGES = new ArrayList<String>();
     private static final Set<OverrideFlag> MI_OVERRIDE_FLAGS = new TreeSet<OverrideFlag>();
-    
+
     static {
         logger.debug("Operating System Name   : " + OS_NAME);
         logger.debug("Operating System Version: " + OS_VERSION);
@@ -79,7 +79,7 @@ public class MediaInfoScanner {
                 MI_EXE.add("-f");
             }
         }
-        
+
         if (!checkMediainfo.canExecute()) {
             logger.info(LOG_MESSAGE + "Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
             isActivated = false;
@@ -96,7 +96,7 @@ public class MediaInfoScanner {
         for (String ext : PropertiesUtil.getProperty("mediainfo.rar.diskExtensions", "iso,img,rar,001").split(",")) {
             MI_DISK_IMAGES.add(ext.toLowerCase());
         }
-        
+
         // Build the list of enabled override values
         for (String flag : PropertiesUtil.getProperty("mediainfo.override.values", "none").split(",")) {
             OverrideFlag overrideFlag = OverrideFlag.fromString(flag);
@@ -127,14 +127,13 @@ public class MediaInfoScanner {
                 default:
                     // do nothing
                     break;
-                    
+
             }
         }
         if (MI_OVERRIDE_FLAGS.size() > 0) {
-            logger.info(LOG_MESSAGE + "Overriding values "+MI_OVERRIDE_FLAGS.toString());
+            logger.info(LOG_MESSAGE + "Overriding values " + MI_OVERRIDE_FLAGS.toString());
         }
     }
-    
     // DVD rip infos Scanner
     private DVDRipScanner localDVDRipScanner;
 
@@ -155,7 +154,7 @@ public class MediaInfoScanner {
             // when no override checks are enabled, then skip the update scan
             return;
         }
-        
+
         if (currentMovie.getFile().isDirectory()) {
             // no update needed if movie file is a directory (DVD structure)
             return;
@@ -163,15 +162,15 @@ public class MediaInfoScanner {
 
         // TODO add check if movie file is newer than generated movie XML
         //      in order to update possible changed media info values
-        
+
         // no update if movie has no new files
         if (!currentMovie.hasNewMovieFiles()) {
             return;
         }
-        
+
         // check if main file has changed
         boolean mainFileIsNew = false;
-        
+
         try {
             // get the canonical path for movie file
             String movieFilePath = currentMovie.getFile().getCanonicalPath();
@@ -186,17 +185,19 @@ public class MediaInfoScanner {
                             mainFileIsNew = true;
                             break;
                         }
-                    } catch (Exception ignore) {}
+                    } catch (Exception ignore) {
+                    }
                 }
             }
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) {
+        }
 
         if (mainFileIsNew) {
             logger.debug(LOG_MESSAGE + "Main movie file has changed; rescan media info");
             this.scan(currentMovie);
         }
     }
-    
+
     public void scan(Movie currentMovie) {
         if (currentMovie.getFile().isDirectory()) {
             // Scan IFO files
@@ -229,6 +230,7 @@ public class MediaInfoScanner {
             File tempRep = new File(randomDirName + "/VIDEO_TS");
             tempRep.mkdirs();
 
+            OutputStream fosCurrentIFO = null;
             try {
                 @SuppressWarnings("unchecked")
                 Vector<ArchiveEntry> allEntries = scannedIsoFile.getEntries();
@@ -237,15 +239,22 @@ public class MediaInfoScanner {
                     ArchiveEntry currentArchiveEntry = (ArchiveEntry) parcoursEntries.next();
                     if (currentArchiveEntry.getName().toLowerCase().endsWith(".ifo")) {
                         File currentIFO = new File(randomDirName + "/VIDEO_TS" + File.separator + currentArchiveEntry.getName());
-                        OutputStream fosCurrentIFO = FileTools.createFileOutputStream(currentIFO);
+                        fosCurrentIFO = FileTools.createFileOutputStream(currentIFO);
                         byte[] ifoFileContent = new byte[Integer.parseInt(Long.toString(currentArchiveEntry.getSize()))];
                         scannedIsoFile.getEntryInputStream(currentArchiveEntry).read(ifoFileContent);
                         fosCurrentIFO.write(ifoFileContent);
-                        fosCurrentIFO.close();
                     }
                 }
             } catch (Exception error) {
                 logger.info(error.getMessage());
+            } finally {
+                if (fosCurrentIFO != null) {
+                    try {
+                        fosCurrentIFO.close();
+                    } catch (IOException ex) {
+                        // ignore
+                    }
+                }
             }
 
             // Scan IFO files
@@ -474,7 +483,7 @@ public class MediaInfoScanner {
                 movie.setRuntime(DateTimeTools.formatDuration(duration));
             }
         }
-        
+
         // get Info from first Video Stream
         // - can evolve to get info from longest Video Stream
         if (infosVideo.size() > 0) {

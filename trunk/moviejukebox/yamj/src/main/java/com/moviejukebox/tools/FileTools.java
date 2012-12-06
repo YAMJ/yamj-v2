@@ -336,22 +336,33 @@ public class FileTools {
         StringBuilder out = new StringBuilder();
 
         if (file != null) {
+            BufferedReader in = null;
+            FileReader fr = null;
             try {
-                BufferedReader in = null;
-                try {
-                    in = new BufferedReader(new FileReader(file));
-                    String line = in.readLine();
-                    while (line != null) {
-                        out.append(line).append(" "); // Add a space to avoid unwanted concatenation
-                        line = in.readLine();
-                    }
-                } finally {
-                    if (in != null) {
-                        in.close();
-                    }
+                fr = new FileReader(file);
+                in = new BufferedReader(fr);
+                String line = in.readLine();
+                while (line != null) {
+                    out.append(line).append(" "); // Add a space to avoid unwanted concatenation
+                    line = in.readLine();
                 }
             } catch (IOException error) {
                 logger.error(LOG_MESSAGE + "Failed reading file " + file.getName());
+            } finally {
+                if (fr != null) {
+                    try {
+                        fr.close();
+                    } catch (IOException ex) {
+                        logger.trace(LOG_MESSAGE + "Failed to close reader file for " + file.getAbsolutePath());
+                    }
+                }
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException ex) {
+                        logger.trace(LOG_MESSAGE + "Failed to close buffered reader file for " + file.getAbsolutePath());
+                    }
+                }
             }
         }
 
@@ -1147,6 +1158,5 @@ public class FileTools {
         } finally {
             fsLock.unlock();
         }
-
     }
 }
