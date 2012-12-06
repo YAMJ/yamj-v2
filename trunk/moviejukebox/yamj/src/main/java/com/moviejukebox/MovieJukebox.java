@@ -818,18 +818,27 @@ public class MovieJukebox {
 
         logger.info("Scanning library directory " + mediaLibraryRoot);
         logger.info("Jukebox output goes to " + jukebox.getJukeboxRootLocation());
-        FileTools.fileCache.addDir(jukeboxDetailsRootFile, 0);
+        if (PropertiesUtil.getBooleanProperty("mjb.dirHash", FALSE)) {
+            // Add all folders 2 deep to the fileCache
+            FileTools.fileCache.addDir(jukeboxDetailsRootFile, 2);
+            /*
+             * TODO: Need to watch for any issues when we have scanned the whole
+             * jukebox, such as the watched folder, NFO folder, etc now existing
+             * in the cache
+             */
+        } else {
+            // If the dirHash is not needed, just scan to the root level plus the watched and people folders
+            FileTools.fileCache.addDir(jukeboxDetailsRootFile, 0);
 
-        // Add the watched folder
-        {
+            // Add the watched folder
             File watchedFileHandle = new FileTools.FileEx(jukebox.getJukeboxRootLocationDetails() + File.separator + "Watched");
             FileTools.fileCache.addDir(watchedFileHandle, 0);
-        }
 
-        // Add the people folder if needed
-        if (isValidString(peopleFolder)) {
-            File peopleFolderHandle = new FileTools.FileEx(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder);
-            FileTools.fileCache.addDir(peopleFolderHandle, 0);
+            // Add the people folder if needed
+            if (isValidString(peopleFolder)) {
+                File peopleFolderHandle = new FileTools.FileEx(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder);
+                FileTools.fileCache.addDir(peopleFolderHandle, 0);
+            }
         }
 
         ThreadExecutor<Void> tasks = new ThreadExecutor<Void>(maxThreadsProcess, maxThreadsDownload);
