@@ -33,6 +33,7 @@ import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
@@ -665,7 +666,7 @@ public class MovieJukeboxXMLReader {
                                     }
                                 }
                             }
-                            
+
                             movieFile.setWatchedDateString(DOMHelper.getValueFromElement(eFile, "watchedDate"));
 
                             // This is not a new file
@@ -734,10 +735,11 @@ public class MovieJukeboxXMLReader {
     public boolean parseSetXML(File xmlSetFile, Movie setMaster, List<Movie> moviesList) {
         boolean forceDirtyFlag = Boolean.FALSE;
 
+        XMLEventReader r = null;
         try {
             Collection<String> xmlSetMovieNames = new ArrayList<String>();
             XMLInputFactory factory = XMLInputFactory.newInstance();
-            XMLEventReader r = factory.createXMLEventReader(FileTools.createFileInputStream(xmlSetFile), "UTF-8");
+            r = factory.createXMLEventReader(FileTools.createFileInputStream(xmlSetFile), "UTF-8");
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
                 String tag = e.toString();
@@ -766,23 +768,33 @@ public class MovieJukeboxXMLReader {
                 }
                 forceDirtyFlag |= counter != 0;
             } else {
-                forceDirtyFlag = true;
+                forceDirtyFlag = Boolean.TRUE;
             }
         } catch (Exception error) {
             logger.error(LOG_MESSAGE + "Failed parsing " + xmlSetFile.getAbsolutePath() + ": please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
-            return false;
+            return Boolean.FALSE;
+        } finally {
+            if (r != null) {
+                try {
+                    r.close();
+                } catch (XMLStreamException ex) {
+                    // ignore
+                }
+            }
         }
 
         setMaster.setDirty(DirtyFlag.INFO, forceDirtyFlag);
 
-        return true;
+        return Boolean.TRUE;
     }
 
     public boolean parsePersonXML(File xmlFile, Person person) {
+        XMLEventReader r = null;
         try {
             XMLInputFactory factory = XMLInputFactory.newInstance();
-            XMLEventReader r = factory.createXMLEventReader(FileTools.createFileInputStream(xmlFile), "UTF-8");
+            r = factory.createXMLEventReader(FileTools.createFileInputStream(xmlFile), "UTF-8");
+
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
                 String tag = e.toString();
@@ -919,7 +931,7 @@ public class MovieJukeboxXMLReader {
                         }
                     }
                     film.setFilename(parseCData(r));
-                    film.setDirty(false);
+                    film.setDirty(Boolean.FALSE);
                     person.addFilm(film);
                 }
             }
@@ -927,11 +939,19 @@ public class MovieJukeboxXMLReader {
         } catch (Exception error) {
             logger.error(LOG_MESSAGE + "Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
-            return false;
+            return Boolean.FALSE;
+        } finally {
+            if (r != null) {
+                try {
+                    r.close();
+                } catch (XMLStreamException ex) {
+                    // ignore
+                }
+            }
         }
 
-        person.setDirty(false);
+        person.setDirty(Boolean.FALSE);
 
-        return true;
+        return Boolean.TRUE;
     }
 }

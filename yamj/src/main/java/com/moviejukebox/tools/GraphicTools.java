@@ -84,6 +84,8 @@ public class GraphicTools {
         jpegQuality = PropertiesUtil.getIntProperty("mjb.jpeg.quality", "75");
         quality = (float) jpegQuality / 100;
         // save image as JPEG
+        ImageWriter writer = null;
+        FileImageOutputStream output = null;
         try {
             BufferedImage bufImage = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
             bufImage.createGraphics().drawImage(bi, 0, 0, null, null);
@@ -92,7 +94,7 @@ public class GraphicTools {
             //ori: ImageIO.write(bufImage, "jpg", outputFile);
             @SuppressWarnings("rawtypes")
             Iterator iter = ImageIO.getImageWritersByFormatName("jpeg");
-            ImageWriter writer = (ImageWriter) iter.next();
+            writer = (ImageWriter) iter.next();
 
             ImageWriteParam iwp = writer.getDefaultWriteParam();
             iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
@@ -103,15 +105,24 @@ public class GraphicTools {
             // Create the output directories if needed
             FileTools.makeDirectories(outputFile);
 
-            FileImageOutputStream output = new FileImageOutputStream(outputFile);
+            output = new FileImageOutputStream(outputFile);
             writer.setOutput(output);
             IIOImage image = new IIOImage(bufImage, null, null);
             writer.write(null, image, iwp);
-            writer.dispose();
-
         } catch (Exception error) {
             logger.error(LOG_MESSAGE + "Failed Saving thumbnail file: " + filename);
             logger.error(SystemTools.getStackTrace(error));
+        } finally {
+            if (writer != null) {
+                writer.dispose();
+            }
+            if (output != null) {
+                try {
+                    output.close();
+                } catch (IOException ex) {
+                    logger.trace(LOG_MESSAGE + "Failed to close output file for " + filename);
+                }
+            }
         }
     }
 

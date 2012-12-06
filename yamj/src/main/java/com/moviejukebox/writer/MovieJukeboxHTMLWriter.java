@@ -91,7 +91,7 @@ public class MovieJukeboxHTMLWriter {
                 FileTools.addJukeboxFile(baseName + suffix + EXT_HTML);
 
                 if (!finalHtmlFile.exists() || forceHTMLOverwrite || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.WATCHED)) {
-                    
+
                     // Issue 216: If the HTML is deleted the generation fails because it looks in the temp directory and not
                     // the original source directory
                     if (tempXmlFile.exists()) {
@@ -265,9 +265,11 @@ public class MovieJukeboxHTMLWriter {
         BufferedReader reader = null;
         StringBuilder sb = new StringBuilder();
         FileWriter outFile = null;
+        FileReader inFile = null;
 
         try {
-            reader = new BufferedReader(new FileReader(filename));
+            inFile = new FileReader(filename);
+            reader = new BufferedReader(inFile);
             String br;
 
             while ((br = reader.readLine()) != null) {
@@ -285,6 +287,13 @@ public class MovieJukeboxHTMLWriter {
             logger.debug(LOG_MESSAGE + "Failed deleting blank lines from " + filename);
             logger.error(SystemTools.getStackTrace(error));
         } finally {
+            try {
+                if (inFile != null) {
+                    inFile.close();
+                }
+            } catch (IOException e) {
+                // Ignore
+            }
             try {
                 if (outFile != null) {
                     outFile.close();
