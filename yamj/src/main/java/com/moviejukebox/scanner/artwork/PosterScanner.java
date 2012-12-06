@@ -166,7 +166,7 @@ public class PosterScanner {
 
             localPosterFile = FileTools.findFilenameInCache(localPosterBaseFilename, POSTER_EXTENSIONS, jukebox, LOG_MESSAGE, searchInJukebox);
             if (localPosterFile != null) {
-                foundLocalPoster = true;
+                foundLocalPoster = Boolean.TRUE;
             }
         }
 
@@ -245,8 +245,10 @@ public class PosterScanner {
             FileTools.makeDirectories(finalJukeboxFile);
             FileTools.makeDirectories(tempJukeboxFile);
 
-            boolean copyLocalPoster = false;
+            boolean copyLocalPoster = Boolean.FALSE;
 
+//            logger.debug(LOG_MESSAGE + "finalJukeboxFile       : " + finalJukeboxFile.getAbsolutePath());
+//            logger.debug(LOG_MESSAGE + "tempJukeboxFile        : " + tempJukeboxFile.getAbsolutePath());
 //            logger.debug(LOG_MESSAGE + "finalJukeboxFile exists: " + finalJukeboxFile.exists());
 //            logger.debug(LOG_MESSAGE + "Local newer than temp? : " + (tempJukeboxFile.exists() && FileTools.isNewer(localPosterFile, tempJukeboxFile)));
 //            logger.debug(LOG_MESSAGE + "Posters same size?     : " + (localPosterFile.length() != finalJukeboxFile.length()));
@@ -260,7 +262,7 @@ public class PosterScanner {
                     || // local file is newer ?
                     (FileTools.isNewer(localPosterFile, finalJukeboxFile))) {
                 // Force copy of local poster file
-                copyLocalPoster = true;
+                copyLocalPoster = Boolean.TRUE;
             }
 
             if (copyLocalPoster) {
@@ -342,7 +344,7 @@ public class PosterScanner {
                 if (!Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl())) {
                     logger.debug(LOG_MESSAGE + "Poster URL found at " + posterSearchToken + ": " + posterImage.getUrl());
                     posterImage.setSubimage(posterSearchToken);     // TODO: This is a hack, but seeing as only one poster scanner uses it, it should be safe until it's all refactored to use the Artwork class
-                    movie.setDirty(DirtyFlag.POSTER, true);
+                    movie.setDirty(DirtyFlag.POSTER, Boolean.TRUE);
                 }
             }
         }
@@ -350,11 +352,19 @@ public class PosterScanner {
         return posterImage;
     }
 
+    /**
+     * Validate the artwork against the dimensions and aspect.
+     *
+     * @param posterImage
+     * @return
+     */
     public static boolean validatePoster(IImage posterImage) {
         return validatePoster(posterImage, posterWidth, posterHeight, posterValidateAspect);
     }
 
     /**
+     * Validate the poster against the provided dimensions and aspect
+     *
      * Get the size of the file at the end of the URL Taken from:
      * http://forums.sun.com/thread.jspa?threadID=528155&messageID=2537096
      *
@@ -367,11 +377,11 @@ public class PosterScanner {
     public static boolean validatePoster(IImage posterImage, int posterWidth, int posterHeight, boolean checkAspect) {
         float urlAspect;
         if (!posterValidate) {
-            return true;
+            return Boolean.TRUE;
         }
 
         if (StringTools.isNotValidString(posterImage.getUrl())) {
-            return false;
+            return Boolean.FALSE;
         }
 
         Dimension imageDimension = getUrlDimensions(posterImage.getUrl());
@@ -394,7 +404,7 @@ public class PosterScanner {
 
         if (checkAspect && urlAspect > 1.0) {
             logger.debug(posterImage + " rejected: URL is landscape format");
-            return false;
+            return Boolean.FALSE;
         }
 
         // Adjust poster width / height by the ValidateMatch figure
@@ -403,14 +413,14 @@ public class PosterScanner {
 
         if (urlWidth < newPosterWidth) {
             logger.debug(LOG_MESSAGE + posterImage + " rejected: URL width (" + urlWidth + ") is smaller than poster width (" + newPosterWidth + ")");
-            return false;
+            return Boolean.FALSE;
         }
 
         if (urlHeight < newPosterHeight) {
             logger.debug(LOG_MESSAGE + posterImage + " rejected: URL height (" + urlHeight + ") is smaller than poster height (" + newPosterHeight + ")");
-            return false;
+            return Boolean.FALSE;
         }
-        return true;
+        return Boolean.TRUE;
     }
 
     /**
@@ -468,7 +478,7 @@ public class PosterScanner {
             URL url = new URL(imageUrl);
             in = url.openStream();
             iis = ImageIO.createImageInputStream(in);
-            reader.setInput(iis, true);
+            reader.setInput(iis, Boolean.TRUE);
 
             imageDimension.setSize(reader.getWidth(0), reader.getHeight(0));
         } catch (IOException ex) {
@@ -532,7 +542,7 @@ public class PosterScanner {
         IImage posterImage = getPosterURL(movie);
         if (StringTools.isValidString(posterImage.getUrl())) {
             movie.setPosterURL(posterImage.getUrl());
-            ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, Movie.UNKNOWN, false);
+            ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, Movie.UNKNOWN, Boolean.FALSE);
             movie.addArtwork(new Artwork(ArtworkType.Poster, posterImage.getSubimage(), posterImage.getUrl(), artworkFile));
         }
     }

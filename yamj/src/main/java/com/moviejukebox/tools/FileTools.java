@@ -1068,7 +1068,7 @@ public class FileTools {
      */
     public static File findSubtitles(File fileToScan) {
         String basename = FilenameUtils.removeExtension(fileToScan.getAbsolutePath().toUpperCase());
-        return FileTools.findFileFromExtensions(basename, SUBTITLE_EXTENSIONS);
+        return findFileFromExtensions(basename, SUBTITLE_EXTENSIONS);
     }
 
     /**
