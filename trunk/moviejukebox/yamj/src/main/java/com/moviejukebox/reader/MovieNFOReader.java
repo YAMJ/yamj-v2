@@ -64,6 +64,9 @@ public class MovieNFOReader {
     private static boolean getCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", TRUE);
     private static String imdbPreferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
+    // Fanart settings
+    private static String fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
+    private static String fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");    
     // Patterns
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
 
@@ -378,8 +381,9 @@ public class MovieNFOReader {
                 if (!skipNfoUrl) {
                     movie.setPosterURL(DOMHelper.getValueFromElement(eCommon, "thumb"));
                     movie.setFanartURL(DOMHelper.getValueFromElement(eCommon, "fanart"));
-                    // Not sure this is needed
-                    // movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
+                    if (StringTools.isValidString(movie.getFanartURL())) {
+                        movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
+                    }
                 }
 
                 // Trailers
