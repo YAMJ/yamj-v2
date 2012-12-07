@@ -1291,14 +1291,14 @@ public class MovieJukebox {
                          * playlist it will be overwritten by the index XML
                          */
 
-                        logger.debug("Updating set poster for: " + movie.getOriginalTitle() + "...");
+                        logger.debug("Updating set artwork for: " + movie.getOriginalTitle() + "...");
                         // If we can find a set poster file, use it; otherwise, stick with the first movie's poster
                         String oldPosterFilename = movie.getPosterFilename();
 
                         // Set a default poster name in case it's not found during the scan
                         movie.setPosterFilename(safeSetMasterBaseName + "." + posterExtension);
                         if (isNotValidString(PosterScanner.scan(jukebox, movie))) {
-                            logger.debug("Local set poster (" + safeSetMasterBaseName + ") not found, using " + oldPosterFilename);
+                            logger.debug("Local set poster (" + safeSetMasterBaseName + ") not found.");
                             movie.setPosterFilename(oldPosterFilename);
                         }
 
@@ -1308,8 +1308,7 @@ public class MovieJukebox {
                             movie.setBannerFilename(safeSetMasterBaseName + bannerToken + "." + bannerExtension);
                             if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
                                 updateTvBanner(jukebox, movie, tools.imagePlugin);
-                                logger.debug("Local set banner (" + safeSetMasterBaseName + bannerToken + ") not found, using "
-                                        + oldPosterFilename);
+                                logger.debug("Local set banner (" + safeSetMasterBaseName + bannerToken + ".*) not found.");
                             } else {
                                 logger.debug("Local set banner found, using " + movie.getBannerFilename());
                             }
@@ -1320,8 +1319,7 @@ public class MovieJukebox {
                             // Set a default fanart filename in case it's not found during the scan
                             movie.setFanartFilename(safeSetMasterBaseName + fanartToken + "." + fanartExtension);
                             if (!FanartScanner.scan(tools.backgroundPlugin, jukebox, movie)) {
-                                logger.debug("Local set fanart (" + safeSetMasterBaseName + fanartToken + ") not found, using "
-                                        + oldPosterFilename);
+                                logger.debug("Local set fanart (" + safeSetMasterBaseName + fanartToken + ".*) not found.");
                             } else {
                                 logger.debug("Local set fanart found, using " + movie.getFanartFilename());
                             }
