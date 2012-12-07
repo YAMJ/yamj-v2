@@ -8,7 +8,6 @@ com.moviejukebox.plugin.poster.FilmwebPosterPlugin
 com.moviejukebox.plugin.poster.GooglePosterPlugin
 com.moviejukebox.plugin.poster.ImdbPosterPlugin
 com.moviejukebox.plugin.poster.ImpAwardsPosterPlugin
-com.moviejukebox.plugin.poster.MotechnetPosterPlugin
 com.moviejukebox.plugin.poster.MovieCoversPosterPlugin
 com.moviejukebox.plugin.poster.MovieDbPosterPlugin
 com.moviejukebox.plugin.poster.MovieMeterPosterPlugin
