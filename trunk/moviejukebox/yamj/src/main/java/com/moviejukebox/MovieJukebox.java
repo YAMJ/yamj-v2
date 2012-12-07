@@ -2033,14 +2033,14 @@ public class MovieJukebox {
 
         // Do not overwrite existing banners, unless there is a new poster URL in the nfo file.
         if ((!tmpDestFile.exists() && !bannerFile.exists()) || movie.isDirty(DirtyFlag.BANNER) || forceBannerOverwrite) {
-            bannerFile.getParentFile().mkdirs();
+            FileTools.makeDirectories(tmpDestFile);
 
             if (isNotValidString(movie.getBannerURL())) {
                 logger.debug("Dummy banner used for " + movie.getBaseName());
                 FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), tmpDestFile);
             } else {
                 try {
-                    logger.debug("Downloading banner for " + movie.getBaseName() + " to " + tmpDestFile.getName() + " [calling plugin]");
+                    logger.debug("Downloading banner for '" + movie.getBaseName() + "' to '" + tmpDestFile.getName() + "'");
                     FileTools.downloadImage(tmpDestFile, movie.getBannerURL());
                 } catch (IOException error) {
                     logger.debug("Failed downloading banner: " + movie.getBannerURL() + " - Error: " + error.getMessage());

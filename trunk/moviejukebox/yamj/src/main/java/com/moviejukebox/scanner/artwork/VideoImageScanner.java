@@ -168,7 +168,7 @@ public class VideoImageScanner {
                 // Check file attachments
                 if (!foundLocalVideoImage) {
                     localVideoImageFile = AttachmentScanner.extractAttachedVideoimage(movie, part);
-                    if (localVideoImageFile != null ) {
+                    if (localVideoImageFile != null) {
                         foundLocalVideoImage = true;
                         fullVideoImageFilename = localVideoImageFile.getAbsolutePath();
                         // need to create the commonly used local video image file name
@@ -233,7 +233,8 @@ public class VideoImageScanner {
                         }
                     }
 
-                    String videoimageFilename = FileTools.makeSafeFilename(mf.getVideoImageFilename(part));
+//                    String videoimageFilename = FileTools.makeSafeFilename(mf.getVideoImageFilename(part));
+                    String videoimageFilename = mf.getVideoImageFilename(part);
                     String finalDestinationFileName = jukebox.getJukeboxRootLocationDetails() + File.separator + videoimageFilename;
                     String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + videoimageFilename;
 
@@ -245,7 +246,11 @@ public class VideoImageScanner {
                     // Can't check the file size because the jukebox videoimage may have been re-sized
                     // This may mean that the local art is different to the jukebox art even if the local file date is newer
                     // Also check for DIRTY_WATCHED to see if we need to redo the image for the watched flag
-                    if (FileTools.isNewer(fullVideoImageFile, finalDestinationFile) || videoimageOverwrite || localOverwrite || movie.isDirty(DirtyFlag.RECHECK) || movie.isDirty(DirtyFlag.WATCHED)) {
+                    if (FileTools.isNewer(fullVideoImageFile, finalDestinationFile)
+                            || videoimageOverwrite
+                            || localOverwrite
+                            || movie.isDirty(DirtyFlag.RECHECK)
+                            || movie.isDirty(DirtyFlag.WATCHED)) {
                         if (processImage(imagePlugin, movie, fullVideoImageFilename, tmpDestFilename, part)) {
                             logger.debug(LOG_MESSAGE + fullVideoImageFile.getName() + " has been copied to " + tmpDestFilename);
                         } else {
@@ -315,7 +320,8 @@ public class VideoImageScanner {
     private static void downloadVideoImage(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie, MovieFile mf, int part) {
 
         if (StringTools.isValidString(mf.getVideoImageURL(part))) {
-            String safeVideoImageFilename = FileTools.makeSafeFilename(mf.getVideoImageFilename(part));
+//            String safeVideoImageFilename = FileTools.makeSafeFilename(mf.getVideoImageFilename(part));
+            String safeVideoImageFilename = mf.getVideoImageFilename(part);
             String videoimageFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safeVideoImageFilename;
             File videoimageFile = FileTools.fileCache.getFile(videoimageFilename);
             String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + safeVideoImageFilename;
@@ -323,7 +329,11 @@ public class VideoImageScanner {
             boolean fileOK = true;
 
             // Do not overwrite existing videoimage unless ForceVideoImageOverwrite = true
-            if ((!videoimageFile.exists() && !tmpDestFile.exists()) || videoimageOverwrite || movie.isDirty(DirtyFlag.RECHECK) || movie.isDirty(DirtyFlag.NFO) || movie.isDirty(DirtyFlag.WATCHED)) {
+            if ((!videoimageFile.exists() && !tmpDestFile.exists())
+                    || videoimageOverwrite
+                    || movie.isDirty(DirtyFlag.RECHECK)
+                    || movie.isDirty(DirtyFlag.NFO)
+                    || movie.isDirty(DirtyFlag.WATCHED)) {
                 FileTools.makeDirectories(videoimageFile);
 
                 // Download the videoimage using the proxy save downloadImage

@@ -92,7 +92,7 @@ public class BannerScanner {
         String localBannerBaseFilename = movie.getBaseFilename();
         String fullBannerFilename = null;
         String parentPath = FileTools.getParentFolder(movie.getFile());
-        File localBannerFile = null;
+        File localBannerFile;
         boolean foundLocalBanner = false;
 
         // Look for the banner.bannerToken.Extension
@@ -106,7 +106,7 @@ public class BannerScanner {
             // if the banner URL is invalid, but the banner filename is valid, then this is likely a recheck, so don't search on the jukebox folder
             if (StringTools.isNotValidString(movie.getBannerURL()) && StringTools.isValidString(movie.getBannerFilename())) {
                 searchInJukebox = Boolean.FALSE;
-            }            
+            }
             localBannerFile = FileTools.findFilenameInCache(localBannerBaseFilename + bannerToken, bannerExtensions, jukebox, LOG_MESSAGE, searchInJukebox);
             if (localBannerFile != null) {
                 foundLocalBanner = true;
@@ -151,7 +151,7 @@ public class BannerScanner {
             localBannerFile = AttachmentScanner.extractAttachedBanner(movie);
             foundLocalBanner = (localBannerFile != null);
         }
-        
+
         // If we've found the banner, copy it to the jukebox, otherwise download it.
         if (foundLocalBanner) {
             fullBannerFilename = localBannerFile.getAbsolutePath();
@@ -170,6 +170,8 @@ public class BannerScanner {
 
             File finalDestinationFile = FileTools.fileCache.getFile(finalDestinationFileName);
             File fullBannerFile = localBannerFile;
+            FileTools.makeDirectories(finalDestinationFile);
+            FileTools.makeDirectories(fullBannerFile);
 
             // Local Banner is newer OR ForcePosterOverwrite OR DirtyBanner
             // Can't check the file size because the jukebox banner may have been re-sized

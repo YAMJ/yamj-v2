@@ -57,7 +57,7 @@ public class GraphicTools {
             JpegReader jr = new JpegReader();
             return jr.readImage(fileImage);
         } else {
-            throw new FileNotFoundException("Image file " + fileImage.getAbsolutePath() + " does not exist");
+            throw new FileNotFoundException(LOG_MESSAGE + "Image file " + fileImage.getAbsolutePath() + " does not exist");
         }
     }
 
@@ -281,9 +281,8 @@ public class GraphicTools {
     /**
      * Creates the reflection effect
      *
-     * graphicType should be "posters", "thumbnails" or "videoimage" and is used
-     * to determine the settings that are extracted from the skin.properties
-     * file.
+     * graphicType should be "posters", "thumbnails" or "videoimage" and is used to determine the settings that are
+     * extracted from the skin.properties file.
      *
      * @param avatar
      * @param graphicType
@@ -374,9 +373,8 @@ public class GraphicTools {
     /**
      * Creates the 3D effect
      *
-     * graphicType should be "posters", "thumbnails" or "videoimage" and is used
-     * to determine the settings that are extracted from the skin.properties
-     * file.
+     * graphicType should be "posters", "thumbnails" or "videoimage" and is used to determine the settings that are
+     * extracted from the skin.properties file.
      *
      * @param bi
      * @param graphicType

@@ -16,6 +16,7 @@ import com.moviejukebox.model.Attachment.Attachment;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.BooleanYesNoAdapter;
 import com.moviejukebox.tools.DateTimeTools;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
@@ -60,6 +61,7 @@ public class MovieFile implements Comparable<MovieFile> {
     private boolean includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", FALSE);
     private boolean includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
     private boolean includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", FALSE);
+    private static final Boolean DIR_HASH = PropertiesUtil.getBooleanProperty("mjb.dirHash", FALSE);
     private String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
     private String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");
     private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
@@ -183,7 +185,12 @@ public class MovieFile implements Comparable<MovieFile> {
         if (StringUtils.isBlank(videoImageFilename)) {
             this.videoImageFilename.put(part, Movie.UNKNOWN);
         } else {
-            this.videoImageFilename.put(part, videoImageFilename);
+            // create the directory hash if needed
+            if (DIR_HASH) {
+                this.videoImageFilename.put(part, FileTools.createDirHash(videoImageFilename));
+            } else {
+                this.videoImageFilename.put(part, videoImageFilename);
+            }
         }
     }
 
@@ -657,11 +664,11 @@ public class MovieFile implements Comparable<MovieFile> {
     public void addAttachment(Attachment attachment) {
         this.attachments.add(attachment);
     }
-    
+
     public void clearAttachments() {
         this.attachments.clear();
     }
-    
+
     public boolean isAttachmentsScanned() {
         return attachmentsScanned;
     }
