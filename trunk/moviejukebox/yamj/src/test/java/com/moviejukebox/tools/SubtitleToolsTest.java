@@ -33,15 +33,6 @@ public class SubtitleToolsTest extends TestCase {
         // set property for subtitle restriction
         PropertiesUtil.setProperty("mjb.subtitle.skip", "nor,it");
     }
-
-    @Override
-    protected void tearDown() throws Exception {
-        // set up the file name scanner
-        MovieFilenameScanner.clearLanguages();
-        MovieFilenameScanner.addLanguage("English", "ENG EN ENGLISH eng en english Eng", "ENG EN ENGLISH");
-        MovieFilenameScanner.addLanguage("German", "GER,DE,GERMAN,ger,de ,german,Ger", "GER,DE,GERMAN");
-        
-    }
     
     public void testAddMovieSubtitles1() {
         String actualSubtitles = Movie.UNKNOWN;
