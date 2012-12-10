@@ -333,9 +333,11 @@ public class FileTools {
                             }
                         }
                     }
-                    if (updateDisplay) {
+
+                    if (updateDisplay && files.size() > 0) {
                         System.out.print("\n");
                     }
+                    
                     logger.debug(LOG_MESSAGE + "Copied " + totalSize + " files from " + srcDir.getCanonicalPath());
                 }
             }

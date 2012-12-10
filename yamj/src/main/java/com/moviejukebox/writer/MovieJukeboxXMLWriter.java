@@ -292,7 +292,6 @@ public class MovieJukeboxXMLWriter {
                                 categoryCount++;
                             }
                         }
-
                     }
 
                     // If there is nothing in the category, don't write it out
@@ -357,6 +356,9 @@ public class MovieJukeboxXMLWriter {
         sb.append(", count: ");
         sb.append(indexMovies.size());
         logger.debug(sb.toString());
+
+        JukeboxStatistic js = JukeboxStatistic.fromString("index_" + categoryKey);
+        JukeboxStatistics.setStatistic(js, indexMovies.size());
 
         // Display a message about the category we're indexing
         if (countMovieCat < categoryMinCount && !Arrays.asList("Other,Genres,Title,Year,Library,Set".split(",")).contains(categoryKey)) {
@@ -899,8 +901,7 @@ public class MovieJukeboxXMLWriter {
     /**
      * Write the element with the indexed attribute.
      *
-     * If there is a non-null value in the indexValue, this will be appended to
-     * the element.
+     * If there is a non-null value in the indexValue, this will be appended to the element.
      *
      * @param doc
      * @param parentElement
@@ -1419,7 +1420,7 @@ public class MovieJukeboxXMLWriter {
                 }
                 eFileItem.appendChild(eAttachments);
             }
-            
+
             eFiles.appendChild(eFileItem);
         }
         eMovie.appendChild(eFiles);
@@ -1493,9 +1494,8 @@ public class MovieJukeboxXMLWriter {
     /**
      * Persist a movie into an XML file.
      *
-     * Doesn't overwrite an already existing XML file for the specified movie
-     * unless, movie's data has changed (INFO, RECHECK, WATCHED) or
-     * forceXMLOverwrite is true.
+     * Doesn't overwrite an already existing XML file for the specified movie unless, movie's data has changed (INFO,
+     * RECHECK, WATCHED) or forceXMLOverwrite is true.
      */
     public void writeMovieXML(Jukebox jukebox, Movie movie, Library library) {
         String baseName = movie.getBaseName();

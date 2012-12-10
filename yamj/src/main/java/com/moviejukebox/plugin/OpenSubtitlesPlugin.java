@@ -145,14 +145,14 @@ public class OpenSubtitlesPlugin {
             }
 
             // Check if all files have subtitle
-            boolean allSubtitleExist = true;
-            boolean allSubtitleExchange = true;
+            boolean allSubtitleExist = Boolean.TRUE;
+            boolean allSubtitleExchange = Boolean.TRUE;
 
             // Go over all the movie files and check subtitle status
             for (MovieFile mf : movie.getMovieFiles()) {
 
                 if (!mf.isSubtitlesExchange()) {
-                    allSubtitleExchange = false;
+                    allSubtitleExchange = Boolean.FALSE;
                 }
 
                 // Check if this movie already have subtitles for it
@@ -169,8 +169,8 @@ public class OpenSubtitlesPlugin {
                 File subtitleFile = FileTools.fileCache.getFile(basename + "srt");
 
                 if (!subtitleFile.exists()) {
-                    allSubtitleExchange = false;
-                    allSubtitleExist = false;
+                    allSubtitleExchange = Boolean.FALSE;
+                    allSubtitleExist = Boolean.FALSE;
                     break;
                 }
             }
@@ -195,9 +195,9 @@ public class OpenSubtitlesPlugin {
                     File subtitleFile = FileTools.fileCache.getFile(basename + "srt");
 
                     if (!subtitleFile.exists()) {
-                        if (subtitleDownload(movie, mf.getFile(), subtitleFile) == true) {
-                            movie.setDirty(DirtyFlag.INFO, true);
-                            mf.setSubtitlesExchange(true);
+                        if (subtitleDownload(movie, mf.getFile(), subtitleFile) == Boolean.TRUE) {
+                            movie.setDirty(DirtyFlag.INFO, Boolean.TRUE);
+                            mf.setSubtitlesExchange(Boolean.TRUE);
                         }
                     } else {
                         if (!mf.isSubtitlesExchange()) {
@@ -207,9 +207,9 @@ public class OpenSubtitlesPlugin {
                             movieFileArray[0] = mf.getFile();
                             subtitleFileArray[0] = subtitleFile;
 
-                            if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == true) {
-                                movie.setDirty(DirtyFlag.INFO, true);
-                                mf.setSubtitlesExchange(true);
+                            if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == Boolean.TRUE) {
+                                movie.setDirty(DirtyFlag.INFO, Boolean.TRUE);
+                                mf.setSubtitlesExchange(Boolean.TRUE);
                             }
                         }
                     }
@@ -235,12 +235,12 @@ public class OpenSubtitlesPlugin {
                     i++;
                 }
 
-                if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == true) {
-                    movie.setDirty(DirtyFlag.INFO, true);
+                if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == Boolean.TRUE) {
+                    movie.setDirty(DirtyFlag.INFO, Boolean.TRUE);
 
                     // Go over all the movie files and mark the exchange
                     for (MovieFile mf : movie.getMovieFiles()) {
-                        mf.setSubtitlesExchange(true);
+                        mf.setSubtitlesExchange(Boolean.TRUE);
                     }
                 }
             }
@@ -283,7 +283,7 @@ public class OpenSubtitlesPlugin {
 
             if (subDownloadLink.equals("")) {
                 logger.debug(LOG_MESSAGE + "Subtitle not found for " + movieFile.getName());
-                return false;
+                return Boolean.FALSE;
             }
 
             logger.debug(LOG_MESSAGE + "Download subtitle for " + movie.getBaseName());
@@ -296,7 +296,7 @@ public class OpenSubtitlesPlugin {
             int code = connection.getResponseCode();
             if (code != HttpURLConnection.HTTP_OK) {
                 logger.error(LOG_MESSAGE + "Download Failed");
-                return false;
+                return Boolean.FALSE;
             }
 
             FileTools.copy(new GZIPInputStream(inputStream), new FileOutputStream(subtitleFile));
@@ -309,11 +309,11 @@ public class OpenSubtitlesPlugin {
                 SubtitleTools.addMovieSubtitle(movie, "YES");
             }
 
-            return true;
+            return Boolean.TRUE;
 
         } catch (Exception error) {
             logger.error(LOG_MESSAGE + "Download Exception (Movie Not Found)");
-            return false;
+            return Boolean.FALSE;
         }
 
     }
@@ -380,7 +380,7 @@ public class OpenSubtitlesPlugin {
 
             if (!alreadyindb.equals("0")) {
                 logger.debug(LOG_MESSAGE + "Subtitle already in db for " + movie.getBaseName());
-                return true;
+                return Boolean.TRUE;
             }
 
             logger.debug(LOG_MESSAGE + "Upload Subtitle for " + movie.getBaseName());
@@ -390,17 +390,17 @@ public class OpenSubtitlesPlugin {
 
             sendRPC(xml);
 
-            return true;
+            return Boolean.TRUE;
 
-        } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Upload Failed");
-            return false;
+        } catch (Exception ex) {
+            logger.error(LOG_MESSAGE + "Upload Failed: " + ex.getMessage());
+            return Boolean.FALSE;
         } finally {
             try {
                 if (fisSubtitleFile != null) {
                     fisSubtitleFile.close();
                 }
-            } catch (IOException e) {
+            } catch (IOException ex) {
                 // Ignore
             }
 
@@ -408,7 +408,7 @@ public class OpenSubtitlesPlugin {
                 if (deflaterOS != null) {
                     deflaterOS.close();
                 }
-            } catch (IOException e) {
+            } catch (IOException ex) {
                 // Ignore
             }
 
@@ -416,7 +416,7 @@ public class OpenSubtitlesPlugin {
                 if (baos != null) {
                     baos.close();
                 }
-            } catch (IOException e) {
+            } catch (IOException ex) {
                 // Ignore
             }
         }
@@ -538,7 +538,7 @@ public class OpenSubtitlesPlugin {
 
         // connection.setRequestProperty("Accept","text/html");
         connection.setRequestProperty("Content-Type", "text/xml");
-        connection.setDoOutput(true);
+        connection.setDoOutput(Boolean.TRUE);
 
         connection.getOutputStream().write(logowanie.getBytes("UTF-8"));
 
