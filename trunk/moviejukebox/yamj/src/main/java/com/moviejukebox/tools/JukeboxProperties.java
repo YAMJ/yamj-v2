@@ -13,6 +13,8 @@
 package com.moviejukebox.tools;
 
 import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.JukeboxStatistic;
+import com.moviejukebox.model.JukeboxStatistics;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
@@ -347,15 +349,15 @@ public class JukeboxProperties {
     private static Element generateStatistics(Document doc, Library library) {
         Element eStats = doc.createElement("statistics");
 
-        int stat = library.getMovieCountForIndex(Library.INDEX_OTHER, Library.INDEX_ALL);
+        int stat = JukeboxStatistics.getStatistic(JukeboxStatistic.VIDEOS);
         DOMHelper.appendChild(doc, eStats, "Videos", String.valueOf(stat));
 
-        stat = library.getMovieCountForIndex(Library.INDEX_OTHER, Library.INDEX_MOVIES);
+        stat = JukeboxStatistics.getStatistic(JukeboxStatistic.MOVIES);
         if (stat > 0) {
             DOMHelper.appendChild(doc, eStats, "Movies", String.valueOf(stat));
         }
 
-        stat = library.getMovieCountForIndex(Library.INDEX_OTHER, Library.INDEX_TVSHOWS);
+        stat = JukeboxStatistics.getStatistic(JukeboxStatistic.TVSHOWS);
         if (stat > 0) {
             DOMHelper.appendChild(doc, eStats, "TVShows", String.valueOf(stat));
         }
