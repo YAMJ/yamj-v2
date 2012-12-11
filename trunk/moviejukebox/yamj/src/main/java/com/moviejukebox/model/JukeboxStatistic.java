@@ -13,6 +13,7 @@
 package com.moviejukebox.model;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 /**
  * List of statistics available for the jukebox
@@ -74,7 +75,11 @@ public enum JukeboxStatistic {
     /*
      * How many videos are in the "Set" index
      */
-    INDEX_SET;
+    INDEX_SET,
+    /*
+     * How many videos are in the "Country" index
+     */
+    INDEX_COUNTRY;
 
     /**
      * Convert a string into an Enum type
