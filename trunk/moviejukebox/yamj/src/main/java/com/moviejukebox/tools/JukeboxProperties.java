@@ -250,7 +250,7 @@ public class JukeboxProperties {
         Element eRoot, eJukebox, eProperties;
 
         try {
-            logger.debug("Creating JukeboxProperties file: " + mjbDetails.getAbsolutePath());
+            logger.debug(LOG_MESSAGE + "Creating JukeboxProperties file: " + mjbDetails.getAbsolutePath());
             if (mjbDetails.exists() && !mjbDetails.delete()) {
                 logger.error(LOG_MESSAGE + "Failed to delete " + mjbDetails.getName() + ". Please make sure it's not read only");
                 return;
