@@ -32,7 +32,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
@@ -46,7 +45,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.sanselan.ImageReadException;
-import org.pojava.datetime2.DateTime;
 
 public class MovieJukebox {
 
@@ -60,9 +58,6 @@ public class MovieJukebox {
     private static Jukebox jukebox;
     private static boolean jukeboxPreserve = Boolean.FALSE;
     private static boolean jukeboxClean = Boolean.FALSE;
-    // Time Stamps
-    private static long timeStart = System.currentTimeMillis();
-    private static long timeEnd;
     // Overwrite flags
     private boolean forcePosterOverwrite;
     private boolean forceThumbnailOverwrite;
@@ -117,6 +112,8 @@ public class MovieJukebox {
     private static boolean enableCompleteMovies;
 
     public static void main(String[] args) throws Throwable {
+        JukeboxStatistics.setTimeStart(System.currentTimeMillis());
+
         // Create the log file name here, so we can change it later (because it's locked
         System.setProperty("file.name", logFilename);
         PropertyConfigurator.configure("properties/log4j.properties");
@@ -425,9 +422,7 @@ public class MovieJukebox {
 
         if (PropertiesUtil.getBooleanProperty("mjb.appendDateToLogFile", FALSE)) {
             renameFile = Boolean.TRUE;
-
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kkmmss");
-            newLogFilename.append("_").append(dateFormat.format(timeStart));
+            newLogFilename.append("_").append(JukeboxStatistics.getTime(JukeboxStatistics.JukeboxTimes.START, "yyyy-MM-dd-kkmmss"));
         }
 
         String logDir = PropertiesUtil.getProperty("mjb.logFileDirectory", "");
@@ -874,6 +869,7 @@ public class MovieJukebox {
         logger.info("Found " + library.size() + " videos in your media library");
         logger.info("Stored " + FileTools.fileCache.size() + " files in the info cache");
 
+        JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.SCAN_END, System.currentTimeMillis());
         JukeboxStatistics.setStatistic(JukeboxStatistic.VIDEOS, library.size());
 
         tasks.restart();
@@ -1026,6 +1022,8 @@ public class MovieJukebox {
 
             OpenSubtitlesPlugin.logOut();
             AniDbPlugin.anidbClose();
+
+            JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.PROCESSING_END, System.currentTimeMillis());
 
             if (peopleScan && peopleScrape) {
                 logger.info("Searching for people information...");
@@ -1245,6 +1243,8 @@ public class MovieJukebox {
                         }
                     }
                 }
+
+                JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.PEOPLE_END, System.currentTimeMillis());
             }
 
             /*
@@ -1261,9 +1261,9 @@ public class MovieJukebox {
             } else {
                 logger.info("Indexing libraries...");
                 library.buildIndex(tasks);
+                JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.INDEXING_END, System.currentTimeMillis());
+                SystemTools.showMemory();
             }
-
-            SystemTools.showMemory();
 
             /*
              * ******************************************************************************
@@ -1372,7 +1372,7 @@ public class MovieJukebox {
 
             // Clear the cache if we've used it
             CacheMemory.clear();
-
+            JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.MASTERS_END, System.currentTimeMillis());
             SystemTools.showMemory();
 
             // Issue 1886: Html indexes recreated every time
@@ -1492,6 +1492,7 @@ public class MovieJukebox {
             tasks.waitFor();
 
             SystemTools.showMemory();
+            JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.WRITE_INDEX_END, System.currentTimeMillis());
 
             if (peopleScan) {
                 logger.info("Writing people data...");
@@ -1521,6 +1522,7 @@ public class MovieJukebox {
                 tasks.waitFor();
 
                 SystemTools.showMemory();
+                JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.WRITE_PEOPLE_END, System.currentTimeMillis());
             }
 
             if (!skipIndexGeneration) {
@@ -1542,6 +1544,7 @@ public class MovieJukebox {
                  * index that starts the jukebox
                  */
                 htmlWriter.generateMainIndexHTML(jukebox, library);
+                JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.WRITE_HTML_END, System.currentTimeMillis());
             }
 
             if (enableCompleteMovies) {
@@ -1567,7 +1570,10 @@ public class MovieJukebox {
             File propFile = new File(userPropertiesName);
 
             // If forceSkinOverwrite is set, the user properties file doesn't exist or is newer than the skin.date file
-            if (forceSkinOverwrite || !propFile.exists() || FileTools.isNewer(propFile, skinFile) || (SkinProperties.getFileDate() > skinFile.lastModified())) {
+            if (forceSkinOverwrite
+                    || !propFile.exists()
+                    || FileTools.isNewer(propFile, skinFile)
+                    || (SkinProperties.getFileDate() > skinFile.lastModified())) {
                 if (forceSkinOverwrite) {
                     logger.info("Copying skin files to Jukebox directory (forceSkinOverwrite)...");
                 } else if (SkinProperties.getFileDate() > skinFile.lastModified()) {
@@ -1593,7 +1599,7 @@ public class MovieJukebox {
                 }
 
                 if (skinFile.exists()) {
-                    skinFile.setLastModified(timeStart);
+                    skinFile.setLastModified(JukeboxStatistics.getTime(JukeboxStatistics.JukeboxTimes.START));
                 } else {
                     skinFile.getParentFile().mkdirs();
                     skinFile.createNewFile();
@@ -1604,6 +1610,7 @@ public class MovieJukebox {
             }
 
             FileTools.fileCache.saveFileList("filecache.txt");
+            JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.COPYING_END, System.currentTimeMillis());
 
             /**
              * ******************************************************************************
@@ -1631,19 +1638,18 @@ public class MovieJukebox {
             AttachmentScanner.cleanUp();
         }
 
+        // Set the end time
+        JukeboxStatistics.setTimeEnd(System.currentTimeMillis());
+
         // Write the jukebox details file at the END of the run (Issue 1830)
         JukeboxProperties.writeFile(jukebox, library, mediaLibraryPaths);
 
-        timeEnd = System.currentTimeMillis();
+        // Output the statistics
+        JukeboxStatistics.writeFile(jukebox, library, mediaLibraryPaths);
 
         logger.info("");
         logger.info("MovieJukebox process completed at " + new Date());
-        logger.info("Processing took " + (new DateTime(timeEnd - timeStart)).toString("HH:mm:ss.S", TimeZone.getTimeZone("GMT")));
-        JukeboxStatistics.setProcessingTime(timeEnd - timeStart);
-
-        // Output the statistics
-//        logger.debug("");
-//        logger.debug(JukeboxStatistics.generateStatistics(Boolean.FALSE));
+        logger.info("Processing took " + JukeboxStatistics.getProcessingTime());
     }
 
     private boolean comparePersonId(Filmography aPerson, Filmography bPerson) {
