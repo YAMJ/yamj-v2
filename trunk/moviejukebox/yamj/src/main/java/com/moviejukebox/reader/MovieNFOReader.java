@@ -66,7 +66,7 @@ public class MovieNFOReader {
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     // Fanart settings
     private static String fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
-    private static String fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");    
+    private static String fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
     // Patterns
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
 
@@ -428,7 +428,7 @@ public class MovieNFOReader {
                 if (StringTools.isValidString(tempString)) {
                     movie.setVideoOutput(tempString);
                 }
-                
+
                 // Parse the video info
                 parseFileInfo(movie, DOMHelper.getElementByName(eCommon, "fileinfo"));
             }
@@ -540,7 +540,7 @@ public class MovieNFOReader {
         }
         SubtitleTools.setMovieSubtitles(movie, subtitles);
     }
-    
+
     /**
      * Process all the Episode Details
      *
@@ -666,25 +666,48 @@ public class MovieNFOReader {
     }
 
     /**
-     * Parse Actors from the XML NFO file
+     * Parse Actors from the XML NFO file.
      *
      * @param nlElements
      * @param movie
      */
     private static void parseActors(NodeList nlElements, Movie movie) {
-        Node nElements;
-        for (int looper = 0; looper < nlElements.getLength(); looper++) {
-            nElements = nlElements.item(looper);
-            if (nElements.getNodeType() == Node.ELEMENT_NODE) {
-                Element eActor = (Element) nElements;
+        // If we have a node
+        if (nlElements != null && nlElements.getLength() > 0) {
+            // Get all the name/role/thumb nodes
+            Node nActors = nlElements.item(0);
+            NodeList nlCast = nActors.getChildNodes();
+            Node nElement;
 
-                String aName = DOMHelper.getValueFromElement(eActor, "name");
-                String aRole = DOMHelper.getValueFromElement(eActor, "role");
-                String aThumb = DOMHelper.getValueFromElement(eActor, "thumb");
+            String aName = Movie.UNKNOWN;
+            String aRole = Movie.UNKNOWN;
+            String aThumb = Movie.UNKNOWN;
+            Boolean firstActor = Boolean.TRUE;
 
-                // This will add to the person and actor
-                movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN);
+            for (int looper = 0; looper < nlCast.getLength(); looper++) {
+                nElement = nlCast.item(looper);
+                if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eCast = (Element) nElement;
+                    if (eCast.getNodeName().equalsIgnoreCase("name")) {
+                        if (firstActor) {
+                            firstActor = Boolean.FALSE;
+                        } else {
+                            // This will add to the person and actor
+                            movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN);
+                        }
+                        aName = eCast.getTextContent();
+                        aRole = Movie.UNKNOWN;
+                        aThumb = Movie.UNKNOWN;
+                    } else if (eCast.getNodeName().equalsIgnoreCase("role")) {
+                        aRole = eCast.getTextContent();
+                    } else if (eCast.getNodeName().equalsIgnoreCase("thumb")) {
+                        aThumb = eCast.getTextContent();
+                    }
+                    // There's a case where there might be a different node here that isn't name, role or thumb, but that will be ignored
+                }
             }
+            // This will add to the person and actor
+            movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN);
         }
     }
 
