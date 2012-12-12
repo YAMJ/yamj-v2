@@ -33,6 +33,7 @@ MovieJukebox 2.8-SNAPSHOT
  - Fixed defect #2530 Update mediainfo if filename extension has changed
  - Fixed defect #2531 Issue with Videosource from NFO
  - Enhancement  #2537 Enhance statistics module
+ - Fixed defect #2540 Actor support broken in NFO
 
 MovieJukebox 2.7
 ----------------
