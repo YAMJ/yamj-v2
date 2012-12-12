@@ -79,7 +79,11 @@ public enum JukeboxStatistic {
     /*
      * How many videos are in the "Country" index
      */
-    INDEX_COUNTRY;
+    INDEX_COUNTRY,
+    /*
+     * How many videos are in the "Cast" index
+     */
+    INDEX_CAST;
 
     /**
      * Convert a string into an Enum type
