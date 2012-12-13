@@ -23,14 +23,13 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
 /**
- * User: JDGJr
- * Date: Feb 15, 2009
+ * User: JDGJr Date: Feb 15, 2009
  */
 public class MovieListingPluginBase implements MovieListingPlugin {
+
     private static final Logger logger = Logger.getLogger(MovieListingPluginBase.class);
-
+    private static final String LOG_MESSAGE = "MovieListingPluginBase: ";
     protected static final String UNDEFINED = "UNDEFINED";
-
     protected boolean groupByType = true;
     protected boolean blankUNKNOWN = true;
     protected String baseFilename = "";
@@ -78,7 +77,7 @@ public class MovieListingPluginBase implements MovieListingPlugin {
     protected void copyListingFile(File file, String filename) {
         // move to configured (default) location
         String dest = destination + File.separator + filename;
-        logger.info("  Copying to: " + dest);
+        logger.info(LOG_MESSAGE + "Copying to: " + dest);
         FileTools.copyFile(file, new File(dest));
     } // copyListingFile()
 
@@ -88,7 +87,6 @@ public class MovieListingPluginBase implements MovieListingPlugin {
      */
     @Override
     public void generate(Jukebox jukebox, Library library) {
-        logger.info("  MovieListingPluginBase: not generating listing file.");
+        logger.info(LOG_MESSAGE + "Not generating listing file.");
     } // generate()
-
 } // class MovieListingPluginBase
