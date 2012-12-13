@@ -42,19 +42,13 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
     private int limitCast;
     private int limitGenres;
     // The default list of fields
-    private static final String DEFAULT_FIELDS = "Type," + "Title," + "TitleSort," + "IMDB ID," + "TheTVDB ID," + "Director,"
-            + "Company," + "Country," + "Language," + "Runtime," + "Release Date," + "Year," + "Certification," + "Season #," + "VideoSource,"
-            + "Container," + "File," + "Audio Codec," + "Audio Channels," + "Resolution," + "Video Codec," + "Video Output," + "FPS,"
-            + "# Files," + "# Extras," + "# Genres," + "# Cast," + "SubTitles?," + "Poster?," + "Poster Filename," + "Fanart?,"
-            + "Fanart Filename," + "Rating #," + "Top 250 #," + "Library Description," + "Library Path," + "Allocine ID," + "FilmDelta ID,"
-            + "FilmUpIT ID," + "FilmWeb ID," + "Kinopoisk ID," + "Animator ID," + "Sratim ID," + "Last Modified Date," + "File Size," + "Genres," + "Cast,"
-            + "Plot," + "Outline," + "Thumbnail Filename," + "Detail Poster Filename" + "Watched";
+    private static final String DEFAULT_FIELDS = createDefaultFields();
 
     /**
-     * Take a comma-separated list of field names and split them into separate fields
+     * Take a comma-separated list of field names and split them into separate
+     * fields
      *
-     * @param aFields
-     *            Text to split
+     * @param aFields Text to split
      * @return Number of fields found
      */
     private int initFields(String aFields) {
@@ -88,7 +82,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * Check if a header filed matches a known type
      *
      * @param field The text we are checking
-     * @param knownType  The type to match
+     * @param knownType The type to match
      * @return true if we got a match
      */
     private boolean checkHeaderField(String field, String knownType) {
@@ -293,29 +287,32 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * @param str
      * @return String cleaned up, NEVER comma appended
      */
-    private String prep(String input) {
+    private String prep(final String input) {
         String str = input;
 
         if (null == str || (blankUNKNOWN && (UNKNOWN.equals(str) || UNDEFINED.equals(str)))) {
             // clean 'UNKNOWN' values
             str = "";
-        }
-        // convert all whitespace to a single space
-        str = str.replaceAll("[\\s]", " ").trim();
-        // remove quotes from the string (before encapsulation)
-        if (str.contains("\"")) {
-            str = str.replace("\"", "");
-        }
+        } else {
+            // convert all whitespace to a single space
+            str = str.replaceAll("[\\s]", " ").trim();
 
-        // enclose strings with commas in quotes
-        if (str.contains(",")) {
-            str = "\"" + str + "\"";
+            // remove quotes from the string (before encapsulation)
+            if (str.contains("\"")) {
+                str = str.replace("\"", "");
+            }
+
+            // enclose strings with commas in quotes
+            if (str.contains(",")) {
+                str = "\"" + str + "\"";
+            }
         }
         return str;
     } // prepOutput()
 
     /**
      * Generate the listing file
+     *
      * @param jukebox
      * @param library
      */
@@ -408,5 +405,67 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         copyListingFile(csvFile, filename);
 
     } // generate()
+
+    /**
+     * Create a set of default fields
+     *
+     * @return
+     */
+    private static String createDefaultFields() {
+        StringBuilder df = new StringBuilder();
+        df.append("Type").append(",");
+        df.append("Title").append(",");
+        df.append("TitleSort").append(",");
+        df.append("IMDB ID").append(",");
+        df.append("TheTVDB ID").append(",");
+        df.append("Director").append(",");
+        df.append("Company").append(",");
+        df.append("Country").append(",");
+        df.append("Language").append(",");
+        df.append("Runtime").append(",");
+        df.append("Release Date").append(",");
+        df.append("Year").append(",");
+        df.append("Certification").append(",");
+        df.append("Season #").append(",");
+        df.append("VideoSource").append(",");
+        df.append("Container").append(",");
+        df.append("File").append(",");
+        df.append("Audio Codec").append(",");
+        df.append("Audio Channels").append(",");
+        df.append("Resolution").append(",");
+        df.append("Video Codec").append(",");
+        df.append("Video Output").append(",");
+        df.append("FPS").append(",");
+        df.append("# Files").append(",");
+        df.append("# Extras").append(",");
+        df.append("# Genres").append(",");
+        df.append("# Cast").append(",");
+        df.append("SubTitles").append(",");
+        df.append("Poster").append(",");
+        df.append("Poster Filename").append(",");
+        df.append("Fanart").append(",");
+        df.append("Fanart Filename").append(",");
+        df.append("Rating #").append(",");
+        df.append("Top 250 #").append(",");
+        df.append("Library Description").append(",");
+        df.append("Library Path").append(",");
+        df.append("Allocine ID").append(",");
+        df.append("FilmDelta ID").append(",");
+        df.append("FilmUpIT ID").append(",");
+        df.append("FilmWeb ID").append(",");
+        df.append("Kinopoisk ID").append(",");
+        df.append("Animator ID").append(",");
+        df.append("Sratim ID").append(",");
+        df.append("Last Modified Date").append(",");
+        df.append("File Size").append(",");
+        df.append("Genres").append(",");
+        df.append("Cast").append(",");
+        df.append("Plot").append(",");
+        df.append("Outline").append(",");
+        df.append("Thumbnail Filename").append(",");
+        df.append("Detail Poster Filename").append(",");
+        df.append("Watched");
+        return df.toString();
+    }
 } // class MovieListingPluginCustomCsv
 
