@@ -33,50 +33,54 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
      * @return CSV-formatted header row
      */
     protected String headerLine() {
-        return prepOutput("Type")
-                + prepOutput("Title")
-                + prepOutput("TitleSort")
-                + prepOutput("IMDB ID")
-                + prepOutput("Director")
-                + prepOutput("Company")
-                + prepOutput("Country")
-                + prepOutput("Language")
-                + prepOutput("Runtime")
-                + prepOutput("Release Date")
-                + prepOutput("Year")
-                + prepOutput("Certification")
-                + prepOutput("Season #")
-                + prepOutput("TheTVDB ID")
-                + prepOutput("VideoSource")
-                + prepOutput("Container")
-                + prepOutput("File")
-                + prepOutput("Audio Codec")
-                + prepOutput("Audio Channels")
-                + prepOutput("Resolution")
-                + prepOutput("Video Codec")
-                + prepOutput("Video Output")
-                + prepOutput("FPS")
-                + prepOutput("# Files")
-                + prepOutput("# Extras")
-                + prepOutput("# Genres")
-                + prepOutput("# Cast")
-                + prepOutput("SubTitles?")
-                + prepOutput("Poster?")
-                + prepOutput("Detail Poster Filename")
-                + prepOutput("Rating #")
-                + prepOutput("Top 250 #")
-                + prepOutput("Library Description")
-                + prepOutput("Library Path")
-                + prepOutput("Allocine ID")
-                + prepOutput("FilmDelta ID")
-                + prepOutput("FilmUpIT ID")
-                + prepOutput("FilmWeb ID")
-                + prepOutput("Kinopoisk ID")
-                + prepOutput("Animator ID")
-                + prepOutput("Sratim ID")
-                + prepOutput("Last Modified Date")
-                + prepOutput("File Size", false)
-                + prepOutput("Watched");
+        StringBuilder headerLine = new StringBuilder();
+
+        headerLine.append(prepOutput("Type"));
+        headerLine.append(prepOutput("Title"));
+        headerLine.append(prepOutput("TitleSort"));
+        headerLine.append(prepOutput("IMDB ID"));
+        headerLine.append(prepOutput("Director"));
+        headerLine.append(prepOutput("Company"));
+        headerLine.append(prepOutput("Country"));
+        headerLine.append(prepOutput("Language"));
+        headerLine.append(prepOutput("Runtime"));
+        headerLine.append(prepOutput("Release Date"));
+        headerLine.append(prepOutput("Year"));
+        headerLine.append(prepOutput("Certification"));
+        headerLine.append(prepOutput("Season #"));
+        headerLine.append(prepOutput("TheTVDB ID"));
+        headerLine.append(prepOutput("VideoSource"));
+        headerLine.append(prepOutput("Container"));
+        headerLine.append(prepOutput("File"));
+        headerLine.append(prepOutput("Audio Codec"));
+        headerLine.append(prepOutput("Audio Channels"));
+        headerLine.append(prepOutput("Resolution"));
+        headerLine.append(prepOutput("Video Codec"));
+        headerLine.append(prepOutput("Video Output"));
+        headerLine.append(prepOutput("FPS"));
+        headerLine.append(prepOutput("# Files"));
+        headerLine.append(prepOutput("# Extras"));
+        headerLine.append(prepOutput("# Genres"));
+        headerLine.append(prepOutput("# Cast"));
+        headerLine.append(prepOutput("SubTitles?"));
+        headerLine.append(prepOutput("Poster?"));
+        headerLine.append(prepOutput("Detail Poster Filename"));
+        headerLine.append(prepOutput("Rating #"));
+        headerLine.append(prepOutput("Top 250 #"));
+        headerLine.append(prepOutput("Library Description"));
+        headerLine.append(prepOutput("Library Path"));
+        headerLine.append(prepOutput("Allocine ID"));
+        headerLine.append(prepOutput("FilmDelta ID"));
+        headerLine.append(prepOutput("FilmUpIT ID"));
+        headerLine.append(prepOutput("FilmWeb ID"));
+        headerLine.append(prepOutput("Kinopoisk ID"));
+        headerLine.append(prepOutput("Animator ID"));
+        headerLine.append(prepOutput("Sratim ID"));
+        headerLine.append(prepOutput("Last Modified Date"));
+        headerLine.append(prepOutput("File Size"));
+        headerLine.append(prepOutput("Watched", false));
+
+        return headerLine.toString();
     } // headerLine();
 
     /**
@@ -90,50 +94,54 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         Collection<String> genres = movie.getGenres();
         Collection<String> cast = movie.getCast();
 
-        return prepOutput(sItemType)
-                + prepOutput(movie.getTitle())
-                + prepOutput(movie.getTitleSort())
-                + prepOutput(movie.getId(ImdbPlugin.IMDB_PLUGIN_ID))
-                + prepOutput(movie.getDirector())
-                + prepOutput(movie.getCompany())
-                + prepOutput(movie.getCountry())
-                + prepOutput(movie.getLanguage())
-                + prepOutput(movie.getRuntime())
-                + prepOutput(movie.getReleaseDate())
-                + prepOutput(movie.getYear())
-                + prepOutput(movie.getCertification())
-                + prepOutput(blankNegatives(movie.getSeason()))
-                + prepOutput(movie.getId(TheTvDBPlugin.THETVDB_PLUGIN_ID))
-                + prepOutput(movie.getVideoSource())
-                + prepOutput(movie.getContainer())
-                + prepOutput(movie.getContainerFile().getAbsolutePath())
-                + prepOutput(movie.getAudioCodec())
-                + prepOutput(movie.getAudioChannels())
-                + prepOutput(movie.getResolution())
-                + prepOutput(movie.getVideoCodec())
-                + prepOutput(movie.getVideoOutput())
-                + prepOutput(Float.toString(movie.getFps()))
-                + prepOutput(String.valueOf(null == movieFiles ? "0" : movieFiles.size()))
-                + prepOutput(String.valueOf(null == extras ? "0" : extras.size()))
-                + prepOutput(String.valueOf(null == genres ? "0" : genres.size()))
-                + prepOutput(String.valueOf(null == cast ? "0" : cast.size()))
-                + prepOutput(movie.getSubtitles())
-                + prepOutput((null != movie.getPosterURL() ? "True" : "False"))
-                + prepOutput(String.valueOf(null != movie.getDetailPosterFilename() ? "True" : "False"))
-                + prepOutput(String.valueOf(movie.getRating()))
-                + prepOutput(String.valueOf(movie.getTop250()))
-                + prepOutput(movie.getLibraryDescription())
-                + prepOutput(movie.getLibraryPath())
-                + prepOutput(movie.getId(AllocinePlugin.ALLOCINE_PLUGIN_ID))
-                + prepOutput(movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID))
-                + prepOutput(movie.getId(FilmUpITPlugin.FILMUPIT_PLUGIN_ID))
-                + prepOutput(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID))
-                + prepOutput(movie.getId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID))
-                + prepOutput(movie.getId(AnimatorPlugin.ANIMATOR_PLUGIN_ID))
-                + prepOutput(movie.getId(SratimPlugin.SRATIM_PLUGIN_ID))
-                + prepOutput(new Timestamp(movie.getLastModifiedTimestamp()).toString()) //, false)
-                + prepOutput(movie.getFileSizeString())
-                + prepOutput(String.valueOf(movie.isWatched()));
+        StringBuilder headerLine = new StringBuilder();
+
+        headerLine.append(prepOutput(sItemType));
+        headerLine.append(prepOutput(movie.getTitle()));
+        headerLine.append(prepOutput(movie.getTitleSort()));
+        headerLine.append(prepOutput(movie.getId(ImdbPlugin.IMDB_PLUGIN_ID)));
+        headerLine.append(prepOutput(movie.getDirector()));
+        headerLine.append(prepOutput(movie.getCompany()));
+        headerLine.append(prepOutput(movie.getCountry()));
+        headerLine.append(prepOutput(movie.getLanguage()));
+        headerLine.append(prepOutput(movie.getRuntime()));
+        headerLine.append(prepOutput(movie.getReleaseDate()));
+        headerLine.append(prepOutput(movie.getYear()));
+        headerLine.append(prepOutput(movie.getCertification()));
+        headerLine.append(prepOutput(blankNegatives(movie.getSeason())));
+        headerLine.append(prepOutput(movie.getId(TheTvDBPlugin.THETVDB_PLUGIN_ID)));
+        headerLine.append(prepOutput(movie.getVideoSource()));
+        headerLine.append(prepOutput(movie.getContainer()));
+        headerLine.append(prepOutput(movie.getContainerFile().getAbsolutePath()));
+        headerLine.append(prepOutput(movie.getAudioCodec()));
+        headerLine.append(prepOutput(movie.getAudioChannels()));
+        headerLine.append(prepOutput(movie.getResolution()));
+        headerLine.append(prepOutput(movie.getVideoCodec()));
+        headerLine.append(prepOutput(movie.getVideoOutput()));
+        headerLine.append(prepOutput(Float.toString(movie.getFps())));
+        headerLine.append(prepOutput(String.valueOf(null == movieFiles ? "0" : movieFiles.size())));
+        headerLine.append(prepOutput(String.valueOf(null == extras ? "0" : extras.size())));
+        headerLine.append(prepOutput(String.valueOf(null == genres ? "0" : genres.size())));
+        headerLine.append(prepOutput(String.valueOf(null == cast ? "0" : cast.size())));
+        headerLine.append(prepOutput(movie.getSubtitles()));
+        headerLine.append(prepOutput((null != movie.getPosterURL() ? "True" : "False")));
+        headerLine.append(prepOutput(String.valueOf(null != movie.getDetailPosterFilename() ? "True" : "False")));
+        headerLine.append(prepOutput(String.valueOf(movie.getRating())));
+        headerLine.append(prepOutput(String.valueOf(movie.getTop250())));
+        headerLine.append(prepOutput(movie.getLibraryDescription()));
+        headerLine.append(prepOutput(movie.getLibraryPath()));
+        headerLine.append(prepOutput(movie.getId(AllocinePlugin.ALLOCINE_PLUGIN_ID)));
+        headerLine.append(prepOutput(movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID)));
+        headerLine.append(prepOutput(movie.getId(FilmUpITPlugin.FILMUPIT_PLUGIN_ID)));
+        headerLine.append(prepOutput(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID)));
+        headerLine.append(prepOutput(movie.getId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID)));
+        headerLine.append(prepOutput(movie.getId(AnimatorPlugin.ANIMATOR_PLUGIN_ID)));
+        headerLine.append(prepOutput(movie.getId(SratimPlugin.SRATIM_PLUGIN_ID)));
+        headerLine.append(prepOutput(new Timestamp(movie.getLastModifiedTimestamp()).toString()));
+        headerLine.append(prepOutput(movie.getFileSizeString()));
+        headerLine.append(prepOutput(String.valueOf(movie.isWatched()), false));
+
+        return headerLine.toString();
     } // toCSV()
 
     /**
@@ -161,28 +169,28 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
      * @param bAddComma
      * @return String cleaned up, optional comma appended
      */
-    protected String prepOutput(String inputString, boolean bAddComma) {
+    protected String prepOutput(final String inputString, boolean bAddComma) {
         String newString;
         if (null == inputString || (blankUNKNOWN && (UNKNOWN.equals(inputString) || UNDEFINED.equals(inputString)))) {
             // clean 'UNKNOWN' values
             newString = "";
         } else {
             newString = inputString;
-        }
 
-        // remove quotes from the string (before encapsulation)
-        if (newString.contains("\"")) {
-            newString = newString.replace("\"", "");
-        }
+            // remove quotes from the string (before encapsulation)
+            if (newString.contains("\"")) {
+                newString = newString.replace("\"", "");
+            }
 
-        // enclose strings with commas in quotes
-        if (newString.contains(",")) {
-            newString = "\"" + newString + "\"";
-        }
+            // enclose strings with commas in quotes
+            if (newString.contains(",")) {
+                newString = "\"" + newString + "\"";
+            }
 
-        // add trailing comma unless otherwise requested
-        if (bAddComma) {
-            newString += ",";
+            // add trailing comma unless otherwise requested
+            if (bAddComma) {
+                newString += ",";
+            }
         }
         return newString;
     } // encloseInQuotes()
