@@ -53,6 +53,7 @@ public class BannerScanner {
     private static final String LOG_MESSAGE = "BannerScanner: ";
     private static Collection<String> bannerExtensions = new ArrayList<String>();
     private static String bannerToken;
+    private static String wideBannerToken;
     private static boolean bannerOverwrite;
     private static final boolean useFolderBanner;
     private static Collection<String> bannerImageName;
@@ -66,6 +67,7 @@ public class BannerScanner {
         }
 
         bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
+        wideBannerToken = PropertiesUtil.getProperty("mjb.scanner.wideBannerToken", ".wide");
         bannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", FALSE);
 
         // See if we use the folder banner artwork
@@ -96,7 +98,7 @@ public class BannerScanner {
         boolean foundLocalBanner = false;
 
         // Look for the banner.bannerToken.Extension
-        fullBannerFilename = parentPath + File.separator + localBannerBaseFilename + bannerToken;
+        fullBannerFilename = parentPath + File.separator + localBannerBaseFilename + wideBannerToken;
         localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, bannerExtensions);
         foundLocalBanner = localBannerFile.exists();
 
@@ -107,7 +109,7 @@ public class BannerScanner {
             if (StringTools.isNotValidString(movie.getBannerURL()) && StringTools.isValidString(movie.getBannerFilename())) {
                 searchInJukebox = Boolean.FALSE;
             }
-            localBannerFile = FileTools.findFilenameInCache(localBannerBaseFilename + bannerToken, bannerExtensions, jukebox, LOG_MESSAGE, searchInJukebox);
+            localBannerFile = FileTools.findFilenameInCache(localBannerBaseFilename + wideBannerToken, bannerExtensions, jukebox, LOG_MESSAGE, searchInJukebox);
             if (localBannerFile != null) {
                 foundLocalBanner = true;
             }
@@ -118,7 +120,7 @@ public class BannerScanner {
             localBannerBaseFilename = FileTools.getParentFolderName(movie.getFile());
 
             // Checking for the MovieFolderName.*
-            fullBannerFilename = parentPath + File.separator + localBannerBaseFilename + bannerToken;
+            fullBannerFilename = parentPath + File.separator + localBannerBaseFilename + wideBannerToken;
             localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, bannerExtensions);
             foundLocalBanner = localBannerFile.exists();
         }
@@ -158,7 +160,11 @@ public class BannerScanner {
             logger.debug(LOG_MESSAGE + "File " + fullBannerFilename + " found");
 
             if (StringTools.isNotValidString(movie.getBannerFilename())) {
-                movie.setBannerFilename(movie.getBaseFilename() + bannerToken + "." + PropertiesUtil.getProperty("banners.format", "jpg"));
+                movie.setBannerFilename(movie.getBaseFilename() + bannerToken + "." + PropertiesUtil.getProperty("banners.format", "png"));
+            }
+
+            if (StringTools.isNotValidString(movie.getWideBannerFilename())) {
+                movie.setWideBannerFilename(movie.getBaseFilename() + wideBannerToken + "." + PropertiesUtil.getProperty("banners.format", "png"));
             }
 
             if (StringTools.isNotValidString(movie.getBannerURL())) {
@@ -188,6 +194,7 @@ public class BannerScanner {
                         movie.addArtwork(new Artwork(ArtworkType.Banner, "local", fullBannerFilename, artworkFile));
                     } else {
                         movie.setBannerFilename(Movie.UNKNOWN);
+                        movie.setWideBannerFilename(Movie.UNKNOWN);
                         movie.setBannerURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
@@ -233,13 +240,15 @@ public class BannerScanner {
             // Do not overwrite existing banner unless ForceBannerOverwrite = true
             if (bannerOverwrite || movie.isDirty(DirtyFlag.BANNER) || (!bannerFile.exists() && !tmpDestFile.exists())) {
                 bannerFile.getParentFile().mkdirs();
+                String origDestFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + movie.getWideBannerFilename();
+                File origDestFile = new File(origDestFileName);
 
                 try {
-                    logger.debug(LOG_MESSAGE + "Downloading banner for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");
+                    logger.debug(LOG_MESSAGE + "Downloading banner for " + movie.getBaseFilename() + " to " + origDestFileName + " [calling plugin]");
 
                     // Download the banner using the proxy save downloadImage
-                    FileTools.downloadImage(tmpDestFile, movie.getBannerURL());
-                    BufferedImage bannerImage = GraphicTools.loadJPEGImage(tmpDestFile);
+                    FileTools.downloadImage(origDestFile, movie.getBannerURL());
+                    BufferedImage bannerImage = GraphicTools.loadJPEGImage(origDestFile);
 
                     if (bannerImage != null) {
                         bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
@@ -247,6 +256,7 @@ public class BannerScanner {
                         logger.debug(LOG_MESSAGE + "Downloaded banner for " + movie.getBannerURL());
                     } else {
                         movie.setBannerFilename(Movie.UNKNOWN);
+                        movie.setWideBannerFilename(Movie.UNKNOWN);
                         movie.setBannerURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {

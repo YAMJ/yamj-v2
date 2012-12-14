@@ -872,6 +872,7 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "detailPosterFile", HTMLTools.encodeUrl(movie.getDetailPosterFilename()));
         DOMHelper.appendChild(doc, eMovie, "thumbnail", HTMLTools.encodeUrl(movie.getThumbnailFilename()));
         DOMHelper.appendChild(doc, eMovie, "bannerFile", HTMLTools.encodeUrl(movie.getBannerFilename()));
+        DOMHelper.appendChild(doc, eMovie, "wideBannerFile", HTMLTools.encodeUrl(movie.getWideBannerFilename()));
         DOMHelper.appendChild(doc, eMovie, "certification", movie.getCertification());
         DOMHelper.appendChild(doc, eMovie, SEASON, Integer.toString(movie.getSeason()));
 
@@ -1015,6 +1016,7 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "thumbnail", HTMLTools.encodeUrl(movie.getThumbnailFilename()));
         DOMHelper.appendChild(doc, eMovie, "bannerURL", HTMLTools.encodeUrl(movie.getBannerURL()));
         DOMHelper.appendChild(doc, eMovie, "bannerFile", HTMLTools.encodeUrl(movie.getBannerFilename()));
+        DOMHelper.appendChild(doc, eMovie, "wideBannerFile", HTMLTools.encodeUrl(movie.getWideBannerFilename()));
         DOMHelper.appendChild(doc, eMovie, "clearLogoURL", HTMLTools.encodeUrl(movie.getClearLogoURL()));
         DOMHelper.appendChild(doc, eMovie, "clearLogoFile", HTMLTools.encodeUrl(movie.getClearLogoFilename()));
         DOMHelper.appendChild(doc, eMovie, "clearArtURL", HTMLTools.encodeUrl(movie.getClearArtURL()));

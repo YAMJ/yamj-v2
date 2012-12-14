@@ -41,6 +41,7 @@ public class MovieDirectoryScanner {
     private String thumbnailToken;
     private String bannersFormat;
     private String bannerToken;
+    private String wideBannerToken;
     private String opensubtitles;
     private int hashpathdepth;
     private Boolean excludeFilesWithoutExternalSubtitles;
@@ -65,6 +66,7 @@ public class MovieDirectoryScanner {
         thumbnailToken = PropertiesUtil.getProperty("mjb.scanner.thumbnailToken", "_small");
         posterToken = PropertiesUtil.getProperty("mjb.scanner.posterToken", "_large");
         bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
+        wideBannerToken = PropertiesUtil.getProperty("mjb.scanner.wideBannerToken", ".wide");
         excludeFilesWithoutExternalSubtitles = PropertiesUtil.getBooleanProperty("mjb.subtitles.ExcludeFilesWithoutExternal", Boolean.FALSE.toString());
         excludeMultiPartBluRay = PropertiesUtil.getBooleanProperty("mjb.excludeMultiPartBluRay", Boolean.FALSE.toString());
         opensubtitles = PropertiesUtil.getProperty("opensubtitles.language", ""); // We want to check this isn't set for the exclusion
@@ -341,6 +343,7 @@ public class MovieDirectoryScanner {
             movie.setThumbnailFilename(movie.getBaseName() + thumbnailToken + "." + thumbnailsFormat);
             movie.setDetailPosterFilename(movie.getBaseName() + posterToken + "." + postersFormat);
             movie.setBannerFilename(movie.getBaseName() + bannerToken + "." + bannersFormat);
+            movie.setWideBannerFilename(movie.getBaseName() + wideBannerToken + "." + bannersFormat);
             movie.setSubtitles(hasSubtitles(movie.getFile())==true?"YES":"NO");
             movie.setLibraryDescription(srcPath.getDescription());
             movie.setPrebuf(srcPath.getPrebuf());
