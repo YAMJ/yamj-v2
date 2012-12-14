@@ -126,6 +126,7 @@ public final class MovieMeterPluginSession {
      * @param apiKey
      * @throws XmlRpcException
      */
+    @SuppressWarnings("rawtypes")
     private void createNewSession(String apiKey) throws XmlRpcException {
         Map session = Collections.EMPTY_MAP;
         Object[] params = new Object[]{apiKey};
@@ -157,6 +158,7 @@ public final class MovieMeterPluginSession {
      * @param movieName
      * @return the first summary result as a HashMap
      */
+    @SuppressWarnings("rawtypes")
     public Map getMovieByTitle(String movieName) {
 
         Map result = Collections.EMPTY_MAP;
@@ -191,6 +193,7 @@ public final class MovieMeterPluginSession {
      * @param year The year of the movie. If no year is known, specify null
      * @return the summary result as a HashMap
      */
+    @SuppressWarnings("rawtypes")
     public Map getMovieByTitleAndYear(String movieName, String year) {
 
         Map result = Collections.EMPTY_MAP;
@@ -232,6 +235,7 @@ public final class MovieMeterPluginSession {
      * @param year
      * @return the detailed result as a HashMap
      */
+    @SuppressWarnings("rawtypes")
     public Map getMovieDetailsByTitleAndYear(String movieName, String year) {
 
         Map result = Collections.EMPTY_MAP;
@@ -250,6 +254,7 @@ public final class MovieMeterPluginSession {
      * @param moviemeterId
      * @return the detailed result as a HashMap
      */
+    @SuppressWarnings("rawtypes")
     public Map getMovieDetailsById(Integer moviemeterId) {
 
         Map result = Collections.EMPTY_MAP;
@@ -324,8 +329,6 @@ public final class MovieMeterPluginSession {
             ps.println(getKey() + "," + getTimestamp() + "," + getCounter());
         } catch (FileNotFoundException ignore) {
             logger.debug(LOG_MESSAGE + "" + ignore.getMessage());
-        } catch (IOException error) {
-            logger.error(LOG_MESSAGE + "" + error.getMessage());
         } finally {
             if (ps != null) {
                 ps.close();
