@@ -87,7 +87,6 @@ public class Library implements Map<String, Movie> {
     private TreeMap<String, Person> people = new TreeMap<String, Person>();
     private boolean isDirty = false;
     private static boolean peopleScan = false;
-    private static boolean peopleScrape = true;
     private static boolean peopleExclusive = false;
     private static boolean completePerson = true;
     // Static values for the year indexes
@@ -183,7 +182,6 @@ public class Library implements Map<String, Movie> {
         charGroupEnglish = PropertiesUtil.getBooleanProperty("indexing.character.groupEnglish", FALSE);
         completePerson = PropertiesUtil.getBooleanProperty("indexing.completePerson", TRUE);
         peopleScan = PropertiesUtil.getBooleanProperty("mjb.people", FALSE);
-        peopleScrape = PropertiesUtil.getBooleanProperty("mjb.people.scrape", TRUE);
         peopleExclusive = PropertiesUtil.getBooleanProperty("mjb.people.exclusive", FALSE);
 
         populateSortOrder();

@@ -1897,7 +1897,6 @@ class AnidbTvdbMapping {
     public static final String TVDB_ID_COLUMN_NAME = "tvdb_id";
     public static final String TVDB_DEFAULT_SEASON_COLUMN_NAME = "tvdb_default_season";
     public static final String NAME_COLUMN_NAME = "name";
-    @SuppressWarnings("unused")
     @DatabaseField(generatedId = true, columnName = ID_COLUMN_NAME)
     private int id;
     @DatabaseField(columnName = ANIDB_ID_COLUMN_NAME)

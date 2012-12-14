@@ -65,10 +65,12 @@ public class MovieFile implements Comparable<MovieFile> {
     private String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
     private String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");
     private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
+        private static final long serialVersionUID = 1247815606593469672L;
         {
             String scannerTypes = PropertiesUtil.getProperty("filename.scanner.types", "ZCD,VOD");
 
             HashMap<String, String> scannerTypeDefaults = new HashMap<String, String>() {
+                private static final long serialVersionUID = -6480597100092105116L;
                 {
                     put("ZCD", "ISO,IMG,VOB,MDF,NRG,BIN");
                     put("VOD", "");
