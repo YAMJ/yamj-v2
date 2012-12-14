@@ -867,7 +867,6 @@ public class MovieJukeboxXMLWriter {
         } else {
             DOMHelper.appendChild(doc, eMovie, TITLE, movie.getTitle());
         }
-        DOMHelper.appendChild(doc, eMovie, TITLE, movie.getTitle());
         DOMHelper.appendChild(doc, eMovie, SORT_TITLE, movie.getTitleSort());
         DOMHelper.appendChild(doc, eMovie, ORIGINAL_TITLE, movie.getOriginalTitle());
         DOMHelper.appendChild(doc, eMovie, "detailPosterFile", HTMLTools.encodeUrl(movie.getDetailPosterFilename()));
