@@ -69,6 +69,7 @@ public class MovieJukebox {
     private static String posterToken;
     private static String thumbnailToken;
     private static String bannerToken;
+    private static String wideBannerToken;
     private static String defaultSource;
     private static String fanartToken;
     private static String footerToken;
@@ -620,13 +621,14 @@ public class MovieJukebox {
 
         fanartToken = getProperty("mjb.scanner.fanartToken", ".fanart");
         bannerToken = getProperty("mjb.scanner.bannerToken", ".banner");
+        wideBannerToken = getProperty("mjb.scanner.wideBannerToken", ".wide");
         posterToken = getProperty("mjb.scanner.posterToken", "_large");
         thumbnailToken = getProperty("mjb.scanner.thumbnailToken", "_small");
         footerToken = getProperty("mjb.scanner.footerToken", ".footer");
 
         posterExtension = getProperty("posters.format", "png");
         thumbnailExtension = getProperty("thumbnails.format", "png");
-        bannerExtension = getProperty("banners.format", "jpg");
+        bannerExtension = getProperty("banners.format", "png");
         fanartExtension = getProperty("fanart.format", "jpg");
 
         footerCount = PropertiesUtil.getIntProperty("mjb.footer.count", "0");
@@ -1315,6 +1317,7 @@ public class MovieJukebox {
                         if (movie.isTVShow() && bannerDownload) {
                             // Set a default banner filename in case it's not found during the scan
                             movie.setBannerFilename(safeSetMasterBaseName + bannerToken + "." + bannerExtension);
+                            movie.setWideBannerFilename(safeSetMasterBaseName + wideBannerToken + "." + bannerExtension);
                             if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
                                 updateTvBanner(jukebox, movie, tools.imagePlugin);
                                 logger.debug("Local set banner (" + safeSetMasterBaseName + bannerToken + ".*) not found.");
@@ -2033,6 +2036,8 @@ public class MovieJukebox {
         File bannerFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + bannerFilename);
         String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + bannerFilename;
         File tmpDestFile = new File(tmpDestFilename);
+        String origDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + movie.getWideBannerFilename();
+        File origDestFile = new File(origDestFilename);
 
         // Check to see if there is a local banner.
         // Check to see if there are banners in the jukebox directories (target and temp)
@@ -2045,25 +2050,25 @@ public class MovieJukebox {
 
             if (isNotValidString(movie.getBannerURL())) {
                 logger.debug("Dummy banner used for " + movie.getBaseName());
-                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), tmpDestFile);
+                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), origDestFile);
             } else {
                 try {
-                    logger.debug("Downloading banner for '" + movie.getBaseName() + "' to '" + tmpDestFile.getName() + "'");
-                    FileTools.downloadImage(tmpDestFile, movie.getBannerURL());
+                    logger.debug("Downloading banner for '" + movie.getBaseName() + "' to '" + origDestFile.getName() + "'");
+                    FileTools.downloadImage(origDestFile, movie.getBannerURL());
                 } catch (IOException error) {
                     logger.debug("Failed downloading banner: " + movie.getBannerURL() + " - Error: " + error.getMessage());
-                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), tmpDestFile);
+                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), origDestFile);
                 }
             }
 
             try {
-                BufferedImage bannerImage = GraphicTools.loadJPEGImage(tmpDestFile);
+                BufferedImage bannerImage = GraphicTools.loadJPEGImage(origDestFile);
                 if (bannerImage != null) {
                     bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                     GraphicTools.saveImageToDisk(bannerImage, tmpDestFilename);
                 }
             } catch (ImageReadException ex) {
-                logger.debug("MovieJukebox: Failed read banner: " + tmpDestFilename + " - Error: " + ex.getMessage());
+                logger.debug("MovieJukebox: Failed read banner: " + origDestFilename + " - Error: " + ex.getMessage());
             } catch (IOException ex) {
                 logger.debug("MovieJukebox: Failed generate banner: " + tmpDestFilename + " - Error: " + ex.getMessage());
             }

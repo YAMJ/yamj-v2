@@ -137,6 +137,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String fanartFilename = UNKNOWN; // The resized fanart file
     private String bannerURL = UNKNOWN; // The TV Show banner URL
     private String bannerFilename = UNKNOWN; // The resized banner file
+    private String wideBannerFilename = UNKNOWN; // The original banner file
     private String clearArtURL = UNKNOWN;
     private String clearArtFilename = UNKNOWN;
     private String clearLogoURL = UNKNOWN;
@@ -2251,6 +2252,24 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
+    @XmlJavaTypeAdapter(UrlCodecAdapter.class)
+    public String getWideBannerFilename() {
+        return wideBannerFilename;
+    }
+
+    public void setWideBannerFilename(String wideBannerFilename) {
+        if (StringTools.isValidString(wideBannerFilename)) {
+            // create the directory hash if needed
+            if (DIR_HASH) {
+                this.wideBannerFilename = FileTools.createDirHash(wideBannerFilename);
+            } else {
+                this.wideBannerFilename = wideBannerFilename;
+            }
+        } else {
+            this.wideBannerFilename = UNKNOWN;
+        }
+    }
+
     // ***** ClearLogo
     @XmlJavaTypeAdapter(UrlCodecAdapter.class)
     public String getClearLogoURL() {
@@ -2620,6 +2639,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.fanartFilename = aMovie.fanartFilename;
         newMovie.bannerURL = aMovie.bannerURL;
         newMovie.bannerFilename = aMovie.bannerFilename;
+        newMovie.wideBannerFilename = aMovie.wideBannerFilename;
         newMovie.clearArtURL = aMovie.clearArtURL;
         newMovie.clearArtFilename = aMovie.clearArtFilename;
         newMovie.clearLogoURL = aMovie.clearLogoURL;
