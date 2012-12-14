@@ -107,7 +107,9 @@ public final class MovieFilenameScanner {
     private static final Pattern SECOND_TITLE_PATTERN = patt("(?<!/TVSHOW/|/PART/)-([^/]+)");
     // Parts/disks markers. CAUTION: Grouping is used for part number detection/parsing.
     private static final List<Pattern> PART_PATTERNS = new ArrayList<Pattern>() {
-        {
+		private static final long serialVersionUID = 2534565160759765860L;
+
+		{
             add(iwpatt("CD ([0-9]+)"));
             add(iwpatt("(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)"));
             add(tpatt("([0-9]{1,2})[ \\.]{0,1}DVD"));
@@ -120,6 +122,8 @@ public final class MovieFilenameScanner {
      * CAUTION: Grouping is used for part number detection/parsing.
      */
     private static final List<Pattern> PARENT_FOLDER_PART_PATTERNS = new ArrayList<Pattern>() {
+		private static final long serialVersionUID = 6125546333783004357L;
+
         {
             for (Pattern p : PART_PATTERNS) {
                 add(Pattern.compile("^" + p, CASE_INSENSITIVE));
@@ -129,6 +133,7 @@ public final class MovieFilenameScanner {
     };
 
     private abstract static class TokensPatternMap extends HashMap<String, Pattern> {
+		private static final long serialVersionUID = 2239121205124537392L;
 
         /**
          * Generate pattern using tokens from given string.
@@ -183,6 +188,8 @@ public final class MovieFilenameScanner {
      * (they will cut movie title)
      */
     private static final TokensPatternMap STRICT_LANGUAGE_MAP = new TokensPatternMap() {
+		private static final long serialVersionUID = 3630995345545037071L;
+
         @Override
         protected void put(String key, Collection<String> tokens) {
             StringBuilder tokenBuilder = new StringBuilder();
@@ -209,9 +216,8 @@ public final class MovieFilenameScanner {
      * Markers in this map are case insensitive.
      */
     private static final TokensPatternMap LOOSE_LANGUAGE_MAP = new TokensPatternMap() {
-        /**
-         * {@inheritDoc}
-         */
+		private static final long serialVersionUID = 1383819843117148442L;
+
         @Override
         protected void put(String key, Collection<String> tokens) {
             StringBuilder tokenBuilder = new StringBuilder();
@@ -234,6 +240,8 @@ public final class MovieFilenameScanner {
         }
     };
     private static final Map<Integer, Pattern> FPS_MAP = new HashMap<Integer, Pattern>() {
+        private static final long serialVersionUID = -514057952318403685L;
+        
         {
             for (int i : new int[]{23, 24, 25, 29, 30, 50, 59, 60}) {
                 put(i, iwpatt("p" + i + "|" + i + "p"));
@@ -241,6 +249,8 @@ public final class MovieFilenameScanner {
         }
     };
     private static final Map<String, Pattern> AUDIO_CODEC_MAP = new HashMap<String, Pattern>() {
+        private static final long serialVersionUID = 8916278631320047158L;
+        
         {
             for (String s : AUDIO_CODECS_ARRAY) {
                 put(s, iwpatt(s));
@@ -248,6 +258,8 @@ public final class MovieFilenameScanner {
         }
     };
     private static final Map<String, Pattern> VIDEO_CODEC_MAP = new HashMap<String, Pattern>() {
+        private static final long serialVersionUID = 7370884465939448891L;
+        
         {
             put("XviD", iwpatt("XVID"));
             put("DivX", iwpatt("DIVX|DIVX6"));
@@ -255,6 +267,8 @@ public final class MovieFilenameScanner {
         }
     };
     private static final Map<String, Pattern> HD_RESOLUTION_MAP = new HashMap<String, Pattern>() {
+        private static final long serialVersionUID = 3476960701738952741L;
+        
         {
             for (String s : new String[]{"720p", "1080i", "1080p", "HD", "1280x720", "1920x1080"}) {
                 put(s, iwpatt(s));
@@ -262,6 +276,8 @@ public final class MovieFilenameScanner {
         }
     };
     private static final TokensPatternMap VIDEO_SOURCE_MAP = new TokensPatternMap() {
+		private static final long serialVersionUID = 4166458100829813911L;
+
         {
             put("SDTV", "TVRip,PAL,NTSC");
             put("D-THEATER", "DTH,DTHEATER");
