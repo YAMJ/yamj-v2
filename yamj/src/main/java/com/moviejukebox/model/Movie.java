@@ -837,7 +837,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         } else if (titleSortType == TitleSortType.FILENAME) {
             // Set the title sort (so this is only done once)
             setTitleSort(baseName);
-        } else if (titleSortType == TitleSortType.ORIGINAL && StringTools.isValidString(originalTitle)) {
+        } else if ((titleSortType == TitleSortType.ORIGINAL || titleSortType == TitleSortType.ADOPT_ORIGINAL) && StringTools.isValidString(originalTitle)) {
             // Set the title sort (so this is only done once)
             setTitleSort(originalTitle);
         }

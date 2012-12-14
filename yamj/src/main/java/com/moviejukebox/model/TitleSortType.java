@@ -19,7 +19,8 @@ public enum TitleSortType {
 
     TITLE,
     FILENAME,
-    ORIGINAL;
+    ORIGINAL,
+    ADOPT_ORIGINAL;
 
     /**
      * Convert a string into an Enum type

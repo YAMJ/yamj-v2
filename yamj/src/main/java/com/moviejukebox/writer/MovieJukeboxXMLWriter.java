@@ -112,6 +112,8 @@ public class MovieJukeboxXMLWriter {
     private static boolean enableBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", FALSE);
     // Should we scrape the trivia information
     private static boolean enableTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", FALSE);
+    // Retrieve the title sort type
+    private static TitleSortType titleSortType = TitleSortType.fromString(PropertiesUtil.getProperty("mjb.sortTitle", "title"));
     // Should we reindex the New / Watched / Unwatched categories?
     private boolean reindexNew = Boolean.FALSE;
     private boolean reindexWatched = Boolean.FALSE;
@@ -860,6 +862,11 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, DETAILS, HTMLTools.encodeUrl(movie.getBaseName()) + EXT_HTML);
         DOMHelper.appendChild(doc, eMovie, "baseFilenameBase", movie.getBaseFilename());
         DOMHelper.appendChild(doc, eMovie, BASE_FILENAME, movie.getBaseName());
+        if ((titleSortType == TitleSortType.ADOPT_ORIGINAL) && (StringTools.isValidString(movie.getOriginalTitle()))) {
+            DOMHelper.appendChild(doc, eMovie, TITLE, movie.getOriginalTitle());
+        } else {
+            DOMHelper.appendChild(doc, eMovie, TITLE, movie.getTitle());
+        }
         DOMHelper.appendChild(doc, eMovie, TITLE, movie.getTitle());
         DOMHelper.appendChild(doc, eMovie, SORT_TITLE, movie.getTitleSort());
         DOMHelper.appendChild(doc, eMovie, ORIGINAL_TITLE, movie.getOriginalTitle());
@@ -970,7 +977,11 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "xmlGenerationDate", DateTimeTools.convertDateToString(new Date(), DateTimeTools.getDateFormatLongString()));
         DOMHelper.appendChild(doc, eMovie, "baseFilenameBase", movie.getBaseFilename());
         DOMHelper.appendChild(doc, eMovie, BASE_FILENAME, movie.getBaseName());
-        DOMHelper.appendChild(doc, eMovie, TITLE, movie.getTitle());
+        if ((titleSortType == TitleSortType.ADOPT_ORIGINAL) && (StringTools.isValidString(movie.getOriginalTitle()))) {
+            DOMHelper.appendChild(doc, eMovie, TITLE, movie.getOriginalTitle());
+        } else {
+            DOMHelper.appendChild(doc, eMovie, TITLE, movie.getTitle());
+        }
         DOMHelper.appendChild(doc, eMovie, SORT_TITLE, movie.getTitleSort());
         DOMHelper.appendChild(doc, eMovie, ORIGINAL_TITLE, movie.getOriginalTitle());
 
