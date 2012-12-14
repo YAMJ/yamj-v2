@@ -9,6 +9,7 @@ MovieJukebox 2.8-SNAPSHOT
  - Enhancement  #2238 Support attachments within matroska files
  - Enhancement  #2284 New title sort type for using original title for sort and on movie page
  - Fixed defect #2347 Fixed retrieval of certification from non-US IMDB site
+ - Fixed defect #2390 Strip only the year from OFDb title
  - Fixed defect #2412 Added imdb.plot description to skin configuration wiki page
  - Fixed defect #2448 Update movie HTML if watched status has changed by watched file
  - Fixed defect #2449 Handle NFO files with multiline genre elements

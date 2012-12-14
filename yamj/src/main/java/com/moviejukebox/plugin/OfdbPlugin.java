@@ -18,7 +18,6 @@ import com.moviejukebox.tools.*;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
@@ -137,9 +136,13 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             }
             String xml = webBrowser.request(movie.getId(OFDB_PLUGIN_ID));
 
-            if (gettitle) {
-                String titleShort = extractTag(xml, "<title>OFDb - ", 0, "(");
-                if (StringTools.isValidString(titleShort) && !movie.isOverrideTitle()) {
+            if (gettitle && !movie.isOverrideTitle()) {
+                String titleShort = HTMLTools.extractTag(xml, "<title>OFDb -", "</title>");
+                if (titleShort.indexOf("(") > 0) {
+                    // strip year from title
+                    titleShort = titleShort.substring(0, titleShort.lastIndexOf("(")).trim();
+                }
+                if (StringTools.isValidString(titleShort)) {
                     movie.setTitle(titleShort);
                 }
             }
@@ -147,7 +150,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             if (getplot) {
                 // plot url auslesen:
                 if (xml.contains(PLOT_MARKER)) {
-                    String plot = getPlot("http://www.ofdb.de/plot/" + extractTag(xml, PLOT_MARKER, 0, "\""));
+                    String plot = getPlot("http://www.ofdb.de/plot/" + HTMLTools.extractTag(xml, PLOT_MARKER, 0, "\""));
 
                     // Issue 797, preserve Plot from NFO
                     // Did we get some translated plot and didn't have previous plotFromNfo ?
@@ -168,82 +171,6 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             return false;
         }
         return true;
-    }
-
-    protected String extractTag(String src, String findStr, int skip) {
-        return this.extractTag(src, findStr, skip, "><");
-    }
-
-    protected String extractTag(String src, String findStr, int skip, String separator) {
-        int beginIndex = src.indexOf(findStr);
-        if (beginIndex < 0) {
-            return Movie.UNKNOWN;
-        }
-
-        StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), separator);
-        for (int i = 0; i < skip; i++) {
-            st.nextToken();
-        }
-
-        String value = HTMLTools.decodeHtml(st.nextToken().trim());
-        if (value.indexOf("uiv=\"content-ty") != -1 || value.indexOf("cast") != -1 || value.indexOf("title") != -1 || value.indexOf('<') != -1) {
-            value = Movie.UNKNOWN;
-        }
-
-        return value;
-    }
-
-    protected ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd) {
-        return extractTags(src, sectionStart, sectionEnd, null, "|");
-    }
-
-    protected ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
-        ArrayList<String> tags = new ArrayList<String>();
-        int index = src.indexOf(sectionStart);
-        if (index == -1) {
-            return tags;
-        }
-        index += sectionStart.length();
-        int endIndex = src.indexOf(sectionEnd, index);
-        if (endIndex == -1) {
-            return tags;
-        }
-
-        String sectionText = src.substring(index, endIndex);
-        int lastIndex = sectionText.length();
-        index = 0;
-        int startLen = 0;
-        int endLen = endTag.length();
-
-        if (startTag != null) {
-            index = sectionText.indexOf(startTag);
-            startLen = startTag.length();
-        }
-
-        while (index != -1) {
-            index += startLen;
-            int close = sectionText.indexOf('>', index);
-            if (close != -1) {
-                index = close + 1;
-            }
-            endIndex = sectionText.indexOf(endTag, index);
-            if (endIndex == -1) {
-                endIndex = lastIndex;
-            }
-            String text = sectionText.substring(index, endIndex);
-
-            tags.add(HTMLTools.decodeHtml(text.trim()));
-            endIndex += endLen;
-            if (endIndex > lastIndex) {
-                break;
-            }
-            if (startTag != null) {
-                index = sectionText.indexOf(startTag, endIndex);
-            } else {
-                index = endIndex;
-            }
-        }
-        return tags;
     }
 
     private String getPlot(String plotURL) {
