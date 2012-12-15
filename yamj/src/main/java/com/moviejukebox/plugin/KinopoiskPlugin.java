@@ -76,6 +76,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
     private boolean fanArt = PropertiesUtil.getBooleanProperty("kinopoisk.fanart", FALSE);
     private boolean poster = PropertiesUtil.getBooleanProperty("kinopoisk.poster", FALSE);
     private boolean kadr = PropertiesUtil.getBooleanProperty("kinopoisk.kadr", FALSE);
+    private boolean siteRuntime = PropertiesUtil.getBooleanProperty("kinopoisk.runtime", FALSE);
     private boolean companyAll = PropertiesUtil.getProperty("kinopoisk.company", "first").equalsIgnoreCase("all");
     private boolean countryAll = PropertiesUtil.getProperty("kinopoisk.country", "first").equalsIgnoreCase("all");
     private boolean clearAward = PropertiesUtil.getBooleanProperty("kinopoisk.clear.award", FALSE);
@@ -495,7 +496,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
 
                 // Run time
-                if (movie.getRuntime().equals(Movie.UNKNOWN) || etalonFlag) {
+                if (movie.getRuntime().equals(Movie.UNKNOWN) || etalonFlag || siteRuntime) {
                     for (String runtime : HTMLTools.extractTags(item, ">время<", "</tr>", "<td", "</td>")) {
                         if (runtime.contains("<span")) {
                             runtime = runtime.substring(0, runtime.indexOf("<span"));
@@ -950,7 +951,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         int i = 0;
                         for (String tmp : HTMLTools.extractTags(xml, ">Знаете ли вы, что...<", "</ul>", "<li class=\"trivia", "</li>")) {
                             if (i < triviaMax || triviaMax == -1) {
-                                movie.addDidYouKnow(tmp);
+                                movie.addDidYouKnow(HTMLTools.removeHtmlTags(tmp));
                                 valueFounded = true;
                                 i++;
                             } else {
