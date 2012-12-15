@@ -16,6 +16,7 @@ import java.util.*;
 import org.apache.log4j.Logger;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.MovieFilenameScanner;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 
 public final class SubtitleTools {
 
@@ -25,6 +26,7 @@ public final class SubtitleTools {
     private static final String SPLIT_PATTERN = "\\||,|/";
     
     private static final String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
+    private static final boolean subtitleUnique = PropertiesUtil.getBooleanProperty("mjb.subtitle.unique", TRUE);
     private static final List<String> skippedSubtitles = new ArrayList<String>();
     
     static {
@@ -98,7 +100,7 @@ public final class SubtitleTools {
                 // override with subtitle language
                 newMovieSubtitles = infoLanguage;
                 // TODO Inspect if UNKNOWN should be added add the end of the subtitles list
-            } else if (!actualSubtitles.contains(infoLanguage)) {
+            } else if (!subtitleUnique || !actualSubtitles.contains(infoLanguage)) {
                 // Add subtitle to subtitles list
                 newMovieSubtitles = actualSubtitles + subtitleDelimiter + infoLanguage;
             }
