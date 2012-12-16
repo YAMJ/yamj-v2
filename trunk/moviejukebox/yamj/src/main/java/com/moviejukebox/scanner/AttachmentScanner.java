@@ -76,7 +76,7 @@ public class AttachmentScanner {
     // properties for NFO handling
     private static final String[] NFO_EXTENSIONS = PropertiesUtil.getProperty("filename.nfo.extensions", "nfo").toLowerCase().split(",");
     // image tokens
-    private static final String POSTER_TOKEN = PropertiesUtil.getProperty("attachment.token.poster", ".poster").toLowerCase();
+    private static final String[] POSTER_TOKENS = PropertiesUtil.getProperty("attachment.token.poster", ".poster,.cover").toLowerCase().split(",");
     private static final String FANART_TOKEN = PropertiesUtil.getProperty("attachment.token.fanart", ".fanart").toLowerCase();
     private static final String BANNER_TOKEN = PropertiesUtil.getProperty("attachment.token.banner", ".banner").toLowerCase();
     private static final String VIDEOIMAGE_TOKEN = PropertiesUtil.getProperty("attachment.token.videoimage", ".videoimage").toLowerCase();
@@ -489,15 +489,16 @@ public class AttachmentScanner {
                 // just removing extension which is ".set" in this moment
                 check = FilenameUtils.removeExtension(check);
             }
-
-            if (check.endsWith(POSTER_TOKEN) || check.equals(POSTER_TOKEN.substring(1))) {
-                if (isSetImage) {
-                    // fileName = <any>.<posterToken>.set.<extension>
-                    return new AttachmentContent(ContentType.SET_POSTER);
-                } else {
-                    // fileName = <any>.<posterToken>.<extension>
-                    return new AttachmentContent(ContentType.POSTER);
-                }
+            for (String posterToken : POSTER_TOKENS) {
+	            if (check.endsWith(posterToken) || check.equals(posterToken.substring(1))) {
+	                if (isSetImage) {
+	                    // fileName = <any>.<posterToken>.set.<extension>
+	                    return new AttachmentContent(ContentType.SET_POSTER);
+	                } else {
+	                    // fileName = <any>.<posterToken>.<extension>
+	                    return new AttachmentContent(ContentType.POSTER);
+	                }
+	            }
             }
             if (check.endsWith(FANART_TOKEN) || check.equals(FANART_TOKEN.substring(1))) {
                 if (isSetImage) {

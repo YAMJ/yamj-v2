@@ -38,6 +38,7 @@ MovieJukebox 2.8-SNAPSHOT
  - Fixed defect #2534 CSV file output missing fields
  - Enhancement  #2537 Enhance statistics module
  - Fixed defect #2540 Actor support broken in NFO
+ - Enhancement  #2545 Use ".cover" as valid token for poster detection
 
 MovieJukebox 2.7
 ----------------
