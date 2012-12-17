@@ -432,6 +432,9 @@ public class MovieNFOReader {
                 // Parse the video info
                 parseFileInfo(movie, DOMHelper.getElementByName(eCommon, "fileinfo"));
             }
+
+            // Issue 2542: There should only be 1 movie/tvshow node in the NFO
+            break;
         }
 
         // Parse the episode details
