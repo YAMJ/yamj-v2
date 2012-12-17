@@ -2,8 +2,12 @@
 ** MovieJukebox Release Notes
 ***************************************************************
 
-MovieJukebox 2.8-SNAPSHOT
+MovieJukebox 2.9-SNAPSHOT
 -------------------------
+
+
+MovieJukebox 2.8 (2012-12-17)
+-----------------------------
  - Enhancement  #1461 Skipped subtitles will not be added
  - Enhancement  #1880 Added ability to parse subtitles from NFO
  - Enhancement  #2238 Support attachments within matroska files
@@ -40,8 +44,8 @@ MovieJukebox 2.8-SNAPSHOT
  - Fixed defect #2540 Actor support broken in NFO
  - Enhancement  #2545 Use ".cover" as valid token for poster detection
 
-MovieJukebox 2.7
-----------------
+MovieJukebox 2.7 (2012-09-25)
+-----------------------------
  - Enhancement  #1208 Sort movies by year ascending / descending
  - Fixed defect #1368 Support XML NFO files without a root element
  - Enhancement  #1571 Category ordered by rating
