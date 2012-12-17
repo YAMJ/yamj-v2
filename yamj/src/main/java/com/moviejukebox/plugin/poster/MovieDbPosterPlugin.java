@@ -89,7 +89,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
             }
 
             for (MovieDb moviedb : movieList) {
-                if (TheMovieDbApi.compareMovies(moviedb, title, searchYear)) {
+                if (TheMovieDbApi.compareMovies(moviedb, title, searchYear, TheMovieDbPlugin.SEARCH_MATCH)) {
                     return String.valueOf(moviedb.getId());
                 }
             }

@@ -58,6 +58,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private int preferredPlotLength;
     private int preferredOutlineLength;
     private static final Boolean INCLUDE_ADULT = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", FALSE);
+    public static final int SEARCH_MATCH = PropertiesUtil.getIntProperty("themoviedb.searchMatch", "3");
 
     public TheMovieDbPlugin() {
         try {
@@ -147,7 +148,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     // Iterate over the list until we find a match
                     for (MovieDb m : movieList) {
                         logger.debug(LOG_MESSAGE + "Checking " + m.getTitle() + " (" + m.getReleaseDate().substring(0,4) + ")");
-                        if (TheMovieDbApi.compareMovies(m, movie.getTitle(), Integer.toString(movieYear))) {
+                        if (TheMovieDbApi.compareMovies(m, movie.getTitle(), Integer.toString(movieYear), SEARCH_MATCH)) {
                             moviedb = m;
                             break;
                         }
