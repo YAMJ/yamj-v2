@@ -21,12 +21,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * Generate HTML pages from XML movies and indexes
@@ -255,8 +260,9 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Remove blank lines from the file The PCH does not like blank lines in the playlist.jsp files, so this routine
-     * will remove them This routine is only called for the base playlist as this is transformed with the playlist.xsl
+     * Remove blank lines from the file The PCH does not like blank lines in the
+     * playlist.jsp files, so this routine will remove them This routine is only
+     * called for the base playlist as this is transformed with the playlist.xsl
      * file and therefore could end up with blank lines in it
      *
      * @param filename
@@ -313,8 +319,8 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Generate playlist with old simple method. The playlist is to be used for playing episodes starting from each
-     * episode separately.
+     * Generate playlist with old simple method. The playlist is to be used for
+     * playing episodes starting from each episode separately.
      *
      * @param rootPath
      * @param tempRootPath
@@ -353,7 +359,8 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Generate the mjb.indexFile page from a template. If the template is not found, then create a default index page
+     * Generate the mjb.indexFile page from a template. If the template is not
+     * found, then create a default index page
      *
      * @param jukebox
      * @param library
@@ -379,7 +386,7 @@ public class MovieJukeboxHTMLWriter {
         logger.debug("Generating Index file from jukebox-index.xsl");
 
         String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
-        if (homePage.length() == 0) {
+        if (StringUtils.isNotBlank(homePage)) {
             String defCat = library.getDefaultCategory();
             if (defCat != null) {
                 homePage = FileTools.createPrefix("Other", HTMLTools.encodeUrl(FileTools.makeSafeFilename(defCat))) + "1";
@@ -393,22 +400,15 @@ public class MovieJukeboxHTMLWriter {
             // Create the index.xml file with some properties in it.
             File indexXmlFile = new File(jukebox.getJukeboxTempLocation(), "index.xml");
             indexXmlFile.getParentFile().mkdirs();
-            XMLWriter writer = new XMLWriter(indexXmlFile);
 
-            writer.writeStartDocument("UTF-8", "1.0");
-            writer.writeStartElement("index");
+            Document docIndex = DOMHelper.createDocument();
+            Element eRoot = docIndex.createElement("index");
+            docIndex.appendChild(eRoot);
 
-            writer.writeStartElement("detailsDirName");
-            writer.writeCharacters(jukebox.getDetailsDirName());
-            writer.writeEndElement();
+            DOMHelper.appendChild(docIndex, eRoot, "detailsDirName", jukebox.getDetailsDirName());
+            DOMHelper.appendChild(docIndex, eRoot, "homePage", homePage);
 
-            writer.writeStartElement("homePage");
-            writer.writeCharacters(homePage);
-            writer.writeEndElement();
-
-            writer.writeEndElement(); // index
-            writer.writeEndDocument();
-            writer.close();
+            DOMHelper.writeDocumentToFile(docIndex, indexXmlFile);
 
             // Now generate the HTML from the XLST
             File htmlFile = new File(jukebox.getJukeboxTempLocation(), PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
@@ -421,9 +421,12 @@ public class MovieJukeboxHTMLWriter {
             Result xmlResult = new StreamResult(htmlFile);
 
             doTransform(transformer, xmlSource, xmlResult, "Jukebox index");
-        } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed generating jukebox index.");
-            logger.error(SystemTools.getStackTrace(error));
+        } catch (ParserConfigurationException ex) {
+            logger.error(LOG_MESSAGE + "Failed generating jukebox index: " + ex.getMessage());
+            logger.error(SystemTools.getStackTrace(ex));
+        } catch (RuntimeException ex) {
+            logger.error(LOG_MESSAGE + "Failed generating jukebox index: " + ex.getMessage());
+            logger.error(SystemTools.getStackTrace(ex));
         }
     }
 
@@ -434,13 +437,16 @@ public class MovieJukeboxHTMLWriter {
      * @param library
      */
     private void generateDefaultIndexHTML(Jukebox jukebox, Library library) {
+        OutputStream fos = null;
+        XMLStreamWriter writer = null;
+
         try {
             File htmlFile = new File(jukebox.getJukeboxTempLocation(), PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
             htmlFile.getParentFile().mkdirs();
 
-            OutputStream fos = FileTools.createFileOutputStream(htmlFile);
+            fos = FileTools.createFileOutputStream(htmlFile);
             XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-            XMLStreamWriter writer = outputFactory.createXMLStreamWriter(fos, "UTF-8");
+            writer = outputFactory.createXMLStreamWriter(fos, "UTF-8");
 
             String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
             if (homePage.length() == 0) {
@@ -474,11 +480,28 @@ public class MovieJukeboxHTMLWriter {
 
             writer.writeEndElement();
             writer.writeEndElement();
-            writer.close();
-            fos.close();
-        } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed generating HTML library index.");
-            logger.error(SystemTools.getStackTrace(error));
+        } catch (XMLStreamException ex) {
+            logger.error(LOG_MESSAGE + "Failed generating HTML library index: " + ex.getMessage());
+            logger.error(SystemTools.getStackTrace(ex));
+        } catch (FileNotFoundException ex) {
+            logger.error(LOG_MESSAGE + "Failed generating HTML library index: " + ex.getMessage());
+            logger.error(SystemTools.getStackTrace(ex));
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (XMLStreamException ex) {
+                    logger.trace(LOG_MESSAGE + "Failed to close XMLStreamWriter");
+                }
+            }
+
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException ex) {
+                    logger.trace(LOG_MESSAGE + "Failed to close FileOutputStream");
+                }
+            }
         }
     }
 
@@ -635,7 +658,8 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Try to safely perform the transformation. Will retry up to maxRetryCount times before throwing the error
+     * Try to safely perform the transformation. Will retry up to maxRetryCount
+     * times before throwing the error
      *
      * @param transformer
      * @param xmlSource
@@ -643,7 +667,7 @@ public class MovieJukeboxHTMLWriter {
      * @param message Message to print if there is an error
      * @throws Exception
      */
-    private void doTransform(Transformer transformer, Source xmlSource, Result xmlResult, String message) throws Exception {
+    private void doTransform(Transformer transformer, Source xmlSource, Result xmlResult, String message) throws RuntimeException {
         int retryCount = 0;
 
         do {
@@ -655,11 +679,15 @@ public class MovieJukeboxHTMLWriter {
 
                 if (retryTimes == 0) {
                     // We've exceeded the maximum number of retries, so throw the exception and quit
-                    throw new Exception(ex);
+                    throw new RuntimeException("Failed generating HTML, retries exceeded", ex);
                 } else {
                     logger.debug(LOG_MESSAGE + "Failed generating HTML, will retry "
                             + retryTimes + " more time" + (retryTimes == 1 ? ". " : "s. ") + message);
-                    Thread.sleep(500);  // Sleep for 1/2 second to hopefully let the issue go away
+                    try {
+                        Thread.sleep(500);  // Sleep for 1/2 second to hopefully let the issue go away
+                    } catch (InterruptedException ex1) {
+                        // We don't care if we're interrupted
+                    }
                 }
             }   // Catch
         } while (retryCount <= maxRetryCount);
