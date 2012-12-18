@@ -38,7 +38,7 @@ public class RottenTomatoesPlugin {
     public static final String ROTTENTOMATOES_PLUGIN_ID = "rottentomatoes";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_RottenTomatoes");
     private static final String webhost = "rottentomatoes.com";
-    private static String LOG_MESSAGE = "RottenTomatoesPlugin: ";
+    private static final String LOG_MESSAGE = "RottenTomatoesPlugin: ";
     private static String[] priorityList = PropertiesUtil.getProperty("mjb.rottentomatoes.priority", "critics_score,audience_score,critics_rating,audience_rating").split(",");
     private RottenTomatoesApi rt = null;
 

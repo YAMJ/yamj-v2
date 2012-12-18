@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 public class ScopeDkPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(ScopeDkPlugin.class);
-    public static String SCOPEDK_PLUGIN_ID = "scopedk";
+    public static final String SCOPEDK_PLUGIN_ID = "scopedk";
     private static final Pattern patternScopeDkIp = Pattern.compile("^(.*)(http://www.scope.dk/film/)([0-9]+)(.*)");
     private static final Pattern patternScopeDkIpMovidedb = Pattern.compile("^(.*)(<id moviedb=\"scopedk\")>([0-9]+)(</id>.*)");
 

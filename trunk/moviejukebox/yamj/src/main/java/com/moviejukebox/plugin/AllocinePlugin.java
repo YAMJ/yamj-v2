@@ -41,7 +41,7 @@ public class AllocinePlugin extends ImdbPlugin {
     private boolean includeVideoImages;
     private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     protected TheTvDBPlugin tvdb = null;
-    public static String ALLOCINE_PLUGIN_ID = "allocine";
+    public static final String ALLOCINE_PLUGIN_ID = "allocine";
 
     public AllocinePlugin() {
         super();

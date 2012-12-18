@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 
-    public static String IMDB_PLUGIN_ID = "imdb";
+    public static final String IMDB_PLUGIN_ID = "imdb";
     private static final Logger logger = Logger.getLogger(ImdbPlugin.class);
     private static final String LOG_MESSAGE = "ImdbPlugin: ";
     protected String preferredCountry;
@@ -312,7 +312,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // ASPECT RATIO
         updateMovieInfoAspectRatio(movie, xml, this.siteDef);
-        
+
         if (StringTools.isNotValidString(movie.getCountry())) {
             // HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCountry() + HTML_H5, HTML_DIV, "<a href", HTML_A_END)
             for (String country : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCountry() + HTML_H5_END, HTML_DIV)) {
@@ -428,7 +428,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 certification = getPreferredValue(HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCertification() + HTML_H5_END + "<div class=\"info-content\">", HTML_DIV,
                         null, "|", false));
             }
-            
+
             if (isNotValidString(certification)) {
                 certification = Movie.NOTRATED;
             }
@@ -665,7 +665,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // ASPECT RATIO
         updateMovieInfoAspectRatio(movie, xml, siteDef2);
-        
+
         // COUNTRY
         if (StringTools.isNotValidString(movie.getCountry())) {
             for (String country : HTMLTools.extractTags(xml, siteDef2.getCountry() + HTML_H4_END, HTML_DIV, "onclick=\"", HTML_A_END)) {
@@ -968,7 +968,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Scrape aspect ration from IMDb; usable for all sites.
-     * 
+     *
      * @param movie
      * @param xml
      * @param sideDef
@@ -988,7 +988,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             // find unclean aspect ratio
             String uncleanAspectRatio = HTMLTools.extractTag(xml, startString, endString).trim();
-            
+
             if (StringTools.isValidString(uncleanAspectRatio)) {
                 // remove spaces and replace , with .
                 uncleanAspectRatio = uncleanAspectRatio.replace(" ","").replace(",",".");
@@ -997,7 +997,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
     }
-    
+
     private Integer extractDirectors(Movie movie, String personXML, ImdbSiteDataDefinition siteDef) {
         int count = 0;
         boolean found = Boolean.FALSE;

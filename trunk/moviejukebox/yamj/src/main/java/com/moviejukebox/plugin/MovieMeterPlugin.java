@@ -42,7 +42,7 @@ import org.apache.xmlrpc.XmlRpcException;
 public class MovieMeterPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(MovieMeterPlugin.class);
-    public static String MOVIEMETER_PLUGIN_ID = "moviemeter";
+    public static final String MOVIEMETER_PLUGIN_ID = "moviemeter";
     private MovieMeterPluginSession session;
     private String preferredSearchEngine;
     private int preferredPlotLength;

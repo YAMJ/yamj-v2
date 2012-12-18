@@ -40,8 +40,8 @@ public class SratimPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(SratimPlugin.class);
     private static final String LOG_MESSAGE = "Sratim Plugin: ";
-    public static String SRATIM_PLUGIN_ID = "sratim";
-    public static String SRATIM_PLUGIN_SUBTITLE_ID = "sratim_subtitle";
+    public static final String SRATIM_PLUGIN_ID = "sratim";
+    public static final String SRATIM_PLUGIN_SUBTITLE_ID = "sratim_subtitle";
     protected static String PHPSESSID = "COOKIE";
     private static AbstractStringMetric metric = new MongeElkan();
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*sratim.co.il[^\\s<>`\"\\[\\]]*");

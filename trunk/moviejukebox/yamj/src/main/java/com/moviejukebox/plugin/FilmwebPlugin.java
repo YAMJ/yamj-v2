@@ -32,7 +32,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(FilmwebPlugin.class);
     private static final String LOG_MESSAGE = "FilmwebPlugin: ";
-    public static String FILMWEB_PLUGIN_ID = "filmweb";
+    public static final String FILMWEB_PLUGIN_ID = "filmweb";
 //    private static Pattern googlePattern = Pattern.compile(">(http://[^\"/?&]*filmweb.pl[^<\\s]*)");
     private static Pattern googlePattern = Pattern.compile("(http://[^\"/?&]*filmweb.pl[^\"&<\\s]*)");
     private static Pattern yahooPattern = Pattern.compile("http%3a(//[^\"/?&]*filmweb.pl[^\"]*)\"");

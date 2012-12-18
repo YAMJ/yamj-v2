@@ -44,11 +44,11 @@ public class BackdropScanner {
     private static final Logger logger = Logger.getLogger(BackdropScanner.class);
     private static final String LOG_MESSAGE = "BackdropScanner: ";
     protected static final List<String> backdropExtensions = new ArrayList<String>();
-    protected static boolean backdropOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBackdropOverwrite", FALSE);
+    protected static final boolean BACKDROP_OVERWRITE = PropertiesUtil.getBooleanProperty("mjb.forceBackdropOverwrite", FALSE);
     protected static List<String> backdropImageName;
     protected static String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
-    protected static String peopleFolder = getPeopleFolder();
-    protected static String backdropToken = PropertiesUtil.getProperty("mjb.scanner.backdropToken", ".backdrop");
+    protected static final String PEOPLE_FOLDER = getPeopleFolder();
+    protected static final String BACKDROP_TOKEN = PropertiesUtil.getProperty("mjb.scanner.backdropToken", ".backdrop");
     protected static int backdropWidth;
     protected static int backdropHeight;
 
@@ -84,7 +84,7 @@ public class BackdropScanner {
         boolean foundLocalBackdrop = false;
 
         // Try searching the fileCache for the filename.
-        File localBackdropFile = FileTools.findFilenameInCache(localBackdropBaseFilename + backdropToken, backdropExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
+        File localBackdropFile = FileTools.findFilenameInCache(localBackdropBaseFilename + BACKDROP_TOKEN, backdropExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
         if (localBackdropFile != null) {
             foundLocalBackdrop = true;
             person.setBackdropFilename();
@@ -106,16 +106,16 @@ public class BackdropScanner {
         String prevBackdropFilename = person.getBackdropFilename();
         person.setBackdropFilename();
         String safeBackdropFilename = person.getBackdropFilename();
-        String backdropFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + safeBackdropFilename;
+        String backdropFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + PEOPLE_FOLDER + safeBackdropFilename;
         File backdropFile = FileTools.fileCache.getFile(backdropFilename);
-        String tmpDestFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + peopleFolder + safeBackdropFilename;
+        String tmpDestFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + PEOPLE_FOLDER + safeBackdropFilename;
         File tmpDestFile = new File(tmpDestFileName);
         backdropFile.getParentFile().mkdirs();
         tmpDestFile.getParentFile().mkdirs();
 
         if (StringTools.isValidString(person.getBackdropURL())) {
             // Do not overwrite existing backdrop unless ForceBackdropOverwrite = true
-            if (backdropOverwrite || person.isDirtyBackdrop() || (!backdropFile.exists() && !tmpDestFile.exists())) {
+            if (BACKDROP_OVERWRITE || person.isDirtyBackdrop() || (!backdropFile.exists() && !tmpDestFile.exists())) {
                 try {
                     logger.debug(LOG_MESSAGE + "Downloading backdrop for " + person.getName() + " to " + tmpDestFileName + " [calling plugin]");
 
@@ -138,7 +138,7 @@ public class BackdropScanner {
             } else {
                 logger.debug(LOG_MESSAGE + "Backdrop exists for " + person.getName());
             }
-        } else if ((backdropOverwrite || (!backdropFile.exists() && !tmpDestFile.exists()))) {
+        } else if ((BACKDROP_OVERWRITE || (!backdropFile.exists() && !tmpDestFile.exists()))) {
             person.clearBackdropFilename();
             if (prevBackdropFilename.equals(Movie.UNKNOWN)) {
                 person.setDirty(false);

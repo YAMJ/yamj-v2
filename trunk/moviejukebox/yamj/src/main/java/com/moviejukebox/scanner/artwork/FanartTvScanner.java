@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
  */
 public class FanartTvScanner extends ArtworkScanner {
 
-    private static final Logger logger = Logger.getLogger(FanartTvScanner.class);
+//    private static final Logger logger = Logger.getLogger(FanartTvScanner.class);
     private static final FanartTvPlugin fanartTvPlugin = new FanartTvPlugin();
 
     public FanartTvScanner(ArtworkType fanartTvArtworkType) {
