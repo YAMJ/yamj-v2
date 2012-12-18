@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
+ *      http://code.google.com/p/moviejukebox/people/list
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
  *
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.model;
 
@@ -26,7 +26,8 @@ import java.util.Map;
 /**
  * This is the new bean for the Person
  *
- * @author ilgizar Initial code copied from com.moviejukebox.themoviedb.model.Person
+ * @author ilgizar Initial code copied from
+ * com.moviejukebox.themoviedb.model.Person
  *
  */
 public class Person extends Filmography {
@@ -341,5 +342,27 @@ public class Person extends Filmography {
 
     public void setDirtyBackdrop() {
         setDirtyBackdrop(true);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder p = new StringBuilder("Person [");
+        p.append("biography=").append(biography);
+        p.append(", version=").append(version);
+        p.append(", knownMovies=").append(knownMovies);
+        p.append(", birthPlace=").append(birthPlace);
+        p.append(", birthName=").append(birthName);
+        p.append(", popularity=").append(popularity);
+        p.append(", lastModifiedAt=").append(lastModifiedAt);
+        p.append(", backdropFilename=").append(backdropFilename);
+        p.append(", backdropURL=").append(backdropURL);
+        p.append(", isDirtyBackdrop=").append(isDirtyBackdrop);
+        p.append(", filmography=").append(filmography.size()).append(" films");
+        p.append(", aka=").append(aka);
+        p.append(", departments=").append(departments);
+        p.append(", movies=").append(movies.size()).append(" movies");
+        p.append(", backdropToken=").append(backdropToken);
+        p.append(']');
+        return p.toString();
     }
 }

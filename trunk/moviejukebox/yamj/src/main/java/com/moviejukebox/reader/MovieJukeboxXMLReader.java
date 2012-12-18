@@ -18,30 +18,23 @@ import com.moviejukebox.model.Attachment.*;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.AspectRatioTools;
 import com.moviejukebox.tools.DOMHelper;
-import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import static com.moviejukebox.tools.XMLHelper.parseCData;
 import static com.moviejukebox.writer.MovieJukeboxXMLWriter.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -56,6 +49,10 @@ public class MovieJukeboxXMLReader {
 
     /**
      * Parse a single movie detail XML file
+     *
+     * @param xmlFile
+     * @param movie
+     * @return
      */
     public boolean parseMovieXML(File xmlFile, Movie movie) {
         boolean forceDirtyFlag = Boolean.FALSE; // force dirty flag for example when extras have been deleted
@@ -733,56 +730,69 @@ public class MovieJukeboxXMLReader {
         return Boolean.TRUE;
     }
 
+    /**
+     * Parse the set XML file for movies
+     *
+     * @param xmlSetFile
+     * @param setMaster
+     * @param moviesList
+     * @return
+     */
     public boolean parseSetXML(File xmlSetFile, Movie setMaster, List<Movie> moviesList) {
         boolean forceDirtyFlag = Boolean.FALSE;
+        Document xmlDoc;
 
-        XMLEventReader r = null;
         try {
-            Collection<String> xmlSetMovieNames = new ArrayList<String>();
-            XMLInputFactory factory = XMLInputFactory.newInstance();
-            r = factory.createXMLEventReader(FileTools.createFileInputStream(xmlSetFile), "UTF-8");
-            while (r.hasNext()) {
-                XMLEvent e = r.nextEvent();
-                String tag = e.toString();
+            xmlDoc = DOMHelper.getDocFromFile(xmlSetFile);
+        } catch (MalformedURLException error) {
+            logger.error(LOG_MESSAGE + "Failed parsing XML (" + xmlSetFile.getName() + ") for movie. Please fix it or remove it.");
+            logger.error(SystemTools.getStackTrace(error));
+            return Boolean.FALSE;
+        } catch (IOException error) {
+            logger.error(LOG_MESSAGE + "Failed parsing XML (" + xmlSetFile.getName() + ") for movie. Please fix it or remove it.");
+            logger.error(SystemTools.getStackTrace(error));
+            return Boolean.FALSE;
+        } catch (ParserConfigurationException error) {
+            logger.error(LOG_MESSAGE + "Failed parsing XML (" + xmlSetFile.getName() + ") for movie. Please fix it or remove it.");
+            logger.error(SystemTools.getStackTrace(error));
+            return Boolean.FALSE;
+        } catch (SAXException error) {
+            logger.error(LOG_MESSAGE + "Failed parsing XML (" + xmlSetFile.getName() + ") for movie. Please fix it or remove it.");
+            logger.error(SystemTools.getStackTrace(error));
+            return Boolean.FALSE;
+        }
 
-                if (tag.equalsIgnoreCase("<baseFilename>")) {
-                    xmlSetMovieNames.add(parseCData(r));
-                }
+        Node nFilename;
+        NodeList nlFilenames = xmlDoc.getElementsByTagName("baseFilename");
+        Collection<String> xmlSetMovieNames = new ArrayList<String>();
+        for (int loopMovie = 0; loopMovie < nlFilenames.getLength(); loopMovie++) {
+            nFilename = nlFilenames.item(loopMovie);
+            if (nFilename.getNodeType() == Node.ELEMENT_NODE) {
+                Element eFilename = (Element) nFilename;
+                xmlSetMovieNames.add(eFilename.getTextContent());
             }
+        }
 
-            int counter = setMaster.getSetSize();
-            if (counter == xmlSetMovieNames.size()) {
-                for (String movieName : xmlSetMovieNames) {
-                    for (Movie movie : moviesList) {
-                        if (movie.getBaseName().equals(movieName)) {
-                            // See if the movie is in a collection OR isDirty
-                            forceDirtyFlag |= (!movie.isTVShow() && !movie.getSetsKeys().contains(setMaster.getTitle())) || movie.isDirty(DirtyFlag.INFO);
-                            counter--;
-                            break;
-                        }
-                    }
-
-                    // Stop if the Set is dirty, no need to check more
-                    if (forceDirtyFlag) {
+        int counter = setMaster.getSetSize();
+        if (counter == xmlSetMovieNames.size()) {
+            for (String movieName : xmlSetMovieNames) {
+                for (Movie movie : moviesList) {
+                    if (movie.getBaseName().equals(movieName)) {
+                        // See if the movie is in a collection OR isDirty
+                        forceDirtyFlag |= (!movie.isTVShow() && !movie.getSetsKeys().contains(setMaster.getTitle())) || movie.isDirty(DirtyFlag.INFO);
+                        counter--;
                         break;
                     }
                 }
-                forceDirtyFlag |= counter != 0;
-            } else {
-                forceDirtyFlag = Boolean.TRUE;
-            }
-        } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed parsing " + xmlSetFile.getAbsolutePath() + ": please fix it or remove it.");
-            logger.error(SystemTools.getStackTrace(error));
-            return Boolean.FALSE;
-        } finally {
-            if (r != null) {
-                try {
-                    r.close();
-                } catch (XMLStreamException ex) {
-                    // ignore
+
+                // Stop if the Set is dirty, no need to check more
+                if (forceDirtyFlag) {
+                    break;
                 }
             }
+            forceDirtyFlag |= counter != 0;
+        } else {
+            forceDirtyFlag = Boolean.TRUE;
         }
 
         setMaster.setDirty(DirtyFlag.INFO, forceDirtyFlag);
@@ -790,169 +800,163 @@ public class MovieJukeboxXMLReader {
         return Boolean.TRUE;
     }
 
+    /**
+     * Parse the person XML file from the jukebox
+     *
+     * @param xmlFile
+     * @param person
+     * @return
+     */
     public boolean parsePersonXML(File xmlFile, Person person) {
-        XMLEventReader r = null;
+        Document xmlDoc;
         try {
-            XMLInputFactory factory = XMLInputFactory.newInstance();
-            r = factory.createXMLEventReader(FileTools.createFileInputStream(xmlFile), "UTF-8");
-
-            while (r.hasNext()) {
-                XMLEvent e = r.nextEvent();
-                String tag = e.toString();
-
-                if (tag.toLowerCase().startsWith("<id ")) {
-                    String personDatabase = ImdbPlugin.IMDB_PLUGIN_ID;
-                    StartElement start = e.asStartElement();
-                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-                        Attribute attr = i.next();
-                        String ns = attr.getName().toString();
-
-                        if (ns.equalsIgnoreCase("persondb")) {
-                            personDatabase = attr.getValue();
-                            continue;
-                        }
-                    }
-                    person.setId(personDatabase, parseCData(r));
-                }
-                if (tag.equalsIgnoreCase("<name>")) {
-                    if (StringTools.isNotValidString(person.getName())) {
-                        person.setName(parseCData(r));
-                    } else {
-                        person.addAka(parseCData(r));
-                    }
-                    continue;
-                }
-                if (tag.equalsIgnoreCase("<title>")) {
-                    person.setTitle(parseCData(r));
-                    continue;
-                }
-                if (tag.equalsIgnoreCase("<baseFilename>")) {
-                    person.setFilename(parseCData(r));
-                    continue;
-                }
-                if (tag.equalsIgnoreCase("<biography>")) {
-                    person.setBiography(parseCData(r));
-                    continue;
-                }
-                if (tag.equalsIgnoreCase("<birthday>")) {
-                    person.setYear(parseCData(r));
-                    continue;
-                }
-                if (tag.equalsIgnoreCase("<birthplace>")) {
-                    person.setBirthPlace(parseCData(r));
-                    continue;
-                }
-                if (tag.equalsIgnoreCase("<birthname>")) {
-                    person.setBirthName(parseCData(r));
-                    continue;
-                }
-                if (tag.equalsIgnoreCase("<url>")) {
-                    person.setUrl(parseCData(r));
-                    continue;
-                }
-                if (tag.equalsIgnoreCase("<photoFile>")) {
-                    person.setPhotoFilename(parseCData(r));
-                    continue;
-                }
-                if (tag.equalsIgnoreCase("<photoURL>")) {
-                    person.setPhotoURL(parseCData(r));
-                    continue;
-                }
-                if (tag.equalsIgnoreCase("<backdropFile>")) {
-                    person.setBackdropFilename(parseCData(r));
-                    continue;
-                }
-                if (tag.equalsIgnoreCase("<backdropURL>")) {
-                    person.setBackdropURL(parseCData(r));
-                    continue;
-                }
-                if (tag.equalsIgnoreCase("<knownMovies>")) {
-                    person.setKnownMovies(Integer.parseInt(parseCData(r)));
-                    continue;
-                }
-                if (tag.equalsIgnoreCase("<version>")) {
-                    person.setVersion(Integer.parseInt(parseCData(r)));
-                    continue;
-                }
-                if (tag.equalsIgnoreCase("<lastModifiedAt>")) {
-                    person.setLastModifiedAt(parseCData(r));
-                    continue;
-                }
-                if (tag.toLowerCase().startsWith("<movie ")) {
-                    Filmography film = new Filmography();
-
-                    StartElement start = e.asStartElement();
-                    for (Iterator<Attribute> i = start.getAttributes(); i.hasNext();) {
-                        Attribute attr = i.next();
-                        String ns = attr.getName().toString();
-
-                        if (ns.equalsIgnoreCase("id")) {
-                            film.setId(attr.getValue());
-                            continue;
-                        }
-                        if (ns.toLowerCase().contains(ID)) {
-                            person.setId(ns.substring(3), attr.getValue());
-                            continue;
-                        }
-                        if (ns.equalsIgnoreCase(NAME)) {
-                            film.setName(attr.getValue());
-                            continue;
-                        }
-                        if (ns.equalsIgnoreCase(TITLE)) {
-                            film.setTitle(attr.getValue());
-                            continue;
-                        }
-                        if (ns.equalsIgnoreCase(ORIGINAL_TITLE)) {
-                            film.setOriginalTitle(attr.getValue());
-                            continue;
-                        }
-                        if (ns.equalsIgnoreCase(YEAR)) {
-                            film.setYear(attr.getValue());
-                            continue;
-                        }
-                        if (ns.equalsIgnoreCase(RATING)) {
-                            film.setRating(attr.getValue());
-                            continue;
-                        }
-                        if (ns.equalsIgnoreCase(CHARACTER)) {
-                            film.setCharacter(attr.getValue());
-                            continue;
-                        }
-                        if (ns.equalsIgnoreCase(JOB)) {
-                            film.setJob(attr.getValue());
-                            continue;
-                        }
-                        if (ns.equalsIgnoreCase(DEPARTMENT)) {
-                            film.setDepartment(attr.getValue());
-                            continue;
-                        }
-                        if (ns.equalsIgnoreCase(URL)) {
-                            film.setUrl(attr.getValue());
-                            continue;
-                        }
-                    }
-                    film.setFilename(parseCData(r));
-                    film.setDirty(Boolean.FALSE);
-                    person.addFilm(film);
-                }
-            }
-            person.setFilename();
-        } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed parsing " + xmlFile.getAbsolutePath() + " : please fix it or remove it.");
+            xmlDoc = DOMHelper.getDocFromFile(xmlFile);
+        } catch (MalformedURLException error) {
+            logger.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for person. Please fix it or remove it.");
             logger.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
-        } finally {
-            if (r != null) {
-                try {
-                    r.close();
-                } catch (XMLStreamException ex) {
-                    // ignore
+        } catch (IOException error) {
+            logger.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for person. Please fix it or remove it.");
+            logger.error(SystemTools.getStackTrace(error));
+            return Boolean.FALSE;
+        } catch (ParserConfigurationException error) {
+            logger.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for person. Please fix it or remove it.");
+            logger.error(SystemTools.getStackTrace(error));
+            return Boolean.FALSE;
+        } catch (SAXException error) {
+            logger.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for person. Please fix it or remove it.");
+            logger.error(SystemTools.getStackTrace(error));
+            return Boolean.FALSE;
+        }
+
+        Node nPeople, nTemp;
+        NodeList nlPeople = xmlDoc.getElementsByTagName("person");
+        String sTemp;
+        Element eTemp;
+        NodeList nlTemp;
+        for (int looper = 0; looper < nlPeople.getLength(); looper++) {
+            nPeople = nlPeople.item(looper);
+            if (nPeople.getNodeType() == Node.ELEMENT_NODE) {
+                Element ePerson = (Element) nPeople;
+
+                // Get IDs
+                nlTemp = ePerson.getElementsByTagName("id");
+                for (int idLoop = 0; idLoop < nlTemp.getLength(); idLoop++) {
+                    nTemp = nlTemp.item(idLoop);
+
+                    if (nTemp.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eId = (Element) nTemp;
+                        String personDatabase = eId.getAttribute("persondb");
+                        if (StringTools.isNotValidString(personDatabase)) {
+                            personDatabase = ImdbPlugin.IMDB_PLUGIN_ID;
+                        }
+                        person.setId(personDatabase, eId.getTextContent());
+                    }
                 }
+
+                // Get Name
+                eTemp = DOMHelper.getElementByName(ePerson, "name");
+                if (eTemp != null) {
+                    sTemp = eTemp.getTextContent();
+                    if (StringTools.isNotValidString(person.getName())) {
+                        person.setName(sTemp);
+                    } else {
+                        person.addAka(sTemp);
+                    }
+                }
+
+                person.setTitle(DOMHelper.getValueFromElement(ePerson, "title"));
+                person.setFilename(DOMHelper.getValueFromElement(ePerson, "baseFilename"));
+                person.setBiography(DOMHelper.getValueFromElement(ePerson, "biography"));
+                person.setYear(DOMHelper.getValueFromElement(ePerson, "birthday"));
+                person.setBirthPlace(DOMHelper.getValueFromElement(ePerson, "birthplace"));
+                person.setBirthName(DOMHelper.getValueFromElement(ePerson, "birthname"));
+                person.setUrl(DOMHelper.getValueFromElement(ePerson, "url"));
+                person.setPhotoFilename(DOMHelper.getValueFromElement(ePerson, "photoFile"));
+                person.setPhotoURL(DOMHelper.getValueFromElement(ePerson, "photoURL"));
+                person.setBackdropFilename(DOMHelper.getValueFromElement(ePerson, "backdropFile"));
+                person.setBackdropURL(DOMHelper.getValueFromElement(ePerson, "backdropURL"));
+                person.setKnownMovies(Integer.parseInt(DOMHelper.getValueFromElement(ePerson, "knownMovies")));
+                person.setVersion(Integer.parseInt(DOMHelper.getValueFromElement(ePerson, "version")));
+                person.setLastModifiedAt(DOMHelper.getValueFromElement(ePerson, "lastModifiedAt"));
+
+                nlTemp = ePerson.getElementsByTagName("movie");
+                for (int movieLoop = 0; movieLoop < nlTemp.getLength(); movieLoop++) {
+                    nTemp = nlTemp.item(movieLoop);
+                    if (nTemp.getNodeType() == Node.ELEMENT_NODE) {
+                        Filmography film = new Filmography();
+                        Element eMovie = (Element) nTemp;
+
+                        film.setId(eMovie.getAttribute("id"));
+
+                        // Process the attributes
+                        NamedNodeMap nnmAttr = eMovie.getAttributes();
+                        for (int i = 0; i < nnmAttr.getLength(); i++) {
+                            Node nAttr = nnmAttr.item(i);
+                            String ns = nAttr.getNodeName();
+
+                            if (ns.equalsIgnoreCase("id")) {
+                                film.setId(nAttr.getTextContent());
+                                continue;
+                            }
+                            if (ns.toLowerCase().contains(ID)) {
+                                person.setId(ns.substring(3), nAttr.getTextContent());
+                                continue;
+                            }
+                            if (ns.equalsIgnoreCase(NAME)) {
+                                film.setName(nAttr.getTextContent());
+                                continue;
+                            }
+                            if (ns.equalsIgnoreCase(TITLE)) {
+                                film.setTitle(nAttr.getTextContent());
+                                continue;
+                            }
+                            if (ns.equalsIgnoreCase(ORIGINAL_TITLE)) {
+                                film.setOriginalTitle(nAttr.getTextContent());
+                                continue;
+                            }
+                            if (ns.equalsIgnoreCase(YEAR)) {
+                                film.setYear(nAttr.getTextContent());
+                                continue;
+                            }
+                            if (ns.equalsIgnoreCase(RATING)) {
+                                film.setRating(nAttr.getTextContent());
+                                continue;
+                            }
+                            if (ns.equalsIgnoreCase(CHARACTER)) {
+                                film.setCharacter(nAttr.getTextContent());
+                                continue;
+                            }
+                            if (ns.equalsIgnoreCase(JOB)) {
+                                film.setJob(nAttr.getTextContent());
+                                continue;
+                            }
+                            if (ns.equalsIgnoreCase(DEPARTMENT)) {
+                                film.setDepartment(nAttr.getTextContent());
+                                continue;
+                            }
+                            if (ns.equalsIgnoreCase(URL)) {
+                                film.setUrl(nAttr.getTextContent());
+                                continue;
+                            }
+                        }
+
+                        // Set the filename
+                        film.setFilename(eMovie.getTextContent());
+                        film.setDirty(Boolean.FALSE);
+                        person.addFilm(film);
+                    }
+                }
+
+                person.setFilename();
+                person.setDirty(Boolean.FALSE);
+
+                // Only process the first in the file
+                return Boolean.TRUE;
             }
         }
 
-        person.setDirty(Boolean.FALSE);
-
-        return Boolean.TRUE;
+        // FAILED
+        return false;
     }
 }
