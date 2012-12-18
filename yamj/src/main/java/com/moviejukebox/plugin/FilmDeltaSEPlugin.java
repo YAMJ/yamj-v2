@@ -45,7 +45,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(FilmDeltaSEPlugin.class);
     private static final String LOG_MESSAGE = "FilmDeltaSEPlugin: ";
-    public static String FILMDELTA_PLUGIN_ID = "filmdelta";
+    public static final String FILMDELTA_PLUGIN_ID = "filmdelta";
     protected TheTvDBPlugin tvdb;
     // Get properties for plotlength
     private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");

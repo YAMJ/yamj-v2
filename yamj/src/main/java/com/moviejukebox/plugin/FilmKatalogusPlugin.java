@@ -37,7 +37,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(FilmKatalogusPlugin.class);
     private static final String LOG_MESSAGE = "FilmKatalogusPlugin: ";
-    public static String FILMKAT_PLUGIN_ID = "filmkatalogus";
+    public static final String FILMKAT_PLUGIN_ID = "filmkatalogus";
     private boolean getplot = true;
     private boolean gettitle = true;
     private int preferredPlotLength;

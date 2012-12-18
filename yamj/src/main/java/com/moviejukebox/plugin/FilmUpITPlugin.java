@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 public class FilmUpITPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(FilmUpITPlugin.class);
-    public static String FILMUPIT_PLUGIN_ID = "filmupit";
+    public static final String FILMUPIT_PLUGIN_ID = "filmupit";
 
     public FilmUpITPlugin() {
         super();

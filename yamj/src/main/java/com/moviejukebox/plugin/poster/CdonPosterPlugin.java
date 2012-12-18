@@ -39,7 +39,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
 
     @Override
     public final boolean isNeeded() {
-        if ((searchPriorityMovie + "," + searchPriorityTv).contains(this.getName())) {
+        if ((SEARCH_PRIORITY_MOVIE + "," + SEARCH_PRIORITY_TV).contains(this.getName())) {
             return true;
         } else {
             return false;

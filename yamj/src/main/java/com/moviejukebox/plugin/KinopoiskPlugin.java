@@ -39,7 +39,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(KinopoiskPlugin.class);
     private static final String LOG_MESSAGE = "KinopoiskPlugin: ";
-    public static String KINOPOISK_PLUGIN_ID = "kinopoisk";
+    public static final String KINOPOISK_PLUGIN_ID = "kinopoisk";
     // Define plot length
     private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     @Deprecated

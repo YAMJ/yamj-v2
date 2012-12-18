@@ -45,7 +45,7 @@ import org.apache.log4j.Logger;
 public class AnimatorPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(AnimatorPlugin.class);
-    public static String ANIMATOR_PLUGIN_ID = "animator";
+    public static final String ANIMATOR_PLUGIN_ID = "animator";
 //  Define plot length
     private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     private String preferredSites = PropertiesUtil.getProperty("animator.sites", "all");

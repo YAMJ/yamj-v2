@@ -20,15 +20,15 @@ import org.apache.log4j.Logger;
 public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
 
     private static final Logger logger = Logger.getLogger(AbstractMoviePosterPlugin.class);
-    protected static String searchPriorityMovie = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie", "").toLowerCase();
-    protected static String searchPriorityTv = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "").toLowerCase();
+    protected static final String SEARCH_PRIORITY_MOVIE = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie", "").toLowerCase();
+    protected static final String SEARCH_PRIORITY_TV = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "").toLowerCase();
 
     public AbstractMoviePosterPlugin() {
     }
 
     @Override
     public boolean isNeeded() {
-        if (searchPriorityMovie.contains(this.getName())) {
+        if (SEARCH_PRIORITY_MOVIE.contains(this.getName())) {
             return true;
         } else {
             return false;

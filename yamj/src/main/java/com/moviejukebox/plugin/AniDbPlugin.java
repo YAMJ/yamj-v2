@@ -1889,6 +1889,7 @@ class AnidbTableInfo {
     }
 }
 
+
 @DatabaseTable(tableName = "anidb_tvdb_mapping")
 class AnidbTvdbMapping {
 
@@ -1954,8 +1955,15 @@ class AnidbTvdbMapping {
     public ForeignCollection<AnidbTvdbEpisodeMapping> getMappings() {
         return mappings;
     }
-}
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+}
 @DatabaseTable(tableName = "anidb_tvdb_episode_mapping")
 class AnidbTvdbEpisodeMapping {
 
