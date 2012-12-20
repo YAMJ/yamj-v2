@@ -187,16 +187,9 @@ public class ImdbInfo {
 
             sb.append("+site%3Aimdb.com&fr=yfp-t-501&ei=UTF-8&rd=r1");
 
-            String xml = webBrowser.request(sb.toString());
-            int beginIndex = xml.indexOf(objectType.equals(OBJECT_MOVIE) ? "/title/tt" : "/name/nm");
-            StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
-            String imdbId = st.nextToken();
-
-            if (imdbId.startsWith(objectType.equals(OBJECT_MOVIE) ? "tt" : "nm")) {
-                return imdbId;
-            } else {
-                return Movie.UNKNOWN;
-            }
+            logger.debug(LOG_MESSAGE + "Yahoo search: " + sb.toString());
+            
+            return getImdbIdFromSearchEngine(sb.toString());
 
         } catch (Exception error) {
             logger.error(LOG_MESSAGE + "Failed retreiving IMDb Id for movie : " + movieName);
@@ -227,29 +220,9 @@ public class ImdbInfo {
             sb.append("+site%3Awww.imdb.com&meta=");
 
             logger.debug(LOG_MESSAGE + "Google search: " + sb.toString());
-
-            String xml = webBrowser.request(sb.toString());
-            String imdbId = Movie.UNKNOWN;
-
-            int beginIndex = xml.indexOf(objectType.equals(OBJECT_MOVIE) ? "/title/tt" : "/name/nm");
-            if (beginIndex > -1) {
-                int index;
-                if (objectType.equals(OBJECT_MOVIE)) {
-                    index = beginIndex + 7;
-                } else {
-                    index = beginIndex + 6;
-                }
-                StringTokenizer st = new StringTokenizer(xml.substring(index), "/\"");
-                imdbId = st.nextToken();
-            }
-
-            if (imdbId.startsWith(objectType.equals(OBJECT_MOVIE) ? "tt" : "nm")) {
-                logger.debug("Found IMDb ID: " + imdbId);
-                return imdbId;
-            } else {
-                return Movie.UNKNOWN;
-            }
-
+            
+            return getImdbIdFromSearchEngine(sb.toString());
+            
         } catch (Exception error) {
             logger.error(LOG_MESSAGE + "Failed retreiving IMDb Id for movie : " + movieName);
             logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
@@ -257,6 +230,30 @@ public class ImdbInfo {
         }
     }
 
+    private String getImdbIdFromSearchEngine(String requestString) throws Exception {
+        String xml = webBrowser.request(requestString);
+        String imdbId = Movie.UNKNOWN;
+
+        int beginIndex = xml.indexOf(objectType.equals(OBJECT_MOVIE) ? "/title/tt" : "/name/nm");
+        if (beginIndex > -1) {
+            int index;
+            if (objectType.equals(OBJECT_MOVIE)) {
+                index = beginIndex + 7;
+            } else {
+                index = beginIndex + 6;
+            }
+            StringTokenizer st = new StringTokenizer(xml.substring(index), "/\"");
+            imdbId = st.nextToken();
+        }
+
+        if (imdbId.startsWith(objectType.equals(OBJECT_MOVIE) ? "tt" : "nm")) {
+            logger.debug("Found IMDb ID: " + imdbId);
+            return imdbId;
+        } else {
+            return Movie.UNKNOWN;
+        }
+    }
+    
     /**
      * Retrieve the IMDb matching the specified movie name and year. This
      * routine is base on a IMDb request.
