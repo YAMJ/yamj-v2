@@ -340,7 +340,12 @@ public class FanartScanner {
 
         if (moviedb == null) {
             try {
-                List<MovieDb> movieList = TMDb.searchMovie(movie.getOriginalTitle(), language, false);
+                int movieYear = 0;
+                if (StringTools.isValidString(movie.getYear()) && StringUtils.isNumeric(movie.getYear())) {
+                    movieYear = Integer.parseInt(movie.getYear());
+                }
+
+                List<MovieDb> movieList = TMDb.searchMovie(movie.getOriginalTitle(), movieYear, language, TheMovieDbPlugin.INCLUDE_ADULT, 0);
                 for (MovieDb m : movieList) {
                     if (m.getTitle().equals(movie.getTitle())
                             || m.getTitle().equalsIgnoreCase(movie.getOriginalTitle())
