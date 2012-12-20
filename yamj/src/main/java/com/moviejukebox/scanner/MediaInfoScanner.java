@@ -633,6 +633,13 @@ public class MediaInfoScanner {
                     movie.setVideoOutput(videoOutput.toString());
                 }
             }
+            
+            if (StringTools.isNotValidString(movie.getVideoSource())) {
+                infoValue = infosMainVideo.get("MultiView_Count");
+                if ("2".equals(infoValue)) {
+                    movie.setVideoSource("3D");
+                }
+            }
         }
 
         // Cycle through Audio Streams
