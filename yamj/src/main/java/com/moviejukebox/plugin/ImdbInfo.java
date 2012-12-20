@@ -354,7 +354,17 @@ public class ImdbInfo {
             }
         } else {
             String firstPersonId = HTMLTools.extractTag(HTMLTools.extractTag(xml, "<table><tr> <td valign=\"top\">", "</td></tr></table>"), "<a href=\"/name/", "/\"");
-            if (StringTools.isValidString(firstPersonId)) {
+            if (StringTools.isNotValidString(firstPersonId)) {
+                // alternate approach
+                int beginIndex = xml.indexOf("<a href=\"/name/nm");
+                if (beginIndex > -1) {
+                    StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 15), "/\"");
+                    firstPersonId = st.nextToken();
+                }
+            }
+            
+            if (firstPersonId.startsWith("nm")) {
+                logger.debug("Found IMDb ID: " + firstPersonId);
                 return firstPersonId;
             }
         }
