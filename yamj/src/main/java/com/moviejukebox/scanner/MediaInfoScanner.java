@@ -51,13 +51,14 @@ public class MediaInfoScanner {
     public static final String OS_ARCH = System.getProperty("os.arch");
     private static boolean isActivated;
     private static final boolean enableMetadata = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", FALSE);
-    private static final boolean overallBitrate = PropertiesUtil.getBooleanProperty("mediainfo.overallbitrate", FALSE);
+    private static final boolean MI_OVERALL_BITRATE = PropertiesUtil.getBooleanProperty("mediainfo.overallbitrate", FALSE);
+    private static final boolean MI_READ_FROM_FILE = PropertiesUtil.getBooleanProperty("mediainfo.readfromfile", FALSE);
     private String randomDirName;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     private static final List<String> MI_DISK_IMAGES = new ArrayList<String>();
     private static final Set<OverrideFlag> MI_OVERRIDE_FLAGS = new TreeSet<OverrideFlag>();
-
+    
     static {
         logger.debug("Operating System Name   : " + OS_NAME);
         logger.debug("Operating System Version: " + OS_VERSION);
@@ -283,31 +284,53 @@ public class MediaInfoScanner {
     }
 
     private void scan(Movie currentMovie, String movieFilePath) {
+        InputStream is = null;
         try {
-            // Create the command line
-            List<String> commandMedia = new ArrayList<String>(MI_EXE);
-            commandMedia.add(movieFilePath);
-
-            ProcessBuilder pb = new ProcessBuilder(commandMedia);
-
-            // set up the working directory.
-            pb.directory(MI_PATH);
-
-            Process p = pb.start();
-
+            if (MI_READ_FROM_FILE) {
+                // check file 
+                String filename = FilenameUtils.removeExtension(movieFilePath) + ".mediainfo";
+                Collection<File> files = FileTools.fileCache.searchFilename(filename, Boolean.FALSE);
+                if (files != null && files.size() > 0 ) {
+                    // create new input stream for reading
+                    is = new FileInputStream(files.iterator().next());
+                    logger.debug(LOG_MESSAGE + "Reading from file "+filename);
+                }
+            }
+            
+            if (is == null) {
+                // Create the command line
+                List<String> commandMedia = new ArrayList<String>(MI_EXE);
+                commandMedia.add(movieFilePath);
+    
+                ProcessBuilder pb = new ProcessBuilder(commandMedia);
+    
+                // set up the working directory.
+                pb.directory(MI_PATH);
+    
+                Process p = pb.start();
+                is  = p.getInputStream();
+            }
+            
             Map<String, String> infosGeneral = new HashMap<String, String>();
             List<Map<String, String>> infosVideo = new ArrayList<Map<String, String>>();
             List<Map<String, String>> infosAudio = new ArrayList<Map<String, String>>();
             List<Map<String, String>> infosText = new ArrayList<Map<String, String>>();
 
-            parseMediaInfo(p, infosGeneral, infosVideo, infosAudio, infosText);
+            parseMediaInfo(is, infosGeneral, infosVideo, infosAudio, infosText);
 
             updateMovieInfo(currentMovie, infosGeneral, infosVideo, infosAudio, infosText);
 
         } catch (Exception error) {
             logger.error(SystemTools.getStackTrace(error));
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Exception ignore) {
+                    // ignore this error
+                }
+            }
         }
-
     }
 
     private String localInputReadLine(BufferedReader input) throws IOException {
@@ -382,12 +405,6 @@ public class MediaInfoScanner {
         }
 
         input.close();
-    }
-
-    private void parseMediaInfo(Process proc, Map<String, String> infosGeneral, List<Map<String, String>> infosVideo,
-            List<Map<String, String>> infosAudio, List<Map<String, String>> infosText) throws IOException {
-
-        this.parseMediaInfo(proc.getInputStream(), infosGeneral, infosVideo, infosAudio, infosText);
     }
 
     private void updateMovieInfo(Movie movie, Map<String, String> infosGeneral, List<Map<String, String>> infosVideo,
@@ -514,7 +531,7 @@ public class MediaInfoScanner {
 
             // Add the video codec to the list
             Codec codecToAdd = getCodecInfo(CodecType.VIDEO, infosMainVideo);
-            if (overallBitrate && StringTools.isNotValidString(codecToAdd.getCodecBitRate())) {
+            if (MI_OVERALL_BITRATE && StringTools.isNotValidString(codecToAdd.getCodecBitRate())) {
                 infoValue = infosGeneral.get(Codec.MI_CODEC_OVERALL_BITRATE);
                 if (StringUtils.isNotBlank(infoValue)) {
                     infoValue = infoValue.substring(0, infoValue.length() - 3);
