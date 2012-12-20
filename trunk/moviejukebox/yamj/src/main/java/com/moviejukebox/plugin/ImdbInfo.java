@@ -233,7 +233,13 @@ public class ImdbInfo {
 
             int beginIndex = xml.indexOf(objectType.equals(OBJECT_MOVIE) ? "/title/tt" : "/name/nm");
             if (beginIndex > -1) {
-                StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 7), "/\"");
+                int index;
+                if (objectType.equals(OBJECT_MOVIE)) {
+                    index = beginIndex + 7;
+                } else {
+                    index = beginIndex + 6;
+                }
+                StringTokenizer st = new StringTokenizer(xml.substring(index), "/\"");
                 imdbId = st.nextToken();
             }
 
