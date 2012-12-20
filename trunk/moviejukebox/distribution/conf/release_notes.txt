@@ -7,6 +7,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Enhancement  #2035 MediaInfo can determine a 3D video source  
  - Enhancement  #2397 Read MediaInfo values from file
  - Fixed defect #2542 Information missing with NFO
+ - Fixed defect #2548 Scrape correct person ID from IDMB and alternate search engines
 
 MovieJukebox 2.8 (2012-12-17)
 -----------------------------
