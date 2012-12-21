@@ -269,15 +269,11 @@ public final class OverrideTools {
      */
     private static boolean hasHigherPriority(final OverrideFlag overrideFlag, final String actualSource, final String newSource, boolean isTV) {
         // check sources
-        if (StringTools.isNotValidString(actualSource) && StringTools.isNotValidString(newSource)) {
-            // both invalid 
-            // -> actual source has higher priority
-            return Boolean.FALSE;
-        } else if (StringTools.isValidString(actualSource) && StringTools.isNotValidString(newSource)) {
+        if (StringTools.isNotValidString(newSource)) {
             // new source is not valid
             // -> actual source has higher priority
             return Boolean.FALSE;
-        } else if (StringTools.isNotValidString(actualSource) && StringTools.isValidString(newSource)) {
+        } else if (StringTools.isNotValidString(actualSource)) {
             // actual source is not valid
             // -> new source has higher priority
             return Boolean.TRUE;
