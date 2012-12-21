@@ -19,35 +19,34 @@ package com.moviejukebox.model;
  */
 public enum OverrideFlag {
 
-    /**
-     * Override flag unknown
-     */
     UNKNOWN,
-    /**
-     * Override all values
-     */
-    ALL,
-    
-    /**
-     * Override movie runtime
-     */
-    RUNTIME,
-    /**
-     * Override movie language
-     */
-    LANGUAGE,
-    /**
-     * Override movie resolution
-     */
-    RESOLUTION,
-    /**
-     * Override movie aspect ratio
-     */
+    ACTORS,
     ASPECTRATIO,
-    /**
-     * Override movie video output
-     */
-    VIDEOOUTPUT;
+    CERTIFICATION,
+    COMPANY,
+    CONTAINER,
+    COUNTRY,
+    DIRECTORS,
+    FPS, // frames per second
+    GENRES,
+    LANGUAGE,
+    ORIGINALTITLE, 
+    OUTLINE,
+    PLOT,
+    QUOTE,
+    RELEASEDATE,
+    RESOLUTION,
+    RUNTIME,
+    TAGLINE,
+    TITLE,
+    VIDEOOUTPUT,
+    VIDEOSOURCE,
+    WRITERS,
+    YEAR,
+    // extra for PEOPLE scraping
+    PEOPLE_ACTORS,
+    PEOPLE_DIRECTORS,
+    PEOPLE_WRITERS;
 
     /**
      * Convert a string into an Enum type
@@ -59,6 +58,6 @@ public enum OverrideFlag {
         try {
             return OverrideFlag.valueOf(overrideFlag.trim().toUpperCase());
         } catch (Exception ignore) {}
-        return UNKNOWN;
+            return UNKNOWN;
     }
 }

@@ -13,7 +13,9 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.OverrideFlag;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
@@ -21,9 +23,9 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
-
 /**
  * @author iuk
  *
@@ -38,24 +40,9 @@ public class ComingSoonPlugin extends ImdbPlugin {
     public static final String COMINGSOON_KEY_PARAM = "key=";
     private static final int COMINGSOON_MAX_DIFF = 1000;
     private static final int COMINGSOON_MAX_SEARCH_PAGES = 5;
-    private static final int COMINGSOON_RESTORE_TITLE = 1;
-    private static final int COMINGSOON_RESTORE_ORIGINALTITLE = 1 << 1;
-    private static final int COMINGSOON_RESTORE_PLOT = 1 << 2;
-    private static final int COMINGSOON_RESTORE_OUTLINE = 1 << 3;
-    private static final int COMINGSOON_RESTORE_RATING = 1 << 4;
-    private static final int COMINGSOON_RESTORE_RUNTIME = 1 << 5;
-    private static final int COMINGSOON_RESTORE_COUNTRY = 1 << 6;
-    private static final int COMINGSOON_RESTORE_YEAR = 1 << 7;
-    private static final int COMINGSOON_RESTORE_COMPANY = 1 << 8;
-    private static final int COMINGSOON_RESTORE_GENRES = 1 << 9;
-    private static final int COMINGSOON_RESTORE_CAST = 1 << 10;
-    private static final int COMINGSOON_RESTORE_DIRECTORS = 1 << 11;
-    private static final int COMINGSOON_RESTORE_WRITERS = 1 << 12;
-    private static final int COMINGSOON_RESTORE_ALL = (2 << 13) - 1;
     protected int preferredPlotLength;
     protected int preferredOutlineLength;
     protected String scanImdb;
-    protected int preferImdbMask = 0;
     protected String searchId;
 
     public ComingSoonPlugin() {
@@ -65,24 +52,8 @@ public class ComingSoonPlugin extends ImdbPlugin {
         preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "500");
 
         searchId = PropertiesUtil.getProperty("comingsoon.id.search", "comingsoon,yahoo");
-
         scanImdb = PropertiesUtil.getProperty("comingsoon.imdb.scan", "always");
-        String preferImdbFor = PropertiesUtil.getProperty("comingsoon.imdb.perferredFor", "runtime,country,year,company,cast,writers");
-        if (preferImdbFor.length() > 0) {
-            StringTokenizer st = new StringTokenizer(preferImdbFor, ",");
-
-            if (st.hasMoreTokens()) {
-                while (st.hasMoreTokens()) {
-                    preferImdbMask |= getInfoMask(st.nextToken());
-                }
-            } else {
-                preferImdbMask |= getInfoMask(preferImdbFor);
-            }
-            if ((preferImdbMask & COMINGSOON_RESTORE_RATING) > 0) {
-                logger.error("ComingSoon: comingsoon.imdb.perferredFor cannot include \"rating\" anymore. Please use mjb.rating.source property.");
-            }
-        }
-
+        
         if (!PropertiesUtil.getProperty("comingsoon.trailer.resolution", "DEPRECATED").equals("DEPRECATED")
                 || !PropertiesUtil.getProperty("comingsoon.trailer.preferredFormat", "DEPRECATED").equals("DEPRECATED")
                 || !PropertiesUtil.getProperty("comingsoon.trailer.setExchange", "DEPRECATED").equals("DEPRECATED")
@@ -95,39 +66,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
     @Override
     public String getPluginID() {
         return COMINGSOON_PLUGIN_ID;
-    }
-
-    private int getInfoMask(String infoDescription) {
-        if (infoDescription.equalsIgnoreCase("title")) {
-            return COMINGSOON_RESTORE_TITLE;
-        } else if (infoDescription.equalsIgnoreCase("originaltitle")) {
-            return COMINGSOON_RESTORE_ORIGINALTITLE;
-        } else if (infoDescription.equalsIgnoreCase("plot")) {
-            return COMINGSOON_RESTORE_PLOT;
-        } else if (infoDescription.equalsIgnoreCase("outline")) {
-            return COMINGSOON_RESTORE_OUTLINE;
-        } else if (infoDescription.equalsIgnoreCase("rating")) {
-            return COMINGSOON_RESTORE_RATING;
-        } else if (infoDescription.equalsIgnoreCase("runtime")) {
-            return COMINGSOON_RESTORE_RUNTIME;
-        } else if (infoDescription.equalsIgnoreCase("country")) {
-            return COMINGSOON_RESTORE_COUNTRY;
-        } else if (infoDescription.equalsIgnoreCase("year")) {
-            return COMINGSOON_RESTORE_YEAR;
-        } else if (infoDescription.equalsIgnoreCase("company")) {
-            return COMINGSOON_RESTORE_COMPANY;
-        } else if (infoDescription.equalsIgnoreCase("genres")) {
-            return COMINGSOON_RESTORE_GENRES;
-        } else if (infoDescription.equalsIgnoreCase("cast")) {
-            return COMINGSOON_RESTORE_CAST;
-        } else if (infoDescription.equalsIgnoreCase("directors")) {
-            return COMINGSOON_RESTORE_DIRECTORS;
-        } else if (infoDescription.equalsIgnoreCase("writers")) {
-            return COMINGSOON_RESTORE_WRITERS;
-        } else {
-            logger.info("ComingSoon: unknown value \"" + infoDescription + "\" for property comingsoon.perferimdbfor");
-            return 0;
-        }
     }
 
     @Override
@@ -146,13 +84,8 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
         }
 
-        // Then we use IMDB to get complete information. We back up movie infos, since ComingSoon is fetched later and will eventually need
-        // to ovverride IMDB infos.
-
-        Movie preImdb = backupMovieInfo(movie);
-
         boolean firstScanImdb = false;
-
+        
         if (scanImdb.equalsIgnoreCase("always") || (scanImdb.equalsIgnoreCase("fallback") && (StringTools.isNotValidString(comingSoonId) || comingSoonId.equals(COMINGSOON_NOT_PRESENT)))) {
             logger.debug("ComingSoon: Checking IMDB");
             firstScanImdb = super.scan(movie);
@@ -168,55 +101,37 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
         }
 
-        Movie postImdb = backupMovieInfo(movie);
-
         boolean scanComingSoon = false;
         if (StringTools.isValidString(comingSoonId)) {
 
             logger.debug("ComingSoon: Fetching movie data from ComingSoon");
-
-            // Restore pre-IMDB infos except title.
-            logger.debug("ComingSoon: restoring pre-IMDB infos with override");
-            restoreMovieInfo(preImdb, movie, COMINGSOON_RESTORE_ALL ^ (COMINGSOON_RESTORE_TITLE | COMINGSOON_RESTORE_ORIGINALTITLE), true);
-
             scanComingSoon = updateComingSoonMediaInfo(movie);
-
-            // Fill UNKNOWN vales with post-IMDB infos
-            logger.debug("ComingSoon: restoring post-IMDB infos w/o override");
-            restoreMovieInfo(postImdb, movie, COMINGSOON_RESTORE_ALL ^ (COMINGSOON_RESTORE_TITLE | COMINGSOON_RESTORE_ORIGINALTITLE), false);
-
-            // Replace values where IMDB is preferred
-            logger.debug("ComingSoon: restoring post-IMDB infos with protected override");
-            restoreMovieInfo(postImdb, movie, preferImdbMask, true, true);
         }
-
-        Movie postComingSoon = backupMovieInfo(movie);
 
         if (!firstScanImdb && scanComingSoon && scanImdb.equalsIgnoreCase("always")) {
             // Scan was successful on ComingSoon but not on IMDB, let's try again with more info
 
             logger.debug("ComingSoon: First scan on IMDB KO, retrying after succesful scan on ComingSoon");
-
-            // Restore pre-ComingSoon infos except title and year.
-            logger.debug("ComingSoon: restoring pre-IMDB infos with override");
-            restoreMovieInfo(postImdb, movie, COMINGSOON_RESTORE_ALL ^ (COMINGSOON_RESTORE_TITLE | COMINGSOON_RESTORE_ORIGINALTITLE | COMINGSOON_RESTORE_YEAR), true);
-
+            
             // Set title to original title, more likely to be found on IMDB
+            String title = null;
+            String titleSource = null;
             if (StringTools.isValidString(movie.getOriginalTitle())) {
-                movie.setTitle(movie.getOriginalTitle());
+                title = movie.getTitle();
+                titleSource = movie.getOverrideSource(OverrideFlag.TITLE);
+                movie.setTitle(movie.getOriginalTitle(), movie.getOverrideSource(OverrideFlag.ORIGINALTITLE));
             }
-
+           
             super.scan(movie);
 
-            logger.debug("ComingSoon: restoring comingsoon informations where needed");
-            // restoreMovieInfo(postComingSoon, movie, COMINGSOON_RESTORE_TITLE | COMINGSOON_RESTORE_ORIGINALTITLE, true);
-            restoreMovieInfo(postComingSoon, movie, COMINGSOON_RESTORE_ALL ^ preferImdbMask, true, true);
-
-
+            // replace possible overwritten title with stored title
+            if (StringTools.isValidString(title) && OverrideTools.checkOverwriteTitle(movie, titleSource)) {
+                movie.setTitle(title, titleSource);
+            }
         }
 
         if (StringTools.isNotValidString(movie.getOriginalTitle())) {
-            movie.setOriginalTitle(movie.getTitle());
+            movie.setOriginalTitle(movie.getTitle(), movie.getOverrideSource(OverrideFlag.TITLE));
         }
 
         return scanComingSoon || firstScanImdb;
@@ -502,10 +417,20 @@ public class ComingSoonPlugin extends ImdbPlugin {
             logger.debug("ComingSoon: Querying ComingSoon for " + movieURL);
             String xml = webBrowser.request(movieURL, Charset.forName("iso-8859-1"));
 
-            // TITLE & ORIGINAL TITLE
-
-            if (!movie.isOverrideTitle()) {
+            // TITLE
+            if (OverrideTools.checkOverwriteTitle(movie, COMINGSOON_PLUGIN_ID)) {
                 String title = HTMLTools.extractTag(xml, "<h1 itemprop='name' class='titoloFilm", 1, "<>", false).trim();
+                if (StringTools.isNotValidString(title)) {
+                    logger.error("ComingSoon: No title found at ComingSoon page. HTML layout has changed?");
+                    return false;
+                }
+                title = correctCapsTitle(title);
+
+                movie.setTitle(title, COMINGSOON_PLUGIN_ID);
+            }
+
+            // ORIGINAL TITLE
+            if (OverrideTools.checkOverwriteOriginalTitle(movie, COMINGSOON_PLUGIN_ID)) {
                 String originalTitle = HTMLTools.extractTag(xml, "<h1 class='titoloFilm2", 1, "<>", false).trim();
                 if (StringTools.isNotValidString(originalTitle)) {
                     // Comingsoon layout slightly changed at some point and original title became h2
@@ -515,21 +440,13 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     originalTitle = new String(originalTitle.substring(1, originalTitle.length() - 1)).trim();
                 }
 
-                if (StringTools.isNotValidString(title)) {
-                    logger.error("ComingSoon: No title found at ComingSoon page. HTML layout has changed?");
-                    return false;
-                }
-
-                title = correctCapsTitle(title);
-
                 if (StringTools.isValidString(originalTitle)) {
                     originalTitle = correctCapsTitle(originalTitle);
                 }
-
-                movie.setTitle(title);
-                movie.setOriginalTitle(originalTitle);
+                
+                movie.setOriginalTitle(originalTitle, COMINGSOON_PLUGIN_ID);
             }
-
+            
             // RATING
 
             if (movie.getRating(COMINGSOON_PLUGIN_ID) == -1) {
@@ -546,18 +463,18 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             // RELEASE DATE
 
-            if (StringTools.isNotValidString(movie.getReleaseDate())) {
+            if (OverrideTools.checkOverwriteReleaseDate(movie, COMINGSOON_PLUGIN_ID)) {
                 String releaseDate = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">USCITA CINEMA: ", "<br />"));
-                movie.setReleaseDate(releaseDate);
+                movie.setReleaseDate(releaseDate, COMINGSOON_PLUGIN_ID);
             }
 
             // RUNTIME
 
-            if (StringTools.isNotValidString(movie.getRuntime())) {
+            if (OverrideTools.checkOverwriteRuntime(movie, COMINGSOON_PLUGIN_ID)) {
                 String runTime = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">DURATA: ", "<br />"));
                 if (StringTools.isValidString(runTime)) {
                     StringTokenizer st = new StringTokenizer(runTime);
-                    movie.setRuntime(st.nextToken());
+                    movie.setRuntime(st.nextToken(), COMINGSOON_PLUGIN_ID);
                 }
 
             }
@@ -586,32 +503,30 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
                 logger.debug("ComingSoon: found countryYear " + countryYear + ", country " + country + ", year " + year);
 
-                if (!movie.isOverrideYear() && Integer.parseInt(year) > 1900) {
-                    movie.setYear(year);
+                if ((Integer.parseInt(year) > 1900) && OverrideTools.checkOverwriteYear(movie, COMINGSOON_PLUGIN_ID)) {
+                    movie.setYear(year, COMINGSOON_PLUGIN_ID);
                 }
 
-                if (StringTools.isNotValidString(movie.getCountry()) && country.length() > 0 && StringTools.isValidString(country)) {
-                    movie.setCountry(country);
+                if (OverrideTools.checkOverwriteCountry(movie, COMINGSOON_PLUGIN_ID)) {
+                    movie.setCountry(country, COMINGSOON_PLUGIN_ID);
                 }
             }
 
             // COMPANY
-            if (StringTools.isNotValidString(movie.getCompany())) {
+            if (OverrideTools.checkOverwriteCompany(movie, COMINGSOON_PLUGIN_ID)) {
                 // TODO: Add more than one company when available in Movie model
                 String companies = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PRODUZIONE: ", "<br />"));
                 StringTokenizer st = new StringTokenizer(companies, ",");
                 if (st.hasMoreTokens()) {
-                    movie.setCompany(st.nextToken().trim());
+                    movie.setCompany(st.nextToken().trim(), COMINGSOON_PLUGIN_ID);
                 } else {
-                    movie.setCompany(companies.trim());
+                    movie.setCompany(companies.trim(), COMINGSOON_PLUGIN_ID);
                 }
 
             }
 
             // GENRES
-
-            if (movie.getGenres().isEmpty()) {
-
+            if (OverrideTools.checkOverwriteGenres(movie, COMINGSOON_PLUGIN_ID)) {
                 String genreList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">GENERE: ", "<br />"));
                 if (StringTools.isValidString(genreList)) {
                     Collection<String> genres = new ArrayList<String>();
@@ -620,13 +535,13 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     while (st.hasMoreTokens()) {
                         genres.add(st.nextToken().trim());
                     }
-                    movie.setGenres(genres);
+                    movie.setGenres(genres, COMINGSOON_PLUGIN_ID);
                 }
             }
 
             // PLOT AND OUTLINE
 
-            if (StringTools.isNotValidString(movie.getPlot())) {
+            if (OverrideTools.checkOneOverwrite(movie, COMINGSOON_PLUGIN_ID, OverrideFlag.PLOT, OverrideFlag.OUTLINE)) {
 
                 int beginIndex = xml.indexOf("<span class='vociFilm'>Trama del film");
                 if (beginIndex < 0) {
@@ -675,56 +590,69 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     plot = new String(xmlPlot.substring(plotStart + 11));
                 }
 
-                plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
-                outline = StringTools.trimToLength(outline, preferredOutlineLength, true, plotEnding);
 
-                movie.setPlot(plot);
-                movie.setOutline(outline);
+                if (OverrideTools.checkOverwritePlot(movie, COMINGSOON_PLUGIN_ID)) {
+                    plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
+                    movie.setPlot(plot, COMINGSOON_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwriteOutline(movie, COMINGSOON_PLUGIN_ID)) {
+                    outline = StringTools.trimToLength(outline, preferredOutlineLength, true, plotEnding);
+                    movie.setOutline(outline, COMINGSOON_PLUGIN_ID);
+                }
             }
 
             // CAST
 
-            if (movie.getCast().isEmpty()) {
+            if (OverrideTools.checkOverwriteActors(movie, COMINGSOON_PLUGIN_ID)) {
                 String castList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ATTORI: ", "Ruoli ed Interpreti"));
 
+                List<String> newActors = new ArrayList<String>();
                 if (castList.contains(",")) {
                     StringTokenizer st = new StringTokenizer(castList, ",");
                     while (st.hasMoreTokens()) {
-                        movie.addActor(st.nextToken());
+                        newActors.add(st.nextToken());
                     }
                 } else {
-                    movie.addActor(castList);
+                    newActors.add(castList);
                 }
+                
+                movie.setCast(newActors, COMINGSOON_PLUGIN_ID);
             }
 
             // DIRECTOR(S)
-
-            if (movie.getDirectors().isEmpty()) {
+            
+            if (OverrideTools.checkOverwriteDirectors(movie, COMINGSOON_PLUGIN_ID)) {
                 String directorList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">REGIA: ", "<br />"));
 
+                List<String> newDirectors = new ArrayList<String>();
                 if (directorList.contains(",")) {
                     StringTokenizer st = new StringTokenizer(directorList, ",");
                     while (st.hasMoreTokens()) {
-                        movie.addDirector(st.nextToken());
+                        newDirectors.add(st.nextToken());
                     }
                 } else {
-                    movie.addDirector(directorList);
+                    newDirectors.add(directorList);
                 }
+                
+                movie.setDirectors(newDirectors, COMINGSOON_PLUGIN_ID);
             }
 
             // WRITER(S)
 
-            if (movie.getWriters().isEmpty()) {
+            if (OverrideTools.checkOverwriteDirectors(movie, COMINGSOON_PLUGIN_ID)) {
                 String writerList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">SCENEGGIATURA: ", "<br />"));
 
+                List<String> newWriters = new ArrayList<String>();
                 if (writerList.contains(",")) {
                     StringTokenizer st = new StringTokenizer(writerList, ",");
                     while (st.hasMoreTokens()) {
-                        movie.addWriter(st.nextToken());
+                        newWriters.add(st.nextToken());
                     }
                 } else {
-                    movie.addWriter(writerList);
+                    newWriters.add(writerList);
                 }
+
+                movie.setWriters(newWriters, COMINGSOON_PLUGIN_ID);
             }
 
             return true;
@@ -779,112 +707,5 @@ public class ComingSoonPlugin extends ImdbPlugin {
             logger.debug("No ComingSoon Id found in nfo!");
         }
         return result;
-    }
-
-    private Movie backupMovieInfo(Movie originalMovie) {
-        Movie backup = new Movie();
-
-        backup.setTitle(originalMovie.getTitle());
-        backup.setOriginalTitle(originalMovie.getOriginalTitle());
-        backup.setPlot(originalMovie.getPlot());
-        backup.setOutline(originalMovie.getOutline());
-        //backup.setRatings(originalMovie.getRatings());
-        backup.setRuntime(originalMovie.getRuntime());
-        backup.setCountry(originalMovie.getCountry());
-        backup.setYear(originalMovie.getYear());
-        backup.setCompany(originalMovie.getCompany());
-        backup.setGenres(originalMovie.getGenres());
-        backup.setCast(originalMovie.getCast());
-        backup.setDirectors(originalMovie.getDirectors());
-        backup.setWriters(originalMovie.getWriters());
-
-        return backup;
-    }
-
-    private void restoreMovieInfo(Movie sourceMovie, Movie targetMovie, int what, boolean override) {
-        restoreMovieInfo(sourceMovie, targetMovie, what, override, false);
-    }
-
-    private void restoreMovieInfo(Movie sourceMovie, Movie targetMovie, int what, boolean override, boolean protect) {
-
-        if ((what & COMINGSOON_RESTORE_TITLE) > 0 && (override || StringTools.isNotValidString(targetMovie.getTitle()))) {
-            if (!protect || StringTools.isValidString(sourceMovie.getTitle())) {
-                logger.debug("ComingSoon: restoring title");
-                targetMovie.setTitle(sourceMovie.getTitle());
-            }
-        }
-        if ((what & COMINGSOON_RESTORE_ORIGINALTITLE) > 0 && (override || StringTools.isNotValidString(targetMovie.getOriginalTitle()))) {
-            if (!protect || StringTools.isValidString(sourceMovie.getOriginalTitle())) {
-                logger.debug("ComingSoon: restoring original title");
-                targetMovie.setOriginalTitle(sourceMovie.getOriginalTitle());
-            }
-        }
-        if ((what & COMINGSOON_RESTORE_PLOT) > 0 && (override || StringTools.isNotValidString(targetMovie.getPlot()))) {
-            if (!protect || StringTools.isValidString(sourceMovie.getPlot())) {
-                logger.debug("ComingSoon: restoring plot");
-                targetMovie.setPlot(sourceMovie.getPlot());
-            }
-        }
-        if ((what & COMINGSOON_RESTORE_OUTLINE) > 0 && (override || StringTools.isNotValidString(targetMovie.getOutline()))) {
-            if (!protect || StringTools.isValidString(sourceMovie.getOutline())) {
-                logger.debug("ComingSoon: restoring outline");
-                targetMovie.setOutline(sourceMovie.getOutline());
-            }
-        }
-        /*
-         * if ((what & COMINGSOON_RESTORE_RATING) > 0 && (override ||
-         * targetMovie.getRating() < 0)) { if (!protect ||
-         * sourceMovie.getRating() >= 0) { logger.debug("ComingSoon: restoring
-         * rating"); targetMovie.addRating(COMINGSOON_PLUGIN_ID,
-         * sourceMovie.getRating()); } }
-         */
-        if ((what & COMINGSOON_RESTORE_RUNTIME) > 0 && (override || StringTools.isNotValidString(targetMovie.getRuntime()))) {
-            if (!protect || StringTools.isValidString(sourceMovie.getRuntime())) {
-                logger.debug("ComingSoon: restoring runtime");
-                targetMovie.setRuntime(sourceMovie.getRuntime());
-            }
-        }
-        if ((what & COMINGSOON_RESTORE_COUNTRY) > 0 && (override || StringTools.isNotValidString(targetMovie.getCountry()))) {
-            if (!protect || StringTools.isValidString(sourceMovie.getCountry())) {
-                logger.debug("ComingSoon: restoring country");
-                targetMovie.setCountry(sourceMovie.getCountry());
-            }
-        }
-        if ((what & COMINGSOON_RESTORE_YEAR) > 0 && (override || StringTools.isNotValidString(targetMovie.getYear()))) {
-            if (!protect || StringTools.isValidString(sourceMovie.getYear())) {
-                logger.debug("ComingSoon: restoring year");
-                targetMovie.setYear(sourceMovie.getYear());
-            }
-        }
-        if ((what & COMINGSOON_RESTORE_COMPANY) > 0 && (override || StringTools.isNotValidString(targetMovie.getCompany()))) {
-            if (!protect || StringTools.isValidString(sourceMovie.getCompany())) {
-                logger.debug("ComingSoon: restoring company");
-                targetMovie.setCompany(sourceMovie.getCompany());
-            }
-        }
-        if ((what & COMINGSOON_RESTORE_GENRES) > 0 && (override || targetMovie.getGenres().isEmpty())) {
-            if (!protect || !sourceMovie.getGenres().isEmpty()) {
-                logger.debug("ComingSoon: restoring genres");
-                targetMovie.setGenres(sourceMovie.getGenres());
-            }
-        }
-        if ((what & COMINGSOON_RESTORE_CAST) > 0 && (override || targetMovie.getCast().isEmpty())) {
-            if (!protect || !sourceMovie.getCast().isEmpty()) {
-                logger.debug("ComingSoon: restoring cast");
-                targetMovie.setCast(sourceMovie.getCast());
-            }
-        }
-        if ((what & COMINGSOON_RESTORE_DIRECTORS) > 0 && (override || targetMovie.getDirectors().isEmpty())) {
-            if (!protect || !sourceMovie.getDirectors().isEmpty()) {
-                logger.debug("ComingSoon: restoring directors");
-                targetMovie.setDirectors(sourceMovie.getDirectors());
-            }
-        }
-        if ((what & COMINGSOON_RESTORE_WRITERS) > 0 && (override || targetMovie.getWriters().isEmpty())) {
-            if (!protect || !sourceMovie.getWriters().isEmpty()) {
-                logger.debug("ComingSoon: restoring writers");
-                targetMovie.setWriters(sourceMovie.getWriters());
-            }
-        }
     }
 }

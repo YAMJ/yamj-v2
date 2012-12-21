@@ -20,8 +20,9 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.OverrideFlag;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.net.URLEncoder;
@@ -38,8 +39,6 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
     private static final Logger logger = Logger.getLogger(FilmKatalogusPlugin.class);
     private static final String LOG_MESSAGE = "FilmKatalogusPlugin: ";
     public static final String FILMKAT_PLUGIN_ID = "filmkatalogus";
-    private boolean getplot = true;
-    private boolean gettitle = true;
     private int preferredPlotLength;
     private TheTvDBPlugin tvdb;
 
@@ -59,29 +58,23 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
         if (preferredPlotLength < 50) {
             preferredPlotLength = 500;
         }
-
-        gettitle = PropertiesUtil.getBooleanProperty("filmkatalogus.gettitle", TRUE);
-        getplot = PropertiesUtil.getBooleanProperty("filmkatalogus.getplot", TRUE);
     }
 
     @Override
     public boolean scan(Movie mediaFile) {
         boolean result;
-        // If Plot  is already filled from XML based NFO dont overwrite
-        if (!mediaFile.getPlot().equals(Movie.UNKNOWN)) {
-            getplot = false;
-        }
 
         result = super.scan(mediaFile); // use IMDB as basis
         if (result == false && mediaFile.isTVShow()) {
             result = tvdb.scan(mediaFile);
         }
 
-        if (getplot || gettitle) {
-            logger.info(LOG_MESSAGE + "Id found in nfo = " + mediaFile.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
-            getHunPlot(mediaFile);
+        // check if title or plot should be retrieved
+        if (OverrideTools.checkOneOverwrite(mediaFile, FILMKAT_PLUGIN_ID, OverrideFlag.TITLE, OverrideFlag.PLOT)) {
+	        logger.info(LOG_MESSAGE + "Id found in nfo = " + mediaFile.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
+	        getHunPlot(mediaFile);
         }
-
+        
         return result;
     }
 
@@ -106,19 +99,18 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             // name
             int beginIndex = xml.indexOf("<H1>");
             if (beginIndex > 0) { // exact match is found
-                int endIndex = xml.indexOf("</H1>", beginIndex);
-                if (gettitle) {
-                    movie.setTitle(new String(xml.substring((beginIndex + 4), endIndex)));
+                if (OverrideTools.checkOverwriteTitle(movie, FILMKAT_PLUGIN_ID)) {
+                    int endIndex = xml.indexOf("</H1>", beginIndex);
+                    movie.setTitle(new String(xml.substring((beginIndex + 4), endIndex)), FILMKAT_PLUGIN_ID);
                 }
 
                 // PLOT
-                beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
-                endIndex = xml.indexOf("</DIV>", beginIndex);
-                if (getplot) {
+                if (OverrideTools.checkOverwritePlot(movie, FILMKAT_PLUGIN_ID)) {
+	                beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
+	                int endIndex = xml.indexOf("</DIV>", beginIndex);
                     String plot = new String(xml.substring((beginIndex + 19), endIndex));
                     plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
-                    movie.setPlot(plot);
-                    // movie.setPlot(new String(xml.substring((beginIndex + 19), endIndex)));
+                    movie.setPlot(plot, FILMKAT_PLUGIN_ID);
                 }
                 return null;
             }
@@ -136,23 +128,19 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 // name
                 beginIndex = xml.indexOf("<H1>");
                 if (beginIndex != -1) {
-                    endIndex = xml.indexOf("</H1>", beginIndex);
-                    if (gettitle) {
-                        movie.setTitle(new String(xml.substring((beginIndex + 4), endIndex)));
+                    if (OverrideTools.checkOverwriteTitle(movie, FILMKAT_PLUGIN_ID)) {
+                    	endIndex = xml.indexOf("</H1>", beginIndex);
+                        movie.setTitle(new String(xml.substring((beginIndex + 4), endIndex)), FILMKAT_PLUGIN_ID);
                     }
 
                     // PLOT
-                    beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
-                    endIndex = xml.indexOf("</DIV>", beginIndex);
-                    if (getplot) {
+                    if (OverrideTools.checkOverwritePlot(movie, FILMKAT_PLUGIN_ID)) {
+                    	beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
+                    	endIndex = xml.indexOf("</DIV>", beginIndex);
                         String plot = new String(xml.substring((beginIndex + 19), endIndex));
-
                         plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
-                        movie.setPlot(plot);
-
-                        // movie.setPlot(new String(xml.substring((beginIndex + 19), endIndex)));
+                        movie.setPlot(plot, FILMKAT_PLUGIN_ID);
                     }
-                    // if (getplot) movie.setPlot(new String(xml.substring((beginIndex + 19), endIndex)));
                 }
                 return null;
             }

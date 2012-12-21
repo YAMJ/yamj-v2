@@ -15,6 +15,7 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import static com.moviejukebox.tools.HTMLTools.*;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,32 +53,36 @@ public class ScopeDkPlugin extends ImdbPlugin {
         try {
             String xml = webBrowser.request("http://www.scope.dk/film/" + movie.getId(SCOPEDK_PLUGIN_ID), Charset.forName("ISO-8859-1"));
 
-            if (!movie.isOverrideTitle()) {
-                movie.setTitle(removeHtmlTags(extractTag(xml, "<div class=\"full-box-header\">", "</div>")).replaceAll("\t", ""));
+            if (OverrideTools.checkOverwriteTitle(movie, SCOPEDK_PLUGIN_ID)) {
+                movie.setTitle(removeHtmlTags(extractTag(xml, "<div class=\"full-box-header\">", "</div>")).replaceAll("\t", ""), SCOPEDK_PLUGIN_ID);
             }
 
-            if (movie.getPlot().equals(Movie.UNKNOWN)) {
-                movie.setPlot(removeHtmlTags(extractTag(xml, "<div id=\"film-top-middle\">", "<br />")));
+            if (OverrideTools.checkOverwritePlot(movie, SCOPEDK_PLUGIN_ID)) {
+                movie.setPlot(removeHtmlTags(extractTag(xml, "<div id=\"film-top-middle\">", "<br />")), SCOPEDK_PLUGIN_ID);
             }
 
-            if (movie.getDirector().equals(Movie.UNKNOWN)) {
-                movie.addDirector(removeHtmlTags(extractTag(xml, "<th>Instruktør", "</td>")));
-            }
-            if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                movie.setRuntime(removeHtmlTags(extractTag(xml, "<th>Spilletid", ".</td>")));
+            if (OverrideTools.checkOverwriteDirectors(movie, SCOPEDK_PLUGIN_ID)) {
+                movie.setDirector(removeHtmlTags(extractTag(xml, "<th>Instruktør", "</td>")), SCOPEDK_PLUGIN_ID);
             }
 
-            if (movie.getGenres().isEmpty()) {
+            if (OverrideTools.checkOverwriteRuntime(movie, SCOPEDK_PLUGIN_ID)) {
+                movie.setRuntime(removeHtmlTags(extractTag(xml, "<th>Spilletid", ".</td>")), SCOPEDK_PLUGIN_ID);
+            }
+
+            if (OverrideTools.checkOverwriteGenres(movie, SCOPEDK_PLUGIN_ID)) {
+                List<String> newGenres = new ArrayList<String>();
                 for (String tmpGenre : extractTag(xml, "<th>Genre</th>", "</td>").split(",")) {
-                    movie.addGenre(removeHtmlTags(tmpGenre));
-
+                    newGenres.add(removeHtmlTags(tmpGenre));
                 }
+                movie.setGenres(newGenres, SCOPEDK_PLUGIN_ID);
             }
 
-            if (movie.getCast().isEmpty()) {
+            if (OverrideTools.checkOverwriteActors(movie, SCOPEDK_PLUGIN_ID)) {
+                List<String> newActors = new ArrayList<String>();
                 for (String actor : extractTag(xml, "<th>Medvirkende</th>", "</td>").split(",")) {
-                    movie.addActor(removeHtmlTags(actor).trim());
+                    newActors.add(removeHtmlTags(actor).trim());
                 }
+                movie.setCast(newActors, SCOPEDK_PLUGIN_ID);
             }
 
         } catch (IOException error) {

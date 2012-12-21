@@ -41,8 +41,8 @@ public class TrailersLandPluginTest {
     public void testGenerate1() {
 
         Movie movie = new Movie();
-        movie.setTitle("Paradiso Amaro");
-        movie.setOriginalTitle("The Descendants");
+        movie.setTitle("Paradiso Amaro", Movie.UNKNOWN);
+        movie.setOriginalTitle("The Descendants", Movie.UNKNOWN);
         
         assertTrue(tlPlugin.generate(movie));
     }
@@ -51,7 +51,7 @@ public class TrailersLandPluginTest {
     public void testGenerate2() {
 
         Movie movie = new Movie();
-        movie.setTitle("Bar Sport");
+        movie.setTitle("Bar Sport", Movie.UNKNOWN);
         
         assertTrue(tlPlugin.generate(movie));
     }

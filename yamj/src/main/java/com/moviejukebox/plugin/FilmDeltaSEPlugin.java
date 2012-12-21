@@ -21,6 +21,7 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
@@ -29,7 +30,6 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
@@ -244,102 +244,117 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     }
 
     private void getFilmdeltaTitle(Movie movie, String fdeltaHtml) {
-        if (!movie.isOverrideTitle()) {
+        if (OverrideTools.checkOverwriteTitle(movie, FILMDELTA_PLUGIN_ID)) {
             String newTitle = HTMLTools.extractTag(fdeltaHtml, "title>", 0, "<");
             // check if everything is ok
             if (StringTools.isValidString(newTitle)) {
                 //split the string so that we get the title at index 0
                 String[] titleArray = newTitle.split("-\\sFilmdelta");
                 newTitle = titleArray[0];
+                logger.debug(LOG_MESSAGE + "scraped title: " + newTitle);
+                movie.setTitle(newTitle.trim(), FILMDELTA_PLUGIN_ID);
             } else {
                 logger.debug(LOG_MESSAGE + "Error scraping title");
-                return;
             }
+        }
+        
+        if (OverrideTools.checkOverwriteOriginalTitle(movie, FILMDELTA_PLUGIN_ID)) {
             String originalTitle = HTMLTools.extractTag(fdeltaHtml, "riginaltitel</h4>", 2);
-            logger.debug(LOG_MESSAGE + "scraped title: " + newTitle);
             logger.debug(LOG_MESSAGE + "scraped original title: " + originalTitle);
-            if (!newTitle.equals(Movie.UNKNOWN)) {
-                movie.setTitle(newTitle.trim());
-            }
-            if (!originalTitle.equals(Movie.UNKNOWN)) {
-                movie.setOriginalTitle(originalTitle);
-            }
+            movie.setOriginalTitle(originalTitle, FILMDELTA_PLUGIN_ID);
         }
     }
 
     protected void getFilmdeltaPlot(Movie movie, String fdeltaHtml) {
-        String plot = HTMLTools.extractTag(fdeltaHtml, "<div class=\"text\">", "</p>");
+        String extracted = HTMLTools.extractTag(fdeltaHtml, "<div class=\"text\">", "</p>");
         //strip remaining html tags
-        plot = HTMLTools.stripTags(plot);
-        if (!plot.equals(Movie.UNKNOWN)) {
-            plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
-            movie.setPlot(plot);
-            //CJK 2010-09-15 filmdelta.se has no outlines - set outline to same as plot
-            plot = StringTools.trimToLength(plot, preferredOutlineLength, true, plotEnding);
-            movie.setOutline(plot);
+        extracted = HTMLTools.stripTags(extracted);
+        if (StringTools.isValidString(extracted)) {
+
+            if (OverrideTools.checkOverwritePlot(movie, FILMDELTA_PLUGIN_ID)) {
+                String plot = StringTools.trimToLength(extracted, preferredPlotLength, true, plotEnding);
+                movie.setPlot(plot, FILMDELTA_PLUGIN_ID);
+            }
+            
+            if (OverrideTools.checkOverwriteOutline(movie, FILMDELTA_PLUGIN_ID)) {
+                //CJK 2010-09-15 filmdelta.se has no outlines - set outline to same as plot
+                String outline = StringTools.trimToLength(extracted, preferredOutlineLength, true, plotEnding);
+                movie.setOutline(outline, FILMDELTA_PLUGIN_ID);
+            }
         } else {
             logger.info(LOG_MESSAGE + "error finding plot for movie: " + movie.getTitle());
         }
     }
 
     private void getFilmdeltaGenres(Movie movie, String fdeltaHtml) {
-        LinkedList<String> newGenres = new LinkedList<String>();
-
-        List<String> filmdeltaGenres = HTMLTools.extractTags(fdeltaHtml, "<h4>Genre</h4>", "</div>", "<h5>", "</h5>");
-        for (String genre : filmdeltaGenres) {
-            if (genre.length() > 0) {
-                genre = new String(genre.substring(0, genre.length() - 5));
-                newGenres.add(genre);
+        if (OverrideTools.checkOverwriteGenres(movie, FILMDELTA_PLUGIN_ID)) {
+            List<String> newGenres = new ArrayList<String>();
+    
+            List<String> filmdeltaGenres = HTMLTools.extractTags(fdeltaHtml, "<h4>Genre</h4>", "</div>", "<h5>", "</h5>");
+            for (String genre : filmdeltaGenres) {
+                if (genre.length() > 0) {
+                    genre = new String(genre.substring(0, genre.length() - 5));
+                    newGenres.add(genre);
+                }
             }
-        }
-        if (!newGenres.isEmpty()) {
-            movie.setGenres(newGenres);
-            logger.debug(LOG_MESSAGE + "scraped genres: " + movie.getGenres().toString());
+            
+            if (!newGenres.isEmpty()) {
+                movie.setGenres(newGenres, FILMDELTA_PLUGIN_ID);
+                logger.debug(LOG_MESSAGE + "scraped genres: " + movie.getGenres().toString());
+            }
         }
     }
 
     private void getFilmdeltaDirector(Movie movie, String fdeltaHtml) {
-        List<String> filmdeltaDirectors = HTMLTools.extractTags(fdeltaHtml, "<h4>Regiss&ouml;r</h4>", "</div>", "<h5>", "</h5>");
-        StringBuilder newDirector = new StringBuilder();
-
-        if (!filmdeltaDirectors.isEmpty()) {
-            for (String dir : filmdeltaDirectors) {
-                dir = new String(dir.substring(0, dir.length() - 4));
-                newDirector.append(dir).append(Movie.SPACE_SLASH_SPACE);
+        if (OverrideTools.checkOverwriteDirectors(movie, FILMDELTA_PLUGIN_ID)) {
+            List<String> filmdeltaDirectors = HTMLTools.extractTags(fdeltaHtml, "<h4>Regiss&ouml;r</h4>", "</div>", "<h5>", "</h5>");
+            StringBuilder newDirector = new StringBuilder();
+    
+            if (!filmdeltaDirectors.isEmpty()) {
+                for (String dir : filmdeltaDirectors) {
+                    dir = new String(dir.substring(0, dir.length() - 4));
+                    newDirector.append(dir).append(Movie.SPACE_SLASH_SPACE);
+                }
+    
+                movie.setDirector(newDirector.substring(0, newDirector.length() - 3), FILMDELTA_PLUGIN_ID);
+                logger.debug(LOG_MESSAGE + "scraped director: " + movie.getDirector());
             }
-
-            movie.addDirector(newDirector.substring(0, newDirector.length() - 3));
-            logger.debug(LOG_MESSAGE + "scraped director: " + movie.getDirector());
         }
     }
 
     private void getFilmdeltaCast(Movie movie, String fdeltaHtml) {
-        Collection<String> newCast = new ArrayList<String>();
-
-        for (String actor : HTMLTools.extractTags(fdeltaHtml, "<h4>Sk&aring;despelare</h4>", "</div>", "<h5>", "</h5>")) {
-            String[] newActor = actor.split("</a>");
-            newCast.add(newActor[0]);
-        }
-        if (newCast.size() > 0) {
-            movie.setCast(newCast);
-            logger.debug(LOG_MESSAGE + "scraped actor: " + movie.getCast().toString());
+        if (OverrideTools.checkOverwriteActors(movie, FILMDELTA_PLUGIN_ID)) {
+            Collection<String> newCast = new ArrayList<String>();
+    
+            for (String actor : HTMLTools.extractTags(fdeltaHtml, "<h4>Sk&aring;despelare</h4>", "</div>", "<h5>", "</h5>")) {
+                String[] newActor = actor.split("</a>");
+                newCast.add(newActor[0]);
+            }
+            if (newCast.size() > 0) {
+                movie.setCast(newCast, FILMDELTA_PLUGIN_ID);
+                logger.debug(LOG_MESSAGE + "scraped actor: " + movie.getCast().toString());
+            }
         }
     }
 
     private void getFilmdeltaCountry(Movie movie, String fdeltaHtml) {
-        String country = HTMLTools.extractTag(fdeltaHtml, "Land, &aring;r, l&auml;ngd", 3);
-        movie.setCountry(country);
-        logger.debug(LOG_MESSAGE + "scraped country: " + movie.getCountry());
+        if (OverrideTools.checkOverwriteCountry(movie, FILMDELTA_PLUGIN_ID)) {
+            String country = HTMLTools.extractTag(fdeltaHtml, "Land, &aring;r, l&auml;ngd", 3);
+            movie.setCountry(country, FILMDELTA_PLUGIN_ID);
+            logger.debug(LOG_MESSAGE + "scraped country: " + movie.getCountry());
+        }
     }
 
     private void getFilmdeltaYear(Movie movie, String fdeltaHtml) {
-        String year = HTMLTools.extractTag(fdeltaHtml, "Land, &aring;r, l&auml;ngd", 5);
-        String[] newYear = year.split("\\s");
-        if (newYear.length > 1 && !movie.isOverrideYear()) {
-            movie.setYear(newYear[1]);
-            logger.debug(LOG_MESSAGE + "scraped year: " + movie.getYear());
-        } else {
-            logger.debug(LOG_MESSAGE + "error scraping year for movie: " + movie.getTitle());
+        if (OverrideTools.checkOverwriteYear(movie, FILMDELTA_PLUGIN_ID)) {
+            String year = HTMLTools.extractTag(fdeltaHtml, "Land, &aring;r, l&auml;ngd", 5);
+            String[] newYear = year.split("\\s");
+            if (newYear.length > 1) {
+                movie.setYear(newYear[1], FILMDELTA_PLUGIN_ID);
+                logger.debug(LOG_MESSAGE + "scraped year: " + movie.getYear());
+            } else {
+                logger.debug(LOG_MESSAGE + "error scraping year for movie: " + movie.getTitle());
+            }
         }
     }
 
@@ -369,8 +384,8 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         String[] newRunTime = runtime.split("\\s");
 
         // Issue 1176 - Prevent lost of NFO Data
-        if (newRunTime.length > 2 && movie.getRuntime().equals(Movie.UNKNOWN)) {
-            movie.setRuntime(newRunTime[1]);
+        if (newRunTime.length > 2 && OverrideTools.checkOverwriteRuntime(movie, FILMDELTA_PLUGIN_ID)) {
+            movie.setRuntime(newRunTime[1], getPluginID());
             logger.debug(LOG_MESSAGE + "scraped runtime: " + movie.getRuntime());
         }
     }

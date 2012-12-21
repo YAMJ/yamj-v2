@@ -35,6 +35,7 @@ public class MediaInfoScanner {
 
     private static final Logger logger = Logger.getLogger(MediaInfoScanner.class);
     private static final String LOG_MESSAGE = "MediaInfoScanner: ";
+    private static final String MEDIAINFO_PLUGIN_ID = "mediainfo";
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
     private static final Pattern PATTERN_CHANNELS = Pattern.compile(".*(\\d{1,2}).*");
     // mediaInfo repository
@@ -50,15 +51,15 @@ public class MediaInfoScanner {
     public static final String OS_VERSION = System.getProperty("os.version");
     public static final String OS_ARCH = System.getProperty("os.arch");
     private static boolean isActivated;
-    private static final boolean enableMetadata = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", FALSE);
+    private static final boolean ENABLE_METADATA = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", FALSE);
+    private static final boolean ENABLE_UPDATE = PropertiesUtil.getBooleanProperty("mediainfo.update.enable", FALSE);
     private static final boolean MI_OVERALL_BITRATE = PropertiesUtil.getBooleanProperty("mediainfo.overallbitrate", FALSE);
     private static final boolean MI_READ_FROM_FILE = PropertiesUtil.getBooleanProperty("mediainfo.readfromfile", FALSE);
     private String randomDirName;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     private static final List<String> MI_DISK_IMAGES = new ArrayList<String>();
-    private static final Set<OverrideFlag> MI_OVERRIDE_FLAGS = new TreeSet<OverrideFlag>();
-    
+
     static {
         logger.debug("Operating System Name   : " + OS_NAME);
         logger.debug("Operating System Version: " + OS_VERSION);
@@ -97,44 +98,8 @@ public class MediaInfoScanner {
         for (String ext : PropertiesUtil.getProperty("mediainfo.rar.diskExtensions", "iso,img,rar,001").split(",")) {
             MI_DISK_IMAGES.add(ext.toLowerCase());
         }
-
-        // Build the list of enabled override values
-        for (String flag : PropertiesUtil.getProperty("mediainfo.override.values", "none").split(",")) {
-            OverrideFlag overrideFlag = OverrideFlag.fromString(flag);
-            switch (overrideFlag) {
-                case ALL:
-                    // enable all
-                    MI_OVERRIDE_FLAGS.add(OverrideFlag.LANGUAGE);
-                    MI_OVERRIDE_FLAGS.add(OverrideFlag.RUNTIME);
-                    MI_OVERRIDE_FLAGS.add(OverrideFlag.RESOLUTION);
-                    MI_OVERRIDE_FLAGS.add(OverrideFlag.ASPECTRATIO);
-                    MI_OVERRIDE_FLAGS.add(OverrideFlag.VIDEOOUTPUT);
-                    break;
-                case LANGUAGE:
-                    MI_OVERRIDE_FLAGS.add(OverrideFlag.LANGUAGE);
-                    break;
-                case RUNTIME:
-                    MI_OVERRIDE_FLAGS.add(OverrideFlag.RUNTIME);
-                    break;
-                case RESOLUTION:
-                    MI_OVERRIDE_FLAGS.add(OverrideFlag.RESOLUTION);
-                    break;
-                case ASPECTRATIO:
-                    MI_OVERRIDE_FLAGS.add(OverrideFlag.ASPECTRATIO);
-                    break;
-                case VIDEOOUTPUT:
-                    MI_OVERRIDE_FLAGS.add(OverrideFlag.VIDEOOUTPUT);
-                    break;
-                default:
-                    // do nothing
-                    break;
-
-            }
-        }
-        if (MI_OVERRIDE_FLAGS.size() > 0) {
-            logger.info(LOG_MESSAGE + "Overriding values " + MI_OVERRIDE_FLAGS.toString());
-        }
     }
+
     // DVD rip infos Scanner
     private DVDRipScanner localDVDRipScanner;
 
@@ -151,8 +116,8 @@ public class MediaInfoScanner {
     }
 
     public void update(Movie currentMovie) {
-        if (MI_OVERRIDE_FLAGS.isEmpty()) {
-            // when no override checks are enabled, then skip the update scan
+        if (!ENABLE_UPDATE) {
+            // update not enabled
             return;
         }
 
@@ -187,10 +152,12 @@ public class MediaInfoScanner {
                             break;
                         }
                     } catch (Exception ignore) {
+                        // nothing to do
                     }
                 }
             }
         } catch (Exception ignore) {
+            // nothing to do
         }
 
         if (mainFileIsNew) {
@@ -207,11 +174,11 @@ public class MediaInfoScanner {
                 if (isActivated) {
                     scan(currentMovie, mainMovieIFO.getLocation());
                     // Issue 1176 - Prevent lost of NFO Data
-                    if (currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
-                        currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()));
+                    if (StringTools.isNotValidString(currentMovie.getRuntime())) {
+                        currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()), MEDIAINFO_PLUGIN_ID);
                     }
-                } else if (OverrideTools.checkOverride(currentMovie.getRuntime(), OverrideFlag.RUNTIME, MI_OVERRIDE_FLAGS)) {
-                    currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()));
+                } else if (OverrideTools.checkOverwriteRuntime(currentMovie, MEDIAINFO_PLUGIN_ID)) {
+                    currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()), MEDIAINFO_PLUGIN_ID);
                 }
             }
         } else if (!isMediaInfoRar && (MI_DISK_IMAGES.contains(FilenameUtils.getExtension(currentMovie.getFile().getName())))) {
@@ -264,11 +231,11 @@ public class MediaInfoScanner {
                 if (isActivated) {
                     scan(currentMovie, mainMovieIFO.getLocation());
                     // Issue 1176 - Prevent lost of NFO Data
-                    if (currentMovie.getRuntime().equals(Movie.UNKNOWN)) {
-                        currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()));
+                    if (StringTools.isNotValidString(currentMovie.getRuntime())) {
+                        currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()), MEDIAINFO_PLUGIN_ID);
                     }
-                } else if (OverrideTools.checkOverride(currentMovie.getRuntime(), OverrideFlag.RUNTIME, MI_OVERRIDE_FLAGS)) {
-                    currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()));
+                } else if (OverrideTools.checkOverwriteRuntime(currentMovie, MEDIAINFO_PLUGIN_ID)) {
+                    currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()), MEDIAINFO_PLUGIN_ID);
                 }
             }
 
@@ -413,91 +380,100 @@ public class MediaInfoScanner {
         String infoValue;
 
         // update movie with meta tags if present
-        if (enableMetadata) {
-            if (!movie.isOverrideTitle()) {
+        if (ENABLE_METADATA) {
+            if (OverrideTools.checkOverwriteTitle(movie, MEDIAINFO_PLUGIN_ID)) {
                 infoValue = infosGeneral.get("Movie");
                 if (infoValue == null) {
                     infoValue = infosGeneral.get("Movie name");
                 }
+                movie.setTitle(infoValue, MEDIAINFO_PLUGIN_ID);
+            }
+            
+            if (OverrideTools.checkOverwriteDirectors(movie, MEDIAINFO_PLUGIN_ID)) {
+                infoValue = infosGeneral.get("Director");
+                movie.setDirector(infoValue, MEDIAINFO_PLUGIN_ID);
+            }
+            
+            if (OverrideTools.checkOverwritePlot(movie, MEDIAINFO_PLUGIN_ID)) {
+                infoValue = infosGeneral.get("Summary");
+                if (infoValue == null) {
+                    infoValue = infosGeneral.get("Comment");
+                }
+                movie.setPlot(infoValue, MEDIAINFO_PLUGIN_ID);
+            }
+            
+            if (OverrideTools.checkOverwriteGenres(movie, MEDIAINFO_PLUGIN_ID)) {
+                infoValue = infosGeneral.get("Genre");
                 if (infoValue != null) {
-                    movie.setTitle(infoValue);
-                    movie.setOverrideTitle(true);
+                    List<String> newGenres = StringTools.splitList(infoValue, SPLIT_GENRE);
+                    movie.setGenres(newGenres, MEDIAINFO_PLUGIN_ID);
                 }
             }
-            infoValue = infosGeneral.get("Director");
-            if (infoValue != null) {
-                movie.addDirector(infoValue);
-            }
-            infoValue = infosGeneral.get("Summary");
-            if (infoValue == null) {
-                infoValue = infosGeneral.get("Comment");
-            }
-            if (infoValue != null) {
-                movie.setPlot(infoValue);
-            }
-            infoValue = infosGeneral.get("Genre");
-            if (infoValue != null) {
-                List<String> list = StringTools.splitList(infoValue, SPLIT_GENRE);
-                if (!list.isEmpty()) {
-                    movie.setGenres(list);
+            
+            if (OverrideTools.checkOverwriteActors(movie, MEDIAINFO_PLUGIN_ID)) {
+                infoValue = infosGeneral.get("Actor");
+                if (infoValue == null) {
+                    infoValue = infosGeneral.get("Performer");
+                }
+                if (infoValue != null) {
+                    List<String> list = StringTools.splitList(infoValue, SPLIT_GENRE);
+                    movie.setCast(list, MEDIAINFO_PLUGIN_ID);
                 }
             }
-            infoValue = infosGeneral.get("Actor");
-            if (infoValue == null) {
-                infoValue = infosGeneral.get("Performer");
-            }
-            if (infoValue != null) {
-                List<String> list = StringTools.splitList(infoValue, SPLIT_GENRE);
-                if (!list.isEmpty()) {
-                    movie.setCast(list);
+            
+            if (OverrideTools.checkOverwriteCertification(movie, MEDIAINFO_PLUGIN_ID)) {
+                infoValue = infosGeneral.get("LawRating");
+                if (infoValue == null) {
+                    infoValue = infosGeneral.get("Law rating");
                 }
+                movie.setCertification(infoValue, MEDIAINFO_PLUGIN_ID);
             }
-            infoValue = infosGeneral.get("LawRating");
-            if (infoValue == null) {
-                infoValue = infosGeneral.get("Law rating");
-            }
-            if (infoValue != null) {
-                movie.setCertification(infoValue);
-            }
+            
             infoValue = infosGeneral.get("Rating");
             if (infoValue != null) {
                 try {
                     float r = Float.parseFloat(infoValue);
                     r = r * 20.0f;
-                    movie.addRating("MI", Math.round(r));
+                    movie.addRating(MEDIAINFO_PLUGIN_ID, Math.round(r));
                 } catch (Exception ignore) {
+                    // nothing to do
                 }
             }
-            infoValue = infosGeneral.get("Country");
-            if (infoValue == null) {
-                infoValue = infosGeneral.get("Movie/Country");
+
+            if (OverrideTools.checkOverwriteCountry(movie, MEDIAINFO_PLUGIN_ID)) {
+                infoValue = infosGeneral.get("Country");
+                if (infoValue == null) {
+                    infoValue = infosGeneral.get("Movie/Country");
+                }
+                if (infoValue == null) {
+                    infoValue = infosGeneral.get("Movie name/Country");
+                }
+                movie.setCountry(infoValue, MEDIAINFO_PLUGIN_ID);
             }
-            if (infoValue == null) {
-                infoValue = infosGeneral.get("Movie name/Country");
-            }
-            if (infoValue != null) {
-                movie.setCountry(infoValue);
-            }
-            infoValue = infosGeneral.get("Released_Date");
-            if (infoValue != null) {
-                movie.setReleaseDate(infoValue);
+            
+            if (OverrideTools.checkOverwriteReleaseDate(movie, MEDIAINFO_PLUGIN_ID)) {
+                infoValue = infosGeneral.get("Released_Date");
+                movie.setReleaseDate(infoValue, MEDIAINFO_PLUGIN_ID);
             }
         } // enableMetaData
 
         // get Container from General Section
-        infoValue = infosGeneral.get("Format");
-        if (infoValue != null) {
-            movie.setContainer(infoValue);
+        if (OverrideTools.checkOverwriteContainer(movie, MEDIAINFO_PLUGIN_ID)) {
+            infoValue = infosGeneral.get("Format");
+            movie.setContainer(infoValue, MEDIAINFO_PLUGIN_ID);
         }
 
-        if (OverrideTools.checkOverride(movie.getRuntime(), OverrideFlag.RUNTIME, MI_OVERRIDE_FLAGS)) {
+        if (OverrideTools.checkOverwriteRuntime(movie, MEDIAINFO_PLUGIN_ID)) { 
             infoValue = infosGeneral.get("PlayTime");
+            if (infoValue == null) {
+                infoValue = infosGeneral.get("Duration");
+            }
             if (infoValue != null) {
                 if (infoValue.indexOf('.') >= 0) {
                     infoValue = new String(infoValue.substring(0, infoValue.indexOf('.')));
                 }
                 int duration = Integer.parseInt(infoValue) / 1000;
-                movie.setRuntime(DateTimeTools.formatDuration(duration));
+                movie.setRuntime(DateTimeTools.formatDuration(duration), MEDIAINFO_PLUGIN_ID);
             }
         }
 
@@ -510,7 +486,7 @@ public class MediaInfoScanner {
             Map<String, String> infosMainVideo = infosVideo.get(0);
 
             // Check that movie is not multi part
-            if ((movie.getMovieFiles().size() == 1) && OverrideTools.checkOverride(movie.getRuntime(), OverrideFlag.RUNTIME, MI_OVERRIDE_FLAGS)) {
+            if ((movie.getMovieFiles().size() == 1) && OverrideTools.checkOverwriteRuntime(movie, MEDIAINFO_PLUGIN_ID)) {
                 // Duration
                 infoValue = infosMainVideo.get("Duration");
                 if (infoValue == null) {
@@ -522,7 +498,7 @@ public class MediaInfoScanner {
                     int duration;
                     try {
                         duration = Integer.parseInt(infoValue) / 1000;
-                        movie.setRuntime(DateTimeTools.formatDuration(duration));
+                        movie.setRuntime(DateTimeTools.formatDuration(duration), MEDIAINFO_PLUGIN_ID);
                     } catch (NumberFormatException nfe) {
                         logger.debug(nfe.getMessage());
                     }
@@ -540,47 +516,42 @@ public class MediaInfoScanner {
             }
             movie.addCodec(codecToAdd);
 
-            if (OverrideTools.checkOverride(movie.getResolution(), OverrideFlag.RESOLUTION, MI_OVERRIDE_FLAGS)) {
-                infoValue = infosMainVideo.get("Width");
-                if (infoValue != null) {
-                    int width = Integer.parseInt(infoValue);
+            if (OverrideTools.checkOverwriteResolution(movie, MEDIAINFO_PLUGIN_ID)) {
+                String width = infosMainVideo.get("Width");
+                String height = infosMainVideo.get("Height");
+                movie.setResolution(width, height, MEDIAINFO_PLUGIN_ID);
+            }
 
-                    infoValue = infosMainVideo.get("Height");
-                    if (infoValue != null) {
-                        movie.setResolution(width + "x" + infoValue);
+            // Frames per second
+            if (OverrideTools.checkOverwriteFPS(movie, MEDIAINFO_PLUGIN_ID)) {
+                infoValue = infosMainVideo.get("Frame rate");
+                if (infoValue == null) {
+                    // use original frame rate
+                    infoValue = infosMainVideo.get("Original frame rate");
+                }
+    
+                if (infoValue != null) {
+                    int inxDiv = infoValue.indexOf(Movie.SPACE_SLASH_SPACE);
+                    if (inxDiv > -1) {
+                        infoValue = infoValue.substring(0, inxDiv);
+                    }
+                    try {
+                        movie.setFps(Float.parseFloat(infoValue), MEDIAINFO_PLUGIN_ID);
+                    } catch (NumberFormatException nfe) {
+                        logger.debug(nfe.getMessage());
                     }
                 }
             }
 
-            // Frames per second
-            infoValue = infosMainVideo.get("Frame rate");
-            if (infoValue == null) {
-                // use original frame rate
-                infoValue = infosMainVideo.get("Original frame rate");
-            }
-
-            if (infoValue != null) {
-                int inxDiv = infoValue.indexOf(Movie.SPACE_SLASH_SPACE);
-                if (inxDiv > -1) {
-                    infoValue = infoValue.substring(0, inxDiv);
-                }
-                try {
-                    Float fps = Float.parseFloat(infoValue);
-                    movie.setFps(fps);
-                } catch (NumberFormatException nfe) {
-                    logger.debug(nfe.getMessage());
-                }
-            }
-
             // Save the aspect ratio for the video
-            if (OverrideTools.checkOverride(movie.getAspectRatio(), OverrideFlag.ASPECTRATIO, MI_OVERRIDE_FLAGS)) {
+            if (OverrideTools.checkOverwriteAspectRatio(movie, MEDIAINFO_PLUGIN_ID)) {
                 infoValue = infosMainVideo.get("Display aspect ratio");
                 if (infoValue != null) {
-                    movie.setAspectRatio(aspectTools.cleanAspectRatio(infoValue));
+                    movie.setAspectRatio(aspectTools.cleanAspectRatio(infoValue), MEDIAINFO_PLUGIN_ID);
                 }
             }
 
-            if (OverrideTools.checkOverride(movie.getVideoOutput(), OverrideFlag.VIDEOOUTPUT, MI_OVERRIDE_FLAGS)) {
+            if (OverrideTools.checkOverwriteVideoOutput(movie, MEDIAINFO_PLUGIN_ID)) {
                 // Guessing Video Output (Issue 988)
                 if (movie.isHD()) {
                     StringBuilder normeHD = new StringBuilder();
@@ -599,7 +570,7 @@ public class MediaInfoScanner {
                         }
                     }
                     normeHD.append(" ").append(Math.round(movie.getFps())).append("Hz");
-                    movie.setVideoOutput(normeHD.toString());
+                    movie.setVideoOutput(normeHD.toString(), MEDIAINFO_PLUGIN_ID);
                 } else {
                     StringBuilder videoOutput = new StringBuilder();
                     switch (Math.round(movie.getFps())) {
@@ -630,14 +601,14 @@ public class MediaInfoScanner {
                             videoOutput.append("i");
                         }
                     }
-                    movie.setVideoOutput(videoOutput.toString());
+                    movie.setVideoOutput(videoOutput.toString(), MEDIAINFO_PLUGIN_ID);
                 }
             }
-            
-            if (StringTools.isNotValidString(movie.getVideoSource())) {
+
+            if (OverrideTools.checkOverwriteVideoSource(movie, MEDIAINFO_PLUGIN_ID)) {
                 infoValue = infosMainVideo.get("MultiView_Count");
                 if ("2".equals(infoValue)) {
-                    movie.setVideoSource("3D");
+                    movie.setVideoSource("3D", MEDIAINFO_PLUGIN_ID);
                 }
             }
         }
@@ -646,7 +617,7 @@ public class MediaInfoScanner {
         // boolean previousAudioCodec = !movie.getAudioCodec().equals(Movie.UNKNOWN); // Do we have AudioCodec already?
         // boolean previousAudioChannels = !movie.getAudioChannels().equals(Movie.UNKNOWN); // Do we have AudioChannels already?
 
-        ArrayList<String> foundLanguages = new ArrayList<String>();
+        HashSet<String> foundLanguages = new HashSet<String>();
 
         for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
             Map<String, String> infosCurAudio = infosAudio.get(numAudio);
@@ -659,9 +630,7 @@ public class MediaInfoScanner {
                 }
                 // Add determination of language.
                 String determineLanguage = MovieFilenameScanner.determineLanguage(infoValue);
-                if (!foundLanguages.contains(determineLanguage)) {
-                    foundLanguages.add(determineLanguage);
-                }
+                foundLanguages.add(determineLanguage);
             }
 
             infoValue = infosCurAudio.get("Codec ID/Hint");
@@ -674,15 +643,15 @@ public class MediaInfoScanner {
             movie.addCodec(codecToAdd);
         }
 
-        if (OverrideTools.checkOverride(movie.getLanguage(), OverrideFlag.LANGUAGE, MI_OVERRIDE_FLAGS)) {
-            int index = 0;
+        if (OverrideTools.checkOverwriteLanguage(movie, MEDIAINFO_PLUGIN_ID)) {
+            StringBuffer movieLanguage = new StringBuffer();
             for (String language : foundLanguages) {
-                if (index++ > 0) {
-                    movie.setLanguage(movie.getLanguage() + languageDelimiter + language);
-                } else {
-                    movie.setLanguage(language);
+                if (movieLanguage.length() > 0) {
+                    movieLanguage.append(languageDelimiter);
                 }
+                movieLanguage.append(language);                
             }
+            movie.setLanguage(movieLanguage.toString(), MEDIAINFO_PLUGIN_ID);
         }
 
         // Cycle through Text Streams
@@ -731,11 +700,8 @@ public class MediaInfoScanner {
                 } else {
                     logger.debug(LOG_MESSAGE + "Subtitle format skipped: " + infoFormat);
                 }
-
             }
-
         }
-
     }
 
     /**

@@ -14,14 +14,12 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.net.URLEncoder;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
 
@@ -42,6 +40,7 @@ import org.apache.xmlrpc.XmlRpcException;
 public class MovieMeterPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(MovieMeterPlugin.class);
+    private static final String LOG_MESSAGE = "MovieMeterPlugin: ";
     public static final String MOVIEMETER_PLUGIN_ID = "moviemeter";
     private MovieMeterPluginSession session;
     private String preferredSearchEngine;
@@ -67,30 +66,31 @@ public class MovieMeterPlugin extends ImdbPlugin {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public boolean scan(Movie mediaFile) {
-        logger.debug("MovieMeterPlugin: Start fetching info from moviemeter.nl for : year=" + mediaFile.getYear() + ", title=" + mediaFile.getTitle());
+        logger.debug(LOG_MESSAGE + "Start fetching info from moviemeter.nl for : year=" + mediaFile.getYear() + ", title=" + mediaFile.getTitle());
         String moviemeterId = mediaFile.getId(MOVIEMETER_PLUGIN_ID);
 
         Map filmInfo = Collections.EMPTY_MAP;
 
         if (StringTools.isNotValidString(moviemeterId)) {
-            logger.debug("MovieMeterPlugin: Preferred search engine for moviemeter id: " + preferredSearchEngine);
+            logger.debug(LOG_MESSAGE + "Preferred search engine for moviemeter id: " + preferredSearchEngine);
             if ("google".equalsIgnoreCase(preferredSearchEngine)) {
                 // Get moviemeter website from google
-                logger.debug("MovieMeterPlugin: Searching google.nl to get moviemeter.nl id");
+                logger.debug(LOG_MESSAGE + "Searching google.nl to get moviemeter.nl id");
                 moviemeterId = getMovieMeterIdFromGoogle(mediaFile.getTitle(), mediaFile.getYear());
-                logger.debug("MovieMeterPlugin: Returned id: " + moviemeterId);
+                logger.debug(LOG_MESSAGE + "Returned id: " + moviemeterId);
                 if (StringTools.isValidString(moviemeterId)) {
                     filmInfo = session.getMovieDetailsById(Integer.parseInt(moviemeterId));
                 }
             } else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
                 moviemeterId = Movie.UNKNOWN;
             } else {
-                logger.debug("MovieMeterPlugin: Searching moviemeter.nl for title: " + mediaFile.getTitle());
+                logger.debug(LOG_MESSAGE + "Searching moviemeter.nl for title: " + mediaFile.getTitle());
                 filmInfo = session.getMovieDetailsByTitleAndYear(mediaFile.getTitle(), mediaFile.getYear());
             }
         } else {
-            logger.debug("MovieMeterPlugin: Searching moviemeter.nl for id: " + moviemeterId);
+            logger.debug(LOG_MESSAGE + "Searching moviemeter.nl for id: " + moviemeterId);
             filmInfo = session.getMovieDetailsById(Integer.parseInt(moviemeterId));
         }
 
@@ -100,97 +100,104 @@ public class MovieMeterPlugin extends ImdbPlugin {
             if (filmInfo.get("imdb") != null) {
                 // if moviemeter returns the imdb id, add it to the mediaFile
                 mediaFile.setId(IMDB_PLUGIN_ID, "tt" + filmInfo.get("imdb").toString());
-                logger.debug("MovieMeterPlugin: Fetched imdb id: " + mediaFile.getId(IMDB_PLUGIN_ID));
+                logger.debug(LOG_MESSAGE + "Fetched imdb id: " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
 
-            if (!mediaFile.isOverrideTitle()) {
-                if (filmInfo.get("title") != null) {
-                    mediaFile.setTitle(filmInfo.get("title").toString());
-                    mediaFile.setOriginalTitle(filmInfo.get("title").toString());
+            Object movieMeterTitle = filmInfo.get("title");
+            if (movieMeterTitle != null) {
+                if (OverrideTools.checkOverwriteTitle(mediaFile, MOVIEMETER_PLUGIN_ID)) {
+                    mediaFile.setTitle(movieMeterTitle.toString(), MOVIEMETER_PLUGIN_ID);
+                    logger.debug(LOG_MESSAGE + "Fetched title: " + mediaFile.getTitle());
                 }
-                logger.debug("MovieMeterPlugin: Fetched title: " + mediaFile.getTitle());
+                if (OverrideTools.checkOverwriteOriginalTitle(mediaFile, MOVIEMETER_PLUGIN_ID)) {
+                    mediaFile.setOriginalTitle(movieMeterTitle.toString(), MOVIEMETER_PLUGIN_ID);
+                }
             }
 
             if (mediaFile.getRating() == -1) {
                 if (filmInfo.get("average") != null) {
                     mediaFile.addRating(MOVIEMETER_PLUGIN_ID, Math.round(Float.parseFloat(filmInfo.get("average").toString()) * 20));
                 }
-                logger.debug("MovieMeterPlugin: Fetched rating: " + mediaFile.getRating());
+                logger.debug(LOG_MESSAGE + "Fetched rating: " + mediaFile.getRating());
             }
 
-            if (mediaFile.getReleaseDate().equals(Movie.UNKNOWN)) {
+            if (OverrideTools.checkOverwriteReleaseDate(mediaFile, MOVIEMETER_PLUGIN_ID)) {
                 Object[] dates = (Object[]) filmInfo.get("dates_cinema");
                 if (dates != null && dates.length > 0) {
                     HashMap dateshm = (HashMap) dates[0];
-                    mediaFile.setReleaseDate(dateshm.get("date").toString());
-                    logger.debug("MovieMeterPlugin: Fetched releasedate: " + mediaFile.getReleaseDate());
+                    mediaFile.setReleaseDate(dateshm.get("date").toString(), MOVIEMETER_PLUGIN_ID);
+                    logger.debug(LOG_MESSAGE + "Fetched releasedate: " + mediaFile.getReleaseDate());
                 }
             }
 
-            if (mediaFile.getRuntime().equals(Movie.UNKNOWN)) {
+            if (OverrideTools.checkOverwriteRuntime(mediaFile, MOVIEMETER_PLUGIN_ID))  {
                 if (filmInfo.get("durations") != null) {
                     Object[] durationsArray = (Object[]) filmInfo.get("durations");
                     if (durationsArray.length > 0) {
                         HashMap durations = (HashMap) (durationsArray[0]);
-                        mediaFile.setRuntime(durations.get("duration").toString());
+                        mediaFile.setRuntime(durations.get("duration").toString(), MOVIEMETER_PLUGIN_ID);
+                        logger.debug(LOG_MESSAGE + "Fetched runtime: " + mediaFile.getRuntime());
                     }
                 }
-                logger.debug("MovieMeterPlugin: Fetched runtime: " + mediaFile.getRuntime());
             }
 
-            if (mediaFile.getCountry().equals(Movie.UNKNOWN)) {
+            if (OverrideTools.checkOverwriteCountry(mediaFile, MOVIEMETER_PLUGIN_ID)) {
                 if (filmInfo.get("countries_text") != null) {
-                    mediaFile.setCountry(filmInfo.get("countries_text").toString());
+                    mediaFile.setCountry(filmInfo.get("countries_text").toString(), MOVIEMETER_PLUGIN_ID);
+                    logger.debug(LOG_MESSAGE + "Fetched country: " + mediaFile.getCountry());
                 }
-                logger.debug("MovieMeterPlugin: Fetched country: " + mediaFile.getCountry());
             }
 
-            if (mediaFile.getGenres().isEmpty()) {
+            if (OverrideTools.checkOverwriteGenres(mediaFile, MOVIEMETER_PLUGIN_ID)) {
                 if (filmInfo.get("genres") != null) {
                     Object[] genres = (Object[]) filmInfo.get("genres");
+                    List<String> newGenres = new ArrayList<String>();
                     for (int i = 0; i < genres.length; i++) {
-                        mediaFile.addGenre(Library.getIndexingGenre(genres[i].toString()));
+                        newGenres.add(Library.getIndexingGenre(genres[i].toString()));
                     }
+                    mediaFile.setGenres(newGenres, MOVIEMETER_PLUGIN_ID);
+                    logger.debug(LOG_MESSAGE + "Fetched genres: " + mediaFile.getGenres().toString());
                 }
-                logger.debug("MovieMeterPlugin: Fetched genres: " + mediaFile.getGenres().toString());
             }
 
-            if (mediaFile.getPlot().equals(Movie.UNKNOWN)) {
+            if (OverrideTools.checkOverwritePlot(mediaFile, MOVIEMETER_PLUGIN_ID)) {
                 if (filmInfo.get("plot") != null) {
                     String tmpPlot = filmInfo.get("plot").toString();
                     tmpPlot = StringTools.trimToLength(tmpPlot, preferredPlotLength, true, plotEnding);
-                    mediaFile.setPlot(tmpPlot);
+                    mediaFile.setPlot(tmpPlot, MOVIEMETER_PLUGIN_ID);
                 }
             }
 
-            if (!mediaFile.isOverrideYear()) {
+            if (OverrideTools.checkOverwriteYear(mediaFile, MOVIEMETER_PLUGIN_ID)) {
                 if (filmInfo.get("year") != null) {
-                    mediaFile.setYear(filmInfo.get("year").toString());
+                    mediaFile.setYear(filmInfo.get("year").toString(), MOVIEMETER_PLUGIN_ID);
+                    logger.debug(LOG_MESSAGE + "Fetched year: " + mediaFile.getYear());
                 }
-                logger.debug("MovieMeterPlugin: Fetched year: " + mediaFile.getYear());
             }
 
-            if (mediaFile.getCast().isEmpty()) {
+            if (OverrideTools.checkOverwriteActors(mediaFile, MOVIEMETER_PLUGIN_ID)) {
                 if (filmInfo.get("actors") != null) {
                     // If no actor is known, false is returned instead of an array
                     // This results in a ClassCastException
                     // So first check the Class, before casting it to an Object array
                     if (filmInfo.get("actors").getClass().equals(Object[].class)) {
                         Object[] actors = (Object[]) filmInfo.get("actors");
+                        List<String> newActors = new ArrayList<String>();
                         for (int i = 0; i < actors.length; i++) {
-                            mediaFile.addActor((String) (((HashMap) actors[i]).get("name")));
+                            newActors.add((String) (((HashMap) actors[i]).get("name")));
                         }
+                        mediaFile.setCast(newActors, MOVIEMETER_PLUGIN_ID);
+                        logger.debug(LOG_MESSAGE + "Fetched actors: " + mediaFile.getCast().toString());
                     }
                 }
-                logger.debug("MovieMeterPlugin: Fetched actors: " + mediaFile.getCast().toString());
             }
 
-            if (mediaFile.getDirector().equals(Movie.UNKNOWN)) {
+            if (OverrideTools.checkOverwriteDirectors(mediaFile, MOVIEMETER_PLUGIN_ID)) {
                 Object[] directors = (Object[]) filmInfo.get("directors");
                 if (directors != null && directors.length > 0) {
                     HashMap directorshm = (HashMap) directors[0];
-                    mediaFile.addDirector(directorshm.get("name").toString());
-                    logger.debug("MovieMeterPlugin: Fetched director: " + mediaFile.getDirector());
+                    mediaFile.setDirector(directorshm.get("name").toString(), MOVIEMETER_PLUGIN_ID);
+                    logger.debug(LOG_MESSAGE + "Fetched director: " + mediaFile.getDirector());
                 }
             }
 
@@ -202,7 +209,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             }
 
         } else {
-            logger.debug("MovieMeterPlugin: No info found");
+            logger.debug(LOG_MESSAGE + "No info found");
             return false;
         }
 
@@ -242,8 +249,8 @@ public class MovieMeterPlugin extends ImdbPlugin {
             }
 
         } catch (Exception error) {
-            logger.error("MovieMeterPlugin: Failed retreiving moviemeter Id from Google for movie : " + movieName);
-            logger.error("MovieMeterPlugin: Error : " + error.getMessage());
+            logger.error(LOG_MESSAGE + "Failed retreiving moviemeter Id from Google for movie : " + movieName);
+            logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -260,15 +267,15 @@ public class MovieMeterPlugin extends ImdbPlugin {
     @Override
     public boolean scanNFO(String nfo, Movie movie) {
         boolean result = false;
-        logger.debug("MovieMeterPlugin: Scanning NFO for Moviemeter Id");
+        logger.debug(LOG_MESSAGE + "Scanning NFO for Moviemeter Id");
         int beginIndex = nfo.indexOf("www.moviemeter.nl/film/");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 23), "/ \n,:!&é\"'(--è_çà)=$");
             movie.setId(MOVIEMETER_PLUGIN_ID, st.nextToken());
-            logger.debug("MovieMeterPlugin: Moviemeter Id found in nfo = " + movie.getId(MOVIEMETER_PLUGIN_ID));
+            logger.debug(LOG_MESSAGE + "Moviemeter Id found in nfo = " + movie.getId(MOVIEMETER_PLUGIN_ID));
             result = true;
         } else {
-            logger.debug("MovieMeterPlugin: No Moviemeter Id found in nfo !");
+            logger.debug(LOG_MESSAGE + "No Moviemeter Id found in nfo !");
         }
         return result;
     }

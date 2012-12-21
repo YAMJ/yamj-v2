@@ -83,8 +83,8 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             // Check Title
-            if (!movie.isOverrideTitle() && isValidString(tvSeriesInfos.getTitle())) {
-                movie.setTitle(tvSeriesInfos.getTitle());
+            if (OverrideTools.checkOverwriteTitle(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setTitle(tvSeriesInfos.getTitle(), ALLOCINE_PLUGIN_ID);
             }
 
             // Check Rating
@@ -96,56 +96,52 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             // Check Year Start and End
-            if (!movie.isOverrideYear() && isNotValidString(movie.getYear()) && isValidString(tvSeriesInfos.getYearStart())) {
+            if (isValidString(tvSeriesInfos.getYearStart()) && OverrideTools.checkOverwriteYear(movie, ALLOCINE_PLUGIN_ID)) {
                 if (isValidString(tvSeriesInfos.getYearEnd())) {
-                    movie.setYear(tvSeriesInfos.getYearStart() + "-" + tvSeriesInfos.getYearEnd());
+                    movie.setYear(tvSeriesInfos.getYearStart() + "-" + tvSeriesInfos.getYearEnd(), ALLOCINE_PLUGIN_ID);
                 } else {
-                    movie.setYear(tvSeriesInfos.getYearStart());
+                    movie.setYear(tvSeriesInfos.getYearStart(), ALLOCINE_PLUGIN_ID);
                 }
             }
 
             // Check Plot
-            if (isNotValidString(movie.getPlot())) {
+            if (OverrideTools.checkOverwritePlot(movie, ALLOCINE_PLUGIN_ID)) {
                 String synopsis = tvSeriesInfos.getSynopsis();
                 if (isValidString(synopsis)) {
                     String plot = trimToLength(synopsis, preferredPlotLength, true, plotEnding);
-                    movie.setPlot(plot);
+                    movie.setPlot(plot, ALLOCINE_PLUGIN_ID);
                 }
             }
 
             // Check ReleaseDate and Company
-            //if (tvSeriesInfos.getRelease() != null) {
-            //   if (isNotValidString(movie.getReleaseDate()) && isValidString(tvSeriesInfos.getRelease().getReleaseDate())) {
-            //        movie.setReleaseDate(tvSeriesInfos.getRelease().getReleaseDate());
-            //    }
-            //}
+            if (tvSeriesInfos.getRelease() != null && OverrideTools.checkOverwriteReleaseDate(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setReleaseDate(tvSeriesInfos.getRelease().getReleaseDate(), ALLOCINE_PLUGIN_ID);
+            }
 
-            if (isNotValidString(movie.getCompany()) && isValidString(tvSeriesInfos.getOriginalChannel())) {
-                movie.setCompany(tvSeriesInfos.getOriginalChannel());
+            if (OverrideTools.checkOverwriteCompany(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setCompany(tvSeriesInfos.getOriginalChannel(), ALLOCINE_PLUGIN_ID);
             }
 
             // Check country
-            if (isNotValidString(movie.getCountry()) && !tvSeriesInfos.getNationalityList().isEmpty()) {
+            if (OverrideTools.checkOverwriteCountry(movie, ALLOCINE_PLUGIN_ID) && !tvSeriesInfos.getNationalityList().isEmpty()) {
                 String firstCountry = tvSeriesInfos.getNationalityList().get(0);
-                movie.setCountry(firstCountry);
+                movie.setCountry(firstCountry, ALLOCINE_PLUGIN_ID);
             }
 
             // Check Genres
-            if (movie.getGenres().isEmpty()) {
-                for (String genre : tvSeriesInfos.getGenreList()) {
-                    movie.addGenre(genre);
-                }
+            if (OverrideTools.checkOverwriteGenres(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setGenres(tvSeriesInfos.getGenreList(), ALLOCINE_PLUGIN_ID);
             }
 
             // Check Casting
-            if (movie.getDirectors().isEmpty()) {
-                movie.setDirectors(tvSeriesInfos.getDirectors());
+            if (OverrideTools.checkOverwriteDirectors(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setDirectors(tvSeriesInfos.getDirectors(), ALLOCINE_PLUGIN_ID);
             }
-            if (movie.getCast().isEmpty()) {
-                movie.setCast(tvSeriesInfos.getActors());
+            if (OverrideTools.checkOverwriteActors(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setCast(tvSeriesInfos.getActors(), ALLOCINE_PLUGIN_ID);
             }
-            if (movie.getWriters().isEmpty()) {
-                movie.setWriters(tvSeriesInfos.getWriters());
+            if (OverrideTools.checkOverwriteWriters(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setWriters(tvSeriesInfos.getWriters(), ALLOCINE_PLUGIN_ID);
             }
 
             int currentSeason = movie.getSeason();
@@ -253,13 +249,13 @@ public class AllocinePlugin extends ImdbPlugin {
         }
 
         // Check Title
-        if (!movie.isOverrideTitle() && isValidString(movieInfos.getTitle())) {
-            movie.setTitle(movieInfos.getTitle());
+        if (OverrideTools.checkOverwriteTitle(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setTitle(movieInfos.getTitle(), ALLOCINE_PLUGIN_ID);
         }
 
         // Check OriginalTitle
-        if (isValidString(movieInfos.getOriginalTitle())) {
-            movie.setOriginalTitle(movieInfos.getOriginalTitle());
+        if (OverrideTools.checkOverwriteOriginalTitle(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setOriginalTitle(movieInfos.getOriginalTitle(), ALLOCINE_PLUGIN_ID);
         }
 
         // Check Rating
@@ -271,65 +267,62 @@ public class AllocinePlugin extends ImdbPlugin {
         }
 
         // Check Year
-        if (!movie.isOverrideYear() && isNotValidString(movie.getYear()) && isValidString(movieInfos.getProductionYear())) {
-            movie.setYear(movieInfos.getProductionYear());
+        if (OverrideTools.checkOverwriteYear(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setYear(movieInfos.getProductionYear(), ALLOCINE_PLUGIN_ID);
         }
 
         // Check Plot
-        if (isNotValidString(movie.getPlot())) {
+        if (OverrideTools.checkOverwritePlot(movie, ALLOCINE_PLUGIN_ID)) {
             String synopsis = movieInfos.getSynopsis();
             if (isValidString(synopsis)) {
                 String plot = trimToLength(synopsis, preferredPlotLength, true, plotEnding);
-                movie.setPlot(plot);
+                movie.setPlot(plot, ALLOCINE_PLUGIN_ID);
             }
         }
 
         // Check ReleaseDate and Company
         if (movieInfos.getRelease() != null) {
-            if (isNotValidString(movie.getReleaseDate()) && isValidString(movieInfos.getRelease().getReleaseDate())) {
-                movie.setReleaseDate(movieInfos.getRelease().getReleaseDate());
+            if (OverrideTools.checkOverwriteReleaseDate(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setReleaseDate(movieInfos.getRelease().getReleaseDate(), ALLOCINE_PLUGIN_ID);
             }
-            if (isNotValidString(movie.getCompany()) && movieInfos.getRelease().getDistributor() != null
-                    && isValidString(movieInfos.getRelease().getDistributor().getName())) {
-                movie.setCompany(movieInfos.getRelease().getDistributor().getName());
+            if (OverrideTools.checkOverwriteCompany(movie, ALLOCINE_PLUGIN_ID) && (movieInfos.getRelease().getDistributor() != null)) {
+                movie.setCompany(movieInfos.getRelease().getDistributor().getName(), ALLOCINE_PLUGIN_ID);
             }
         }
 
         // Check Runtime
-        if (isNotValidString(movie.getRuntime())) {
+        if (OverrideTools.checkOverwriteRuntime(movie, ALLOCINE_PLUGIN_ID)) {
             int runtime = movieInfos.getRuntime();
             if (runtime > 0) {
-                movie.setRuntime(DateTimeTools.formatDuration(runtime));
+                movie.setRuntime(DateTimeTools.formatDuration(runtime), ALLOCINE_PLUGIN_ID);
             }
         }
 
         // Check country
-        if (isNotValidString(movie.getCountry()) && !movieInfos.getNationalityList().isEmpty()) {
+        if (OverrideTools.checkOverwriteCountry(movie, ALLOCINE_PLUGIN_ID) && !movieInfos.getNationalityList().isEmpty()) {
             String firstCountry = movieInfos.getNationalityList().get(0);
-            movie.setCountry(firstCountry);
+            movie.setCountry(firstCountry, ALLOCINE_PLUGIN_ID);
         }
 
         // Check Genres
-        if (movie.getGenres().isEmpty()) {
-            for (String genre : movieInfos.getGenreList()) {
-                movie.addGenre(genre);
-            }
+        if (OverrideTools.checkOverwriteGenres(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setGenres(movieInfos.getGenreList(), ALLOCINE_PLUGIN_ID);
         }
 
         // Check certification
-        if (isNotValidString(movie.getCertification())) {
-            movie.setCertification(movieInfos.getCertification());
+        if (OverrideTools.checkOverwriteCertification(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setCertification(movieInfos.getCertification(), ALLOCINE_PLUGIN_ID);
         }
 
         // Check Casting
-        if (movie.getDirectors().isEmpty()) {
-            movie.setDirectors(movieInfos.getDirectors());
+        if (OverrideTools.checkOverwriteDirectors(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setDirectors(movieInfos.getDirectors(), ALLOCINE_PLUGIN_ID);
         }
-        if (movie.getCast().isEmpty()) {
-            movie.setCast(movieInfos.getActors());
+        if (OverrideTools.checkOverwriteActors(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setCast(movieInfos.getActors(), ALLOCINE_PLUGIN_ID);
         }
-        if (movie.getWriters().isEmpty()) {
-            movie.setWriters(movieInfos.getWriters());
+        if (OverrideTools.checkOverwriteWriters(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setWriters(movieInfos.getWriters(), ALLOCINE_PLUGIN_ID);
         }
 
         // Get Fanart

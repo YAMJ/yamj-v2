@@ -30,6 +30,7 @@ import com.j256.ormlite.table.TableUtils;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
@@ -332,12 +333,16 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 if (m.find()) { // TV-show
                     episodeNumber = m.group(tvshowRegexEpisodeNumberIndex);
                     movie.setMovieType(Movie.TYPE_TVSHOW);
-                    movie.setTitle(cleanString(m.group(tvshowRegexTitleIndex)));
+                    if (OverrideTools.checkOverwriteTitle(movie, ANIDB_PLUGIN_ID)) {
+                        movie.setTitle(cleanString(m.group(tvshowRegexTitleIndex)), ANIDB_PLUGIN_ID);
+                    }
                 } else if (movieRegex != null) {
                     m = movieRegex.matcher(movie.getBaseFilename());
                     if (m.find()) {
-                        movie.setTitle(cleanString(m.group(movieRegexTitleIndex)));
                         movie.setMovieType(Movie.TYPE_MOVIE);
+                        if (OverrideTools.checkOverwriteTitle(movie, ANIDB_PLUGIN_ID)) {
+                            movie.setTitle(cleanString(m.group(movieRegexTitleIndex)), ANIDB_PLUGIN_ID);
+                        }
                     }
                 }
             }
@@ -403,37 +408,51 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             movie.setId(ANIDB_PLUGIN_ID, String.valueOf(anime.getAnimeId()));
 
             if (isValidString(anime.getEnglishName())) {
-                movie.setTitle(anime.getEnglishName());
-                movie.setOriginalTitle(anime.getRomajiName());
+                if (OverrideTools.checkOverwriteTitle(movie, ANIDB_PLUGIN_ID)) {
+                    movie.setTitle(anime.getEnglishName(), ANIDB_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwriteOriginalTitle(movie, ANIDB_PLUGIN_ID)) {
+                    movie.setOriginalTitle(anime.getRomajiName(), ANIDB_PLUGIN_ID);
+                }
             } else if (isValidString(anime.getRomajiName())) {
-                movie.setTitle(anime.getRomajiName());
-                movie.setOriginalTitle(anime.getRomajiName());
+                if (OverrideTools.checkOverwriteTitle(movie, ANIDB_PLUGIN_ID)) {
+                    movie.setTitle(anime.getRomajiName(), ANIDB_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwriteOriginalTitle(movie, ANIDB_PLUGIN_ID)) {
+                    movie.setOriginalTitle(anime.getRomajiName(), ANIDB_PLUGIN_ID);
+                }
             } else {
                 logger.error(LOG_MESSAGE + "Encountered an anime without a valid title. Anime ID: " + anime.getAnimeId());
             }
 
-            if (isValidString(anime.getYear())) {
-                movie.setYear(new String(anime.getYear().substring(0, 4)));
+            if (isValidString(anime.getYear()) && OverrideTools.checkOverwriteYear(movie, ANIDB_PLUGIN_ID)) {
+                movie.setYear(new String(anime.getYear().substring(0, 4)), ANIDB_PLUGIN_ID);
             }
 
-            final List<String> categories = new ArrayList<String>();
-            for (int i = 0; i < anime.getCategories().size() && i < maxGenres && anime.getCategories().get(i).getWeight() >= minimumCategoryWeight; ++i) {
-                categories.add(anime.getCategories().get(i).getCategoryName());
+            if (OverrideTools.checkOverwriteGenres(movie, ANIDB_PLUGIN_ID)) {
+                final List<String> categories = new ArrayList<String>();
+                for (int i = 0; i < anime.getCategories().size() && i < maxGenres && anime.getCategories().get(i).getWeight() >= minimumCategoryWeight; ++i) {
+                    categories.add(anime.getCategories().get(i).getCategoryName());
+                }
+                movie.setGenres(categories, ANIDB_PLUGIN_ID);
             }
-            movie.setGenres(categories);
 
-            if (anime.getAirDate() > 0) {
+            if ((anime.getAirDate() > 0) && OverrideTools.checkOverwriteReleaseDate(movie, ANIDB_PLUGIN_ID)) {
                 DateTime rDate = new DateTime(anime.getAirDate());
-                movie.setReleaseDate(rDate.toString("yyyy-MM-dd"));
+                movie.setReleaseDate(rDate.toString("yyyy-MM-dd"), ANIDB_PLUGIN_ID);
             }
 
             if (anime.getRating() > 0) {
                 movie.addRating(ANIDB_PLUGIN_ID, (int) (anime.getRating() / 10));
             }
 
-            movie.setPlot(anime.getDescription());
-            movie.setOutline(anime.getDescription());
-
+            if (OverrideTools.checkOverwritePlot(movie, ANIDB_PLUGIN_ID)) {
+                movie.setPlot(anime.getDescription(), ANIDB_PLUGIN_ID);
+            }
+            
+            if (OverrideTools.checkOverwriteOutline(movie, ANIDB_PLUGIN_ID)) {
+                movie.setOutline(anime.getDescription(), ANIDB_PLUGIN_ID);
+            }
 
             if (movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
                 return scanTVShows(movie, anime, episodeNumber);
@@ -574,6 +593,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         return mappingDao.queryForFirst(pq);
     }
 
+    @SuppressWarnings("unused")
     private AnidbTvdbEpisodeMapping findEpisodeMapping(String epno, AnidbTvdbMapping mapping) {
         int anidbSeason = 1;
         int anidbEpno;
@@ -1889,7 +1909,6 @@ class AnidbTableInfo {
     }
 }
 
-
 @DatabaseTable(tableName = "anidb_tvdb_mapping")
 class AnidbTvdbMapping {
 
@@ -1955,15 +1974,8 @@ class AnidbTvdbMapping {
     public ForeignCollection<AnidbTvdbEpisodeMapping> getMappings() {
         return mappings;
     }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 }
+
 @DatabaseTable(tableName = "anidb_tvdb_episode_mapping")
 class AnidbTvdbEpisodeMapping {
 

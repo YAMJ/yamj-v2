@@ -26,8 +26,8 @@ public class FilmaffinityPluginTest {
     @Test
     public void testScan() {
         Movie movie = new Movie();
-        movie.setTitle("Blade Runner");
-        movie.setYear("1982");
+        movie.setTitle("Blade Runner", Movie.UNKNOWN);
+        movie.setYear("1982", Movie.UNKNOWN);
 
         assertEquals(true, faPlugin.scan(movie));
         assertEquals("film358476.html", movie.getId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID));
@@ -41,7 +41,7 @@ public class FilmaffinityPluginTest {
     @Test
     public void testScanNoYear() {
         Movie movie = new Movie();
-        movie.setTitle("Avatar");
+        movie.setTitle("Avatar", Movie.UNKNOWN);
 
         assertEquals(true, faPlugin.scan(movie));
         assertEquals("2009", movie.getYear());

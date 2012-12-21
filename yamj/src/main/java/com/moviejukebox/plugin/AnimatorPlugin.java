@@ -21,6 +21,7 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
@@ -63,13 +64,6 @@ public class AnimatorPlugin extends ImdbPlugin {
         boolean retval = false;
         String animatorId = mediaFile.getId(ANIMATOR_PLUGIN_ID);
         if (StringTools.isNotValidString(animatorId)) {
-            // It's better to remove everything after dash (-) before call of English plugins...
-            final String previousTitle = mediaFile.getTitle();
-            int dash = previousTitle.indexOf('-');
-            if (dash != -1) {
-                mediaFile.setTitle(new String(previousTitle.substring(0, dash)));
-            }
-
             String year = mediaFile.getYear();
             // Let's replace dash (-) by space ( ) in Title.
             String name = mediaFile.getTitle();
@@ -81,9 +75,6 @@ public class AnimatorPlugin extends ImdbPlugin {
                 animatorId = getAnimatorId(name, Movie.UNKNOWN, mediaFile.getSeason());
             }
             mediaFile.setId(ANIMATOR_PLUGIN_ID, animatorId);
-        } else {
-            // If ID is specified in NFO, set original title to unknown
-            mediaFile.setTitle(Movie.UNKNOWN);
         }
 
         if (StringTools.isValidString(animatorId)) {
@@ -255,7 +246,6 @@ public class AnimatorPlugin extends ImdbPlugin {
      */
     private boolean updateAnimatorMediaInfo(Movie movie, String animatorId) throws IOException {
         try {
-            String originalTitle = movie.getTitle();
             String[] listID = animatorId.split(":");
             String newAnimatorId = listID[0];   // Get the first one
             String allmultsId = listID[1];
@@ -279,62 +269,70 @@ public class AnimatorPlugin extends ImdbPlugin {
             xml2 = xml2.replace((CharSequence) "&#133;", (CharSequence) "&hellip;");
             xml2 = xml2.replace((CharSequence) "&#151;", (CharSequence) "&mdash;");
 
-            if (!newAnimatorId.equals(Movie.UNKNOWN)) {
-                // Title (animator.ru)
-                for (String tit : HTMLTools.extractTags(xml, "<td align=\"left\" class=\"FilmName\">", "</B>", "«", "»")) {
-                    originalTitle = tit;
-                    break;
-                }
-            } else {
-                // Title (allmults.org)
-                for (String tit : HTMLTools.extractTags(xml2, "<b>Название:", "<b>", "", "<br>")) {
-                    originalTitle = tit;
-                    break;
-                }
-            }
+            if (OverrideTools.checkOverwriteTitle(movie, ANIMATOR_PLUGIN_ID)) {
+                String title = Movie.UNKNOWN;
 
-            StringBuilder plot = new StringBuilder();
-            // Plot (animator.ru)
-            if (!newAnimatorId.equals(Movie.UNKNOWN)) {
-                for (String subPlot : HTMLTools.extractTags(xml, "<td align=\"left\" class=\"FilmComments\"", "</td>")) {
-                    if (!subPlot.isEmpty()) {
-                        if (plot.length() > 0) {
-                            plot.append(" ");
-                        }
-                        plot.append(subPlot);
+                if (!newAnimatorId.equals(Movie.UNKNOWN)) {
+                    // Title (animator.ru)
+                    for (String tit : HTMLTools.extractTags(xml, "<td align=\"left\" class=\"FilmName\">", "</B>", "«", "»")) {
+                        title = tit;
+                        break;
+                    }
+                } else {
+                    // Title (allmults.org)
+                    for (String tit : HTMLTools.extractTags(xml2, "<b>Название:", "<b>", "", "<br>")) {
+                        title = tit;
+                        break;
                     }
                 }
 
-                for (String subPlot : HTMLTools.extractTags(xml, "<td class=\"FilmComments\">", "</td>")) {
-                    if (!subPlot.isEmpty()) {
-                        if (plot.length() > 0) {
-                            plot.append(" ");
+                movie.setTitle(title, ANIMATOR_PLUGIN_ID);
+            }
+            
+            if (OverrideTools.checkOverwritePlot(movie, ANIMATOR_PLUGIN_ID)) {
+                StringBuilder plot = new StringBuilder();
+                // Plot (animator.ru)
+                if (!newAnimatorId.equals(Movie.UNKNOWN)) {
+                    for (String subPlot : HTMLTools.extractTags(xml, "<td align=\"left\" class=\"FilmComments\"", "</td>")) {
+                        if (!subPlot.isEmpty()) {
+                            if (plot.length() > 0) {
+                                plot.append(" ");
+                            }
+                            plot.append(subPlot);
                         }
-                        plot.append(subPlot);
+                    }
+    
+                    for (String subPlot : HTMLTools.extractTags(xml, "<td class=\"FilmComments\">", "</td>")) {
+                        if (!subPlot.isEmpty()) {
+                            if (plot.length() > 0) {
+                                plot.append(" ");
+                            }
+                            plot.append(subPlot);
+                        }
                     }
                 }
-            }
-            // Plot (allmults.org)
-            if (plot.length() == 0 && !allmultsId.equals(Movie.UNKNOWN)) {
-                for (String subPlot : HTMLTools.extractTags(xml2, "Описание:", "<p class=\"postinfo\">", "<br", "</p>")) {
-                    if (!subPlot.isEmpty()) {
-                        if (plot.length() > 0) {
-                            plot.append(" ");
+                // Plot (allmults.org)
+                if (plot.length() == 0 && !allmultsId.equals(Movie.UNKNOWN)) {
+                    for (String subPlot : HTMLTools.extractTags(xml2, "Описание:", "<p class=\"postinfo\">", "<br", "</p>")) {
+                        if (!subPlot.isEmpty()) {
+                            if (plot.length() > 0) {
+                                plot.append(" ");
+                            }
+                            plot.append(subPlot);
                         }
-                        plot.append(subPlot);
                     }
                 }
+                String newPlot = "";
+                if (plot.length() > 0) {
+                    newPlot = plot.toString();
+                    newPlot = newPlot.replace("<br>", " ");
+                    newPlot = newPlot.replace("</span>", "");
+                }
+    
+                newPlot = StringTools.trimToLength(newPlot, preferredPlotLength, true, plotEnding);
+                movie.setPlot(newPlot, ANIMATOR_PLUGIN_ID);
             }
-            String newPlot = "";
-            if (plot.length() > 0) {
-                newPlot = plot.toString();
-                newPlot = newPlot.replace("<br>", " ");
-                newPlot = newPlot.replace("</span>", "");
-            }
-
-            newPlot = StringTools.trimToLength(newPlot, preferredPlotLength, true, plotEnding);
-            movie.setPlot(newPlot);
-
+            
             // Genre + Run time (animator.ru)
             // String MultType = "";
             String time = Movie.UNKNOWN;
@@ -351,25 +349,31 @@ public class AnimatorPlugin extends ImdbPlugin {
                     }
                 }
             }
-            // Genre (allmults.org)
-            if (newGenres.size() == 0 && !allmultsId.equals(Movie.UNKNOWN)) {
-                for (String tmp : HTMLTools.extractTags(xml2, "<b>Жанр:", "<b>", "", "<br>")) {
-                    for (String temp : tmp.split(",")) {
-                        if (!temp.equals("")) {
-                            newGenres.add(temp);
+
+            if (OverrideTools.checkOverwriteGenres(movie, ANIMATOR_PLUGIN_ID)) {
+                // Genre (allmults.org)
+                if (newGenres.size() == 0 && !allmultsId.equals(Movie.UNKNOWN)) {
+                    for (String tmp : HTMLTools.extractTags(xml2, "<b>Жанр:", "<b>", "", "<br>")) {
+                        for (String temp : tmp.split(",")) {
+                            if (!temp.equals("")) {
+                                newGenres.add(temp);
+                            }
                         }
                     }
                 }
+                movie.setGenres(newGenres, ANIMATOR_PLUGIN_ID);
             }
-            // Run time (allmults.org)
-            if (time.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
-                for (String tmp : HTMLTools.extractTags(xml2, "<b>Продолжительность:", "<b>", "", "<br>")) {
-                    time = tmp;
-                    break;
+
+            if (OverrideTools.checkOverwriteRuntime(movie, ANIMATOR_PLUGIN_ID)) {
+                // Run time (allmults.org)
+                if (time.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
+                    for (String tmp : HTMLTools.extractTags(xml2, "<b>Продолжительность:", "<b>", "", "<br>")) {
+                        time = tmp;
+                        break;
+                    }
                 }
+                movie.setRuntime(time, ANIMATOR_PLUGIN_ID);
             }
-            movie.setGenres(newGenres);
-            movie.setRuntime(time);
 
             Collection<String> newDirectors = new ArrayList<String>();
             Collection<String> newWriters = new ArrayList<String>();
@@ -419,22 +423,24 @@ public class AnimatorPlugin extends ImdbPlugin {
                     }
                 }
             }
-            // Director (allmults.org)
-            if (newDirectors.isEmpty() && !allmultsId.equals(Movie.UNKNOWN)) {
-                for (String tmp : HTMLTools.extractTags(xml2, "<b>Режиссер:", "<p ", "", "</p>")) {
-                    if (!tmp.equals("")) {
-                        newDirectors.add(tmp);
+            
+            if (OverrideTools.checkOverwriteDirectors(movie, ANIMATOR_PLUGIN_ID)) {
+                // Director (allmults.org)
+                if (newDirectors.isEmpty() && !allmultsId.equals(Movie.UNKNOWN)) {
+                    for (String tmp : HTMLTools.extractTags(xml2, "<b>Режиссер:", "<p ", "", "</p>")) {
+                        if (!tmp.equals("")) {
+                            newDirectors.add(tmp);
+                        }
                     }
                 }
+                movie.setDirectors(newDirectors, ANIMATOR_PLUGIN_ID);
             }
-            if (newDirectors.size() > 0) {
-                movie.setDirectors(newDirectors);
+            
+            if (OverrideTools.checkOverwriteDirectors(movie, ANIMATOR_PLUGIN_ID)) {
+                movie.setWriters(newWriters, ANIMATOR_PLUGIN_ID);
             }
-            if (newWriters.size() > 0) {
-                movie.setWriters(newWriters);
-            }
-            if (newCast.size() > 0) {
-                movie.setCast(newCast);
+            if (OverrideTools.checkOverwriteActors(movie, ANIMATOR_PLUGIN_ID)) {
+                movie.setCast(newCast, ANIMATOR_PLUGIN_ID);
             }
 
             String country = Movie.UNKNOWN;
@@ -445,40 +451,48 @@ public class AnimatorPlugin extends ImdbPlugin {
                 year2 = year;
                 break;
             }
-            // Year (allmults.org)
-            if (year2.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
-                for (String tmp : HTMLTools.extractTags(xml2, "<b>Год:", "<br>", "<a href=", "</a>")) {
-                    if (!tmp.equals("")) {
-                        year2 = tmp;
+            
+            if (OverrideTools.checkOverwriteYear(movie, ANIMATOR_PLUGIN_ID)) {
+                // Year (allmults.org)
+                if (year2.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
+                    for (String tmp : HTMLTools.extractTags(xml2, "<b>Год:", "<br>", "<a href=", "</a>")) {
+                        if (!tmp.equals("")) {
+                            year2 = tmp;
+                        }
                     }
                 }
+                movie.setYear(year2, ANIMATOR_PLUGIN_ID);
             }
-            // Country (allmults.org)
-            if (country.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
-                for (String tmp : HTMLTools.extractTags(xml2, "<b>Страна:", "<br>", "<a href=", "</a>")) {
-                    if (!tmp.equals("")) {
-                        country = tmp;
+        
+            if (OverrideTools.checkOverwriteCountry(movie, ANIMATOR_PLUGIN_ID)) {
+                // Country (allmults.org)
+                if (country.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
+                    for (String tmp : HTMLTools.extractTags(xml2, "<b>Страна:", "<br>", "<a href=", "</a>")) {
+                        if (!tmp.equals("")) {
+                            country = tmp;
+                        }
                     }
                 }
+
+//              Translate russian to english for correctly show flag
+//              if (country.equals("Россия")) {
+//                  country = "Russia";
+//              } else if (Country.equals("СССР")) {
+//                  country = "USSR";
+//              }
+                
+                movie.setCountry(country, ANIMATOR_PLUGIN_ID);
             }
-
-// Translate russian to english for correctly show flag
-//            if (Country.equals("Россия")) {
-//                Country = "Russia";
-//            } else if (Country.equals("СССР")) {
-//                Country = "USSR";
-//            }
-
-            movie.setYear(year2);
-            movie.setCountry(country);
 
             // Company
-            String company = Movie.UNKNOWN;
-            for (String comp : HTMLTools.extractTags(xml, "onclick=\"showStudia", "</span>")) {
-                company = comp;
+            if (OverrideTools.checkOverwriteCompany(movie, ANIMATOR_PLUGIN_ID)) {
+                String company = Movie.UNKNOWN;
+                for (String comp : HTMLTools.extractTags(xml, "onclick=\"showStudia", "</span>")) {
+                    company = comp;
+                }
+                movie.setCompany(company, ANIMATOR_PLUGIN_ID);
             }
-            movie.setCompany(company);
-
+            
             // Poster + Fanart (animator.ru)
             String posterURL = Movie.UNKNOWN;
             if (!newAnimatorId.equals(Movie.UNKNOWN)) {
@@ -503,9 +517,6 @@ public class AnimatorPlugin extends ImdbPlugin {
                 movie.setPosterURL(posterURL);
                 movie.setPosterFilename(movie.getBaseName() + ".jpg");
             }
-
-            // Finally set title
-            movie.setTitle(originalTitle);
         } catch (Exception error) {
             logger.error("Failed retreiving movie data from Animator : " + animatorId);
             logger.error(SystemTools.getStackTrace(error));

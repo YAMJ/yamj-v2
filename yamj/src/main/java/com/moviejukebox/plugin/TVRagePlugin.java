@@ -15,6 +15,7 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.DateTimeTools;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
@@ -120,46 +121,41 @@ public class TVRagePlugin extends ImdbPlugin {
             showInfo = tvRage.getShowInfo(id);
 
             // Update the plot & outline
-            if (isNotValidString(movie.getPlot())) {
-                String plot = StringTools.trimToLength(showInfo.getSummary(), preferredPlotLength);
-
-                if (isValidString(plot)) {
-                    movie.setPlot(plot);
-
-                    plot = StringTools.trimToLength(showInfo.getSummary(), preferredOutlineLength);
-                    movie.setOutline(plot);
-                } else {
-                    movie.setPlot(Movie.UNKNOWN);
-                    movie.setOutline(Movie.UNKNOWN);
+            if (isValidString(showInfo.getSummary())) {
+                if (OverrideTools.checkOverwritePlot(movie, TVRAGE_PLUGIN_ID)) {
+                    String plot = StringTools.trimToLength(showInfo.getSummary(), preferredPlotLength);
+                    movie.setPlot(plot, TVRAGE_PLUGIN_ID);
+                }
+                
+                if (OverrideTools.checkOverwriteOutline(movie, TVRAGE_PLUGIN_ID)) {
+                    String outline = StringTools.trimToLength(showInfo.getSummary(), preferredOutlineLength);
+                    movie.setOutline(outline, TVRAGE_PLUGIN_ID);
                 }
             }
 
-            // Update the Genres
-            if (movie.getGenres().isEmpty()) {
-                for (String genre : showInfo.getGenres()) {
-                    movie.addGenre(genre);
-                }
+            if (OverrideTools.checkOverwriteGenres(movie, TVRAGE_PLUGIN_ID)) {
+                movie.setGenres(showInfo.getGenres(), TVRAGE_PLUGIN_ID);
             }
 
-            if (isNotValidString(movie.getYear())) {
-                movie.setYear(String.valueOf(showInfo.getStarted()));
+            if (OverrideTools.checkOverwriteYear(movie, TVRAGE_PLUGIN_ID)) {
+                movie.setYear(String.valueOf(showInfo.getStarted()), TVRAGE_PLUGIN_ID);
             }
 
-            if (isNotValidString(movie.getCompany())) {
+            if (OverrideTools.checkOverwriteCompany(movie, TVRAGE_PLUGIN_ID)) {
                 CountryDetail cd = showInfo.getNetwork().get(0);
-                movie.setCountry(cd.getDetail());
+                movie.setCompany(cd.getDetail(), TVRAGE_PLUGIN_ID);
+            }
+            
+            if (OverrideTools.checkOverwriteCountry(movie, TVRAGE_PLUGIN_ID)) {
+                movie.setCountry(showInfo.getCountry(), TVRAGE_PLUGIN_ID);
             }
 
-            if (isNotValidString(movie.getCountry())) {
-                movie.setCountry(showInfo.getCountry());
+            if (OverrideTools.checkOverwriteRuntime(movie, TVRAGE_PLUGIN_ID)) {
+                movie.setRuntime(movie.getRuntime(), TVRAGE_PLUGIN_ID);
             }
 
-            if (isNotValidString(movie.getRuntime())) {
-                movie.setRuntime(String.valueOf(showInfo.getRuntime()));
-            }
-
-            if (isNotValidString(movie.getReleaseDate())) {
-                movie.setReleaseDate(DateTimeTools.convertDateToString(showInfo.getStartDate()));
+            if (OverrideTools.checkOverwriteReleaseDate(movie, TVRAGE_PLUGIN_ID)) {
+                movie.setReleaseDate(DateTimeTools.convertDateToString(showInfo.getStartDate()), TVRAGE_PLUGIN_ID);
             }
 
             scanTVShowTitles(movie);

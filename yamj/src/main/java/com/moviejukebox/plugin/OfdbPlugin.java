@@ -13,9 +13,9 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.OverrideFlag;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.*;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.StringTokenizer;
@@ -29,8 +29,6 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     private static final Logger logger = Logger.getLogger(OfdbPlugin.class);
     public static final String OFDB_PLUGIN_ID = "ofdb";
     private static final String PLOT_MARKER = "<a href=\"plot/";
-    private boolean getplot;
-    private boolean gettitle;
     private int preferredPlotLength;
     private int preferredOutlineLength;
     private ImdbPlugin imdbp;
@@ -42,9 +40,6 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
         preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
 
-        getplot = PropertiesUtil.getBooleanProperty("ofdb.getplot", TRUE);
-        gettitle = PropertiesUtil.getBooleanProperty("ofdb.gettitle", TRUE);
-
         webBrowser = new WebBrowser();
     }
 
@@ -55,14 +50,17 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
     @Override
     public boolean scan(Movie mediaFile) {
-        boolean plotBeforeImdb = !Movie.UNKNOWN.equalsIgnoreCase(mediaFile.getPlot()); // Issue 797 - we don't want to override plot from NFO
         imdbp.scan(mediaFile); // Grab data from imdb
 
         if (StringTools.isNotValidString(mediaFile.getId(OFDB_PLUGIN_ID))) {
             getOfdbId(mediaFile);
         }
 
-        return this.updateOfdbMediaInfo(mediaFile, plotBeforeImdb);
+        if (OverrideTools.checkOneOverwrite(mediaFile, OFDB_PLUGIN_ID, OverrideFlag.TITLE, OverrideFlag.PLOT, OverrideFlag.OUTLINE)) {
+        	return this.updateOfdbMediaInfo(mediaFile);
+    	}
+    	
+    	return Boolean.TRUE;
     }
 
     public void getOfdbId(Movie mediaFile) {
@@ -126,51 +124,50 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Scan OFDB html page for the specified movie
-     *
-     * @param plotBeforeImdb
      */
-    private boolean updateOfdbMediaInfo(Movie movie, boolean plotBeforeImdb) {
+    private boolean updateOfdbMediaInfo(Movie movie) {
+        if (StringTools.isNotValidString(movie.getId(OFDB_PLUGIN_ID))) {
+            return Boolean.FALSE;
+        }
+
         try {
-            if (StringTools.isNotValidString(movie.getId(OFDB_PLUGIN_ID))) {
-                return false;
-            }
             String xml = webBrowser.request(movie.getId(OFDB_PLUGIN_ID));
 
-            if (gettitle && !movie.isOverrideTitle()) {
+            if (OverrideTools.checkOverwriteTitle(movie, OFDB_PLUGIN_ID)) {
                 String titleShort = HTMLTools.extractTag(xml, "<title>OFDb -", "</title>");
                 if (titleShort.indexOf("(") > 0) {
                     // strip year from title
                     titleShort = titleShort.substring(0, titleShort.lastIndexOf("(")).trim();
                 }
-                if (StringTools.isValidString(titleShort)) {
-                    movie.setTitle(titleShort);
-                }
+                movie.setTitle(titleShort, OFDB_PLUGIN_ID);
             }
 
-            if (getplot) {
-                // plot url auslesen:
+
+            if (OverrideTools.checkOneOverwrite(movie, OFDB_PLUGIN_ID, OverrideFlag.PLOT, OverrideFlag.OUTLINE)) {
                 if (xml.contains(PLOT_MARKER)) {
                     String plot = getPlot("http://www.ofdb.de/plot/" + HTMLTools.extractTag(xml, PLOT_MARKER, 0, "\""));
-
-                    // Issue 797, preserve Plot from NFO
-                    // Did we get some translated plot and didn't have previous plotFromNfo ?
-                    if (!Movie.UNKNOWN.equalsIgnoreCase(plot) && !plotBeforeImdb) {
-                        movie.setPlot(plot);
-
-                        String outline = StringTools.trimToLength(plot, preferredOutlineLength, true, "...");
-                        movie.setOutline(outline);
+                    if (StringTools.isValidString(plot)) {
+    
+                        if (OverrideTools.checkOverwritePlot(movie, OFDB_PLUGIN_ID)) {
+                        	movie.setPlot(plot, OFDB_PLUGIN_ID);
+                        }
+    
+                        if (OverrideTools.checkOverwriteOutline(movie, OFDB_PLUGIN_ID)) {
+                        	String outline = StringTools.trimToLength(plot, preferredOutlineLength, true, "...");
+                        	movie.setOutline(outline, OFDB_PLUGIN_ID);
+                        }
                     }
                 } else {
                     logger.debug("No plot found for " + movie.getBaseName());
-                    return false;
+                    return Boolean.FALSE;
                 }
             }
-
         } catch (IOException error) {
             logger.error(SystemTools.getStackTrace(error));
-            return false;
+            return Boolean.FALSE;
         }
-        return true;
+        
+        return Boolean.TRUE;
     }
 
     private String getPlot(String plotURL) {

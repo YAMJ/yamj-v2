@@ -74,6 +74,7 @@ public class MovieJukeboxXMLWriter {
     public static final String INDEX = "index";
     public static final String ORIGINAL_NAME = "originalName";
     public static final String DETAILS = "details";
+    public static final String SOURCE = "source";
     private static boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", FALSE);
     private static boolean forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", FALSE);
     private int nbMoviesPerPage;
@@ -891,11 +892,12 @@ public class MovieJukeboxXMLWriter {
      * @param cat
      * @return
      */
-    private Element generateElementSet(Document doc, String set, String element, Collection<String> items, Library library, String cat) {
+    private Element generateElementSet(Document doc, String set, String element, Collection<String> items, Library library, String cat, String source) {
 
         if (items.size() > 0) {
             Element eSet = doc.createElement(set);
             eSet.setAttribute(COUNT, String.valueOf(items.size()));
+            eSet.setAttribute(SOURCE, source);
             for (String item : items) {
                 writeIndexedElement(doc, eSet, element, item, createIndexAttribute(library, cat, item));
             }
@@ -958,6 +960,7 @@ public class MovieJukeboxXMLWriter {
      * @param library
      * @return
      */
+    @SuppressWarnings("deprecation")
     private Element writeMovie(Document doc, Movie movie, Library library) {
         Element eMovie = doc.createElement(MOVIE);
 
@@ -978,16 +981,19 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "baseFilenameBase", movie.getBaseFilename());
         DOMHelper.appendChild(doc, eMovie, BASE_FILENAME, movie.getBaseName());
         if ((titleSortType == TitleSortType.ADOPT_ORIGINAL) && (StringTools.isValidString(movie.getOriginalTitle()))) {
-            DOMHelper.appendChild(doc, eMovie, TITLE, movie.getOriginalTitle());
+            DOMHelper.appendChild(doc, eMovie, TITLE, movie.getOriginalTitle(), SOURCE, movie.getOverrideSource(OverrideFlag.TITLE));
         } else {
-            DOMHelper.appendChild(doc, eMovie, TITLE, movie.getTitle());
+            DOMHelper.appendChild(doc, eMovie, TITLE, movie.getTitle(), SOURCE, movie.getOverrideSource(OverrideFlag.TITLE));
         }
         DOMHelper.appendChild(doc, eMovie, SORT_TITLE, movie.getTitleSort());
-        DOMHelper.appendChild(doc, eMovie, ORIGINAL_TITLE, movie.getOriginalTitle());
+        DOMHelper.appendChild(doc, eMovie, ORIGINAL_TITLE, movie.getOriginalTitle(), SOURCE, movie.getOverrideSource(OverrideFlag.ORIGINALTITLE));
 
-        DOMHelper.appendChild(doc, eMovie, YEAR, movie.getYear(), "Year", Library.getYearCategory(movie.getYear()));
+        Map<String,String> yearAttribs = new HashMap<String,String>();
+        yearAttribs.put("Year", Library.getYearCategory(movie.getYear()));
+        yearAttribs.put(SOURCE, movie.getOverrideSource(OverrideFlag.YEAR));
+        DOMHelper.appendChild(doc, eMovie, YEAR, movie.getYear(), yearAttribs);
 
-        DOMHelper.appendChild(doc, eMovie, "releaseDate", movie.getReleaseDate());
+        DOMHelper.appendChild(doc, eMovie, "releaseDate", movie.getReleaseDate(), SOURCE, movie.getOverrideSource(OverrideFlag.RELEASEDATE));
         DOMHelper.appendChild(doc, eMovie, "showStatus", movie.getShowStatus());
 
         // This is the main rating
@@ -1052,12 +1058,16 @@ public class MovieJukeboxXMLWriter {
          * eArtwork.appendChild(eArtworkType); } } eMovie.appendChild(eArtwork);
          */
 
-        DOMHelper.appendChild(doc, eMovie, "plot", movie.getPlot());
-        DOMHelper.appendChild(doc, eMovie, "outline", movie.getOutline());
-        DOMHelper.appendChild(doc, eMovie, "quote", movie.getQuote());
-        DOMHelper.appendChild(doc, eMovie, "tagline", movie.getTagline());
+        DOMHelper.appendChild(doc, eMovie, "plot", movie.getPlot(), SOURCE, movie.getOverrideSource(OverrideFlag.PLOT));
+        DOMHelper.appendChild(doc, eMovie, "outline", movie.getOutline(), SOURCE, movie.getOverrideSource(OverrideFlag.OUTLINE));
+        DOMHelper.appendChild(doc, eMovie, "quote", movie.getQuote(), SOURCE, movie.getOverrideSource(OverrideFlag.QUOTE));
+        DOMHelper.appendChild(doc, eMovie, "tagline", movie.getTagline(), SOURCE, movie.getOverrideSource(OverrideFlag.TAGLINE));
 
-        writeIndexedElement(doc, eMovie, COUNTRY, movie.getCountry(), createIndexAttribute(library, Library.INDEX_COUNTRY, movie.getCountry()));
+        Map<String,String> countryAttribs = new HashMap<String,String>();
+        String countryIndex = createIndexAttribute(library, Library.INDEX_COUNTRY, movie.getCountry());
+        if (countryIndex != null) countryAttribs.put(INDEX, countryIndex);
+        countryAttribs.put(SOURCE, movie.getOverrideSource(OverrideFlag.COUNTRY));
+        DOMHelper.appendChild(doc, eMovie, COUNTRY, movie.getCountry(), countryAttribs);
         if (xmlCompatible) {
             Element eCountry = doc.createElement("countries");
             int cnt = 0;
@@ -1069,7 +1079,7 @@ public class MovieJukeboxXMLWriter {
             eMovie.appendChild(eCountry);
         }
 
-        DOMHelper.appendChild(doc, eMovie, "company", movie.getCompany());
+        DOMHelper.appendChild(doc, eMovie, "company", movie.getCompany(), SOURCE, movie.getOverrideSource(OverrideFlag.COMPANY));
         if (xmlCompatible) {
             Element eCompany = doc.createElement("companies");
             int cnt = 0;
@@ -1081,11 +1091,11 @@ public class MovieJukeboxXMLWriter {
             eMovie.appendChild(eCompany);
         }
 
-        DOMHelper.appendChild(doc, eMovie, "runtime", movie.getRuntime());
-        DOMHelper.appendChild(doc, eMovie, "certification", Library.getIndexingCertification(movie.getCertification()));
+        DOMHelper.appendChild(doc, eMovie, "runtime", movie.getRuntime(), SOURCE, movie.getOverrideSource(OverrideFlag.RUNTIME));
+        DOMHelper.appendChild(doc, eMovie, "certification", Library.getIndexingCertification(movie.getCertification()), SOURCE, movie.getOverrideSource(OverrideFlag.CERTIFICATION));
         DOMHelper.appendChild(doc, eMovie, SEASON, Integer.toString(movie.getSeason()));
 
-        DOMHelper.appendChild(doc, eMovie, LANGUAGE, movie.getLanguage());
+        DOMHelper.appendChild(doc, eMovie, LANGUAGE, movie.getLanguage(), SOURCE, movie.getOverrideSource(OverrideFlag.LANGUAGE));
         if (xmlCompatible) {
             Element eLanguage = doc.createElement("languages");
             int cnt = 0;
@@ -1122,25 +1132,25 @@ public class MovieJukeboxXMLWriter {
             }
         }
 
-        DOMHelper.appendChild(doc, eMovie, "container", movie.getContainer());
+        DOMHelper.appendChild(doc, eMovie, "container", movie.getContainer(), SOURCE, movie.getOverrideSource(OverrideFlag.CONTAINER));
         DOMHelper.appendChild(doc, eMovie, "videoCodec", movie.getVideoCodec());
         DOMHelper.appendChild(doc, eMovie, "audioCodec", movie.getAudioCodec());
 
         // Write codec information
         eMovie.appendChild(createCodecsElement(doc, movie.getCodecs()));
         DOMHelper.appendChild(doc, eMovie, "audioChannels", movie.getAudioChannels());
-        DOMHelper.appendChild(doc, eMovie, "resolution", movie.getResolution());
+        DOMHelper.appendChild(doc, eMovie, "resolution", movie.getResolution(), SOURCE, movie.getOverrideSource(OverrideFlag.RESOLUTION));
 
         // If the source is unknown, use the default source
         if (StringTools.isNotValidString(movie.getVideoSource())) {
-            DOMHelper.appendChild(doc, eMovie, "videoSource", defaultSource);
+            DOMHelper.appendChild(doc, eMovie, "videoSource", defaultSource, SOURCE, Movie.UNKNOWN);
         } else {
-            DOMHelper.appendChild(doc, eMovie, "videoSource", movie.getVideoSource());
+            DOMHelper.appendChild(doc, eMovie, "videoSource", movie.getVideoSource(), SOURCE, movie.getOverrideSource(OverrideFlag.VIDEOSOURCE));
         }
 
-        DOMHelper.appendChild(doc, eMovie, "videoOutput", movie.getVideoOutput());
-        DOMHelper.appendChild(doc, eMovie, "aspect", movie.getAspectRatio());
-        DOMHelper.appendChild(doc, eMovie, "fps", Float.toString(movie.getFps()));
+        DOMHelper.appendChild(doc, eMovie, "videoOutput", movie.getVideoOutput(), SOURCE, movie.getOverrideSource(OverrideFlag.VIDEOOUTPUT));
+        DOMHelper.appendChild(doc, eMovie, "aspect", movie.getAspectRatio(), SOURCE, movie.getOverrideSource(OverrideFlag.ASPECTRATIO));
+        DOMHelper.appendChild(doc, eMovie, "fps", Float.toString(movie.getFps()), SOURCE, movie.getOverrideSource(OverrideFlag.FPS));
 
         if (movie.getFileDate() == null) {
             DOMHelper.appendChild(doc, eMovie, "fileDate", Movie.UNKNOWN);
@@ -1163,6 +1173,7 @@ public class MovieJukeboxXMLWriter {
         if (movie.getGenres().size() > 0) {
             Element eGenres = doc.createElement("genres");
             eGenres.setAttribute(COUNT, String.valueOf(movie.getGenres().size()));
+            eGenres.setAttribute(SOURCE, movie.getOverrideSource(OverrideFlag.GENRES));
             for (String genre : movie.getGenres()) {
                 writeIndexedElement(doc, eGenres, "genre", genre, createIndexAttribute(library, Library.INDEX_GENRES, Library.getIndexingGenre(genre)));
             }
@@ -1193,17 +1204,17 @@ public class MovieJukeboxXMLWriter {
         writeIndexedElement(doc, eMovie, "director", movie.getDirector(), createIndexAttribute(library, Library.INDEX_DIRECTOR, movie.getDirector()));
 
         Element eSet;
-        eSet = generateElementSet(doc, "directors", "director", movie.getDirectors(), library, Library.INDEX_DIRECTOR);
+        eSet = generateElementSet(doc, "directors", "director", movie.getDirectors(), library, Library.INDEX_DIRECTOR, movie.getOverrideSource(OverrideFlag.DIRECTORS));
         if (eSet != null) {
             eMovie.appendChild(eSet);
         }
 
-        eSet = generateElementSet(doc, "writers", "writer", movie.getWriters(), library, Library.INDEX_WRITER);
+        eSet = generateElementSet(doc, "writers", "writer", movie.getWriters(), library, Library.INDEX_WRITER, movie.getOverrideSource(OverrideFlag.WRITERS));
         if (eSet != null) {
             eMovie.appendChild(eSet);
         }
 
-        eSet = generateElementSet(doc, "cast", "actor", movie.getCast(), library, Library.INDEX_CAST);
+        eSet = generateElementSet(doc, "cast", "actor", movie.getCast(), library, Library.INDEX_CAST, movie.getOverrideSource(OverrideFlag.ACTORS));
         if (eSet != null) {
             eMovie.appendChild(eSet);
         }
@@ -1280,6 +1291,7 @@ public class MovieJukeboxXMLWriter {
                     if (inx != null) {
                         ePerson.setAttribute(INDEX, inx);
                     }
+                    ePerson.setAttribute(SOURCE, person.getSource());
                     ePerson.setTextContent(person.getFilename());
                     ePeople.appendChild(ePerson);
                 }
@@ -1482,7 +1494,7 @@ public class MovieJukeboxXMLWriter {
             codecAttribs.put("formatVersion", codec.getCodecFormatVersion());
             codecAttribs.put("codecId", codec.getCodecId());
             codecAttribs.put("codecIdHint", codec.getCodecIdHint());
-            codecAttribs.put("source", codec.getCodecSource().toString());
+            codecAttribs.put(SOURCE, codec.getCodecSource().toString());
             codecAttribs.put("bitrate", codec.getCodecBitRate());
             if (codec.getCodecType() == CodecType.AUDIO) {
                 codecAttribs.put(LANGUAGE, codec.getCodecLanguage());

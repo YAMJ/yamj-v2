@@ -33,7 +33,7 @@ public class PosterScannerTest extends TestCase {
         String baseURL = "http://www.moviecovers.com/getjpg.html/";
         String expectedURL = Movie.UNKNOWN;
         String returnURL = Movie.UNKNOWN;
-        movieTest.setTitle("Dracula Un Muerto Muy Contento Y Feliz");
+        movieTest.setTitle("Dracula Un Muerto Muy Contento Y Feliz", Movie.UNKNOWN);
         ImdbInfo imdbInfo = new ImdbInfo();
     }
 

@@ -27,8 +27,6 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class FilmDeltaSEPluginTest {
 
@@ -45,6 +43,8 @@ public class FilmDeltaSEPluginTest {
 
     static {
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
+        PropertiesUtil.setProperty("priority.title", "filmdelta,imdb");
+        PropertiesUtil.setProperty("priority.originaltitle", "filmdelta,imdb");
     }
 
     @Before
@@ -163,7 +163,7 @@ public class FilmDeltaSEPluginTest {
 
     @Test
     public void testSetOutline550() {
-        movie.setTitle("Testing outlines-550chars");
+        movie.setTitle("Testing outlines-550chars", FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID);
         String plot550 = "<div class=\"text\"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. <br /> In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, vehicula et mauris. Integer ultrices enim et mi feugiat malesuada. Sed quam ligula, adipiscing non euismod quis, luctus a dui. Maecenas pulvinar dui nec velit aliquam a gravida risus faucibus. Nulla sit amet arcu nisl. <br />Sed pulvinar volutpat erat id.</p>";
         //String expectedOutline550 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, v...";
         String expectedOutline550 = StringTools.trimToLength("Lorem ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, vehicula et mauris. Integer ultrices enim et mi feugiat malesuada. Sed quam ligula, adipiscing non euismod quis, luctus a dui. Maecenas pulvinar dui nec velit aliquam a gravida risus faucibus. Nulla sit amet arcu nisl. Sed pulvinar volutpat erat id.", 300);
@@ -173,7 +173,7 @@ public class FilmDeltaSEPluginTest {
 
     @Test
     public void testSetOutline350() {
-        movie.setTitle("Testing outlines-350chars");
+        movie.setTitle("Testing outlines-350chars", FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID);
         String plot350 = "<div class=\"text\"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. <br /> In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, vehicula et mauris. Integer ultrices enim et mi feugiat malesuada.</p>";
         //String expectedOutline550 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, v...";
         String expectedOutline550 = StringTools.trimToLength("Lorem ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, vehicula et mauris. Integer ultrices enim et mi feugiat malesuada.", 300);
@@ -184,7 +184,7 @@ public class FilmDeltaSEPluginTest {
 
     @Test
     public void testSetOutline250() {
-        movie.setTitle("Testing outlines-250chars");
+        movie.setTitle("Testing outlines-250chars", FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID);
         String plot250 = "<div class=\"text\"><p>Testa ipsum dolor sit amet, consectetur adipiscing elit. <br /> In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus eli</p>";
         String expectedOutline250 = "Testa ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus eli";
         toTest.getFilmdeltaPlot(movie, plot250);

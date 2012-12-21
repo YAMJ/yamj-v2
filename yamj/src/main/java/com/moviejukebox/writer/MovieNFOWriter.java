@@ -32,7 +32,7 @@ public class MovieNFOWriter {
     private static final String LOG_MESSAGE = "MovieNFOWriter: ";
     private static boolean writeSimpleNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeSimpleFiles", Boolean.FALSE.toString());
     private static boolean extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE.toString());
-    private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE.toString());
+    private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", PropertiesUtil.FALSE);
 
     /**
      * Write a NFO file for the movie using the data gathered
@@ -134,10 +134,8 @@ public class MovieNFOWriter {
                 }
             }
 
-            if (!movie.getGenres().isEmpty()) {
-                for (String genre : movie.getGenres()) {
-                    DOMHelper.appendChild(docNFO, eRoot, "genre", genre);
-                }
+            for (String genre : movie.getGenres()) {
+                DOMHelper.appendChild(docNFO, eRoot, "genre", genre);
             }
 
             if (StringTools.isValidString(movie.getCompany())) {

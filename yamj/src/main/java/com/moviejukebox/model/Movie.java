@@ -41,6 +41,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     private static final Logger logger = Logger.getLogger(Movie.class);
     public static final String UNKNOWN = "UNKNOWN";
+    public static final String SOURCE_FILENAME = "filename";
     public static final String NOTRATED = "Not Rated";
     public static final String REMOVE = "Remove"; // All Movie objects with this type will be removed from library before index generation
     public static final String TYPE_MOVIE = "MOVIE";
@@ -70,6 +71,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private static final TitleSortType titleSortType = TitleSortType.fromString(PropertiesUtil.getProperty("mjb.sortTitle", "title"));
     // TODO: This will be removed in the future, once hashing has been completed
     private static final Boolean DIR_HASH = PropertiesUtil.getBooleanProperty("mjb.dirHash", FALSE);
+    // checks
+    private static final int MAX_COUNT_DIRECTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.director", "2");
+    private static final int MAX_COUNT_WRITER = PropertiesUtil.getIntProperty("plugin.people.maxCount.writer", "3");
+    private static final int MAX_COUNT_ACTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", "10");
+
     /*
      * --------------------------------------------------------------------------------
      * Properties related to the Movie object itself
@@ -117,12 +123,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String budget = UNKNOWN;                                        // Issue 2012: Financial information about movie
     private Map<String, String> openweek = new HashMap<String, String>();
     private Map<String, String> gross = new HashMap<String, String>();
+    private Map<OverrideFlag, String> overrideSources = new HashMap<OverrideFlag, String>();
     private List<String> didYouKnow = new ArrayList<String>();        // Issue 2013: Add trivia
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
     private String formatType = TYPE_FILE;
-    private boolean overrideTitle = Boolean.FALSE;
-    private boolean overrideYear = Boolean.FALSE;
     private int top250 = -1;
     private String libraryDescription = UNKNOWN;
     private long prebuf = -1;
@@ -244,20 +249,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return this.mjbGenerationDate;
     }
 
-    public void addGenre(String genre) {
-        if (StringTools.isValidString(genre) && !extra && !GENRE_SKIP_LIST.contains(genre.toLowerCase())) {
-            setDirty(DirtyFlag.INFO);
-            //logger.debug("Genre added: " + genre);
-            genres.add(genre);
-        }
-    }
-
-    public void addGenres(List<String> genres) {
-        for (String newGenre : genres) {
-            addGenre(newGenre);
-        }
-    }
-
     public void addSet(String set) {
         addSet(set, null);
     }
@@ -317,27 +308,27 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void addPerson(String name) {
-        addPerson(Movie.UNKNOWN, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
+    public void addPerson(String name, String source) {
+        addPerson(Movie.UNKNOWN, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source);
     }
 
-    public void addPerson(String key, String name) {
-        addPerson(key, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
+    public void addPerson(String key, String name, String source) {
+        addPerson(key, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source);
     }
 
-    public void addPerson(String key, String name, String url) {
-        addPerson(key, name, url, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
+    public void addPerson(String key, String name, String url, String source) {
+        addPerson(key, name, url, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source);
     }
 
-    public void addPerson(String key, String name, String url, String job) {
-        addPerson(key, name, url, job, Movie.UNKNOWN, Movie.UNKNOWN);
+    public void addPerson(String key, String name, String url, String job, String source) {
+        addPerson(key, name, url, job, Movie.UNKNOWN, Movie.UNKNOWN, source);
     }
 
-    public void addPerson(String key, String name, String url, String job, String character) {
-        addPerson(key, name, url, job, character, Movie.UNKNOWN);
+    public void addPerson(String key, String name, String url, String job, String character, String source) {
+        addPerson(key, name, url, job, character, Movie.UNKNOWN, source);
     }
 
-    public void addPerson(String key, String name, String url, String job, String character, String doublage) {
+    public void addPerson(String key, String name, String url, String job, String character, String doublage, String source) {
         if (StringUtils.isNotBlank(name)
                 && StringUtils.isNotBlank(key)
                 && StringUtils.isNotBlank(url)
@@ -384,6 +375,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             person.setOrder(countActor);
             person.setCastId(people.size());
             person.setScrapeLibrary(scrapeLibrary);
+            if (StringTools.isNotValidString(source)) {
+                person.setSource(UNKNOWN);
+            } else {
+                person.setSource(source);
+            }
             addPerson(person);
         }
     }
@@ -696,6 +692,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public Map<String, String> getOpenWeek() {
         return openweek;
+    }
+    
+    public String getOverrideSource(OverrideFlag overrideFlag) {
+        String source = overrideSources.get(overrideFlag);
+        if (StringUtils.isBlank(source)) {
+            return Movie.UNKNOWN;
+        }
+        return source;
     }
 
     public static class MovieId {
@@ -1010,18 +1014,15 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         setDirty(DirtyFlag.INFO);
     }
 
-    public void addActor(String actor) {
-        if (StringTools.isNotValidString(actor)) {
-            return;
-        }
-
-        if (!cast.contains(actor.trim())) {
-            setDirty(DirtyFlag.INFO);
+    public void addActor(String actor, String source) {
+        if (StringTools.isValidString(actor) && !cast.contains(actor.trim()) && (cast.size() < MAX_COUNT_ACTOR)) {
             cast.add(actor.trim());
+            setDirty(DirtyFlag.INFO);
+            setOverrideSource(OverrideFlag.ACTORS, source);
         }
     }
 
-    public void addActor(String actorKey, String actorName, String character, String actorUrl, String doublage) {
+    public void addActor(String actorKey, String actorName, String character, String actorUrl, String doublage, String source) {
         if (actorName != null) {
             String name = actorName;
             if (actorName.indexOf(':') > -1) {
@@ -1043,79 +1044,94 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             }
 
             if (!found) {
-                addActor(name);
-                addPerson(actorKey, actorName, actorUrl, StringUtils.capitalize(Filmography.JOB_ACTOR), character, doublage);
+                addPerson(actorKey, actorName, actorUrl, StringUtils.capitalize(Filmography.JOB_ACTOR), character, doublage, source);
             }
         }
     }
 
-    public void setCast(Collection<String> cast) {
+    public void setCast(Collection<String> cast, String source) {
         if (cast != null && !cast.isEmpty()) {
             clearCast();
-            this.cast.addAll(cast);
-            Collection<Filmography> pList = new ArrayList<Filmography>();
-
-            for (Filmography p : people) {
-                if (p.getDepartment().equals(Filmography.DEPT_ACTORS)) {
-                    pList.add(p);
-                }
-            }
-
-            for (Filmography p : pList) {
-                removePerson(p);
-            }
-
-            for (String member : cast) {
-                addActor(Movie.UNKNOWN, member, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN);
+            for (String actor : cast) {
+                addActor(actor, source);
             }
         }
     }
 
     public void clearCast() {
-        setDirty(DirtyFlag.INFO);
-        cast.clear();
-    }
-
-    public void addWriter(String writer) {
-        if (writer != null && !writers.contains(writer)) {
+        if (cast.size() > 0) {
             setDirty(DirtyFlag.INFO);
-            writers.add(writer);
+            cast.clear();
         }
     }
 
-    public void addWriter(String writerKey, String writerName, String writerUrl) {
-        if (writerName != null) {
-            String name = writerName;
-            if (writerName.contains(":")) {
-                String[] names = writerName.split(":");
-                if (StringTools.isValidString(names[1])) {
-                    name = names[1];
-                } else if (StringTools.isValidString(names[0])) {
-                    name = names[0];
+    public void clearPeopleCast() {
+        if (people.size() > 0) {
+            Collection<Filmography> pList = new ArrayList<Filmography>();
+            for (Filmography p : people) {
+                if (p.getDepartment().equals(Filmography.DEPT_ACTORS)) {
+                    pList.add(p);
                 }
             }
+            for (Filmography p : pList) {
+                removePerson(p);
+            }
+        }
+    }
 
-            name = name.trim();
+    public void addWriter(String writer, String source) {
+        if (StringTools.isValidString(writer) && !writers.contains(writer.trim()) && (writers.size() < MAX_COUNT_WRITER)) {
+            writers.add(writer.trim());
+            setDirty(DirtyFlag.INFO);
+            setOverrideSource(OverrideFlag.WRITERS, source);
+        }
+    }
+
+    public void addWriter(String writerKey, String name, String writerUrl, String source) {
+        if (name != null) {
+            String writerName = name;
+            if (name.contains(":")) {
+                String[] names = name.split(":");
+                if (StringTools.isValidString(names[1])) {
+                    writerName = names[1];
+                } else if (StringTools.isValidString(names[0])) {
+                    writerName = names[0];
+                }
+            }
+            writerName = writerName.trim();
+
             boolean found = Boolean.FALSE;
-
             for (Filmography p : people) {
-                if (p.getName().equalsIgnoreCase(name) && p.getDepartment().equals(Filmography.DEPT_WRITING)) {
+                if (p.getName().equalsIgnoreCase(writerName) && p.getDepartment().equals(Filmography.DEPT_WRITING)) {
                     found = Boolean.TRUE;
                     break;
                 }
             }
-
+            
             if (!found) {
-                addWriter(name);
-                addPerson(writerKey, writerName, writerUrl, "Writer");
+                addPerson(writerKey, writerName, writerUrl, "Writer", source);
             }
         }
     }
 
-    public void setWriters(Collection<String> writers) {
+    public void setWriters(Collection<String> writers, String source) {
         if (writers != null && !writers.isEmpty()) {
             clearWriters();
-            this.writers.addAll(writers);
+            for (String writer : writers) {
+                addWriter(writer, source);
+            }
+        }
+    }
+
+    public void clearWriters() {
+        if (writers.size() > 0) {
+            setDirty(DirtyFlag.INFO);
+            writers.clear();
+        }
+    }
+
+    public void clearPeopleWriters() {
+        if (people.size() > 0) {
             Collection<Filmography> pList = new ArrayList<Filmography>();
             for (Filmography p : people) {
                 if (p.getDepartment().equals(Filmography.DEPT_WRITING)) {
@@ -1125,27 +1141,31 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             for (Filmography p : pList) {
                 removePerson(p);
             }
-            for (String member : writers) {
-                addWriter(Movie.UNKNOWN, member, Movie.UNKNOWN);
-            }
+        }
+    }
+    
+    public void setCompany(String company, String source) {
+        if (StringTools.isValidString(company) && !company.equalsIgnoreCase(this.company)) {
+            setDirty(DirtyFlag.INFO);
+            this.company = company;
+            setOverrideSource(OverrideFlag.COMPANY, source);
         }
     }
 
-    public void clearWriters() {
-        setDirty(DirtyFlag.INFO);
-        writers.clear();
+    public void setContainer(String container, String source) {
+        if (StringTools.isValidString(container) && !container.equalsIgnoreCase(this.container)) {
+            setDirty(DirtyFlag.INFO);
+            this.container = container;
+            setOverrideSource(OverrideFlag.CONTAINER, source);
+        }
     }
 
-    public void setCompany(String company) {
-        this.company = validateString(company, this.company);
-    }
-
-    public void setContainer(String container) {
-        this.container = validateString(container, this.container);
-    }
-
-    public void setCountry(String country) {
-        this.country = validateString(country, this.country);
+    public void setCountry(String country, String source) {
+        if (StringTools.isValidString(country) && !country.equalsIgnoreCase(this.country)) {
+            setDirty(DirtyFlag.INFO);
+            this.country = country;
+            setOverrideSource(OverrideFlag.COUNTRY, source);
+        }
     }
 
     /**
@@ -1164,11 +1184,32 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public Collection<String> getDirectors() {
         return directors;
     }
-
-    public void setDirectors(Collection<String> directors) {
+    
+    public void setDirector(String director, String source) {
+        if (StringTools.isValidString(director)) {
+            clearDirectors();
+            addDirector(director, source);
+        }
+    }
+    
+    public void setDirectors(Collection<String> directors, String source) {
         if (directors != null && !directors.isEmpty()) {
             clearDirectors();
-            this.directors.addAll(directors);
+            for (String director : directors) {
+                addDirector(director, source);
+            }
+        }
+    }
+    
+    public void clearDirectors() {
+        if (directors.size() > 0) {
+            setDirty(DirtyFlag.INFO);
+            directors.clear();
+        }
+    }
+
+    public void clearPeopleDirectors() {
+        if (people.size() > 0) {
             Collection<Filmography> pList = new ArrayList<Filmography>();
             for (Filmography p : people) {
                 if (p.getDepartment().equals(Filmography.DEPT_DIRECTING)) {
@@ -1178,25 +1219,18 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             for (Filmography p : pList) {
                 removePerson(p);
             }
-            for (String member : directors) {
-                addDirector(Movie.UNKNOWN, member, Movie.UNKNOWN);
-            }
         }
     }
 
-    public void clearDirectors() {
-        setDirty(DirtyFlag.INFO);
-        directors.clear();
-    }
-
-    public void addDirector(String director) {
-        if (director != null && !directors.contains(director)) {
+    public void addDirector(String director, String source) {
+        if (StringTools.isValidString(director) && !directors.contains(director.trim()) && (directors.size() < MAX_COUNT_DIRECTOR)) {
+            directors.add(director.trim());
             setDirty(DirtyFlag.INFO);
-            directors.add(director);
+            setOverrideSource(OverrideFlag.DIRECTORS, source);
         }
     }
 
-    public void addDirector(String key, String name, String URL) {
+    public void addDirector(String key, String name, String URL, String source) {
         if (name != null) {
             String directorName = name;
             if (name.contains(":")) {
@@ -1207,8 +1241,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                     directorName = names[0];
                 }
             }
-
             directorName = directorName.trim();
+            
             boolean found = Boolean.FALSE;
             for (Filmography p : people) {
                 if (p.getName().equalsIgnoreCase(directorName) && p.getDepartment().equals(Filmography.DEPT_DIRECTING)) {
@@ -1216,9 +1250,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                     break;
                 }
             }
+            
             if (!found) {
-                addDirector(directorName);
-                addPerson(key, name, URL, "Director");
+                addPerson(key, name, URL, "Director", source);
             }
         }
     }
@@ -1227,37 +1261,25 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         this.first = validateString(first, this.first);
     }
 
-    public void setFps(float fps) {
+    public void setFps(float fps, String source) {
         //Prevent wrong result caused by floating point rounding by allowing difference of 0.1 fpsS
         if (Math.abs(fps - this.fps) > 0.1) {
             setDirty(DirtyFlag.INFO);
             this.fps = fps;
+            setOverrideSource(OverrideFlag.FPS, source);
         }
     }
 
-    public void setGenres(Collection<String> genresToAdd) {
-        if (!extra) {
-            // Only check if the skip list isn't empty
-            if (!GENRE_SKIP_LIST.isEmpty()) {
-                // remove any unwanted genres from the new collection
-                Collection<String> genresFinal = new TreeSet<String>();
-
-                Iterator<String> genreIterator = genresToAdd.iterator();
-                while (genreIterator.hasNext()) {
-                    String genreToAdd = genreIterator.next();
-                    if (!GENRE_SKIP_LIST.contains(genreToAdd.toLowerCase())) {
-                        genresFinal.add(genreToAdd);
-                    }
+    public void setGenres(Collection<String> genres, String source) {
+        if (!extra && (genres != null) && (genres.size() >0)) {
+            this.genres.clear();
+            for (String genre : genres) {
+                if (StringTools.isValidString(genre) && !GENRE_SKIP_LIST.contains(genre.toLowerCase())) {
+                    this.genres.add(genre);
                 }
-
-                // Add the trimmed genre list
-                this.genres = genresFinal;
-            } else {
-                // No need to remove genres, so add them all
-                this.genres = genresToAdd;
             }
-
             setDirty(DirtyFlag.INFO);
+            this.setOverrideSource(OverrideFlag.GENRES, source);
         }
     }
 
@@ -1314,12 +1336,28 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void setLanguage(String language) {
-        this.language = validateString(language, this.language);
+    public void setOverrideSource(OverrideFlag flag, String source) {
+        if (StringUtils.isBlank(source)) {
+            this.overrideSources.put(flag, UNKNOWN);
+        } else {
+            this.overrideSources.put(flag, source.toUpperCase());
+        }
+    }
+    
+    public void setLanguage(String language, String source) {
+        if (StringTools.isValidString(language) && !language.equalsIgnoreCase(this.language)) {
+            setDirty(DirtyFlag.INFO);
+            this.language = language;
+            setOverrideSource(OverrideFlag.LANGUAGE, source);
+        }
     }
 
-    public void setCertification(String certification) {
-        this.certification = validateString(certification, this.certification);
+    public void setCertification(String certification, String source) {
+        if (StringTools.isValidString(certification) && !certification.equalsIgnoreCase(this.certification)) {
+            setDirty(DirtyFlag.INFO);
+            this.certification = certification;
+            setOverrideSource(OverrideFlag.CERTIFICATION, source);
+        }
     }
 
     public void setLast(String last) {
@@ -1350,16 +1388,24 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         this.next = validateString(next, this.next);
     }
 
-    public void setPlot(String plot) {
-        this.plot = validateString(plot, this.plot);
+    public void setPlot(String plot, String source) {
+        if (StringTools.isValidString(plot) && !plot.equalsIgnoreCase(this.plot)) {
+            setDirty(DirtyFlag.INFO);
+            this.plot = plot;
+            setOverrideSource(OverrideFlag.PLOT, source);
+        }
     }
 
     public String getOutline() {
         return outline;
     }
 
-    public void setOutline(String outline) {
-        this.outline = validateString(outline, this.outline);
+    public void setOutline(String outline, String source) {
+        if (StringTools.isValidString(outline) && !outline.equalsIgnoreCase(this.outline)) {
+            setDirty(DirtyFlag.INFO);
+            this.outline = outline;
+            setOverrideSource(OverrideFlag.OUTLINE, source);
+        }
     }
 
     public void setPrevious(String previous) {
@@ -1442,39 +1488,46 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void setReleaseDate(final String releaseDate) {
-        String parseDate = UNKNOWN;
+    public void setReleaseDate(final String releaseDate, String source) {
+        if (StringTools.isNotValidString(releaseDate)) {
+            // nothing to do
+            return;
+        }
 
+        String parseDate = UNKNOWN;
         try {
             parseDate = DateTime.parse(releaseDate).toString("yyyy-MM-dd");
         } catch (IllegalArgumentException ex) {
             logger.debug("Error processing release date '" + releaseDate + "' for " + baseName);
             // if this just a year, then append "-01-01" to it and try again
             if (StringUtils.isNumeric(releaseDate) && releaseDate.length() == 4) {
-                setReleaseDate(releaseDate + "-01-01");
+                parseDate = releaseDate + "-01-01";
             }
         }
 
-        this.releaseDate = validateString(parseDate, this.releaseDate);
+        if (StringTools.isValidString(parseDate) && !parseDate.equalsIgnoreCase(this.releaseDate)) {
+            setDirty(DirtyFlag.INFO);
+            this.releaseDate = parseDate;
+            setOverrideSource(OverrideFlag.RELEASEDATE, source);
+        }
     }
 
-    public void setResolution(String resolution) {
-        this.resolution = validateString(resolution, this.resolution);
+    public void setResolution(String resolution, String source) {
+        if (StringTools.isValidString(resolution) && !resolution.equalsIgnoreCase(this.resolution)) {
+            setDirty(DirtyFlag.INFO);
+            this.resolution = resolution;
+            setOverrideSource(OverrideFlag.RESOLUTION, source);
+        }
     }
 
-    public void setResolution(String width, String height) {
+    public void setResolution(String width, String height, String source) {
         if (StringTools.isValidString(width) && StringTools.isValidString(height)) {
-            setResolution(width + "x" + height);
+            setResolution(width + "x" + height, source);
         }
     }
-
-    public void setRuntime(String runtime) {
-        if (StringUtils.isBlank(runtime)) {
-            this.runtime = UNKNOWN;
-            return;
-        }
-
-        if (!runtime.equalsIgnoreCase(this.runtime)) {
+        
+    public void setRuntime(String runtime, String source) {
+        if (StringTools.isValidString(runtime) && !runtime.equalsIgnoreCase(this.runtime)) {
             setDirty(DirtyFlag.INFO);
             // Escape the first "0" AlloCine gives sometimes
             if (runtime.startsWith("0")) {
@@ -1482,6 +1535,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             } else {
                 this.runtime = runtime.trim();
             }
+            setOverrideSource(OverrideFlag.RUNTIME, source);
         }
     }
 
@@ -1489,21 +1543,15 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         this.subtitles = validateString(subtitles, this.subtitles);
     }
 
-    public void setTitle(String name) {
-        String newName;
-        if (StringUtils.isBlank(name)) {
-            newName = UNKNOWN;
-        } else {
-            newName = name;
-        }
-
-        if (!newName.equals(this.title)) {
+    public void setTitle(String title, String source) {
+        if (StringTools.isValidString(title) && !title.equals(this.title)) {
             setDirty(DirtyFlag.INFO);
-            this.title = newName;
+            this.title = title;
+            setOverrideSource(OverrideFlag.TITLE, source);
 
             // If we don't have a original title, then use the title
             if (StringTools.isNotValidString(originalTitle)) {
-                setOriginalTitle(newName);
+                setOriginalTitle(title, source);
             }
         }
     }
@@ -1532,8 +1580,12 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void setOriginalTitle(String originalTitle) {
-        this.originalTitle = validateString(originalTitle, this.originalTitle);
+    public void setOriginalTitle(String originalTitle, String source) {
+        if (StringTools.isValidString(originalTitle) && !originalTitle.equalsIgnoreCase(this.originalTitle)) {
+            setDirty(DirtyFlag.INFO);
+            this.originalTitle = originalTitle;
+            setOverrideSource(OverrideFlag.ORIGINALTITLE, source);
+        }
     }
 
     /**
@@ -1564,16 +1616,28 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return UNKNOWN;
     }
 
-    public void setVideoOutput(String videoOutput) {
-        this.videoOutput = validateString(videoOutput, this.videoOutput);
+    public void setVideoOutput(String videoOutput, String source) {
+        if (StringTools.isValidString(videoOutput) && !videoOutput.equalsIgnoreCase(this.videoOutput)) {
+            setDirty(DirtyFlag.INFO);
+            this.videoOutput = videoOutput;
+            setOverrideSource(OverrideFlag.VIDEOOUTPUT, source);
+        }
     }
 
-    public void setVideoSource(String videoSource) {
-        this.videoSource = validateString(videoSource, this.videoSource);
+    public void setVideoSource(String videoSource, String source) {
+        if (StringTools.isValidString(videoSource) && !videoSource.equalsIgnoreCase(this.videoSource)) {
+            setDirty(DirtyFlag.INFO);
+            this.videoSource = videoSource;
+            setOverrideSource(OverrideFlag.VIDEOSOURCE, source);
+        }
     }
 
-    public void setYear(String year) {
-        this.year = validateString(year, this.year);
+    public void setYear(String year, String source) {
+        if (StringTools.isValidString(year) && !year.equalsIgnoreCase(this.year)) {
+            setDirty(DirtyFlag.INFO);
+            this.year = year;
+            setOverrideSource(OverrideFlag.YEAR, source);
+        }
     }
 
     public void setBudget(String budget) {
@@ -1584,8 +1648,12 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return quote;
     }
 
-    public void setQuote(String quote) {
-        this.quote = validateString(quote, this.quote);
+    public void setQuote(String quote, String source) {
+        if (StringTools.isValidString(quote) && !quote.equalsIgnoreCase(this.quote)) {
+            setDirty(DirtyFlag.INFO);
+            this.quote = quote;
+            setOverrideSource(OverrideFlag.VIDEOSOURCE, source);
+        }
     }
 
     /**
@@ -1831,15 +1899,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return sb.toString();
     }
 
-    @XmlTransient
-    public boolean isOverrideTitle() {
-        return overrideTitle;
-    }
-
-    public void setOverrideTitle(boolean overrideTitle) {
-        this.overrideTitle = overrideTitle;
-    }
-
     public int getTop250() {
         return top250;
     }
@@ -1886,8 +1945,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * @param dto
      */
     public void mergeFileNameDTO(MovieFileNameDTO dto) {
-        setTitle(dto.getTitle());
         setExtra(dto.isExtra());
+
+        if (OverrideTools.checkOverwriteTitle(this, SOURCE_FILENAME)) {
+            setTitle(dto.getTitle(), SOURCE_FILENAME);
+        }
 
         Codec tempCodec;
         if (StringTools.isValidString(dto.getAudioCodec())) {
@@ -1904,9 +1966,16 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             addCodec(tempCodec);
         }
 
-        setVideoSource(dto.getVideoSource());
-        setContainer(dto.getContainer());
-        setFps(dto.getFps() > 0 ? dto.getFps() : 60);
+        if (OverrideTools.checkOverwriteVideoSource(this, SOURCE_FILENAME)) {
+            setVideoSource(dto.getVideoSource(), SOURCE_FILENAME);
+        }
+        if (OverrideTools.checkOverwriteContainer(this, SOURCE_FILENAME)) {
+            setContainer(dto.getContainer(), SOURCE_FILENAME);
+        }
+        if ((dto.getFps() > 0) && OverrideTools.checkOverwriteFPS(this, SOURCE_FILENAME)) {
+            setFps(dto.getFps(), SOURCE_FILENAME);
+        }
+
         setMovieIds(dto.getMovieIds());
 
         if (dto.getSeason() > -1) {
@@ -1917,77 +1986,97 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         for (MovieFileNameDTO.SetDTO set : dto.getSets()) {
             addSet(set.getTitle(), set.getIndex() >= 0 ? set.getIndex() : null);
         }
-        setYear(dto.getYear() > 0 ? String.valueOf(dto.getYear()) : null);
-        setLanguage(dto.getLanguages().size() > 0 ? dto.getLanguages().get(0) : null);
+        
+        if (OverrideTools.checkOverwriteYear(this, SOURCE_FILENAME)) {
+            setYear(dto.getYear() > 0 ? String.valueOf(dto.getYear()) : null, SOURCE_FILENAME);
+        }
+        
+        if ((dto.getLanguages().size() > 0) && OverrideTools.checkOverwriteLanguage(this, SOURCE_FILENAME)) {
+            // TODO more languages?
+            setLanguage(dto.getLanguages().get(0), SOURCE_FILENAME);
+        }
 
+        // set video type
         if (dto.getHdResolution() != null) {
             setVideoType(TYPE_VIDEO_HD);
+        }
+        
+        
+        // set video output
+        if (OverrideTools.checkOverwriteVideoOutput(this, SOURCE_FILENAME)) {
 
-            // Check if the videoOutput is UNKNOWN and clear it if it is
-            if (StringTools.isNotValidString(videoOutput)) {
-                videoOutput = "";
+            String videoOut = "";
+            if (dto.getHdResolution() != null) {
+
+                if (StringTools.isValidString(videoOutput)) {
+                    videoOut = new String(videoOutput);
+                }
+    
+                switch (dto.getFps()) {
+                    case 23:
+                        videoOut = "1080p 23.976Hz";
+                        break;
+                    case 24:
+                        videoOut = "1080p 24Hz";
+                        break;
+                    case 25:
+                        videoOut = "1080p 25Hz";
+                        break;
+                    case 29:
+                        videoOut = "1080p 29.97Hz";
+                        break;
+                    case 30:
+                        videoOut = "1080p 30Hz";
+                        break;
+                    case 50:
+                        if (StringUtils.isNotBlank(videoOut)) {
+                            videoOut += " ";
+                        }
+                        videoOut += "50Hz";
+                        break;
+                    case 59:
+                        videoOut = "1080p 59.94Hz";
+                        break;
+                    case 60:
+                        if (StringUtils.isNotBlank(videoOut)) {
+                            videoOut += " ";
+                        }
+                        videoOut += "60Hz";
+                        break;
+                    default:
+                        if (StringUtils.isBlank(videoOut)) {
+                            videoOut =  Movie.UNKNOWN;
+                        } else {
+                            videoOut += " 60Hz";
+                        }
+                        break;
+                }
+            } else {
+                switch (dto.getFps()) {
+                    case 23:
+                        videoOut = "23p";
+                        break;
+                    case 24:
+                        videoOut = "24p";
+                        break;
+                    case 29:
+                    case 30:
+                    case 60:
+                        videoOut = "NTSC";
+                        break;
+                    case 25:
+                    case 49:
+                    case 50:
+                        videoOut = "PAL";
+                        break;
+                    default:
+                        videoOut = Movie.UNKNOWN;
+                        break;
+                }
             }
 
-            switch (dto.getFps()) {
-                case 23:
-                    videoOutput = "1080p 23.976Hz";
-                    break;
-                case 24:
-                    videoOutput = "1080p 24Hz";
-                    break;
-                case 25:
-                    videoOutput = "1080p 25Hz";
-                    break;
-                case 29:
-                    videoOutput = "1080p 29.97Hz";
-                    break;
-                case 30:
-                    videoOutput = "1080p 30Hz";
-                    break;
-                case 50:
-                    if (StringUtils.isNotBlank(videoOutput)) {
-                        videoOutput += " ";
-                    }
-                    videoOutput += "50Hz";
-                    break;
-                case 59:
-                    videoOutput = "1080p 59.94Hz";
-                    break;
-                case 60:
-                    if (StringUtils.isNotBlank(videoOutput)) {
-                        videoOutput += " ";
-                    }
-                    videoOutput += "60Hz";
-                    break;
-                default:
-                    if (StringUtils.isBlank(videoOutput)) {
-                        videoOutput = Movie.UNKNOWN;
-                    } else {
-                        videoOutput += " 60Hz";
-                    }
-            }
-        } else {
-            switch (dto.getFps()) {
-                case 23:
-                    videoOutput = "23p";
-                    break;
-                case 24:
-                    videoOutput = "24p";
-                    break;
-                case 29:
-                case 30:
-                case 60:
-                    videoOutput = "NTSC";
-                    break;
-                case 25:
-                case 49:
-                case 50:
-                    videoOutput = "PAL";
-                    break;
-                default:
-                    videoOutput = Movie.UNKNOWN;
-                    break;
-            }
+            // set video output
+            setVideoOutput(videoOut, SOURCE_FILENAME);
         }
     }
 
@@ -2054,8 +2143,12 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return StringTools.formatFileSize(fileSize);
     }
 
-    public void setAspectRatio(String aspectRatio) {
-        this.aspect = aspectRatio;
+    public void setAspectRatio(String aspectRatio, String source) {
+        if (StringTools.isValidString(aspectRatio) && !aspectRatio.equalsIgnoreCase(this.aspect)) {
+            setDirty(DirtyFlag.INFO);
+            this.aspect = aspectRatio;
+            setOverrideSource(OverrideFlag.ASPECTRATIO, source);
+        }
     }
 
     public String getAspectRatio() {
@@ -2445,21 +2538,16 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         this.indexes = new HashMap<String, String>(indexes);
     }
 
-    @XmlTransient
-    public boolean isOverrideYear() {
-        return overrideYear;
-    }
-
-    public void setOverrideYear(boolean overrideYear) {
-        this.overrideYear = overrideYear;
-    }
-
     public String getTagline() {
         return tagline;
     }
 
-    public void setTagline(String tagline) {
-        this.tagline = validateString(tagline, this.tagline);
+    public void setTagline(String tagline, String source) {
+        if (StringTools.isValidString(tagline) && !tagline.equalsIgnoreCase(this.tagline)) {
+            setDirty(DirtyFlag.INFO);
+            this.tagline = tagline;
+            setOverrideSource(OverrideFlag.TAGLINE, source);
+        }
     }
 
     // Read the watched flag
@@ -2626,8 +2714,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.libraryPath = aMovie.libraryPath;
         newMovie.movieType = aMovie.movieType;
         newMovie.formatType = aMovie.formatType;
-        newMovie.overrideTitle = aMovie.overrideTitle;
-        newMovie.overrideYear = aMovie.overrideYear;
         newMovie.top250 = aMovie.top250;
         newMovie.libraryDescription = aMovie.libraryDescription;
         newMovie.prebuf = aMovie.prebuf;
@@ -2679,6 +2765,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.dirtyFlags = EnumSet.copyOf(aMovie.dirtyFlags);
         newMovie.codecs = new LinkedHashSet<Codec>(aMovie.codecs);
         newMovie.footerFilename = new ArrayList<String>(aMovie.footerFilename);
+        newMovie.overrideSources = new HashMap<OverrideFlag,String>(aMovie.overrideSources);
 
         return newMovie;
     }

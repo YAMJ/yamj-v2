@@ -123,15 +123,15 @@ public class MovieJukeboxXMLReader {
                 }
 
                 // Get the title fields
-                movie.setTitle(DOMHelper.getValueFromElement(eMovie, TITLE));
+                parseOverridableTitle(movie, eMovie);
+                parseOverridableOriginalTitle(movie, eMovie);
                 movie.setTitleSort(DOMHelper.getValueFromElement(eMovie, SORT_TITLE));
-                movie.setOriginalTitle(DOMHelper.getValueFromElement(eMovie, ORIGINAL_TITLE));
 
                 // Get the year. We don't care about the attribute as that is the index
-                movie.setYear(DOMHelper.getValueFromElement(eMovie, YEAR));
+                parseOverridableYear(movie, eMovie);
 
                 // Get the release date
-                movie.setReleaseDate(DOMHelper.getValueFromElement(eMovie, "releaseDate"));
+                parseOverridableReleaseDate(movie, eMovie);
 
                 // get the show status
                 movie.setShowStatus(DOMHelper.getValueFromElement(eMovie, "showStatus"));
@@ -189,30 +189,31 @@ public class MovieJukeboxXMLReader {
 
 
                 // Get the plot and outline
-                movie.setPlot(DOMHelper.getValueFromElement(eMovie, "plot"));
-                movie.setOutline(DOMHelper.getValueFromElement(eMovie, "outline"));
+                parseOverridablePlot(movie, eMovie);
+                parseOverridableOutline(movie, eMovie);
 
                 // Get the quote
-                movie.setQuote(DOMHelper.getValueFromElement(eMovie, "quote"));
+                parseOverridableQuote(movie, eMovie);
 
                 // Get the tagline
-                movie.setTagline(DOMHelper.getValueFromElement(eMovie, "tagline"));
+                parseOverridableTagline(movie, eMovie);
 
                 // Get the company name
-                movie.setCompany(DOMHelper.getValueFromElement(eMovie, "company"));
+                parseOverridableCompany(movie, eMovie);
 
                 // get the runtime
-                movie.setRuntime(DOMHelper.getValueFromElement(eMovie, "runtime"));
+                parseOverridableRuntime(movie, eMovie);
 
                 // Get the directors
                 nlElements = eMovie.getElementsByTagName("directors");
                 if (nlElements.getLength() > 0) {
-                    nlElements = nlElements.item(0).getChildNodes();
+                    Element tagElement = (Element) nlElements.item(0);
+                    nlElements = tagElement.getChildNodes();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
                         nElements = nlElements.item(looper);
                         if (nElements.getNodeType() == Node.ELEMENT_NODE) {
                             Element ePerson = (Element) nElements;
-                            movie.addDirector(ePerson.getTextContent());
+                            movie.addDirector(ePerson.getTextContent(), tagElement.getAttribute(SOURCE));
                         }
                     }
                 }   // End of directors
@@ -220,41 +221,46 @@ public class MovieJukeboxXMLReader {
                 // Get the writers
                 nlElements = eMovie.getElementsByTagName("writers");
                 if (nlElements.getLength() > 0) {
-                    nlElements = nlElements.item(0).getChildNodes();
+                    Element tagElement = (Element) nlElements.item(0);
+                    nlElements = tagElement.getChildNodes();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
                         nElements = nlElements.item(looper);
                         if (nElements.getNodeType() == Node.ELEMENT_NODE) {
                             Element ePerson = (Element) nElements;
-                            movie.addWriter(ePerson.getTextContent());
+                            movie.addWriter(ePerson.getTextContent(), tagElement.getAttribute(SOURCE));
                         }
                     }
                 }   // End of writers
 
                 // Get the country
-                movie.setCountry(DOMHelper.getValueFromElement(eMovie, COUNTRY));
+                parseOverridableCountry(movie, eMovie);
 
                 // Get the genres
                 nlElements = eMovie.getElementsByTagName("genres");
                 if (nlElements.getLength() > 0) {
-                    nlElements = nlElements.item(0).getChildNodes();
+                    Element tagElement = (Element) nlElements.item(0);
+                    nlElements = tagElement.getChildNodes();
+                    List<String> genres = new ArrayList<String>();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
                         nElements = nlElements.item(looper);
                         if (nElements.getNodeType() == Node.ELEMENT_NODE) {
                             Element eGenre = (Element) nElements;
-                            movie.addGenre(eGenre.getTextContent());
+                            genres.add(eGenre.getTextContent());
                         }
                     }
+                    movie.setGenres(genres, tagElement.getAttribute(SOURCE));
                 }   // End of genres
 
                 // Get the cast (actors)
                 nlElements = eMovie.getElementsByTagName("cast");
                 if (nlElements.getLength() > 0) {
-                    nlElements = nlElements.item(0).getChildNodes();
+                    Element tagElement = (Element) nlElements.item(0);
+                    nlElements = tagElement.getChildNodes();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
                         nElements = nlElements.item(looper);
                         if (nElements.getNodeType() == Node.ELEMENT_NODE) {
                             Element ePerson = (Element) nElements;
-                            movie.addActor(ePerson.getTextContent());
+                            movie.addActor(ePerson.getTextContent(), tagElement.getAttribute(SOURCE));
                         }
                     }
                 }   // End of cast
@@ -278,10 +284,10 @@ public class MovieJukeboxXMLReader {
                 }   // End of sets
 
                 // Get certification
-                movie.setCertification(DOMHelper.getValueFromElement(eMovie, "certification"));
+                parseOverridableCertification(movie, eMovie);
 
                 // Get language
-                movie.setLanguage(DOMHelper.getValueFromElement(eMovie, LANGUAGE));
+                parseOverridableLanguage(movie, eMovie);
 
                 // Get subtitles
                 movie.setSubtitles(DOMHelper.getValueFromElement(eMovie, "subtitles"));
@@ -293,7 +299,7 @@ public class MovieJukeboxXMLReader {
                 movie.setTrailerLastScan(DOMHelper.getValueFromElement(eMovie, TRAILER_LAST_SCAN));
 
                 // Get file container
-                movie.setContainer(DOMHelper.getValueFromElement(eMovie, "container"));
+                parseOverridableContainer(movie,  eMovie);
 
                 nlElements = eMovie.getElementsByTagName("codecs");
                 if (nlElements.getLength() > 0) {
@@ -327,7 +333,7 @@ public class MovieJukeboxXMLReader {
                                         }
                                         codec.setCodec(eCodec.getTextContent().trim());
 
-                                        tmpValue = eCodec.getAttribute("source");
+                                        tmpValue = eCodec.getAttribute(SOURCE);
                                         if (StringTools.isValidString(tmpValue)) {
                                             codec.setCodecSource(CodecSource.fromString(tmpValue));
                                         } else {
@@ -343,19 +349,19 @@ public class MovieJukeboxXMLReader {
                 }   // END of codecs
 
                 // get the resolution
-                movie.setResolution(DOMHelper.getValueFromElement(eMovie, "resolution"));
+                parseOverridableResolution(movie, eMovie);
 
                 // get the video source
-                movie.setVideoSource(DOMHelper.getValueFromElement(eMovie, "videoSource"));
+                parseOverridableVideoSource(movie, eMovie);
 
                 // get the video output
-                movie.setVideoOutput(DOMHelper.getValueFromElement(eMovie, "videoOutput"));
+                parseOverridableVideoOutput(movie, eMovie);
 
                 // get aspect ratio
-                movie.setAspectRatio(aspectTools.cleanAspectRatio(DOMHelper.getValueFromElement(eMovie, "aspect")));
-
+                parseOverridableAspectRatio(movie, eMovie);
+                
                 // get frames per second
-                movie.setFps(Float.parseFloat(DOMHelper.getValueFromElement(eMovie, "fps")));
+                parseOverridableFramesPerSecond(movie, eMovie);
 
                 // Get navigation info
                 movie.setFirst(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "first")));
@@ -447,6 +453,20 @@ public class MovieJukeboxXMLReader {
                                     String name = nPersonAttr.getNodeName().replace(ID, "");
                                     person.setId(name, nPersonAttr.getNodeValue());
                                 }
+                            }
+                            
+                            String source = ePerson.getAttribute(SOURCE);
+                            if (StringTools.isValidString(source)) {
+                                person.setSource(source);
+                                if (person.getDepartment().equalsIgnoreCase(Filmography.DEPT_DIRECTING)) {
+                                    movie.setOverrideSource(OverrideFlag.PEOPLE_DIRECTORS, source);
+                                } else if (person.getDepartment().equalsIgnoreCase(Filmography.DEPT_WRITING)) {
+                                    movie.setOverrideSource(OverrideFlag.PEOPLE_WRITERS, source);
+                                } else if (person.getDepartment().equalsIgnoreCase(Filmography.DEPT_ACTORS)) {
+                                    movie.setOverrideSource(OverrideFlag.PEOPLE_ACTORS, source);
+                                }
+                            } else {
+                                person.setSource(Movie.UNKNOWN);
                             }
                             movie.addPerson(person);
                         }
@@ -957,6 +977,197 @@ public class MovieJukeboxXMLReader {
         }
 
         // FAILED
-        return false;
+        return Boolean.FALSE;
+    }
+
+    private void parseOverridableAspectRatio(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("aspect");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setAspectRatio(aspectTools.cleanAspectRatio(((Node) tagElement.getChildNodes().item(0)).getNodeValue()), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+
+    private void parseOverridableCertification(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("certification");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setCertification(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+
+    private void parseOverridableCompany(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("company");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setCompany(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+    
+    private void parseOverridableContainer(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("container");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setContainer(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+
+    private void parseOverridableCountry(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("country");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setCountry(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+
+    private void parseOverridableFramesPerSecond(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName(LANGUAGE);
+            Element tagElement = (Element) nlElement.item(0);
+            float fps = Float.parseFloat(((Node) tagElement.getChildNodes().item(0)).getNodeValue());
+            movie.setFps(fps, tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+    
+    private void parseOverridableLanguage(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName(LANGUAGE);
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setLanguage(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+
+    private void parseOverridableOriginalTitle(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName(ORIGINAL_TITLE);
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setOriginalTitle(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+    
+    private void parseOverridableOutline(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("outline");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setOutline(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+
+    private void parseOverridablePlot(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("plot");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setPlot(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+    
+    private void parseOverridableQuote(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("quote");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setQuote(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+
+    private void parseOverridableReleaseDate(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("releaseDate");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setReleaseDate(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+    
+    private void parseOverridableResolution(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("resolution");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setResolution(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+    
+    private void parseOverridableRuntime(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("runtime");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setRuntime(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+
+    private void parseOverridableTagline(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("tagline");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setTagline(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+
+    private void parseOverridableTitle(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName(TITLE);
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setTitle(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+    
+    private void parseOverridableVideoOutput(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("videoOutput");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setVideoOutput(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+
+    private void parseOverridableVideoSource(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("videoSource");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setVideoSource(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+
+    private void parseOverridableYear(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName(YEAR);
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setYear(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
     }
 }
