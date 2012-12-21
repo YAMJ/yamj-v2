@@ -112,15 +112,14 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 logger.debug("TheTvDBPlugin: No series information found for " + movie.getTitle());
             } else {
                 try {
-                    if (!movie.isOverrideTitle()) {
-                        // issue 1214 : prevent replacing data with blank when TV plugin fails
-                        if (series.getSeriesName() != null && series.getSeriesName().trim().length() > 0) {
-                            movie.setTitle(series.getSeriesName());
-                            movie.setOriginalTitle(series.getSeriesName());
-                        }
+                    if (OverrideTools.checkOverwriteTitle(movie, THETVDB_PLUGIN_ID)) { 
+                        movie.setTitle(series.getSeriesName(), THETVDB_PLUGIN_ID);
+                    }
+                    if (OverrideTools.checkOverwriteOriginalTitle(movie, THETVDB_PLUGIN_ID)) { 
+                        movie.setOriginalTitle(series.getSeriesName(), THETVDB_PLUGIN_ID);
                     }
 
-                    if (!movie.isOverrideYear()) {
+                    if (OverrideTools.checkOverwriteYear(movie, THETVDB_PLUGIN_ID)) { 
                         String year = Movie.UNKNOWN;
 
                         ThreadExecutor.enterIO(webhost);
@@ -133,14 +132,12 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             ThreadExecutor.leaveIO();
                         }
 
-                        if (StringTools.isValidString(year)) {
-                            movie.setYear(year);
-                        }
+                        movie.setYear(year, THETVDB_PLUGIN_ID);
                     }
 
-                    if (isNotValidString(movie.getReleaseDate())) {
+                    if (OverrideTools.checkOverwriteReleaseDate(movie, THETVDB_PLUGIN_ID)) {
                         // Set the release date to be the series first aired date
-                        movie.setReleaseDate(series.getFirstAired());
+                        movie.setReleaseDate(series.getFirstAired(), THETVDB_PLUGIN_ID);
                     }
 
                     if (isNotValidString(movie.getShowStatus())) {
@@ -152,28 +149,28 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         movie.addRating(THETVDB_PLUGIN_ID, (int) (Float.parseFloat(series.getRating()) * 10));
                     }
 
-                    if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                        movie.setRuntime(series.getRuntime());
+                    if (OverrideTools.checkOverwriteRuntime(movie, THETVDB_PLUGIN_ID)) {
+                        movie.setRuntime(series.getRuntime(), THETVDB_PLUGIN_ID);
                     }
 
-                    if (movie.getCompany().equals(Movie.UNKNOWN)) {
-                        movie.setCompany(series.getNetwork());
+                    if (OverrideTools.checkOverwriteCompany(movie, THETVDB_PLUGIN_ID)) {
+                        movie.setCompany(series.getNetwork(), THETVDB_PLUGIN_ID);
                     }
 
-                    if (movie.getGenres().isEmpty()) {
-                        movie.setGenres(series.getGenres());
+                    if (OverrideTools.checkOverwriteGenres(movie, THETVDB_PLUGIN_ID)) {
+                        movie.setGenres(series.getGenres(), THETVDB_PLUGIN_ID);
                     }
 
-                    if (movie.getPlot().equals(Movie.UNKNOWN)) {
-                        movie.setPlot(series.getOverview());
+                    if (OverrideTools.checkOverwritePlot(movie, THETVDB_PLUGIN_ID)) {
+                        movie.setPlot(series.getOverview(), THETVDB_PLUGIN_ID);
                     }
 
-                    if (movie.getCertification().equals(Movie.UNKNOWN)) {
-                        movie.setCertification(series.getContentRating());
+                    if (OverrideTools.checkOverwriteCertification(movie, THETVDB_PLUGIN_ID)) {
+                        movie.setCertification(series.getContentRating(), THETVDB_PLUGIN_ID);
                     }
 
-                    if (movie.getCast().isEmpty()) {
-                        movie.setCast(series.getActors());
+                    if (OverrideTools.checkOverwriteActors(movie, THETVDB_PLUGIN_ID)) {
+                        movie.setCast(series.getActors(), THETVDB_PLUGIN_ID);
                     }
 
                     if (includeWideBanners && isNotValidString(movie.getBannerURL()) || (forceBannerOverwrite) || movie.isDirty(DirtyFlag.BANNER)) {
@@ -274,6 +271,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
             ThreadExecutor.leaveIO();
         }
 
+        boolean setDirectors = OverrideTools.checkOverwriteDirectors(movie, THETVDB_PLUGIN_ID);
+        boolean setWriters = OverrideTools.checkOverwriteWriters(movie, THETVDB_PLUGIN_ID);
+
         for (MovieFile file : movie.getMovieFiles()) {
             if (movie.getSeason() >= 0) {
                 for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
@@ -294,17 +294,16 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
 
                     if (episode != null) {
-                        // We only get the writers for the first episode, otherwise we might overwhelm the skins with data
-                        // TODO Assign the writers on a per-episode basis, rather than series.
-                        if (movie.getWriters().isEmpty()) {
-                            movie.setWriters(episode.getWriters());
+                        // TODO Assign the writers on a per-episode basis, rather than series
+                        if (setWriters && !episode.getWriters().isEmpty()) {
+                            movie.setWriters(episode.getWriters(), THETVDB_PLUGIN_ID);
+                            setWriters = false;
                         }
 
                         // TODO Assign the director to each episode.
-                        if (((movie.getDirector().equals(Movie.UNKNOWN)) || (movie.getDirector().isEmpty())) && !episode.getDirectors().isEmpty()) {
-                            if (movie.getDirectors().isEmpty()) {
-                                movie.setDirectors(episode.getDirectors());
-                            }
+                        if (setDirectors && !episode.getDirectors().isEmpty()) {
+                            movie.setDirectors(episode.getDirectors(), THETVDB_PLUGIN_ID);
+                            setDirectors = false;
                         }
 
                         if (isNotValidString(file.getAirsAfterSeason(part))) {

@@ -15,11 +15,16 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.OverrideFlag;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -73,10 +78,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
      */
     private boolean updateFilmAffinityMediaInfo(Movie movie) {
         Boolean returnStatus = true;
-        String xml;
-        String spanishTitle;
         Pattern countryPattern = Pattern.compile("<img src=\"/imgs/countries/[A-Z]{2}\\.jpg\" title=\"([\\w ]+)\"");
-        Matcher countryMatcher;
 
         String filmAffinityId = movie.getId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
 
@@ -86,7 +88,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
         }
 
         try {
-            xml = webBrowser.request("http://www.filmaffinity.com/es/" + filmAffinityId, Charset.forName("ISO-8859-1"));
+            String xml = webBrowser.request("http://www.filmaffinity.com/es/" + filmAffinityId, Charset.forName("ISO-8859-1"));
 
             if (xml.contains("Serie de TV")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
@@ -96,30 +98,40 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                 }
             }
 
-            spanishTitle = HTMLTools.getTextAfterElem(xml, "<img src=\"http://www.filmaffinity.com/images/movie.gif\" border=\"0\">").replaceAll("\\s{2,}", " ");
-            if (!movie.isOverrideTitle()) {
-                movie.setTitle(spanishTitle);
-                movie.setOriginalTitle(HTMLTools.getTextAfterElem(xml, FA_ORIGINAL_TITLE));
+            if (OverrideTools.checkOverwriteTitle(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
+                String spanishTitle = HTMLTools.getTextAfterElem(xml, "<img src=\"http://www.filmaffinity.com/images/movie.gif\" border=\"0\">").replaceAll("\\s{2,}", " ");
+                movie.setTitle(spanishTitle, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
+            }
+            if (OverrideTools.checkOverwriteOriginalTitle(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
+                movie.setOriginalTitle(HTMLTools.getTextAfterElem(xml, FA_ORIGINAL_TITLE), FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
 
-            movie.setYear(HTMLTools.getTextAfterElem(xml, FA_YEAR));
-            // check to see if the year is numeric, if not, try a different approach
-            if (!StringUtils.isNumeric(movie.getYear())) {
-                movie.setYear(HTMLTools.getTextAfterElem(xml, FA_YEAR, 1));
+            if (OverrideTools.checkOverwriteYear(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
+                String year = HTMLTools.getTextAfterElem(xml, FA_YEAR);
+                // check to see if the year is numeric, if not, try a different approach
+                if (!StringUtils.isNumeric(year)) {
+                    year = HTMLTools.getTextAfterElem(xml, FA_YEAR, 1);
+                }
+                movie.setYear(year, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
 
-            String runTime = HTMLTools.getTextAfterElem(xml, FA_RUNTIME, 1).replace(" min.", "m");
-            if (!runTime.equals("min.")) {
-                movie.setRuntime(runTime);
+            if (OverrideTools.checkOverwriteRuntime(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
+                String runTime = HTMLTools.getTextAfterElem(xml, FA_RUNTIME, 1).replace(" min.", "m");
+                if (!runTime.equals("min.")) {
+                    movie.setRuntime(runTime, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
+                }
             }
-
-            countryMatcher = countryPattern.matcher(xml);
-            if (countryMatcher.find()) {
-                movie.setCountry(countryMatcher.group(1));
+            
+            if (OverrideTools.checkOverwriteCountry(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
+                Matcher countryMatcher = countryPattern.matcher(xml);
+                if (countryMatcher.find()) {
+                    movie.setCountry(countryMatcher.group(1), FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
+                }
             }
-
-            for (String director : HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_DIRECTOR, "</a></td>")).split(",")) {
-                movie.addDirector(director.trim());
+            
+            if (OverrideTools.checkOverwriteDirectors(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
+                List<String> newDirectors = Arrays.asList(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_DIRECTOR, "</a></td>")).split(","));
+                movie.setDirectors(newDirectors, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
 
             /*
@@ -130,33 +142,43 @@ public class FilmaffinityPlugin extends ImdbPlugin {
              *
              * The info between parenthesis doesn't add.
              */
-            for (String writer : HTMLTools.getTextAfterElem(xml, FA_WRITER).split("\\(")[0].split(",")) {
-                movie.addWriter(writer.trim());
+            if (OverrideTools.checkOverwriteWriters(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
+                List<String> newWriters = Arrays.asList(HTMLTools.getTextAfterElem(xml, FA_WRITER).split("\\(")[0].split(","));
+                movie.setWriters(newWriters, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
+            }
+            
+            if (OverrideTools.checkOverwriteActors(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
+                List<String> newActors = Arrays.asList(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_CAST, "</a></td>")).split(","));
+                movie.setCast(newActors, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
 
-            for (String actor : HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_CAST, "</a></td>")).split(",")) {
-                movie.addActor(actor.trim());
+            if (OverrideTools.checkOverwriteCompany(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
+                // TODO: Save more than one company.
+                movie.setCompany(HTMLTools.getTextAfterElem(xml, FA_COMPANY).split("/")[0].trim(), FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
-
-            // TODO: Save more than one company.
-            movie.setCompany(HTMLTools.getTextAfterElem(xml, FA_COMPANY).split("/")[0].trim());
-
-            for (String genre : HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_GENRE, "</td>")).split("\\.|\\|")) {
-                movie.addGenre(Library.getIndexingGenre(cleanStringEnding(genre.trim())));
+            
+            if (OverrideTools.checkOverwriteGenres(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
+                List<String> newGenres = new ArrayList<String>();
+                for (String genre : HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_GENRE, "</td>")).split("\\.|\\|")) {
+                    newGenres.add(Library.getIndexingGenre(cleanStringEnding(genre.trim())));
+                }
+                movie.setGenres(newGenres, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
-
+            
             try {
                 movie.addRating(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID, (int) (Float.parseFloat(HTMLTools.extractTag(xml, "<td align=\"center\" style=\"color:#990000; font-size:22px; font-weight: bold;\">", "</td>").replace(",", ".")) * 10));
             } catch (Exception e) {
                 // Don't set a rating
             }
 
-            String plot = HTMLTools.getTextAfterElem(xml, FA_PLOT);
-            if (plot.endsWith("(FILMAFFINITY)")) {
-                plot = new String(plot.substring(0, plot.length() - 14));
+            if (OverrideTools.checkOverwritePlot(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
+                String plot = HTMLTools.getTextAfterElem(xml, FA_PLOT);
+                if (plot.endsWith("(FILMAFFINITY)")) {
+                    plot = new String(plot.substring(0, plot.length() - 14));
+                }
+                movie.setPlot(plot.trim(), FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
-            movie.setPlot(plot.trim());
-
+            
             /*
              * Fill the rest of the fields from IMDB, taking care not to allow
              * the title to get overwritten.
@@ -164,16 +186,19 @@ public class FilmaffinityPlugin extends ImdbPlugin {
              * I change temporally: title = Original title to improve the chance
              * to find the right movie in IMDb.
              */
-            boolean overrideTitle = movie.isOverrideTitle();
             String title = movie.getTitle();
+            String titleSource = movie.getOverrideSource(OverrideFlag.TITLE);
             String originalTitle = movie.getOriginalTitle();
-            movie.setOverrideTitle(true);
-            movie.setTitle(movie.getOriginalTitle());
+            String originalTitleSource = movie.getOverrideSource(OverrideFlag.ORIGINALTITLE);
+            movie.setTitle(originalTitle, titleSource);
             super.scan(movie);
             // Change the title back to the way it was
-            movie.setTitle(title);
-            movie.setOriginalTitle(originalTitle);
-            movie.setOverrideTitle(overrideTitle);
+            if (OverrideTools.checkOverwriteTitle(movie, titleSource)) {
+                movie.setTitle(title, titleSource);
+            }
+            if (OverrideTools.checkOverwriteOriginalTitle(movie, originalTitleSource)) {
+                movie.setOriginalTitle(originalTitle, originalTitleSource);
+            }
 
         } catch (Exception error) {
             logger.error("FilmAffinity: Failed retreiving movie info: " + filmAffinityId);

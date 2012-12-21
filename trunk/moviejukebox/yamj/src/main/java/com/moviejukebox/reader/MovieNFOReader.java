@@ -344,31 +344,47 @@ public class MovieNFOReader {
                 }
 
                 // Runtime
-                String runtime = DOMHelper.getValueFromElement(eCommon, "runtime");
-                if (StringUtils.isNotBlank(runtime)) {
-                    movie.setRuntime(runtime);
+                if (OverrideTools.checkOverwriteRuntime(movie, NFO_PLUGIN_ID)) {
+                    String runtime = DOMHelper.getValueFromElement(eCommon, "runtime");
+                    movie.setRuntime(runtime, NFO_PLUGIN_ID);
                 }
 
                 // Certification
                 parseCertification(eCommon, movie);
 
                 // Plot
-                movie.setPlot(DOMHelper.getValueFromElement(eCommon, "plot"));
+                if (OverrideTools.checkOverwritePlot(movie, NFO_PLUGIN_ID)) {
+                    movie.setPlot(DOMHelper.getValueFromElement(eCommon, "plot"), NFO_PLUGIN_ID);
+                }
 
                 // Outline
-                movie.setOutline(DOMHelper.getValueFromElement(eCommon, "outline"));
+                if (OverrideTools.checkOverwriteOutline(movie, NFO_PLUGIN_ID)) {
+                    movie.setOutline(DOMHelper.getValueFromElement(eCommon, "outline"), NFO_PLUGIN_ID);
+                }
 
-                parseGenres(eCommon.getElementsByTagName("genre"), movie);
-
+                if (OverrideTools.checkOverwriteGenres(movie, NFO_PLUGIN_ID)) {
+                    List<String> newGenres = new ArrayList<String>();
+                    parseGenres(eCommon.getElementsByTagName("genre"), newGenres);
+                    movie.setGenres(newGenres, NFO_PLUGIN_ID);
+                }
+                
                 // Premiered & Release Date
                 movieDate(movie, DOMHelper.getValueFromElement(eCommon, "premiered"));
                 movieDate(movie, DOMHelper.getValueFromElement(eCommon, "releasedate"));
 
-                movie.setQuote(DOMHelper.getValueFromElement(eCommon, "quote"));
-                movie.setTagline(DOMHelper.getValueFromElement(eCommon, "tagline"));
-                movie.setCompany(DOMHelper.getValueFromElement(eCommon, "studio"));
-                movie.setCompany(DOMHelper.getValueFromElement(eCommon, "company"));
-                movie.setCountry(DOMHelper.getValueFromElement(eCommon, "country"));
+                if (OverrideTools.checkOverwriteQuote(movie, NFO_PLUGIN_ID)) {
+                    movie.setQuote(DOMHelper.getValueFromElement(eCommon, "quote"), NFO_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwriteTagline(movie, NFO_PLUGIN_ID)) {
+                    movie.setTagline(DOMHelper.getValueFromElement(eCommon, "tagline"), NFO_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwriteCompany(movie, NFO_PLUGIN_ID)) {
+                    movie.setCompany(DOMHelper.getValueFromElement(eCommon, "studio"), NFO_PLUGIN_ID);
+                    movie.setCompany(DOMHelper.getValueFromElement(eCommon, "company"), NFO_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwriteCountry(movie, NFO_PLUGIN_ID)) {
+                    movie.setCountry(DOMHelper.getValueFromElement(eCommon, "country"), NFO_PLUGIN_ID);
+                }
 
                 if (!movie.isTVShow()) {
                     String tempTop250 = DOMHelper.getValueFromElement(eCommon, "top250");
@@ -400,33 +416,31 @@ public class MovieNFOReader {
                 // Director
                 parseDirectors(eCommon.getElementsByTagName("director"), movie);
 
-                String tempString = DOMHelper.getValueFromElement(eCommon, "fps");
-                if (isValidString(tempString)) {
-                    float fps;
-                    try {
-                        fps = Float.parseFloat(tempString);
-                    } catch (NumberFormatException error) {
-                        logger.warn(LOG_MESSAGE + "Error reading FPS value " + tempString);
-                        fps = 0.0f;
+                if (OverrideTools.checkOverwriteFPS(movie, NFO_PLUGIN_ID)) {
+                    String tempString = DOMHelper.getValueFromElement(eCommon, "fps");
+                    if (isValidString(tempString)) {
+                        try {
+                            movie.setFps(Float.parseFloat(tempString), NFO_PLUGIN_ID);
+                        } catch (NumberFormatException error) {
+                            logger.warn(LOG_MESSAGE + "Error reading FPS value " + tempString);
+                        }
                     }
-                    movie.setFps(fps);
                 }
-
+                
                 // VideoSource: Issue 506 - Even though it's not strictly XBMC standard
-                tempString = DOMHelper.getValueFromElement(eCommon, "videosource");
-                if (StringTools.isNotValidString(tempString)) {
-                    // Issue 2531: Try the alternative "videoSource"
-                    tempString = DOMHelper.getValueFromElement(eCommon, "videoSource");
-                }
-
-                if (StringTools.isValidString(tempString)) {
-                    movie.setVideoSource(tempString);
+                if (OverrideTools.checkOverwriteVideoSource(movie, NFO_PLUGIN_ID)) {
+                    String tempString = DOMHelper.getValueFromElement(eCommon, "videosource");
+                    if (StringTools.isNotValidString(tempString)) {
+                        // Issue 2531: Try the alternative "videoSource"
+                        tempString = DOMHelper.getValueFromElement(eCommon, "videoSource");
+                    }
+                    movie.setVideoSource(tempString, NFO_PLUGIN_ID);
                 }
 
                 // Video Output
-                tempString = DOMHelper.getValueFromElement(eCommon, "videooutput");
-                if (StringTools.isValidString(tempString)) {
-                    movie.setVideoOutput(tempString);
+                if (OverrideTools.checkOverwriteVideoOutput(movie, NFO_PLUGIN_ID)) {
+                    String tempString = DOMHelper.getValueFromElement(eCommon, "videooutput");
+                    movie.setVideoOutput(tempString, NFO_PLUGIN_ID);
                 }
 
                 // Parse the video info
@@ -456,9 +470,9 @@ public class MovieNFOReader {
             return;
         }
 
-        String container = DOMHelper.getValueFromElement(eFileInfo, "container");
-        if (StringTools.isValidString(container)) {
-            movie.setContainer(container);
+        if (OverrideTools.checkOverwriteContainer(movie, NFO_PLUGIN_ID)) {
+            String container = DOMHelper.getValueFromElement(eFileInfo, "container");
+            movie.setContainer(container, NFO_PLUGIN_ID);
         }
 
         Element eStreamDetails = DOMHelper.getElementByName(eFileInfo, "streamdetails");
@@ -483,10 +497,14 @@ public class MovieNFOReader {
                     movie.addCodec(videoCodec);
                 }
 
-                temp = DOMHelper.getValueFromElement(eStreams, "aspect");
-                movie.setAspectRatio(aspectTools.cleanAspectRatio(temp));
+                if (OverrideTools.checkOverwriteAspectRatio(movie, NFO_PLUGIN_ID)) {
+                    temp = DOMHelper.getValueFromElement(eStreams, "aspect");
+                    movie.setAspectRatio(aspectTools.cleanAspectRatio(temp), NFO_PLUGIN_ID);
+                }
 
-                movie.setResolution(DOMHelper.getValueFromElement(eStreams, "width"), DOMHelper.getValueFromElement(eStreams, "height"));
+                if (OverrideTools.checkOverwriteResolution(movie, NFO_PLUGIN_ID)) {
+                    movie.setResolution(DOMHelper.getValueFromElement(eStreams, "width"), DOMHelper.getValueFromElement(eStreams, "height"), NFO_PLUGIN_ID);
+                }
             }
         } // End of VIDEO
 
@@ -520,17 +538,19 @@ public class MovieNFOReader {
         } // End of AUDIO
 
         // Update the language
-        StringBuilder movieLanguage = new StringBuilder();
-        for (Codec codec : movie.getCodecs()) {
-            if (codec.getCodecType() == CodecType.AUDIO) {
-                if (movieLanguage.length() > 0) {
-                    movieLanguage.append(languageDelimiter);
+        if (OverrideTools.checkOverwriteLanguage(movie, NFO_PLUGIN_ID)) {
+            StringBuilder movieLanguage = new StringBuilder();
+            for (Codec codec : movie.getCodecs()) {
+                if (codec.getCodecType() == CodecType.AUDIO) {
+                    if (movieLanguage.length() > 0) {
+                        movieLanguage.append(languageDelimiter);
+                    }
+                    movieLanguage.append(codec.getCodecLanguage());
                 }
-                movieLanguage.append(codec.getCodecLanguage());
             }
+            movie.setLanguage(movieLanguage.toString(), NFO_PLUGIN_ID);
         }
-        movie.setLanguage(movieLanguage.toString());
-
+        
         // Subtitles
         List<String> subtitles = new ArrayList<String>();
         nlStreams = eStreamDetails.getElementsByTagName("subtitle");
@@ -632,14 +652,21 @@ public class MovieNFOReader {
                     dateTime = new DateTime(parseDate);
                 }
 
-                movie.setReleaseDate(DateTimeTools.convertDateToString(dateTime));
-                movie.setOverrideYear(Boolean.TRUE);
-                movie.setYear(dateTime.toString("yyyy"));
+                if (OverrideTools.checkOverwriteReleaseDate(movie, NFO_PLUGIN_ID)) {
+                    movie.setReleaseDate(DateTimeTools.convertDateToString(dateTime), NFO_PLUGIN_ID);
+                }
+                
+                if (OverrideTools.checkOverwriteYear(movie, NFO_PLUGIN_ID)) {
+                    movie.setYear(dateTime.toString("yyyy"), NFO_PLUGIN_ID);
+                }
             } catch (Exception ex) {
                 logger.warn(LOG_MESSAGE + "Failed parsing NFO file for movie: " + movie.getBaseFilename() + ". Please fix or remove it.");
                 logger.warn(LOG_MESSAGE + "premiered or releasedate does not contain a valid date: " + parseDate);
                 logger.warn(LOG_MESSAGE + SystemTools.getStackTrace(ex));
-                movie.setReleaseDate(parseDate);
+
+                if (OverrideTools.checkOverwriteReleaseDate(movie, NFO_PLUGIN_ID)) {
+                    movie.setReleaseDate(parseDate, NFO_PLUGIN_ID);
+                }
             }
         }
     }
@@ -652,7 +679,7 @@ public class MovieNFOReader {
      * @param nlElements
      * @param movie
      */
-    private static void parseGenres(NodeList nlElements, Movie movie) {
+    private static void parseGenres(NodeList nlElements, List<String> newGenres) {
         Node nElements;
         for (int looper = 0; looper < nlElements.getLength(); looper++) {
             nElements = nlElements.item(looper);
@@ -660,9 +687,9 @@ public class MovieNFOReader {
                 Element eGenre = (Element) nElements;
                 NodeList nlNames = eGenre.getElementsByTagName("name");
                 if ((nlNames != null) && (nlNames.getLength() > 0)) {
-                    parseGenres(nlNames, movie);
+                    parseGenres(nlNames, newGenres);
                 } else {
-                    movie.addGenres(StringTools.splitList(eGenre.getTextContent(), SPLIT_GENRE));
+                    newGenres.addAll(StringTools.splitList(eGenre.getTextContent(), SPLIT_GENRE));
                 }
             }
         }
@@ -675,42 +702,69 @@ public class MovieNFOReader {
      * @param movie
      */
     private static void parseActors(NodeList nlElements, Movie movie) {
-        // If we have a node
-        if (nlElements != null && nlElements.getLength() > 0) {
-            // Get all the name/role/thumb nodes
-            Node nActors = nlElements.item(0);
-            NodeList nlCast = nActors.getChildNodes();
-            Node nElement;
+        // check if we have a node
+        if (nlElements == null || nlElements.getLength() == 0) {
+            return;
+        }
+        
+        // check if we should override
+        boolean overrideActors = OverrideTools.checkOverwriteActors(movie, NFO_PLUGIN_ID);
+        boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, NFO_PLUGIN_ID);
+        if (!overrideActors && !overridePeopleActors) {
+            // nothing to do if nothing should be overridden
+            return;
+        }
+        
+        // clear cast
+        if (overrideActors) {
+            movie.clearCast();
+        }
+        if (overridePeopleActors) {
+            movie.clearPeopleCast();
+        }
+        
+        // Get all the name/role/thumb nodes
+        Node nActors = nlElements.item(0);
+        NodeList nlCast = nActors.getChildNodes();
+        Node nElement;
 
-            String aName = Movie.UNKNOWN;
-            String aRole = Movie.UNKNOWN;
-            String aThumb = Movie.UNKNOWN;
-            Boolean firstActor = Boolean.TRUE;
+        String aName = Movie.UNKNOWN;
+        String aRole = Movie.UNKNOWN;
+        String aThumb = Movie.UNKNOWN;
+        Boolean firstActor = Boolean.TRUE;
 
-            for (int looper = 0; looper < nlCast.getLength(); looper++) {
-                nElement = nlCast.item(looper);
-                if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                    Element eCast = (Element) nElement;
-                    if (eCast.getNodeName().equalsIgnoreCase("name")) {
-                        if (firstActor) {
-                            firstActor = Boolean.FALSE;
-                        } else {
-                            // This will add to the person and actor
-                            movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN);
+        for (int looper = 0; looper < nlCast.getLength(); looper++) {
+            nElement = nlCast.item(looper);
+            if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                Element eCast = (Element) nElement;
+                if (eCast.getNodeName().equalsIgnoreCase("name")) {
+                    if (firstActor) {
+                        firstActor = Boolean.FALSE;
+                    } else {
+                        if (overrideActors) {
+                            movie.addActor(aName, NFO_PLUGIN_ID);
                         }
-                        aName = eCast.getTextContent();
-                        aRole = Movie.UNKNOWN;
-                        aThumb = Movie.UNKNOWN;
-                    } else if (eCast.getNodeName().equalsIgnoreCase("role")) {
-                        aRole = eCast.getTextContent();
-                    } else if (eCast.getNodeName().equalsIgnoreCase("thumb")) {
-                        aThumb = eCast.getTextContent();
+                        if (overridePeopleActors) {
+                            movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID);
+                        }
                     }
-                    // There's a case where there might be a different node here that isn't name, role or thumb, but that will be ignored
+                    aName = eCast.getTextContent();
+                    aRole = Movie.UNKNOWN;
+                    aThumb = Movie.UNKNOWN;
+                } else if (eCast.getNodeName().equalsIgnoreCase("role")) {
+                    aRole = eCast.getTextContent();
+                } else if (eCast.getNodeName().equalsIgnoreCase("thumb")) {
+                    aThumb = eCast.getTextContent();
                 }
+                // There's a case where there might be a different node here that isn't name, role or thumb, but that will be ignored
             }
-            // This will add to the person and actor
-            movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN);
+        }
+
+        if (overrideActors) {
+            movie.addActor(aName, NFO_PLUGIN_ID);
+        }
+        if (overridePeopleActors) {
+            movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID);
         }
     }
 
@@ -721,16 +775,20 @@ public class MovieNFOReader {
      * @param movie
      */
     private static void parseWriters(NodeList nlElements, Movie movie) {
-        Node nElements;
-        for (int looper = 0; looper < nlElements.getLength(); looper++) {
-            nElements = nlElements.item(looper);
-            if (nElements.getNodeType() == Node.ELEMENT_NODE) {
-                Element eWriter = (Element) nElements;
-                movie.addWriter(eWriter.getTextContent());
+        if (OverrideTools.checkOverwriteDirectors(movie, NFO_PLUGIN_ID)) {
+            List<String> newWriters = new ArrayList<String>();
+            Node nElements;
+            for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                nElements = nlElements.item(looper);
+                if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eWriter = (Element) nElements;
+                    newWriters.add(eWriter.getTextContent());
+                }
             }
+            movie.setWriters(newWriters, NFO_PLUGIN_ID);
         }
     }
-
+    
     /**
      * Parse Directors from the XML NFO file
      *
@@ -738,13 +796,17 @@ public class MovieNFOReader {
      * @param movie
      */
     private static void parseDirectors(NodeList nlElements, Movie movie) {
-        Node nElements;
-        for (int looper = 0; looper < nlElements.getLength(); looper++) {
-            nElements = nlElements.item(looper);
-            if (nElements.getNodeType() == Node.ELEMENT_NODE) {
-                Element eDirector = (Element) nElements;
-                movie.addDirector(eDirector.getTextContent());
+        if (OverrideTools.checkOverwriteDirectors(movie, NFO_PLUGIN_ID)) {
+            List<String> newDirectors = new ArrayList<String>();
+            Node nElements;
+            for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                nElements = nlElements.item(looper);
+                if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eDirector = (Element) nElements;
+                    newDirectors.add(eDirector.getTextContent());
+                }
             }
+            movie.setDirectors(newDirectors, NFO_PLUGIN_ID);
         }
     }
 
@@ -805,7 +867,10 @@ public class MovieNFOReader {
         if (eCommon == null) {
             return;
         }
-
+        if (!OverrideTools.checkOverwriteCertification(movie, NFO_PLUGIN_ID)) {
+            return;
+        }
+        
         String tempCert;
         if (getCertificationFromMPAA) {
             tempCert = DOMHelper.getValueFromElement(eCommon, "mpaa");
@@ -825,7 +890,7 @@ public class MovieNFOReader {
                         tempCert = new String(tempCert.substring(start));
                     }
                 }
-                movie.setCertification(tempCert);
+                movie.setCertification(tempCert, NFO_PLUGIN_ID);
             }
         } else {
             tempCert = DOMHelper.getValueFromElement(eCommon, "certification");
@@ -855,7 +920,7 @@ public class MovieNFOReader {
                     }
                 }
 
-                movie.setCertification(tempCert);
+                movie.setCertification(tempCert, NFO_PLUGIN_ID);
             }
         }
     }
@@ -936,21 +1001,20 @@ public class MovieNFOReader {
         String titleSort = DOMHelper.getValueFromElement(eCommon, "sorttitle");
         String titleOrig = DOMHelper.getValueFromElement(eCommon, "originaltitle");
 
-        if (isValidString(titleOrig)) {
-            movie.setOriginalTitle(titleOrig);
+        if (OverrideTools.checkOverwriteOriginalTitle(movie, NFO_PLUGIN_ID)) {
+            movie.setOriginalTitle(titleOrig, NFO_PLUGIN_ID);
         }
 
-        // Work out what to do with the title and titleSort
-        if (isValidString(titleMain)) {
-            // We have a valid title, so set that for title and titleSort
-            movie.setTitle(titleMain);
-            movie.setTitleSort(titleMain);
-            movie.setOverrideTitle(Boolean.TRUE);
+        if (OverrideTools.checkOverwriteTitle(movie, NFO_PLUGIN_ID)) {
+            movie.setTitle(titleMain, NFO_PLUGIN_ID);
         }
 
-        // Now check the titleSort and overwrite it if necessary.
+        // Set the title sort
         if (isValidString(titleSort)) {
             movie.setTitleSort(titleSort);
+        } else {
+            // use the movie title
+            movie.setTitleSort(movie.getTitle());
         }
     }
 
@@ -964,8 +1028,9 @@ public class MovieNFOReader {
     private static boolean parseYear(String tempYear, Movie movie) {
         // START year
         if (StringUtils.isNumeric(tempYear) && tempYear.length() == 4) {
-            movie.setOverrideYear(Boolean.TRUE);
-            movie.setYear(tempYear);
+            if (OverrideTools.checkOverwriteYear(movie, NFO_PLUGIN_ID)) {
+                movie.setYear(tempYear, NFO_PLUGIN_ID);
+            }
             return Boolean.TRUE;
         } else {
             if (StringUtils.isBlank(tempYear)) {

@@ -17,6 +17,7 @@ import com.moviejukebox.scanner.BDRipScanner.BDFilePropertiesMovie;
 import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import java.io.File;
 import java.util.*;
@@ -33,6 +34,8 @@ import org.apache.log4j.Logger;
  */
 public class MovieDirectoryScanner {
 
+    private static final String SOURCE_FILENAME = "filename";
+    
     private int mediaLibraryRootPathIndex; // always includes path delimiter
     private final Set<String> supportedExtensions = new HashSet<String>();
     private String thumbnailsFormat;
@@ -365,17 +368,20 @@ public class MovieDirectoryScanner {
                     // This is needed for multi-part disks and TV shows
                     movieFile.mergeFileNameDTO(dto);
                 }
-                // Set duration for BD disks using the data in the playlist + mark Bluray source and container
-                // Issue 1176 - Prevent lost of NFO Data
-                if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                    movie.setRuntime(DateTimeTools.formatDuration(bdDuration));
+                if (OverrideTools.checkOverwriteRuntime(movie, SOURCE_FILENAME)) {
+	                // Set duration for BD disks using the data in the playlist + mark Bluray source and container
+	                movie.setRuntime(DateTimeTools.formatDuration(bdDuration), SOURCE_FILENAME);
                 }
-
+                
                 // Pretend that HDDVD is also BluRay
                 if (!movie.getVideoSource().equalsIgnoreCase("HDDVD")) {
-                    movie.setContainer("BluRay");
-                    movie.setVideoSource("BluRay");
                     movie.setFormatType(Movie.TYPE_BLURAY);
+                    if (OverrideTools.checkOverwriteContainer(movie, SOURCE_FILENAME)) {
+                    	movie.setContainer("BluRay", SOURCE_FILENAME);
+                    }
+                    if (OverrideTools.checkOverwriteVideoSource(movie, SOURCE_FILENAME)) {
+                    	movie.setVideoSource("BluRay", SOURCE_FILENAME);
+                    }
                 }
             }
 

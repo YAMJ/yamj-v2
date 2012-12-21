@@ -67,6 +67,7 @@ public class Filmography {
     private String url = UNKNOWN;
     private String photoFilename = UNKNOWN;
     private String photoURL = UNKNOWN;
+    private String source = UNKNOWN;
     private boolean isDirtyPhoto = false;
     private boolean isDirty = false;
     private boolean isScrapeLibrary = true;
@@ -418,5 +419,13 @@ public class Filmography {
                     || film.getName().equalsIgnoreCase(movie.getTitle()) || film.getTitle().equalsIgnoreCase(movie.getTitle());
         }
         return dirty;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getSource() {
+        return source;
     }
 }

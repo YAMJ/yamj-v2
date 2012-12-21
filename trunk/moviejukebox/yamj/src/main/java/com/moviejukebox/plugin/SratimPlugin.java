@@ -52,9 +52,7 @@ public class SratimPlugin extends ImdbPlugin {
         "אפל", "שעשועון", "היסטוריה", "אימה", "מוזיקה", "מחזמר", "מיסתורין", "חדשות", "ריאליטי", "רומנטיקה", "מדע בדיוני", "קצר", "ספורט", "אירוח",
         "מתח", "מלחמה", "מערבון"};
     private static boolean subtitleDownload = false;
-    private static boolean keepEnglishTitle = false;
     private static boolean keepEnglishGenres = false;
-    private static boolean keepImdbCast = false;
     private static boolean bidiSupport = true;
     protected static final String RECAPTCHA_URL = "http://www.google.com/recaptcha/api/challenge?k=6LfK1LsSAAAAACdKnQfBi_xCdaMxyd2I9qL5PRH8";
     protected static final Pattern CHALLENGE_ID = Pattern.compile("challenge : '([^']+)'");
@@ -74,9 +72,7 @@ public class SratimPlugin extends ImdbPlugin {
 
         subtitleDownload = PropertiesUtil.getBooleanProperty("sratim.subtitle", FALSE);
         preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
-        keepEnglishTitle = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishTitles", FALSE);
         keepEnglishGenres = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishGenres", FALSE);
-        keepImdbCast = PropertiesUtil.getBooleanProperty("sratim.keepImdbCast", FALSE);
         bidiSupport = PropertiesUtil.getBooleanProperty("sratim.BidiSupport", TRUE);
 
         lineBreak = PropertiesUtil.getProperty("mjb.lineBreak", "{br}");
@@ -100,9 +96,8 @@ public class SratimPlugin extends ImdbPlugin {
                 retval = tvdb.scan(mediaFile);
             }
 
-            if (!keepEnglishGenres) { // Translate genres to Hebrew
-                translateGenres(mediaFile);
-            }
+            // Translate genres to Hebrew
+            translateGenres(mediaFile);
 
             sratimUrl = getSratimUrl(mediaFile, mediaFile.getTitle(), mediaFile.getYear());
         }
@@ -170,6 +165,12 @@ public class SratimPlugin extends ImdbPlugin {
 
     // Translate IMDB genres to Hebrew
     protected void translateGenres(Movie movie) {
+        if (keepEnglishGenres) {
+            return;
+        } else if (!OverrideTools.checkOverwriteGenres(movie, SRATIM_PLUGIN_ID)) {
+            return;
+        }
+        
         TreeSet<String> genresHeb = new TreeSet<String>();
 
         // Translate genres to Hebrew
@@ -198,8 +199,9 @@ public class SratimPlugin extends ImdbPlugin {
         }
 
         // Set translated IMDB genres
-        movie.setGenres(genresHeb);
+        movie.setGenres(genresHeb, SRATIM_PLUGIN_ID);
     }
+    
     // Porting from my old code in c++
     public static final int BCT_L = 0;
     public static final int BCT_R = 1;
@@ -630,14 +632,11 @@ public class SratimPlugin extends ImdbPlugin {
                 }
             }
 
-            if (!keepEnglishTitle) { // Translate Title to Hebrew
-                if (!movie.isOverrideTitle()) {
-                    String title = extractMovieTitle(xml);
-
-                    if (!movie.isOverrideTitle() && !"None".equalsIgnoreCase(title)) {
-                        movie.setTitle(logicalToVisual(title));
-                        movie.setTitleSort(title);
-                    }
+            if (OverrideTools.checkOverwriteTitle(movie, SRATIM_PLUGIN_ID)) {
+                String title = extractMovieTitle(xml);
+                if (!"None".equalsIgnoreCase(title)) {
+                    movie.setTitle(logicalToVisual(title), SRATIM_PLUGIN_ID);
+                    movie.setTitleSort(title);
                 }
             }
 
@@ -646,33 +645,41 @@ public class SratimPlugin extends ImdbPlugin {
                 movie.addRating(SRATIM_PLUGIN_ID, parseRating(HTMLTools.extractTag(xml, "width=\"120\" height=\"12\" title=\"", 0, " ")));
             }
 
-            movie.addDirector(logicalToVisual(HTMLTools.getTextAfterElem(xml, "בימוי:")));
-
-            movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "י' בעולם:"));
-            // Issue 1176 - Prevent lost of NFO Data
-            if (movie.getRuntime().equals(Movie.UNKNOWN)) {
-                movie.setRuntime(logicalToVisual(removeTrailDot(HTMLTools.getTextAfterElem(xml, "אורך זמן:"))));
+            if (OverrideTools.checkOverwriteTitle(movie, SRATIM_PLUGIN_ID)) {
+                String director = logicalToVisual(HTMLTools.getTextAfterElem(xml, "בימוי:"));
+                movie.setDirector(director, SRATIM_PLUGIN_ID);
             }
-            movie.setCountry(logicalToVisual(HTMLTools.getTextAfterElem(xml, "מדינה:")));
 
-            // Prefer IMDB genres
+            if (OverrideTools.checkOverwriteReleaseDate(movie, SRATIM_PLUGIN_ID)) {
+                movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "י' בעולם:"), SRATIM_PLUGIN_ID);
+            }
+            
+            if (OverrideTools.checkOverwriteRuntime(movie, SRATIM_PLUGIN_ID)) {
+                movie.setRuntime(logicalToVisual(removeTrailDot(HTMLTools.getTextAfterElem(xml, "אורך זמן:"))), SRATIM_PLUGIN_ID);
+            }
+            
+            if (OverrideTools.checkOverwriteCountry(movie, SRATIM_PLUGIN_ID)) {
+                movie.setCountry(logicalToVisual(HTMLTools.getTextAfterElem(xml, "מדינה:")), SRATIM_PLUGIN_ID);
+            }
+
+            // only add if no genres set until now
             if (movie.getGenres().isEmpty()) {
                 String genres = HTMLTools.getTextAfterElem(xml, "ז'אנרים:");
-                if (!Movie.UNKNOWN.equals(genres)) {
-                    for (String genre : genres.split(" *, *")) {
-                        movie.addGenre(logicalToVisual(Library.getIndexingGenre(genre)));
-                    }
+                List<String> newGenres = new ArrayList<String>();
+                for (String genre : genres.split(" *, *")) {
+                    newGenres.add(logicalToVisual(Library.getIndexingGenre(genre)));
                 }
+                movie.setGenres(newGenres, SRATIM_PLUGIN_ID);
             }
 
             String tmpPlot = removeHtmlTags(extractTag(xml, "<meta name=\"description\" content=\"", "\""));
-
-            if (tmpPlot.length() > 30) { //Set Hebrew plot only if it contains substantial nubmetr of characters, otherwise IMDB plot will be used.
-                movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax));
+            //Set Hebrew plot only if it contains substantial nubmetr of characters, otherwise IMDB plot will be used.
+            if ((tmpPlot.length() > 30) && OverrideTools.checkOverwritePlot(movie, SRATIM_PLUGIN_ID)) {
+                movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax), SRATIM_PLUGIN_ID);
             }
 
-            if (!keepImdbCast) {
-                movie.setCast(logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "שחקנים:", "</tr>", "<a href", "</a>"))));
+            if (OverrideTools.checkOverwriteActors(movie, SRATIM_PLUGIN_ID)) {
+                movie.setCast(logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "שחקנים:", "</tr>", "<a href", "</a>"))), SRATIM_PLUGIN_ID);
             }
 
             if (movie.isTVShow()) {
@@ -792,8 +799,8 @@ public class SratimPlugin extends ImdbPlugin {
                 }
             }
 
-            if (!movie.isOverrideYear()) {
-                movie.setYear(seasonYear);
+            if (OverrideTools.checkOverwriteYear(movie, SRATIM_PLUGIN_ID)) {
+                movie.setYear(seasonYear, SRATIM_PLUGIN_ID);
             }
 
             seasonXML = webBrowser.request(seasonUrl, Charset.forName("UTF-8"));

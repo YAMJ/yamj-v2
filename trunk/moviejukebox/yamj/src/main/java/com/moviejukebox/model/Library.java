@@ -443,10 +443,10 @@ public class Library implements Map<String, Movie> {
 
             indexMaster.setSetMaster(true);
             indexMaster.setSetSize(indexMovieList.size());
-            indexMaster.setTitle(indexName);
+            indexMaster.setTitle(indexName, indexMaster.getOverrideSource(OverrideFlag.TITLE));
             // Do not overwrite the TitleSort with the indexname as this will overwrite the changes that are made in a NFO file
             // indexMaster.setTitleSort(indexName);
-            indexMaster.setOriginalTitle(indexName);
+            indexMaster.setOriginalTitle(indexName, indexMaster.getOverrideSource(OverrideFlag.ORIGINALTITLE));
             indexMaster.setBaseFilename(createPrefix(prefix, createCategoryKey(indexName)) + "1");
             indexMaster.setBaseName(makeSafeFilename(indexMaster.getBaseFilename()));
 
@@ -521,17 +521,19 @@ public class Library implements Map<String, Movie> {
 
             masters.put(indexName, indexMaster);
 
-            StringBuilder sb = new StringBuilder("Setting index master '");
-            sb.append(indexMaster.getTitle());
-            sb.append("' - isTV: ").append(indexMaster.isTVShow());
-            sb.append(" (").append(countTV).append("/").append(indexMovieList.size()).append(")");
-            sb.append(" - isHD: ").append(indexMaster.isHD());
-            sb.append(" (").append(countHD).append("/").append(indexMovieList.size()).append(")");
-            sb.append(" - top250: ").append(indexMaster.getTop250());
-            sb.append(" - watched: ").append(indexMaster.isWatched());
-            sb.append(" - rating: ").append(indexMaster.getRating());
-            sb.append(" - dirty: ").append(indexMaster.showDirty());
-            logger.debug(sb.toString());
+            if (logger.isDebugEnabled()) {
+	            StringBuilder sb = new StringBuilder("Setting index master '");
+	            sb.append(indexMaster.getTitle());
+	            sb.append("' - isTV: ").append(indexMaster.isTVShow());
+	            sb.append(" (").append(countTV).append("/").append(indexMovieList.size()).append(")");
+	            sb.append(" - isHD: ").append(indexMaster.isHD());
+	            sb.append(" (").append(countHD).append("/").append(indexMovieList.size()).append(")");
+	            sb.append(" - top250: ").append(indexMaster.getTop250());
+	            sb.append(" - watched: ").append(indexMaster.isWatched());
+	            sb.append(" - rating: ").append(indexMaster.getRating());
+	            sb.append(" - dirty: ").append(indexMaster.showDirty());
+	            logger.debug(sb.toString());
+            }
 
         }
 

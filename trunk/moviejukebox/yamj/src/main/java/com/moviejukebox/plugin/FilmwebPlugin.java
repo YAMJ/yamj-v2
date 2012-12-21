@@ -17,11 +17,13 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -217,15 +219,18 @@ public class FilmwebPlugin extends ImdbPlugin {
                 return Boolean.FALSE;
             }
 
-            if (!movie.isOverrideTitle()) {
-                movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()></"));
+            if (OverrideTools.checkOverwriteTitle(movie, FILMWEB_PLUGIN_ID)) {
+                movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()></"), FILMWEB_PLUGIN_ID);
+            }
+                
+            if (OverrideTools.checkOverwriteOriginalTitle(movie, FILMWEB_PLUGIN_ID)) {
                 String metaTitle = HTMLTools.extractTag(xml, "og:title", "\">");
                 if (metaTitle.contains("/")) {
                     String originalTitle = HTMLTools.extractTag(metaTitle, "/", 0, "()><");
                     if (originalTitle.endsWith(", The")) {
                         originalTitle = "The " + originalTitle.substring(0, originalTitle.length() - 5);
                     }
-                    movie.setOriginalTitle(originalTitle);
+                    movie.setOriginalTitle(originalTitle, FILMWEB_PLUGIN_ID);
                 }
             }
 
@@ -241,62 +246,62 @@ public class FilmwebPlugin extends ImdbPlugin {
                 }
             }
 
-            if (Movie.UNKNOWN.equals(movie.getDirector())) {
-                movie.addDirector(HTMLTools.getTextAfterElem(xml, "yseria:"));
+            if (OverrideTools.checkOverwriteDirectors(movie, FILMWEB_PLUGIN_ID)) {
+                String director = HTMLTools.getTextAfterElem(xml, "yseria:");
+                movie.setDirector(director, FILMWEB_PLUGIN_ID);
             }
 
-            if (Movie.UNKNOWN.equals(movie.getReleaseDate())) {
-                movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "filmPremiereWorld"));
+            if (OverrideTools.checkOverwriteReleaseDate(movie, FILMWEB_PLUGIN_ID)) {
+                movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "filmPremiereWorld"), FILMWEB_PLUGIN_ID);
             }
 
-            if (Movie.UNKNOWN.equals(movie.getRuntime())) {
+            if (OverrideTools.checkOverwriteRuntime(movie, FILMWEB_PLUGIN_ID)) {
                 String runtime = HTMLTools.getTextAfterElem(xml, "czas trwania:");
-                movie.setRuntime(String.valueOf(DateTimeTools.processRuntime(runtime)));
+                movie.setRuntime(String.valueOf(DateTimeTools.processRuntime(runtime)), FILMWEB_PLUGIN_ID);
             }
 
-            if (Movie.UNKNOWN.equals(movie.getCountry())) {
+            if (OverrideTools.checkOverwriteCountry(movie, FILMWEB_PLUGIN_ID)) {
                 String country = StringUtils.join(HTMLTools.extractTags(xml, "produkcja:", "</tr", "<a ", "</a>"), ", ");
                 if (country.endsWith(", ")) {
-                    movie.setCountry(country.substring(0, country.length() - 2));
+                    movie.setCountry(country.substring(0, country.length() - 2), FILMWEB_PLUGIN_ID);
                 } else {
-                    movie.setCountry(country);
+                    movie.setCountry(country, FILMWEB_PLUGIN_ID);
                 }
             }
 
-            if (movie.getGenres().isEmpty()) {
+            if (OverrideTools.checkOverwriteGenres(movie, FILMWEB_PLUGIN_ID)) {
+                List<String> newGenres = new ArrayList<String>();
                 for (String genre : HTMLTools.extractTags(xml, "gatunek:", "premiera:", "<a ", "</a>")) {
-                    if (!genre.isEmpty()) {
-                        movie.addGenre(Library.getIndexingGenre(genre));
-                    }
+                    newGenres.add(Library.getIndexingGenre(genre));
                 }
+                movie.setGenres(newGenres, FILMWEB_PLUGIN_ID);
             }
 
             String plot = HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "v:summary\">", "</span>"));
-
             if (StringTools.isValidString(plot)) {
-                if (Movie.UNKNOWN.equals(movie.getPlot())) {
-                    movie.setPlot(StringTools.trimToLength(plot, preferredPlotLength));
+                if (OverrideTools.checkOverwritePlot(movie, FILMWEB_PLUGIN_ID)) {
+                    movie.setPlot(StringTools.trimToLength(plot, preferredPlotLength), FILMWEB_PLUGIN_ID);
                 }
 
-                if (Movie.UNKNOWN.equals(movie.getOutline())) {
-                    movie.setOutline(StringTools.trimToLength(plot, preferredOutlineLength));
+                if (OverrideTools.checkOverwriteOutline(movie, FILMWEB_PLUGIN_ID)) {
+                    movie.setOutline(StringTools.trimToLength(plot, preferredOutlineLength), FILMWEB_PLUGIN_ID);
                 }
             }
 
-            if (!movie.isOverrideYear()) {
+            if (OverrideTools.checkOverwriteYear(movie, FILMWEB_PLUGIN_ID)) {
                 String year = HTMLTools.getTextAfterElem(xml, "filmYear");
                 if (!Movie.UNKNOWN.equals(year)) {
                     year = year.replaceAll("[^0-9]", "");
                 }
-                movie.setYear(year);
+                movie.setYear(year, FILMWEB_PLUGIN_ID);
             }
 
-            if (movie.getCast().isEmpty()) {
+            if (OverrideTools.checkOverwriteActors(movie, FILMWEB_PLUGIN_ID)) {
                 List<String> cast = HTMLTools.extractTags(xml, "castListWrapper", "</ul>", "v:starring", "</a>");
                 for (int i = 0; i < cast.size(); i++) {
                     cast.set(i, HTMLTools.removeHtmlTags(cast.get(i)).trim());
                 }
-                movie.setCast(cast);
+                movie.setCast(cast, FILMWEB_PLUGIN_ID);
             }
 
             if (movie.isTVShow()) {

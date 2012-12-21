@@ -31,6 +31,8 @@ public class ComingSoonPluginTest {
 
     static {
         PropertiesUtil.setProperty("comingsoon.imdb.scan", "nevwe");
+        PropertiesUtil.setProperty("priority.title", "comingsoon,imdb");
+        PropertiesUtil.setProperty("priority.originaltitle", "comingsoon,imdb");
     }
 
     private ComingSoonPlugin csPlugin = new ComingSoonPlugin();
@@ -44,7 +46,7 @@ public class ComingSoonPluginTest {
     public void testScanNoYear() {
 
         Movie movie = new Movie();
-        movie.setTitle("L'Incredibile Storia Di Winter Il Delfino");
+        movie.setTitle("L'Incredibile Storia Di Winter Il Delfino", csPlugin.getPluginID());
 
         assertTrue(csPlugin.scan(movie));
         assertEquals("L'incredibile storia di Winter il delfino", movie.getTitle());
@@ -68,7 +70,7 @@ public class ComingSoonPluginTest {
 
         for (int i = 0; i < titleList.length; i++) {
             Movie movie = new Movie();
-            movie.setTitle(titleList[i]);
+            movie.setTitle(titleList[i], csPlugin.getPluginID());
             assertTrue(csPlugin.scan(movie));
             assertEquals(titleList[i], movie.getTitle());
             assertTrue(movie.getDirectors().size() > 0);

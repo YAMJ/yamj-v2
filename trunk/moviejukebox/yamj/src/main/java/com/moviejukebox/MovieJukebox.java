@@ -1890,7 +1890,7 @@ public class MovieJukebox {
             MovieNFOScanner.scan(movie, nfoFiles);
 
             if (StringTools.isNotValidString(movie.getVideoSource())) {
-                movie.setVideoSource(defaultSource);
+                movie.setVideoSource(defaultSource, Movie.UNKNOWN);
             }
 
             // Added forceXMLOverwrite for issue 366
@@ -1911,9 +1911,7 @@ public class MovieJukebox {
                     FanartScanner.scan(backgroundPlugin, jukebox, movie);
                 }
             }
-
-            movie.setCertification(Library.getIndexingCertification(movie.getCertification()));
-
+            movie.setCertification(Library.getIndexingCertification(movie.getCertification()), movie.getOverrideSource(OverrideFlag.CERTIFICATION));
         }
 
         boolean photoFound = Boolean.FALSE;

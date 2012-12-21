@@ -17,6 +17,7 @@ import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
@@ -59,6 +60,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private int preferredOutlineLength;
     public static final boolean INCLUDE_ADULT = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", FALSE);
     public static final int SEARCH_MATCH = PropertiesUtil.getIntProperty("themoviedb.searchMatch", "3");
+    private static final String LANGUAGE_DELIMITER = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
 
     public TheMovieDbPlugin() {
         try {
@@ -211,27 +213,31 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             }
 
             // Set the release information
-            if (movieReleaseInfo.size() > 0) {
+            if (movieReleaseInfo.size() > 0 && OverrideTools.checkOverwriteCertification(movie, TMDB_PLUGIN_ID)) {
                 logger.debug(LOG_MESSAGE + "Found release information: " + movieReleaseInfo.get(0).toString());
-                movie.setCertification(movieReleaseInfo.get(0).getCertification());
+                movie.setCertification(movieReleaseInfo.get(0).getCertification(), TMDB_PLUGIN_ID);
             }
 
             // Add the cast information
             // TODO: Add the people to the cast/crew
             if (moviePeople.size() > 0) {
+                List<String> newActors = new ArrayList<String>();
+                List<String> newDirectors = new ArrayList<String>();
+                List<String> newWriters = new ArrayList<String>();
+                
                 logger.debug(LOG_MESSAGE + "Adding " + moviePeople.size() + " people to the cast list");
                 for (Person person : moviePeople) {
                     if (person.getPersonType() == PersonType.CAST) {
                         logger.trace(LOG_MESSAGE + "Adding cast member " + person.toString());
-                        movie.addActor(person.getName());
+                        newActors.add(person.getName());
                     } else if (person.getPersonType() == PersonType.CREW) {
                         logger.trace(LOG_MESSAGE + "Adding crew member " + person.toString());
                         if ("Director".equalsIgnoreCase(person.getJob())) {
                             logger.trace(LOG_MESSAGE + person.getName() + " is a Director");
-                            movie.addDirector(person.getName());
+                            newDirectors.add(person.getName());
                         } else if ("Author".equalsIgnoreCase(person.getJob())) {
                             logger.trace(LOG_MESSAGE + person.getName() + " is a Writer");
-                            movie.addWriter(person.getName());
+                            newWriters.add(person.getName());
                             continue;
                         } else {
                             logger.trace(LOG_MESSAGE + "Unknown job  " + person.getJob() + " for " + person.toString());
@@ -239,6 +245,16 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     } else {
                         logger.trace(LOG_MESSAGE + "Unknown person type " + person.getPersonType() + " for " + person.toString());
                     }
+                }
+                
+                if (OverrideTools.checkOverwriteActors(movie, TMDB_PLUGIN_ID)) {
+                    movie.setCast(newActors, TMDB_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwriteDirectors(movie, TMDB_PLUGIN_ID)) {
+                    movie.setDirectors(newDirectors, TMDB_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwriteWriters(movie, TMDB_PLUGIN_ID)) {
+                    movie.setDirectors(newWriters, TMDB_PLUGIN_ID);
                 }
             } else {
                 logger.debug(LOG_MESSAGE + "No cast or crew members found");
@@ -254,8 +270,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 movie.setId(IMDB_PLUGIN_ID, moviedb.getImdbID());
             }
         }
-        if (downloadFanart
-                && StringTools.isNotValidString(movie.getFanartURL())) {
+        if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
             movie.setFanartURL(getFanartURL(movie));
             if (StringTools.isValidString(movie.getFanartURL())) {
                 movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
@@ -273,28 +288,33 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      */
     private void copyMovieInfo(MovieDb moviedb, Movie movie) {
 
-        // Title
-        //if (overwriteCheck(moviedb.getTitle(), movie.getTitle())) {
-        movie.setTitle(moviedb.getTitle());
-
-        // We're overwriting the title, so we should do the original name too
-        movie.setOriginalTitle(moviedb.getOriginalTitle());
-        //}
-
         // TMDb ID
         movie.setId(TMDB_PLUGIN_ID, moviedb.getId());
 
         // IMDb ID
         movie.setId(IMDB_PLUGIN_ID, moviedb.getImdbID());
 
-        // plot
-        if (overwriteCheck(moviedb.getOverview(), movie.getPlot())) {
-            String plot = moviedb.getOverview();
-            plot = StringTools.trimToLength(plot, preferredPlotLength, true, "...");
-            movie.setPlot(plot);
+        // title
+        if (OverrideTools.checkOverwriteTitle(movie, TMDB_PLUGIN_ID)) { 
+            movie.setTitle(moviedb.getTitle(), TMDB_PLUGIN_ID);
+        }
 
-            plot = StringTools.trimToLength(plot, preferredOutlineLength, true, "...");
-            movie.setOutline(plot);
+        // original title
+        if (OverrideTools.checkOverwriteOriginalTitle(movie, TMDB_PLUGIN_ID)) { 
+            movie.setOriginalTitle(moviedb.getOriginalTitle(), TMDB_PLUGIN_ID);
+        }
+
+        // plot
+        if (StringTools.isValidString(moviedb.getOverview())) {
+            if (OverrideTools.checkOverwritePlot(movie, TMDB_PLUGIN_ID)) {
+                String plot = StringTools.trimToLength(moviedb.getOverview(), preferredPlotLength, true, "...");
+                movie.setPlot(plot, TMDB_PLUGIN_ID);
+            }
+            
+            if (OverrideTools.checkOverwriteOutline(movie, TMDB_PLUGIN_ID)) {
+                String outline = StringTools.trimToLength(moviedb.getOverview(), preferredOutlineLength, true, "...");
+                movie.setOutline(outline, TMDB_PLUGIN_ID);
+            }
         }
 
         // rating
@@ -307,74 +327,78 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        // Release Date
-        if (overwriteCheck(moviedb.getReleaseDate(), movie.getReleaseDate())) {
-            movie.setReleaseDate(moviedb.getReleaseDate());
+        // release date
+        if (OverrideTools.checkOverwriteReleaseDate(movie, TMDB_PLUGIN_ID)) {
+            movie.setReleaseDate(moviedb.getReleaseDate(), TMDB_PLUGIN_ID);
+        }
+        
+        // year
+        if (OverrideTools.checkOverwriteYear(movie, TMDB_PLUGIN_ID)) {
             String year = moviedb.getReleaseDate();
             // Check if this is the default year and skip it
             if (!"1900-01-01".equals(year)) {
                 year = (new DateTime(year)).toString("yyyy");
-                movie.setYear(year);
-            } else {
-                movie.setYear(Movie.UNKNOWN);
+                movie.setYear(year, TMDB_PLUGIN_ID);
             }
         }
 
         // runtime
-        if (overwriteCheck(String.valueOf(moviedb.getRuntime()), movie.getRuntime())) {
-            movie.setRuntime(String.valueOf(moviedb.getRuntime()));
+        if (OverrideTools.checkOverwriteRuntime(movie, TMDB_PLUGIN_ID)) {
+            movie.setRuntime(String.valueOf(moviedb.getRuntime()), TMDB_PLUGIN_ID);
         }
 
         // tagline
-        if (overwriteCheck(moviedb.getTagline(), movie.getTagline())) {
-            movie.setTagline(moviedb.getTagline());
+        if (OverrideTools.checkOverwriteTagline(movie, TMDB_PLUGIN_ID)) {
+            movie.setTagline(moviedb.getTagline(), TMDB_PLUGIN_ID);
         }
 
         // Country
-        List<ProductionCountry> countries = moviedb.getProductionCountries();
-        if (!countries.isEmpty()) {
-            String country = countries.get(0).getName();
-            if (overwriteCheck(country, movie.getCountry())) {
-                // This only returns one country.
-                movie.setCountry(country);
+        if (OverrideTools.checkOverwriteCountry(movie, TMDB_PLUGIN_ID)) {
+            List<ProductionCountry> countries = moviedb.getProductionCountries();
+            if (!countries.isEmpty()) {
+                movie.setCountry(countries.get(0).getName(), TMDB_PLUGIN_ID);
             }
         }
-
+        
         // Company
-        List<ProductionCompany> studios = moviedb.getProductionCompanies();
-        if (!studios.isEmpty()) {
-            String studio = studios.get(0).getName();
-            if (overwriteCheck(studio, movie.getCompany())) {
-                movie.setCompany(studio);
+        if (OverrideTools.checkOverwriteCompany(movie, TMDB_PLUGIN_ID)) {
+            List<ProductionCompany> studios = moviedb.getProductionCompanies();
+            if (!studios.isEmpty()) {
+                String studio = studios.get(0).getName();
+                if (overwriteCheck(studio, movie.getCompany())) {
+                    movie.setCompany(studio, TMDB_PLUGIN_ID);
+                }
             }
         }
-
+        
         // Language
-        if (moviedb.getSpokenLanguages().size() > 0) {
-            String movieLanguage = moviedb.getSpokenLanguages().get(0).getIsoCode();
-            if (overwriteCheck(movieLanguage, movie.getLanguage())) {
-                movie.setLanguage(MovieFilenameScanner.determineLanguage(movieLanguage));
+        if (moviedb.getSpokenLanguages().size() > 0 && OverrideTools.checkOverwriteLanguage(movie, TMDB_PLUGIN_ID)) {
+            StringBuffer movieLanguage = new StringBuffer();
+            
+            String isoCode = moviedb.getSpokenLanguages().get(0).getIsoCode();
+            if (StringTools.isValidString(isoCode)) {
+                movieLanguage.append(MovieFilenameScanner.determineLanguage(isoCode));
             }
+            
             if (moviedb.getSpokenLanguages().size() > 1) {
-                // There was more than one language, so output a message
-                StringBuilder spokenLanguages = new StringBuilder();
                 for (Language lang : moviedb.getSpokenLanguages()) {
-                    spokenLanguages.append(lang.getIsoCode());
-                    spokenLanguages.append("/");
+                    if (movieLanguage.length() > 0 ) {
+                        movieLanguage.append(LANGUAGE_DELIMITER);
+                    }
+                    movieLanguage.append(MovieFilenameScanner.determineLanguage(lang.getIsoCode()));
                 }
-                spokenLanguages.deleteCharAt(spokenLanguages.length() - 1);
-                logger.debug(LOG_MESSAGE + "Additional languages found and not used - " + spokenLanguages.toString());
             }
+           
+            movie.setLanguage(movieLanguage.toString(), TMDB_PLUGIN_ID);
         }
 
         // Genres
-        List<Genre> genres = moviedb.getGenres();
-        if (!genres.isEmpty()) {
-            if (movie.getGenres().isEmpty()) {
-                for (Genre genre : genres) {
-                    movie.addGenre(genre.getName());
-                }
+        if (OverrideTools.checkOverwriteGenres(movie, TMDB_PLUGIN_ID)) {
+            List<String> newGenres = new ArrayList<String>();
+            for (Genre genre : moviedb.getGenres()) {
+                newGenres.add(genre.getName());
             }
+            movie.setGenres(newGenres, TMDB_PLUGIN_ID);
         }
     }
 
