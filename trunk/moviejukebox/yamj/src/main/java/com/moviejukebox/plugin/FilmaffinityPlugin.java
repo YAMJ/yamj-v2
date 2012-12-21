@@ -188,18 +188,12 @@ public class FilmaffinityPlugin extends ImdbPlugin {
              */
             String title = movie.getTitle();
             String titleSource = movie.getOverrideSource(OverrideFlag.TITLE);
-            String originalTitle = movie.getOriginalTitle();
-            String originalTitleSource = movie.getOverrideSource(OverrideFlag.ORIGINALTITLE);
-            movie.setTitle(originalTitle, titleSource);
+            movie.setTitle(movie.getOriginalTitle(), movie.getOverrideSource(OverrideFlag.ORIGINALTITLE));
             super.scan(movie);
             // Change the title back to the way it was
             if (OverrideTools.checkOverwriteTitle(movie, titleSource)) {
                 movie.setTitle(title, titleSource);
             }
-            if (OverrideTools.checkOverwriteOriginalTitle(movie, originalTitleSource)) {
-                movie.setOriginalTitle(originalTitle, originalTitleSource);
-            }
-
         } catch (Exception error) {
             logger.error("FilmAffinity: Failed retreiving movie info: " + filmAffinityId);
             logger.error(SystemTools.getStackTrace(error));
