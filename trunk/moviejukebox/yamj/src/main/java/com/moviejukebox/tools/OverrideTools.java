@@ -58,22 +58,22 @@ public final class OverrideTools {
         // actors
         sources = PropertiesUtil.getProperty("priority.movie.actors", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.ACTORS, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.actors", "nfo,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.actors", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.ACTORS, sources);
         // aspect ratio
         sources = PropertiesUtil.getProperty("priority.movie.aspectratio", "nfo,mediainfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.ASPECTRATIO, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.aspectratio", "nfo,mediainfo,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.aspectratio", "nfo,mediainfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.ASPECTRATIO, sources);
         // certification
         sources = PropertiesUtil.getProperty("priority.movie.certification", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.CERTIFICATION, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.certification", "nfo,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.certification", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.CERTIFICATION, sources);
         // company
         sources = PropertiesUtil.getProperty("priority.movie.company", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.COMPANY, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.company", "nfo,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.company", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.COMPANY, sources);
         // container
         sources = PropertiesUtil.getProperty("priority.movie.container", "nfo,mediainfo,filename");
@@ -83,17 +83,17 @@ public final class OverrideTools {
         // country
         sources = PropertiesUtil.getProperty("priority.movie.country", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.COUNTRY, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.country", "nfo,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.country", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.COUNTRY, sources);
         // directors
         sources = PropertiesUtil.getProperty("priority.movie.directors", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.DIRECTORS, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.directors", "nfo,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.directors", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.DIRECTORS, sources);
         // genres
         sources = PropertiesUtil.getProperty("priority.movie.genres", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.GENRES, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.genres", "nfo,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.genres", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.GENRES, sources);
         // frames per seconds
         sources = PropertiesUtil.getProperty("priority.movie.fps", "nfo,mediainfo,filename");
@@ -103,32 +103,32 @@ public final class OverrideTools {
         // language
         sources = PropertiesUtil.getProperty("priority.movie.language", "nfo,mediainfo,PLUGIN,ALTERNATE,filename");
         putMoviePriorities(OverrideFlag.LANGUAGE, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.language", "nfo,mediainfo,PLUGIN,filename");
+        sources = PropertiesUtil.getProperty("priority.tv.language", "nfo,mediainfo,PLUGIN,ALTERNATE,filename");
         putTvPriorities(OverrideFlag.LANGUAGE, sources);
         // original title
         sources = PropertiesUtil.getProperty("priority.movie.originaltitle", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.ORIGINALTITLE, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.originaltitle", "nfo,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.originaltitle", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.ORIGINALTITLE, sources);
         // outline
         sources = PropertiesUtil.getProperty("priority.movie.outline", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.OUTLINE, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.outline", "nfo,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.outline", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.OUTLINE, sources);
         // outline
         sources = PropertiesUtil.getProperty("priority.movie.plot", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.PLOT, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.plot", "nfo,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.plot", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.PLOT, sources);
         // quote
         sources = PropertiesUtil.getProperty("priority.movie.quote", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.QUOTE, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.quote", "nfo,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.quote", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.QUOTE, sources);
         // release date
         sources = PropertiesUtil.getProperty("priority.movie.releasedate", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.RELEASEDATE, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.releasedate", "nfo,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.releasedate", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.RELEASEDATE, sources);
         // resolution
         sources = PropertiesUtil.getProperty("priority.movie.resolution", "nfo,mediainfo");
@@ -138,18 +138,18 @@ public final class OverrideTools {
         // runtime
         sources = PropertiesUtil.getProperty("priority.movie.runtime", "nfo,mediainfo,filename,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.RUNTIME, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.runtime", "nfo,mediainfo,filename,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.runtime", "nfo,mediainfo,filename,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.RUNTIME, sources);
         // tagline
         sources = PropertiesUtil.getProperty("priority.movie.tagline", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.TAGLINE, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.tagline", "nfo,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.tagline", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.TAGLINE, sources);
         // title
         // title
         sources = PropertiesUtil.getProperty("priority.movie.title", "nfo,PLUGIN,ALTERNATE,filename");
         putMoviePriorities(OverrideFlag.TITLE, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.title", "nfo,PLUGIN,filename");
+        sources = PropertiesUtil.getProperty("priority.tv.title", "nfo,PLUGIN,ALTERNATE,filename");
         putTvPriorities(OverrideFlag.TITLE, sources);
         // video output
         sources = PropertiesUtil.getProperty("priority.movie.videooutput", "nfo,mediainfo,filename");
@@ -164,12 +164,12 @@ public final class OverrideTools {
         // writers
         sources = PropertiesUtil.getProperty("priority.movie.writers", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.WRITERS, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.writers", "nfo,PLUGIN");
+        sources = PropertiesUtil.getProperty("priority.tv.writers", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.WRITERS, sources);
         // year
         sources = PropertiesUtil.getProperty("priority.movie.year", "nfo,PLUGIN,ALTERNATE,filename");
         putMoviePriorities(OverrideFlag.YEAR, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.year", "nfo,PLUGIN,filename");
+        sources = PropertiesUtil.getProperty("priority.tv.year", "nfo,PLUGIN,ALTERNATE,filename");
         putTvPriorities(OverrideFlag.YEAR, sources);
         
         // EXTRA properties for people scraping (filmography)
@@ -243,12 +243,17 @@ public final class OverrideTools {
                 // replace pattern with database plugin
                 sources = sources.replace(PATTERN_PLUGIN, TVSHOW_PLUGIN);
             }
+            if (sources.contains(PATTERN_ALTERNATE) && StringTools.isValidString(MOVIE_ALTERNATE) && !sources.contains(MOVIE_ALTERNATE)) {
+                // replace pattern with database plugin
+                sources = sources.replace(PATTERN_ALTERNATE, MOVIE_ALTERNATE);
+            }
             
             priorities = new ArrayList<String>();
             for (String priority : sources.split(",")) {
                 priorities.add(priority);
             }
             priorities.remove(PATTERN_PLUGIN);
+            priorities.remove(PATTERN_ALTERNATE);
             
             if (logger.isDebugEnabled()) {
                 logger.debug(LOG_MESSAGE + overrideFlag.name() + " tv show priorities " + priorities.toString().toLowerCase());
