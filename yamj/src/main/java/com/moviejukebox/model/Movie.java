@@ -123,7 +123,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String budget = UNKNOWN;                                        // Issue 2012: Financial information about movie
     private Map<String, String> openweek = new HashMap<String, String>();
     private Map<String, String> gross = new HashMap<String, String>();
-    private Map<OverrideFlag, String> overrideSources = new HashMap<OverrideFlag, String>();
+    private Map<OverrideFlag, String> overrideSources = new EnumMap<OverrideFlag, String>(OverrideFlag.class);
     private List<String> didYouKnow = new ArrayList<String>();        // Issue 2013: Add trivia
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
@@ -693,7 +693,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public Map<String, String> getOpenWeek() {
         return openweek;
     }
-    
+
     public String getOverrideSource(OverrideFlag overrideFlag) {
         String source = overrideSources.get(overrideFlag);
         if (StringUtils.isBlank(source)) {
@@ -1107,7 +1107,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                     break;
                 }
             }
-            
+
             if (!found) {
                 addPerson(writerKey, writerName, writerUrl, "Writer", source);
             }
@@ -1143,7 +1143,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             }
         }
     }
-    
+
     public void setCompany(String company, String source) {
         if (StringTools.isValidString(company) && !company.equalsIgnoreCase(this.company)) {
             setDirty(DirtyFlag.INFO);
@@ -1184,14 +1184,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public Collection<String> getDirectors() {
         return directors;
     }
-    
+
     public void setDirector(String director, String source) {
         if (StringTools.isValidString(director)) {
             clearDirectors();
             addDirector(director, source);
         }
     }
-    
+
     public void setDirectors(Collection<String> directors, String source) {
         if (directors != null && !directors.isEmpty()) {
             clearDirectors();
@@ -1200,7 +1200,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             }
         }
     }
-    
+
     public void clearDirectors() {
         if (directors.size() > 0) {
             setDirty(DirtyFlag.INFO);
@@ -1242,7 +1242,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 }
             }
             directorName = directorName.trim();
-            
+
             boolean found = Boolean.FALSE;
             for (Filmography p : people) {
                 if (p.getName().equalsIgnoreCase(directorName) && p.getDepartment().equals(Filmography.DEPT_DIRECTING)) {
@@ -1250,7 +1250,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                     break;
                 }
             }
-            
+
             if (!found) {
                 addPerson(key, name, URL, "Director", source);
             }
@@ -1343,7 +1343,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             this.overrideSources.put(flag, source.toUpperCase());
         }
     }
-    
+
     public void setLanguage(String language, String source) {
         if (StringTools.isValidString(language) && !language.equalsIgnoreCase(this.language)) {
             setDirty(DirtyFlag.INFO);
@@ -1525,7 +1525,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             setResolution(width + "x" + height, source);
         }
     }
-        
+
     public void setRuntime(String runtime, String source) {
         if (StringTools.isValidString(runtime) && !runtime.equalsIgnoreCase(this.runtime)) {
             setDirty(DirtyFlag.INFO);
@@ -1986,11 +1986,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         for (MovieFileNameDTO.SetDTO set : dto.getSets()) {
             addSet(set.getTitle(), set.getIndex() >= 0 ? set.getIndex() : null);
         }
-        
+
         if (OverrideTools.checkOverwriteYear(this, SOURCE_FILENAME)) {
             setYear(dto.getYear() > 0 ? String.valueOf(dto.getYear()) : null, SOURCE_FILENAME);
         }
-        
+
         if ((dto.getLanguages().size() > 0) && OverrideTools.checkOverwriteLanguage(this, SOURCE_FILENAME)) {
             // TODO more languages?
             setLanguage(dto.getLanguages().get(0), SOURCE_FILENAME);
@@ -2000,8 +2000,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (dto.getHdResolution() != null) {
             setVideoType(TYPE_VIDEO_HD);
         }
-        
-        
+
+
         // set video output
         if (OverrideTools.checkOverwriteVideoOutput(this, SOURCE_FILENAME)) {
 
@@ -2009,9 +2009,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             if (dto.getHdResolution() != null) {
 
                 if (StringTools.isValidString(videoOutput)) {
-                    videoOut = new String(videoOutput);
+                    videoOut = videoOutput;
                 }
-    
+
                 switch (dto.getFps()) {
                     case 23:
                         videoOut = "1080p 23.976Hz";
@@ -2765,7 +2765,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.dirtyFlags = EnumSet.copyOf(aMovie.dirtyFlags);
         newMovie.codecs = new LinkedHashSet<Codec>(aMovie.codecs);
         newMovie.footerFilename = new ArrayList<String>(aMovie.footerFilename);
-        newMovie.overrideSources = new HashMap<OverrideFlag,String>(aMovie.overrideSources);
+        newMovie.overrideSources = new EnumMap<OverrideFlag,String>(aMovie.overrideSources);
 
         return newMovie;
     }
