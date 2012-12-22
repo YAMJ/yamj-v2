@@ -73,8 +73,7 @@ public class MovieNFOReader {
     /**
      * Try and read a NFO file for information
      *
-     * First try as XML format file, then check to see if it contains XML and
-     * text and split it to read each part
+     * First try as XML format file, then check to see if it contains XML and text and split it to read each part
      *
      * @param nfoFile
      * @param movie
@@ -166,8 +165,7 @@ public class MovieNFOReader {
     /**
      * Used to parse out the XML NFO data from a file.
      *
-     * This is generic for movie and TV show files as they are both nearly
-     * identical.
+     * This is generic for movie and TV show files as they are both nearly identical.
      *
      * @param nfoFile
      * @param movie
@@ -367,7 +365,7 @@ public class MovieNFOReader {
                     parseGenres(eCommon.getElementsByTagName("genre"), newGenres);
                     movie.setGenres(newGenres, NFO_PLUGIN_ID);
                 }
-                
+
                 // Premiered & Release Date
                 movieDate(movie, DOMHelper.getValueFromElement(eCommon, "premiered"));
                 movieDate(movie, DOMHelper.getValueFromElement(eCommon, "releasedate"));
@@ -426,7 +424,7 @@ public class MovieNFOReader {
                         }
                     }
                 }
-                
+
                 // VideoSource: Issue 506 - Even though it's not strictly XBMC standard
                 if (OverrideTools.checkOverwriteVideoSource(movie, NFO_PLUGIN_ID)) {
                     String tempString = DOMHelper.getValueFromElement(eCommon, "videosource");
@@ -550,7 +548,7 @@ public class MovieNFOReader {
             }
             movie.setLanguage(movieLanguage.toString(), NFO_PLUGIN_ID);
         }
-        
+
         // Subtitles
         List<String> subtitles = new ArrayList<String>();
         nlStreams = eStreamDetails.getElementsByTagName("subtitle");
@@ -655,7 +653,7 @@ public class MovieNFOReader {
                 if (OverrideTools.checkOverwriteReleaseDate(movie, NFO_PLUGIN_ID)) {
                     movie.setReleaseDate(DateTimeTools.convertDateToString(dateTime), NFO_PLUGIN_ID);
                 }
-                
+
                 if (OverrideTools.checkOverwriteYear(movie, NFO_PLUGIN_ID)) {
                     movie.setYear(dateTime.toString("yyyy"), NFO_PLUGIN_ID);
                 }
@@ -706,7 +704,7 @@ public class MovieNFOReader {
         if (nlElements == null || nlElements.getLength() == 0) {
             return;
         }
-        
+
         // check if we should override
         boolean overrideActors = OverrideTools.checkOverwriteActors(movie, NFO_PLUGIN_ID);
         boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, NFO_PLUGIN_ID);
@@ -714,7 +712,7 @@ public class MovieNFOReader {
             // nothing to do if nothing should be overridden
             return;
         }
-        
+
         // clear cast
         if (overrideActors) {
             movie.clearCast();
@@ -722,49 +720,51 @@ public class MovieNFOReader {
         if (overridePeopleActors) {
             movie.clearPeopleCast();
         }
-        
-        // Get all the name/role/thumb nodes
-        Node nActors = nlElements.item(0);
-        NodeList nlCast = nActors.getChildNodes();
-        Node nElement;
 
-        String aName = Movie.UNKNOWN;
-        String aRole = Movie.UNKNOWN;
-        String aThumb = Movie.UNKNOWN;
-        Boolean firstActor = Boolean.TRUE;
+        for (int actorLoop = 0; actorLoop < nlElements.getLength(); actorLoop++) {
+            // Get all the name/role/thumb nodes
+            Node nActors = nlElements.item(actorLoop);
+            NodeList nlCast = nActors.getChildNodes();
+            Node nElement;
 
-        for (int looper = 0; looper < nlCast.getLength(); looper++) {
-            nElement = nlCast.item(looper);
-            if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                Element eCast = (Element) nElement;
-                if (eCast.getNodeName().equalsIgnoreCase("name")) {
-                    if (firstActor) {
-                        firstActor = Boolean.FALSE;
-                    } else {
-                        if (overrideActors) {
-                            movie.addActor(aName, NFO_PLUGIN_ID);
+            String aName = Movie.UNKNOWN;
+            String aRole = Movie.UNKNOWN;
+            String aThumb = Movie.UNKNOWN;
+            Boolean firstActor = Boolean.TRUE;
+
+            for (int looper = 0; looper < nlCast.getLength(); looper++) {
+                nElement = nlCast.item(looper);
+                if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eCast = (Element) nElement;
+                    if (eCast.getNodeName().equalsIgnoreCase("name")) {
+                        if (firstActor) {
+                            firstActor = Boolean.FALSE;
+                        } else {
+                            if (overrideActors) {
+                                movie.addActor(aName, NFO_PLUGIN_ID);
+                            }
+                            if (overridePeopleActors) {
+                                movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID);
+                            }
                         }
-                        if (overridePeopleActors) {
-                            movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID);
-                        }
+                        aName = eCast.getTextContent();
+                        aRole = Movie.UNKNOWN;
+                        aThumb = Movie.UNKNOWN;
+                    } else if (eCast.getNodeName().equalsIgnoreCase("role")) {
+                        aRole = eCast.getTextContent();
+                    } else if (eCast.getNodeName().equalsIgnoreCase("thumb")) {
+                        aThumb = eCast.getTextContent();
                     }
-                    aName = eCast.getTextContent();
-                    aRole = Movie.UNKNOWN;
-                    aThumb = Movie.UNKNOWN;
-                } else if (eCast.getNodeName().equalsIgnoreCase("role")) {
-                    aRole = eCast.getTextContent();
-                } else if (eCast.getNodeName().equalsIgnoreCase("thumb")) {
-                    aThumb = eCast.getTextContent();
+                    // There's a case where there might be a different node here that isn't name, role or thumb, but that will be ignored
                 }
-                // There's a case where there might be a different node here that isn't name, role or thumb, but that will be ignored
             }
-        }
 
-        if (overrideActors) {
-            movie.addActor(aName, NFO_PLUGIN_ID);
-        }
-        if (overridePeopleActors) {
-            movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID);
+            if (overrideActors) {
+                movie.addActor(aName, NFO_PLUGIN_ID);
+            }
+            if (overridePeopleActors) {
+                movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID);
+            }
         }
     }
 
@@ -788,7 +788,7 @@ public class MovieNFOReader {
             movie.setWriters(newWriters, NFO_PLUGIN_ID);
         }
     }
-    
+
     /**
      * Parse Directors from the XML NFO file
      *
@@ -870,7 +870,7 @@ public class MovieNFOReader {
         if (!OverrideTools.checkOverwriteCertification(movie, NFO_PLUGIN_ID)) {
             return;
         }
-        
+
         String tempCert;
         if (getCertificationFromMPAA) {
             tempCert = DOMHelper.getValueFromElement(eCommon, "mpaa");
