@@ -444,8 +444,11 @@ public class Library implements Map<String, Movie> {
             indexMaster.setSetMaster(true);
             indexMaster.setSetSize(indexMovieList.size());
             indexMaster.setTitle(indexName, indexMaster.getOverrideSource(OverrideFlag.TITLE));
-            // Do not overwrite the TitleSort with the indexname as this will overwrite the changes that are made in a NFO file
-            // indexMaster.setTitleSort(indexName);
+
+            // Overwrite the TitleSort with the indexname only for TV Shows as this will overwrite with changes that are made in a NFO file
+            if (indexMaster.isTVShow()) {
+                indexMaster.setTitleSort(indexName);
+            }
             indexMaster.setOriginalTitle(indexName, indexMaster.getOverrideSource(OverrideFlag.ORIGINALTITLE));
             indexMaster.setBaseFilename(createPrefix(prefix, createCategoryKey(indexName)) + "1");
             indexMaster.setBaseName(makeSafeFilename(indexMaster.getBaseFilename()));
@@ -522,17 +525,17 @@ public class Library implements Map<String, Movie> {
             masters.put(indexName, indexMaster);
 
             if (logger.isDebugEnabled()) {
-	            StringBuilder sb = new StringBuilder("Setting index master '");
-	            sb.append(indexMaster.getTitle());
-	            sb.append("' - isTV: ").append(indexMaster.isTVShow());
-	            sb.append(" (").append(countTV).append("/").append(indexMovieList.size()).append(")");
-	            sb.append(" - isHD: ").append(indexMaster.isHD());
-	            sb.append(" (").append(countHD).append("/").append(indexMovieList.size()).append(")");
-	            sb.append(" - top250: ").append(indexMaster.getTop250());
-	            sb.append(" - watched: ").append(indexMaster.isWatched());
-	            sb.append(" - rating: ").append(indexMaster.getRating());
-	            sb.append(" - dirty: ").append(indexMaster.showDirty());
-	            logger.debug(sb.toString());
+                StringBuilder sb = new StringBuilder("Setting index master '");
+                sb.append(indexMaster.getTitle());
+                sb.append("' - isTV: ").append(indexMaster.isTVShow());
+                sb.append(" (").append(countTV).append("/").append(indexMovieList.size()).append(")");
+                sb.append(" - isHD: ").append(indexMaster.isHD());
+                sb.append(" (").append(countHD).append("/").append(indexMovieList.size()).append(")");
+                sb.append(" - top250: ").append(indexMaster.getTop250());
+                sb.append(" - watched: ").append(indexMaster.isWatched());
+                sb.append(" - rating: ").append(indexMaster.getRating());
+                sb.append(" - dirty: ").append(indexMaster.showDirty());
+                logger.debug(sb.toString());
             }
 
         }
@@ -768,8 +771,7 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Trim the new category to the required length, add the trimmed video list
-     * to the NEW category
+     * Trim the new category to the required length, add the trimmed video list to the NEW category
      *
      * @param catName The name of the category: "New-TV" or "New-Movie"
      * @param catCount The maximum size of the category
@@ -963,8 +965,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Index the videos by the property values This is slightly different from
-     * the other indexes as there may be multiple entries for each of the videos
+     * Index the videos by the property values This is slightly different from the other indexes as there may be
+     * multiple entries for each of the videos
      *
      * @param moviesList
      * @return
@@ -1171,8 +1173,7 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Calculate the minimum/maximum count for a category/movie based on it's
-     * property value.
+     * Calculate the minimum/maximum count for a category/movie based on it's property value.
      *
      * @param categoryName
      * @return
@@ -1358,8 +1359,7 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Checks if there is a master (will be shown in the index) genre for the
-     * specified one.
+     * Checks if there is a master (will be shown in the index) genre for the specified one.
      *
      * @param genre Genre to find the master for
      * @return Genre itself or master if available.
@@ -1378,8 +1378,7 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Checks if there is a master (will be shown in the index) Certification
-     * for the specified one.
+     * Checks if there is a master (will be shown in the index) Certification for the specified one.
      *
      * @param certification Certification to find the master for
      * @return Certification itself or master if available.
@@ -1584,8 +1583,7 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the first category in the first index that has any movies in it For
-     * Issue 436
+     * Find the first category in the first index that has any movies in it For Issue 436
      */
     public String getDefaultCategory() {
         for (Index index : indexes.values()) {
@@ -1679,9 +1677,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the un-modified category name. The Category name could be changed by
-     * the use of the Category XML file. This function will return the original,
-     * unchanged name
+     * Find the un-modified category name. The Category name could be changed by the use of the Category XML file. This
+     * function will return the original, unchanged name
      *
      * @param newCategory
      * @return
@@ -1702,9 +1699,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the renamed category name from the original name The Category name
-     * could be changed by the use of the Category XML file. This function will
-     * return the new name.
+     * Find the renamed category name from the original name The Category name could be changed by the use of the
+     * Category XML file. This function will return the new name.
      *
      * @param test
      * @return
@@ -1749,8 +1745,7 @@ public class Library implements Map<String, Movie> {
     /**
      * Determine the year banding for the category.
      *
-     * If the year is this year or last year, return those, otherwise return the
-     * decade the year resides in
+     * If the year is this year or last year, return those, otherwise return the decade the year resides in
      *
      * @param filmYear The year to check
      * @return "This Year", "Last Year" or the decade range (1990-1999)
