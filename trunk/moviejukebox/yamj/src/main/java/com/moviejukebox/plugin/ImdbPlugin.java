@@ -137,8 +137,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         return retval;
     }
 
-    protected String getPreferredValue(List<String> values) {
+    protected String getPreferredValue(List<String> values, boolean useLast) {
         String value = Movie.UNKNOWN;
+        
+        if (useLast) {
+            Collections.reverse(values);
+        }
+        
         for (String text : values) {
             String country = null;
 
@@ -309,7 +314,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // RUNTIME
         if (OverrideTools.checkOverwriteRuntime(movie, IMDB_PLUGIN_ID)) {
-            movie.setRuntime(getPreferredValue(HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getRuntime() + HTML_H5_END)), IMDB_PLUGIN_ID);
+            movie.setRuntime(getPreferredValue(HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getRuntime() + HTML_H5_END), false), IMDB_PLUGIN_ID);
         }
 
         // ASPECT RATIO
@@ -425,12 +430,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             if (isNotValidString(certification)) {
                 certification = getPreferredValue(HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCertification() + HTML_H5_END, HTML_DIV,
-                        "<a href=\"/search/title?certificates=", HTML_A_END));
+                        "<a href=\"/search/title?certificates=", HTML_A_END), true);
             }
 
             if (isNotValidString(certification)) {
                 certification = getPreferredValue(HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCertification() + HTML_H5_END + "<div class=\"info-content\">", HTML_DIV,
-                        null, "|", false));
+                        null, "|", false), true);
             }
             
             if (isNotValidString(certification)) {
@@ -695,7 +700,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (OverrideTools.checkOverwriteRuntime(movie,  IMDB_PLUGIN_ID)) {
             String runtime = siteDef2.getRuntime() + HTML_H4_END;
             List<String> runtimes = HTMLTools.extractTags(xml, runtime, HTML_DIV, null, "|", Boolean.FALSE);
-            runtime = getPreferredValue(runtimes);
+            runtime = getPreferredValue(runtimes, false);
 
             // Strip any extraneous characters from the runtime
             int pos = runtime.indexOf("min");
@@ -839,7 +844,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             if (isNotValidString(certification)) {
                 certification = getPreferredValue(HTMLTools.extractTags(certXML, HTML_H5_START + siteDef2.getCertification() + HTML_H5_END, HTML_DIV,
-                        "<a href=\"/search/title?certificates=", HTML_A_END));
+                        "<a href=\"/search/title?certificates=", HTML_A_END), true);
             }
 
             if (isNotValidString(certification)) {
