@@ -16,6 +16,8 @@ import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.OverrideFlag;
 import com.moviejukebox.plugin.DatabasePluginController;
+import com.moviejukebox.plugin.ImdbPlugin;
+
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -42,17 +44,12 @@ public final class OverrideTools {
     // handling for set default plugins
     private static final String PATTERN_PLUGIN = "PLUGIN";
     private static final String PATTERN_ALTERNATE = "ALTERNATE";
-    private static String MOVIE_PLUGIN = Movie.UNKNOWN;
-    private static String MOVIE_ALTERNATE = Movie.UNKNOWN;
-    private static String TVSHOW_PLUGIN = Movie.UNKNOWN;
-    
+    private static final String MOVIE_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(Movie.TYPE_MOVIE).toUpperCase();
+    private static final String TVSHOW_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(Movie.TYPE_TVSHOW).toUpperCase();
+    private static final String ALTERNATE_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(PATTERN_ALTERNATE).toUpperCase();
+    private static final String IMDB_PLUGIN = ImdbPlugin.IMDB_PLUGIN_ID.toUpperCase();
+
     static {
-        // set the used plugin names
-        MOVIE_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(Movie.TYPE_MOVIE).toUpperCase();
-        MOVIE_ALTERNATE = DatabasePluginController.getMovieDatabasePluginName(PATTERN_ALTERNATE).toUpperCase();
-        TVSHOW_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(Movie.TYPE_TVSHOW).toUpperCase();
-        
-        // MOVIE and TV properties
         String sources;
         
         // actors
@@ -208,9 +205,13 @@ public final class OverrideTools {
                 // replace pattern with database plugin
                 sources = sources.replace(PATTERN_PLUGIN, MOVIE_PLUGIN);
             }
-            if (sources.contains(PATTERN_ALTERNATE) && StringTools.isValidString(MOVIE_ALTERNATE) && !sources.contains(MOVIE_ALTERNATE)) {
-                // replace pattern with database plugin
-                sources = sources.replace(PATTERN_ALTERNATE, MOVIE_ALTERNATE);
+            if (sources.contains(PATTERN_ALTERNATE)) {
+                if (StringTools.isValidString(ALTERNATE_PLUGIN) && !sources.contains(ALTERNATE_PLUGIN)) {
+                    // replace pattern with alternate plugin
+                    sources = sources.replace(PATTERN_ALTERNATE, ALTERNATE_PLUGIN);
+                } else if (!sources.contains(IMDB_PLUGIN)) {
+                    sources = sources.replace(PATTERN_ALTERNATE, IMDB_PLUGIN);
+                }
             }
 
             priorities = new ArrayList<String>();
@@ -243,9 +244,13 @@ public final class OverrideTools {
                 // replace pattern with database plugin
                 sources = sources.replace(PATTERN_PLUGIN, TVSHOW_PLUGIN);
             }
-            if (sources.contains(PATTERN_ALTERNATE) && StringTools.isValidString(MOVIE_ALTERNATE) && !sources.contains(MOVIE_ALTERNATE)) {
-                // replace pattern with database plugin
-                sources = sources.replace(PATTERN_ALTERNATE, MOVIE_ALTERNATE);
+            if (sources.contains(PATTERN_ALTERNATE)) {
+                if (StringTools.isValidString(ALTERNATE_PLUGIN) && !sources.contains(ALTERNATE_PLUGIN)) {
+                    // replace pattern with alternate plugin
+                    sources = sources.replace(PATTERN_ALTERNATE, ALTERNATE_PLUGIN);
+                } else if (!sources.contains(IMDB_PLUGIN)) {
+                    sources = sources.replace(PATTERN_ALTERNATE, IMDB_PLUGIN);
+                }
             }
             
             priorities = new ArrayList<String>();
