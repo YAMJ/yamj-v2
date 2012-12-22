@@ -15,6 +15,7 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.SystemTools;
@@ -156,5 +157,19 @@ public class DatabasePluginController {
             logger.error(SystemTools.getStackTrace(error));
             return new ImdbPlugin();
         }
+    }
+    
+    public static String getMovieDatabasePluginName(String movieType)  {
+        String pluginName = null;
+        try {
+            pluginName = pluginMap.get().get(movieType).getPluginID();
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+        
+        if (StringTools.isNotValidString(pluginName)) {
+            pluginName = Movie.UNKNOWN;
+        }
+        return pluginName;
     }
 }
