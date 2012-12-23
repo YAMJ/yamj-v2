@@ -330,7 +330,7 @@ public final class OverrideTools {
         
         // check actual priority
         int actualPrio = priorities.indexOf(actualSource.toUpperCase());
-        if (newPrio <= actualPrio) {
+        if ((actualPrio == -1) || (newPrio <= actualPrio)) {
             // -> new source has higher priority
             return Boolean.TRUE;
         }
