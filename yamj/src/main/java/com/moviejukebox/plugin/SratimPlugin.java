@@ -25,6 +25,7 @@ import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
@@ -645,9 +646,14 @@ public class SratimPlugin extends ImdbPlugin {
                 movie.addRating(SRATIM_PLUGIN_ID, parseRating(HTMLTools.extractTag(xml, "width=\"120\" height=\"12\" title=\"", 0, " ")));
             }
 
-            if (OverrideTools.checkOverwriteTitle(movie, SRATIM_PLUGIN_ID)) {
-                String director = logicalToVisual(HTMLTools.getTextAfterElem(xml, "בימוי:"));
-                movie.setDirector(director, SRATIM_PLUGIN_ID);
+            String director = logicalToVisual(HTMLTools.getTextAfterElem(xml, "בימוי:"));
+            if (StringTools.isValidString(director)) {
+                if (OverrideTools.checkOverwriteDirectors(movie, SRATIM_PLUGIN_ID)) {
+                    movie.setDirector(director, SRATIM_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwritePeopleDirectors(movie, SRATIM_PLUGIN_ID)) {
+                    movie.setPeopleDirectors(Collections.singleton(director), SRATIM_PLUGIN_ID);
+                }
             }
 
             if (OverrideTools.checkOverwriteReleaseDate(movie, SRATIM_PLUGIN_ID)) {
@@ -678,10 +684,18 @@ public class SratimPlugin extends ImdbPlugin {
                 movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax), SRATIM_PLUGIN_ID);
             }
 
-            if (OverrideTools.checkOverwriteActors(movie, SRATIM_PLUGIN_ID)) {
-                movie.setCast(logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "שחקנים:", "</tr>", "<a href", "</a>"))), SRATIM_PLUGIN_ID);
+            boolean overrideActors = OverrideTools.checkOverwriteActors(movie, SRATIM_PLUGIN_ID);
+            boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, SRATIM_PLUGIN_ID);
+            if (overrideActors || overridePeopleActors) {
+                List<String> actors = logicalToVisual(removeHtmlTags(HTMLTools.extractTags(xml, "שחקנים:", "</tr>", "<a href", "</a>")));
+                if (overrideActors) {
+                    movie.setCast(actors, SRATIM_PLUGIN_ID);
+                }
+                if (overridePeopleActors) {
+                    movie.setPeopleCast(actors, SRATIM_PLUGIN_ID);
+                }
             }
-
+            
             if (movie.isTVShow()) {
                 updateTVShowInfo(movie, xml);
             } else {

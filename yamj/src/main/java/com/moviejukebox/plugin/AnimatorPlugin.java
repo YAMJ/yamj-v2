@@ -423,24 +423,33 @@ public class AnimatorPlugin extends ImdbPlugin {
                     }
                 }
             }
-            
-            if (OverrideTools.checkOverwriteDirectors(movie, ANIMATOR_PLUGIN_ID)) {
-                // Director (allmults.org)
-                if (newDirectors.isEmpty() && !allmultsId.equals(Movie.UNKNOWN)) {
-                    for (String tmp : HTMLTools.extractTags(xml2, "<b>Режиссер:", "<p ", "", "</p>")) {
-                        if (!tmp.equals("")) {
-                            newDirectors.add(tmp);
-                        }
+
+            // Director (allmults.org)
+            if (newDirectors.isEmpty() && !allmultsId.equals(Movie.UNKNOWN)) {
+                for (String tmp : HTMLTools.extractTags(xml2, "<b>Режиссер:", "<p ", "", "</p>")) {
+                    if (!tmp.equals("")) {
+                        newDirectors.add(tmp);
                     }
                 }
-                movie.setDirectors(newDirectors, ANIMATOR_PLUGIN_ID);
             }
             
             if (OverrideTools.checkOverwriteDirectors(movie, ANIMATOR_PLUGIN_ID)) {
+                movie.setDirectors(newDirectors, ANIMATOR_PLUGIN_ID);
+            }
+            if (OverrideTools.checkOverwritePeopleDirectors(movie, ANIMATOR_PLUGIN_ID)) {
+                movie.setPeopleDirectors(newDirectors, ANIMATOR_PLUGIN_ID);
+            }
+            if (OverrideTools.checkOverwriteWriters(movie, ANIMATOR_PLUGIN_ID)) {
                 movie.setWriters(newWriters, ANIMATOR_PLUGIN_ID);
+            }
+            if (OverrideTools.checkOverwritePeopleWriters(movie, ANIMATOR_PLUGIN_ID)) {
+                movie.setPeopleWriters(newWriters, ANIMATOR_PLUGIN_ID);
             }
             if (OverrideTools.checkOverwriteActors(movie, ANIMATOR_PLUGIN_ID)) {
                 movie.setCast(newCast, ANIMATOR_PLUGIN_ID);
+            }
+            if (OverrideTools.checkOverwritePeopleActors(movie, ANIMATOR_PLUGIN_ID)) {
+                movie.setPeopleCast(newCast, ANIMATOR_PLUGIN_ID);
             }
 
             String country = Movie.UNKNOWN;

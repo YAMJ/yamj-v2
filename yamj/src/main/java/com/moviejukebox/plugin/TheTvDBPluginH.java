@@ -170,8 +170,12 @@ public class TheTvDBPluginH extends ImdbPlugin {
                         movie.setCertification(series.getContentRating(), THETVDB_PLUGIN_ID);
                     }
 
-                    if (OverrideTools.checkOverwriteCertification(movie, THETVDB_PLUGIN_ID)) {
+                    if (OverrideTools.checkOverwriteActors(movie, THETVDB_PLUGIN_ID)) {
                         movie.setCast(series.getActors(), THETVDB_PLUGIN_ID);
+                    }
+
+                    if (OverrideTools.checkOverwritePeopleActors(movie, THETVDB_PLUGIN_ID)) {
+                        movie.setPeopleCast(series.getActors(), THETVDB_PLUGIN_ID);
                     }
 
                     if (includeWideBanners && isNotValidString(movie.getBannerURL()) || (forceBannerOverwrite) || movie.isDirty(DirtyFlag.BANNER)) {
@@ -273,7 +277,9 @@ public class TheTvDBPluginH extends ImdbPlugin {
         }
 
         boolean setDirectors = OverrideTools.checkOverwriteDirectors(movie, THETVDB_PLUGIN_ID);
+        boolean setPeopleDirectors = OverrideTools.checkOverwritePeopleDirectors(movie, THETVDB_PLUGIN_ID);
         boolean setWriters = OverrideTools.checkOverwriteWriters(movie, THETVDB_PLUGIN_ID);
+        boolean setPeopleWriters = OverrideTools.checkOverwriteWriters(movie, THETVDB_PLUGIN_ID);
         
         for (MovieFile file : movie.getMovieFiles()) {
             if (movie.getSeason() >= 0) {
@@ -300,11 +306,19 @@ public class TheTvDBPluginH extends ImdbPlugin {
                             movie.setWriters(episode.getWriters(), THETVDB_PLUGIN_ID);
                             setWriters = false;
                         }
+                        if (setPeopleWriters && !episode.getWriters().isEmpty()) {
+                            movie.setPeopleWriters(episode.getWriters(), THETVDB_PLUGIN_ID);
+                            setPeopleWriters = false;
+                        }
 
                         // TODO Assign the director to each episode.
                         if (setDirectors && !episode.getDirectors().isEmpty()) {
                             movie.setDirectors(episode.getDirectors(), THETVDB_PLUGIN_ID);
                             setDirectors = false;
+                        }
+                        if (setPeopleDirectors && !episode.getDirectors().isEmpty()) {
+                            movie.setPeopleDirectors(episode.getDirectors(), THETVDB_PLUGIN_ID);
+                            setPeopleDirectors = false;
                         }
 
                         if (isNotValidString(file.getAirsAfterSeason(part))) {

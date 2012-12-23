@@ -1058,6 +1058,18 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
+    public void setPeopleCast(Collection<String> cast, String source) {
+        if ((MAX_COUNT_ACTOR > 0) && (cast != null) && !cast.isEmpty()) {
+            clearPeopleCast();
+            int counter = 0;
+            for (String actor : cast) {
+                if (counter++ < MAX_COUNT_WRITER) {
+                    addActor(Movie.UNKNOWN, actor, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source);
+                }
+            }
+        }
+    }
+    
     public void clearCast() {
         if (cast.size() > 0) {
             setDirty(DirtyFlag.INFO);
@@ -1123,6 +1135,18 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
+    public void setPeopleWriters(Collection<String> writers, String source) {
+        if ((MAX_COUNT_WRITER > 0) && (writers != null) && !writers.isEmpty()) {
+            clearPeopleWriters();
+            int counter = 0;
+            for (String writer : writers) {
+                if (counter++ < MAX_COUNT_WRITER) {
+                    addWriter(Movie.UNKNOWN, writer, Movie.UNKNOWN, source);
+                }
+            }
+        }
+    }
+    
     public void clearWriters() {
         if (writers.size() > 0) {
             setDirty(DirtyFlag.INFO);
@@ -1201,6 +1225,18 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
+    public void setPeopleDirectors(Collection<String> directors, String source) {
+        if ((MAX_COUNT_DIRECTOR > 0) && (directors != null) && !directors.isEmpty()) {
+            clearPeopleDirectors();
+            int counter = 0;
+            for (String director : directors) {
+                if (counter++ < MAX_COUNT_DIRECTOR) {
+                    addDirector(Movie.UNKNOWN, director, Movie.UNKNOWN, source);
+                }
+            }
+        }
+    }
+    
     public void clearDirectors() {
         if (directors.size() > 0) {
             setDirty(DirtyFlag.INFO);

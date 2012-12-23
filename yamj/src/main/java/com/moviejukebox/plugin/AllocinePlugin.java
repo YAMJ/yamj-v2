@@ -138,11 +138,17 @@ public class AllocinePlugin extends ImdbPlugin {
             if (OverrideTools.checkOverwriteDirectors(movie, ALLOCINE_PLUGIN_ID)) {
                 movie.setDirectors(tvSeriesInfos.getDirectors(), ALLOCINE_PLUGIN_ID);
             }
+            if (OverrideTools.checkOverwritePeopleDirectors(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setPeopleDirectors(tvSeriesInfos.getDirectors(), ALLOCINE_PLUGIN_ID);
+            }
             if (OverrideTools.checkOverwriteActors(movie, ALLOCINE_PLUGIN_ID)) {
                 movie.setCast(tvSeriesInfos.getActors(), ALLOCINE_PLUGIN_ID);
             }
-            if (OverrideTools.checkOverwriteWriters(movie, ALLOCINE_PLUGIN_ID)) {
-                movie.setWriters(tvSeriesInfos.getWriters(), ALLOCINE_PLUGIN_ID);
+            if (OverrideTools.checkOverwritePeopleActors(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setPeopleCast(tvSeriesInfos.getActors(), ALLOCINE_PLUGIN_ID);
+            }
+            if (OverrideTools.checkOverwritePeopleWriters(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setPeopleWriters(tvSeriesInfos.getWriters(), ALLOCINE_PLUGIN_ID);
             }
 
             int currentSeason = movie.getSeason();
@@ -319,11 +325,22 @@ public class AllocinePlugin extends ImdbPlugin {
         if (OverrideTools.checkOverwriteDirectors(movie, ALLOCINE_PLUGIN_ID)) {
             movie.setDirectors(movieInfos.getDirectors(), ALLOCINE_PLUGIN_ID);
         }
+        if (OverrideTools.checkOverwritePeopleDirectors(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setPeopleDirectors(movieInfos.getDirectors(), ALLOCINE_PLUGIN_ID);
+        }
+        
         if (OverrideTools.checkOverwriteActors(movie, ALLOCINE_PLUGIN_ID)) {
             movie.setCast(movieInfos.getActors(), ALLOCINE_PLUGIN_ID);
         }
+        if (OverrideTools.checkOverwritePeopleActors(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setPeopleCast(movieInfos.getActors(), ALLOCINE_PLUGIN_ID);
+        }
+
         if (OverrideTools.checkOverwriteWriters(movie, ALLOCINE_PLUGIN_ID)) {
             movie.setWriters(movieInfos.getWriters(), ALLOCINE_PLUGIN_ID);
+        }
+        if (OverrideTools.checkOverwritePeopleWriters(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setPeopleWriters(movieInfos.getWriters(), ALLOCINE_PLUGIN_ID);
         }
 
         // Get Fanart
