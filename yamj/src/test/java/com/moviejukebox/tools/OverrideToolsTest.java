@@ -18,13 +18,6 @@ import com.moviejukebox.model.Movie;
 
 public class OverrideToolsTest extends TestCase {
 
-    @Override
-    protected void setUp() throws Exception {
-        // set property for runtime priority
-        PropertiesUtil.setProperty("priority.checks.enable", "true");
-        PropertiesUtil.setProperty("priority.runtime", "mediainfo,nfo,imdb");
-    }
-    
     public void testPriority1() {
         Movie movie = new Movie();
         if (OverrideTools.checkOverwriteRuntime(movie, Movie.UNKNOWN)) {

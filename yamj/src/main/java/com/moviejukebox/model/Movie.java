@@ -284,7 +284,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void addPerson(Filmography person) {
+    public boolean addPerson(Filmography person) {
+        boolean added = Boolean.FALSE;
         if (person != null) {
             boolean duplicate = Boolean.FALSE;
             String name = person.getName();
@@ -297,9 +298,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             }
             if (!duplicate) {
                 setDirty(DirtyFlag.INFO);
-                people.add(person);
+                added = people.add(person);
             }
         }
+        return added;
     }
 
     public void removePerson(Filmography person) {
@@ -308,27 +310,29 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void addPerson(String name, String source) {
-        addPerson(Movie.UNKNOWN, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source);
+    public boolean addPerson(String name, String source) {
+        return  addPerson(Movie.UNKNOWN, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source);
     }
 
-    public void addPerson(String key, String name, String source) {
-        addPerson(key, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source);
+    public boolean addPerson(String key, String name, String source) {
+        return addPerson(key, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source);
     }
 
-    public void addPerson(String key, String name, String url, String source) {
-        addPerson(key, name, url, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source);
+    public boolean  addPerson(String key, String name, String url, String source) {
+        return addPerson(key, name, url, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source);
     }
 
-    public void addPerson(String key, String name, String url, String job, String source) {
-        addPerson(key, name, url, job, Movie.UNKNOWN, Movie.UNKNOWN, source);
+    public boolean addPerson(String key, String name, String url, String job, String source) {
+        return addPerson(key, name, url, job, Movie.UNKNOWN, Movie.UNKNOWN, source);
     }
 
-    public void addPerson(String key, String name, String url, String job, String character, String source) {
-        addPerson(key, name, url, job, character, Movie.UNKNOWN, source);
+    public boolean addPerson(String key, String name, String url, String job, String character, String source) {
+        return addPerson(key, name, url, job, character, Movie.UNKNOWN, source);
     }
 
-    public void addPerson(String key, String name, String url, String job, String character, String doublage, String source) {
+    public boolean addPerson(String key, String name, String url, String job, String character, String doublage, String source) {
+        boolean added = Boolean.FALSE;
+        
         if (StringUtils.isNotBlank(name)
                 && StringUtils.isNotBlank(key)
                 && StringUtils.isNotBlank(url)
@@ -380,8 +384,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             } else {
                 person.setSource(source);
             }
-            addPerson(person);
+            added = addPerson(person);
         }
+        return added;
     }
 
     public void removeMovieFile(MovieFile movieFile) {
@@ -1014,15 +1019,21 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         setDirty(DirtyFlag.INFO);
     }
 
-    public void addActor(String actor, String source) {
-        if (StringTools.isValidString(actor) && !cast.contains(actor.trim()) && (cast.size() < MAX_COUNT_ACTOR)) {
-            cast.add(actor.trim());
-            setDirty(DirtyFlag.INFO);
-            setOverrideSource(OverrideFlag.ACTORS, source);
+    public boolean addActor(String actor, String source) {
+        Boolean added = Boolean.FALSE;
+        if (StringTools.isValidString(actor) && (cast.size() < MAX_COUNT_ACTOR)) {
+            added = cast.add(actor.trim());
+            if (added) {
+                setDirty(DirtyFlag.INFO);
+                setOverrideSource(OverrideFlag.ACTORS, source);
+            }
         }
+        return added;
     }
 
-    public void addActor(String actorKey, String actorName, String character, String actorUrl, String doublage, String source) {
+    public boolean addActor(String actorKey, String actorName, String character, String actorUrl, String doublage, String source) {
+        boolean added = Boolean.FALSE;
+        
         if (actorName != null) {
             String name = actorName;
             if (actorName.indexOf(':') > -1) {
@@ -1044,9 +1055,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             }
 
             if (!found) {
-                addPerson(actorKey, actorName, actorUrl, StringUtils.capitalize(Filmography.JOB_ACTOR), character, doublage, source);
+                added = addPerson(actorKey, actorName, actorUrl, StringUtils.capitalize(Filmography.JOB_ACTOR), character, doublage, source);
             }
         }
+        return added;
     }
 
     public void setCast(Collection<String> cast, String source) {
@@ -1061,10 +1073,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setPeopleCast(Collection<String> cast, String source) {
         if ((MAX_COUNT_ACTOR > 0) && (cast != null) && !cast.isEmpty()) {
             clearPeopleCast();
-            int counter = 0;
+            int count = 0;
             for (String actor : cast) {
-                if (counter++ < MAX_COUNT_WRITER) {
-                    addActor(Movie.UNKNOWN, actor, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source);
+                if (addActor(Movie.UNKNOWN, actor, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source)) {
+                    count ++;
+                    if (count == MAX_COUNT_ACTOR) {
+                        break;
+                    }
                 }
             }
         }
@@ -1091,15 +1106,21 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void addWriter(String writer, String source) {
-        if (StringTools.isValidString(writer) && !writers.contains(writer.trim()) && (writers.size() < MAX_COUNT_WRITER)) {
-            writers.add(writer.trim());
-            setDirty(DirtyFlag.INFO);
-            setOverrideSource(OverrideFlag.WRITERS, source);
+    public boolean addWriter(String writer, String source) {
+        boolean added = Boolean.FALSE;
+        if (StringTools.isValidString(writer) && (writers.size() < MAX_COUNT_WRITER)) {
+            added = writers.add(writer.trim());
+            if (added) {
+                setDirty(DirtyFlag.INFO);
+                setOverrideSource(OverrideFlag.WRITERS, source);
+            }
         }
+        return added;
     }
 
-    public void addWriter(String writerKey, String name, String writerUrl, String source) {
+    public boolean addWriter(String writerKey, String name, String writerUrl, String source) {
+        boolean added = Boolean.FALSE;
+        
         if (name != null) {
             String writerName = name;
             if (name.contains(":")) {
@@ -1121,9 +1142,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             }
 
             if (!found) {
-                addPerson(writerKey, writerName, writerUrl, "Writer", source);
+                added = addPerson(writerKey, writerName, writerUrl, "Writer", source);
             }
         }
+        return added;
     }
 
     public void setWriters(Collection<String> writers, String source) {
@@ -1138,10 +1160,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setPeopleWriters(Collection<String> writers, String source) {
         if ((MAX_COUNT_WRITER > 0) && (writers != null) && !writers.isEmpty()) {
             clearPeopleWriters();
-            int counter = 0;
+            int count = 0;
             for (String writer : writers) {
-                if (counter++ < MAX_COUNT_WRITER) {
-                    addWriter(Movie.UNKNOWN, writer, Movie.UNKNOWN, source);
+                if (addWriter(Movie.UNKNOWN, writer, Movie.UNKNOWN, source)) {
+                    count ++;
+                    if (count == MAX_COUNT_WRITER) {
+                        break;
+                    }
                 }
             }
         }
@@ -1228,10 +1253,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setPeopleDirectors(Collection<String> directors, String source) {
         if ((MAX_COUNT_DIRECTOR > 0) && (directors != null) && !directors.isEmpty()) {
             clearPeopleDirectors();
-            int counter = 0;
+            int count = 0;
             for (String director : directors) {
-                if (counter++ < MAX_COUNT_DIRECTOR) {
-                    addDirector(Movie.UNKNOWN, director, Movie.UNKNOWN, source);
+                if (addDirector(Movie.UNKNOWN, director, Movie.UNKNOWN, source)) {
+                    count ++;
+                    if (count == MAX_COUNT_DIRECTOR) {
+                        break;
+                    }
                 }
             }
         }
@@ -1258,15 +1286,21 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void addDirector(String director, String source) {
-        if (StringTools.isValidString(director) && !directors.contains(director.trim()) && (directors.size() < MAX_COUNT_DIRECTOR)) {
-            directors.add(director.trim());
-            setDirty(DirtyFlag.INFO);
-            setOverrideSource(OverrideFlag.DIRECTORS, source);
+    public boolean addDirector(String director, String source) {
+        boolean added = Boolean.FALSE;
+        if (StringTools.isValidString(director) && (directors.size() < MAX_COUNT_DIRECTOR)) {
+            added = directors.add(director.trim());
+            if (added) {
+                setDirty(DirtyFlag.INFO);
+                setOverrideSource(OverrideFlag.DIRECTORS, source);
+            }
         }
+        return added;
     }
 
-    public void addDirector(String key, String name, String URL, String source) {
+    public boolean addDirector(String key, String name, String URL, String source) {
+        boolean added = Boolean.FALSE;
+        
         if (name != null) {
             String directorName = name;
             if (name.contains(":")) {
@@ -1288,9 +1322,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             }
 
             if (!found) {
-                addPerson(key, name, URL, "Director", source);
+                added = addPerson(key, name, URL, "Director", source);
             }
         }
+        
+        return added;
     }
 
     public void setFirst(String first) {

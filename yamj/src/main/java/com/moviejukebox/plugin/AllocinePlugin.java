@@ -147,6 +147,9 @@ public class AllocinePlugin extends ImdbPlugin {
             if (OverrideTools.checkOverwritePeopleActors(movie, ALLOCINE_PLUGIN_ID)) {
                 movie.setPeopleCast(tvSeriesInfos.getActors(), ALLOCINE_PLUGIN_ID);
             }
+            if (OverrideTools.checkOverwriteWriters(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setWriters(tvSeriesInfos.getWriters(), ALLOCINE_PLUGIN_ID);
+            }
             if (OverrideTools.checkOverwritePeopleWriters(movie, ALLOCINE_PLUGIN_ID)) {
                 movie.setPeopleWriters(tvSeriesInfos.getWriters(), ALLOCINE_PLUGIN_ID);
             }
