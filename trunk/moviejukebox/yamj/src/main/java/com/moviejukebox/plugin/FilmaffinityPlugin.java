@@ -78,7 +78,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
      */
     private boolean updateFilmAffinityMediaInfo(Movie movie) {
         Boolean returnStatus = true;
-        Pattern countryPattern = Pattern.compile("<img src=\"/imgs/countries/[A-Z]{2}\\.jpg\" title=\"([\\w ]+)\"");
+        Pattern countryPattern = Pattern.compile("<img src=\"/imgs/countries/[A-Z]{2}\\.jpg\" title=\"([\\w áéíóúñüàè]+)\"");
 
         String filmAffinityId = movie.getId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
 
