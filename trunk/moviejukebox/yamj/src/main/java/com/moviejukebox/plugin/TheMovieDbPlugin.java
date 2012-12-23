@@ -250,11 +250,20 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 if (OverrideTools.checkOverwriteActors(movie, TMDB_PLUGIN_ID)) {
                     movie.setCast(newActors, TMDB_PLUGIN_ID);
                 }
+                if (OverrideTools.checkOverwritePeopleActors(movie, TMDB_PLUGIN_ID)) {
+                    movie.setPeopleCast(newActors, TMDB_PLUGIN_ID);
+                }
                 if (OverrideTools.checkOverwriteDirectors(movie, TMDB_PLUGIN_ID)) {
                     movie.setDirectors(newDirectors, TMDB_PLUGIN_ID);
                 }
+                if (OverrideTools.checkOverwritePeopleDirectors(movie, TMDB_PLUGIN_ID)) {
+                    movie.setPeopleDirectors(newDirectors, TMDB_PLUGIN_ID);
+                }
                 if (OverrideTools.checkOverwriteWriters(movie, TMDB_PLUGIN_ID)) {
-                    movie.setDirectors(newWriters, TMDB_PLUGIN_ID);
+                    movie.setWriters(newWriters, TMDB_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwritePeopleWriters(movie, TMDB_PLUGIN_ID)) {
+                    movie.setPeopleWriters(newWriters, TMDB_PLUGIN_ID);
                 }
             } else {
                 logger.debug(LOG_MESSAGE + "No cast or crew members found");

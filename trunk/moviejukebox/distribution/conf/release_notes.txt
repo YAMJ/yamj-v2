@@ -12,6 +12,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2542 Information missing with NFO
  - Fixed defect #2548 Scrape correct person ID from IDMB and alternate search engines
  - Fixed defect #2549 Scrape multiple actors from NFO
+ - Fixed defect #2554 Scrape people in same way before priority checks
 
 MovieJukebox 2.8 (2012-12-17)
 -----------------------------

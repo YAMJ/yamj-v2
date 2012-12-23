@@ -172,19 +172,19 @@ public final class OverrideTools {
         // EXTRA properties for people scraping (filmography)
         
         // actors
-        sources = PropertiesUtil.getProperty("priority.movie.people.actors", "kinopoisk,imdb,nfo");
+        sources = PropertiesUtil.getProperty("priority.movie.people.actors", "PLUGIN,ALTERNATE,nfo");
         putMoviePriorities(OverrideFlag.PEOPLE_ACTORS, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.people.actors", "kinopoisk,imdb,nfo");
+        sources = PropertiesUtil.getProperty("priority.tv.people.actors", "PLUGIN,ALTERNATE,nfo");
         putTvPriorities(OverrideFlag.PEOPLE_ACTORS, sources);
         // directors
-        sources = PropertiesUtil.getProperty("priority.movie.people.directors", "kinopoisk,imdb");
+        sources = PropertiesUtil.getProperty("priority.movie.people.directors", "PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.PEOPLE_DIRECTORS, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.people.directors", "kinopoisk,imdb");
+        sources = PropertiesUtil.getProperty("priority.tv.people.directors", "PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.PEOPLE_DIRECTORS, sources);
         // writers
-        sources = PropertiesUtil.getProperty("priority.movie.people.writers", "kinopoisk,imdb");
+        sources = PropertiesUtil.getProperty("priority.movie.people.writers", "PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.PEOPLE_WRITERS, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.people.writers", "kinopoisk,imdb");
+        sources = PropertiesUtil.getProperty("priority.tv.people.writers", "PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.PEOPLE_WRITERS, sources);
         
     }

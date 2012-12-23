@@ -602,8 +602,9 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
 
             // CAST
-
-            if (OverrideTools.checkOverwriteActors(movie, COMINGSOON_PLUGIN_ID)) {
+            boolean overrideActors = OverrideTools.checkOverwriteActors(movie, COMINGSOON_PLUGIN_ID);  
+            boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, COMINGSOON_PLUGIN_ID);  
+            if (overrideActors || overridePeopleActors) {
                 String castList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ATTORI: ", "Ruoli ed Interpreti"));
 
                 List<String> newActors = new ArrayList<String>();
@@ -616,12 +617,18 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     newActors.add(castList);
                 }
                 
-                movie.setCast(newActors, COMINGSOON_PLUGIN_ID);
+                if (overrideActors) {
+                    movie.setCast(newActors, COMINGSOON_PLUGIN_ID);
+                }
+                if (overridePeopleActors) {
+                    movie.setPeopleCast(newActors, COMINGSOON_PLUGIN_ID);
+                }
             }
 
             // DIRECTOR(S)
-            
-            if (OverrideTools.checkOverwriteDirectors(movie, COMINGSOON_PLUGIN_ID)) {
+            boolean overrideDirectors = OverrideTools.checkOverwriteDirectors(movie, COMINGSOON_PLUGIN_ID);  
+            boolean overridePeopleDirectors = OverrideTools.checkOverwritePeopleDirectors(movie, COMINGSOON_PLUGIN_ID);  
+            if (overrideDirectors || overridePeopleDirectors) {
                 String directorList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">REGIA: ", "<br />"));
 
                 List<String> newDirectors = new ArrayList<String>();
@@ -634,12 +641,19 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     newDirectors.add(directorList);
                 }
                 
-                movie.setDirectors(newDirectors, COMINGSOON_PLUGIN_ID);
+                if (overrideDirectors) {
+                    movie.setDirectors(newDirectors, COMINGSOON_PLUGIN_ID);
+                }
+                if (overridePeopleDirectors) {
+                    movie.setPeopleDirectors(newDirectors, COMINGSOON_PLUGIN_ID);
+                }
             }
 
             // WRITER(S)
+            boolean overrideWriters = OverrideTools.checkOverwriteWriters(movie, COMINGSOON_PLUGIN_ID);  
+            boolean overridePeopleWriters = OverrideTools.checkOverwritePeopleWriters(movie, COMINGSOON_PLUGIN_ID);  
 
-            if (OverrideTools.checkOverwriteDirectors(movie, COMINGSOON_PLUGIN_ID)) {
+            if (overrideWriters || overridePeopleWriters) {
                 String writerList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">SCENEGGIATURA: ", "<br />"));
 
                 List<String> newWriters = new ArrayList<String>();
@@ -652,7 +666,12 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     newWriters.add(writerList);
                 }
 
-                movie.setWriters(newWriters, COMINGSOON_PLUGIN_ID);
+                if (overrideWriters) {
+                    movie.setWriters(newWriters, COMINGSOON_PLUGIN_ID);
+                }
+                if (overridePeopleWriters) {
+                    movie.setPeopleWriters(newWriters, COMINGSOON_PLUGIN_ID);
+                }
             }
 
             return true;
