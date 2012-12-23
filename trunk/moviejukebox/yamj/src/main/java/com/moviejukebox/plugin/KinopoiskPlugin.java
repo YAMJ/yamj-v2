@@ -821,7 +821,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             boolean overrideDirectors = OverrideTools.checkOverwriteDirectors(movie, KINOPOISK_PLUGIN_ID);
             boolean overridePeopleDirectors = OverrideTools.checkOverwritePeopleDirectors(movie, KINOPOISK_PLUGIN_ID);
             boolean overrideWriters = OverrideTools.checkOverwriteWriters(movie, KINOPOISK_PLUGIN_ID);
-            boolean overridePeopleWriters = OverrideTools.checkOverwritePeopleDirectors(movie, KINOPOISK_PLUGIN_ID);
+            boolean overridePeopleWriters = OverrideTools.checkOverwritePeopleWriters(movie, KINOPOISK_PLUGIN_ID);
             
             if (overrideCast || overridePeopleCast|| overrideDirectors || overridePeopleDirectors || overrideWriters || overridePeopleWriters || etalonFlag) {
                 xml = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/cast");

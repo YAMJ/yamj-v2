@@ -678,12 +678,14 @@ public class SratimPlugin extends ImdbPlugin {
                 movie.setGenres(newGenres, SRATIM_PLUGIN_ID);
             }
 
-            String tmpPlot = removeHtmlTags(extractTag(xml, "<meta name=\"description\" content=\"", "\""));
-            //Set Hebrew plot only if it contains substantial nubmetr of characters, otherwise IMDB plot will be used.
-            if ((tmpPlot.length() > 30) && OverrideTools.checkOverwritePlot(movie, SRATIM_PLUGIN_ID)) {
-                movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax), SRATIM_PLUGIN_ID);
+            if (OverrideTools.checkOverwritePlot(movie, SRATIM_PLUGIN_ID)) {
+                String tmpPlot = removeHtmlTags(extractTag(xml, "<meta name=\"description\" content=\"", "\""));
+                //Set Hebrew plot only if it contains substantial number of characters, otherwise IMDB plot will be used.
+                if ((tmpPlot.length() > 30)) {
+                    movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax), SRATIM_PLUGIN_ID);
+                }
             }
-
+            
             boolean overrideActors = OverrideTools.checkOverwriteActors(movie, SRATIM_PLUGIN_ID);
             boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, SRATIM_PLUGIN_ID);
             if (overrideActors || overridePeopleActors) {

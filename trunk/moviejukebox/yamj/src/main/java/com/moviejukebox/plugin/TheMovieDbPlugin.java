@@ -374,9 +374,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             List<ProductionCompany> studios = moviedb.getProductionCompanies();
             if (!studios.isEmpty()) {
                 String studio = studios.get(0).getName();
-                if (overwriteCheck(studio, movie.getCompany())) {
-                    movie.setCompany(studio, TMDB_PLUGIN_ID);
-                }
+                movie.setCompany(studio, TMDB_PLUGIN_ID);
             }
         }
         

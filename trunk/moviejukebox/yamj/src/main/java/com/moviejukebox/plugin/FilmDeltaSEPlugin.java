@@ -379,14 +379,14 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     }
 
     private void getFilmdeltaRuntime(Movie movie, String fdeltaHtml) {
-        // Run time
-        String runtime = HTMLTools.extractTag(fdeltaHtml, "Land, &aring;r, l&auml;ngd", 7);
-        String[] newRunTime = runtime.split("\\s");
-
-        // Issue 1176 - Prevent lost of NFO Data
-        if (newRunTime.length > 2 && OverrideTools.checkOverwriteRuntime(movie, FILMDELTA_PLUGIN_ID)) {
-            movie.setRuntime(newRunTime[1], getPluginID());
-            logger.debug(LOG_MESSAGE + "scraped runtime: " + movie.getRuntime());
+        if (OverrideTools.checkOverwriteRuntime(movie, FILMDELTA_PLUGIN_ID)) {
+            // Run time
+            String runtime = HTMLTools.extractTag(fdeltaHtml, "Land, &aring;r, l&auml;ngd", 7);
+            String[] newRunTime = runtime.split("\\s");
+            if (newRunTime.length > 2) {
+                movie.setRuntime(newRunTime[1], FILMDELTA_PLUGIN_ID);
+                logger.debug(LOG_MESSAGE + "scraped runtime: " + movie.getRuntime());
+            }
         }
     }
 }
