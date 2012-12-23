@@ -338,11 +338,11 @@ public class ImdbInfo {
             }
 
 //            logger.debug(LOG_MESSAGE + "Title search: '" + formattedMovieName + "'"); // XXX DEBUG
-            for (String searchResult : HTMLTools.extractTags(xml, "<div class=\"media_strip_thumbs\">", "<div id=\"sidebar\">", ".src='/rg/find-" + (objectType.equals(OBJECT_MOVIE) ? "title" : "name") + "-", "</td>", false)) {
+            for (String searchResult : HTMLTools.extractTags(xml, "<table class=\"findList\">", "</table>", "<td class=\"result_text\">", "</td>", false)) {
 //                logger.debug(LOG_MESSAGE + "Title check  : '" + searchResult + "'"); // XXX DEBUG
-                if (searchResult.toLowerCase().indexOf(formattedMovieName) != -1) {
+                if (searchResult.toLowerCase().indexOf(formattedMovieName.toLowerCase()) != -1) {
 //                    logger.debug(LOG_MESSAGE + "Title match  : '" + searchResult + "'"); // XXX DEBUG
-                    return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals(OBJECT_MOVIE) ? "/title/" : "/name/"), "/';\">");
+                    return HTMLTools.extractTag(searchResult, "<a href=\"" + (objectType.equals(OBJECT_MOVIE) ? "/title/" : "/name/"), "/");
                 } else {
                     for (String otherResult : HTMLTools.extractTags(searchResult, "</';\">", "</p>", "<p class=\"find-aka\">", "</em>", false)) {
                         if (otherResult.toLowerCase().indexOf("\"" + otherMovieName + "\"") != -1) {
