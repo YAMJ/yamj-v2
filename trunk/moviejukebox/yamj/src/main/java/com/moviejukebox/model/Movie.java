@@ -1652,7 +1652,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringTools.isValidString(quote) && !quote.equalsIgnoreCase(this.quote)) {
             setDirty(DirtyFlag.INFO);
             this.quote = quote;
-            setOverrideSource(OverrideFlag.VIDEOSOURCE, source);
+            setOverrideSource(OverrideFlag.QUOTE, source);
         }
     }
 
