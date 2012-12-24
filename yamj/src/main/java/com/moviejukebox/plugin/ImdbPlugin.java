@@ -196,15 +196,20 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             xml = webBrowser.request(xml, siteDef.getCharset());
 
-            if ((xml.contains("\"tv-extra\"") || xml.contains("\"tv-series-series\""))
-                    && !movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
+            if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW) && (xml.contains("\"tv-extra\"") || xml.contains("\"tv-series-series\""))) {
                 movie.setMovieType(Movie.TYPE_TVSHOW);
                 return Boolean.FALSE;
             }
 
             // We can work out if this is the new site by looking for " - IMDb" at the end of the title
             String title = HTMLTools.extractTag(xml, "<title>");
-            title = title.replaceAll(" \\([VG|V]\\)$", ""); // Remove the (VG) or (V) tags from the title
+            if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW) && title.contains("(TV Series")) {
+                movie.setMovieType(Movie.TYPE_TVSHOW);
+                return Boolean.FALSE;
+            }
+
+            // Remove the (VG) or (V) tags from the title
+            title = title.replaceAll(" \\([VG|V]\\)$", "");
 
             //String yearPattern = ".\\((?:TV )?(\\d{4})(?:/[^\\)]+)?\\)";
             String yearPattern = "(?i).\\((?:TV.|VIDEO.)?(\\d{4})(?:/[^\\)]+)?\\)";
