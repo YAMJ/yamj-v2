@@ -13,6 +13,8 @@
 package com.moviejukebox.model;
 
 import java.nio.charset.Charset;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 
 public class ImdbSiteDataDefinition {
@@ -33,6 +35,8 @@ public class ImdbSiteDataDefinition {
     private String writer;
     private String taglines;
     private Charset charset;
+    private Pattern personRegex;
+    private Pattern titleRegex;
 
     public ImdbSiteDataDefinition(String site,
                                   String charsetName,
@@ -74,6 +78,9 @@ public class ImdbSiteDataDefinition {
         } else {
             this.charset = Charset.forName(charsetName);
         }
+        personRegex = Pattern.compile(Pattern.quote("<link rel=\"canonical\" href=\"" + this.getSite() + "name/(nm\\d+)/\""));
+        
+        titleRegex  = Pattern.compile(Pattern.quote("<link rel=\"canonical\" href=\"" + this.getSite() + "title/(tt\\d+)/\""));
     }
 
     public String getSite() {
@@ -143,5 +150,13 @@ public class ImdbSiteDataDefinition {
     public Charset getCharset() {
         return charset;
     }
+
+	public Pattern getPersonRegex() {
+		return personRegex;
+	}
+
+	public Pattern getTitleRegex() {
+		return titleRegex;
+	}
 
 }
