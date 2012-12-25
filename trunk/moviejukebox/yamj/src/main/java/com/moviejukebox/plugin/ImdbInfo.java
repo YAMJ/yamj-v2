@@ -126,8 +126,7 @@ public class ImdbInfo {
                 String xml = webBrowser.request(sb.toString());
 
                 // Check if this is an exact match (we got a person page instead of a results list)
-                Pattern titleregex = Pattern.compile(Pattern.quote("<link rel=\"canonical\" href=\"" + siteDef.getSite() + "name/(nm\\d+)/\""));
-                Matcher titlematch = titleregex.matcher(xml);
+                Matcher titlematch = siteDef.getPersonRegex().matcher(xml);
                 if (titlematch.find()) {
                     logger.debug(LOG_MESSAGE + "IMDb returned one match " + titlematch.group(1));
                     return titlematch.group(1);
@@ -304,7 +303,11 @@ public class ImdbInfo {
         }
 
         // Check if this is an exact match (we got a movie page instead of a results list)
-        Pattern titleregex = Pattern.compile(Pattern.quote("<link rel=\"canonical\" href=\"" + siteDef.getSite() + (objectType.equals(OBJECT_MOVIE) ? "title/" : "name/")) + (objectType.equals(OBJECT_MOVIE) ? "(tt\\d+)/\"" : "(nm\\d+)/\""));
+        Pattern titleregex = siteDef.getPersonRegex();
+        if(objectType.equals(OBJECT_MOVIE)){
+        	titleregex= siteDef.getTitleRegex();
+        }
+       
         Matcher titlematch = titleregex.matcher(xml);
         if (titlematch.find()) {
             logger.debug(LOG_MESSAGE + "IMDb returned one match " + titlematch.group(1));
