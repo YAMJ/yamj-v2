@@ -15,7 +15,8 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2549 Scrape multiple actors from NFO
  - Fixed defect #2554 Scrape people in same way before priority checks
  - Fixed defect #2553 Use advanced IMDB search cause IMDB search site has changed
-  
+ - Fixed defect #3415 index.htm REFRESH URL broken
+
 MovieJukebox 2.8 (2012-12-17)
 -----------------------------
  - Enhancement  #1461 Skipped subtitles will not be added

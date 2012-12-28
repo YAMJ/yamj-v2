@@ -386,7 +386,7 @@ public class MovieJukeboxHTMLWriter {
         logger.debug("Generating Index file from jukebox-index.xsl");
 
         String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
-        if (StringUtils.isNotBlank(homePage)) {
+        if (StringUtils.isBlank(homePage)) {
             String defCat = library.getDefaultCategory();
             if (defCat != null) {
                 homePage = FileTools.createPrefix("Other", HTMLTools.encodeUrl(FileTools.makeSafeFilename(defCat))) + "1";
