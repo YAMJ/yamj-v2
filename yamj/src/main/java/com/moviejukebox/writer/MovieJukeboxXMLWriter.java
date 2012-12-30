@@ -988,7 +988,7 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, SORT_TITLE, movie.getTitleSort());
         DOMHelper.appendChild(doc, eMovie, ORIGINAL_TITLE, movie.getOriginalTitle(), SOURCE, movie.getOverrideSource(OverrideFlag.ORIGINALTITLE));
 
-        Map<String,String> yearAttribs = new HashMap<String,String>();
+        Map<String, String> yearAttribs = new HashMap<String, String>();
         yearAttribs.put("Year", Library.getYearCategory(movie.getYear()));
         yearAttribs.put(SOURCE, movie.getOverrideSource(OverrideFlag.YEAR));
         DOMHelper.appendChild(doc, eMovie, YEAR, movie.getYear(), yearAttribs);
@@ -1063,9 +1063,11 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "quote", movie.getQuote(), SOURCE, movie.getOverrideSource(OverrideFlag.QUOTE));
         DOMHelper.appendChild(doc, eMovie, "tagline", movie.getTagline(), SOURCE, movie.getOverrideSource(OverrideFlag.TAGLINE));
 
-        Map<String,String> countryAttribs = new HashMap<String,String>();
+        Map<String, String> countryAttribs = new HashMap<String, String>();
         String countryIndex = createIndexAttribute(library, Library.INDEX_COUNTRY, movie.getCountry());
-        if (countryIndex != null) countryAttribs.put(INDEX, countryIndex);
+        if (countryIndex != null) {
+            countryAttribs.put(INDEX, countryIndex);
+        }
         countryAttribs.put(SOURCE, movie.getOverrideSource(OverrideFlag.COUNTRY));
         DOMHelper.appendChild(doc, eMovie, COUNTRY, movie.getCountry(), countryAttribs);
         if (xmlCompatible) {
@@ -1528,7 +1530,7 @@ public class MovieJukeboxXMLWriter {
 
         FileTools.addJukeboxFile(finalXmlFile.getName());
 
-        logger.debug(LOG_MESSAGE + movie.getBaseName() + " = " + movie.showDirty());
+        logger.debug(LOG_MESSAGE + "DirtyFlags for " + movie.getBaseName() + " are:" + movie.showDirty());
         if (!finalXmlFile.exists() || forceXMLOverwrite || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.RECHECK) || movie.isDirty(DirtyFlag.WATCHED)) {
             Document xmlDoc;
             try {
