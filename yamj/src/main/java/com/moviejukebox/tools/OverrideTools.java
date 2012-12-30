@@ -1,14 +1,14 @@
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list 
- *  
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *  
+ *
  *      This software is licensed under a Creative Commons License
  *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *  
- *      For any reuse or distribution, you must make clear to others the 
- *      license terms of this work.  
+ *
+ *      For any reuse or distribution, you must make clear to others the
+ *      license terms of this work.
  */
 package com.moviejukebox.tools;
 
@@ -17,11 +17,10 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.OverrideFlag;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
-
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 
 /**
  * Holds some override tools.
@@ -32,11 +31,10 @@ public final class OverrideTools {
 
     private static final Logger logger = Logger.getLogger(OverrideTools.class);
     private static final String LOG_MESSAGE = "OverrideTools: ";
-    
-    private static final Map<OverrideFlag, List<String>> MOVIE_PRIORITIES_MAP = new HashMap<OverrideFlag,List<String>>();
-    private static final Map<OverrideFlag, List<String>> TV_PRIORITIES_MAP = new HashMap<OverrideFlag,List<String>>();
+    private static final Map<OverrideFlag, List<String>> MOVIE_PRIORITIES_MAP = new EnumMap<OverrideFlag, List<String>>(OverrideFlag.class);
+    private static final Map<OverrideFlag, List<String>> TV_PRIORITIES_MAP = new EnumMap<OverrideFlag, List<String>>(OverrideFlag.class);
     // check skip if not in priority list
-    private static final boolean SKIP_NOT_IN_LIST = PropertiesUtil.getBooleanProperty("priority.checks.skipNotInList", FALSE); 
+    private static final boolean SKIP_NOT_IN_LIST = PropertiesUtil.getBooleanProperty("priority.checks.skipNotInList", FALSE);
     // hold max counts for people
     private static final int MAX_COUNT_DIRECTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.director", "2");
     private static final int MAX_COUNT_WRITER = PropertiesUtil.getIntProperty("plugin.people.maxCount.writer", "3");
@@ -51,7 +49,7 @@ public final class OverrideTools {
 
     static {
         String sources;
-        
+
         // actors
         sources = PropertiesUtil.getProperty("priority.movie.actors", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.ACTORS, sources);
@@ -168,9 +166,9 @@ public final class OverrideTools {
         putMoviePriorities(OverrideFlag.YEAR, sources);
         sources = PropertiesUtil.getProperty("priority.tv.year", "nfo,PLUGIN,ALTERNATE,filename");
         putTvPriorities(OverrideFlag.YEAR, sources);
-        
+
         // EXTRA properties for people scraping (filmography)
-        
+
         // actors
         sources = PropertiesUtil.getProperty("priority.movie.people.actors", "PLUGIN,ALTERNATE,nfo");
         putMoviePriorities(OverrideFlag.PEOPLE_ACTORS, sources);
@@ -186,12 +184,12 @@ public final class OverrideTools {
         putMoviePriorities(OverrideFlag.PEOPLE_WRITERS, sources);
         sources = PropertiesUtil.getProperty("priority.tv.people.writers", "PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.PEOPLE_WRITERS, sources);
-        
+
     }
 
     /**
      * Put movie priorities into map.
-     * 
+     *
      * @param overrideFlag
      * @param sources
      */
@@ -199,7 +197,7 @@ public final class OverrideTools {
         List<String> priorities;
         if (StringUtils.isBlank(sources)) {
             priorities = Collections.emptyList();
-        } else  {
+        } else {
             sources = sources.toUpperCase();
             if (sources.contains(PATTERN_PLUGIN) && !sources.contains(MOVIE_PLUGIN)) {
                 // replace pattern with database plugin
@@ -214,15 +212,12 @@ public final class OverrideTools {
                 }
             }
 
-            priorities = new ArrayList<String>();
-            for (String priority : sources.split(",")) {
-                priorities.add(priority);
-            }
+            priorities = new ArrayList<String>(Arrays.asList(sources.split(",")));
             priorities.remove(PATTERN_PLUGIN);
             priorities.remove(PATTERN_ALTERNATE);
-            
+
             if (logger.isDebugEnabled()) {
-                logger.debug(LOG_MESSAGE + overrideFlag.name() + " movie priorities " + priorities.toString().toLowerCase());
+                logger.debug(LOG_MESSAGE + overrideFlag.name() + " (Movie) priorities " + priorities.toString().toLowerCase());
             }
         }
         MOVIE_PRIORITIES_MAP.put(overrideFlag, priorities);
@@ -230,7 +225,7 @@ public final class OverrideTools {
 
     /**
      * Put movie priorities into map.
-     * 
+     *
      * @param overrideFlag
      * @param sources
      */
@@ -238,7 +233,7 @@ public final class OverrideTools {
         List<String> priorities;
         if (StringUtils.isBlank(sources)) {
             priorities = Collections.emptyList();
-        } else  {
+        } else {
             sources = sources.toUpperCase();
             if (sources.contains(PATTERN_PLUGIN) && !sources.contains(TVSHOW_PLUGIN)) {
                 // replace pattern with database plugin
@@ -252,21 +247,18 @@ public final class OverrideTools {
                     sources = sources.replace(PATTERN_ALTERNATE, IMDB_PLUGIN);
                 }
             }
-            
-            priorities = new ArrayList<String>();
-            for (String priority : sources.split(",")) {
-                priorities.add(priority);
-            }
+
+            priorities = new ArrayList<String>(Arrays.asList(sources.split(",")));
             priorities.remove(PATTERN_PLUGIN);
             priorities.remove(PATTERN_ALTERNATE);
-            
+
             if (logger.isDebugEnabled()) {
-                logger.debug(LOG_MESSAGE + overrideFlag.name() + " tv show priorities " + priorities.toString().toLowerCase());
+                logger.debug(LOG_MESSAGE + overrideFlag.name() + " (TV) priorities " + priorities.toString().toLowerCase());
             }
         }
         TV_PRIORITIES_MAP.put(overrideFlag, priorities);
     }
-    
+
     private static boolean skipCheck(Movie movie, OverrideFlag overrideFlag, String source) {
         if (SKIP_NOT_IN_LIST) {
 
@@ -284,14 +276,14 @@ public final class OverrideTools {
             // index < 0 means: not in list, so skip the check
             return (index < 0);
         }
-        
+
         // no skip
         return Boolean.FALSE;
     }
-    
+
     /**
      * Check the priority of a property to set.
-     * 
+     *
      * @param property the property to test
      * @param actualSource the actual source
      * @param newSource the new source
@@ -319,7 +311,7 @@ public final class OverrideTools {
         } else {
             priorities = MOVIE_PRIORITIES_MAP.get(overrideFlag);
         }
-        
+
         // get and check new priority
         int newPrio = priorities.indexOf(newSource.toUpperCase());
         if (newPrio == -1) {
@@ -327,14 +319,14 @@ public final class OverrideTools {
             // -> actual source has higher priority
             return Boolean.FALSE;
         }
-        
+
         // check actual priority
         int actualPrio = priorities.indexOf(actualSource.toUpperCase());
         if ((actualPrio == -1) || (newPrio <= actualPrio)) {
             // -> new source has higher priority
             return Boolean.TRUE;
         }
-        
+
         // -> actual source has higher priority
         return Boolean.FALSE;
     }
@@ -360,14 +352,16 @@ public final class OverrideTools {
                 default:
                     check = checkOverwrite(movie, overrideFlag, source);
                     break;
-                    
+
                 // TODO until now these checks are enough
             }
-            if (check) return true;
+            if (check) {
+                return true;
+            }
         }
         return false;
     }
-    
+
     public static boolean checkOverwriteActors(Movie movie, String source) {
         if (skipCheck(movie, OverrideFlag.ACTORS, source)) {
             // skip the check
@@ -381,7 +375,7 @@ public final class OverrideTools {
         }
         return checkOverwrite(movie, OverrideFlag.ACTORS, source);
     }
-   
+
     public static boolean checkOverwriteAspectRatio(Movie movie, String source) {
         if (skipCheck(movie, OverrideFlag.ASPECTRATIO, source)) {
             // skip the check
@@ -411,7 +405,7 @@ public final class OverrideTools {
         }
         return checkOverwrite(movie, OverrideFlag.COMPANY, source);
     }
-    
+
     public static boolean checkOverwriteContainer(Movie movie, String source) {
         if (skipCheck(movie, OverrideFlag.CONTAINER, source)) {
             // skip the check
@@ -436,7 +430,7 @@ public final class OverrideTools {
         if (skipCheck(movie, OverrideFlag.DIRECTORS, source)) {
             // skip the check
             return Boolean.FALSE;
-        }else if (MAX_COUNT_DIRECTOR <= 0) {
+        } else if (MAX_COUNT_DIRECTOR <= 0) {
             // regard no directors
             return Boolean.FALSE;
         } else if (movie.getDirectors() == null || movie.getDirectors().isEmpty()) {
@@ -467,7 +461,7 @@ public final class OverrideTools {
         }
         return checkOverwrite(movie, OverrideFlag.FPS, source);
     }
-    
+
     public static boolean checkOverwriteLanguage(Movie movie, String source) {
         if (skipCheck(movie, OverrideFlag.LANGUAGE, source)) {
             // skip the check
@@ -487,7 +481,7 @@ public final class OverrideTools {
         }
         return checkOverwrite(movie, OverrideFlag.ORIGINALTITLE, source);
     }
-    
+
     public static boolean checkOverwriteOutline(Movie movie, String source) {
         if (skipCheck(movie, OverrideFlag.OUTLINE, source)) {
             // skip the check
@@ -537,7 +531,7 @@ public final class OverrideTools {
         }
         return checkOverwrite(movie, OverrideFlag.RESOLUTION, source);
     }
-    
+
     public static boolean checkOverwriteRuntime(Movie movie, String source) {
         if (skipCheck(movie, OverrideFlag.RUNTIME, source)) {
             // skip the check
@@ -572,7 +566,7 @@ public final class OverrideTools {
         if (skipCheck(movie, OverrideFlag.VIDEOOUTPUT, source)) {
             // skip the check
             return Boolean.FALSE;
-        }else if (StringTools.isNotValidString(movie.getVideoOutput())) {
+        } else if (StringTools.isNotValidString(movie.getVideoOutput())) {
             return Boolean.TRUE;
         }
         return checkOverwrite(movie, OverrideFlag.VIDEOOUTPUT, source);
