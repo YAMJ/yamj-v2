@@ -446,7 +446,7 @@ public class Library implements Map<String, Movie> {
             indexMaster.setTitle(indexName, indexMaster.getOverrideSource(OverrideFlag.TITLE));
 
             // Overwrite the TitleSort with the indexname only for TV Shows as this will overwrite with changes that are made in a NFO file
-            if (indexMaster.isTVShow()) {
+            if (!indexMaster.isTVShow()) {
                 indexMaster.setTitleSort(indexName);
             }
             indexMaster.setOriginalTitle(indexName, indexMaster.getOverrideSource(OverrideFlag.ORIGINALTITLE));
