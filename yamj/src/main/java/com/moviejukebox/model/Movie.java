@@ -1194,25 +1194,31 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setCompany(String company, String source) {
-        if (StringTools.isValidString(company) && !company.equalsIgnoreCase(this.company)) {
-            setDirty(DirtyFlag.INFO);
-            this.company = company;
+        if (StringTools.isValidString(company)) {
+            if (!company.equalsIgnoreCase(this.company)) {
+                setDirty(DirtyFlag.INFO);
+                this.company = company;
+            }
             setOverrideSource(OverrideFlag.COMPANY, source);
         }
     }
 
     public void setContainer(String container, String source) {
-        if (StringTools.isValidString(container) && !container.equalsIgnoreCase(this.container)) {
-            setDirty(DirtyFlag.INFO);
-            this.container = container;
+        if (StringTools.isValidString(container)) {
+            if (!container.equalsIgnoreCase(this.container)) {
+                setDirty(DirtyFlag.INFO);
+                this.container = container;
+            }
             setOverrideSource(OverrideFlag.CONTAINER, source);
         }
     }
 
     public void setCountry(String country, String source) {
-        if (StringTools.isValidString(country) && !country.equalsIgnoreCase(this.country)) {
-            setDirty(DirtyFlag.INFO);
-            this.country = country;
+        if (StringTools.isValidString(country)) {
+            if (!country.equalsIgnoreCase(this.country)) {
+                setDirty(DirtyFlag.INFO);
+                this.country = country;
+            }
             setOverrideSource(OverrideFlag.COUNTRY, source);
         }
     }
@@ -1334,12 +1340,12 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setFps(float fps, String source) {
-        //Prevent wrong result caused by floating point rounding by allowing difference of 0.1 fpsS
+        // Prevent wrong result caused by floating point rounding by allowing difference of 0.1 fpsS
         if (Math.abs(fps - this.fps) > 0.1) {
             setDirty(DirtyFlag.INFO);
             this.fps = fps;
-            setOverrideSource(OverrideFlag.FPS, source);
         }
+        setOverrideSource(OverrideFlag.FPS, source);
     }
 
     public void setGenres(Collection<String> genres, String source) {
@@ -1417,17 +1423,21 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setLanguage(String language, String source) {
-        if (StringTools.isValidString(language) && !language.equalsIgnoreCase(this.language)) {
-            setDirty(DirtyFlag.INFO);
-            this.language = language;
+        if (StringTools.isValidString(language)) {
+            if (!language.equalsIgnoreCase(this.language)) {
+                setDirty(DirtyFlag.INFO);
+                this.language = language;
+            }
             setOverrideSource(OverrideFlag.LANGUAGE, source);
         }
     }
 
     public void setCertification(String certification, String source) {
-        if (StringTools.isValidString(certification) && !certification.equalsIgnoreCase(this.certification)) {
-            setDirty(DirtyFlag.INFO);
-            this.certification = certification;
+        if (StringTools.isValidString(certification)) {
+            if (!certification.equalsIgnoreCase(this.certification)) {
+                setDirty(DirtyFlag.INFO);
+                this.certification = certification;
+            }
             setOverrideSource(OverrideFlag.CERTIFICATION, source);
         }
     }
@@ -1461,9 +1471,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setPlot(String plot, String source) {
-        if (StringTools.isValidString(plot) && !plot.equalsIgnoreCase(this.plot)) {
-            setDirty(DirtyFlag.INFO);
-            this.plot = plot;
+        if (StringTools.isValidString(plot)) {
+            if (!plot.equalsIgnoreCase(this.plot)) {
+                setDirty(DirtyFlag.INFO);
+                this.plot = plot;
+            }
             setOverrideSource(OverrideFlag.PLOT, source);
         }
     }
@@ -1473,9 +1485,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setOutline(String outline, String source) {
-        if (StringTools.isValidString(outline) && !outline.equalsIgnoreCase(this.outline)) {
-            setDirty(DirtyFlag.INFO);
-            this.outline = outline;
+        if (StringTools.isValidString(outline)) {
+            if (!outline.equalsIgnoreCase(this.outline)) {
+                setDirty(DirtyFlag.INFO);
+                this.outline = outline;
+            }
             setOverrideSource(OverrideFlag.OUTLINE, source);
         }
     }
@@ -1577,17 +1591,21 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             }
         }
 
-        if (StringTools.isValidString(parseDate) && !parseDate.equalsIgnoreCase(this.releaseDate)) {
-            setDirty(DirtyFlag.INFO);
-            this.releaseDate = parseDate;
+        if (StringTools.isValidString(parseDate)) {
+            if (!parseDate.equalsIgnoreCase(this.releaseDate)) {
+                setDirty(DirtyFlag.INFO);
+                this.releaseDate = parseDate;
+            }
             setOverrideSource(OverrideFlag.RELEASEDATE, source);
         }
     }
 
     public void setResolution(String resolution, String source) {
-        if (StringTools.isValidString(resolution) && !resolution.equalsIgnoreCase(this.resolution)) {
-            setDirty(DirtyFlag.INFO);
-            this.resolution = resolution;
+        if (StringTools.isValidString(resolution)) {
+            if (!resolution.equalsIgnoreCase(this.resolution)) {
+                setDirty(DirtyFlag.INFO);
+                this.resolution = resolution;
+            }
             setOverrideSource(OverrideFlag.RESOLUTION, source);
         }
     }
@@ -1599,13 +1617,15 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setRuntime(String runtime, String source) {
-        if (StringTools.isValidString(runtime) && !runtime.equalsIgnoreCase(this.runtime)) {
-            setDirty(DirtyFlag.INFO);
-            // Escape the first "0" AlloCine gives sometimes
-            if (runtime.startsWith("0")) {
-                this.runtime = new String(runtime.substring(1)).trim();
-            } else {
-                this.runtime = runtime.trim();
+        if (StringTools.isValidString(runtime)) {
+            if (!runtime.equalsIgnoreCase(this.runtime)) {
+                setDirty(DirtyFlag.INFO);
+                // Escape the first "0" AlloCine gives sometimes
+                if (runtime.startsWith("0")) {
+                    this.runtime = new String(runtime.substring(1)).trim();
+                } else {
+                    this.runtime = runtime.trim();
+                }
             }
             setOverrideSource(OverrideFlag.RUNTIME, source);
         }
@@ -1616,9 +1636,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setTitle(String title, String source) {
-        if (StringTools.isValidString(title) && !title.equals(this.title)) {
-            setDirty(DirtyFlag.INFO);
-            this.title = title;
+        if (StringTools.isValidString(title)) {
+            if (!title.equals(this.title)) {
+                setDirty(DirtyFlag.INFO);
+                this.title = title;
+            }
             setOverrideSource(OverrideFlag.TITLE, source);
 
             // If we don't have a original title, then use the title
@@ -1653,9 +1675,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setOriginalTitle(String originalTitle, String source) {
-        if (StringTools.isValidString(originalTitle) && !originalTitle.equalsIgnoreCase(this.originalTitle)) {
-            setDirty(DirtyFlag.INFO);
-            this.originalTitle = originalTitle;
+        if (StringTools.isValidString(originalTitle)) {
+            if (!originalTitle.equalsIgnoreCase(this.originalTitle)) {
+                setDirty(DirtyFlag.INFO);
+                this.originalTitle = originalTitle;
+            }
             setOverrideSource(OverrideFlag.ORIGINALTITLE, source);
         }
     }
@@ -1689,25 +1713,31 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setVideoOutput(String videoOutput, String source) {
-        if (StringTools.isValidString(videoOutput) && !videoOutput.equalsIgnoreCase(this.videoOutput)) {
-            setDirty(DirtyFlag.INFO);
-            this.videoOutput = videoOutput;
+        if (StringTools.isValidString(videoOutput)) {
+            if (!videoOutput.equalsIgnoreCase(this.videoOutput)) {
+                setDirty(DirtyFlag.INFO);
+                this.videoOutput = videoOutput;
+            }
             setOverrideSource(OverrideFlag.VIDEOOUTPUT, source);
         }
     }
 
     public void setVideoSource(String videoSource, String source) {
-        if (StringTools.isValidString(videoSource) && !videoSource.equalsIgnoreCase(this.videoSource)) {
-            setDirty(DirtyFlag.INFO);
-            this.videoSource = videoSource;
+        if (StringTools.isValidString(videoSource)) {
+            if (!videoSource.equalsIgnoreCase(this.videoSource)) {
+                setDirty(DirtyFlag.INFO);
+                this.videoSource = videoSource;
+            }
             setOverrideSource(OverrideFlag.VIDEOSOURCE, source);
         }
     }
 
     public void setYear(String year, String source) {
-        if (StringTools.isValidString(year) && !year.equalsIgnoreCase(this.year)) {
-            setDirty(DirtyFlag.INFO);
-            this.year = year;
+        if (StringTools.isValidString(year)) {
+            if (!year.equalsIgnoreCase(this.year)) {
+                setDirty(DirtyFlag.INFO);
+                this.year = year;
+            }
             setOverrideSource(OverrideFlag.YEAR, source);
         }
     }
@@ -1721,9 +1751,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setQuote(String quote, String source) {
-        if (StringTools.isValidString(quote) && !quote.equalsIgnoreCase(this.quote)) {
-            setDirty(DirtyFlag.INFO);
-            this.quote = quote;
+        if (StringTools.isValidString(quote)) {
+            if (!quote.equalsIgnoreCase(this.quote)) {
+                setDirty(DirtyFlag.INFO);
+                this.quote = quote;
+            }
             setOverrideSource(OverrideFlag.QUOTE, source);
         }
     }
@@ -2211,9 +2243,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setAspectRatio(String aspectRatio, String source) {
-        if (StringTools.isValidString(aspectRatio) && !aspectRatio.equalsIgnoreCase(this.aspect)) {
-            setDirty(DirtyFlag.INFO);
-            this.aspect = aspectRatio;
+        if (StringTools.isValidString(aspectRatio)) {
+            if (!aspectRatio.equalsIgnoreCase(this.aspect)) {
+                setDirty(DirtyFlag.INFO);
+                this.aspect = aspectRatio;
+            }
             setOverrideSource(OverrideFlag.ASPECTRATIO, source);
         }
     }
@@ -2609,9 +2643,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setTagline(String tagline, String source) {
-        if (StringTools.isValidString(tagline) && !tagline.equalsIgnoreCase(this.tagline)) {
-            setDirty(DirtyFlag.INFO);
-            this.tagline = tagline;
+        if (StringTools.isValidString(tagline)) {
+            if (!tagline.equalsIgnoreCase(this.tagline)) {
+                setDirty(DirtyFlag.INFO);
+                this.tagline = tagline;
+            }
             setOverrideSource(OverrideFlag.TAGLINE, source);
         }
     }
