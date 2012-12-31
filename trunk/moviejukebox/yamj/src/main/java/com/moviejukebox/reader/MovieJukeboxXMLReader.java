@@ -1032,7 +1032,7 @@ public class MovieJukeboxXMLReader {
 
     private void parseOverridableFramesPerSecond(Movie movie, Element element) {
         try {
-            NodeList nlElement = element.getElementsByTagName(LANGUAGE);
+            NodeList nlElement = element.getElementsByTagName("fps");
             Element tagElement = (Element) nlElement.item(0);
             float fps = Float.parseFloat(((Node) tagElement.getChildNodes().item(0)).getNodeValue());
             movie.setFps(fps, tagElement.getAttribute(SOURCE));
