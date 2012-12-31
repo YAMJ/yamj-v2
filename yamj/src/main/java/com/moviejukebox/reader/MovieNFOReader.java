@@ -290,15 +290,16 @@ public class MovieNFOReader {
         NodeList nlMovies;
 
         // Determine if the NFO file is for a TV Show or Movie so the default ID can be set
-        boolean isTv;
-        if (movie.isTVShow()) {
+        boolean isTv = xmlDoc.getElementsByTagName(TYPE_TVSHOW).getLength() > 0; // Issue 2559, check in NFO if the movie is a TV show, even if no Season/Episode are in filename
+        if (movie.isTVShow() || isTv) {
             nlMovies = xmlDoc.getElementsByTagName(TYPE_TVSHOW);
             isTv = Boolean.TRUE;
+            movie.setMovieType(Movie.TYPE_TVSHOW); // Issue 2559, check in NFO if the movie is a TV show, and override the type
         } else {
             nlMovies = xmlDoc.getElementsByTagName(TYPE_MOVIE);
             isTv = Boolean.FALSE;
         }
-
+        
         Node nMovie;
         for (int loopMovie = 0; loopMovie < nlMovies.getLength(); loopMovie++) {
             nMovie = nlMovies.item(loopMovie);
