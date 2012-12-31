@@ -18,6 +18,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2556 index.htm REFRESH URL broken
  - Fixed defect #2559 <tvshow> nfo file is effectively ignored if filename does not include SxxExx
  - Fixed defect #2560 Read correct FPS value from stored xml file
+ - Fixed defect #2561 Set source with highest priority even if movie value has not changed
  
 MovieJukebox 2.8 (2012-12-17)
 -----------------------------
