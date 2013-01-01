@@ -1,26 +1,24 @@
 /*
- *      Copyright (c) 2004-2012 YAMJ Members
+ *      Copyright (c) 2004-2013 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
- *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *
- *      For any reuse or distribution, you must make clear to others the
- *      license terms of this work.
- */
-
-/*
- Plugin to retrieve movie data from Russian movie database www.kinopoisk.ru
- Written by Yury Sidorov.
-
- First the movie data is searched in IMDB and TheTvDB.
- After that the movie is searched in kinopoisk and movie data
- is updated.
-
- It is possible to specify URL of the movie page on kinopoisk in
- the .nfo file. In this case movie data will be retrieved from this page only.
  */
 package com.moviejukebox.plugin;
 
@@ -34,6 +32,16 @@ import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+/**
+ * Plugin to retrieve movie data from Russian movie database www.kinopoisk.ru Written by Yury Sidorov.
+ *
+ * First the movie data is searched in IMDB and TheTvDB.
+ *
+ * After that the movie is searched in kinopoisk and movie data is updated.
+ *
+ * It is possible to specify URL of the movie page on kinopoisk in the .nfo file. In this case movie data will be
+ * retrieved from this page only.
+ */
 public class KinopoiskPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(KinopoiskPlugin.class);
@@ -366,7 +374,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
                 }
 
-                if (plot.length() > 0 ) {
+                if (plot.length() > 0) {
                     String newPlot = StringTools.trimToLength(plot.toString(), preferredPlotLength, true, plotEnding);
                     movie.setPlot(newPlot, KINOPOISK_PLUGIN_ID);
                 }
@@ -416,7 +424,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
 
                 // Certification from MPAA
-                if (OverrideTools.checkOverwriteCertification(movie, KINOPOISK_PLUGIN_ID))  {
+                if (OverrideTools.checkOverwriteCertification(movie, KINOPOISK_PLUGIN_ID)) {
                     boolean certificationFounded = false;
                     for (String mpaaTag : HTMLTools.extractTags(xml, ">рейтинг MPAA<", "</tr>", "<a href=\"/film", "</a>")) {
                         // Now need scan for 'alt' attribute of 'img'
@@ -433,7 +441,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                         break;
                     }
-                    
+
                     if (etalonFlag && !certificationFounded) {
                         logger.error(LOG_MESSAGE + "Site design changed - failed get certification!");
                     }
@@ -451,7 +459,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         movie.setCountry(strCountry, KINOPOISK_PLUGIN_ID);
                         countryFounded = true;
                     }
-                    
+
                     if (etalonFlag && !countryFounded) {
                         logger.error(LOG_MESSAGE + "Site design changed - failed get country!");
                     }
@@ -465,7 +473,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         yearFounded = true;
                         break;
                     }
-                    
+
                     if (etalonFlag && !yearFounded) {
                         logger.error(LOG_MESSAGE + "Site design changed - failed get year!");
                     }
@@ -521,7 +529,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
                     movie.setReleaseDate(releaseDate, KINOPOISK_PLUGIN_ID);
-                    
+
                     if (etalonFlag && !releaseFounded) {
                         logger.error(LOG_MESSAGE + "Site design changed - failed get release!");
                     }
@@ -822,8 +830,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
             boolean overridePeopleDirectors = OverrideTools.checkOverwritePeopleDirectors(movie, KINOPOISK_PLUGIN_ID);
             boolean overrideWriters = OverrideTools.checkOverwriteWriters(movie, KINOPOISK_PLUGIN_ID);
             boolean overridePeopleWriters = OverrideTools.checkOverwritePeopleWriters(movie, KINOPOISK_PLUGIN_ID);
-            
-            if (overrideCast || overridePeopleCast|| overrideDirectors || overridePeopleDirectors || overrideWriters || overridePeopleWriters || etalonFlag) {
+
+            if (overrideCast || overridePeopleCast || overrideDirectors || overridePeopleDirectors || overrideWriters || overridePeopleWriters || etalonFlag) {
                 xml = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/cast");
                 if (StringTools.isValidString(xml)) {
                     if (overrideDirectors || overridePeopleDirectors || etalonFlag) {
@@ -838,13 +846,13 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             logger.error(LOG_MESSAGE + "Site design changed - failed get writers!");
                         }
                     }
-                    if (overrideCast|| overridePeopleCast || etalonFlag) {
+                    if (overrideCast || overridePeopleCast || etalonFlag) {
                         int count = scanMoviePerson(movie, xml, "actor", actorMax, overrideCast, overridePeopleCast);
                         if (etalonFlag && count == 0) {
                             logger.error(LOG_MESSAGE + "Site design changed - failed get cast!");
                         }
                     }
-                    
+
                     Collection<Filmography> outcast = new ArrayList<Filmography>();
                     for (Filmography p : movie.getPeople()) {
                         if (StringTools.isNotValidString(p.getId(KINOPOISK_PLUGIN_ID))) {
@@ -977,7 +985,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     movie.clearPeopleWriters();
                 }
             }
-            
+
             for (String item : HTMLTools.extractTags(xml, "<a name=\"" + mode + "\">", "<a name=\"", "<div class=\"dub ", "<div class=\"clear\"></div>")) {
                 String name = HTMLTools.extractTag(item, "<div class=\"name\"><a href=\"/name/", "</a>");
                 int beginIndex = name.indexOf("/\">");

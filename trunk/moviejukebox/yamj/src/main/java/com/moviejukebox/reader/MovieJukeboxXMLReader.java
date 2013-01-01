@@ -1,14 +1,24 @@
 /*
- *      Copyright (c) 2004-2012 YAMJ Members
+ *      Copyright (c) 2004-2013 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
- *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *
- *      For any reuse or distribution, you must make clear to others the
- *      license terms of this work.
  */
 package com.moviejukebox.reader;
 
@@ -359,7 +369,7 @@ public class MovieJukeboxXMLReader {
 
                 // get aspect ratio
                 parseOverridableAspectRatio(movie, eMovie);
-                
+
                 // get frames per second
                 parseOverridableFramesPerSecond(movie, eMovie);
 
@@ -454,7 +464,7 @@ public class MovieJukeboxXMLReader {
                                     person.setId(name, nPersonAttr.getNodeValue());
                                 }
                             }
-                            
+
                             String source = ePerson.getAttribute(SOURCE);
                             if (StringTools.isValidString(source)) {
                                 person.setSource(source);
@@ -1009,7 +1019,7 @@ public class MovieJukeboxXMLReader {
             // ignore this error
         }
     }
-    
+
     private void parseOverridableContainer(Movie movie, Element element) {
         try {
             NodeList nlElement = element.getElementsByTagName("container");
@@ -1040,7 +1050,7 @@ public class MovieJukeboxXMLReader {
             // ignore this error
         }
     }
-    
+
     private void parseOverridableLanguage(Movie movie, Element element) {
         try {
             NodeList nlElement = element.getElementsByTagName(LANGUAGE);
@@ -1060,7 +1070,7 @@ public class MovieJukeboxXMLReader {
             // ignore this error
         }
     }
-    
+
     private void parseOverridableOutline(Movie movie, Element element) {
         try {
             NodeList nlElement = element.getElementsByTagName("outline");
@@ -1080,7 +1090,7 @@ public class MovieJukeboxXMLReader {
             // ignore this error
         }
     }
-    
+
     private void parseOverridableQuote(Movie movie, Element element) {
         try {
             NodeList nlElement = element.getElementsByTagName("quote");
@@ -1100,7 +1110,7 @@ public class MovieJukeboxXMLReader {
             // ignore this error
         }
     }
-    
+
     private void parseOverridableResolution(Movie movie, Element element) {
         try {
             NodeList nlElement = element.getElementsByTagName("resolution");
@@ -1110,7 +1120,7 @@ public class MovieJukeboxXMLReader {
             // ignore this error
         }
     }
-    
+
     private void parseOverridableRuntime(Movie movie, Element element) {
         try {
             NodeList nlElement = element.getElementsByTagName("runtime");
@@ -1140,7 +1150,7 @@ public class MovieJukeboxXMLReader {
             // ignore this error
         }
     }
-    
+
     private void parseOverridableVideoOutput(Movie movie, Element element) {
         try {
             NodeList nlElement = element.getElementsByTagName("videoOutput");

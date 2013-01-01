@@ -1,20 +1,23 @@
 /*
- *      Copyright (c) 2004-2012 YAMJ Members
+ *      Copyright (c) 2004-2013 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
  *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *
- *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *
- *      For any reuse or distribution, you must make clear to others the
- *      license terms of this work.
- */
-
-/* FilmKatalogus plugin
- *
- * Contains code for an alternate plugin for fetching information on
- * movies in Hungarian
  *
  */
 package com.moviejukebox.plugin;
@@ -31,6 +34,9 @@ import org.apache.log4j.Logger;
 
 /**
  * Film Katalogus Plugin for Hungarian language
+ *
+ * Contains code for an alternate plugin for fetching information on movies in Hungarian
+ *
  * @author pbando12@gmail.com
  *
  */
@@ -71,10 +77,10 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
 
         // check if title or plot should be retrieved
         if (OverrideTools.checkOneOverwrite(mediaFile, FILMKAT_PLUGIN_ID, OverrideFlag.TITLE, OverrideFlag.PLOT)) {
-	        logger.info(LOG_MESSAGE + "Id found in nfo = " + mediaFile.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
-	        getHunPlot(mediaFile);
+            logger.info(LOG_MESSAGE + "Id found in nfo = " + mediaFile.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
+            getHunPlot(mediaFile);
         }
-        
+
         return result;
     }
 
@@ -106,8 +112,8 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
 
                 // PLOT
                 if (OverrideTools.checkOverwritePlot(movie, FILMKAT_PLUGIN_ID)) {
-	                beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
-	                int endIndex = xml.indexOf("</DIV>", beginIndex);
+                    beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
+                    int endIndex = xml.indexOf("</DIV>", beginIndex);
                     String plot = new String(xml.substring((beginIndex + 19), endIndex));
                     plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
                     movie.setPlot(plot, FILMKAT_PLUGIN_ID);
@@ -129,14 +135,14 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 beginIndex = xml.indexOf("<H1>");
                 if (beginIndex != -1) {
                     if (OverrideTools.checkOverwriteTitle(movie, FILMKAT_PLUGIN_ID)) {
-                    	endIndex = xml.indexOf("</H1>", beginIndex);
+                        endIndex = xml.indexOf("</H1>", beginIndex);
                         movie.setTitle(new String(xml.substring((beginIndex + 4), endIndex)), FILMKAT_PLUGIN_ID);
                     }
 
                     // PLOT
                     if (OverrideTools.checkOverwritePlot(movie, FILMKAT_PLUGIN_ID)) {
-                    	beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
-                    	endIndex = xml.indexOf("</DIV>", beginIndex);
+                        beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
+                        endIndex = xml.indexOf("</DIV>", beginIndex);
                         String plot = new String(xml.substring((beginIndex + 19), endIndex));
                         plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
                         movie.setPlot(plot, FILMKAT_PLUGIN_ID);

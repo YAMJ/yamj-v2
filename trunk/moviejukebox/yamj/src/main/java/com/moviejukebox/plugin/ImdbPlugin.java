@@ -1,14 +1,24 @@
 /*
- *      Copyright (c) 2004-2012 YAMJ Members
+ *      Copyright (c) 2004-2013 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
- *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *
- *      For any reuse or distribution, you must make clear to others the
- *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
@@ -139,11 +149,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     protected String getPreferredValue(List<String> values, boolean useLast) {
         String value = Movie.UNKNOWN;
-        
+
         if (useLast) {
             Collections.reverse(values);
         }
-        
+
         for (String text : values) {
             String country = null;
 
@@ -324,7 +334,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // ASPECT RATIO
         updateMovieInfoAspectRatio(movie, xml, this.siteDef);
-        
+
         if (OverrideTools.checkOverwriteCountry(movie, IMDB_PLUGIN_ID)) {
             // HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCountry() + HTML_H5, HTML_DIV, "<a href", HTML_A_END)
             for (String country : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCountry() + HTML_H5_END, HTML_DIV)) {
@@ -442,7 +452,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 certification = getPreferredValue(HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCertification() + HTML_H5_END + "<div class=\"info-content\">", HTML_DIV,
                         null, "|", false), true);
             }
-            
+
             if (isNotValidString(certification)) {
                 certification = Movie.NOTRATED;
             }
@@ -488,7 +498,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (overridePeople) {
                 movie.clearPeopleDirectors();
             }
-            
+
             // Issue 1897: Cast enhancement
             if (isValidString(personXML)) {
                 extractDirectors(movie, personXML, siteDef, overrideNormal , overridePeople);
@@ -524,7 +534,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
         }
-        
+
         overrideNormal = OverrideTools.checkOverwriteWriters(movie, IMDB_PLUGIN_ID);
         overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, IMDB_PLUGIN_ID);
         if (overrideNormal || overridePeople) {
@@ -717,7 +727,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // ASPECT RATIO
         updateMovieInfoAspectRatio(movie, xml, siteDef2);
-        
+
         // COUNTRY
         if (OverrideTools.checkOverwriteCountry(movie, IMDB_PLUGIN_ID)) {
             for (String country : HTMLTools.extractTags(xml, siteDef2.getCountry() + HTML_H4_END, HTML_DIV, "onclick=\"", HTML_A_END)) {
@@ -895,7 +905,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (overridePeople) {
                 movie.clearPeopleDirectors();
             }
-            
+
             // Issue 1897: Cast enhancement
             extractDirectors(movie, personXML, siteDef2, overrideNormal, overridePeople);
         }
@@ -926,7 +936,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (overridePeople) {
                 movie.clearPeopleCast();
             }
-            
+
             // Issue 1897: Cast enhancement
             peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", HTML_TABLE, "<td class=\"name\"", "</tr>");
 
@@ -966,7 +976,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                             character = character.replaceAll("\\s+", " ").replaceAll("^\\s", "").replaceAll("\\s$", "");
                         }
                     }
-                    
+
                     if (overrideNormal) {
                         movie.addActor(name, IMDB_PLUGIN_ID);
                     }
@@ -987,13 +997,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (releaseInfoXML.equals(Movie.UNKNOWN)) {
                 releaseInfoXML = webBrowser.request(getImdbUrl(movie) + "releaseinfo", siteDef2.getCharset());
             }
-    
+
             // The AKAs are stored in the format "title", "country"
             // therefore we need to look for the preferredCountry and then work backwards
-    
+
             // Just extract the AKA section from the page
             List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "Also Known As (AKA)", HTML_TABLE, "<td>", HTML_TD, Boolean.FALSE);
-    
+
             // Does the "original title" exist on the page?
             if (akaList.toString().indexOf("original title") > -1) {
                 // This table comes back as a single list, so we have to save the last entry in case it's the one we need
@@ -1008,13 +1018,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         previousEntry = akaTitle;
                     }
                 }
-    
+
                 if (foundAka && isValidString(previousEntry)) {
                     movie.setOriginalTitle(HTMLTools.stripTags(previousEntry).trim(), IMDB_PLUGIN_ID);
                 }
             }
         }
-        
+
         // TAGLINE
         if (OverrideTools.checkOverwriteTagline(movie, IMDB_PLUGIN_ID)) {
             int startTag = xml.indexOf("<h4 class=\"inline\">" + siteDef2.getTaglines() + HTML_H4_END);
@@ -1047,7 +1057,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Scrape aspect ration from IMDb; usable for all sites.
-     * 
+     *
      * @param movie
      * @param xml
      * @param sideDef
@@ -1067,7 +1077,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             // find unclean aspect ratio
             String uncleanAspectRatio = HTMLTools.extractTag(xml, startString, endString).trim();
-            
+
             if (StringTools.isValidString(uncleanAspectRatio)) {
                 // remove spaces and replace , with .
                 uncleanAspectRatio = uncleanAspectRatio.replace(" ","").replace(",",".");
@@ -1076,7 +1086,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
     }
-    
+
     private void extractDirectors(Movie movie, String personXML, ImdbSiteDataDefinition siteDef, boolean overrideNormal, boolean overridePeople) {
         int count = 0;
         boolean found = Boolean.FALSE;
@@ -1086,7 +1096,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     int beginIndex = member.indexOf("href=\"/name/");
                     if (beginIndex > -1) {
                         String personID = member.substring(beginIndex + 12, member.indexOf(HTML_SLASH_QUOTE, beginIndex));
-                        String director = member.substring(member.indexOf(HTML_SLASH_GT, beginIndex) + 2); 
+                        String director = member.substring(member.indexOf(HTML_SLASH_GT, beginIndex) + 2);
                         if (overrideNormal) {
                             movie.addDirector(director, IMDB_PLUGIN_ID);
                         }
