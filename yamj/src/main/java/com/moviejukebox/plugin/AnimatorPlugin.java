@@ -1,21 +1,24 @@
 /*
- *      Copyright (c) 2004-2012 YAMJ Members
+ *      Copyright (c) 2004-2013 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
- *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *
- *      For any reuse or distribution, you must make clear to others the
- *      license terms of this work.
- */
-
-/*
- Plugin to retrieve movie data from Russian animation database www.animator.ru and www.allmults.org
- Written by Ilgizar Mubassarov (based on KinopoiskPlugin.java)
-
- animator.sites: [all, animator, allmults] - where find movie data
  */
 package com.moviejukebox.plugin;
 
@@ -41,6 +44,12 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 
 /**
+ * Plugin to retrieve movie data from Russian animation database www.animator.ru and www.allmults.org
+ *
+ * Written by Ilgizar Mubassarov (based on KinopoiskPlugin.java)
+ *
+ * animator.sites: [all, animator, allmults] - where find movie data
+ *
  * @author ilgizar
  */
 public class AnimatorPlugin extends ImdbPlugin {
@@ -288,7 +297,7 @@ public class AnimatorPlugin extends ImdbPlugin {
 
                 movie.setTitle(title, ANIMATOR_PLUGIN_ID);
             }
-            
+
             if (OverrideTools.checkOverwritePlot(movie, ANIMATOR_PLUGIN_ID)) {
                 StringBuilder plot = new StringBuilder();
                 // Plot (animator.ru)
@@ -301,7 +310,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                             plot.append(subPlot);
                         }
                     }
-    
+
                     for (String subPlot : HTMLTools.extractTags(xml, "<td class=\"FilmComments\">", "</td>")) {
                         if (!subPlot.isEmpty()) {
                             if (plot.length() > 0) {
@@ -328,11 +337,11 @@ public class AnimatorPlugin extends ImdbPlugin {
                     newPlot = newPlot.replace("<br>", " ");
                     newPlot = newPlot.replace("</span>", "");
                 }
-    
+
                 newPlot = StringTools.trimToLength(newPlot, preferredPlotLength, true, plotEnding);
                 movie.setPlot(newPlot, ANIMATOR_PLUGIN_ID);
             }
-            
+
             // Genre + Run time (animator.ru)
             // String MultType = "";
             String time = Movie.UNKNOWN;
@@ -432,7 +441,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                     }
                 }
             }
-            
+
             if (OverrideTools.checkOverwriteDirectors(movie, ANIMATOR_PLUGIN_ID)) {
                 movie.setDirectors(newDirectors, ANIMATOR_PLUGIN_ID);
             }
@@ -460,7 +469,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 year2 = year;
                 break;
             }
-            
+
             if (OverrideTools.checkOverwriteYear(movie, ANIMATOR_PLUGIN_ID)) {
                 // Year (allmults.org)
                 if (year2.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
@@ -472,7 +481,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 }
                 movie.setYear(year2, ANIMATOR_PLUGIN_ID);
             }
-        
+
             if (OverrideTools.checkOverwriteCountry(movie, ANIMATOR_PLUGIN_ID)) {
                 // Country (allmults.org)
                 if (country.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
@@ -489,7 +498,7 @@ public class AnimatorPlugin extends ImdbPlugin {
 //              } else if (Country.equals("СССР")) {
 //                  country = "USSR";
 //              }
-                
+
                 movie.setCountry(country, ANIMATOR_PLUGIN_ID);
             }
 
@@ -501,7 +510,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 }
                 movie.setCompany(company, ANIMATOR_PLUGIN_ID);
             }
-            
+
             // Poster + Fanart (animator.ru)
             String posterURL = Movie.UNKNOWN;
             if (!newAnimatorId.equals(Movie.UNKNOWN)) {

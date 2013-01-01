@@ -1,14 +1,24 @@
 /*
- *      Copyright (c) 2004-2012 YAMJ Members
+ *      Copyright (c) 2004-2013 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
- *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *
- *      For any reuse or distribution, you must make clear to others the
- *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
@@ -53,7 +63,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         searchId = PropertiesUtil.getProperty("comingsoon.id.search", "comingsoon,yahoo");
         scanImdb = PropertiesUtil.getProperty("comingsoon.imdb.scan", "always");
-        
+
         if (!PropertiesUtil.getProperty("comingsoon.trailer.resolution", "DEPRECATED").equals("DEPRECATED")
                 || !PropertiesUtil.getProperty("comingsoon.trailer.preferredFormat", "DEPRECATED").equals("DEPRECATED")
                 || !PropertiesUtil.getProperty("comingsoon.trailer.setExchange", "DEPRECATED").equals("DEPRECATED")
@@ -85,7 +95,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         }
 
         boolean firstScanImdb = false;
-        
+
         if (scanImdb.equalsIgnoreCase("always") || (scanImdb.equalsIgnoreCase("fallback") && (StringTools.isNotValidString(comingSoonId) || comingSoonId.equals(COMINGSOON_NOT_PRESENT)))) {
             logger.debug("ComingSoon: Checking IMDB");
             firstScanImdb = super.scan(movie);
@@ -112,7 +122,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             // Scan was successful on ComingSoon but not on IMDB, let's try again with more info
 
             logger.debug("ComingSoon: First scan on IMDB KO, retrying after succesful scan on ComingSoon");
-            
+
             // Set title to original title, more likely to be found on IMDB
             String title = null;
             String titleSource = null;
@@ -121,7 +131,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 titleSource = movie.getOverrideSource(OverrideFlag.TITLE);
                 movie.setTitle(movie.getOriginalTitle(), movie.getOverrideSource(OverrideFlag.ORIGINALTITLE));
             }
-           
+
             super.scan(movie);
 
             // replace possible overwritten title with stored title
@@ -443,10 +453,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 if (StringTools.isValidString(originalTitle)) {
                     originalTitle = correctCapsTitle(originalTitle);
                 }
-                
+
                 movie.setOriginalTitle(originalTitle, COMINGSOON_PLUGIN_ID);
             }
-            
+
             // RATING
 
             if (movie.getRating(COMINGSOON_PLUGIN_ID) == -1) {
@@ -602,8 +612,8 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
 
             // CAST
-            boolean overrideActors = OverrideTools.checkOverwriteActors(movie, COMINGSOON_PLUGIN_ID);  
-            boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, COMINGSOON_PLUGIN_ID);  
+            boolean overrideActors = OverrideTools.checkOverwriteActors(movie, COMINGSOON_PLUGIN_ID);
+            boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, COMINGSOON_PLUGIN_ID);
             if (overrideActors || overridePeopleActors) {
                 String castList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ATTORI: ", "Ruoli ed Interpreti"));
 
@@ -616,7 +626,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 } else {
                     newActors.add(castList);
                 }
-                
+
                 if (overrideActors) {
                     movie.setCast(newActors, COMINGSOON_PLUGIN_ID);
                 }
@@ -626,8 +636,8 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
 
             // DIRECTOR(S)
-            boolean overrideDirectors = OverrideTools.checkOverwriteDirectors(movie, COMINGSOON_PLUGIN_ID);  
-            boolean overridePeopleDirectors = OverrideTools.checkOverwritePeopleDirectors(movie, COMINGSOON_PLUGIN_ID);  
+            boolean overrideDirectors = OverrideTools.checkOverwriteDirectors(movie, COMINGSOON_PLUGIN_ID);
+            boolean overridePeopleDirectors = OverrideTools.checkOverwritePeopleDirectors(movie, COMINGSOON_PLUGIN_ID);
             if (overrideDirectors || overridePeopleDirectors) {
                 String directorList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">REGIA: ", "<br />"));
 
@@ -640,7 +650,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 } else {
                     newDirectors.add(directorList);
                 }
-                
+
                 if (overrideDirectors) {
                     movie.setDirectors(newDirectors, COMINGSOON_PLUGIN_ID);
                 }
@@ -650,8 +660,8 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
 
             // WRITER(S)
-            boolean overrideWriters = OverrideTools.checkOverwriteWriters(movie, COMINGSOON_PLUGIN_ID);  
-            boolean overridePeopleWriters = OverrideTools.checkOverwritePeopleWriters(movie, COMINGSOON_PLUGIN_ID);  
+            boolean overrideWriters = OverrideTools.checkOverwriteWriters(movie, COMINGSOON_PLUGIN_ID);
+            boolean overridePeopleWriters = OverrideTools.checkOverwritePeopleWriters(movie, COMINGSOON_PLUGIN_ID);
 
             if (overrideWriters || overridePeopleWriters) {
                 String writerList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">SCENEGGIATURA: ", "<br />"));

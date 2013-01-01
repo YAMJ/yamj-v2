@@ -1,15 +1,24 @@
 /*
- /*
- *      Copyright (c) 2004-2012 YAMJ Members
+ *      Copyright (c) 2004-2013 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
- *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *
- *      For any reuse or distribution, you must make clear to others the
- *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
@@ -121,14 +130,14 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                     movie.setRuntime(runTime, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
                 }
             }
-            
+
             if (OverrideTools.checkOverwriteCountry(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
                 Matcher countryMatcher = countryPattern.matcher(xml);
                 if (countryMatcher.find()) {
                     movie.setCountry(countryMatcher.group(1), FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
                 }
             }
-            
+
             if (OverrideTools.checkOverwriteDirectors(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
                 List<String> newDirectors = Arrays.asList(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_DIRECTOR, "</a></td>")).split(","));
                 movie.setDirectors(newDirectors, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
@@ -146,7 +155,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                 List<String> newWriters = Arrays.asList(HTMLTools.getTextAfterElem(xml, FA_WRITER).split("\\(")[0].split(","));
                 movie.setWriters(newWriters, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
-            
+
             if (OverrideTools.checkOverwriteActors(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
                 List<String> newActors = Arrays.asList(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_CAST, "</a></td>")).split(","));
                 movie.setCast(newActors, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
@@ -156,7 +165,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                 // TODO: Save more than one company.
                 movie.setCompany(HTMLTools.getTextAfterElem(xml, FA_COMPANY).split("/")[0].trim(), FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
-            
+
             if (OverrideTools.checkOverwriteGenres(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
                 List<String> newGenres = new ArrayList<String>();
                 for (String genre : HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_GENRE, "</td>")).split("\\.|\\|")) {
@@ -164,7 +173,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                 }
                 movie.setGenres(newGenres, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
-            
+
             try {
                 movie.addRating(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID, (int) (Float.parseFloat(HTMLTools.extractTag(xml, "<td align=\"center\" style=\"color:#990000; font-size:22px; font-weight: bold;\">", "</td>").replace(",", ".")) * 10));
             } catch (Exception e) {
@@ -178,7 +187,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                 }
                 movie.setPlot(plot.trim(), FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
-            
+
             /*
              * Fill the rest of the fields from IMDB, taking care not to allow
              * the title to get overwritten.

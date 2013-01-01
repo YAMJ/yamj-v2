@@ -1,14 +1,24 @@
 /*
- *      Copyright (c) 2004-2012 YAMJ Members
+ *      Copyright (c) 2004-2013 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
- *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *
- *      For any reuse or distribution, you must make clear to others the
- *      license terms of this work.
  */
 package com.moviejukebox.scanner;
 
@@ -254,7 +264,7 @@ public class MediaInfoScanner {
         InputStream is = null;
         try {
             if (MI_READ_FROM_FILE) {
-                // check file 
+                // check file
                 String filename = FilenameUtils.removeExtension(movieFilePath) + ".mediainfo";
                 Collection<File> files = FileTools.fileCache.searchFilename(filename, Boolean.FALSE);
                 if (files != null && files.size() > 0 ) {
@@ -263,21 +273,21 @@ public class MediaInfoScanner {
                     logger.debug(LOG_MESSAGE + "Reading from file "+filename);
                 }
             }
-            
+
             if (is == null) {
                 // Create the command line
                 List<String> commandMedia = new ArrayList<String>(MI_EXE);
                 commandMedia.add(movieFilePath);
-    
+
                 ProcessBuilder pb = new ProcessBuilder(commandMedia);
-    
+
                 // set up the working directory.
                 pb.directory(MI_PATH);
-    
+
                 Process p = pb.start();
                 is  = p.getInputStream();
             }
-            
+
             Map<String, String> infosGeneral = new HashMap<String, String>();
             List<Map<String, String>> infosVideo = new ArrayList<Map<String, String>>();
             List<Map<String, String>> infosAudio = new ArrayList<Map<String, String>>();
@@ -388,12 +398,12 @@ public class MediaInfoScanner {
                 }
                 movie.setTitle(infoValue, MEDIAINFO_PLUGIN_ID);
             }
-            
+
             if (OverrideTools.checkOverwriteDirectors(movie, MEDIAINFO_PLUGIN_ID)) {
                 infoValue = infosGeneral.get("Director");
                 movie.setDirector(infoValue, MEDIAINFO_PLUGIN_ID);
             }
-            
+
             if (OverrideTools.checkOverwritePlot(movie, MEDIAINFO_PLUGIN_ID)) {
                 infoValue = infosGeneral.get("Summary");
                 if (infoValue == null) {
@@ -401,7 +411,7 @@ public class MediaInfoScanner {
                 }
                 movie.setPlot(infoValue, MEDIAINFO_PLUGIN_ID);
             }
-            
+
             if (OverrideTools.checkOverwriteGenres(movie, MEDIAINFO_PLUGIN_ID)) {
                 infoValue = infosGeneral.get("Genre");
                 if (infoValue != null) {
@@ -409,7 +419,7 @@ public class MediaInfoScanner {
                     movie.setGenres(newGenres, MEDIAINFO_PLUGIN_ID);
                 }
             }
-            
+
             if (OverrideTools.checkOverwriteActors(movie, MEDIAINFO_PLUGIN_ID)) {
                 infoValue = infosGeneral.get("Actor");
                 if (infoValue == null) {
@@ -420,7 +430,7 @@ public class MediaInfoScanner {
                     movie.setCast(list, MEDIAINFO_PLUGIN_ID);
                 }
             }
-            
+
             if (OverrideTools.checkOverwriteCertification(movie, MEDIAINFO_PLUGIN_ID)) {
                 infoValue = infosGeneral.get("LawRating");
                 if (infoValue == null) {
@@ -428,7 +438,7 @@ public class MediaInfoScanner {
                 }
                 movie.setCertification(infoValue, MEDIAINFO_PLUGIN_ID);
             }
-            
+
             infoValue = infosGeneral.get("Rating");
             if (infoValue != null) {
                 try {
@@ -450,7 +460,7 @@ public class MediaInfoScanner {
                 }
                 movie.setCountry(infoValue, MEDIAINFO_PLUGIN_ID);
             }
-            
+
             if (OverrideTools.checkOverwriteReleaseDate(movie, MEDIAINFO_PLUGIN_ID)) {
                 infoValue = infosGeneral.get("Released_Date");
                 movie.setReleaseDate(infoValue, MEDIAINFO_PLUGIN_ID);
@@ -463,7 +473,7 @@ public class MediaInfoScanner {
             movie.setContainer(infoValue, MEDIAINFO_PLUGIN_ID);
         }
 
-        if (OverrideTools.checkOverwriteRuntime(movie, MEDIAINFO_PLUGIN_ID)) { 
+        if (OverrideTools.checkOverwriteRuntime(movie, MEDIAINFO_PLUGIN_ID)) {
             infoValue = infosGeneral.get("PlayTime");
             if (infoValue == null) {
                 infoValue = infosGeneral.get("Duration");
@@ -529,7 +539,7 @@ public class MediaInfoScanner {
                     // use original frame rate
                     infoValue = infosMainVideo.get("Original frame rate");
                 }
-    
+
                 if (infoValue != null) {
                     int inxDiv = infoValue.indexOf(Movie.SPACE_SLASH_SPACE);
                     if (inxDiv > -1) {
@@ -649,7 +659,7 @@ public class MediaInfoScanner {
                 if (movieLanguage.length() > 0) {
                     movieLanguage.append(languageDelimiter);
                 }
-                movieLanguage.append(language);                
+                movieLanguage.append(language);
             }
             movie.setLanguage(movieLanguage.toString(), MEDIAINFO_PLUGIN_ID);
         }

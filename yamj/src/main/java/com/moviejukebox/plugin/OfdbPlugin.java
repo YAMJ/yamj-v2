@@ -1,14 +1,24 @@
 /*
- *      Copyright (c) 2004-2012 YAMJ Members
+ *      Copyright (c) 2004-2013 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
- *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *
- *      For any reuse or distribution, you must make clear to others the
- *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
@@ -59,7 +69,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         if (OverrideTools.checkOneOverwrite(mediaFile, OFDB_PLUGIN_ID, OverrideFlag.TITLE, OverrideFlag.PLOT, OverrideFlag.OUTLINE)) {
         	return this.updateOfdbMediaInfo(mediaFile);
     	}
-    	
+
     	return Boolean.TRUE;
     }
 
@@ -147,11 +157,11 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                 if (xml.contains(PLOT_MARKER)) {
                     String plot = getPlot("http://www.ofdb.de/plot/" + HTMLTools.extractTag(xml, PLOT_MARKER, 0, "\""));
                     if (StringTools.isValidString(plot)) {
-    
+
                         if (OverrideTools.checkOverwritePlot(movie, OFDB_PLUGIN_ID)) {
                         	movie.setPlot(plot, OFDB_PLUGIN_ID);
                         }
-    
+
                         if (OverrideTools.checkOverwriteOutline(movie, OFDB_PLUGIN_ID)) {
                         	String outline = StringTools.trimToLength(plot, preferredOutlineLength, true, "...");
                         	movie.setOutline(outline, OFDB_PLUGIN_ID);
@@ -166,7 +176,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             logger.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         }
-        
+
         return Boolean.TRUE;
     }
 

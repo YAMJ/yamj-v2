@@ -1,20 +1,23 @@
 /*
- *      Copyright (c) 2004-2012 YAMJ Members
+ *      Copyright (c) 2004-2013 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
  *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
+ *
  *      Web: http://code.google.com/p/moviejukebox/
- *
- *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *
- *      For any reuse or distribution, you must make clear to others the
- *      license terms of this work.
- */
-
-/* Filmdelta.se plugin
- *
- * Contains code for an alternate plugin for fetching information on
- * movies in swedish
  *
  */
 package com.moviejukebox.plugin;
@@ -37,6 +40,8 @@ import org.apache.log4j.Logger;
 /**
  * Plugin to retrieve movie data from Swedish movie database www.filmdelta.se Modified from imdb plugin and Kinopoisk
  * plugin written by Yury Sidorov.
+ *
+ * Contains code for an alternate plugin for fetching information on movies in Swedish
  *
  * @author johan.klinge
  * @version 0.5, 30th April 2009
@@ -257,7 +262,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
                 logger.debug(LOG_MESSAGE + "Error scraping title");
             }
         }
-        
+
         if (OverrideTools.checkOverwriteOriginalTitle(movie, FILMDELTA_PLUGIN_ID)) {
             String originalTitle = HTMLTools.extractTag(fdeltaHtml, "riginaltitel</h4>", 2);
             logger.debug(LOG_MESSAGE + "scraped original title: " + originalTitle);
@@ -275,7 +280,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
                 String plot = StringTools.trimToLength(extracted, preferredPlotLength, true, plotEnding);
                 movie.setPlot(plot, FILMDELTA_PLUGIN_ID);
             }
-            
+
             if (OverrideTools.checkOverwriteOutline(movie, FILMDELTA_PLUGIN_ID)) {
                 //CJK 2010-09-15 filmdelta.se has no outlines - set outline to same as plot
                 String outline = StringTools.trimToLength(extracted, preferredOutlineLength, true, plotEnding);
@@ -289,7 +294,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     private void getFilmdeltaGenres(Movie movie, String fdeltaHtml) {
         if (OverrideTools.checkOverwriteGenres(movie, FILMDELTA_PLUGIN_ID)) {
             List<String> newGenres = new ArrayList<String>();
-    
+
             List<String> filmdeltaGenres = HTMLTools.extractTags(fdeltaHtml, "<h4>Genre</h4>", "</div>", "<h5>", "</h5>");
             for (String genre : filmdeltaGenres) {
                 if (genre.length() > 0) {
@@ -297,7 +302,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
                     newGenres.add(genre);
                 }
             }
-            
+
             if (!newGenres.isEmpty()) {
                 movie.setGenres(newGenres, FILMDELTA_PLUGIN_ID);
                 logger.debug(LOG_MESSAGE + "scraped genres: " + movie.getGenres().toString());
@@ -309,13 +314,13 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         if (OverrideTools.checkOverwriteDirectors(movie, FILMDELTA_PLUGIN_ID)) {
             List<String> filmdeltaDirectors = HTMLTools.extractTags(fdeltaHtml, "<h4>Regiss&ouml;r</h4>", "</div>", "<h5>", "</h5>");
             StringBuilder newDirector = new StringBuilder();
-    
+
             if (!filmdeltaDirectors.isEmpty()) {
                 for (String dir : filmdeltaDirectors) {
                     dir = new String(dir.substring(0, dir.length() - 4));
                     newDirector.append(dir).append(Movie.SPACE_SLASH_SPACE);
                 }
-    
+
                 movie.setDirector(newDirector.substring(0, newDirector.length() - 3), FILMDELTA_PLUGIN_ID);
                 logger.debug(LOG_MESSAGE + "scraped director: " + movie.getDirector());
             }
@@ -325,7 +330,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     private void getFilmdeltaCast(Movie movie, String fdeltaHtml) {
         if (OverrideTools.checkOverwriteActors(movie, FILMDELTA_PLUGIN_ID)) {
             Collection<String> newCast = new ArrayList<String>();
-    
+
             for (String actor : HTMLTools.extractTags(fdeltaHtml, "<h4>Sk&aring;despelare</h4>", "</div>", "<h5>", "</h5>")) {
                 String[] newActor = actor.split("</a>");
                 newCast.add(newActor[0]);

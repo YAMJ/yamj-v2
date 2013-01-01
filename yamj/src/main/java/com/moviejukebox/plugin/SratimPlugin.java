@@ -1,14 +1,24 @@
 /*
- *      Copyright (c) 2004-2012 YAMJ Members
+ *      Copyright (c) 2004-2013 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
- *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *
- *      For any reuse or distribution, you must make clear to others the
- *      license terms of this work.
  */
 package com.moviejukebox.plugin;
 
@@ -171,7 +181,7 @@ public class SratimPlugin extends ImdbPlugin {
         } else if (!OverrideTools.checkOverwriteGenres(movie, SRATIM_PLUGIN_ID)) {
             return;
         }
-        
+
         TreeSet<String> genresHeb = new TreeSet<String>();
 
         // Translate genres to Hebrew
@@ -202,7 +212,7 @@ public class SratimPlugin extends ImdbPlugin {
         // Set translated IMDB genres
         movie.setGenres(genresHeb, SRATIM_PLUGIN_ID);
     }
-    
+
     // Porting from my old code in c++
     public static final int BCT_L = 0;
     public static final int BCT_R = 1;
@@ -659,11 +669,11 @@ public class SratimPlugin extends ImdbPlugin {
             if (OverrideTools.checkOverwriteReleaseDate(movie, SRATIM_PLUGIN_ID)) {
                 movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "י' בעולם:"), SRATIM_PLUGIN_ID);
             }
-            
+
             if (OverrideTools.checkOverwriteRuntime(movie, SRATIM_PLUGIN_ID)) {
                 movie.setRuntime(logicalToVisual(removeTrailDot(HTMLTools.getTextAfterElem(xml, "אורך זמן:"))), SRATIM_PLUGIN_ID);
             }
-            
+
             if (OverrideTools.checkOverwriteCountry(movie, SRATIM_PLUGIN_ID)) {
                 movie.setCountry(logicalToVisual(HTMLTools.getTextAfterElem(xml, "מדינה:")), SRATIM_PLUGIN_ID);
             }
@@ -685,7 +695,7 @@ public class SratimPlugin extends ImdbPlugin {
                     movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax), SRATIM_PLUGIN_ID);
                 }
             }
-            
+
             boolean overrideActors = OverrideTools.checkOverwriteActors(movie, SRATIM_PLUGIN_ID);
             boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, SRATIM_PLUGIN_ID);
             if (overrideActors || overridePeopleActors) {
@@ -697,7 +707,7 @@ public class SratimPlugin extends ImdbPlugin {
                     movie.setPeopleCast(actors, SRATIM_PLUGIN_ID);
                 }
             }
-            
+
             if (movie.isTVShow()) {
                 updateTVShowInfo(movie, xml);
             } else {

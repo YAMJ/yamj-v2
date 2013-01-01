@@ -1,14 +1,24 @@
 /*
- *      Copyright (c) 2004-2012 YAMJ Members
+ *      Copyright (c) 2004-2013 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
- *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *
- *      For any reuse or distribution, you must make clear to others the
- *      license terms of this work.
  */
 package com.moviejukebox.scanner;
 
@@ -300,7 +310,7 @@ public class AttachmentScanner {
                     }
                 }
             }
-            
+
             // any other movie file will not be the first movie file
             firstMovieFile = Boolean.FALSE;
         }
@@ -675,7 +685,7 @@ public class AttachmentScanner {
 
         // determine if set banner should be used
         boolean useSetImage = isSetImage(movie, movie.getBannerFilename());
-        
+
         List<Attachment> attachments;
         if (useSetImage) {
             // find set banner attachments
@@ -703,7 +713,7 @@ public class AttachmentScanner {
 
         // find banner attachments
         List<Attachment> attachments = findAttachments(movie, ContentType.VIDEOIMAGE, part);
-        
+
         // extract image and return image file (may be null)
         return extractImage(attachments);
     }
@@ -722,7 +732,7 @@ public class AttachmentScanner {
 
     /**
      * Find attachments for a movie.
-     * 
+     *
      * @param movie
      *            the movie where attachments should be searched for
      * @param contentType
@@ -770,11 +780,11 @@ public class AttachmentScanner {
                 } else {
                     // special case only used for video images
                     List<Attachment> genericAttachments = new ArrayList<Attachment>();
-                    
+
                     int matching = (part - movieFile.getFirstPart() + 1);
                     for (Attachment attachment : movieFile.getAttachments()) {
                         if (contentType.compareTo(attachment.getContentType()) == 0) {
-                            if (attachment.getPart() == matching) { 
+                            if (attachment.getPart() == matching) {
                                 // matching part
                                 attachments.add(attachment);
                             } else if (attachment.getPart() <= 0) {
@@ -782,7 +792,7 @@ public class AttachmentScanner {
                                 genericAttachments.add(attachment);                            }
                          }
                     }
-                    
+
                     // add generic attachments
                     // useful when no part matching attachments available
                     for (Attachment generic : genericAttachments) {
@@ -796,7 +806,7 @@ public class AttachmentScanner {
 
     /**
      * Extract an attachment
-     * 
+     *
      * @param attachment
      *            the attachment to extract
      * @param setImage

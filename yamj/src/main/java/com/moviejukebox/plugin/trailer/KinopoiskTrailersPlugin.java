@@ -1,26 +1,24 @@
 /*
- *      Copyright (c) 2004-2012 YAMJ Members
+ *      Copyright (c) 2004-2013 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
  *      Web: http://code.google.com/p/moviejukebox/
  *
- *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
- *
- *      For any reuse or distribution, you must make clear to others the
- *      license terms of this work.
- */
-
-/**
- Plugin to retrieve movie data from Russian movie database www.kinopoisk.ru
- @author Yury Sidorov.
-
- First the movie data is searched in IMDB and TheTvDB.
- After that the movie is searched in kinopoisk and movie data
- is updated.
-
- It is possible to specify URL of the movie page on kinopoisk in
- the .nfo file. In this case movie data will be retrieved from this page only.
  */
 package com.moviejukebox.plugin.trailer;
 
@@ -34,6 +32,17 @@ import com.moviejukebox.tools.SystemTools;
 import java.util.*;
 import org.apache.log4j.Logger;
 
+/**
+ Plugin to retrieve movie data from Russian movie database www.kinopoisk.ru
+ @author Yury Sidorov.
+
+ First the movie data is searched in IMDB and TheTvDB.
+ After that the movie is searched in kinopoisk and movie data
+ is updated.
+
+ It is possible to specify URL of the movie page on kinopoisk in
+ the .nfo file. In this case movie data will be retrieved from this page only.
+ */
 public class KinopoiskTrailersPlugin extends TrailerPlugin {
 
     private static final Logger logger = Logger.getLogger(KinopoiskTrailersPlugin.class);
