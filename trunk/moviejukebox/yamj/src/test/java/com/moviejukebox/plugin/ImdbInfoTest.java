@@ -22,21 +22,34 @@
  */
 package com.moviejukebox.plugin;
 
+import java.util.Set;
+
 import org.apache.log4j.BasicConfigurator;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+
+import com.moviejukebox.tools.PropertiesUtil;
 
 public class ImdbInfoTest {
 
 
     public ImdbInfoTest() {
         BasicConfigurator.configure();
+        
     }
 
     @Test
     public void testImdbPersonId() {
-        ImdbInfo imdbInfo = new ImdbInfo();
-        String id = imdbInfo.getImdbPersonId("Renée Zellweger");
-        assertEquals("nm0000250", id);
+        Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
+        for (String site : keySet) {
+            PropertiesUtil.setProperty("imdb.site", site);
+            ImdbInfo imdbInfo = new ImdbInfo();
+            
+            String id = imdbInfo.getImdbPersonId("Renée Zellweger");
+            assertEquals("nm0000250", id);
+        }
+        
+        
+        
     }
 }

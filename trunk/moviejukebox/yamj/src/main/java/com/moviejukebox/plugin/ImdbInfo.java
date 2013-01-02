@@ -45,7 +45,7 @@ public class ImdbInfo {
     private static final String DEFAULT_SITE = "us";
     private static final String OBJECT_MOVIE = "movie";
     private static final String OBJECT_PERSON = "person";
-    private static final Map<String, ImdbSiteDataDefinition> MATCHES_DATA_PER_SITE = new HashMap<String, ImdbSiteDataDefinition>();
+    protected static final Map<String, ImdbSiteDataDefinition> MATCHES_DATA_PER_SITE = new HashMap<String, ImdbSiteDataDefinition>();
     private final String imdbSite = PropertiesUtil.getProperty("imdb.site", DEFAULT_SITE);
     private String preferredSearchEngine;
     private WebBrowser webBrowser;
