@@ -359,6 +359,7 @@ public class Library implements Map<String, Movie> {
 
     // synchronized because scanning can be multi-threaded
     public synchronized void addMovie(String key, Movie movie) {
+        
         Movie existingMovie = library.get(key);
         // logger.debug("Adding video " + key + ", new part: " + (existingMovie != null));
 
@@ -396,8 +397,10 @@ public class Library implements Map<String, Movie> {
                     }
                 } else {
                     // no change
-                    existingMovie.addMovieFile(firstMovieFile);
+                    existingMovie.addMovieFile(firstMovieFile); 
                 }
+                // Issue 2089:  cumulate filesize for a TV Show season.
+                existingMovie.setFileSize(movie.getFileSize());
             } else {
                 existingMovie.addMovieFile(firstMovieFile);
                 // Update these counters
