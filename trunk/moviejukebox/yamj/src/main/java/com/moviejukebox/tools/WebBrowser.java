@@ -181,7 +181,7 @@ public class WebBrowser {
      *
      * @throws IOException
      */
-    public void downloadImage(File imageFile, String imageURL) throws IOException {
+    public boolean downloadImage(File imageFile, String imageURL) throws IOException {
 
         String fixedImageURL;
         if (imageURL.contains(" ")) {
@@ -240,6 +240,7 @@ public class WebBrowser {
         if (!success) {
             logger.debug(LOG_MESSAGE + "Failed " + imageRetryCount + " times to download image, aborting. URL: " + imageURL);
         }
+        return success;
     }
 
     /**
