@@ -12,6 +12,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2532 Fixed set sorting for non-TV shows
  - Enhancement  #2533 Use priority checks for several movie values
  - Fixed defect #2542 Information missing with NFO
+ - Fixed defect #2547 Preserve watched state if file is not accessible and preserve should be done
  - Fixed defect #2548 Scrape correct person ID from IDMB and alternate search engines
  - Fixed defect #2549 Scrape multiple actors from NFO
  - Fixed defect #2554 Scrape people in same way before priority checks
