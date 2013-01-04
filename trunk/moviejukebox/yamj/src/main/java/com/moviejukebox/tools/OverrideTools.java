@@ -151,7 +151,6 @@ public final class OverrideTools {
         sources = PropertiesUtil.getProperty("priority.tv.tagline", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.TAGLINE, sources);
         // title
-        // title
         sources = PropertiesUtil.getProperty("priority.movie.title", "nfo,PLUGIN,ALTERNATE,filename");
         putMoviePriorities(OverrideFlag.TITLE, sources);
         sources = PropertiesUtil.getProperty("priority.tv.title", "nfo,PLUGIN,ALTERNATE,filename");
