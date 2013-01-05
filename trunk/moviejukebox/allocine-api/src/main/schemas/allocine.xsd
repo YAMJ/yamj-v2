@@ -23,7 +23,7 @@
   <xs:element name="yearStart" type="xs:string" />
   <xs:element name="yearEnd" type="xs:string" />
   <xs:element name="runtime" type="xs:int" />
-  <xs:element name="movieCertificate" type="xs:string" />
+  <xs:element name="certificate" type="xs:string" />
   <xs:element name="nationality" type="xs:string" />
   <xs:element name="genre" type="xs:string" />
   <xs:element name="releaseDate" type="xs:string" />
@@ -83,12 +83,13 @@
           </xs:annotation>
         </xs:element>
         <xs:element ref="runtime" />
-        <xs:element ref="movieCertificate" />
         <xs:element ref="nationalityList" />
         <xs:element ref="genreList" />
         <xs:element ref="release" />
         <xs:element ref="casting" />
+        <xs:element ref="movieCertificate" />
         <xs:element name="poster" type="posterType" />
+        <xs:element name="trailer" type="trailerType" />
         <xs:element ref="mediaList" />
         <xs:element ref="statistics" />
       </xs:all>
@@ -103,6 +104,14 @@
       <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
   </xs:complexType>
+
+  <xs:element name="movieCertificate">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="certificate" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
   <xs:element name="nationalityList">
     <xs:complexType>
@@ -169,6 +178,14 @@
   </xs:complexType>
 
   <xs:complexType name="posterType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="href" type="xs:string" use="required" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="trailerType">
     <xs:simpleContent>
       <xs:extension base="xs:string">
         <xs:attribute name="href" type="xs:string" use="required" />

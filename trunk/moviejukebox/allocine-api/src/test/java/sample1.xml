@@ -54,7 +54,9 @@
 				href="http://images.allocine.fr/medias/nmedia/none.jpg" />
 		</castMember>
 	</casting>
-	<movieCertificate code="14001">Interdit aux moins de 12 ans</movieCertificate>
+	<movieCertificate>
+	  <certificate code="14001">Interdit aux moins de 12 ans</certificate>
+	</movieCertificate>
 	<statistics>
 		<pressRating>1</pressRating>
 		<pressReviewCount>10</pressReviewCount>

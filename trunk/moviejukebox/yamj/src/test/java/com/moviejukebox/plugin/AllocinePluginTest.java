@@ -23,16 +23,20 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
+
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class AllocinePluginTest {
     
-    private AllocinePlugin allocinePlugin = new AllocinePlugin();
+    private AllocinePlugin allocinePlugin;
     
     public AllocinePluginTest() {
         BasicConfigurator.configure();
+        PropertiesUtil.setProperty("API_KEY_Allocine", "YW5kcm9pZC12M3M");
+        allocinePlugin = new AllocinePlugin();
     }
 
     @Test
@@ -40,9 +44,10 @@ public class AllocinePluginTest {
         Movie movie = new Movie();
         movie.setMovieType(Movie.TYPE_MOVIE);
         movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, "45322");
+        movie.setId(AllocinePlugin.IMDB_PLUGIN_ID, "tt0320691");
         
         allocinePlugin.scan(movie);
-        // should be 12
-        assertEquals("All", movie.getCertification());
+        assertEquals("Underworld", movie.getTitle());
+        assertEquals("12", movie.getCertification());
     }
 }
