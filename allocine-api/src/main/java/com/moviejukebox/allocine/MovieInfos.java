@@ -95,10 +95,11 @@ public class MovieInfos extends Movie {
 
     public final String getCertification() {
         String certification = "All"; // Default value
-        if (!StringUtils.isBlank(getMovieCertificate())) {
-            Matcher match    = AGE_REGEXP.matcher(getMovieCertificate());
+        for (String certificate : getMovieCertificate()) {
+            Matcher match = AGE_REGEXP.matcher(certificate);
             if (match.find()) {
                 certification=match.group(1);
+                break;
             }
         }
         return certification;

@@ -23,6 +23,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2561 Set source with highest priority even if movie value has not changed
  - Fixed defect #2562 Accented letters fail in IMDB plot description plugin
  - Fixed defect #2563 NFO has highest priority for default setting of people.actors
+ - Fixed defect #2566 Fixed retrieval of certification from allocine
  
 MovieJukebox 2.8 (2012-12-17)
 -----------------------------
