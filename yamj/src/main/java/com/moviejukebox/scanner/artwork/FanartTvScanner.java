@@ -32,7 +32,6 @@ import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import com.omertron.fanarttvapi.model.FTArtworkType;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 
 /**
  * Scanner for Fanart.TV artwork. Must be instantiated with the correct
@@ -42,7 +41,6 @@ import org.apache.log4j.Logger;
  */
 public class FanartTvScanner extends ArtworkScanner {
 
-//    private static final Logger logger = Logger.getLogger(FanartTvScanner.class);
     private static final FanartTvPlugin fanartTvPlugin = new FanartTvPlugin();
 
     public FanartTvScanner(ArtworkType fanartTvArtworkType) {
