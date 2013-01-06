@@ -23,9 +23,19 @@
 package com.moviejukebox.plugin.poster;
 
 import junit.framework.TestCase;
+import org.apache.log4j.BasicConfigurator;
+
+import com.moviejukebox.tools.PropertiesUtil;
 
 public class SratimPosterPluginTestCase extends TestCase {
-    SratimPosterPlugin posterPlugin = new SratimPosterPlugin();
+
+    private SratimPosterPlugin posterPlugin;
+    
+    public SratimPosterPluginTestCase() {
+        BasicConfigurator.configure();
+        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "sratim");
+        posterPlugin = new SratimPosterPlugin();
+    }
 
     public void testGetIdFromMovieInfo() {
         String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Avatar", null);
