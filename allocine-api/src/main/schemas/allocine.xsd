@@ -28,6 +28,7 @@
   <xs:element name="genre" type="xs:string" />
   <xs:element name="releaseDate" type="xs:string" />
   <xs:element name="name" type="xs:string" />
+  <xs:element name="role" type="xs:string" />
   <xs:element name="totalResults" type="xs:int" />
   <xs:element name="seasonCount" type="xs:int" />
   <xs:element name="seasonNumber" type="xs:int" />
@@ -157,6 +158,7 @@
       <xs:all>
         <xs:element ref="person" />
         <xs:element name="activity" type="activityType" />
+        <xs:element ref="role" />
       </xs:all>
     </xs:complexType>
   </xs:element>

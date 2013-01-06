@@ -53,9 +53,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private int preferredBiographyLength;
     private int preferredFilmographyMax;
     private int preferredOutlineLength;
-    private int actorMax;
-    private int directorMax;
-    private int writerMax;
+    protected int actorMax;
+    protected int directorMax;
+    protected int writerMax;
     private int triviaMax;
     protected ImdbSiteDataDefinition siteDef;
     protected ImdbInfo imdbInfo;

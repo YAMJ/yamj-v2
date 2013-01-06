@@ -53,6 +53,13 @@
 			<picture path="/none.jpg"
 				href="http://images.allocine.fr/medias/nmedia/none.jpg" />
 		</castMember>
+        <castMember>
+            <person code="1">
+                <name>Yves Blusseau</name>
+            </person>
+            <activity code="8001">Actor</activity>
+            <role>Scripter</role>
+        </castMember>
 	</casting>
 	<movieCertificate>
 	  <certificate code="14001">Interdit aux moins de 12 ans</certificate>

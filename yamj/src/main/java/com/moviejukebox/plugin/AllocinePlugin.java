@@ -342,11 +342,26 @@ public class AllocinePlugin extends ImdbPlugin {
             movie.setPeopleDirectors(movieInfos.getDirectors(), ALLOCINE_PLUGIN_ID);
         }
 
-        if (OverrideTools.checkOverwriteActors(movie, ALLOCINE_PLUGIN_ID)) {
-            movie.setCast(movieInfos.getActors(), ALLOCINE_PLUGIN_ID);
-        }
-        if (OverrideTools.checkOverwritePeopleActors(movie, ALLOCINE_PLUGIN_ID)) {
-            movie.setPeopleCast(movieInfos.getActors(), ALLOCINE_PLUGIN_ID);
+        if (!movieInfos.getActors().isEmpty()) {
+            if (OverrideTools.checkOverwriteActors(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.clearCast();
+                for (MoviePerson person : movieInfos.getActors()) {
+                    movie.addActor(person.getName(), ALLOCINE_PLUGIN_ID);
+                }
+            }
+
+            if (OverrideTools.checkOverwritePeopleActors(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.clearPeopleCast();
+                int count = 0;
+                for (MoviePerson person : movieInfos.getActors()) {
+                    if (movie.addActor(Movie.UNKNOWN, person.getName(), person.getRole(), Movie.UNKNOWN, Movie.UNKNOWN, ALLOCINE_PLUGIN_ID)) {
+                        count ++;
+                    }
+                    if (count == actorMax) {
+                        break;
+                    }
+                }
+            }
         }
 
         if (OverrideTools.checkOverwriteWriters(movie, ALLOCINE_PLUGIN_ID)) {
