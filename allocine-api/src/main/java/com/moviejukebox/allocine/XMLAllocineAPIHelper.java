@@ -1,3 +1,25 @@
+/*
+ *      Copyright (c) 2004-2013 YAMJ Members
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *      Web: http://code.google.com/p/moviejukebox/
+ *
+ */
 package com.moviejukebox.allocine;
 
 import com.moviejukebox.allocine.jaxb.ObjectFactory;
@@ -13,8 +35,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * The Allocine API. This is for version 3 of the API as specified here:
- * http://wiki.gromez.fr/dev/api/allocine_v3
+ * The Allocine API. This is for version 3 of the API as specified here: http://wiki.gromez.fr/dev/api/allocine_v3
  *
  * @author Yves Blusseau
  */
@@ -25,6 +46,7 @@ public final class XMLAllocineAPIHelper {
 
     /**
      * Constructor.
+     *
      * @param apiKey The API key for allocine
      */
     public XMLAllocineAPIHelper(String apiKey) {
@@ -56,6 +78,7 @@ public final class XMLAllocineAPIHelper {
 
     /**
      * Return the API key in used.
+     *
      * @return The API key
      */
     public String getApiKey() {
@@ -67,6 +90,7 @@ public final class XMLAllocineAPIHelper {
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
         return validSearchElement(unmarshaller.unmarshal(url));
     }
+
     public Search searchTvseriesInfos(String query) throws IOException, JAXBException, XMLStreamException {
         URL url = new URL("http://api.allocine.fr/rest/v3/search?partner=" + apiKey + "&format=XML&filter=tvseries&q=" + query);
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
@@ -83,7 +107,7 @@ public final class XMLAllocineAPIHelper {
 
     public MovieInfos getMovieInfos(String allocineId) throws IOException, JAXBException, XMLStreamException {
         // HTML tags are remove from synopsis & synopsisshort
-        URL url = new URL("http://api.allocine.fr/rest/v3/movie?partner="+ apiKey + "&profile=large&mediafmt=mp4-lc&format=XML&filter=movie&striptags=synopsis,synopsisshort&code=" + allocineId);
+        URL url = new URL("http://api.allocine.fr/rest/v3/movie?partner=" + apiKey + "&profile=large&mediafmt=mp4-lc&format=XML&filter=movie&striptags=synopsis,synopsisshort&code=" + allocineId);
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
         return validMovieElement(unmarshaller.unmarshal(url));
     }
@@ -122,5 +146,4 @@ public final class XMLAllocineAPIHelper {
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
         return validTvSeasonElement(unmarshaller.unmarshal(url));
     }
-
 }
