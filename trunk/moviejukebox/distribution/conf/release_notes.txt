@@ -8,6 +8,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Enhancement  #2035 MediaInfo can determine a 3D video source
  - Fixed defect #2088 Listing plugin size fix for seasons 
  - Fixed defect #2321 Countries with accent will be scraped from FilmAffinity
+ - Enhancement  #2345 Get actor role from allocine
  - Enhancement  #2397 Read MediaInfo values from file
  - Fixed defect #2532 Fixed set sorting for non-TV shows
  - Enhancement  #2533 Use priority checks for several movie values
@@ -22,7 +23,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2560 Read correct FPS value from stored xml file
  - Fixed defect #2561 Set source with highest priority even if movie value has not changed
  - Fixed defect #2562 Accented letters fail in IMDB plot description plugin
- - Fixed defect #2563 NFO has highest priority for default setting of people.actors
+ - Fixed defect #2563 NFO has highest priority for default priority of people.actors
  - Fixed defect #2566 Fixed retrieval of certification from allocine
  
 MovieJukebox 2.8 (2012-12-17)

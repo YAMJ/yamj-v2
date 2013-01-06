@@ -104,6 +104,8 @@ public class MovieInfosTest {
     @Test
     public void testGetActors() {
         Assert.assertEquals(42, avatarInfos.getActors().size());
+        Assert.assertEquals(1, sample1Infos.getActors().size());
+        Assert.assertEquals("Scripter", sample1Infos.getActors().iterator().next().getRole());
         Assert.assertEquals(0, sample2Infos.getActors().size());
     }
 

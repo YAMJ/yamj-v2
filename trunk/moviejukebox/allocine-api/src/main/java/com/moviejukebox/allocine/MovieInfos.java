@@ -27,7 +27,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -38,7 +37,7 @@ import org.w3c.dom.Element;
 public class MovieInfos extends Movie {
 
     private static final Pattern AGE_REGEXP             = Pattern.compile("\\s(\\d{1,2})\\san");
-    private Set<String>          actors;
+    private Set<MoviePerson>     actors;
     private Set<String>          writers;
     private Set<String>          directors;
     private Set<String>          posterURLS;
@@ -115,7 +114,7 @@ public class MovieInfos extends Movie {
 
     protected final void parseCasting() {
         if (actors == null) {
-            actors = new LinkedHashSet<String>();
+            actors = new LinkedHashSet<MoviePerson>();
         }
         if (writers == null) {
             writers = new LinkedHashSet<String>();
@@ -127,7 +126,10 @@ public class MovieInfos extends Movie {
 
         for (CastMember member : getCasting()) {
             if (member.getActivity().getCode() == ACTOR_ACTIVITY_CODE) {
-                actors.add(member.getPerson().getName());
+                MoviePerson person = new MoviePerson();
+                person.setName(member.getPerson().getName());
+                person.setRole(member.getRole());
+                actors.add(person);
             } else if (member.getActivity().getCode() == DIRECTOR_ACTIVITY_CODE) {
                 directors.add(member.getPerson().getName());
             } else if (member.getActivity().getCode() == WRITER_ACTIVITY_CODE) {
@@ -140,7 +142,7 @@ public class MovieInfos extends Movie {
         writers.addAll(scripts);
     }
 
-    public final Set<String> getActors() {
+    public final Set<MoviePerson> getActors() {
         if (actors == null) {
             parseCasting();
         }
