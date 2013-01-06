@@ -24,6 +24,8 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.PropertiesUtil;
+
 import static org.junit.Assert.assertEquals;
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
@@ -34,6 +36,7 @@ public class SratimPluginTest {
     
     public SratimPluginTest() {
         BasicConfigurator.configure();
+        PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.SratimPlugin");
         sratimPlugin = new SratimPlugin();
     }
     
@@ -47,5 +50,6 @@ public class SratimPluginTest {
         
         sratimPlugin.scan(movie);
         assertEquals("1123786", movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
+        assertEquals("כריס סנדרס", movie.getDirector());
     }
 }
