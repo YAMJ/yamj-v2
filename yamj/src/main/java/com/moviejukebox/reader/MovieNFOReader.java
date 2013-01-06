@@ -79,7 +79,9 @@ public class MovieNFOReader {
     private static String fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
     // Patterns
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
-
+    // Max People values
+    private static final int MAX_COUNT_ACTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", "10");
+    
     /**
      * Try and read a NFO file for information
      *
@@ -732,6 +734,9 @@ public class MovieNFOReader {
             movie.clearPeopleCast();
         }
 
+        // count for already set actors
+        int count = 0;
+        
         for (int actorLoop = 0; actorLoop < nlElements.getLength(); actorLoop++) {
             // Get all the name/role/thumb nodes
             Node nActors = nlElements.item(actorLoop);
@@ -754,8 +759,10 @@ public class MovieNFOReader {
                             if (overrideActors) {
                                 movie.addActor(aName, NFO_PLUGIN_ID);
                             }
-                            if (overridePeopleActors) {
-                                movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID);
+                            if (overridePeopleActors && (count < MAX_COUNT_ACTOR)) {
+                                if (movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID)) {
+                                    count++;
+                                }
                             }
                         }
                         aName = eCast.getTextContent();
@@ -773,8 +780,10 @@ public class MovieNFOReader {
             if (overrideActors) {
                 movie.addActor(aName, NFO_PLUGIN_ID);
             }
-            if (overridePeopleActors) {
-                movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID);
+            if (overridePeopleActors && (count < MAX_COUNT_ACTOR)) {
+                if (movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID)) {
+                    count++;
+                }
             }
         }
     }
