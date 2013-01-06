@@ -27,14 +27,18 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.SratimPlugin;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 import org.apache.log4j.Logger;
 
 public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
+
+    private static final Logger LOGGER = Logger.getLogger(SratimPosterPlugin.class);
+    private static final String LOG_MESSAGE = "SratimPosterPlugin: ";
+
     private WebBrowser webBrowser;
     private SratimPlugin sratimPlugin;
-    private static final Logger logger = Logger.getLogger(SratimPosterPlugin.class);
 
     public SratimPosterPlugin() {
         super();
@@ -50,25 +54,25 @@ public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITv
 
     @Override
     public String getIdFromMovieInfo(String title, String year) {
-        return sratimPlugin.getSratimUrl(new Movie(), title, year);
+        Movie movie = new Movie();
+        movie.setTitle(title, Movie.UNKNOWN);
+        movie.setYear(year, Movie.UNKNOWN);
+        return sratimPlugin.getSratimId(movie);
     }
 
     @Override
     public IImage getPosterUrl(String id) {
-        String posterURL = Movie.UNKNOWN;
         try {
-            String xml = webBrowser.request("http://sratim.co.il/album.php?mid=" + id);
-            posterURL = HTMLTools.extractTag(xml, "<a href=\"photos/normal/", 0, "\"");
+            String xml = webBrowser.request("http://sratim.co.il/view.php?id=" + id);
+            String posterURL = HTMLTools.extractTag(xml, "<a href=\"photos/titles/normal/", 0, "\"");
 
-            if (!Movie.UNKNOWN.equals(posterURL)) {
-                posterURL = "http://sratim.co.il/photos/normal/" + posterURL;
+            if (StringTools.isValidString(posterURL)) {
+                posterURL = "http://sratim.co.il/photos/titles/normal/" + posterURL;
+                return new Image(posterURL);
             }
         } catch (Exception error) {
-            logger.error("sratim: Failed retreiving poster for movie : " + id);
-            logger.error(SystemTools.getStackTrace(error));
-        }
-        if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
-            return new Image(posterURL);
+            LOGGER.error(LOG_MESSAGE + "Failed retreiving poster for movie : " + id);
+            LOGGER.error(SystemTools.getStackTrace(error));
         }
         return Image.UNKNOWN;
     }
