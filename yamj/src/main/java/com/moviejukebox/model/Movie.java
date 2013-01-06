@@ -320,24 +320,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public boolean addPerson(String name, String source) {
-        return addPerson(Movie.UNKNOWN, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source);
-    }
-
-    public boolean addPerson(String key, String name, String source) {
-        return addPerson(key, name, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source);
-    }
-
-    public boolean addPerson(String key, String name, String url, String source) {
-        return addPerson(key, name, url, Movie.UNKNOWN, Movie.UNKNOWN, Movie.UNKNOWN, source);
-    }
-
     public boolean addPerson(String key, String name, String url, String job, String source) {
         return addPerson(key, name, url, job, Movie.UNKNOWN, Movie.UNKNOWN, source);
-    }
-
-    public boolean addPerson(String key, String name, String url, String job, String character, String source) {
-        return addPerson(key, name, url, job, character, Movie.UNKNOWN, source);
     }
 
     public boolean addPerson(String key, String name, String url, String job, String character, String doublage, String source) {
@@ -392,7 +376,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             if (StringTools.isNotValidString(source)) {
                 person.setSource(UNKNOWN);
             } else {
-                person.setSource(source);
+                person.setSource(source.toUpperCase());
             }
             added = addPerson(person);
         }
@@ -1066,6 +1050,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
             if (!found) {
                 added = addPerson(actorKey, actorName, actorUrl, StringUtils.capitalize(Filmography.JOB_ACTOR), character, doublage, source);
+                if (added) {
+                    setOverrideSource(OverrideFlag.PEOPLE_ACTORS, source);
+                }
             }
         }
         return added;
@@ -1153,6 +1140,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
             if (!found) {
                 added = addPerson(writerKey, writerName, writerUrl, "Writer", source);
+                if (added) {
+                    setOverrideSource(OverrideFlag.PEOPLE_WRITERS, source);
+                }
             }
         }
         return added;
@@ -1339,6 +1329,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
             if (!found) {
                 added = addPerson(key, name, URL, "Director", source);
+                if (added) {
+                    setOverrideSource(OverrideFlag.PEOPLE_DIRECTORS, source);
+                }
             }
         }
 
