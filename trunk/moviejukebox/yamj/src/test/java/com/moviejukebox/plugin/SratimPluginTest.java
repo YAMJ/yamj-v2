@@ -20,35 +20,32 @@
  *      Web: http://code.google.com/p/moviejukebox/
  *
  */
-package com.moviejukebox.plugin.poster;
+package com.moviejukebox.plugin;
 
-import junit.framework.TestCase;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import static org.junit.Assert.assertEquals;
 import org.apache.log4j.BasicConfigurator;
+import org.junit.Test;
 
-import com.moviejukebox.tools.PropertiesUtil;
-
-public class SratimPosterPluginTestCase extends TestCase {
-
-    private SratimPosterPlugin posterPlugin;
+public class SratimPluginTest {
     
-    public SratimPosterPluginTestCase() {
+    private SratimPlugin sratimPlugin;
+    
+    public SratimPluginTest() {
         BasicConfigurator.configure();
-        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "sratim");
-        posterPlugin = new SratimPosterPlugin();
+        sratimPlugin = new SratimPlugin();
     }
-
-    public void testGetIdFromMovieInfo() {
-        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Matrix", null);
-        assertEquals("1147", idFromMovieInfo);
-    }
-
-    public void testGetIdFromMovieInfoTV() {
-        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("The Lost Islands", null, 1);
-        assertEquals("2116", idFromMovieInfo);
-    }
-
-    public void testGetPosterUrl() {
-        String posterUrl = posterPlugin.getPosterUrl("143628").getUrl();
-        assertEquals("http://sratim.co.il/photos/titles/normal/8/m43628_20111205145500_824823715264.jpg", posterUrl);
+    
+    @Test
+    public void testMovie() {
+        Movie movie = new Movie();
+        movie.addMovieFile(new MovieFile());
+        movie.setMovieType(Movie.TYPE_MOVIE);
+        movie.setTitle("The Croods", Movie.UNKNOWN);
+        movie.setId(AllocinePlugin.IMDB_PLUGIN_ID, "tt0481499");
+        
+        sratimPlugin.scan(movie);
+        assertEquals("1123786", movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
     }
 }

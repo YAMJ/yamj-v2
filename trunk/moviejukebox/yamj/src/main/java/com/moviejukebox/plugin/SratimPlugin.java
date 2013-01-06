@@ -95,44 +95,42 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     @Override
-    public boolean scan(Movie mediaFile) {
+    public boolean scan(Movie movie) {
         boolean retval = false;
 
-        String sratimUrl = mediaFile.getId(SRATIM_PLUGIN_ID);
-        if (StringTools.isNotValidString(sratimUrl)) {
+        String id = movie.getId(SRATIM_PLUGIN_ID);
+        if (StringTools.isNotValidString(id)) {
             // collect missing information from IMDB or TVDB before sratim
-            if (!mediaFile.getMovieType().equals(Movie.TYPE_TVSHOW)) {
-                retval = super.scan(mediaFile);
+            if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
+                retval = super.scan(movie);
             } else {
-                retval = tvdb.scan(mediaFile);
+                retval = tvdb.scan(movie);
             }
 
             // Translate genres to Hebrew
-            translateGenres(mediaFile);
+            translateGenres(movie);
 
-            sratimUrl = getSratimUrl(mediaFile, mediaFile.getTitle(), mediaFile.getYear());
+            id = getSratimId(movie);
         }
 
-        if (StringTools.isValidString(sratimUrl)) {
-            retval = updateMediaInfo(mediaFile);
+        if (StringTools.isValidString(id)) {
+            retval = updateMediaInfo(movie);
         }
 
         return retval;
     }
 
     /**
-     * retrieve the sratim url matching the specified movie name and year.
+     * retrieve the sratim id for the movie
      */
-    public String getSratimUrl(Movie mediaFile, String movieName, String year) {
+    public String getSratimId(Movie movie) {
 
         try {
-            String imdbId = updateImdbId(mediaFile);
+            String imdbId = updateImdbId(movie);
 
             if (StringTools.isNotValidString(imdbId)) {
                 return Movie.UNKNOWN;
             }
-
-            String sratimUrl;
 
             String xml = webBrowser.request("http://www.sratim.co.il/browse.php?q=imdb%3A" + imdbId, Charset.forName("UTF-8"));
 
@@ -141,17 +139,21 @@ public class SratimPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
 
-            String tmp_url = HTMLTools.extractTag(xml,"<div class=\"browse_title_name\"","</div>");
-            String detailsUrl = HTMLTools.extractTag(tmp_url, "<a href=\"view.php?", 0, "\"");
             if (subtitleDownload) {
                 String subtitlesID = HTMLTools.extractTag(xml, "<a href=\"subtitles.php?", 0, "\"");
                 int subid = subtitlesID.lastIndexOf("mid=");
                 if (subid > -1 && subtitlesID.length() > subid) {
                     String subtitle = new String(subtitlesID.substring(subid + 4));
-                    mediaFile.setId(SRATIM_PLUGIN_SUBTITLE_ID, subtitle);
+                    movie.setId(SRATIM_PLUGIN_SUBTITLE_ID, subtitle);
                 }
             }
-
+            
+            String tmp_url = HTMLTools.extractTag(xml,"<div class=\"browse_title_name\"","</div>");           
+            String detailsUrl = HTMLTools.extractTag(tmp_url, "<a href=\"view.php?", 0, "\"");
+            if (StringTools.isNotValidString(detailsUrl)) {
+                // try TV series view page
+                detailsUrl = HTMLTools.extractTag(tmp_url, "<a href=\"viewseries.php?", 0, "\"");
+            }
             if (StringTools.isNotValidString(detailsUrl)) {
                 return Movie.UNKNOWN;
             }
@@ -161,17 +163,19 @@ public class SratimPlugin extends ImdbPlugin {
 
             if (id > -1 && detailsUrl.length() > id) {
                 String movieId = new String(detailsUrl.substring(id + 3));
-                mediaFile.setId(SRATIM_PLUGIN_ID, movieId);
+                int idEnd = movieId.indexOf("&");
+                if (idEnd > -1 ) {
+                    movieId = movieId.substring(0, idEnd); 
+                }
+                movie.setId(SRATIM_PLUGIN_ID, movieId);
+                return movieId;
             }
-            sratimUrl = "http://www.sratim.co.il/view.php?" + detailsUrl;
-
-            return sratimUrl;
-
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed retreiving sratim informations for movie : " + movieName);
+            logger.error(LOG_MESSAGE + "Failed retrieving sratim informations for movie : " + movie.getTitle());
             logger.error(LOG_MESSAGE + "" + error.getMessage());
-            return Movie.UNKNOWN;
         }
+
+        return Movie.UNKNOWN;
     }
 
     // Translate IMDB genres to Hebrew
@@ -630,7 +634,7 @@ public class SratimPlugin extends ImdbPlugin {
     /**
      * Scan Sratim html page for the specified movie
      */
-    protected boolean updateMediaInfo(Movie movie) {
+    private boolean updateMediaInfo(Movie movie) {
         try {
 
             String sratimUrl = "http://www.sratim.co.il/view.php?id=" + movie.getId(SRATIM_PLUGIN_ID);
@@ -737,6 +741,7 @@ public class SratimPlugin extends ImdbPlugin {
             imdbId = imdbInfo.getImdbId(movie.getTitle(), movie.getYear());
             movie.setId(IMDB_PLUGIN_ID, imdbId);
         }
+        
         return imdbId;
     }
 
