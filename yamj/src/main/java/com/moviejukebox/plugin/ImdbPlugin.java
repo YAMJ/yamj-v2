@@ -1130,7 +1130,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         String name = member.substring(member.indexOf(HTML_SLASH_GT, beginIndex) + 2);
                         if (name.indexOf("more credit") == -1) {
                             if (overrideNormal) {
-                                movie.addActor(name, IMDB_PLUGIN_ID);
+                                movie.addWriter(name, IMDB_PLUGIN_ID);
                             }
                             if (overridePeople) {
                                 movie.addWriter(IMDB_PLUGIN_ID + ":" + personID, name, siteDef.getSite() + HTML_NAME + personID + "/", IMDB_PLUGIN_ID);
