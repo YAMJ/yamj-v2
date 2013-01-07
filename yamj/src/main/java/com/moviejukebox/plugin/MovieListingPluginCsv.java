@@ -196,12 +196,13 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
             if (newString.contains(",")) {
                 newString = "\"" + newString + "\"";
             }
-
-            // add trailing comma unless otherwise requested
-            if (bAddComma) {
-                newString += ",";
-            }
         }
+
+        // add trailing comma unless otherwise requested
+        if (bAddComma) {
+            newString += ",";
+        }
+        
         return newString;
     } // encloseInQuotes()
 
