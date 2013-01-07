@@ -30,7 +30,6 @@ import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Level;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.Result;
@@ -73,37 +72,31 @@ public class CompleteMoviesWriter {
         File totalMoviesXmlFile = new File(jukebox.getJukeboxTempLocationDetails(), completeMoviesXmlFileName);
 
         if (library.isDirty() || !totalMoviesXmlFile.exists()) {
-            OutputStream marStream = null;
             try {
-                marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
+                OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
                 context.createMarshaller().marshal(jukeboxXml, marStream);
+                // This needs to be done here so that the transformer can read it.
+                marStream.flush();
+                marStream.close();
 
                 Transformer transformer = MovieJukeboxHTMLWriter.getTransformer(new File(rssXslFileName), jukebox.getJukeboxRootLocationDetails());
 
                 Result xmlResult = new StreamResult(new File(jukebox.getJukeboxTempLocationDetails(), rssXmlFileName));
                 transformer.transform(new StreamSource(totalMoviesXmlFile), xmlResult);
 
-                logger.debug(LOG_MESSAGE + "RSS is generated.");
+                logger.debug(LOG_MESSAGE + "RSS has been generated.");
             } catch (JAXBException ex) {
-                logger.warn(LOG_MESSAGE + "RSS is not generated (JAXB error) - Error: " + ex.getMessage());
+                logger.warn(LOG_MESSAGE + "RSS is not generated (JAXB error): " + ex.getMessage());
                 logger.warn(SystemTools.getStackTrace(ex));
                 return Boolean.FALSE;
             } catch (TransformerException ex) {
-                logger.warn(LOG_MESSAGE + "RSS is not generated (Transformer error) - Error: " + ex.getMessage());
+                logger.warn(LOG_MESSAGE + "RSS is not generated (Transformer error): " + ex.getMessage());
                 logger.warn(SystemTools.getStackTrace(ex));
                 return Boolean.FALSE;
             } catch (IOException ex) {
-                logger.warn(LOG_MESSAGE + "RSS is not generated (Jukebox error) - Error: " + ex.getMessage());
+                logger.warn(LOG_MESSAGE + "RSS is not generated (Jukebox error): " + ex.getMessage());
                 logger.warn(SystemTools.getStackTrace(ex));
                 return Boolean.FALSE;
-            } finally {
-                if (marStream != null) {
-                    try {
-                        marStream.close();
-                    } catch (IOException ex) {
-                        logger.trace(LOG_MESSAGE + "Failed to close output stream");
-                    }
-                }
             }
         }
 

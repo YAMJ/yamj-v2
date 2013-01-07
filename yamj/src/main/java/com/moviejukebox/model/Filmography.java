@@ -28,6 +28,7 @@ import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -141,6 +142,7 @@ public class Filmography {
         return url;
     }
 
+    @XmlTransient
     public boolean isDirty() {
         return isDirty;
     }
@@ -309,6 +311,7 @@ public class Filmography {
         }
     }
 
+    @XmlTransient
     public boolean isScrapeLibrary() {
         return isScrapeLibrary;
     }
@@ -383,6 +386,7 @@ public class Filmography {
         }
     }
 
+    @XmlTransient
     public boolean isDirtyPhoto() {
         return isDirtyPhoto;
     }

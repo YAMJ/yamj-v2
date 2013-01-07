@@ -913,6 +913,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      *
      * @return
      */
+    @XmlTransient
     public boolean isDirty() {
         if (dirtyFlags.isEmpty()) {
             return Boolean.FALSE;

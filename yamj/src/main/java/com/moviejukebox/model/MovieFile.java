@@ -616,7 +616,7 @@ public class MovieFile implements Comparable<MovieFile> {
         }
     }
 
-    @XmlElement(name = "airsAfterSeason")
+    @XmlElement(name = "airsBeforeSeason")
     public List<PartDataDTO> getAirsBeforeSeasons() {
         return toPartDataList(airsBeforeSeason);
     }
@@ -638,7 +638,7 @@ public class MovieFile implements Comparable<MovieFile> {
         }
     }
 
-    @XmlElement(name = "airsAfterEpisode")
+    @XmlElement(name = "airsBeforeEpisode")
     public List<PartDataDTO> getAirsBeforeEpisodes() {
         return toPartDataList(airsBeforeEpisode);
     }
