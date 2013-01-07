@@ -358,6 +358,9 @@ public final class OverrideTools {
                 case TITLE:
                     check = checkOverwriteTitle(movie, source);
                     break;
+                case RUNTIME:
+                    check = checkOverwriteRuntime(movie, source);
+                    break;
                 default:
                     check = checkOverwrite(movie, overrideFlag, source);
                     break;
