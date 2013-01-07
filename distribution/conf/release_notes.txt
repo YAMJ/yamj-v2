@@ -6,7 +6,7 @@ MovieJukebox 2.9-SNAPSHOT
 -------------------------
  - Fixed defect #1721 Get last certification for country from IMDB instead first one found
  - Enhancement  #2035 MediaInfo can determine a 3D video source
- - Fixed defect #2088 Listing plugin size fix for seasons 
+ - Fixed defect #2088 Listing plugin size fix for seasons
  - Fixed defect #2321 Countries with accent will be scraped from FilmAffinity
  - Enhancement  #2345 Get actor role from allocine
  - Enhancement  #2397 Read MediaInfo values from file
@@ -25,9 +25,10 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2561 Set source with highest priority even if movie value has not changed
  - Fixed defect #2562 Accented letters fail in IMDB plot description plugin
  - Fixed defect #2563 NFO has highest priority for default priority of people.actors
+ - Fixed defect #2565 Stop over writing Skin when moviejukebox.properties is modified
  - Fixed defect #2566 Fixed retrieval of certification from allocine
  - Fixed defect #2571 Scan multipart movies for complete runtime
- 
+
 MovieJukebox 2.8 (2012-12-17)
 -----------------------------
  - Enhancement  #1461 Skipped subtitles will not be added
