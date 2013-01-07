@@ -224,13 +224,8 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
      */
     private class YouTubeTrailer {
 
-        private String url;
-        private String title;
-
-        public YouTubeTrailer() {
-            url = Movie.UNKNOWN;
-            title = Movie.UNKNOWN;
-        }
+        private final String url;
+        private final String title;
 
         public YouTubeTrailer(String url, String title) {
             this.url = url;
@@ -241,16 +236,8 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
             return url;
         }
 
-        public void setUrl(String url) {
-            this.url = url;
-        }
-
         public String getTitle() {
             return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
         }
 
         @Override
