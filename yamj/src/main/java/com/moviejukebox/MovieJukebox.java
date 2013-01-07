@@ -1561,7 +1561,7 @@ public class MovieJukebox {
             }
 
             if (enableCompleteMovies) {
-                CompleteMoviesWriter.writeCompleteMovies(library, jukebox);
+                CompleteMoviesWriter.generate(library, jukebox);
             }
 
             /**
