@@ -63,7 +63,6 @@ public class MediaInfoScanner {
     private static boolean isActivated;
     private static final boolean ENABLE_METADATA = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", FALSE);
     private static final boolean ENABLE_UPDATE = PropertiesUtil.getBooleanProperty("mediainfo.update.enable", FALSE);
-    private static final boolean ENABLE_MULTIPART = PropertiesUtil.getBooleanProperty("mediainfo.multipart.enable", FALSE);
     private static final boolean MI_OVERALL_BITRATE = PropertiesUtil.getBooleanProperty("mediainfo.overallbitrate", FALSE);
     private static final boolean MI_READ_FROM_FILE = PropertiesUtil.getBooleanProperty("mediainfo.readfromfile", FALSE);
     private String randomDirName;
@@ -304,9 +303,7 @@ public class MediaInfoScanner {
     }
 
     private boolean isMultiPartsScannable(Movie movie, boolean processMultiPart) {
-        if (!ENABLE_MULTIPART) {
-            return Boolean.FALSE;
-        } else if (!processMultiPart) {
+        if (!processMultiPart) {
             return Boolean.FALSE;
         } else if (movie.isTVShow()) {
             return Boolean.FALSE;
@@ -759,12 +756,12 @@ public class MediaInfoScanner {
 
     private int getDuration(Map<String,String> infosGeneral, List<Map<String,String>> infosVideo) {
         String runtimeValue = null;
-        if (infosVideo.size() > 0) {
-            Map<String, String> infosMainVideo = infosVideo.get(0);
-            runtimeValue = infosMainVideo.get("Duration");
-        }
         if (runtimeValue == null) {
             runtimeValue = infosGeneral.get("PlayTime");
+        }
+        if ((runtimeValue == null) && (infosVideo.size() > 0)) {
+            Map<String, String> infosMainVideo = infosVideo.get(0);
+            runtimeValue = infosMainVideo.get("Duration");
         }
         if (runtimeValue == null) {
             runtimeValue = infosGeneral.get("Duration");
