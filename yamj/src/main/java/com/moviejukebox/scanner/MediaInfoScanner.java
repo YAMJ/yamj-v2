@@ -783,6 +783,10 @@ public class MediaInfoScanner {
     }
 
     private int getMultiPartDuration(Map<String,String> infosMultiPart) {
+        if (infosMultiPart.isEmpty()) {
+            return 0;
+        }
+        
         String runtimeValue = infosMultiPart.get("MultiPart_Duration");
         if (runtimeValue != null) {
             try {
