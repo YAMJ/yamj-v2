@@ -816,6 +816,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * @see com.moviejukebox.model.IMovieBasicInformation#getTitle()
      */
     @Override
+    @XmlElement
     public String getTitle() {
         return title;
     }
@@ -829,6 +830,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * Return the correct sort title based on the mjb.sortTitle parameter
      */
     @Override
+    @XmlElement
     public String getTitleSort() {
         // If we have a titleSort, return that
         if (StringTools.isValidString(titleSort)) {
@@ -852,6 +854,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     @Override
+    @XmlElement
     public String getOriginalTitle() {
         return originalTitle;
     }
