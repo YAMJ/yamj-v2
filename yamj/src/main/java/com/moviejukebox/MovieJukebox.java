@@ -614,14 +614,6 @@ public class MovieJukebox {
 
         jukebox = new Jukebox(jukeboxRoot, jukeboxTempLocation, detailsDirName);
 
-        this.forcePosterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePostersOverwrite", FALSE);
-        this.forceThumbnailOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceThumbnailsOverwrite", FALSE);
-        this.forceBannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", FALSE);
-        this.forceSkinOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceSkinOverwrite", FALSE);
-        this.forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", FALSE);
-        this.forceFooterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFooterOverwrite", FALSE);
-        this.skinHome = getProperty("mjb.skin.dir", "./skins/default");
-
         MovieJukebox.skipPlaylistGeneration = PropertiesUtil.getBooleanProperty("mjb.skipPlaylistGeneration", FALSE);
 
         MovieJukebox.fanartMovieDownload = PropertiesUtil.getBooleanProperty("fanart.movie.download", FALSE);
@@ -666,14 +658,26 @@ public class MovieJukebox {
             mlp.setPath(source);
             // We'll get the new playerpath value first, then the nmt path so it overrides the default player path
             String playerRootPath = getProperty("mjb.playerRootPath", "");
-            if (playerRootPath.equals("")) {
-                playerRootPath = getProperty("mjb.nmtRootPath", "file:///opt/sybhttpd/localhost.drives/HARD_DISK/Video/");
+            if (StringUtils.isBlank(playerRootPath)) {
+                playerRootPath = getProperty("mjb.nmtRootPath", "file:///opt/sybhttpd/localhost.drives/SATA_DISK/Video/");
             }
             mlp.setPlayerRootPath(playerRootPath);
             mlp.setScrapeLibrary(Boolean.TRUE);
             mlp.setExcludes(null);
             mediaLibraryPaths.add(mlp);
         }
+
+        // Check to see if we need to read the jukebox_details.xml file and process, otherwise, just create the file.
+        JukeboxProperties.readDetailsFile(jukebox, mediaLibraryPaths);
+
+        // Read these properties after the JukeboxProperties have been read to ensure that changes are picked up
+        this.forcePosterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePostersOverwrite", FALSE);
+        this.forceThumbnailOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceThumbnailsOverwrite", FALSE);
+        this.forceBannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", FALSE);
+        this.forceSkinOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceSkinOverwrite", FALSE);
+        this.forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", FALSE);
+        this.forceFooterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFooterOverwrite", FALSE);
+        this.skinHome = getProperty("mjb.skin.dir", "./skins/default");
     }
 
     private void generateLibrary() throws Throwable {
@@ -682,18 +686,22 @@ public class MovieJukebox {
          * ******************************************************************************
          * @author Gabriel Corneanu
          *
-         * The tools used for parallel processing are NOT thread safe (some operations are, but not all) therefore all
-         * are added to a container which is instantiated one per thread
+         * The tools used for parallel processing are NOT thread safe (some
+         * operations are, but not all) therefore all are added to a container
+         * which is instantiated one per thread
          *
-         * - xmlWriter looks thread safe - htmlWriter was not thread safe, - getTransformer is fixed (simple workaround)
-         * - MovieImagePlugin : not clear, made thread specific for safety - MediaInfoScanner : not sure, made thread
-         * specific
+         * - xmlWriter looks thread safe - htmlWriter was not thread safe, -
+         * getTransformer is fixed (simple workaround) - MovieImagePlugin : not
+         * clear, made thread specific for safety - MediaInfoScanner : not sure,
+         * made thread specific
          *
-         * Also important: The library itself is not thread safe for modifications (API says so) it could be adjusted
-         * with concurrent versions, but it needs many changes it seems that it is safe for subsequent reads
-         * (iterators), so leave for now...
+         * Also important: The library itself is not thread safe for
+         * modifications (API says so) it could be adjusted with concurrent
+         * versions, but it needs many changes it seems that it is safe for
+         * subsequent reads (iterators), so leave for now...
          *
-         * - DatabasePluginController is also fixed to be thread safe (plugins map for each thread)
+         * - DatabasePluginController is also fixed to be thread safe (plugins
+         * map for each thread)
          *
          */
         class ToolSet {
@@ -787,12 +795,8 @@ public class MovieJukebox {
             return;
         }
 
-        // Check to see if we need to read the jukebox_details.xml file and process, otherwise, just create the file.
-        JukeboxProperties.readDetailsFile(jukebox, mediaLibraryPaths);
-
         // Save the current state of the preferences to the skin directory for use by the skin
         // The forceHtmlOverwrite is set by the user or by the JukeboxProperties if there has been a skin change
-
         if (PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", FALSE)
                 || !(new File(PropertiesUtil.getPropertiesFilename(Boolean.TRUE))).exists()) {
             PropertiesUtil.writeProperties();
@@ -926,51 +930,51 @@ public class MovieJukebox {
                         }
 
                         if (MovieLimit.getToken()) {
-                        
+
                             // First get movie data (title, year, director, genre, etc...)
                             library.toggleDirty(updateMovieData(xmlReader, tools.miScanner, tools.backgroundPlugin, jukebox, movie, library));
-    
+
                             if (!movie.getMovieType().equals(Movie.REMOVE)) {
                                 // Check for watched and unwatched files
                                 if (enableWatchScanner) { // Issue 1938
                                     library.toggleDirty(WatchedScanner.checkWatched(jukebox, movie));
                                 }
-    
+
                                 // Get subtitle
                                 tools.subtitlePlugin.generate(movie);
-    
+
                                 // RottenTomatoes Ratings
                                 if (!movie.isTVShow() && enableRottenTomatoes) {
                                     tools.rtPlugin.scan(movie);
                                 }
-    
+
                                 // Get Trailers
                                 if (trailersScannerEnable) {
                                     tools.trailerScanner.getTrailers(movie);
                                 }
-    
+
                                 // Then get this movie's poster
                                 logger.debug("Updating poster for: " + movieTitleExt);
                                 updateMoviePoster(jukebox, movie);
-    
+
                                 // Download episode images if required
                                 if (videoimageDownload) {
                                     VideoImageScanner.scan(tools.imagePlugin, jukebox, movie);
                                 }
-    
+
                                 // Get Fanart only if requested
                                 // Note that the FanartScanner will check if the file is newer / different
                                 if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
                                     FanartScanner.scan(tools.backgroundPlugin, jukebox, movie);
                                 }
-    
+
                                 // Get Banner if requested and is a TV show
                                 if (bannerDownload && movie.isTVShow()) {
                                     if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
                                         updateTvBanner(jukebox, movie, tools.imagePlugin);
                                     }
                                 }
-    
+
                                 // Get ClearART/LOGOS/etc
                                 if (movie.isTVShow()) {
                                     // Only scan using the TV Show artwork scanners
@@ -984,25 +988,25 @@ public class MovieJukebox {
                                     tools.movieDiscScanner.scan(jukebox, movie);
                                     tools.movieLogoScanner.scan(jukebox, movie);
                                 }
-    
+
                                 for (int i = 0; i < footerCount; i++) {
                                     if (footerEnable.get(i)) {
                                         updateFooter(jukebox, movie, tools.imagePlugin, i, forceFooterOverwrite || movie.isDirty());
                                     }
                                 }
-    
+
                                 // If we are multipart, we need to make sure all archives have expanded names.
                                 if (PropertiesUtil.getBooleanProperty("mjb.scanner.mediainfo.rar.extended.url", Boolean.FALSE.toString())) {
-    
+
                                     Collection<MovieFile> partsFiles = movie.getFiles();
                                     for (MovieFile mf : partsFiles) {
                                         String filename;
-    
+
                                         filename = mf.getFile().getAbsolutePath();
-    
+
                                         // Check the filename is a mediaInfo extension (RAR, ISO) ?
                                         if (tools.miScanner.extendedExtention(filename) == Boolean.TRUE) {
-    
+
                                             if (mf.getArchiveName() == null) {
                                                 logger.debug("MovieJukebox: Attempting to get Archivename for " + filename);
                                                 String archive = tools.miScanner.archiveScan(movie, filename);
@@ -1021,7 +1025,7 @@ public class MovieJukebox {
                         } else {
                             movie.setSkipped(true);
                             logger.info("Skipped: " + movieTitleExt + " (" + count + "/" + library.size() + ")");
-                        }                            
+                        }
                         // Show memory every (processing count) movies
                         if (showMemory && (count % maxThreadsProcess) == 0) {
                             SystemTools.showMemory();
@@ -1043,7 +1047,7 @@ public class MovieJukebox {
 
             JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.PROCESSING_END, System.currentTimeMillis());
 
-            if (peopleScan && peopleScrape && ! MovieLimit.isLimitReached()) {
+            if (peopleScan && peopleScrape && !MovieLimit.isLimitReached()) {
                 logger.info("Searching for people information...");
                 int peopleCounter = 0;
                 TreeMap<String, Person> popularPeople = new TreeMap<String, Person>();
@@ -1471,7 +1475,7 @@ public class MovieJukebox {
                 if (movie.isExtra() && !processExtras) {
                     continue;
                 }
-                
+
                 if (movie.isSkipped()) {
                     continue;
                 }
@@ -1627,7 +1631,7 @@ public class MovieJukebox {
                 if (skinFile.exists()) {
                     skinFile.setLastModified(JukeboxStatistics.getTime(JukeboxStatistics.JukeboxTimes.START));
                 } else {
-                    skinFile.getParentFile().mkdirs();
+                    FileTools.makeDirectories(skinFile);
                     skinFile.createNewFile();
                 }
             } else {
@@ -1696,7 +1700,8 @@ public class MovieJukebox {
     /**
      * Clean up the jukebox folder of any extra files that are not needed.
      *
-     * If the jukeboxClean parameter is not set, just report on the files that would be cleaned.
+     * If the jukeboxClean parameter is not set, just report on the files that
+     * would be cleaned.
      */
     private void cleanJukeboxFolder() {
         boolean cleanReport = PropertiesUtil.getBooleanProperty("mjb.jukeboxCleanReport", FALSE);
@@ -1772,12 +1777,15 @@ public class MovieJukebox {
     }
 
     /**
-     * Generates a movie XML file which contains data in the <tt>Movie</tt> bean.
+     * Generates a movie XML file which contains data in the <tt>Movie</tt>
+     * bean.
      *
-     * When an XML file exists for the specified movie file, it is loaded into the specified <tt>Movie</tt> object.
+     * When an XML file exists for the specified movie file, it is loaded into
+     * the specified <tt>Movie</tt> object.
      *
-     * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt>
-     * object. Once scanned, the <tt>movie</tt> object is persisted.
+     * When no XML file exist, scanners are called in turn, in order to add
+     * information to the specified <tt>movie</tt> object. Once scanned, the
+     * <tt>movie</tt> object is persisted.
      */
     public boolean updateMovieData(MovieJukeboxXMLReader xmlReader, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", FALSE);
@@ -2009,9 +2017,11 @@ public class MovieJukebox {
     }
 
     /**
-     * Update the movie poster for the specified movie. When an existing thumbnail is found for the movie, it is not
-     * overwritten, unless the mjb.forceThumbnailOverwrite is set to true in the property file. When the specified movie
-     * does not contain a valid URL for the poster, a dummy image is used instead.
+     * Update the movie poster for the specified movie. When an existing
+     * thumbnail is found for the movie, it is not overwritten, unless the
+     * mjb.forceThumbnailOverwrite is set to true in the property file. When the
+     * specified movie does not contain a valid URL for the poster, a dummy
+     * image is used instead.
      *
      * @param tempJukeboxDetailsRoot
      */
@@ -2052,10 +2062,11 @@ public class MovieJukebox {
     /**
      * Update the banner for the specified TV Show.
      *
-     * When an existing banner is found for the movie, it is not overwritten, unless the mjb.forcePosterOverwrite is set
-     * to true in the property file.
+     * When an existing banner is found for the movie, it is not overwritten,
+     * unless the mjb.forcePosterOverwrite is set to true in the property file.
      *
-     * When the specified movie does not contain a valid URL for the banner, a dummy image is used instead.
+     * When the specified movie does not contain a valid URL for the banner, a
+     * dummy image is used instead.
      *
      */
     public void updateTvBanner(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
