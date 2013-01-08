@@ -62,7 +62,6 @@ public class MovieJukebox {
     private static final Logger logger = Logger.getLogger(MovieJukebox.class);
     private static Collection<MediaLibraryPath> mediaLibraryPaths;
     private String movieLibraryRoot;
-    private String skinHome;
     private static String userPropertiesName = "./moviejukebox.properties";
     // Jukebox parameters
     private static Jukebox jukebox;
@@ -253,22 +252,22 @@ public class MovieJukebox {
             setProperty(propEntry.getKey(), propEntry.getValue());
         }
 
-        StringBuilder sb = new StringBuilder("{");
-        for (Map.Entry<Object, Object> propEntry : PropertiesUtil.getEntrySet()) {
-            sb.append(propEntry.getKey());
-            sb.append("=");
-            sb.append(propEntry.getValue());
-            sb.append(",");
-        }
-        sb.replace(sb.length() - 1, sb.length(), "}");
-
         // Read the information about the skin
         SkinProperties.readSkinVersion();
         // Display the information about the skin
         SkinProperties.printSkinVersion();
 
+        StringBuilder properties = new StringBuilder("{");
+        for (Map.Entry<Object, Object> propEntry : PropertiesUtil.getEntrySet()) {
+            properties.append(propEntry.getKey());
+            properties.append("=");
+            properties.append(propEntry.getValue());
+            properties.append(",");
+        }
+        properties.replace(properties.length() - 1, properties.length(), "}");
+
         // Print out the properties to the log file.
-        logger.debug("Properties: " + sb.toString());
+        logger.debug("Properties: " + properties.toString());
 
         // Check for mjb.skipIndexGeneration and set as necessary
         // This duplicates the "-i" functionality, but allows you to have it in the property file
@@ -677,7 +676,6 @@ public class MovieJukebox {
         this.forceSkinOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceSkinOverwrite", FALSE);
         this.forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", FALSE);
         this.forceFooterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFooterOverwrite", FALSE);
-        this.skinHome = getProperty("mjb.skin.dir", "./skins/default");
     }
 
     private void generateLibrary() throws Throwable {
@@ -1436,12 +1434,12 @@ public class MovieJukebox {
                             if (createPosters) {
                                 // Create/update a detail poster for setMaster
                                 logger.debug("Create/update detail poster for set: " + movie.getBaseName());
-                                createPoster(tools.imagePlugin, jukebox, skinHome, movie, Boolean.TRUE);
+                                createPoster(tools.imagePlugin, jukebox, SkinProperties.getSkinHome(), movie, Boolean.TRUE);
                             }
 
                             // Create/update a thumbnail for setMaster
                             logger.debug("Create/update thumbnail for set: " + movie.getBaseName() + ", isTV: " + movie.isTVShow() + ", isHD: " + movie.isHD());
-                            createThumbnail(tools.imagePlugin, jukebox, skinHome, movie, Boolean.TRUE);
+                            createThumbnail(tools.imagePlugin, jukebox, SkinProperties.getSkinHome(), movie, Boolean.TRUE);
 
                             for (int inx = 0; inx < footerCount; inx++) {
                                 if (footerEnable.get(inx)) {
@@ -1491,11 +1489,11 @@ public class MovieJukebox {
 
                         // Create a detail poster for each movie
                         logger.debug("Creating detail poster for movie: " + movie.getBaseName());
-                        createPoster(tools.imagePlugin, jukebox, skinHome, movie, forcePosterOverwrite);
+                        createPoster(tools.imagePlugin, jukebox, SkinProperties.getSkinHome(), movie, forcePosterOverwrite);
 
                         // Create a thumbnail for each movie
                         logger.debug("Creating thumbnails for movie: " + movie.getBaseName());
-                        createThumbnail(tools.imagePlugin, jukebox, skinHome, movie, forceThumbnailOverwrite);
+                        createThumbnail(tools.imagePlugin, jukebox, SkinProperties.getSkinHome(), movie, forceThumbnailOverwrite);
 
                         if (!skipIndexGeneration && !skipHtmlGeneration) {
                             // write the movie details HTML
@@ -1620,7 +1618,7 @@ public class MovieJukebox {
 
                 while (st.hasMoreTokens()) {
                     String skinDirName = st.nextToken();
-                    String skinDirFull = skinHome + File.separator + skinDirName;
+                    String skinDirFull = StringTools.appendToPath(SkinProperties.getSkinHome(), skinDirName);
 
                     if ((new File(skinDirFull).exists())) {
                         logger.info("Copying the " + skinDirName + " directory...");
@@ -2027,6 +2025,7 @@ public class MovieJukebox {
      */
     public void updateMoviePoster(Jukebox jukebox, Movie movie) {
         String posterFilename = movie.getPosterFilename();
+        String skinHome = SkinProperties.getSkinHome();
         File posterFile = new File(jukebox.getJukeboxRootLocationDetails() + File.separator + posterFilename);
         File tmpDestFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + posterFilename);
 
@@ -2070,6 +2069,7 @@ public class MovieJukebox {
      *
      */
     public void updateTvBanner(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
+        String skinHome = SkinProperties.getSkinHome();
         String bannerFilename = movie.getBannerFilename();
         File bannerFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + bannerFilename);
         String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + bannerFilename;

@@ -73,7 +73,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     private static final String SPLITTER = ",;|";
     protected final WebBrowser webBrowser = new WebBrowser();
     protected MovieImagePlugin artworkImagePlugin;
-    protected String skinHome;                          // Location of the skin files used to get the dummy images from for missing artwork
+    protected String skinHome = SkinProperties.getSkinHome(); // Location of the skin files used to get the dummy images from for missing artwork
     // Scanner settings
     protected ArtworkType artworkType;                  // The type of the artwork. Will be used to load the other properties. When using for properties, must be lowercase
     protected String artworkTypeName;                   // The artwork type name to use in properties (all lowercase)
@@ -139,15 +139,14 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
         // Set the image plugin
         setArtworkImagePlugin();
-
-        skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
     }
 
     /**
      * Save the artwork to the jukebox
      *
-     * TODO: Parameter to control if the original artwork is saved in the jukebox or not. We should save this in an
-     * "originalArtwork" folder or something
+     * TODO: Parameter to control if the original artwork is saved in the
+     * jukebox or not. We should save this in an "originalArtwork" folder or
+     * something
      *
      * @return the status of the save. True if saved correctly, false otherwise.
      */
@@ -396,7 +395,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Scan for any local artwork and return the path to it.
      *
-     * This should only be called by the scanLocalArtwork method in the derived classes.
+     * This should only be called by the scanLocalArtwork method in the derived
+     * classes.
      *
      * Note: This will update the movie information for this artwork
      *
@@ -473,7 +473,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     public abstract void setArtworkUrl(Movie movie, String artworkUrl);
 
     /**
-     * Updates the artwork by either copying the local file or downloading the artwork
+     * Updates the artwork by either copying the local file or downloading the
+     * artwork
      *
      * @param jukebox
      * @param movie
@@ -535,7 +536,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Get the size of the file at the end of the URL
      *
-     * Taken from: http://forums.sun.com/thread.jspa?threadID=528155&messageID=2537096
+     * Taken from:
+     * http://forums.sun.com/thread.jspa?threadID=528155&messageID=2537096
      *
      * @param posterImage Artwork image to check
      * @param posterWidth The width to check
@@ -641,9 +643,11 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Determine if the artwork should be overwritten
      *
-     * Checks to see if the artwork exists in the jukebox folders (temp and final)
+     * Checks to see if the artwork exists in the jukebox folders (temp and
+     * final)
      *
-     * Checks the overwrite parameters Checks to see if the local artwork is newer
+     * Checks the overwrite parameters Checks to see if the local artwork is
+     * newer
      *
      * @param movie
      * @return
@@ -703,7 +707,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Scan an absolute or relative path for the movie images.
      *
-     * The relative path should include the directory of the movie as well as the library root
+     * The relative path should include the directory of the movie as well as
+     * the library root
      *
      * @param movie
      * @return UNKNOWN or Absolute Path
@@ -812,7 +817,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     }
 
     /**
-     * Scan for artwork named like <videoFileName><artworkToken>.<artworkExtensions>
+     * Scan for artwork named like
+     * <videoFileName><artworkToken>.<artworkExtensions>
      *
      * @param movie
      * @return UNKNOWN or Absolute Path
@@ -822,7 +828,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     }
 
     /**
-     * Scan for artwork named like <videoFileName><artworkToken>.<artworkExtensions>
+     * Scan for artwork named like
+     * <videoFileName><artworkToken>.<artworkExtensions>
      *
      * @param movie
      * @param additionalPath A sub-directory of the movie to scan
@@ -1005,8 +1012,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Return the name used in the properties file for this artwork type
      *
-     * This is needed because of the disconnection between what was originally in the properties files and making it
-     * generic enough for this scanner
+     * This is needed because of the disconnection between what was originally
+     * in the properties files and making it generic enough for this scanner
      *
      * @return
      */
@@ -1017,8 +1024,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Return the name used in the properties file for this artwork type
      *
-     * This is needed because of the disconnection between what was originally in the properties files and making it
-     * generic enough for this scanner
+     * This is needed because of the disconnection between what was originally
+     * in the properties files and making it generic enough for this scanner
      *
      * @return
      */
