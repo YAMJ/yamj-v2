@@ -98,6 +98,11 @@ public class AllocinePlugin extends ImdbPlugin {
                 movie.setTitle(tvSeriesInfos.getTitle(), ALLOCINE_PLUGIN_ID);
             }
 
+            // Check Original Title
+            if (OverrideTools.checkOverwriteOriginalTitle(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setOriginalTitle(tvSeriesInfos.getOriginalTitle(), ALLOCINE_PLUGIN_ID);
+            }
+
             // Check Rating
             if (movie.getRating() == -1) {
                 int rating = tvSeriesInfos.getRating();
@@ -192,8 +197,7 @@ public class AllocinePlugin extends ImdbPlugin {
                             }
 
                             if (includeEpisodePlots && isNotValidString(file.getPlot(numEpisode))) {
-                                String episodePlot =
-                                        trimToLength(episode.getSynopsis(), preferredPlotLength, true, plotEnding);
+                                String episodePlot = trimToLength(HTMLTools.replaceHtmlTags(episode.getSynopsis(), " "), preferredPlotLength, true, plotEnding);
                                 file.setPlot(numEpisode, episodePlot);
                             }
                         }

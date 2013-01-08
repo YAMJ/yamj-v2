@@ -23,8 +23,8 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
-
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -36,6 +36,7 @@ public class AllocinePluginTest {
     public AllocinePluginTest() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("API_KEY_Allocine", "YW5kcm9pZC12M3M");
+        PropertiesUtil.setProperty("mjb.includeEpisodePlots", "true");
         allocinePlugin = new AllocinePlugin();
     }
 
@@ -49,5 +50,22 @@ public class AllocinePluginTest {
         allocinePlugin.scan(movie);
         assertEquals("Underworld", movie.getTitle());
         assertEquals("12", movie.getCertification());
+    }
+
+    @Test
+    public void testTvSeries() {
+        Movie movie = new Movie();
+        movie.setMovieType(Movie.TYPE_TVSHOW);
+        movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, "5676");
+        movie.setId(AllocinePlugin.IMDB_PLUGIN_ID, "tt1634549");
+        MovieFile mf = new MovieFile();
+        mf.setSeason(1);
+        mf.setFirstPart(1);
+        mf.setLastPart(1);
+        movie.addMovieFile(mf);
+        
+        allocinePlugin.scan(movie);
+        assertEquals("Millennium", movie.getOriginalTitle());
+        assertTrue(mf.getPlot(1).startsWith("Chaque année depuis quarante-quatre ans, le jour de son anniversaire, le président d’un "));
     }
 }
