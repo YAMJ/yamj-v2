@@ -29,6 +29,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2566 Fixed retrieval of certification from allocine
  - Fixed defect #2571 Scan multipart movies for complete runtime
  - Fixed defect #2576 Add comma even if output field value is empty
+ - Enhancement  #2577 Limit number of scanned items in a single run
 
 MovieJukebox 2.8 (2012-12-17)
 -----------------------------
