@@ -111,7 +111,6 @@ public class MediaInfoScanner {
             MI_DISK_IMAGES.add(ext.toLowerCase());
         }
     }
-
     // DVD rip infos Scanner
     private DVDRipScanner localDVDRipScanner;
 
@@ -264,9 +263,9 @@ public class MediaInfoScanner {
 
     private void scan(Movie currentMovie, String movieFilePath, boolean processMultiPart) {
         // retrieve values usable for multipart values
-        Map<String,String> infosMultiPart = new HashMap<String, String>();
+        Map<String, String> infosMultiPart = new HashMap<String, String>();
         if (isMultiPartsScannable(currentMovie, processMultiPart)) {
-            for (MovieFile movieFile :  currentMovie.getMovieFiles()) {
+            for (MovieFile movieFile : currentMovie.getMovieFiles()) {
                 if (movieFile.getFile() == null) {
                     continue;
                 }
@@ -281,7 +280,7 @@ public class MediaInfoScanner {
         InputStream is = null;
         try {
             is = createInputStream(movieFilePath);
-            
+
             Map<String, String> infosGeneral = new HashMap<String, String>();
             List<Map<String, String>> infosVideo = new ArrayList<Map<String, String>>();
             List<Map<String, String>> infosAudio = new ArrayList<Map<String, String>>();
@@ -318,8 +317,8 @@ public class MediaInfoScanner {
         }
         return Boolean.TRUE;
     }
-    
-    private void scanMultiParts(String movieFilePath, Map<String,String> infosMultiPart) {
+
+    private void scanMultiParts(String movieFilePath, Map<String, String> infosMultiPart) {
         InputStream is = null;
         try {
             is = createInputStream(movieFilePath);
@@ -328,9 +327,9 @@ public class MediaInfoScanner {
             List<Map<String, String>> infosVideo = new ArrayList<Map<String, String>>();
             List<Map<String, String>> infosAudio = new ArrayList<Map<String, String>>();
             List<Map<String, String>> infosText = new ArrayList<Map<String, String>>();
-            
+
             parseMediaInfo(is, infosGeneral, infosVideo, infosAudio, infosText);
-            
+
             // resolve duration
             int duration = getDuration(infosGeneral, infosVideo);
             // add already stored multipart runtime
@@ -338,7 +337,7 @@ public class MediaInfoScanner {
             if (duration > 0) {
                 infosMultiPart.put("MultiPart_Duration", String.valueOf(duration));
             }
-            
+
         } catch (Exception error) {
             logger.error(SystemTools.getStackTrace(error));
         } finally {
@@ -357,9 +356,9 @@ public class MediaInfoScanner {
             // check file
             String filename = FilenameUtils.removeExtension(movieFilePath) + ".mediainfo";
             Collection<File> files = FileTools.fileCache.searchFilename(filename, Boolean.FALSE);
-            if (files != null && files.size() > 0 ) {
+            if (files != null && files.size() > 0) {
                 // create new input stream for reading
-                logger.debug(LOG_MESSAGE + "Reading from file "+filename);
+                logger.debug(LOG_MESSAGE + "Reading from file " + filename);
                 return new FileInputStream(files.iterator().next());
             }
         }
@@ -376,7 +375,7 @@ public class MediaInfoScanner {
         Process p = pb.start();
         return p.getInputStream();
     }
-    
+
     private String localInputReadLine(BufferedReader input) throws IOException {
         // Suppress empty lines
         String line = input.readLine();
@@ -453,7 +452,7 @@ public class MediaInfoScanner {
 
     private void updateMovieInfo(Movie movie, Map<String, String> infosGeneral, List<Map<String, String>> infosVideo,
             List<Map<String, String>> infosAudio, List<Map<String, String>> infosText,
-            Map<String,String> infosMultiPart) {
+            Map<String, String> infosMultiPart) {
 
         String infoValue;
 
@@ -543,11 +542,9 @@ public class MediaInfoScanner {
 
         if (OverrideTools.checkOverwriteRuntime(movie, MEDIAINFO_PLUGIN_ID)) {
             int duration = getDuration(infosGeneral, infosVideo);
-            logger.debug("Duration " + duration);
             duration = duration + getMultiPartDuration(infosMultiPart);
-            logger.debug("MultiPartDuration " + getMultiPartDuration(infosMultiPart));
             if (duration > 0) {
-                movie.setRuntime(DateTimeTools.formatDuration(duration/1000), MEDIAINFO_PLUGIN_ID);
+                movie.setRuntime(DateTimeTools.formatDuration(duration / 1000), MEDIAINFO_PLUGIN_ID);
             }
         }
 
@@ -758,7 +755,7 @@ public class MediaInfoScanner {
         }
     }
 
-    private int getDuration(Map<String,String> infosGeneral, List<Map<String,String>> infosVideo) {
+    private int getDuration(Map<String, String> infosGeneral, List<Map<String, String>> infosVideo) {
         String runtimeValue = null;
         if (runtimeValue == null) {
             runtimeValue = infosGeneral.get("PlayTime");
@@ -783,11 +780,11 @@ public class MediaInfoScanner {
         return 0;
     }
 
-    private int getMultiPartDuration(Map<String,String> infosMultiPart) {
+    private int getMultiPartDuration(Map<String, String> infosMultiPart) {
         if (infosMultiPart.isEmpty()) {
             return 0;
         }
-        
+
         String runtimeValue = infosMultiPart.get("MultiPart_Duration");
         if (runtimeValue != null) {
             try {
@@ -798,7 +795,7 @@ public class MediaInfoScanner {
         }
         return 0;
     }
-    
+
     /**
      * Create a Codec object with the information from the file
      *
