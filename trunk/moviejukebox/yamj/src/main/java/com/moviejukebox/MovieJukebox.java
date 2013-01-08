@@ -120,6 +120,9 @@ public class MovieJukebox {
     private static int maxThreadsDownload = 1;
     private static boolean enableWatchScanner;
     private static boolean enableCompleteMovies;
+    // Exit codes
+    private static final int EXIT_NORMAL = 0;
+    private static final int EXIT_SCAN_LIMIT = 1;
 
     public static void main(String[] args) throws Throwable {
         JukeboxStatistics.setTimeStart(System.currentTimeMillis());
@@ -405,6 +408,13 @@ public class MovieJukebox {
 
         // Now rename the log files
         renameLogFile();
+
+        if (ScanningLimit.isLimitReached()) {
+            logger.warn("Scanning limit of " + ScanningLimit.getLimit() + " was reached, please re-run to complete processing.");
+            System.exit(EXIT_SCAN_LIMIT);
+        } else {
+            System.exit(EXIT_NORMAL);
+        }
     }
 
     /**
@@ -927,7 +937,7 @@ public class MovieJukebox {
                             JukeboxStatistics.increment(JukeboxStatistic.NEW_VIDEOS);
                         }
 
-                        if (MovieLimit.getToken()) {
+                        if (ScanningLimit.getToken()) {
 
                             // First get movie data (title, year, director, genre, etc...)
                             library.toggleDirty(updateMovieData(xmlReader, tools.miScanner, tools.backgroundPlugin, jukebox, movie, library));
@@ -1022,6 +1032,7 @@ public class MovieJukebox {
                             logger.info("Finished: " + movieTitleExt + " (" + count + "/" + library.size() + ")");
                         } else {
                             movie.setSkipped(true);
+                            JukeboxProperties.setScanningLimitReached(Boolean.TRUE);
                             logger.info("Skipped: " + movieTitleExt + " (" + count + "/" + library.size() + ")");
                         }
                         // Show memory every (processing count) movies
@@ -1045,7 +1056,7 @@ public class MovieJukebox {
 
             JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.PROCESSING_END, System.currentTimeMillis());
 
-            if (peopleScan && peopleScrape && !MovieLimit.isLimitReached()) {
+            if (peopleScan && peopleScrape && !ScanningLimit.isLimitReached()) {
                 logger.info("Searching for people information...");
                 int peopleCounter = 0;
                 TreeMap<String, Person> popularPeople = new TreeMap<String, Person>();
@@ -1705,7 +1716,7 @@ public class MovieJukebox {
         boolean cleanReport = PropertiesUtil.getBooleanProperty("mjb.jukeboxCleanReport", FALSE);
 
         if (jukeboxClean) {
-            if (MovieLimit.isLimitReached()) {
+            if (ScanningLimit.isLimitReached()) {
                 logger.info("Jukebox cleaning skipped as movie limit was reached");
                 return;
             } else {
