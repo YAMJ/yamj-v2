@@ -28,6 +28,7 @@ import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.omertron.fanarttvapi.model.FTArtworkType;
@@ -183,7 +184,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     public DefaultImagePlugin() {
         // Generic properties
-        String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+        String skinHome = SkinProperties.getSkinHome();
         boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", TRUE);
         overlayRoot = PropertiesUtil.getProperty("mjb.overlay.dir", Movie.UNKNOWN);
         overlayRoot = (skinRoot ? (skinHome + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");

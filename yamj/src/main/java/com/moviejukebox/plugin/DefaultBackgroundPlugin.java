@@ -28,6 +28,7 @@ import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.StringTools;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -64,7 +65,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     public DefaultBackgroundPlugin() {
         // These are the default values for the width and height.
         // Each plugin should determine their own values
-        String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+        String skinHome = SkinProperties.getSkinHome();
         boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", FALSE);
         String overlayRoot = PropertiesUtil.getProperty("mjb.overlay.dir", Movie.UNKNOWN);
         overlayRoot = (skinRoot ? (skinHome + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");

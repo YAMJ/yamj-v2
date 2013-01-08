@@ -32,6 +32,7 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.StringTools;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -51,7 +52,7 @@ public class VideoImageScanner {
 
     private static final Logger logger = Logger.getLogger(VideoImageScanner.class);
     private static final String LOG_MESSAGE = "VideoImageScanner: ";
-    private static String skinHome;
+    private static String skinHome=SkinProperties.getSkinHome();
     private static final Collection<String> videoimageExtensions = new ArrayList<String>();
     private static String videoimageToken;
     private static boolean videoimageOverwrite;
@@ -64,7 +65,6 @@ public class VideoImageScanner {
             videoimageExtensions.add(st.nextToken());
         }
 
-        skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
         videoimageToken = PropertiesUtil.getProperty("videoimage.scanner.videoimageToken", ".videoimage");
         videoimageOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceVideoImagesOverwrite", FALSE);
     }

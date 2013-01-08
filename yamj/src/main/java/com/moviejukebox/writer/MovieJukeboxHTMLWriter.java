@@ -58,7 +58,7 @@ public class MovieJukeboxHTMLWriter {
     private static final String EXT_XSL = ".xsl";
     private boolean forceHTMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", FALSE);
     private String peopleFolder;
-    private static String skinHome = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
+    private static String skinHome = SkinProperties.getSkinHome();
     private static TransformerFactory transformerFactory = TransformerFactory.newInstance();
     private static String playlistIgnoreExtensions = PropertiesUtil.getProperty("mjb.playlist.IgnoreExtensions", "iso,img");
     private static File playlistFile = new File("playlist.xsl");
