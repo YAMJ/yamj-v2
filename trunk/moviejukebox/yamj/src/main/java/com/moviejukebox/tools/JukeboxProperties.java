@@ -46,8 +46,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Save a pre-defined list of attributes of the jukebox and properties for use in subsequent processing runs to
- * determine if an attribute has changed and force a rescan of the appropriate data
+ * Save a pre-defined list of attributes of the jukebox and properties for use
+ * in subsequent processing runs to determine if an attribute has changed and
+ * force a rescan of the appropriate data
  *
  * @author stuart.boston
  *
@@ -212,9 +213,10 @@ public class JukeboxProperties {
     }
 
     /**
-     * Check to see if the file needs to be processed (if it exists) or just created Note: This *MIGHT* cause issues
-     * with some programs that assume all XML files in the jukebox folder are videos or indexes. However, they should
-     * just deal with this themselves :-)
+     * Check to see if the file needs to be processed (if it exists) or just
+     * created Note: This *MIGHT* cause issues with some programs that assume
+     * all XML files in the jukebox folder are videos or indexes. However, they
+     * should just deal with this themselves :-)
      *
      * @param jukebox
      * @param mediaLibraryPaths
@@ -391,7 +393,8 @@ public class JukeboxProperties {
     }
 
     /**
-     * Determine the file date from the passed filename, if the filename is invalid return UNKNOWN
+     * Determine the file date from the passed filename, if the filename is
+     * invalid return UNKNOWN
      *
      * @param tempFilename
      * @return
@@ -411,7 +414,8 @@ public class JukeboxProperties {
     }
 
     /**
-     * Read the attributes from the file and compare and set any force overwrites needed
+     * Read the attributes from the file and compare and set any force
+     * overwrites needed
      *
      * @param mjbDetails
      * @param mediaLibraryPaths
@@ -499,8 +503,10 @@ public class JukeboxProperties {
     }
 
     /**
-     * Compare the current XML file details with the stored ones Any errors with this check will return TRUE to ensure
-     * no properties are overwritten
+     * Compare the current XML file details with the stored ones.
+     *
+     * Any errors with this check will return TRUE to ensure no properties are
+     * overwritten
      *
      * @param eJukebox
      * @return
@@ -513,21 +519,21 @@ public class JukeboxProperties {
             // Check to see if the filenames are the same
             if (!jukeboxFilename.equals(getProperty(xmlFileProperty, Movie.UNKNOWN))) {
                 // Filenames don't match
-                return false;
+                return Boolean.FALSE;
             }
 
             // Check to see if the file dates have changed.
             String tempFileDate = getFileDate(jukeboxFilename);
             if (!tempFileDate.equals(jukeboxDate)) {
-                return false;
+                return Boolean.FALSE;
             }
-        } catch (Exception ignore) {
+        } catch (Exception ex) {
             logger.warn(LOG_MESSAGE + "Error validating " + jukeboxPropertyCategory);
-            return true;
+            return Boolean.TRUE;
         }
 
         // All the tests pass, so these are the same
-        return true;
+        return Boolean.TRUE;
     }
 
     /**
