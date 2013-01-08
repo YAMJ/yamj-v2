@@ -185,6 +185,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private boolean isSetMaster = Boolean.FALSE;    // True if movie actually is only a entry point to movies set.
     private int setSize = 0;                        // Amount of movies in set
     private MovieDatabasePlugin movieScanner = null;
+    private boolean skipped = Boolean.FALSE;
 
     /*
      * --------------------------------------------------------------------------------
@@ -200,6 +201,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
+    public void setSkipped (Boolean skipped) {
+        this.skipped = skipped;
+    }
+    
+    public boolean isSkipped() {
+        return skipped;
+    }
+    
     public void setMjbVersion(String mjbVersion) {
         if (StringTools.isNotValidString(mjbVersion)) {
             this.mjbVersion = SystemTools.getVersion();

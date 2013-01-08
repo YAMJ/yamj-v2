@@ -32,6 +32,10 @@ import org.apache.commons.lang3.StringUtils;
 public enum DirtyFlag {
 
     /**
+     * This is a new movie
+     */
+    NEW,
+    /**
      * The NFO information has changed
      */
     NFO,

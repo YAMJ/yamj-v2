@@ -925,97 +925,103 @@ public class MovieJukebox {
                             JukeboxStatistics.increment(JukeboxStatistic.NEW_VIDEOS);
                         }
 
-                        // First get movie data (title, year, director, genre, etc...)
-                        library.toggleDirty(updateMovieData(xmlReader, tools.miScanner, tools.backgroundPlugin, jukebox, movie, library));
-
-                        if (!movie.getMovieType().equals(Movie.REMOVE)) {
-                            // Check for watched and unwatched files
-                            if (enableWatchScanner) { // Issue 1938
-                                library.toggleDirty(WatchedScanner.checkWatched(jukebox, movie));
-                            }
-
-                            // Get subtitle
-                            tools.subtitlePlugin.generate(movie);
-
-                            // RottenTomatoes Ratings
-                            if (!movie.isTVShow() && enableRottenTomatoes) {
-                                tools.rtPlugin.scan(movie);
-                            }
-
-                            // Get Trailers
-                            if (trailersScannerEnable) {
-                                tools.trailerScanner.getTrailers(movie);
-                            }
-
-                            // Then get this movie's poster
-                            logger.debug("Updating poster for: " + movieTitleExt);
-                            updateMoviePoster(jukebox, movie);
-
-                            // Download episode images if required
-                            if (videoimageDownload) {
-                                VideoImageScanner.scan(tools.imagePlugin, jukebox, movie);
-                            }
-
-                            // Get Fanart only if requested
-                            // Note that the FanartScanner will check if the file is newer / different
-                            if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
-                                FanartScanner.scan(tools.backgroundPlugin, jukebox, movie);
-                            }
-
-                            // Get Banner if requested and is a TV show
-                            if (bannerDownload && movie.isTVShow()) {
-                                if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
-                                    updateTvBanner(jukebox, movie, tools.imagePlugin);
+                        if (MovieLimit.getToken()) {
+                        
+                            // First get movie data (title, year, director, genre, etc...)
+                            library.toggleDirty(updateMovieData(xmlReader, tools.miScanner, tools.backgroundPlugin, jukebox, movie, library));
+    
+                            if (!movie.getMovieType().equals(Movie.REMOVE)) {
+                                // Check for watched and unwatched files
+                                if (enableWatchScanner) { // Issue 1938
+                                    library.toggleDirty(WatchedScanner.checkWatched(jukebox, movie));
                                 }
-                            }
-
-                            // Get ClearART/LOGOS/etc
-                            if (movie.isTVShow()) {
-                                // Only scan using the TV Show artwork scanners
-                                tools.clearArtScanner.scan(jukebox, movie);
-                                tools.clearLogoScanner.scan(jukebox, movie);
-                                tools.tvThumbScanner.scan(jukebox, movie);
-                                tools.seasonThumbScanner.scan(jukebox, movie);
+    
+                                // Get subtitle
+                                tools.subtitlePlugin.generate(movie);
+    
+                                // RottenTomatoes Ratings
+                                if (!movie.isTVShow() && enableRottenTomatoes) {
+                                    tools.rtPlugin.scan(movie);
+                                }
+    
+                                // Get Trailers
+                                if (trailersScannerEnable) {
+                                    tools.trailerScanner.getTrailers(movie);
+                                }
+    
+                                // Then get this movie's poster
+                                logger.debug("Updating poster for: " + movieTitleExt);
+                                updateMoviePoster(jukebox, movie);
+    
+                                // Download episode images if required
+                                if (videoimageDownload) {
+                                    VideoImageScanner.scan(tools.imagePlugin, jukebox, movie);
+                                }
+    
+                                // Get Fanart only if requested
+                                // Note that the FanartScanner will check if the file is newer / different
+                                if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
+                                    FanartScanner.scan(tools.backgroundPlugin, jukebox, movie);
+                                }
+    
+                                // Get Banner if requested and is a TV show
+                                if (bannerDownload && movie.isTVShow()) {
+                                    if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
+                                        updateTvBanner(jukebox, movie, tools.imagePlugin);
+                                    }
+                                }
+    
+                                // Get ClearART/LOGOS/etc
+                                if (movie.isTVShow()) {
+                                    // Only scan using the TV Show artwork scanners
+                                    tools.clearArtScanner.scan(jukebox, movie);
+                                    tools.clearLogoScanner.scan(jukebox, movie);
+                                    tools.tvThumbScanner.scan(jukebox, movie);
+                                    tools.seasonThumbScanner.scan(jukebox, movie);
+                                } else {
+                                    // Only scan using the Movie artwork scanners
+                                    tools.movieArtScanner.scan(jukebox, movie);
+                                    tools.movieDiscScanner.scan(jukebox, movie);
+                                    tools.movieLogoScanner.scan(jukebox, movie);
+                                }
+    
+                                for (int i = 0; i < footerCount; i++) {
+                                    if (footerEnable.get(i)) {
+                                        updateFooter(jukebox, movie, tools.imagePlugin, i, forceFooterOverwrite || movie.isDirty());
+                                    }
+                                }
+    
+                                // If we are multipart, we need to make sure all archives have expanded names.
+                                if (PropertiesUtil.getBooleanProperty("mjb.scanner.mediainfo.rar.extended.url", Boolean.FALSE.toString())) {
+    
+                                    Collection<MovieFile> partsFiles = movie.getFiles();
+                                    for (MovieFile mf : partsFiles) {
+                                        String filename;
+    
+                                        filename = mf.getFile().getAbsolutePath();
+    
+                                        // Check the filename is a mediaInfo extension (RAR, ISO) ?
+                                        if (tools.miScanner.extendedExtention(filename) == Boolean.TRUE) {
+    
+                                            if (mf.getArchiveName() == null) {
+                                                logger.debug("MovieJukebox: Attempting to get Archivename for " + filename);
+                                                String archive = tools.miScanner.archiveScan(movie, filename);
+                                                if (archive != null) {
+                                                    logger.debug("MovieJukebox: Setting archive name to " + archive);
+                                                    mf.setArchiveName(archive);
+                                                } // got archivename
+                                            } // not already set
+                                        } // is extension
+                                    } // for all files
+                                } // property is set
                             } else {
-                                // Only scan using the Movie artwork scanners
-                                tools.movieArtScanner.scan(jukebox, movie);
-                                tools.movieDiscScanner.scan(jukebox, movie);
-                                tools.movieLogoScanner.scan(jukebox, movie);
+                                library.remove(movie);
                             }
-
-                            for (int i = 0; i < footerCount; i++) {
-                                if (footerEnable.get(i)) {
-                                    updateFooter(jukebox, movie, tools.imagePlugin, i, forceFooterOverwrite || movie.isDirty());
-                                }
-                            }
-
-                            // If we are multipart, we need to make sure all archives have expanded names.
-                            if (PropertiesUtil.getBooleanProperty("mjb.scanner.mediainfo.rar.extended.url", Boolean.FALSE.toString())) {
-
-                                Collection<MovieFile> partsFiles = movie.getFiles();
-                                for (MovieFile mf : partsFiles) {
-                                    String filename;
-
-                                    filename = mf.getFile().getAbsolutePath();
-
-                                    // Check the filename is a mediaInfo extension (RAR, ISO) ?
-                                    if (tools.miScanner.extendedExtention(filename) == Boolean.TRUE) {
-
-                                        if (mf.getArchiveName() == null) {
-                                            logger.debug("MovieJukebox: Attempting to get Archivename for " + filename);
-                                            String archive = tools.miScanner.archiveScan(movie, filename);
-                                            if (archive != null) {
-                                                logger.debug("MovieJukebox: Setting archive name to " + archive);
-                                                mf.setArchiveName(archive);
-                                            } // got archivename
-                                        } // not already set
-                                    } // is extension
-                                } // for all files
-                            } // property is set
+                            logger.info("Finished: " + movieTitleExt + " (" + count + "/" + library.size() + ")");
                         } else {
-                            library.remove(movie);
-                        }
-                        logger.info("Finished: " + movieTitleExt + " (" + count + "/" + library.size() + ")");
+                            movie.setSkipped(true);
+                            logger.info("Skipped: " + movieTitleExt + " (" + count + "/" + library.size() + ")");
+                        }                            
                         // Show memory every (processing count) movies
                         if (showMemory && (count % maxThreadsProcess) == 0) {
                             SystemTools.showMemory();
@@ -1037,7 +1043,7 @@ public class MovieJukebox {
 
             JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.PROCESSING_END, System.currentTimeMillis());
 
-            if (peopleScan && peopleScrape) {
+            if (peopleScan && peopleScrape && ! MovieLimit.isLimitReached()) {
                 logger.info("Searching for people information...");
                 int peopleCounter = 0;
                 TreeMap<String, Person> popularPeople = new TreeMap<String, Person>();
@@ -1465,6 +1471,10 @@ public class MovieJukebox {
                 if (movie.isExtra() && !processExtras) {
                     continue;
                 }
+                
+                if (movie.isSkipped()) {
+                    continue;
+                }
 
                 // Multi-tread: Start Parallel Processing
                 tasks.submit(new Callable<Void>() {
@@ -1692,7 +1702,12 @@ public class MovieJukebox {
         boolean cleanReport = PropertiesUtil.getBooleanProperty("mjb.jukeboxCleanReport", FALSE);
 
         if (jukeboxClean) {
-            logger.info("Cleaning up the jukebox directory...");
+            if (MovieLimit.isLimitReached()) {
+                logger.info("Jukebox cleaning skipped as movie limit was reached");
+                return;
+            } else {
+                logger.info("Cleaning up the jukebox directory...");
+            }
         } else if (cleanReport) {
             logger.info("Jukebox cleaning skipped, the following files are orphaned (not used anymore):");
         } else {
@@ -1887,6 +1902,7 @@ public class MovieJukebox {
             if (forceXMLOverwrite) {
                 logger.debug("Rescanning internet for information on " + movie.getBaseName());
             } else {
+                movie.setDirty(DirtyFlag.NEW); // Set a dirty flag so that caller knows we spent time processing the movie
                 logger.debug("Jukebox XML file not found: " + xmlFile.getAbsolutePath());
                 logger.debug("Scanning for information on " + movie.getBaseName());
             }
