@@ -5,6 +5,7 @@
 MovieJukebox 2.9-SNAPSHOT
 -------------------------
  - Fixed defect #1721 Get last certification for country from IMDB instead first one found
+ - Fixed defect #2008 Remove HTML tags from allocine TV episode plots
  - Enhancement  #2035 MediaInfo can determine a 3D video source
  - Fixed defect #2088 Listing plugin size fix for seasons
  - Fixed defect #2321 Countries with accent will be scraped from FilmAffinity

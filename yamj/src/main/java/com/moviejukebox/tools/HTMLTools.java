@@ -621,7 +621,11 @@ public class HTMLTools {
     }
 
     public static String removeHtmlTags(String src) {
-        return src.replaceAll("\\<.*?>", "");
+        return replaceHtmlTags(src, "");
+    }
+
+    public static String replaceHtmlTags(String src, String replacement) {
+        return src.replaceAll("\\<.*?>", replacement);
     }
 
     public static String stripTags(String s) {
