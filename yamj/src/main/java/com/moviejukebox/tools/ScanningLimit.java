@@ -23,10 +23,10 @@ import org.apache.log4j.Logger;
  *
  * @author iuk
  */
-public class MovieLimit {
+public class ScanningLimit {
 
-    private static final Logger LOGGER = Logger.getLogger(MovieLimit.class);
-    private static final String LOG_MESSAGE = "MovieLimit: ";
+    private static final Logger LOGGER = Logger.getLogger(ScanningLimit.class);
+    private static final String LOG_MESSAGE = "ScanningLimit: ";
     private static final int CHECK_MAX = PropertiesUtil.getIntProperty("mjb.check.max", "0");
     private static int tokensUsed = 0;
     private static boolean limitReached = Boolean.FALSE;
@@ -44,13 +44,22 @@ public class MovieLimit {
 
         if (tokensUsed < CHECK_MAX) {
             tokensUsed++;
-            LOGGER.debug(LOG_MESSAGE + "Got token (" + (CHECK_MAX - tokensUsed) + " left)");
+            LOGGER.trace(LOG_MESSAGE + "Got token (" + (CHECK_MAX - tokensUsed) + " left)");
         } else {
-            LOGGER.debug(LOG_MESSAGE + "Token refused, maximum limit reached");
+            LOGGER.debug(LOG_MESSAGE + "Maximum scan limit of " + CHECK_MAX + " reached");
             limitReached = Boolean.TRUE;
         }
         // Return value: Was the token assigned
         return (!limitReached);
+    }
+
+    /**
+     * Get the limit for scanning
+     *
+     * @return
+     */
+    public static int getLimit() {
+        return CHECK_MAX;
     }
 
     /**

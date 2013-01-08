@@ -65,6 +65,7 @@ public class JukeboxProperties {
     private static final String CATEGORY = "Category";
     private static final String GENRE = "Genre";
     private static final String CERTIFICATION = "Certification";
+    private static boolean scanningLimitReached = Boolean.FALSE;   // Were videos skipped during processing?
 
     static {
         propInfo.add(new PropertyInformation("userPropertiesName", EnumSet.noneOf(PropertyOverwrites.class)));
@@ -302,6 +303,9 @@ public class JukeboxProperties {
 
             // Save the library paths. This isn't very accurate, any change to this file will cause the jukebox to be rebuilt
             DOMHelper.appendChild(docMjbDetails, eJukebox, "LibraryPath", mediaLibraryPaths.toString());
+
+            // Save the information about any videos that were skipped
+            DOMHelper.appendChild(docMjbDetails, eJukebox, "ScanningLimitReached", Boolean.toString(scanningLimitReached));
 
             // Save the Categories file details
             writeGenericXmlFileDetails("mjb.xmlCategoryFile", CATEGORY, docMjbDetails, eJukebox);
@@ -559,5 +563,23 @@ public class JukeboxProperties {
      */
     public static boolean isMonitor() {
         return MONITOR;
+    }
+
+    /**
+     * Were videos skipped during the processing
+     *
+     * @return
+     */
+    public static boolean isScanningLimitReached() {
+        return scanningLimitReached;
+    }
+
+    /**
+     * Set the skipped videos flag
+     *
+     * @param scanningLimitReached
+     */
+    public static void setScanningLimitReached(boolean scanningLimitReached) {
+        JukeboxProperties.scanningLimitReached = scanningLimitReached;
     }
 }
