@@ -1026,7 +1026,11 @@ public class MovieJukebox {
                                         } // is extension
                                     } // for all files
                                 } // property is set
+                                if (! movie.isDirty()) {
+                                    ScanningLimit.releaseToken();
+                                }
                             } else {
+                                ScanningLimit.releaseToken();
                                 library.remove(movie);
                             }
                             logger.info("Finished: " + movieTitleExt + " (" + count + "/" + library.size() + ")");
