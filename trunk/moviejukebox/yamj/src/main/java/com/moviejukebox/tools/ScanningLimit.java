@@ -27,7 +27,7 @@ public class ScanningLimit {
 
     private static final Logger LOGGER = Logger.getLogger(ScanningLimit.class);
     private static final String LOG_MESSAGE = "ScanningLimit: ";
-    private static final int CHECK_MAX = PropertiesUtil.getIntProperty("mjb.check.max", "0");
+    private static final int CHECK_MAX = PropertiesUtil.getIntProperty("mjb.check.Max", "0");
     private static int tokensUsed = 0;
     private static boolean limitReached = Boolean.FALSE;
 
@@ -66,8 +66,10 @@ public class ScanningLimit {
      * Release a token back into the pool
      */
     public static synchronized void releaseToken() {
-        tokensUsed--;
-        LOGGER.debug(LOG_MESSAGE + "Released token (" + (CHECK_MAX - tokensUsed) + " left)");
+        if (CHECK_MAX > 0) {
+            tokensUsed--;
+            LOGGER.trace(LOG_MESSAGE + "Released token (" + (CHECK_MAX - tokensUsed) + " left)");
+        }
     }
 
     /**
