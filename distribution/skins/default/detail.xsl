@@ -460,7 +460,7 @@ var curFocus = "";
               </tr>
             </xsl:for-each>
           </xsl:when>
-          <xsl:when test="//movie/container = 'BDAV' and //movie/season = -1">
+          <xsl:when test="(//movie/format = 'BLURAY' or //movie/format = 'DVD')  and //movie/season = -1">
             <tr>
               <td align="center">
                 <a class="link">
