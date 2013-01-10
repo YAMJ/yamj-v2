@@ -1915,7 +1915,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setTrailerLastScan(String lastScan) {
         try {
             if (StringTools.isValidString(lastScan)) {
-                setTrailerLastScan(DateTime.parse(lastScan).getSeconds());
+                setTrailerLastScan(DateTime.parse(lastScan).toMillis());
             } else {
                 setTrailerLastScan(0);
             }
