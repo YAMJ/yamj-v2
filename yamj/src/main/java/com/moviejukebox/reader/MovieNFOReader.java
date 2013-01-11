@@ -67,7 +67,7 @@ public class MovieNFOReader {
     private static final String XML_START = "<";
     private static final String XML_END = "</";
     private static final String TEXT_FAILED = "Failed parsing NFO file: ";
-    private static final String TEXT_FIXIT = ". Does not seem to be an XML format.";
+    private static final String TEXT_FIXIT = ". Does not seem to be an XML format. Error: ";
     private static boolean skipNfoUrl = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", TRUE);
     private static boolean skipNfoTrailer = PropertiesUtil.getBooleanProperty("filename.nfo.skipTrailer", FALSE);
     private static AspectRatioTools aspectTools = new AspectRatioTools();
@@ -81,11 +81,19 @@ public class MovieNFOReader {
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
     // Max People values
     private static final int MAX_COUNT_ACTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", "10");
-    
+
+    /**
+     * This is a utility class and cannot be instantiated.
+     */
+    private MovieNFOReader() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     /**
      * Try and read a NFO file for information
      *
-     * First try as XML format file, then check to see if it contains XML and text and split it to read each part
+     * First try as XML format file, then check to see if it contains XML and
+     * text and split it to read each part
      *
      * @param nfoFile
      * @param movie
@@ -109,7 +117,6 @@ public class MovieNFOReader {
 
         // If it has XML in it, but didn't parse correctly, try splitting it out
         if (hasXml && !parsedNfo) {
-//            StringUtils.indexOfAny(nfoText.toLowerCase(), [[TYPE_MOVIE], [TYPE_TVSHOW],[TYPE_EPISODE]]);
             int posMovie = findPosition(nfoText, TYPE_MOVIE);
             int posTv = findPosition(nfoText, TYPE_TVSHOW);
             int posEp = findPosition(nfoText, TYPE_EPISODE);
@@ -177,7 +184,8 @@ public class MovieNFOReader {
     /**
      * Used to parse out the XML NFO data from a file.
      *
-     * This is generic for movie and TV show files as they are both nearly identical.
+     * This is generic for movie and TV show files as they are both nearly
+     * identical.
      *
      * @param nfoFile
      * @param movie
@@ -215,7 +223,7 @@ public class MovieNFOReader {
 
                     // Check to see if the URL has <fanart> at the beginning and ignore it if it does (Issue 706)
                     if ((currentUrlStartIndex < 8)
-                            || (new String(nfo.substring(currentUrlStartIndex - 8, currentUrlStartIndex)).compareToIgnoreCase("<fanart>") != 0)) {
+                            || (nfo.substring(currentUrlStartIndex - 8, currentUrlStartIndex).compareToIgnoreCase("<fanart>") != 0)) {
                         String foundUrl = new String(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
 
                         // Check for some invalid characters to see if the URL is valid
@@ -270,19 +278,19 @@ public class MovieNFOReader {
                 xmlDoc = DOMHelper.getDocFromFile(nfoFile);
             }
         } catch (SAXParseException ex) {
-            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT);
+            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
             return Boolean.FALSE;
         } catch (MalformedURLException ex) {
-            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT);
+            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
             return Boolean.FALSE;
         } catch (IOException ex) {
-            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT);
+            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
             return Boolean.FALSE;
         } catch (ParserConfigurationException ex) {
-            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT);
+            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
             return Boolean.FALSE;
         } catch (SAXException ex) {
-            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT);
+            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
             return Boolean.FALSE;
         }
 
@@ -736,7 +744,7 @@ public class MovieNFOReader {
 
         // count for already set actors
         int count = 0;
-        
+
         for (int actorLoop = 0; actorLoop < nlElements.getLength(); actorLoop++) {
             // Get all the name/role/thumb nodes
             Node nActors = nlElements.item(actorLoop);
@@ -748,38 +756,44 @@ public class MovieNFOReader {
             String aThumb = Movie.UNKNOWN;
             Boolean firstActor = Boolean.TRUE;
 
-            for (int looper = 0; looper < nlCast.getLength(); looper++) {
-                nElement = nlCast.item(looper);
-                if (nElement.getNodeType() == Node.ELEMENT_NODE) {
-                    Element eCast = (Element) nElement;
-                    if (eCast.getNodeName().equalsIgnoreCase("name")) {
-                        if (firstActor) {
-                            firstActor = Boolean.FALSE;
-                        } else {
-                            if (overrideActors) {
-                                movie.addActor(aName, NFO_PLUGIN_ID);
-                            }
-                            if (overridePeopleActors && (count < MAX_COUNT_ACTOR)) {
-                                if (movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID)) {
-                                    count++;
+            if (StringUtils.isBlank(nActors.getTextContent())) {
+                for (int looper = 0; looper < nlCast.getLength(); looper++) {
+                    nElement = nlCast.item(looper);
+                    if (nElement.getNodeType() == Node.ELEMENT_NODE) {
+                        Element eCast = (Element) nElement;
+                        if (eCast.getNodeName().equalsIgnoreCase("name")) {
+                            if (firstActor) {
+                                firstActor = Boolean.FALSE;
+                            } else {
+                                if (overrideActors) {
+                                    movie.addActor(aName, NFO_PLUGIN_ID);
+                                }
+                                if (overridePeopleActors && (count < MAX_COUNT_ACTOR)) {
+                                    if (movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID)) {
+                                        count++;
+                                    }
                                 }
                             }
+                            aName = eCast.getTextContent();
+                            aRole = Movie.UNKNOWN;
+                            aThumb = Movie.UNKNOWN;
+                        } else if (eCast.getNodeName().equalsIgnoreCase("role")) {
+                            aRole = eCast.getTextContent();
+                        } else if (eCast.getNodeName().equalsIgnoreCase("thumb")) {
+                            aThumb = eCast.getTextContent();
                         }
-                        aName = eCast.getTextContent();
-                        aRole = Movie.UNKNOWN;
-                        aThumb = Movie.UNKNOWN;
-                    } else if (eCast.getNodeName().equalsIgnoreCase("role")) {
-                        aRole = eCast.getTextContent();
-                    } else if (eCast.getNodeName().equalsIgnoreCase("thumb")) {
-                        aThumb = eCast.getTextContent();
+                        // There's a case where there might be a different node here that isn't name, role or thumb, but that will be ignored
                     }
-                    // There's a case where there might be a different node here that isn't name, role or thumb, but that will be ignored
                 }
+            } else {
+                // This looks like a Mede8er node in the "<actor>Actor Name</actor>" format, so just get the text element
+                aName = nActors.getTextContent();
             }
 
             if (overrideActors) {
                 movie.addActor(aName, NFO_PLUGIN_ID);
             }
+
             if (overridePeopleActors && (count < MAX_COUNT_ACTOR)) {
                 if (movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID)) {
                     count++;
