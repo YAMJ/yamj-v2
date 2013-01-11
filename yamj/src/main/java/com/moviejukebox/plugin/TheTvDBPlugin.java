@@ -122,118 +122,85 @@ public class TheTvDBPlugin extends ImdbPlugin {
             if (series == null) {
                 logger.debug(LOG_MESSAGE + "No series information found for " + movie.getTitle());
             } else {
-                try {
-                    if (OverrideTools.checkOverwriteTitle(movie, THETVDB_PLUGIN_ID)) {
-                        movie.setTitle(series.getSeriesName(), THETVDB_PLUGIN_ID);
-                    }
-                    if (OverrideTools.checkOverwriteOriginalTitle(movie, THETVDB_PLUGIN_ID)) {
-                        movie.setOriginalTitle(series.getSeriesName(), THETVDB_PLUGIN_ID);
-                    }
+                if (OverrideTools.checkOverwriteTitle(movie, THETVDB_PLUGIN_ID)) {
+                    movie.setTitle(series.getSeriesName(), THETVDB_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwriteOriginalTitle(movie, THETVDB_PLUGIN_ID)) {
+                    movie.setOriginalTitle(series.getSeriesName(), THETVDB_PLUGIN_ID);
+                }
 
-                    if (OverrideTools.checkOverwriteYear(movie, THETVDB_PLUGIN_ID)) {
-                        String year = Movie.UNKNOWN;
+                if (OverrideTools.checkOverwriteYear(movie, THETVDB_PLUGIN_ID)) {
+                    String year = Movie.UNKNOWN;
 
-                        ThreadExecutor.enterIO(webhost);
-                        try {
-                            year = tvDB.getSeasonYear(id, movie.getSeason(), language);
-                            if (StringTools.isNotValidString(year) && StringTools.isValidString(language2nd)) {
-                                year = tvDB.getSeasonYear(id, movie.getSeason(), language2nd);
-                            }
-                        } finally {
-                            ThreadExecutor.leaveIO();
+                    ThreadExecutor.enterIO(webhost);
+                    try {
+                        year = tvDB.getSeasonYear(id, movie.getSeason(), language);
+                        if (StringTools.isNotValidString(year) && StringTools.isValidString(language2nd)) {
+                            year = tvDB.getSeasonYear(id, movie.getSeason(), language2nd);
                         }
-
-                        movie.setYear(year, THETVDB_PLUGIN_ID);
+                    } finally {
+                        ThreadExecutor.leaveIO();
                     }
 
-                    if (OverrideTools.checkOverwriteReleaseDate(movie, THETVDB_PLUGIN_ID)) {
-                        // Set the release date to be the series first aired date
-                        movie.setReleaseDate(series.getFirstAired(), THETVDB_PLUGIN_ID);
-                    }
+                    movie.setYear(year, THETVDB_PLUGIN_ID);
+                }
 
-                    if (isNotValidString(movie.getShowStatus())) {
-                        // Set the show status
-                        movie.setShowStatus(series.getStatus());
-                    }
+                if (OverrideTools.checkOverwriteReleaseDate(movie, THETVDB_PLUGIN_ID)) {
+                    // Set the release date to be the series first aired date
+                    movie.setReleaseDate(series.getFirstAired(), THETVDB_PLUGIN_ID);
+                }
 
-                    if (movie.getRating(THETVDB_PLUGIN_ID) == -1 && series.getRating() != null && !series.getRating().isEmpty()) {
+                if (isNotValidString(movie.getShowStatus())) {
+                    // Set the show status
+                    movie.setShowStatus(series.getStatus());
+                }
+
+                if (movie.getRating(THETVDB_PLUGIN_ID) == -1 && StringUtils.isNotBlank(series.getRating())) {
+                    try {
                         movie.addRating(THETVDB_PLUGIN_ID, (int) (Float.parseFloat(series.getRating()) * 10));
+                    } catch (NumberFormatException ex) {
+                        logger.trace(LOG_MESSAGE + "Failed to transform rating for series id " + series.getId() + " = '" + series.getRating() + "', Error: " + ex.getMessage());
                     }
+                }
 
-                    if (OverrideTools.checkOverwriteRuntime(movie, THETVDB_PLUGIN_ID)) {
-                        movie.setRuntime(series.getRuntime(), THETVDB_PLUGIN_ID);
+                if (OverrideTools.checkOverwriteRuntime(movie, THETVDB_PLUGIN_ID)) {
+                    movie.setRuntime(series.getRuntime(), THETVDB_PLUGIN_ID);
+                }
+
+                if (OverrideTools.checkOverwriteCompany(movie, THETVDB_PLUGIN_ID)) {
+                    movie.setCompany(series.getNetwork(), THETVDB_PLUGIN_ID);
+                }
+
+                if (OverrideTools.checkOverwriteGenres(movie, THETVDB_PLUGIN_ID)) {
+                    movie.setGenres(series.getGenres(), THETVDB_PLUGIN_ID);
+                }
+
+                if (OverrideTools.checkOverwritePlot(movie, THETVDB_PLUGIN_ID)) {
+                    movie.setPlot(series.getOverview(), THETVDB_PLUGIN_ID);
+                }
+
+                if (OverrideTools.checkOverwriteCertification(movie, THETVDB_PLUGIN_ID)) {
+                    movie.setCertification(series.getContentRating(), THETVDB_PLUGIN_ID);
+                }
+
+                if (OverrideTools.checkOverwriteActors(movie, THETVDB_PLUGIN_ID)) {
+                    movie.setCast(series.getActors(), THETVDB_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwritePeopleActors(movie, THETVDB_PLUGIN_ID)) {
+                    movie.setPeopleCast(series.getActors(), THETVDB_PLUGIN_ID);
+                }
+
+                if (includeWideBanners && isNotValidString(movie.getBannerURL()) || (forceBannerOverwrite) || movie.isDirty(DirtyFlag.BANNER)) {
+                    String bannerUrl = getBanner(movie);
+
+                    if (StringTools.isValidString(bannerUrl)) {
+                        movie.setBannerURL(bannerUrl);
+
+                        ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, movie.getBannerFilename(), false);
+                        Artwork artwork = new Artwork(ArtworkType.Banner, THETVDB_PLUGIN_ID, bannerUrl, artworkFile);
+                        movie.addArtwork(artwork);
+                        logger.debug(LOG_MESSAGE + "Used banner " + bannerUrl);
                     }
-
-                    if (OverrideTools.checkOverwriteCompany(movie, THETVDB_PLUGIN_ID)) {
-                        movie.setCompany(series.getNetwork(), THETVDB_PLUGIN_ID);
-                    }
-
-                    if (OverrideTools.checkOverwriteGenres(movie, THETVDB_PLUGIN_ID)) {
-                        movie.setGenres(series.getGenres(), THETVDB_PLUGIN_ID);
-                    }
-
-                    if (OverrideTools.checkOverwritePlot(movie, THETVDB_PLUGIN_ID)) {
-                        movie.setPlot(series.getOverview(), THETVDB_PLUGIN_ID);
-                    }
-
-                    if (OverrideTools.checkOverwriteCertification(movie, THETVDB_PLUGIN_ID)) {
-                        movie.setCertification(series.getContentRating(), THETVDB_PLUGIN_ID);
-                    }
-
-                    if (OverrideTools.checkOverwriteActors(movie, THETVDB_PLUGIN_ID)) {
-                        movie.setCast(series.getActors(), THETVDB_PLUGIN_ID);
-                    }
-                    if (OverrideTools.checkOverwritePeopleActors(movie, THETVDB_PLUGIN_ID)) {
-                        movie.setPeopleCast(series.getActors(), THETVDB_PLUGIN_ID);
-                    }
-
-                    if (includeWideBanners && isNotValidString(movie.getBannerURL()) || (forceBannerOverwrite) || movie.isDirty(DirtyFlag.BANNER)) {
-                        Banners banners = getBanners(id);
-
-                        final int season = movie.getSeason();
-                        String urlBanner = null;
-
-                        // If we are adding the "Season ?" text to a banner, try searching for these first
-                        if (textBanners && !banners.getSeriesList().isEmpty()) {
-                            // Trying to grab localized banner at first...
-                            urlBanner = findBannerURL2(banners, BannerType.Blank, language, season);
-                            // In a case of failure - trying to grab banner in alternative language.
-                            if (StringTools.isNotValidString(urlBanner) && StringTools.isValidString(language2nd)) {
-                                urlBanner = findBannerURL2(banners, BannerType.Blank, language2nd, season);
-                            }
-                        }
-
-                        // Get the specific season banners. If a season banner can't be found, then a generic series banner will be used
-                        if (!onlySeriesBanners && !banners.getSeasonList().isEmpty()) {
-                            // Trying to grab localized banner at first...
-                            urlBanner = findBannerURL(banners, BannerType.SeasonWide, language, season);
-                            // In a case of failure - trying to grab banner in alternative language.
-                            if (urlBanner == null) {
-                                urlBanner = findBannerURL(banners, BannerType.SeasonWide, language2nd, season);
-                            }
-                        }
-
-                        // If we didn't find a season banner or only want series banners, check for a series banner
-                        if (urlBanner == null && !banners.getSeriesList().isEmpty()) {
-                            urlBanner = findBannerURL2(banners, BannerType.Graphical, language, season);
-                            // In a case of failure - trying to grab banner in alternative language.
-                            if (urlBanner == null) {
-                                urlBanner = findBannerURL2(banners, BannerType.Graphical, language2nd, season);
-                            }
-                        }
-
-                        if (urlBanner != null) {
-                            movie.setBannerURL(urlBanner);
-
-                            ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, movie.getBannerFilename(), false);
-                            Artwork artwork = new Artwork(ArtworkType.Banner, THETVDB_PLUGIN_ID, urlBanner, artworkFile);
-                            movie.addArtwork(artwork);
-                            logger.debug(LOG_MESSAGE + "Used banner " + urlBanner);
-                        }
-                    }
-                } catch (Exception error) {
-                    logger.error(LOG_MESSAGE + "Failed to retrieve TheTvDb Id for show: " + movie.getTitle());
-                    logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
                 }
 
                 getFanart(movie);
@@ -243,6 +210,53 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
 
         return true;
+    }
+
+    /**
+     * Get the Banner URL from TheTVDB
+     *
+     * @param movie
+     * @return
+     */
+    public String getBanner(Movie movie) {
+        Banners banners = getBanners(movie.getId(THETVDB_PLUGIN_ID));
+
+        int season = movie.getSeason();
+        String urlBanner = null;
+
+        // If we are adding the "Season ?" text to a banner, try searching for these first
+        if (textBanners && !banners.getSeriesList().isEmpty()) {
+            // Trying to grab localized banner at first...
+            urlBanner = findBannerURL2(banners, BannerType.Blank, language, season);
+            // In a case of failure - trying to grab banner in alternative language.
+            if (StringTools.isNotValidString(urlBanner) && StringTools.isValidString(language2nd)) {
+                urlBanner = findBannerURL2(banners, BannerType.Blank, language2nd, season);
+            }
+        }
+
+        // Get the specific season banners. If a season banner can't be found, then a generic series banner will be used
+        if (!onlySeriesBanners && !banners.getSeasonList().isEmpty()) {
+            // Trying to grab localized banner at first...
+            urlBanner = findBannerURL(banners, BannerType.SeasonWide, language, season);
+            // In a case of failure - trying to grab banner in alternative language.
+            if (StringUtils.isBlank(urlBanner)) {
+                urlBanner = findBannerURL(banners, BannerType.SeasonWide, language2nd, season);
+            }
+        }
+
+        // If we didn't find a season banner or only want series banners, check for a series banner
+        if (StringUtils.isBlank(urlBanner) && !banners.getSeriesList().isEmpty()) {
+            urlBanner = findBannerURL2(banners, BannerType.Graphical, language, season);
+            // In a case of failure - trying to grab banner in alternative language.
+            if (StringUtils.isBlank(urlBanner)) {
+                urlBanner = findBannerURL2(banners, BannerType.Graphical, language2nd, season);
+            }
+        }
+
+        if (StringTools.isNotValidString(urlBanner)) {
+            return Movie.UNKNOWN;
+        }
+        return urlBanner;
     }
 
     private void getFanart(Movie movie) {
