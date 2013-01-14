@@ -30,6 +30,7 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GenericFileFilter;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import com.moviejukebox.tools.StringTools;
 import static com.moviejukebox.tools.StringTools.appendToPath;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import java.io.File;
@@ -94,8 +95,7 @@ public class MovieNFOScanner {
     /**
      * Process the NFO file.
      *
-     * Will either process the file as an XML NFO file or just pick out the
-     * poster and fanart URLs
+     * Will either process the file as an XML NFO file or just pick out the poster and fanart URLs
      *
      * Scanning for site specific URLs should be done by each plugin
      *
@@ -157,23 +157,26 @@ public class MovieNFOScanner {
         // TV Show specific scanning
         if (movie.isTVShow()) {
             // Check for the "tvshow.nfo" filename in the parent directory
-            checkNFO(nfoFiles, movie.getFile().getParentFile().getParent() + File.separator + xbmcTvNfoName);
+            String nfoFilename = StringTools.appendToPath(movie.getFile().getParentFile().getParent(), xbmcTvNfoName);
+            checkNFO(nfoFiles, nfoFilename);
+
+            // Check for the "tvshow.nfo" filename in the current directory
+            nfoFilename = StringTools.appendToPath(movie.getFile().getParent(), xbmcTvNfoName);
+            checkNFO(nfoFiles, nfoFilename);
 
             // Check for individual episode files
             if (!skipTvNfoFiles) {
-                String mfFilename;
-
                 for (MovieFile mf : movie.getMovieFiles()) {
-                    mfFilename = mf.getFile().getParent().toUpperCase();
+                    nfoFilename = mf.getFile().getParent().toUpperCase();
 
-                    if (mfFilename.contains("BDMV")) {
-                        mfFilename = FileTools.getParentFolder(mf.getFile());
-                        mfFilename = new String(mfFilename.substring(mfFilename.lastIndexOf(File.separator) + 1));
+                    if (nfoFilename.contains("BDMV")) {
+                        nfoFilename = FileTools.getParentFolder(mf.getFile());
+                        nfoFilename = new String(nfoFilename.substring(nfoFilename.lastIndexOf(File.separator) + 1));
                     } else {
-                        mfFilename = FilenameUtils.removeExtension(mf.getFile().getName());
+                        nfoFilename = FilenameUtils.removeExtension(mf.getFile().getName());
                     }
 
-                    checkNFO(nfoFiles, mf.getFile().getParent() + File.separator + mfFilename);
+                    checkNFO(nfoFiles, StringTools.appendToPath(mf.getFile().getParent(), nfoFilename));
                 }
             }
         }
