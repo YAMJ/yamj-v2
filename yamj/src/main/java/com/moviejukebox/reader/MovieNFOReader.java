@@ -756,7 +756,7 @@ public class MovieNFOReader {
             String aThumb = Movie.UNKNOWN;
             Boolean firstActor = Boolean.TRUE;
 
-            if (StringUtils.isBlank(nActors.getTextContent())) {
+            if (nlCast.getLength() > 1) {
                 for (int looper = 0; looper < nlCast.getLength(); looper++) {
                     nElement = nlCast.item(looper);
                     if (nElement.getNodeType() == Node.ELEMENT_NODE) {
