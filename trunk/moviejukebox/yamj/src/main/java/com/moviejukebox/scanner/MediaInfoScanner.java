@@ -580,7 +580,7 @@ public class MediaInfoScanner {
             Codec codecToAdd = getCodecInfo(CodecType.VIDEO, infosMainVideo);
             if (MI_OVERALL_BITRATE && StringTools.isNotValidString(codecToAdd.getCodecBitRate())) {
                 infoValue = infosGeneral.get(Codec.MI_CODEC_OVERALL_BITRATE);
-                if (StringUtils.isNotBlank(infoValue)) {
+                if (StringUtils.isNotBlank(infoValue) && infoValue.length() > 3) {
                     infoValue = infoValue.substring(0, infoValue.length() - 3);
                     codecToAdd.setCodecBitRate(infoValue);
                 }
