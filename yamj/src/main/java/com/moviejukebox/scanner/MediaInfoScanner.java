@@ -57,7 +57,7 @@ public class MediaInfoScanner {
     private static final String MI_RAR_FILENAME_WINDOWS = "MediaInfo-rar.exe";
     private static final String MI_FILENAME_LINUX = "mediainfo";
     private static final String MI_RAR_FILENAME_LINUX = "mediainfo-rar";
-    private static boolean isMediaInfoRar = false;
+    private static boolean isMediaInfoRar = Boolean.FALSE;
     public static final String OS_NAME = System.getProperty("os.name");
     public static final String OS_VERSION = System.getProperty("os.version");
     public static final String OS_ARCH = System.getProperty("os.arch");
@@ -96,14 +96,14 @@ public class MediaInfoScanner {
 
         if (!checkMediainfo.canExecute()) {
             logger.info(LOG_MESSAGE + "Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
-            isActivated = false;
+            isActivated = Boolean.FALSE;
         } else {
             if (isMediaInfoRar) {
                 logger.info(LOG_MESSAGE + "MediaInfo-rar tool found, additional scanning functions enabled.");
             } else {
                 logger.info(LOG_MESSAGE + "MediaInfo tool will be used to extract video data. But not RAR and ISO formats");
             }
-            isActivated = true;
+            isActivated = Boolean.TRUE;
         }
 
         // Add a list of supported extensions
@@ -121,9 +121,9 @@ public class MediaInfoScanner {
 
     public boolean extendedExtention(String filename) {
         if (isMediaInfoRar && (MI_DISK_IMAGES.contains(FilenameUtils.getExtension(filename).toLowerCase()))) {
-            return true;
+            return Boolean.TRUE;
         }
-        return false;
+        return Boolean.FALSE;
     }
 
     public void update(Movie currentMovie) {
@@ -146,7 +146,7 @@ public class MediaInfoScanner {
         }
 
         // check if main file has changed
-        boolean mainFileIsNew = false;
+        boolean mainFileIsNew = Boolean.FALSE;
 
         try {
             // get the canonical path for movie file
@@ -159,7 +159,7 @@ public class MediaInfoScanner {
                         // the main movie file is new
                         newFilePath = movieFile.getFile().getCanonicalPath();
                         if (movieFilePath.equalsIgnoreCase(newFilePath)) {
-                            mainFileIsNew = true;
+                            mainFileIsNew = Boolean.TRUE;
                             break;
                         }
                     } catch (Exception ignore) {
@@ -183,7 +183,7 @@ public class MediaInfoScanner {
             FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(currentMovie.getFile());
             if (mainMovieIFO != null) {
                 if (isActivated) {
-                    scan(currentMovie, mainMovieIFO.getLocation(), false);
+                    scan(currentMovie, mainMovieIFO.getLocation(), Boolean.FALSE);
                     // Issue 1176 - Prevent lost of NFO Data
                     if (StringTools.isNotValidString(currentMovie.getRuntime())) {
                         currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()), MEDIAINFO_PLUGIN_ID);
@@ -240,7 +240,7 @@ public class MediaInfoScanner {
             FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(tempRep);
             if (mainMovieIFO != null) {
                 if (isActivated) {
-                    scan(currentMovie, mainMovieIFO.getLocation(), false);
+                    scan(currentMovie, mainMovieIFO.getLocation(), Boolean.FALSE);
                     // Issue 1176 - Prevent lost of NFO Data
                     if (StringTools.isNotValidString(currentMovie.getRuntime())) {
                         currentMovie.setRuntime(DateTimeTools.formatDuration(mainMovieIFO.getDuration()), MEDIAINFO_PLUGIN_ID);
@@ -256,7 +256,7 @@ public class MediaInfoScanner {
             if (isMediaInfoRar && MI_DISK_IMAGES.contains(FilenameUtils.getExtension(currentMovie.getFile().getName()))) {
                 logger.debug(LOG_MESSAGE + "Using MediaInfo-rar to scan " + currentMovie.getFile().getName());
             }
-            scan(currentMovie, currentMovie.getFile().getAbsolutePath(), true);
+            scan(currentMovie, currentMovie.getFile().getAbsolutePath(), Boolean.TRUE);
         }
 
     }
@@ -289,9 +289,9 @@ public class MediaInfoScanner {
             parseMediaInfo(is, infosGeneral, infosVideo, infosAudio, infosText);
 
             updateMovieInfo(currentMovie, infosGeneral, infosVideo, infosAudio, infosText, infosMultiPart);
-
-        } catch (Exception error) {
-            logger.error(SystemTools.getStackTrace(error));
+        } catch (IOException ex) {
+            logger.warn(LOG_MESSAGE + "Failed reading mediainfo output for " + movieFilePath);
+            logger.error(SystemTools.getStackTrace(ex));
         } finally {
             if (is != null) {
                 try {
@@ -337,9 +337,9 @@ public class MediaInfoScanner {
             if (duration > 0) {
                 infosMultiPart.put("MultiPart_Duration", String.valueOf(duration));
             }
-
-        } catch (Exception error) {
-            logger.error(SystemTools.getStackTrace(error));
+        } catch (IOException ex) {
+            logger.warn(LOG_MESSAGE + "Failed reading mediainfo output for " + movieFilePath);
+            logger.error(SystemTools.getStackTrace(ex));
         } finally {
             if (is != null) {
                 try {
@@ -376,8 +376,14 @@ public class MediaInfoScanner {
         return p.getInputStream();
     }
 
+    /**
+     * Read the input skipping any blank lines
+     *
+     * @param input
+     * @return
+     * @throws IOException
+     */
     private String localInputReadLine(BufferedReader input) throws IOException {
-        // Suppress empty lines
         String line = input.readLine();
         while ((line != null) && (line.equals(""))) {
             line = input.readLine();
@@ -390,64 +396,78 @@ public class MediaInfoScanner {
             List<Map<String, String>> infosVideo,
             List<Map<String, String>> infosAudio,
             List<Map<String, String>> infosText) throws IOException {
-        BufferedReader input = new BufferedReader(new InputStreamReader(in));
-        // Improvement, less code line, each cat have same code, so use the same for all.
-        Map<String, List<Map<String, String>>> matches = new HashMap<String, List<Map<String, String>>>();
-        // Create a fake one for General, we got only one, but to use the same algo we must create this one.
-        String generalKey[] = {"General", "Géneral", "* Général"};
-        matches.put(generalKey[0], new ArrayList<Map<String, String>>());
-        matches.put(generalKey[1], matches.get(generalKey[0])); // Issue 1311 - Create a "link" between General and Général
-        matches.put(generalKey[2], matches.get(generalKey[0])); // Issue 1311 - Create a "link" between General and * Général
-        matches.put("Video", infosVideo);
-        matches.put("Vidéo", matches.get("Video")); // Issue 1311 - Create a "link" between Vidéo and Video
-        matches.put("Audio", infosAudio);
-        matches.put("Text", infosText);
 
-        String line = localInputReadLine(input);
-        String label;
+        InputStreamReader isr = null;
+        BufferedReader bufReader = null;
 
-        while (line != null) {
-            // In case of new format : Text #1, Audio #1
-            if (line.indexOf('#') >= 0) {
-                line = new String(line.substring(0, line.indexOf('#'))).trim();
-            }
-
-            // Get cat ArrayList from cat name.^M
-            List<Map<String, String>> currentCat = matches.get(line);
-
-            if (currentCat != null) {
-                //logger.debug("Current category : " + line);
-                HashMap<String, String> currentData = new HashMap<String, String>();
-                int indexSeparateur = -1;
-                while (((line = localInputReadLine(input)) != null) && ((indexSeparateur = line.indexOf(" : ")) != -1)) {
-                    label = new String(line.substring(0, indexSeparateur)).trim();
-                    if (currentData.get(label) == null) {
-                        currentData.put(label, new String(line.substring(indexSeparateur + 3)));
-                    }
-                }
-                currentCat.add(currentData);
-            } else {
-                line = localInputReadLine(input);
-            }
-        }
-
-        // Setting General Info - Beware of lose data if infosGeneral already have some ...
         try {
-            for (int i = 0; i < generalKey.length; i++) {
-                List<Map<String, String>> arrayList = matches.get(generalKey[i]);
-                if (arrayList.size() > 0) {
-                    Map<String, String> datas = arrayList.get(0);
-                    if (datas.size() > 0) {
-                        infosGeneral.putAll(datas);
-                        break;
+            isr = new InputStreamReader(in);
+            bufReader = new BufferedReader(isr);
+
+            // Improvement, less code line, each cat have same code, so use the same for all.
+            Map<String, List<Map<String, String>>> matches = new HashMap<String, List<Map<String, String>>>();
+
+            // Create a fake one for General, we got only one, but to use the same algo we must create this one.
+            String generalKey[] = {"General", "Géneral", "* Général"};
+            matches.put(generalKey[0], new ArrayList<Map<String, String>>());
+            matches.put(generalKey[1], matches.get(generalKey[0])); // Issue 1311 - Create a "link" between General and Général
+            matches.put(generalKey[2], matches.get(generalKey[0])); // Issue 1311 - Create a "link" between General and * Général
+            matches.put("Video", infosVideo);
+            matches.put("Vidéo", matches.get("Video")); // Issue 1311 - Create a "link" between Vidéo and Video
+            matches.put("Audio", infosAudio);
+            matches.put("Text", infosText);
+
+            String line = localInputReadLine(bufReader);
+            String label;
+
+            while (line != null) {
+                // In case of new format : Text #1, Audio #1
+                if (line.indexOf('#') >= 0) {
+                    line = new String(line.substring(0, line.indexOf('#'))).trim();
+                }
+
+                // Get cat ArrayList from cat name.
+                List<Map<String, String>> currentCat = matches.get(line);
+
+                if (currentCat != null) {
+                    HashMap<String, String> currentData = new HashMap<String, String>();
+                    int indexSeparator = -1;
+                    while (((line = localInputReadLine(bufReader)) != null) && ((indexSeparator = line.indexOf(" : ")) != -1)) {
+                        label = new String(line.substring(0, indexSeparator)).trim();
+                        if (currentData.get(label) == null) {
+                            currentData.put(label, new String(line.substring(indexSeparator + 3)));
+                        }
                     }
+                    currentCat.add(currentData);
+                } else {
+                    line = localInputReadLine(bufReader);
                 }
             }
-        } catch (Exception ignore) {
-            // We don't care about this exception
-        }
 
-        input.close();
+            // Setting General Info - Beware of lose data if infosGeneral already have some ...
+            try {
+                for (int i = 0; i < generalKey.length; i++) {
+                    List<Map<String, String>> arrayList = matches.get(generalKey[i]);
+                    if (arrayList.size() > 0) {
+                        Map<String, String> datas = arrayList.get(0);
+                        if (datas.size() > 0) {
+                            infosGeneral.putAll(datas);
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception ignore) {
+                // We don't care about this exception
+            }
+        } finally {
+            if (isr != null) {
+                isr.close();
+            }
+
+            if (bufReader != null) {
+                bufReader.close();
+            }
+        }
     }
 
     private void updateMovieInfo(Movie movie, Map<String, String> infosGeneral, List<Map<String, String>> infosVideo,
@@ -695,7 +715,7 @@ public class MediaInfoScanner {
         }
 
         if (OverrideTools.checkOverwriteLanguage(movie, MEDIAINFO_PLUGIN_ID)) {
-            StringBuffer movieLanguage = new StringBuffer();
+            StringBuilder movieLanguage = new StringBuilder();
             for (String language : foundLanguages) {
                 if (movieLanguage.length() > 0) {
                     movieLanguage.append(languageDelimiter);
@@ -896,8 +916,7 @@ public class MediaInfoScanner {
     }
 
     /**
-     * Look for the mediaInfo filename and return it. Will check first for the
-     * mediainfo-rar file and then mediainfo
+     * Look for the mediaInfo filename and return it. Will check first for the mediainfo-rar file and then mediainfo
      *
      * @param osName
      * @return
@@ -912,7 +931,7 @@ public class MediaInfoScanner {
                 mediaInfoFile = new File(MI_PATH.getAbsolutePath() + File.separator + MI_FILENAME_WINDOWS);
             } else {
                 // Enable the extra mediainfo-rar features
-                isMediaInfoRar = true;
+                isMediaInfoRar = Boolean.TRUE;
             }
         } else {
             mediaInfoFile = new File(MI_PATH.getAbsolutePath() + File.separator + MI_RAR_FILENAME_LINUX);
@@ -921,7 +940,7 @@ public class MediaInfoScanner {
                 mediaInfoFile = new File(MI_PATH.getAbsolutePath() + File.separator + MI_FILENAME_LINUX);
             } else {
                 // Enable the extra mediainfo-rar features
-                isMediaInfoRar = true;
+                isMediaInfoRar = Boolean.TRUE;
             }
         }
 
