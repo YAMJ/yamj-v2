@@ -67,7 +67,7 @@ public class GraphicTools {
             JpegReader jr = new JpegReader();
             return jr.readImage(fileImage);
         } else {
-            throw new FileNotFoundException(LOG_MESSAGE + "Image file " + fileImage.getAbsolutePath() + " does not exist");
+            throw new FileNotFoundException(LOG_MESSAGE + "Image file '" + fileImage.getAbsolutePath() + "' does not exist");
         }
     }
 

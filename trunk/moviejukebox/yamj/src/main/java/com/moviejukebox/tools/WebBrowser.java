@@ -192,11 +192,14 @@ public class WebBrowser {
 
         URL url = new URL(fixedImageURL);
 
+        logger.debug(LOG_MESSAGE + "Attempting to download '" + fixedImageURL + "'");
+
         ThreadExecutor.enterIO(url);
         boolean success = Boolean.FALSE;
         int retryCount = imageRetryCount;
         InputStream inputStream = null;
         FileOutputStream outputStream = null;
+        int reportedLength = 0;
         try {
             while (!success && retryCount > 0) {
                 URLConnection cnx = openProxiedConnection(url);
@@ -204,7 +207,7 @@ public class WebBrowser {
                 sendHeader(cnx);
                 readHeader(cnx);
 
-                int reportedLength = cnx.getContentLength();
+                reportedLength = cnx.getContentLength();
                 inputStream = cnx.getInputStream();
                 outputStream = new FileOutputStream(imageFile);
                 int inputStreamLength = FileTools.copy(inputStream, outputStream);
@@ -237,15 +240,16 @@ public class WebBrowser {
             }
         }
 
-        if (!success) {
+        if (success) {
+            logger.debug(LOG_MESSAGE + "Sucessfully downloaded '" + imageURL + "' to '" + imageFile.getAbsolutePath() + "', Size: " + reportedLength);
+        } else {
             logger.debug(LOG_MESSAGE + "Failed " + imageRetryCount + " times to download image, aborting. URL: " + imageURL);
         }
         return success;
     }
 
     /**
-     * Check the URL to see if it's one of the special cases that needs to be
-     * worked around
+     * Check the URL to see if it's one of the special cases that needs to be worked around
      *
      * @param URL The URL to check
      * @param cnx The connection that has been opened
