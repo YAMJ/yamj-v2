@@ -1612,8 +1612,9 @@ public class MovieJukebox {
             // Only check the property file date if the jukebox properties are not being monitored.
             boolean copySkin = JukeboxProperties.isMonitor() ? Boolean.FALSE : FileTools.isNewer(propFile, skinFile);
 
-            // If forceSkinOverwrite is set, the user properties file doesn't exist or is newer than the skin.date file
+            // If forceSkinOverwrite is set, the skin file doesn't exist, the user properties file doesn't exist or is newer than the skin.date file
             if (forceSkinOverwrite
+                    || !skinFile.exists()
                     || !propFile.exists()
                     || (SkinProperties.getFileDate() > skinFile.lastModified())
                     || copySkin) {
