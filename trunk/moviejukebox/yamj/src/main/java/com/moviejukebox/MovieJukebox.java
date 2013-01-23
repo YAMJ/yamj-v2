@@ -136,7 +136,7 @@ public class MovieJukebox {
         logger.info("http://code.google.com/p/moviejukebox/");
         logger.info("Copyright (c) 2004-2012 YAMJ Members");
         logger.info("");
-        logger.info("This software is licensed under a Creative Commons License");
+        logger.info("This software is licensed under the GNU General Public License v3+");
         logger.info("See this page: http://code.google.com/p/moviejukebox/wiki/License");
         logger.info("");
 
