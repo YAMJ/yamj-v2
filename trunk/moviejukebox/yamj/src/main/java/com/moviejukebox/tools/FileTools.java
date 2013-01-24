@@ -174,27 +174,26 @@ public class FileTools {
         return bytesCopied;
     }
 
-    public static void copyFile(String src, String dst) {
-        File srcFile, dstFile;
-
-        try {
-            srcFile = new File(src);
-        } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed copying file " + src + TO + dst);
-            logger.error(SystemTools.getStackTrace(error));
-            return;
-        }
-
-        try {
-            dstFile = new File(dst);
-        } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed copying file " + src + TO + dst);
-            logger.error(SystemTools.getStackTrace(error));
-            return;
-        }
-        copyFile(srcFile, dstFile);
+    /**
+     * Copy the source file to the destination
+     *
+     * @param src
+     * @param dst
+     * @return
+     */
+    public static boolean copyFile(String src, String dst) {
+        File srcFile = new File(src);
+        File dstFile = new File(dst);
+        return copyFile(srcFile, dstFile);
     }
 
+    /**
+     * Copy the source file to the destination
+     *
+     * @param src
+     * @param dst
+     * @return
+     */
     public static boolean copyFile(File src, File dst) {
         boolean returnValue = Boolean.FALSE;
 
@@ -516,9 +515,8 @@ public class FileTools {
     /**
      * Returns the given path in canonical form
      *
-     * i.e. no duplicated separators, no ".", ".."..., and ending without
-     * trailing separator the only exception is a root! the canonical form for a
-     * root INCLUDES the separator
+     * i.e. no duplicated separators, no ".", ".."..., and ending without trailing separator the only exception is a root! the
+     * canonical form for a root INCLUDES the separator
      */
     public static String getCanonicalPath(String path) {
         try {
@@ -529,8 +527,7 @@ public class FileTools {
     }
 
     /**
-     * when concatenating paths and the source MIGHT be a root, use this
-     * function to safely add the separator
+     * when concatenating paths and the source MIGHT be a root, use this function to safely add the separator
      */
     public static String getDirPathWithSeparator(String path) {
         return path.endsWith(File.separator) ? path : path + File.separator;
@@ -561,8 +558,7 @@ public class FileTools {
      *
      * Pass in the filename and a list of extensions.
      *
-     * This function will scan for the filename plus extensions and return the
-     * File
+     * This function will scan for the filename plus extensions and return the File
      *
      * @param filename
      * @param fileExtensions
@@ -585,8 +581,7 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the
-     * extensions
+     * Search for the filename in the cache and look for each with the extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -599,8 +594,7 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the
-     * extensions
+     * Search for the filename in the cache and look for each with the extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -614,8 +608,7 @@ public class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the
-     * extensions
+     * Search for the filename in the cache and look for each with the extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -676,9 +669,8 @@ public class FileTools {
     }
 
     /**
-     * Download the image for the specified URL into the specified file.
-     * Utilises the WebBrowser downloadImage function to allow for proxy
-     * connections.
+     * Download the image for the specified URL into the specified file. Utilises the WebBrowser downloadImage function to allow for
+     * proxy connections.
      *
      * @param imageFile
      * @param imageURL
@@ -770,8 +762,7 @@ public class FileTools {
     }
 
     /**
-     * Process the movie and add all the files to the jukebox cleaning exclusion
-     * list
+     * Process the movie and add all the files to the jukebox cleaning exclusion list
      *
      * @param movie
      */
@@ -807,8 +798,7 @@ public class FileTools {
     }
 
     /**
-     * Special File with "cached" attributes used to minimize file system access
-     * which slows down everything
+     * Special File with "cached" attributes used to minimize file system access which slows down everything
      *
      * @author Gabriel Corneanu
      */
@@ -983,8 +973,7 @@ public class FileTools {
     }
 
     /**
-     * cached File instances the key is always absolute path in upper-case, so
-     * it will NOT work for case only differences
+     * cached File instances the key is always absolute path in upper-case, so it will NOT work for case only differences
      *
      * @author Gabriel Corneanu
      */
@@ -1025,16 +1014,13 @@ public class FileTools {
         /**
          * Retrieve a file from cache
          *
-         * If it is NOT found, construct one instance and mark it as
-         * non-existing.
+         * If it is NOT found, construct one instance and mark it as non-existing.
          *
-         * The exist() test is used very often throughout the library to search
-         * for specific files.
+         * The exist() test is used very often throughout the library to search for specific files.
          *
          * The path MUST be canonical (i.e. carefully constructed)
          *
-         * We do NOT want here to make it canonical because it goes to the file
-         * system and it's slow.
+         * We do NOT want here to make it canonical because it goes to the file system and it's slow.
          *
          * @param path
          * @return
@@ -1161,8 +1147,7 @@ public class FileTools {
     /**
      * Create all directories up to the level of the file passed
      *
-     * @param sourceDirectory Source directory or file to create the directories
-     * directories
+     * @param sourceDirectory Source directory or file to create the directories directories
      * @return
      */
     public static Boolean makeDirectories(File file) {
@@ -1173,8 +1158,7 @@ public class FileTools {
      * Create all directories up to the level of the file passed
      *
      * @param sourceDirectory Source directory or file to create the directories
-     * @param numOfTries Number of attempts that will be made to create the
-     * directories
+     * @param numOfTries Number of attempts that will be made to create the directories
      * @return
      */
     public static Boolean makeDirectories(final File sourceDirectory, int numOfTries) {
