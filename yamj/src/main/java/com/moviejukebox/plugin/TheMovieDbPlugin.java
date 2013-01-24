@@ -25,9 +25,9 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
@@ -390,7 +390,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
         // Language
         if (moviedb.getSpokenLanguages().size() > 0 && OverrideTools.checkOverwriteLanguage(movie, TMDB_PLUGIN_ID)) {
-            StringBuffer movieLanguage = new StringBuffer();
+            StringBuilder movieLanguage = new StringBuilder();
 
             String isoCode = moviedb.getSpokenLanguages().get(0).getIsoCode();
             if (StringTools.isValidString(isoCode)) {
