@@ -131,7 +131,8 @@ public interface IArtworkScanner {
      * Create a operating system safe filename for the artwork
      *
      * @param movie
+     * @param appendFormat Add the format to the filename
      * @return
      */
-    String makeSafeArtworkFilename(Movie movie);
+    String makeSafeArtworkFilename(Movie movie, boolean appendFormat);
 }
