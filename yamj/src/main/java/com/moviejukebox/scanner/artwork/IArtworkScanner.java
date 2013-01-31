@@ -41,21 +41,40 @@ public interface IArtworkScanner {
     boolean saveArtworkToJukebox(Jukebox jukebox, Movie movie);
 
     /**
-     * Updates the correct Filename based on the artwork type
+     * Updates the correct original filename based on the artwork type
      *
      * @param movie
      * @param artworkFilename
      */
-    void setArtworkFilename(Movie movie, String artworkFilename);
+    void setOriginalFilename(Movie movie, String artworkFilename);
 
     /**
-     * Returns the correct Filename based on the artwork type This should be overridden at the artwork specific class
-     * level
+     * Updates the correct jukebox filename based on the artwork type
+     *
+     * @param movie
+     * @param artworkFilename
+     */
+    void setJukeboxFilename(Movie movie, String artworkFilename);
+
+    /**
+     * Returns the correct original filename based on the artwork type.
+     *
+     * This should be overridden at the artwork specific class level
      *
      * @param movie
      * @return
      */
-    String getArtworkFilename(Movie movie);
+    String getOriginalFilename(Movie movie);
+
+    /**
+     * Returns the correct jukebox filename based on the artwork type.
+     *
+     * This should be overridden at the artwork specific class level
+     *
+     * @param movie
+     * @return
+     */
+    String getJukeboxFilename(Movie movie);
 
     /**
      * Updates the correct URL based on the artwork type
@@ -128,11 +147,24 @@ public interface IArtworkScanner {
     boolean isSearchOnline();
 
     /**
-     * Create a operating system safe filename for the artwork
+     * Create an operating system safe filename for the jukebox artwork
+     *
+     * This will use the "jukebox" token for the filename
      *
      * @param movie
      * @param appendFormat Add the format to the filename
      * @return
      */
-    String makeSafeArtworkFilename(Movie movie, boolean appendFormat);
+    String makeSafeJukeboxFilename(Movie movie, boolean appendFormat);
+
+    /**
+     * Create an operating system safe filename for the original artwork
+     *
+     * This will use the "original" token for the filename
+     *
+     * @param movie
+     * @param appendForamt
+     * @return
+     */
+    String makeSafeOriginalFilename(Movie movie, boolean appendForamt);
 }
