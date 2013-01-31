@@ -75,7 +75,7 @@ public class FanartTvScanner extends ArtworkScanner {
     }
 
     @Override
-    public String getArtworkFilename(Movie movie) {
+    public String getOriginalFilename(Movie movie) {
         if (artworkType == ArtworkType.ClearArt) {
             return movie.getClearArtFilename();
         } else if (artworkType == ArtworkType.ClearLogo) {
@@ -98,7 +98,7 @@ public class FanartTvScanner extends ArtworkScanner {
     }
 
     @Override
-    public void setArtworkFilename(Movie movie, String artworkFilename) {
+    public void setOriginalFilename(Movie movie, String artworkFilename) {
         if (artworkType == ArtworkType.ClearArt) {
             movie.setClearArtFilename(artworkFilename);
         } else if (artworkType == ArtworkType.ClearLogo) {
@@ -269,5 +269,15 @@ public class FanartTvScanner extends ArtworkScanner {
     public void setArtworkImagePlugin() {
         // Use the default image plugin
         setImagePlugin(null);
+    }
+
+    @Override
+    public String getJukeboxFilename(Movie movie) {
+        return Movie.UNKNOWN;
+    }
+
+    @Override
+    public void setJukeboxFilename(Movie movie, String artworkFilename) {
+        // Not immplemented
     }
 }
