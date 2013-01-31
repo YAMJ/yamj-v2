@@ -88,6 +88,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private static final String HTML_TITLE = "title/";
     private static final String HTML_END = "<end>";
     private static final String HTML_BREAK = "<br/>";
+    // Patterns for the name searching
+    private static final String namePatternString = "(?:.*?)/name/(nm\\d+)/(?:.*?)'name'>(.*?)</a>(?:.*?)";
+    private static final String charPatternString = "(?:.*?)/character/(ch\\d+)/(?:.*?)>(.*?)</a>(?:.*)";
+    private static final Pattern personNamePattern = Pattern.compile(namePatternString, Pattern.CASE_INSENSITIVE);
+    private static final Pattern personCharPattern = Pattern.compile(charPatternString, Pattern.CASE_INSENSITIVE);
 
     public ImdbPlugin() {
         imdbInfo = new ImdbInfo();
@@ -293,7 +298,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed retreiving IMDb data for movie : " + movie.getId(IMDB_PLUGIN_ID));
+            logger.error(LOG_MESSAGE + "Failed retrieving IMDb data for movie : " + movie.getId(IMDB_PLUGIN_ID));
             logger.error(SystemTools.getStackTrace(error));
         }
         return returnStatus;
@@ -501,7 +506,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             // Issue 1897: Cast enhancement
             if (isValidString(personXML)) {
-                extractDirectors(movie, personXML, siteDef, overrideNormal , overridePeople);
+                extractDirectors(movie, personXML, siteDef, overrideNormal, overridePeople);
             } else {
                 // Issue 1261 : Allow multiple text matching for one "element".
                 String[] directorMatches = siteDef.getDirector().split(HTML_SLASH_PIPE);
@@ -518,7 +523,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                                 movie.addDirector(director, IMDB_PLUGIN_ID);
                             }
                             if (overridePeople) {
-                                movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, director , siteDef.getSite() + HTML_NAME + personID + "/", IMDB_PLUGIN_ID);
+                                movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, director, siteDef.getSite() + HTML_NAME + personID + "/", IMDB_PLUGIN_ID);
                             }
                             found = Boolean.TRUE;
                             count++;
@@ -610,7 +615,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                             movie.addActor(name, IMDB_PLUGIN_ID);
                         }
                         if (overridePeople) {
-                            movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name , character, siteDef.getSite() + HTML_NAME + personID + "/", Movie.UNKNOWN, IMDB_PLUGIN_ID);
+                            movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name, character, siteDef.getSite() + HTML_NAME + personID + "/", Movie.UNKNOWN, IMDB_PLUGIN_ID);
                         }
                         count++;
                         if (count == actorMax) {
@@ -712,7 +717,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // RUNTIME
-        if (OverrideTools.checkOverwriteRuntime(movie,  IMDB_PLUGIN_ID)) {
+        if (OverrideTools.checkOverwriteRuntime(movie, IMDB_PLUGIN_ID)) {
             String runtime = siteDef2.getRuntime() + HTML_H4_END;
             List<String> runtimes = HTMLTools.extractTags(xml, runtime, HTML_DIV, null, "|", Boolean.FALSE);
             runtime = getPreferredValue(runtimes, false);
@@ -963,29 +968,37 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             } else if (!peopleList.isEmpty()) {
                 int count = 0;
-                for (String actorBlock : peopleList) {
-                    String personID = actorBlock.substring(actorBlock.indexOf("\"/name/") + 7, actorBlock.indexOf(HTML_SLASH_QUOTE));
-                    int beginIndex = actorBlock.indexOf("<td class=\"character\">");
-                    String name = HTMLTools.extractTag(actorBlock, HTML_A_START, 1);
-                    String character = Movie.UNKNOWN;
-                    if (beginIndex > 0) {
-                        if (actorBlock.indexOf("<a href=\"/character/") > -1) {
-                            character = HTMLTools.extractTag(actorBlock, "<a href=\"/character/", 1);
-                        } else {
-                            character = HTMLTools.removeHtmlTags(actorBlock.substring(actorBlock.indexOf(">", beginIndex) + 2, actorBlock.indexOf(HTML_TD, beginIndex)));
-                            character = character.replaceAll("\\s+", " ").replaceAll("^\\s", "").replaceAll("\\s$", "");
-                        }
-                    }
+                Matcher personMatcher;
 
-                    if (overrideNormal) {
-                        movie.addActor(name, IMDB_PLUGIN_ID);
-                    }
-                    if (overridePeople) {
-                        movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name, character, siteDef.getSite() + HTML_NAME + personID + "/", Movie.UNKNOWN, IMDB_PLUGIN_ID);
-                    }
-                    count++;
-                    if (count == actorMax) {
-                        break;
+                for (String actorBlock : peopleList) {
+                    personMatcher = personNamePattern.matcher(actorBlock);
+                    String personID, name, charID, character;
+                    if (personMatcher.find()) {
+                        personID = personMatcher.group(1).trim();
+                        name = personMatcher.group(2).trim();
+
+                        personMatcher = personCharPattern.matcher(actorBlock);
+                        if (personMatcher.find()) {
+                            charID = personMatcher.group(1).trim();
+                            character = personMatcher.group(2).trim();
+                        } else {
+                            charID = Movie.UNKNOWN;
+                            character = Movie.UNKNOWN;
+                        }
+                        logger.debug(LOG_MESSAGE + "Found Person ID: " + personID + ", name: " + name + ", Character ID: " + charID + ", name: " + character);
+
+                        if (overrideNormal) {
+                            movie.addActor(name, IMDB_PLUGIN_ID);
+                        }
+                        if (overridePeople) {
+                            movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name, character, siteDef.getSite() + HTML_NAME + personID + "/", Movie.UNKNOWN, IMDB_PLUGIN_ID);
+                        }
+                        count++;
+                        if (count == actorMax) {
+                            break;
+                        }
+                    } else {
+                        logger.debug(LOG_MESSAGE + "No person/character information found");
                     }
                 }
             }
@@ -1068,10 +1081,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String startString;
             String endString;
             if (!getFullInfo && siteDef.getSite().contains("imdb.com")) {
-                startString ="<h4 class=\"inline\">"+siteDef.getAspectRatio()+HTML_H4_END;
+                startString = "<h4 class=\"inline\">" + siteDef.getAspectRatio() + HTML_H4_END;
                 endString = HTML_DIV;
             } else {
-                startString = HTML_H5_START+siteDef.getAspectRatio()+HTML_H5_END+"<div class=\"info-content\">";
+                startString = HTML_H5_START + siteDef.getAspectRatio() + HTML_H5_END + "<div class=\"info-content\">";
                 endString = "<a class";
             }
 
@@ -1080,7 +1093,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             if (StringTools.isValidString(uncleanAspectRatio)) {
                 // remove spaces and replace , with .
-                uncleanAspectRatio = uncleanAspectRatio.replace(" ","").replace(",",".");
+                uncleanAspectRatio = uncleanAspectRatio.replace(" ", "").replace(",", ".");
                 // set aspect ratio
                 movie.setAspectRatio(aspectTools.cleanAspectRatio(uncleanAspectRatio), IMDB_PLUGIN_ID);
             }
@@ -1185,12 +1198,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         tmpString = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("/" + (yearStr.equals("????") ? "0000" : yearStr) + HTML_SLASH_GT + yearStr)), "<td rowspan=\"", "</b></td>");
                         int count = Integer.parseInt(tmpString.substring(0, tmpString.indexOf('\"')));
                         String title = tmpString.substring(tmpString.indexOf("<b>") + 3);
-                        String namePattern = " align=\"center\" valign=\"middle\">";
-                        name = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("<b>" + title + "</b>")), namePattern, HTML_TD);
+                        String awardPattern = " align=\"center\" valign=\"middle\">";
+                        name = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("<b>" + title + "</b>")), awardPattern, HTML_TD);
                         if (title.equals("Won") || title.equals("2nd place")) {
                             won = count;
                             if (yearBlock.indexOf("<b>Nominated</b>") > -1) {
-                                nominated = Integer.parseInt(HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf(namePattern + name + HTML_TD) + 1), "<td rowspan=\"", "\""));
+                                nominated = Integer.parseInt(HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf(awardPattern + name + HTML_TD) + 1), "<td rowspan=\"", "\""));
                             }
                         } else if (title.equals("Nominated")) {
                             nominated = count;
@@ -1397,7 +1410,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
         } catch (IOException error) {
-            logger.error(LOG_MESSAGE + "Failed retreiving episodes titles for: " + movie.getTitle());
+            logger.error(LOG_MESSAGE + "Failed retrieving episodes titles for: " + movie.getTitle());
             logger.error(LOG_MESSAGE + "Error: " + error.getMessage());
         }
     }
@@ -1413,8 +1426,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * Retrieves the long plot description from IMDB if it exists, else
-     * "UNKNOWN"
+     * Retrieves the long plot description from IMDB if it exists, else "UNKNOWN"
      *
      * @param movie
      * @return long plot
@@ -1655,7 +1667,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             returnStatus = updateInfoNew(person, xml);
         } catch (Exception error) {
-            logger.error("Failed retreiving IMDb data for person : " + imdbID);
+            logger.error("Failed retrieving IMDb data for person : " + imdbID);
             logger.error(SystemTools.getStackTrace(error));
         }
         return returnStatus;
