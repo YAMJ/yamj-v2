@@ -24,43 +24,53 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
+import com.moviejukebox.tools.PropertiesUtil;
+
 import org.apache.log4j.BasicConfigurator;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class ImdbPluginTest {
-	public ImdbPluginTest() {
-		BasicConfigurator.configure();
-	}
 
-	@Test
-	public void testImdbMovie() {
-		ImdbPlugin imdbPlugin = new ImdbPlugin();
-		Movie movie = new Movie();
-		movie.setYear("2012", null);
-		movie.setTitle("Skyfall", null);
+    private ImdbPlugin imdbPlugin;
 
-		assertTrue(imdbPlugin.scan(movie));
+    public ImdbPluginTest() {
+        BasicConfigurator.configure();
+        PropertiesUtil.setProperty("imdb.site", "us");
+        imdbPlugin = new ImdbPlugin();
+    }
 
-		assertNotNull(movie.getPlot());
+    @Test
+    public void testImdbMovie() {
+        Movie movie = new Movie();
+        movie.setYear("2012", null);
+        movie.setTitle("Skyfall", null);
 
-		assertNotEquals(Movie.UNKNOWN, movie.getPlot());
+        assertTrue(imdbPlugin.scan(movie));
+        assertNotNull(movie.getPlot());
+        assertNotEquals(Movie.UNKNOWN, movie.getPlot());
+    }
 
-	}
+    @Test
+    public void testImdbMovieValues() {
+        Movie movie = new Movie();
+        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0120737");
 
-	@Test
-	public void testImdbPerson() {
-		ImdbPlugin imdbPlugin = new ImdbPlugin();
-		Person person = new Person();
-		person.setName("Daniel Craig");
+        assertTrue(imdbPlugin.scan(movie));
+        assertEquals("New Zealand", movie.getCountry());
+        assertEquals("New Line Cinema", movie.getCompany());
+    }
 
-		assertTrue(imdbPlugin.scan(person));
+    @Test
+    public void testImdbPerson() {
+        Person person = new Person();
+        person.setName("Daniel Craig");
 
-		assertNotNull(person.getBiography());
-
-		assertNotEquals(Movie.UNKNOWN, person.getBiography());
-
-	}
+        assertTrue(imdbPlugin.scan(person));
+        assertNotNull(person.getBiography());
+        assertNotEquals(Movie.UNKNOWN, person.getBiography());
+    }
 }
