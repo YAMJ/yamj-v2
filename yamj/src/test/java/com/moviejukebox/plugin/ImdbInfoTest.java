@@ -32,10 +32,8 @@ import com.moviejukebox.tools.PropertiesUtil;
 
 public class ImdbInfoTest {
 
-
     public ImdbInfoTest() {
         BasicConfigurator.configure();
-        
     }
 
     @Test
@@ -48,8 +46,36 @@ public class ImdbInfoTest {
             String id = imdbInfo.getImdbPersonId("Renée Zellweger");
             assertEquals("nm0000250", id);
         }
-        
-        
-        
+    }
+
+    @Test
+    public void testImdbMovieIdExactMatch() {
+        Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
+        for (String site : keySet) {
+            PropertiesUtil.setProperty("imdb.site", site);
+            PropertiesUtil.setProperty("imdb.exact.match", "true");
+            ImdbInfo imdbInfo = new ImdbInfo();
+            
+            String id = imdbInfo.getImdbId("Avatar", "2009");
+            if ("pt".equalsIgnoreCase(site)) {
+                // for PT --> found correct on google
+                assertEquals("Search site " + site, "tt0499549", id); // false one
+            } else {
+                assertEquals("Search site " + site, "tt2119855", id); // false one
+            }
+        }
+    }
+
+    @Test
+    public void testImdbMovieIdRegularMatch() {
+        Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
+        for (String site : keySet) {
+            PropertiesUtil.setProperty("imdb.site", site);
+            PropertiesUtil.setProperty("imdb.exact.match", "false");
+            ImdbInfo imdbInfo = new ImdbInfo();
+            
+            String id = imdbInfo.getImdbId("Avatar", "2009");
+            assertEquals("Search site " + site, "tt0499549", id); // correct one
+        }
     }
 }

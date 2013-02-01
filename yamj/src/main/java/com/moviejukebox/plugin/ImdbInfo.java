@@ -47,6 +47,7 @@ public class ImdbInfo {
     private static final String OBJECT_PERSON = "person";
     protected static final Map<String, ImdbSiteDataDefinition> MATCHES_DATA_PER_SITE = new HashMap<String, ImdbSiteDataDefinition>();
     private final String imdbSite = PropertiesUtil.getProperty("imdb.site", DEFAULT_SITE);
+    private final Boolean exactMatch = PropertiesUtil.getBooleanProperty("imdb.exact.match", "false");
     private String preferredSearchEngine;
     private WebBrowser webBrowser;
     private String objectType = OBJECT_MOVIE;
@@ -107,6 +108,7 @@ public class ImdbInfo {
      */
     public String getImdbId(String movieName, String year) {
         objectType = OBJECT_MOVIE;
+        
         if ("google".equalsIgnoreCase(preferredSearchEngine)) {
             return getImdbIdFromGoogle(movieName, year);
         } else if ("yahoo".equalsIgnoreCase(preferredSearchEngine)) {
@@ -283,7 +285,7 @@ public class ImdbInfo {
          * Note: That even with exact matches there can be more than 1 hit, for example "Star Trek"
          */
 
-//        logger.info(LOG_MESSAGE + "Movie Name: '" + movieName + "' (" + year + ")"); // XXX DEBUG
+//        logger.info(LOG_MESSAGE + "Movie Name: '" + movieName + "' (" + year + ")");
 
         StringBuilder sb = new StringBuilder(siteDef.getSite());
         sb.append("find?q=");
@@ -324,48 +326,66 @@ public class ImdbInfo {
             return titlematch.group(1);
         }
 
-        if (objectType.equals(OBJECT_MOVIE)) {
-            String otherMovieName = HTMLTools.extractTag(HTMLTools.extractTag(xml, ";ttype=ep\">", "\"</a>.</li>"), "<b>", "</b>").toLowerCase();
-            String formattedMovieName;
-            if (StringTools.isValidString(otherMovieName)) {
-                if (StringTools.isValidString(year) && otherMovieName.endsWith(")") && otherMovieName.contains("(")) {
-                    otherMovieName = otherMovieName.substring(0, otherMovieName.lastIndexOf('(') - 1);
-                    formattedMovieName = otherMovieName + "</a> (" + year + ")";
-                } else {
-                    formattedMovieName = otherMovieName + "</a>";
-                }
+        String searchName = HTMLTools.extractTag(HTMLTools.extractTag(xml, ";ttype=ep\">", "\"</a>.</li>"), "<b>", "</b>").toLowerCase();
+        final String formattedName;
+        final String formattedYear;
+        if (StringTools.isValidString(searchName)) {
+            if (StringTools.isValidString(year) && searchName.endsWith(")") && searchName.contains("(")) {
+                searchName = searchName.substring(0, searchName.lastIndexOf('(') - 1);
+                formattedName = searchName.toLowerCase();
+                formattedYear = "</a> (" + year + ")";
             } else {
-                sb = new StringBuilder();
-                try {
-                    sb.append(URLEncoder.encode(movieName, siteDef.getCharset().displayName()).replace("+", " "));
-                } catch (UnsupportedEncodingException ex) {
-                    logger.debug(LOG_MESSAGE + "Failed to encode movie name: " + movieName);
-                    sb.append(movieName);
-                }
-                sb.append("</a>");
-                if (StringTools.isValidString(year)) {
-                    sb.append(" (").append(year).append(")");
-                }
-                otherMovieName = sb.toString();
-                formattedMovieName = otherMovieName;
+                formattedName = searchName.toLowerCase();
+                formattedYear = "</a>";
             }
+        } else {
+            sb = new StringBuilder();
+            try {
+                sb.append(URLEncoder.encode(movieName, siteDef.getCharset().displayName()).replace("+", " "));
+            } catch (UnsupportedEncodingException ex) {
+                logger.debug(LOG_MESSAGE + "Failed to encode movie name: " + movieName);
+                sb.append(movieName);
+            }
+            formattedName = sb.toString().toLowerCase();
+            sb.append("</a>");
+            if (StringTools.isValidString(year)) {
+                sb.append(" (").append(year).append(")");
+            }
+            searchName = sb.toString();
+            formattedYear = searchName.substring(formattedName.length());
+        }
 
-//            logger.debug(LOG_MESSAGE + "Title search: '" + formattedMovieName + "'"); // XXX DEBUG
-            for (String searchResult : HTMLTools.extractTags(xml, "<table class=\"findList\">", "</table>", "<td class=\"result_text\">", "</td>", false)) {
-//                logger.debug(LOG_MESSAGE + "Title check  : '" + searchResult + "'"); // XXX DEBUG
-                if (searchResult.toLowerCase().indexOf(formattedMovieName.toLowerCase()) != -1) {
-//                    logger.debug(LOG_MESSAGE + "Title match  : '" + searchResult + "'"); // XXX DEBUG
-                    return HTMLTools.extractTag(searchResult, "<a href=\"" + (objectType.equals(OBJECT_MOVIE) ? "/title/" : "/name/"), "/");
-                } else {
-                    for (String otherResult : HTMLTools.extractTags(searchResult, "</';\">", "</p>", "<p class=\"find-aka\">", "</em>", false)) {
-                        if (otherResult.toLowerCase().indexOf("\"" + otherMovieName + "\"") != -1) {
-//                            logger.debug(LOG_MESSAGE + "Other Title match: '" + otherResult + "'"); // XXX DEBUG
-                            return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals(OBJECT_MOVIE) ? "/title/" : "/name/"), "/';\">");
-                        }
+        // logger.debug(LOG_MESSAGE + "Search: name='" + formattedName + "', year='" + formattedYear);
+        for (String searchResult : HTMLTools.extractTags(xml, "<table class=\"findList\">", "</table>", "<td class=\"result_text\">", "</td>", false)) {
+            // logger.debug(LOG_MESSAGE + "Check  : '" + searchResult + "'");
+            final int nameIndex;
+            final int yearIndex;
+            if (exactMatch) {
+                nameIndex = searchResult.toLowerCase().indexOf(formattedName + formattedYear);
+                yearIndex = nameIndex + 1;
+            } else {
+                nameIndex = searchResult.toLowerCase().indexOf(formattedName);
+                if (nameIndex != -1 ) {
+                    yearIndex = searchResult.indexOf(formattedYear);
+                } else  {
+                    yearIndex = -1;
+                }
+            }
+            if ((nameIndex != -1) && (yearIndex > nameIndex)) {
+                // logger.debug(LOG_MESSAGE + "Title match  : '" + searchResult + "'");
+                return HTMLTools.extractTag(searchResult, "<a href=\"" + (objectType.equals(OBJECT_MOVIE) ? "/title/" : "/name/"), "/");
+            } else {
+                for (String otherResult : HTMLTools.extractTags(searchResult, "</';\">", "</p>", "<p class=\"find-aka\">", "</em>", false)) {
+                    if (otherResult.toLowerCase().indexOf("\"" + searchName + "\"") != -1) {
+                        // logger.debug(LOG_MESSAGE + "Other title match: '" + otherResult + "'");
+                        return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals(OBJECT_MOVIE) ? "/title/" : "/name/"), "/';\">");
                     }
                 }
             }
-        } else {
+        }
+
+       // alternate search for person ID
+       if (objectType.equals(OBJECT_PERSON)) {
             String firstPersonId = HTMLTools.extractTag(HTMLTools.extractTag(xml, "<table><tr> <td valign=\"top\">", "</td></tr></table>"), "<a href=\"/name/", "/\"");
             if (StringTools.isNotValidString(firstPersonId)) {
                 // alternate approach
@@ -383,7 +403,7 @@ public class ImdbInfo {
         }
 
         // If we don't have an ID try google
-        logger.debug(LOG_MESSAGE + "Failed to find an exact match on IMDb, trying Google");
+        logger.debug(LOG_MESSAGE + "Failed to find a match on IMDb, trying Google");
         return getImdbIdFromGoogle(movieName, year);
     }
 
