@@ -156,10 +156,14 @@ public class MovieNFOScanner {
 
         // TV Show specific scanning
         if (movie.isTVShow()) {
+            String nfoFilename;
+            
             // Check for the "tvshow.nfo" filename in the parent directory
-            String nfoFilename = StringTools.appendToPath(movie.getFile().getParentFile().getParent(), xbmcTvNfoName);
-            checkNFO(nfoFiles, nfoFilename);
-
+            if (movie.getFile().getParentFile().getParent() != null) {
+                nfoFilename = StringTools.appendToPath(movie.getFile().getParentFile().getParent(), xbmcTvNfoName);
+                checkNFO(nfoFiles, nfoFilename);
+            }
+            
             // Check for the "tvshow.nfo" filename in the current directory
             nfoFilename = StringTools.appendToPath(movie.getFile().getParent(), xbmcTvNfoName);
             checkNFO(nfoFiles, nfoFilename);

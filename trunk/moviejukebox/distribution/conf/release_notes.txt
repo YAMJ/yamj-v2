@@ -33,6 +33,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Enhancement  #2577 Limit number of scanned items in a single run
  - Fixed defect #2578 Error parsing TrailerLastScan from XML
  - Fixed defect #2579 mjb.dirHash default value missed on moviejukebox-default.properties
+ - Fixed defect #2585 Fixed NFO check for TV shows when movies are located in a root directory
  - Fixed defect #2588 IMDB Index out of bounds error
  - Fixed defect #2589 Corrected retrieval of country from IMDB
  
