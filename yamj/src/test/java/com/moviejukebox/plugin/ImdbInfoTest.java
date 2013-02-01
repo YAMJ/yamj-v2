@@ -59,7 +59,7 @@ public class ImdbInfoTest {
             String id = imdbInfo.getImdbId("Avatar", "2009");
             if ("pt".equalsIgnoreCase(site)) {
                 // for PT --> found correct on google
-                assertEquals("Search site " + site, "tt0499549", id); // false one
+                assertEquals("Search site " + site, "tt0499549", id); // correct one
             } else {
                 assertEquals("Search site " + site, "tt2119855", id); // false one
             }
