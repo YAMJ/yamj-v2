@@ -34,7 +34,8 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2578 Error parsing TrailerLastScan from XML
  - Fixed defect #2579 mjb.dirHash default value missed on moviejukebox-default.properties
  - Fixed defect #2588 IMDB Index out of bounds error
-
+ - Fixed defect #2589 Corrected retrieval of country from IMDB
+ 
 MovieJukebox 2.8 (2012-12-17)
 -----------------------------
  - Enhancement  #1461 Skipped subtitles will not be added

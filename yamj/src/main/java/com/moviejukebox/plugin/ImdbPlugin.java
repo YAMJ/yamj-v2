@@ -735,7 +735,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // COUNTRY
         if (OverrideTools.checkOverwriteCountry(movie, IMDB_PLUGIN_ID)) {
-            for (String country : HTMLTools.extractTags(xml, siteDef2.getCountry() + HTML_H4_END, HTML_DIV, "onclick=\"", HTML_A_END)) {
+            for (String country : HTMLTools.extractTags(xml, siteDef2.getCountry() + HTML_H4_END, HTML_DIV, "<a href=\"", HTML_A_END)) {
                 if (country != null) {
                     // TODO Save more than one country
                     movie.setCountry(HTMLTools.removeHtmlTags(country), IMDB_PLUGIN_ID);
