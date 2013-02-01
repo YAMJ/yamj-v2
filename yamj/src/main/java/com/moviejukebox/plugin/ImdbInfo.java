@@ -329,14 +329,18 @@ public class ImdbInfo {
         String searchName = HTMLTools.extractTag(HTMLTools.extractTag(xml, ";ttype=ep\">", "\"</a>.</li>"), "<b>", "</b>").toLowerCase();
         final String formattedName;
         final String formattedYear;
+        final String formattedExact;
+        
         if (StringTools.isValidString(searchName)) {
             if (StringTools.isValidString(year) && searchName.endsWith(")") && searchName.contains("(")) {
                 searchName = searchName.substring(0, searchName.lastIndexOf('(') - 1);
                 formattedName = searchName.toLowerCase();
-                formattedYear = "</a> (" + year + ")";
+                formattedYear = "(" + year + ")";
+                formattedExact = formattedName + "</a> " + formattedYear;
             } else {
                 formattedName = searchName.toLowerCase();
                 formattedYear = "</a>";
+                formattedExact = formattedName + formattedYear;
             }
         } else {
             sb = new StringBuilder();
@@ -347,31 +351,31 @@ public class ImdbInfo {
                 sb.append(movieName);
             }
             formattedName = sb.toString().toLowerCase();
-            sb.append("</a>");
             if (StringTools.isValidString(year)) {
-                sb.append(" (").append(year).append(")");
+                formattedYear = "(" + year + ")";
+                formattedExact = formattedName + "</a> " + formattedYear;
+            } else {
+                formattedYear = "</a>";
+                formattedExact = formattedName + formattedYear;
+                
             }
-            searchName = sb.toString();
-            formattedYear = searchName.substring(formattedName.length());
+            searchName = formattedExact;
         }
 
         // logger.debug(LOG_MESSAGE + "Search: name='" + formattedName + "', year='" + formattedYear);
         for (String searchResult : HTMLTools.extractTags(xml, "<table class=\"findList\">", "</table>", "<td class=\"result_text\">", "</td>", false)) {
             // logger.debug(LOG_MESSAGE + "Check  : '" + searchResult + "'");
-            final int nameIndex;
-            final int yearIndex;
+            boolean foundMatch = false;
             if (exactMatch) {
-                nameIndex = searchResult.toLowerCase().indexOf(formattedName + formattedYear);
-                yearIndex = nameIndex + 1;
+                foundMatch = (searchResult.toLowerCase().indexOf(formattedExact) != -1);
             } else {
-                nameIndex = searchResult.toLowerCase().indexOf(formattedName);
+                int nameIndex = searchResult.toLowerCase().indexOf(formattedName);
                 if (nameIndex != -1 ) {
-                    yearIndex = searchResult.indexOf(formattedYear);
-                } else  {
-                    yearIndex = -1;
+                    foundMatch = (searchResult.indexOf(formattedYear) > nameIndex);
                 }
             }
-            if ((nameIndex != -1) && (yearIndex > nameIndex)) {
+            
+            if (foundMatch) {
                 // logger.debug(LOG_MESSAGE + "Title match  : '" + searchResult + "'");
                 return HTMLTools.extractTag(searchResult, "<a href=\"" + (objectType.equals(OBJECT_MOVIE) ? "/title/" : "/name/"), "/");
             } else {
