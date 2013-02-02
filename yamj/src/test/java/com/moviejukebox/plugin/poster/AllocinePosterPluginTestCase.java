@@ -22,18 +22,25 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import org.apache.log4j.BasicConfigurator;
+
+import com.moviejukebox.tools.PropertiesUtil;
+
 import junit.framework.TestCase;
 
 public class AllocinePosterPluginTestCase extends TestCase {
 
-    private static final String ID_MOVIE = "61282";
+    public AllocinePosterPluginTestCase() {
+        BasicConfigurator.configure();
+        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "allocine");
+    }
 
     public void testGetId() {
-        AllocinePosterPlugin toTest = new AllocinePosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null);
+        AllocinePosterPlugin posterPlugin = new AllocinePosterPlugin();
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Avatar", "2009");
         assertEquals("61282", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(ID_MOVIE).getUrl();
+        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://images.allocine.fr/r_760_x/medias/nmedia/18/64/43/65/19211318.jpg", posterUrl);
     }
 }

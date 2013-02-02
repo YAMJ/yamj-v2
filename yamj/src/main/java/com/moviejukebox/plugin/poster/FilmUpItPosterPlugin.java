@@ -30,12 +30,15 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
-import java.net.URLEncoder;
+import java.text.ParseException;
+
 import org.apache.log4j.Logger;
 
 public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
 
     private WebBrowser webBrowser;
+    private FilmUpITPlugin filmupitPlugin;
+
     private static final Logger logger = Logger.getLogger(FilmUpItPosterPlugin.class);
     private static final String LOG_MESSAGE = "FilmUpItPosterPlugin: ";
 
@@ -48,29 +51,17 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
         }
 
         webBrowser = new WebBrowser();
+        filmupitPlugin = new FilmUpITPlugin();
     }
 
     @Override
     public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
         try {
-            StringBuilder sb = new StringBuilder("http://filmup.leonardo.it/cgi-bin/search.cgi?ps=10&fmt=long&q=");
-            sb.append(URLEncoder.encode(title.replace(' ', '+'), "iso-8859-1"));
-            sb.append("&ul=%25%2Fsc_%25&x=0&y=0&m=any&wf=0020&wm=wrd&sy=0");
-            String xml = webBrowser.request(sb.toString());
-
-            String filmUpITStartResult = "<DT>1.";
-            String filmUpITMediaPrefix = "sc_";
-
-            for (String searchResult : HTMLTools.extractTags(xml, filmUpITStartResult, "<DD>", filmUpITMediaPrefix, ".htm", false)) {
-                return searchResult;
-            }
-
-            logger.debug(LOG_MESSAGE + "No ID Found with request : " + sb.toString());
-            return Movie.UNKNOWN;
-
-        } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed to retrieve FilmUp ID for movie : " + title);
+            response = filmupitPlugin.getFilmUpITId(title, year);
+        } catch (ParseException error) {
+            logger.error(LOG_MESSAGE + "Failed to get FilmUpIT ID for " + title + "(" + year + ")");
+            logger.error(SystemTools.getStackTrace(error));
         }
         return response;
     }

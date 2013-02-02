@@ -22,13 +22,22 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import org.apache.log4j.BasicConfigurator;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
+
 import junit.framework.TestCase;
 
 public class SubBabaPosterPluginTestCase extends TestCase {
 
-    SubBabaPosterPlugin posterPlugin = new SubBabaPosterPlugin();
+    private SubBabaPosterPlugin posterPlugin = new SubBabaPosterPlugin();
+
+    public SubBabaPosterPluginTestCase() {
+        BasicConfigurator.configure();
+        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "subbaba");
+    }
 
     public void testGetIdFromMovieInfo() {
         String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Gladiator", null);

@@ -22,19 +22,26 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import org.apache.log4j.BasicConfigurator;
+
 import com.moviejukebox.model.IImage;
+import com.moviejukebox.tools.PropertiesUtil;
+
 import junit.framework.TestCase;
 
 public class PassionXbmcPosterPluginTestCase extends TestCase {
 
-    private static final String ID_MOVIE = "61282";
+    public PassionXbmcPosterPluginTestCase() {
+        BasicConfigurator.configure();
+        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "passionxbmc");
+    }
 
     public void testGetId() {
-        PassionXbmcPosterPlugin toTest = new PassionXbmcPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null);
+        PassionXbmcPosterPlugin posterPlugin = new PassionXbmcPosterPlugin();
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Avatar", null);
         assertEquals("61282", idFromMovieInfo);
 
-        IImage posterImage = toTest.getPosterUrl(ID_MOVIE);
+        IImage posterImage = posterPlugin.getPosterUrl(idFromMovieInfo);
         assertEquals("http://passion-xbmc.org/scraper/Gallery/main/Poster-357939.jpg", posterImage.getUrl());
     }
 }

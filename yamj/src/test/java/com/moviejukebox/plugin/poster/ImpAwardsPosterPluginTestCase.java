@@ -22,16 +22,25 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import org.apache.log4j.BasicConfigurator;
+
+import com.moviejukebox.tools.PropertiesUtil;
+
 import junit.framework.TestCase;
 
 public class ImpAwardsPosterPluginTestCase extends TestCase {
 
+    public ImpAwardsPosterPluginTestCase() {
+        BasicConfigurator.configure();
+        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "impawards");
+    }
+
     public void testGetId() {
-        ImpAwardsPosterPlugin toTest = new ImpAwardsPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator","2000");
+        ImpAwardsPosterPlugin posterPlugin = new ImpAwardsPosterPlugin();
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Gladiator","2000");
         assertEquals("2000/posters/gladiator_ver1.html", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.impawards.com/2000/posters/gladiator_ver1.jpg", posterUrl);
     }
 }

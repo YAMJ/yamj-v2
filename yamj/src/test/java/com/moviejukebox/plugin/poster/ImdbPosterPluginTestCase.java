@@ -22,15 +22,22 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import org.apache.log4j.BasicConfigurator;
+
+import com.moviejukebox.tools.PropertiesUtil;
+
 import junit.framework.TestCase;
 
 public class ImdbPosterPluginTestCase extends TestCase {
 
+    public ImdbPosterPluginTestCase() {
+        BasicConfigurator.configure();
+        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "imdb");
+    }
+
     public void testGetId() {
-        ImdbPosterPlugin toTest = new ImdbPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar",null);
+        ImdbPosterPlugin posterPlugin = new ImdbPosterPlugin();
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Avatar", null);
         assertEquals("tt0499549", idFromMovieInfo);
-
-
     }
 }
