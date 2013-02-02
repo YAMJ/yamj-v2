@@ -338,7 +338,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // ASPECT RATIO
-        updateMovieInfoAspectRatio(movie, xml, this.siteDef);
+        updateMovieInfoAspectRatio(movie, xml);
 
         if (OverrideTools.checkOverwriteCountry(movie, IMDB_PLUGIN_ID)) {
             // HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCountry() + HTML_H5, HTML_DIV, "<a href", HTML_A_END)
@@ -731,7 +731,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // ASPECT RATIO
-        updateMovieInfoAspectRatio(movie, xml, siteDef2);
+        updateMovieInfoAspectRatio(movie, xml);
 
         // COUNTRY
         if (OverrideTools.checkOverwriteCountry(movie, IMDB_PLUGIN_ID)) {
@@ -1075,12 +1075,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param xml
      * @param sideDef
      */
-    private void updateMovieInfoAspectRatio(Movie movie, String xml, ImdbSiteDataDefinition sideDef) {
+    private void updateMovieInfoAspectRatio(Movie movie, String xml) {
         if (OverrideTools.checkOverwriteAspectRatio(movie, IMDB_PLUGIN_ID)) {
             // determine start and end string
             String startString;
             String endString;
-            if (!getFullInfo && siteDef.getSite().contains("imdb.com")) {
+            if (!getFullInfo && imdbInfo.getImdbSite().equalsIgnoreCase("us")) {
                 startString = "<h4 class=\"inline\">" + siteDef.getAspectRatio() + HTML_H4_END;
                 endString = HTML_DIV;
             } else {
