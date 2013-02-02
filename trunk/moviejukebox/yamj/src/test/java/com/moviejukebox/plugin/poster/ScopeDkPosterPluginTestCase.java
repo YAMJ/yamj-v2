@@ -22,16 +22,25 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import org.apache.log4j.BasicConfigurator;
+
+import com.moviejukebox.tools.PropertiesUtil;
+
 import junit.framework.TestCase;
 
 public class ScopeDkPosterPluginTestCase extends TestCase {
 
+    public ScopeDkPosterPluginTestCase() {
+        BasicConfigurator.configure();
+        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "scopeDk");
+    }
+
     public void testGetId() {
-        ScopeDkPosterPlugin toTest = new ScopeDkPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", null);
+        ScopeDkPosterPlugin posterPlugin = new ScopeDkPosterPlugin();
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Gladiator", null);
         assertEquals("1", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.scope.dk/images/film/000001/00000333_gladiator_ukendt_360.jpg", posterUrl);
     }
 }

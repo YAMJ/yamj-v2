@@ -22,7 +22,6 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.OverrideTools;
@@ -163,7 +162,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
         try {
             String filmUpITId = mediaFile.getId(FILMUPIT_PLUGIN_ID);
             if (StringTools.isNotValidString(filmUpITId)) {
-                filmUpITId = getFilmUpITId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile);
+                filmUpITId = getFilmUpITId(mediaFile.getTitle(), mediaFile.getYear());
             }
 
             // we also get imdb Id for extra infos
@@ -198,7 +197,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
      *
      * @throws ParseException
      */
-    private String getFilmUpITId(String movieName, String year, Identifiable mediaFile) throws ParseException {
+    public String getFilmUpITId(String movieName, String year) throws ParseException {
         String filmUpITId = Movie.UNKNOWN;
 
         try {

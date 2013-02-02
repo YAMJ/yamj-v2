@@ -22,16 +22,26 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import org.apache.log4j.BasicConfigurator;
+
+import com.moviejukebox.plugin.FilmUpITPlugin;
+import com.moviejukebox.tools.PropertiesUtil;
+
 import junit.framework.TestCase;
 
 public class FilmUpItPosterPluginTestCase extends TestCase {
 
+    public FilmUpItPosterPluginTestCase() {
+        BasicConfigurator.configure();
+        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", FilmUpITPlugin.FILMUPIT_PLUGIN_ID);
+    }
+
     public void testGetId() {
-        FilmUpItPosterPlugin toTest = new FilmUpItPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null);
+        FilmUpItPosterPlugin posterPlugin = new FilmUpItPosterPlugin();
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Avatar", "2009");
         assertEquals("avatar", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://filmup.leonardo.it/posters/loc/500/avatar.jpg", posterUrl);
     }
 }

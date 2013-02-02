@@ -41,9 +41,9 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
         super();
 
         // Check to see if we are needed
-        /*if (!isNeeded()) {
+        if (!isNeeded()) {
             return;
-        }*/
+        }
 
         webBrowser = new WebBrowser();
         filmAffinityInfo = new FilmAffinityInfo();

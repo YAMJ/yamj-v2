@@ -23,58 +23,64 @@
 package com.moviejukebox.plugin.poster;
 
 import static org.junit.Assert.*;
+
+import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
+
+import com.moviejukebox.tools.PropertiesUtil;
 
 public class CaratulasdecinePosterPluginTest {
 
-    CaratulasdecinePosterPlugin toTest = new CaratulasdecinePosterPlugin();
+    CaratulasdecinePosterPlugin posterPlugin = new CaratulasdecinePosterPlugin();
 
     public CaratulasdecinePosterPluginTest() {
+        BasicConfigurator.configure();
+        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "caratulasdecine");
     }
 
     @Test
     public void testGetId() {
 
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Millennium 1", null);
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Millennium 1", null);
         assertEquals("4504", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.caratulasdecine.com/Caratulas5/millennium1_loshombresquenoamabanalasmujeres.jpg", posterUrl);
     }
 
     @Test
     public void testGetList() {
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("El ultimátum de Bourne", null);
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("El ultimátum de Bourne", null);
         assertEquals("3654", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.caratulasdecine.com/Caratulas4/elultimatumdebourne.jpg", posterUrl);
     }
 
     @Test
     public void testGetTroya() {
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Troya", null);
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Troya", null);
         assertEquals("2141", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.caratulasdecine.com/Caratulas1/Troya.jpg", posterUrl);
     }
 
     @Test
     public void testGetEnTierraHostil() {
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("En tierra hostil", null);
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("En tierra hostil", null);
         assertEquals("4783", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.caratulasdecine.com/Caratulas5/entierrahostil.jpg", posterUrl);
     }
 
     @Test
     public void testGetUp() {
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Up", null);
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Up", null);
         assertEquals("4568", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.caratulasdecine.com/Caratulas5/up.jpg", posterUrl);
     }
 }

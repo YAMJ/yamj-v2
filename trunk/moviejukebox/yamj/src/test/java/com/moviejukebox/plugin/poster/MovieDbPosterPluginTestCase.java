@@ -22,18 +22,25 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import org.apache.log4j.BasicConfigurator;
+
 import com.moviejukebox.tools.PropertiesUtil;
 import junit.framework.TestCase;
 
 public class MovieDbPosterPluginTestCase extends TestCase {
 
+    public MovieDbPosterPluginTestCase() {
+        BasicConfigurator.configure();
+        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "themoviedb");
+    }
+
     public void testGetId() {
         PropertiesUtil.setProperty("API_KEY_TheMovieDB", "5a1a77e2eba8984804586122754f969f");
-        MovieDbPosterPlugin toTest = new MovieDbPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", "2000");
+        MovieDbPosterPlugin posterPlugin = new MovieDbPosterPlugin();
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Gladiator", "2000");
         assertEquals("98", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
-        assertEquals("http://images.themoviedb.org/posters/1297/Gladiator.jpg", posterUrl);
+        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
+        assertEquals("http://d3gtl9l2a4fn1j.cloudfront.net/t/p/original/6WBIzCgmDCYrqh64yDREGeDk9d3.jpg", posterUrl);
     }
 }

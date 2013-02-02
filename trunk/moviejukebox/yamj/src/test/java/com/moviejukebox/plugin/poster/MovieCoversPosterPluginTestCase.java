@@ -22,16 +22,25 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import org.apache.log4j.BasicConfigurator;
+
+import com.moviejukebox.tools.PropertiesUtil;
+
 import junit.framework.TestCase;
 
 public class MovieCoversPosterPluginTestCase extends TestCase {
 
+    public MovieCoversPosterPluginTestCase() {
+        BasicConfigurator.configure();
+        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "moviecovers");
+    }
+
     public void testGetId() {
-        MovieCoversPosterPlugin toTest = new MovieCoversPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", "2000");
+        MovieCoversPosterPlugin posterPlugin = new MovieCoversPosterPlugin();
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Gladiator", "2000");
         assertEquals("GLADIATOR.", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.moviecovers.com/getjpg.html/GLADIATOR", posterUrl);
     }
 }

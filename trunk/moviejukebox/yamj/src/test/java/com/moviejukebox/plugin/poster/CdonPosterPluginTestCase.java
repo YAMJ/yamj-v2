@@ -22,18 +22,27 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import org.apache.log4j.BasicConfigurator;
+
+import com.moviejukebox.tools.PropertiesUtil;
+
 import junit.framework.TestCase;
 
 public class CdonPosterPluginTestCase extends TestCase {
 
     private static final String ID_MOVIE = "http://cdon.se/film/gladiator-89625";
 
+    public CdonPosterPluginTestCase() {
+        BasicConfigurator.configure();
+        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "cdon");
+    }
+
     public void testGetId() {
-        CdonPosterPlugin toTest = new CdonPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Gladiator", null, -1);
+        CdonPosterPlugin posterPlugin = new CdonPosterPlugin();
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Gladiator", null, -1);
         assertEquals(ID_MOVIE, idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(ID_MOVIE).getUrl();
+        String posterUrl = posterPlugin.getPosterUrl(ID_MOVIE).getUrl();
         assertEquals("http://cdon.se/media-dynamic/images/product/000/440/440892.jpg", posterUrl);
     }
 }

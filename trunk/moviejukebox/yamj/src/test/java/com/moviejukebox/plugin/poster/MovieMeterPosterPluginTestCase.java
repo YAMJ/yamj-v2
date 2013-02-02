@@ -22,19 +22,26 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import org.apache.log4j.BasicConfigurator;
+
 import com.moviejukebox.tools.PropertiesUtil;
 
 import junit.framework.TestCase;
 
 public class MovieMeterPosterPluginTestCase extends TestCase {
 
-    public void testGetId() {
+    public MovieMeterPosterPluginTestCase() {
+        BasicConfigurator.configure();
+        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "movieposter");
         PropertiesUtil.setProperty("API_KEY_MovieMeter","tyk0awf19uqm65mjfsqw9z9rx6t706pe");
-        MovieMeterPosterPlugin toTest = new MovieMeterPosterPlugin();
-        String idFromMovieInfo = toTest.getIdFromMovieInfo("Avatar", null);
+    }
+
+    public void testGetId() {
+        MovieMeterPosterPlugin posterPlugin = new MovieMeterPosterPlugin();
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Avatar", null);
         assertEquals("17552", idFromMovieInfo);
 
-        String posterUrl = toTest.getPosterUrl(idFromMovieInfo).getUrl();
+        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://www.moviemeter.nl/images/covers/17000/17552.jpg", posterUrl);
     }
 }
