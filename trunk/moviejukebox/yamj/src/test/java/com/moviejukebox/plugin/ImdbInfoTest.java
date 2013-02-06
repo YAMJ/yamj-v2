@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.log4j.BasicConfigurator;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import org.junit.Test;
 
 import com.moviejukebox.tools.PropertiesUtil;
@@ -49,33 +50,77 @@ public class ImdbInfoTest {
     }
 
     @Test
-    public void testImdbMovieIdExactMatch() {
+    public void testImdbMovieId_VariableOff() {
         Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
         for (String site : keySet) {
             PropertiesUtil.setProperty("imdb.site", site);
-            PropertiesUtil.setProperty("imdb.exact.match", "true");
+            PropertiesUtil.setProperty("imdb.id.search.match", "first");
+            PropertiesUtil.setProperty("imdb.id.search.variable", "false");
             ImdbInfo imdbInfo = new ImdbInfo();
             
-            String id = imdbInfo.getImdbId("Avatar", "2009");
-            if ("pt".equalsIgnoreCase(site)) {
-                // for PT --> found correct on google
-                assertEquals("Search site " + site, "tt0499549", id); // correct one
-            } else {
-                assertEquals("Search site " + site, "tt2119855", id); // false one
-            }
+            String id = imdbInfo.getImdbId("Abraham Lincoln Vampire Hunter", null, false);
+            assertNotEquals("Search site " + site, "tt1611224", id); // correct one
         }
     }
 
+    @Test
+    public void testImdbMovieId_VariableOn() {
+        Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
+        for (String site : keySet) {
+            PropertiesUtil.setProperty("imdb.site", site);
+            PropertiesUtil.setProperty("imdb.id.search.match", "first");
+            PropertiesUtil.setProperty("imdb.id.search.variable", "true");
+            ImdbInfo imdbInfo = new ImdbInfo();
+            
+            String id = imdbInfo.getImdbId("Abraham Lincoln Vampire Hunter", null, false);
+            assertEquals("Search site " + site, "tt1611224", id); // correct one
+        }
+    }
+
+    @Test
+    public void testImdbMovieIdFirstMatch() {
+        Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
+        for (String site : keySet) {
+            PropertiesUtil.setProperty("imdb.site", site);
+            PropertiesUtil.setProperty("imdb.id.search.match", "first");
+            PropertiesUtil.setProperty("imdb.id.search.variable", "false");
+            ImdbInfo imdbInfo = new ImdbInfo();
+            
+            String id = imdbInfo.getImdbId("Avatar", "2009", false);
+            assertEquals("Search site " + site, "tt0499549", id); // correct one
+        }
+    }
+    
     @Test
     public void testImdbMovieIdRegularMatch() {
         Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
         for (String site : keySet) {
             PropertiesUtil.setProperty("imdb.site", site);
-            PropertiesUtil.setProperty("imdb.exact.match", "false");
+            PropertiesUtil.setProperty("imdb.id.search.match", "regular");
+            PropertiesUtil.setProperty("imdb.id.search.variable", "false");
             ImdbInfo imdbInfo = new ImdbInfo();
             
-            String id = imdbInfo.getImdbId("Avatar", "2009");
+            String id = imdbInfo.getImdbId("Avatar", "2009", false);
             assertEquals("Search site " + site, "tt0499549", id); // correct one
+        }
+    }
+
+    @Test
+    public void testImdbMovieIdExactMatch() {
+        Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
+        for (String site : keySet) {
+            PropertiesUtil.setProperty("imdb.site", site);
+            PropertiesUtil.setProperty("imdb.id.search.match", "exact");
+            PropertiesUtil.setProperty("imdb.id.search.variable", "false");
+            ImdbInfo imdbInfo = new ImdbInfo();
+            
+            String id = imdbInfo.getImdbId("Avatar", "2009", false);
+            if ("pt".equalsIgnoreCase(site)) {
+                // for PT --> found correct on google
+                assertEquals("Search site " + site, "tt0499549", id); // correct one
+            } else {
+                assertNotEquals("Search site " + site, "tt0499549", id); // false one
+            }
         }
     }
 }

@@ -397,7 +397,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
             // we also get imdb Id for extra infos
             if (isNotValidString(mediaFile.getId(IMDB_PLUGIN_ID))) {
-                mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getOriginalTitle(), mediaFile.getYear()));
+                mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getOriginalTitle(), mediaFile.getYear(), mediaFile.isTVShow()));
                 logger.debug(LOG_MESSAGE + "Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
 
