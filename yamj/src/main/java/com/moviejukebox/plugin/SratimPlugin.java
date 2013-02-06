@@ -738,7 +738,7 @@ public class SratimPlugin extends ImdbPlugin {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
 
         if (StringTools.isNotValidString(imdbId)) {
-            imdbId = imdbInfo.getImdbId(movie.getTitle(), movie.getYear());
+            imdbId = imdbInfo.getImdbId(movie.getTitle(), movie.getYear(), movie.isTVShow());
             movie.setId(IMDB_PLUGIN_ID, imdbId);
         }
         

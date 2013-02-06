@@ -114,7 +114,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
 
             // we also get imdb Id for extra infos
             if (StringTools.isNotValidString(mediaFile.getId(IMDB_PLUGIN_ID))) {
-                mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getTitle(), mediaFile.getYear()));
+                mediaFile.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(mediaFile.getTitle(), mediaFile.getYear(), mediaFile.isTVShow()));
                 logger.debug("Found imdbId = " + mediaFile.getId(IMDB_PLUGIN_ID));
             }
 

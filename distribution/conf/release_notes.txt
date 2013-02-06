@@ -29,7 +29,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2565 Stop over writing Skin when moviejukebox.properties is modified
  - Fixed defect #2566 Fixed retrieval of certification from allocine
  - Fixed defect #2571 Scan multipart movies for complete runtime
- - Fixed defect #2574 Exact or regular search for movie title and year within IMDB
+ - Fixed defect #2574 Enhanced search for movie title and year within IMDB
  - Fixed defect #2576 Add comma even if output field value is empty
  - Enhancement  #2577 Limit number of scanned items in a single run
  - Fixed defect #2578 Error parsing TrailerLastScan from XML
