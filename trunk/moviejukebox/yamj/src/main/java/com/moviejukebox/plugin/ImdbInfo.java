@@ -90,6 +90,9 @@ public class ImdbInfo {
         // Not 100% sure these are correct
         MATCHES_DATA_PER_SITE.put("it2", new ImdbSiteDataDefinition("http://www.imdb.it/", "UTF-8", "Regista|Registi|Regia di", "Attori", "Data di uscita", "Durata", "Aspect Ratio",
                 "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Divieti", "Data di uscita", "Sceneggiatore|Scritto da", "Taglines"));
+
+        MATCHES_DATA_PER_SITE.put("es2", new ImdbSiteDataDefinition("http://www.imdb.es/", "ISO-8859-1", "Director|Dirigida por", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Relaci&#xF3;n de Aspecto", "Pa&#xED;s",
+                "Compa&#xF1;&#xED;a", "G&#xE9;nero", "Citas", "Trama", "Rated", "Clasificaci&#xF3;n", "Fecha de Estreno", "Escritores|Cr&#xE9;ditos del gui&#xF3;n", "Taglines"));
     }
 
     public void setPreferredSearchEngine(String preferredSearchEngine) {
@@ -110,7 +113,7 @@ public class ImdbInfo {
     /**
      * Retrieve the IMDb matching the specified movie name and year. This
      * routine is based on a IMDb request.
-     * 
+     *
      * @param movieName the name of the movie
      * @param year the year
      * @return the movie ID or UNKNOWN
@@ -122,7 +125,7 @@ public class ImdbInfo {
     /**
      * Retrieve the IMDb matching the specified movie name and year. This
      * routine is based on a IMDb request.
-     * 
+     *
      * @param movieName the name of the movie
      * @param year the year
      * @param isTVShow flag to indicate if the searched movie is a TV show
@@ -131,11 +134,11 @@ public class ImdbInfo {
     public String getImdbId(String movieName, String year, boolean isTVShow) {
         return getImdbId(movieName, year, (isTVShow?CATEGORY_TV:CATEGORY_MOVIE));
     }
-    
+
     /**
      * Retrieve the IMDb matching the specified movie name and year. This
      * routine is based on a IMDb request.
-     * 
+     *
      * @param movieName the name of the movie
      * @param year the year
      * @param categoryType the type of the category to search within
@@ -370,7 +373,7 @@ public class ImdbInfo {
         final String formattedName;
         final String formattedYear;
         final String formattedExact;
-        
+
         if (SEARCH_FIRST.equalsIgnoreCase(searchMatch)) {
             // first match so nothing more to check
             formattedName = null;
@@ -402,7 +405,7 @@ public class ImdbInfo {
             } else {
                 formattedYear = "</a>";
                 formattedExact = formattedName + formattedYear;
-                
+
             }
             searchName = formattedExact;
         }
@@ -423,7 +426,7 @@ public class ImdbInfo {
                     foundMatch = (searchResult.indexOf(formattedYear) > nameIndex);
                 }
             }
-            
+
             if (foundMatch) {
                 // logger.debug(LOG_MESSAGE + "Title match  : '" + searchResult + "'");
                 return HTMLTools.extractTag(searchResult, "<a href=\"" + (objectType.equals(OBJECT_MOVIE) ? "/title/" : "/name/"), "/");
