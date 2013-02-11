@@ -64,7 +64,7 @@ public class PropertiesUtil {
             if (warnFatal) {
                 logger.error("Failed loading file " + streamName + ": Please check your configuration. The properties file should be in the classpath.");
             } else {
-                logger.warn("Warning (non-fatal): User properties file '" + streamName + "', not found.");
+                logger.debug("Warning (non-fatal): User properties file '" + streamName + "', not found.");
             }
             return false;
         } finally {
