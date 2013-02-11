@@ -93,6 +93,9 @@ public class ImdbInfo {
 
         MATCHES_DATA_PER_SITE.put("es2", new ImdbSiteDataDefinition("http://www.imdb.es/", "ISO-8859-1", "Director|Dirigida por", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Relaci&#xF3;n de Aspecto", "Pa&#xED;s",
                 "Compa&#xF1;&#xED;a", "G&#xE9;nero", "Citas", "Trama", "Rated", "Clasificaci&#xF3;n", "Fecha de Estreno", "Escritores|Cr&#xE9;ditos del gui&#xF3;n", "Taglines"));
+
+        MATCHES_DATA_PER_SITE.put("de2", new ImdbSiteDataDefinition("http://www.imdb.de/", "ISO-8859-1", "Regisseur|Regie", "Besetzung", "Premierendatum", "L&#xE4;nge", "Seitenverh&#xE4;ltnis", "Land",
+                "Firma", "Genre", "Nutzerkommentare", "Handlung", "Rated", "Altersfreigabe", "Premierendatum", "Drehbuchautor", "Unterhaltsames"));
     }
 
     public void setPreferredSearchEngine(String preferredSearchEngine) {
