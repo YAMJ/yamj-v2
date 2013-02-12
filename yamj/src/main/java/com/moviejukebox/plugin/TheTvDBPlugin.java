@@ -72,7 +72,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private boolean onlySeriesBanners;
     private boolean cycleSeriesBanners;
     private boolean textBanners;
-    private boolean dvdEpisodes = false;
+    private boolean dvdEpisodes = Boolean.FALSE;
     private int preferredPlotLength;
 
     public TheTvDBPlugin() {
@@ -176,7 +176,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
 
                 if (OverrideTools.checkOverwritePlot(movie, THETVDB_PLUGIN_ID)) {
-                    movie.setPlot(series.getOverview(), THETVDB_PLUGIN_ID);
+                    String seriesPlot = trimToLength(series.getOverview(), preferredPlotLength, Boolean.TRUE, plotEnding);
+                    movie.setPlot(seriesPlot, THETVDB_PLUGIN_ID);
                 }
 
                 if (OverrideTools.checkOverwriteCertification(movie, THETVDB_PLUGIN_ID)) {
@@ -196,7 +197,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     if (StringTools.isValidString(bannerUrl)) {
                         movie.setBannerURL(bannerUrl);
 
-                        ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, movie.getBannerFilename(), false);
+                        ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, movie.getBannerFilename(), Boolean.FALSE);
                         Artwork artwork = new Artwork(ArtworkType.Banner, THETVDB_PLUGIN_ID, bannerUrl, artworkFile);
                         movie.addArtwork(artwork);
                         logger.debug(LOG_MESSAGE + "Used banner " + bannerUrl);
@@ -209,7 +210,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
             }
         }
 
-        return true;
+        return Boolean.TRUE;
     }
 
     /**
@@ -327,21 +328,21 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         // TODO Assign the writers on a per-episode basis, rather than series
                         if (setWriters && !episode.getWriters().isEmpty()) {
                             movie.setWriters(episode.getWriters(), THETVDB_PLUGIN_ID);
-                            setWriters = false;
+                            setWriters = Boolean.FALSE;
                         }
                         if (setPeopleWriters && !episode.getWriters().isEmpty()) {
                             movie.setPeopleWriters(episode.getWriters(), THETVDB_PLUGIN_ID);
-                            setPeopleWriters = false;
+                            setPeopleWriters = Boolean.FALSE;
                         }
 
                         // TODO Assign the director to each episode.
                         if (setDirectors && !episode.getDirectors().isEmpty()) {
                             movie.setDirectors(episode.getDirectors(), THETVDB_PLUGIN_ID);
-                            setDirectors = false;
+                            setDirectors = Boolean.FALSE;
                         }
                         if (setPeopleDirectors && !episode.getDirectors().isEmpty()) {
                             movie.setPeopleDirectors(episode.getDirectors(), THETVDB_PLUGIN_ID);
-                            setPeopleDirectors = false;
+                            setPeopleDirectors = Boolean.FALSE;
                         }
 
                         if (isNotValidString(file.getAirsAfterSeason(part))) {
@@ -377,7 +378,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         if (includeEpisodePlots) {
                             if (isNotValidString(file.getPlot(part))) {
                                 String episodePlot = episode.getOverview();
-                                episodePlot = trimToLength(episodePlot, preferredPlotLength, true, plotEnding);
+                                episodePlot = trimToLength(episodePlot, preferredPlotLength, Boolean.TRUE, plotEnding);
                                 file.setPlot(part, episodePlot);
                             }
                         }
@@ -448,7 +449,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
     public boolean scanNFO(String nfo, Movie movie) {
         super.scanNFO(nfo, movie);
 
-        boolean result = false;
+        boolean result = Boolean.FALSE;
         logger.debug(LOG_MESSAGE + "Scanning NFO for TheTVDB Id");
         String compareString = nfo.toUpperCase();
         int idx = compareString.indexOf("THETVDB.COM");
@@ -479,7 +480,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 if (StringUtils.isNotBlank(id)) {
                     movie.setId(THETVDB_PLUGIN_ID, id.trim());
                     logger.debug(LOG_MESSAGE + "TheTVDB Id found in nfo = " + id.trim());
-                    result = true;
+                    result = Boolean.TRUE;
                 }
             }
         }
