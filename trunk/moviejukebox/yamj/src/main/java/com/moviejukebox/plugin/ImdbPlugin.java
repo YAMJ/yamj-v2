@@ -58,6 +58,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected int writerMax;
     private int triviaMax;
     protected ImdbSiteDataDefinition siteDef;
+    protected static final String DEFAULT_SITE_DEF = "us";
     protected ImdbInfo imdbInfo;
     protected AspectRatioTools aspectTools;
     protected static final String plotEnding = "...";
@@ -668,7 +669,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (siteDef2 == null) {
                 // c2 siteDef doesn't exist, so use labs to atleast return something
                 logger.error(LOG_MESSAGE + "No new format definition found for language '" + imdbInfo.getImdbSite() + "' using default language instead.");
-                siteDef2 = imdbInfo.getSiteDef("labs");
+                siteDef2 = imdbInfo.getSiteDef(DEFAULT_SITE_DEF);
             }
         }
 
@@ -843,7 +844,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // CERTIFICATION
         if (OverrideTools.checkOverwriteCertification(movie, IMDB_PLUGIN_ID)) {
             String certification = movie.getCertification();
-            String certXML = webBrowser.request(getImdbUrl(movie, siteDef2) + "parentalguide#certification", siteDef2.getCharset());
+            // Use the default site definition for the certification, because the local versions don't have the parentalguide page
+            String certXML = webBrowser.request(getImdbUrl(movie, imdbInfo.getSiteDef(DEFAULT_SITE_DEF)) + "parentalguide#certification", imdbInfo.getSiteDef(DEFAULT_SITE_DEF).getCharset());
             if (extractCertificationFromMPAA) {
                 String mpaa = HTMLTools.extractTag(certXML, "<h5><a href=\"/mpaa\">MPAA</a>:</h5>", 1);
                 if (!mpaa.equals(Movie.UNKNOWN)) {
