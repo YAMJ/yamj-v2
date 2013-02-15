@@ -200,6 +200,7 @@ public class FilmwebPluginTest extends TestCase {
     }
 
     public void testUpdateMediaInfoOutline() {
+        int outlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "500");
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Seksmisja");
         filmwebPlugin.setRequestResult("<span class=imgRepInNag>Seksmisja</span></h2><p class=cl><span class=filmDescrBg property=\"v:summary\">9 sierpnia 1991 roku telewizja transmituje epokowy eksperyment: dwóch śmiałków - Maks (Jerzy Stuhr) i Albert (Olgierd Łukaszewicz), zostaje poddanych hibernacji. Podczas ich snu wybucha wojna nuklearna. Uczestnicy eksperymentu budzą się w 2044 roku. Od opiekującej się nimi doktor Lamii dowiadują się, że w ciągu ostatnich kilkudziesięciu lat geny męskie zostały całkowicie zniszczone promieniowaniem, a oni są prawdopodobnie jedynymi osobnikami płci męskiej, którzy przetrwali kataklizm. Niezwykła<span> społeczność kobiet, w jakiej znaleźli się bohaterowie, egzystuje w całkowicie sztucznych warunkach, głęboko pod powierzchnią ziemi. Władzę dyktatorską pełni tu Jej Ekscelencja, która darzy męskich osobników szczególnym zainteresowaniem. Maks i Albert znajdują się pod stałą obserwacją i ścisłą kontrolą. Takie życie na dłuższą metę wydaje im się jednak niemożliwe. Zdesperowani postanawiają więc uciec. </span> <a href=\"#\" class=see-more>więcej </a></span>");
         filmwebPlugin.updateMediaInfo(movie);
@@ -207,21 +208,19 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals(
                StringTools.trimToLength(
                    "9 sierpnia 1991 roku telewizja transmituje epokowy eksperyment: dwóch śmiałków - Maks (Jerzy Stuhr) i Albert (Olgierd Łukaszewicz), zostaje poddanych hibernacji. Podczas ich snu wybucha wojna nuklearna. Uczestnicy eksperymentu budzą się w 2044 roku. Od opiekującej się nimi doktor Lamii dowiadują się, że w ciągu ostatnich kilkudziesięciu lat geny męskie zostały całkowicie zniszczone promieniowaniem, a oni są prawdopodobnie jedynymi osobnikami płci męskiej, którzy przetrwali kataklizm. Niezwykła<span> społeczność kobiet, w jakiej znaleźli się bohaterowie, egzystuje w całkowicie sztucznych warunkach, głęboko pod powierzchnią ziemi. Władzę dyktatorską pełni tu Jej Ekscelencja, która darzy męskich osobników szczególnym zainteresowaniem. Maks i Albert znajdują się pod stałą obserwacją i ścisłą kontrolą. Takie życie na dłuższą metę wydaje im się jednak niemożliwe. Zdesperowani postanawiają więc uciec. ",
-                   filmwebPlugin.getPreferredOutlineLength()),
-                movie.getOutline());
+                   outlineLength), movie.getOutline());
     }
 
     public void testUpdateMediaInfoPlot() {
+        int plotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Waleczne.Serce");
-        filmwebPlugin.setPreferredPlotLength(Integer.MAX_VALUE);
         filmwebPlugin.setRequestResult("<div class=\"filmDescription comBox\">\n  \t<h2>\n  \t\t<a href=\"/Waleczne.Serce/descs\" class=\"hdrBig icoBig icoBigArticles\">\n  \t\t\t opisy filmu   \t\t</a>\t\t\n\t\t\t\t\t<span class=\"hdrAddInfo\">(10)</span>\n\t\t\t\t\n  \t\t  \t\t<a href=\"\t\t\t/Waleczne.Serce/contribute/descriptions\t\" class=\"add-button\" title=\"dodaj  opis filmu \" rel=\"nofollow\">  \t\t\t<span>dodaj  opis filmu </span>\n\n  \t\t</a>\n\t\t<span class=\"imgRepInNag\">Braveheart - Waleczne Serce</span>\n  \t</h2>\n\t\n\t\t\t\t\t   \t   \t\t<p class=\"cl\"><span class=\"filmDescrBg\" property=\"v:summary\">Pod koniec XIII wieku Szkocja dostaje się pod panowanie angielskiego króla, Edwarda I. Przejęcie władzy odbywa się w wyjątkowo krwawych okolicznościach. Jednym ze świadków gwałtów i morderstw jest kilkunastoletni chłopak, William Wallace. Po latach spędzonych pod opieką wuja dorosły William wraca do rodzinnej wioski. Jedną z pierwszych osób, które spotyka, jest Murron - przyjaciółka z lat dzieciństwa. Dawne uczucie przeradza się w wielką i szczerą miłość. Niestety wkrótce dziewczyna ginie z rąk<span> angielskich żołnierzy. Wydarzenie to staje się to momentem przełomowym w życiu młodego Szkota. William decyduje się bowiem na straceńczą walkę z okupantem i po brawurowym ataku zdobywa warownię wroga. Dzięki ogromnej odwadze zostaje wykreowany na przywódcę powstania przeciw angielskiej tyranii...</span> <a href=\"#\" class=\"see-more\">więcej </a></span></p>\n   \t\t  </div>");
         filmwebPlugin.updateMediaInfo(movie);
 
         assertEquals(
             StringTools.trimToLength(
                 "Pod koniec XIII wieku Szkocja dostaje się pod panowanie angielskiego króla, Edwarda I. Przejęcie władzy odbywa się w wyjątkowo krwawych okolicznościach. Jednym ze świadków gwałtów i morderstw jest kilkunastoletni chłopak, William Wallace. Po latach spędzonych pod opieką wuja dorosły William wraca do rodzinnej wioski. Jedną z pierwszych osób, które spotyka, jest Murron - przyjaciółka z lat dzieciństwa. Dawne uczucie przeradza się w wielką i szczerą miłość. Niestety wkrótce dziewczyna ginie z rąk angielskich żołnierzy. Wydarzenie to staje się to momentem przełomowym w życiu młodego Szkota. William decyduje się bowiem na straceńczą walkę z okupantem i po brawurowym ataku zdobywa warownię wroga. Dzięki ogromnej odwadze zostaje wykreowany na przywódcę powstania przeciw angielskiej tyranii...",
-                filmwebPlugin.getPreferredPlotLength()),
-                movie.getPlot());
+                plotLength), movie.getPlot());
     }
 
     public void testUpdateMediaInfoYear() {
