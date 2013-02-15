@@ -25,7 +25,6 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.io.UnsupportedEncodingException;
@@ -52,9 +51,6 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     private static final String LOG_MESSAGE = "FilmDeltaSEPlugin: ";
     public static final String FILMDELTA_PLUGIN_ID = "filmdelta";
     protected TheTvDBPlugin tvdb;
-    // Get properties for plotlength
-    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
-    private int preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
 
     public FilmDeltaSEPlugin() {
         super();
@@ -277,14 +273,12 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         if (StringTools.isValidString(extracted)) {
 
             if (OverrideTools.checkOverwritePlot(movie, FILMDELTA_PLUGIN_ID)) {
-                String plot = StringTools.trimToLength(extracted, preferredPlotLength, true, plotEnding);
-                movie.setPlot(plot, FILMDELTA_PLUGIN_ID);
+                movie.setPlot(extracted, FILMDELTA_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteOutline(movie, FILMDELTA_PLUGIN_ID)) {
                 //CJK 2010-09-15 filmdelta.se has no outlines - set outline to same as plot
-                String outline = StringTools.trimToLength(extracted, preferredOutlineLength, true, plotEnding);
-                movie.setOutline(outline, FILMDELTA_PLUGIN_ID);
+                movie.setOutline(extracted, FILMDELTA_PLUGIN_ID);
             }
         } else {
             logger.info(LOG_MESSAGE + "error finding plot for movie: " + movie.getTitle());

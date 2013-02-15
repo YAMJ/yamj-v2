@@ -47,8 +47,6 @@ public class KinopoiskPlugin extends ImdbPlugin {
     private static final Logger logger = Logger.getLogger(KinopoiskPlugin.class);
     private static final String LOG_MESSAGE = "KinopoiskPlugin: ";
     public static final String KINOPOISK_PLUGIN_ID = "kinopoisk";
-    // Define plot length
-    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     private String preferredRating = PropertiesUtil.getProperty("kinopoisk.rating", "imdb");
     private TheTvDBPlugin tvdb;
     // Shows what name is on the first position with respect to divider
@@ -374,10 +372,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
                 }
 
-                if (plot.length() > 0) {
-                    String newPlot = StringTools.trimToLength(plot.toString(), preferredPlotLength, true, plotEnding);
-                    movie.setPlot(newPlot, KINOPOISK_PLUGIN_ID);
-                }
+                movie.setPlot(plot.toString(), KINOPOISK_PLUGIN_ID);
 
                 if (etalonFlag && (plot.length() == 0)) {
                     logger.error(LOG_MESSAGE + "Site design changed - failed get plot!");
@@ -1129,7 +1124,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
 
                 if (StringTools.isValidString(bio.toString())) {
-                    person.setBiography(StringTools.trimToLength(bio.toString(), biographyLength, true, plotEnding));
+                    person.setBiography(StringTools.trimToLength(bio.toString(), biographyLength));
                 }
 
                 if (xml.indexOf("http://st.kinopoisk.ru/images/actor/" + kinopoiskId + ".jpg") > -1 && StringTools.isNotValidString(person.getPhotoURL())) {

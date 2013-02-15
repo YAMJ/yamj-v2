@@ -632,7 +632,7 @@ public class MovieJukeboxXMLReader {
                                     if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
                                         Element eFileParts = (Element) nFileParts;
                                         int part = NumberUtils.toInt(eFileParts.getAttribute(PART), 1);
-                                        movieFile.setPlot(part, eFileParts.getTextContent());
+                                        movieFile.setPlot(part, eFileParts.getTextContent(), Boolean.FALSE);
                                     }
                                 }
                             }
@@ -1075,7 +1075,7 @@ public class MovieJukeboxXMLReader {
         try {
             NodeList nlElement = element.getElementsByTagName("outline");
             Element tagElement = (Element) nlElement.item(0);
-            movie.setOutline(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+            movie.setOutline(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE), Boolean.FALSE);
         } catch (Exception ignore) {
             // ignore this error
         }
@@ -1085,7 +1085,7 @@ public class MovieJukeboxXMLReader {
         try {
             NodeList nlElement = element.getElementsByTagName("plot");
             Element tagElement = (Element) nlElement.item(0);
-            movie.setPlot(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+            movie.setPlot(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE), Boolean.FALSE);
         } catch (Exception ignore) {
             // ignore this error
         }

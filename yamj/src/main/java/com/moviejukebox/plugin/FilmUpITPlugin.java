@@ -50,7 +50,6 @@ public class FilmUpITPlugin extends ImdbPlugin {
     public String getPluginID() {
         return FILMUPIT_PLUGIN_ID;
     }
-    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
 
     /**
      * Scan FilmUp.IT HTML page for the specified movie
@@ -66,7 +65,6 @@ public class FilmUpITPlugin extends ImdbPlugin {
             // limit plot to FILMUPIT_PLUGIN_PLOT_LENGTH_LIMIT char
             if (OverrideTools.checkOverwritePlot(movie, FILMUPIT_PLUGIN_ID)) {
                 String tmpPlot = removeHtmlTags(extractTag(xml, "Trama:<br>", "</font><br>"));
-                tmpPlot = StringTools.trimToLength(tmpPlot, preferredPlotLength, true, plotEnding);
                 movie.setPlot(tmpPlot, FILMUPIT_PLUGIN_ID);
             }
 

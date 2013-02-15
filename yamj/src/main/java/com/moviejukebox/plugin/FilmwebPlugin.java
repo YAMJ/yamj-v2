@@ -45,14 +45,11 @@ public class FilmwebPlugin extends ImdbPlugin {
     private static final Logger logger = Logger.getLogger(FilmwebPlugin.class);
     private static final String LOG_MESSAGE = "FilmwebPlugin: ";
     public static final String FILMWEB_PLUGIN_ID = "filmweb";
-//    private static Pattern googlePattern = Pattern.compile(">(http://[^\"/?&]*filmweb.pl[^<\\s]*)");
     private static Pattern googlePattern = Pattern.compile("(http://[^\"/?&]*filmweb.pl[^\"&<\\s]*)");
     private static Pattern yahooPattern = Pattern.compile("http%3a(//[^\"/?&]*filmweb.pl[^\"]*)\"");
     private static Pattern filmwebPattern = Pattern.compile("searchResultTitle\"? href=\"([^\"]*)\"");
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
     private String filmwebPreferredSearchEngine;
-    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
-    private int preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
 
     public FilmwebPlugin() {
         super(); // use IMDB if filmweb doesn't know movie
@@ -70,22 +67,6 @@ public class FilmwebPlugin extends ImdbPlugin {
 
     public void setFilmwebPreferredSearchEngine(String filmwebPreferredSearchEngine) {
         this.filmwebPreferredSearchEngine = filmwebPreferredSearchEngine;
-    }
-
-    public int getPreferredOutlineLength() {
-        return preferredOutlineLength;
-    }
-
-    public void setPreferredOutlineLength(int preferredOutlineLength) {
-        this.preferredOutlineLength = preferredOutlineLength;
-    }
-
-    public int getPreferredPlotLength() {
-        return preferredPlotLength;
-    }
-
-    public void setPreferredPlotLength(int preferredPlotLength) {
-        this.preferredPlotLength = preferredPlotLength;
     }
 
     public void init() {
@@ -288,14 +269,11 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             String plot = HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "v:summary\">", "</span>"));
-            if (StringTools.isValidString(plot)) {
-                if (OverrideTools.checkOverwritePlot(movie, FILMWEB_PLUGIN_ID)) {
-                    movie.setPlot(StringTools.trimToLength(plot, preferredPlotLength), FILMWEB_PLUGIN_ID);
-                }
-
-                if (OverrideTools.checkOverwriteOutline(movie, FILMWEB_PLUGIN_ID)) {
-                    movie.setOutline(StringTools.trimToLength(plot, preferredOutlineLength), FILMWEB_PLUGIN_ID);
-                }
+            if (OverrideTools.checkOverwritePlot(movie, FILMWEB_PLUGIN_ID)) {
+                movie.setPlot(plot, FILMWEB_PLUGIN_ID);
+            }
+            if (OverrideTools.checkOverwriteOutline(movie, FILMWEB_PLUGIN_ID)) {
+                movie.setOutline(plot, FILMWEB_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteYear(movie, FILMWEB_PLUGIN_ID)) {

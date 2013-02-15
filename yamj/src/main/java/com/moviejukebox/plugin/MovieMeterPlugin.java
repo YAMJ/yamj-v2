@@ -54,13 +54,11 @@ public class MovieMeterPlugin extends ImdbPlugin {
     public static final String MOVIEMETER_PLUGIN_ID = "moviemeter";
     private MovieMeterPluginSession session;
     private String preferredSearchEngine;
-    private int preferredPlotLength;
 
     public MovieMeterPlugin() {
         super();
 
         preferredSearchEngine = PropertiesUtil.getProperty("moviemeter.id.search", "moviemeter");
-        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
 
         try {
             session = new MovieMeterPluginSession();
@@ -172,9 +170,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
 
             if (OverrideTools.checkOverwritePlot(mediaFile, MOVIEMETER_PLUGIN_ID)) {
                 if (filmInfo.get("plot") != null) {
-                    String tmpPlot = filmInfo.get("plot").toString();
-                    tmpPlot = StringTools.trimToLength(tmpPlot, preferredPlotLength, true, plotEnding);
-                    mediaFile.setPlot(tmpPlot, MOVIEMETER_PLUGIN_ID);
+                    mediaFile.setPlot(filmInfo.get("plot").toString(), MOVIEMETER_PLUGIN_ID);
                 }
             }
 

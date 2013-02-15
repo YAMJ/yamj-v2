@@ -30,6 +30,7 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+
 import com.moviejukebox.tools.StringTools;
 import java.io.File;
 import java.util.*;
@@ -74,6 +75,10 @@ public class MovieFile implements Comparable<MovieFile> {
     private static final Boolean DIR_HASH = PropertiesUtil.getBooleanProperty("mjb.dirHash", FALSE);
     private String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
     private String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");
+    // checks
+    private static final int MAX_LENGTH_PLOT = PropertiesUtil.getIntProperty("plugin.episode.maxlength", 
+            String.valueOf(PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500")));
+    
     private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
         private static final long serialVersionUID = 1247815606593469672L;
         {
@@ -149,9 +154,15 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     public void setPlot(int part, String plot) {
-        if (StringUtils.isBlank(plot)) {
+        this.setPlot(part, plot, Boolean.TRUE);
+    }
+
+    public void setPlot(int part, String plot, boolean trimToLength) {
+        if (StringTools.isNotValidString(plot)) {
             // Use UNKNOWN as the plot
             plots.put(part, Movie.UNKNOWN);
+        } else if (trimToLength) {
+            plots.put(part, StringTools.trimToLength(plot, MAX_LENGTH_PLOT));
         } else {
             plots.put(part, plot);
         }

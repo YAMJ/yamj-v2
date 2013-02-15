@@ -105,7 +105,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private FileMask fileMask;
 //    private static final String PICTURE_URL_BASE = "http://1.2.3.12/bmi/img7.anidb.net/pics/anime/";
     private static final String THETVDB_ANIDB_MAPPING_URL = "e:\\downloads\\anime-list.xml";//"http://sites.google.com/site/anidblist/anime-list.xml";
-//    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     private static UdpConnection anidbConn = null;
     private static boolean anidbConnectionProtection = false;   // Set this to true to stop further calls
     private static String anidbUsername;

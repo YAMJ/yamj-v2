@@ -50,7 +50,6 @@ public class AllocinePlugin extends ImdbPlugin {
     private XMLAllocineAPIHelper allocineAPI;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
-    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     protected TheTvDBPlugin tvdb = null;
     public static final String ALLOCINE_PLUGIN_ID = "allocine";
 
@@ -122,11 +121,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
             // Check Plot
             if (OverrideTools.checkOverwritePlot(movie, ALLOCINE_PLUGIN_ID)) {
-                String synopsis = tvSeriesInfos.getSynopsis();
-                if (isValidString(synopsis)) {
-                    String plot = trimToLength(synopsis, preferredPlotLength, true, plotEnding);
-                    movie.setPlot(plot, ALLOCINE_PLUGIN_ID);
-                }
+                movie.setPlot(tvSeriesInfos.getSynopsis(), ALLOCINE_PLUGIN_ID);
             }
 
             // Check ReleaseDate and Company
@@ -197,7 +192,7 @@ public class AllocinePlugin extends ImdbPlugin {
                             }
 
                             if (includeEpisodePlots && isNotValidString(file.getPlot(numEpisode))) {
-                                String episodePlot = trimToLength(HTMLTools.replaceHtmlTags(episode.getSynopsis(), " "), preferredPlotLength, true, plotEnding);
+                                String episodePlot = HTMLTools.replaceHtmlTags(episode.getSynopsis(), " ");
                                 file.setPlot(numEpisode, episodePlot);
                             }
                         }
@@ -297,11 +292,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
         // Check Plot
         if (OverrideTools.checkOverwritePlot(movie, ALLOCINE_PLUGIN_ID)) {
-            String synopsis = movieInfos.getSynopsis();
-            if (isValidString(synopsis)) {
-                String plot = trimToLength(synopsis, preferredPlotLength, true, plotEnding);
-                movie.setPlot(plot, ALLOCINE_PLUGIN_ID);
-            }
+            movie.setPlot(movieInfos.getSynopsis(), ALLOCINE_PLUGIN_ID);
         }
 
         // Check ReleaseDate and Company

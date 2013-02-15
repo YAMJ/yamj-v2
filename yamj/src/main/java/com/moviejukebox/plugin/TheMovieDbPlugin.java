@@ -66,8 +66,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private boolean downloadFanart;
     private static String fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
     private String fanartExtension;
-    private int preferredPlotLength;
-    private int preferredOutlineLength;
     public static final boolean INCLUDE_ADULT = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", FALSE);
     public static final int SEARCH_MATCH = PropertiesUtil.getIntProperty("themoviedb.searchMatch", "3");
     private static final String LANGUAGE_DELIMITER = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
@@ -101,8 +99,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
         downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", FALSE);
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
-        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
-        preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
     }
 
     @Override
@@ -324,16 +320,13 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         }
 
         // plot
-        if (StringTools.isValidString(moviedb.getOverview())) {
-            if (OverrideTools.checkOverwritePlot(movie, TMDB_PLUGIN_ID)) {
-                String plot = StringTools.trimToLength(moviedb.getOverview(), preferredPlotLength, true, "...");
-                movie.setPlot(plot, TMDB_PLUGIN_ID);
-            }
+        if (OverrideTools.checkOverwritePlot(movie, TMDB_PLUGIN_ID)) {
+            movie.setPlot(moviedb.getOverview(), TMDB_PLUGIN_ID);
+        }
 
-            if (OverrideTools.checkOverwriteOutline(movie, TMDB_PLUGIN_ID)) {
-                String outline = StringTools.trimToLength(moviedb.getOverview(), preferredOutlineLength, true, "...");
-                movie.setOutline(outline, TMDB_PLUGIN_ID);
-            }
+        // outline
+        if (OverrideTools.checkOverwriteOutline(movie, TMDB_PLUGIN_ID)) {
+            movie.setOutline(moviedb.getOverview(), TMDB_PLUGIN_ID);
         }
 
         // rating

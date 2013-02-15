@@ -53,16 +53,13 @@ public class TVRagePlugin extends ImdbPlugin {
     private TVRageApi tvRage;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
-    private int preferredPlotLength;
-    private int preferredOutlineLength;
+//    private int preferredPlotLength;
 
     public TVRagePlugin() {
         super();
         tvRage = new TVRageApi(API_KEY);
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", FALSE);
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
-        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
-        preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
     }
 
     @Override
@@ -130,17 +127,12 @@ public class TVRagePlugin extends ImdbPlugin {
             movie.setId(TVRAGE_PLUGIN_ID, id);
             showInfo = tvRage.getShowInfo(id);
 
-            // Update the plot & outline
-            if (isValidString(showInfo.getSummary())) {
-                if (OverrideTools.checkOverwritePlot(movie, TVRAGE_PLUGIN_ID)) {
-                    String plot = StringTools.trimToLength(showInfo.getSummary(), preferredPlotLength);
-                    movie.setPlot(plot, TVRAGE_PLUGIN_ID);
-                }
+            if (OverrideTools.checkOverwritePlot(movie, TVRAGE_PLUGIN_ID)) {
+                movie.setPlot(showInfo.getSummary(), TVRAGE_PLUGIN_ID);
+            }
 
-                if (OverrideTools.checkOverwriteOutline(movie, TVRAGE_PLUGIN_ID)) {
-                    String outline = StringTools.trimToLength(showInfo.getSummary(), preferredOutlineLength);
-                    movie.setOutline(outline, TVRAGE_PLUGIN_ID);
-                }
+            if (OverrideTools.checkOverwriteOutline(movie, TVRAGE_PLUGIN_ID)) {
+                movie.setOutline(showInfo.getSummary(), TVRAGE_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteGenres(movie, TVRAGE_PLUGIN_ID)) {
@@ -221,19 +213,13 @@ public class TVRagePlugin extends ImdbPlugin {
                         }
 
                         if (includeEpisodePlots && isNotValidString(file.getPlot(part))) {
-                            String episodePlot = episode.getSummary();
-                            if (isValidString(episodePlot)) {
-                                episodePlot = trimToLength(episodePlot, preferredPlotLength, true, plotEnding);
-                                file.setPlot(part, episodePlot);
-                                }
+                            file.setPlot(part, episode.getSummary());
                         }
 
-                        if (includeVideoImages) {
-                            if (isNotValidString(file.getVideoImageFilename(part))) {
-                                String episodeImage = episode.getScreenCap();
-                                if (isValidString(episodeImage)) {
-                                    file.setVideoImageURL(part, episodeImage);
-                                }
+                        if (includeVideoImages && isNotValidString(file.getVideoImageFilename(part))) {
+                            String episodeImage = episode.getScreenCap();
+                            if (isValidString(episodeImage)) {
+                                file.setVideoImageURL(part, episodeImage);
                             }
                         } else {
                             file.setVideoImageURL(part, Movie.UNKNOWN);

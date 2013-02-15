@@ -73,7 +73,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private boolean cycleSeriesBanners;
     private boolean textBanners;
     private boolean dvdEpisodes = Boolean.FALSE;
-    private int preferredPlotLength;
 
     public TheTvDBPlugin() {
         super();
@@ -88,7 +87,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
         downloadFanart = PropertiesUtil.getBooleanProperty("fanart.tv.download", FALSE);
         forceFanartOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartOverwrite", FALSE);
         forceBannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", FALSE);
-        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
         textBanners = PropertiesUtil.getBooleanProperty("banners.addText.season", FALSE);
 
         // We need to set the proxy parameters if set.
@@ -176,8 +174,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
 
                 if (OverrideTools.checkOverwritePlot(movie, THETVDB_PLUGIN_ID)) {
-                    String seriesPlot = trimToLength(series.getOverview(), preferredPlotLength, Boolean.TRUE, plotEnding);
-                    movie.setPlot(seriesPlot, THETVDB_PLUGIN_ID);
+                    movie.setPlot(series.getOverview(), THETVDB_PLUGIN_ID);
                 }
 
                 if (OverrideTools.checkOverwriteCertification(movie, THETVDB_PLUGIN_ID)) {
@@ -367,20 +364,14 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         }
 
                         // Set the rating of the episode
-                        if (includeEpisodeRating) {
-                            if (isNotValidString(file.getRating(part)) && isValidString(episode.getRating())) {
-                                float episodeRating1 = new Float(episode.getRating());
-                                String episodeRating2 = String.valueOf(Math.round(episodeRating1 * 10f));
-                                file.setRating(part, episodeRating2);
-                            }
+                        if (includeEpisodeRating && isNotValidString(file.getRating(part)) && isValidString(episode.getRating())) {
+                            float episodeRating1 = new Float(episode.getRating());
+                            String episodeRating2 = String.valueOf(Math.round(episodeRating1 * 10f));
+                            file.setRating(part, episodeRating2);
                         }
 
-                        if (includeEpisodePlots) {
-                            if (isNotValidString(file.getPlot(part))) {
-                                String episodePlot = episode.getOverview();
-                                episodePlot = trimToLength(episodePlot, preferredPlotLength, Boolean.TRUE, plotEnding);
-                                file.setPlot(part, episodePlot);
-                            }
+                        if (includeEpisodePlots && isNotValidString(file.getPlot(part))) {
+                            file.setPlot(part, episode.getOverview());
                         }
 
                         if (includeVideoImages) {
