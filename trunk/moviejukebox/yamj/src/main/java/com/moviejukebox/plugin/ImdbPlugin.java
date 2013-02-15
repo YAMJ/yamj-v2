@@ -82,10 +82,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private boolean fullName;
     protected String fanartToken;
     protected String fanartExtension;
-    private int preferredPlotLength;
     private int preferredBiographyLength;
     private int preferredFilmographyMax;
-    private int preferredOutlineLength;
     protected int actorMax;
     protected int directorMax;
     protected int writerMax;
@@ -94,7 +92,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected static final String DEFAULT_SITE_DEF = "us";
     protected ImdbInfo imdbInfo;
     protected AspectRatioTools aspectTools;
-    protected static final String plotEnding = "...";
     private boolean skipFaceless;
     private boolean skipVG;
     private boolean skipTV;
@@ -143,8 +140,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", FALSE);
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
-        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
-        preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
         extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", TRUE);
         fullName = PropertiesUtil.getBooleanProperty("imdb.full.info", FALSE);
         
@@ -460,7 +455,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
                     if (isValidString(outline)) {
                         imdbOutline = cleanStringEnding(outline);
-                        imdbOutline = trimToLength(imdbOutline, preferredOutlineLength, Boolean.TRUE, plotEnding);
                     } else {
                         // Ensure the outline isn't blank or null
                         imdbOutline = Movie.UNKNOWN;
@@ -844,7 +838,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 // Check the length of the plot is OK
                 if (isValidString(xmlPlot)) {
                     xmlPlot = cleanStringEnding(xmlPlot);
-                    xmlPlot = trimToLength(xmlPlot, preferredPlotLength, Boolean.TRUE, plotEnding);
                 } else {
                     // The plot might be blank or null so set it to UNKNOWN
                     xmlPlot = Movie.UNKNOWN;
@@ -1528,8 +1521,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             plot = Movie.UNKNOWN;
         }
 
-        plot = trimToLength(plot, preferredPlotLength, Boolean.TRUE, plotEnding);
-
         return plot;
     }
 
@@ -1859,7 +1850,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
         if (isValidString(biography)) {
             biography = HTMLTools.removeHtmlTags(biography);
-            biography = trimToLength(biography, preferredBiographyLength, Boolean.TRUE, plotEnding);
+            biography = trimToLength(biography, preferredBiographyLength);
             person.setBiography(biography);
         }
 

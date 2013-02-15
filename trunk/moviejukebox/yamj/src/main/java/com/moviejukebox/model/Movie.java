@@ -85,6 +85,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private static final int MAX_COUNT_DIRECTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.director", "2");
     private static final int MAX_COUNT_WRITER = PropertiesUtil.getIntProperty("plugin.people.maxCount.writer", "3");
     private static final int MAX_COUNT_ACTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", "10");
+    private static final int MAX_LENGTH_PLOT = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
+    private static final int MAX_LENGTH_OUTLINE = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
 
     /*
      * --------------------------------------------------------------------------------
@@ -1487,10 +1489,18 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setPlot(String plot, String source) {
+        this.setPlot(plot, source, Boolean.TRUE);
+    }
+
+    public void setPlot(String plot, String source, boolean trimToLength) {
         if (StringTools.isValidString(plot)) {
             if (!plot.equalsIgnoreCase(this.plot)) {
                 setDirty(DirtyFlag.INFO);
-                this.plot = plot;
+                if (trimToLength) {
+                    this.plot = StringTools.trimToLength(plot, MAX_LENGTH_PLOT);
+                } else {
+                    this.plot = plot;
+                }
             }
             setOverrideSource(OverrideFlag.PLOT, source);
         }
@@ -1499,12 +1509,20 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public String getOutline() {
         return outline;
     }
-
+    
     public void setOutline(String outline, String source) {
+        this.setOutline(outline, source, Boolean.TRUE);
+    }
+
+    public void setOutline(String outline, String source, boolean trimToLength) {
         if (StringTools.isValidString(outline)) {
             if (!outline.equalsIgnoreCase(this.outline)) {
                 setDirty(DirtyFlag.INFO);
-                this.outline = outline;
+                if (trimToLength) {
+                    this.outline = StringTools.trimToLength(outline, MAX_LENGTH_OUTLINE);
+                } else {
+                    this.outline = outline;
+                }
             }
             setOverrideSource(OverrideFlag.OUTLINE, source);
         }

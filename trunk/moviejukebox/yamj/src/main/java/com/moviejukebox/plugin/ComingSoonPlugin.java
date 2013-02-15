@@ -50,17 +50,12 @@ public class ComingSoonPlugin extends ImdbPlugin {
     public static final String COMINGSOON_KEY_PARAM = "key=";
     private static final int COMINGSOON_MAX_DIFF = 1000;
     private static final int COMINGSOON_MAX_SEARCH_PAGES = 5;
-    protected int preferredPlotLength;
-    protected int preferredOutlineLength;
-    protected String scanImdb;
-    protected String searchId;
+    private String scanImdb;
+    private String searchId;
 
     public ComingSoonPlugin() {
         super();
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Italy");
-        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
-        preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "500");
-
         searchId = PropertiesUtil.getProperty("comingsoon.id.search", "comingsoon,yahoo");
         scanImdb = PropertiesUtil.getProperty("comingsoon.imdb.scan", "always");
 
@@ -600,13 +595,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     plot = new String(xmlPlot.substring(plotStart + 11));
                 }
 
-
                 if (OverrideTools.checkOverwritePlot(movie, COMINGSOON_PLUGIN_ID)) {
-                    plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
                     movie.setPlot(plot, COMINGSOON_PLUGIN_ID);
                 }
                 if (OverrideTools.checkOverwriteOutline(movie, COMINGSOON_PLUGIN_ID)) {
-                    outline = StringTools.trimToLength(outline, preferredOutlineLength, true, plotEnding);
                     movie.setOutline(outline, COMINGSOON_PLUGIN_ID);
                 }
             }

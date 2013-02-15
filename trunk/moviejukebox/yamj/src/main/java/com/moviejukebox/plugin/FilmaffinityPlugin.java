@@ -185,7 +185,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                 if (plot.endsWith("(FILMAFFINITY)")) {
                     plot = new String(plot.substring(0, plot.length() - 14));
                 }
-                movie.setPlot(plot.trim(), FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
+                movie.setPlot(plot, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
 
             /*

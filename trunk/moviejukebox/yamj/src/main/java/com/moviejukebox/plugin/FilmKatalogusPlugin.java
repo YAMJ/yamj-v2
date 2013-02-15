@@ -24,7 +24,6 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.OverrideFlag;
-import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
@@ -45,25 +44,16 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
     private static final Logger logger = Logger.getLogger(FilmKatalogusPlugin.class);
     private static final String LOG_MESSAGE = "FilmKatalogusPlugin: ";
     public static final String FILMKAT_PLUGIN_ID = "filmkatalogus";
-    private int preferredPlotLength;
     private TheTvDBPlugin tvdb;
 
     public FilmKatalogusPlugin() {
         super(); // use IMDB as basis
-        init();
         tvdb = new TheTvDBPlugin();
     }
 
     @Override
     public String getPluginID() {
         return FILMKAT_PLUGIN_ID;
-    }
-
-    private void init() {
-        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
-        if (preferredPlotLength < 50) {
-            preferredPlotLength = 500;
-        }
     }
 
     @Override
@@ -84,10 +74,8 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
         return result;
     }
 
-    private String getHunPlot(Movie movie) {
+    private void getHunPlot(Movie movie) {
         try {
-            //logger.info("Running getHunPlot");
-
             String filmKatURL;
 
             if (StringTools.isNotValidString(movie.getId(FILMKAT_PLUGIN_ID))) {
@@ -99,8 +87,6 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             }
 
             String xml = webBrowser.request(filmKatURL);
-            //logger.info(filmKatURL);
-            //logger.debug(xml);
 
             // name
             int beginIndex = xml.indexOf("<H1>");
@@ -115,10 +101,8 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                     beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
                     int endIndex = xml.indexOf("</DIV>", beginIndex);
                     String plot = new String(xml.substring((beginIndex + 19), endIndex));
-                    plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
                     movie.setPlot(plot, FILMKAT_PLUGIN_ID);
                 }
-                return null;
             }
 
             beginIndex = xml.indexOf("Találat(ok) filmek között");
@@ -128,8 +112,6 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 filmKatURL = "http://filmkatalogus.hu";
                 filmKatURL = filmKatURL.concat(new String(xml.substring((beginIndex + 6), endIndex - 2)));
                 xml = webBrowser.request(filmKatURL);
-                //logger.info(filmKatURL);
-                //logger.debug(xml);
 
                 // name
                 beginIndex = xml.indexOf("<H1>");
@@ -144,19 +126,13 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                         beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
                         endIndex = xml.indexOf("</DIV>", beginIndex);
                         String plot = new String(xml.substring((beginIndex + 19), endIndex));
-                        plot = StringTools.trimToLength(plot, preferredPlotLength, true, plotEnding);
                         movie.setPlot(plot, FILMKAT_PLUGIN_ID);
                     }
                 }
-                return null;
             }
-
-            return null;
-
         } catch (Exception error) {
             logger.error(LOG_MESSAGE + "Failed retreiving information for " + movie.getTitle());
             logger.error(SystemTools.getStackTrace(error));
-            return null;
         }
     }
 

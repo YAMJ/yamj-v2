@@ -39,17 +39,11 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     private static final Logger logger = Logger.getLogger(OfdbPlugin.class);
     public static final String OFDB_PLUGIN_ID = "ofdb";
     private static final String PLOT_MARKER = "<a href=\"plot/";
-    private int preferredPlotLength;
-    private int preferredOutlineLength;
     private ImdbPlugin imdbp;
     private WebBrowser webBrowser;
 
     public OfdbPlugin() {
         imdbp = new com.moviejukebox.plugin.ImdbPlugin();
-
-        preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
-        preferredOutlineLength = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
-
         webBrowser = new WebBrowser();
     }
 
@@ -163,8 +157,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                         }
 
                         if (OverrideTools.checkOverwriteOutline(movie, OFDB_PLUGIN_ID)) {
-                        	String outline = StringTools.trimToLength(plot, preferredOutlineLength, true, "...");
-                        	movie.setOutline(outline, OFDB_PLUGIN_ID);
+                        	movie.setOutline(plot, OFDB_PLUGIN_ID);
                         }
                     }
                 } else {
@@ -190,8 +183,6 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             int lastindex = xml.indexOf("</font>", firstindex);
             plot = xml.substring(firstindex, lastindex);
             plot = plot.replaceAll("<br />", " ");
-
-            plot = StringTools.trimToLength(plot, preferredPlotLength, true, "...");
 
         } catch (IOException error) {
             logger.warn("Failed to get plot");

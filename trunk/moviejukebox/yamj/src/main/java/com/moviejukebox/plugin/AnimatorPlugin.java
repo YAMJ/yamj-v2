@@ -56,8 +56,6 @@ public class AnimatorPlugin extends ImdbPlugin {
 
     private static final Logger logger = Logger.getLogger(AnimatorPlugin.class);
     public static final String ANIMATOR_PLUGIN_ID = "animator";
-//  Define plot length
-    private int preferredPlotLength = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
     private String preferredSites = PropertiesUtil.getProperty("animator.sites", "all");
     private String[] listSites = preferredSites.split(",");
     private boolean animatorDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "animator") != -1);
@@ -338,7 +336,6 @@ public class AnimatorPlugin extends ImdbPlugin {
                     newPlot = newPlot.replace("</span>", "");
                 }
 
-                newPlot = StringTools.trimToLength(newPlot, preferredPlotLength, true, plotEnding);
                 movie.setPlot(newPlot, ANIMATOR_PLUGIN_ID);
             }
 
