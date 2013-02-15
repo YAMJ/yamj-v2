@@ -35,16 +35,15 @@ import org.junit.Test;
 
 public class ImdbPluginTest {
 
-    private ImdbPlugin imdbPlugin;
-
     public ImdbPluginTest() {
         BasicConfigurator.configure();
-        PropertiesUtil.setProperty("imdb.site", "us");
-        imdbPlugin = new ImdbPlugin();
     }
 
     @Test
-    public void testImdbMovie() {
+    public void testImdbMoviePlot() {
+        PropertiesUtil.setProperty("imdb.site", "us");
+        ImdbPlugin imdbPlugin = new ImdbPlugin();
+
         Movie movie = new Movie();
         movie.setYear("2012", null);
         movie.setTitle("Skyfall", null);
@@ -55,7 +54,42 @@ public class ImdbPluginTest {
     }
 
     @Test
+    public void testImdbMoviePlotLong() {
+        PropertiesUtil.setProperty("imdb.site", "us");
+        PropertiesUtil.setProperty("imdb.plot", "long");
+        PropertiesUtil.setProperty("imdb.full.info", "true");
+        ImdbPlugin imdbPlugin = new ImdbPlugin();
+
+        Movie movie = new Movie();
+        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt1515091");
+
+        assertTrue(imdbPlugin.scan(movie));
+        assertNotNull(movie.getPlot());
+        assertNotEquals(Movie.UNKNOWN, movie.getPlot());
+        System.err.println(movie.getPlot());
+    }
+
+    @Test
+    public void testImdbMovieGeoLocalization() {
+        PropertiesUtil.setProperty("imdb.site", "es");
+        PropertiesUtil.setProperty("imdb.preferredCountry", "USA");
+        PropertiesUtil.setProperty("imdb.aka.scrape.title", "true");
+        PropertiesUtil.setProperty("imdb.aka.ignore.version", "IMAX version,longer title,promotional title,working title,version IMAX,Arbeitstitel,Titel zu Werbezwecken,IMAX Fassung,längere Fassung,version longue,titre promotionnel,titre provisoire");
+        ImdbPlugin imdbPlugin = new ImdbPlugin();
+
+        Movie movie = new Movie();
+        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0499549");
+
+        assertTrue(imdbPlugin.scan(movie));
+        assertNotNull(movie.getPlot());
+        assertNotEquals(Movie.UNKNOWN, movie.getPlot());
+    }
+
+    @Test
     public void testImdbMovieValues() {
+        PropertiesUtil.setProperty("imdb.site", "us");
+        ImdbPlugin imdbPlugin = new ImdbPlugin();
+
         Movie movie = new Movie();
         movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0120737");
 
@@ -66,6 +100,9 @@ public class ImdbPluginTest {
 
     @Test
     public void testImdbPerson() {
+        PropertiesUtil.setProperty("imdb.site", "us");
+        ImdbPlugin imdbPlugin = new ImdbPlugin();
+
         Person person = new Person();
         person.setName("Daniel Craig");
 

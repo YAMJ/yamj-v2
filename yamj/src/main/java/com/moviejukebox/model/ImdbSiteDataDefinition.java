@@ -28,25 +28,27 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 public class ImdbSiteDataDefinition {
-    private String site;
-    private String director;
-    private String cast;
-    private String releaseDate;
-    private String runtime;
-    private String aspectRatio;
-    private String country;
-    private String company;
-    private String genre;
-    private String quotes;
-    private String plot;
-    private String rated;
-    private String certification;
-    private String originalAirDate;
-    private String writer;
-    private String taglines;
-    private Charset charset;
-    private Pattern personRegex;
-    private Pattern titleRegex;
+    
+    private final String site;
+    private final String director;
+    private final String cast;
+    private final String releaseDate;
+    private final String runtime;
+    private final String aspectRatio;
+    private final String country;
+    private final String company;
+    private final String genre;
+    private final String quotes;
+    private final String plot;
+    private final String rated;
+    private final String certification;
+    private final String originalAirDate;
+    private final String writer;
+    private final String taglines;
+    private final String originalTitle;
+    private final Charset charset;
+    private final Pattern personRegex;
+    private final Pattern titleRegex;
 
     public ImdbSiteDataDefinition(String site,
                                   String charsetName,
@@ -64,8 +66,8 @@ public class ImdbSiteDataDefinition {
                                   String certification,
                                   String originalAirDate,
                                   String writer,
-                                  String taglines) {
-        super();
+                                  String taglines,
+                                  String originalTitle) {
         this.site = site;
         this.director = director;
         this.cast= cast;
@@ -82,6 +84,7 @@ public class ImdbSiteDataDefinition {
         this.originalAirDate = originalAirDate;
         this.writer = writer;
         this.taglines = taglines;
+        this.originalTitle = originalTitle; 
 
         if (StringUtils.isBlank(charsetName)) {
             this.charset = Charset.defaultCharset();
@@ -157,6 +160,10 @@ public class ImdbSiteDataDefinition {
         return taglines;
     }
 
+    public String getOriginalTitle() {
+        return originalTitle;
+    }
+
     public Charset getCharset() {
         return charset;
     }
@@ -168,5 +175,4 @@ public class ImdbSiteDataDefinition {
 	public Pattern getTitleRegex() {
 		return titleRegex;
 	}
-
 }
