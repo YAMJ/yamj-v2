@@ -36,7 +36,7 @@ public class AllocinePluginTest {
     public AllocinePluginTest() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("API_KEY_Allocine", "YW5kcm9pZC12M3M");
-        PropertiesUtil.setProperty("mjb.includeEpisodePlots", "true");
+        PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
         allocinePlugin = new AllocinePlugin();
     }
 

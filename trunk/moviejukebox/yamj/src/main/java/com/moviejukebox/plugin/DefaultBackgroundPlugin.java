@@ -26,8 +26,6 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.StringTools;
 import java.awt.BasicStroke;
@@ -66,11 +64,11 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         // These are the default values for the width and height.
         // Each plugin should determine their own values
         String skinHome = SkinProperties.getSkinHome();
-        boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", FALSE);
+        boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", Boolean.FALSE);
         String overlayRoot = PropertiesUtil.getProperty("mjb.overlay.dir", Movie.UNKNOWN);
         overlayRoot = (skinRoot ? (skinHome + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
         overlayResources = overlayRoot + PropertiesUtil.getProperty("mjb.overlay.resources", "resources") + File.separator;
-        highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", FALSE);
+        highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", Boolean.FALSE);
     }
 
     @Override
@@ -88,22 +86,22 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         int backgroundWidth = checkWidth(movie.isTVShow(), newImageType);
         int backgroundHeight = checkHeight(movie.isTVShow(), newImageType);
 
-        boolean upscaleImage = PropertiesUtil.getBooleanProperty(newImageType + ".upscale", TRUE);
+        boolean upscaleImage = PropertiesUtil.getBooleanProperty(newImageType + ".upscale", Boolean.TRUE);
 
-        boolean addPerspective = PropertiesUtil.getBooleanProperty(newImageType + ".perspective", FALSE);
-        boolean addOverlay = PropertiesUtil.getBooleanProperty(newImageType + ".overlay", FALSE);
+        boolean addPerspective = PropertiesUtil.getBooleanProperty(newImageType + ".perspective", Boolean.FALSE);
+        boolean addOverlay = PropertiesUtil.getBooleanProperty(newImageType + ".overlay", Boolean.FALSE);
 
-        boolean addFrame = PropertiesUtil.getBooleanProperty(newImageType + ".addFrame", FALSE);
-        frameSize = PropertiesUtil.getIntProperty(newImageType + ".frame.size", "5");
+        boolean addFrame = PropertiesUtil.getBooleanProperty(newImageType + ".addFrame", Boolean.FALSE);
+        frameSize = PropertiesUtil.getIntProperty(newImageType + ".frame.size", 5);
 
         frameColorSD = PropertiesUtil.getProperty(newImageType + ".frame.colorSD", COLOUR_WHITE);
         frameColorHD = PropertiesUtil.getProperty(newImageType + ".frame.colorHD", COLOUR_WHITE);
         frameColor720 = PropertiesUtil.getProperty(newImageType + ".frame.color720", COLOUR_WHITE);
         frameColor1080 = PropertiesUtil.getProperty(newImageType + ".frame.color1080", COLOUR_WHITE);
 
-        roundCorners = PropertiesUtil.getBooleanProperty(newImageType + ".roundCorners", FALSE);
-        cornerRadius = PropertiesUtil.getIntProperty(newImageType + ".cornerRadius", "25");
-        int cornerQuality = PropertiesUtil.getIntProperty(newImageType + ".cornerQuality", "0");
+        roundCorners = PropertiesUtil.getBooleanProperty(newImageType + ".roundCorners", Boolean.FALSE);
+        cornerRadius = PropertiesUtil.getIntProperty(newImageType + ".cornerRadius", 25);
+        int cornerQuality = PropertiesUtil.getIntProperty(newImageType + ".cornerQuality", 0);
 
         if (roundCorners) {
             rcqFactor = (float) cornerQuality / 10 + 1;
@@ -173,7 +171,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         //TODO remove these checks once all the skins have upgraded to the new properties
         // If this is null, then the property wasn't found, so look for the original
         if (widthProperty == null) {
-            backgroundWidth = PropertiesUtil.getIntProperty("background.width", "1280");
+            backgroundWidth = PropertiesUtil.getIntProperty("background.width", 1280);
         } else {
             backgroundWidth = Integer.parseInt(widthProperty);
         }
@@ -188,24 +186,10 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
      * @return the width of the fanart
      */
     public static int checkHeight(boolean isTvShow, String imageType) {
-        String heightProperty;
-        int backgroundHeight;
-
-        if (isTvShow) {
-            heightProperty = PropertiesUtil.getProperty(imageType + ".tv.height");
-        } else {
-            heightProperty = PropertiesUtil.getProperty(imageType + ".movie.height");
+         if (isTvShow) {
+            return PropertiesUtil.getReplacedIntProperty(imageType + ".tv.height", "background.height", 720);
         }
-
-        //TODO remove these checks once all the skins have upgraded to the new properties
-        // If this is null, then the property wasn't found, so look for the original
-        if (heightProperty == null) {
-            backgroundHeight = PropertiesUtil.getIntProperty("background.height", "720");
-        } else {
-            backgroundHeight = Integer.parseInt(heightProperty);
-        }
-
-        return backgroundHeight;
+        return PropertiesUtil.getReplacedIntProperty(imageType + ".movie.height", "background.height", 720);
     }
 
     /**

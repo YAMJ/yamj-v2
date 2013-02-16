@@ -41,7 +41,6 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import static com.moviejukebox.tools.StringTools.cleanString;
 import static com.moviejukebox.tools.StringTools.isValidString;
@@ -96,7 +95,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     public static final String ANIDB_PLUGIN_ID = "anidb";
     private static final String ANIDB_CLIENT_NAME = "yamj";
     private static final int ANIDB_CLIENT_VERSION = 1;
-    private static int anidbPort = PropertiesUtil.getIntProperty("anidb.port", "1025");
+    private static int anidbPort = PropertiesUtil.getIntProperty("anidb.port", 1025);
     private static final int ED2K_CHUNK_SIZE = 9728000;
 //    private static final String WEBHOST = "anidb.net";
     private AnimeMask anidbMask;
@@ -147,10 +146,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         anidbUsername = PropertiesUtil.getProperty("anidb.username", null);
         anidbPassword = PropertiesUtil.getProperty("anidb.password", null);
         //String str = PropertiesUtil.getProperty("anidb.useHashIdentification", null);
-        hash = PropertiesUtil.getBooleanProperty("anidb.useHashIdentification", FALSE);
+        hash = PropertiesUtil.getBooleanProperty("anidb.useHashIdentification", Boolean.FALSE);
 
-        minimumCategoryWeight = PropertiesUtil.getIntProperty("anidb.minimumCategoryWeight", "0");
-        maxGenres = PropertiesUtil.getIntProperty("anidb.maxGenres", "3");
+        minimumCategoryWeight = PropertiesUtil.getIntProperty("anidb.minimumCategoryWeight", 0);
+        maxGenres = PropertiesUtil.getIntProperty("anidb.maxGenres", 3);
 
         String tvshowRegexOverride = PropertiesUtil.getProperty("anidb.regex.tvshow", null);
         String movieRegexOverride = PropertiesUtil.getProperty("anidb.regex.movie", null);
@@ -172,7 +171,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
         if (isValidString(movieRegexOverride)) {
             movieRegex = Pattern.compile(movieRegexOverride);
-            movieRegexTitleIndex = PropertiesUtil.getIntProperty("anidb.regex.movie.index", "-1");
+            movieRegexTitleIndex = PropertiesUtil.getIntProperty("anidb.regex.movie.index", -1);
             if (movieRegexTitleIndex < 0) {
                 logger.error(LOG_MESSAGE + "Invalid anidb.regex.movie.index variable in properties file. Ignoring custom regex");
                 movieRegex = null;

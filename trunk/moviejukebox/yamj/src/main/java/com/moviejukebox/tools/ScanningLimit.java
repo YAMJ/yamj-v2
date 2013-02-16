@@ -27,7 +27,7 @@ public class ScanningLimit {
 
     private static final Logger LOGGER = Logger.getLogger(ScanningLimit.class);
     private static final String LOG_MESSAGE = "ScanningLimit: ";
-    private static final int CHECK_MAX = PropertiesUtil.getIntProperty("mjb.check.Max", "0");
+    private static final int CHECK_MAX = PropertiesUtil.getIntProperty("mjb.check.Max", 0);
     private static int tokensUsed = 0;
     private static boolean limitReached = Boolean.FALSE;
 

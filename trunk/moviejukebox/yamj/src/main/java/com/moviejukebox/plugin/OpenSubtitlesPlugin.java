@@ -28,7 +28,6 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.SubtitleTools;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -62,7 +61,7 @@ public class OpenSubtitlesPlugin {
     private static final String OS_MEMBER = "</struct></value></member>";
     private static final String OS_PARAMS = "</struct></value></param></params></methodCall>";
     // Properties
-    private static final boolean IS_ENABLED = PropertiesUtil.getBooleanProperty("opensubtitles.enable", TRUE);
+    private static final boolean IS_ENABLED = PropertiesUtil.getBooleanProperty("opensubtitles.enable", Boolean.TRUE);
     private static final String SUB_LANGUAGE_ID = PropertiesUtil.getProperty("opensubtitles.language", "");
     private static String osUsername = PropertiesUtil.getProperty("opensubtitles.username", "");
     private static String osPassword = PropertiesUtil.getProperty("opensubtitles.password", "");

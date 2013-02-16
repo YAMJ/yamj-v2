@@ -24,8 +24,6 @@ package com.moviejukebox.scanner;
 
 import com.moviejukebox.model.*;
 import com.moviejukebox.tools.*;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
 import com.mucommander.file.FileFactory;
@@ -62,11 +60,11 @@ public class MediaInfoScanner {
     public static final String OS_VERSION = System.getProperty("os.version");
     public static final String OS_ARCH = System.getProperty("os.arch");
     private static boolean isActivated;
-    private static final boolean ENABLE_METADATA = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", FALSE);
-    private static final boolean ENABLE_UPDATE = PropertiesUtil.getBooleanProperty("mediainfo.update.enable", FALSE);
-    private static final boolean ENABLE_MULTIPART = PropertiesUtil.getBooleanProperty("mediainfo.multipart.enable", TRUE);
-    private static final boolean MI_OVERALL_BITRATE = PropertiesUtil.getBooleanProperty("mediainfo.overallbitrate", FALSE);
-    private static final boolean MI_READ_FROM_FILE = PropertiesUtil.getBooleanProperty("mediainfo.readfromfile", FALSE);
+    private static final boolean ENABLE_METADATA = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", Boolean.FALSE);
+    private static final boolean ENABLE_UPDATE = PropertiesUtil.getBooleanProperty("mediainfo.update.enable", Boolean.FALSE);
+    private static final boolean ENABLE_MULTIPART = PropertiesUtil.getBooleanProperty("mediainfo.multipart.enable", Boolean.TRUE);
+    private static final boolean MI_OVERALL_BITRATE = PropertiesUtil.getBooleanProperty("mediainfo.overallbitrate", Boolean.FALSE);
+    private static final boolean MI_READ_FROM_FILE = PropertiesUtil.getBooleanProperty("mediainfo.readfromfile", Boolean.FALSE);
     private String randomDirName;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);

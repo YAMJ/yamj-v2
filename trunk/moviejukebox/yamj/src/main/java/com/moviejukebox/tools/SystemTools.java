@@ -23,7 +23,6 @@
 package com.moviejukebox.tools;
 
 import com.moviejukebox.MovieJukebox;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.StringTools.formatFileSize;
 import com.moviejukebox.tools.cache.CacheMemory;
 import java.io.PrintWriter;
@@ -36,8 +35,8 @@ import org.apache.log4j.Logger;
 public class SystemTools {
 
     private static final Logger logger = Logger.getLogger(SystemTools.class);
-    private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", FALSE);
-    private static final long cacheOff = ((long) (PropertiesUtil.getIntProperty("mjb.cacheOffSize", "50")) * 1024L * 1024L);
+    private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", Boolean.FALSE);
+    private static final long cacheOff = (PropertiesUtil.getLongProperty("mjb.cacheOffSize", 50) * 1024L * 1024L);
 
     /**
      * Show the memory available to the program and optionally try to force a
@@ -130,7 +129,7 @@ public class SystemTools {
     public static boolean validateInstallation() {
         boolean installationIsValid = Boolean.TRUE;
 
-        if (PropertiesUtil.getBooleanProperty("mjb.skipCheckJars", FALSE)) {
+        if (PropertiesUtil.getBooleanProperty("mjb.skipCheckJars", Boolean.FALSE)) {
             return installationIsValid;
         }
 

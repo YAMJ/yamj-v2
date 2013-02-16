@@ -28,7 +28,6 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -54,7 +53,7 @@ public class ImdbInfo {
     protected static final Map<String, ImdbSiteDataDefinition> MATCHES_DATA_PER_SITE = new HashMap<String, ImdbSiteDataDefinition>();
     private final String imdbSite = PropertiesUtil.getProperty("imdb.site", DEFAULT_SITE);
     private String searchMatch = PropertiesUtil.getProperty("imdb.id.search.match", "regular");
-    private boolean searchVariable = PropertiesUtil.getBooleanProperty("imdb.id.search.variable", TRUE);
+    private boolean searchVariable = PropertiesUtil.getBooleanProperty("imdb.id.search.variable", Boolean.TRUE);
     private String preferredSearchEngine;
     private WebBrowser webBrowser;
     private ImdbSiteDataDefinition siteDef;

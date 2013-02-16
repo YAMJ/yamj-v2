@@ -185,11 +185,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     public DefaultImagePlugin() {
         // Generic properties
         String skinHome = SkinProperties.getSkinHome();
-        boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", TRUE);
+        boolean skinRoot = PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", Boolean.TRUE);
         overlayRoot = PropertiesUtil.getProperty("mjb.overlay.dir", Movie.UNKNOWN);
         overlayRoot = (skinRoot ? (skinHome + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
         overlayResources = overlayRoot + PropertiesUtil.getProperty("mjb.overlay.resources", "resources") + File.separator;
-        highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", FALSE);
+        highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", Boolean.FALSE);
 
         synchronized (validImageTypes) {
             if (validImageTypes.isEmpty()) {
@@ -232,17 +232,17 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         }
 
         // The properties must be loaded after the imageType has been determined
-        boolean addReflectionEffect = PropertiesUtil.getBooleanProperty(imageType + ".reflection", FALSE);
-        boolean addPerspective = PropertiesUtil.getBooleanProperty(imageType + ".perspective", FALSE);
-        boolean imageNormalize = PropertiesUtil.getBooleanProperty(imageType + ".normalize", FALSE);
-        boolean imageStretch = PropertiesUtil.getBooleanProperty(imageType + ".stretch", FALSE);
-        boolean addOverlay = PropertiesUtil.getBooleanProperty(imageType + ".overlay", FALSE);
+        boolean addReflectionEffect = PropertiesUtil.getBooleanProperty(imageType + ".reflection", Boolean.FALSE);
+        boolean addPerspective = PropertiesUtil.getBooleanProperty(imageType + ".perspective", Boolean.FALSE);
+        boolean imageNormalize = PropertiesUtil.getBooleanProperty(imageType + ".normalize", Boolean.FALSE);
+        boolean imageStretch = PropertiesUtil.getBooleanProperty(imageType + ".stretch", Boolean.FALSE);
+        boolean addOverlay = PropertiesUtil.getBooleanProperty(imageType + ".overlay", Boolean.FALSE);
 
         // Specific Properties (dependent upon the imageType)
-        int imageWidth = PropertiesUtil.getIntProperty(imageType + ".width", "400");
-        int imageHeight = PropertiesUtil.getIntProperty(imageType + ".height", "600");
-        addHDLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoHD", FALSE);
-        addTVLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoTV", FALSE);
+        int imageWidth = PropertiesUtil.getIntProperty(imageType + ".width", 400);
+        int imageHeight = PropertiesUtil.getIntProperty(imageType + ".height", 600);
+        addHDLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoHD", Boolean.FALSE);
+        addTVLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoTV", Boolean.FALSE);
 
         String tmpSubTitle = PropertiesUtil.getProperty(imageType + ".logoSubTitle", FALSE);
         blockSubTitle = tmpSubTitle.equalsIgnoreCase(BLOCK);
@@ -256,25 +256,25 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         countSetLogo = tmpSetLogo.equalsIgnoreCase("count");
         addSetLogo = tmpSetLogo.equalsIgnoreCase(TRUE) || countSetLogo; // Note: This should only be for thumbnails
 
-        boolean addTextTitle = PropertiesUtil.getBooleanProperty(imageType + ".addText.title", FALSE);
-        boolean addTextSeason = PropertiesUtil.getBooleanProperty(imageType + ".addText.season", FALSE);
-        addTextSetSize = PropertiesUtil.getBooleanProperty(imageType + ".addText.setSize", FALSE); // Note: This should only be for thumbnails
+        boolean addTextTitle = PropertiesUtil.getBooleanProperty(imageType + ".addText.title", Boolean.FALSE);
+        boolean addTextSeason = PropertiesUtil.getBooleanProperty(imageType + ".addText.season", Boolean.FALSE);
+        addTextSetSize = PropertiesUtil.getBooleanProperty(imageType + ".addText.setSize", Boolean.FALSE); // Note: This should only be for thumbnails
         textAlignment = PropertiesUtil.getProperty(imageType + ".addText.alignment", LEFT);
         textFont = PropertiesUtil.getProperty(imageType + ".addText.font", "Helvetica");
-        textFontSize = PropertiesUtil.getIntProperty(imageType + ".addText.fontSize", "36");
+        textFontSize = PropertiesUtil.getIntProperty(imageType + ".addText.fontSize", 36);
         textFontColor = PropertiesUtil.getProperty(imageType + ".addText.fontColor", "LIGHT_GRAY");
         textFontShadow = PropertiesUtil.getProperty(imageType + ".addText.fontShadow", "DARK_GRAY");
-        textOffset = PropertiesUtil.getIntProperty(imageType + ".addText.offset", "10");
-        roundCorners = PropertiesUtil.getBooleanProperty(imageType + ".roundCorners", FALSE);
-        cornerRadius = PropertiesUtil.getIntProperty(imageType + ".cornerRadius", "25");
-        int cornerQuality = PropertiesUtil.getIntProperty(imageType + ".cornerQuality", "0");
+        textOffset = PropertiesUtil.getIntProperty(imageType + ".addText.offset", 10);
+        roundCorners = PropertiesUtil.getBooleanProperty(imageType + ".roundCorners", Boolean.FALSE);
+        cornerRadius = PropertiesUtil.getIntProperty(imageType + ".cornerRadius", 25);
+        int cornerQuality = PropertiesUtil.getIntProperty(imageType + ".cornerQuality", 0);
 
-        int overlayOffsetX = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetX", "0");
-        int overlayOffsetY = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetY", "0");
+        int overlayOffsetX = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetX", 0);
+        int overlayOffsetY = PropertiesUtil.getIntProperty(imageType + ".overlay.offsetY", 0);
         overlaySource = PropertiesUtil.getProperty(imageType + ".overlay.source", DEFAULT);
 
-        boolean addFrame = PropertiesUtil.getBooleanProperty(imageType + ".addFrame", FALSE);
-        frameSize = PropertiesUtil.getIntProperty(imageType + ".frame.size", "5");
+        boolean addFrame = PropertiesUtil.getBooleanProperty(imageType + ".addFrame", Boolean.FALSE);
+        frameSize = PropertiesUtil.getIntProperty(imageType + ".frame.size", 5);
         frameColorSD = PropertiesUtil.getProperty(imageType + ".frame.colorSD", COLOUR_WHITE);
         frameColorHD = PropertiesUtil.getProperty(imageType + ".frame.colorHD", COLOUR_WHITE);
         frameColor720 = PropertiesUtil.getProperty(imageType + ".frame.color720", COLOUR_WHITE);
@@ -297,13 +297,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         blockAudioLang = tmpAudioCodec.equalsIgnoreCase(BLOCK);
         addAudioLang = tmpAudioLang.equalsIgnoreCase(TRUE) || blockAudioLang;
 
-        addVideoSource = PropertiesUtil.getBooleanProperty(imageType + ".videosource", FALSE);
-        addVideoOut = PropertiesUtil.getBooleanProperty(imageType + ".videoout", FALSE);
-        addVideoCodec = PropertiesUtil.getBooleanProperty(imageType + ".videocodec", FALSE);
-        addContainer = PropertiesUtil.getBooleanProperty(imageType + ".container", FALSE);
-        addAspectRatio = PropertiesUtil.getBooleanProperty(imageType + ".aspect", FALSE);
-        addFPS = PropertiesUtil.getBooleanProperty(imageType + ".fps", FALSE);
-        addCertification = PropertiesUtil.getBooleanProperty(imageType + ".certification", FALSE);
+        addVideoSource = PropertiesUtil.getBooleanProperty(imageType + ".videosource", Boolean.FALSE);
+        addVideoOut = PropertiesUtil.getBooleanProperty(imageType + ".videoout", Boolean.FALSE);
+        addVideoCodec = PropertiesUtil.getBooleanProperty(imageType + ".videocodec", Boolean.FALSE);
+        addContainer = PropertiesUtil.getBooleanProperty(imageType + ".container", Boolean.FALSE);
+        addAspectRatio = PropertiesUtil.getBooleanProperty(imageType + ".aspect", Boolean.FALSE);
+        addFPS = PropertiesUtil.getBooleanProperty(imageType + ".fps", Boolean.FALSE);
+        addCertification = PropertiesUtil.getBooleanProperty(imageType + ".certification", Boolean.FALSE);
 
         String tmpWatched = PropertiesUtil.getProperty(imageType + ".watched", FALSE);
         blockWatched = tmpWatched.equalsIgnoreCase(BLOCK);
@@ -313,9 +313,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         blockEpisode = tmpEpisode.equalsIgnoreCase(BLOCK);
         addEpisode = tmpEpisode.equalsIgnoreCase(TRUE) || blockEpisode;
 
-        addTop250 = PropertiesUtil.getBooleanProperty(imageType + ".top250", FALSE);
-        addKeywords = PropertiesUtil.getBooleanProperty(imageType + ".keywords", FALSE);
-        blockClones = PropertiesUtil.getBooleanProperty(imageType + ".clones", FALSE);
+        addTop250 = PropertiesUtil.getBooleanProperty(imageType + ".top250", Boolean.FALSE);
+        addKeywords = PropertiesUtil.getBooleanProperty(imageType + ".keywords", Boolean.FALSE);
+        blockClones = PropertiesUtil.getBooleanProperty(imageType + ".clones", Boolean.FALSE);
 
         String tmpCountry = PropertiesUtil.getProperty(imageType + ".country", FALSE);
         blockCountry = tmpCountry.equalsIgnoreCase(BLOCK);
@@ -329,9 +329,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         blockAward = tmpAward.equalsIgnoreCase(BLOCK);
         countAward = tmpAward.equalsIgnoreCase("count");
         addAward = tmpAward.equalsIgnoreCase(TRUE) || blockAward || countAward;
-        awardEventName = PropertiesUtil.getBooleanProperty(imageType + ".award.useEventName", FALSE);
+        awardEventName = PropertiesUtil.getBooleanProperty(imageType + ".award.useEventName", Boolean.FALSE);
 
-        xmlOverlay = PropertiesUtil.getBooleanProperty(imageType + ".xmlOverlay", FALSE);
+        xmlOverlay = PropertiesUtil.getBooleanProperty(imageType + ".xmlOverlay", Boolean.FALSE);
         if (xmlOverlay) {
             String tmp = PropertiesUtil.getProperty("overlay.keywords.rating", "");
             fillOverlayKeywords(keywordsRating, tmp);

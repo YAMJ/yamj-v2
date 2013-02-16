@@ -28,7 +28,6 @@ import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.StringTools;
 import java.awt.image.BufferedImage;
@@ -49,7 +48,7 @@ public class BackdropScanner {
     private static final Logger logger = Logger.getLogger(BackdropScanner.class);
     private static final String LOG_MESSAGE = "BackdropScanner: ";
     protected static final List<String> backdropExtensions = new ArrayList<String>();
-    protected static final boolean BACKDROP_OVERWRITE = PropertiesUtil.getBooleanProperty("mjb.forceBackdropOverwrite", FALSE);
+    protected static final boolean BACKDROP_OVERWRITE = PropertiesUtil.getBooleanProperty("mjb.forceBackdropOverwrite", Boolean.FALSE);
     protected static List<String> backdropImageName;
     protected static String skinHome = SkinProperties.getSkinHome();
     protected static final String PEOPLE_FOLDER = getPeopleFolder();

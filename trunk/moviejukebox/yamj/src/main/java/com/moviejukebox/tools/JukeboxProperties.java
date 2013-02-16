@@ -31,8 +31,6 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.PropertyInformation;
 import com.moviejukebox.model.PropertyOverwrites;
 import static com.moviejukebox.model.PropertyOverwrites.*;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import java.io.File;
 import java.text.DateFormat;
@@ -57,7 +55,7 @@ public class JukeboxProperties {
 
     private static final Logger logger = Logger.getLogger(JukeboxProperties.class);
     private static final String LOG_MESSAGE = "JukeboxProperties: ";
-    private static final boolean MONITOR = PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", FALSE);
+    private static final boolean MONITOR = PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", Boolean.FALSE);
     private static final Collection<PropertyInformation> propInfo = new ArrayList<PropertyInformation>();
     private static final String JUKEBOX = "jukebox";
     private static final String SKIN = "skin";
@@ -235,7 +233,7 @@ public class JukeboxProperties {
                     logger.debug(LOG_MESSAGE + "Found " + pi.getOverwrites().size() + " overwites to set.");
                     for (PropertyOverwrites po : pi.getOverwrites()) {
                         logger.debug(LOG_MESSAGE + "Setting 'force" + po.toString() + "Overwrite = true' due to property file changes");
-                        PropertiesUtil.setProperty("mjb.force" + po.toString() + "Overwrite", TRUE);
+                        PropertiesUtil.setProperty("mjb.force" + po.toString() + "Overwrite", Boolean.TRUE);
                     }
                 } else {
                     logger.debug(LOG_MESSAGE + "Properties haven't changed, no updates necessary");

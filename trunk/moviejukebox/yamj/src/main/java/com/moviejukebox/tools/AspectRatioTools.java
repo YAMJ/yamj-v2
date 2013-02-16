@@ -31,7 +31,7 @@ import java.util.List;
 public class AspectRatioTools {
 
     private static List<AspectRatio> aspectList = new ArrayList<AspectRatio>();
-    private static int aspectRationPrecision = PropertiesUtil.getIntProperty("mjb.aspectRatioPrecision", "3");
+    private static int aspectRationPrecision = PropertiesUtil.getIntProperty("mjb.aspectRatioPrecision", 3);
     private static DecimalFormatSymbols symbols = new DecimalFormatSymbols();
 
     public AspectRatioTools() {

@@ -29,7 +29,6 @@ import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.StringTools;
 import java.awt.image.BufferedImage;
@@ -50,7 +49,7 @@ public class PhotoScanner {
     private static final Logger logger = Logger.getLogger(PhotoScanner.class);
     private static final String LOG_MESSAGE = "PhotoScanner: ";
     private static Collection<String> photoExtensions = new ArrayList<String>();
-    private static boolean photoOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", FALSE);
+    private static boolean photoOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", Boolean.FALSE);
     private static String skinHome = SkinProperties.getSkinHome();
     private static String peopleFolder;
 

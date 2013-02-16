@@ -27,7 +27,6 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.OverrideFlag;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -44,11 +43,11 @@ public final class OverrideTools {
     private static final Map<OverrideFlag, List<String>> MOVIE_PRIORITIES_MAP = new EnumMap<OverrideFlag, List<String>>(OverrideFlag.class);
     private static final Map<OverrideFlag, List<String>> TV_PRIORITIES_MAP = new EnumMap<OverrideFlag, List<String>>(OverrideFlag.class);
     // check skip if not in priority list
-    private static final boolean SKIP_NOT_IN_LIST = PropertiesUtil.getBooleanProperty("priority.checks.skipNotInList", FALSE);
+    private static final boolean SKIP_NOT_IN_LIST = PropertiesUtil.getBooleanProperty("priority.checks.skipNotInList", Boolean.FALSE);
     // hold max counts for people
-    private static final int MAX_COUNT_DIRECTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.director", "2");
-    private static final int MAX_COUNT_WRITER = PropertiesUtil.getIntProperty("plugin.people.maxCount.writer", "3");
-    private static final int MAX_COUNT_ACTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", "10");
+    private static final int MAX_COUNT_DIRECTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.director", 2);
+    private static final int MAX_COUNT_WRITER = PropertiesUtil.getIntProperty("plugin.people.maxCount.writer", 3);
+    private static final int MAX_COUNT_ACTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", 10);
     // handling for set default plugins
     private static final String PATTERN_PLUGIN = "PLUGIN";
     private static final String PATTERN_ALTERNATE = "ALTERNATE";

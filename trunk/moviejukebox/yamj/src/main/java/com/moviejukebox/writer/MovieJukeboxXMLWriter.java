@@ -85,8 +85,8 @@ public class MovieJukeboxXMLWriter {
     public static final String ORIGINAL_NAME = "originalName";
     public static final String DETAILS = "details";
     public static final String SOURCE = "source";
-    private static boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", FALSE);
-    private static boolean forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", FALSE);
+    private static boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", Boolean.FALSE);
+    private static boolean forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", Boolean.FALSE);
     private int nbMoviesPerPage;
     private int nbMoviesPerLine;
     private int nbTvShowsPerPage;
@@ -101,53 +101,53 @@ public class MovieJukeboxXMLWriter {
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
     private boolean includeEpisodeRating;
-    private static boolean isPlayOnHD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", FALSE);
-    private static boolean isExtendedURL = PropertiesUtil.getBooleanProperty("mjb.scanner.mediainfo.rar.extended.url", FALSE);
+    private static boolean isPlayOnHD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", Boolean.FALSE);
+    private static boolean isExtendedURL = PropertiesUtil.getBooleanProperty("mjb.scanner.mediainfo.rar.extended.url", Boolean.FALSE);
     private static String defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
     private List<String> categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
-    private boolean removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", FALSE);
-    private boolean keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", TRUE);
-    private boolean beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", FALSE);
+    private boolean removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", Boolean.FALSE);
+    private boolean keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", Boolean.TRUE);
+    private boolean beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", Boolean.FALSE);
     private static List<String> categoriesDisplayList = initDisplayList();
     private static List<String> categoriesLimitList = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.limitList", "Cast,Director,Writer,Person").split(","));
-    private static boolean writeNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeFiles", FALSE);
+    private static boolean writeNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeFiles", Boolean.FALSE);
     private boolean setsExcludeTV;
     private static String peopleFolder = initPeopleFolder();
-    private static boolean enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", TRUE);
+    private static boolean enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", Boolean.TRUE);
     // Should we scrape people information
-    private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", FALSE);
-    private static boolean addPeopleInfo = PropertiesUtil.getBooleanProperty("mjb.people.addInfo", FALSE);
+    private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE);
+    private static boolean addPeopleInfo = PropertiesUtil.getBooleanProperty("mjb.people.addInfo", Boolean.FALSE);
     // Should we scrape the award information
-    private static boolean enableAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", FALSE) || PropertiesUtil.getProperty("mjb.scrapeAwards", "").equalsIgnoreCase(WON);
+    private static boolean enableAwards = PropertiesUtil.getBooleanProperty("mjb.scrapeAwards", Boolean.FALSE) || PropertiesUtil.getProperty("mjb.scrapeAwards", "").equalsIgnoreCase(WON);
     // Should we scrape the business information
-    private static boolean enableBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", FALSE);
+    private static boolean enableBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", Boolean.FALSE);
     // Should we scrape the trivia information
-    private static boolean enableTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", FALSE);
+    private static boolean enableTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", Boolean.FALSE);
     // Retrieve the title sort type
     private static TitleSortType titleSortType = TitleSortType.fromString(PropertiesUtil.getProperty("mjb.sortTitle", "title"));
     // Should we reindex the New / Watched / Unwatched categories?
     private boolean reindexNew = Boolean.FALSE;
     private boolean reindexWatched = Boolean.FALSE;
     private boolean reindexUnwatched = Boolean.FALSE;
-    private boolean xmlCompatible = PropertiesUtil.getBooleanProperty("mjb.XMLcompatible", FALSE);
-    private boolean sortLibrary = PropertiesUtil.getBooleanProperty("indexing.sort.libraries", TRUE);
+    private boolean xmlCompatible = PropertiesUtil.getBooleanProperty("mjb.XMLcompatible", Boolean.FALSE);
+    private boolean sortLibrary = PropertiesUtil.getBooleanProperty("indexing.sort.libraries", Boolean.TRUE);
 
     public MovieJukeboxXMLWriter() {
-        nbMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerPage", "10");
-        nbMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerLine", "5");
-        nbTvShowsPerPage = PropertiesUtil.getIntProperty("mjb.nbTvThumbnailsPerPage", "0"); // If 0 then use the Movies setting
-        nbTvShowsPerLine = PropertiesUtil.getIntProperty("mjb.nbTvThumbnailsPerLine", "0"); // If 0 then use the Movies setting
-        nbSetMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbSetThumbnailsPerPage", "0"); // If 0 then use the Movies setting
-        nbSetMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbSetThumbnailsPerLine", "0"); // If 0 then use the Movies setting
-        nbTVSetMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbTVSetThumbnailsPerPage", "0"); // If 0 then use the TV SHOW setting
-        nbTVSetMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbTVSetThumbnailsPerLine", "0"); // If 0 then use the TV SHOW setting
-        fullMovieInfoInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullMovieInfoInIndexes", FALSE);
-        fullCategoriesInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullCategoriesInIndexes", TRUE);
-        includeMoviesInCategories = PropertiesUtil.getBooleanProperty("mjb.includeMoviesInCategories", FALSE);
-        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", FALSE);
-        includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
-        includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", FALSE);
-        setsExcludeTV = PropertiesUtil.getBooleanProperty("mjb.sets.excludeTV", FALSE);
+        nbMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerPage", 10);
+        nbMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbThumbnailsPerLine", 5);
+        nbTvShowsPerPage = PropertiesUtil.getIntProperty("mjb.nbTvThumbnailsPerPage", 0); // If 0 then use the Movies setting
+        nbTvShowsPerLine = PropertiesUtil.getIntProperty("mjb.nbTvThumbnailsPerLine", 0); // If 0 then use the Movies setting
+        nbSetMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbSetThumbnailsPerPage", 0); // If 0 then use the Movies setting
+        nbSetMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbSetThumbnailsPerLine", 0); // If 0 then use the Movies setting
+        nbTVSetMoviesPerPage = PropertiesUtil.getIntProperty("mjb.nbTVSetThumbnailsPerPage", 0); // If 0 then use the TV SHOW setting
+        nbTVSetMoviesPerLine = PropertiesUtil.getIntProperty("mjb.nbTVSetThumbnailsPerLine", 0); // If 0 then use the TV SHOW setting
+        fullMovieInfoInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullMovieInfoInIndexes", Boolean.FALSE);
+        fullCategoriesInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullCategoriesInIndexes", Boolean.TRUE);
+        includeMoviesInCategories = PropertiesUtil.getBooleanProperty("mjb.includeMoviesInCategories", Boolean.FALSE);
+        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", Boolean.FALSE);
+        includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
+        includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", Boolean.FALSE);
+        setsExcludeTV = PropertiesUtil.getBooleanProperty("mjb.sets.excludeTV", Boolean.FALSE);
 
         if (nbTvShowsPerPage == 0) {
             nbTvShowsPerPage = nbMoviesPerPage;
@@ -423,7 +423,7 @@ public class MovieJukeboxXMLWriter {
         int indexCount = 0;
         int indexSize = library.getIndexes().size();
 
-        final boolean setReindex = PropertiesUtil.getBooleanProperty("mjb.sets.reindex", TRUE);
+        final boolean setReindex = PropertiesUtil.getBooleanProperty("mjb.sets.reindex", Boolean.TRUE);
 
         StringBuilder loggerString;
 

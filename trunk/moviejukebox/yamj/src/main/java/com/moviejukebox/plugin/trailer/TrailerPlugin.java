@@ -27,8 +27,6 @@ import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.*;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.downloader.Downloader;
 import java.io.File;
 import org.apache.commons.io.FilenameUtils;
@@ -43,11 +41,11 @@ public class TrailerPlugin implements ITrailerPlugin {
     protected String trailersPluginName = "Abstract";
     private static String trailersScanerPath = PropertiesUtil.getProperty("trailers.path.scaner", "");
     private static String trailersPlayerPath = PropertiesUtil.getProperty("trailers.path.player", "");
-    private static boolean trailersDownload = PropertiesUtil.getBooleanProperty("trailers.download", FALSE);
-    private static boolean trailersSafeFilename = PropertiesUtil.getBooleanProperty("trailers.safeFilename", FALSE);
-    private static boolean trailersOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceTrailersOverwrite", FALSE);
-    private static boolean trailersShowProgress = PropertiesUtil.getBooleanProperty("trailers.showProgress", TRUE);
-    private static boolean trailersScanHdOnly = PropertiesUtil.getBooleanProperty("trailers.scanHdOnly", FALSE);
+    private static boolean trailersDownload = PropertiesUtil.getBooleanProperty("trailers.download", Boolean.FALSE);
+    private static boolean trailersSafeFilename = PropertiesUtil.getBooleanProperty("trailers.safeFilename", Boolean.FALSE);
+    private static boolean trailersOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceTrailersOverwrite", Boolean.FALSE);
+    private static boolean trailersShowProgress = PropertiesUtil.getBooleanProperty("trailers.showProgress", Boolean.TRUE);
+    private static boolean trailersScanHdOnly = PropertiesUtil.getBooleanProperty("trailers.scanHdOnly", Boolean.FALSE);
     // Resolutions Available
     protected static final String RESOLUTION_1080P = "1080p";
     protected static final String RESOLUTION_720P = "720p";

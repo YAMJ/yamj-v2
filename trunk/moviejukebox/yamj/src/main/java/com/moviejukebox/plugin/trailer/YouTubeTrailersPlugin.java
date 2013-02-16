@@ -26,7 +26,6 @@ import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.DOMHelper;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.SystemTools;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -59,9 +58,9 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
     private static final String TRAILER_MAX_RESULTS = "&max-results=";
     private static final String TRAILER_VERSION = "&v=2";
     // Properties
-    private boolean hdWanted = PropertiesUtil.getBooleanProperty("youtubetrailer.hdwanted", TRUE);
+    private boolean hdWanted = PropertiesUtil.getBooleanProperty("youtubetrailer.hdwanted", Boolean.TRUE);
 //    private String trailerLanguage = PropertiesUtil.getProperty("youtubetrailer.language", "en");
-    private int maxTrailers = PropertiesUtil.getIntProperty("youtubetrailer.maxtrailers", "1");
+    private int maxTrailers = PropertiesUtil.getIntProperty("youtubetrailer.maxtrailers", 1);
 
     public YouTubeTrailersPlugin() {
         super();

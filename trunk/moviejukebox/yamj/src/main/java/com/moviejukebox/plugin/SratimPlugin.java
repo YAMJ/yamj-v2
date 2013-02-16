@@ -26,8 +26,6 @@ import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.*;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -78,13 +76,13 @@ public class SratimPlugin extends ImdbPlugin {
 
         tvdb = new TheTvDBPlugin(); // use TVDB if sratim doesn't know series
 
-        plotLineMaxChar = PropertiesUtil.getIntProperty("sratim.plotLineMaxChar", "50");
-        plotLineMax = PropertiesUtil.getIntProperty("sratim.plotLineMax", "2");
+        plotLineMaxChar = PropertiesUtil.getIntProperty("sratim.plotLineMaxChar", 50);
+        plotLineMax = PropertiesUtil.getIntProperty("sratim.plotLineMax", 2);
 
-        subtitleDownload = PropertiesUtil.getBooleanProperty("sratim.subtitle", FALSE);
+        subtitleDownload = PropertiesUtil.getBooleanProperty("sratim.subtitle", Boolean.FALSE);
         preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
-        keepEnglishGenres = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishGenres", FALSE);
-        bidiSupport = PropertiesUtil.getBooleanProperty("sratim.BidiSupport", TRUE);
+        keepEnglishGenres = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishGenres", Boolean.FALSE);
+        bidiSupport = PropertiesUtil.getBooleanProperty("sratim.BidiSupport", Boolean.TRUE);
 
         lineBreak = PropertiesUtil.getProperty("mjb.lineBreak", "{br}");
     }
@@ -1445,7 +1443,7 @@ public class SratimPlugin extends ImdbPlugin {
 
     private int findEndOfHebrewSubtitlesSection(String mainXML) {
         int result = mainXML.length();
-        boolean onlyHeb = PropertiesUtil.getBooleanProperty("sratim.downloadOnlyHebrew", FALSE);
+        boolean onlyHeb = PropertiesUtil.getBooleanProperty("sratim.downloadOnlyHebrew", Boolean.FALSE);
         if (onlyHeb) {
             String pattern = "images/Flags/2.png";
             int nonHeb = mainXML.indexOf(pattern);

@@ -34,9 +34,9 @@ public class MovieTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        PropertiesUtil.setProperty("plugin.people.maxCount.director", "2");
-        PropertiesUtil.setProperty("plugin.people.maxCount.writer", "1");
-        PropertiesUtil.setProperty("plugin.people.maxCount.actor", "10");
+        PropertiesUtil.setProperty("movie.director.maxCount", 2);
+        PropertiesUtil.setProperty("movie.writer.maxCount", 1);
+        PropertiesUtil.setProperty("movie.actor.maxCount", 10);
     }
 
     @Test

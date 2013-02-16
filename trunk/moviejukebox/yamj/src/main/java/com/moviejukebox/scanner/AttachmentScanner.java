@@ -32,8 +32,6 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.io.BufferedReader;
@@ -62,7 +60,7 @@ public class AttachmentScanner {
     private static final Logger LOGGER = Logger.getLogger(AttachmentScanner.class);
     private static final String LOG_MESSAGE = "AttachmentScanner: ";
     // Enabled
-    private static final Boolean IS_ENABLED = PropertiesUtil.getBooleanProperty("attachment.scanner.enable", FALSE);
+    private static final Boolean IS_ENABLED = PropertiesUtil.getBooleanProperty("attachment.scanner.enable", Boolean.FALSE);
     // mkvToolnix
     private static final File MT_PATH = new File(PropertiesUtil.getProperty("attachment.mkvtoolnix.home", "./mkvToolnix/"));
     private static final String MT_LANGUAGE = PropertiesUtil.getProperty("attachment.mkvtoolnix.language", "");
@@ -77,10 +75,10 @@ public class AttachmentScanner {
     private static boolean IS_ACTIVATED = Boolean.FALSE;
     // temporary directory
     private static File TEMP_DIRECTORY = null;
-    private static boolean TEMP_CLEANUP = PropertiesUtil.getBooleanProperty("attachment.temp.cleanup", TRUE);
+    private static boolean TEMP_CLEANUP = PropertiesUtil.getBooleanProperty("attachment.temp.cleanup", Boolean.TRUE);
     // enable/disable some checks
-    private static boolean RECHECK_ENABLED = PropertiesUtil.getBooleanProperty("attachment.recheck.enable", TRUE);
-    private static boolean INCLUDE_VIDEOIMAGES = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
+    private static boolean RECHECK_ENABLED = PropertiesUtil.getBooleanProperty("attachment.recheck.enable", Boolean.TRUE);
+    private static boolean INCLUDE_VIDEOIMAGES = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
     // the operating system name
     public static final String OS_NAME = System.getProperty("os.name");
     // properties for NFO handling

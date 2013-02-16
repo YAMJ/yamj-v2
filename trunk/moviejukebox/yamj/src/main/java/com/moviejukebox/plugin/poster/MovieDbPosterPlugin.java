@@ -25,7 +25,6 @@ package com.moviejukebox.plugin.poster;
 import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 import com.omertron.themoviedbapi.MovieDbException;
@@ -44,7 +43,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
     private String languageCode;
     private TheMovieDbApi TMDb;
     private static final String DEFAULT_POSTER_SIZE = "original";
-    private static final Boolean INCLUDE_ADULT = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", FALSE);
+    private static final Boolean INCLUDE_ADULT = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", Boolean.FALSE);
 
     public MovieDbPosterPlugin() {
         super();

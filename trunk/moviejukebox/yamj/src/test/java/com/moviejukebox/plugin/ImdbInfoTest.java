@@ -55,7 +55,7 @@ public class ImdbInfoTest {
         for (String site : keySet) {
             PropertiesUtil.setProperty("imdb.site", site);
             PropertiesUtil.setProperty("imdb.id.search.match", "first");
-            PropertiesUtil.setProperty("imdb.id.search.variable", "false");
+            PropertiesUtil.setProperty("imdb.id.search.variable", false);
             ImdbInfo imdbInfo = new ImdbInfo();
             
             String id = imdbInfo.getImdbId("Abraham Lincoln Vampire Hunter", null, false);
@@ -69,7 +69,7 @@ public class ImdbInfoTest {
         for (String site : keySet) {
             PropertiesUtil.setProperty("imdb.site", site);
             PropertiesUtil.setProperty("imdb.id.search.match", "first");
-            PropertiesUtil.setProperty("imdb.id.search.variable", "true");
+            PropertiesUtil.setProperty("imdb.id.search.variable", true);
             ImdbInfo imdbInfo = new ImdbInfo();
             
             String id = imdbInfo.getImdbId("Abraham Lincoln Vampire Hunter", null, false);
@@ -83,7 +83,7 @@ public class ImdbInfoTest {
         for (String site : keySet) {
             PropertiesUtil.setProperty("imdb.site", site);
             PropertiesUtil.setProperty("imdb.id.search.match", "first");
-            PropertiesUtil.setProperty("imdb.id.search.variable", "false");
+            PropertiesUtil.setProperty("imdb.id.search.variable", false);
             ImdbInfo imdbInfo = new ImdbInfo();
             
             String id = imdbInfo.getImdbId("Avatar", "2009", false);
@@ -97,7 +97,7 @@ public class ImdbInfoTest {
         for (String site : keySet) {
             PropertiesUtil.setProperty("imdb.site", site);
             PropertiesUtil.setProperty("imdb.id.search.match", "regular");
-            PropertiesUtil.setProperty("imdb.id.search.variable", "false");
+            PropertiesUtil.setProperty("imdb.id.search.variable", false);
             ImdbInfo imdbInfo = new ImdbInfo();
             
             String id = imdbInfo.getImdbId("Avatar", "2009", false);
@@ -111,7 +111,7 @@ public class ImdbInfoTest {
         for (String site : keySet) {
             PropertiesUtil.setProperty("imdb.site", site);
             PropertiesUtil.setProperty("imdb.id.search.match", "exact");
-            PropertiesUtil.setProperty("imdb.id.search.variable", "false");
+            PropertiesUtil.setProperty("imdb.id.search.variable", false);
             ImdbInfo imdbInfo = new ImdbInfo();
             
             String id = imdbInfo.getImdbId("Avatar", "2009", false);
