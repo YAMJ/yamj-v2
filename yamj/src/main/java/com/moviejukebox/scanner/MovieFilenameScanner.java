@@ -26,7 +26,6 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import java.io.File;
 import java.util.*;
@@ -73,8 +72,8 @@ public final class MovieFilenameScanner {
 
     static {
         setExtrasKeywords(new String[]{"trailer"});
-        skipEpisodeTitle = PropertiesUtil.getBooleanProperty("filename.scanner.skip.episodeTitle", FALSE);
-        useParentRegex = PropertiesUtil.getBooleanProperty("filename.scanner.useParentRegex", FALSE);
+        skipEpisodeTitle = PropertiesUtil.getBooleanProperty("filename.scanner.skip.episodeTitle", Boolean.FALSE);
+        useParentRegex = PropertiesUtil.getBooleanProperty("filename.scanner.useParentRegex", Boolean.FALSE);
         String patternString = PropertiesUtil.getProperty("filename.scanner.parentRegex", "");
         logger.debug(LOG_MESSAGE + "useParentPattern >>" + patternString + "<<");
         if (StringTools.isValidString(patternString)) {
@@ -84,7 +83,7 @@ public final class MovieFilenameScanner {
             USE_PARENT_PATTERN = null;
             useParentRegex = Boolean.FALSE;
         }
-        archiveScanRar = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", FALSE);
+        archiveScanRar = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", Boolean.FALSE);
     }
     private static String[] movieVersionKeywords;
     private static final List<Pattern> MOVIE_VERSION_PATTERNS = new ArrayList<Pattern>();

@@ -35,8 +35,6 @@ import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.scanner.AttachmentScanner;
 import com.moviejukebox.tools.*;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
 import com.omertron.themoviedbapi.model.MovieDb;
@@ -72,7 +70,7 @@ public class FanartScanner {
     private static final Collection<String> fanartExtensions = Collections.synchronizedList(new ArrayList<String>());
     private static String fanartToken;
     private static boolean fanartOverwrite;
-    private static final boolean useFolderBackground = PropertiesUtil.getBooleanProperty("fanart.scanner.useFolderImage", FALSE);
+    private static final boolean useFolderBackground = PropertiesUtil.getBooleanProperty("fanart.scanner.useFolderImage", Boolean.FALSE);
     private static final Collection<String> fanartImageName = Collections.synchronizedList(new ArrayList<String>());
     private static boolean artworkValidate;
     private static int artworkValidateMatch;
@@ -99,7 +97,7 @@ public class FanartScanner {
         }
 
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
-        fanartOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartOverwrite", FALSE);
+        fanartOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartOverwrite", Boolean.FALSE);
 
         // See if we use background.* or fanart.*
         synchronized (fanartImageName) {
@@ -111,11 +109,11 @@ public class FanartScanner {
             }
         }
 
-        artworkWidth = PropertiesUtil.getIntProperty("fanart.width", "0");
-        artworkHeight = PropertiesUtil.getIntProperty("fanart.height", "0");
-        artworkValidate = PropertiesUtil.getBooleanProperty("fanart.scanner.Validate", TRUE);
-        artworkValidateMatch = PropertiesUtil.getIntProperty("fanart.scanner.ValidateMatch", "75");
-        artworkValidateAspect = PropertiesUtil.getBooleanProperty("fanart.scanner.ValidateAspect", TRUE);
+        artworkWidth = PropertiesUtil.getIntProperty("fanart.width", 0);
+        artworkHeight = PropertiesUtil.getIntProperty("fanart.height", 0);
+        artworkValidate = PropertiesUtil.getBooleanProperty("fanart.scanner.Validate", Boolean.TRUE);
+        artworkValidateMatch = PropertiesUtil.getIntProperty("fanart.scanner.ValidateMatch", 75);
+        artworkValidateAspect = PropertiesUtil.getBooleanProperty("fanart.scanner.ValidateAspect", Boolean.TRUE);
 
         try {
             TMDb = new TheMovieDbApi(PropertiesUtil.getProperty("API_KEY_TheMovieDB"));
@@ -231,7 +229,7 @@ public class FanartScanner {
                     BufferedImage fanartImage = GraphicTools.loadJPEGImage(fullFanartFile);
                     if (fanartImage != null) {
                         fanartImage = backgroundPlugin.generate(movie, fanartImage, "fanart", null);
-                        if (PropertiesUtil.getBooleanProperty("fanart.perspective", FALSE)) {
+                        if (PropertiesUtil.getBooleanProperty("fanart.perspective", Boolean.FALSE)) {
                             destFileName = destFileName.subSequence(0, destFileName.lastIndexOf('.') + 1) + "png";
                             movie.setFanartFilename(destFileName);
                         }

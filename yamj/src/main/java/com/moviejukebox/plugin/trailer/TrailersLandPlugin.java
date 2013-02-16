@@ -60,7 +60,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
         trailersPluginName = "TrailersLand";
         LOG_MESSAGE = "TrailersLandPlugin: ";
 
-        trailerMaxCount = (int) PropertiesUtil.getLongProperty("trailersland.max", "3");
+        trailerMaxCount = PropertiesUtil.getIntProperty("trailersland.max", 3);
         trailerMaxResolution = PropertiesUtil.getProperty("trailersland.maxResolution", RESOLUTION_1080P);
         trailerAllowedFormats = PropertiesUtil.getProperty("trailersland.allowedFormats", "wmv,mov,mp4,avi,mkv,mpg");
         trailerPreferredLanguages = PropertiesUtil.getProperty("trailersland.preferredLanguages", "ita,sub-ita,en");

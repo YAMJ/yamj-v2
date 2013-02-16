@@ -24,8 +24,6 @@ package com.moviejukebox.writer;
 
 import com.moviejukebox.model.*;
 import com.moviejukebox.tools.*;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,7 +54,7 @@ public class MovieJukeboxHTMLWriter {
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";
     private static final String EXT_XSL = ".xsl";
-    private boolean forceHTMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", FALSE);
+    private boolean forceHTMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", Boolean.FALSE);
     private String peopleFolder;
     private static String skinHome = SkinProperties.getSkinHome();
     private static TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -64,7 +62,7 @@ public class MovieJukeboxHTMLWriter {
     private static File playlistFile = new File("playlist.xsl");
     private static String indexHtmFile = "../" + PropertiesUtil.getProperty("mjb.indexFile", "index.htm");
     private static String myiHomeIP = PropertiesUtil.getProperty("mjb.myiHome.IP", "");
-    private static boolean generateMultiPartPlaylist = PropertiesUtil.getBooleanProperty("mjb.playlist.generateMultiPart", TRUE);
+    private static boolean generateMultiPartPlaylist = PropertiesUtil.getBooleanProperty("mjb.playlist.generateMultiPart", Boolean.TRUE);
     private static int maxRetryCount = 3;   // The number of times to retry writing a HTML page
 
     public MovieJukeboxHTMLWriter() {

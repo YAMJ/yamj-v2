@@ -36,7 +36,7 @@ import org.junit.Test;
 public class TrailersLandPluginTest {
 
     static {
-        PropertiesUtil.setProperty("trailers.download", "false");
+        PropertiesUtil.setProperty("trailers.download", false);
     }
 
     private TrailersLandPlugin tlPlugin = new TrailersLandPlugin();

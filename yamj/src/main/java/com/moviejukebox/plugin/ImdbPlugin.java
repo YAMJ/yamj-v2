@@ -137,33 +137,33 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
         imdbPlot = PropertiesUtil.getProperty("imdb.plot", "short");
-        downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", FALSE);
+        downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", Boolean.FALSE);
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
-        extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", TRUE);
-        fullName = PropertiesUtil.getBooleanProperty("imdb.full.info", FALSE);
+        extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE);
+        fullName = PropertiesUtil.getBooleanProperty("imdb.full.info", Boolean.FALSE);
         
-        preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", "500");
-        preferredFilmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", "20");
-        actorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", "10");
-        directorMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.director", "2");
-        writerMax = PropertiesUtil.getIntProperty("plugin.people.maxCount.writer", "3");
-        skipFaceless = PropertiesUtil.getBooleanProperty("plugin.people.skip.faceless", FALSE);
-        skipVG = PropertiesUtil.getBooleanProperty("plugin.people.skip.VG", TRUE);
-        skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", FALSE);
-        skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", FALSE);
+        preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", 500);
+        preferredFilmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", 20);
+        actorMax = PropertiesUtil.getReplacedIntProperty("movie.actor.maxCount", "plugin.people.maxCount.actor", 10);
+        directorMax = PropertiesUtil.getReplacedIntProperty("movie.director.maxCount", "plugin.people.maxCount.director", 2);
+        writerMax = PropertiesUtil.getReplacedIntProperty("movie.writer.maxCount", "plugin.people.maxCount.writer", 3);
+        skipFaceless = PropertiesUtil.getBooleanProperty("plugin.people.skip.faceless", Boolean.FALSE);
+        skipVG = PropertiesUtil.getBooleanProperty("plugin.people.skip.VG", Boolean.TRUE);
+        skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", Boolean.FALSE);
+        skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", Boolean.FALSE);
         jobsInclude = Arrays.asList(PropertiesUtil.getProperty("plugin.filmography.jobsInclude", "Director,Writer,Actor,Actress").split(","));
 
-        triviaMax = PropertiesUtil.getIntProperty("plugin.trivia.maxCount", "15");
+        triviaMax = PropertiesUtil.getIntProperty("plugin.trivia.maxCount", 15);
 
         String tmpAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", FALSE);
         scrapeWonAwards = tmpAwards.equalsIgnoreCase("won");
         scrapeAwards = tmpAwards.equalsIgnoreCase(TRUE) || scrapeWonAwards;
 
-        scrapeBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", FALSE);
-        scrapeTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", FALSE);
+        scrapeBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", Boolean.FALSE);
+        scrapeTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", Boolean.FALSE);
         
-        akaScrapeTitle = PropertiesUtil.getBooleanProperty("imdb.aka.scrape.title", FALSE);
+        akaScrapeTitle = PropertiesUtil.getBooleanProperty("imdb.aka.scrape.title", Boolean.FALSE);
         akaIgnoreVersions = PropertiesUtil.getProperty("imdb.aka.ignore.version", "").split(",");
     }
 

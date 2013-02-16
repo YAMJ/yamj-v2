@@ -24,7 +24,6 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.*;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.fanarttvapi.FanartTvApi;
 import com.omertron.fanarttvapi.FanartTvException;
@@ -61,7 +60,7 @@ public class FanartTvPlugin {
             artworkPropertyName.append(artworkType.getSourceType().toString().toLowerCase());
             artworkPropertyName.append(".download");
 
-            if (PropertiesUtil.getBooleanProperty(artworkPropertyName.toString(), FALSE)) {
+            if (PropertiesUtil.getBooleanProperty(artworkPropertyName.toString(), Boolean.FALSE)) {
                 artworkTypes.put(artworkType, 1);
             }
         }
@@ -231,6 +230,7 @@ public class FanartTvPlugin {
     public List<FanartTvArtwork> getTvArtwork(int tvdbId, FTArtworkType artworkType) {
         String key = CacheMemory.generateCacheKey(FANARTTV_PLUGIN_ID, String.valueOf(tvdbId), artworkType.toString());
 
+        @SuppressWarnings("unchecked")
         List<FanartTvArtwork> ftArtwork = (List<FanartTvArtwork>) CacheMemory.getFromCache(key);
 
         if (ftArtwork == null || ftArtwork.isEmpty()) {
@@ -266,6 +266,7 @@ public class FanartTvPlugin {
             key = Movie.UNKNOWN;
         }
 
+        @SuppressWarnings("unchecked")
         List<FanartTvArtwork> ftArtwork = (List<FanartTvArtwork>) CacheMemory.getFromCache(key);
 
         if (ftArtwork == null || ftArtwork.isEmpty()) {

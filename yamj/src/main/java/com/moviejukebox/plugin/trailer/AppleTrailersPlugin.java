@@ -26,8 +26,6 @@ import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.io.IOException;
@@ -47,10 +45,10 @@ public class AppleTrailersPlugin extends TrailerPlugin {
 
     private static final Logger logger = Logger.getLogger(AppleTrailersPlugin.class);
     private static String configResolution = PropertiesUtil.getProperty("appletrailers.resolution", "");
-    private static boolean configDownload = PropertiesUtil.getBooleanProperty("appletrailers.download", FALSE);
+    private static boolean configDownload = PropertiesUtil.getBooleanProperty("appletrailers.download", Boolean.FALSE);
     private static String configTrailerTypes = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec,640w");
-    private static int configMax = PropertiesUtil.getIntProperty("appletrailers.max", "0");
-    private static boolean configTypesInclude = PropertiesUtil.getBooleanProperty("appletrailers.typesinclude", TRUE);
+    private static int configMax = PropertiesUtil.getIntProperty("appletrailers.max", 0);
+    private static boolean configTypesInclude = PropertiesUtil.getBooleanProperty("appletrailers.typesinclude", Boolean.TRUE);
     private static String configReplaceUrl = PropertiesUtil.getProperty("appletrailers.replaceurl", "www.apple.com");
     private static final String EXTENSIONS = "mov|m4v";
     private static final String SUBDOMAINS = "movies|images|trailers";

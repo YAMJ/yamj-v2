@@ -27,7 +27,6 @@ import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
@@ -66,8 +65,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private boolean downloadFanart;
     private static String fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
     private String fanartExtension;
-    public static final boolean INCLUDE_ADULT = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", FALSE);
-    public static final int SEARCH_MATCH = PropertiesUtil.getIntProperty("themoviedb.searchMatch", "3");
+    public static final boolean INCLUDE_ADULT = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", Boolean.FALSE);
+    public static final int SEARCH_MATCH = PropertiesUtil.getIntProperty("themoviedb.searchMatch", 3);
     private static final String LANGUAGE_DELIMITER = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
 
     public TheMovieDbPlugin() {
@@ -97,7 +96,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         logger.debug(LOG_MESSAGE + "Using `" + languageCode + "` as the language code");
         logger.debug(LOG_MESSAGE + "Using `" + countryCode + "` as the country code");
 
-        downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", FALSE);
+        downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", Boolean.FALSE);
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
     }
 

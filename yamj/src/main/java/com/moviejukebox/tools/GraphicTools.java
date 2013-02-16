@@ -91,7 +91,7 @@ public class GraphicTools {
             return;
         }
 
-        jpegQuality = PropertiesUtil.getIntProperty("mjb.jpeg.quality", "75");
+        jpegQuality = PropertiesUtil.getIntProperty("mjb.jpeg.quality", 75);
         quality = (float) jpegQuality / 100;
         // save image as JPEG
         ImageWriter writer = null;
@@ -302,7 +302,7 @@ public class GraphicTools {
         int avatarWidth = avatar.getWidth();
         int avatarHeight = avatar.getHeight();
 
-        float reflectionHeight = PropertiesUtil.getFloatProperty(graphicType + ".reflectionHeight", "12.5");
+        float reflectionHeight = PropertiesUtil.getFloatProperty(graphicType + ".reflectionHeight", 12.5f);
 
         BufferedImage gradient = createGradientMask(avatarWidth, avatarHeight, reflectionHeight, graphicType);
         BufferedImage buffer = createReflection(avatar, avatarWidth, avatarHeight, reflectionHeight);
@@ -330,10 +330,10 @@ public class GraphicTools {
         float reflectionStart, reflectionEnd, opacityStart, opacityEnd;
         float reflectionHeightAbsolute = avatarHeight * (reflectionHeight / 100);
 
-        reflectionStart = (PropertiesUtil.getFloatProperty(graphicType + ".reflectionStart", "0.0") / 100) * reflectionHeightAbsolute;
-        reflectionEnd = (PropertiesUtil.getFloatProperty(graphicType + ".reflectionEnd", "100.0") / 100) * reflectionHeightAbsolute;
-        opacityStart = PropertiesUtil.getFloatProperty(graphicType + ".opacityStart", "30.0") / 100;
-        opacityEnd = PropertiesUtil.getFloatProperty(graphicType + ".opacityEnd", "100.0") / 100;
+        reflectionStart = (PropertiesUtil.getFloatProperty(graphicType + ".reflectionStart", 0.0f) / 100) * reflectionHeightAbsolute;
+        reflectionEnd = (PropertiesUtil.getFloatProperty(graphicType + ".reflectionEnd", 100.0f) / 100) * reflectionHeightAbsolute;
+        opacityStart = PropertiesUtil.getFloatProperty(graphicType + ".opacityStart", 30.0f) / 100;
+        opacityEnd = PropertiesUtil.getFloatProperty(graphicType + ".opacityEnd", 100.0f) / 100;
 
         GradientPaint painter = new GradientPaint(0.0f, reflectionStart, new Color(1.0f, 1.0f, 1.0f, opacityStart), 0.0f, reflectionEnd, new Color(1.0f, 1.0f, 1.0f, opacityEnd));
         g.setPaint(painter);

@@ -35,20 +35,21 @@ import org.apache.log4j.Logger;
  */
 public class PropertiesUtil {
 
-    private static final Logger logger = Logger.getLogger(PropertiesUtil.class);
+    private static final Logger LOG = Logger.getLogger(PropertiesUtil.class);
     private static final String LOG_MESSAGE = "PropertiesUtil: ";
     private static final String PROPERTIES_CHARSET = "UTF-8";
-    private static Properties props = new Properties();
     private static final String PREFERENCES_FILENAME = "preferences.xsl";
     public static final String TRUE = "true";
     public static final String FALSE = "false";
+
+    private static Properties props = new Properties();
 
     public static boolean setPropertiesStreamName(String streamName) {
         return setPropertiesStreamName(streamName, true);
     }
 
     public static boolean setPropertiesStreamName(String streamName, boolean warnFatal) {
-        logger.info("Using properties file " + streamName);
+        LOG.info("Using properties file " + streamName);
         InputStream propertiesStream = ClassLoader.getSystemResourceAsStream(streamName);
         Reader reader = null;
 
@@ -62,9 +63,9 @@ public class PropertiesUtil {
         } catch (IOException error) {
             // Output a warning if required.
             if (warnFatal) {
-                logger.error("Failed loading file " + streamName + ": Please check your configuration. The properties file should be in the classpath.");
+                LOG.error("Failed loading file " + streamName + ": Please check your configuration. The properties file should be in the classpath.");
             } else {
-                logger.debug("Warning (non-fatal): User properties file '" + streamName + "', not found.");
+                LOG.debug("Warning (non-fatal): User properties file '" + streamName + "', not found.");
             }
             return false;
         } finally {
@@ -96,19 +97,37 @@ public class PropertiesUtil {
     }
 
     /**
-     * Return the key property as an integer
+     * Return the key property as a boolean
      *
      * @param key
      * @param defaultValue
      * @return
      */
-    public static int getIntProperty(String key, String defaultValue) {
-        String property = getProperty(key, defaultValue).trim();
-        try {
-            return Integer.parseInt(property);
-        } catch (NumberFormatException nfe) {
-            return Integer.parseInt(defaultValue);
+    public static boolean getBooleanProperty(String key, boolean defaultValue) {
+        String property = props.getProperty(key);
+        if (property != null) {
+            try {
+                return Boolean.parseBoolean(property.trim());
+            } catch (NumberFormatException nfe) {}
         }
+        return defaultValue;
+    }
+
+    /**
+     * Return the key property as integer
+     *
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    public static int getIntProperty(String key, int defaultValue) {
+        String property = props.getProperty(key);
+        if (property != null) {
+            try {
+                return Integer.parseInt(property.trim());
+            } catch (NumberFormatException nfe) {}
+        }
+        return defaultValue;
     }
 
     /**
@@ -118,29 +137,14 @@ public class PropertiesUtil {
      * @param defaultValue
      * @return
      */
-    public static long getLongProperty(String key, String defaultValue) {
-        String property = getProperty(key, defaultValue).trim();
-        try {
-            return Long.parseLong(property);
-        } catch (NumberFormatException nfe) {
-            return Long.parseLong(defaultValue);
+    public static long getLongProperty(String key, long defaultValue) {
+        String property = props.getProperty(key);
+        if (property != null) {
+            try {
+                return Long.parseLong(property.trim());
+            } catch (NumberFormatException nfe) {}
         }
-    }
-
-    /**
-     * Return the key property as a boolean
-     *
-     * @param key
-     * @param defaultValue
-     * @return
-     */
-    public static boolean getBooleanProperty(String key, String defaultValue) {
-        String property = getProperty(key, defaultValue).trim();
-        try {
-            return Boolean.parseBoolean(property);
-        } catch (NumberFormatException nfe) {
-            return Boolean.parseBoolean(defaultValue);
-        }
+        return defaultValue;
     }
 
     /**
@@ -150,14 +154,84 @@ public class PropertiesUtil {
      * @param defaultValue
      * @return
      */
-    public static float getFloatProperty(String key, String defaultValue) {
-        String property = getProperty(key, defaultValue).trim();
-
-        try {
-            return Float.parseFloat(property);
-        } catch (NumberFormatException nfe) {
-            return Float.parseFloat(defaultValue);
+    public static float getFloatProperty(String key, float defaultValue) {
+        String property = props.getProperty(key);
+        if (property != null) {
+            try {
+                return Float.parseFloat(property.trim());
+            } catch (NumberFormatException nfe) {}
         }
+        return defaultValue;
+    }
+
+    public static String getReplacedProperty(String newKey, String oldKey, String defaultValue) {
+        String property = props.getProperty(oldKey);
+        if (property == null) {
+            property = props.getProperty(newKey, defaultValue);
+        } else {
+            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed later on; please use '" + newKey + "' instead");
+        }
+        return property;
+    }
+
+    public static boolean getReplacedBooleanProperty(String newKey, String oldKey, boolean defaultValue) {
+        String property = props.getProperty(oldKey);
+        if (property == null) {
+            property = props.getProperty(newKey);
+        } else {
+            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
+        }
+        if (property != null) {
+            try {
+                return Boolean.parseBoolean(property.trim());
+            } catch (NumberFormatException nfe) {}
+        }
+        return defaultValue;
+    }
+
+    public static int getReplacedIntProperty(String newKey, String oldKey, int defaultValue) {
+        String property = props.getProperty(oldKey);
+        if (property == null) {
+            property = props.getProperty(newKey);
+        } else {
+            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
+        }
+        if (property != null) {
+            try {
+                return Integer.parseInt(property.trim());
+            } catch (NumberFormatException nfe) {}
+        }
+        return defaultValue;
+    }
+
+    public static long getReplacedLongProperty(String newKey, String oldKey, long defaultValue) {
+        String property = props.getProperty(oldKey);
+        if (property == null) {
+            property = props.getProperty(newKey);
+        } else {
+            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
+        }
+        if (property != null) {
+            try {
+                return Long.parseLong(property.trim());
+            } catch (NumberFormatException nfe) {}
+        }
+        return defaultValue;
+    }
+
+    public static float getReplacedFloatProperty(String newKey, String oldKey, float defaultValue) {
+        String property = props.getProperty(oldKey);
+        if (property == null) {
+            property = props.getProperty(newKey);
+        } else {
+            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
+        }
+        if (property != null) {
+            try {
+                return Float.parseFloat(property.trim());
+            } catch (NumberFormatException nfe) {}
+        }
+        return defaultValue;
     }
 
     // Issue 309
@@ -169,6 +243,18 @@ public class PropertiesUtil {
 
     public static void setProperty(String key, String value) {
         props.setProperty(key, value);
+    }
+
+    public static void setProperty(String key, boolean value) {
+        props.setProperty(key, Boolean.toString(value));
+    }
+
+    public static void setProperty(String key, int value) {
+        props.setProperty(key, Integer.toString(value));
+    }
+
+    public static void setProperty(String key, long value) {
+        props.setProperty(key, Long.toString(value));
     }
 
     /**
@@ -226,7 +312,7 @@ public class PropertiesUtil {
         Collections.sort(propertiesList);
 
         try {
-            logger.debug(LOG_MESSAGE + "Writing skin preferences file to " + getPropertiesFilename(true));
+            LOG.debug(LOG_MESSAGE + "Writing skin preferences file to " + getPropertiesFilename(true));
 
             fos = new FileOutputStream(getPropertiesFilename(true));
             osw = new OutputStreamWriter(fos, "UTF-8");
@@ -249,12 +335,12 @@ public class PropertiesUtil {
             out.flush();
         } catch (IOException error) {
             // Can't write to file
-            logger.error(LOG_MESSAGE + "Can't write to file");
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Can't write to file");
+            LOG.error(SystemTools.getStackTrace(error));
         } catch (Exception error) {
             // Some other error
-            logger.error(LOG_MESSAGE + "Error with file");
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Error with file");
+            LOG.error(SystemTools.getStackTrace(error));
         } finally {
             if (out != null) {
                 try {

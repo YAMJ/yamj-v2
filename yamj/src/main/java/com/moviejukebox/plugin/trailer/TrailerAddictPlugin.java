@@ -50,7 +50,7 @@ public class TrailerAddictPlugin extends TrailerPlugin {
         super();
         trailersPluginName = "TrailerAddict";
         LOG_MESSAGE = "TrailerAddictPlugin: ";
-        trailerMaxCount = PropertiesUtil.getIntProperty("traileraddict.max", "3");
+        trailerMaxCount = PropertiesUtil.getIntProperty("traileraddict.max", 3);
     }
 
     @Override

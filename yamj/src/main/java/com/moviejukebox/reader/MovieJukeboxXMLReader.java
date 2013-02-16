@@ -30,7 +30,6 @@ import com.moviejukebox.tools.AspectRatioTools;
 import com.moviejukebox.tools.DOMHelper;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import static com.moviejukebox.writer.MovieJukeboxXMLWriter.*;
@@ -55,7 +54,7 @@ public class MovieJukeboxXMLReader {
     private static final String LOG_MESSAGE = "XMLReader: ";
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     // Should we scrape the trivia information
-    private static boolean enableTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", FALSE);
+    private static boolean enableTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", Boolean.FALSE);
 
     /**
      * Parse a single movie detail XML file

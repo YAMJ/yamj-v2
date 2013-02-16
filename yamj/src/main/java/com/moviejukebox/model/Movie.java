@@ -26,7 +26,6 @@ import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
 import com.moviejukebox.tools.*;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
@@ -72,22 +71,21 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * Properties that control the object
      */
     private static final List<String> SORT_IGNORE_PREFIXES = new ArrayList<String>();
-    private int highdef720 = PropertiesUtil.getIntProperty("highdef.720.width", "1280");    // Get the minimum width for a high-definition movies
-    private int highdef1080 = PropertiesUtil.getIntProperty("highdef.1080.width", "1920");  // Get the minimum width for a high-definition movies
+    private int highdef720 = PropertiesUtil.getIntProperty("highdef.720.width", 1280);    // Get the minimum width for a high-definition movies
+    private int highdef1080 = PropertiesUtil.getIntProperty("highdef.1080.width", 1920);  // Get the minimum width for a high-definition movies
     private String[] ratingSource = PropertiesUtil.getProperty("mjb.rating.source", "average").split(",");
     private String tmpRatingIgnore = PropertiesUtil.getProperty("mjb.rating.ignore", "");
     private List<String> ratingIgnore = StringTools.isValidString(tmpRatingIgnore) ? Arrays.asList(tmpRatingIgnore.split(",")) : new ArrayList<String>();
     private static final Set<String> GENRE_SKIP_LIST = new HashSet<String>();   // List of genres to ignore
     private static final TitleSortType titleSortType = TitleSortType.fromString(PropertiesUtil.getProperty("mjb.sortTitle", "title"));
     // TODO: This will be removed in the future, once hashing has been completed
-    private static final Boolean DIR_HASH = PropertiesUtil.getBooleanProperty("mjb.dirHash", FALSE);
+    private static final Boolean DIR_HASH = PropertiesUtil.getBooleanProperty("mjb.dirHash", Boolean.FALSE);
     // checks
-    private static final int MAX_COUNT_DIRECTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.director", "2");
-    private static final int MAX_COUNT_WRITER = PropertiesUtil.getIntProperty("plugin.people.maxCount.writer", "3");
-    private static final int MAX_COUNT_ACTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", "10");
-    private static final int MAX_LENGTH_PLOT = PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500");
-    private static final int MAX_LENGTH_OUTLINE = PropertiesUtil.getIntProperty("plugin.outline.maxlength", "300");
-
+    private static final int MAX_COUNT_DIRECTOR = PropertiesUtil.getReplacedIntProperty("movie.director.maxCount", "plugin.people.maxCount.director", 2);
+    private static final int MAX_COUNT_WRITER = PropertiesUtil.getReplacedIntProperty("movie.writer.maxCount", "plugin.people.maxCount.writer", 3);
+    private static final int MAX_COUNT_ACTOR = PropertiesUtil.getReplacedIntProperty("movie.actor.maxCount", "plugin.people.maxCount.actor", 10);
+    private static final int MAX_LENGTH_PLOT = PropertiesUtil.getReplacedIntProperty("movie.plot.maxLength", "plugin.plot.maxlength", 500);
+    private static final int MAX_LENGTH_OUTLINE = PropertiesUtil.getReplacedIntProperty("movie.outline.maxLength", "plugin.outline.maxlength", 300);
     /*
      * --------------------------------------------------------------------------------
      * Properties related to the Movie object itself

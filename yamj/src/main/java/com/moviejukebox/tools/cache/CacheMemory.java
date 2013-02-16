@@ -23,7 +23,6 @@
 package com.moviejukebox.tools.cache;
 
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import java.util.ArrayList;
 import java.util.List;
@@ -167,7 +166,7 @@ public class CacheMemory {
     }
 
     public static boolean initCacheState() {
-        return PropertiesUtil.getBooleanProperty("mjb.cache", TRUE);
+        return PropertiesUtil.getBooleanProperty("mjb.cache", Boolean.TRUE);
     }
 
     /**

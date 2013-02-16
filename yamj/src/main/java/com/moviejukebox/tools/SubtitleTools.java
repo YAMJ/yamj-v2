@@ -24,7 +24,6 @@ package com.moviejukebox.tools;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.MovieFilenameScanner;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.util.*;
 import org.apache.log4j.Logger;
 
@@ -36,7 +35,7 @@ public final class SubtitleTools {
     private static final String SPLIT_PATTERN = "\\||,|/";
 
     private static final String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
-    private static final boolean subtitleUnique = PropertiesUtil.getBooleanProperty("mjb.subtitle.unique", TRUE);
+    private static final boolean subtitleUnique = PropertiesUtil.getBooleanProperty("mjb.subtitle.unique", Boolean.TRUE);
     private static final List<String> skippedSubtitles = new ArrayList<String>();
 
     static {

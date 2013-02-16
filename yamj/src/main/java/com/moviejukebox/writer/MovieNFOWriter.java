@@ -40,9 +40,9 @@ public class MovieNFOWriter {
 
     private static final Logger logger = Logger.getLogger(MovieNFOWriter.class);
     private static final String LOG_MESSAGE = "MovieNFOWriter: ";
-    private static boolean writeSimpleNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeSimpleFiles", Boolean.FALSE.toString());
-    private static boolean extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE.toString());
-    private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", PropertiesUtil.FALSE);
+    private static boolean writeSimpleNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeSimpleFiles", Boolean.FALSE);
+    private static boolean extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE);
+    private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE);
 
     /**
      * Write a NFO file for the movie using the data gathered

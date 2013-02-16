@@ -24,7 +24,6 @@ package com.moviejukebox.tools.cache;
 
 import com.moviejukebox.tools.HibernateUtil;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.Serializable;
 import org.apache.log4j.Logger;
 
@@ -46,7 +45,7 @@ public class CacheDB {
     }
 
     public static boolean initCacheState() {
-        boolean isEnabled = PropertiesUtil.getBooleanProperty("mjb.cache", TRUE);
+        boolean isEnabled = PropertiesUtil.getBooleanProperty("mjb.cache", Boolean.TRUE);
         logger.debug("Cache state is " + (isEnabled ? "enabled" : "disabled"));
         return isEnabled;
     }

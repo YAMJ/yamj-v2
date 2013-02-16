@@ -35,7 +35,6 @@ import com.moviejukebox.scanner.AttachmentScanner;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import com.moviejukebox.tools.StringTools;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -72,10 +71,10 @@ public class BannerScanner {
 
         bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
         wideBannerToken = PropertiesUtil.getProperty("mjb.scanner.wideBannerToken", ".wide");
-        bannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", FALSE);
+        bannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", Boolean.FALSE);
 
         // See if we use the folder banner artwork
-        useFolderBanner = PropertiesUtil.getBooleanProperty("banner.scanner.useFolderImage", FALSE);
+        useFolderBanner = PropertiesUtil.getBooleanProperty("banner.scanner.useFolderImage", Boolean.FALSE);
         if (useFolderBanner) {
             st = new StringTokenizer(PropertiesUtil.getProperty("banner.scanner.imageName", "banner"), ",;|");
             bannerImageName = new ArrayList<String>();

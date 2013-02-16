@@ -32,8 +32,6 @@ import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultImagePlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.tools.*;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -117,9 +115,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         }
 
         // Get artwork scanner behaviour
-        artworkSearchLocal = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.searchForExistingArtwork", FALSE);
-        artworkDownloadMovie = PropertiesUtil.getBooleanProperty(artworkTypeName + ".movie.download", FALSE);
-        artworkDownloadTv = PropertiesUtil.getBooleanProperty(artworkTypeName + ".tv.download", FALSE);
+        artworkSearchLocal = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.searchForExistingArtwork", Boolean.FALSE);
+        artworkDownloadMovie = PropertiesUtil.getBooleanProperty(artworkTypeName + ".movie.download", Boolean.FALSE);
+        artworkDownloadTv = PropertiesUtil.getBooleanProperty(artworkTypeName + ".tv.download", Boolean.FALSE);
 
         setArtworkExtensions(PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkExtensions", "jpg,png,gif"));
         artworkTokenOriginal = PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkToken", "");
@@ -136,9 +134,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         artworkFormat = PropertiesUtil.getProperty(artworkTypeName + ".format", "jpg");
         setArtworkImageName(PropertiesUtil.getProperty(artworkTypeName + ".scanner.imageName", ""));
 
-        artworkValidate = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.Validate", TRUE);
-        artworkValidateMatch = PropertiesUtil.getIntProperty(artworkTypeName + ".scanner.ValidateMatch", "75");
-        artworkValidateAspect = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.ValidateAspect", TRUE);
+        artworkValidate = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.Validate", Boolean.TRUE);
+        artworkValidateMatch = PropertiesUtil.getIntProperty(artworkTypeName + ".scanner.ValidateMatch", 75);
+        artworkValidateAspect = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.ValidateAspect", Boolean.TRUE);
 
         artworkDirectory = PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkDirectory", "");
 
@@ -146,10 +144,10 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         setArtworkPriority(PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkPriority", "video,folder,fixed,series,directory"));
 
         // Should dummy artwork be created
-        useDummy = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.useDummy", TRUE);
+        useDummy = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.useDummy", Boolean.TRUE);
 
         // Should the original artwork be saved
-        saveOriginal = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.saveOriginal", TRUE);
+        saveOriginal = PropertiesUtil.getBooleanProperty(artworkTypeName + ".scanner.saveOriginal", Boolean.TRUE);
 
         // Get & set the default artwork dimensions
         setArtworkDimensions();
@@ -550,9 +548,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * @return
      */
     public static boolean isRequired(String artworkTypeString) {
-        boolean sArtworkLocalSearch = PropertiesUtil.getBooleanProperty(artworkTypeString + ".scanner.searchForExistingArtwork", FALSE);
-        boolean sArtworkMovieDownload = PropertiesUtil.getBooleanProperty(artworkTypeString + ".movie.download", FALSE);
-        boolean sArtworkTvDownload = PropertiesUtil.getBooleanProperty(artworkTypeString + ".tv.download", FALSE);
+        boolean sArtworkLocalSearch = PropertiesUtil.getBooleanProperty(artworkTypeString + ".scanner.searchForExistingArtwork", Boolean.FALSE);
+        boolean sArtworkMovieDownload = PropertiesUtil.getBooleanProperty(artworkTypeString + ".movie.download", Boolean.FALSE);
+        boolean sArtworkTvDownload = PropertiesUtil.getBooleanProperty(artworkTypeString + ".tv.download", Boolean.FALSE);
 
         return (sArtworkLocalSearch || sArtworkMovieDownload || sArtworkTvDownload);
     }
@@ -1014,15 +1012,15 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         // This should return a value, but if it doesn't then we'll default to "posters"
         String artworkPropertyType = getPropertyName();
 
-        artworkWidth = PropertiesUtil.getIntProperty(artworkPropertyType + ".width", "0");
-        artworkHeight = PropertiesUtil.getIntProperty(artworkPropertyType + ".height", "0");
+        artworkWidth = PropertiesUtil.getIntProperty(artworkPropertyType + ".width", 0);
+        artworkHeight = PropertiesUtil.getIntProperty(artworkPropertyType + ".height", 0);
 
         if ((artworkWidth == 0) || (artworkHeight == 0)) {
             // Get the poster type for looking up the defaults
             artworkPropertyType = ArtworkScanner.getPropertyName(ArtworkType.Poster);
             // There was an issue with the correct properties, so use poster as a default.
-            artworkWidth = PropertiesUtil.getIntProperty(artworkPropertyType + ".width", "400");
-            artworkHeight = PropertiesUtil.getIntProperty(artworkPropertyType + ".height", "600");
+            artworkWidth = PropertiesUtil.getIntProperty(artworkPropertyType + ".width", 400);
+            artworkHeight = PropertiesUtil.getIntProperty(artworkPropertyType + ".height", 600);
             artworkHeight = 600;
         }
     }

@@ -26,7 +26,6 @@ import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.IArchiveScanner;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import java.io.*;
 import java.nio.channels.FileChannel;
@@ -47,8 +46,8 @@ public class FileTools {
     private static final Collection<ReplaceEntry> UNSAFE_CHARS = new ArrayList<ReplaceEntry>();
     private static final Character ENCODE_ESCAPE_CHAR;
     private static final Collection<String> GENERATED_FILENAMES = Collections.synchronizedCollection(new ArrayList<String>());
-    private static boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
-    private static int footerImageEnabled = PropertiesUtil.getIntProperty("mjb.footer.count", "0");
+    private static boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
+    private static int footerImageEnabled = PropertiesUtil.getIntProperty("mjb.footer.count", 0);
     private static String indexFilesPrefix = getProperty("mjb.indexFilesPrefix", "");
     // Literals
     private static final String TO = "' to '";

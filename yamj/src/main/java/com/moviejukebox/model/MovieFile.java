@@ -28,9 +28,6 @@ import com.moviejukebox.tools.BooleanYesNoAdapter;
 import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
-
 import com.moviejukebox.tools.StringTools;
 import java.io.File;
 import java.util.*;
@@ -68,16 +65,15 @@ public class MovieFile implements Comparable<MovieFile> {
     private boolean attachmentsScanned = false;
     private boolean watched = false;
     private long watchedDate = 0;
-    private boolean playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", TRUE);
-    private boolean includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", FALSE);
-    private boolean includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", FALSE);
-    private boolean includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", FALSE);
-    private static final Boolean DIR_HASH = PropertiesUtil.getBooleanProperty("mjb.dirHash", FALSE);
+    private boolean playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", Boolean.TRUE);
+    private boolean includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", Boolean.FALSE);
+    private boolean includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
+    private boolean includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", Boolean.FALSE);
+    private static final Boolean DIR_HASH = PropertiesUtil.getBooleanProperty("mjb.dirHash", Boolean.FALSE);
     private String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
     private String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");
     // checks
-    private static final int MAX_LENGTH_PLOT = PropertiesUtil.getIntProperty("plugin.episode.maxlength", 
-            String.valueOf(PropertiesUtil.getIntProperty("plugin.plot.maxlength", "500")));
+    private static final int MAX_LENGTH_PLOT = PropertiesUtil.getReplacedIntProperty("movie.episodeplot.maxLength", "plugin.plot.maxlength", 500);
     
     private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
         private static final long serialVersionUID = 1247815606593469672L;

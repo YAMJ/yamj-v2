@@ -45,6 +45,7 @@ public class CacheInitializer {
             return;
         }
 
+        @SuppressWarnings("rawtypes")
         Class clazz = dbObject.getClass();
 
         if (clazz == com.omertron.thetvdbapi.model.Series.class) {

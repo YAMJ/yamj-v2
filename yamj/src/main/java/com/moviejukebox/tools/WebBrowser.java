@@ -50,13 +50,13 @@ public class WebBrowser {
     private static final String LOG_MESSAGE = "WebBrowser: ";
     private Map<String, String> browserProperties;
     private Map<String, Map<String, String>> cookies;
-    private static String mjbProxyHost = PropertiesUtil.getProperty("mjb.ProxyHost", null);
-    private static String mjbProxyPort = PropertiesUtil.getProperty("mjb.ProxyPort", null);
-    private static String mjbProxyUsername = PropertiesUtil.getProperty("mjb.ProxyUsername", null);
-    private static String mjbProxyPassword = PropertiesUtil.getProperty("mjb.ProxyPassword", null);
+    private static String mjbProxyHost = PropertiesUtil.getProperty("mjb.ProxyHost");
+    private static String mjbProxyPort = PropertiesUtil.getProperty("mjb.ProxyPort");
+    private static String mjbProxyUsername = PropertiesUtil.getProperty("mjb.ProxyUsername");
+    private static String mjbProxyPassword = PropertiesUtil.getProperty("mjb.ProxyPassword");
     private static String mjbEncodedPassword = encodePassword();
-    private static int mjbTimeoutConnect = PropertiesUtil.getIntProperty("mjb.Timeout.Connect", "25000");
-    private static int mjbTimeoutRead = PropertiesUtil.getIntProperty("mjb.Timeout.Read", "90000");
+    private static int mjbTimeoutConnect = PropertiesUtil.getIntProperty("mjb.Timeout.Connect", 25000);
+    private static int mjbTimeoutRead = PropertiesUtil.getIntProperty("mjb.Timeout.Read", 90000);
     private int imageRetryCount;
 
     public WebBrowser() {
@@ -69,7 +69,7 @@ public class WebBrowser {
 
         cookies = new HashMap<String, Map<String, String>>();
 
-        imageRetryCount = PropertiesUtil.getIntProperty("mjb.imageRetryCount", "3");
+        imageRetryCount = PropertiesUtil.getIntProperty("mjb.imageRetryCount", 3);
         if (imageRetryCount < 1) {
             imageRetryCount = 1;
         }
