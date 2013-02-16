@@ -198,10 +198,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         if (!fdeltaHtml.equals(Movie.UNKNOWN)) {
             getFilmdeltaTitle(movie, fdeltaHtml);
             getFilmdeltaPlot(movie, fdeltaHtml);
-            // Genres - only fetch if there is no IMDb results
-            if (movie.getGenres().isEmpty()) {
-                getFilmdeltaGenres(movie, fdeltaHtml);
-            }
+            getFilmdeltaGenres(movie, fdeltaHtml);
             getFilmdeltaDirector(movie, fdeltaHtml);
             getFilmdeltaCast(movie, fdeltaHtml);
             getFilmdeltaCountry(movie, fdeltaHtml);
