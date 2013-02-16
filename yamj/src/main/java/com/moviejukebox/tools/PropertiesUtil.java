@@ -106,9 +106,7 @@ public class PropertiesUtil {
     public static boolean getBooleanProperty(String key, boolean defaultValue) {
         String property = props.getProperty(key);
         if (property != null) {
-            try {
-                return Boolean.parseBoolean(property.trim());
-            } catch (NumberFormatException nfe) {}
+            return Boolean.parseBoolean(property.trim());
         }
         return defaultValue;
     }
@@ -182,9 +180,7 @@ public class PropertiesUtil {
             LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
         }
         if (property != null) {
-            try {
-                return Boolean.parseBoolean(property.trim());
-            } catch (NumberFormatException nfe) {}
+            return Boolean.parseBoolean(property.trim());
         }
         return defaultValue;
     }
