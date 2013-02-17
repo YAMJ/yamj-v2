@@ -183,14 +183,14 @@ public final class OverrideTools {
         sources = PropertiesUtil.getProperty("priority.tv.people.actors", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.PEOPLE_ACTORS, sources);
         // directors
-        sources = PropertiesUtil.getProperty("priority.movie.people.directors", "PLUGIN,ALTERNATE");
+        sources = PropertiesUtil.getProperty("priority.movie.people.directors", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.PEOPLE_DIRECTORS, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.people.directors", "PLUGIN,ALTERNATE");
+        sources = PropertiesUtil.getProperty("priority.tv.people.directors", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.PEOPLE_DIRECTORS, sources);
         // writers
-        sources = PropertiesUtil.getProperty("priority.movie.people.writers", "PLUGIN,ALTERNATE");
+        sources = PropertiesUtil.getProperty("priority.movie.people.writers", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.PEOPLE_WRITERS, sources);
-        sources = PropertiesUtil.getProperty("priority.tv.people.writers", "PLUGIN,ALTERNATE");
+        sources = PropertiesUtil.getProperty("priority.tv.people.writers", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.PEOPLE_WRITERS, sources);
 
     }
