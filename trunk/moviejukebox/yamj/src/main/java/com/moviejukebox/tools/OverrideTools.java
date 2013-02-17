@@ -26,6 +26,7 @@ import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.OverrideFlag;
 import com.moviejukebox.plugin.DatabasePluginController;
+import static com.moviejukebox.plugin.DatabasePluginController.TYPE_ALTERNATE;
 import com.moviejukebox.plugin.ImdbPlugin;
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
@@ -38,7 +39,7 @@ import org.apache.log4j.Logger;
  */
 public final class OverrideTools {
 
-    private static final Logger logger = Logger.getLogger(OverrideTools.class);
+    private static final Logger LOGGER = Logger.getLogger(OverrideTools.class);
     private static final String LOG_MESSAGE = "OverrideTools: ";
     private static final Map<OverrideFlag, List<String>> MOVIE_PRIORITIES_MAP = new EnumMap<OverrideFlag, List<String>>(OverrideFlag.class);
     private static final Map<OverrideFlag, List<String>> TV_PRIORITIES_MAP = new EnumMap<OverrideFlag, List<String>>(OverrideFlag.class);
@@ -49,11 +50,10 @@ public final class OverrideTools {
     private static final int MAX_COUNT_WRITER = PropertiesUtil.getIntProperty("plugin.people.maxCount.writer", 3);
     private static final int MAX_COUNT_ACTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", 10);
     // handling for set default plugins
-    private static final String PATTERN_PLUGIN = "PLUGIN";
-    private static final String PATTERN_ALTERNATE = "ALTERNATE";
+    private static final String TYPE_PLUGIN = "PLUGIN";
     private static final String MOVIE_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(Movie.TYPE_MOVIE).toUpperCase();
     private static final String TVSHOW_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(Movie.TYPE_TVSHOW).toUpperCase();
-    private static final String ALTERNATE_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(PATTERN_ALTERNATE).toUpperCase();
+    private static final String ALTERNATE_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(TYPE_ALTERNATE).toUpperCase();
     private static final String IMDB_PLUGIN = ImdbPlugin.IMDB_PLUGIN_ID.toUpperCase();
 
     static {
@@ -207,25 +207,26 @@ public final class OverrideTools {
             priorities = Collections.emptyList();
         } else {
             sources = sources.toUpperCase();
-            if (sources.contains(PATTERN_PLUGIN) && !sources.contains(MOVIE_PLUGIN)) {
+            if (sources.contains(TYPE_PLUGIN) && !sources.contains(MOVIE_PLUGIN)) {
                 // replace pattern with database plugin
-                sources = sources.replace(PATTERN_PLUGIN, MOVIE_PLUGIN);
+                sources = sources.replace(TYPE_PLUGIN, MOVIE_PLUGIN);
             }
-            if (sources.contains(PATTERN_ALTERNATE)) {
+            if (sources.contains(TYPE_ALTERNATE)) {
                 if (StringTools.isValidString(ALTERNATE_PLUGIN) && !sources.contains(ALTERNATE_PLUGIN)) {
                     // replace pattern with alternate plugin
-                    sources = sources.replace(PATTERN_ALTERNATE, ALTERNATE_PLUGIN);
+                    sources = sources.replace(TYPE_ALTERNATE, ALTERNATE_PLUGIN);
                 } else if (!sources.contains(IMDB_PLUGIN)) {
-                    sources = sources.replace(PATTERN_ALTERNATE, IMDB_PLUGIN);
+                    // cause: most plugins extend the IMDB plugin
+                    sources = sources.replace(TYPE_ALTERNATE, IMDB_PLUGIN);
                 }
             }
 
             priorities = new ArrayList<String>(Arrays.asList(sources.split(",")));
-            priorities.remove(PATTERN_PLUGIN);
-            priorities.remove(PATTERN_ALTERNATE);
+            priorities.remove(TYPE_PLUGIN);
+            priorities.remove(TYPE_ALTERNATE);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug(LOG_MESSAGE + overrideFlag.name() + " (Movie) priorities " + priorities.toString().toLowerCase());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(LOG_MESSAGE + overrideFlag.name() + " (Movie) priorities " + priorities.toString().toLowerCase());
             }
         }
         MOVIE_PRIORITIES_MAP.put(overrideFlag, priorities);
@@ -243,25 +244,26 @@ public final class OverrideTools {
             priorities = Collections.emptyList();
         } else {
             sources = sources.toUpperCase();
-            if (sources.contains(PATTERN_PLUGIN) && !sources.contains(TVSHOW_PLUGIN)) {
+            if (sources.contains(TYPE_PLUGIN) && !sources.contains(TVSHOW_PLUGIN)) {
                 // replace pattern with database plugin
-                sources = sources.replace(PATTERN_PLUGIN, TVSHOW_PLUGIN);
+                sources = sources.replace(TYPE_PLUGIN, TVSHOW_PLUGIN);
             }
-            if (sources.contains(PATTERN_ALTERNATE)) {
+            if (sources.contains(TYPE_ALTERNATE)) {
                 if (StringTools.isValidString(ALTERNATE_PLUGIN) && !sources.contains(ALTERNATE_PLUGIN)) {
                     // replace pattern with alternate plugin
-                    sources = sources.replace(PATTERN_ALTERNATE, ALTERNATE_PLUGIN);
+                    sources = sources.replace(TYPE_ALTERNATE, ALTERNATE_PLUGIN);
                 } else if (!sources.contains(IMDB_PLUGIN)) {
-                    sources = sources.replace(PATTERN_ALTERNATE, IMDB_PLUGIN);
+                    // cause: most plugins extend the IMDB plugin
+                    sources = sources.replace(TYPE_ALTERNATE, IMDB_PLUGIN);
                 }
             }
 
             priorities = new ArrayList<String>(Arrays.asList(sources.split(",")));
-            priorities.remove(PATTERN_PLUGIN);
-            priorities.remove(PATTERN_ALTERNATE);
+            priorities.remove(TYPE_PLUGIN);
+            priorities.remove(TYPE_ALTERNATE);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug(LOG_MESSAGE + overrideFlag.name() + " (TV) priorities " + priorities.toString().toLowerCase());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(LOG_MESSAGE + overrideFlag.name() + " (TV) priorities " + priorities.toString().toLowerCase());
             }
         }
         TV_PRIORITIES_MAP.put(overrideFlag, priorities);
