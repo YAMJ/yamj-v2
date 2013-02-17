@@ -39,6 +39,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2589 Corrected retrieval of country from IMDB
  - Fixed defect #2590 Added possibility to scrape localized titles for preferred country from AKA section
  - Fixed defect #2596 IMDB does not retrieve Spanish language (ES)
+ - Fixed defect #2599 Fixed retrieval of cast and directors from Filmweb
  - Enhancement  #2600 Movie class should handle several movie properties itself 
  
 MovieJukebox 2.8 (2012-12-17)

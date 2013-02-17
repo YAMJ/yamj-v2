@@ -42,9 +42,10 @@ import org.apache.log4j.Logger;
 
 public class FilmwebPlugin extends ImdbPlugin {
 
-    private static final Logger logger = Logger.getLogger(FilmwebPlugin.class);
+    private static final Logger LOGGER = Logger.getLogger(FilmwebPlugin.class);
     private static final String LOG_MESSAGE = "FilmwebPlugin: ";
     public static final String FILMWEB_PLUGIN_ID = "filmweb";
+    
     private static Pattern googlePattern = Pattern.compile("(http://[^\"/?&]*filmweb.pl[^\"&<\\s]*)");
     private static Pattern yahooPattern = Pattern.compile("http%3a(//[^\"/?&]*filmweb.pl[^\"]*)\"");
     private static Pattern filmwebPattern = Pattern.compile("searchResultTitle\"? href=\"([^\"]*)\"");
@@ -61,10 +62,6 @@ public class FilmwebPlugin extends ImdbPlugin {
         return FILMWEB_PLUGIN_ID;
     }
 
-    public String getFilmwebPreferredSearchEngine() {
-        return filmwebPreferredSearchEngine;
-    }
-
     public void setFilmwebPreferredSearchEngine(String filmwebPreferredSearchEngine) {
         this.filmwebPreferredSearchEngine = filmwebPreferredSearchEngine;
     }
@@ -75,7 +72,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             // first request to filmweb site to skip welcome screen with ad banner
             webBrowser.request("http://www.filmweb.pl");
         } catch (IOException error) {
-            logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            LOGGER.error(LOG_MESSAGE + "Error : " + error.getMessage());
         }
     }
 
@@ -139,8 +136,8 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed retreiving filmweb url for movie : " + movieName);
-            logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            LOGGER.error(LOG_MESSAGE + "Failed retreiving filmweb url for movie : " + movieName);
+            LOGGER.error(LOG_MESSAGE + "Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -167,8 +164,8 @@ public class FilmwebPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed retreiving filmweb url for movie : " + movieName);
-            logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            LOGGER.error(LOG_MESSAGE + "Failed retreiving filmweb url for movie : " + movieName);
+            LOGGER.error(LOG_MESSAGE + "Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -192,8 +189,8 @@ public class FilmwebPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed retreiving filmweb url for movie : " + movieName);
-            logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            LOGGER.error(LOG_MESSAGE + "Failed retreiving filmweb url for movie : " + movieName);
+            LOGGER.error(LOG_MESSAGE + "Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -237,11 +234,6 @@ public class FilmwebPlugin extends ImdbPlugin {
                 }
             }
 
-            if (OverrideTools.checkOverwriteDirectors(movie, FILMWEB_PLUGIN_ID)) {
-                String director = HTMLTools.getTextAfterElem(xml, "yseria:");
-                movie.setDirector(director, FILMWEB_PLUGIN_ID);
-            }
-
             if (OverrideTools.checkOverwriteReleaseDate(movie, FILMWEB_PLUGIN_ID)) {
                 movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "filmPremiereWorld"), FILMWEB_PLUGIN_ID);
             }
@@ -269,13 +261,15 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             String plot = HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "v:summary\">", "</span>"));
-            if (OverrideTools.checkOverwritePlot(movie, FILMWEB_PLUGIN_ID)) {
-                movie.setPlot(plot, FILMWEB_PLUGIN_ID);
+            if (StringTools.isValidString(plot)) {
+                if (OverrideTools.checkOverwritePlot(movie, FILMWEB_PLUGIN_ID)) {
+                    movie.setPlot(plot, FILMWEB_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwriteOutline(movie, FILMWEB_PLUGIN_ID)) {
+                    movie.setOutline(plot, FILMWEB_PLUGIN_ID);
+                }
             }
-            if (OverrideTools.checkOverwriteOutline(movie, FILMWEB_PLUGIN_ID)) {
-                movie.setOutline(plot, FILMWEB_PLUGIN_ID);
-            }
-
+            
             if (OverrideTools.checkOverwriteYear(movie, FILMWEB_PLUGIN_ID)) {
                 String year = HTMLTools.getTextAfterElem(xml, "filmYear");
                 if (!Movie.UNKNOWN.equals(year)) {
@@ -284,16 +278,12 @@ public class FilmwebPlugin extends ImdbPlugin {
                 movie.setYear(year, FILMWEB_PLUGIN_ID);
             }
 
-            if (OverrideTools.checkOverwriteActors(movie, FILMWEB_PLUGIN_ID)) {
-                List<String> cast = HTMLTools.extractTags(xml, "castListWrapper", "</ul>", "v:starring", "</a>");
-                for (int i = 0; i < cast.size(); i++) {
-                    cast.set(i, HTMLTools.removeHtmlTags(cast.get(i)).trim());
-                }
-                movie.setCast(cast, FILMWEB_PLUGIN_ID);
-            }
-
+            // scan cast/director/writers
+            scanPersonInformations(movie);
+            
+            // scan TV show titles
             if (movie.isTVShow()) {
-                updateTVShowInfo(movie, xml);
+                scanTVShowTitles(movie);
             }
 
             if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
@@ -304,12 +294,76 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed retreiving filmweb informations for movie : " + movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
-            logger.error(SystemTools.getStackTrace(error));
+            LOGGER.error(LOG_MESSAGE + "Failed retreiving filmweb informations for movie : " + movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
+            LOGGER.error(SystemTools.getStackTrace(error));
         }
         return Boolean.TRUE;
     }
 
+    private void scanPersonInformations(Movie movie) {
+        try {
+            String xml = webBrowser.request(movie.getId(FILMWEB_PLUGIN_ID) + "/cast");
+        
+            boolean overrideNormal = OverrideTools.checkOverwriteDirectors(movie, FILMWEB_PLUGIN_ID);
+            boolean overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, FILMWEB_PLUGIN_ID);
+            if (overrideNormal || overridePeople) {
+                List<String> directors = new ArrayList<String>();
+
+                List<String> tags = HTMLTools.extractHtmlTags(xml, "<dt id=role-director>", "</dd>", "<li>", "</li>");
+                for (String tag : tags) {
+                    directors.add(HTMLTools.getTextAfterElem(tag, "<span class=personName>"));
+                }
+
+                if (overrideNormal) {
+                    movie.setDirectors(directors, FILMWEB_PLUGIN_ID);
+                }
+                if (overridePeople) {
+                    movie.setDirectors(directors, FILMWEB_PLUGIN_ID);
+                }
+            }
+
+            overrideNormal = OverrideTools.checkOverwriteActors(movie, FILMWEB_PLUGIN_ID);
+            overridePeople = OverrideTools.checkOverwritePeopleActors(movie, FILMWEB_PLUGIN_ID);
+            if (overrideNormal || overridePeople) {
+                List<String> actors = new ArrayList<String>();
+
+                List<String> tags = HTMLTools.extractHtmlTags(xml, "<dt id=role-actors", "</dd>", "<li>", "</li>");
+                for (String tag : tags) {
+                    actors.add(HTMLTools.getTextAfterElem(tag, "<span class=personName>"));
+                }
+
+                if (overrideNormal) {
+                    movie.setCast(actors, FILMWEB_PLUGIN_ID);
+                }
+                if (overridePeople) {
+                    movie.setPeopleCast(actors, FILMWEB_PLUGIN_ID);
+                }
+            }
+
+            overrideNormal = OverrideTools.checkOverwriteWriters(movie, FILMWEB_PLUGIN_ID);
+            overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, FILMWEB_PLUGIN_ID);
+            if (overrideNormal || overridePeople) {
+                List<String> writers = new ArrayList<String>();
+
+                List<String> tags = HTMLTools.extractHtmlTags(xml, "<dt id=role-screenwriter", "</dd>", "<li>", "</li>");
+                for (String tag : tags) {
+                    writers.add(HTMLTools.getTextAfterElem(tag, "<span class=personName>"));
+                }
+
+                if (overrideNormal) {
+                    movie.setWriters(writers, FILMWEB_PLUGIN_ID);
+                }
+                if (overridePeople) {
+                    movie.setWriters(writers, FILMWEB_PLUGIN_ID);
+                }
+            }
+
+        } catch (IOException error) {
+            LOGGER.error(LOG_MESSAGE + "Failed retreiving person informations for movie : " + movie.getTitle());
+            LOGGER.error(LOG_MESSAGE + "Error : " + error.getMessage());
+        }
+    }
+    
     private int parseRating(String rating) {
         try {
             return Math.round(Float.parseFloat(rating.replace(",", ".")) * 10);
@@ -329,11 +383,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
     @Override
     public void scanTVShowTitles(Movie movie) {
-        scanTVShowTitles(movie, null);
-    }
-
-    public void scanTVShowTitles(Movie movie, String mainXML) {
-        if (!movie.isTVShow() || !movie.hasNewMovieFiles()) {
+         if (!movie.isTVShow() || !movie.hasNewMovieFiles()) {
             return;
         }
         String filmwebUrl = movie.getId(FILMWEB_PLUGIN_ID);
@@ -377,19 +427,15 @@ public class FilmwebPlugin extends ImdbPlugin {
                 super.scanTVShowTitles(movie);
             }
         } catch (IOException error) {
-            logger.error(LOG_MESSAGE + "Failed retreiving episodes titles for movie : " + movie.getTitle());
-            logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            LOGGER.error(LOG_MESSAGE + "Failed retreiving episodes titles for movie : " + movie.getTitle());
+            LOGGER.error(LOG_MESSAGE + "Error : " + error.getMessage());
         }
-    }
-
-    protected void updateTVShowInfo(Movie movie, String mainXML) throws IOException {
-        scanTVShowTitles(movie, mainXML);
     }
 
     @Override
     public boolean scanNFO(String nfo, Movie movie) {
         super.scanNFO(nfo, movie); // use IMDB if filmweb doesn't know movie
-        logger.debug(LOG_MESSAGE + "Scanning NFO for filmweb url");
+        LOGGER.debug(LOG_MESSAGE + "Scanning NFO for filmweb url");
         Matcher m = nfoPattern.matcher(nfo);
         boolean found = Boolean.FALSE;
         while (m.find()) {
@@ -400,9 +446,9 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
         }
         if (found) {
-            logger.debug(LOG_MESSAGE + "Filmweb url found in NFO = " + movie.getId(FILMWEB_PLUGIN_ID));
+            LOGGER.debug(LOG_MESSAGE + "Filmweb url found in NFO = " + movie.getId(FILMWEB_PLUGIN_ID));
         } else {
-            logger.debug(LOG_MESSAGE + "No filmweb url found in NFO !");
+            LOGGER.debug(LOG_MESSAGE + "No filmweb url found in NFO !");
         }
         return found;
     }
