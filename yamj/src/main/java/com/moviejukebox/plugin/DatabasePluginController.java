@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -41,9 +43,13 @@ import org.apache.log4j.Logger;
  */
 public class DatabasePluginController {
 
-    private static final Logger logger = Logger.getLogger(DatabasePluginController.class);
+    private static final Logger LOGGER = Logger.getLogger(DatabasePluginController.class);
+    public static final String TYPE_ALTERNATE = "ALTERNATE";
+
     private static boolean autoDetect = false;
     private static ArrayList<String> autoDetectList = new ArrayList<String>();
+
+    
     /**
      * @author Gabriel Corneanu:
      * Store the map in a thread local field to make it thread safe
@@ -58,8 +64,8 @@ public class DatabasePluginController {
             movieDatabasePlugin.put(Movie.TYPE_TVSHOW, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.tv.plugin", "com.moviejukebox.plugin.TheTvDBPlugin").trim()));
             movieDatabasePlugin.put(Movie.TYPE_PERSON, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.person.plugin", "com.moviejukebox.plugin.ImdbPlugin").trim()));
             String alternatePlugin = PropertiesUtil.getProperty("mjb.internet.alternate.plugin", "").trim();
-            if (!alternatePlugin.equals("")) {
-                movieDatabasePlugin.put("ALTERNATE", getMovieDatabasePlugin(alternatePlugin));
+            if (StringUtils.isNotBlank(alternatePlugin)) {
+                movieDatabasePlugin.put(TYPE_ALTERNATE, getMovieDatabasePlugin(alternatePlugin));
             }
 
             String tmpAutoDetect = PropertiesUtil.getProperty("mjb.internet.plugin.autodetect", FALSE).toLowerCase();
@@ -98,7 +104,7 @@ public class DatabasePluginController {
         }
 
         if (ignore) {
-            logger.debug("Skipping internet search for " + movie.getBaseFilename());
+            LOGGER.debug("Skipping internet search for " + movie.getBaseFilename());
         } else {
             // store off the original type because if it wasn't scanned we need to compare to see if we need to rescan
             String origType = movie.getMovieType();
@@ -115,13 +121,13 @@ public class DatabasePluginController {
                         isScanned = pluginMap.get().get(newType).scan(movie);
                     }
                     if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(Movie.REMOVE)) {
-                        MovieDatabasePlugin alternatePlugin = pluginMap.get().get("ALTERNATE");
+                        MovieDatabasePlugin alternatePlugin = pluginMap.get().get(TYPE_ALTERNATE);
                         if (alternatePlugin != null) {
                             isScanned = alternatePlugin.scan(movie);
                         }
                     }
                     if (!isScanned) {
-                        logger.warn("Video '" + movie.getBaseName() + "' was not able to be scanned using the current plugins");
+                        LOGGER.warn("Video '" + movie.getBaseName() + "' was not able to be scanned using the current plugins");
                     }
                 }
             }
@@ -130,11 +136,11 @@ public class DatabasePluginController {
 
     public static void scan(Person person) {
         if (!person.isScrapeLibrary()) {
-            logger.debug("Skipping internet search for " + person.getName());
+            LOGGER.debug("Skipping internet search for " + person.getName());
             return;
         }
         if (!pluginMap.get().get(Movie.TYPE_PERSON).scan(person)) {
-            logger.warn("Person '" + person.getName() + "' was not able to be scanned using the current plugins");
+            LOGGER.warn("Person '" + person.getName() + "' was not able to be scanned using the current plugins");
         }
     }
 
@@ -162,9 +168,9 @@ public class DatabasePluginController {
             Class<? extends MovieDatabasePlugin> pluginClass = Class.forName(className).asSubclass(MovieDatabasePlugin.class);
             return pluginClass.newInstance();
         } catch (Exception error) {
-            logger.error("Failed instantiating MovieDatabasePlugin: " + className);
-            logger.error("Default IMDb plugin will be used instead.");
-            logger.error(SystemTools.getStackTrace(error));
+            LOGGER.error("Failed instantiating MovieDatabasePlugin: " + className);
+            LOGGER.error("Default IMDb plugin will be used instead.");
+            LOGGER.error(SystemTools.getStackTrace(error));
             return new ImdbPlugin();
         }
     }

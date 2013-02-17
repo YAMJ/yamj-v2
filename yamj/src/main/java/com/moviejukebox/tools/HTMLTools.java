@@ -507,12 +507,12 @@ public class HTMLTools {
         }
 
         try {
-            String subString = new String(src.substring(beginIndex + startStr.length()));
+            String subString = src.substring(beginIndex + startStr.length());
             int endIndex = subString.indexOf(endStr);
             if (endIndex < 0) {
                 return Movie.UNKNOWN;
             }
-            subString = new String(subString.substring(0, endIndex));
+            subString = subString.substring(0, endIndex);
             return HTMLTools.decodeHtml(subString.trim());
         } catch (Exception error) {
             return Movie.UNKNOWN;
