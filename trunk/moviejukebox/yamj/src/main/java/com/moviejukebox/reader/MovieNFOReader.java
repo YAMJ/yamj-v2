@@ -805,17 +805,34 @@ public class MovieNFOReader {
      * @param movie
      */
     private static void parseWriters(NodeList nlElements, Movie movie) {
-        if (OverrideTools.checkOverwriteDirectors(movie, NFO_PLUGIN_ID)) {
-            List<String> newWriters = new ArrayList<String>();
-            Node nElements;
-            for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                nElements = nlElements.item(looper);
-                if (nElements.getNodeType() == Node.ELEMENT_NODE) {
-                    Element eWriter = (Element) nElements;
-                    newWriters.add(eWriter.getTextContent());
-                }
+        // check if we have a node
+        if (nlElements == null || nlElements.getLength() == 0) {
+            return;
+        }
+        
+        // check if we should override
+        boolean overrideWriters = OverrideTools.checkOverwriteWriters(movie, NFO_PLUGIN_ID);
+        boolean overridePeopleWriters = OverrideTools.checkOverwritePeopleWriters(movie, NFO_PLUGIN_ID);
+        if (!overrideWriters && !overridePeopleWriters) {
+            // nothing to do if nothing should be overridden
+            return;
+        }
+
+        List<String> newWriters = new ArrayList<String>();
+        Node nElements;
+        for (int looper = 0; looper < nlElements.getLength(); looper++) {
+            nElements = nlElements.item(looper);
+            if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                Element eWriter = (Element) nElements;
+                newWriters.add(eWriter.getTextContent());
             }
+        }
+        
+        if (overrideWriters) {
             movie.setWriters(newWriters, NFO_PLUGIN_ID);
+        }
+        if (overridePeopleWriters) {
+            movie.setPeopleWriters(newWriters, NFO_PLUGIN_ID);
         }
     }
 
@@ -826,19 +843,37 @@ public class MovieNFOReader {
      * @param movie
      */
     private static void parseDirectors(NodeList nlElements, Movie movie) {
-        if (OverrideTools.checkOverwriteDirectors(movie, NFO_PLUGIN_ID)) {
-            List<String> newDirectors = new ArrayList<String>();
-            Node nElements;
-            for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                nElements = nlElements.item(looper);
-                if (nElements.getNodeType() == Node.ELEMENT_NODE) {
-                    Element eDirector = (Element) nElements;
-                    newDirectors.add(eDirector.getTextContent());
-                }
+        // check if we have a node
+        if (nlElements == null || nlElements.getLength() == 0) {
+            return;
+        }
+        
+        // check if we should override
+        boolean overrideDirectors = OverrideTools.checkOverwriteDirectors(movie, NFO_PLUGIN_ID);
+        boolean overridePeopleDirectors = OverrideTools.checkOverwritePeopleDirectors(movie, NFO_PLUGIN_ID);
+        if (!overrideDirectors && !overridePeopleDirectors) {
+            // nothing to do if nothing should be overridden
+            return;
+        }
+        
+        List<String> newDirectors = new ArrayList<String>();
+        Node nElements;
+        for (int looper = 0; looper < nlElements.getLength(); looper++) {
+            nElements = nlElements.item(looper);
+            if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                Element eDirector = (Element) nElements;
+                newDirectors.add(eDirector.getTextContent());
             }
+        }
+        
+        if (overrideDirectors) {
             movie.setDirectors(newDirectors, NFO_PLUGIN_ID);
         }
-    }
+
+        if (overridePeopleDirectors) {
+            movie.setPeopleDirectors(newDirectors, NFO_PLUGIN_ID);
+        }
+}
 
     /**
      * Parse Trailers from the XML NFO file
