@@ -90,8 +90,7 @@ public class MovieNFOReader {
     /**
      * Try and read a NFO file for information
      *
-     * First try as XML format file, then check to see if it contains XML and
-     * text and split it to read each part
+     * First try as XML format file, then check to see if it contains XML and text and split it to read each part
      *
      * @param nfoFile
      * @param movie
@@ -182,8 +181,7 @@ public class MovieNFOReader {
     /**
      * Used to parse out the XML NFO data from a file.
      *
-     * This is generic for movie and TV show files as they are both nearly
-     * identical.
+     * This is generic for movie and TV show files as they are both nearly identical.
      *
      * @param nfoFile
      * @param movie
@@ -533,12 +531,12 @@ public class MovieNFOReader {
             if (nStreams.getNodeType() == Node.ELEMENT_NODE) {
                 Element eStreams = (Element) nStreams;
 
-                String aCodec = DOMHelper.getValueFromElement(eStreams, "codec");
+                String aCodec = DOMHelper.getValueFromElement(eStreams, "codec").trim();
                 String aLanguage = DOMHelper.getValueFromElement(eStreams, "language");
                 String aChannels = DOMHelper.getValueFromElement(eStreams, "channels");
 
                 // If the codec is lowercase, covert it to uppercase, otherwise leave it alone
-                if (aCodec.equalsIgnoreCase(aCodec)) {
+                if (StringUtils.isAllLowerCase(aCodec)) {
                     aCodec = aCodec.toUpperCase();
                 }
 
