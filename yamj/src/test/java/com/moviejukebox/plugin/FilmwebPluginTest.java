@@ -164,13 +164,6 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals(2, movie.getTop250());
     }
 
-    public void testUpdateMediaInfoDirector() {
-        movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
-        filmwebPlugin.setRequestResult("<tr>            \t\t            \t\t\t<th>reżyseria:</th>            \t\t\t<td>            \t\t\t            \t\t\t\t                              \t\t\t\t                        \t\t\t\t\t<a href=\"/person/Sylvester.Stallone\" title=\"Sylvester Stallone\">Sylvester Stallone</a>            \t\t\t\t            \t\t\t            \t\t\t            \t\t\t</td>            \t\t\t\t\t\t\t</tr>");
-        filmwebPlugin.updateMediaInfo(movie);
-        assertEquals("Sylvester Stallone", movie.getDirector());
-    }
-
     public void testUpdateMediaInfoReleaseDate() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
         filmwebPlugin.setRequestResult("<span id =\"filmPremierePoland\" style=\"display:none\">2008-03-07</span><span style=\"display: none;\" id=\"filmPremiereWorld\">2008-01-23</span>");
@@ -230,17 +223,41 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals("1983", movie.getYear());
     }
 
-    public void testUpdateMediaInfoCast() {
-        movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Seksmisja");
-        filmwebPlugin.setRequestResult("<div class=\"castListWrapper cl\">\n    <ul class=\"list\">\n\n    \t\t<li class=\"clear_li\">\n\t\t\t<h3>\n        <a href=\"/person/Jerzy.Stuhr\" rel=\"v:starring\">\n\t\t\t\t<span class=\"pNoImg05\">\n                     \t\t<img width=\"38\" height=\"50\" src=\"http://gfx.filmweb.pl/p/01/10/110/145434.0.jpg\" alt=\"Jerzy Stuhr\">\n            \t\t\t\t</span>\n\t\t\t\tJerzy Stuhr\n        \t</a>\n\t\t\t</h3>\n\n        \t<div>\n                           Maks            \n            \t\t\t</div>        </li>\n    \t\t<li>\n\t\t\t<h3>\n        <a href=\"/person/Olgierd+%C5%81ukaszewicz-405\" rel=\"v:starring\">\n\t\t\t\t<span class=\"pNoImg05\">\n                     \t\t<img width=\"38\" height=\"50\" src=\"http://gfx.filmweb.pl/p/04/05/405/146158.0.jpg\" alt=\"Olgierd Łukaszewicz\">\n\n            \t\t\t\t</span>\n\t\t\t\tOlgierd Łukaszewicz\n        \t</a>\n\t\t\t</h3>\n\n        \t<div>\n                           Albert            \n            \t\t\t</div>        </li></ul>\n\n    </div>");
+    public void testUpdateMediaInfoDirector() {
+        movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Avatar");
+        filmwebPlugin.setRequestResult(null); // no offline test
         filmwebPlugin.updateMediaInfo(movie);
 
         LinkedHashSet<String> testCast = new LinkedHashSet<String>();
         // These need to be in the same order as the web page
-        testCast.add("Jerzy Stuhr");
-        testCast.add("Olgierd Łukaszewicz");
+        testCast.add("James Cameron");
+        
+        assertEquals(Arrays.asList(testCast.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getDirectors().toArray(), 1)).toString());
+    }
+
+    public void testUpdateMediaInfoCast() {
+        movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Avatar");
+        filmwebPlugin.setRequestResult(null); // no offline test
+        filmwebPlugin.updateMediaInfo(movie);
+
+        LinkedHashSet<String> testCast = new LinkedHashSet<String>();
+        // These need to be in the same order as the web page
+        testCast.add("Sam Worthington");
+        testCast.add("Zoe Saldana");
 
         assertEquals(Arrays.asList(testCast.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getCast().toArray(), 2)).toString());
+    }
+
+    public void testUpdateMediaInfoWriters() {
+        movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Avatar");
+        filmwebPlugin.setRequestResult(null); // no offline test
+        filmwebPlugin.updateMediaInfo(movie);
+
+        LinkedHashSet<String> testCast = new LinkedHashSet<String>();
+        // These need to be in the same order as the web page
+        testCast.add("James Cameron");
+        
+        assertEquals(Arrays.asList(testCast.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getWriters().toArray(), 1)).toString());
     }
 
     public void testUpdateMediaInfoUpdateTVShowInfo() {
@@ -290,7 +307,7 @@ public class FilmwebPluginTest extends TestCase {
 
                 @Override
                 public String request(URL url) throws IOException {
-                    if (offline) {
+                    if (offline && (getRequestResult(url) !=null)) {
                         return getRequestResult(url);
                     } else {
                         return super.request(url);
