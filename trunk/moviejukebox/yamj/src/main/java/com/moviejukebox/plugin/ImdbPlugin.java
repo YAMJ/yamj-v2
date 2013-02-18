@@ -127,7 +127,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     // AKA scraping
     private boolean akaScrapeTitle;
     private String[] akaIgnoreVersions;
-    
+
     public ImdbPlugin() {
         imdbInfo = new ImdbInfo();
         siteDefinition = imdbInfo.getSiteDef();
@@ -142,7 +142,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
         extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE);
         fullName = PropertiesUtil.getBooleanProperty("imdb.full.info", Boolean.FALSE);
-        
+
         preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", 500);
         preferredFilmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", 20);
         actorMax = PropertiesUtil.getReplacedIntProperty("movie.actor.maxCount", "plugin.people.maxCount.actor", 10);
@@ -162,7 +162,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         scrapeBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", Boolean.FALSE);
         scrapeTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", Boolean.FALSE);
-        
+
         akaScrapeTitle = PropertiesUtil.getBooleanProperty("imdb.aka.scrape.title", Boolean.FALSE);
         akaIgnoreVersions = PropertiesUtil.getProperty("imdb.aka.ignore.version", "").split(",");
     }
@@ -304,7 +304,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             ImdbSiteDataDefinition siteDef;
             if (imdbNewVersion) {
                 // NEW FORMAT
-                
+
                 // If we are using sitedef=labs, there's no need to change it
                 if (imdbInfo.getImdbSite().equals("labs")) {
                     siteDef = this.siteDefinition;
@@ -321,15 +321,15 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 updateInfoNew(movie, xml, siteDef);
             } else {
                 // OLD FORMAT
-                
+
                 // use site definition
                 siteDef = this.siteDefinition;
                 updateInfoOld(movie, xml, siteDef);
             }
-            
+
             // update common values; matching old and new format
             updateInfoCommon(movie, xml, siteDef);
-            
+
             if (scrapeAwards) {
                 updateAwards(movie);        // Issue 1901: Awards
             }
@@ -352,12 +352,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             // always true
             returnStatus = Boolean.TRUE;
-            
+
         } catch (Exception error) {
             logger.error(LOG_MESSAGE + "Failed retrieving IMDb data for movie : " + movie.getId(IMDB_PLUGIN_ID));
             logger.error(SystemTools.getStackTrace(error));
         }
-        
+
         return returnStatus;
     }
 
@@ -1047,7 +1047,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     /**
      * Scrape info which is common for old and new IMDb.
-     * 
+     *
      * @param movie
      * @param xml
      * @param siteDef
@@ -1058,7 +1058,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         String releaseInfoXML = Movie.UNKNOWN;
         // Store the aka list
         Map<String,String> akas = null;
-        
+
         // ASPECT RATIO
         if (OverrideTools.checkOverwriteAspectRatio(movie, IMDB_PLUGIN_ID)) {
             // determine start and end string
@@ -1082,7 +1082,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 movie.setAspectRatio(aspectTools.cleanAspectRatio(uncleanAspectRatio), IMDB_PLUGIN_ID);
             }
         }
-        
+
         // RELEASE DATE
         if (OverrideTools.checkOverwriteReleaseDate(movie, IMDB_PLUGIN_ID)) {
             // Load the release page from IMDb
@@ -1100,7 +1100,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 movie.setReleaseDate(releaseDate, IMDB_PLUGIN_ID);
             }
         }
-        
+
         // ORIGINAL TITLE / AKAS
         if (OverrideTools.checkOverwriteOriginalTitle(movie, IMDB_PLUGIN_ID)) {
             // Load the AKA page from IMDb
@@ -1125,7 +1125,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
             movie.setOriginalTitle(foundValue, IMDB_PLUGIN_ID);
         }
-        
+
         // TITLE for preferred country from AKAS
         if (akaScrapeTitle && OverrideTools.checkOverwriteTitle(movie, IMDB_PLUGIN_ID)) {
             // Load the AKA page from IMDb
@@ -1147,7 +1147,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 if (startIndex > -1) {
                     int endIndex = aka.getKey().indexOf("/");
                     String extracted;
-                    if (endIndex == -1) 
+                    if (endIndex == -1)
                         extracted = aka.getKey().substring(startIndex);
                     else {
                         extracted = aka.getKey().substring(startIndex, endIndex);
