@@ -27,9 +27,10 @@ import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.enumerations.WatchedWithExtension;
+import com.moviejukebox.model.enumerations.WatchedWithLocation;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.File;
 import java.util.Arrays;
@@ -43,8 +44,8 @@ public class WatchedScanner {
     private static final Logger logger = Logger.getLogger(WatchedScanner.class);
     private static final String LOG_MESSAGE = "Watched Scanner: ";
     private static Collection<String> watchedExtensions = Arrays.asList(PropertiesUtil.getProperty("mjb.watchedExtensions", "watched").split(",;\\|"));
-    private static String watchedLocation = PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo");
-    private static String withExtension = PropertiesUtil.getProperty("mjb.watched.withExtension", TRUE);
+    private static WatchedWithLocation watchedLocation = WatchedWithLocation.fromString(PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo"));
+    private static WatchedWithExtension withExtension = WatchedWithExtension.fromString(PropertiesUtil.getProperty("mjb.watched.withExtension", TRUE));
     private static boolean warned = Boolean.FALSE;
 
     protected WatchedScanner() {
@@ -52,8 +53,7 @@ public class WatchedScanner {
     }
 
     /**
-     * Calculate the watched state of a movie based on the files
-     * <filename>.watched & <filename>.unwatched
+     * Calculate the watched state of a movie based on the files <filename>.watched & <filename>.unwatched
      *
      * Always assumes that the file is unwatched if nothing is found.
      *
@@ -65,20 +65,10 @@ public class WatchedScanner {
         boolean movieFileWatchChanged = Boolean.FALSE;  // Have the movie files changed status?
         boolean fileWatched;
         boolean returnStatus = Boolean.FALSE;           // Assume no changes
-        boolean withJukebox;
 
-        if ("withVideo".equalsIgnoreCase(watchedLocation)) {
-            // Normal scanning
-            withJukebox = Boolean.FALSE;
-        } else if ("withJukebox".equalsIgnoreCase(watchedLocation)) {
-            // Fixed scanning in the jukebox folder
-            withJukebox = Boolean.TRUE;
-        } else {
-            if (!warned) {
-                logger.warn(LOG_MESSAGE + "Custom file location not supported for watched scanner");
-                warned = Boolean.TRUE;
-            }
-            withJukebox = Boolean.FALSE;
+        if (!warned && (watchedLocation == WatchedWithLocation.custom)) {
+            logger.warn(LOG_MESSAGE + "Custom file location not supported for watched scanner");
+            warned = Boolean.TRUE;
         }
 
         File foundFile = null;
@@ -101,26 +91,26 @@ public class WatchedScanner {
                 } else {
                     filename = mf.getFile().getName();
                 }
-    
-                if (TRUE.equalsIgnoreCase(withExtension) || "both".equalsIgnoreCase(withExtension) || movie.isBluray()) {
-                    if (withJukebox) {
+
+                if (withExtension == WatchedWithExtension.EXTENSION || withExtension == WatchedWithExtension.BOTH || movie.isBluray()) {
+                    if (watchedLocation == WatchedWithLocation.withJukebox) {
                         foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
                     } else {
                         foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, LOG_MESSAGE, Boolean.FALSE);
                     }
                 }
-    
-                if (foundFile == null && (FALSE.equalsIgnoreCase(withExtension) || "both".equalsIgnoreCase(withExtension)) && !movie.isBluray()) {
+
+                if (foundFile == null && (withExtension == WatchedWithExtension.NOEXTENSION || withExtension == WatchedWithExtension.BOTH) && !movie.isBluray()) {
                     // Remove the extension from the filename
                     filename = FilenameUtils.removeExtension(filename);
                     // Check again without the extension
-                    if (withJukebox) {
+                    if (watchedLocation == WatchedWithLocation.withJukebox) {
                         foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
                     } else {
                         foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, LOG_MESSAGE, Boolean.FALSE);
                     }
                 }
-    
+
                 if (foundFile != null) {
                     fileWatchedCount++;
                     if (foundFile.getName().toLowerCase().endsWith(".watched")) {
@@ -132,14 +122,14 @@ public class WatchedScanner {
                         mf.setWatchedDate(0); // remove the date if it exists
                     }
                 }
-    
+
                 if (fileWatched != mf.isWatched()) {
                     movieFileWatchChanged = Boolean.TRUE;
                 }
-    
+
                 mf.setWatched(fileWatched); // Set the watched status
             }
-            
+
             // As soon as there is an unwatched file, the whole movie becomes unwatched
             movieWatched = movieWatched && fileWatched;
         }
