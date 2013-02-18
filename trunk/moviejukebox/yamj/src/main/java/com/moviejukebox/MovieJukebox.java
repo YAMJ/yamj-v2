@@ -111,7 +111,7 @@ public class MovieJukebox {
     private static int popularity = 5;
     private static String peopleFolder = "";
     private static Collection<String> photoExtensions = new ArrayList<String>();
-    // These are pulled from the Manifest.MF file that is created by the Ant build script
+    // These are pulled from the Manifest.MF file that is created by the build script
     private static String mjbVersion = SystemTools.getVersion();
     private static String mjbRevision = SystemTools.getRevision();
     private static String mjbBuildDate = SystemTools.getBuildDate();
@@ -123,6 +123,8 @@ public class MovieJukebox {
     // Exit codes
     private static final int EXIT_NORMAL = 0;
     private static final int EXIT_SCAN_LIMIT = 1;
+    // Directories to exclude from dump command
+    private static final String[] excluded = {"dumpDir", ".svn", "src", "test", "bin", "skins"};
 
     public static void main(String[] args) throws Throwable {
         JukeboxStatistics.setTimeStart(System.currentTimeMillis());
@@ -142,14 +144,14 @@ public class MovieJukebox {
 
         // Print the revision information if it was populated
         if (mjbRevision.equals("0000")) {
-            logger.info("  Revision: Custom Build (r" + mjbRevision + ")");
+            logger.info("     Revision: *Custom Build*");
         } else {
-            logger.info("  Revision: r" + mjbRevision);
+            logger.info("     Revision: r" + mjbRevision);
         }
-        logger.info("Build Date: " + mjbBuildDate);
+        logger.info("   Build Date: " + mjbBuildDate);
         logger.info("");
 
-        logger.info("Java Version: " + java.lang.System.getProperties().getProperty("java.version"));
+        logger.info(" Java Version: " + java.lang.System.getProperties().getProperty("java.version"));
         logger.info("");
 
         if (!SystemTools.validateInstallation()) {
@@ -182,12 +184,12 @@ public class MovieJukebox {
                     PropertiesUtil.setProperty("mjb.skipIndexGeneration", TRUE);
                 } else if ("-h".equalsIgnoreCase(arg)) {
                     skipHtmlGeneration = Boolean.TRUE;
-                    PropertiesUtil.setProperty("mjb.skipHtmlGeneration", TRUE);
+                    PropertiesUtil.setProperty("mjb.skipHtmlGeneration", Boolean.TRUE);
                 } else if ("-dump".equalsIgnoreCase(arg)) {
                     dumpLibraryStructure = Boolean.TRUE;
                 } else if ("-memory".equalsIgnoreCase(arg)) {
                     showMemory = Boolean.TRUE;
-                    PropertiesUtil.setProperty("mjb.showMemory", TRUE);
+                    PropertiesUtil.setProperty("mjb.showMemory", Boolean.TRUE);
                 } else if (arg.startsWith("-D")) {
                     String propLine = arg.length() > 2 ? new String(arg.substring(2)) : args[++i];
                     int propDiv = propLine.indexOf('=');
@@ -298,7 +300,7 @@ public class MovieJukebox {
         // Check for mjb.skipHtmlGeneration and set as necessary
         // This duplicates the "-h" functionality, but allows you to have it in the property file
         skipHtmlGeneration = PropertiesUtil.getBooleanProperty("mjb.skipHtmlGeneration", Boolean.FALSE);
- 
+
         // Look for the parameter in the properties file if it's not been set on the command line
         // This way we don't overwrite the setting if it's not found and defaults to FALSE
         showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", Boolean.FALSE);
@@ -512,7 +514,6 @@ public class MovieJukebox {
             // libraryRootDump.deleteOnExit();
         }
     }
-    private static final String[] excluded = {"dumpDir", ".svn", "src", "test", "bin", "skins"};
 
     private static boolean isExcluded(File file) {
 
@@ -1018,7 +1019,7 @@ public class MovieJukebox {
                                         } // is extension
                                     } // for all files
                                 } // property is set
-                                if (! movie.isDirty()) {
+                                if (!movie.isDirty()) {
                                     ScanningLimit.releaseToken();
                                 }
                             } else {
@@ -1328,14 +1329,14 @@ public class MovieJukebox {
                          */
 
                         logger.debug("Updating set artwork for: " + movie.getOriginalTitle() + "...");
-                        // If we can find a set poster file, use it; otherwise, stick with the first movie's poster
-                        String oldPosterFilename = movie.getPosterFilename();
+                        // If we can find a set artwork file, use it; otherwise, stick with the first movie's artwork
+                        String oldArtworkFilename = movie.getPosterFilename();
 
                         // Set a default poster name in case it's not found during the scan
                         movie.setPosterFilename(safeSetMasterBaseName + "." + posterExtension);
                         if (isNotValidString(PosterScanner.scan(jukebox, movie))) {
                             logger.debug("Local set poster (" + safeSetMasterBaseName + ") not found.");
-                            movie.setPosterFilename(oldPosterFilename);
+                            movie.setPosterFilename(oldArtworkFilename);
                         }
 
                         // If this is a TV Show and we want to download banners, then also check for a banner Set file
@@ -2233,7 +2234,8 @@ public class MovieJukebox {
                     || forceThumbnailOverwrite
                     || !FileTools.fileCache.fileExists(jkbThumbnailFile)
                     || tmpPosterFile.exists()) {
-                // Issue 228: If the PNG files are deleted before running the jukebox this fails. Therefore check to see if they exist in the original directory
+                // Issue 228: If the PNG files are deleted before running the jukebox this fails.
+                // Therefore check to see if they exist in the original directory
                 if (tmpPosterFile.exists()) {
                     // logger.debug("Use new file: " + tmpPosterFile.getAbsolutePath());
                     destinationFile = tmpPosterFile;
