@@ -23,12 +23,12 @@
 package com.moviejukebox.reader;
 
 import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.CodecSource;
 import com.moviejukebox.model.CodecType;
 import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.EpisodeDetail;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.enumerations.CodecSource;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
@@ -809,7 +809,7 @@ public class MovieNFOReader {
         if (nlElements == null || nlElements.getLength() == 0) {
             return;
         }
-        
+
         // check if we should override
         boolean overrideWriters = OverrideTools.checkOverwriteWriters(movie, NFO_PLUGIN_ID);
         boolean overridePeopleWriters = OverrideTools.checkOverwritePeopleWriters(movie, NFO_PLUGIN_ID);
@@ -827,7 +827,7 @@ public class MovieNFOReader {
                 newWriters.add(eWriter.getTextContent());
             }
         }
-        
+
         if (overrideWriters) {
             movie.setWriters(newWriters, NFO_PLUGIN_ID);
         }
@@ -847,7 +847,7 @@ public class MovieNFOReader {
         if (nlElements == null || nlElements.getLength() == 0) {
             return;
         }
-        
+
         // check if we should override
         boolean overrideDirectors = OverrideTools.checkOverwriteDirectors(movie, NFO_PLUGIN_ID);
         boolean overridePeopleDirectors = OverrideTools.checkOverwritePeopleDirectors(movie, NFO_PLUGIN_ID);
@@ -855,7 +855,7 @@ public class MovieNFOReader {
             // nothing to do if nothing should be overridden
             return;
         }
-        
+
         List<String> newDirectors = new ArrayList<String>();
         Node nElements;
         for (int looper = 0; looper < nlElements.getLength(); looper++) {
@@ -865,7 +865,7 @@ public class MovieNFOReader {
                 newDirectors.add(eDirector.getTextContent());
             }
         }
-        
+
         if (overrideDirectors) {
             movie.setDirectors(newDirectors, NFO_PLUGIN_ID);
         }

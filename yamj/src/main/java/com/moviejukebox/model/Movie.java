@@ -24,6 +24,7 @@ package com.moviejukebox.model;
 
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.model.enumerations.CodecSource;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
 import com.moviejukebox.tools.*;
 import java.io.File;
@@ -204,11 +205,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void setSkipped (Boolean skipped) {
         this.skipped = skipped;
     }
-    
+
     public boolean isSkipped() {
         return skipped;
     }
-    
+
     public void setMjbVersion(String mjbVersion) {
         if (StringTools.isNotValidString(mjbVersion)) {
             this.mjbVersion = SystemTools.getVersion();
@@ -1507,7 +1508,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public String getOutline() {
         return outline;
     }
-    
+
     public void setOutline(String outline, String source) {
         this.setOutline(outline, source, Boolean.TRUE);
     }
