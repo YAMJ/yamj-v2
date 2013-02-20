@@ -53,18 +53,53 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     }
 
     @Override
-    public boolean scan(Movie mediaFile) {
-        imdbp.scan(mediaFile); // Grab data from imdb
-
-        if (StringTools.isNotValidString(mediaFile.getId(OFDB_PLUGIN_ID))) {
-            getOfdbId(mediaFile);
+    public boolean scan(Movie movie) {
+        imdbp.scan(movie);
+        
+        if (StringTools.isNotValidString(movie.getId(OFDB_PLUGIN_ID))) {
+            getOfdbId(movie);
         }
 
-        if (OverrideTools.checkOneOverwrite(mediaFile, OFDB_PLUGIN_ID, OverrideFlag.TITLE, OverrideFlag.PLOT, OverrideFlag.OUTLINE)) {
-        	return this.updateOfdbMediaInfo(mediaFile);
-    	}
+        String ofdbId = movie.getId(OFDB_PLUGIN_ID);
+        if (StringTools.isNotValidString(ofdbId)) {
+            return Boolean.FALSE;
+        }
 
-    	return Boolean.TRUE;
+        try {
+            String xml = webBrowser.request(ofdbId);
+
+            if (OverrideTools.checkOverwriteTitle(movie, OFDB_PLUGIN_ID)) {
+                String titleShort = HTMLTools.extractTag(xml, "<title>OFDb -", "</title>");
+                if (titleShort.indexOf("(") > 0) {
+                    // strip year from title
+                    titleShort = titleShort.substring(0, titleShort.lastIndexOf("(")).trim();
+                }
+                movie.setTitle(titleShort, OFDB_PLUGIN_ID);
+            }
+
+            if (OverrideTools.checkOneOverwrite(movie, OFDB_PLUGIN_ID, OverrideFlag.PLOT, OverrideFlag.OUTLINE)) {
+                String plotUrl = "http://www.ofdb.de/plot/" + HTMLTools.extractTag(xml, PLOT_MARKER, 0, "\"");
+                xml = webBrowser.request(plotUrl);
+
+                int firstindex = xml.indexOf("gelesen</b></b><br><br>") + 23;
+                int lastindex = xml.indexOf("</font>", firstindex);
+                String plot = xml.substring(firstindex, lastindex);
+                plot = plot.replaceAll("<br />", " ");
+
+                if (OverrideTools.checkOverwritePlot(movie, OFDB_PLUGIN_ID)) {
+                    movie.setPlot(plot, OFDB_PLUGIN_ID);
+                }
+
+                if (OverrideTools.checkOverwriteOutline(movie, OFDB_PLUGIN_ID)) {
+                    movie.setOutline(plot, OFDB_PLUGIN_ID);
+                }
+            }
+            
+            return Boolean.TRUE;
+        } catch (Exception e) {
+            logger.error(SystemTools.getStackTrace(e));
+            return Boolean.FALSE;
+        }
     }
 
     public void getOfdbId(Movie mediaFile) {
@@ -124,73 +159,6 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             logger.error("Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
-    }
-
-    /**
-     * Scan OFDB html page for the specified movie
-     */
-    private boolean updateOfdbMediaInfo(Movie movie) {
-        if (StringTools.isNotValidString(movie.getId(OFDB_PLUGIN_ID))) {
-            return Boolean.FALSE;
-        }
-
-        try {
-            String xml = webBrowser.request(movie.getId(OFDB_PLUGIN_ID));
-
-            if (OverrideTools.checkOverwriteTitle(movie, OFDB_PLUGIN_ID)) {
-                String titleShort = HTMLTools.extractTag(xml, "<title>OFDb -", "</title>");
-                if (titleShort.indexOf("(") > 0) {
-                    // strip year from title
-                    titleShort = titleShort.substring(0, titleShort.lastIndexOf("(")).trim();
-                }
-                movie.setTitle(titleShort, OFDB_PLUGIN_ID);
-            }
-
-
-            if (OverrideTools.checkOneOverwrite(movie, OFDB_PLUGIN_ID, OverrideFlag.PLOT, OverrideFlag.OUTLINE)) {
-                if (xml.contains(PLOT_MARKER)) {
-                    String plot = getPlot("http://www.ofdb.de/plot/" + HTMLTools.extractTag(xml, PLOT_MARKER, 0, "\""));
-                    if (StringTools.isValidString(plot)) {
-
-                        if (OverrideTools.checkOverwritePlot(movie, OFDB_PLUGIN_ID)) {
-                        	movie.setPlot(plot, OFDB_PLUGIN_ID);
-                        }
-
-                        if (OverrideTools.checkOverwriteOutline(movie, OFDB_PLUGIN_ID)) {
-                        	movie.setOutline(plot, OFDB_PLUGIN_ID);
-                        }
-                    }
-                } else {
-                    logger.debug("No plot found for " + movie.getBaseName());
-                    return Boolean.FALSE;
-                }
-            }
-        } catch (IOException error) {
-            logger.error(SystemTools.getStackTrace(error));
-            return Boolean.FALSE;
-        }
-
-        return Boolean.TRUE;
-    }
-
-    private String getPlot(String plotURL) {
-        String plot;
-
-        try {
-            String xml = webBrowser.request(plotURL);
-
-            int firstindex = xml.indexOf("gelesen</b></b><br><br>") + 23;
-            int lastindex = xml.indexOf("</font>", firstindex);
-            plot = xml.substring(firstindex, lastindex);
-            plot = plot.replaceAll("<br />", " ");
-
-        } catch (IOException error) {
-            logger.warn("Failed to get plot");
-            logger.warn(SystemTools.getStackTrace(error));
-            plot = Movie.UNKNOWN;
-        }
-
-        return plot;
     }
 
     @Override
