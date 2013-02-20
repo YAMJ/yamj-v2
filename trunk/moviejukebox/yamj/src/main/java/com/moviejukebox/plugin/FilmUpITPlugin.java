@@ -59,61 +59,61 @@ public class FilmUpITPlugin extends ImdbPlugin {
             String xml = webBrowser.request("http://filmup.leonardo.it/sc_" + movie.getId(FILMUPIT_PLUGIN_ID) + ".htm");
 
             if (OverrideTools.checkOverwriteTitle(movie, FILMUPIT_PLUGIN_ID)) {
-                movie.setTitle(removeHtmlTags(extractTag(xml, "<font face=\"arial, helvetica\" size=\"3\"><b>", "</b>")), FILMUPIT_PLUGIN_ID);
+                movie.setTitle(removeHtmlTags(HTMLTools.extractTag(xml, "<font face=\"arial, helvetica\" size=\"3\"><b>", "</b>")), FILMUPIT_PLUGIN_ID);
             }
 
             // limit plot to FILMUPIT_PLUGIN_PLOT_LENGTH_LIMIT char
             if (OverrideTools.checkOverwritePlot(movie, FILMUPIT_PLUGIN_ID)) {
-                String tmpPlot = removeHtmlTags(extractTag(xml, "Trama:<br>", "</font><br>"));
+                String tmpPlot = removeHtmlTags(HTMLTools.extractTag(xml, "Trama:<br>", "</font><br>"));
                 movie.setPlot(tmpPlot, FILMUPIT_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteDirectors(movie, FILMUPIT_PLUGIN_ID)) {
-                String director = removeHtmlTags(removeHtmlTags(extractTag(xml,
+                String director = removeHtmlTags(removeHtmlTags(HTMLTools.extractTag(xml,
                         "Regia:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")));
                 movie.setDirector(director, FILMUPIT_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteReleaseDate(movie, FILMUPIT_PLUGIN_ID)) {
-                movie.setReleaseDate(removeHtmlTags(extractTag(xml,
+                movie.setReleaseDate(removeHtmlTags(HTMLTools.extractTag(xml,
                         "Data di uscita:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")), FILMUPIT_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteRuntime(movie, FILMUPIT_PLUGIN_ID)) {
-                movie.setRuntime(removeHtmlTags(extractTag(xml, "Durata:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
+                movie.setRuntime(removeHtmlTags(HTMLTools.extractTag(xml, "Durata:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
                         "</font></td></tr>")), FILMUPIT_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteCountry(movie, FILMUPIT_PLUGIN_ID)) {
-                movie.setCountry(removeHtmlTags(extractTag(xml, "Nazione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
+                movie.setCountry(removeHtmlTags(HTMLTools.extractTag(xml, "Nazione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
                         "</font></td></tr>")), FILMUPIT_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteCompany(movie, FILMUPIT_PLUGIN_ID)) {
-                movie.setCompany(removeHtmlTags(extractTag(xml,
+                movie.setCompany(removeHtmlTags(HTMLTools.extractTag(xml,
                         "Distribuzione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")), FILMUPIT_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteGenres(movie, FILMUPIT_PLUGIN_ID)) {
                 List<String> newGenres = new ArrayList<String>();
-                for (String tmpGenre : extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>").split(",")) {
+                for (String tmpGenre : HTMLTools.extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>").split(",")) {
                     newGenres.addAll(Arrays.asList(tmpGenre.split("/")));
                 }
                 movie.setGenres(newGenres, FILMUPIT_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteYear(movie, FILMUPIT_PLUGIN_ID)) {
-                movie.setYear(removeHtmlTags(extractTag(xml, "Anno:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
+                movie.setYear(removeHtmlTags(HTMLTools.extractTag(xml, "Anno:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
                         "</font></td></tr>")), FILMUPIT_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteActors(movie, FILMUPIT_PLUGIN_ID)) {
                 List<String> newActors = Arrays.asList(removeHtmlTags(
-                        extractTag(xml, "Cast:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")).split(","));
+                		HTMLTools.extractTag(xml, "Cast:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")).split(","));
                 movie.setCast(newActors, FILMUPIT_PLUGIN_ID);
             }
 
-            String opinionsPageID = extractTag(xml, "/opinioni/op.php?uid=", "\"");
+            String opinionsPageID = HTMLTools.extractTag(xml, "/opinioni/op.php?uid=", "\"");
             if (StringTools.isValidString(opinionsPageID)) {
                 int pageID = Integer.parseInt(opinionsPageID);
                 updateRate(movie, pageID);
@@ -138,7 +138,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
         String baseUrl = "http://filmup.leonardo.it/opinioni/op.php?uid=";
         try {
             String xml = webBrowser.request(baseUrl + opinionsPageID);
-            float rating = Float.parseFloat(extractTag(xml, "Media Voto:&nbsp;&nbsp;&nbsp;</td><td align=\"left\"><b>", "</b>")) * 10;
+            float rating = Float.parseFloat(HTMLTools.extractTag(xml, "Media Voto:&nbsp;&nbsp;&nbsp;</td><td align=\"left\"><b>", "</b>")) * 10;
             movie.addRating(FILMUPIT_PLUGIN_ID, (int) rating);
         } catch (IOException error) {
             logger.error("Failed retreiving rating for : " + movie.getId(FILMUPIT_PLUGIN_ID));
@@ -146,14 +146,6 @@ public class FilmUpITPlugin extends ImdbPlugin {
         }
     }
 
-    /*
-     *
-     *
-     * private int parseRating(String rating) { int index =
-     * rating.indexOf("etoile_"); try { return (int)
-     * (Float.parseFloat(rating.substring(index + 7, index + 8)) / 4.0 * 100); }
-     * catch (Exception error) { return -1; } }
-     */
     @Override
     public boolean scan(Movie mediaFile) {
         boolean retval = false;
@@ -224,42 +216,11 @@ public class FilmUpITPlugin extends ImdbPlugin {
         }
     }
 
-    protected String extractTag(String src, String tagStart, String tagEnd) {
-        int beginIndex = src.indexOf(tagStart);
-        if (beginIndex < 0) {
-            // logger.debug("extractTag value= Unknown");
-            return Movie.UNKNOWN;
-        }
-        try {
-            String subString = src.substring(beginIndex + tagStart.length());
-            int endIndex = subString.indexOf(tagEnd);
-            if (endIndex < 0) {
-                // logger.debug("extractTag value= Unknown");
-                return Movie.UNKNOWN;
-            }
-            subString = subString.substring(0, endIndex);
-
-            String value = HTMLTools.decodeHtml(subString.trim());
-            // logger.debug("extractTag value=" + value);
-            return value;
-        } catch (Exception error) {
-            logger.error("extractTag an exception occurred during tag extraction : " + error);
-            return Movie.UNKNOWN;
-        }
-    }
-
-    protected String removeHtmlTags(String src) {
+    private String removeHtmlTags(String src) {
         return src.replaceAll("\\<.*?>", "");
     }
 
-    protected String removeOpenedHtmlTags(String src) {
-        String result = src.replaceAll("^.*?>", "");
-        result = result.replaceAll("<.*?$", "");
-        // logger.debug("removeOpenedHtmlTags before=[" + src + "], after=["+ result + "]");
-        return result;
-    }
-
-    protected ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
+    private ArrayList<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
         ArrayList<String> tags = new ArrayList<String>();
         int index = src.indexOf(sectionStart);
         if (index == -1) {
@@ -299,52 +260,6 @@ public class FilmUpITPlugin extends ImdbPlugin {
             // replaceAll used because trim() does not trim unicode space
             tags.add(HTMLTools.decodeHtml(text.trim()).replaceAll("^[\\s\\p{Zs}\\p{Zl}\\p{Zp}]*\\b(.*)\\b[\\s\\p{Zs}\\p{Zl}\\p{Zp}]*$", "$1"));
             endIndex += endLen;
-            if (endIndex > lastIndex) {
-                break;
-            }
-            if (startTag != null) {
-                index = sectionText.indexOf(startTag, endIndex);
-            } else {
-                index = endIndex;
-            }
-        }
-        return tags;
-    }
-
-    protected ArrayList<String> extractHtmlTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
-        ArrayList<String> tags = new ArrayList<String>();
-        int index = src.indexOf(sectionStart);
-        if (index == -1) {
-            // logger.debug("extractTags no sectionStart Tags found");
-            return tags;
-        }
-        index += sectionStart.length();
-        int endIndex = src.indexOf(sectionEnd, index);
-        if (endIndex == -1) {
-            // logger.debug("extractTags no sectionEnd Tags found");
-            return tags;
-        }
-
-        String sectionText = src.substring(index, endIndex);
-        int lastIndex = sectionText.length();
-        index = 0;
-        int endLen = endTag.length();
-
-        if (startTag != null) {
-            index = sectionText.indexOf(startTag);
-        }
-        // logger.debug("extractTags sectionText = " + sectionText);
-        // logger.debug("extractTags startTag = " + startTag);
-        // logger.debug("extractTags startTag index = " + index);
-        while (index != -1) {
-            endIndex = sectionText.indexOf(endTag, index);
-            if (endIndex == -1) {
-                endIndex = lastIndex;
-            }
-            endIndex += endLen;
-            String text = sectionText.substring(index, endIndex);
-            // logger.debug("extractTags Tag found text = " + text);
-            tags.add(text);
             if (endIndex > lastIndex) {
                 break;
             }
