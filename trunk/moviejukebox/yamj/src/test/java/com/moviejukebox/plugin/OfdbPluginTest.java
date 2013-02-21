@@ -32,8 +32,8 @@ import com.moviejukebox.tools.PropertiesUtil;
 
 public class OfdbPluginTest extends TestCase {
 
-	private OfdbPlugin ofdbPlugin;
-	
+    private OfdbPlugin ofdbPlugin;
+    
     static {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.OfdbPlugin");
@@ -47,24 +47,24 @@ public class OfdbPluginTest extends TestCase {
     }
 
     public void testScan() {
-    	Movie movie = new Movie();
-    	movie.setId(OfdbPlugin.OFDB_PLUGIN_ID,"http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora");
-    	ofdbPlugin.scan(movie);
-    	
-    	assertEquals("Avatar - Aufbruch nach Pandora", movie.getTitle());
-    	assertEquals("Avatar", movie.getOriginalTitle());
-    	assertEquals("2009", movie.getYear());
-    	assertEquals("Großbritannien", movie.getCountry());
-    	assertFalse(Movie.UNKNOWN.equals(movie.getPlot()));
-    	assertFalse(Movie.UNKNOWN.equals(movie.getOutline()));
-    	assertTrue(movie.getGenres().contains("Abenteuer"));
-    	assertTrue(movie.getGenres().contains("Action"));
-    	assertTrue(movie.getGenres().contains("Science-Fiction"));
-    	
+        Movie movie = new Movie();
+        movie.setId(OfdbPlugin.OFDB_PLUGIN_ID,"http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora");
+        ofdbPlugin.scan(movie);
+        
+        assertEquals("Avatar - Aufbruch nach Pandora", movie.getTitle());
+        assertEquals("Avatar", movie.getOriginalTitle());
+        assertEquals("2009", movie.getYear());
+        assertEquals("Großbritannien", movie.getCountry());
+        assertFalse(Movie.UNKNOWN.equals(movie.getPlot()));
+        assertFalse(Movie.UNKNOWN.equals(movie.getOutline()));
+        assertTrue(movie.getGenres().contains("Abenteuer"));
+        assertTrue(movie.getGenres().contains("Action"));
+        assertTrue(movie.getGenres().contains("Science-Fiction"));
+        
         LinkedHashSet<String> testList = new LinkedHashSet<String>();
         testList.add("James Cameron");
         assertEquals(Arrays.asList(testList.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getDirectors().toArray(), 1)).toString());
-    	
+        
         testList.clear();
         testList.add("Sam Worthington");
         testList.add("Zoe Saldana");

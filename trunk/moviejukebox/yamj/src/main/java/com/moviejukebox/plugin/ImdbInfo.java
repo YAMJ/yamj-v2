@@ -109,12 +109,12 @@ public class ImdbInfo {
     }
 
     public ImdbInfo() {
-    	this(PropertiesUtil.getProperty("imdb.site", DEFAULT_SITE));
+        this(PropertiesUtil.getProperty("imdb.site", DEFAULT_SITE));
     }
 
     public ImdbInfo(final String imdbSite) {
-    	this.imdbSite = imdbSite;
-      	this.webBrowser = new WebBrowser();
+        this.imdbSite = imdbSite;
+        this.webBrowser = new WebBrowser();
 
         preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
         siteDef = MATCHES_DATA_PER_SITE.get(this.imdbSite );
@@ -124,8 +124,8 @@ public class ImdbInfo {
             siteDef = MATCHES_DATA_PER_SITE.get(this.imdbSite );
         }
     }
-    		
-	/**
+            
+    /**
      * Retrieve the IMDb matching the specified movie name and year. This
      * routine is based on a IMDb request.
      *
@@ -375,7 +375,7 @@ public class ImdbInfo {
         // Check if this is an exact match (we got a movie page instead of a results list)
         Pattern titleregex = siteDef.getPersonRegex();
         if(objectType.equals(OBJECT_MOVIE)){
-        	titleregex= siteDef.getTitleRegex();
+            titleregex= siteDef.getTitleRegex();
         }
 
         Matcher titlematch = titleregex.matcher(xml);
