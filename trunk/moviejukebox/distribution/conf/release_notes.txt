@@ -41,9 +41,10 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2596 IMDB does not retrieve Spanish language (ES)
  - Fixed defect #2599 Fixed retrieval of cast and directors from Filmweb
  - Enhancement  #2600 Movie class should handle several movie properties itself 
+ - Fixed defect #2603 Remove year periods from title
  - Enhancement  #2607 OFDb plugin should scrape more informations than title and plot
  
-MovieJukebox 2.8 (2012-12-17)
+MovieJukebox 2.8 2012-12-17)
 -----------------------------
  - Enhancement  #1461 Skipped subtitles will not be added
  - Enhancement  #1880 Added ability to parse subtitles from NFO
@@ -57,7 +58,7 @@ MovieJukebox 2.8 (2012-12-17)
  - Fixed defect #2449 Handle NFO files with multiline genre elements
  - Fixed defect #2469 People filmography scan now detects VideoGame, TV and Video
  - Fixed defect #2473 Create correct fanart file when fanart URL is taken from NFO
- - Fixed defect #2483 Error parsing dates from NFO files
+ - Fixed defect #2483 Error parsing da(tes from NFO files
  - Fixed defect #2489 Include sets in generated NFO files
  - Fixed defect #2491 TV Episode Image getting cropped at top
  - Fixed defect #2493 Updated Sub-Baba poster search to use API, better search results

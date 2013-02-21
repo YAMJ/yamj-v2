@@ -260,8 +260,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // Remove the (VG) or (V) tags from the title
             title = title.replaceAll(" \\([VG|V]\\)$", "");
 
-            //String yearPattern = ".\\((?:TV )?(\\d{4})(?:/[^\\)]+)?\\)";
-            String yearPattern = "(?i).\\((?:TV.|VIDEO.)?(\\d{4})(?:/[^\\)]+)?\\)";
+            //String yearPattern = "(?i).\\((?:TV.|VIDEO.)?(\\d{4})(?:/[^\\)]+)?\\)";
+            String yearPattern = "(?i).\\((?:TV.|VIDEO.)?(\\d{4})";
             Pattern pattern = Pattern.compile(yearPattern, Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(title);
             if (matcher.find()) {
@@ -270,8 +270,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     movie.setYear(matcher.group(1), IMDB_PLUGIN_ID);
                 }
 
-                // Remove the year from the title. Removes "(TV)" and "(TV YEAR)"
-                title = title.replaceAll(yearPattern, "");
+                // Remove the year from the title
+                title = title.substring(0, title.indexOf(matcher.group(0)));
             }
 
             // Check for the new version and correct the title if found
