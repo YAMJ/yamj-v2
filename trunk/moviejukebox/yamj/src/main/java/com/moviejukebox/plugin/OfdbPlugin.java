@@ -31,8 +31,8 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.OverrideFlag;
 import com.moviejukebox.model.Person;
+import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.StringTools;

@@ -24,7 +24,7 @@ package com.moviejukebox.tools;
 
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.OverrideFlag;
+import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.plugin.DatabasePluginController;
 import static com.moviejukebox.plugin.DatabasePluginController.TYPE_ALTERNATE;
 import com.moviejukebox.plugin.ImdbPlugin;
@@ -46,9 +46,9 @@ public final class OverrideTools {
     // check skip if not in priority list
     private static final boolean SKIP_NOT_IN_LIST = PropertiesUtil.getBooleanProperty("priority.checks.skipNotInList", Boolean.FALSE);
     // hold max counts for people
-    private static final int MAX_COUNT_DIRECTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.director", 2);
-    private static final int MAX_COUNT_WRITER = PropertiesUtil.getIntProperty("plugin.people.maxCount.writer", 3);
-    private static final int MAX_COUNT_ACTOR = PropertiesUtil.getIntProperty("plugin.people.maxCount.actor", 10);
+    private static final int MAX_COUNT_ACTOR = PropertiesUtil.getReplacedIntProperty("movie.actor.maxCount", "plugin.people.maxCount.actor", 10);
+    private static final int MAX_COUNT_DIRECTOR = PropertiesUtil.getReplacedIntProperty("movie.director.maxCount", "plugin.people.maxCount.director", 2);
+    private static final int MAX_COUNT_WRITER = PropertiesUtil.getReplacedIntProperty("movie.writer.maxCount", "plugin.people.maxCount.writer", 3);
     // handling for set default plugins
     private static final String TYPE_PLUGIN = "PLUGIN";
     private static final String MOVIE_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(Movie.TYPE_MOVIE).toUpperCase();
@@ -192,7 +192,6 @@ public final class OverrideTools {
         putMoviePriorities(OverrideFlag.PEOPLE_WRITERS, sources);
         sources = PropertiesUtil.getProperty("priority.tv.people.writers", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.PEOPLE_WRITERS, sources);
-
     }
 
     /**

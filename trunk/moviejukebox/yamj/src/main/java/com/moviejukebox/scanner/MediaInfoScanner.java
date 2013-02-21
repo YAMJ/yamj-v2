@@ -23,6 +23,7 @@
 package com.moviejukebox.scanner;
 
 import com.moviejukebox.model.enumerations.CodecSource;
+import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.model.*;
 import com.moviejukebox.tools.*;
 import com.mucommander.file.AbstractFile;

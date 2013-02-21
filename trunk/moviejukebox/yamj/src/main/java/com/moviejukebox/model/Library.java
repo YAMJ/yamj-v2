@@ -23,6 +23,8 @@
 package com.moviejukebox.model;
 
 import com.moviejukebox.model.Comparator.*;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+
 import static com.moviejukebox.tools.FileTools.*;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;

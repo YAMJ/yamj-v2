@@ -25,6 +25,7 @@ package com.moviejukebox.model;
 import com.moviejukebox.model.Artwork.Artwork;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.enumerations.CodecSource;
+import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
 import com.moviejukebox.tools.*;
 import java.io.File;
