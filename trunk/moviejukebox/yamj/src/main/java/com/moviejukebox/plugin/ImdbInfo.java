@@ -51,11 +51,11 @@ public class ImdbInfo {
     private static final String SEARCH_FIRST = "first";
     private static final String SEARCH_EXACT = "exact";
     protected static final Map<String, ImdbSiteDataDefinition> MATCHES_DATA_PER_SITE = new HashMap<String, ImdbSiteDataDefinition>();
-    private final String imdbSite = PropertiesUtil.getProperty("imdb.site", DEFAULT_SITE);
     private String searchMatch = PropertiesUtil.getProperty("imdb.id.search.match", "regular");
     private boolean searchVariable = PropertiesUtil.getBooleanProperty("imdb.id.search.variable", Boolean.TRUE);
-    private String preferredSearchEngine;
     private WebBrowser webBrowser;
+    private String imdbSite;
+    private String preferredSearchEngine;
     private ImdbSiteDataDefinition siteDef;
 
     static {
@@ -109,17 +109,23 @@ public class ImdbInfo {
     }
 
     public ImdbInfo() {
-        webBrowser = new WebBrowser();
-
-        preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
-        siteDef = MATCHES_DATA_PER_SITE.get(imdbSite);
-        if (siteDef == null) {
-            logger.warn(LOG_MESSAGE + "No site definition for " + imdbSite + " using the default instead " + DEFAULT_SITE);
-            siteDef = MATCHES_DATA_PER_SITE.get(DEFAULT_SITE);
-        }
+    	this(PropertiesUtil.getProperty("imdb.site", DEFAULT_SITE));
     }
 
-    /**
+    public ImdbInfo(final String imdbSite) {
+    	this.imdbSite = imdbSite;
+      	this.webBrowser = new WebBrowser();
+
+        preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
+        siteDef = MATCHES_DATA_PER_SITE.get(this.imdbSite );
+        if (siteDef == null) {
+            logger.warn(LOG_MESSAGE + "No site definition for " + this.imdbSite  + " using the default instead " + DEFAULT_SITE);
+            this.imdbSite = DEFAULT_SITE;
+            siteDef = MATCHES_DATA_PER_SITE.get(this.imdbSite );
+        }
+    }
+    		
+	/**
      * Retrieve the IMDb matching the specified movie name and year. This
      * routine is based on a IMDb request.
      *
