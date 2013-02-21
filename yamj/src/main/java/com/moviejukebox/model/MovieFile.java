@@ -72,8 +72,9 @@ public class MovieFile implements Comparable<MovieFile> {
     private static final Boolean DIR_HASH = PropertiesUtil.getBooleanProperty("mjb.dirHash", Boolean.FALSE);
     private String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
     private String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");
+    
     // checks
-    private static final int MAX_LENGTH_PLOT = PropertiesUtil.getReplacedIntProperty("movie.episodeplot.maxLength", "plugin.plot.maxlength", 500);
+    private static final int MAX_LENGTH_EPISODE_PLOT = PropertiesUtil.getReplacedIntProperty("movie.episodeplot.maxLength", "plugin.plot.maxlength", 500);
     
     private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
         private static final long serialVersionUID = 1247815606593469672L;
@@ -158,7 +159,7 @@ public class MovieFile implements Comparable<MovieFile> {
             // Use UNKNOWN as the plot
             plots.put(part, Movie.UNKNOWN);
         } else if (trimToLength) {
-            plots.put(part, StringTools.trimToLength(plot, MAX_LENGTH_PLOT));
+            plots.put(part, StringTools.trimToLength(plot, MAX_LENGTH_EPISODE_PLOT));
         } else {
             plots.put(part, plot);
         }

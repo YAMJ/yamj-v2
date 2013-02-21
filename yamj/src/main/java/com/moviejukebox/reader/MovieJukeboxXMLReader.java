@@ -26,6 +26,7 @@ import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.*;
 import com.moviejukebox.model.Attachment.*;
 import com.moviejukebox.model.enumerations.CodecSource;
+import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.AspectRatioTools;
 import com.moviejukebox.tools.DOMHelper;

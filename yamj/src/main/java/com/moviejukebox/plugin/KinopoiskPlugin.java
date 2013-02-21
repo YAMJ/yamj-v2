@@ -23,6 +23,7 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.*;
+import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.*;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;

@@ -24,7 +24,7 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.OverrideFlag;
+import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.StringTools;

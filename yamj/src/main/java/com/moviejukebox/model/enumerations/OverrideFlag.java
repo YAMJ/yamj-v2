@@ -20,7 +20,7 @@
  *      Web: http://code.google.com/p/moviejukebox/
  *
  */
-package com.moviejukebox.model;
+package com.moviejukebox.model.enumerations;
 
 /**
  * The list of override flags
