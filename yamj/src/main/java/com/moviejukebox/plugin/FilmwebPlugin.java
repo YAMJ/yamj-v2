@@ -199,6 +199,9 @@ public class FilmwebPlugin extends ImdbPlugin {
      * Scan web page for the specified movie
      */
     protected boolean updateMediaInfo(Movie movie) {
+    	
+    	boolean returnValue = Boolean.TRUE;
+    	
         try {
             String xml = webBrowser.request(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
 
@@ -279,7 +282,9 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             // scan cast/director/writers
-            scanPersonInformations(movie);
+            if (!scanPersonInformations(movie)) {
+            	returnValue = Boolean.FALSE;
+            }
             
             // scan TV show titles
             if (movie.isTVShow()) {
@@ -296,11 +301,13 @@ public class FilmwebPlugin extends ImdbPlugin {
         } catch (Exception error) {
             LOGGER.error(LOG_MESSAGE + "Failed retreiving filmweb informations for movie : " + movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
             LOGGER.error(SystemTools.getStackTrace(error));
+            returnValue = Boolean.FALSE;
         }
-        return Boolean.TRUE;
+        
+        return returnValue;
     }
 
-    private void scanPersonInformations(Movie movie) {
+    private boolean scanPersonInformations(Movie movie) {
         try {
             String xml = webBrowser.request(movie.getId(FILMWEB_PLUGIN_ID) + "/cast");
         
@@ -358,9 +365,11 @@ public class FilmwebPlugin extends ImdbPlugin {
                 }
             }
 
+            return Boolean.TRUE;
         } catch (IOException error) {
             LOGGER.error(LOG_MESSAGE + "Failed retreiving person informations for movie : " + movie.getTitle());
             LOGGER.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            return Boolean.FALSE;
         }
     }
     
