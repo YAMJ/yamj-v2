@@ -81,8 +81,8 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             // retrieve IMDB id if not set
             String imdbId = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID);
             if (StringTools.isNotValidString(movie.getId(ImdbPlugin.IMDB_PLUGIN_ID))) {
-            	imdbId = HTMLTools.extractTag(xml, "href=\"http://www.imdb.com/Title?", "\"");
-            	movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, imdbId);
+                imdbId = HTMLTools.extractTag(xml, "href=\"http://www.imdb.com/Title?", "\"");
+                movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, imdbId);
             }
             
             if (OverrideTools.checkOverwriteTitle(movie, OFDB_PLUGIN_ID)) {
@@ -96,137 +96,137 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
             // scrape plot and outline
             if (OverrideTools.checkOneOverwrite(movie, OFDB_PLUGIN_ID, OverrideFlag.PLOT, OverrideFlag.OUTLINE)) {
-            	try {
-	                String plotUrl = "http://www.ofdb.de/plot/" + HTMLTools.extractTag(xml, "<a href=\"plot/", 0, "\"");
-	                String plotXml = webBrowser.request(plotUrl);
-	
-	                int firstindex = plotXml.indexOf("gelesen</b></b><br><br>") + 23;
-	                int lastindex = plotXml.indexOf("</font>", firstindex);
-	                String plot = plotXml.substring(firstindex, lastindex);
-	                plot = plot.replaceAll("<br />", " ");
-	
-	                if (OverrideTools.checkOverwritePlot(movie, OFDB_PLUGIN_ID)) {
-	                    movie.setPlot(plot, OFDB_PLUGIN_ID);
-	                }
-	
-	                if (OverrideTools.checkOverwriteOutline(movie, OFDB_PLUGIN_ID)) {
-	                    movie.setOutline(plot, OFDB_PLUGIN_ID);
-	                }
-	        	} catch (Exception error) {
-	                LOGGER.error(SystemTools.getStackTrace(error));
-            		returnValue = Boolean.FALSE;
-            	}
+                try {
+                    String plotUrl = "http://www.ofdb.de/plot/" + HTMLTools.extractTag(xml, "<a href=\"plot/", 0, "\"");
+                    String plotXml = webBrowser.request(plotUrl);
+    
+                    int firstindex = plotXml.indexOf("gelesen</b></b><br><br>") + 23;
+                    int lastindex = plotXml.indexOf("</font>", firstindex);
+                    String plot = plotXml.substring(firstindex, lastindex);
+                    plot = plot.replaceAll("<br />", " ");
+    
+                    if (OverrideTools.checkOverwritePlot(movie, OFDB_PLUGIN_ID)) {
+                        movie.setPlot(plot, OFDB_PLUGIN_ID);
+                    }
+    
+                    if (OverrideTools.checkOverwriteOutline(movie, OFDB_PLUGIN_ID)) {
+                        movie.setOutline(plot, OFDB_PLUGIN_ID);
+                    }
+                } catch (Exception error) {
+                    LOGGER.error(SystemTools.getStackTrace(error));
+                    returnValue = Boolean.FALSE;
+                }
             }
 
-        	// scrape additional infos
-        	int beginIndex = xml.indexOf("view.php?page=film_detail");
-        	if (beginIndex != -1) {
-	            try {
-	            	String detailUrl = "http://www.ofdb.de/" + xml.substring(beginIndex, xml.indexOf("\"", beginIndex));
-	            	String detailXml = webBrowser.request(detailUrl);
+            // scrape additional infos
+            int beginIndex = xml.indexOf("view.php?page=film_detail");
+            if (beginIndex != -1) {
+                try {
+                    String detailUrl = "http://www.ofdb.de/" + xml.substring(beginIndex, xml.indexOf("\"", beginIndex));
+                    String detailXml = webBrowser.request(detailUrl);
 
-	                // resolve for additional informations
-	                List<String> tags = HTMLTools.extractHtmlTags(detailXml, "<!-- Rechte Spalte -->", "</table>", "<tr", "</tr>");
+                    // resolve for additional informations
+                    List<String> tags = HTMLTools.extractHtmlTags(detailXml, "<!-- Rechte Spalte -->", "</table>", "<tr", "</tr>");
 
-	                for (String tag : tags)  {
-	                	if (OverrideTools.checkOverwriteOriginalTitle(movie, OFDB_PLUGIN_ID) && tag.contains("Originaltitel")) {
-	                		String scraped = HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim();
-	                		movie.setOriginalTitle(scraped, OFDB_PLUGIN_ID);
-	                	}
-	                	
-	                	if (OverrideTools.checkOverwriteYear(movie, OFDB_PLUGIN_ID) && tag.contains("Erscheinungsjahr")) {
-	                		String scraped = HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim();
-	                		movie.setYear(scraped, OFDB_PLUGIN_ID);
-	                	}
-	                	
-	                	if (OverrideTools.checkOverwriteCountry(movie, OFDB_PLUGIN_ID) && tag.contains("Herstellungsland")) {
-	                		List<String> scraped = HTMLTools.extractHtmlTags(tag, "class=\"Daten\"", "</td>", "<a", "</a>");
-	                		if (scraped.size() > 0) {
-	                			// TODO set more countries in movie
-	                			movie.setCountry(HTMLTools.removeHtmlTags(scraped.get(0)).trim(), OFDB_PLUGIN_ID);
-	                		}
-	                	}
+                    for (String tag : tags)  {
+                        if (OverrideTools.checkOverwriteOriginalTitle(movie, OFDB_PLUGIN_ID) && tag.contains("Originaltitel")) {
+                            String scraped = HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim();
+                            movie.setOriginalTitle(scraped, OFDB_PLUGIN_ID);
+                        }
+                        
+                        if (OverrideTools.checkOverwriteYear(movie, OFDB_PLUGIN_ID) && tag.contains("Erscheinungsjahr")) {
+                            String scraped = HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim();
+                            movie.setYear(scraped, OFDB_PLUGIN_ID);
+                        }
+                        
+                        if (OverrideTools.checkOverwriteCountry(movie, OFDB_PLUGIN_ID) && tag.contains("Herstellungsland")) {
+                            List<String> scraped = HTMLTools.extractHtmlTags(tag, "class=\"Daten\"", "</td>", "<a", "</a>");
+                            if (scraped.size() > 0) {
+                                // TODO set more countries in movie
+                                movie.setCountry(HTMLTools.removeHtmlTags(scraped.get(0)).trim(), OFDB_PLUGIN_ID);
+                            }
+                        }
 
-	                	if (OverrideTools.checkOverwriteGenres(movie, OFDB_PLUGIN_ID) && tag.contains("Genre(s)")) {
-	                		List<String> scraped = HTMLTools.extractHtmlTags(tag, "class=\"Daten\"", "</td>", "<a", "</a>");
-	                		List<String> genres = new ArrayList<String>();
-	                		for (String genre : scraped) {
-	                			genres.add(HTMLTools.removeHtmlTags(genre).trim());
-	                		}
-	                		movie.setGenres(genres, OFDB_PLUGIN_ID);
-	                	}
-	                }
+                        if (OverrideTools.checkOverwriteGenres(movie, OFDB_PLUGIN_ID) && tag.contains("Genre(s)")) {
+                            List<String> scraped = HTMLTools.extractHtmlTags(tag, "class=\"Daten\"", "</td>", "<a", "</a>");
+                            List<String> genres = new ArrayList<String>();
+                            for (String genre : scraped) {
+                                genres.add(HTMLTools.removeHtmlTags(genre).trim());
+                            }
+                            movie.setGenres(genres, OFDB_PLUGIN_ID);
+                        }
+                    }
 
-	                // flags for overrides
-	                boolean overrideNormal;
+                    // flags for overrides
+                    boolean overrideNormal;
                     boolean overridePeople;
                     
-	                if (detailXml.contains("<i>Regie</i>")) {
-	                	overrideNormal = OverrideTools.checkOverwriteDirectors(movie, OFDB_PLUGIN_ID);
-	                    overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, OFDB_PLUGIN_ID);
-	                	if (overrideNormal || overridePeople) {
-	                		tags = HTMLTools.extractHtmlTags(detailXml, "<i>Regie</i>", "</table>", "<tr", "</tr>");
-	                		List<String> directors = new ArrayList<String>();
-	    	                for (String tag : tags)  {
-		                		directors.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
-	    	                }
-	    	                
-	    	                if (overrideNormal) {
-	    	                	movie.setDirectors(directors, OFDB_PLUGIN_ID);
-	    	                }
-	    	                if (overridePeople) {
-	    	                	movie.setPeopleDirectors(directors, OFDB_PLUGIN_ID);
-	    	                }
-	                	}
-                	}
+                    if (detailXml.contains("<i>Regie</i>")) {
+                        overrideNormal = OverrideTools.checkOverwriteDirectors(movie, OFDB_PLUGIN_ID);
+                        overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, OFDB_PLUGIN_ID);
+                        if (overrideNormal || overridePeople) {
+                            tags = HTMLTools.extractHtmlTags(detailXml, "<i>Regie</i>", "</table>", "<tr", "</tr>");
+                            List<String> directors = new ArrayList<String>();
+                            for (String tag : tags)  {
+                                directors.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
+                            }
+                            
+                            if (overrideNormal) {
+                                movie.setDirectors(directors, OFDB_PLUGIN_ID);
+                            }
+                            if (overridePeople) {
+                                movie.setPeopleDirectors(directors, OFDB_PLUGIN_ID);
+                            }
+                        }
+                    }
 
-	                if (detailXml.contains("<i>Darsteller</i>")) {
-	                	overrideNormal = OverrideTools.checkOverwriteActors(movie, OFDB_PLUGIN_ID);
-	                    overridePeople = OverrideTools.checkOverwritePeopleActors(movie, OFDB_PLUGIN_ID);
-	                	if (overrideNormal || overridePeople) {
-	                		tags = HTMLTools.extractHtmlTags(detailXml, "<i>Darsteller</i>", "</table>", "<tr", "</tr>");
-	                		List<String> cast = new ArrayList<String>();
-	                		for (String tag : tags)  {
-	                			cast.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
-	                		}
+                    if (detailXml.contains("<i>Darsteller</i>")) {
+                        overrideNormal = OverrideTools.checkOverwriteActors(movie, OFDB_PLUGIN_ID);
+                        overridePeople = OverrideTools.checkOverwritePeopleActors(movie, OFDB_PLUGIN_ID);
+                        if (overrideNormal || overridePeople) {
+                            tags = HTMLTools.extractHtmlTags(detailXml, "<i>Darsteller</i>", "</table>", "<tr", "</tr>");
+                            List<String> cast = new ArrayList<String>();
+                            for (String tag : tags)  {
+                                cast.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
+                            }
 
-	    	                
-	    	                if (overrideNormal) {
-	        	                movie.setCast(cast, OFDB_PLUGIN_ID);
-	    	                }
-	    	                if (overridePeople) {
-	        	                movie.setPeopleCast(cast, OFDB_PLUGIN_ID);
-	    	                }
-	                	}
-                	}
+                            
+                            if (overrideNormal) {
+                                movie.setCast(cast, OFDB_PLUGIN_ID);
+                            }
+                            if (overridePeople) {
+                                movie.setPeopleCast(cast, OFDB_PLUGIN_ID);
+                            }
+                        }
+                    }
 
-	                if (detailXml.contains("<i>Drehbuchautor(in)</i>")) {
-	                	overrideNormal = OverrideTools.checkOverwriteWriters(movie, OFDB_PLUGIN_ID);
-	                    overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, OFDB_PLUGIN_ID);
-	                	if (overrideNormal || overridePeople) {
-	                		tags = HTMLTools.extractHtmlTags(detailXml, "<i>Drehbuchautor(in)</i>", "</table>", "<tr", "</tr>");
-	                		List<String> writers = new ArrayList<String>();
-	    	                for (String tag : tags)  {
-	    	                	writers.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
-	    	                }
+                    if (detailXml.contains("<i>Drehbuchautor(in)</i>")) {
+                        overrideNormal = OverrideTools.checkOverwriteWriters(movie, OFDB_PLUGIN_ID);
+                        overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, OFDB_PLUGIN_ID);
+                        if (overrideNormal || overridePeople) {
+                            tags = HTMLTools.extractHtmlTags(detailXml, "<i>Drehbuchautor(in)</i>", "</table>", "<tr", "</tr>");
+                            List<String> writers = new ArrayList<String>();
+                            for (String tag : tags)  {
+                                writers.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
+                            }
 
-	    	                if (overrideNormal) {
-	        	                movie.setWriters(writers, OFDB_PLUGIN_ID);
-	    	                }
-	    	                if (overridePeople) {
-	        	                movie.setPeopleWriters(writers, OFDB_PLUGIN_ID);
-	    	                }
-	                	}
-                	}
+                            if (overrideNormal) {
+                                movie.setWriters(writers, OFDB_PLUGIN_ID);
+                            }
+                            if (overridePeople) {
+                                movie.setPeopleWriters(writers, OFDB_PLUGIN_ID);
+                            }
+                        }
+                    }
 
-	        	} catch (Exception error) {
-	                LOGGER.error(SystemTools.getStackTrace(error));
-	        		returnValue = Boolean.FALSE;
-	        	}
-        	}
-    	} catch (Exception error) {
+                } catch (Exception error) {
+                    LOGGER.error(SystemTools.getStackTrace(error));
+                    returnValue = Boolean.FALSE;                    
+                }
+            }
+        } catch (Exception error) {
             LOGGER.error(SystemTools.getStackTrace(error));
-       		returnValue = Boolean.FALSE;
+            returnValue = Boolean.FALSE;
         }
         return returnValue;
     }

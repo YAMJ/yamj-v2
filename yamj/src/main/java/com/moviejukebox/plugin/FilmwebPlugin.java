@@ -199,9 +199,9 @@ public class FilmwebPlugin extends ImdbPlugin {
      * Scan web page for the specified movie
      */
     protected boolean updateMediaInfo(Movie movie) {
-    	
-    	boolean returnValue = Boolean.TRUE;
-    	
+    
+        boolean returnValue = Boolean.TRUE;
+    
         try {
             String xml = webBrowser.request(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
 
@@ -283,7 +283,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
             // scan cast/director/writers
             if (!scanPersonInformations(movie)) {
-            	returnValue = Boolean.FALSE;
+                returnValue = Boolean.FALSE;
             }
             
             // scan TV show titles
