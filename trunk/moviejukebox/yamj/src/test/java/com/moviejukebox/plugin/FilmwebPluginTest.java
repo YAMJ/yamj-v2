@@ -228,11 +228,11 @@ public class FilmwebPluginTest extends TestCase {
         filmwebPlugin.setRequestResult(null); // no offline test
         filmwebPlugin.updateMediaInfo(movie);
 
-        LinkedHashSet<String> testCast = new LinkedHashSet<String>();
+        LinkedHashSet<String> testDirectors = new LinkedHashSet<String>();
         // These need to be in the same order as the web page
-        testCast.add("James Cameron");
+        testDirectors.add("James Cameron");
         
-        assertEquals(Arrays.asList(testCast.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getDirectors().toArray(), 1)).toString());
+        assertEquals(Arrays.asList(testDirectors.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getDirectors().toArray(), 1)).toString());
     }
 
     public void testUpdateMediaInfoCast() {
@@ -253,11 +253,11 @@ public class FilmwebPluginTest extends TestCase {
         filmwebPlugin.setRequestResult(null); // no offline test
         filmwebPlugin.updateMediaInfo(movie);
 
-        LinkedHashSet<String> testCast = new LinkedHashSet<String>();
+        LinkedHashSet<String> testWriters = new LinkedHashSet<String>();
         // These need to be in the same order as the web page
-        testCast.add("James Cameron");
+        testWriters.add("James Cameron");
         
-        assertEquals(Arrays.asList(testCast.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getWriters().toArray(), 1)).toString());
+        assertEquals(Arrays.asList(testWriters.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getWriters().toArray(), 1)).toString());
     }
 
     public void testUpdateMediaInfoUpdateTVShowInfo() {
