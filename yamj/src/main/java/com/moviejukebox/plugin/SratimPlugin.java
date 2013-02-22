@@ -51,7 +51,6 @@ public class SratimPlugin extends ImdbPlugin {
     private static final String LOG_MESSAGE = "Sratim Plugin: ";
     public static final String SRATIM_PLUGIN_ID = "sratim";
     public static final String SRATIM_PLUGIN_SUBTITLE_ID = "sratim_subtitle";
-    protected static String PHPSESSID = "COOKIE";
     private static AbstractStringMetric metric = new MongeElkan();
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*sratim.co.il[^\\s<>`\"\\[\\]]*");
     private static String[] genereStringEnglish = {"Action", "Adult", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama",
@@ -63,13 +62,10 @@ public class SratimPlugin extends ImdbPlugin {
     private static boolean subtitleDownload = false;
     private static boolean keepEnglishGenres = false;
     private static boolean bidiSupport = true;
-    protected static final String RECAPTCHA_URL = "http://www.google.com/recaptcha/api/challenge?k=6LfK1LsSAAAAACdKnQfBi_xCdaMxyd2I9qL5PRH8";
-    protected static final Pattern CHALLENGE_ID = Pattern.compile("challenge : '([^']+)'");
-    protected int plotLineMaxChar;
-    protected int plotLineMax;
-    protected TheTvDBPlugin tvdb;
-    protected static String preferredPosterSearchEngine;
-    protected static String lineBreak;
+    private int plotLineMaxChar;
+    private int plotLineMax;
+    private TheTvDBPlugin tvdb;
+    private static String lineBreak;
 
     public SratimPlugin() {
         super(); // use IMDB if sratim doesn't know movie
@@ -80,7 +76,6 @@ public class SratimPlugin extends ImdbPlugin {
         plotLineMax = PropertiesUtil.getIntProperty("sratim.plotLineMax", 2);
 
         subtitleDownload = PropertiesUtil.getBooleanProperty("sratim.subtitle", Boolean.FALSE);
-        preferredPosterSearchEngine = PropertiesUtil.getProperty("imdb.alternate.poster.search", "google");
         keepEnglishGenres = PropertiesUtil.getBooleanProperty("sratim.KeepEnglishGenres", Boolean.FALSE);
         bidiSupport = PropertiesUtil.getBooleanProperty("sratim.BidiSupport", Boolean.TRUE);
 
