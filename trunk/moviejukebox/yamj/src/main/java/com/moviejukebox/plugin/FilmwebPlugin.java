@@ -325,7 +325,7 @@ public class FilmwebPlugin extends ImdbPlugin {
                     movie.setDirectors(directors, FILMWEB_PLUGIN_ID);
                 }
                 if (overridePeople) {
-                    movie.setDirectors(directors, FILMWEB_PLUGIN_ID);
+                    movie.setPeopleDirectors(directors, FILMWEB_PLUGIN_ID);
                 }
             }
 
