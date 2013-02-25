@@ -1145,12 +1145,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             for (Map.Entry<String,String> aka : akas.entrySet()) {
                 int startIndex = aka.getKey().indexOf(preferredCountry);
                 if (startIndex > -1) {
-                    int endIndex = aka.getKey().indexOf("/");
-                    String extracted;
-                    if (endIndex == -1)
-                        extracted = aka.getKey().substring(startIndex);
-                    else {
-                        extracted = aka.getKey().substring(startIndex, endIndex);
+                    String extracted = aka.getKey().substring(startIndex);
+                    int endIndex = extracted.indexOf("/");
+                    if (endIndex > -1) {
+                        extracted = extracted.substring(0, endIndex);
                     }
 
                     boolean valid = Boolean.TRUE;
