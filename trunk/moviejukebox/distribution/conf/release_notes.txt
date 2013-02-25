@@ -43,7 +43,9 @@ MovieJukebox 2.9-SNAPSHOT
  - Enhancement  #2600 Movie class should handle several movie properties itself 
  - Fixed defect #2603 Remove year periods from title
  - Enhancement  #2607 OFDb plugin should scrape more informations than title and plot
+ - Fixed defect #2610 Fixed error when title should be scraped by AKA section
  
+
 MovieJukebox 2.8 2012-12-17)
 -----------------------------
  - Enhancement  #1461 Skipped subtitles will not be added
