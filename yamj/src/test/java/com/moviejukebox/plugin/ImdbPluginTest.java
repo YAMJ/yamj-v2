@@ -110,4 +110,16 @@ public class ImdbPluginTest {
         assertNotNull(person.getBiography());
         assertNotEquals(Movie.UNKNOWN, person.getBiography());
     }
+
+    @Test
+    public void testImdbRating() {
+        PropertiesUtil.setProperty("imdb.site", "us");
+        ImdbPlugin imdbPlugin = new ImdbPlugin();
+
+        Movie movie = new Movie();
+        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt1232829");
+        
+        assertTrue(imdbPlugin.scan(movie));
+        assertEquals(72, movie.getRating(ImdbPlugin.IMDB_PLUGIN_ID));
+    }
 }
