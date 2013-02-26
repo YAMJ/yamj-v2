@@ -74,7 +74,7 @@ public class ImdbPluginTest {
         PropertiesUtil.setProperty("imdb.site", "es");
         PropertiesUtil.setProperty("imdb.preferredCountry", "USA");
         PropertiesUtil.setProperty("imdb.aka.scrape.title", true);
-        PropertiesUtil.setProperty("imdb.aka.ignore.version", "IMAX version,longer title,promotional title,working title,version IMAX,Arbeitstitel,Titel zu Werbezwecken,IMAX Fassung,längere Fassung,version longue,titre promotionnel,titre provisoire");
+        PropertiesUtil.setProperty("imdb.aka.ignore.versions", "IMAX version,longer title,promotional title,working title,version IMAX,Arbeitstitel,Titel zu Werbezwecken,IMAX Fassung,längere Fassung,version longue,titre promotionnel,titre provisoire");
         ImdbPlugin imdbPlugin = new ImdbPlugin();
 
         Movie movie = new Movie();
