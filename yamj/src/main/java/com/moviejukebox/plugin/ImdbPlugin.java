@@ -164,7 +164,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         scrapeTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", Boolean.FALSE);
 
         akaScrapeTitle = PropertiesUtil.getBooleanProperty("imdb.aka.scrape.title", Boolean.FALSE);
-        akaIgnoreVersions = PropertiesUtil.getProperty("imdb.aka.ignore.version", "").split(",");
+        akaIgnoreVersions = PropertiesUtil.getProperty("imdb.aka.ignore.versions", "").split(",");
     }
 
     @Override
@@ -1153,7 +1153,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
                     boolean valid = Boolean.TRUE;
                     for (String ignore : akaIgnoreVersions) {
-                        if (StringUtils.containsIgnoreCase(extracted, ignore)) {
+                        if (StringUtils.isNotEmpty(ignore) && StringUtils.containsIgnoreCase(extracted, ignore.trim())) {
                             valid = Boolean.FALSE;
                             break;
                         }
