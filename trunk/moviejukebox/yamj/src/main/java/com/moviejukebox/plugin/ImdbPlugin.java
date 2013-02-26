@@ -257,6 +257,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 return Boolean.FALSE;
             }
 
+            // Check for the new version and correct the title if found
+            boolean imdbNewVersion = Boolean.FALSE;
+            if (StringUtils.endsWithIgnoreCase(title, " - imdb")) {
+                title = new String(title.substring(0, title.length() - 7));
+                imdbNewVersion = Boolean.TRUE;
+            } else if (StringUtils.startsWithIgnoreCase(title, "imdb - ")) {
+                title = new String(title.substring(7));
+                imdbNewVersion = Boolean.TRUE;
+            }
+            
             // Remove the (VG) or (V) tags from the title
             title = title.replaceAll(" \\([VG|V]\\)$", "");
 
@@ -272,16 +282,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
                 // Remove the year from the title
                 title = title.substring(0, title.indexOf(matcher.group(0)));
-            }
-
-            // Check for the new version and correct the title if found
-            boolean imdbNewVersion = Boolean.FALSE;
-            if (StringUtils.endsWithIgnoreCase(title, " - imdb")) {
-                title = new String(title.substring(0, title.length() - 7));
-                imdbNewVersion = Boolean.TRUE;
-            } else if (StringUtils.startsWithIgnoreCase(title, "imdb - ")) {
-                title = new String(title.substring(7));
-                imdbNewVersion = Boolean.TRUE;
             }
 
             if (OverrideTools.checkOverwriteTitle(movie, IMDB_PLUGIN_ID)) {
