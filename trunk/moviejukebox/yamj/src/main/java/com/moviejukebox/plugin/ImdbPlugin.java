@@ -1153,7 +1153,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
                     boolean valid = Boolean.TRUE;
                     for (String ignore : akaIgnoreVersions) {
-                        if (StringUtils.isNotEmpty(ignore) && StringUtils.containsIgnoreCase(extracted, ignore.trim())) {
+                        if (StringUtils.isNotBlank(ignore) && StringUtils.containsIgnoreCase(extracted, ignore.trim())) {
                             valid = Boolean.FALSE;
                             break;
                         }
