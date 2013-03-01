@@ -759,7 +759,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // COMPANY
         if (OverrideTools.checkOverwriteCompany(movie, IMDB_PLUGIN_ID)) {
-            for (String company : HTMLTools.extractTags(xml, siteDef.getCompany() + HTML_H4_END, "<span class", HTML_A_START, HTML_A_END)) {
+            for (String company : HTMLTools.extractTags(xml, siteDef.getCompany() + HTML_H4_END, HTML_DIV, "<span class", "</span>")) {
                 if (company != null) {
                     // TODO Save more than one company
                     movie.setCompany(company, IMDB_PLUGIN_ID);
