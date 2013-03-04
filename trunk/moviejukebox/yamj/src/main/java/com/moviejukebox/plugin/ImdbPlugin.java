@@ -79,7 +79,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     protected WebBrowser webBrowser;
     protected boolean downloadFanart;
     private boolean extractCertificationFromMPAA;
-    private boolean fullName;
+    private boolean fullInfo;
     protected String fanartToken;
     protected String fanartExtension;
     private int preferredBiographyLength;
@@ -141,7 +141,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
         extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE);
-        fullName = PropertiesUtil.getBooleanProperty("imdb.full.info", Boolean.FALSE);
+        fullInfo = PropertiesUtil.getBooleanProperty("imdb.full.info", Boolean.FALSE);
 
         preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", 500);
         preferredFilmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", 20);
@@ -239,7 +239,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String xml = getImdbUrl(movie);
 
             // Add the combined tag to the end of the request if required
-            if (fullName) {
+            if (fullInfo) {
                 xml += "combined";
             }
 
@@ -328,7 +328,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             // update common values; matching old and new format
-            updateInfoCommon(movie, xml, siteDef);
+            updateInfoCommon(movie, xml, siteDef, imdbNewVersion);
 
             if (scrapeAwards) {
                 updateAwards(movie);        // Issue 1901: Awards
@@ -544,144 +544,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        String personXML = webBrowser.request(getImdbUrl(movie, siteDef) + "fullcredits", siteDef.getCharset());
-
-        boolean overrideNormal = OverrideTools.checkOverwriteDirectors(movie, IMDB_PLUGIN_ID);
-        boolean overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, IMDB_PLUGIN_ID);
-        if (overrideNormal || overridePeople) {
-            // clear existing directors
-            if (overrideNormal) {
-                movie.clearDirectors();
-            }
-            if (overridePeople) {
-                movie.clearPeopleDirectors();
-            }
-
-            // Issue 1897: Cast enhancement
-            if (isValidString(personXML)) {
-                extractDirectors(movie, personXML, siteDef, overrideNormal, overridePeople);
-            } else {
-                // Issue 1261 : Allow multiple text matching for one "element".
-                String[] directorMatches = siteDef.getDirector().split(HTML_SLASH_PIPE);
-
-                int count = 0;
-                boolean found = Boolean.FALSE;
-                for (String directorMatch : directorMatches) {
-                    for (String member : HTMLTools.extractTags(xml, HTML_H5_START + directorMatch, HTML_DIV, "", HTML_A_END)) {
-                        int beginIndex = member.indexOf("<a href=\"/name/");
-                        if (beginIndex > -1) {
-                            String personID = member.substring(beginIndex + 15, member.indexOf(HTML_SLASH_QUOTE, beginIndex));
-                            String director = member.substring(member.indexOf(HTML_SLASH_GT, beginIndex) + 2);
-                            if (overrideNormal) {
-                                movie.addDirector(director, IMDB_PLUGIN_ID);
-                            }
-                            if (overridePeople) {
-                                movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, director, siteDef.getSite() + HTML_NAME + personID + "/", IMDB_PLUGIN_ID);
-                            }
-                            found = Boolean.TRUE;
-                            count++;
-                            if (count == directorMax) {
-                                break;
-                            }
-                        }
-                    }
-                    if (found) {
-                        // We found a match, so stop search.
-                        break;
-                    }
-                }
-            }
-        }
-
-        overrideNormal = OverrideTools.checkOverwriteWriters(movie, IMDB_PLUGIN_ID);
-        overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, IMDB_PLUGIN_ID);
-        if (overrideNormal || overridePeople) {
-            // clear existing writers
-            if (overrideNormal) {
-                movie.clearWriters();
-            }
-            if (overridePeople) {
-                movie.clearPeopleWriters();
-            }
-
-            // Issue 1897: Cast enhancement
-            if (isValidString(personXML)) {
-                extractWriters(movie, personXML, siteDef, overrideNormal, overridePeople);
-            } else {
-                int count = 0;
-                boolean found = Boolean.FALSE;
-                for (String categoryMatch : siteDef.getWriter().split(HTML_SLASH_PIPE)) {
-                    for (String member : HTMLTools.extractTags(xml, HTML_H5_START + categoryMatch, HTML_DIV, "", HTML_A_END)) {
-                        int beginIndex = member.indexOf("<a href=\"/name/");
-                        if (beginIndex > -1) {
-                            String personID = member.substring(beginIndex + 15, member.indexOf(HTML_SLASH_QUOTE, beginIndex));
-                            String name = member.substring(member.indexOf(HTML_SLASH_GT, beginIndex) + 2);
-                            if (overrideNormal) {
-                                movie.addWriter(name, IMDB_PLUGIN_ID);
-                            }
-                            if (overridePeople) {
-                                movie.addWriter(IMDB_PLUGIN_ID + ":" + personID, name, siteDef.getSite() + HTML_NAME + personID + "/", IMDB_PLUGIN_ID);
-                            }
-                            found = Boolean.TRUE;
-                            count++;
-                            if (count == writerMax) {
-                                break;
-                            }
-                        }
-                    }
-                    if (found) {
-                        // We found a match, so stop search.
-                        break;
-                    }
-                }
-            }
-        }
-
-        overrideNormal = OverrideTools.checkOverwriteActors(movie, IMDB_PLUGIN_ID);
-        overridePeople = OverrideTools.checkOverwritePeopleActors(movie, IMDB_PLUGIN_ID);
-        if (overrideNormal || overridePeople) {
-            // clear existing actors
-            if (overrideNormal) {
-                movie.clearCast();
-            }
-            if (overridePeople) {
-                movie.clearPeopleCast();
-            }
-            // Issue 1897: Cast enhancement
-            int count = 0;
-            for (int scrapeStep = 0; scrapeStep < 2; scrapeStep++) {
-                for (String actorBlock : HTMLTools.extractTags(xml, "<table class=\"cast\">", HTML_TABLE, "<td class=\"hs\"", "</tr>")) {
-                    if (!skipFaceless || (scrapeStep == 0 && actorBlock.indexOf("no_photo.png") == -1) || (scrapeStep == 1 && actorBlock.indexOf("no_photo.png") != -1)) {
-                        int nmPosition = actorBlock.indexOf(">", actorBlock.indexOf("<td class=\"nm\"")) + 1;
-                        String personID = actorBlock.substring(actorBlock.indexOf("\"/name/", nmPosition) + 7, actorBlock.indexOf(HTML_SLASH_QUOTE, nmPosition));
-                        int beginIndex = actorBlock.indexOf("<td class=\"char\">");
-                        String character = Movie.UNKNOWN;
-                        if (beginIndex > 0) {
-                            if (actorBlock.indexOf("<a href=\"/character/") > -1) {
-                                character = actorBlock.substring(actorBlock.indexOf("/\">", beginIndex) + 3, actorBlock.indexOf(HTML_A_END, beginIndex));
-                            } else {
-                                character = actorBlock.substring(actorBlock.indexOf(HTML_SLASH_GT, beginIndex) + 2, actorBlock.indexOf(HTML_TD, beginIndex));
-                            }
-                        }
-                        String name = actorBlock.substring(actorBlock.indexOf(HTML_SLASH_GT, nmPosition) + 2, actorBlock.indexOf(HTML_A_END, nmPosition));
-                        if (overrideNormal) {
-                            movie.addActor(name, IMDB_PLUGIN_ID);
-                        }
-                        if (overridePeople) {
-                            movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name, character, siteDef.getSite() + HTML_NAME + personID + "/", Movie.UNKNOWN, IMDB_PLUGIN_ID);
-                        }
-                        count++;
-                        if (count == actorMax) {
-                            break;
-                        }
-                    }
-                }
-                if (!skipFaceless || count == actorMax) {
-                    break;
-                }
-            }
-        }
-
         if (movie.isTVShow()) {
             updateTVShowInfo(movie);
         }
@@ -704,7 +566,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      */
     private void updateInfoNew(Movie movie, String xml, ImdbSiteDataDefinition siteDef) throws IOException {
         logger.debug(LOG_MESSAGE + "Detected new IMDb format for '" + movie.getBaseName() + "'");
-        Collection<String> peopleList;
 
         // RATING
         if (movie.getRating(IMDB_PLUGIN_ID) == -1) {
@@ -910,113 +771,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        String personXML = webBrowser.request(getImdbUrl(movie, siteDef) + "fullcredits", siteDef.getCharset());
-
-        // DIRECTOR(S)
-        boolean overrideNormal = OverrideTools.checkOverwriteDirectors(movie, IMDB_PLUGIN_ID);
-        boolean overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, IMDB_PLUGIN_ID);
-        if (overrideNormal || overridePeople) {
-            // clear existing directors
-            if (overrideNormal) {
-                movie.clearDirectors();
-            }
-            if (overridePeople) {
-                movie.clearPeopleDirectors();
-            }
-
-            // Issue 1897: Cast enhancement
-            extractDirectors(movie, personXML, siteDef, overrideNormal, overridePeople);
-        }
-
-        // WRITER(S)
-        overrideNormal = OverrideTools.checkOverwriteWriters(movie, IMDB_PLUGIN_ID);
-        overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, IMDB_PLUGIN_ID);
-        if (overrideNormal || overridePeople) {
-            // clear existing writers
-            if (overrideNormal) {
-                movie.clearWriters();
-            }
-            if (overridePeople) {
-                movie.clearPeopleWriters();
-            }
-            // Issue 1897: Cast enhancement
-            extractWriters(movie, personXML, siteDef, overrideNormal, overridePeople);
-        }
-
-        // CAST
-        overrideNormal = OverrideTools.checkOverwriteActors(movie, IMDB_PLUGIN_ID);
-        overridePeople = OverrideTools.checkOverwritePeopleActors(movie, IMDB_PLUGIN_ID);
-        if (overrideNormal || overridePeople) {
-            // clear existing writers
-            if (overrideNormal) {
-                movie.clearCast();
-            }
-            if (overridePeople) {
-                movie.clearPeopleCast();
-            }
-
-            // Issue 1897: Cast enhancement
-            peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", HTML_TABLE, "<td class=\"name\"", "</tr>");
-
-            if (peopleList.isEmpty()) {
-                // Try an alternative search
-                peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", HTML_TABLE, "<td class=\"nm\"", "</tr>", Boolean.TRUE);
-            }
-
-            if (peopleList.isEmpty() && overrideNormal) {
-                // old algorithm
-                String castMember;
-
-                peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", HTML_TABLE, "/name/nm", HTML_A_END, Boolean.TRUE);
-
-                // Clean up the cast list that is returned
-                for (Iterator<String> iter = peopleList.iterator(); iter.hasNext();) {
-                    castMember = iter.next();
-                    if (castMember.indexOf("src=") > -1) {
-                        iter.remove();
-                    } else {
-                        // Add the cleaned up cast member to the movie
-                        movie.addActor(HTMLTools.stripTags(castMember), IMDB_PLUGIN_ID);
-                    }
-                }
-            } else if (!peopleList.isEmpty()) {
-                int count = 0;
-                Matcher personMatcher;
-
-                for (String actorBlock : peopleList) {
-                    personMatcher = personNamePattern.matcher(actorBlock);
-                    String personID, name, charID, character;
-                    if (personMatcher.find()) {
-                        personID = personMatcher.group(1).trim();
-                        name = personMatcher.group(2).trim();
-
-                        personMatcher = personCharPattern.matcher(actorBlock);
-                        if (personMatcher.find()) {
-                            charID = personMatcher.group(1).trim();
-                            character = personMatcher.group(2).trim();
-                        } else {
-                            charID = Movie.UNKNOWN;
-                            character = Movie.UNKNOWN;
-                        }
-                        logger.debug(LOG_MESSAGE + "Found Person ID: " + personID + ", name: " + name + ", Character ID: " + charID + ", name: " + character);
-
-                        if (overrideNormal) {
-                            movie.addActor(name, IMDB_PLUGIN_ID);
-                        }
-                        if (overridePeople) {
-                            movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name, character, siteDef.getSite() + HTML_NAME + personID + "/", Movie.UNKNOWN, IMDB_PLUGIN_ID);
-                        }
-                        count++;
-                        if (count == actorMax) {
-                            break;
-                        }
-                    } else {
-                        logger.debug(LOG_MESSAGE + "No person/character information found");
-                    }
-                }
-            }
-        }
-
         // TAGLINE
         if (OverrideTools.checkOverwriteTagline(movie, IMDB_PLUGIN_ID)) {
             int startTag = xml.indexOf("<h4 class=\"inline\">" + siteDef.getTaglines() + HTML_H4_END);
@@ -1051,9 +805,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param movie
      * @param xml
      * @param siteDef
+     * @param imdbNewVersion
      * @throws IOException
      */
-    private void updateInfoCommon(Movie movie, String xml, ImdbSiteDataDefinition siteDef) throws IOException {
+    private void updateInfoCommon(Movie movie, String xml, ImdbSiteDataDefinition siteDef, boolean imdbNewVersion) throws IOException {
         // Store the release info page for release info & AKAs
         String releaseInfoXML = Movie.UNKNOWN;
         // Store the aka list
@@ -1064,7 +819,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // determine start and end string
             String startString;
             String endString;
-            if (!fullName && imdbInfo.getImdbSite().equals(DEFAULT_SITE_DEF)) {
+            if (!fullInfo && imdbInfo.getImdbSite().equals(DEFAULT_SITE_DEF)) {
                 startString = "<h4 class=\"inline\">" + siteDef.getAspectRatio() + HTML_H4_END;
                 endString = HTML_DIV;
             } else {
@@ -1166,24 +921,249 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
             movie.setTitle(foundValue, IMDB_PLUGIN_ID);
         }
+        
+        // holds the full credits page
+        String fullcreditsXML = Movie.UNKNOWN;
+
+        // CAST
+        boolean overrideNormal = OverrideTools.checkOverwriteActors(movie, IMDB_PLUGIN_ID);
+        boolean overridePeople = OverrideTools.checkOverwritePeopleActors(movie, IMDB_PLUGIN_ID);
+        if (overrideNormal || overridePeople) {
+            boolean found = Boolean.FALSE;
+
+            // get from combined page (same layout as full credits)
+            if (fullInfo) {
+                found = extractCastFromFullCredits(movie, xml, siteDef, overrideNormal, overridePeople);
+            }
+
+            // get from full credits
+            if (!found) {
+                if (isNotValidString(fullcreditsXML)) {
+                    fullcreditsXML = webBrowser.request(getImdbUrl(movie, siteDef) + "fullcredits", siteDef.getCharset());;
+                }
+                found  = extractCastFromFullCredits(movie, fullcreditsXML, siteDef, overrideNormal, overridePeople);
+            }
+            
+            // extract from old layout
+            if (!found && !imdbNewVersion) {
+                found = extractCastFromOldLayout(movie, xml, siteDef, overrideNormal, overridePeople);
+            }
+            
+            if (!found) {
+                logger.debug(LOG_MESSAGE + "No cast informations found");
+            }
+        }
+
+        // DIRECTOR(S)
+        overrideNormal = OverrideTools.checkOverwriteDirectors(movie, IMDB_PLUGIN_ID);
+        overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, IMDB_PLUGIN_ID);
+        if (overrideNormal || overridePeople) {
+            boolean found = Boolean.FALSE;
+            
+            // get from combined page (same layout as full credits)
+            if (fullInfo) {
+                found = extractDirectorsFromFullCredits(movie, xml, siteDef, overrideNormal, overridePeople);
+            }
+
+            // get from full credits
+            if (!found) {
+                if (isNotValidString(fullcreditsXML)) {
+                    fullcreditsXML = webBrowser.request(getImdbUrl(movie, siteDef) + "fullcredits", siteDef.getCharset());;
+                }
+                found  = extractDirectorsFromFullCredits(movie, fullcreditsXML, siteDef, overrideNormal, overridePeople);
+            }
+                        
+            // extract from old layout
+            if (!found && !imdbNewVersion) {
+                found = extractDirectorsFromOldLayout(movie, xml, siteDef, overrideNormal, overridePeople);
+            }
+            
+            if (!found) {
+                logger.debug(LOG_MESSAGE + "No director informations found");
+            }
+        }
+
+        // WRITER(S)
+        overrideNormal = OverrideTools.checkOverwriteWriters(movie, IMDB_PLUGIN_ID);
+        overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, IMDB_PLUGIN_ID);
+        if (overrideNormal || overridePeople) {
+            boolean found = Boolean.FALSE;
+
+            // get from combined page (same layout as full credits)
+            if (fullInfo) {
+                found = extractWritersFromFullCredits(movie, xml, siteDef, overrideNormal, overridePeople);
+            }
+
+            // get from full credits
+            if (!found) {
+                if (isNotValidString(fullcreditsXML)) {
+                    fullcreditsXML = webBrowser.request(getImdbUrl(movie, siteDef) + "fullcredits", siteDef.getCharset());;
+                }
+                found  = extractWritersFromFullCredits(movie, fullcreditsXML, siteDef, overrideNormal, overridePeople);
+            }
+                        
+            // extract from old layout
+            if (!found && !imdbNewVersion) {
+                found = extractWritersFromOldLayout(movie, xml, siteDef, overrideNormal, overridePeople);
+            }
+
+            if (!found) {
+                logger.debug(LOG_MESSAGE + "No writer informations found");
+            }
+        }
+    }
+    
+    private boolean extractCastFromFullCredits(Movie movie, String fullcreditsXML, ImdbSiteDataDefinition siteDef, boolean overrideNormal, boolean overridePeople) {
+        // count for already set cast
+        int count = 0;
+        // flag to indicate if cast must be cleared
+        boolean clearCast = Boolean.TRUE;
+        boolean clearPeopleCast = Boolean.TRUE;
+        // flag to indicate if match has been found
+        boolean found = Boolean.FALSE;
+
+        for (String actorBlock : HTMLTools.extractTags(fullcreditsXML, "<table class=\"cast\">", HTML_TABLE, "<td class=\"hs\"", "</tr>")) {
+            if (!skipFaceless || actorBlock.indexOf("no_photo.png") == -1) {
+                int nmPosition = actorBlock.indexOf(">", actorBlock.indexOf("<td class=\"nm\"")) + 1;
+
+                String personID = actorBlock.substring(actorBlock.indexOf("\"/name/", nmPosition) + 7, actorBlock.indexOf(HTML_SLASH_QUOTE, nmPosition));
+                String name = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "<td class=\"nm\">", HTML_TD));
+                String character = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "<td class=\"char\">", HTML_TD));
+                
+                if (overrideNormal) {
+                    // clear cast if not already done
+                    if (clearCast) {
+                        movie.clearCast();
+                        clearCast = Boolean.FALSE;
+                    }
+                    // add actor
+                    movie.addActor(name, IMDB_PLUGIN_ID);
+                }
+                
+                if (overridePeople) {
+                    // clear cast if not already done
+                    if (clearPeopleCast) {
+                        movie.clearPeopleCast();
+                        clearPeopleCast = Boolean.FALSE;
+                    }
+                    // add actor
+                    movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name, character, siteDef.getSite() + HTML_NAME + personID + "/", Movie.UNKNOWN, IMDB_PLUGIN_ID);
+                }
+                
+                found = Boolean.TRUE;
+                count++;
+                if (count == actorMax) {
+                    break;
+                }
+            }
+        }
+        
+        return found;
     }
 
-    private void extractDirectors(Movie movie, String personXML, ImdbSiteDataDefinition siteDef, boolean overrideNormal, boolean overridePeople) {
+    private boolean extractCastFromOldLayout(Movie movie, String xml, ImdbSiteDataDefinition siteDef, boolean overrideNormal, boolean overridePeople) {
+        // count for already set cast
         int count = 0;
+        // flag to indicate if cast must be cleared
+        boolean clearCast = Boolean.TRUE;
+        boolean clearPeopleCast = Boolean.TRUE;
+        // flag to indicate if match has been found
         boolean found = Boolean.FALSE;
+
+        List<String> peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", HTML_TABLE, "<td class=\"name\"", "</tr>");
+        if (peopleList.isEmpty()) {
+            // alternative search
+            peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", HTML_TABLE, "<td class=\"nm\"", "</tr>", Boolean.TRUE);
+        }
+        
+        Matcher matcher;
+
+        for (String actorBlock : peopleList) {
+            matcher = personNamePattern.matcher(actorBlock);
+            String personID, name, charID, character;
+            if (matcher.find()) {
+                personID = matcher.group(1).trim();
+                name = matcher.group(2).trim();
+
+                matcher = personCharPattern.matcher(actorBlock);
+                if (matcher.find()) {
+                    charID = matcher.group(1).trim();
+                    character = matcher.group(2).trim();
+                } else {
+                    charID = Movie.UNKNOWN;
+                    character = Movie.UNKNOWN;
+                }
+                
+                logger.debug(LOG_MESSAGE + "Found Person ID: " + personID + ", name: " + name + ", Character ID: " + charID + ", name: " + character);
+
+                if (overrideNormal) {
+                    // clear cast if not already done
+                    if (clearCast) {
+                        movie.clearCast();
+                        clearCast = Boolean.FALSE;
+                    }
+                    // add actor
+                    movie.addActor(name, IMDB_PLUGIN_ID);
+                }
+
+                if (overridePeople) {
+                    // clear cast if not already done
+                    if (clearPeopleCast) {
+                        movie.clearPeopleCast();
+                        clearPeopleCast = Boolean.FALSE;
+                    }
+                    // add actor
+                    movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name, character, siteDef.getSite() + HTML_NAME + personID + "/", Movie.UNKNOWN, IMDB_PLUGIN_ID);
+                }
+                
+                found = Boolean.TRUE;
+                count++;
+                if (count == actorMax) {
+                    break;
+                }
+            }
+        }
+        
+        return found;
+    }
+
+    private boolean extractDirectorsFromFullCredits(Movie movie, String fullcreditsXML, ImdbSiteDataDefinition siteDef, boolean overrideNormal, boolean overridePeople) {
+        // count for already set directors
+        int count = 0;
+        // flag to indicate if directors must be cleared
+        boolean clearDirectors = Boolean.TRUE;
+        boolean clearPeopleDirectors = Boolean.TRUE;
+        // flag to indicate if match has been found
+        boolean found = Boolean.FALSE;
+
         for (String directorMatch : siteDef.getDirector().split(HTML_SLASH_PIPE)) {
-            if (personXML.indexOf(">" + directorMatch + HTML_A_END) >= 0) {
-                for (String member : HTMLTools.extractTags(personXML, ">" + directorMatch + HTML_A_END, HTML_TABLE, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
+            if (fullcreditsXML.indexOf(">" + directorMatch + HTML_A_END) >= 0) {
+                for (String member : HTMLTools.extractTags(fullcreditsXML, ">" + directorMatch + HTML_A_END, HTML_TABLE, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
                     int beginIndex = member.indexOf("href=\"/name/");
                     if (beginIndex > -1) {
                         String personID = member.substring(beginIndex + 12, member.indexOf(HTML_SLASH_QUOTE, beginIndex));
                         String director = member.substring(member.indexOf(HTML_SLASH_GT, beginIndex) + 2);
+                        
                         if (overrideNormal) {
+                            // clear directors if not already done
+                            if (clearDirectors) {
+                                movie.clearDirectors();
+                                clearDirectors = Boolean.FALSE;
+                            }
+                            // add director
                             movie.addDirector(director, IMDB_PLUGIN_ID);
                         }
+                        
                         if (overridePeople) {
+                            // clear directors if not already done
+                            if (clearPeopleDirectors) {
+                                movie.clearPeopleDirectors();
+                                clearPeopleDirectors = Boolean.FALSE;
+                            }
+                            // add director
                             movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, director, siteDef.getSite() + HTML_NAME + personID + "/", IMDB_PLUGIN_ID);
                         }
+                        
                         found = Boolean.TRUE;
                         count++;
                         if (count == directorMax) {
@@ -1197,25 +1177,100 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 break;
             }
         }
+        
+        return found;
     }
 
-    private void extractWriters(Movie movie, String personXML, ImdbSiteDataDefinition siteDef, boolean overrideNormal, boolean overridePeople) {
+    private boolean extractDirectorsFromOldLayout(Movie movie, String xml, ImdbSiteDataDefinition siteDef, boolean overrideNormal, boolean overridePeople) {
+        // count for already set directors
         int count = 0;
+        // flag to indicate if directors must be cleared
+        boolean clearDirectors = Boolean.TRUE;
+        boolean clearPeopleDirectors = Boolean.TRUE;
+        // flag to indicate if match has been found
         boolean found = Boolean.FALSE;
+
+        for (String directorMatch : siteDef.getDirector().split(HTML_SLASH_PIPE)) {
+            for (String member : HTMLTools.extractTags(xml, HTML_H5_START + directorMatch, HTML_DIV, "", HTML_A_END)) {
+                int beginIndex = member.indexOf("<a href=\"/name/");
+                if (beginIndex > -1) {
+                    String personID = member.substring(beginIndex + 15, member.indexOf(HTML_SLASH_QUOTE, beginIndex));
+                    String director = member.substring(member.indexOf(HTML_SLASH_GT, beginIndex) + 2);
+                    
+                    if (overrideNormal) {
+                        // clear directors if not already done
+                        if (clearDirectors) {
+                            movie.clearDirectors();
+                            clearDirectors = Boolean.FALSE;
+                        }
+                        // add director
+                        movie.addDirector(director, IMDB_PLUGIN_ID);
+                    }
+                    
+                    if (overridePeople) {
+                        // clear directors if not already done
+                        if (clearPeopleDirectors) {
+                            movie.clearPeopleDirectors();
+                            clearPeopleDirectors = Boolean.FALSE;
+                        }
+                        // add director
+                        movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, director, siteDef.getSite() + HTML_NAME + personID + "/", IMDB_PLUGIN_ID);
+                    }
+
+                    found = Boolean.TRUE;
+                    count++;
+                    if (count == directorMax) {
+                        break;
+                    }
+                }
+            }
+            if (found) {
+                // We found a match, so stop search.
+                break;
+            }
+        }
+        
+        return found;
+    }
+
+    private boolean extractWritersFromFullCredits(Movie movie, String fullcreditsXML, ImdbSiteDataDefinition siteDef, boolean overrideNormal, boolean overridePeople) {
+        // count for already set writers
+        int count = 0;
+        // flag to indicate if writers must be cleared
+        boolean clearWriters = Boolean.TRUE;
+        boolean clearPeopleWriters = Boolean.TRUE;
+        // flag to indicate if match has been found
+        boolean found = Boolean.FALSE;
+        
         for (String categoryMatch : siteDef.getWriter().split(HTML_SLASH_PIPE)) {
-            if (personXML.indexOf(">" + categoryMatch + HTML_A_END) >= 0) {
-                for (String member : HTMLTools.extractTags(personXML, ">" + categoryMatch + HTML_A_END, HTML_TABLE, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
+            if (fullcreditsXML.indexOf(">" + categoryMatch + HTML_A_END) >= 0) {
+                for (String member : HTMLTools.extractTags(fullcreditsXML, ">" + categoryMatch + HTML_A_END, HTML_TABLE, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
                     int beginIndex = member.indexOf("href=\"/name/");
                     if (beginIndex > -1) {
                         String personID = member.substring(beginIndex + 12, member.indexOf(HTML_SLASH_QUOTE, beginIndex));
                         String name = member.substring(member.indexOf(HTML_SLASH_GT, beginIndex) + 2);
                         if (name.indexOf("more credit") == -1) {
+                            
                             if (overrideNormal) {
+                                // clear writers if not already done
+                                if (clearWriters) {
+                                    movie.clearWriters();
+                                    clearWriters = Boolean.FALSE;
+                                }
+                                // add writer
                                 movie.addWriter(name, IMDB_PLUGIN_ID);
                             }
+                            
                             if (overridePeople) {
+                                // clear writers if not already done
+                                if (clearPeopleWriters) {
+                                    movie.clearPeopleWriters();
+                                    clearPeopleWriters = Boolean.FALSE;
+                                }
+                                // add writer
                                 movie.addWriter(IMDB_PLUGIN_ID + ":" + personID, name, siteDef.getSite() + HTML_NAME + personID + "/", IMDB_PLUGIN_ID);
                             }
+                            
                             found = Boolean.TRUE;
                             count++;
                             if (count == writerMax) {
@@ -1230,6 +1285,59 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 break;
             }
         }
+        
+        return found;
+    }
+
+    private boolean extractWritersFromOldLayout(Movie movie, String xml, ImdbSiteDataDefinition siteDef, boolean overrideNormal, boolean overridePeople) {
+        // count for already set writers
+        int count = 0;
+        // flag to indicate if writers must be cleared
+        boolean clearWriters = Boolean.TRUE;
+        boolean clearPeopleWriters = Boolean.TRUE;
+        // flag to indicate if match has been found
+        boolean found = Boolean.FALSE;
+        
+        for (String categoryMatch : siteDef.getWriter().split(HTML_SLASH_PIPE)) {
+            for (String member : HTMLTools.extractTags(xml, HTML_H5_START + categoryMatch, HTML_DIV, "", HTML_A_END)) {
+                int beginIndex = member.indexOf("<a href=\"/name/");
+                if (beginIndex > -1) {
+                    String personID = member.substring(beginIndex + 15, member.indexOf(HTML_SLASH_QUOTE, beginIndex));
+                    String name = member.substring(member.indexOf(HTML_SLASH_GT, beginIndex) + 2);
+                    if (overrideNormal) {
+                        // clear writers if not already done
+                        if (clearWriters) {
+                            movie.clearWriters();
+                            clearWriters = Boolean.FALSE;
+                        }
+                        // add writer
+                        movie.addWriter(name, IMDB_PLUGIN_ID);
+                    }
+                    
+                    if (overridePeople) {
+                        // clear writers if not already done
+                        if (clearPeopleWriters) {
+                            movie.clearPeopleWriters();
+                            clearPeopleWriters = Boolean.FALSE;
+                        }
+                        // add writer
+                        movie.addWriter(IMDB_PLUGIN_ID + ":" + personID, name, siteDef.getSite() + HTML_NAME + personID + "/", IMDB_PLUGIN_ID);
+                    }
+                    
+                    found = Boolean.TRUE;
+                    count++;
+                    if (count == writerMax) {
+                        break;
+                    }
+                }
+            }
+            if (found) {
+                // We found a match, so stop search.
+                break;
+            }
+        }
+        
+        return found;
     }
 
     /**
