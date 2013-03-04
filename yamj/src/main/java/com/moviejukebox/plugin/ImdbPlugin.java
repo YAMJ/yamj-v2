@@ -925,38 +925,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // holds the full credits page
         String fullcreditsXML = Movie.UNKNOWN;
 
-        // CAST
-        boolean overrideNormal = OverrideTools.checkOverwriteActors(movie, IMDB_PLUGIN_ID);
-        boolean overridePeople = OverrideTools.checkOverwritePeopleActors(movie, IMDB_PLUGIN_ID);
-        if (overrideNormal || overridePeople) {
-            boolean found = Boolean.FALSE;
-
-            // get from combined page (same layout as full credits)
-            if (fullInfo) {
-                found = extractCastFromFullCredits(movie, xml, siteDef, overrideNormal, overridePeople);
-            }
-
-            // get from full credits
-            if (!found) {
-                if (isNotValidString(fullcreditsXML)) {
-                    fullcreditsXML = webBrowser.request(getImdbUrl(movie, siteDef) + "fullcredits", siteDef.getCharset());;
-                }
-                found  = extractCastFromFullCredits(movie, fullcreditsXML, siteDef, overrideNormal, overridePeople);
-            }
-            
-            // extract from old layout
-            if (!found && !imdbNewVersion) {
-                found = extractCastFromOldLayout(movie, xml, siteDef, overrideNormal, overridePeople);
-            }
-            
-            if (!found) {
-                logger.debug(LOG_MESSAGE + "No cast informations found");
-            }
-        }
-
         // DIRECTOR(S)
-        overrideNormal = OverrideTools.checkOverwriteDirectors(movie, IMDB_PLUGIN_ID);
-        overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, IMDB_PLUGIN_ID);
+        boolean overrideNormal = OverrideTools.checkOverwriteDirectors(movie, IMDB_PLUGIN_ID);
+        boolean overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, IMDB_PLUGIN_ID);
         if (overrideNormal || overridePeople) {
             boolean found = Boolean.FALSE;
             
@@ -1011,6 +982,35 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 logger.debug(LOG_MESSAGE + "No writer informations found");
             }
         }
+
+        // CAST
+        overrideNormal = OverrideTools.checkOverwriteActors(movie, IMDB_PLUGIN_ID);
+        overridePeople = OverrideTools.checkOverwritePeopleActors(movie, IMDB_PLUGIN_ID);
+        if (overrideNormal || overridePeople) {
+            boolean found = Boolean.FALSE;
+
+            // get from combined page (same layout as full credits)
+            if (fullInfo) {
+                found = extractCastFromFullCredits(movie, xml, siteDef, overrideNormal, overridePeople);
+            }
+
+            // get from full credits
+            if (!found) {
+                if (isNotValidString(fullcreditsXML)) {
+                    fullcreditsXML = webBrowser.request(getImdbUrl(movie, siteDef) + "fullcredits", siteDef.getCharset());;
+                }
+                found  = extractCastFromFullCredits(movie, fullcreditsXML, siteDef, overrideNormal, overridePeople);
+            }
+            
+            // extract from old layout
+            if (!found && !imdbNewVersion) {
+                found = extractCastFromOldLayout(movie, xml, siteDef, overrideNormal, overridePeople);
+            }
+            
+            if (!found) {
+                logger.debug(LOG_MESSAGE + "No cast informations found");
+            }
+        }
     }
     
     private boolean extractCastFromFullCredits(Movie movie, String fullcreditsXML, ImdbSiteDataDefinition siteDef, boolean overrideNormal, boolean overridePeople) {
@@ -1023,38 +1023,42 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         boolean found = Boolean.FALSE;
 
         for (String actorBlock : HTMLTools.extractTags(fullcreditsXML, "<table class=\"cast\">", HTML_TABLE, "<td class=\"hs\"", "</tr>")) {
-            if (!skipFaceless || actorBlock.indexOf("no_photo.png") == -1) {
-                int nmPosition = actorBlock.indexOf(">", actorBlock.indexOf("<td class=\"nm\"")) + 1;
 
-                String personID = actorBlock.substring(actorBlock.indexOf("\"/name/", nmPosition) + 7, actorBlock.indexOf(HTML_SLASH_QUOTE, nmPosition));
-                String name = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "<td class=\"nm\">", HTML_TD));
-                String character = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "<td class=\"char\">", HTML_TD));
-                
-                if (overrideNormal) {
-                    // clear cast if not already done
-                    if (clearCast) {
-                        movie.clearCast();
-                        clearCast = Boolean.FALSE;
-                    }
-                    // add actor
-                    movie.addActor(name, IMDB_PLUGIN_ID);
+            // skip faceless persons
+            if (skipFaceless && actorBlock.indexOf("no_photo.png") > -1) {
+                continue;
+            }
+            
+            int nmPosition = actorBlock.indexOf(">", actorBlock.indexOf("<td class=\"nm\"")) + 1;
+
+            String personID = actorBlock.substring(actorBlock.indexOf("\"/name/", nmPosition) + 7, actorBlock.indexOf(HTML_SLASH_QUOTE, nmPosition));
+            String name = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "<td class=\"nm\">", HTML_TD));
+            String character = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "<td class=\"char\">", HTML_TD));
+            
+            if (overrideNormal) {
+                // clear cast if not already done
+                if (clearCast) {
+                    movie.clearCast();
+                    clearCast = Boolean.FALSE;
                 }
-                
-                if (overridePeople) {
-                    // clear cast if not already done
-                    if (clearPeopleCast) {
-                        movie.clearPeopleCast();
-                        clearPeopleCast = Boolean.FALSE;
-                    }
-                    // add actor
-                    movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name, character, siteDef.getSite() + HTML_NAME + personID + "/", Movie.UNKNOWN, IMDB_PLUGIN_ID);
+                // add actor
+                movie.addActor(name, IMDB_PLUGIN_ID);
+            }
+            
+            if (overridePeople) {
+                // clear cast if not already done
+                if (clearPeopleCast) {
+                    movie.clearPeopleCast();
+                    clearPeopleCast = Boolean.FALSE;
                 }
-                
-                found = Boolean.TRUE;
-                count++;
-                if (count == actorMax) {
-                    break;
-                }
+                // add actor
+                movie.addActor(IMDB_PLUGIN_ID + ":" + personID, name, character, siteDef.getSite() + HTML_NAME + personID + "/", Movie.UNKNOWN, IMDB_PLUGIN_ID);
+            }
+            
+            found = Boolean.TRUE;
+            count++;
+            if (count == actorMax) {
+                break;
             }
         }
         
@@ -1079,6 +1083,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         Matcher matcher;
 
         for (String actorBlock : peopleList) {
+
+            // skip faceless persons
+            if (skipFaceless && actorBlock.indexOf("nopicture") > -1) {
+                continue;
+            }
+
             matcher = personNamePattern.matcher(actorBlock);
             String personID, name, charID, character;
             if (matcher.find()) {

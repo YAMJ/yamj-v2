@@ -227,7 +227,7 @@ public class MovieJukeboxXMLReader {
                             movie.addDirector(ePerson.getTextContent(), tagElement.getAttribute(SOURCE));
                         }
                     }
-                }   // End of directors
+                }
 
                 // Get the writers
                 nlElements = eMovie.getElementsByTagName("writers");
@@ -241,7 +241,21 @@ public class MovieJukeboxXMLReader {
                             movie.addWriter(ePerson.getTextContent(), tagElement.getAttribute(SOURCE));
                         }
                     }
-                }   // End of writers
+                }
+
+                // Get the cast
+                nlElements = eMovie.getElementsByTagName("cast");
+                if (nlElements.getLength() > 0) {
+                    Element tagElement = (Element) nlElements.item(0);
+                    nlElements = tagElement.getChildNodes();
+                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
+                        nElements = nlElements.item(looper);
+                        if (nElements.getNodeType() == Node.ELEMENT_NODE) {
+                            Element ePerson = (Element) nElements;
+                            movie.addActor(ePerson.getTextContent(), tagElement.getAttribute(SOURCE));
+                        }
+                    }
+                }
 
                 // Get the country
                 parseOverridableCountry(movie, eMovie);
@@ -260,21 +274,7 @@ public class MovieJukeboxXMLReader {
                         }
                     }
                     movie.setGenres(genres, tagElement.getAttribute(SOURCE));
-                }   // End of genres
-
-                // Get the cast (actors)
-                nlElements = eMovie.getElementsByTagName("cast");
-                if (nlElements.getLength() > 0) {
-                    Element tagElement = (Element) nlElements.item(0);
-                    nlElements = tagElement.getChildNodes();
-                    for (int looper = 0; looper < nlElements.getLength(); looper++) {
-                        nElements = nlElements.item(looper);
-                        if (nElements.getNodeType() == Node.ELEMENT_NODE) {
-                            Element ePerson = (Element) nElements;
-                            movie.addActor(ePerson.getTextContent(), tagElement.getAttribute(SOURCE));
-                        }
-                    }
-                }   // End of cast
+                }
 
                 // Process the sets
                 nlElements = eMovie.getElementsByTagName("sets");
@@ -292,7 +292,7 @@ public class MovieJukeboxXMLReader {
                             }
                         }
                     }
-                }   // End of sets
+                }
 
                 // Get certification
                 parseOverridableCertification(movie, eMovie);

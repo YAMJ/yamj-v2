@@ -328,7 +328,7 @@ public class AllocinePlugin extends ImdbPlugin {
             movie.setCertification(movieInfos.getCertification(), ALLOCINE_PLUGIN_ID);
         }
 
-        // Check Casting
+        // Directors
         if (OverrideTools.checkOverwriteDirectors(movie, ALLOCINE_PLUGIN_ID)) {
             movie.setDirectors(movieInfos.getDirectors(), ALLOCINE_PLUGIN_ID);
         }
@@ -336,6 +336,15 @@ public class AllocinePlugin extends ImdbPlugin {
             movie.setPeopleDirectors(movieInfos.getDirectors(), ALLOCINE_PLUGIN_ID);
         }
 
+        // Writers
+        if (OverrideTools.checkOverwriteWriters(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setWriters(movieInfos.getWriters(), ALLOCINE_PLUGIN_ID);
+        }
+        if (OverrideTools.checkOverwritePeopleWriters(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setPeopleWriters(movieInfos.getWriters(), ALLOCINE_PLUGIN_ID);
+        }
+
+        // Actors
         if (!movieInfos.getActors().isEmpty()) {
             if (OverrideTools.checkOverwriteActors(movie, ALLOCINE_PLUGIN_ID)) {
                 movie.clearCast();
@@ -356,13 +365,6 @@ public class AllocinePlugin extends ImdbPlugin {
                     }
                 }
             }
-        }
-
-        if (OverrideTools.checkOverwriteWriters(movie, ALLOCINE_PLUGIN_ID)) {
-            movie.setWriters(movieInfos.getWriters(), ALLOCINE_PLUGIN_ID);
-        }
-        if (OverrideTools.checkOverwritePeopleWriters(movie, ALLOCINE_PLUGIN_ID)) {
-            movie.setPeopleWriters(movieInfos.getWriters(), ALLOCINE_PLUGIN_ID);
         }
 
         // Get Fanart

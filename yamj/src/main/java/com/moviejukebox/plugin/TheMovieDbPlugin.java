@@ -252,12 +252,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     }
                 }
 
-                if (OverrideTools.checkOverwriteActors(movie, TMDB_PLUGIN_ID)) {
-                    movie.setCast(newActors, TMDB_PLUGIN_ID);
-                }
-                if (OverrideTools.checkOverwritePeopleActors(movie, TMDB_PLUGIN_ID)) {
-                    movie.setPeopleCast(newActors, TMDB_PLUGIN_ID);
-                }
                 if (OverrideTools.checkOverwriteDirectors(movie, TMDB_PLUGIN_ID)) {
                     movie.setDirectors(newDirectors, TMDB_PLUGIN_ID);
                 }
@@ -269,6 +263,12 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 }
                 if (OverrideTools.checkOverwritePeopleWriters(movie, TMDB_PLUGIN_ID)) {
                     movie.setPeopleWriters(newWriters, TMDB_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwriteActors(movie, TMDB_PLUGIN_ID)) {
+                    movie.setCast(newActors, TMDB_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwritePeopleActors(movie, TMDB_PLUGIN_ID)) {
+                    movie.setPeopleCast(newActors, TMDB_PLUGIN_ID);
                 }
             } else {
                 logger.debug(LOG_MESSAGE + "No cast or crew members found");

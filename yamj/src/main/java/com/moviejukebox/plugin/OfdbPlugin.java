@@ -160,7 +160,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                     // flags for overrides
                     boolean overrideNormal;
                     boolean overridePeople;
-                    
+
                     if (detailXml.contains("<i>Regie</i>")) {
                         overrideNormal = OverrideTools.checkOverwriteDirectors(movie, OFDB_PLUGIN_ID);
                         overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, OFDB_PLUGIN_ID);
@@ -176,6 +176,25 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                             }
                             if (overridePeople) {
                                 movie.setPeopleDirectors(directors, OFDB_PLUGIN_ID);
+                            }
+                        }
+                    }
+
+                    if (detailXml.contains("<i>Drehbuchautor(in)</i>")) {
+                        overrideNormal = OverrideTools.checkOverwriteWriters(movie, OFDB_PLUGIN_ID);
+                        overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, OFDB_PLUGIN_ID);
+                        if (overrideNormal || overridePeople) {
+                            tags = HTMLTools.extractHtmlTags(detailXml, "<i>Drehbuchautor(in)</i>", "</table>", "<tr", "</tr>");
+                            List<String> writers = new ArrayList<String>();
+                            for (String tag : tags)  {
+                                writers.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
+                            }
+
+                            if (overrideNormal) {
+                                movie.setWriters(writers, OFDB_PLUGIN_ID);
+                            }
+                            if (overridePeople) {
+                                movie.setPeopleWriters(writers, OFDB_PLUGIN_ID);
                             }
                         }
                     }
@@ -196,25 +215,6 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                             }
                             if (overridePeople) {
                                 movie.setPeopleCast(cast, OFDB_PLUGIN_ID);
-                            }
-                        }
-                    }
-
-                    if (detailXml.contains("<i>Drehbuchautor(in)</i>")) {
-                        overrideNormal = OverrideTools.checkOverwriteWriters(movie, OFDB_PLUGIN_ID);
-                        overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, OFDB_PLUGIN_ID);
-                        if (overrideNormal || overridePeople) {
-                            tags = HTMLTools.extractHtmlTags(detailXml, "<i>Drehbuchautor(in)</i>", "</table>", "<tr", "</tr>");
-                            List<String> writers = new ArrayList<String>();
-                            for (String tag : tags)  {
-                                writers.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
-                            }
-
-                            if (overrideNormal) {
-                                movie.setWriters(writers, OFDB_PLUGIN_ID);
-                            }
-                            if (overridePeople) {
-                                movie.setPeopleWriters(writers, OFDB_PLUGIN_ID);
                             }
                         }
                     }
