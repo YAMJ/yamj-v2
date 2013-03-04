@@ -46,7 +46,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2610 Fixed error when title should be scraped by AKA section
  - Fixed defect #2612 Fixed error when versions should be ignored for AKA scraping
  - Fixed defect #2613 Fixed detection of new IMDB version
-  
+ - Fixed defect #2616 Fixed retrieval of people (cast,directors,writers) from IMDb
 
 MovieJukebox 2.8 2012-12-17)
 -----------------------------

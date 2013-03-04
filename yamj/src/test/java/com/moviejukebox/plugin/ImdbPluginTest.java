@@ -22,16 +22,18 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.tools.PropertiesUtil;
-
-import org.apache.log4j.BasicConfigurator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
+
+import com.moviejukebox.model.Filmography;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Person;
+import com.moviejukebox.tools.PropertiesUtil;
 
 public class ImdbPluginTest {
 
@@ -121,5 +123,43 @@ public class ImdbPluginTest {
         
         assertTrue(imdbPlugin.scan(movie));
         assertEquals(72, movie.getRating(ImdbPlugin.IMDB_PLUGIN_ID));
+    }
+
+    @Test
+    public void testImdbPeople_NewLayout() {
+        PropertiesUtil.setProperty("imdb.site", "us");
+        PropertiesUtil.setProperty("imdb.full.info", "false");
+        ImdbPlugin imdbPlugin = new ImdbPlugin();
+
+        Movie movie = new Movie();
+        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0499549");
+        
+        assertTrue(imdbPlugin.scan(movie));
+        assertEquals(10, movie.getCast().size());
+        assertEquals(1, movie.getDirectors().size());
+        assertEquals(1, movie.getWriters().size());
+        
+        for (Filmography f : movie.getPeople()) {
+            System.err.println(f.getName() + " --> " + f.getDepartment()); 
+        }
+    }
+
+    @Test
+    public void testImdbPeople_Combined() {
+        PropertiesUtil.setProperty("imdb.site", "us");
+        PropertiesUtil.setProperty("imdb.full.info", "true");
+        ImdbPlugin imdbPlugin = new ImdbPlugin();
+
+        Movie movie = new Movie();
+        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0499549");
+        
+        assertTrue(imdbPlugin.scan(movie));
+        assertEquals(10, movie.getCast().size());
+        assertEquals(1, movie.getDirectors().size());
+        assertEquals(1, movie.getWriters().size());
+        
+        for (Filmography f : movie.getPeople()) {
+            System.err.println(f.getName() + " --> " + f.getDepartment()); 
+        }
     }
 }
