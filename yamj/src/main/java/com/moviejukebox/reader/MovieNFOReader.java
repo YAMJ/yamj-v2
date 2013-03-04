@@ -730,17 +730,12 @@ public class MovieNFOReader {
             return;
         }
 
-        // clear cast
-        if (overrideActors) {
-            movie.clearCast();
-        }
-        if (overridePeopleActors) {
-            movie.clearPeopleCast();
-        }
-
         // count for already set actors
         int count = 0;
-
+        // flag to indicate if cast must be cleared
+        boolean clearCast = Boolean.TRUE;
+        boolean clearPeopleCast = Boolean.TRUE;
+        
         for (int actorLoop = 0; actorLoop < nlElements.getLength(); actorLoop++) {
             // Get all the name/role/thumb nodes
             Node nActors = nlElements.item(actorLoop);
@@ -761,10 +756,24 @@ public class MovieNFOReader {
                             if (firstActor) {
                                 firstActor = Boolean.FALSE;
                             } else {
+                                
                                 if (overrideActors) {
+                                    // clear cast if not already done
+                                    if (clearCast) {
+                                        movie.clearCast();
+                                        clearCast = Boolean.FALSE;
+                                    }
+                                    // add actor
                                     movie.addActor(aName, NFO_PLUGIN_ID);
                                 }
+                                
                                 if (overridePeopleActors && (count < MAX_COUNT_ACTOR)) {
+                                    // clear people cast if not already done
+                                    if (clearPeopleCast) {
+                                        movie.clearPeopleCast();
+                                        clearPeopleCast = Boolean.FALSE;
+                                    }
+                                    // add actor
                                     if (movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID)) {
                                         count++;
                                     }
@@ -787,10 +796,22 @@ public class MovieNFOReader {
             }
 
             if (overrideActors) {
+                // clear cast if not already done
+                if (clearCast) {
+                    movie.clearCast();
+                    clearCast = Boolean.FALSE;
+                }
+                // add actor
                 movie.addActor(aName, NFO_PLUGIN_ID);
             }
 
             if (overridePeopleActors && (count < MAX_COUNT_ACTOR)) {
+                // clear people cast if not already done
+                if (clearPeopleCast) {
+                    movie.clearPeopleCast();
+                    clearPeopleCast = Boolean.FALSE;
+                }
+                // add actor
                 if (movie.addActor(Movie.UNKNOWN, aName, aRole, aThumb, Movie.UNKNOWN, NFO_PLUGIN_ID)) {
                     count++;
                 }
