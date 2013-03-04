@@ -653,16 +653,6 @@ public class SratimPlugin extends ImdbPlugin {
                 movie.addRating(SRATIM_PLUGIN_ID, parseRating(HTMLTools.extractTag(xml, "width=\"120\" height=\"12\" title=\"", 0, " ")));
             }
 
-            String director = logicalToVisual(HTMLTools.getTextAfterElem(xml, "בימוי:"));
-            if (StringTools.isValidString(director)) {
-                if (OverrideTools.checkOverwriteDirectors(movie, SRATIM_PLUGIN_ID)) {
-                    movie.setDirector(director, SRATIM_PLUGIN_ID);
-                }
-                if (OverrideTools.checkOverwritePeopleDirectors(movie, SRATIM_PLUGIN_ID)) {
-                    movie.setPeopleDirectors(Collections.singleton(director), SRATIM_PLUGIN_ID);
-                }
-            }
-
             if (OverrideTools.checkOverwriteReleaseDate(movie, SRATIM_PLUGIN_ID)) {
                 movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "י' בעולם:"), SRATIM_PLUGIN_ID);
             }
@@ -693,6 +683,16 @@ public class SratimPlugin extends ImdbPlugin {
                 }
             }
 
+            String director = logicalToVisual(HTMLTools.getTextAfterElem(xml, "בימוי:"));
+            if (StringTools.isValidString(director)) {
+                if (OverrideTools.checkOverwriteDirectors(movie, SRATIM_PLUGIN_ID)) {
+                    movie.setDirector(director, SRATIM_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwritePeopleDirectors(movie, SRATIM_PLUGIN_ID)) {
+                    movie.setPeopleDirectors(Collections.singleton(director), SRATIM_PLUGIN_ID);
+                }
+            }
+            
             boolean overrideActors = OverrideTools.checkOverwriteActors(movie, SRATIM_PLUGIN_ID);
             boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, SRATIM_PLUGIN_ID);
             if (overrideActors || overridePeopleActors) {

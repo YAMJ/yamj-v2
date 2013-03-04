@@ -329,24 +329,6 @@ public class FilmwebPlugin extends ImdbPlugin {
                 }
             }
 
-            overrideNormal = OverrideTools.checkOverwriteActors(movie, FILMWEB_PLUGIN_ID);
-            overridePeople = OverrideTools.checkOverwritePeopleActors(movie, FILMWEB_PLUGIN_ID);
-            if (overrideNormal || overridePeople) {
-                List<String> actors = new ArrayList<String>();
-
-                List<String> tags = HTMLTools.extractHtmlTags(xml, "<dt id=role-actors", "</dd>", "<li>", "</li>");
-                for (String tag : tags) {
-                    actors.add(HTMLTools.getTextAfterElem(tag, "<span class=personName>"));
-                }
-
-                if (overrideNormal) {
-                    movie.setCast(actors, FILMWEB_PLUGIN_ID);
-                }
-                if (overridePeople) {
-                    movie.setPeopleCast(actors, FILMWEB_PLUGIN_ID);
-                }
-            }
-
             overrideNormal = OverrideTools.checkOverwriteWriters(movie, FILMWEB_PLUGIN_ID);
             overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, FILMWEB_PLUGIN_ID);
             if (overrideNormal || overridePeople) {
@@ -362,6 +344,24 @@ public class FilmwebPlugin extends ImdbPlugin {
                 }
                 if (overridePeople) {
                     movie.setWriters(writers, FILMWEB_PLUGIN_ID);
+                }
+            }
+            
+            overrideNormal = OverrideTools.checkOverwriteActors(movie, FILMWEB_PLUGIN_ID);
+            overridePeople = OverrideTools.checkOverwritePeopleActors(movie, FILMWEB_PLUGIN_ID);
+            if (overrideNormal || overridePeople) {
+                List<String> actors = new ArrayList<String>();
+
+                List<String> tags = HTMLTools.extractHtmlTags(xml, "<dt id=role-actors", "</dd>", "<li>", "</li>");
+                for (String tag : tags) {
+                    actors.add(HTMLTools.getTextAfterElem(tag, "<span class=personName>"));
+                }
+
+                if (overrideNormal) {
+                    movie.setCast(actors, FILMWEB_PLUGIN_ID);
+                }
+                if (overridePeople) {
+                    movie.setPeopleCast(actors, FILMWEB_PLUGIN_ID);
                 }
             }
 

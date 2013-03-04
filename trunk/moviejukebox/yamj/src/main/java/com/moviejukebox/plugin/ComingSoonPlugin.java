@@ -603,30 +603,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 }
             }
 
-            // CAST
-            boolean overrideActors = OverrideTools.checkOverwriteActors(movie, COMINGSOON_PLUGIN_ID);
-            boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, COMINGSOON_PLUGIN_ID);
-            if (overrideActors || overridePeopleActors) {
-                String castList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ATTORI: ", "Ruoli ed Interpreti"));
-
-                List<String> newActors = new ArrayList<String>();
-                if (castList.contains(",")) {
-                    StringTokenizer st = new StringTokenizer(castList, ",");
-                    while (st.hasMoreTokens()) {
-                        newActors.add(st.nextToken());
-                    }
-                } else {
-                    newActors.add(castList);
-                }
-
-                if (overrideActors) {
-                    movie.setCast(newActors, COMINGSOON_PLUGIN_ID);
-                }
-                if (overridePeopleActors) {
-                    movie.setPeopleCast(newActors, COMINGSOON_PLUGIN_ID);
-                }
-            }
-
             // DIRECTOR(S)
             boolean overrideDirectors = OverrideTools.checkOverwriteDirectors(movie, COMINGSOON_PLUGIN_ID);
             boolean overridePeopleDirectors = OverrideTools.checkOverwritePeopleDirectors(movie, COMINGSOON_PLUGIN_ID);
@@ -673,6 +649,30 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 }
                 if (overridePeopleWriters) {
                     movie.setPeopleWriters(newWriters, COMINGSOON_PLUGIN_ID);
+                }
+            }
+
+            // CAST
+            boolean overrideActors = OverrideTools.checkOverwriteActors(movie, COMINGSOON_PLUGIN_ID);
+            boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, COMINGSOON_PLUGIN_ID);
+            if (overrideActors || overridePeopleActors) {
+                String castList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ATTORI: ", "Ruoli ed Interpreti"));
+
+                List<String> newActors = new ArrayList<String>();
+                if (castList.contains(",")) {
+                    StringTokenizer st = new StringTokenizer(castList, ",");
+                    while (st.hasMoreTokens()) {
+                        newActors.add(st.nextToken());
+                    }
+                } else {
+                    newActors.add(castList);
+                }
+
+                if (overrideActors) {
+                    movie.setCast(newActors, COMINGSOON_PLUGIN_ID);
+                }
+                if (overridePeopleActors) {
+                    movie.setPeopleCast(newActors, COMINGSOON_PLUGIN_ID);
                 }
             }
 

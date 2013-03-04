@@ -422,14 +422,14 @@ public class MovieNFOReader {
                     parseTrailers(eCommon.getElementsByTagName("trailer"), movie);
                 }
 
-                // Actors
-                parseActors(eCommon.getElementsByTagName("actor"), movie);
+                // Director
+                parseDirectors(eCommon.getElementsByTagName("director"), movie);
 
                 // Credits/Writer
                 parseWriters(eCommon.getElementsByTagName("writer"), movie);
 
-                // Director
-                parseDirectors(eCommon.getElementsByTagName("director"), movie);
+                // Actors
+                parseActors(eCommon.getElementsByTagName("actor"), movie);
 
                 if (OverrideTools.checkOverwriteFPS(movie, NFO_PLUGIN_ID)) {
                     String tempString = DOMHelper.getValueFromElement(eCommon, "fps");

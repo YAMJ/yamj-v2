@@ -307,16 +307,6 @@ public class TheTvDBPluginH extends ImdbPlugin {
                     }
 
                     if (episode != null) {
-                        // TODO Assign the writers on a per-episode basis, rather than series
-                        if (setWriters && !episode.getWriters().isEmpty()) {
-                            movie.setWriters(episode.getWriters(), THETVDB_PLUGIN_ID);
-                            setWriters = false;
-                        }
-                        if (setPeopleWriters && !episode.getWriters().isEmpty()) {
-                            movie.setPeopleWriters(episode.getWriters(), THETVDB_PLUGIN_ID);
-                            setPeopleWriters = false;
-                        }
-
                         // TODO Assign the director to each episode.
                         if (setDirectors && !episode.getDirectors().isEmpty()) {
                             movie.setDirectors(episode.getDirectors(), THETVDB_PLUGIN_ID);
@@ -325,6 +315,16 @@ public class TheTvDBPluginH extends ImdbPlugin {
                         if (setPeopleDirectors && !episode.getDirectors().isEmpty()) {
                             movie.setPeopleDirectors(episode.getDirectors(), THETVDB_PLUGIN_ID);
                             setPeopleDirectors = false;
+                        }
+
+                        // TODO Assign the writers on a per-episode basis, rather than series
+                        if (setWriters && !episode.getWriters().isEmpty()) {
+                            movie.setWriters(episode.getWriters(), THETVDB_PLUGIN_ID);
+                            setWriters = false;
+                        }
+                        if (setPeopleWriters && !episode.getWriters().isEmpty()) {
+                            movie.setPeopleWriters(episode.getWriters(), THETVDB_PLUGIN_ID);
+                            setPeopleWriters = false;
                         }
 
                         if (isNotValidString(file.getAirsAfterSeason(part))) {
