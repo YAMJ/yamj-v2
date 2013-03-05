@@ -127,6 +127,7 @@ public class MovieInfos extends Movie {
         for (CastMember member : getCasting()) {
             if (member.getActivity().getCode() == ACTOR_ACTIVITY_CODE) {
                 MoviePerson person = new MoviePerson();
+                person.setCode(member.getPerson().getCode());
                 person.setName(member.getPerson().getName());
                 person.setRole(member.getRole());
                 actors.add(person);
@@ -138,7 +139,8 @@ public class MovieInfos extends Movie {
                 scripts.add(member.getPerson().getName());
             }
         }
-        // Add scripts to writers
+        
+        // add scripts to writers
         writers.addAll(scripts);
     }
 

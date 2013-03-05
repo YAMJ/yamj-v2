@@ -1,3 +1,4 @@
+package com.moviejukebox.allocine;
 /*
  *      Copyright (c) 2004-2012 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
@@ -25,7 +26,7 @@ import org.junit.Test;
  * @author Yves Blusseau
  * 
  */
-public class MovieInfosTest {
+public class MovieInfosXmlOfflineTest {
 
     File       avatarFile   = null;
     File       sample1File  = null;
@@ -39,9 +40,9 @@ public class MovieInfosTest {
      */
     @Before
     public void setUp() throws Exception {
-        avatarFile   = new File("src/test/java/avatar.xml");
-        sample1File  = new File("src/test/java/sample1.xml");
-        sample2File  = new File("src/test/java/sample2.xml");
+        avatarFile   = new File("src/test/resources/avatar.xml");
+        sample1File  = new File("src/test/resources/sample1.xml");
+        sample2File  = new File("src/test/resources/sample2.xml");
         avatarInfos  = XMLAllocineAPIHelper.getMovieInfos(avatarFile);
         sample1Infos = XMLAllocineAPIHelper.getMovieInfos(sample1File);
         sample2Infos = XMLAllocineAPIHelper.getMovieInfos(sample2File);
@@ -52,7 +53,7 @@ public class MovieInfosTest {
      */
     @Test
     public void testGetMovieInfos() throws Exception {
-        File noresultFile = new File("src/test/java/noresult.xml");
+        File noresultFile = new File("src/test/resources/noresult.xml");
         MovieInfos noresultInfos = XMLAllocineAPIHelper.getMovieInfos(noresultFile);
         Assert.assertEquals(false, noresultInfos.isValid());
     }
