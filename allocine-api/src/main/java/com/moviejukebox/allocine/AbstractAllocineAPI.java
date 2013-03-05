@@ -24,13 +24,10 @@ package com.moviejukebox.allocine;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Abstract implementation for Allocine API; common methods for XML and JSON.
@@ -41,7 +38,6 @@ public abstract class AbstractAllocineAPI implements AllocineAPIHelper {
 
     private final String apiKey;
     private final String format;
-    private Proxy proxy;
     
     /**
      * @param apiKey The API key for allocine
@@ -53,23 +49,24 @@ public abstract class AbstractAllocineAPI implements AllocineAPIHelper {
     }
 
     @Override
-    public final void setProxy(String proxyHost, int proxyPort) {
-        if (StringUtils.isNotBlank(proxyHost) && (proxyPort > -1)) {
-            proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
-        }
-    }
-
-    private URLConnection connect(URL url) throws IOException {
-        if (proxy == null) {
-            return url.openConnection();
-        } 
-        return url.openConnection(proxy);
+    public void setProxy(String host, String port, String username, String password) {
+        WebBrowser.setProxyHost(host);
+        WebBrowser.setProxyPort(port);
+        WebBrowser.setProxyPassword(username, password);
     }
     
-    protected void closeInputStream(InputStream inputStream) {
+    protected void close(URLConnection connection, InputStream inputStream) {
         if (inputStream != null) {
             try {
                 inputStream.close();
+            } catch (Exception ignore) {
+                // ignore this error
+            }
+        }
+
+        if (connection != null && (connection instanceof HttpURLConnection)) {
+            try {
+                ((HttpURLConnection)connection).disconnect();
             } catch (Exception ignore) {
                 // ignore this error
             }
@@ -79,30 +76,30 @@ public abstract class AbstractAllocineAPI implements AllocineAPIHelper {
     protected URLConnection connectSearchMovieInfos(String query) throws IOException {
         String encode = URLEncoder.encode(query, "UTF-8");
         URL url = new URL("http://api.allocine.fr/rest/v3/search?partner=" + apiKey + "&format=" + format + "&filter=movie&q=" + encode);
-        return connect(url);
+        return WebBrowser.openProxiedConnection(url);
     }
 
     protected URLConnection connectSearchTvseriesInfos(String query) throws IOException {
         String encode = URLEncoder.encode(query, "UTF-8");
         URL url = new URL("http://api.allocine.fr/rest/v3/search?partner=" + apiKey + "&format=" + format + "&filter=tvseries&q=" + encode);
-        return connect(url);
+        return WebBrowser.openProxiedConnection(url);
     }
 
     protected URLConnection connectGetMovieInfos(String allocineId) throws IOException {
-        // HTML tags are remove from synopsis & synopsisshort
+        // HTML tags are removed from synopsis & synopsisshort
         URL url = new URL("http://api.allocine.fr/rest/v3/movie?partner=" + apiKey + "&profile=large&mediafmt=mp4-lc&format=" + format + "&filter=movie&striptags=synopsis,synopsisshort&code=" + allocineId);
-        return connect(url);
+        return WebBrowser.openProxiedConnection(url);
     }
 
     protected URLConnection connectGetTvSeriesInfos(String allocineId) throws IOException {
-        // HTML tags are remove from synopsis & synopsisshort
+        // HTML tags are removed from synopsis & synopsisshort
         URL url = new URL("http://api.allocine.fr/rest/v3/tvseries?partner=" + apiKey + "&profile=large&mediafmt=mp4-lc&format=" + format + "&filter=movie&striptags=synopsis,synopsisshort&code=" + allocineId);
-        return connect(url);
+        return WebBrowser.openProxiedConnection(url);
     }
 
     protected URLConnection connectGetTvSeasonInfos(Integer seasonCode) throws IOException {
-        // HTML tags are remove from synopsis & synopsisshort
+        // HTML tags are removed from synopsis & synopsisshort
         URL url = new URL("http://api.allocine.fr/rest/v3/season?partner=" + apiKey + "&profile=large&mediafmt=mp4-lc&format=" + format + "&filter=movie&striptags=synopsis,synopsisshort&code=" + seasonCode);
-        return connect(url);
+        return WebBrowser.openProxiedConnection(url);
     }
 }
