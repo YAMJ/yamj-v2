@@ -29,6 +29,8 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.WebBrowser;
+
 import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.cache.CacheMemory;
 import java.net.URLEncoder;
@@ -46,7 +48,7 @@ public class AllocinePlugin extends ImdbPlugin {
     public static final String CACHE_SEARCH_SERIES = "AllocineSearchSeries";
     public static final String CACHE_MOVIE = "AllocineMovie";
     public static final String CACHE_SERIES = "AllocineSeries";
-    private XMLAllocineAPIHelper allocineAPI;
+    private AllocineAPIHelper allocineAPI;
     private boolean includeEpisodePlots;
     private boolean includeVideoImages;
     protected TheTvDBPlugin tvdb = null;
@@ -54,7 +56,16 @@ public class AllocinePlugin extends ImdbPlugin {
 
     public AllocinePlugin() {
         super();
-        allocineAPI = new XMLAllocineAPIHelper(PropertiesUtil.getProperty("API_KEY_Allocine"));
+
+        // set up the Allocine API for XML or JSON
+        String format = PropertiesUtil.getProperty("allocine.api.format", "json");
+        if ("xml".equalsIgnoreCase(format)) {
+            allocineAPI = new XMLAllocineAPIHelper(PropertiesUtil.getProperty("API_KEY_Allocine"));
+        } else {
+            allocineAPI = new JSONAllocineAPIHelper(PropertiesUtil.getProperty("API_KEY_Allocine"));
+        }
+        allocineAPI.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", Boolean.FALSE);
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
