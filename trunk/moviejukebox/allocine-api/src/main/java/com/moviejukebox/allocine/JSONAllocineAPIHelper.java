@@ -23,6 +23,7 @@
 package com.moviejukebox.allocine;
 
 import java.io.InputStream;
+import java.net.URLConnection;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -52,6 +53,11 @@ import com.moviejukebox.allocine.jaxb.TypeType;
 public final class JSONAllocineAPIHelper extends AbstractAllocineAPI {
 
     /**
+     * The JSON object mapper
+     */
+    private ObjectMapper mapper = new ObjectMapper();
+
+    /**
      * Constructor.
      *
      * @param apiKey The API key for allocine
@@ -63,13 +69,16 @@ public final class JSONAllocineAPIHelper extends AbstractAllocineAPI {
     @Override
     public Search searchMovieInfos(String query) throws Exception {
         JsonNode rootNode = null;
-        
-        InputStream inputStream = connectSearchMovieInfos(query).getInputStream();
+        URLConnection connection = null;
+        InputStream inputStream = null;
+
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            connection = connectSearchMovieInfos(query);
+            inputStream = connection.getInputStream();
+
             rootNode = mapper.readTree(inputStream);
         } finally {
-            closeInputStream(inputStream);
+            close(connection, inputStream);
         }
 
         Search search = new Search();
@@ -104,13 +113,16 @@ public final class JSONAllocineAPIHelper extends AbstractAllocineAPI {
     @Override
     public Search searchTvseriesInfos(String query) throws Exception {
         JsonNode rootNode = null;
-        
-        InputStream inputStream = connectSearchTvseriesInfos(query).getInputStream();
+        URLConnection connection = null;
+        InputStream inputStream = null;
+
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            connection = connectSearchTvseriesInfos(query);
+            inputStream = connection.getInputStream();
+
             rootNode = mapper.readTree(inputStream);
         } finally {
-            closeInputStream(inputStream);
+            close(connection, inputStream);
         }
 
         Search search = new Search();
@@ -146,13 +158,16 @@ public final class JSONAllocineAPIHelper extends AbstractAllocineAPI {
     @Override
     public MovieInfos getMovieInfos(String allocineId) throws Exception {
         JsonNode rootNode = null;
-        
-        InputStream inputStream = connectGetMovieInfos(allocineId).getInputStream();
+        URLConnection connection = null;
+        InputStream inputStream = null;
+
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            connection = connectGetMovieInfos(allocineId);
+            inputStream = connection.getInputStream();
+
             rootNode = mapper.readTree(inputStream);
         } finally {
-            closeInputStream(inputStream);
+            close(connection, inputStream);
         }
 
         MovieInfos infos = new MovieInfos();
@@ -202,13 +217,16 @@ public final class JSONAllocineAPIHelper extends AbstractAllocineAPI {
     @Override
     public TvSeriesInfos getTvSeriesInfos(String allocineId) throws Exception {
         JsonNode rootNode = null;
-        
-        InputStream inputStream = connectGetTvSeriesInfos(allocineId).getInputStream();
+        URLConnection connection = null;
+        InputStream inputStream = null;
+
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            connection = connectGetTvSeriesInfos(allocineId);
+            inputStream = connection.getInputStream();
+
             rootNode = mapper.readTree(inputStream);
         } finally {
-            closeInputStream(inputStream);
+            close(connection, inputStream);
         }
 
         TvSeriesInfos infos = new TvSeriesInfos();
@@ -259,13 +277,16 @@ public final class JSONAllocineAPIHelper extends AbstractAllocineAPI {
     @Override
     public TvSeasonInfos getTvSeasonInfos(Integer seasonCode) throws Exception {
         JsonNode rootNode = null;
-        
-        InputStream inputStream = connectGetTvSeasonInfos(seasonCode).getInputStream();
+        URLConnection connection = null;
+        InputStream inputStream = null;
+
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            connection = connectGetTvSeasonInfos(seasonCode);
+            inputStream = connection.getInputStream();
+
             rootNode = mapper.readTree(inputStream);
         } finally {
-            closeInputStream(inputStream);
+            close(connection, inputStream);
         }
 
         TvSeasonInfos infos = new TvSeasonInfos();

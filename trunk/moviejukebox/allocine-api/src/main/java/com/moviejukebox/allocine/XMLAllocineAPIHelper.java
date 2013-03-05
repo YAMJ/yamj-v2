@@ -25,6 +25,8 @@ package com.moviejukebox.allocine;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLConnection;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -68,33 +70,45 @@ public final class XMLAllocineAPIHelper extends AbstractAllocineAPI {
     @Override
     public Search searchMovieInfos(String query) throws IOException, JAXBException, XMLStreamException {
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
-        InputStream inputStream = connectSearchMovieInfos(query).getInputStream();
+        
+        URLConnection connection = null;
+        InputStream inputStream = null;
         try {
+            connection = connectSearchMovieInfos(query);
+            inputStream = connection.getInputStream();
             return validSearchElement(unmarshaller.unmarshal(inputStream));
         } finally {
-            closeInputStream(inputStream);
+            close(connection, inputStream);
         }
     }
 
     @Override
     public Search searchTvseriesInfos(String query) throws IOException, JAXBException, XMLStreamException {
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
-        InputStream inputStream = connectSearchTvseriesInfos(query).getInputStream();
+        
+        URLConnection connection = null;
+        InputStream inputStream = null;
         try {
+            connection = connectSearchTvseriesInfos(query);
+            inputStream = connection.getInputStream();
             return validSearchElement(unmarshaller.unmarshal(inputStream));
         } finally {
-            closeInputStream(inputStream);
+            close(connection, inputStream);
         }
     }
 
     @Override
     public MovieInfos getMovieInfos(String allocineId) throws IOException, JAXBException, XMLStreamException {
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
-        InputStream inputStream = connectGetMovieInfos(allocineId).getInputStream();
+        
+        URLConnection connection = null;
+        InputStream inputStream = null;
         try {
+            connection = connectGetMovieInfos(allocineId);
+            inputStream = connection.getInputStream();
             return validMovieElement(unmarshaller.unmarshal(inputStream));
         } finally {
-            closeInputStream(inputStream);
+            close(connection, inputStream);
         }
     }
 
@@ -106,22 +120,30 @@ public final class XMLAllocineAPIHelper extends AbstractAllocineAPI {
     @Override
     public TvSeriesInfos getTvSeriesInfos(String allocineId) throws IOException, JAXBException, XMLStreamException {
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
-        InputStream inputStream = connectGetTvSeriesInfos(allocineId).getInputStream();
+        
+        URLConnection connection = null;
+        InputStream inputStream = null;
         try {
+            connection = connectGetTvSeriesInfos(allocineId);
+            inputStream = connection.getInputStream();
             return validTvSeriesElement(unmarshaller.unmarshal(inputStream));
         } finally {
-            closeInputStream(inputStream);
+            close(connection, inputStream);
         }
     }
 
     @Override
     public TvSeasonInfos getTvSeasonInfos(Integer seasonCode) throws IOException, JAXBException, XMLStreamException {
         Unmarshaller unmarshaller = createAllocineUnmarshaller();
-        InputStream inputStream = connectGetTvSeasonInfos(seasonCode).getInputStream();
+        
+        URLConnection connection = null;
+        InputStream inputStream = null;
         try {
+            connection = connectGetTvSeasonInfos(seasonCode);
+            inputStream = connection.getInputStream();
             return validTvSeasonElement(unmarshaller.unmarshal(inputStream));
         } finally {
-            closeInputStream(inputStream);
+            close(connection, inputStream);
         }
     }
 
