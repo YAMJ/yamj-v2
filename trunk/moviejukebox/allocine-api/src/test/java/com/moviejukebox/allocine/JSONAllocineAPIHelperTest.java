@@ -28,8 +28,6 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Test;
-
 
 public class JSONAllocineAPIHelperTest {
 
@@ -38,7 +36,6 @@ public class JSONAllocineAPIHelperTest {
     @Before
     public void setUp() {
         api = new JSONAllocineAPIHelper("YW5kcm9pZC12M3M");
-        api.setProxy("wsw_b0", 8080);
     }
     
     @Ignore
