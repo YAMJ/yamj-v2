@@ -48,6 +48,8 @@ public class JukeboxStatistics {
     // Logger
     private static final Logger logger = Logger.getLogger(JukeboxStatistics.class);
     private static final String LOG_MESSAGE = "JukeboxStatistics: ";
+    // Filename
+    private static final String XML_FILENAME = "jukebox_statistics.xml";
     // Properties
     private static final EnumMap<JukeboxStatistic, Integer> statistics = new EnumMap<JukeboxStatistic, Integer>(JukeboxStatistic.class);
     private static EnumMap<JukeboxTimes, Long> times = new EnumMap<JukeboxTimes, Long>(JukeboxTimes.class);
@@ -56,6 +58,8 @@ public class JukeboxStatistics {
     private static final String DEFAULT_TZ = "GMT";
 
     static {
+        // Add the file to the list of safe files
+        FileTools.addJukeboxFile(XML_FILENAME);
         // Initialise the values
         for (JukeboxStatistic stat : JukeboxStatistic.values()) {
             statistics.put(stat, 0);
@@ -266,7 +270,7 @@ public class JukeboxStatistics {
      * @param mediaLibraryPaths
      */
     public static void writeFile(Jukebox jukebox, Library library, Collection<MediaLibraryPath> mediaLibraryPaths) {
-        File jbStats = new File(jukebox.getJukeboxRootLocationDetailsFile(), "jukebox_statistics.xml");
+        File jbStats = new File(jukebox.getJukeboxRootLocationDetailsFile(), XML_FILENAME);
         FileTools.addJukeboxFile(jbStats.getName());
 
         Document docJbStats;

@@ -57,7 +57,6 @@ public class VideoImageScanner {
     private static boolean videoimageOverwrite;
 
     static {
-
         // We get valid extensions
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("videoimage.scanner.videoimageExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
         while (st.hasMoreTokens()) {
@@ -202,6 +201,7 @@ public class VideoImageScanner {
 
                     // This is the YAMJ generated filename.
                     mf.setVideoImageFilename(part, localVideoImageBaseFilename);
+                    FileTools.addJukeboxFile(localVideoImageBaseFilename);
                 }
 
                 // If we haven't found a local image, but a generic image exists, use that now.

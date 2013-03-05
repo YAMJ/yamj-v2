@@ -44,28 +44,34 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Save a pre-defined list of attributes of the jukebox and properties for use
- * in subsequent processing runs to determine if an attribute has changed and
- * force a rescan of the appropriate data
+ * Save a pre-defined list of attributes of the jukebox and properties for use in subsequent processing runs to determine if an
+ * attribute has changed and force a rescan of the appropriate data
  *
  * @author stuart.boston
  *
  */
 public class JukeboxProperties {
 
+    // Logger
     private static final Logger logger = Logger.getLogger(JukeboxProperties.class);
     private static final String LOG_MESSAGE = "JukeboxProperties: ";
+    // Filename
+    private static final String XML_FILENAME = "jukebox_details.xml";
+    // Properties
     private static final boolean MONITOR = PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", Boolean.FALSE);
     private static final Collection<PropertyInformation> propInfo = new ArrayList<PropertyInformation>();
+    private static boolean scanningLimitReached = Boolean.FALSE;   // Were videos skipped during processing?
+    // Literals
     private static final String JUKEBOX = "jukebox";
     private static final String SKIN = "skin";
     private static final String PROPERTIES = "properties";
     private static final String CATEGORY = "Category";
     private static final String GENRE = "Genre";
     private static final String CERTIFICATION = "Certification";
-    private static boolean scanningLimitReached = Boolean.FALSE;   // Were videos skipped during processing?
 
     static {
+        FileTools.addJukeboxFile(XML_FILENAME);
+
         propInfo.add(new PropertyInformation("userPropertiesName", EnumSet.noneOf(PropertyOverwrites.class)));
         propInfo.add(new PropertyInformation("mjb.skin.dir", EnumSet.of(HTML, Thumbnails, Posters, Index, Skin)));
 
@@ -212,17 +218,16 @@ public class JukeboxProperties {
     }
 
     /**
-     * Check to see if the file needs to be processed (if it exists) or just
-     * created Note: This *MIGHT* cause issues with some programs that assume
-     * all XML files in the jukebox folder are videos or indexes. However, they
-     * should just deal with this themselves :-)
+     * Check to see if the file needs to be processed (if it exists) or just created Note: This *MIGHT* cause issues with some
+     * programs that assume all XML files in the jukebox folder are videos or indexes. However, they should just deal with this
+     * themselves :-)
      *
      * @param jukebox
      * @param mediaLibraryPaths
      */
     public static void readDetailsFile(Jukebox jukebox, Collection<MediaLibraryPath> mediaLibraryPaths) {
         // Read the mjbDetails file that stores the jukebox properties we want to watch
-        File mjbDetails = new File(jukebox.getJukeboxRootLocationDetailsFile(), "jukebox_details.xml");
+        File mjbDetails = new File(jukebox.getJukeboxRootLocationDetailsFile(), XML_FILENAME);
         FileTools.addJukeboxFile(mjbDetails.getName());
         try {
             // If we are monitoring the file and it exists, then read and check, otherwise create the file
@@ -395,8 +400,7 @@ public class JukeboxProperties {
     }
 
     /**
-     * Determine the file date from the passed filename, if the filename is
-     * invalid return UNKNOWN
+     * Determine the file date from the passed filename, if the filename is invalid return UNKNOWN
      *
      * @param tempFilename
      * @return
@@ -416,8 +420,7 @@ public class JukeboxProperties {
     }
 
     /**
-     * Read the attributes from the file and compare and set any force
-     * overwrites needed
+     * Read the attributes from the file and compare and set any force overwrites needed
      *
      * @param mjbDetails
      * @param mediaLibraryPaths
@@ -507,8 +510,7 @@ public class JukeboxProperties {
     /**
      * Compare the current XML file details with the stored ones.
      *
-     * Any errors with this check will return TRUE to ensure no properties are
-     * overwritten
+     * Any errors with this check will return TRUE to ensure no properties are overwritten
      *
      * @param eJukebox
      * @return
