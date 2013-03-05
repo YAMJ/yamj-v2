@@ -167,6 +167,7 @@
       <xs:sequence>
         <xs:element ref="name" />
       </xs:sequence>
+      <xs:attribute name="code" type="xs:int" use="required" />
     </xs:complexType>
   </xs:element>
 
@@ -306,6 +307,7 @@
     <xs:complexType>
       <xs:all>
         <xs:element ref="title" />
+        <xs:element ref="originalTitle" />
         <xs:element ref="episodeNumberSeries" />
         <xs:element ref="episodeNumberSeason" />
         <xs:element name="synopsis" type="xs:string" />

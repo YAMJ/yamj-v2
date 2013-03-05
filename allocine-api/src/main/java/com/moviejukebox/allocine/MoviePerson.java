@@ -29,8 +29,17 @@ package com.moviejukebox.allocine;
  */
 public class MoviePerson {
 
+    private int code;
     private String name;
     private String role;
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
 
     public String getName() {
         return name;
