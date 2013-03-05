@@ -51,7 +51,7 @@ public class VideoImageScanner {
 
     private static final Logger logger = Logger.getLogger(VideoImageScanner.class);
     private static final String LOG_MESSAGE = "VideoImageScanner: ";
-    private static String skinHome=SkinProperties.getSkinHome();
+    private static String skinHome = SkinProperties.getSkinHome();
     private static final Collection<String> videoimageExtensions = new ArrayList<String>();
     private static String videoimageToken;
     private static boolean videoimageOverwrite;
@@ -68,8 +68,7 @@ public class VideoImageScanner {
     }
 
     /**
-     * Try to locate a local video image and if that fails, download the image
-     * from the Internet.
+     * Try to locate a local video image and if that fails, download the image from the Internet.
      *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
@@ -201,7 +200,6 @@ public class VideoImageScanner {
 
                     // This is the YAMJ generated filename.
                     mf.setVideoImageFilename(part, localVideoImageBaseFilename);
-                    FileTools.addJukeboxFile(localVideoImageBaseFilename);
                 }
 
                 // If we haven't found a local image, but a generic image exists, use that now.
@@ -238,8 +236,11 @@ public class VideoImageScanner {
 
 //                    String videoimageFilename = FileTools.makeSafeFilename(mf.getVideoImageFilename(part));
                     String videoimageFilename = mf.getVideoImageFilename(part);
-                    String finalDestinationFileName = jukebox.getJukeboxRootLocationDetails() + File.separator + videoimageFilename;
-                    String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + videoimageFilename;
+                    String finalDestinationFileName = StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), videoimageFilename);
+                    String tmpDestFilename = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), videoimageFilename);
+
+                    // Add the filename to the safe list
+                    FileTools.addJukeboxFile(videoimageFilename);
 
                     File tmpDestFile = new File(tmpDestFilename);
                     File finalDestinationFile = new File(finalDestinationFileName);
@@ -312,8 +313,7 @@ public class VideoImageScanner {
     }
 
     /**
-     * Download the videoimage from the URL. Initially this is populated from
-     * TheTVDB plugin
+     * Download the videoimage from the URL. Initially this is populated from TheTVDB plugin
      *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
@@ -325,11 +325,13 @@ public class VideoImageScanner {
         if (StringTools.isValidString(mf.getVideoImageURL(part))) {
 //            String safeVideoImageFilename = FileTools.makeSafeFilename(mf.getVideoImageFilename(part));
             String safeVideoImageFilename = mf.getVideoImageFilename(part);
-            String videoimageFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + safeVideoImageFilename;
+            String videoimageFilename = StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), safeVideoImageFilename);
             File videoimageFile = FileTools.fileCache.getFile(videoimageFilename);
-            String tmpDestFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + safeVideoImageFilename;
+            String tmpDestFilename = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), safeVideoImageFilename);
             File tmpDestFile = new File(tmpDestFilename);
             boolean fileOK = true;
+            // Add file to safe list
+            FileTools.addJukeboxFile(safeVideoImageFilename);
 
             // Do not overwrite existing videoimage unless ForceVideoImageOverwrite = true
             if ((!videoimageFile.exists() && !tmpDestFile.exists())
