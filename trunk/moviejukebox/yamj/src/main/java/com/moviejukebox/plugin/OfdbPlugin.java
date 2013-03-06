@@ -27,9 +27,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
 import org.apache.log4j.Logger;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.model.enumerations.OverrideFlag;
@@ -95,11 +93,11 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             }
 
             // scrape plot and outline
-            if (OverrideTools.checkOneOverwrite(movie, OFDB_PLUGIN_ID, OverrideFlag.PLOT, OverrideFlag.OUTLINE)) {
+            String plotMarker = HTMLTools.extractTag(xml, "<a href=\"plot/", 0, "\"");
+            if (StringTools.isValidString(plotMarker) && OverrideTools.checkOneOverwrite(movie, OFDB_PLUGIN_ID, OverrideFlag.PLOT, OverrideFlag.OUTLINE)) {
                 try {
-                    String plotUrl = "http://www.ofdb.de/plot/" + HTMLTools.extractTag(xml, "<a href=\"plot/", 0, "\"");
-                    String plotXml = webBrowser.request(plotUrl);
-    
+                    String plotXml = webBrowser.request("http://www.ofdb.de/plot/" + plotMarker);
+
                     int firstindex = plotXml.indexOf("gelesen</b></b><br><br>") + 23;
                     int lastindex = plotXml.indexOf("</font>", firstindex);
                     String plot = plotXml.substring(firstindex, lastindex);
