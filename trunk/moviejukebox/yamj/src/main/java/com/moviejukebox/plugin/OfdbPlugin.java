@@ -74,7 +74,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
             // retrieve IMDB id if not set
             String imdbId = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID);
-            if (StringTools.isNotValidString(movie.getId(ImdbPlugin.IMDB_PLUGIN_ID))) {
+            if (StringTools.isNotValidString(imdbId)) {
                 imdbId = HTMLTools.extractTag(xml, "href=\"http://www.imdb.com/Title?", "\"");
                 movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, imdbId);
             }
