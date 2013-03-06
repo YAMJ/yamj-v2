@@ -229,36 +229,94 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         return returnValue;
     }
 
-    public void getOfdbId(Movie mediaFile) {
-        if (StringTools.isNotValidString(mediaFile.getId(OFDB_PLUGIN_ID))) {
-            if (StringTools.isValidString(mediaFile.getId(ImdbPlugin.IMDB_PLUGIN_ID))) {
-                mediaFile.setId(OFDB_PLUGIN_ID, getOfdbIdFromOfdb(mediaFile.getId(ImdbPlugin.IMDB_PLUGIN_ID)));
-            } else {
-                mediaFile.setId(OFDB_PLUGIN_ID, getOfdbIdfromGoogle(mediaFile.getTitle(), mediaFile.getYear()));
+    public String getOfdbId(Movie movie) {
+        String ofdbId = movie.getId(OFDB_PLUGIN_ID);
+        if (StringTools.isNotValidString(ofdbId)) {
+            // find by IMDb id
+            String imdbId = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID);
+            if (StringTools.isValidString(imdbId)) {
+                // if IMDb id is present then use this
+                ofdbId = getOfdbIdByImdbId(imdbId);
             }
+            if (StringTools.isNotValidString(ofdbId)) {
+                // try by title and year
+                ofdbId = getObdbIdByTitleAndYear(movie.getTitle(), movie.getYear());
+            }
+            if (StringTools.isNotValidString(ofdbId)) {
+                // try on google
+                ofdbId = getOfdbIdFromGoogle(movie.getTitle(), movie.getYear());
+            }
+            movie.setId(OFDB_PLUGIN_ID, ofdbId);
         }
+        return ofdbId;
     }
 
-    public String getOfdbIdFromOfdb(String imdbId) {
+    private String getOfdbIdByImdbId(String imdbId) {
         try {
             String xml = webBrowser.request("http://www.ofdb.de/view.php?page=suchergebnis&SText=" + imdbId + "&Kat=IMDb");
-
-            int beginIndex = xml.indexOf("film/");
-            if (beginIndex != -1) {
-                StringTokenizer st = new StringTokenizer(xml.substring(beginIndex), "\"");
-                return "http://www.ofdb.de/" + st.nextToken();
+            
+            int beginIndex = xml.indexOf("Ergebnis der Suchanfrage");
+            if (beginIndex < 0) {
+                return Movie.UNKNOWN;
             }
+
+            beginIndex = xml.indexOf("film/", beginIndex);
+            if (beginIndex != -1) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("http://www.ofdb.de/");
+                sb.append(xml.substring(beginIndex, xml.indexOf("\"", beginIndex+1)));
+                return sb.toString();
+            }
+            
         } catch (IOException error) {
-            LOGGER.error(LOG_MESSAGE + "Failed retreiving ofdb url for imdb id: " + imdbId);
+            LOGGER.error(LOG_MESSAGE + "Failed retreiving OFDb url for IMDb id: " + imdbId);
             LOGGER.error(SystemTools.getStackTrace(error));
         }
         return Movie.UNKNOWN;
     }
 
-    private String getOfdbIdfromGoogle(String movieName, String year) {
+    private String getObdbIdByTitleAndYear(String title, String year) {
+        if (StringTools.isNotValidString(year)) {
+            // title and year must be present for successful OFDb advanced search
+            // expected are 2 search parameters minimum; so skip here if year is not valid
+            return Movie.UNKNOWN;
+        }
+        
+        try {
+            StringBuilder sb = new StringBuilder("http://www.ofdb.de/view.php?page=fsuche&Typ=N&AB=-&Titel=");
+            sb.append(URLEncoder.encode(title, "UTF-8"));
+            sb.append("&Genre=-&HLand=-&Jahr=");
+            sb.append(year);
+            sb.append("&Wo=-&Land=-&Freigabe=-&Cut=A&Indiziert=A&Submit2=Suche+ausf%C3%BChren");
+
+            String xml = webBrowser.request(sb.toString());
+
+            int beginIndex = xml.indexOf("Liste der gefundenen Fassungen");
+            if (beginIndex < 0) {
+                return Movie.UNKNOWN;
+            }
+            
+            beginIndex = xml.indexOf("href=\"film/",beginIndex);
+            if (beginIndex < 0) {
+                return Movie.UNKNOWN;
+            }
+
+            sb.setLength(0);
+            sb.append("http://www.ofdb.de/");
+            sb.append(xml.substring(beginIndex+6, xml.indexOf("\"", beginIndex+10)));
+            return sb.toString();
+            
+        } catch (Exception error) {
+            LOGGER.error(LOG_MESSAGE + "Failed retrieving OFDb url by search : " + title);
+            LOGGER.error(SystemTools.getStackTrace(error));
+        }
+        return Movie.UNKNOWN;
+    }
+    
+    private String getOfdbIdFromGoogle(String title, String year) {
         try {
             StringBuilder sb = new StringBuilder("http://www.google.de/search?hl=de&q=");
-            sb.append(URLEncoder.encode(movieName, "UTF-8"));
+            sb.append(URLEncoder.encode(title, "UTF-8"));
             if (StringTools.isValidString(year)) {
                 sb.append("+%28").append(year).append("%29");
             }
@@ -271,7 +329,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                 return st.nextToken();
             }
         } catch (Exception error) {
-            LOGGER.error(LOG_MESSAGE + "Failed retreiving ofdb url for movie: " + movieName);
+            LOGGER.error(LOG_MESSAGE + "Failed retrieving OFDb url by google : " + title);
             LOGGER.error(SystemTools.getStackTrace(error));
         }
         return Movie.UNKNOWN;
