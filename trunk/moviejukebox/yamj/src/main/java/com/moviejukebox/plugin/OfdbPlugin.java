@@ -63,11 +63,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     public boolean scan(Movie movie) {
         imdbp.scan(movie);
         
-        if (StringTools.isNotValidString(movie.getId(OFDB_PLUGIN_ID))) {
-            getOfdbId(movie);
-        }
-
-        String ofdbId = movie.getId(OFDB_PLUGIN_ID);
+        String ofdbId = getOfdbId(movie);
         if (StringTools.isNotValidString(ofdbId)) {
             return Boolean.FALSE;
         }
@@ -206,7 +202,6 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                             for (String tag : tags)  {
                                 cast.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
                             }
-
                             
                             if (overrideNormal) {
                                 movie.setCast(cast, OFDB_PLUGIN_ID);
