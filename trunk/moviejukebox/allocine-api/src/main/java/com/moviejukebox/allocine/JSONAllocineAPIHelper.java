@@ -346,9 +346,12 @@ public final class JSONAllocineAPIHelper extends AbstractAllocineAPI {
     private static void parseListValues(List<String> values, JsonNode valuesNode) {
         if (valuesNode != null && (valuesNode.size() > 0)) {
             for (int i=0; i<valuesNode.size(); i++) {
-                String value = getValueAsString(valuesNode.get(i).get("$"));
-                if (value != null) {
-                    values.add(value);
+                JsonNode valueNode = valuesNode.get(i);
+                if (valueNode != null) {
+                    String value = getValueAsString(valueNode.get("$"));
+                    if (value != null) {
+                        values.add(value);
+                    }
                 }
             }
         }
