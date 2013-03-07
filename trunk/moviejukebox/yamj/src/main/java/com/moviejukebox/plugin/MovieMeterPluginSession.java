@@ -22,9 +22,12 @@
  */
 package com.moviejukebox.plugin;
 
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.WebBrowser;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -58,7 +61,6 @@ public final class MovieMeterPluginSession {
     private String key;
     private Integer timestamp;
     private Integer counter;
-    private XmlRpcClientConfigImpl config;
     private XmlRpcClient client;
 
     /**
@@ -66,8 +68,16 @@ public final class MovieMeterPluginSession {
      */
     private void init() {
         try {
-            config = new XmlRpcClientConfigImpl();
+            if (StringUtils.isNotBlank(WebBrowser.getMjbProxyHost())) {
+                System.getProperties().put("proxySet", TRUE);
+                System.getProperties().put("proxyHost", WebBrowser.getMjbProxyHost());
+                System.getProperties().put("proxyPort", WebBrowser.getMjbProxyPort());
+            }
+            
+            XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
             config.setServerURL(new URL("http://www.moviemeter.nl/ws"));
+            config.setConnectionTimeout(WebBrowser.getMjbTimeoutConnect());
+            
             client = new XmlRpcClient();
             client.setConfig(config);
         } catch (MalformedURLException error) {
@@ -75,6 +85,7 @@ public final class MovieMeterPluginSession {
         }
     }
 
+    
     /**
      * Creates a new session to www.moviemeter.nl or if a session exists on disk, it is checked and resumed if valid.
      *
