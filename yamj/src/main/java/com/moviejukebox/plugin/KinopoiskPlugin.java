@@ -953,31 +953,9 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
     private int scanMoviePerson(Movie movie, String xml, String mode, int personMax, boolean overrideNormal, boolean overridePeople) {
         int count = 0;
-
+        boolean clearList = Boolean.TRUE;
+        
         if (personMax > 0 && xml.indexOf("<a name=\"" + mode + "\">") != -1) {
-            if (mode.equals("actor")) {
-                if (overrideNormal) {
-                    movie.clearCast();
-                }
-                if (overridePeople) {
-                    movie.clearPeopleCast();
-                }
-            } else if (mode.equals("director")) {
-                if (overrideNormal) {
-                    movie.clearDirectors();
-                }
-                if (overridePeople) {
-                    movie.clearPeopleDirectors();
-                }
-            } else if (mode.equals("writer")) {
-                if (overrideNormal) {
-                    movie.clearWriters();
-                }
-                if (overridePeople) {
-                    movie.clearPeopleWriters();
-                }
-            }
-
             for (String item : HTMLTools.extractTags(xml, "<a name=\"" + mode + "\">", "<a name=\"", "<div class=\"dub ", "<div class=\"clear\"></div>")) {
                 String name = HTMLTools.extractTag(item, "<div class=\"name\"><a href=\"/name/", "</a>");
                 int beginIndex = name.indexOf("/\">");
@@ -997,37 +975,21 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
                 }
                 count++;
-                boolean found = false;
-                for (Filmography p : movie.getPeople()) {
-                    if (p.getName().equalsIgnoreCase(origName) && p.getJob().equalsIgnoreCase(mode)) {
-                        p.setId(KINOPOISK_PLUGIN_ID, personID);
-                        p.setTitle(name);
-                        p.setCharacter(role);
-                        p.setDoublage(dubler);
-                        if (overrideNormal) {
-                            if (mode.equals("actor")) {
-                                movie.addActor(StringTools.isValidString(name) ? name : origName, KINOPOISK_PLUGIN_ID);
-                            } else if (mode.equals("director")) {
-                                movie.addDirector(StringTools.isValidString(name) ? name : origName, KINOPOISK_PLUGIN_ID);
-                            } else if (mode.equals("writer")) {
-                                movie.addWriter(StringTools.isValidString(name) ? name : origName, KINOPOISK_PLUGIN_ID);
-                            }
-                        }
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    if (overrideNormal) {
-                        if (mode.equals("actor")) {
-                            movie.addActor(origName, KINOPOISK_PLUGIN_ID);
-                        } else if (mode.equals("director")) {
-                            movie.addDirector(origName, KINOPOISK_PLUGIN_ID);
-                        } else if (mode.equals("writer")) {
-                            movie.addWriter(origName, KINOPOISK_PLUGIN_ID);
+                
+                // NOTE: kinopoisk just enhances people informations, but don't overwrite them
+                if (overridePeople) {
+                    boolean found = false;
+                    for (Filmography p : movie.getPeople()) {
+                        if (p.getName().equalsIgnoreCase(origName) && p.getJob().equalsIgnoreCase(mode)) {
+                            p.setId(KINOPOISK_PLUGIN_ID, personID);
+                            p.setTitle(name);
+                            p.setCharacter(role);
+                            p.setDoublage(dubler);
+                            found = true;
+                            break;
                         }
                     }
-                    if (overridePeople) {
+                    if (!found) {
                         if (mode.equals("actor")) {
                             movie.addActor(KINOPOISK_PLUGIN_ID + ":" + personID, origName + ":" + name, role, "http://www.kinopoisk.ru/name/" + personID + "/", dubler, KINOPOISK_PLUGIN_ID);
                         } else if (mode.equals("director")) {
@@ -1037,6 +999,29 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
                 }
+                
+                if (overrideNormal) {
+                    if (mode.equals("actor")) {
+                        if (clearList) {
+                            movie.clearCast();
+                            clearList = Boolean.FALSE;
+                        }
+                        movie.addActor(origName, KINOPOISK_PLUGIN_ID);
+                    } else if (mode.equals("director")) {
+                        if (clearList) {
+                            movie.clearDirectors();
+                            clearList = Boolean.FALSE;
+                        }
+                        movie.addDirector(origName, KINOPOISK_PLUGIN_ID);
+                    } else if (mode.equals("writer")) {
+                        if (clearList) {
+                            movie.clearWriters();
+                            clearList = Boolean.FALSE;
+                        }
+                        movie.addWriter(origName, KINOPOISK_PLUGIN_ID);
+                    }
+                }
+                
                 if (count == personMax) {
                     break;
                 }
