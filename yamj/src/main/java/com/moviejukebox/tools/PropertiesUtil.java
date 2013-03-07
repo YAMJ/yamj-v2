@@ -167,7 +167,7 @@ public class PropertiesUtil {
         if (property == null) {
             property = props.getProperty(newKey, defaultValue);
         } else {
-            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed later on; please use '" + newKey + "' instead");
+            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
         }
         return property;
     }
