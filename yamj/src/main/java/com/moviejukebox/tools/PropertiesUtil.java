@@ -167,7 +167,7 @@ public class PropertiesUtil {
         if (property == null) {
             property = props.getProperty(newKey, defaultValue);
         } else {
-            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
+            LOG.warn("Warning (non-fatal): Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
         }
         return property;
     }
@@ -177,7 +177,7 @@ public class PropertiesUtil {
         if (property == null) {
             property = props.getProperty(newKey);
         } else {
-            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
+            LOG.warn("Warning (non-fatal): Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
         }
         if (property != null) {
             return Boolean.parseBoolean(property.trim());
@@ -190,7 +190,7 @@ public class PropertiesUtil {
         if (property == null) {
             property = props.getProperty(newKey);
         } else {
-            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
+            LOG.warn("Warning (non-fatal): Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
         }
         if (property != null) {
             try {
@@ -205,7 +205,7 @@ public class PropertiesUtil {
         if (property == null) {
             property = props.getProperty(newKey);
         } else {
-            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
+            LOG.warn("Warning (non-fatal): Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
         }
         if (property != null) {
             try {
@@ -220,7 +220,7 @@ public class PropertiesUtil {
         if (property == null) {
             property = props.getProperty(newKey);
         } else {
-            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
+            LOG.warn("Warning (non-fatal): Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
         }
         if (property != null) {
             try {
