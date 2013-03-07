@@ -193,7 +193,7 @@ public class AllocinePlugin extends ImdbPlugin {
                     }
                     // A file can have multiple episodes in it
                     for (int numEpisode = file.getFirstPart(); numEpisode <= file.getLastPart(); ++numEpisode) {
-                        logger.debug(LOG_MESSAGE + "Setting filename for episode Nb " + numEpisode);
+                        logger.debug(LOG_MESSAGE + "Setting filename for episode " + numEpisode);
                         Episode episode = tvSeasonInfos.getEpisode(numEpisode);
                         if (episode != null) {
                             // Set the title of the episode
@@ -201,16 +201,17 @@ public class AllocinePlugin extends ImdbPlugin {
                                 file.setTitle(numEpisode, episode.getTitle());
                             }
 
-                            if (includeEpisodePlots && isNotValidString(file.getPlot(numEpisode))) {
+                            if (includeEpisodePlots && isValidString(episode.getSynopsis()) && isNotValidString(file.getPlot(numEpisode))) {
                                 String episodePlot = HTMLTools.replaceHtmlTags(episode.getSynopsis(), " ");
                                 file.setPlot(numEpisode, episodePlot);
                             }
                         }
                     }
                 }
-            } catch (Exception e) {
+            } catch (Exception error) {
                 logger.warn(LOG_MESSAGE + "Can't find informations for season " + currentSeason
                         + " for TvSeries with id " + allocineId + " (" + movie.getBaseName() + ")");
+                logger.warn(SystemTools.getStackTrace(error));
             }
 
             // Call the TvDBPlugin to download fanart and/or videoimages
