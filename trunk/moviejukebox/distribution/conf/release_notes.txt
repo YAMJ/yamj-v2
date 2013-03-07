@@ -9,6 +9,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Enhancement  #2035 MediaInfo can determine a 3D video source
  - Fixed defect #2088 Listing plugin size fix for seasons
  - Fixed defect #2145 Added ability to use MovieMeter via proxy
+ - Fixed defect #2175 Get tagline from IMDb if imdb.full.info is enabled
  - Fixed defect #2321 Countries with accent will be scraped from FilmAffinity
  - Enhancement  #2345 Get actor role from allocine
  - Enhancement  #2397 Read MediaInfo values from file

@@ -26,11 +26,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
-
-import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -39,20 +36,6 @@ public class ImdbPluginTest {
 
     public ImdbPluginTest() {
         BasicConfigurator.configure();
-    }
-
-    @Test
-    public void testImdbMoviePlot() {
-        PropertiesUtil.setProperty("imdb.site", "us");
-        ImdbPlugin imdbPlugin = new ImdbPlugin();
-
-        Movie movie = new Movie();
-        movie.setYear("2012", null);
-        movie.setTitle("Skyfall", null);
-
-        assertTrue(imdbPlugin.scan(movie));
-        assertNotNull(movie.getPlot());
-        assertNotEquals(Movie.UNKNOWN, movie.getPlot());
     }
 
     @Test
@@ -68,7 +51,6 @@ public class ImdbPluginTest {
         assertTrue(imdbPlugin.scan(movie));
         assertNotNull(movie.getPlot());
         assertNotEquals(Movie.UNKNOWN, movie.getPlot());
-        System.err.println(movie.getPlot());
     }
 
     @Test
@@ -81,23 +63,9 @@ public class ImdbPluginTest {
 
         Movie movie = new Movie();
         movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0499549");
-
         assertTrue(imdbPlugin.scan(movie));
         assertNotNull(movie.getPlot());
         assertNotEquals(Movie.UNKNOWN, movie.getPlot());
-    }
-
-    @Test
-    public void testImdbMovieValues() {
-        PropertiesUtil.setProperty("imdb.site", "us");
-        ImdbPlugin imdbPlugin = new ImdbPlugin();
-
-        Movie movie = new Movie();
-        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0120737");
-
-        assertTrue(imdbPlugin.scan(movie));
-        assertEquals("New Zealand", movie.getCountry());
-        assertEquals("New Line Cinema", movie.getCompany());
     }
 
     @Test
@@ -114,19 +82,7 @@ public class ImdbPluginTest {
     }
 
     @Test
-    public void testImdbRating() {
-        PropertiesUtil.setProperty("imdb.site", "us");
-        ImdbPlugin imdbPlugin = new ImdbPlugin();
-
-        Movie movie = new Movie();
-        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt1232829");
-        
-        assertTrue(imdbPlugin.scan(movie));
-        assertEquals(72, movie.getRating(ImdbPlugin.IMDB_PLUGIN_ID));
-    }
-
-    @Test
-    public void testImdbPeople_NewLayout() {
+    public void testImdb_NewLayout() {
         PropertiesUtil.setProperty("imdb.site", "us");
         PropertiesUtil.setProperty("imdb.full.info", "false");
         ImdbPlugin imdbPlugin = new ImdbPlugin();
@@ -135,17 +91,19 @@ public class ImdbPluginTest {
         movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0499549");
         
         assertTrue(imdbPlugin.scan(movie));
+        assertEquals("2009", movie.getYear());
+        assertNotEquals(Movie.UNKNOWN, movie.getPlot());
+        assertEquals(80, movie.getRating(ImdbPlugin.IMDB_PLUGIN_ID));
+        assertEquals("USA", movie.getCountry());
+        assertEquals("Twentieth Century Fox Film Corporation", movie.getCompany());
+        assertEquals("Enter the World", movie.getTagline());
         assertEquals(10, movie.getCast().size());
         assertEquals(1, movie.getDirectors().size());
         assertEquals(1, movie.getWriters().size());
-        
-        for (Filmography f : movie.getPeople()) {
-            System.err.println(f.getName() + " --> " + f.getDepartment()); 
-        }
     }
 
     @Test
-    public void testImdbPeople_Combined() {
+    public void testImdb_Combined() {
         PropertiesUtil.setProperty("imdb.site", "us");
         PropertiesUtil.setProperty("imdb.full.info", "true");
         ImdbPlugin imdbPlugin = new ImdbPlugin();
@@ -154,12 +112,14 @@ public class ImdbPluginTest {
         movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0499549");
         
         assertTrue(imdbPlugin.scan(movie));
+        assertEquals("2009", movie.getYear());
+        assertNotEquals(Movie.UNKNOWN, movie.getPlot());
+        assertEquals(80, movie.getRating(ImdbPlugin.IMDB_PLUGIN_ID));
+        assertEquals("USA", movie.getCountry());
+        assertEquals("Twentieth Century Fox Film Corporation", movie.getCompany());
+        assertEquals("Enter the World", movie.getTagline());
         assertEquals(10, movie.getCast().size());
         assertEquals(1, movie.getDirectors().size());
         assertEquals(1, movie.getWriters().size());
-        
-        for (Filmography f : movie.getPeople()) {
-            System.err.println(f.getName() + " --> " + f.getDepartment()); 
-        }
     }
 }

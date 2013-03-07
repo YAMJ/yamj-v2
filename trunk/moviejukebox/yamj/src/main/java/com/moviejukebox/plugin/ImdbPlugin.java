@@ -394,6 +394,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             movie.setRuntime(getPreferredValue(HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getRuntime() + HTML_H5_END), false), IMDB_PLUGIN_ID);
         }
 
+        // COUNTRY
         if (OverrideTools.checkOverwriteCountry(movie, IMDB_PLUGIN_ID)) {
             // HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCountry() + HTML_H5, HTML_DIV, "<a href", HTML_A_END)
             for (String country : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCountry() + HTML_H5_END, HTML_DIV)) {
@@ -405,6 +406,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
+        // COMPANY
         if (OverrideTools.checkOverwriteCompany(movie, IMDB_PLUGIN_ID)) {
             for (String company : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCompany() + HTML_H5_END, HTML_DIV, "<a href", HTML_A_END)) {
                 if (company != null) {
@@ -415,6 +417,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
+        // GENRES
         if (OverrideTools.checkOverwriteGenres(movie, IMDB_PLUGIN_ID)) {
             List<String> newGenres = new ArrayList<String>();
             for (String genre : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getGenre() + HTML_H5_END, HTML_DIV)) {
@@ -423,7 +426,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
             movie.setGenres(newGenres, IMDB_PLUGIN_ID);
         }
-
+        
+        // QUOTE
         if (OverrideTools.checkOverwriteQuote(movie, IMDB_PLUGIN_ID)) {
             for (String quote : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getQuotes() + HTML_H5_END, HTML_DIV, "<a href=\"/name/nm", "</a class=\"")) {
                 if (quote != null) {
@@ -463,10 +467,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
+        // OUTLINE
         if (OverrideTools.checkOverwriteOutline(movie, IMDB_PLUGIN_ID)) {
             movie.setOutline(imdbOutline, IMDB_PLUGIN_ID);
         }
 
+        // PLOT
         if (OverrideTools.checkOverwritePlot(movie, IMDB_PLUGIN_ID)) {
             String plot = Movie.UNKNOWN;
             if (imdbPlot.equalsIgnoreCase("long")) {
@@ -481,6 +487,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             movie.setPlot(plot, IMDB_PLUGIN_ID);
         }
 
+        // CERTIFICATION
         if (OverrideTools.checkOverwriteCertification(movie, IMDB_PLUGIN_ID)) {
             String certification = movie.getCertification();
             if (extractCertificationFromMPAA) {
@@ -518,7 +525,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             movie.setCertification(certification, IMDB_PLUGIN_ID);
         }
 
-        // Get year of movie from IMDb site
+        // YEAR
         if (OverrideTools.checkOverwriteYear(movie, IMDB_PLUGIN_ID)) {
             Pattern getYear = Pattern.compile("(?:\\s*" + "\\((\\d{4})(?:/[^\\)]+)?\\)|<a href=\"/year/(\\d{4}))");
             Matcher m = getYear.matcher(xml);
@@ -532,15 +539,35 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     movie.setYear(year, IMDB_PLUGIN_ID);
                 }
             }
+
+            // second approach
+            if (isNotValidString(movie.getYear())) {
+                movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/year/", 1), IMDB_PLUGIN_ID);
+                if (isNotValidString(movie.getYear())) {
+                    String fullReleaseDate = HTMLTools.getTextAfterElem(xml, HTML_H5_START + siteDef.getOriginalAirDate() + HTML_H5_END, 0);
+                    if (isValidString(fullReleaseDate)) {
+                        movie.setYear(fullReleaseDate.split(" ")[2], IMDB_PLUGIN_ID);
+                    }
+                }
+            }
         }
 
-        if (OverrideTools.checkOverwriteYear(movie, IMDB_PLUGIN_ID)) {
-            movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/year/", 1), IMDB_PLUGIN_ID);
-            if (isNotValidString(movie.getYear())) {
-                String fullReleaseDate = HTMLTools.getTextAfterElem(xml, HTML_H5_START + siteDef.getOriginalAirDate() + HTML_H5_END, 0);
-                if (isValidString(fullReleaseDate)) {
-                    movie.setYear(fullReleaseDate.split(" ")[2], IMDB_PLUGIN_ID);
+        // TAGLINE
+        if (OverrideTools.checkOverwriteTagline(movie, IMDB_PLUGIN_ID)) {
+            int startTag = xml.indexOf(HTML_H5_START + siteDef.getTaglines() + HTML_H5_END);
+            if (startTag != -1) {
+                // We need to work out which of the two formats to use, this is dependent on which comes first "<a class" or "</div"
+                String endMarker;
+                if (StringUtils.indexOf(xml, "<a class", startTag) < StringUtils.indexOf(xml, HTML_DIV, startTag)) {
+                    endMarker = "<a class";
+                } else {
+                    endMarker = HTML_DIV;
                 }
+    
+                // Now look for the right string
+                String tagline = HTMLTools.extractTag(xml, HTML_H5_START + siteDef.getTaglines() + HTML_H5_END, endMarker);
+                tagline = HTMLTools.stripTags(tagline);
+                movie.setTagline(cleanStringEnding(tagline), IMDB_PLUGIN_ID);
             }
         }
 
@@ -748,7 +775,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             movie.setCertification(certification, IMDB_PLUGIN_ID);
         }
 
-        // Get year of IMDb site
+        // YEAR
         if (OverrideTools.checkOverwriteYear(movie, IMDB_PLUGIN_ID)) {
             Pattern getYear = Pattern.compile("(?:\\s*" + "\\((\\d{4})(?:/[^\\)]+)?\\)|<a href=\"/year/(\\d{4}))");
             Matcher m = getYear.matcher(xml);
@@ -759,14 +786,15 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
                 movie.setYear(year, IMDB_PLUGIN_ID);
             }
-        }
 
-        if (isNotValidString(movie.getYear()) && OverrideTools.checkOverwriteYear(movie, IMDB_PLUGIN_ID)) {
-            movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/year/", 1), IMDB_PLUGIN_ID);
+            // second approach
             if (isNotValidString(movie.getYear())) {
-                String fullReleaseDate = HTMLTools.getTextAfterElem(xml, HTML_H5_START + siteDef.getOriginalAirDate() + HTML_H5_END, 0);
-                if (isValidString(fullReleaseDate)) {
-                    movie.setYear(fullReleaseDate.split(" ")[2], IMDB_PLUGIN_ID);
+                movie.setYear(HTMLTools.extractTag(xml, "<a href=\"/year/", 1), IMDB_PLUGIN_ID);
+                if (isNotValidString(movie.getYear())) {
+                    String fullReleaseDate = HTMLTools.getTextAfterElem(xml, HTML_H5_START + siteDef.getOriginalAirDate() + HTML_H5_END, 0);
+                    if (isValidString(fullReleaseDate)) {
+                        movie.setYear(fullReleaseDate.split(" ")[2], IMDB_PLUGIN_ID);
+                    }
                 }
             }
         }
@@ -774,22 +802,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // TAGLINE
         if (OverrideTools.checkOverwriteTagline(movie, IMDB_PLUGIN_ID)) {
             int startTag = xml.indexOf("<h4 class=\"inline\">" + siteDef.getTaglines() + HTML_H4_END);
-            String endMarker;
-
-            // We need to work out which of the two formats to use, this is dependent on which comes first "<span" or "</div"
-            if (StringUtils.indexOf(xml, "<span", startTag) < StringUtils.indexOf(xml, HTML_DIV, startTag)) {
-                endMarker = "<span";
-            } else {
-                endMarker = HTML_DIV;
-            }
-
-            // Now look for the right string
-            for (String tagline : HTMLTools.extractTags(xml, "<h4 class=\"inline\">" + siteDef.getTaglines() + HTML_H4_END, endMarker)) {
-                if (tagline != null) {
-                    tagline = HTMLTools.stripTags(tagline);
-                    movie.setTagline(cleanStringEnding(tagline), IMDB_PLUGIN_ID);
-                    break;
+            if (startTag != -1) {
+                // We need to work out which of the two formats to use, this is dependent on which comes first "<span" or "</div"
+                String endMarker;
+                if (StringUtils.indexOf(xml, "<span", startTag) < StringUtils.indexOf(xml, HTML_DIV, startTag)) {
+                    endMarker = "<span";
+                } else {
+                    endMarker = HTML_DIV;
                 }
+    
+                // Now look for the right string
+                String tagline = HTMLTools.extractTag(xml, "<h4 class=\"inline\">" + siteDef.getTaglines() + HTML_H4_END, endMarker);
+                tagline = HTMLTools.stripTags(tagline);
+                movie.setTagline(cleanStringEnding(tagline), IMDB_PLUGIN_ID);
             }
         }
 
