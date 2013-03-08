@@ -45,6 +45,10 @@ import org.apache.log4j.Logger;
 public class MovieDirectoryScanner {
 
     private static final String SOURCE_FILENAME = "filename";
+    private static final Logger logger = Logger.getLogger(MovieDirectoryScanner.class);
+    private static int dirCount = 1;
+    private static int fileCount = 0;
+    private static Pattern patternRarPart = Pattern.compile("\\.part(\\d+)\\.rar");
 
     private int mediaLibraryRootPathIndex; // always includes path delimiter
     private final Set<String> supportedExtensions = new HashSet<String>();
@@ -60,11 +64,8 @@ public class MovieDirectoryScanner {
     private Boolean excludeFilesWithoutExternalSubtitles;
     private Boolean excludeMultiPartBluRay;
     private Boolean playFullBluRayDisk;
-    private static final Logger logger = Logger.getLogger(MovieDirectoryScanner.class);
-    private static int dirCount = 1;
-    private static int fileCount = 0;
-    private static Pattern patternRarPart = Pattern.compile("\\.part(\\d+)\\.rar");
-
+    private Boolean nmjCompliant;
+    
     // BD rip infos Scanner
     private BDRipScanner localBDRipScanner;
 
@@ -85,6 +86,8 @@ public class MovieDirectoryScanner {
         opensubtitles = PropertiesUtil.getProperty("opensubtitles.language", ""); // We want to check this isn't set for the exclusion
         hashpathdepth = PropertiesUtil.getIntProperty("mjb.scanner.hashpathdepth", 0);
         playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", Boolean.FALSE);
+        nmjCompliant = PropertiesUtil.getBooleanProperty("mjb.nmjCompliant", Boolean.FALSE);
+        
         localBDRipScanner = new BDRipScanner();
     }
 
@@ -122,6 +125,12 @@ public class MovieDirectoryScanner {
         if (directory.isFile()) {
             scanFile(srcPath, directory, collection);
         } else {
+            
+            // skip this directory if it is the nmj_database
+            if (nmjCompliant && directory.getName().equalsIgnoreCase("nmj_database")) {
+                logger.debug("Scanning of directory " + directory.getAbsolutePath() + " skipped due nmj database");
+            }
+            
             File[] files = directory.listFiles();
 
             if (files != null) {
@@ -140,6 +149,18 @@ public class MovieDirectoryScanner {
                     if (file.getName().equalsIgnoreCase(".mjbignore")) {
                         logger.debug("Scanning of directory " + directory.getAbsolutePath() + " skipped due to override file");
                         return;
+                    }
+                    
+                    if (nmjCompliant) {
+                        // also check for .no_all.nmj and .no_video.nmj and the
+                        if (file.getName().equalsIgnoreCase(".no_all.nmj")) {
+                            logger.debug("Scanning of directory " + directory.getAbsolutePath() + " skipped due to nmj all override file");
+                            return;
+                        }
+                        if (file.getName().equalsIgnoreCase(".no_video.nmj")) {
+                            logger.debug("Scanning of directory " + directory.getAbsolutePath() + " skipped due to nmj video override file");
+                            return;
+                        }
                     }
                 }
 
