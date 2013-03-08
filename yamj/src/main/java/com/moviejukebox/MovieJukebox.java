@@ -777,11 +777,16 @@ public class MovieJukebox {
 
         logger.info("Preparing environment...");
 
-        // Create the ".mjbignore" file in the jukebox folder
+        // create the ".mjbignore" and ".no_photo.nmj" file in the jukebox folder
         try {
             jukebox.getJukeboxRootLocationDetailsFile().mkdirs();
             new File(jukebox.getJukeboxRootLocationDetailsFile(), ".mjbignore").createNewFile();
             FileTools.addJukeboxFile(".mjbignore");
+            
+            if (getBooleanProperty("mjb.nmjCompliant", Boolean.FALSE)) {
+                new File(jukebox.getJukeboxRootLocationDetailsFile(), ".no_photo.nmj").createNewFile();
+                FileTools.addJukeboxFile(".no_photo.nmj");
+            }
         } catch (Exception error) {
             logger.error("Failed creating jukebox directory. Ensure this directory is read/write!");
             logger.error(SystemTools.getStackTrace(error));
