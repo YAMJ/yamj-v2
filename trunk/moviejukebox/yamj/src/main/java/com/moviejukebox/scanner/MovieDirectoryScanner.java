@@ -129,6 +129,7 @@ public class MovieDirectoryScanner {
             // skip this directory if it is the nmj_database
             if (nmjCompliant && directory.getName().equalsIgnoreCase("nmj_database")) {
                 logger.debug("Scanning of directory " + directory.getAbsolutePath() + " skipped due nmj database");
+                return;
             }
             
             File[] files = directory.listFiles();
