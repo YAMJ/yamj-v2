@@ -23,10 +23,12 @@
 package com.moviejukebox.model;
 
 import com.moviejukebox.model.Attachment.Attachment;
+import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.BooleanYesNoAdapter;
 import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import java.io.File;
@@ -47,7 +49,7 @@ public class MovieFile implements Comparable<MovieFile> {
     private int season = -1;    // The season associated with the movie file
     private int firstPart = 1;  // #1, #2, CD1, CD2, etc.
     private int lastPart = 1;
-    private boolean newFile = Boolean.TRUE;             // is new file or already exists in XML data
+    private boolean newFile = Boolean.TRUE;     // is new file or already exists in XML data
     private boolean subtitlesExchange = false;  // Are the subtitles for this file already downloaded/uploaded to the server
     private Map<String, String> playLink = new HashMap<String, String>();
     private Map<Integer, String> titles = new LinkedHashMap<Integer, String>();
@@ -59,6 +61,7 @@ public class MovieFile implements Comparable<MovieFile> {
     private Map<Integer, String> airsBeforeEpisode = new LinkedHashMap<Integer, String>();
     private Map<Integer, String> firstAired = new LinkedHashMap<Integer, String>();
     private Map<Integer, String> ratings = new LinkedHashMap<Integer, String>();
+    private Map<OverrideFlag, String> overrideSources = new EnumMap<OverrideFlag, String>(OverrideFlag.class);
     private File file;
     private MovieFileNameDTO info;
     private List<Attachment> attachments = new ArrayList<Attachment>();
@@ -130,18 +133,25 @@ public class MovieFile implements Comparable<MovieFile> {
         return title != null ? title : Movie.UNKNOWN;
     }
 
-    public void setTitle(int part, String title) {
-        if (StringUtils.isBlank(title)) {
-            // Use UNKNOWN as the title.
-            titles.put(part, Movie.UNKNOWN);
+    public void setTitle(int part, String title, String source) {
+        if (StringTools.isNotValidString(title)) {
+            // do not overwrite existing title
+            if (StringTools.isNotValidString(titles.get(part))) {
+                titles.put(part, Movie.UNKNOWN);
+            }
         } else {
             titles.put(part, title);
+            setOverrideSource(OverrideFlag.EPISODE_TITLE, source);
         }
     }
 
     public void setTitle(String title) {
+        setTitle(firstPart, title, Movie.UNKNOWN);
+    }
+
+    public void setTitle(String title, String source) {
         if (title != null) {
-            setTitle(firstPart, title);
+            setTitle(firstPart, title, source);
         }
     }
 
@@ -150,18 +160,24 @@ public class MovieFile implements Comparable<MovieFile> {
         return plot != null ? plot : Movie.UNKNOWN;
     }
 
-    public void setPlot(int part, String plot) {
-        this.setPlot(part, plot, Boolean.TRUE);
+    public void setPlot(int part, String plot, String source) {
+        this.setPlot(part, plot, source, Boolean.FALSE);
     }
 
-    public void setPlot(int part, String plot, boolean trimToLength) {
+    public void setPlot(int part, String plot, String source, boolean parsedFromXml) {
         if (StringTools.isNotValidString(plot)) {
-            // Use UNKNOWN as the plot
-            plots.put(part, Movie.UNKNOWN);
-        } else if (trimToLength) {
-            plots.put(part, StringTools.trimToLength(plot, MAX_LENGTH_EPISODE_PLOT));
-        } else {
+            // do not overwrite valid plot
+            if (StringUtils.isBlank(plots.get(part))) {
+                plots.put(part, Movie.UNKNOWN);
+            }
+        } else if (parsedFromXml) {
+            // set plot when parsed from XML
             plots.put(part, plot);
+            setOverrideSource(OverrideFlag.EPISODE_PLOT, source);
+        } else if (!includeEpisodePlots) {
+            // only add if parameter is set
+            plots.put(part, StringTools.trimToLength(plot, MAX_LENGTH_EPISODE_PLOT));
+            setOverrideSource(OverrideFlag.EPISODE_PLOT, source);
         }
     }
 
@@ -170,12 +186,15 @@ public class MovieFile implements Comparable<MovieFile> {
         return rating != null ? rating : Movie.UNKNOWN;
     }
 
-    public void setRating(int part, String rating) {
-        if (StringUtils.isBlank(rating)) {
-            // Use UNKNOWN as the rating
-            ratings.put(part, Movie.UNKNOWN);
+    public void setRating(int part, String rating, String source) {
+        if (StringTools.isNotValidString(rating)) {
+            // do not overwrite valid rating
+            if (StringUtils.isBlank(ratings.get(part))) {
+                ratings.put(part, Movie.UNKNOWN);
+            }
         } else {
             ratings.put(part, rating);
+            setOverrideSource(OverrideFlag.EPISODE_RATING, source);
         }
     }
 
@@ -211,6 +230,19 @@ public class MovieFile implements Comparable<MovieFile> {
             } else {
                 this.videoImageFilename.put(part, videoImageFilename);
             }
+        }
+    }
+
+    public String getOverrideSource(OverrideFlag overrideFlag) {
+        String source = overrideSources.get(overrideFlag);
+        return StringUtils.isBlank(source) ? Movie.UNKNOWN : source;
+    }
+
+    public void setOverrideSource(OverrideFlag flag, String source) {
+        if (StringUtils.isBlank(source)) {
+            this.overrideSources.put(flag, Movie.UNKNOWN);
+        } else {
+            this.overrideSources.put(flag, source.toUpperCase());
         }
     }
 
@@ -271,10 +303,6 @@ public class MovieFile implements Comparable<MovieFile> {
         return oneValidTitle ? title.toString() : Movie.UNKNOWN;
     }
 
-    public boolean hasTitle() {
-        return !Movie.UNKNOWN.equals(getTitle());
-    }
-
     @XmlAttribute
     public boolean isNewFile() {
         return newFile;
@@ -305,36 +333,6 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     /*
-     * Compares this object with the specified object for order. Returns a
-     * negative integer, zero, or a positive integer as this object is less
-     * than, equal to, or greater than the specified object. The implementor
-     * must ensure sgn(x.compareTo(y)) == -sgn(y.compareTo(x)) for all x and y.
-     * (This implies that x.compareTo(y) must throw an exception if
-     * y.compareTo(x) throws an exception.)
-     *
-     * The implementor must also ensure that the relation is transitive:
-     * (x.compareTo(y)>0 && y.compareTo(z)>0) implies x.compareTo(z)>0.
-     *
-     * Finally, the implementor must ensure that x.compareTo(y)==0 implies that
-     * sgn(x.compareTo(z)) == sgn(y.compareTo(z)), for all z.
-     *
-     * It is strongly recommended, but not strictly required that
-     * (x.compareTo(y)==0) == (x.equals(y)). Generally speaking, any class that
-     * implements the Comparable interface and violates this condition should
-     * clearly indicate this fact. The recommended language is "Note: this class
-     * has a natural ordering that is inconsistent with equals."
-     *
-     * In the foregoing description, the notation sgn(expression) designates the
-     * mathematical signum function, which is defined to return one of -1, 0, or
-     * 1 according to whether the value of expression is negative, zero or
-     * positive.
-     *
-     *
-     * Parameters: o - the object to be compared. Returns: a negative integer,
-     * zero, or a positive integer as this object is less than, equal to, or
-     * greater than the specified object. Throws: ClassCastException - if the
-     * specified object's type prevents it from being compared to this object.
-     *
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     @Override
@@ -357,17 +355,19 @@ public class MovieFile implements Comparable<MovieFile> {
 
         // Set the part title, keeping each episode title
         if (dto.isExtra()) {
-            setTitle(dto.getPartTitle());
+            setTitle(dto.getPartTitle(), Movie.SOURCE_FILENAME);
         } else if (dto.getSeason() >= 0) {
             // Set the season for the movie file
             setSeason(dto.getSeason());
 
             // Set the episode title for each of the episodes in the file
             for (int episodeNumber : dto.getEpisodes()) {
-                setTitle(episodeNumber, dto.getEpisodeTitle());
+                if (OverrideTools.checkOverwriteEpisodeTitle(this, episodeNumber, Movie.SOURCE_FILENAME)) {
+                    setTitle(episodeNumber, dto.getEpisodeTitle(), Movie.SOURCE_FILENAME);
+                }
             }
         } else {
-            setTitle(dto.getPartTitle());
+            setTitle(dto.getPartTitle(), Movie.SOURCE_FILENAME);
         }
 
         if (dto.getEpisodes().size() > 0) {
@@ -388,11 +388,11 @@ public class MovieFile implements Comparable<MovieFile> {
 
         } else if (dto.getPart() > 0) {
             firstPart = lastPart = dto.getPart();
-            setTitle(dto.getPartTitle());
+            setTitle(dto.getPartTitle(), Movie.SOURCE_FILENAME);
         } else {
             firstPart = 1;
             lastPart = 1;
-            setTitle(dto.getPartTitle());
+            setTitle(dto.getPartTitle(), Movie.SOURCE_FILENAME);
         }
     }
 
@@ -415,91 +415,6 @@ public class MovieFile implements Comparable<MovieFile> {
 
     public synchronized void addPlayLink(String key, String value) {
         playLink.put(key, value);
-    }
-
-    public static class PartDataDTO {
-
-        @XmlAttribute
-        public int part;
-        @XmlValue
-        public String value;
-
-        public PartDataDTO() {
-        }
-
-        public PartDataDTO(int part, String value) {
-            this.part = part;
-            this.value = value;
-        }
-    }
-
-    @XmlElement(name = "filePlot")
-    public List<PartDataDTO> getFilePlots() {
-        if (!includeEpisodePlots) {
-            return null;
-        }
-
-        return toPartDataList(plots);
-    }
-
-    public void setFilePlots(List<PartDataDTO> list) {
-        fromPartDataList(plots, list);
-    }
-
-    @XmlElement(name = "fileRating")
-    public List<PartDataDTO> getFileRating() {
-        if (!includeEpisodeRating) {
-            return null;
-        }
-
-        return toPartDataList(ratings);
-    }
-
-    public void setFileRating(List<PartDataDTO> list) {
-        fromPartDataList(ratings, list);
-    }
-
-    @XmlElement(name = "fileImageURL")
-    public List<PartDataDTO> getFileImageUrls() {
-        if (!includeVideoImages) {
-            return null;
-        }
-
-        return toPartDataList(videoImageURL);
-    }
-
-    public void setFileImageUrls(List<PartDataDTO> list) {
-        fromPartDataList(videoImageURL, list);
-    }
-
-    @XmlElement(name = "fileImageFile")
-    public List<PartDataDTO> getFileImageFiles() {
-        if (!includeVideoImages) {
-            return null;
-        }
-
-        return toPartDataList(videoImageFilename);
-    }
-
-    public void setFileImageFiles(List<PartDataDTO> list) {
-        fromPartDataList(videoImageFilename, list);
-    }
-
-    private static List<PartDataDTO> toPartDataList(Map<Integer, String> map) {
-        List<PartDataDTO> list = new ArrayList<PartDataDTO>();
-
-        for (Map.Entry<Integer, String> part : map.entrySet()) {
-            list.add(new PartDataDTO(part.getKey(), part.getValue()));
-        }
-
-        return list;
-    }
-
-    private static void fromPartDataList(Map<Integer, String> map, List<PartDataDTO> list) {
-        map.clear();
-        for (PartDataDTO p : list) {
-            map.put(p.part, p.value);
-        }
     }
 
     /**
@@ -602,15 +517,6 @@ public class MovieFile implements Comparable<MovieFile> {
         }
     }
 
-    @XmlElement(name = "airsAfterSeason")
-    public List<PartDataDTO> getAirsAfterSeasons() {
-        return toPartDataList(airsAfterSeason);
-    }
-
-    public void setAirsAfterSeasons(List<PartDataDTO> list) {
-        fromPartDataList(airsAfterSeason, list);
-    }
-
     public String getAirsBeforeSeason(int part) {
         String abSeason = airsBeforeSeason.get(part);
         return StringUtils.isNotBlank(abSeason) ? abSeason : Movie.UNKNOWN;
@@ -622,15 +528,6 @@ public class MovieFile implements Comparable<MovieFile> {
         } else {
             this.airsBeforeSeason.put(part, season);
         }
-    }
-
-    @XmlElement(name = "airsBeforeSeason")
-    public List<PartDataDTO> getAirsBeforeSeasons() {
-        return toPartDataList(airsBeforeSeason);
-    }
-
-    public void setAirsBeforeSeasons(List<PartDataDTO> list) {
-        fromPartDataList(airsBeforeSeason, list);
     }
 
     public String getAirsBeforeEpisode(int part) {
@@ -646,35 +543,21 @@ public class MovieFile implements Comparable<MovieFile> {
         }
     }
 
-    @XmlElement(name = "airsBeforeEpisode")
-    public List<PartDataDTO> getAirsBeforeEpisodes() {
-        return toPartDataList(airsBeforeEpisode);
-    }
-
-    public void setAirsBeforeEpisodes(List<PartDataDTO> list) {
-        fromPartDataList(airsBeforeEpisode, list);
-    }
-
     public String getFirstAired(int part) {
         String airDate = firstAired.get(part);
         return StringUtils.isNotBlank(airDate) ? airDate : Movie.UNKNOWN;
     }
 
-    public void setFirstAired(int part, String airDate) {
-        if (StringUtils.isBlank(airDate)) {
-            this.firstAired.put(part, Movie.UNKNOWN);
+    public void setFirstAired(int part, String airDate, String source) {
+        if (StringTools.isNotValidString(airDate)) {
+            // do not overwrite existing title
+            if (StringTools.isNotValidString(firstAired.get(part))) {
+                firstAired.put(part, Movie.UNKNOWN);
+            }
         } else {
-            this.firstAired.put(part, airDate);
+            firstAired.put(part, airDate);
+            setOverrideSource(OverrideFlag.EPISODE_FIRST_AIRED, source);
         }
-    }
-
-    @XmlElement(name = "firstAired")
-    public List<PartDataDTO> getFirstAired() {
-        return toPartDataList(firstAired);
-    }
-
-    public void setFirstAired(List<PartDataDTO> list) {
-        fromPartDataList(firstAired, list);
     }
 
     public List<Attachment> getAttachments() {

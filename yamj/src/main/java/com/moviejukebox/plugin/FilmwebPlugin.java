@@ -408,28 +408,22 @@ public class FilmwebPlugin extends ImdbPlugin {
             boolean found = Boolean.FALSE;
             boolean wasSeraching = Boolean.FALSE;
             for (MovieFile file : movie.getMovieFiles()) {
-                if (!file.isNewFile() || file.hasTitle()) {
-                    // don't scan episode title if it exists in XML data
-                    continue;
-                }
+                
                 int fromIndex = xml.indexOf("sezon " + movie.getSeason() + "<");
-                StringBuilder titleBuilder = new StringBuilder();
+
                 for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
-                    wasSeraching = Boolean.TRUE;
-                    String episodeName = HTMLTools.getTextAfterElem(xml, "odcinek&nbsp;" + part, 2, fromIndex);
-                    if (!episodeName.equals(Movie.UNKNOWN)) {
-                        if (titleBuilder.length() > 0) {
-                            titleBuilder.append(Movie.SPACE_SLASH_SPACE);
+                    
+                    if (OverrideTools.checkOverwriteEpisodeTitle(file, part, FILMWEB_PLUGIN_ID)) {
+                        wasSeraching = Boolean.TRUE;
+                        String episodeName = HTMLTools.getTextAfterElem(xml, "odcinek&nbsp;" + part, 2, fromIndex);
+                        if (StringTools.isValidString(episodeName)) {
+                            found = Boolean.TRUE;
+                            file.setTitle(part, episodeName, FILMWEB_PLUGIN_ID);
                         }
-                        titleBuilder.append(episodeName);
                     }
                 }
-                String title = titleBuilder.toString();
-                if (StringUtils.isNotBlank(title)) {
-                    found = Boolean.TRUE;
-                    file.setTitle(title);
-                }
             }
+            
             if (wasSeraching && !found) {
                 // use IMDB if filmweb doesn't know episodes titles
                 updateImdbId(movie);

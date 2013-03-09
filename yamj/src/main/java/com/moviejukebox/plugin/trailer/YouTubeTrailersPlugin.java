@@ -129,7 +129,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
      */
     private void addTrailer(Movie movie, YouTubeTrailer ytTrailer) {
         ExtraFile tef = new ExtraFile();
-        tef.setTitle(TRAILER_TITLE + ytTrailer.getTitle());
+        tef.setTitle(TRAILER_TITLE + ytTrailer.getTitle(), getName());
         tef.setFilename(ytTrailer.getUrl());
         movie.addExtraFile(tef);
     }

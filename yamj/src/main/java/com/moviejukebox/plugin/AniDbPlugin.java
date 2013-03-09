@@ -549,25 +549,22 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                     epNo = Integer.parseInt(m.group(tvshowRegexEpisodeNumberIndex));
                 }
                 final AnidbEpisode ae = getEpisode(anime.getAnimeId(), epNo);
-                if (ae != null) {
+                if (ae != null && OverrideTools.checkOverwriteEpisodeTitle(mf, epNo, ANIDB_PLUGIN_ID)) {
                     if (isValidString(ae.getEnglishName())) {
-                        mf.setTitle(ae.getEnglishName());
+                        mf.setTitle(epNo, ae.getEnglishName(), ANIDB_PLUGIN_ID);
                     } else if (isValidString(ae.getRomajiName())) {
-                        mf.setTitle(ae.getRomajiName());
+                        mf.setTitle(epNo, ae.getRomajiName(), ANIDB_PLUGIN_ID);
                     }
                 }
                 mf.setFirstPart(epNo);
                 mf.setLastPart(epNo);
-            } else { // Currently there doesn't appear to be a good way to find the episode title for specials if we don't have the episode ID
-                mf.setFirstPart(getSpecialEpisodeNumbering(m.group(tvshowRegexEpisodeNumberIndex), anime));
-                mf.setLastPart(getSpecialEpisodeNumbering(m.group(tvshowRegexEpisodeNumberIndex), anime));
+            } else {
+                // Currently there doesn't appear to be a good way to find the episode title for specials if we don't have the episode ID
+                mf.setFirstPart(0);
+                mf.setLastPart(0);
             }
         }
         return true;
-    }
-
-    private int getSpecialEpisodeNumbering(String episodeNumber, AnidbAnime anime) {
-        return 0;
     }
 
     protected Series getSeriesFromTvdb(final long tvdbId) {
@@ -598,37 +595,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         PreparedQuery<AnidbTvdbMapping> pq = qb.prepare();
         // Should only be one
         return mappingDao.queryForFirst(pq);
-    }
-
-    @SuppressWarnings("unused")
-    private AnidbTvdbEpisodeMapping findEpisodeMapping(String epno, AnidbTvdbMapping mapping) {
-        int anidbSeason = 1;
-        int anidbEpno;
-        if (epno.startsWith("S")) {
-            anidbSeason = 0;
-            anidbEpno = Integer.parseInt(epno.substring(1));
-        } else {
-            anidbEpno = Integer.parseInt(epno);
-        }
-        for (AnidbTvdbEpisodeMapping m : mapping.getMappings()) {
-            if (m.getAnidbEpisodeNumber() == anidbEpno && m.getAnidbSeason() == anidbSeason) {
-                return m;
-            }
-        }
-        return null;
-    }
-
-    @SuppressWarnings("unused")
-    private void processTvdbResults(Movie m, Series s, com.omertron.thetvdbapi.model.Episode episode, int epno) {
-
-        if (episode != null) {
-            for (MovieFile mf : m.getMovieFiles()) {
-                mf.setPlot(epno, episode.getOverview());
-                if (!isValidString(mf.getTitle())) {
-                    mf.setTitle(episode.getEpisodeName());
-                }
-            }
-        }
     }
 
     private AnidbFile anidbHashScan(Movie movie) {

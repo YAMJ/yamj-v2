@@ -26,12 +26,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author altman.matthew
  */
 public class ExtraFile extends MovieFile {
-    public ExtraFile() {
-    }
+
+    public ExtraFile() {}
 
     public ExtraFile(MovieFile mf) {
         this.setFile(mf.getFile());
@@ -40,7 +39,7 @@ public class ExtraFile extends MovieFile {
         this.setTitle(mf.getTitle());
         this.setNewFile(mf.isNewFile());
     }
-
+    
     @Override
     public int compareTo(MovieFile that) {
         return this.getFilename().compareToIgnoreCase(that.getFilename());
@@ -48,7 +47,6 @@ public class ExtraFile extends MovieFile {
 
     @Override
     public Map<String, String> getPlayLink() {
-        // Ovveriding this getPlayLink to avoid nullpointer.
         Map<String, String> result;
         if (this.getFile() != null) {
             result = super.getPlayLink();

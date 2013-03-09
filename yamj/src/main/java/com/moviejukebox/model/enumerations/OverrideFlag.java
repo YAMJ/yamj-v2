@@ -53,10 +53,15 @@ public enum OverrideFlag {
     VIDEOSOURCE,
     WRITERS,
     YEAR,
-    // extra for PEOPLE scraping
+    // extra for people scraping
     PEOPLE_ACTORS,
     PEOPLE_DIRECTORS,
-    PEOPLE_WRITERS;
+    PEOPLE_WRITERS,
+    // extra for TV episodes
+    EPISODE_FIRST_AIRED,
+    EPISODE_PLOT,
+    EPISODE_RATING,
+    EPISODE_TITLE;
 
     /**
      * Convert a string into an Enum type

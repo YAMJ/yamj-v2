@@ -31,6 +31,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.*;
+
 import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.thetvdbapi.TheTVDBApi;
@@ -63,8 +64,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private static String language2nd = initLanguage2();
     private boolean forceBannerOverwrite;
     private boolean forceFanartOverwrite;
-    private boolean includeEpisodePlots;
-    private boolean includeEpisodeRating;
     private boolean includeVideoImages;
     private boolean includeWideBanners;
     private boolean onlySeriesBanners;
@@ -74,8 +73,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     public TheTvDBPlugin() {
         super();
-        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", Boolean.FALSE);
-        includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", Boolean.FALSE);
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
         includeWideBanners = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", Boolean.FALSE);
         onlySeriesBanners = PropertiesUtil.getBooleanProperty("mjb.onlySeriesBanners", Boolean.FALSE);
@@ -319,7 +316,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         }
                     }
 
-                    if (episode != null) {
+                    if (episode == null) {
+                        if (movie.getSeason() > 0 && file.getFirstPart() == 0 && isNotValidString(file.getPlot(part))) {
+                            file.setTitle(part, "Special", THETVDB_PLUGIN_ID);
+                        }
+                    } else {
                         // TODO Assign the director to each episode.
                         if (setDirectors && !episode.getDirectors().isEmpty()) {
                             movie.setDirectors(episode.getDirectors(), THETVDB_PLUGIN_ID);
@@ -352,36 +353,28 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             file.setAirsBeforeEpisode(part, String.valueOf(episode.getAirsBeforeEpisode()));
                         }
 
-                        if (isNotValidString(file.getFirstAired(part))) {
-                            file.setFirstAired(part, episode.getFirstAired());
+                        if (OverrideTools.checkOverwriteEpisodeFirstAired(file, part, THETVDB_PLUGIN_ID)) {
+                            file.setFirstAired(part, episode.getFirstAired(), THETVDB_PLUGIN_ID);
                         }
 
-                        // Set the title of the episode
-                        if (isNotValidString(file.getTitle(part))) {
-                            file.setTitle(part, episode.getEpisodeName());
+                        if (OverrideTools.checkOverwriteEpisodeTitle(file, part, THETVDB_PLUGIN_ID)) {
+                            file.setTitle(part, episode.getEpisodeName(), THETVDB_PLUGIN_ID);
                         }
 
-                        // Set the rating of the episode
-                        if (includeEpisodeRating && isNotValidString(file.getRating(part)) && isValidString(episode.getRating())) {
+                        if (isValidString(episode.getRating()) && OverrideTools.checkOverwriteEpisodeRating(file, part, THETVDB_PLUGIN_ID)) {
                             float episodeRating1 = new Float(episode.getRating());
                             String episodeRating2 = String.valueOf(Math.round(episodeRating1 * 10f));
-                            file.setRating(part, episodeRating2);
+                            file.setRating(part, episodeRating2, THETVDB_PLUGIN_ID);
                         }
 
-                        if (includeEpisodePlots && isNotValidString(file.getPlot(part))) {
-                            file.setPlot(part, episode.getOverview());
+                        if (OverrideTools.checkOverwriteEpisodePlot(file, part, THETVDB_PLUGIN_ID)) {
+                            file.setPlot(part, episode.getOverview(), THETVDB_PLUGIN_ID);
                         }
 
                         if (includeVideoImages) {
                             file.setVideoImageURL(part, episode.getFilename());
                         } else {
                             file.setVideoImageURL(part, Movie.UNKNOWN);
-                        }
-                    } else {
-                        // This occurs if the episode is not found
-                        if (movie.getSeason() > 0 && file.getFirstPart() == 0 && isNotValidString(file.getPlot(part))) {
-                            // This sets the zero part's title to be either the filename title or blank rather than the next episode's title
-                            file.setTitle(part, "Special");
                         }
                     }
                 }

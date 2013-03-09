@@ -337,11 +337,11 @@ public class HTMLTools {
 
                     // add the text that leads up to this match
                     if (delimiterStartIndex > currentIndex) {
-                        result.append(new String(source.substring(currentIndex, delimiterStartIndex)));
+                        result.append(source.substring(currentIndex, delimiterStartIndex));
                     }
 
                     // add the decoded entity
-                    String entity = new String(source.substring(delimiterStartIndex, delimiterEndIndex + 1));
+                    String entity = source.substring(delimiterStartIndex, delimiterEndIndex + 1);
 
                     currentIndex = delimiterEndIndex + 1;
 
@@ -382,7 +382,7 @@ public class HTMLTools {
         if (null == result) {
             return source;
         } else if (currentIndex < source.length()) {
-            result.append(new String(source.substring(currentIndex)));
+            result.append(source.substring(currentIndex));
         }
 
         return result.toString();
@@ -418,9 +418,9 @@ public class HTMLTools {
             int slash = url.lastIndexOf('/');
             String parentPart = "";
             if (slash != -1) {
-                parentPart = encodeUrlPath(new String(url.substring(0, slash))) + '/';
+                parentPart = encodeUrlPath(url.substring(0, slash)) + '/';
             }
-            return parentPart + encodeUrl(new String(url.substring(slash + 1)));
+            return parentPart + encodeUrl(url.substring(slash + 1));
         }
         return url;
     }
@@ -437,7 +437,7 @@ public class HTMLTools {
             return tags;
         }
 
-        String sectionText = new String(src.substring(index, endIndex));
+        String sectionText = src.substring(index, endIndex);
         int lastIndex = sectionText.length();
         index = 0;
         int endLen = endTag.length();
@@ -452,7 +452,7 @@ public class HTMLTools {
                 endIndex = lastIndex;
             }
             endIndex += endLen;
-            String text = new String(sectionText.substring(index, endIndex));
+            String text = sectionText.substring(index, endIndex);
             tags.add(text);
             if (endIndex > lastIndex) {
                 break;
@@ -484,7 +484,7 @@ public class HTMLTools {
         String value = Movie.UNKNOWN;
 
         if (beginIndex >= 0) {
-            StringTokenizer st = new StringTokenizer(new String(src.substring(beginIndex + findStr.length())), separator);
+            StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), separator);
             for (int i = 0; i < skip; i++) {
                 st.nextToken();
             }
@@ -543,7 +543,7 @@ public class HTMLTools {
             return tags;
         }
 
-        String sectionText = new String(src.substring(startIndex, endIndex));
+        String sectionText = src.substring(startIndex, endIndex);
         int lastIndex = sectionText.length();
         startIndex = 0;
         int startLen = 0;
@@ -566,7 +566,7 @@ public class HTMLTools {
             if (endIndex == -1) {
                 endIndex = lastIndex;
             }
-            String text = new String(sectionText.substring(startIndex, endIndex));
+            String text = sectionText.substring(startIndex, endIndex);
 
             tags.add(HTMLTools.decodeHtml(text.trim()));
             endIndex += endLen;
@@ -604,7 +604,7 @@ public class HTMLTools {
         if (beginIndex == -1) {
             return Movie.UNKNOWN;
         }
-        StringTokenizer st = new StringTokenizer(new String(src.substring(beginIndex + findStr.length())), "<");
+        StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), "<");
         int i = 0;
         while (st.hasMoreElements()) {
             String elem = st.nextToken().replaceAll("&nbsp;|&#160;", "").trim();

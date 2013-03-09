@@ -49,7 +49,6 @@ public class AllocinePlugin extends ImdbPlugin {
     public static final String CACHE_MOVIE = "AllocineMovie";
     public static final String CACHE_SERIES = "AllocineSeries";
     private AllocineAPIHelper allocineAPI;
-    private boolean includeEpisodePlots;
     private boolean includeVideoImages;
     protected TheTvDBPlugin tvdb = null;
     public static final String ALLOCINE_PLUGIN_ID = "allocine";
@@ -67,7 +66,6 @@ public class AllocinePlugin extends ImdbPlugin {
         allocineAPI.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
 
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
-        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", Boolean.FALSE);
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
         downloadFanart = PropertiesUtil.getBooleanProperty("fanart.tv.download", Boolean.FALSE);
     }
@@ -177,33 +175,25 @@ public class AllocinePlugin extends ImdbPlugin {
             int currentSeason = movie.getSeason();
             try {
                 if (currentSeason <= 0 || currentSeason > tvSeriesInfos.getSeasonCount()) {
-                    throw new Exception();
+                    throw new Exception("Invalid season " + movie.getSeason());
                 }
-                TvSeasonInfos tvSeasonInfos = null;
-                for (MovieFile file : movie.getFiles()) {
-                    if (!file.isNewFile() && file.hasTitle()) {
-                        // don't scan episode title if it exists in XML data
-                        continue;
-                    }
-                    if (tvSeasonInfos == null) {
-                        tvSeasonInfos = allocineAPI.getTvSeasonInfos(tvSeriesInfos.getSeasonCode(currentSeason));
-                    }
-                    if (tvSeasonInfos.isNotValid()) {
-                        continue;
-                    }
-                    // A file can have multiple episodes in it
-                    for (int numEpisode = file.getFirstPart(); numEpisode <= file.getLastPart(); ++numEpisode) {
-                        logger.debug(LOG_MESSAGE + "Setting filename for episode " + numEpisode);
-                        Episode episode = tvSeasonInfos.getEpisode(numEpisode);
-                        if (episode != null) {
-                            // Set the title of the episode
-                            if (isNotValidString(file.getTitle(numEpisode))) {
-                                file.setTitle(numEpisode, episode.getTitle());
-                            }
-
-                            if (includeEpisodePlots && isValidString(episode.getSynopsis()) && isNotValidString(file.getPlot(numEpisode))) {
-                                String episodePlot = HTMLTools.replaceHtmlTags(episode.getSynopsis(), " ");
-                                file.setPlot(numEpisode, episodePlot);
+                
+                TvSeasonInfos tvSeasonInfos = allocineAPI.getTvSeasonInfos(tvSeriesInfos.getSeasonCode(currentSeason));
+                if (tvSeasonInfos.isValid()) {
+                    for (MovieFile file : movie.getFiles()) {
+                    
+                        for (int numEpisode = file.getFirstPart(); numEpisode <= file.getLastPart(); ++numEpisode) {
+                            Episode episode = tvSeasonInfos.getEpisode(numEpisode);
+                            if (episode != null) {
+    
+                                if (OverrideTools.checkOverwriteEpisodeTitle(file, numEpisode, ALLOCINE_PLUGIN_ID)) {
+                                    file.setTitle(numEpisode, episode.getTitle(), ALLOCINE_PLUGIN_ID);
+                                }
+    
+                                if (StringTools.isValidString(episode.getSynopsis()) && OverrideTools.checkOverwriteEpisodePlot(file, numEpisode, ALLOCINE_PLUGIN_ID)) {
+                                    String episodePlot = HTMLTools.replaceHtmlTags(episode.getSynopsis(), " ");
+                                    file.setPlot(numEpisode, episodePlot, ALLOCINE_PLUGIN_ID);
+                                }
                             }
                         }
                     }
@@ -548,30 +538,14 @@ public class AllocinePlugin extends ImdbPlugin {
                 sb.append("+%28").append(year).append("%29");
             }
             sb.append("+site%3Awww.allocine.fr&meta=");
-//            logger.debug(LOG_MESSAGE + "Allocine request via Google : " + sb.toString());
             String xml = webBrowser.request(sb.toString());
             String allocineId = HTMLTools.extractTag(xml, "film/fichefilm_gen_cfilm=", ".html");
-//            logger.debug(LOG_MESSAGE + "Allocine found via Google : " + allocineId);
             return allocineId;
         } catch (Exception error) {
             logger.error("AllocinePlugin Failed retreiving AlloCine Id for movie : " + movieName);
             logger.error("AllocinePlugin Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
-    }
-
-    protected String removeHtmlTags(String src) {
-        String result = src.replaceAll("\\<.*?>", "").trim();
-        // logger.debug(LOG_MESSAGE + "removeHtmlTags before=[" + src + "], after=["+ result + "]");
-        return result;
-    }
-
-    protected String removeOpenedHtmlTags(String src) {
-        String result = src.replaceAll("^.*?>", "");
-        result = result.replaceAll("<.*?$", "");
-        result = result.trim();
-        // logger.debug(LOG_MESSAGE + "removeOpenedHtmlTags before=[" + src + "], after=["+ result + "]");
-        return result;
     }
 
     @Override

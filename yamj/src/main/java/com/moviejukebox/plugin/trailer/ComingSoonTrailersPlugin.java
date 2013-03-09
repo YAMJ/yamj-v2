@@ -24,7 +24,6 @@ package com.moviejukebox.plugin.trailer;
 
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.ComingSoonPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -36,9 +35,7 @@ import org.apache.log4j.Logger;
 /**
  * base on ComingSoonPlugin
  * @author iuk
- *
  */
-
 public class ComingSoonTrailersPlugin extends TrailerPlugin {
 
     private static final Logger logger = Logger.getLogger(ComingSoonTrailersPlugin.class);
@@ -47,7 +44,6 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
 
     private String trailerMaxResolution;
     private String trailerPreferredFormat;
-//    private boolean trailerSetExchange;
     private String trailerLabel;
 
     public ComingSoonTrailersPlugin() {
@@ -77,14 +73,14 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
 
         logger.debug(LOG_MESSAGE + "Found trailer at URL " + trailerUrl);
 
-        MovieFile tmf = new MovieFile();
-        tmf.setTitle("TRAILER-" + trailerLabel);
+        ExtraFile extra = new ExtraFile();
+        extra.setTitle("TRAILER-" + trailerLabel);
 
         if (isDownload()) {
-            return downloadTrailer(movie, trailerUrl, trailerLabel, tmf);
+            return downloadTrailer(movie, trailerUrl, trailerLabel, extra);
         } else {
-            tmf.setFilename(trailerUrl);
-            movie.addExtraFile(new ExtraFile(tmf));
+            extra.setFilename(trailerUrl);
+            movie.addExtraFile(extra);
             return true;
         }
     }

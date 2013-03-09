@@ -24,7 +24,6 @@ package com.moviejukebox.plugin.trailer;
 
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.KinopoiskPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -84,16 +83,16 @@ public class KinopoiskTrailersPlugin extends TrailerPlugin {
         movie.setTrailerLastScan(new Date().getTime());
 
         String title = "ru";
-        MovieFile tmf = new MovieFile();
-        tmf.setTitle("TRAILER-" + title);
+        ExtraFile extra = new ExtraFile();
+        extra.setTitle("TRAILER-" + title);
 
         boolean isExchangeOk;
 
         if (isDownload()) {
-            isExchangeOk = downloadTrailer(movie, trailerUrl, title, tmf);
+            isExchangeOk = downloadTrailer(movie, trailerUrl, title, extra);
         } else {
-            tmf.setFilename(trailerUrl);
-            movie.addExtraFile(new ExtraFile(tmf));
+            extra.setFilename(trailerUrl);
+            movie.addExtraFile(extra);
             movie.setTrailerExchange(true);
             isExchangeOk = true;
         }

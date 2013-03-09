@@ -35,10 +35,8 @@ public enum TitleSortType {
     /**
      * Convert a string into an Enum type
      *
-     * @param artworkType
-     * @return
-     * @throws IllegalArgumentException If type is not recognised
-     *
+     * @param titleSortTypeString
+     * @return TitleSortType
      */
     public static TitleSortType fromString(String titleSortTypeString) {
         if (StringUtils.isNotBlank(titleSortTypeString)) {
