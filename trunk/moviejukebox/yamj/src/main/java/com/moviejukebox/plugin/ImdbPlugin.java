@@ -48,6 +48,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.Award;
 import com.moviejukebox.model.AwardEvent;
@@ -973,10 +974,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (!found && !imdbNewVersion) {
                 found = extractDirectorsFromOldLayout(movie, xml, siteDef, overrideNormal, overridePeople);
             }
-            
-            if (!found) {
-                logger.debug(LOG_MESSAGE + "No director informations found");
-            }
         }
 
         // WRITER(S)
@@ -1002,10 +999,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (!found && !imdbNewVersion) {
                 found = extractWritersFromOldLayout(movie, xml, siteDef, overrideNormal, overridePeople);
             }
-
-            if (!found) {
-                logger.debug(LOG_MESSAGE + "No writer informations found");
-            }
         }
 
         // CAST
@@ -1030,10 +1023,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // extract from old layout
             if (!found && !imdbNewVersion) {
                 found = extractCastFromOldLayout(movie, xml, siteDef, overrideNormal, overridePeople);
-            }
-            
-            if (!found) {
-                logger.debug(LOG_MESSAGE + "No cast informations found");
             }
         }
     }
@@ -1603,10 +1592,31 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             for (MovieFile file : movie.getMovieFiles()) {
                 
                 for (int episode = file.getFirstPart(); episode <= file.getLastPart(); ++episode) {
+                
+                    int beginIndex = xml.indexOf("<meta itemprop=\"episodeNumber\" content=\"" + episode + "\"/>");
+                    if (beginIndex == -1) {
+                        continue;
+                    }
+                    int endIndex = xml.indexOf("<div class=\"popoverContainer\"", beginIndex);
+                    String episodeXml = xml.substring(beginIndex, endIndex);
                     
                     if (OverrideTools.checkOverwriteEpisodeTitle(file, episode, IMDB_PLUGIN_ID)) {
-                        String episodeName = HTMLTools.extractTag(xml, "Season " + season + ", Episode " + episode + ":", 2);
+                        String episodeName = HTMLTools.extractTag(episodeXml, "itemprop=\"name\">", HTML_A_END);
                         file.setTitle(episode, episodeName, IMDB_PLUGIN_ID);
+                    }
+
+                    if (OverrideTools.checkOverwriteEpisodePlot(file, episode, IMDB_PLUGIN_ID)) {
+                        String plot = HTMLTools.extractTag(episodeXml, "itemprop=\"description\">", HTML_DIV);
+                        file.setPlot(episode, plot, IMDB_PLUGIN_ID);
+                    }
+
+                    if (OverrideTools.checkOverwriteEpisodeFirstAired(file, episode, IMDB_PLUGIN_ID)) {
+                        String firstAired = HTMLTools.extractTag(episodeXml, "<div class=\"airdate\">", "</div>");
+                        try {
+                            // use same format as TheTvDB
+                            firstAired = DateTime.parse(firstAired).toString("yyyy-MM-dd");
+                        } catch (Exception ignore) {}
+                        file.setFirstAired(episode, firstAired, IMDB_PLUGIN_ID);
                     }
                 }
             }

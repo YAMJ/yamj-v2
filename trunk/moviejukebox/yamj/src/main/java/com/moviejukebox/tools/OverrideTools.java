@@ -715,7 +715,7 @@ public final class OverrideTools {
 
     public static boolean checkOverwriteEpisodePlot(MovieFile movieFile, int part, String source) {
         if (!INCLUDE_EPISODE_PLOT) {
-            // episode plots should not be included
+            // episode plot should not be included
             return Boolean.FALSE;
         } else if (skipCheck(movieFile, OverrideFlag.EPISODE_PLOT, source)) {
             // skip the check
@@ -728,7 +728,7 @@ public final class OverrideTools {
 
     public static boolean checkOverwriteEpisodeRating(MovieFile movieFile, int part, String source) {
         if (!INCLUDE_EPISODE_RATING) {
-            // episode ratings should not be included
+            // episode rating should not be included
             return Boolean.FALSE;
         } else if (skipCheck(movieFile, OverrideFlag.EPISODE_RATING, source)) {
             // skip the check

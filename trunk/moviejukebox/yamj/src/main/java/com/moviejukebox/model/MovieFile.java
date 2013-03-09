@@ -174,7 +174,7 @@ public class MovieFile implements Comparable<MovieFile> {
             // set plot when parsed from XML
             plots.put(part, plot);
             setOverrideSource(OverrideFlag.EPISODE_PLOT, source);
-        } else if (!includeEpisodePlots) {
+        } else if (includeEpisodePlots) {
             // only add if parameter is set
             plots.put(part, StringTools.trimToLength(plot, MAX_LENGTH_EPISODE_PLOT));
             setOverrideSource(OverrideFlag.EPISODE_PLOT, source);
@@ -192,7 +192,7 @@ public class MovieFile implements Comparable<MovieFile> {
             if (StringUtils.isBlank(ratings.get(part))) {
                 ratings.put(part, Movie.UNKNOWN);
             }
-        } else {
+        } else if (includeEpisodeRating) {
             ratings.put(part, rating);
             setOverrideSource(OverrideFlag.EPISODE_RATING, source);
         }

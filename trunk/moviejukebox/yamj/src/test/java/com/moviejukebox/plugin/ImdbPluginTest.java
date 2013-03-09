@@ -26,6 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 import com.moviejukebox.model.Movie;
@@ -57,22 +58,32 @@ public class ImdbPluginTest {
     @Test
     public void testImdbTvShow() {
         PropertiesUtil.setProperty("imdb.site", "us");
+        PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
+        PropertiesUtil.setProperty("imdb.full.info", true);
         ImdbPlugin imdbPlugin = new ImdbPlugin();
 
         Movie movie = new Movie();
         movie.setMovieType(Movie.TYPE_TVSHOW);
         movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0369179");
 
-        MovieFile mf = new MovieFile();
-        mf.setSeason(8);
-        mf.setFirstPart(1);
-        mf.setLastPart(1);
-        movie.addMovieFile(mf);
-        
+        MovieFile mf1 = new MovieFile();
+        mf1.setSeason(8);
+        mf1.setFirstPart(12);
+        mf1.setLastPart(12);
+        movie.addMovieFile(mf1);
+        MovieFile mf2 = new MovieFile();
+        mf2.setSeason(8);
+        mf2.setFirstPart(14);
+        mf2.setLastPart(14);
+        movie.addMovieFile(mf2);
+
         assertTrue(imdbPlugin.scan(movie));
-        System.err.println(mf.getTitle());
-        System.err.println(mf.getTitle(1));
-        System.err.println(mf.getPlot(1));
+        assertEquals("Chocolate Diddlers or My Puppy's Dead", mf1.getTitle(12));
+        assertTrue(StringUtils.startsWith(mf1.getPlot(12), "When Charlie and Courtney break up"));
+        assertEquals("2010-12-13", mf1.getFirstAired(12));
+        assertEquals("Lookin' for Japanese Subs", mf2.getTitle(14));
+        assertTrue(StringUtils.startsWith(mf2.getPlot(14), "Charlie continues to obsess over Rose"));
+        assertEquals("2011", mf2.getFirstAired(14));
     }
 
     @Test
