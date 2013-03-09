@@ -24,7 +24,6 @@ package com.moviejukebox.plugin.trailer;
 
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
@@ -103,8 +102,8 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             }
 
             // Add the trailer URL to the movie
-            MovieFile tmf = new MovieFile();
-            tmf.setTitle("TRAILER-" + getTrailerTitle(trailerRealUrl));
+            ExtraFile extra = new ExtraFile();
+            extra.setTitle("TRAILER-" + getTrailerTitle(trailerRealUrl));
 
             // Is the found trailer one of the types to download/link to?
             if (!isValidTrailer(getFilenameFromUrl(trailerRealUrl))) {
@@ -124,17 +123,17 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             // Check if we need to download the trailer, or just link to it
             if (configDownload) {
                 String trailerAppleName = getFilenameFromUrl(trailerRealUrl);
-                trailerAppleName = new String(trailerAppleName.substring(0, trailerAppleName.lastIndexOf('.')));
-                isExchangeOk = downloadTrailer(movie, trailerRealUrl, trailerAppleName, tmf);
+                trailerAppleName = trailerAppleName.substring(0, trailerAppleName.lastIndexOf('.'));
+                isExchangeOk = downloadTrailer(movie, trailerRealUrl, trailerAppleName, extra);
             } else {
                 // Just link to the trailer
                 int underscore = trailerRealUrl.lastIndexOf('_');
-                if (underscore > 0 && new String(trailerRealUrl.substring(underscore + 1, underscore + 2)).equals("h")) {
-                    // remove the "h" from the trailer url for streaming
-                    trailerRealUrl = new String(trailerRealUrl.substring(0, underscore + 1)) + new String(trailerRealUrl.substring(underscore + 2));
+                if (underscore > 0 && trailerRealUrl.substring(underscore + 1, underscore + 2).equals("h")) {
+                    // remove the "h" from the trailer URL for streaming
+                    trailerRealUrl = trailerRealUrl.substring(0, underscore + 1) + trailerRealUrl.substring(underscore + 2);
                 }
-                tmf.setFilename(trailerRealUrl);
-                movie.addExtraFile(new ExtraFile(tmf));
+                extra.setFilename(trailerRealUrl);
+                movie.addExtraFile(extra);
                 isExchangeOk = true;
             }
         }

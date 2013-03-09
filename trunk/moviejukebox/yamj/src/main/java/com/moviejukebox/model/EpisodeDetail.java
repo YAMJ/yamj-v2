@@ -22,6 +22,8 @@
  */
 package com.moviejukebox.model;
 
+import com.moviejukebox.reader.MovieNFOReader;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.StringTools;
 
 /**
@@ -167,20 +169,20 @@ public class EpisodeDetail {
             if (episode >= mf.getFirstPart() && episode <= mf.getLastPart()) {
                 mf.setSeason(season);
 
-                if (StringTools.isValidString(title)) {
-                    mf.setTitle(episode, title);
+                if (OverrideTools.checkOverwriteEpisodeTitle(mf, episode, MovieNFOReader.NFO_PLUGIN_ID)) {
+                    mf.setTitle(episode, title, MovieNFOReader.NFO_PLUGIN_ID);
                 }
 
-                if (StringTools.isValidString(plot)) {
-                    mf.setPlot(episode, plot);
+                if (OverrideTools.checkOverwriteEpisodePlot(mf, episode, MovieNFOReader.NFO_PLUGIN_ID)) {
+                    mf.setPlot(episode, plot, MovieNFOReader.NFO_PLUGIN_ID);
                 }
 
-                if (StringTools.isValidString(rating)) {
-                    mf.setRating(episode, rating);
+                if (OverrideTools.checkOverwriteEpisodeRating(mf, episode, MovieNFOReader.NFO_PLUGIN_ID)) {
+                    mf.setRating(episode, rating, MovieNFOReader.NFO_PLUGIN_ID);
                 }
 
-                if (StringTools.isValidString(firstAired)) {
-                    mf.setFirstAired(episode, firstAired);
+                if (OverrideTools.checkOverwriteEpisodeFirstAired(mf, episode, MovieNFOReader.NFO_PLUGIN_ID)) {
+                    mf.setFirstAired(episode, firstAired, MovieNFOReader.NFO_PLUGIN_ID);
                 }
 
                 if (StringTools.isValidString(airsAfterSeason)) {

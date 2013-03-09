@@ -1597,27 +1597,17 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         try {
-            String xml = webBrowser.request(siteDefinition.getSite() + HTML_TITLE + imdbId + "/episodes");
             int season = movie.getSeason();
-            for (MovieFile file : movie.getMovieFiles()) {
-                if (!file.isNewFile() || file.hasTitle()) {
-                    // don't scan episode title if it exists in XML data
-                    continue;
-                }
-                StringBuilder titleBuilder = new StringBuilder();
-                for (int episode = file.getFirstPart(); episode <= file.getLastPart(); ++episode) {
-                    String episodeName = HTMLTools.extractTag(xml, "Season " + season + ", Episode " + episode + ":", 2);
+            String xml = webBrowser.request(siteDefinition.getSite() + HTML_TITLE + imdbId + "/episodes?season=" + season);
 
-                    if (!episodeName.equals(Movie.UNKNOWN) && episodeName.indexOf("Episode #") == -1) {
-                        if (titleBuilder.length() > 0) {
-                            titleBuilder.append(Movie.SPACE_SLASH_SPACE);
-                        }
-                        titleBuilder.append(episodeName);
+            for (MovieFile file : movie.getMovieFiles()) {
+                
+                for (int episode = file.getFirstPart(); episode <= file.getLastPart(); ++episode) {
+                    
+                    if (OverrideTools.checkOverwriteEpisodeTitle(file, episode, IMDB_PLUGIN_ID)) {
+                        String episodeName = HTMLTools.extractTag(xml, "Season " + season + ", Episode " + episode + ":", 2);
+                        file.setTitle(episode, episodeName, IMDB_PLUGIN_ID);
                     }
-                }
-                String title = titleBuilder.toString();
-                if (StringUtils.isNotBlank(title)) {
-                    file.setTitle(title);
                 }
             }
         } catch (IOException error) {

@@ -102,13 +102,12 @@ public class TrailerPlugin implements ITrailerPlugin {
         return Boolean.TRUE;
     }
 
-    public boolean downloadTrailer(Movie movie, String trailerUrl, String title, MovieFile tmf) {
+    public boolean downloadTrailer(Movie movie, String trailerUrl, String title, ExtraFile extra) {
         if (!trailersDownload) {
             return Boolean.FALSE;
         }
         boolean isExchangeOk = Boolean.FALSE;
 
-        // Copied from AppleTrailersPlugin.java
         MovieFile mf = movie.getFirstFile();
         String parentPath = mf.getFile().getParent();
         String name = mf.getFile().getName();
@@ -118,11 +117,11 @@ public class TrailerPlugin implements ITrailerPlugin {
             parentPath += File.separator + name;
             basename = name;
         } else if (mf.getFile().getAbsolutePath().toUpperCase().contains("BDMV")) {
-            parentPath = new String(parentPath.substring(0, parentPath.toUpperCase().indexOf("BDMV") - 1));
-            basename = new String(parentPath.substring(parentPath.lastIndexOf(File.separator) + 1));
+            parentPath = parentPath.substring(0, parentPath.toUpperCase().indexOf("BDMV") - 1);
+            basename = parentPath.substring(parentPath.lastIndexOf(File.separator) + 1);
         } else {
             int index = name.lastIndexOf('.');
-            basename = index == -1 ? name : new String(name.substring(0, index));
+            basename = index == -1 ? name : name.substring(0, index);
         }
 
         if (StringTools.isValidString(trailersScanerPath)) {
@@ -138,26 +137,29 @@ public class TrailerPlugin implements ITrailerPlugin {
         String trailerFileName = parentPath + File.separator + trailerBasename;
 
         int slash = mf.getFilename().lastIndexOf("/");
-        String playPath = slash == -1 ? mf.getFilename() : new String(mf.getFilename().substring(0, slash));
+        String playPath = slash == -1 ? mf.getFilename() : mf.getFilename().substring(0, slash);
         if (StringTools.isValidString(trailersPlayerPath)) {
             playPath = trailersPlayerPath;
         }
         String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
 
-        logger.debug(LOG_MESSAGE + "Found trailer: " + trailerUrl);          // XXX DEBUG
-        logger.debug(LOG_MESSAGE + "Download path: " + trailerFileName);     // XXX DEBUG
-        logger.debug(LOG_MESSAGE + "     Play URL: " + trailerPlayFileName); // XXX DEBUG
+        if (logger.isDebugEnabled()) {
+            logger.debug(LOG_MESSAGE + "Found trailer: " + trailerUrl);
+            logger.debug(LOG_MESSAGE + "Download path: " + trailerFileName);
+            logger.debug(LOG_MESSAGE + "     Play URL: " + trailerPlayFileName);
+        }
+        
         File trailerFile = new File(trailerFileName);
 
         // Check if the file already exists - after jukebox directory was deleted for example
         if (trailerFile.exists()) {
             logger.debug(LOG_MESSAGE + "Trailer file (" + trailerPlayFileName + ") already exists for " + movie.getBaseName());
-            tmf.setFilename(trailerPlayFileName);
-            movie.addExtraFile(new ExtraFile(tmf));
+            extra.setFilename(trailerPlayFileName);
+            movie.addExtraFile(extra);
             isExchangeOk = Boolean.TRUE;
         } else if (trailerDownload(movie, trailerUrl, trailerFile)) {
-            tmf.setFilename(trailerPlayFileName);
-            movie.addExtraFile(new ExtraFile(tmf));
+            extra.setFilename(trailerPlayFileName);
+            movie.addExtraFile(extra);
             isExchangeOk = Boolean.TRUE;
         }
 
@@ -198,11 +200,8 @@ public class TrailerPlugin implements ITrailerPlugin {
 
             if (dl.isDownloadOk()) {
                 logger.info("Trailer downloaded in " + dl.getDownloadTime());
-
-                // Looks like it was downloaded OK
                 return Boolean.TRUE;
             }
-            // Looks like the download failed for some reason
             return Boolean.FALSE;
         } finally {
             ThreadExecutor.leaveIO();

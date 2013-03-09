@@ -52,6 +52,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2615 Allocine API can process JSON requests as addition to XML
  - Fixed defect #2616 Fixed retrieval of people (cast,directors,writers) from IMDb
  - Fixed defect #2619 Fixed retrieval of Allocine episodes if no plot available
+ - Enhancement  #2621 Use priority checks also for TV episodes
 
 MovieJukebox 2.8 2012-12-17)
 -----------------------------

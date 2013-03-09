@@ -22,11 +22,19 @@
  */
 package com.moviejukebox.tools;
 
+import static org.junit.Assert.assertEquals;
+import org.apache.log4j.BasicConfigurator;
+import org.junit.Test;
 import com.moviejukebox.model.Movie;
-import junit.framework.TestCase;
+import com.moviejukebox.model.MovieFile;
 
-public class OverrideToolsTest extends TestCase {
+public class OverrideToolsTest {
 
+    public OverrideToolsTest() {
+        BasicConfigurator.configure();
+    }
+
+    @Test
     public void testPriority1() {
         Movie movie = new Movie();
         if (OverrideTools.checkOverwriteRuntime(movie, Movie.UNKNOWN)) {
@@ -43,6 +51,7 @@ public class OverrideToolsTest extends TestCase {
         assertEquals("456", movie.getRuntime());
     }
 
+    @Test
     public void testPriority2() {
         Movie movie = new Movie();
         if (OverrideTools.checkOverwriteRuntime(movie, "nfo")) {
@@ -55,6 +64,7 @@ public class OverrideToolsTest extends TestCase {
         assertEquals("123", movie.getRuntime());
     }
 
+    @Test
     public void testPriority3() {
         Movie movie = new Movie();
         if (OverrideTools.checkOverwriteRuntime(movie, "nfo")) {
@@ -67,6 +77,7 @@ public class OverrideToolsTest extends TestCase {
         assertEquals("123", movie.getRuntime());
     }
 
+    @Test
     public void testPriority4() {
         Movie movie = new Movie();
         if (OverrideTools.checkOverwriteRuntime(movie, "imdb")) {
@@ -77,5 +88,31 @@ public class OverrideToolsTest extends TestCase {
             movie.setRuntime("123", "nfo");
         }
         assertEquals("123", movie.getRuntime());
+    }
+
+    @Test
+    public void testFilePriority1() {
+        MovieFile file = new MovieFile();
+        if (OverrideTools.checkOverwriteEpisodePlot(file, 1, "imdb")) {
+            file.setPlot(1, "123", "imdb");
+        }
+        assertEquals("123", file.getPlot(1));
+        if (OverrideTools.checkOverwriteEpisodePlot(file, 1, "nfo")) {
+            file.setPlot(1, "456", "nfo");
+        }
+        assertEquals("456", file.getPlot(1));
+    }
+
+    @Test
+    public void testFilePriority2() {
+        MovieFile file = new MovieFile();
+        if (OverrideTools.checkOverwriteEpisodePlot(file, 1, "nfo")) {
+            file.setPlot(1, "123", "nfo");
+        }
+        assertEquals("123", file.getPlot(1));
+        if (OverrideTools.checkOverwriteEpisodePlot(file, 1, "imdb")) {
+            file.setPlot(1, "456", "imdb");
+        }
+        assertEquals("123", file.getPlot(1));
     }
 }

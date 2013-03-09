@@ -24,6 +24,7 @@ package com.moviejukebox.tools;
 
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.plugin.DatabasePluginController;
 import static com.moviejukebox.plugin.DatabasePluginController.TYPE_ALTERNATE;
@@ -49,6 +50,9 @@ public final class OverrideTools {
     private static final int MAX_COUNT_ACTOR = PropertiesUtil.getReplacedIntProperty("movie.actor.maxCount", "plugin.people.maxCount.actor", 10);
     private static final int MAX_COUNT_DIRECTOR = PropertiesUtil.getReplacedIntProperty("movie.director.maxCount", "plugin.people.maxCount.director", 2);
     private static final int MAX_COUNT_WRITER = PropertiesUtil.getReplacedIntProperty("movie.writer.maxCount", "plugin.people.maxCount.writer", 3);
+    // holds inclusions
+    private static final boolean INCLUDE_EPISODE_PLOT = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", Boolean.FALSE);
+    private static final boolean INCLUDE_EPISODE_RATING = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", Boolean.FALSE);
     // handling for set default plugins
     private static final String TYPE_PLUGIN = "PLUGIN";
     private static final String MOVIE_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(Movie.TYPE_MOVIE).toUpperCase();
@@ -174,7 +178,7 @@ public final class OverrideTools {
         putMoviePriorities(OverrideFlag.YEAR, sources);
         sources = PropertiesUtil.getProperty("priority.tv.year", "nfo,PLUGIN,ALTERNATE,filename");
         putTvPriorities(OverrideFlag.YEAR, sources);
-
+        
         // EXTRA properties for people scraping (filmography)
 
         // actors
@@ -192,7 +196,22 @@ public final class OverrideTools {
         putMoviePriorities(OverrideFlag.PEOPLE_WRITERS, sources);
         sources = PropertiesUtil.getProperty("priority.tv.people.writers", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.PEOPLE_WRITERS, sources);
-    }
+
+        // EXTRA properties for episodes
+        
+        // episode first aired
+        sources = PropertiesUtil.getProperty("priority.tv.episode.firstaired", "nfo,PLUGIN,ALTERNATE");
+        putTvPriorities(OverrideFlag.EPISODE_FIRST_AIRED, sources);
+        // episode plot
+        sources = PropertiesUtil.getProperty("priority.tv.episode.plot", "nfo,PLUGIN,ALTERNATE");
+        putTvPriorities(OverrideFlag.EPISODE_PLOT, sources);
+        // episode rating
+        sources = PropertiesUtil.getProperty("priority.tv.episode.rating", "nfo,PLUGIN,ALTERNATE");
+        putTvPriorities(OverrideFlag.EPISODE_RATING, sources);
+        // episode title
+        sources = PropertiesUtil.getProperty("priority.tv.episode.title", "nfo,filename,PLUGIN,ALTERNATE");
+        putTvPriorities(OverrideFlag.EPISODE_TITLE, sources);
+}
 
     /**
      * Put movie priorities into map.
@@ -290,6 +309,24 @@ public final class OverrideTools {
         return Boolean.FALSE;
     }
 
+    private static boolean skipCheck(MovieFile movieFile, OverrideFlag overrideFlag, String source) {
+        if (SKIP_NOT_IN_LIST) {
+
+            int index = -1;
+            try {
+                index = TV_PRIORITIES_MAP.get(overrideFlag).indexOf(source.toUpperCase());
+            } catch (Exception ignore) {
+                // ignore this error
+            }
+
+            // index < 0 means: not in list, so skip the check
+            return (index < 0);
+        }
+
+        // no skip
+        return Boolean.FALSE;
+    }
+
     /**
      * Check the priority of a property to set.
      *
@@ -343,6 +380,11 @@ public final class OverrideTools {
     private static boolean checkOverwrite(Movie movie, OverrideFlag overrideFlag, String source) {
         String actualSource = movie.getOverrideSource(overrideFlag);
         return OverrideTools.hasHigherPriority(overrideFlag, actualSource, source, movie.isTVShow());
+    }
+
+    private static boolean checkOverwrite(MovieFile movieFile, OverrideFlag overrideFlag, String source) {
+        String actualSource = movieFile.getOverrideSource(overrideFlag);
+        return OverrideTools.hasHigherPriority(overrideFlag, actualSource, source, Boolean.TRUE);
     }
 
     public static boolean checkOneOverwrite(Movie movie, String source, OverrideFlag... overrideFlags) {
@@ -618,6 +660,8 @@ public final class OverrideTools {
         return checkOverwrite(movie, OverrideFlag.YEAR, source);
     }
 
+    // extra for people scraping
+    
     public static boolean checkOverwritePeopleActors(Movie movie, String source) {
         if (skipCheck(movie, OverrideFlag.PEOPLE_ACTORS, source)) {
             // skip the check
@@ -655,5 +699,53 @@ public final class OverrideTools {
             return Boolean.TRUE;
         }
         return checkOverwrite(movie, OverrideFlag.PEOPLE_WRITERS, source);
+    }
+
+    // extra for TV episodes
+
+    public static boolean checkOverwriteEpisodeFirstAired(MovieFile movieFile, int part, String source) {
+        if (skipCheck(movieFile, OverrideFlag.EPISODE_FIRST_AIRED, source)) {
+            // skip the check
+            return Boolean.FALSE;
+        } else if (StringTools.isNotValidString(movieFile.getFirstAired(part))) {
+            return Boolean.TRUE;
+        }
+        return checkOverwrite(movieFile, OverrideFlag.EPISODE_FIRST_AIRED, source);
+    }
+
+    public static boolean checkOverwriteEpisodePlot(MovieFile movieFile, int part, String source) {
+        if (!INCLUDE_EPISODE_PLOT) {
+            // episode plots should not be included
+            return Boolean.FALSE;
+        } else if (skipCheck(movieFile, OverrideFlag.EPISODE_PLOT, source)) {
+            // skip the check
+            return Boolean.FALSE;
+        } else if (StringTools.isNotValidString(movieFile.getPlot(part))) {
+            return Boolean.TRUE;
+        }
+        return checkOverwrite(movieFile, OverrideFlag.EPISODE_PLOT, source);
+    }
+
+    public static boolean checkOverwriteEpisodeRating(MovieFile movieFile, int part, String source) {
+        if (!INCLUDE_EPISODE_RATING) {
+            // episode ratings should not be included
+            return Boolean.FALSE;
+        } else if (skipCheck(movieFile, OverrideFlag.EPISODE_RATING, source)) {
+            // skip the check
+            return Boolean.FALSE;
+        } else if (StringTools.isNotValidString(movieFile.getRating(part))) {
+            return Boolean.TRUE;
+        }
+        return checkOverwrite(movieFile, OverrideFlag.EPISODE_RATING, source);
+    }
+
+    public static boolean checkOverwriteEpisodeTitle(MovieFile movieFile, int part, String source) {
+        if (skipCheck(movieFile, OverrideFlag.EPISODE_TITLE, source)) {
+            // skip the check
+            return Boolean.FALSE;
+        } else if (StringTools.isNotValidString(movieFile.getTitle(part))) {
+            return Boolean.TRUE;
+        }
+        return checkOverwrite(movieFile, OverrideFlag.EPISODE_TITLE, source);
     }
 }

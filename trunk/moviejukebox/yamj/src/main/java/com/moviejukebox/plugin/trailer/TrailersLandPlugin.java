@@ -24,7 +24,6 @@ package com.moviejukebox.plugin.trailer;
 
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
@@ -39,7 +38,6 @@ import org.apache.log4j.Logger;
 
 /**
  * @author iuk
- *
  */
 public class TrailersLandPlugin extends TrailerPlugin {
 
@@ -92,16 +90,16 @@ public class TrailersLandPlugin extends TrailerPlugin {
             logger.info(LOG_MESSAGE + "Found trailer at URL " + trailerUrl);
 
             String trailerLabel = Integer.toString(trailerList.size() - i) + "-" + tr.getLang() + "-" + tr.getType();
-            MovieFile tmf = new MovieFile();
-            tmf.setTitle("TRAILER-" + trailerLabel);
+            ExtraFile extra = new ExtraFile();
+            extra.setTitle("TRAILER-" + trailerLabel);
 
             if (isDownload()) {
-                if (!downloadTrailer(movie, trailerUrl, trailerLabel, tmf)) {
+                if (!downloadTrailer(movie, trailerUrl, trailerLabel, extra)) {
                     return false;
                 }
             } else {
-                tmf.setFilename(trailerUrl);
-                movie.addExtraFile(new ExtraFile(tmf));
+                extra.setFilename(trailerUrl);
+                movie.addExtraFile(extra);
             }
         }
 

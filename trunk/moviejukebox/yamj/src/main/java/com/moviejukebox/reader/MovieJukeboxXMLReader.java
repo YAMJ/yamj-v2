@@ -587,10 +587,11 @@ public class MovieJukeboxXMLReader {
                                     if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
                                         Element eFileParts = (Element) nFileParts;
                                         String part = eFileParts.getAttribute(PART);
+                                        String source = eFileParts.getAttribute(SOURCE);
                                         if (StringUtils.isNumeric(part)) {
-                                            movieFile.setTitle(NumberUtils.toInt(part, 0), eFileParts.getTextContent());
+                                            movieFile.setTitle(NumberUtils.toInt(part, 0), eFileParts.getTextContent(), source);
                                         } else {
-                                            movieFile.setTitle(eFileParts.getTextContent());
+                                            movieFile.setTitle(eFileParts.getTextContent(), source);
                                         }
                                     }
                                 }
@@ -620,12 +621,13 @@ public class MovieJukeboxXMLReader {
                                     if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
                                         Element eFileParts = (Element) nFileParts;
                                         int part = NumberUtils.toInt(eFileParts.getAttribute(PART), 1);
-                                        movieFile.setFirstAired(part, eFileParts.getTextContent());
+                                        String source = eFileParts.getAttribute(SOURCE);
+                                        movieFile.setFirstAired(part, eFileParts.getTextContent(), source);
                                     }
                                 }
                             }
 
-                            // get the file Plot
+                            // get the file plot
                             nlFileParts = eFile.getElementsByTagName("filePlot");
                             if (nlFileParts.getLength() > 0) {
                                 for (int looperFile = 0; looperFile < nlFileParts.getLength(); looperFile++) {
@@ -633,7 +635,8 @@ public class MovieJukeboxXMLReader {
                                     if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
                                         Element eFileParts = (Element) nFileParts;
                                         int part = NumberUtils.toInt(eFileParts.getAttribute(PART), 1);
-                                        movieFile.setPlot(part, eFileParts.getTextContent(), Boolean.FALSE);
+                                        String source = eFileParts.getAttribute(SOURCE);
+                                        movieFile.setPlot(part, eFileParts.getTextContent(), source, Boolean.TRUE);
                                     }
                                 }
                             }
@@ -646,7 +649,8 @@ public class MovieJukeboxXMLReader {
                                     if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
                                         Element eFileParts = (Element) nFileParts;
                                         int part = NumberUtils.toInt(eFileParts.getAttribute(PART), 1);
-                                        movieFile.setRating(part, eFileParts.getTextContent());
+                                        String source = eFileParts.getAttribute(SOURCE);
+                                        movieFile.setRating(part, eFileParts.getTextContent(), source);
                                     }
                                 }
                             }

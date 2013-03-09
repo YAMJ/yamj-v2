@@ -975,6 +975,9 @@ public class MovieJukeboxXMLWriter {
     private Element writeMovie(Document doc, Movie movie, Library library) {
         Element eMovie = doc.createElement(MOVIE);
 
+        // holds the child attributes for reuse
+        Map<String, String> childAttributes = new LinkedHashMap<String, String>();
+
         eMovie.setAttribute("isExtra", Boolean.toString(movie.isExtra()));
         eMovie.setAttribute("isSet", Boolean.toString(movie.isSetMaster()));
         if (movie.isSetMaster()) {
@@ -999,10 +1002,10 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, SORT_TITLE, movie.getTitleSort());
         DOMHelper.appendChild(doc, eMovie, ORIGINAL_TITLE, movie.getOriginalTitle(), SOURCE, movie.getOverrideSource(OverrideFlag.ORIGINALTITLE));
 
-        Map<String, String> yearAttribs = new HashMap<String, String>();
-        yearAttribs.put("Year", Library.getYearCategory(movie.getYear()));
-        yearAttribs.put(SOURCE, movie.getOverrideSource(OverrideFlag.YEAR));
-        DOMHelper.appendChild(doc, eMovie, YEAR, movie.getYear(), yearAttribs);
+        childAttributes.clear();
+        childAttributes.put("Year", Library.getYearCategory(movie.getYear()));
+        childAttributes.put(SOURCE, movie.getOverrideSource(OverrideFlag.YEAR));
+        DOMHelper.appendChild(doc, eMovie, YEAR, movie.getYear(), childAttributes);
 
         DOMHelper.appendChild(doc, eMovie, "releaseDate", movie.getReleaseDate(), SOURCE, movie.getOverrideSource(OverrideFlag.RELEASEDATE));
         DOMHelper.appendChild(doc, eMovie, "showStatus", movie.getShowStatus());
@@ -1074,13 +1077,13 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "quote", movie.getQuote(), SOURCE, movie.getOverrideSource(OverrideFlag.QUOTE));
         DOMHelper.appendChild(doc, eMovie, "tagline", movie.getTagline(), SOURCE, movie.getOverrideSource(OverrideFlag.TAGLINE));
 
-        Map<String, String> countryAttribs = new HashMap<String, String>();
+        childAttributes.clear();
         String countryIndex = createIndexAttribute(library, Library.INDEX_COUNTRY, movie.getCountry());
         if (countryIndex != null) {
-            countryAttribs.put(INDEX, countryIndex);
+            childAttributes.put(INDEX, countryIndex);
         }
-        countryAttribs.put(SOURCE, movie.getOverrideSource(OverrideFlag.COUNTRY));
-        DOMHelper.appendChild(doc, eMovie, COUNTRY, movie.getCountry(), countryAttribs);
+        childAttributes.put(SOURCE, movie.getOverrideSource(OverrideFlag.COUNTRY));
+        DOMHelper.appendChild(doc, eMovie, COUNTRY, movie.getCountry(), childAttributes);
         if (xmlCompatible) {
             Element eCountry = doc.createElement("countries");
             int cnt = 0;
@@ -1412,18 +1415,25 @@ public class MovieJukeboxXMLWriter {
             DOMHelper.appendChild(doc, eFileItem, "fileURL", filename);
 
             for (int part = mf.getFirstPart(); part <= mf.getLastPart(); ++part) {
-                DOMHelper.appendChild(doc, eFileItem, "fileTitle", mf.getTitle(part), PART, Integer.toString(part));
+                
+                childAttributes.clear();
+                childAttributes.put(PART, Integer.toString(part));
+                childAttributes.put(SOURCE, mf.getOverrideSource(OverrideFlag.EPISODE_TITLE));
+                DOMHelper.appendChild(doc, eFileItem, "fileTitle", mf.getTitle(part), childAttributes);
 
                 // Only write out these for TV Shows
                 if (movie.isTVShow()) {
-                    Map<String, String> tvAttribs = new HashMap<String, String>();
-                    tvAttribs.put(PART, Integer.toString(part));
-                    tvAttribs.put("afterSeason", mf.getAirsAfterSeason(part));
-                    tvAttribs.put("beforeSeason", mf.getAirsBeforeSeason(part));
-                    tvAttribs.put("beforeEpisode", mf.getAirsBeforeEpisode(part));
-                    DOMHelper.appendChild(doc, eFileItem, "airsInfo", String.valueOf(part), tvAttribs);
+                    childAttributes.clear();
+                    childAttributes.put(PART, Integer.toString(part));
+                    childAttributes.put("afterSeason", mf.getAirsAfterSeason(part));
+                    childAttributes.put("beforeSeason", mf.getAirsBeforeSeason(part));
+                    childAttributes.put("beforeEpisode", mf.getAirsBeforeEpisode(part));
+                    DOMHelper.appendChild(doc, eFileItem, "airsInfo", String.valueOf(part), childAttributes);
 
-                    DOMHelper.appendChild(doc, eFileItem, "firstAired", mf.getFirstAired(part), PART, String.valueOf(part));
+                    childAttributes.clear();
+                    childAttributes.put(PART, Integer.toString(part));
+                    childAttributes.put(SOURCE, mf.getOverrideSource(OverrideFlag.EPISODE_FIRST_AIRED));
+                    DOMHelper.appendChild(doc, eFileItem, "firstAired", mf.getFirstAired(part), childAttributes);
                 }
 
                 if (StringTools.isValidString(mf.getWatchedDateString())) {
@@ -1431,11 +1441,17 @@ public class MovieJukeboxXMLWriter {
                 }
 
                 if (includeEpisodePlots) {
-                    DOMHelper.appendChild(doc, eFileItem, "filePlot", mf.getPlot(part), PART, String.valueOf(part));
+                    childAttributes.clear();
+                    childAttributes.put(PART, Integer.toString(part));
+                    childAttributes.put(SOURCE, mf.getOverrideSource(OverrideFlag.EPISODE_PLOT));
+                    DOMHelper.appendChild(doc, eFileItem, "filePlot", mf.getPlot(part), childAttributes);
                 }
 
                 if (includeEpisodeRating) {
-                    DOMHelper.appendChild(doc, eFileItem, "fileRating", mf.getRating(part), PART, String.valueOf(part));
+                    childAttributes.clear();
+                    childAttributes.put(PART, Integer.toString(part));
+                    childAttributes.put(SOURCE, mf.getOverrideSource(OverrideFlag.EPISODE_RATING));
+                    DOMHelper.appendChild(doc, eFileItem, "fileRating", mf.getRating(part), childAttributes);
                 }
 
                 if (includeVideoImages) {

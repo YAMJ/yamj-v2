@@ -24,7 +24,6 @@ package com.moviejukebox.plugin.trailer;
 
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -79,18 +78,18 @@ public class TrailerAddictPlugin extends TrailerPlugin {
         for (Trailer trailer : trailerList) {
             logger.debug(LOG_MESSAGE + "Found trailer at URL " + trailer.getLink());
 
-            MovieFile tmf = new MovieFile();
-            tmf.setTitle("TRAILER-" + trailer.getCombinedTitle());
+            ExtraFile extra = new ExtraFile();
+            extra.setTitle("TRAILER-" + trailer.getCombinedTitle());
 
             String trailerUrl = getDownloadUrl(trailer);
             if (StringTools.isValidString(trailerUrl)) {
                 if (isDownload()) {
-                    if (!downloadTrailer(movie, trailerUrl, FileTools.makeSafeFilename(trailer.getCombinedTitle()), tmf)) {
+                    if (!downloadTrailer(movie, trailerUrl, FileTools.makeSafeFilename(trailer.getCombinedTitle()), extra)) {
                         return Boolean.FALSE;
                     }
                 } else {
-                    tmf.setFilename(trailerUrl);
-                    movie.addExtraFile(new ExtraFile(tmf));
+                    extra.setFilename(trailerUrl);
+                    movie.addExtraFile(extra);
                 }
             } else {
                 return Boolean.FALSE;

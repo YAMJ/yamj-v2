@@ -60,7 +60,7 @@ public class MovieNFOReader {
     public static final String TYPE_TVSHOW = "tvshow";
     public static final String TYPE_EPISODE = "episodedetails";
     // Plugin ID
-    private static final String NFO_PLUGIN_ID = "NFO";
+    public static final String NFO_PLUGIN_ID = "NFO";
     // Other properties
     private static final String XML_START = "<";
     private static final String XML_END = "</";

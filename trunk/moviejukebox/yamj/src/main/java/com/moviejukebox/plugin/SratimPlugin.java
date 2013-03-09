@@ -587,39 +587,11 @@ public class SratimPlugin extends ImdbPlugin {
         return ret.toString();
     }
 
-    protected String extractTag(String src, String tagStart, String tagEnd) {
-        int beginIndex = src.indexOf(tagStart);
-        if (beginIndex < 0) {
-            // logger.debug("extractTag value= Unknown");
-            return Movie.UNKNOWN;
-        }
-        try {
-            String subString = new String(src.substring(beginIndex + tagStart.length()));
-            int endIndex = subString.indexOf(tagEnd);
-            if (endIndex < 0) {
-                // logger.debug("extractTag value= Unknown");
-                return Movie.UNKNOWN;
-            }
-            subString = new String(subString.substring(0, endIndex));
-
-            String value = HTMLTools.decodeHtml(subString.trim());
-            // logger.debug("extractTag value=" + value);
-            return value;
-        } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "extractTag an exception occurred during tag extraction : " + error);
-            return Movie.UNKNOWN;
-        }
-    }
-
-    protected String removeHtmlTags(String src) {
-        return src.replaceAll("\\<.*?>", "");
-    }
-
     protected List<String> removeHtmlTags(List<String> src) {
         List<String> output = new ArrayList<String>();
 
         for (int i = 0; i < src.size(); i++) {
-            output.add(removeHtmlTags(src.get(i)));
+            output.add(HTMLTools.removeHtmlTags(src.get(i)));
         }
         return output;
     }
@@ -676,7 +648,7 @@ public class SratimPlugin extends ImdbPlugin {
             }
 
             if (OverrideTools.checkOverwritePlot(movie, SRATIM_PLUGIN_ID)) {
-                String tmpPlot = removeHtmlTags(extractTag(xml, "<meta name=\"description\" content=\"", "\""));
+                String tmpPlot = HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "<meta name=\"description\" content=\"", "\""));
                 //Set Hebrew plot only if it contains substantial number of characters, otherwise IMDB plot will be used.
                 if ((tmpPlot.length() > 30)) {
                     movie.setPlot(breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax), SRATIM_PLUGIN_ID);
@@ -779,7 +751,7 @@ public class SratimPlugin extends ImdbPlugin {
                     return;
                 }
 
-                String scanUrl = new String(newMainXML.substring(index, endIndex));
+                String scanUrl = newMainXML.substring(index, endIndex);
 
                 index = newMainXML.indexOf("class=\"smtext\">עונה ", index);
                 if (index == -1) {
@@ -793,7 +765,7 @@ public class SratimPlugin extends ImdbPlugin {
                     return;
                 }
 
-                String scanSeason = new String(newMainXML.substring(index, endIndex));
+                String scanSeason =newMainXML.substring(index, endIndex);
 
                 index = newMainXML.indexOf("class=\"smtext\">", index);
                 if (index == -1) {
@@ -807,7 +779,7 @@ public class SratimPlugin extends ImdbPlugin {
                     return;
                 }
 
-                String scanYear = new String(newMainXML.substring(index, endIndex));
+                String scanYear = newMainXML.substring(index, endIndex);
 
                 int scanSeasontInt;
                 try {
@@ -840,11 +812,10 @@ public class SratimPlugin extends ImdbPlugin {
 
         for (MovieFile file : movie.getMovieFiles()) {
             if (!file.isNewFile()) {
-                // don't scan episode title if it exists in XML data
+                // don't scan episode if file is not new
                 continue;
             }
-            StringBuilder sb = new StringBuilder();
-            boolean first = true;
+
             for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
 
                 int index = 0;
@@ -892,15 +863,14 @@ public class SratimPlugin extends ImdbPlugin {
                         return;
                     }
 
-                    String scanName = new String(seasonXML.substring(index, endIndex));
+                    String scanName = seasonXML.substring(index, endIndex);
 
                     if (scanPart.equals(Integer.toString(part))) {
-                        if (first) {
-                            first = false;
-                        } else {
-                            sb.append(Movie.SPACE_SLASH_SPACE);
+                        
+                        if (OverrideTools.checkOverwriteEpisodeTitle(file, part, SRATIM_PLUGIN_ID)) {
+                            String episodeTitle = logicalToVisual(HTMLTools.decodeHtml(scanName));
+                            file.setTitle(part, episodeTitle, SRATIM_PLUGIN_ID);
                         }
-                        sb.append(logicalToVisual(HTMLTools.decodeHtml(scanName)));
 
                         try {
                             String episodeUrl = "http://www.sratim.co.il/" + HTMLTools.decodeHtml(scanUrl);
@@ -909,16 +879,10 @@ public class SratimPlugin extends ImdbPlugin {
                             String xml = webBrowser.request(episodeUrl, Charset.forName("UTF-8"));
 
                             // Update Plot
-                            // TODO Be sure this is enough to go straight to the plot ...
-                            String plotStart = "<div style=\"font-size:14px;text-align:justify;\">";
-                            int plotStartIndex = xml.indexOf(plotStart);
-                            if (plotStartIndex > -1) {
-                                int endPlotIndex = xml.indexOf("</div>", plotStartIndex + plotStart.length());
-                                if (endPlotIndex > -1) {
-                                    String tmpPlot = removeHtmlTags(new String(xml.substring(plotStartIndex + plotStart.length(), endPlotIndex)));
-                                    file.setPlot(part, breakLongLines(tmpPlot, plotLineMaxChar, plotLineMax));
-                                    logger.debug(LOG_MESSAGE + "Plot found : http://www.sratim.co.il/" + scanUrl + " - " + file.getPlot(part));
-                                }
+                            if (OverrideTools.checkOverwriteEpisodePlot(file, part, SRATIM_PLUGIN_ID)) {
+                                String plot = HTMLTools.extractTag(xml, "<div style=\"font-size:14px;text-align:justify;\">", "</div>");
+                                plot = HTMLTools.removeHtmlTags(plot);
+                                file.setPlot(part, breakLongLines(plot, plotLineMaxChar, plotLineMax), SRATIM_PLUGIN_ID);
                             }
 
                             // Download subtitles
@@ -936,11 +900,6 @@ public class SratimPlugin extends ImdbPlugin {
                     }
 
                 }
-
-            }
-            String title = sb.toString();
-            if (!"".equals(title)) {
-                file.setTitle(title);
             }
         }
     }
@@ -1450,13 +1409,13 @@ public class SratimPlugin extends ImdbPlugin {
     }
 
     protected String extractMovieTitle(String xml) {
-        String tmpTitle = removeHtmlTags(extractTag(xml, "<title>", "</title>"));
+        String tmpTitle = HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "<title>", "</title>"));
         int index = tmpTitle.indexOf('(');
         if (index == -1) {
             return "None";
         }
 
-        return new String(tmpTitle.substring(0, index));
+        return tmpTitle.substring(0, index);
     }
 
     protected boolean hasExistingSubtitles(MovieFile mf, boolean bluray) {
@@ -1466,7 +1425,7 @@ public class SratimPlugin extends ImdbPlugin {
                 logger.debug("Could not find BDMV FOLDER, Invalid BDRip Stracture, subtitle wont be downloaded");
                 return true;
             }
-            String bdFolder = new String(mf.getFile().getAbsolutePath().substring(0, bdFolderIndex));
+            String bdFolder = mf.getFile().getAbsolutePath().substring(0, bdFolderIndex);
             // String debug = "";
 
             File subIndex = new File(bdFolder + "BDMV//index.sub");

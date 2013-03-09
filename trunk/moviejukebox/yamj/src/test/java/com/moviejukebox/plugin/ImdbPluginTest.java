@@ -29,6 +29,7 @@ import static org.junit.Assert.assertTrue;
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -51,6 +52,27 @@ public class ImdbPluginTest {
         assertTrue(imdbPlugin.scan(movie));
         assertNotNull(movie.getPlot());
         assertNotEquals(Movie.UNKNOWN, movie.getPlot());
+    }
+
+    @Test
+    public void testImdbTvShow() {
+        PropertiesUtil.setProperty("imdb.site", "us");
+        ImdbPlugin imdbPlugin = new ImdbPlugin();
+
+        Movie movie = new Movie();
+        movie.setMovieType(Movie.TYPE_TVSHOW);
+        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0369179");
+
+        MovieFile mf = new MovieFile();
+        mf.setSeason(8);
+        mf.setFirstPart(1);
+        mf.setLastPart(1);
+        movie.addMovieFile(mf);
+        
+        assertTrue(imdbPlugin.scan(movie));
+        System.err.println(mf.getTitle());
+        System.err.println(mf.getTitle(1));
+        System.err.println(mf.getPlot(1));
     }
 
     @Test

@@ -50,14 +50,11 @@ public class TVRagePlugin extends ImdbPlugin {
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TVRage");
     private static final String webhost = "tvrage.com";
     private TVRageApi tvRage;
-    private boolean includeEpisodePlots;
     private boolean includeVideoImages;
-//    private int preferredPlotLength;
 
     public TVRagePlugin() {
         super();
         tvRage = new TVRageApi(API_KEY);
-        includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", Boolean.FALSE);
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
     }
 
@@ -200,19 +197,17 @@ public class TVRagePlugin extends ImdbPlugin {
 
                     if (episode == null) {
                         logger.debug(LOG_MESSAGE + "Episode not found!");
-                        // This occurs if the episode is not found
                         if (movie.getSeason() > 0 && file.getFirstPart() == 0 && isNotValidString(file.getPlot(part))) {
-                            // This sets the zero part's title to be either the filename title or blank rather than the next episode's title
-                            file.setTitle(part, "Special");
+                            file.setTitle(part, "Special", TVRAGE_PLUGIN_ID);
                         }
                     } else {
-                        // Set the title of the episode
-                        if (isNotValidString(file.getTitle(part))) {
-                            file.setTitle(part, episode.getTitle());
+
+                        if (OverrideTools.checkOverwriteEpisodeTitle(file, part, TVRAGE_PLUGIN_ID)) {
+                            file.setTitle(part, episode.getTitle(), TVRAGE_PLUGIN_ID);
                         }
 
-                        if (includeEpisodePlots && isNotValidString(file.getPlot(part))) {
-                            file.setPlot(part, episode.getSummary());
+                        if (OverrideTools.checkOverwriteEpisodePlot(file, part, TVRAGE_PLUGIN_ID)) {
+                            file.setPlot(part, episode.getSummary(), TVRAGE_PLUGIN_ID);
                         }
 
                         if (includeVideoImages && isNotValidString(file.getVideoImageFilename(part))) {
