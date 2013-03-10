@@ -77,7 +77,7 @@ public class AspectRatioTools {
         // Remove the ":1" at the end of the ratio so we can format it.
         // Other ":?" values should be left alone
         if (newAspectRatio.endsWith(":1")) {
-            newAspectRatio = new String(newAspectRatio.substring(0, newAspectRatio.length() - 2));
+            newAspectRatio = newAspectRatio.substring(0, newAspectRatio.length() - 2);
             appendRatio = true;
         }
 

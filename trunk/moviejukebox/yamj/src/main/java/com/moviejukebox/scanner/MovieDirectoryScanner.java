@@ -203,7 +203,7 @@ public class MovieDirectoryScanner {
                 return true;
             }
 
-            String extension = new String(file.getName().substring(index + 1)).toUpperCase();
+            String extension = file.getName().substring(index + 1).toUpperCase();
             if (!supportedExtensions.contains(extension)) {
                 return true;
             }
@@ -218,7 +218,7 @@ public class MovieDirectoryScanner {
         }
 
         // Compute the relative filename
-        String relativeFilename = new String(file.getAbsolutePath().substring(mediaLibraryRootPathIndex));
+        String relativeFilename = file.getAbsolutePath().substring(mediaLibraryRootPathIndex);
 
         String relativeFileNameLower = relativeFilename.toLowerCase();
         String jukeboxName = PropertiesUtil.getProperty("mjb.detailsDirName", "Jukebox");
@@ -319,12 +319,12 @@ public class MovieDirectoryScanner {
             String baseFileName = file.getName();
 
             if (!file.isDirectory()) {
-                baseFileName = new String(baseFileName.substring(0, file.getName().lastIndexOf(".")));
+                baseFileName = baseFileName.substring(0, file.getName().lastIndexOf("."));
                 movie.setFormatType(Movie.TYPE_FILE);
             }
 
             // Compute the relative filename
-            String relativeFilename = new String(contentFiles[i].getAbsolutePath().substring(mediaLibraryRootPathIndex));
+            String relativeFilename = contentFiles[i].getAbsolutePath().substring(mediaLibraryRootPathIndex);
 
             MovieFile movieFile = new MovieFile();
             relativeFilename = relativeFilename.replace('\\', '/'); // make it unix!
@@ -337,7 +337,7 @@ public class MovieDirectoryScanner {
                 if (isBluRay && playFullBluRayDisk) {
                     // A BluRay File and playFullBluRayDisk, so link to the directory and not the file
                     String tempFilename = srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename);
-                    tempFilename = new String(tempFilename.substring(0, tempFilename.toUpperCase().lastIndexOf("BDMV")));
+                    tempFilename =tempFilename.substring(0, tempFilename.toUpperCase().lastIndexOf("BDMV"));
                     movieFile.setFilename(tempFilename);
                 } else {
                     // Normal movie file so link to it
@@ -368,7 +368,7 @@ public class MovieDirectoryScanner {
                 for(d = hashpathdepth+1; d > 0 && pos > 0; d-- ) {
                     pos = relativeFilename.lastIndexOf("/", pos-1);
                 }
-                hashstr = new String(relativeFilename.substring(pos+1));
+                hashstr = relativeFilename.substring(pos+1);
                 hashstr = Integer.toHexString(hashstr.hashCode());
             }
             movie.setBaseName(FileTools.makeSafeFilename(baseFileName) + hashstr);

@@ -56,7 +56,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         languageCode = PropertiesUtil.getProperty("themoviedb.language", "en");
 
         if (languageCode.length() > 2) {
-            languageCode = new String(languageCode.substring(0, 2)).toLowerCase();
+            languageCode = languageCode.substring(0, 2).toLowerCase();
         }
         logger.debug(LOG_MESSAGE + "Using `" + languageCode + "` as the language code");
 

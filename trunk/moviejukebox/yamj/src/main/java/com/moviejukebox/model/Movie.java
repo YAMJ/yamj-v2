@@ -485,7 +485,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
         for (String prefix : SORT_IGNORE_PREFIXES) {
             if (lowerTitle.startsWith(prefix.toLowerCase())) {
-                return new String(title.substring(prefix.length()));
+                return title.substring(prefix.length());
             }
         }
 
@@ -788,7 +788,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public int getWidth() {
         int width;
         try {
-            width = Integer.parseInt(new String(getResolution().substring(0, getResolution().indexOf("x"))));
+            width = Integer.parseInt(getResolution().substring(0, getResolution().indexOf("x")));
         } catch (Exception error) {
             // This will catch the exception if mediainfo is not installed.
             width = 0;
@@ -1656,7 +1656,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 setDirty(DirtyFlag.INFO);
                 // Escape the first "0" AlloCine gives sometimes
                 if (runtime.startsWith("0")) {
-                    this.runtime = new String(runtime.substring(1)).trim();
+                    this.runtime = runtime.substring(1).trim();
                 } else {
                     this.runtime = runtime.trim();
                 }
@@ -1703,7 +1703,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             }
 
             // Issue 1908: Replace all non-standard characters in the title sort
-            this.titleSort = StringTools.stringMapReplacement(new String(newTitle.substring(idx)));
+            this.titleSort = StringTools.stringMapReplacement(newTitle.substring(idx));
             setDirty(DirtyFlag.INFO);
         }
     }

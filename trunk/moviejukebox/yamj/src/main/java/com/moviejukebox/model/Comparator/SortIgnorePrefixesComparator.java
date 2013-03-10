@@ -62,7 +62,7 @@ public class SortIgnorePrefixesComparator implements Comparator<Object>, Seriali
             while (st.hasMoreTokens()) {
                 String token = st.nextToken().trim();
                 if (token.startsWith("\"") && token.endsWith("\"")) {
-                    token = new String(token.substring(1, token.length() - 1));
+                    token = token.substring(1, token.length() - 1);
                 }
                 sortIgnorePrefixes.add(token.toLowerCase());
             }

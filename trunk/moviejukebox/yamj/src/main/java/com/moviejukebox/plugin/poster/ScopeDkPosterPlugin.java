@@ -70,12 +70,12 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
                     if (StringTools.isValidString(year)) {
                         // Found the same year. Ok
                         if (year.equalsIgnoreCase(tmp.get(i + 1).trim())) {
-                            response = new String(tmp.get(i).substring(startIndex + strRef.length(), endIndex));
+                            response = tmp.get(i).substring(startIndex + strRef.length(), endIndex);
                             break;
                         }
                     } else {
                         // No year, so take the first one :(
-                        response = new String(tmp.get(i).substring(startIndex + strRef.length(), endIndex));
+                        response = tmp.get(i).substring(startIndex + strRef.length(), endIndex);
                         break;
                     }
                 } else {
@@ -101,7 +101,7 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
                 String xml = webBrowser.request(sb.toString(), Charset.forName("ISO-8859-1"));
                 String posterPageUrl = HTMLTools.extractTag(xml, "<div id=\"film-top-left\">", "</div>");
                 posterPageUrl = HTMLTools.extractTag(posterPageUrl, "<a href=\"#\"", "</a>");
-                posterPageUrl = new String(posterPageUrl.substring(posterPageUrl.indexOf("src=\"") + 5, posterPageUrl.indexOf("height") - 2));
+                posterPageUrl = posterPageUrl.substring(posterPageUrl.indexOf("src=\"") + 5, posterPageUrl.indexOf("height") - 2);
                 if (StringTools.isValidString(posterPageUrl)) {
                     posterURL = posterPageUrl;
                 }

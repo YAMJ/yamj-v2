@@ -136,7 +136,7 @@ public class SratimPlugin extends ImdbPlugin {
                 String subtitlesID = HTMLTools.extractTag(xml, "<a href=\"subtitles.php?", 0, "\"");
                 int subid = subtitlesID.lastIndexOf("mid=");
                 if (subid > -1 && subtitlesID.length() > subid) {
-                    String subtitle = new String(subtitlesID.substring(subid + 4));
+                    String subtitle = subtitlesID.substring(subid + 4);
                     movie.setId(SRATIM_PLUGIN_SUBTITLE_ID, subtitle);
                 }
             }
@@ -155,7 +155,7 @@ public class SratimPlugin extends ImdbPlugin {
             int id = detailsUrl.lastIndexOf("id=");
 
             if (id > -1 && detailsUrl.length() > id) {
-                String movieId = new String(detailsUrl.substring(id + 3));
+                String movieId = detailsUrl.substring(id + 3);
                 int idEnd = movieId.indexOf("&");
                 if (idEnd > -1 ) {
                     movieId = movieId.substring(0, idEnd); 
@@ -532,7 +532,7 @@ public class SratimPlugin extends ImdbPlugin {
             return text;
         }
 
-        return new String(text.substring(0, dot));
+        return text.substring(0, dot);
     }
 
     @SuppressWarnings("unused")
@@ -543,7 +543,7 @@ public class SratimPlugin extends ImdbPlugin {
             return text;
         }
 
-        return new String(text.substring(0, bracket));
+        return text.substring(0, bracket);
     }
 
     private static String breakLongLines(String text, int lineMaxChar, int lineMax) {
@@ -835,7 +835,7 @@ public class SratimPlugin extends ImdbPlugin {
                         return;
                     }
 
-                    String scanUrl = new String(seasonXML.substring(index, endIndex));
+                    String scanUrl = seasonXML.substring(index, endIndex);
 
                     index = seasonXML.indexOf("<b>פרק ", index);
                     if (index == -1) {
@@ -849,7 +849,7 @@ public class SratimPlugin extends ImdbPlugin {
                         return;
                     }
 
-                    String scanPart = new String(seasonXML.substring(index, endIndex));
+                    String scanPart = seasonXML.substring(index, endIndex);
 
                     index = seasonXML.indexOf("</b> ", index);
                     if (index == -1) {
@@ -888,7 +888,7 @@ public class SratimPlugin extends ImdbPlugin {
                             // Download subtitles
                             // store the subtitles id in the movie ids map, make sure to remove the prefix "1" from the id
                             int findId = scanUrl.indexOf("id=");
-                            String subId = new String(scanUrl.substring(findId + 4));
+                            String subId = scanUrl.substring(findId + 4);
                             movie.setId(SRATIM_PLUGIN_SUBTITLE_ID, subId);
                             downloadSubtitle(movie, file);
 
@@ -922,7 +922,7 @@ public class SratimPlugin extends ImdbPlugin {
             return;
         }
 
-        String basename = new String(path.substring(0, lindex));
+        String basename = path.substring(0, lindex);
 
         // Check if this is a bluray file
         boolean bluRay = false;
@@ -999,7 +999,7 @@ public class SratimPlugin extends ImdbPlugin {
                 break;
             }
 
-            String scanID = new String(mainXML.substring(index, endIndex));
+            String scanID = mainXML.substring(index, endIndex);
 
             //
             // scanDiscs
@@ -1016,7 +1016,7 @@ public class SratimPlugin extends ImdbPlugin {
                 break;
             }
 
-            String scanDiscs = new String(mainXML.substring(index, endIndex));
+            String scanDiscs = mainXML.substring(index, endIndex);
 
             //
             // scanFileName
@@ -1033,7 +1033,7 @@ public class SratimPlugin extends ImdbPlugin {
                 break;
             }
 
-            String scanFileName = new String(mainXML.substring(index, endIndex)).toUpperCase().replace('.', ' ');
+            String scanFileName = mainXML.substring(index, endIndex).toUpperCase().replace('.', ' ');
             // removing all characters causing metric to hang.
             scanFileName = scanFileName.replaceAll("-|\u00A0", " ").replaceAll(" ++", " ");
 
@@ -1052,7 +1052,7 @@ public class SratimPlugin extends ImdbPlugin {
                 break;
             }
 
-            String scanFormat = new String(mainXML.substring(index, endIndex));
+            String scanFormat = mainXML.substring(index, endIndex);
 
             //
             // scanFPS
@@ -1069,7 +1069,7 @@ public class SratimPlugin extends ImdbPlugin {
                 break;
             }
 
-            String scanFPS = new String(mainXML.substring(index, endIndex));
+            String scanFPS = mainXML.substring(index, endIndex);
 
             //
             // scanCount
@@ -1086,7 +1086,7 @@ public class SratimPlugin extends ImdbPlugin {
                 break;
             }
 
-            String scanCount = new String(mainXML.substring(index, endIndex));
+            String scanCount = mainXML.substring(index, endIndex);
 
             // Check for best text similarity
             float result = metric.getSimilarity(basename, scanFileName);
@@ -1189,7 +1189,7 @@ public class SratimPlugin extends ImdbPlugin {
 
         // reconstruct movie filename with full path
         String orgName = mf.getFile().getAbsolutePath();
-        File subtitleFile = new File(new String(orgName.substring(0, orgName.lastIndexOf('.'))));
+        File subtitleFile = new File(orgName.substring(0, orgName.lastIndexOf('.')));
         if (!downloadSubtitleZip(movie, "http://www.sratim.co.il/downloadsubtitle.php?id=" + bestID, subtitleFile, bluRay)) {
             logger.error(LOG_MESSAGE + "Error - Subtitle download failed");
             return;
@@ -1243,7 +1243,7 @@ public class SratimPlugin extends ImdbPlugin {
 
                     int n;
 
-                    String entryExt = new String(entryName.substring(entryName.lastIndexOf('.')));
+                    String entryExt = entryName.substring(entryName.lastIndexOf('.'));
 
                     if (movie.isTVShow()) {
                         // for tv show, use the subtitleFile parameter because tv show is
@@ -1257,9 +1257,9 @@ public class SratimPlugin extends ImdbPlugin {
                             MovieFile moviePart = partsIter.next();
                             String partName = moviePart.getFile().getAbsolutePath();
                             if (bluray) { // This is a BDRip, should be saved as index.EXT under BDMV dir to match PCH requirments
-                                partName = new String(partName.substring(0, partName.lastIndexOf("BDMV"))) + "BDMV\\index";
+                                partName = partName.substring(0, partName.lastIndexOf("BDMV")) + "BDMV\\index";
                             } else {
-                                partName = new String(partName.substring(0, partName.lastIndexOf('.')));
+                                partName = partName.substring(0, partName.lastIndexOf('.'));
                             }
                             fileOutputStream = FileTools.createFileOutputStream(partName + entryExt);
                         } else {

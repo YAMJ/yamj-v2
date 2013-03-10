@@ -172,7 +172,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
                     break;
                 }
 
-                String trailerTitle = decodeEscapeICU(new String(xml.substring(index, endIndex)));
+                String trailerTitle = decodeEscapeICU(xml.substring(index, endIndex));
 
                 index = endIndex + doubleQuoteComma.length();
 
@@ -188,7 +188,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
                     break;
                 }
 
-                String trailerLocation = decodeEscapeICU(new String(xml.substring(index, endIndex)));
+                String trailerLocation = decodeEscapeICU(xml.substring(index, endIndex));
 
                 index = endIndex + doubleQuoteComma.length();
 
@@ -200,7 +200,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
                         // Convert relative URL to absolute URL - some urls are already absolute, and some relative
                         trailerUrl = getAbsUrl("http://www.apple.com/trailers/", trailerLocation);
                     } else {
-                        trailerUrl = "http" + new String(trailerLocation.substring(itmsIndex + 4));
+                        trailerUrl = "http" + trailerLocation.substring(itmsIndex + 4);
                     }
 
                     return trailerUrl;
@@ -385,7 +385,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             // Check ICU escaping
             if ((str.charAt(loop) == '%') && (loop + 5 < str.length()) && (str.charAt(loop + 1) == 'u')) {
 
-                String value = new String(str.substring(loop + 2, loop + 6));
+                String value = str.substring(loop + 2, loop + 6);
                 int intValue = Integer.parseInt(value, 16);
 
                 // fix for ' char
@@ -413,7 +413,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
     // Extract the filename from the URL
     private String getFilenameFromUrl(String fullUrl) {
         int nameStart = fullUrl.lastIndexOf('/') + 1;
-        return new String(fullUrl.substring(nameStart));
+        return fullUrl.substring(nameStart);
     }
 
     // Check the trailer filename against the valid trailer types from appletrailers.trailertypes

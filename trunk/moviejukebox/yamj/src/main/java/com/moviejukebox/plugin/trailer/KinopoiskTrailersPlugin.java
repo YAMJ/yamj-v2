@@ -143,7 +143,7 @@ public class KinopoiskTrailersPlugin extends TrailerPlugin {
             if (beginUrl >= 0) {
                 while (true) {
                     int markerUrl = trailerXml.indexOf("http://", beginUrl);
-                    String tmpUrl = new String(trailerXml.substring(markerUrl, trailerXml.indexOf('\"', markerUrl)));
+                    String tmpUrl = trailerXml.substring(markerUrl, trailerXml.indexOf('\"', markerUrl));
                     String ext = tmpUrl.substring(tmpUrl.lastIndexOf('.') + 1).toUpperCase();
                     if (extensions.contains(ext)) {
                         trailerUrl = tmpUrl;

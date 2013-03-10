@@ -181,7 +181,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             int beginIndex = xml.indexOf(COMINGSOON_BASE_URL + COMINGSOON_SEARCH_URL);
             if (beginIndex > 0) {
-                comingSoonId = getComingSoonIdFromURL(new String(xml.substring(beginIndex, xml.indexOf('"', beginIndex))));
+                comingSoonId = getComingSoonIdFromURL(xml.substring(beginIndex, xml.indexOf('"', beginIndex)));
                 logger.debug("ComingSoon: Found ComingSoon ID: " + comingSoonId);
             }
             return comingSoonId;
@@ -288,7 +288,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         while (trovatiIndex >= 0 && moviesFound < 0) {
             int filmIndex = xml.indexOf("Film", trovatiIndex);
             if (filmIndex - trovatiIndex < 15 && filmIndex > 0) {
-                moviesFound = Integer.parseInt(new String(xml.substring(trovatiIndex + 8, filmIndex - 1)));
+                moviesFound = Integer.parseInt(xml.substring(trovatiIndex + 8, filmIndex - 1));
             } else {
                 trovatiIndex = xml.indexOf("Trovati", trovatiIndex + 1);
             }
@@ -309,22 +309,22 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         while (beginIndex >= 0 && beginIndex < trovatiIndex) {
             int urlIndex = xml.indexOf(COMINGSOON_SEARCH_URL, beginIndex);
-            logger.debug("ComingSoon: Found movie URL " + new String(xml.substring(urlIndex, xml.indexOf('"', urlIndex))));
-            String comingSoonId = getComingSoonIdFromURL(new String(xml.substring(urlIndex, xml.indexOf('"', urlIndex))));
+            logger.debug("ComingSoon: Found movie URL " + xml.substring(urlIndex, xml.indexOf('"', urlIndex)));
+            String comingSoonId = getComingSoonIdFromURL(xml.substring(urlIndex, xml.indexOf('"', urlIndex)));
 
             int nextIndex = xml.indexOf("<div id=\"BoxFilm\">", beginIndex + 1);
 
             String search;
             if (nextIndex > 0 && nextIndex < trovatiIndex) {
-                search = new String(xml.substring(beginIndex, nextIndex));
+                search = xml.substring(beginIndex, nextIndex);
             } else {
-                search = new String(xml.substring(beginIndex, trovatiIndex));
+                search = xml.substring(beginIndex, trovatiIndex);
             }
 
             String title = HTMLTools.extractTag(search, "class=\"titoloFilm\"", 0, "<>", false).trim();
             String originalTitle = HTMLTools.extractTag(search, "class=\"titoloFilm2\">", "<").trim();
             if (originalTitle.startsWith("(")) {
-                originalTitle = new String(originalTitle.substring(1, originalTitle.length() - 1)).trim();
+                originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
             } else if (originalTitle.length() == 0) {
                 originalTitle = Movie.UNKNOWN;
             }
@@ -332,7 +332,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             String year = Movie.UNKNOWN;
             int beginYearIndex = search.indexOf("ANNO PROD:</span>");
             if (beginYearIndex > 0) {
-                year = HTMLTools.extractTag(new String(search.substring(beginYearIndex)), "<b").trim();
+                year = HTMLTools.extractTag(search.substring(beginYearIndex), "<b").trim();
             }
 
             String[] movieData = {comingSoonId, title, originalTitle, year};
@@ -348,7 +348,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
     private String getComingSoonIdFromURL(String url) {
         int beginIndex = url.indexOf(COMINGSOON_KEY_PARAM);
-        StringTokenizer st = new StringTokenizer(new String(url.substring(beginIndex + COMINGSOON_KEY_PARAM.length())), "&/\"");
+        StringTokenizer st = new StringTokenizer(url.substring(beginIndex + COMINGSOON_KEY_PARAM.length()), "&/\"");
         String comingSoonId = st.nextToken();
 
         return comingSoonId;
@@ -442,7 +442,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     originalTitle = HTMLTools.extractTag(xml, "<h2 class='titoloFilm2", 1, "<>", false).trim();
                 }
                 if (originalTitle.startsWith("(")) {
-                    originalTitle = new String(originalTitle.substring(1, originalTitle.length() - 1)).trim();
+                    originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
                 }
 
                 if (StringTools.isValidString(originalTitle)) {
@@ -458,7 +458,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 String rating = HTMLTools.extractTag(xml, "<li class=\"current-rating\"", 1, "<>", false).trim();
                 logger.debug("ComingSoon: found rating " + rating);
                 if (StringTools.isValidString(rating)) {
-                    rating = new String(rating.substring(rating.indexOf(' ') + 1, rating.indexOf('/')));
+                    rating = rating.substring(rating.indexOf(' ') + 1, rating.indexOf('/'));
                     int ratingInt = (int) (Float.parseFloat(rating.replace(',', '.')) * 20); // Rating is 0 to 5, we normalize to 100
                     if (ratingInt > 0) {
                         movie.addRating(COMINGSOON_PLUGIN_ID, ratingInt);
@@ -495,11 +495,11 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 if (countryYear.length() <= 4) {
                     year = countryYear.trim();
                 } else {
-                    year = new String(countryYear.substring(countryYear.length() - 4, countryYear.length()));
+                    year = countryYear.substring(countryYear.length() - 4, countryYear.length());
                 }
 
                 if (countryYear.length() > 5) {
-                    StringTokenizer st = new StringTokenizer(new String(countryYear.substring(0, countryYear.length() - 5)), ",");
+                    StringTokenizer st = new StringTokenizer(countryYear.substring(0, countryYear.length() - 5), ",");
                     // Last country seems to be the more appropriate
                     while (st.hasMoreTokens()) {
                         country = st.nextToken().trim();
@@ -566,7 +566,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     return false;
                 }
 
-                String xmlPlot = new String(xml.substring(beginIndex + 7, endIndex - 1)).trim();
+                String xmlPlot = xml.substring(beginIndex + 7, endIndex - 1).trim();
                 xmlPlot = HTMLTools.stripTags(xmlPlot).trim();
 
                 /*
@@ -588,11 +588,11 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     // We've found at least one of the plots
                     if (outlineStart == -1 && plotStart > 0) {
                         // We'll assume that the outline is at the beginning of the plot
-                        outline = new String(xmlPlot.substring(0, plotStart));
+                        outline = xmlPlot.substring(0, plotStart);
                     } else {
-                        outline = new String(xmlPlot.substring(11, plotStart));
+                        outline = xmlPlot.substring(11, plotStart);
                     }
-                    plot = new String(xmlPlot.substring(plotStart + 11));
+                    plot = xmlPlot.substring(plotStart + 11);
                 }
 
                 if (OverrideTools.checkOverwritePlot(movie, COMINGSOON_PLUGIN_ID)) {
@@ -698,9 +698,9 @@ public class ComingSoonPlugin extends ImdbPlugin {
             StringTokenizer st = new StringTokenizer(title);
             while (st.hasMoreTokens()) {
                 String word = st.nextToken();
-                sb.append(new String(word.substring(0, 1)).toUpperCase());
+                sb.append(word.substring(0, 1).toUpperCase());
                 if (word.length() > 1) {
-                    sb.append(new String(word.substring(1)).toLowerCase());
+                    sb.append(word.substring(1).toLowerCase());
                 }
                 if (st.hasMoreTokens()) {
                     sb.append(' ');
@@ -720,7 +720,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         boolean result = false;
         int beginIndex = nfo.indexOf("?key=");
         if (beginIndex != -1) {
-            StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 5)), "/ \n,:!&é\"'(--è_çà)=$");
+            StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 5), "/ \n,:!&é\"'(--è_çà)=$");
             movie.setId(COMINGSOON_PLUGIN_ID, st.nextToken());
             logger.debug("ComingSoon Id found in nfo = " + movie.getId(COMINGSOON_PLUGIN_ID));
             result = true;

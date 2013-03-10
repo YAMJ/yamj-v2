@@ -558,7 +558,7 @@ public final class MovieFilenameScanner {
                 // Find first token before trailer, TV show and part
                 // Name should not start with '-' (exclude wrongly marked part/episode titles)
                 String title = "";
-                StringTokenizer t = new StringTokenizer(new String(rest.substring(0, min)), "/[]");
+                StringTokenizer t = new StringTokenizer(rest.substring(0, min), "/[]");
                 while (t.hasMoreElements()) {
                     String token = t.nextToken();
                     token = cleanUpTitle(token);
@@ -618,7 +618,7 @@ public final class MovieFilenameScanner {
             // EPISODE TITLE
             if (dto.getSeason() >= 0) {
                 itvshow += 8;
-                Matcher matcher = SECOND_TITLE_PATTERN.matcher(new String(rest.substring(itvshow)));
+                Matcher matcher = SECOND_TITLE_PATTERN.matcher(rest.substring(itvshow));
                 while (matcher.find()) {
                     String title = cleanUpTitle(matcher.group(1));
                     if (title.length() > 0) {
@@ -637,7 +637,7 @@ public final class MovieFilenameScanner {
                 // Just do this for no extra, already named.
                 if (!dto.isExtra()) {
                     ipart += 6;
-                    Matcher matcher = SECOND_TITLE_PATTERN.matcher(new String(rest.substring(ipart)));
+                    Matcher matcher = SECOND_TITLE_PATTERN.matcher(rest.substring(ipart));
                     while (matcher.find()) {
                         String title = cleanUpTitle(matcher.group(1));
                         if (title.length() > 0) {
@@ -745,11 +745,11 @@ public final class MovieFilenameScanner {
     }
 
     private static String cutMatch(String rest, Matcher matcher) {
-        return (new String(rest.substring(0, matcher.start())) + new String(rest.substring(matcher.end()))).trim();
+        return (rest.substring(0, matcher.start()) + rest.substring(matcher.end())).trim();
     }
 
     private static String cutMatch(String rest, Matcher matcher, String divider) {
-        return new String(rest.substring(0, matcher.start())) + divider + new String(rest.substring(matcher.end()));
+        return rest.substring(0, matcher.start()) + divider + rest.substring(matcher.end());
     }
 
     public static MovieFileNameDTO scan(File file) {

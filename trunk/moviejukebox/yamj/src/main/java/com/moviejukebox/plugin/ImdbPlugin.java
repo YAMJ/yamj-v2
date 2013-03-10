@@ -261,10 +261,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // Check for the new version and correct the title if found
             boolean imdbNewVersion = Boolean.FALSE;
             if (StringUtils.endsWithIgnoreCase(title, " - imdb")) {
-                title = new String(title.substring(0, title.length() - 7));
+                title = title.substring(0, title.length() - 7);
                 imdbNewVersion = Boolean.TRUE;
             } else if (StringUtils.startsWithIgnoreCase(title, "imdb - ")) {
-                title = new String(title.substring(7));
+                title = title.substring(7);
                 imdbNewVersion = Boolean.TRUE;
             }
             
@@ -1764,18 +1764,18 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // First let's check if "more" exists in the string
         if (pos > 0) {
             if (uncleanString.endsWith("more")) {
-                return new String(uncleanString.substring(0, uncleanString.length() - 4)).trim();
+                return uncleanString.substring(0, uncleanString.length() - 4).trim();
             }
 
             pos = uncleanString.toLowerCase().indexOf("see more");
             if (pos > 0) {
-                return new String(uncleanString.substring(0, pos)).trim();
+                return uncleanString.substring(0, pos).trim();
             }
         }
 
         pos = uncleanString.toLowerCase().indexOf("see full summary");
         if (pos > 0) {
-            return new String(uncleanString.substring(0, pos)).trim();
+            return uncleanString.substring(0, pos).trim();
         }
 
         return uncleanString.trim();
@@ -1870,7 +1870,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 title = title.substring(0, title.length() - 7);
             }
             if (title.toLowerCase().startsWith("imdb - ")) {
-                title = new String(title.substring(7));
+                title = title.substring(7);
             }
             person.setName(title);
 

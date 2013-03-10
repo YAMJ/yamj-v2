@@ -244,9 +244,9 @@ public class TVRagePlugin extends ImdbPlugin {
         text = "/shows/";
         beginIndex = nfo.indexOf(text);
         if (beginIndex > -1) {
-            StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + text.length())), "/ \n,:!&é\"'(è_çà)=$");
+            StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + text.length()), "/ \n,:!&é\"'(è_çà)=$");
             // Remove the "id-" from the front of the ID
-            String id = new String(st.nextToken().substring("id-".length()));
+            String id = st.nextToken().substring("id-".length());
             movie.setId(TVRAGE_PLUGIN_ID, id);
             logger.debug(LOG_MESSAGE + "TVRage Id found in nfo = " + movie.getId(TVRAGE_PLUGIN_ID));
             return Boolean.TRUE;
@@ -255,7 +255,7 @@ public class TVRagePlugin extends ImdbPlugin {
         text = "tvrage.com/";
         beginIndex = nfo.indexOf(text);
         if (beginIndex > -1) {
-            StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + text.length())), "/ \n,:!&\"'=$");
+            StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + text.length()), "/ \n,:!&\"'=$");
             movie.setId(TVRAGE_PLUGIN_ID, st.nextToken());
             logger.debug(LOG_MESSAGE + "TVRage Vanity Id found in nfo = " + movie.getId(TVRAGE_PLUGIN_ID));
             return Boolean.TRUE;

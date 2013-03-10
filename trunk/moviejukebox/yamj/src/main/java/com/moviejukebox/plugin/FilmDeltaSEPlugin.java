@@ -173,7 +173,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
      * Utility method to make a filmdelta id from a string containing a filmdelta url
      */
     private String makeFilmDeltaId(String nfo, int beginIndex, int skip) {
-        StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex)), "/");
+        StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex), "/");
         for (int i = 0; i < skip; i++) {
             st.nextToken();
         }
@@ -289,7 +289,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             List<String> filmdeltaGenres = HTMLTools.extractTags(fdeltaHtml, "<h4>Genre</h4>", "</div>", "<h5>", "</h5>");
             for (String genre : filmdeltaGenres) {
                 if (genre.length() > 0) {
-                    genre = new String(genre.substring(0, genre.length() - 5));
+                    genre = genre.substring(0, genre.length() - 5);
                     newGenres.add(genre);
                 }
             }
@@ -308,7 +308,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
 
             if (!filmdeltaDirectors.isEmpty()) {
                 for (String dir : filmdeltaDirectors) {
-                    dir = new String(dir.substring(0, dir.length() - 4));
+                    dir = dir.substring(0, dir.length() - 4);
                     newDirector.append(dir).append(Movie.SPACE_SLASH_SPACE);
                 }
 

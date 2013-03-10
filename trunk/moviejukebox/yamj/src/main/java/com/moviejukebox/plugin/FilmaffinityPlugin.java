@@ -183,7 +183,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             if (OverrideTools.checkOverwritePlot(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
                 String plot = HTMLTools.getTextAfterElem(xml, FA_PLOT);
                 if (plot.endsWith("(FILMAFFINITY)")) {
-                    plot = new String(plot.substring(0, plot.length() - 14));
+                    plot = plot.substring(0, plot.length() - 14);
                 }
                 movie.setPlot(plot, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }

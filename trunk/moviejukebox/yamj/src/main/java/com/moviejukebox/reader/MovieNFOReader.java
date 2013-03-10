@@ -220,14 +220,14 @@ public class MovieNFOReader {
                     // Check to see if the URL has <fanart> at the beginning and ignore it if it does (Issue 706)
                     if ((currentUrlStartIndex < 8)
                             || (nfo.substring(currentUrlStartIndex - 8, currentUrlStartIndex).compareToIgnoreCase("<fanart>") != 0)) {
-                        String foundUrl = new String(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
+                        String foundUrl = nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3);
 
                         // Check for some invalid characters to see if the URL is valid
                         if (foundUrl.contains(" ") || foundUrl.contains("*")) {
                             urlStartIndex = currentUrlStartIndex + 3;
                         } else {
                             logger.debug(LOG_MESSAGE + "Poster URL found in nfo = " + foundUrl);
-                            movie.setPosterURL(new String(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3)));
+                            movie.setPosterURL(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
                             urlStartIndex = -1;
                             movie.setDirty(DirtyFlag.POSTER, Boolean.TRUE);
                             foundInfo = Boolean.TRUE;
@@ -969,9 +969,9 @@ public class MovieNFOReader {
                     }
 
                     if (pos > start) {
-                        tempCert = new String(tempCert.substring(start, pos));
+                        tempCert = tempCert.substring(start, pos);
                     } else {
-                        tempCert = new String(tempCert.substring(start));
+                        tempCert = tempCert.substring(start);
                     }
                 }
                 movie.setCertification(tempCert, NFO_PLUGIN_ID);
@@ -983,16 +983,16 @@ public class MovieNFOReader {
                 int countryPos = tempCert.lastIndexOf(imdbPreferredCountry);
                 if (countryPos > 0) {
                     // We've found the country, so extract just that tag
-                    tempCert = new String(tempCert.substring(countryPos));
+                    tempCert = tempCert.substring(countryPos);
                     int pos = tempCert.indexOf(':');
                     if (pos > 0) {
                         int endPos = tempCert.indexOf(" /");
                         if (endPos > 0) {
                             // This is in the middle of the string
-                            tempCert = new String(tempCert.substring(pos + 1, endPos));
+                            tempCert = tempCert.substring(pos + 1, endPos);
                         } else {
                             // This is at the end of the string
-                            tempCert = new String(tempCert.substring(pos + 1));
+                            tempCert = tempCert.substring(pos + 1);
                         }
                     }
                 } else {
@@ -1000,7 +1000,7 @@ public class MovieNFOReader {
                     int pos = tempCert.lastIndexOf(':');
                     if (pos > 0) {
                         // Strip the country code from the rating for certification like "UK:PG-12"
-                        tempCert = new String(tempCert.substring(pos + 1));
+                        tempCert = tempCert.substring(pos + 1);
                     }
                 }
 

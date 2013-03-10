@@ -79,7 +79,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         // if title starts with "the" -> remove it to get better results
         String newTitle;
         if (title.toLowerCase().startsWith("the")) {
-            newTitle = new String(title.substring(4, title.length()));
+            newTitle = title.substring(4, title.length());
         } else {
             newTitle = title;
         }
@@ -126,7 +126,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         //remove unused parts of resulting web page
         int beginIndex = xml.indexOf("class=\"product-list\"") + 53;
         int endIndex = xml.indexOf("</table>");
-        String xmlPart = new String(xml.substring(beginIndex, endIndex));
+        String xmlPart = xml.substring(beginIndex, endIndex);
         //the result is in a table split it on tr elements
         String[] productList = xmlPart.split("<tr>");
 
@@ -143,7 +143,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             if (isMovie) {
                 //movieInfo[3] contains title
                 //movieInfo[6] contains year
-                String foundTitle = HTMLTools.removeHtmlTags(new String(productInfo[3].substring(15)));
+                String foundTitle = HTMLTools.removeHtmlTags(productInfo[3].substring(15));
                 foundTitle = foundTitle.replaceAll("\\t", "");
                 if (foundTitle.toLowerCase().contains(title.toLowerCase())) {
                     //save first title find to fallback to if nothing else is found
@@ -153,7 +153,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
                     //check if year matches
                     if (year != null) {
                         //year is in position 13-17
-                        String date = new String(productInfo[6].substring(14, 18));
+                        String date = productInfo[6].substring(14, 18);
                         if (year.equals(date)) {
                             foundAtIndex = i;
                             break;
