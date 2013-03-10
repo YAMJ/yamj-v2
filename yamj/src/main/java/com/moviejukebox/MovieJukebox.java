@@ -192,10 +192,10 @@ public class MovieJukebox {
                     showMemory = Boolean.TRUE;
                     PropertiesUtil.setProperty("mjb.showMemory", Boolean.TRUE);
                 } else if (arg.startsWith("-D")) {
-                    String propLine = arg.length() > 2 ? new String(arg.substring(2)) : args[++i];
+                    String propLine = arg.length() > 2 ? arg.substring(2) : args[++i];
                     int propDiv = propLine.indexOf('=');
                     if (-1 != propDiv) {
-                        cmdLineProps.put(new String(propLine.substring(0, propDiv)), new String(propLine.substring(propDiv + 1)));
+                        cmdLineProps.put(propLine.substring(0, propDiv), propLine.substring(propDiv + 1));
                     }
                 } else if (arg.startsWith("-")) {
                     help();
@@ -339,7 +339,7 @@ public class MovieJukebox {
             while (st.hasMoreTokens()) {
                 String token = st.nextToken().trim();
                 if (token.startsWith("\"") && token.endsWith("\"")) {
-                    token = new String(token.substring(1, token.length() - 1));
+                    token = token.substring(1, token.length() - 1);
                 }
                 Movie.addSortIgnorePrefixes(token.toLowerCase());
             }
@@ -544,7 +544,7 @@ public class MovieJukebox {
                         newFile.createNewFile();
 
                         // Copy NFO / properties / .XML
-                        if (ArrayUtils.contains(extensionToCopy, new String(fileName.substring(fileName.length() - 3)))) {
+                        if (ArrayUtils.contains(extensionToCopy, fileName.substring(fileName.length() - 3))) {
                             logger.info("Coyping " + file + " to " + newFile);
                             FileTools.copyFile(file, newFile);
                         } else {
@@ -2275,7 +2275,7 @@ public class MovieJukebox {
                 // Generate and save both images
                 if (perspectiveDirection.equalsIgnoreCase("both")) {
                     // Calculate mirror thumbnail name.
-                    String dstMirror = new String(tmpThumbnailFile.substring(0, tmpThumbnailFile.lastIndexOf('.'))) + "_mirror" + new String(tmpThumbnailFile.substring(tmpThumbnailFile.lastIndexOf('.')));
+                    String dstMirror = tmpThumbnailFile.substring(0, tmpThumbnailFile.lastIndexOf('.')) + "_mirror" + tmpThumbnailFile.substring(tmpThumbnailFile.lastIndexOf('.'));
 
                     // Generate left & save as copy
                     logger.debug("Generating mirror thumbnail from " + tmpPosterFile + " to " + dstMirror);

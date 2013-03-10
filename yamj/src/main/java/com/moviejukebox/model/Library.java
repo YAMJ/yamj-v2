@@ -1746,7 +1746,7 @@ public class Library implements Map<String, Movie> {
             } else if (filmYear.equals(String.valueOf(CURRENT_YEAR - 1))) {
                 yearCat = new StringBuilder("Last Year");
             } else {
-                String beginYear = new String(filmYear.substring(0, filmYear.length() - 1)) + "0";
+                String beginYear = filmYear.substring(0, filmYear.length() - 1) + "0";
                 String endYear;
                 try {
                     if (Integer.parseInt(filmYear) >= CURRENT_DECADE) {
@@ -1754,7 +1754,7 @@ public class Library implements Map<String, Movie> {
                         endYear = String.valueOf(FINAL_YEAR);
                     } else {
                         // Otherwise it's 9
-                        endYear = new String(filmYear.substring(0, filmYear.length() - 1)) + "9";
+                        endYear = filmYear.substring(0, filmYear.length() - 1) + "9";
                     }
                     logger.trace("Library years for categories: Begin='" + beginYear + "' End='" + endYear + "'");
                     yearCat = new StringBuilder(beginYear);

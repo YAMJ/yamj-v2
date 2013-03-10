@@ -563,8 +563,8 @@ public class AllocinePlugin extends ImdbPlugin {
             if (beginIdIndex != -1) {
                 int endIdIndex = nfo.indexOf('.', beginIdIndex);
                 if (endIdIndex != -1) {
-                    logger.debug(LOG_MESSAGE + "Allocine Id found in nfo = " + new String(nfo.substring(beginIdIndex + 1, endIdIndex)));
-                    movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, new String(nfo.substring(beginIdIndex + 1, endIdIndex)));
+                    logger.debug(LOG_MESSAGE + "Allocine Id found in nfo = " + nfo.substring(beginIdIndex + 1, endIdIndex));
+                    movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, nfo.substring(beginIdIndex + 1, endIdIndex));
                     result = true;
                 } else {
                     logger.debug(LOG_MESSAGE + "No Allocine Id found in nfo !");

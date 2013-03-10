@@ -89,7 +89,7 @@ public class FileTools {
             String newFilename = filename;
             int pos = newFilename.indexOf(oldText, 0);
             while (pos >= 0) {
-                newFilename = new String(newFilename.substring(0, pos)) + newText + new String(newFilename.substring(pos + oldLength));
+                newFilename = newFilename.substring(0, pos) + newText + newFilename.substring(pos + oldLength);
                 pos = newFilename.indexOf(oldText, pos + oldLength);
             }
             return newFilename;
@@ -550,7 +550,7 @@ public class FileTools {
             return "";
         }
         String path = file.getParent();
-        return new String(path.substring(path.lastIndexOf(File.separator) + 1));
+        return path.substring(path.lastIndexOf(File.separator) + 1);
     }
 
     /**
@@ -698,7 +698,7 @@ public class FileTools {
 
         // Issue 1070, /BDMV/STREAM is being appended to the parent path
         if (parentFolder.toUpperCase().endsWith(BDMV_STREAM)) {
-            parentFolder = new String(parentFolder.substring(0, parentFolder.length() - 12));
+            parentFolder = parentFolder.substring(0, parentFolder.length() - 12);
         }
 
         return parentFolder;

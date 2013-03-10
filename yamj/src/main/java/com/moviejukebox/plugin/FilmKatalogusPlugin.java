@@ -93,14 +93,14 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             if (beginIndex > 0) { // exact match is found
                 if (OverrideTools.checkOverwriteTitle(movie, FILMKAT_PLUGIN_ID)) {
                     int endIndex = xml.indexOf("</H1>", beginIndex);
-                    movie.setTitle(new String(xml.substring((beginIndex + 4), endIndex)), FILMKAT_PLUGIN_ID);
+                    movie.setTitle(xml.substring((beginIndex + 4), endIndex), FILMKAT_PLUGIN_ID);
                 }
 
                 // PLOT
                 if (OverrideTools.checkOverwritePlot(movie, FILMKAT_PLUGIN_ID)) {
                     beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
                     int endIndex = xml.indexOf("</DIV>", beginIndex);
-                    String plot = new String(xml.substring((beginIndex + 19), endIndex));
+                    String plot = xml.substring((beginIndex + 19), endIndex);
                     movie.setPlot(plot, FILMKAT_PLUGIN_ID);
                 }
             }
@@ -110,7 +110,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 beginIndex = xml.indexOf("HREF='/", beginIndex);
                 int endIndex = xml.indexOf("TITLE", beginIndex);
                 filmKatURL = "http://filmkatalogus.hu";
-                filmKatURL = filmKatURL.concat(new String(xml.substring((beginIndex + 6), endIndex - 2)));
+                filmKatURL = filmKatURL.concat(xml.substring((beginIndex + 6), endIndex - 2));
                 xml = webBrowser.request(filmKatURL);
 
                 // name
@@ -118,14 +118,14 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 if (beginIndex != -1) {
                     if (OverrideTools.checkOverwriteTitle(movie, FILMKAT_PLUGIN_ID)) {
                         endIndex = xml.indexOf("</H1>", beginIndex);
-                        movie.setTitle(new String(xml.substring((beginIndex + 4), endIndex)), FILMKAT_PLUGIN_ID);
+                        movie.setTitle(xml.substring((beginIndex + 4), endIndex), FILMKAT_PLUGIN_ID);
                     }
 
                     // PLOT
                     if (OverrideTools.checkOverwritePlot(movie, FILMKAT_PLUGIN_ID)) {
                         beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
                         endIndex = xml.indexOf("</DIV>", beginIndex);
-                        String plot = new String(xml.substring((beginIndex + 19), endIndex));
+                        String plot = xml.substring((beginIndex + 19), endIndex);
                         movie.setPlot(plot, FILMKAT_PLUGIN_ID);
                     }
                 }

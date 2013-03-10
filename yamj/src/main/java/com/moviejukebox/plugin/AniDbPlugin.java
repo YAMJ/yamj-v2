@@ -433,7 +433,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             }
 
             if (isValidString(anime.getYear()) && OverrideTools.checkOverwriteYear(movie, ANIDB_PLUGIN_ID)) {
-                movie.setYear(new String(anime.getYear().substring(0, 4)), ANIDB_PLUGIN_ID);
+                movie.setYear(anime.getYear().substring(0, 4), ANIDB_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteGenres(movie, ANIDB_PLUGIN_ID)) {
@@ -736,7 +736,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         logger.debug(LOG_MESSAGE + "Scanning NFO for AniDb Id");
         int beginIndex = nfo.indexOf("aid=");
         if (beginIndex != -1) {
-            StringTokenizer st = new StringTokenizer(new String(nfo.substring(beginIndex + 4)), "/ \n,:!&Ã©\"'(--Ã¨_Ã§Ã )=$");
+            StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 4), "/ \n,:!&Ã©\"'(--Ã¨_Ã§Ã )=$");
             movie.setId(ANIDB_PLUGIN_ID, st.nextToken());
             logger.debug(LOG_MESSAGE + "AniDb Id found in nfo = " + movie.getId(ANIDB_PLUGIN_ID));
             result = true;

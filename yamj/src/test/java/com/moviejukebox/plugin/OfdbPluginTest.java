@@ -22,11 +22,17 @@
  */
 package com.moviejukebox.plugin;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
+
 import org.apache.log4j.BasicConfigurator;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -71,5 +77,29 @@ public class OfdbPluginTest extends TestCase {
         testList.clear();
         testList.add("James Cameron");
         assertEquals(Arrays.asList(testList.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getWriters().toArray(), 1)).toString());
+    }
+   
+    public static String unAccent(String s) {
+        String temp = Normalizer.normalize(s, Normalizer.Form.NFD);
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        temp = pattern.matcher(temp).replaceAll("");
+        temp = Normalizer.normalize(temp, Normalizer.Form.NFKC);
+        return temp;
+    }
+    
+    public static void main(String[] args) throws Exception {
+        String s = "Ação Lösen äüöÄÖU á é í ó ô ê ג'ונגל \uFB00";
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0, size = s.length(); i < size; i++) {
+          final char ch = s.charAt(i);
+          if ( ch >= 0x0590 && ch <= 0x05FF) {  
+              System.err.println("Hebrew char: "+ch);
+              String enc = URLEncoder.encode(String.valueOf(ch), "Windows-1255");
+              sb.append(URLDecoder.decode(enc, "Latin1"));
+          } else {
+              sb.append(ch);
+          }
+        }
+        System.err.println(unAccent(sb.toString()));
     }
 }

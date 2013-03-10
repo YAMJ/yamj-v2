@@ -72,7 +72,7 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
             int beginIndex = xml.indexOf(searchString, startSearch) + 7;
 
             if (beginIndex != -1) {
-                StringTokenizer st = new StringTokenizer(new String(xml.substring(beginIndex)), "\"&");
+                StringTokenizer st = new StringTokenizer(xml.substring(beginIndex), "\"&");
                 // QuickFix to "too much translation issue" space char -> %20 -> %2520
                 posterImage.setUrl(st.nextToken().replace("%2520", "%20"));
                 if (!PosterScanner.validatePoster(posterImage)) {

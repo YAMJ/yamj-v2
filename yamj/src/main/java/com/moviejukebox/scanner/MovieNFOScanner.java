@@ -150,7 +150,7 @@ public class MovieNFOScanner {
             // *** First step is to check for VIDEO_TS
             // The movie is a directory, which indicates that this is a VIDEO_TS file
             // So, we should search for the file moviename.nfo in the sub-directory
-            checkNFO(nfoFiles, pathFileName + new String(pathFileName.substring(pathFileName.lastIndexOf(File.separator))));
+            checkNFO(nfoFiles, pathFileName + pathFileName.substring(pathFileName.lastIndexOf(File.separator)));
         }
 
         // TV Show specific scanning
@@ -174,7 +174,7 @@ public class MovieNFOScanner {
 
                     if (nfoFilename.contains("BDMV")) {
                         nfoFilename = FileTools.getParentFolder(mf.getFile());
-                        nfoFilename = new String(nfoFilename.substring(nfoFilename.lastIndexOf(File.separator) + 1));
+                        nfoFilename = nfoFilename.substring(nfoFilename.lastIndexOf(File.separator) + 1);
                     } else {
                         nfoFilename = FilenameUtils.removeExtension(mf.getFile().getName());
                     }

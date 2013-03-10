@@ -423,7 +423,7 @@ public class MediaInfoScanner {
             while (line != null) {
                 // In case of new format : Text #1, Audio #1
                 if (line.indexOf('#') >= 0) {
-                    line = new String(line.substring(0, line.indexOf('#'))).trim();
+                    line = line.substring(0, line.indexOf('#')).trim();
                 }
 
                 // Get cat ArrayList from cat name.
@@ -433,9 +433,9 @@ public class MediaInfoScanner {
                     HashMap<String, String> currentData = new HashMap<String, String>();
                     int indexSeparator = -1;
                     while (((line = localInputReadLine(bufReader)) != null) && ((indexSeparator = line.indexOf(" : ")) != -1)) {
-                        label = new String(line.substring(0, indexSeparator)).trim();
+                        label = line.substring(0, indexSeparator).trim();
                         if (currentData.get(label) == null) {
-                            currentData.put(label, new String(line.substring(indexSeparator + 3)));
+                            currentData.put(label, line.substring(indexSeparator + 3));
                         }
                     }
                     currentCat.add(currentData);
@@ -697,7 +697,7 @@ public class MediaInfoScanner {
             if (infoValue != null) {
                 // Issue 1227 - Make some clean up in mediainfo datas.
                 if (infoValue.contains("/")) {
-                    infoValue = new String(infoValue.substring(0, infoValue.indexOf('/'))).trim(); // In this case, language are "doubled", just take the first one.
+                    infoValue = infoValue.substring(0, infoValue.indexOf('/')).trim(); // In this case, language are "doubled", just take the first one.
                 }
                 // Add determination of language.
                 String determineLanguage = MovieFilenameScanner.determineLanguage(infoValue);
@@ -740,7 +740,7 @@ public class MediaInfoScanner {
             if (StringTools.isValidString(infoValue)) {
                 // Issue 1227 - Make some clean up in mediainfo datas.
                 if (infoValue.contains("/")) {
-                    infoValue = new String(infoValue.substring(0, infoValue.indexOf('/'))).trim(); // In this case, languages are "doubled", just take the first one.
+                    infoValue = infoValue.substring(0, infoValue.indexOf('/')).trim(); // In this case, languages are "doubled", just take the first one.
                 }
                 infoLanguage = MovieFilenameScanner.determineLanguage(infoValue);
             }
@@ -789,7 +789,7 @@ public class MediaInfoScanner {
         }
         if (runtimeValue != null) {
             if (runtimeValue.indexOf('.') >= 0) {
-                runtimeValue = new String(runtimeValue.substring(0, runtimeValue.indexOf('.')));
+                runtimeValue = runtimeValue.substring(0, runtimeValue.indexOf('.'));
             }
             try {
                 return Integer.parseInt(runtimeValue);

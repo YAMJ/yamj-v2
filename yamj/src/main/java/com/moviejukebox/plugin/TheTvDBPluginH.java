@@ -443,9 +443,9 @@ public class TheTvDBPluginH extends ImdbPlugin {
                 int endIdx = compareString.indexOf("&", beginIdx + 1);
                 String id;
                 if (endIdx > -1) {
-                    id = new String(compareString.substring(beginIdx + length, endIdx));
+                    id = compareString.substring(beginIdx + length, endIdx);
                 } else {
-                    id = new String(compareString.substring(beginIdx + length));
+                    id = compareString.substring(beginIdx + length);
                 }
                 if (id != null && !id.isEmpty()) {
                     movie.setId(THETVDB_PLUGIN_ID, id.trim());

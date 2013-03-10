@@ -132,7 +132,7 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
             String trailerXml = webBrowser.request(xmlUrl);
             int beginUrl = trailerXml.indexOf("http://");
             if (beginUrl >= 0) {
-                trailerUrl = new String(trailerXml.substring(beginUrl, trailerXml.indexOf('\"', beginUrl)));
+                trailerUrl = trailerXml.substring(beginUrl, trailerXml.indexOf('\"', beginUrl));
             } else {
                 logger.error(LOG_MESSAGE + "Cannot find trailer URL in XML. Layout changed?");
             }
@@ -175,8 +175,8 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
         }
 
         if (indexOfTrailer >= 0 ) {
-            int beginUrl = new String(xml.substring(0, indexOfTrailer)).lastIndexOf("http://");
-            trailerUrl = new String(xml.substring(beginUrl, xml.indexOf("\"", beginUrl)));
+            int beginUrl = xml.substring(0, indexOfTrailer).lastIndexOf("http://");
+            trailerUrl = xml.substring(beginUrl, xml.indexOf("\"", beginUrl));
             logger.debug(LOG_MESSAGE + "Found trailer XML URL " + trailerUrl);
         }
 
