@@ -866,7 +866,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // RELEASE DATE
         if (OverrideTools.checkOverwriteReleaseDate(movie, IMDB_PLUGIN_ID)) {
-            // Load the release page from IMDb
+            // Load the release page from IMDb0
             if (StringTools.isNotValidString(releaseInfoXML)) {
                 releaseInfoXML = webBrowser.request(getImdbUrl(movie, siteDef) + "releaseinfo", siteDef.getCharset());
             }
@@ -885,8 +885,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // ORIGINAL TITLE / AKAS
         if (OverrideTools.checkOverwriteOriginalTitle(movie, IMDB_PLUGIN_ID)) {
             // Load the AKA page from IMDb
-            if (releaseInfoXML.equals(Movie.UNKNOWN)) {
-                releaseInfoXML = webBrowser.request(getImdbUrl(movie) + "releaseinfo", siteDef.getCharset());
+            if (StringTools.isNotValidString(releaseInfoXML)) {
+                releaseInfoXML = webBrowser.request(getImdbUrl(movie, siteDef) + "releaseinfo", siteDef.getCharset());
             }
 
             // The AKAs are stored in the format "title", "country"
@@ -910,8 +910,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // TITLE for preferred country from AKAS
         if (akaScrapeTitle && OverrideTools.checkOverwriteTitle(movie, IMDB_PLUGIN_ID)) {
             // Load the AKA page from IMDb
-            if (releaseInfoXML.equals(Movie.UNKNOWN)) {
-                releaseInfoXML = webBrowser.request(getImdbUrl(movie) + "releaseinfo", siteDef.getCharset());
+            if (StringTools.isNotValidString(releaseInfoXML)) {
+                releaseInfoXML = webBrowser.request(getImdbUrl(movie, siteDef) + "releaseinfo", siteDef.getCharset());
             }
 
             // The AKAs are stored in the format "title", "country"
