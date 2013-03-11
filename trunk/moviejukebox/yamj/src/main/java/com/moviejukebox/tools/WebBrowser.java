@@ -79,6 +79,10 @@ public class WebBrowser {
         }
     }
 
+    public void addBrowserProperty(String key, String value) {
+        this.browserProperties.put(key, value);
+    }
+    
     private static String encodePassword() {
         if (mjbProxyUsername != null) {
             return ("Basic " + new String(Base64.encodeBase64((mjbProxyUsername + ":" + mjbProxyPassword).getBytes())));
