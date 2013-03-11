@@ -127,8 +127,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private static final Pattern personCharPattern = Pattern.compile(charPatternString, Pattern.CASE_INSENSITIVE);
     // AKA scraping
     private boolean akaScrapeTitle;
+    private String[] akaMatchingCountries;
     private String[] akaIgnoreVersions;
-
+    
     public ImdbPlugin() {
         imdbInfo = new ImdbInfo();
         siteDefinition = imdbInfo.getSiteDef();
@@ -166,6 +167,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         akaScrapeTitle = PropertiesUtil.getBooleanProperty("imdb.aka.scrape.title", Boolean.FALSE);
         akaIgnoreVersions = PropertiesUtil.getProperty("imdb.aka.ignore.versions", "").split(",");
+
+        String fallbacks = PropertiesUtil.getProperty("imdb.aka.fallback.countries", "");
+        if (StringTools.isNotValidString(fallbacks)) {
+            akaMatchingCountries = new String[]{preferredCountry};
+        } else {
+            akaMatchingCountries = (preferredCountry + "," + fallbacks).split(",");
+        }
     }
 
     @Override
@@ -923,26 +931,41 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             String foundValue = null;
-            for (Map.Entry<String,String> aka : akas.entrySet()) {
-                int startIndex = aka.getKey().indexOf(preferredCountry);
-                if (startIndex > -1) {
-                    String extracted = aka.getKey().substring(startIndex);
-                    int endIndex = extracted.indexOf("/");
-                    if (endIndex > -1) {
-                        extracted = extracted.substring(0, endIndex);
-                    }
+            // NOTE: First matching country is the preferred country
+            for (String matchCountry : akaMatchingCountries) {
 
-                    boolean valid = Boolean.TRUE;
-                    for (String ignore : akaIgnoreVersions) {
-                        if (StringUtils.isNotBlank(ignore) && StringUtils.containsIgnoreCase(extracted, ignore.trim())) {
-                            valid = Boolean.FALSE;
+                if (StringUtils.isBlank(matchCountry)) {
+                    // must be a valid country setting
+                    continue;
+                }
+
+                for (Map.Entry<String,String> aka : akas.entrySet()) {
+                    
+                    int startIndex = aka.getKey().indexOf(matchCountry);
+                    if (startIndex > -1) {
+                        String extracted = aka.getKey().substring(startIndex);
+                        int endIndex = extracted.indexOf("/");
+                        if (endIndex > -1) {
+                            extracted = extracted.substring(0, endIndex);
+                        }
+    
+                        boolean valid = Boolean.TRUE;
+                        for (String ignore : akaIgnoreVersions) {
+                            if (StringUtils.isNotBlank(ignore) && StringUtils.containsIgnoreCase(extracted, ignore.trim())) {
+                                valid = Boolean.FALSE;
+                                break;
+                            }
+                        }
+                        if (valid) {
+                            foundValue = aka.getValue().trim();
                             break;
                         }
                     }
-                    if (valid) {
-                        foundValue = aka.getValue().trim();
-                        break;
-                    }
+                }
+                
+                if (foundValue != null) {
+                    // we found a title for the country matcher
+                    break;
                 }
             }
             movie.setTitle(foundValue, IMDB_PLUGIN_ID);
