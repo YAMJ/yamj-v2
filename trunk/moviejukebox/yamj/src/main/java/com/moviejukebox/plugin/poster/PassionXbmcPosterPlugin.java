@@ -29,7 +29,6 @@ import com.moviejukebox.plugin.AllocinePlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
-import java.text.ParseException;
 import org.apache.log4j.Logger;
 
 public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
@@ -52,14 +51,7 @@ public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
 
     @Override
     public String getIdFromMovieInfo(String title, String year) {
-        String response = Movie.UNKNOWN;
-        try {
-            response = allocinePlugin.getAllocineId(title, year, -1);
-        } catch (ParseException error) {
-            logger.error("PassionXbmcPlugin: Failed retrieving poster id movie : " + title);
-            logger.error(SystemTools.getStackTrace(error));
-        }
-        return response;
+        return allocinePlugin.getMovieId(title, year, -1);
     }
 
     @Override
