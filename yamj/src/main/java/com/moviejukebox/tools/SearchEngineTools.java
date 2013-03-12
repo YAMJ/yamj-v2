@@ -36,30 +36,62 @@ public class SearchEngineTools {
     private WebBrowser webBrowser;
     private LinkedList<String> searchSites;
     private String searchSuffix = "";
-    private String googleHost;
-    private String googleCountry;
-    private String yahooHost;
-    private String bingHost;
-    private String blekkoHost;
-    private String lycosHost;
-    private String webcrawlerHost;
+    private String country;
+    private String googleHost = "www.google.com";
+    private String yahooHost = "search.yahoo.com";
+    private String bingHost = "www.bing.com";
+    private String blekkoHost = "www.blekko.com";
+    private String lycosHost = "search.lycos.com";
 
     public SearchEngineTools() {
+        this("us");
+    }
+
+    public SearchEngineTools(String preset) {
         webBrowser = new WebBrowser();
         // user agent should be an actual FireFox
         webBrowser.addBrowserProperty("User-Agent", "Mozilla/6.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1");
         
         // sites to search for URLs
         searchSites = new LinkedList<String>();
-        searchSites.addAll(Arrays.asList(PropertiesUtil.getProperty("searchengine.sites", "google,yahoo,bing,blekko,lycos,webcrawler").split(",")));
-        
-        // search domains
-        googleHost = PropertiesUtil.getProperty("searchengine.google.host", "www.google.com");
-        yahooHost = PropertiesUtil.getProperty("searchengine.yahoo.host", "search.yahoo.com");
-        bingHost = PropertiesUtil.getProperty("searchengine.bing.host", "www.bing.com");
-        blekkoHost = PropertiesUtil.getProperty("searchengine.blekko.host", "www.blekko.com");
-        lycosHost = PropertiesUtil.getProperty("searchengine.lycos.host", "search.lycos.com");
-        webcrawlerHost = PropertiesUtil.getProperty("searchengine.webcrawler.host", "www.webcrawler.com");
+        searchSites.addAll(Arrays.asList(PropertiesUtil.getProperty("searchengine.sites", "google,yahoo,bing,blekko,lycos").split(",")));
+
+        // country specific presets
+        if ("de".equalsIgnoreCase(preset)) {
+            country = "de";
+            googleHost = "www.google.de";
+            yahooHost = "de.search.yahoo.com";
+            lycosHost = "search.lycos.de";
+        } else if ("it".equalsIgnoreCase(preset)) {
+            country = "it";
+            googleHost = "www.google.it";
+            yahooHost = "it.search.yahoo.com";
+            bingHost = "it.bing.com";
+            lycosHost = "search.lycos.it";
+        } else if ("se".equalsIgnoreCase(preset)) {
+            country = "se";
+            googleHost = "www.google.se";
+            yahooHost = "se.search.yahoo.com";
+            lycosHost = "search.lycos.se";
+        } else if ("pl".equalsIgnoreCase(preset)) {
+            country = "pl";
+            googleHost = "www.google.pl";
+            yahooHost = "pl.search.yahoo.com";
+        } else if ("ru".equalsIgnoreCase(preset)) {
+            country = "ru";
+            googleHost = "www.google.ru";
+            yahooHost = "ru.search.yahoo.com";
+        } else if ("il".equalsIgnoreCase(preset)) {
+            this.country = "il";
+            googleHost = "www.google.co.il";
+        } else if ("fr".equalsIgnoreCase(preset)) {
+            country = "fr";
+            googleHost = "www.google.fr";
+        } else if ("nl".equalsIgnoreCase(preset)) {
+            country = "nl";
+            googleHost = "www.google.nl";
+            lycosHost = "search.lycos.nl";
+        }
     }
 
     public void setSearchSites(String searchSites) {
@@ -70,57 +102,25 @@ public class SearchEngineTools {
     public void setSearchSuffix(String searchSuffix) {
         this.searchSuffix = searchSuffix;
     }
-
-    public void setGoogleHost(String googleHost) {
-        this.googleHost = googleHost;
-    }
-    
-    public void setGoogleCountry(String googleCountry) {
-        this.googleCountry = googleCountry;
-    }
-
-    public void setYahooHost(String yahooHost) {
-        this.yahooHost = yahooHost;
-    }
-
-    public void setBingHost(String bingHost) {
-        this.bingHost = bingHost;
-    }
-
-    public void setBlekkoHost(String blekkoHost) {
-        this.blekkoHost = blekkoHost;
-    }
-
-    public void setLycosHost(String lycosHost) {
-        this.lycosHost = lycosHost;
-    }
-
-    public void setWebcrawlerHost(String webcrawlerHost) {
-        this.webcrawlerHost = webcrawlerHost;
-    }
     
     public String searchMovieURL(String title, String year, String site) {
-        String url = null;;
-        for (int i=0; i<searchSites.size(); i++) {
-            String engine = getNextSearchEngine();
-            
-            if ("yahoo".equalsIgnoreCase(engine)) {
-                url = searchUrlOnYahoo(title, year, site);
-            } else if ("bing".equalsIgnoreCase(engine)) {
-                url = searchUrlOnBing(title, year, site);
-            } else if ("blekko".equalsIgnoreCase(engine)) {
-                url = searchUrlOnBlekko(title, year, site);
-            } else if ("lycos".equalsIgnoreCase(engine)) {
-                url = searchUrlOnLycos(title, year, site);
-            } else if ("webcrawler".equalsIgnoreCase(engine)) {
-                url = searchUrlOnWebcrawler(title, year, site);
-            } else {
-                url = searchUrlOnGoogle(title, year, site);
-            }
-            
-            if (StringTools.isValidString(url)) {
-                break;
-            }
+        return searchMovieURL(title, year, site, null);
+    }
+    
+    public String searchMovieURL(String title, String year, String site, String additional) {
+        String url = null;
+
+        String engine = getNextSearchEngine();
+        if ("yahoo".equalsIgnoreCase(engine)) {
+            url = searchUrlOnYahoo(title, year, site, additional);
+        } else if ("bing".equalsIgnoreCase(engine)) {
+            url = searchUrlOnBing(title, year, site, additional);
+        } else if ("blekko".equalsIgnoreCase(engine)) {
+            url = searchUrlOnBlekko(title, year, site, additional);
+        } else if ("lycos".equalsIgnoreCase(engine)) {
+            url = searchUrlOnLycos(title, year, site, additional);
+        } else {
+            url = searchUrlOnGoogle(title, year, site, additional);
         }
         
         return url;
@@ -136,13 +136,19 @@ public class SearchEngineTools {
         return searchSites.size();
     }
     
-    public String searchUrlOnGoogle(String title, String year, String site) {
+    public String searchUrlOnGoogle(String title, String year, String site, String additional) {
         LOGGER.debug(LOG_MESSAGE + "Searching '" + title + "' on google; site="+site);
         
         try {
             StringBuilder sb = new StringBuilder("http://");
             sb.append(googleHost);
-            sb.append("/search?q=");
+            sb.append("/search?");
+            if (country != null) {
+                sb.append("hl=");
+                sb.append(country);
+                sb.append("&");
+            }
+            sb.append("q=");
             sb.append(URLEncoder.encode(title, "UTF-8"));
             if (StringTools.isValidString(year)) {
                 sb.append("+%28");
@@ -151,11 +157,10 @@ public class SearchEngineTools {
             }
             sb.append("+site%3A");
             sb.append(site);
-            if (googleCountry != null) {
-                sb.append("&hl=");
-                sb.append(googleCountry);
+            if (additional != null) {
+                sb.append("+");
+                sb.append(URLEncoder.encode(additional, "UTF-8"));
             }
-            
             String xml = webBrowser.request(sb.toString());
            
             int beginIndex = xml.indexOf("http://" + site + searchSuffix);
@@ -169,13 +174,17 @@ public class SearchEngineTools {
         return Movie.UNKNOWN;
     }
 
-    public String searchUrlOnYahoo(String title, String year, String site) {
+    public String searchUrlOnYahoo(String title, String year, String site, String additional) {
         LOGGER.debug(LOG_MESSAGE + "Searching '" + title + "' on yahoo; site="+site);
 
         try {
             StringBuilder sb = new StringBuilder("http://");
             sb.append(yahooHost);
-            sb.append("/search?vc=&p=");
+            sb.append("/search?vc=");
+            if (country != null) {
+                sb.append("&rd=r2");
+            }
+            sb.append("&p=");
             sb.append(URLEncoder.encode(title, "UTF-8"));
             if (StringTools.isValidString(year)) {
                 sb.append("+%28");
@@ -184,6 +193,10 @@ public class SearchEngineTools {
             }
             sb.append("+site%3A");
             sb.append(site);
+            if (additional != null) {
+                sb.append("+");
+                sb.append(URLEncoder.encode(additional, "UTF-8"));
+            }
 
             String xml = webBrowser.request(sb.toString());
            
@@ -201,7 +214,7 @@ public class SearchEngineTools {
         return Movie.UNKNOWN;
     }
 
-    public String searchUrlOnBing(String title, String year, String site) {
+    public String searchUrlOnBing(String title, String year, String site, String additional) {
         LOGGER.debug(LOG_MESSAGE + "Searching '" + title + "' on bing; site="+site);
         
         try {
@@ -216,6 +229,15 @@ public class SearchEngineTools {
             }
             sb.append("+site%3A");
             sb.append(site);
+            if (additional != null) {
+                sb.append("+");
+                sb.append(URLEncoder.encode(additional, "UTF-8"));
+            }
+            if (country != null) {
+                sb.append("&cc=");
+                sb.append(country);
+                sb.append("&filt=rf");
+            }
             
             String xml = webBrowser.request(sb.toString());
            
@@ -230,7 +252,7 @@ public class SearchEngineTools {
         return Movie.UNKNOWN;
     }
 
-    public String searchUrlOnBlekko(String title, String year, String site) {
+    public String searchUrlOnBlekko(String title, String year, String site, String additional) {
         LOGGER.debug(LOG_MESSAGE + "Searching '" + title + "' on blekko; site="+site);
         
         try {
@@ -245,6 +267,10 @@ public class SearchEngineTools {
             }
             sb.append("+site%3A");
             sb.append(site);
+            if (additional != null) {
+                sb.append("+");
+                sb.append(URLEncoder.encode(additional, "UTF-8"));
+            }
             
             String xml = webBrowser.request(sb.toString());
            
@@ -259,13 +285,21 @@ public class SearchEngineTools {
         return Movie.UNKNOWN;
     }    
 
-    public String searchUrlOnLycos(String title, String year, String site) {
+    public String searchUrlOnLycos(String title, String year, String site, String additional) {
         LOGGER.debug(LOG_MESSAGE + "Searching '" + title + "' on lycos; site="+site);
         
         try {
             StringBuilder sb = new StringBuilder("http://");
             sb.append(lycosHost);
-            sb.append("/web/?q=");
+            if ("it".equalsIgnoreCase(country)) {
+                sb.append("/?tab=web&Search=Cerca&searchArea=loc&query=");
+            } else if ("se".equalsIgnoreCase(country)) {
+                sb.append("/?tab=web&Search=S%C3%B6ka&searchArea=loc&query=");
+            } else if ("nl".equalsIgnoreCase(country)) {
+                sb.append("/?tab=web&Search=Zoeken&searchArea=loc&query=");
+            } else  {
+                sb.append("/web/?q=");
+            }
             sb.append(URLEncoder.encode(title, "UTF-8"));
             if (StringTools.isValidString(year)) {
                 sb.append("+%28");
@@ -274,7 +308,11 @@ public class SearchEngineTools {
             }
             sb.append("+site%3A");
             sb.append(site);
-            
+            if (additional != null) {
+                sb.append("+");
+                sb.append(URLEncoder.encode(additional, "UTF-8"));
+            }
+
             String xml = webBrowser.request(sb.toString());
            
             int beginIndex = xml.indexOf("http://" + site + searchSuffix);
@@ -287,34 +325,4 @@ public class SearchEngineTools {
         }
         return Movie.UNKNOWN;
     }    
-
-    public String searchUrlOnWebcrawler(String title, String year, String site) {
-        LOGGER.debug(LOG_MESSAGE + "Searching '" + title + "' on webcrawler; site="+site);
-
-        try {
-            StringBuilder sb = new StringBuilder("http://");
-            sb.append(webcrawlerHost);
-            sb.append("/search/web?q=");
-            sb.append(URLEncoder.encode(title, "UTF-8"));
-            if (StringTools.isValidString(year)) {
-                sb.append("+%28");
-                sb.append(year);
-                sb.append("%29");
-            }
-            sb.append("+site%3A");
-            sb.append(site);
-
-            String xml = webBrowser.request(sb.toString());
-           
-            int beginIndex = xml.indexOf("<div class=\"resultDisplayUrl\"");
-            if (beginIndex != -1) {
-                String link = xml.substring(beginIndex, xml.indexOf("</div>", beginIndex));
-                return "http://" + HTMLTools.removeHtmlTags(link);
-            }
-        } catch (Exception error) {
-            LOGGER.error(LOG_MESSAGE + "Failed retrieving link url by webcrawler search: " + title);
-            LOGGER.error(SystemTools.getStackTrace(error));
-        }
-        return Movie.UNKNOWN;
-    }
 }

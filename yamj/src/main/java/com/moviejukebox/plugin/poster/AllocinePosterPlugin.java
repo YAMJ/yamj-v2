@@ -28,8 +28,6 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.AllocinePlugin;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import java.text.ParseException;
 import org.apache.log4j.Logger;
 
 public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
@@ -50,14 +48,7 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
 
     @Override
     public String getIdFromMovieInfo(String title, String year) {
-        String response = Movie.UNKNOWN;
-        try {
-            response = allocinePlugin.getAllocineId(title, year, -1);
-        } catch (ParseException error) {
-            logger.error("AllocinePosterPlugin: Failed to get Allocine ID for " + title + "(" + year + ")");
-            logger.error(SystemTools.getStackTrace(error));
-        }
-        return response;
+        return allocinePlugin.getMovieId(title, year, -1);
     }
 
     @Override
