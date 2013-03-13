@@ -43,7 +43,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2590 Added possibility to scrape localized titles for preferred country from AKA section
  - Fixed defect #2596 IMDB does not retrieve Spanish language (ES)
  - Fixed defect #2599 Fixed retrieval of cast and directors from Filmweb
- - Enhancement  #2600 Movie class should handle several movie properties itself 
+ - Enhancement  #2600 Movie class should handle several movie properties itself
  - Fixed defect #2603 Remove year periods from title
  - Enhancement  #2607 OFDb plugin should scrape more informations than title and plot
  - Fixed defect #2610 Fixed error when title should be scraped by AKA section
@@ -55,7 +55,8 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2619 Fixed retrieval of Allocine episodes if no plot available
  - Enhancement  #2621 Use priority checks also for TV episodes
  - Fixed defect #2622 Fixed IMDb episode scanning
- 
+ - Fixed defect #2626 Ignore empty actor thumb sections in NFO file
+
 MovieJukebox 2.8 2012-12-17)
 -----------------------------
  - Enhancement  #1461 Skipped subtitles will not be added
