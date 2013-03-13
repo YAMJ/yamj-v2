@@ -51,7 +51,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-public class MovieNFOReader {
+/**
+ * Class to read the NFO files
+ * @author stuart.boston
+ */
+public final class MovieNFOReader {
 
     private static final Logger logger = Logger.getLogger(MovieNFOReader.class);
     private static final String LOG_MESSAGE = "MovieNFOReader: ";
@@ -735,7 +739,7 @@ public class MovieNFOReader {
         // flag to indicate if cast must be cleared
         boolean clearCast = Boolean.TRUE;
         boolean clearPeopleCast = Boolean.TRUE;
-        
+
         for (int actorLoop = 0; actorLoop < nlElements.getLength(); actorLoop++) {
             // Get all the name/role/thumb nodes
             Node nActors = nlElements.item(actorLoop);
@@ -756,7 +760,7 @@ public class MovieNFOReader {
                             if (firstActor) {
                                 firstActor = Boolean.FALSE;
                             } else {
-                                
+
                                 if (overrideActors) {
                                     // clear cast if not already done
                                     if (clearCast) {
@@ -766,7 +770,7 @@ public class MovieNFOReader {
                                     // add actor
                                     movie.addActor(aName, NFO_PLUGIN_ID);
                                 }
-                                
+
                                 if (overridePeopleActors && (count < MAX_COUNT_ACTOR)) {
                                     // clear people cast if not already done
                                     if (clearPeopleCast) {
@@ -782,9 +786,10 @@ public class MovieNFOReader {
                             aName = eCast.getTextContent();
                             aRole = Movie.UNKNOWN;
                             aThumb = Movie.UNKNOWN;
-                        } else if (eCast.getNodeName().equalsIgnoreCase("role")) {
+                        } else if (eCast.getNodeName().equalsIgnoreCase("role") && StringUtils.isNotBlank(eCast.getTextContent())) {
                             aRole = eCast.getTextContent();
-                        } else if (eCast.getNodeName().equalsIgnoreCase("thumb")) {
+                        } else if (eCast.getNodeName().equalsIgnoreCase("thumb") && StringUtils.isNotBlank(eCast.getTextContent())) {
+                            // thumb will be skipped if there's nothing in there
                             aThumb = eCast.getTextContent();
                         }
                         // There's a case where there might be a different node here that isn't name, role or thumb, but that will be ignored

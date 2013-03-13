@@ -54,19 +54,19 @@ public class MovieNFOScanner {
     private static final Logger logger = Logger.getLogger(MovieNFOScanner.class);
     private static final String LOG_MESSAGE = "MovieNFOScanner: ";
     // Other properties
-    private static final String xbmcTvNfoName = "tvshow";
+    private static final String XBMC_TV_NFO_NAME = "tvshow";
     // For now, this is deprecated and we should see if there are issues before looking at a solution as the DOM Parser seems a lot more stable
 //    private static String forceNFOEncoding = PropertiesUtil.getProperty("mjb.forceNFOEncoding", "AUTO");
-    private static String NFOdirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
-    private static final boolean acceptAllNFO = PropertiesUtil.getBooleanProperty("filename.nfo.acceptAllNfo", Boolean.FALSE);
+    private static String nfoDirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
+    private static final boolean ACCEPT_ALL_NFO = PropertiesUtil.getBooleanProperty("filename.nfo.acceptAllNfo", Boolean.FALSE);
     private static String nfoExtRegex;
-    private static final String[] NFOExtensions = PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",");
+    private static final String[] NFO_EXTENSIONS = PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",");
     private static Pattern partPattern = Pattern.compile("(?i)(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)");
     private static boolean archiveScanRar = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", Boolean.FALSE);
     private static boolean skipTvNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.skipTVNFOFiles", Boolean.FALSE);
 
     static {
-        if (acceptAllNFO) {
+        if (ACCEPT_ALL_NFO) {
             logger.info(LOG_MESSAGE + "Accepting all NFO files in the directory");
         }
 
@@ -75,7 +75,7 @@ public class MovieNFOScanner {
         {
             boolean first = Boolean.TRUE;
             StringBuilder regexBuilder = new StringBuilder("(?i).*\\.("); // Start of REGEX
-            for (String ext : NFOExtensions) {
+            for (String ext : NFO_EXTENSIONS) {
                 if (first) {
                     first = Boolean.FALSE;
                 } else {
@@ -89,6 +89,10 @@ public class MovieNFOScanner {
 
         // Set the date format to dd-MM-yyyy
         DateTimeConfig.globalEuropeanDateFormat();
+    }
+
+    private void MovieNFOScanner() {
+        throw new RuntimeException("Class cannot be instantiated");
     }
 
     /**
@@ -159,12 +163,12 @@ public class MovieNFOScanner {
 
             // Check for the "tvshow.nfo" filename in the parent directory
             if (movie.getFile().getParentFile().getParent() != null) {
-                nfoFilename = StringTools.appendToPath(movie.getFile().getParentFile().getParent(), xbmcTvNfoName);
+                nfoFilename = StringTools.appendToPath(movie.getFile().getParentFile().getParent(), XBMC_TV_NFO_NAME);
                 checkNFO(nfoFiles, nfoFilename);
             }
 
             // Check for the "tvshow.nfo" filename in the current directory
-            nfoFilename = StringTools.appendToPath(movie.getFile().getParent(), xbmcTvNfoName);
+            nfoFilename = StringTools.appendToPath(movie.getFile().getParent(), XBMC_TV_NFO_NAME);
             checkNFO(nfoFiles, nfoFilename);
 
             // Check for individual episode files
@@ -189,15 +193,15 @@ public class MovieNFOScanner {
         // E.G. C:\Movies\Bladerunner.720p.avi => Bladerunner.720p.nfo
         checkNFO(nfoFiles, pathFileName);
 
-        if (isValidString(NFOdirectory)) {
+        if (isValidString(nfoDirectory)) {
             // *** Next step if we still haven't found the nfo file is to
             // search the NFO directory as specified in the moviejukebox.properties file
-            String sNFOPath = FileTools.getDirPathWithSeparator(movie.getLibraryPath()) + NFOdirectory;
+            String sNFOPath = FileTools.getDirPathWithSeparator(movie.getLibraryPath()) + nfoDirectory;
             checkNFO(nfoFiles, sNFOPath + File.separator + baseFileName);
         }
 
         // *** Next step is to check for a directory wide NFO file.
-        if (acceptAllNFO) {
+        if (ACCEPT_ALL_NFO) {
             /*
              * If any NFO file in this directory will do, then we search for all we can find
              *
@@ -241,12 +245,9 @@ public class MovieNFOScanner {
             currentDir = currentDir.getParentFile();
             if (currentDir != null) {
                 final String path = currentDir.getPath();
-                // Path is not empty
-                if (!path.isEmpty()) {
-                    // Path is not the root
-                    if (!path.endsWith(File.separator)) {
-                        checkNFO(nfoFiles, appendToPath(path, currentDir.getName()));
-                    }
+                // Path is not empty & is not the root
+                if (!path.isEmpty() && !path.endsWith(File.separator)) {
+                    checkNFO(nfoFiles, appendToPath(path, currentDir.getName()));
                 }
             }
         }
@@ -284,7 +285,7 @@ public class MovieNFOScanner {
     private static void checkNFO(List<File> nfoFiles, String checkNFOfilename) {
         File nfoFile;
 
-        for (String ext : NFOExtensions) {
+        for (String ext : NFO_EXTENSIONS) {
             nfoFile = FileTools.fileCache.getFile(checkNFOfilename + "." + ext);
             if (nfoFile.exists()) {
                 logger.debug(LOG_MESSAGE + "Found " + nfoFile.getAbsolutePath());
