@@ -22,14 +22,14 @@
  */
 package com.moviejukebox.plugin;
 
-import junit.framework.TestCase;
-
-import org.apache.log4j.BasicConfigurator;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
+import org.apache.log4j.BasicConfigurator;
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
-public class MovieMeterPluginTest extends TestCase {
+public class MovieMeterPluginTest {
 
     private MovieMeterPlugin movieMeterPlugin;
     
@@ -39,11 +39,18 @@ public class MovieMeterPluginTest extends TestCase {
         PropertiesUtil.setProperty("API_KEY_MovieMeter", "tyk0awf19uqm65mjfsqw9z9rx6t706pe");
     }
 
-    @Override
-    protected void setUp() {
+    @Before
+    public void setUp() {
         movieMeterPlugin = new MovieMeterPlugin();
     }
 
+    @Test
+    public void testGetMovieId() {
+        String id = movieMeterPlugin.getMovieId("Avatar", "2009");
+        assertEquals("17552", id);
+    }
+
+    @Test
     public void testScan() {
         Movie movie = new Movie();
         movie.setId(MovieMeterPlugin.MOVIEMETER_PLUGIN_ID, "17552");

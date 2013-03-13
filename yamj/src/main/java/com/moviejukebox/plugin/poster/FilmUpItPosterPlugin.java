@@ -30,7 +30,6 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
-import java.text.ParseException;
 
 import org.apache.log4j.Logger;
 
@@ -56,14 +55,7 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
 
     @Override
     public String getIdFromMovieInfo(String title, String year) {
-        String response = Movie.UNKNOWN;
-        try {
-            response = filmupitPlugin.getFilmUpITId(title, year);
-        } catch (ParseException error) {
-            logger.error(LOG_MESSAGE + "Failed to get FilmUpIT ID for " + title + "(" + year + ")");
-            logger.error(SystemTools.getStackTrace(error));
-        }
-        return response;
+        return filmupitPlugin.getMovieId(title, year);
     }
 
     @Override

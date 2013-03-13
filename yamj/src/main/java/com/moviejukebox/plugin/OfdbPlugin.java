@@ -22,14 +22,6 @@
  */
 package com.moviejukebox.plugin;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
-import org.apache.log4j.Logger;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.model.enumerations.OverrideFlag;
@@ -39,6 +31,11 @@ import com.moviejukebox.tools.SearchEngineTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+import org.apache.log4j.Logger;
 
 /**
  * @author Durin
@@ -82,11 +79,15 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         return ofdbId;
     }
 
+    public String getMovieId(String title, String year) {
+        return getMovieId(title, year, -1);
+    }
+
     public String getMovieId(String title, String year, int season) {
         // try with OFDb search
         String ofdbId = getObdbIdByTitleAndYear(title, year);
         if (StringTools.isNotValidString(ofdbId)) {
-            // try with search engine
+            // try with search engines
             ofdbId = searchEngineTools.searchMovieURL(title, year, "www.ofdb.de/film");
         }
         return ofdbId;
@@ -109,7 +110,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                 return sb.toString();
             }
             
-        } catch (IOException error) {
+        } catch (Exception error) {
             LOGGER.error(LOG_MESSAGE + "Failed retreiving OFDb url for IMDb id: " + imdbId);
             LOGGER.error(SystemTools.getStackTrace(error));
         }
@@ -158,18 +159,30 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     public boolean scan(Movie movie) {
         imdbp.scan(movie);
         
-        String ofdbId = getMovieId(movie);
-        if (StringTools.isNotValidString(ofdbId)) {
+        String ofdbUrl = getMovieId(movie);
+        
+        if (StringTools.isNotValidString(ofdbUrl)) {
+            LOGGER.debug(LOG_MESSAGE + "OFDb url not available : " + movie.getTitle());
             return Boolean.FALSE;
         }
-
-        return updateMovieInfo(movie, ofdbId);
+        
+        LOGGER.debug(LOG_MESSAGE + "OFDb url available (" + ofdbUrl + "), updating media info");
+        return updateMediaInfo(movie, ofdbUrl);
+        
     } 
     
-    private boolean updateMovieInfo(Movie movie, String ofdbId) {
+    private boolean updateMediaInfo(Movie movie, String ofdbUrl) {
         boolean returnValue = Boolean.TRUE;
         try {
-            String xml = webBrowser.request(ofdbId);
+            String xml = webBrowser.request(ofdbUrl);
+
+            String title = HTMLTools.extractTag(xml, "<title>OFDb -", "</title>");
+            // check for movie type change
+            if (!movie.isTVShow() && title.contains("[TV-Serie]")) {
+                LOGGER.debug(LOG_MESSAGE + movie.getTitle() + " is a TV Show, skipping");
+                movie.setMovieType(Movie.TYPE_TVSHOW);
+                return Boolean.FALSE;
+            }
 
             // retrieve IMDb id if not set
             String imdbId = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID);
@@ -177,7 +190,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                 imdbId = HTMLTools.extractTag(xml, "href=\"http://www.imdb.com/Title?", "\"");
                 movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, imdbId);
             }
-            
+
             if (OverrideTools.checkOverwriteTitle(movie, OFDB_PLUGIN_ID)) {
                 String titleShort = HTMLTools.extractTag(xml, "<title>OFDb -", "</title>");
                 if (titleShort.indexOf("(") > 0) {
@@ -206,6 +219,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                         movie.setOutline(plot, OFDB_PLUGIN_ID);
                     }
                 } catch (Exception error) {
+                    LOGGER.error(LOG_MESSAGE + "Failed retrieving plot : " + ofdbUrl);
                     LOGGER.error(SystemTools.getStackTrace(error));
                     returnValue = Boolean.FALSE;
                 }
@@ -214,109 +228,104 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             // scrape additional informations
             int beginIndex = xml.indexOf("view.php?page=film_detail");
             if (beginIndex != -1) {
-                try {
-                    String detailUrl = "http://www.ofdb.de/" + xml.substring(beginIndex, xml.indexOf("\"", beginIndex));
-                    String detailXml = webBrowser.request(detailUrl);
+                String detailUrl = "http://www.ofdb.de/" + xml.substring(beginIndex, xml.indexOf("\"", beginIndex));
+                String detailXml = webBrowser.request(detailUrl);
 
-                    // resolve for additional informations
-                    List<String> tags = HTMLTools.extractHtmlTags(detailXml, "<!-- Rechte Spalte -->", "</table>", "<tr", "</tr>");
+                // resolve for additional informations
+                List<String> tags = HTMLTools.extractHtmlTags(detailXml, "<!-- Rechte Spalte -->", "</table>", "<tr", "</tr>");
 
-                    for (String tag : tags)  {
-                        if (OverrideTools.checkOverwriteOriginalTitle(movie, OFDB_PLUGIN_ID) && tag.contains("Originaltitel")) {
-                            String scraped = HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim();
-                            movie.setOriginalTitle(scraped, OFDB_PLUGIN_ID);
+                for (String tag : tags)  {
+                    if (OverrideTools.checkOverwriteOriginalTitle(movie, OFDB_PLUGIN_ID) && tag.contains("Originaltitel")) {
+                        String scraped = HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim();
+                        movie.setOriginalTitle(scraped, OFDB_PLUGIN_ID);
+                    }
+                    
+                    if (OverrideTools.checkOverwriteYear(movie, OFDB_PLUGIN_ID) && tag.contains("Erscheinungsjahr")) {
+                        String scraped = HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim();
+                        movie.setYear(scraped, OFDB_PLUGIN_ID);
+                    }
+                    
+                    if (OverrideTools.checkOverwriteCountry(movie, OFDB_PLUGIN_ID) && tag.contains("Herstellungsland")) {
+                        List<String> scraped = HTMLTools.extractHtmlTags(tag, "class=\"Daten\"", "</td>", "<a", "</a>");
+                        if (scraped.size() > 0) {
+                            // TODO set more countries in movie
+                            movie.setCountry(HTMLTools.removeHtmlTags(scraped.get(0)).trim(), OFDB_PLUGIN_ID);
+                        }
+                    }
+
+                    if (OverrideTools.checkOverwriteGenres(movie, OFDB_PLUGIN_ID) && tag.contains("Genre(s)")) {
+                        List<String> scraped = HTMLTools.extractHtmlTags(tag, "class=\"Daten\"", "</td>", "<a", "</a>");
+                        List<String> genres = new ArrayList<String>();
+                        for (String genre : scraped) {
+                            genres.add(HTMLTools.removeHtmlTags(genre).trim());
+                        }
+                        movie.setGenres(genres, OFDB_PLUGIN_ID);
+                    }
+                }
+
+                // flags for overrides
+                boolean overrideNormal;
+                boolean overridePeople;
+
+                if (detailXml.contains("<i>Regie</i>")) {
+                    overrideNormal = OverrideTools.checkOverwriteDirectors(movie, OFDB_PLUGIN_ID);
+                    overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, OFDB_PLUGIN_ID);
+                    if (overrideNormal || overridePeople) {
+                        tags = HTMLTools.extractHtmlTags(detailXml, "<i>Regie</i>", "</table>", "<tr", "</tr>");
+                        List<String> directors = new ArrayList<String>();
+                        for (String tag : tags)  {
+                            directors.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
                         }
                         
-                        if (OverrideTools.checkOverwriteYear(movie, OFDB_PLUGIN_ID) && tag.contains("Erscheinungsjahr")) {
-                            String scraped = HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim();
-                            movie.setYear(scraped, OFDB_PLUGIN_ID);
+                        if (overrideNormal) {
+                            movie.setDirectors(directors, OFDB_PLUGIN_ID);
+                        }
+                        if (overridePeople) {
+                            movie.setPeopleDirectors(directors, OFDB_PLUGIN_ID);
+                        }
+                    }
+                }
+
+                if (detailXml.contains("<i>Drehbuchautor(in)</i>")) {
+                    overrideNormal = OverrideTools.checkOverwriteWriters(movie, OFDB_PLUGIN_ID);
+                    overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, OFDB_PLUGIN_ID);
+                    if (overrideNormal || overridePeople) {
+                        tags = HTMLTools.extractHtmlTags(detailXml, "<i>Drehbuchautor(in)</i>", "</table>", "<tr", "</tr>");
+                        List<String> writers = new ArrayList<String>();
+                        for (String tag : tags)  {
+                            writers.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
+                        }
+
+                        if (overrideNormal) {
+                            movie.setWriters(writers, OFDB_PLUGIN_ID);
+                        }
+                        if (overridePeople) {
+                            movie.setPeopleWriters(writers, OFDB_PLUGIN_ID);
+                        }
+                    }
+                }
+
+                if (detailXml.contains("<i>Darsteller</i>")) {
+                    overrideNormal = OverrideTools.checkOverwriteActors(movie, OFDB_PLUGIN_ID);
+                    overridePeople = OverrideTools.checkOverwritePeopleActors(movie, OFDB_PLUGIN_ID);
+                    if (overrideNormal || overridePeople) {
+                        tags = HTMLTools.extractHtmlTags(detailXml, "<i>Darsteller</i>", "</table>", "<tr", "</tr>");
+                        List<String> cast = new ArrayList<String>();
+                        for (String tag : tags)  {
+                            cast.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
                         }
                         
-                        if (OverrideTools.checkOverwriteCountry(movie, OFDB_PLUGIN_ID) && tag.contains("Herstellungsland")) {
-                            List<String> scraped = HTMLTools.extractHtmlTags(tag, "class=\"Daten\"", "</td>", "<a", "</a>");
-                            if (scraped.size() > 0) {
-                                // TODO set more countries in movie
-                                movie.setCountry(HTMLTools.removeHtmlTags(scraped.get(0)).trim(), OFDB_PLUGIN_ID);
-                            }
+                        if (overrideNormal) {
+                            movie.setCast(cast, OFDB_PLUGIN_ID);
                         }
-
-                        if (OverrideTools.checkOverwriteGenres(movie, OFDB_PLUGIN_ID) && tag.contains("Genre(s)")) {
-                            List<String> scraped = HTMLTools.extractHtmlTags(tag, "class=\"Daten\"", "</td>", "<a", "</a>");
-                            List<String> genres = new ArrayList<String>();
-                            for (String genre : scraped) {
-                                genres.add(HTMLTools.removeHtmlTags(genre).trim());
-                            }
-                            movie.setGenres(genres, OFDB_PLUGIN_ID);
+                        if (overridePeople) {
+                            movie.setPeopleCast(cast, OFDB_PLUGIN_ID);
                         }
                     }
-
-                    // flags for overrides
-                    boolean overrideNormal;
-                    boolean overridePeople;
-
-                    if (detailXml.contains("<i>Regie</i>")) {
-                        overrideNormal = OverrideTools.checkOverwriteDirectors(movie, OFDB_PLUGIN_ID);
-                        overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, OFDB_PLUGIN_ID);
-                        if (overrideNormal || overridePeople) {
-                            tags = HTMLTools.extractHtmlTags(detailXml, "<i>Regie</i>", "</table>", "<tr", "</tr>");
-                            List<String> directors = new ArrayList<String>();
-                            for (String tag : tags)  {
-                                directors.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
-                            }
-                            
-                            if (overrideNormal) {
-                                movie.setDirectors(directors, OFDB_PLUGIN_ID);
-                            }
-                            if (overridePeople) {
-                                movie.setPeopleDirectors(directors, OFDB_PLUGIN_ID);
-                            }
-                        }
-                    }
-
-                    if (detailXml.contains("<i>Drehbuchautor(in)</i>")) {
-                        overrideNormal = OverrideTools.checkOverwriteWriters(movie, OFDB_PLUGIN_ID);
-                        overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, OFDB_PLUGIN_ID);
-                        if (overrideNormal || overridePeople) {
-                            tags = HTMLTools.extractHtmlTags(detailXml, "<i>Drehbuchautor(in)</i>", "</table>", "<tr", "</tr>");
-                            List<String> writers = new ArrayList<String>();
-                            for (String tag : tags)  {
-                                writers.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
-                            }
-
-                            if (overrideNormal) {
-                                movie.setWriters(writers, OFDB_PLUGIN_ID);
-                            }
-                            if (overridePeople) {
-                                movie.setPeopleWriters(writers, OFDB_PLUGIN_ID);
-                            }
-                        }
-                    }
-
-                    if (detailXml.contains("<i>Darsteller</i>")) {
-                        overrideNormal = OverrideTools.checkOverwriteActors(movie, OFDB_PLUGIN_ID);
-                        overridePeople = OverrideTools.checkOverwritePeopleActors(movie, OFDB_PLUGIN_ID);
-                        if (overrideNormal || overridePeople) {
-                            tags = HTMLTools.extractHtmlTags(detailXml, "<i>Darsteller</i>", "</table>", "<tr", "</tr>");
-                            List<String> cast = new ArrayList<String>();
-                            for (String tag : tags)  {
-                                cast.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
-                            }
-                            
-                            if (overrideNormal) {
-                                movie.setCast(cast, OFDB_PLUGIN_ID);
-                            }
-                            if (overridePeople) {
-                                movie.setPeopleCast(cast, OFDB_PLUGIN_ID);
-                            }
-                        }
-                    }
-
-                } catch (Exception error) {
-                    LOGGER.error(SystemTools.getStackTrace(error));
-                    returnValue = Boolean.FALSE;                    
                 }
             }
         } catch (Exception error) {
+            LOGGER.error(LOG_MESSAGE + "Failed retrieving media info : " + ofdbUrl);
             LOGGER.error(SystemTools.getStackTrace(error));
             returnValue = Boolean.FALSE;
         }
@@ -325,33 +334,38 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
     @Override
     public boolean scanNFO(String nfo, Movie movie) {
-        LOGGER.debug(LOG_MESSAGE + "Scanning NFO for Imdb Id");
+        // first scan for IMDb id if not present
         int beginIndex = nfo.indexOf("/tt");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1), "/ \n,:!&é\"'(--è_çà)=$<>");
             movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, st.nextToken());
-            LOGGER.debug(LOG_MESSAGE + "Imdb Id found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
+            LOGGER.debug(LOG_MESSAGE + "IMDb id found in NFO = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
         } else {
+            // OFDb specific URL for IMDb id
             beginIndex = nfo.indexOf("/Title?");
             if (beginIndex != -1 && beginIndex + 7 < nfo.length()) {
                 StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$<>");
                 movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt" + st.nextToken());
-            } else {
-                LOGGER.debug(LOG_MESSAGE + "No Imdb Id found in nfo");
+                LOGGER.debug(LOG_MESSAGE + "IMDb id found in NFO = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
             }
         }
-        boolean result = false;
-        beginIndex = nfo.indexOf("http://www.ofdb.de/film/");
 
+        // ID already present
+        if (StringTools.isValidString(movie.getId(OFDB_PLUGIN_ID))) {
+            return Boolean.TRUE;
+        }
+
+        LOGGER.debug(LOG_MESSAGE + "Scanning NFO for OFDb url");
+        beginIndex = nfo.indexOf("http://www.ofdb.de/film/");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex), " \n\t\r\f!&é\"'(èçà)=$<>");
             movie.setId(OfdbPlugin.OFDB_PLUGIN_ID, st.nextToken());
-            LOGGER.debug(LOG_MESSAGE + "Ofdb Id found in nfo = " + movie.getId(OfdbPlugin.OFDB_PLUGIN_ID));
-            result = true;
-        } else {
-            LOGGER.debug(LOG_MESSAGE + "No Ofdb Id found in nfo");
+            LOGGER.debug(LOG_MESSAGE + "OFDb url found in NFO = " + movie.getId(OFDB_PLUGIN_ID));
+            return Boolean.TRUE;
         }
-        return result;
+         
+        LOGGER.debug(LOG_MESSAGE + "No OFDb url found in NFO : " + movie.getTitle());
+        return Boolean.FALSE;
     }
 
     @Override

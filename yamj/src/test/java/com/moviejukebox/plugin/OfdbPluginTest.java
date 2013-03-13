@@ -22,21 +22,18 @@
  */
 package com.moviejukebox.plugin;
 
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.text.Normalizer;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.regex.Pattern;
-
-import junit.framework.TestCase;
-
-import org.apache.log4j.BasicConfigurator;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import org.apache.log4j.BasicConfigurator;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
 
-public class OfdbPluginTest extends TestCase {
+public class OfdbPluginTest {
 
     private OfdbPlugin ofdbPlugin;
     
@@ -45,11 +42,18 @@ public class OfdbPluginTest extends TestCase {
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.OfdbPlugin");
     }
 
-    @Override
-    protected void setUp() {
+    @Before
+    public void setUp() {
         ofdbPlugin = new OfdbPlugin();
     }
 
+    @Test
+    public void testGetMovieId() {
+        String id = ofdbPlugin.getMovieId("Avatar", "2009");
+        assertEquals("http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora", id);
+    }
+
+    @Test
     public void testScan() {
         Movie movie = new Movie();
         movie.setId(OfdbPlugin.OFDB_PLUGIN_ID,"http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora");
@@ -77,29 +81,5 @@ public class OfdbPluginTest extends TestCase {
         testList.clear();
         testList.add("James Cameron");
         assertEquals(Arrays.asList(testList.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getWriters().toArray(), 1)).toString());
-    }
-   
-    public static String unAccent(String s) {
-        String temp = Normalizer.normalize(s, Normalizer.Form.NFD);
-        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-        temp = pattern.matcher(temp).replaceAll("");
-        temp = Normalizer.normalize(temp, Normalizer.Form.NFKC);
-        return temp;
-    }
-    
-    public static void main(String[] args) throws Exception {
-        String s = "Ação Lösen äüöÄÖU á é í ó ô ê ג'ונגל \uFB00";
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0, size = s.length(); i < size; i++) {
-          final char ch = s.charAt(i);
-          if ( ch >= 0x0590 && ch <= 0x05FF) {  
-              System.err.println("Hebrew char: "+ch);
-              String enc = URLEncoder.encode(String.valueOf(ch), "Windows-1255");
-              sb.append(URLDecoder.decode(enc, "Latin1"));
-          } else {
-              sb.append(ch);
-          }
-        }
-        System.err.println(unAccent(sb.toString()));
     }
 }
