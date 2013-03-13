@@ -68,7 +68,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
     public String getMovieId(Movie movie) {
         String moviemeterId = movie.getId(MOVIEMETER_PLUGIN_ID);
         if (!StringUtils.isNumeric(moviemeterId)) {
-            moviemeterId = this.getMovieId(movie.getTitle(), movie.getYear());
+            moviemeterId = getMovieId(movie.getTitle(), movie.getYear());
             movie.setId(MOVIEMETER_PLUGIN_ID, moviemeterId);
         }
         return moviemeterId;
