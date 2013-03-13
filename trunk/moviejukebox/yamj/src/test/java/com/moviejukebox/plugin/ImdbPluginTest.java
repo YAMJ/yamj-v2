@@ -155,4 +155,14 @@ public class ImdbPluginTest {
         assertEquals(1, movie.getDirectors().size());
         assertEquals(1, movie.getWriters().size());
     }
+
+    @Test
+    public void testScanNFO() {
+        String nfo = "\nhttp://www.imdb.com/title/tt0458339/\n";
+        Movie movie = new Movie();
+
+        ImdbPlugin imdbPlugin = new ImdbPlugin();
+        imdbPlugin.scanNFO(nfo, movie);
+        assertEquals("tt0458339", movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
+    }
 }
