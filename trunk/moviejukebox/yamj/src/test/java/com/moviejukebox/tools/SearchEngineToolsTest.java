@@ -32,8 +32,6 @@ public class SearchEngineToolsTest {
 
     public SearchEngineToolsTest() {
         BasicConfigurator.configure();
-        PropertiesUtil.setProperty("mjb.ProxyHost", "wsw_b0");
-        PropertiesUtil.setProperty("mjb.ProxyPort", 8080);
     }
     
     @Test
@@ -105,7 +103,7 @@ public class SearchEngineToolsTest {
 
     @Test
     public void roundTripMoviemeter() {
-        SearchEngineTools search = new SearchEngineTools("no");
+        SearchEngineTools search = new SearchEngineTools("nl");
         
         // movie
         for (int i=0;i<search.countSearchSites();i++) {

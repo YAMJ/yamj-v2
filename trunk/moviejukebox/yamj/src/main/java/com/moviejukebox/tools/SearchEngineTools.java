@@ -37,6 +37,7 @@ public class SearchEngineTools {
     private LinkedList<String> searchSites;
     private String searchSuffix = "";
     private String country;
+    private String language;
     private String googleHost = "www.google.com";
     private String yahooHost = "search.yahoo.com";
     private String bingHost = "www.bing.com";
@@ -47,7 +48,7 @@ public class SearchEngineTools {
         this("us");
     }
 
-    public SearchEngineTools(String preset) {
+    public SearchEngineTools(String country) {
         webBrowser = new WebBrowser();
         // user agent should be an actual FireFox
         webBrowser.addBrowserProperty("User-Agent", "Mozilla/6.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1");
@@ -57,38 +58,46 @@ public class SearchEngineTools {
         searchSites.addAll(Arrays.asList(PropertiesUtil.getProperty("searchengine.sites", "google,yahoo,bing,blekko,lycos").split(",")));
 
         // country specific presets
-        if ("de".equalsIgnoreCase(preset)) {
-            country = "de";
+        if ("de".equalsIgnoreCase(country)) {
+            this.country = "de";
+            language = "de";
             googleHost = "www.google.de";
             yahooHost = "de.search.yahoo.com";
             lycosHost = "search.lycos.de";
-        } else if ("it".equalsIgnoreCase(preset)) {
-            country = "it";
+        } else if ("it".equalsIgnoreCase(country)) {
+            this.country = "it";
+            language = "it";
             googleHost = "www.google.it";
             yahooHost = "it.search.yahoo.com";
             bingHost = "it.bing.com";
             lycosHost = "search.lycos.it";
-        } else if ("se".equalsIgnoreCase(preset)) {
-            country = "se";
+        } else if ("se".equalsIgnoreCase(country)) {
+            this.country = "se";
+            language = "sv";
             googleHost = "www.google.se";
             yahooHost = "se.search.yahoo.com";
             lycosHost = "search.lycos.se";
-        } else if ("pl".equalsIgnoreCase(preset)) {
-            country = "pl";
+        } else if ("pl".equalsIgnoreCase(country)) {
+            this.country = "pl";
+            language = "pl";
             googleHost = "www.google.pl";
             yahooHost = "pl.search.yahoo.com";
-        } else if ("ru".equalsIgnoreCase(preset)) {
-            country = "ru";
+        } else if ("ru".equalsIgnoreCase(country)) {
+            this.country = "ru";
+            language = "ru";
             googleHost = "www.google.ru";
             yahooHost = "ru.search.yahoo.com";
-        } else if ("il".equalsIgnoreCase(preset)) {
+        } else if ("il".equalsIgnoreCase(country)) {
             this.country = "il";
+            language = "il";
             googleHost = "www.google.co.il";
-        } else if ("fr".equalsIgnoreCase(preset)) {
-            country = "fr";
+        } else if ("fr".equalsIgnoreCase(country)) {
+            this.country = "fr";
+            language = "fr";
             googleHost = "www.google.fr";
-        } else if ("nl".equalsIgnoreCase(preset)) {
-            country = "nl";
+        } else if ("nl".equalsIgnoreCase(country)) {
+            this.country = "nl";
+            language = "nl";
             googleHost = "www.google.nl";
             lycosHost = "search.lycos.nl";
         }
@@ -143,9 +152,9 @@ public class SearchEngineTools {
             StringBuilder sb = new StringBuilder("http://");
             sb.append(googleHost);
             sb.append("/search?");
-            if (country != null) {
+            if (language != null) {
                 sb.append("hl=");
-                sb.append(country);
+                sb.append(language);
                 sb.append("&");
             }
             sb.append("q=");
