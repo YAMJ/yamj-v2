@@ -899,7 +899,7 @@ public final class MovieNFOReader {
         if (overridePeopleDirectors) {
             movie.setPeopleDirectors(newDirectors, NFO_PLUGIN_ID);
         }
-}
+    }
 
     /**
      * Parse Trailers from the XML NFO file
