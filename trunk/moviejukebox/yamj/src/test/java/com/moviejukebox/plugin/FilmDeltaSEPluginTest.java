@@ -24,19 +24,18 @@ package com.moviejukebox.plugin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URL;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URL;
+import org.apache.log4j.BasicConfigurator;
+import org.junit.Before;
+import org.junit.Test;
+
 
 public class FilmDeltaSEPluginTest {
 
@@ -52,6 +51,7 @@ public class FilmDeltaSEPluginTest {
     private boolean offline = true;
 
     static {
+        BasicConfigurator.configure();
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
         PropertiesUtil.setProperty("priority.title", "filmdelta,imdb");
         PropertiesUtil.setProperty("priority.originaltitle", "filmdelta,imdb");
@@ -94,25 +94,31 @@ public class FilmDeltaSEPluginTest {
     @Test
     public void testGetFilmdeltaIdWithName() {
         toTest.setRequestResult("<p><a href=\"/url?q=http://www.filmdelta.se/filmer/20892/aristocats/&amp;sa=U&amp;ei=FXI0TPOCNNCcOOnekKMC&amp;ved=0CAUQFjAA&amp;usg=AFQjCNGLoWMaWaUe85eWov0O7odTgg9WMg\"><b>Aristocats</b> - Filmdelta - Filmdatabas på svenska</a><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>");
-        assertEquals("20892/aristocats", toTest.getFilmdeltaId("aristocats", null, -1));
+        assertEquals("20892/aristocats", toTest.getMovieId("aristocats", null));
     }
 
     @Test
     public void testGetFilmdeltaIdWithNameAndYear() {
-        toTest.setRequestResult("</table><p><a href=\"/url?q=http://www.filmdelta.se/filmer/147238/barbie_mariposa_and_her_butterfly_fairy_friends/&amp;sa=U&amp;ei=KXQ0TKvkI42XOI28xIIC&amp;ved=0CAUQFjAA&amp;usg=AFQjCNFkufV1Q48m6uKgaLa0MHxSAEWbAQ\"><b>Barbie</b> i en julsaga - Filmdelta - Filmdatabas på svenska</a><table");
-        assertEquals("147238/barbie_mariposa_and_her_butterfly_fairy_friends", toTest.getFilmdeltaId("barbie mariposa", "2007", -1));
+        toTest.setRequestResult("</table><p><a href=\"/url?q=http://www.filmdelta.se/filmer/147238/barbie_mariposa/&amp;sa=U&amp;ei=KXQ0TKvkI42XOI28xIIC&amp;ved=0CAUQFjAA&amp;usg=AFQjCNFkufV1Q48m6uKgaLa0MHxSAEWbAQ\"><b>Barbie</b> i en julsaga - Filmdelta - Filmdatabas på svenska</a><table");
+        assertEquals("147238/barbie_mariposa", toTest.getMovieId("barbie mariposa", "2007"));
     }
 
     @Test
     public void testGetFilmdeltaIdNotFound() {
         toTest.setRequestResult("<br>Din sökning - <b>xxyyzz+site:filmdelta.se/filmer</b> - matchade inte något dokument.<br><br>Förslag:<ul><li>Kontrollera att alla ord är rättstavade.</li>");
-        assertEquals(Movie.UNKNOWN, toTest.getFilmdeltaId("xxyyzz", null, -1));
+        assertEquals(Movie.UNKNOWN, toTest.getMovieId("xxyyzz", null));
     }
 
     @Test
     public void testGetFilmdeltaIdTheMatrix() {
-        toTest.setRequestResult("</table></p><p><a href=\"/url?q=http://www.filmdelta.se/filmer/74403/The%2BMatrix/&amp;sa=U&amp;ei=B5pWTNTFC4nLOLHD2LIO&amp;ved=0CAcQFjAB&amp;usg=AFQjCNEhfuVFg77dObKQcs-uc2pxE-7s3g\">The <b>Matrix</b> - Filmdelta - Filmdatabas på svenska</a><table");
-        assertEquals("74403/The+Matrix", toTest.getFilmdeltaId("matrix", "1999", -1));
+        toTest.setRequestResult("</table></p><p><a href=\"/url?q=http://www.filmdelta.se/filmer/74403/the_matrix/&amp;sa=U&amp;ei=B5pWTNTFC4nLOLHD2LIO&amp;ved=0CAcQFjAB&amp;usg=AFQjCNEhfuVFg77dObKQcs-uc2pxE-7s3g\">The <b>Matrix</b> - Filmdelta - Filmdatabas på svenska</a><table");
+        assertEquals("74403/the_matrix", toTest.getMovieId("matrix", "1999"));
+    }
+
+    @Test
+    public void testGetFilmdeltaIdAliensVsAvatars() {
+        toTest.setRequestResult(null);
+        assertEquals("174073/aliens_vs_avatars", toTest.getMovieId("Aliens vs Avatars", "2011"));
     }
 
     @Test
@@ -157,14 +163,13 @@ public class FilmDeltaSEPluginTest {
         String filmdeltaId = "20892/aristocats";
 
         //do the testing
-        toTest.updateFilmdeltaMediaInfo(movie, filmdeltaId);
+        toTest.updateMediaInfo(movie, filmdeltaId);
         assertEquals("Aristocats", movie.getTitle());
         assertEquals("USA", movie.getCountry());
         assertEquals("1970", movie.getYear());
         assertEquals(70, movie.getRating());
         assertEquals("78", movie.getRuntime());
-        String expectedPlot = "I hjärtat av Paris bor den tjusiga katten Duchesse med sina tre kattungar hos den vänliga miljonärskan Madame Bonfamille. När den girige betjänten Edgar råkar få höra att att katterna skall få ärva alla pengar, bestämmer han sig för att kidnappa dem!Han söver ner Duchess och hennes ungar, tar med sig dem långt ut på landet och överger dem där...Plötsligt dyker den coola vildkatten Thomas O'Malley upp till deras undsättning.";
-        //String expectedOutline = "I hjärtat av Paris bor den tjusiga katten Duchesse med sina tre kattungar hos den vänliga miljonärskan Madame Bonfamille. När den girige betjänten Edgar råkar få höra att att katterna skall få ärva alla pengar, bestämmer han sig för att kidnappa dem!Han söver ner Duchess och hennes ungar, tar med...";
+        String expectedPlot = "I hjärtat av Paris bor den tjusiga katten Duchesse med sina tre kattungar hos den vänliga miljonärskan Madame Bonfamille. När den girige betjänten Edgar råkar få höra att att katterna skall få ärva alla pengar, bestämmer han sig för att kidnappa dem!Han söver ner Duchess och hennes ungar, tar med sig dem långt ut på landet och överger dem där...Plötsligt dyker den coola vildkatten Thomas O´Malley upp till deras undsättning.";
         String expectedOutline = StringTools.trimToLength(expectedPlot, 300);
 
         assertEquals(expectedPlot, movie.getPlot());
@@ -223,7 +228,7 @@ public class FilmDeltaSEPluginTest {
         public void init() {
             webBrowser = new WebBrowser() {
                 public String request(URL url) throws IOException {
-                    if (offline) {
+                    if (offline && (getRequestResult(url) !=null)) {
                         return getRequestResult(url);
                     } else {
                         return super.request(url);
