@@ -56,6 +56,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Enhancement  #2621 Use priority checks also for TV episodes
  - Fixed defect #2622 Fixed IMDb episode scanning
  - Fixed defect #2626 Ignore empty actor thumb sections in NFO file
+ - Fixed defect #2627 Respect movie.actor.maxCount in any case when parsing NFO file
 
 MovieJukebox 2.8 2012-12-17)
 -----------------------------
