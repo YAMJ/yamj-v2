@@ -101,7 +101,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
             if (beginIndex > 0) {
                 // found a unique match
                 beginIndex = beginIndex + SEARCH_RESULT_UNIQUE.length();
-                String filmdeltaId = makeFilmDeltaId(xml, beginIndex, 0);
+                String filmdeltaId = makeFilmdeltaId(xml, beginIndex, 0);
 
                 // regex to match that a valid filmdeltaId contains at least 3 numbers,
                 // a dash, and one or more letters (may contain [-&;])
@@ -119,7 +119,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
                     if (beginIndex > -1 && (!searchYear || (tag.contains("("+year+")")))) {
                         // found a match
                         beginIndex = beginIndex + SEARCH_RESULT_LINE.length();
-                        String filmdeltaId = makeFilmDeltaId(xml, beginIndex, 0);
+                        String filmdeltaId = makeFilmdeltaId(xml, beginIndex, 0);
 
                         // regex to match that a valid filmdeltaId contains at least 3 numbers,
                         // a dash, and one or more letters (may contain [-&;])
@@ -152,7 +152,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         
         // we have a valid FilmDelta link
         int beginIndex = url.indexOf("www.filmdelta.se/filmer/") + 24;
-        String filmdeltaId = makeFilmDeltaId(url, beginIndex, 0);
+        String filmdeltaId = makeFilmdeltaId(url, beginIndex, 0);
 
         // regex to match that a valid filmdeltaId contains at least 3 numbers,
         // a dash, and one or more letters (may contain [-&;])
@@ -168,7 +168,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     /*
      * Utility method to make a FilmDelta id from a string containing a FilmDelta URL
      */
-    private String makeFilmDeltaId(String string, int beginIndex, int skip) {
+    private String makeFilmdeltaId(String string, int beginIndex, int skip) {
         StringTokenizer st = new StringTokenizer(string.substring(beginIndex), "/");
         for (int i = 0; i < skip; i++) {
             st.nextToken();
@@ -235,12 +235,12 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
         int beginIndex = nfo.indexOf("www.filmdelta.se/prevsearch");
         if (beginIndex != -1) {
             beginIndex = beginIndex + 27;
-            String filmdeltaId = makeFilmDeltaId(nfo, beginIndex, 2);
+            String filmdeltaId = makeFilmdeltaId(nfo, beginIndex, 2);
             movie.setId(FILMDELTA_PLUGIN_ID, filmdeltaId);
             LOGGER.debug(LOG_MESSAGE + "FilmDelta id found in NFO = " + movie.getId(FILMDELTA_PLUGIN_ID));
         } else if (nfo.indexOf("www.filmdelta.se/filmer") != -1) {
             beginIndex = nfo.indexOf("www.filmdelta.se/filmer") + 24;
-            String filmdeltaId = makeFilmDeltaId(nfo, beginIndex, 0);
+            String filmdeltaId = makeFilmdeltaId(nfo, beginIndex, 0);
             movie.setId(FILMDELTA_PLUGIN_ID, filmdeltaId);
             LOGGER.debug(LOG_MESSAGE + "FilmDelta id found in NFO = " + movie.getId(FILMDELTA_PLUGIN_ID));
         } else {
