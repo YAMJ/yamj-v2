@@ -191,9 +191,10 @@ public class SearchEngineTools {
             sb.append(yahooHost);
             sb.append("/search?vc=");
             if (country != null) {
+                sb.append(country);
                 sb.append("&rd=r2");
             }
-            sb.append("&p=");
+            sb.append("&ei=UTF-8&p=");
             sb.append(URLEncoder.encode(title, "UTF-8"));
             if (StringTools.isValidString(year)) {
                 sb.append("+%28");
