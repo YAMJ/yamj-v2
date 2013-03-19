@@ -1710,7 +1710,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setOriginalTitle(String originalTitle, String source) {
         if (StringTools.isValidString(originalTitle)) {
-            if (!originalTitle.equalsIgnoreCase(this.originalTitle)) {
+            if (!originalTitle.equals(this.originalTitle)) {
                 setDirty(DirtyFlag.INFO);
                 this.originalTitle = originalTitle;
             }
