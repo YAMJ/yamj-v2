@@ -24,7 +24,6 @@ package com.moviejukebox.tools;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
@@ -115,7 +114,7 @@ public class SearchEngineToolsTest {
 
     
     @Test
-    public void fixRoundTripFilmweb() {
+    public void roundTripFilmweb() {
         SearchEngineTools search = new SearchEngineTools("pl");
         
         // movie
@@ -126,10 +125,10 @@ public class SearchEngineToolsTest {
         
         // TV show
         for (int i=0;i<search.countSearchSites();i++) {
-            String url = search.searchMovieURL("Two and a Half Men", "2005", "www.filmweb.pl");
-            assertTrue(url.startsWith("http://www.filmweb.pl/serial/Dw%"));
+            String url = search.searchMovieURL("The 4400", null, "www.filmweb.pl/serial", "sezon 3");
+            assertTrue(url, url.startsWith("http://www.filmweb.pl/serial/4400-2004-122684"));
         }
-    }
+}
 
     @Test
     public void fixRoundTripMovieSratim() {
