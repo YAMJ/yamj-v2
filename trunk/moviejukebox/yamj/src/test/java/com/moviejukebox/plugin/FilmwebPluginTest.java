@@ -32,22 +32,24 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import junit.framework.TestCase;
 import org.apache.log4j.BasicConfigurator;
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
-public class FilmwebPluginTest extends TestCase {
+public class FilmwebPluginTest {
 
     private FilmwebPluginMock filmwebPlugin;
     private Movie movie = new Movie();
-    private boolean offline = true;
+    private boolean offline = false;
 
     static {
+        BasicConfigurator.configure();
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
         PropertiesUtil.setProperty("priority.movie.directors", "imdb,filmweb");
-        BasicConfigurator.configure();
     }
 
-    @Override
+    @Before
     protected void setUp() {
         // uncomment the line below to check if tests are still up to date
         // offline = false;
@@ -55,47 +57,55 @@ public class FilmwebPluginTest extends TestCase {
         movie = new Movie();
     }
 
+    @Test
     public void testGetFilmwebUrlFromGoogle() {
         filmwebPlugin.setFilmwebPreferredSearchEngine("google");
         filmwebPlugin.setRequestResult("<font color=\"green\">http://www.filmweb.pl/Seksmisja - 84k</font>");
         assertEquals("http://www.filmweb.pl/Seksmisja", filmwebPlugin.getFilmwebUrl("Seksmisja", null));
     }
 
+    @Test
     public void testGetFilmwebUrlFromGoogleWithId() {
         filmwebPlugin.setFilmwebPreferredSearchEngine("google");
         filmwebPlugin.setRequestResult("<font color=\"green\">http://www.filmweb.pl/serial/4400-2004-122684 - 90k</font>");
         assertEquals("http://www.filmweb.pl/serial/4400-2004-122684", filmwebPlugin.getFilmwebUrl("4400", null));
     }
 
+    @Test
     public void testGetFilmwebUrlFromYahoo() {
         filmwebPlugin.setFilmwebPreferredSearchEngine("yahoo");
         filmwebPlugin.setRequestResult("<a data-bk=\"5034.1\" href=\"http://www.filmweb.pl/Seksmisja\" class=\"yschttl spt\" dirtyhref=\"http://rds.yahoo.com/_ylt=A0oG7hxsZvVMxwEAUx9XNyoA;_ylu=X3oDMTE1azRuN3ZwBHNlYwNzcgRwb3MDMQRjb2xvA2FjMgR2dGlkA1NSVDAwMV8xODc-/SIG=11jrti008/EXP=1291237356/**http%3a//www.filmweb.pl/Seksmisja\"><b>Seksmisja</b> (1983) - Filmweb</a>");
         assertEquals("http://www.filmweb.pl/Seksmisja", filmwebPlugin.getFilmwebUrl("Seksmisja", null));
     }
 
+    @Test
     public void testGetFilmwebUrlFromYahooWithId() {
         filmwebPlugin.setFilmwebPreferredSearchEngine("yahoo");
         filmwebPlugin.setRequestResult("<a href=\"http://search.yahoo.com/web/advanced?ei=UTF-8&p=4400+site%3Afilmweb.pl&y=Search\">Advanced Search</a><a class=\"yschttl\" href=\"http://rds.yahoo.com/_ylt=A0geu5RTv7FI.jUB.DtXNyoA;_ylu=X3oDMTE1aGEzbmUyBHNlYwNzcgRwb3MDMQRjb2xvA2FjMgR2dGlkA01BUDAxMV8xMDg-/SIG=11rlibf7n/EXP=1219694803/**http%3a//www.filmweb.pl/serial/4400-2004-122684\" ><b>4400</b> / <b>4400</b>, The (2004) - Film - FILMWEB.pl</a>");
         assertEquals("http://www.filmweb.pl/serial/4400-2004-122684", filmwebPlugin.getFilmwebUrl("The 4400", null));
     }
 
+    @Test
     public void testGetFilmwebUrlFromFilmweb() {
         filmwebPlugin.setFilmwebPreferredSearchEngine("filmweb");
         filmwebPlugin.setRequestResult("<a class=\"searchResultTitle\" href=\"/John.Rambo\"><b>John</b> <b>Rambo</b> / <b>Rambo</b> </a>");
         assertEquals("http://www.filmweb.pl/John.Rambo", filmwebPlugin.getFilmwebUrl("john rambo", null));
     }
 
+    @Test
     public void testGetFilmwebUrlFromFilmwebWithId() {
         filmwebPlugin.setFilmwebPreferredSearchEngine("filmweb");
         filmwebPlugin.setRequestResult("<a class=\"searchResultTitle\" href=\"/serial/4400-2004-122684\"><b>4400</b> / <b>4400</b>, The </a>");
         assertEquals("http://www.filmweb.pl/serial/4400-2004-122684", filmwebPlugin.getFilmwebUrl("The 4400", null));
     }
 
+    @Test
     public void testScanNFONoUrl() {
         filmwebPlugin.scanNFO("", movie);
         assertEquals(Movie.UNKNOWN, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
     }
 
+    @Test
     public void testScanNFO() {
         filmwebPlugin.scanNFO("txt\ntxt\nfilmweb url: http://john.rambo.filmweb.pl - txt\ntxt", movie);
         assertEquals("http://john.rambo.filmweb.pl", movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -121,11 +131,13 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals("http://4.pila.filmweb.pl", movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
     }
 
+    @Test
     public void testScanNFOWithId() {
         filmwebPlugin.scanNFO("txt\ntxt\nfilmweb url: http://www.filmweb.pl/f122684/4400,2004 - txt\ntxt", movie);
         assertEquals("http://www.filmweb.pl/f122684/4400,2004", movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
     }
 
+    @Test
     public void testScanNFOWithPoster() {
         filmwebPlugin.scanNFO("txt\ntxt\nimg: http://gfx.filmweb.pl/po/18/54/381854/7131155.3.jpg - txt\ntxt", movie);
         assertEquals(Movie.UNKNOWN, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -134,6 +146,7 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals("http://www.filmweb.pl/f122684/4400,2004", movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
     }
 
+    @Test
     public void testUpdateMediaInfoTitle() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Seksmisja");
         filmwebPlugin.setRequestResult("<title>Seksmisja (1984)  - Film - FILMWEB.pl</title>");
@@ -142,6 +155,7 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals("Seksmisja", movie.getOriginalTitle());
     }
 
+    @Test
     public void testUpdateMediaInfoTitleWithOriginalTitle() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Ojciec.Chrzestny");
         filmwebPlugin.setRequestResult("<title>Ojciec chrzestny (1972) - Filmweb</title><meta property=\"og:title\" content=\"Ojciec chrzestny / Godfather, The\">");
@@ -150,6 +164,7 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals("The Godfather", movie.getOriginalTitle());
     }
 
+    @Test
     public void testUpdateMediaInfoRating() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Ojciec.Chrzestny");
         filmwebPlugin.setRequestResult("<span class=\"average\">            8,8      </span>");
@@ -157,6 +172,7 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals(88, movie.getRating());
     }
 
+    @Test
     public void testUpdateMediaInfoTop250() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Ojciec.Chrzestny");
         filmwebPlugin.setRequestResult("<span class=worldRanking>2. <a href=\"/rankings/film/world#Ojciec chrzestny\">w rankingu światowym</a></span>");
@@ -164,6 +180,7 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals(2, movie.getTop250());
     }
 
+    @Test
     public void testUpdateMediaInfoReleaseDate() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
         filmwebPlugin.setRequestResult("<span id =\"filmPremierePoland\" style=\"display:none\">2008-03-07</span><span style=\"display: none;\" id=\"filmPremiereWorld\">2008-01-23</span>");
@@ -171,6 +188,7 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals("2008-01-23", movie.getReleaseDate());
     }
 
+    @Test
     public void testUpdateMediaInfoRuntime() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
         filmwebPlugin.setRequestResult("<table><tr><th>czas trwania:</th><td> 1 godz. 32 min. </td></tr><tr><th>gatunek:</th>");
@@ -178,6 +196,7 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals("92", movie.getRuntime());
     }
 
+    @Test
     public void testUpdateMediaInfoCountry() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
         filmwebPlugin.setRequestResult("<tr><th>produkcja:</th><td><a href=\"/search/film?countryIds=38\">Niemcy</a>, <a href=\"/search/film?countryIds=53\">USA</a></td></tr>");
@@ -185,6 +204,7 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals("Niemcy, USA", movie.getCountry());
     }
 
+    @Test
     public void testUpdateMediaInfoGenre() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
         filmwebPlugin.setRequestResult("<th>gatunek:</th><td><a href=\"/search/film?genreIds=26\">Wojenny</a>, <a href=\"/search/film?genreIds=28\">Akcja</a></td></tr><tr><th>premiera:</th>");
@@ -192,6 +212,7 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals(Arrays.asList(new String[]{"Akcja", "Wojenny"}).toString(), movie.getGenres().toString());
     }
 
+    @Test
     public void testUpdateMediaInfoOutline() {
         int outlineLength = PropertiesUtil.getIntProperty("movie.outline.maxLength", 500);
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Seksmisja");
@@ -204,18 +225,19 @@ public class FilmwebPluginTest extends TestCase {
                    outlineLength), movie.getOutline());
     }
 
+    @Test
     public void testUpdateMediaInfoPlot() {
         int plotLength = PropertiesUtil.getIntProperty("movie.plot.maxLength", 500);
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Waleczne.Serce");
         filmwebPlugin.setRequestResult("<div class=\"filmDescription comBox\">\n  \t<h2>\n  \t\t<a href=\"/Waleczne.Serce/descs\" class=\"hdrBig icoBig icoBigArticles\">\n  \t\t\t opisy filmu   \t\t</a>\t\t\n\t\t\t\t\t<span class=\"hdrAddInfo\">(10)</span>\n\t\t\t\t\n  \t\t  \t\t<a href=\"\t\t\t/Waleczne.Serce/contribute/descriptions\t\" class=\"add-button\" title=\"dodaj  opis filmu \" rel=\"nofollow\">  \t\t\t<span>dodaj  opis filmu </span>\n\n  \t\t</a>\n\t\t<span class=\"imgRepInNag\">Braveheart - Waleczne Serce</span>\n  \t</h2>\n\t\n\t\t\t\t\t   \t   \t\t<p class=\"cl\"><span class=\"filmDescrBg\" property=\"v:summary\">Pod koniec XIII wieku Szkocja dostaje się pod panowanie angielskiego króla, Edwarda I. Przejęcie władzy odbywa się w wyjątkowo krwawych okolicznościach. Jednym ze świadków gwałtów i morderstw jest kilkunastoletni chłopak, William Wallace. Po latach spędzonych pod opieką wuja dorosły William wraca do rodzinnej wioski. Jedną z pierwszych osób, które spotyka, jest Murron - przyjaciółka z lat dzieciństwa. Dawne uczucie przeradza się w wielką i szczerą miłość. Niestety wkrótce dziewczyna ginie z rąk<span> angielskich żołnierzy. Wydarzenie to staje się to momentem przełomowym w życiu młodego Szkota. William decyduje się bowiem na straceńczą walkę z okupantem i po brawurowym ataku zdobywa warownię wroga. Dzięki ogromnej odwadze zostaje wykreowany na przywódcę powstania przeciw angielskiej tyranii...</span> <a href=\"#\" class=\"see-more\">więcej </a></span></p>\n   \t\t  </div>");
         filmwebPlugin.updateMediaInfo(movie);
 
-        assertEquals(
-            StringTools.trimToLength(
+        assertEquals(StringTools.trimToLength(
                 "Pod koniec XIII wieku Szkocja dostaje się pod panowanie angielskiego króla, Edwarda I. Przejęcie władzy odbywa się w wyjątkowo krwawych okolicznościach. Jednym ze świadków gwałtów i morderstw jest kilkunastoletni chłopak, William Wallace. Po latach spędzonych pod opieką wuja dorosły William wraca do rodzinnej wioski. Jedną z pierwszych osób, które spotyka, jest Murron - przyjaciółka z lat dzieciństwa. Dawne uczucie przeradza się w wielką i szczerą miłość. Niestety wkrótce dziewczyna ginie z rąk angielskich żołnierzy. Wydarzenie to staje się to momentem przełomowym w życiu młodego Szkota. William decyduje się bowiem na straceńczą walkę z okupantem i po brawurowym ataku zdobywa warownię wroga. Dzięki ogromnej odwadze zostaje wykreowany na przywódcę powstania przeciw angielskiej tyranii...",
                 plotLength), movie.getPlot());
     }
 
+    @Test
     public void testUpdateMediaInfoYear() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Seksmisja");
         filmwebPlugin.setRequestResult("<span id=filmYear class=filmYear> (1983) </span>");
@@ -223,6 +245,7 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals("1983", movie.getYear());
     }
 
+    @Test
     public void testUpdateMediaInfoDirector() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Avatar");
         filmwebPlugin.setRequestResult(null); // no offline test
@@ -235,6 +258,7 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals(Arrays.asList(testDirectors.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getDirectors().toArray(), 1)).toString());
     }
 
+    @Test
     public void testUpdateMediaInfoCast() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Avatar");
         filmwebPlugin.setRequestResult(null); // no offline test
@@ -248,6 +272,7 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals(Arrays.asList(testCast.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getCast().toArray(), 2)).toString());
     }
 
+    @Test
     public void testUpdateMediaInfoWriters() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Avatar");
         filmwebPlugin.setRequestResult(null); // no offline test
@@ -260,6 +285,7 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals(Arrays.asList(testWriters.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getWriters().toArray(), 1)).toString());
     }
 
+    @Test
     public void testUpdateMediaInfoUpdateTVShowInfo() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Prison.Break");
         movie.setMovieType(Movie.TYPE_TVSHOW);
@@ -279,6 +305,7 @@ public class FilmwebPluginTest extends TestCase {
         assertEquals("Breaking and Entering", episodesIt.next().getTitle());
     }
 
+    @Test
     public void testUpdateMediaInfoNotOverwrite() {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
         movie.setDirector("John Doe", "imdb");
