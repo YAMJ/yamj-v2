@@ -24,10 +24,13 @@ package com.moviejukebox.model;
 
 import com.moviejukebox.model.enumerations.CodecSource;
 import com.moviejukebox.scanner.MovieFilenameScanner;
+import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import org.apache.commons.lang3.StringUtils;
 
 public class Codec {
+
+    private static String AUDIO_LANGUAGE_UNKNOWN = PropertiesUtil.getProperty("mjb.language.audio.unknown");
 
     /*
      * Properties
@@ -145,8 +148,12 @@ public class Codec {
     }
 
     public void setCodecLanguage(String codecLanguage) {
-        if (StringUtils.isBlank(codecLanguage)) {
-            this.codecLanguage = Movie.UNKNOWN;
+        if (StringTools.isNotValidString(codecLanguage)) {
+            if (CodecType.AUDIO.equals(this.codecType) && StringTools.isValidString(AUDIO_LANGUAGE_UNKNOWN)) {
+                this.codecLanguage = AUDIO_LANGUAGE_UNKNOWN;
+            } else {
+                this.codecLanguage = Movie.UNKNOWN;
+            }
         } else {
             this.codecLanguage = codecLanguage;
             if (StringTools.isNotValidString(codecFullLanguage)) {
