@@ -723,9 +723,10 @@ public class MediaInfoScanner {
                 }
                 movieLanguage.append(language);
             }
+            
             if (StringTools.isValidString(movieLanguage.toString())) {
                 movie.setLanguage(movieLanguage.toString(), MEDIAINFO_PLUGIN_ID);
-            } else {
+            } else if (StringTools.isValidString(AUDIO_LANGUAGE_UNKNOWN)) {
                 String determineLanguage = MovieFilenameScanner.determineLanguage(AUDIO_LANGUAGE_UNKNOWN);
                 movie.setLanguage(determineLanguage, MEDIAINFO_PLUGIN_ID);
             }
