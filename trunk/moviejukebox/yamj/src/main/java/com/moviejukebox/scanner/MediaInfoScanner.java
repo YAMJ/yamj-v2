@@ -70,6 +70,7 @@ public class MediaInfoScanner {
     private String randomDirName;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
+    private static String AUDIO_LANGUAGE_UNKNOWN = PropertiesUtil.getProperty("mjb.language.audio.unknown");
     private static final List<String> MI_DISK_IMAGES = new ArrayList<String>();
 
     static {
@@ -722,7 +723,12 @@ public class MediaInfoScanner {
                 }
                 movieLanguage.append(language);
             }
-            movie.setLanguage(movieLanguage.toString(), MEDIAINFO_PLUGIN_ID);
+            if (StringTools.isValidString(movieLanguage.toString())) {
+                movie.setLanguage(movieLanguage.toString(), MEDIAINFO_PLUGIN_ID);
+            } else {
+                String determineLanguage = MovieFilenameScanner.determineLanguage(AUDIO_LANGUAGE_UNKNOWN);
+                movie.setLanguage(determineLanguage, MEDIAINFO_PLUGIN_ID);
+            }
         }
 
         // Cycle through Text Streams
