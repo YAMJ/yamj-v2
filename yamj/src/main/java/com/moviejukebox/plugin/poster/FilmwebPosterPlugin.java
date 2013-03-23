@@ -57,7 +57,7 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IT
     }
 
     public String getIdFromMovieInfo(String title, String year) {
-        return filmwebPlugin.getFilmwebUrl(title, year);
+        return filmwebPlugin.getMovieId(title, year);
     }
 
     public IImage getPosterUrl(String id) {
