@@ -152,7 +152,7 @@ public class Codec {
             if (CodecType.AUDIO.equals(this.codecType) && StringTools.isValidString(AUDIO_LANGUAGE_UNKNOWN)) {
                 this.codecLanguage = AUDIO_LANGUAGE_UNKNOWN;
                 if (StringTools.isNotValidString(codecFullLanguage)) {
-                    this.codecFullLanguage = MovieFilenameScanner.determineLanguage(codecLanguage);
+                    this.codecFullLanguage = MovieFilenameScanner.determineLanguage(AUDIO_LANGUAGE_UNKNOWN);
                 }
             } else {
                 this.codecLanguage = Movie.UNKNOWN;
@@ -160,7 +160,7 @@ public class Codec {
         } else {
             this.codecLanguage = codecLanguage;
             if (StringTools.isNotValidString(codecFullLanguage)) {
-                this.codecFullLanguage = MovieFilenameScanner.determineLanguage(codecLanguage);
+                this.codecFullLanguage = MovieFilenameScanner.determineLanguage(this.codecLanguage);
             }
         }
     }
