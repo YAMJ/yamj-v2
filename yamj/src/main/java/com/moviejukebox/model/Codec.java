@@ -151,6 +151,9 @@ public class Codec {
         if (StringTools.isNotValidString(codecLanguage)) {
             if (CodecType.AUDIO.equals(this.codecType) && StringTools.isValidString(AUDIO_LANGUAGE_UNKNOWN)) {
                 this.codecLanguage = AUDIO_LANGUAGE_UNKNOWN;
+                if (StringTools.isNotValidString(codecFullLanguage)) {
+                    this.codecFullLanguage = MovieFilenameScanner.determineLanguage(codecLanguage);
+                }
             } else {
                 this.codecLanguage = Movie.UNKNOWN;
             }
