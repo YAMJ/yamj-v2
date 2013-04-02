@@ -23,6 +23,7 @@
 package com.moviejukebox.tools;
 
 import com.moviejukebox.reader.MovieNFOReader;
+import com.moviejukebox.scanner.MovieNFOScanner;
 import java.io.*;
 import java.net.URL;
 import java.util.Map;
@@ -35,6 +36,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.*;
@@ -44,8 +46,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * Generic set of routines to process the DOM model data Used for read XML
- * files.
+ * Generic set of routines to process the DOM model data Used for read XML files.
  *
  * @author Stuart.Boston
  *
@@ -94,8 +95,7 @@ public class DOMHelper {
     }
 
     /**
-     * Append a child element to a parent element with a single attribute/value
-     * pair
+     * Append a child element to a parent element with a single attribute/value pair
      *
      * @param doc
      * @param parentElement
@@ -184,7 +184,12 @@ public class DOMHelper {
         try {
             doc = db.parse(in);
         } catch (SAXParseException ex) {
-            doc = null;
+            if (FilenameUtils.isExtension(xmlFile.getName().toLowerCase(), "xml")) {
+                throw new SAXParseException("Failed to process file as XML", null, ex);
+            } else {
+                // Try processing the file a different way
+                doc = null;
+            }
         } finally {
             // close the stream
             in.close();
@@ -283,8 +288,7 @@ public class DOMHelper {
     }
 
     /**
-     * Override the standard Sax ErrorHandler with this one, to minimise noise
-     * about failed parsing errors
+     * Override the standard Sax ErrorHandler with this one, to minimise noise about failed parsing errors
      */
     public static class SaxErrorHandler implements ErrorHandler {
 
