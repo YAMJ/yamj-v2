@@ -44,6 +44,10 @@ public class MovieNFOWriter {
     private static boolean extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE);
     private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE);
 
+    private MovieNFOWriter() {
+        throw new RuntimeException("Class cannot be instantiated");
+    }
+
     /**
      * Write a NFO file for the movie using the data gathered
      *
@@ -68,7 +72,7 @@ public class MovieNFOWriter {
         }
 
         String nfoFolder = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), "NFO");
-        (new File(nfoFolder)).mkdirs();
+        FileTools.makeDirectories(new File(nfoFolder));
         File tempNfoFile = new File(StringTools.appendToPath(nfoFolder, movie.getBaseName() + ".nfo"));
 
         logger.debug(LOG_MESSAGE + "Writing " + (writeSimpleNfoFiles ? "simple " : "") + "NFO file for " + movie.getBaseName() + ".nfo");
@@ -268,13 +272,13 @@ public class MovieNFOWriter {
         }   // End of detailed NFO
 
         // Write out the sets
-        if (movie.getSets() != null && movie.getSets().size()>0) {
+        if (movie.getSets() != null && movie.getSets().size() > 0) {
             Element eSets = docNFO.createElement("sets");
-            for (Entry<String,Integer> entry : movie.getSets().entrySet()) {
-        	    Integer order = entry.getValue();
+            for (Entry<String, Integer> entry : movie.getSets().entrySet()) {
+                Integer order = entry.getValue();
                 if (order == null) {
                     DOMHelper.appendChild(docNFO, eSets, "set", entry.getKey());
-                } else  {
+                } else {
                     DOMHelper.appendChild(docNFO, eSets, "set", entry.getKey(), "order", order.toString());
                 }
             }
@@ -293,8 +297,8 @@ public class MovieNFOWriter {
     }
 
     /**
-     * Create an episode detail node for the NFO file This may actually create more than one node dependent on the
-     * number of parts in the file
+     * Create an episode detail node for the NFO file This may actually create more than one node dependent on the number of parts
+     * in the file
      *
      * @param episode
      * @param docNFO
