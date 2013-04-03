@@ -24,7 +24,6 @@ package com.moviejukebox.plugin.poster;
 
 import com.moviejukebox.model.*;
 import com.moviejukebox.plugin.TheTvDBPlugin;
-import com.moviejukebox.plugin.TheTvDBPluginH;
 import com.moviejukebox.tools.*;
 import com.omertron.thetvdbapi.TheTVDBApi;
 import com.omertron.thetvdbapi.model.Banner;
@@ -45,7 +44,6 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private String language2nd;
     private TheTVDBApi tvDB;
     private static final String WEB_HOST = "thetvdb.com";
-    private boolean isHibernateEnabled = Boolean.FALSE;
 
     public TheTvDBPosterPlugin() {
         super();
@@ -68,10 +66,6 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         // We do not need use the same secondary language... So clearing when equal.
         if (language2nd.equalsIgnoreCase(language)) {
             language2nd = "";
-        }
-
-        if (PropertiesUtil.getProperty("mjb.internet.tv.plugin", "").endsWith("TheTvDBPluginH")) {
-            isHibernateEnabled = Boolean.TRUE;
         }
     }
 
@@ -135,13 +129,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             if (!(id.equals(Movie.UNKNOWN) || (id.equals("-1"))) || (id.equals("0"))) {
                 String urlNormal = null;
 
-                Banners banners;
-                // Ugly code for testing purposes
-                if (isHibernateEnabled) {
-                    banners = TheTvDBPluginH.getBanners(id);
-                } else {
-                    banners = TheTvDBPlugin.getBanners(id);
-                }
+                Banners banners = TheTvDBPlugin.getBanners(id);
 
                 if (!banners.getSeasonList().isEmpty()) {
                     // Trying to grab localized banners at first...
@@ -157,13 +145,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
                 }
 
                 if (urlNormal == null) {
-                    Series series;
-                    // Ugly code for testing purposes
-                    if (isHibernateEnabled) {
-                        series = TheTvDBPluginH.getSeries(id);
-                    } else {
-                        series = TheTvDBPlugin.getSeries(id);
-                    }
+                    Series series = TheTvDBPlugin.getSeries(id);
 
                     if (series != null && StringTools.isValidString(series.getPoster())) {
                         urlNormal = series.getPoster();
