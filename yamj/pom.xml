@@ -170,12 +170,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>4.1.9.Final</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.sanselan</groupId>
             <artifactId>sanselan</artifactId>
             <version>0.97-incubator</version>
@@ -269,10 +263,6 @@
             </plugin>
 
         </plugins>
-        <pluginManagement>
-            <plugins>
-            </plugins>
-        </pluginManagement>
     </build>
 
     <dependencyManagement>
