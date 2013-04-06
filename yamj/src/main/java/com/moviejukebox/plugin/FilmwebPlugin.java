@@ -180,7 +180,10 @@ public class FilmwebPlugin extends ImdbPlugin {
 
             if (OverrideTools.checkOverwriteRuntime(movie, FILMWEB_PLUGIN_ID)) {
                 String runtime = HTMLTools.getTextAfterElem(xml, "czas trwania:");
-                movie.setRuntime(String.valueOf(DateTimeTools.processRuntime(runtime)), FILMWEB_PLUGIN_ID);
+                int intRuntime = DateTimeTools.processRuntime(runtime);
+                if (intRuntime > 0 ) {
+                    movie.setRuntime(String.valueOf(intRuntime), FILMWEB_PLUGIN_ID);
+                }
             }
 
             if (OverrideTools.checkOverwriteCountry(movie, FILMWEB_PLUGIN_ID)) {
