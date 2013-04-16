@@ -274,7 +274,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                         tags = HTMLTools.extractHtmlTags(detailXml, "<i>Regie</i>", "</table>", "<tr", "</tr>");
                         List<String> directors = new ArrayList<String>();
                         for (String tag : tags)  {
-                            directors.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
+                            directors.add(extractName(tag));
                         }
                         
                         if (overrideNormal) {
@@ -293,7 +293,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                         tags = HTMLTools.extractHtmlTags(detailXml, "<i>Drehbuchautor(in)</i>", "</table>", "<tr", "</tr>");
                         List<String> writers = new ArrayList<String>();
                         for (String tag : tags)  {
-                            writers.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
+                            writers.add(extractName(tag));
                         }
 
                         if (overrideNormal) {
@@ -312,7 +312,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                         tags = HTMLTools.extractHtmlTags(detailXml, "<i>Darsteller</i>", "</table>", "<tr", "</tr>");
                         List<String> cast = new ArrayList<String>();
                         for (String tag : tags)  {
-                            cast.add(HTMLTools.removeHtmlTags(HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>")).trim());
+                            cast.add(extractName(tag));
                         }
                         
                         if (overrideNormal) {
@@ -330,6 +330,15 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             returnValue = Boolean.FALSE;
         }
         return returnValue;
+    }
+
+    private String extractName(String tag) {
+        String name = HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>");
+        int akaIndex = name.indexOf("als <i>");
+        if (akaIndex > 0) {
+            name = name.substring(0, akaIndex);
+        }
+        return HTMLTools.removeHtmlTags(name);
     }
 
     @Override
