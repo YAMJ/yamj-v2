@@ -431,6 +431,7 @@ public final class MovieNFOReader {
 
                 // Credits/Writer
                 parseWriters(eCommon.getElementsByTagName("writer"), movie);
+                parseWriters(eCommon.getElementsByTagName("credits"), movie);
 
                 // Actors
                 parseActors(eCommon.getElementsByTagName("actor"), movie);

@@ -55,12 +55,13 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2619 Fixed retrieval of Allocine episodes if no plot available
  - Enhancement  #2621 Use priority checks also for TV episodes
  - Fixed defect #2622 Fixed IMDb episode scanning
+ - Fixed defect #2624 Writer data not saved to NFO in XBMC format
  - Enhancement  #2625 Common usable search engine tools for finding movie IDs
  - Fixed defect #2626 Ignore empty actor thumb sections in NFO file
  - Fixed defect #2627 Respect movie.actor.maxCount in any case when parsing NFO file
  - Fixed defect #2629 Find correct filmweb url from Filmweb due layout change
  - Enhancement  #2630 Set a default language for audio codes with unknown language
- 
+
 MovieJukebox 2.8 2012-12-17)
 -----------------------------
  - Enhancement  #1461 Skipped subtitles will not be added
