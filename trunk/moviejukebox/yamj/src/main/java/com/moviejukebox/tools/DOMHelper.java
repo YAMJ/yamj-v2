@@ -59,6 +59,10 @@ public class DOMHelper {
     private static final String YES = "yes";
     private static final String TYPE_ROOT = "xml";
 
+    private DOMHelper() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     /**
      * Add a child element to a parent element
      *

@@ -314,6 +314,10 @@ public class HTMLTools {
         }
     }
 
+    private HTMLTools() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     public static String decodeHtml(String source) {
         if (null == source || 0 == source.length()) {
             return source;

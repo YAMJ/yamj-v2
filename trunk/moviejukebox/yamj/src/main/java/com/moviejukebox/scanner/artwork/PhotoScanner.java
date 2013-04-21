@@ -35,6 +35,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
@@ -48,25 +49,46 @@ public class PhotoScanner {
 
     private static final Logger logger = Logger.getLogger(PhotoScanner.class);
     private static final String LOG_MESSAGE = "PhotoScanner: ";
-    private static Collection<String> photoExtensions = new ArrayList<String>();
+    private static final Collection<String> photoExtensions = setPhotoExtensions(PropertiesUtil.getProperty("photo.scanner.photoExtensions", "jpg,jpeg,gif,bmp,png"));
     private static boolean photoOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", Boolean.FALSE);
     private static String skinHome = SkinProperties.getSkinHome();
-    private static String peopleFolder;
+    private static String peopleFolder = setPeopleFolder(PropertiesUtil.getProperty("mjb.people.folder", ""));
 
-    static {
-        // We get valid extensions
-        StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("photo.scanner.photoExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
+    private PhotoScanner() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
+    /**
+     * Get the list of valid extensions
+     *
+     * @param propertyExtensions
+     * @return
+     */
+    private static List<String> setPhotoExtensions(String propertyExtensions) {
+        List<String> extensions = new ArrayList<String>();
+        StringTokenizer st = new StringTokenizer(propertyExtensions, ",;| ");
+
         while (st.hasMoreTokens()) {
-            photoExtensions.add(st.nextToken());
+            extensions.add(st.nextToken());
         }
+        return extensions;
+    }
 
+    /**
+     * Set the people folder
+     *
+     * @param peopleFolder
+     * @return
+     */
+    private static String setPeopleFolder(String peopleFolder) {
+        String newPeopleFolder = peopleFolder;
         // Issue 1947: Cast enhancement - option to save all related files to a specific folder
-        peopleFolder = PropertiesUtil.getProperty("mjb.people.folder", "");
         if (StringTools.isNotValidString(peopleFolder)) {
-            peopleFolder = "";
+            newPeopleFolder = "";
         } else if (!peopleFolder.endsWith(File.separator)) {
-            peopleFolder += File.separator;
+            newPeopleFolder = peopleFolder + File.separator;
         }
+        return newPeopleFolder;
     }
 
     /**
@@ -79,7 +101,7 @@ public class PhotoScanner {
      */
     public static boolean scan(MovieImagePlugin imagePlugin, Jukebox jukebox, Person person) {
         String localPhotoBaseFilename = person.getFilename();
-        File localPhotoFile = null;
+        File localPhotoFile;
         boolean foundLocalPhoto = false;
 
         // Try searching the fileCache for the filename.
@@ -95,8 +117,7 @@ public class PhotoScanner {
     }
 
     /**
-     * Download the photo from the URL. Initially this is populated from TheTVDB
-     * plugin
+     * Download the photo from the URL. Initially this is populated from TheTVDB plugin
      *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
@@ -153,7 +174,5 @@ public class PhotoScanner {
                 }
             }
         }
-
-        return;
     }
 }

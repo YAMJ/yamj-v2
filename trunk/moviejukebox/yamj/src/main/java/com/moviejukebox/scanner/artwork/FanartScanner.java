@@ -126,6 +126,10 @@ public class FanartScanner {
         tvDB = new TheTVDBApi(PropertiesUtil.getProperty("API_KEY_TheTvDB"));
     }
 
+    private FanartScanner() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     /**
      * Get the Fanart URL for the movie from the source sites
      *

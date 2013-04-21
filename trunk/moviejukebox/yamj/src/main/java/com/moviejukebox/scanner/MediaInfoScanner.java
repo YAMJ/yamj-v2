@@ -44,7 +44,7 @@ import org.apache.log4j.Logger;
  */
 public class MediaInfoScanner {
 
-    private static final Logger logger = Logger.getLogger(MediaInfoScanner.class);
+    private static final Logger LOG = Logger.getLogger(MediaInfoScanner.class);
     private static final String LOG_MESSAGE = "MediaInfoScanner: ";
     private static final String MEDIAINFO_PLUGIN_ID = "mediainfo";
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
@@ -70,13 +70,13 @@ public class MediaInfoScanner {
     private String randomDirName;
     private static AspectRatioTools aspectTools = new AspectRatioTools();
     private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
-    private static String AUDIO_LANGUAGE_UNKNOWN = PropertiesUtil.getProperty("mjb.language.audio.unknown");
+    private static String audioLanguageUnknown = PropertiesUtil.getProperty("mjb.language.audio.unknown");
     private static final List<String> MI_DISK_IMAGES = new ArrayList<String>();
 
     static {
-        logger.debug("Operating System Name   : " + OS_NAME);
-        logger.debug("Operating System Version: " + OS_VERSION);
-        logger.debug("Operating System Type   : " + OS_ARCH);
+        LOG.debug("Operating System Name   : " + OS_NAME);
+        LOG.debug("Operating System Version: " + OS_VERSION);
+        LOG.debug("Operating System Type   : " + OS_ARCH);
 
         File checkMediainfo = findMediaInfo();
 
@@ -96,13 +96,13 @@ public class MediaInfoScanner {
         }
 
         if (!checkMediainfo.canExecute()) {
-            logger.info(LOG_MESSAGE + "Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
+            LOG.info(LOG_MESSAGE + "Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
             isActivated = Boolean.FALSE;
         } else {
             if (isMediaInfoRar) {
-                logger.info(LOG_MESSAGE + "MediaInfo-rar tool found, additional scanning functions enabled.");
+                LOG.info(LOG_MESSAGE + "MediaInfo-rar tool found, additional scanning functions enabled.");
             } else {
-                logger.info(LOG_MESSAGE + "MediaInfo tool will be used to extract video data. But not RAR and ISO formats");
+                LOG.info(LOG_MESSAGE + "MediaInfo tool will be used to extract video data. But not RAR and ISO formats");
             }
             isActivated = Boolean.TRUE;
         }
@@ -173,7 +173,7 @@ public class MediaInfoScanner {
         }
 
         if (mainFileIsNew) {
-            logger.debug(LOG_MESSAGE + "Main movie file has changed; rescan media info");
+            LOG.debug(LOG_MESSAGE + "Main movie file has changed; rescan media info");
             this.scan(currentMovie);
         }
     }
@@ -201,8 +201,8 @@ public class MediaInfoScanner {
             try {
                 abstractIsoFile = FileFactory.getFile(currentMovie.getFile().getAbsolutePath());
             } catch (Exception error) {
-                logger.debug(LOG_MESSAGE + "Error reading disk Image. Please re-rip and try again");
-                logger.info(error.getMessage());
+                LOG.debug(LOG_MESSAGE + "Error reading disk Image. Please re-rip and try again");
+                LOG.info(error.getMessage());
                 return;
             }
 
@@ -226,7 +226,7 @@ public class MediaInfoScanner {
                     }
                 }
             } catch (Exception error) {
-                logger.info(error.getMessage());
+                LOG.info(error.getMessage());
             } finally {
                 if (fosCurrentIFO != null) {
                     try {
@@ -255,7 +255,7 @@ public class MediaInfoScanner {
             FileTools.deleteDir(randomDirName);
         } else if (isActivated) {
             if (isMediaInfoRar && MI_DISK_IMAGES.contains(FilenameUtils.getExtension(currentMovie.getFile().getName()))) {
-                logger.debug(LOG_MESSAGE + "Using MediaInfo-rar to scan " + currentMovie.getFile().getName());
+                LOG.debug(LOG_MESSAGE + "Using MediaInfo-rar to scan " + currentMovie.getFile().getName());
             }
             scan(currentMovie, currentMovie.getFile().getAbsolutePath(), Boolean.TRUE);
         }
@@ -291,8 +291,8 @@ public class MediaInfoScanner {
 
             updateMovieInfo(currentMovie, infosGeneral, infosVideo, infosAudio, infosText, infosMultiPart);
         } catch (IOException ex) {
-            logger.warn(LOG_MESSAGE + "Failed reading mediainfo output for " + movieFilePath);
-            logger.error(SystemTools.getStackTrace(ex));
+            LOG.warn(LOG_MESSAGE + "Failed reading mediainfo output for " + movieFilePath);
+            LOG.error(SystemTools.getStackTrace(ex));
         } finally {
             if (is != null) {
                 try {
@@ -339,8 +339,8 @@ public class MediaInfoScanner {
                 infosMultiPart.put("MultiPart_Duration", String.valueOf(duration));
             }
         } catch (IOException ex) {
-            logger.warn(LOG_MESSAGE + "Failed reading mediainfo output for " + movieFilePath);
-            logger.error(SystemTools.getStackTrace(ex));
+            LOG.warn(LOG_MESSAGE + "Failed reading mediainfo output for " + movieFilePath);
+            LOG.error(SystemTools.getStackTrace(ex));
         } finally {
             if (is != null) {
                 try {
@@ -359,7 +359,7 @@ public class MediaInfoScanner {
             Collection<File> files = FileTools.fileCache.searchFilename(filename, Boolean.FALSE);
             if (files != null && files.size() > 0) {
                 // create new input stream for reading
-                logger.debug(LOG_MESSAGE + "Reading from file " + filename);
+                LOG.debug(LOG_MESSAGE + "Reading from file " + filename);
                 return new FileInputStream(files.iterator().next());
             }
         }
@@ -610,7 +610,7 @@ public class MediaInfoScanner {
                     try {
                         movie.setFps(Float.parseFloat(infoValue), MEDIAINFO_PLUGIN_ID);
                     } catch (NumberFormatException nfe) {
-                        logger.debug(nfe.getMessage());
+                        LOG.debug(nfe.getMessage());
                     }
                 }
             }
@@ -723,11 +723,11 @@ public class MediaInfoScanner {
                 }
                 movieLanguage.append(language);
             }
-            
+
             if (StringTools.isValidString(movieLanguage.toString())) {
                 movie.setLanguage(movieLanguage.toString(), MEDIAINFO_PLUGIN_ID);
-            } else if (StringTools.isValidString(AUDIO_LANGUAGE_UNKNOWN)) {
-                String determineLanguage = MovieFilenameScanner.determineLanguage(AUDIO_LANGUAGE_UNKNOWN);
+            } else if (StringTools.isValidString(audioLanguageUnknown)) {
+                String determineLanguage = MovieFilenameScanner.determineLanguage(audioLanguageUnknown);
                 movie.setLanguage(determineLanguage, MEDIAINFO_PLUGIN_ID);
             }
         }
@@ -776,7 +776,7 @@ public class MediaInfoScanner {
                         || infoFormat.equalsIgnoreCase("VobSub")) {
                     SubtitleTools.addMovieSubtitle(movie, infoLanguage);
                 } else {
-                    logger.debug(LOG_MESSAGE + "Subtitle format skipped: " + infoFormat);
+                    LOG.debug(LOG_MESSAGE + "Subtitle format skipped: " + infoFormat);
                 }
             }
         }
@@ -801,7 +801,7 @@ public class MediaInfoScanner {
             try {
                 return Integer.parseInt(runtimeValue);
             } catch (NumberFormatException nfe) {
-                logger.debug(nfe.getMessage());
+                LOG.debug(nfe.getMessage());
             }
         }
         return 0;
@@ -877,7 +877,7 @@ public class MediaInfoScanner {
             return null;
         }
 
-        logger.debug(LOG_MESSAGE + "mini-scan on " + movieFilePath);
+        LOG.debug(LOG_MESSAGE + "mini-scan on " + movieFilePath);
 
         try {
             // Create the command line
@@ -911,12 +911,12 @@ public class MediaInfoScanner {
             }
             input.close();
 
-            logger.debug(LOG_MESSAGE + "Returning with archivename " + mediaArchive);
+            LOG.debug(LOG_MESSAGE + "Returning with archivename " + mediaArchive);
 
             return mediaArchive;
 
         } catch (Exception error) {
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(SystemTools.getStackTrace(error));
         }
 
         return null;

@@ -44,6 +44,10 @@ public class GraphicTools {
     private static float quality;
     private static int jpegQuality;
 
+    private GraphicTools() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     /**
      * Load a JPG image from a filename
      *
@@ -291,8 +295,8 @@ public class GraphicTools {
     /**
      * Creates the reflection effect
      *
-     * graphicType should be "posters", "thumbnails" or "videoimage" and is used to determine the settings that are
-     * extracted from the skin.properties file.
+     * graphicType should be "posters", "thumbnails" or "videoimage" and is used to determine the settings that are extracted from
+     * the skin.properties file.
      *
      * @param avatar
      * @param graphicType
@@ -383,8 +387,8 @@ public class GraphicTools {
     /**
      * Creates the 3D effect
      *
-     * graphicType should be "posters", "thumbnails" or "videoimage" and is used to determine the settings that are
-     * extracted from the skin.properties file.
+     * graphicType should be "posters", "thumbnails" or "videoimage" and is used to determine the settings that are extracted from
+     * the skin.properties file.
      *
      * @param bi
      * @param graphicType

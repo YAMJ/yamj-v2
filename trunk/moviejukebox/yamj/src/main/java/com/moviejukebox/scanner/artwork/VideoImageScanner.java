@@ -67,6 +67,10 @@ public class VideoImageScanner {
         videoimageOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceVideoImagesOverwrite", Boolean.FALSE);
     }
 
+    private VideoImageScanner() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     /**
      * Try to locate a local video image and if that fails, download the image from the Internet.
      *

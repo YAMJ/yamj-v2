@@ -47,6 +47,10 @@ public final class SubtitleTools {
         }
     }
 
+    private SubtitleTools() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     /**
      * Set subtitles in the movie. Note: overrides the actual subtitles in movie.
      *

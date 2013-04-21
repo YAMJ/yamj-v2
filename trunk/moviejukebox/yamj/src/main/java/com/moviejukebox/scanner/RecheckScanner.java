@@ -66,6 +66,10 @@ public class RecheckScanner {
     private static final boolean INCLUDE_PEOPLE = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE);
     private static final EnumSet<ArtworkType> ARTWORK_REQUIRED = ArtworkScanner.getRequiredArtworkTypes();
 
+    private RecheckScanner() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     public static boolean scan(Movie movie) {
         if (!RECHECK_XML) {
             return false;

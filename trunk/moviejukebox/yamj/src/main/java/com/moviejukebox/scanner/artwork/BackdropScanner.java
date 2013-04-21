@@ -64,6 +64,10 @@ public class BackdropScanner {
         }
     }
 
+    private BackdropScanner() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     private static String getPeopleFolder() {
         // Issue 1947: Cast enhancement - option to save all related files to a specific folder
         String pFolder = PropertiesUtil.getProperty("mjb.people.folder", "");

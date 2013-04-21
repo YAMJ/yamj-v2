@@ -36,6 +36,10 @@ public class FileLocationChange {
     private static final Logger logger = Logger.getLogger(FileLocationChange.class);
     private static final String LOG_MESSAGE = "FileLocationChange: ";
 
+    private FileLocationChange() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     /**
      * Routine to check if a file has changed location
      *

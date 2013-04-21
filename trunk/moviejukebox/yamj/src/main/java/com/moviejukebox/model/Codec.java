@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class Codec {
 
-    private static String AUDIO_LANGUAGE_UNKNOWN = PropertiesUtil.getProperty("mjb.language.audio.unknown");
+    private static final String AUDIO_LANGUAGE_UNKNOWN = PropertiesUtil.getProperty("mjb.language.audio.unknown");
 
     /*
      * Properties

@@ -54,12 +54,12 @@ public class BannerScanner {
 
     private static final Logger logger = Logger.getLogger(BannerScanner.class);
     private static final String LOG_MESSAGE = "BannerScanner: ";
-    private static Collection<String> bannerExtensions = new ArrayList<String>();
+    private static final Collection<String> bannerExtensions = new ArrayList<String>();
     private static String bannerToken;
     private static String wideBannerToken;
     private static boolean bannerOverwrite;
     private static final boolean useFolderBanner;
-    private static Collection<String> bannerImageName;
+    private static final Collection<String> bannerImageName;
 
     static {
 
@@ -83,6 +83,10 @@ public class BannerScanner {
             }
         }
 
+    }
+
+    private BannerScanner() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
     }
 
     /**
@@ -158,7 +162,7 @@ public class BannerScanner {
         }
 
         // If we've found the banner, copy it to the jukebox, otherwise download it.
-        if (foundLocalBanner) {
+        if (foundLocalBanner && localBannerFile != null) {
             fullBannerFilename = localBannerFile.getAbsolutePath();
             logger.debug(LOG_MESSAGE + "File " + fullBannerFilename + " found");
 
@@ -218,8 +222,7 @@ public class BannerScanner {
     }
 
     /**
-     * Download the banner from the URL. Initially this is populated from
-     * TheTVDB plugin
+     * Download the banner from the URL. Initially this is populated from TheTVDB plugin
      *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
@@ -270,7 +273,5 @@ public class BannerScanner {
                 logger.debug(LOG_MESSAGE + "Banner exists for " + movie.getBaseFilename());
             }
         }
-
-        return;
     }
 }

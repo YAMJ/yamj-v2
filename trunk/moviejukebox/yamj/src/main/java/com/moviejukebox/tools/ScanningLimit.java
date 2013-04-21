@@ -17,9 +17,8 @@ import org.apache.log4j.Logger;
 /**
  * This class is used to limit the movies updated for each run of YAMJ.
  *
- * getToken must be called before checking a movie. On return true, the movie
- * can be checked. If movie is not updated, the token must be released with
- * releaseToken.
+ * getToken must be called before checking a movie. On return true, the movie can be checked. If movie is not updated, the token
+ * must be released with releaseToken.
  *
  * @author iuk
  */
@@ -30,6 +29,10 @@ public class ScanningLimit {
     private static final int CHECK_MAX = PropertiesUtil.getIntProperty("mjb.check.Max", 0);
     private static int tokensUsed = 0;
     private static boolean limitReached = Boolean.FALSE;
+
+    private ScanningLimit() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
 
     /**
      * Take a token from the pool

@@ -45,17 +45,16 @@ public class DatabasePluginController {
 
     private static final Logger LOGGER = Logger.getLogger(DatabasePluginController.class);
     public static final String TYPE_ALTERNATE = "ALTERNATE";
-
     private static boolean autoDetect = false;
     private static ArrayList<String> autoDetectList = new ArrayList<String>();
 
-    
+    private DatabasePluginController() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
     /**
-     * @author Gabriel Corneanu:
-     * Store the map in a thread local field to make it thread safe
+     * @author Gabriel Corneanu: Store the map in a thread local field to make it thread safe
      */
     private static ThreadLocal<Map<String, MovieDatabasePlugin>> pluginMap = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
-
         @Override
         protected Map<String, MovieDatabasePlugin> initialValue() {
             HashMap<String, MovieDatabasePlugin> movieDatabasePlugin = new HashMap<String, MovieDatabasePlugin>(2);
@@ -175,7 +174,7 @@ public class DatabasePluginController {
         }
     }
 
-    public static String getMovieDatabasePluginName(String movieType)  {
+    public static String getMovieDatabasePluginName(String movieType) {
         String pluginName = null;
         try {
             pluginName = pluginMap.get().get(movieType).getPluginID();

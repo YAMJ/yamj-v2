@@ -72,13 +72,13 @@ public class AttachmentScanner {
     private static final String MT_EXTRACT_FILENAME_WINDOWS = "mkvextract.exe";
     private static final String MT_EXTRACT_FILENAME_LINUX = "mkvextract";
     // flag to indicate if scanner is activated
-    private static boolean IS_ACTIVATED = Boolean.FALSE;
+    private static boolean isActivated = Boolean.FALSE;
     // temporary directory
-    private static File TEMP_DIRECTORY = null;
-    private static boolean TEMP_CLEANUP = PropertiesUtil.getBooleanProperty("attachment.temp.cleanup", Boolean.TRUE);
+    private static File tempDirectory = null;
+    private static boolean tempCleanup = PropertiesUtil.getBooleanProperty("attachment.temp.cleanup", Boolean.TRUE);
     // enable/disable some checks
-    private static boolean RECHECK_ENABLED = PropertiesUtil.getBooleanProperty("attachment.recheck.enable", Boolean.TRUE);
-    private static boolean INCLUDE_VIDEOIMAGES = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
+    private static boolean recheckEnabled = PropertiesUtil.getBooleanProperty("attachment.recheck.enable", Boolean.TRUE);
+    private static boolean includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
     // the operating system name
     public static final String OS_NAME = System.getProperty("os.name");
     // properties for NFO handling
@@ -146,16 +146,16 @@ public class AttachmentScanner {
 
             if (!checkMkvInfo.canExecute()) {
                 LOGGER.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvinfo'");
-                IS_ACTIVATED = Boolean.FALSE;
+                isActivated = Boolean.FALSE;
             } else if (!checkMkvExtract.canExecute()) {
                 LOGGER.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvextract'");
-                IS_ACTIVATED = Boolean.FALSE;
+                isActivated = Boolean.FALSE;
             } else {
                 LOGGER.info(LOG_MESSAGE + "MkvToolnix will be used to extract matroska attachments");
-                IS_ACTIVATED = Boolean.TRUE;
+                isActivated = Boolean.TRUE;
             }
 
-            if (IS_ACTIVATED) {
+            if (isActivated) {
                 // just create temporary directories if MkvToolnix is activated
                 try {
                     String tempLocation = PropertiesUtil.getProperty("attachment.temp.directory", "");
@@ -165,7 +165,7 @@ public class AttachmentScanner {
 
                     File tempFile = new File(FileTools.getCanonicalPath(tempLocation));
                     if (tempFile.exists()) {
-                        TEMP_DIRECTORY = tempFile;
+                        tempDirectory = tempFile;
                     } else {
                         LOGGER.debug(LOG_MESSAGE + "Creating temporary attachment location: (" + tempLocation + ")");
                         boolean status = tempFile.mkdirs();
@@ -178,19 +178,19 @@ public class AttachmentScanner {
                         if (status && i > 10) {
                             LOGGER.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: (" + tempLocation + ")");
                             // scanner will not be active without temporary directory
-                            IS_ACTIVATED = Boolean.FALSE;
+                            isActivated = Boolean.FALSE;
                         } else {
-                            TEMP_DIRECTORY = tempFile;
+                            tempDirectory = tempFile;
                         }
                     }
                 } catch (Exception ex) {
                     LOGGER.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: " + ex.getMessage());
                     // scanner will not be active without temporary directory
-                    IS_ACTIVATED = Boolean.FALSE;
+                    isActivated = Boolean.FALSE;
                 }
             }
         } else {
-            IS_ACTIVATED = Boolean.FALSE;
+            isActivated = Boolean.FALSE;
         }
     }
 
@@ -223,7 +223,7 @@ public class AttachmentScanner {
      * @param movie
      */
     public static void scan(Movie movie) {
-        if (!IS_ACTIVATED) {
+        if (!isActivated) {
             return;
         } else if (!Movie.TYPE_FILE.equalsIgnoreCase(movie.getFormatType())) {
             // movie to scan must have file format
@@ -246,9 +246,9 @@ public class AttachmentScanner {
      * been found, else false
      */
     public static boolean rescan(Movie movie, File xmlFile) {
-        if (!IS_ACTIVATED) {
+        if (!isActivated) {
             return Boolean.FALSE;
-        } else if (!RECHECK_ENABLED) {
+        } else if (!recheckEnabled) {
             return Boolean.FALSE;
         } else if (!Movie.TYPE_FILE.equalsIgnoreCase(movie.getFormatType())) {
             // movie the scan must be a file
@@ -273,7 +273,7 @@ public class AttachmentScanner {
                         movie.setDirty(DirtyFlag.NFO);
                     } else if (ContentType.VIDEOIMAGE == attachment.getContentType()) {
                         // Only check if videoimages are needed
-                        if (movie.isTVShow() && INCLUDE_VIDEOIMAGES) {
+                        if (movie.isTVShow() && includeVideoImages) {
                             returnValue = Boolean.TRUE;
                             // no need for dirty flag
                         }
@@ -545,7 +545,7 @@ public class AttachmentScanner {
     }
 
     public static void addAttachedNfo(Movie movie, List<File> nfoFiles) {
-        if (!IS_ACTIVATED) {
+        if (!isActivated) {
             return;
         } else if (!nfoFiles.isEmpty()) {
             // only use attached NFO if there are no locale NFOs
@@ -615,7 +615,7 @@ public class AttachmentScanner {
     }
 
     public static File extractAttachedFanart(Movie movie) {
-        if (!IS_ACTIVATED) {
+        if (!isActivated) {
             return null;
         } else if (!Movie.TYPE_FILE.equalsIgnoreCase(movie.getFormatType())) {
             return null;
@@ -643,7 +643,7 @@ public class AttachmentScanner {
     }
 
     public static File extractAttachedPoster(Movie movie) {
-        if (!IS_ACTIVATED) {
+        if (!isActivated) {
             return null;
         } else if (!Movie.TYPE_FILE.equalsIgnoreCase(movie.getFormatType())) {
             return null;
@@ -671,7 +671,7 @@ public class AttachmentScanner {
     }
 
     public static File extractAttachedBanner(Movie movie) {
-        if (!IS_ACTIVATED) {
+        if (!isActivated) {
             return null;
         } else if (!Movie.TYPE_FILE.equalsIgnoreCase(movie.getFormatType())) {
             return null;
@@ -699,7 +699,7 @@ public class AttachmentScanner {
     }
 
     public static File extractAttachedVideoimage(Movie movie, int part) {
-        if (!IS_ACTIVATED) {
+        if (!isActivated) {
             return null;
         } else if (!Movie.TYPE_FILE.equalsIgnoreCase(movie.getFormatType())) {
             return null;
@@ -824,7 +824,7 @@ public class AttachmentScanner {
 
         // build return file name
         StringBuffer returnFileName = new StringBuffer();
-        returnFileName.append(TEMP_DIRECTORY.getAbsolutePath());
+        returnFileName.append(tempDirectory.getAbsolutePath());
         returnFileName.append(File.separatorChar);
         returnFileName.append(FilenameUtils.removeExtension(sourceFile.getName()));
         // add attachment id so the extracted file becomes unique per movie file
@@ -896,8 +896,8 @@ public class AttachmentScanner {
      * Clean up the temporary directory for attachments
      */
     public static void cleanUp() {
-        if (IS_ACTIVATED && TEMP_CLEANUP && (TEMP_DIRECTORY != null) && TEMP_DIRECTORY.exists()) {
-            FileTools.deleteDir(TEMP_DIRECTORY);
+        if (isActivated && tempCleanup && (tempDirectory != null) && tempDirectory.exists()) {
+            FileTools.deleteDir(tempDirectory);
         }
     }
 }
