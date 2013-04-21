@@ -38,10 +38,10 @@ public class MovieListingPluginBase implements MovieListingPlugin {
 
     private static final Logger logger = Logger.getLogger(MovieListingPluginBase.class);
     private static final String LOG_MESSAGE = "MovieListingPluginBase: ";
-    protected static final String UNDEFINED = "UNDEFINED";
-    protected boolean groupByType = true;
-    protected boolean blankUNKNOWN = true;
-    protected String baseFilename = "";
+    private static final String UNDEFINED = "UNDEFINED";
+    private boolean groupByType = Boolean.TRUE;
+    private boolean blankUNKNOWN = Boolean.TRUE;
+    private String baseFilename = "";
     private String destination = "";
 
     /**
@@ -53,6 +53,26 @@ public class MovieListingPluginBase implements MovieListingPlugin {
         baseFilename = PropertiesUtil.getProperty("mjb.listing.output.filename", "MovieJukebox-listing");
         destination = PropertiesUtil.getProperty("mjb.listing.output.destination", jukebox.getJukeboxRootLocation());
     } // initialize()
+
+    public boolean isGroupByType() {
+        return groupByType;
+    }
+
+    public boolean isBlankUnknown() {
+        return blankUNKNOWN;
+    }
+
+    public String getBaseFilename() {
+        return baseFilename;
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public static String getUndefined() {
+        return UNDEFINED;
+    }
 
     /**
      * @return ArrayList of selected movie types, possibly from .properties file
