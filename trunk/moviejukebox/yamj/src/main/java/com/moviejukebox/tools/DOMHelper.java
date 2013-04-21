@@ -23,7 +23,6 @@
 package com.moviejukebox.tools;
 
 import com.moviejukebox.reader.MovieNFOReader;
-import com.moviejukebox.scanner.MovieNFOScanner;
 import java.io.*;
 import java.net.URL;
 import java.util.Map;
@@ -53,7 +52,7 @@ import org.xml.sax.SAXParseException;
  */
 public class DOMHelper {
 
-    private static final Logger logger = Logger.getLogger(DOMHelper.class);
+    private static final Logger LOG = Logger.getLogger(DOMHelper.class);
     private static final String LOG_MESSAGE = "DOMHelper: ";
     private static final String DEFAULT_RETURN = "";
     private static final String YES = "yes";
@@ -285,8 +284,8 @@ public class DOMHelper {
             trans.transform(new DOMSource(doc), new StreamResult(localFile));
             return true;
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Error writing the document to " + localFile);
-            logger.error(LOG_MESSAGE + "Message: " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Error writing the document to " + localFile);
+            LOG.error(LOG_MESSAGE + "Message: " + error.getMessage());
             return false;
         }
     }
