@@ -32,20 +32,24 @@ import org.apache.log4j.Logger;
 
 public class SqlTools {
 
-    private static final Logger logger = Logger.getLogger(SqlTools.class);
+    private static final Logger LOG = Logger.getLogger(SqlTools.class);
     private static final String LOG_MESSAGE = "SqlTools: ";
     private static Connection connection = null;
     private static String INSERT_VIDEO = "insert into VIDEO (TITLE, POSTER, PATH) values (?, ?, ?)";
+
+    private SqlTools() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
 
     static {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ExceptionInInitializerError error) {
-            logger.error(LOG_MESSAGE + "Error getting database driver: " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Error getting database driver: " + error.getMessage());
         } catch (LinkageError error) {
-            logger.error(LOG_MESSAGE + "Error getting database driver: " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Error getting database driver: " + error.getMessage());
         } catch (ClassNotFoundException error) {
-            logger.error(LOG_MESSAGE + "Error getting database driver: " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Error getting database driver: " + error.getMessage());
         }
     }
 
@@ -55,9 +59,9 @@ public class SqlTools {
             connection.setAutoCommit(false);
             createTables();
             connection.commit();
-            logger.info(LOG_MESSAGE + "Opened database - " + databaseName);
+            LOG.info(LOG_MESSAGE + "Opened database - " + databaseName);
         } catch (SQLException error) {
-            logger.error(LOG_MESSAGE + "Error opening database: " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Error opening database: " + error.getMessage());
         }
     }
 
@@ -65,10 +69,10 @@ public class SqlTools {
         try {
             if (connection != null) {
                 connection.close();
-                logger.info(LOG_MESSAGE + "Closed database - " + connection.getCatalog());
+                LOG.info(LOG_MESSAGE + "Closed database - " + connection.getCatalog());
             }
         } catch (SQLException error) {
-            logger.error(LOG_MESSAGE + "Error closing database: " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Error closing database: " + error.getMessage());
         }
     }
 
@@ -94,14 +98,14 @@ public class SqlTools {
             stmt.executeBatch();
 
         } catch (SQLException error) {
-            logger.error(LOG_MESSAGE + "Error creating tables: " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Error creating tables: " + error.getMessage());
         } finally {
             try {
                 if (stmt != null) {
                     stmt.close();
                 }
             } catch (SQLException ex) {
-                logger.debug(LOG_MESSAGE + "Failed to close database resource: " + ex.getMessage());
+                LOG.debug(LOG_MESSAGE + "Failed to close database resource: " + ex.getMessage());
             }
         }
     }
@@ -136,7 +140,7 @@ public class SqlTools {
                     stmt.close();
                 }
             } catch (SQLException ex) {
-                logger.debug(LOG_MESSAGE + "Failed to close database resource: " + ex.getMessage());
+                LOG.debug(LOG_MESSAGE + "Failed to close database resource: " + ex.getMessage());
             }
         }
 
@@ -153,14 +157,14 @@ public class SqlTools {
             pstmt.executeUpdate();
             connection.commit();
         } catch (SQLException error) {
-            logger.error(LOG_MESSAGE + "Error inserting into VIDEO table: " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Error inserting into VIDEO table: " + error.getMessage());
         } finally {
             try {
                 if (pstmt != null) {
                     pstmt.close();
                 }
             } catch (SQLException ex) {
-                logger.debug(LOG_MESSAGE + "Failed to close database resource: " + ex.getMessage());
+                LOG.debug(LOG_MESSAGE + "Failed to close database resource: " + ex.getMessage());
             }
         }
     }

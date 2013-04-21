@@ -130,6 +130,10 @@ public class PosterScanner {
 
     }
 
+    private PosterScanner() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     public static String scan(Jukebox jukebox, Movie movie) {
         if (SEARCH_FOR_EXISTING_POSTER.equalsIgnoreCase(EXISTING_NO)) {
             // nothing to do we return
@@ -179,11 +183,9 @@ public class PosterScanner {
         }
 
         /**
-         * This part will look for a filename with the same name as the
-         * directory for the poster or for folder.* poster The intention is for
-         * you to be able to create the season / TV series art for the whole
-         * series and not for the first show. Useful if you change the files
-         * regularly.
+         * This part will look for a filename with the same name as the directory for the poster or for folder.* poster The
+         * intention is for you to be able to create the season / TV series art for the whole series and not for the first show.
+         * Useful if you change the files regularly.
          *
          * @author Stuart.Boston
          * @version 1.0
@@ -299,12 +301,11 @@ public class PosterScanner {
     }
 
     /**
-     * Locate the PosterURL from the Internet. This is the main method and
-     * should be called instead of the individual getPosterFrom* methods.
+     * Locate the PosterURL from the Internet. This is the main method and should be called instead of the individual getPosterFrom*
+     * methods.
      *
      * @param movie The movieBean to search for
-     * @return The posterImage with poster url that was found (Maybe
-     * Image.UNKNOWN)
+     * @return The posterImage with poster url that was found (Maybe Image.UNKNOWN)
      */
     public static IImage getPosterURL(Movie movie) {
         String posterSearchToken;
@@ -434,11 +435,10 @@ public class PosterScanner {
     /**
      * Read an URL and get the dimensions of the image.
      *
-     * This will try to determine the image type from the URL, if that fails
-     * then it will default to JPEG.
+     * This will try to determine the image type from the URL, if that fails then it will default to JPEG.
      *
-     * If the reading of the image fails, then the other type (PNG or JPEG) will
-     * be used instead in case there was an incorrectly named extension
+     * If the reading of the image fails, then the other type (PNG or JPEG) will be used instead in case there was an incorrectly
+     * named extension
      *
      * @param imageUrl
      * @return
@@ -465,8 +465,7 @@ public class PosterScanner {
     }
 
     /**
-     * Read an URL and get the dimensions of the image using a specific image
-     * type
+     * Read an URL and get the dimensions of the image using a specific image type
      *
      * @param imageUrl
      * @param imageType

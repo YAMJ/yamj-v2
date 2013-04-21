@@ -217,6 +217,10 @@ public class JukeboxProperties {
         propInfo.add(new PropertyInformation("indexing.sort.year.asc", EnumSet.of(Index)));
     }
 
+    private JukeboxProperties() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     /**
      * Check to see if the file needs to be processed (if it exists) or just created Note: This *MIGHT* cause issues with some
      * programs that assume all XML files in the jukebox folder are videos or indexes. However, they should just deal with this

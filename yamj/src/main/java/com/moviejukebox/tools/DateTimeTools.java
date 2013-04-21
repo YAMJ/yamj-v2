@@ -35,6 +35,10 @@ public class DateTimeTools {
     private static final String DATE_FORMAT_STRING = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
     private static final String DATE_FORMAT_LONG_STRING = DATE_FORMAT_STRING + " HH:mm:ss";
 
+    private DateTimeTools() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     public static String getDateFormatString() {
         return DATE_FORMAT_STRING;
     }
@@ -119,8 +123,7 @@ public class DateTimeTools {
     }
 
     /**
-     * Take a string runtime in various formats and try to output this in
-     * minutes
+     * Take a string runtime in various formats and try to output this in minutes
      *
      * @param runtime
      * @return

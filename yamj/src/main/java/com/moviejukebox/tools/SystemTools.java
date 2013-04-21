@@ -38,6 +38,10 @@ public class SystemTools {
     private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", Boolean.FALSE);
     private static final long cacheOff = (PropertiesUtil.getLongProperty("mjb.cacheOffSize", 50) * 1024L * 1024L);
 
+    private SystemTools() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     /**
      * Show the memory available to the program and optionally try to force a
      * garbage collection

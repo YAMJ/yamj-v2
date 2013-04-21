@@ -36,14 +36,14 @@ import org.apache.log4j.spi.LoggingEvent;
  *
  */
 public class FilteringLayout extends PatternLayout {
-    private static Pattern API_KEYS = Pattern.compile("DO_NOT_MATCH");
+    private static Pattern apiKeys = Pattern.compile("DO_NOT_MATCH");
 
     @Override
     public String format(LoggingEvent event) {
         if (event.getMessage() instanceof String) {
             String message = event.getRenderedMessage();
 
-            Matcher matcher = API_KEYS.matcher(message);
+            Matcher matcher = apiKeys.matcher(message);
             if (matcher.find()) {
                 String maskedMessage = matcher.replaceAll("[APIKEY]");
 
@@ -75,8 +75,6 @@ public class FilteringLayout extends PatternLayout {
         if (apis.length() > 0) {
             apis.deleteCharAt(0);   // Remove the first "|"
         }
-        API_KEYS = Pattern.compile(apis.toString());
-
-        return;
+        apiKeys = Pattern.compile(apis.toString());
     }
 }

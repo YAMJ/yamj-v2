@@ -41,8 +41,11 @@ public class PropertiesUtil {
     private static final String PREFERENCES_FILENAME = "preferences.xsl";
     public static final String TRUE = "true";
     public static final String FALSE = "false";
-
     private static Properties props = new Properties();
+
+    private PropertiesUtil() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
 
     public static boolean setPropertiesStreamName(String streamName) {
         return setPropertiesStreamName(streamName, Boolean.TRUE);
@@ -123,7 +126,8 @@ public class PropertiesUtil {
         if (property != null) {
             try {
                 return Integer.parseInt(property.trim());
-            } catch (NumberFormatException nfe) {}
+            } catch (NumberFormatException nfe) {
+            }
         }
         return defaultValue;
     }
@@ -140,7 +144,8 @@ public class PropertiesUtil {
         if (property != null) {
             try {
                 return Long.parseLong(property.trim());
-            } catch (NumberFormatException nfe) {}
+            } catch (NumberFormatException nfe) {
+            }
         }
         return defaultValue;
     }
@@ -157,7 +162,8 @@ public class PropertiesUtil {
         if (property != null) {
             try {
                 return Float.parseFloat(property.trim());
-            } catch (NumberFormatException nfe) {}
+            } catch (NumberFormatException nfe) {
+            }
         }
         return defaultValue;
     }
@@ -195,7 +201,8 @@ public class PropertiesUtil {
         if (property != null) {
             try {
                 return Integer.parseInt(property.trim());
-            } catch (NumberFormatException nfe) {}
+            } catch (NumberFormatException nfe) {
+            }
         }
         return defaultValue;
     }
@@ -210,7 +217,8 @@ public class PropertiesUtil {
         if (property != null) {
             try {
                 return Long.parseLong(property.trim());
-            } catch (NumberFormatException nfe) {}
+            } catch (NumberFormatException nfe) {
+            }
         }
         return defaultValue;
     }
@@ -225,7 +233,8 @@ public class PropertiesUtil {
         if (property != null) {
             try {
                 return Float.parseFloat(property.trim());
-            } catch (NumberFormatException nfe) {}
+            } catch (NumberFormatException nfe) {
+            }
         }
         return defaultValue;
     }
@@ -267,8 +276,8 @@ public class PropertiesUtil {
     }
 
     /**
-     * Collect keywords list and appropriate keyword values. Example:
-     * my.languages = EN,FR my.languages.EN = English my.languages.FR = French
+     * Collect keywords list and appropriate keyword values. Example: my.languages = EN,FR my.languages.EN = English my.languages.FR
+     * = French
      *
      * @param prefix Key for keywords list and prefix for value searching.
      * @return Ordered keyword list and map.

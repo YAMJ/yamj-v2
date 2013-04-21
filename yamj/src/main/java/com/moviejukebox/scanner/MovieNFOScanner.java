@@ -91,8 +91,8 @@ public class MovieNFOScanner {
         DateTimeConfig.globalEuropeanDateFormat();
     }
 
-    private void MovieNFOScanner() {
-        throw new RuntimeException("Class cannot be instantiated");
+    private MovieNFOScanner() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
     }
 
     /**

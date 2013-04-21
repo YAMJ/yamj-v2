@@ -43,8 +43,8 @@ public class CacheMemory {
     private static final Logger logger = Logger.getLogger(CacheMemory.class);
     private static boolean cacheEnabled = initCacheState();
 
-    public CacheMemory() {
-        throw new IllegalArgumentException("Class cannot be initalised!");
+    private CacheMemory() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
     }
 
     /**

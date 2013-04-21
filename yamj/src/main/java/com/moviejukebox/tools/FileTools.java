@@ -141,6 +141,10 @@ public class FileTools {
         }
     }
 
+    private FileTools() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     public static int copy(InputStream is, OutputStream os) throws IOException {
         int bytesCopied = 0;
         byte[] buffer = THREAD_BUFFER.get();

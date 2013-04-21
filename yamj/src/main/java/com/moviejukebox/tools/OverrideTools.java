@@ -40,7 +40,7 @@ import org.apache.log4j.Logger;
  */
 public final class OverrideTools {
 
-    private static final Logger LOGGER = Logger.getLogger(OverrideTools.class);
+    private static final Logger LOG = Logger.getLogger(OverrideTools.class);
     private static final String LOG_MESSAGE = "OverrideTools: ";
     private static final Map<OverrideFlag, List<String>> MOVIE_PRIORITIES_MAP = new EnumMap<OverrideFlag, List<String>>(OverrideFlag.class);
     private static final Map<OverrideFlag, List<String>> TV_PRIORITIES_MAP = new EnumMap<OverrideFlag, List<String>>(OverrideFlag.class);
@@ -211,7 +211,11 @@ public final class OverrideTools {
         // episode title
         sources = PropertiesUtil.getProperty("priority.tv.episode.title", "nfo,filename,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.EPISODE_TITLE, sources);
-}
+    }
+
+    private OverrideTools() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
 
     /**
      * Put movie priorities into map.
@@ -244,8 +248,8 @@ public final class OverrideTools {
             priorities.remove(TYPE_PLUGIN);
             priorities.remove(TYPE_ALTERNATE);
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(LOG_MESSAGE + overrideFlag.name() + " (Movie) priorities " + priorities.toString().toLowerCase());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(LOG_MESSAGE + overrideFlag.name() + " (Movie) priorities " + priorities.toString().toLowerCase());
             }
         }
         MOVIE_PRIORITIES_MAP.put(overrideFlag, priorities);
@@ -255,34 +259,34 @@ public final class OverrideTools {
      * Put movie priorities into map.
      *
      * @param overrideFlag
-     * @param sources
+     * @param newSources
      */
     private static void putTvPriorities(OverrideFlag overrideFlag, String sources) {
         List<String> priorities;
         if (StringUtils.isBlank(sources)) {
             priorities = Collections.emptyList();
         } else {
-            sources = sources.toUpperCase();
-            if (sources.contains(TYPE_PLUGIN) && !sources.contains(TVSHOW_PLUGIN)) {
+            String newSources = sources.toUpperCase();
+            if (newSources.contains(TYPE_PLUGIN) && !newSources.contains(TVSHOW_PLUGIN)) {
                 // replace pattern with database plugin
-                sources = sources.replace(TYPE_PLUGIN, TVSHOW_PLUGIN);
+                newSources = newSources.replace(TYPE_PLUGIN, TVSHOW_PLUGIN);
             }
-            if (sources.contains(TYPE_ALTERNATE)) {
-                if (StringTools.isValidString(ALTERNATE_PLUGIN) && !sources.contains(ALTERNATE_PLUGIN)) {
+            if (newSources.contains(TYPE_ALTERNATE)) {
+                if (StringTools.isValidString(ALTERNATE_PLUGIN) && !newSources.contains(ALTERNATE_PLUGIN)) {
                     // replace pattern with alternate plugin
-                    sources = sources.replace(TYPE_ALTERNATE, ALTERNATE_PLUGIN);
-                } else if (!sources.contains(IMDB_PLUGIN)) {
+                    newSources = newSources.replace(TYPE_ALTERNATE, ALTERNATE_PLUGIN);
+                } else if (!newSources.contains(IMDB_PLUGIN)) {
                     // cause: most plugins extend the IMDB plugin
-                    sources = sources.replace(TYPE_ALTERNATE, IMDB_PLUGIN);
+                    newSources = newSources.replace(TYPE_ALTERNATE, IMDB_PLUGIN);
                 }
             }
 
-            priorities = new ArrayList<String>(Arrays.asList(sources.split(",")));
+            priorities = new ArrayList<String>(Arrays.asList(newSources.split(",")));
             priorities.remove(TYPE_PLUGIN);
             priorities.remove(TYPE_ALTERNATE);
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(LOG_MESSAGE + overrideFlag.name() + " (TV) priorities " + priorities.toString().toLowerCase());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(LOG_MESSAGE + overrideFlag.name() + " (TV) priorities " + priorities.toString().toLowerCase());
             }
         }
         TV_PRIORITIES_MAP.put(overrideFlag, priorities);
@@ -662,7 +666,6 @@ public final class OverrideTools {
     }
 
     // extra for people scraping
-
     public static boolean checkOverwritePeopleActors(Movie movie, String source) {
         if (skipCheck(movie, OverrideFlag.PEOPLE_ACTORS, source)) {
             // skip the check
@@ -703,7 +706,6 @@ public final class OverrideTools {
     }
 
     // extra for TV episodes
-
     public static boolean checkOverwriteEpisodeFirstAired(MovieFile movieFile, int part, String source) {
         if (skipCheck(movieFile, OverrideFlag.EPISODE_FIRST_AIRED, source)) {
             // skip the check
