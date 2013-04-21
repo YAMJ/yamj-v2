@@ -272,11 +272,10 @@ public class AttachmentScanner {
                         returnValue = Boolean.TRUE;
                         movie.setDirty(DirtyFlag.NFO);
                     } else if (ContentType.VIDEOIMAGE == attachment.getContentType()) {
+                        // Only check if videoimages are needed
                         if (movie.isTVShow() && INCLUDE_VIDEOIMAGES) {
                             returnValue = Boolean.TRUE;
                             // no need for dirty flag
-                        } else {
-                            // no need for video images
                         }
                     } else if (firstMovieFile) {
                         // all other images are only relevant for first movie
