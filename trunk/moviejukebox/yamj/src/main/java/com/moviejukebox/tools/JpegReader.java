@@ -49,8 +49,7 @@ import org.apache.sanselan.formats.jpeg.segments.UnknownSegment;
 /**
  * Custom reader to detect the various forms of the JPEG file.
  *
- * Taken from
- * http://stackoverflow.com/questions/3123574/how-to-convert-from-cmyk-to-rgb-in-java-correctly/12132630#12132630
+ * Taken from http://stackoverflow.com/questions/3123574/how-to-convert-from-cmyk-to-rgb-in-java-correctly/12132630#12132630
  *
  * @author stuart.boston
  */
@@ -65,8 +64,7 @@ public class JpegReader {
     private boolean hasAdobeMarker = Boolean.FALSE;
 
     /**
-     * Used to read a JPEG image to a BufferedImage and able to cope with a CYMK
-     * colour space image
+     * Used to read a JPEG image to a BufferedImage and able to cope with a CYMK colour space image
      *
      * @param file
      * @return
@@ -218,10 +216,14 @@ public class JpegReader {
     }
 
     private static BufferedImage convertCmykToRgb(Raster cmykRaster, ICC_Profile cmykProfile) throws IOException {
+        ICC_Profile profile;
+
         if (cmykProfile == null) {
-            cmykProfile = ICC_Profile.getInstance(JpegReader.class.getResourceAsStream("/properties/Generic CMYK Profile.icc"));
+            profile = ICC_Profile.getInstance(JpegReader.class.getResourceAsStream("/properties/Generic CMYK Profile.icc"));
+        } else {
+            profile = cmykProfile;
         }
-        ICC_ColorSpace cmykCS = new ICC_ColorSpace(cmykProfile);
+        ICC_ColorSpace cmykCS = new ICC_ColorSpace(profile);
         BufferedImage rgbImage = new BufferedImage(cmykRaster.getWidth(), cmykRaster.getHeight(), BufferedImage.TYPE_INT_RGB);
         WritableRaster rgbRaster = rgbImage.getRaster();
         ColorSpace rgbCS = rgbImage.getColorModel().getColorSpace();

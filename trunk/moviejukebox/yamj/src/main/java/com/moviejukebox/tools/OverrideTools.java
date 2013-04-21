@@ -178,7 +178,7 @@ public final class OverrideTools {
         putMoviePriorities(OverrideFlag.YEAR, sources);
         sources = PropertiesUtil.getProperty("priority.tv.year", "nfo,PLUGIN,ALTERNATE,filename");
         putTvPriorities(OverrideFlag.YEAR, sources);
-        
+
         // EXTRA properties for people scraping (filmography)
 
         // actors
@@ -198,7 +198,7 @@ public final class OverrideTools {
         putTvPriorities(OverrideFlag.PEOPLE_WRITERS, sources);
 
         // EXTRA properties for episodes
-        
+
         // episode first aired
         sources = PropertiesUtil.getProperty("priority.tv.episode.firstaired", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.EPISODE_FIRST_AIRED, sources);
@@ -224,22 +224,23 @@ public final class OverrideTools {
         if (StringUtils.isBlank(sources)) {
             priorities = Collections.emptyList();
         } else {
-            sources = sources.toUpperCase();
-            if (sources.contains(TYPE_PLUGIN) && !sources.contains(MOVIE_PLUGIN)) {
+            String newSources = sources.toUpperCase();
+            if (newSources.contains(TYPE_PLUGIN) && !newSources.contains(MOVIE_PLUGIN)) {
                 // replace pattern with database plugin
-                sources = sources.replace(TYPE_PLUGIN, MOVIE_PLUGIN);
+                newSources = newSources.replace(TYPE_PLUGIN, MOVIE_PLUGIN);
             }
-            if (sources.contains(TYPE_ALTERNATE)) {
-                if (StringTools.isValidString(ALTERNATE_PLUGIN) && !sources.contains(ALTERNATE_PLUGIN)) {
+
+            if (newSources.contains(TYPE_ALTERNATE)) {
+                if (StringTools.isValidString(ALTERNATE_PLUGIN) && !newSources.contains(ALTERNATE_PLUGIN)) {
                     // replace pattern with alternate plugin
-                    sources = sources.replace(TYPE_ALTERNATE, ALTERNATE_PLUGIN);
-                } else if (!sources.contains(IMDB_PLUGIN)) {
+                    newSources = newSources.replace(TYPE_ALTERNATE, ALTERNATE_PLUGIN);
+                } else if (!newSources.contains(IMDB_PLUGIN)) {
                     // cause: most plugins extend the IMDB plugin
-                    sources = sources.replace(TYPE_ALTERNATE, IMDB_PLUGIN);
+                    newSources = newSources.replace(TYPE_ALTERNATE, IMDB_PLUGIN);
                 }
             }
 
-            priorities = new ArrayList<String>(Arrays.asList(sources.split(",")));
+            priorities = new ArrayList<String>(Arrays.asList(newSources.split(",")));
             priorities.remove(TYPE_PLUGIN);
             priorities.remove(TYPE_ALTERNATE);
 
@@ -661,7 +662,7 @@ public final class OverrideTools {
     }
 
     // extra for people scraping
-    
+
     public static boolean checkOverwritePeopleActors(Movie movie, String source) {
         if (skipCheck(movie, OverrideFlag.PEOPLE_ACTORS, source)) {
             // skip the check
