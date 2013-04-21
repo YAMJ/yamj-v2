@@ -45,7 +45,7 @@ public class PropertiesUtil {
     private static Properties props = new Properties();
 
     public static boolean setPropertiesStreamName(String streamName) {
-        return setPropertiesStreamName(streamName, true);
+        return setPropertiesStreamName(streamName, Boolean.TRUE);
     }
 
     public static boolean setPropertiesStreamName(String streamName, boolean warnFatal) {
@@ -67,7 +67,7 @@ public class PropertiesUtil {
             } else {
                 LOG.debug("Warning (non-fatal): User properties file '" + streamName + "', not found.");
             }
-            return false;
+            return Boolean.FALSE;
         } finally {
             try {
                 if (propertiesStream != null) {
@@ -85,7 +85,7 @@ public class PropertiesUtil {
                 // Ignore
             }
         }
-        return true;
+        return Boolean.TRUE;
     }
 
     public static String getProperty(String key) {
@@ -308,9 +308,9 @@ public class PropertiesUtil {
         Collections.sort(propertiesList);
 
         try {
-            LOG.debug(LOG_MESSAGE + "Writing skin preferences file to " + getPropertiesFilename(true));
+            LOG.debug(LOG_MESSAGE + "Writing skin preferences file to " + getPropertiesFilename(Boolean.TRUE));
 
-            fos = new FileOutputStream(getPropertiesFilename(true));
+            fos = new FileOutputStream(getPropertiesFilename(Boolean.TRUE));
             osw = new OutputStreamWriter(fos, "UTF-8");
             out = new BufferedWriter(osw);
 

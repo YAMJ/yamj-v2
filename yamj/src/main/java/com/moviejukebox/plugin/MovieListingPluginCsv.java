@@ -181,7 +181,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
      */
     protected String prepOutput(final String inputString, boolean bAddComma) {
         String newString;
-        if (null == inputString || (blankUNKNOWN && (UNKNOWN.equals(inputString) || UNDEFINED.equals(inputString)))) {
+        if (null == inputString || (isBlankUnknown() && (UNKNOWN.equals(inputString) || getUndefined().equals(inputString)))) {
             // clean 'UNKNOWN' values
             newString = "";
         } else {
@@ -202,7 +202,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         if (bAddComma) {
             newString += ",";
         }
-        
+
         return newString;
     } // encloseInQuotes()
 
@@ -215,7 +215,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
     public void generate(Jukebox jukebox, Library library) {
         initialize(jukebox);
 
-        String filename = baseFilename + ".csv";
+        String filename = getBaseFilename() + ".csv";
         File csvFile = new File(jukebox.getJukeboxTempLocation(), filename);
 
         ArrayList<String> alTypes = getSelectedTypes();
@@ -226,7 +226,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
             // write header line
             writer.line(headerLine());
 
-            if (!groupByType) {
+            if (!isGroupByType()) {
                 for (Movie movie : library.values()) {
                     logger.debug(movie.toString());
 

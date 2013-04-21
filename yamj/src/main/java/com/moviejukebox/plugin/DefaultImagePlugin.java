@@ -24,6 +24,13 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.*;
 import com.moviejukebox.model.Comparator.ValueComparator;
+import com.moviejukebox.model.enumerations.MyColor;
+import com.moviejukebox.model.overlay.ConditionOverlay;
+import com.moviejukebox.model.overlay.ImageOverlay;
+import com.moviejukebox.model.overlay.LogoOverlay;
+import com.moviejukebox.model.overlay.LogosBlock;
+import com.moviejukebox.model.overlay.PositionOverlay;
+import com.moviejukebox.model.overlay.StateOverlay;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
@@ -68,6 +75,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static final String MOVIELOGO = FTArtworkType.MOVIELOGO.toString().toLowerCase();
     private static final List<String> validImageTypes = Collections.synchronizedList(new ArrayList<String>());
     private static final Logger logger = Logger.getLogger(DefaultImagePlugin.class);
+    private static final String CENTER = "center";
+    private static final String BOTTOM = "bottom";
     private String overlayRoot;
     private String overlayResources;
     // Filenames
@@ -554,12 +563,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         // Issue 1937: Overlay configuration XML
         if (xmlOverlay) {
             for (LogoOverlay layer : overlayLayers) {
-                if (layer.before != beforeMainOverlay) {
+                if (layer.isBefore() != beforeMainOverlay) {
                     continue;
                 }
+
                 boolean flag = false;
                 List<StateOverlay> states = new ArrayList<StateOverlay>();
-                for (String name : layer.names) {
+                for (String name : layer.getNames()) {
                     String value = Movie.UNKNOWN;
                     if (checkLogoEnabled(name)) {
                         if (name.equalsIgnoreCase("set")) {
@@ -740,13 +750,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             value = PropertiesUtil.getProperty(name, Movie.UNKNOWN);
                         }
                     }
-                    StateOverlay state = new StateOverlay(layer.left, layer.top, layer.align, layer.valign, layer.width, layer.height, value);
+                    StateOverlay state = new StateOverlay(layer.getLeft(), layer.getTop(), layer.getAlign(), layer.getValign(), layer.getWidth(), layer.getHeight(), value);
                     states.add(state);
                 }
 
-                for (int inx = 0; inx < layer.names.size(); inx++) {
-                    String name = layer.names.get(inx);
-                    String value = states.get(inx).value;
+                for (int inx = 0; inx < layer.getNames().size(); inx++) {
+                    String name = layer.getNames().get(inx);
+                    String value = states.get(inx).getValue();
                     String filename = Movie.UNKNOWN;
                     if (checkLogoEnabled(name)) {
                         if (!blockLanguage && name.equalsIgnoreCase(LANGUAGE) && StringTools.isValidString(value)) {
@@ -755,15 +765,15 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         String[] values = value.split(Movie.SPACE_SLASH_SPACE);
                         for (int j = 0; j < values.length; j++) {
                             value = values[j];
-                            for (ImageOverlay img : layer.images) {
-                                if (img.name.equalsIgnoreCase(name)) {
+                            for (ImageOverlay img : layer.getImages()) {
+                                if (img.getName().equalsIgnoreCase(name)) {
                                     boolean accept = false;
-                                    if (img.values.size() == 1 && cmpOverlayValue(name, img.value, value)) {
+                                    if (img.getValues().size() == 1 && cmpOverlayValue(name, img.getValue(), value)) {
                                         accept = true;
-                                    } else if (img.values.size() > 1) {
+                                    } else if (img.getValues().size() > 1) {
                                         accept = true;
-                                        for (int i = 0; i < layer.names.size(); i++) {
-                                            accept = accept && cmpOverlayValue(layer.names.get(i), img.values.get(i), states.get(i).value);
+                                        for (int i = 0; i < layer.getNames().size(); i++) {
+                                            accept = accept && cmpOverlayValue(layer.getNames().get(i), img.getValues().get(i), states.get(i).getValue());
                                             if (!accept) {
                                                 break;
                                             }
@@ -772,12 +782,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     if (!accept) {
                                         continue;
                                     }
-                                    File imageFile = new File(overlayResources + img.filename);
+                                    File imageFile = new File(overlayResources + img.getFilename());
                                     if (imageFile.exists()) {
                                         if (StringTools.isNotValidString(filename)) {
-                                            filename = img.filename;
+                                            filename = img.getFilename();
                                         } else {
-                                            filename += Movie.SPACE_SLASH_SPACE + img.filename;
+                                            filename += Movie.SPACE_SLASH_SPACE + img.getFilename();
                                         }
                                     }
                                     break;
@@ -786,47 +796,47 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         }
                         flag = flag || StringTools.isValidString(filename);
                     }
-                    states.get(inx).filename = filename;
+                    states.get(inx).setFilename(filename);
                 }
 
                 if (!flag) {
                     continue;
                 }
 
-                if (layer.positions.size() > 0) {
-                    for (ConditionOverlay cond : layer.positions) {
+                if (layer.getPositions().size() > 0) {
+                    for (ConditionOverlay cond : layer.getPositions()) {
                         flag = true;
-                        for (int i = 0; i < layer.names.size(); i++) {
-                            String name = layer.names.get(i);
-                            String condition = cond.values.get(i);
-                            String value = states.get(i).value;
+                        for (int i = 0; i < layer.getNames().size(); i++) {
+                            String name = layer.getNames().get(i);
+                            String condition = cond.getValues().get(i);
+                            String value = states.get(i).getValue();
                             flag = flag && cmpOverlayValue(name, condition, value);
                             if (!flag) {
                                 break;
                             }
                         }
                         if (flag) {
-                            for (int i = 0; i < layer.names.size(); i++) {
-                                PositionOverlay pos = cond.positions.get(i);
-                                states.get(i).left = pos.left;
-                                states.get(i).top = pos.top;
-                                states.get(i).align = pos.align;
-                                states.get(i).valign = pos.valign;
+                            for (int i = 0; i < layer.getNames().size(); i++) {
+                                PositionOverlay pos = cond.getPositions().get(i);
+                                states.get(i).setLeft(pos.getLeft());
+                                states.get(i).setTop(pos.getTop());
+                                states.get(i).setAlign(pos.getAlign());
+                                states.get(i).setValign(pos.getValign());
                             }
                             break;
                         }
                     }
                 }
 
-                for (int i = 0; i < layer.names.size(); i++) {
+                for (int i = 0; i < layer.getNames().size(); i++) {
                     StateOverlay state = states.get(i);
-                    String name = layer.names.get(i);
+                    String name = layer.getNames().get(i);
                     if (!blockLanguage && name.equalsIgnoreCase(LANGUAGE)) {
-                        newBi = drawLanguage(movie, newBi, getOverlayX(newBi.getWidth(), 62, state.left, state.align), getOverlayY(newBi.getHeight(), 40, state.top, state.valign));
+                        newBi = drawLanguage(movie, newBi, getOverlayX(newBi.getWidth(), 62, state.getLeft(), state.getAlign()), getOverlayY(newBi.getHeight(), 40, state.getTop(), state.getValign()));
                         continue;
                     }
 
-                    String filename = state.filename;
+                    String filename = state.getFilename();
                     if (StringTools.isNotValidString(filename)) {
                         continue;
                     }
@@ -842,7 +852,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             || (blockSubTitle && name.equalsIgnoreCase("subtitle"))
                             || (blockLanguage && name.equalsIgnoreCase(LANGUAGE)))
                             && (overlayBlocks.get(name) != null)) {
-                        newBi = drawBlock(movie, newBi, name, filename, state.left, state.align, state.width, state.top, state.valign, state.height);
+                        newBi = drawBlock(movie, newBi, name, filename, state.getLeft(), state.getAlign(), state.getWidth(), state.getTop(), state.getValign(), state.getHeight());
                         continue;
                     }
 
@@ -850,7 +860,13 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         BufferedImage biSet = GraphicTools.loadJPEGImage(overlayResources + filename);
 
                         Graphics2D g2d = newBi.createGraphics();
-                        g2d.drawImage(biSet, getOverlayX(newBi.getWidth(), biSet.getWidth(), state.left, state.align), getOverlayY(newBi.getHeight(), biSet.getHeight(), state.top, state.valign), state.width.matches(D_PLUS) ? Integer.parseInt(state.width) : biSet.getWidth(), state.height.matches(D_PLUS) ? Integer.parseInt(state.height) : biSet.getHeight(), null);
+                        g2d.drawImage(biSet,
+                                getOverlayX(newBi.getWidth(),
+                                biSet.getWidth(),
+                                state.getLeft(),
+                                state.getAlign()),
+                                getOverlayY(newBi.getHeight(), biSet.getHeight(), state.getTop(), state.getValign()),
+                                state.getWidth().matches(D_PLUS) ? Integer.parseInt(state.getWidth()) : biSet.getWidth(), state.getHeight().matches(D_PLUS) ? Integer.parseInt(state.getHeight()) : biSet.getHeight(), null);
                         g2d.dispose();
                     } catch (FileNotFoundException ex) {
                         logger.warn("Failed to load " + overlayResources + filename + MSG_VALID);
@@ -1035,8 +1051,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     }
 
     /**
-     * Draw an overlay on the image, such as a box cover specific for
-     * videosource, container, certification if wanted
+     * Draw an overlay on the image, such as a box cover specific for videosource, container, certification if wanted
      *
      * @param movie
      * @param bi
@@ -1201,9 +1216,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 int lWidth = width.matches(D_PLUS) ? Integer.parseInt(width) : biSet.getWidth();
                 int lHeight = height.matches(D_PLUS) ? Integer.parseInt(height) : biSet.getHeight();
                 LogosBlock block = overlayBlocks.get(name);
-                int cols = block.cols;
-                int rows = block.rows;
-                boolean clones = block.clones;
+                int cols = block.getCols();
+                int rows = block.getRows();
+                boolean clones = block.isClones();
                 if (filenames.length > 1) {
                     if (cols == 0 && rows == 0) {
                         cols = (int) Math.sqrt(filenames.length);
@@ -1213,7 +1228,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     } else if (rows == 0) {
                         rows = (int) (filenames.length / cols);
                     }
-                    if (block.size) {
+                    if (block.isSize()) {
                         lWidth = (int) (lWidth / cols);
                         lHeight = (int) (lHeight / rows);
                     }
@@ -1221,11 +1236,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 int maxWidth = lWidth;
                 int maxHeight = lHeight;
                 g2d.drawImage(biSet, getOverlayX(bi.getWidth(), lWidth, left, align), getOverlayY(bi.getHeight(), lHeight, top, valign), lWidth, lHeight, null);
-                if ((filenames.length > 1) && (block != null)) {
+                if (filenames.length > 1) {
                     int col = 0;
                     int row = 0;
-                    int offsetX = block.dir ? lWidth : 0;
-                    int offsetY = block.dir ? 0 : lHeight;
+                    int offsetX = block.isDir() ? lWidth : 0;
+                    int offsetY = block.isDir() ? 0 : lHeight;
                     for (int i = 1; i < filenames.length; i++) {
                         if (!clones) {
                             if (uniqueFiles.contains(filenames[i])) {
@@ -1234,21 +1249,21 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                 uniqueFiles.add(filenames[i]);
                             }
                         }
-                        if (block.dir) {
+                        if (block.isDir()) {
                             col++;
-                            if (block.cols > 0 && col >= cols) {
+                            if (block.getCols() > 0 && col >= cols) {
                                 col = 0;
                                 row++;
-                                if (block.rows > 0 && row >= rows) {
+                                if (block.getRows() > 0 && row >= rows) {
                                     break;
                                 }
                             }
                         } else {
                             row++;
-                            if (block.rows > 0 && row >= rows) {
+                            if (block.getRows() > 0 && row >= rows) {
                                 row = 0;
                                 col++;
-                                if (block.cols > 0 && col >= cols) {
+                                if (block.getCols() > 0 && col >= cols) {
                                     break;
                                 }
                             }
@@ -1256,30 +1271,30 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
                         currentFilenameNumber = i;
                         biSet = GraphicTools.loadJPEGImage(overlayResources + filenames[currentFilenameNumber]);
-                        if (block.size || width.equalsIgnoreCase(EQUAL) || width.matches(D_PLUS)) {
-                            offsetX = (left > 0 ? 1 : -1) * col * (lWidth + block.hmargin);
+                        if (block.isSize() || width.equalsIgnoreCase(EQUAL) || width.matches(D_PLUS)) {
+                            offsetX = (left > 0 ? 1 : -1) * col * (lWidth + block.gethMargin());
                         } else if (width.equalsIgnoreCase(AUTO)) {
                             lWidth = biSet.getWidth();
-                            offsetX = block.dir ? col == 0 ? 0 : offsetX : row == 0 ? (offsetX + maxWidth) : offsetX;
+                            offsetX = block.isDir() ? col == 0 ? 0 : offsetX : row == 0 ? (offsetX + maxWidth) : offsetX;
                         }
-                        if (block.size || height.equalsIgnoreCase(EQUAL) || height.matches(D_PLUS)) {
-                            offsetY = (top > 0 ? 1 : -1) * row * (lHeight + block.vmargin);
+                        if (block.isSize() || height.equalsIgnoreCase(EQUAL) || height.matches(D_PLUS)) {
+                            offsetY = (top > 0 ? 1 : -1) * row * (lHeight + block.getvMargin());
                         } else if (height.equalsIgnoreCase(AUTO)) {
                             lHeight = biSet.getHeight();
-                            offsetY = block.dir ? col == 0 ? (offsetY + maxHeight) : offsetY : row == 0 ? 0 : offsetY;
+                            offsetY = block.isDir() ? col == 0 ? (offsetY + maxHeight) : offsetY : row == 0 ? 0 : offsetY;
                         }
                         g2d.drawImage(biSet, getOverlayX(bi.getWidth(), lWidth, left + offsetX, align),
                                 getOverlayY(bi.getHeight(), lHeight, top + offsetY, valign),
                                 lWidth, lHeight, null);
-                        if (!block.size && width.equalsIgnoreCase(AUTO)) {
-                            if (block.dir) {
+                        if (!block.isSize() && width.equalsIgnoreCase(AUTO)) {
+                            if (block.isDir()) {
                                 offsetX += (left > 0 ? 1 : -1) * lWidth;
                             } else {
                                 maxWidth = (maxWidth < lWidth || row == 0) ? lWidth : maxWidth;
                             }
                         }
-                        if (!block.size && height.equalsIgnoreCase(AUTO)) {
-                            if (block.dir) {
+                        if (!block.isSize() && height.equalsIgnoreCase(AUTO)) {
+                            if (block.isDir()) {
                                 maxHeight = (maxHeight < lHeight || col == 0) ? lHeight : maxHeight;
                             } else {
                                 offsetY += (top > 0 ? 1 : -1) * lHeight;
@@ -1404,127 +1419,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         return returnColor;
     }
 
-    enum MyColor {
-
-        white(Color.white), WHITE(Color.WHITE),
-        lightGray(Color.lightGray), LIGHT_GRAY(Color.LIGHT_GRAY),
-        gray(Color.gray), GRAY(Color.GRAY),
-        darkGray(Color.darkGray), DARK_GRAY(Color.DARK_GRAY),
-        black(Color.black), BLACK(Color.BLACK),
-        red(Color.red), RED(Color.RED),
-        pink(Color.pink), PINK(Color.PINK),
-        orange(Color.orange), ORANGE(Color.ORANGE),
-        yellow(Color.yellow), YELLOW(Color.YELLOW),
-        green(Color.green), GREEN(Color.GREEN),
-        magenta(Color.magenta), MAGENTA(Color.MAGENTA),
-        cyan(Color.cyan), CYAN(Color.CYAN),
-        blue(Color.blue), BLUE(Color.BLUE);
-        private final Color color;
-
-        // Constructor
-        MyColor(Color color) {
-            this.color = color;
-        }
-
-        public static Color get(String name) {
-            for (MyColor aColor : MyColor.values()) {
-                if (aColor.toString().equalsIgnoreCase(name)) {
-                    return aColor.color;
-                }
-            }
-            return null;
-        }
-    }
-
-    // Issue 1937: Overlay configuration XML
-    private class PositionOverlay {
-
-        protected Integer left = 0;
-        protected Integer top = 0;
-        protected String align = LEFT;
-        protected String valign = TOP;
-        protected String width = EQUAL;
-        protected String height = EQUAL;
-
-        public PositionOverlay() {
-        }
-
-        public PositionOverlay(Integer left, Integer top, String align, String valign, String width, String height) {
-            this.left = left;
-            this.top = top;
-            this.align = align;
-            this.valign = valign;
-            this.width = width;
-            this.height = height;
-        }
-    }
-
-    private class ImageOverlay {
-
-        private String name;
-        private String value;
-        private List<String> values = new ArrayList<String>();
-        private String filename;
-
-        public ImageOverlay(String name, String value, String filename, List<String> values) {
-            this.name = name;
-            this.value = value;
-            this.filename = filename;
-            this.values = values;
-        }
-    }
-
-    private class ConditionOverlay {
-
-        private List<String> values = new ArrayList<String>();
-        private List<PositionOverlay> positions = new ArrayList<PositionOverlay>();
-    }
-
-    private class LogoOverlay extends PositionOverlay {
-
-        private boolean before = true;
-        private List<String> names = new ArrayList<String>();
-        private List<ImageOverlay> images = new ArrayList<ImageOverlay>();
-        private List<ConditionOverlay> positions = new ArrayList<ConditionOverlay>();
-    }
-
-    private class StateOverlay extends PositionOverlay {
-
-        private String value = Movie.UNKNOWN;
-        private String filename = Movie.UNKNOWN;
-
-        public StateOverlay(Integer left, Integer top, String align, String valign, String width, String height, String value) {
-            this.left = left;
-            this.top = top;
-            this.align = align;
-            this.valign = valign;
-            this.width = width;
-            this.height = height;
-            this.value = value;
-        }
-    }
-
-    private class LogosBlock {
-
-        private boolean dir = false;         // true - vertical, false - horizontal,
-        private boolean size = false;        // true - static, false - auto
-        private boolean clones = false;      // true - enabled clones
-        private Integer cols = 1;            // 0 - auto count
-        private Integer rows = 0;            // 0 - auto count
-        private Integer hmargin = 0;
-        private Integer vmargin = 0;
-
-        public LogosBlock(boolean dir, boolean size, String cols, String rows, String hmargin, String vmargin, boolean clones) {
-            this.dir = dir;
-            this.size = size;
-            this.clones = clones;
-            this.cols = cols.equalsIgnoreCase(AUTO) ? 0 : Integer.parseInt(cols);
-            this.rows = rows.equalsIgnoreCase(AUTO) ? 0 : Integer.parseInt(rows);
-            this.hmargin = Integer.parseInt(hmargin);
-            this.vmargin = Integer.parseInt(vmargin);
-        }
-    }
-
     private void fillOverlayParams(String xmlOverlayFilename) {
         if (!xmlOverlayFilename.toUpperCase().endsWith("XML")) {
             return;
@@ -1545,7 +1439,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
                     String after = layer.getString("[@after]");
                     if (StringTools.isValidString(after) && after.equalsIgnoreCase(TRUE)) {
-                        overlay.before = false;
+                        overlay.setBefore(Boolean.FALSE);
                     }
 
                     String left = layer.getString(LEFT);
@@ -1555,30 +1449,30 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     String width = layer.getString("width");
                     String height = layer.getString("height");
 
-                    overlay.names = Arrays.asList(name.split("/"));
+                    overlay.setNames(Arrays.asList(name.split("/")));
                     if (StringTools.isValidString(left)) {
                         try {
-                            overlay.left = Integer.parseInt(left);
-                        } catch (Exception ignore) {
+                            overlay.setLeft(Integer.parseInt(left));
+                        } catch (NumberFormatException ignore) {
                         }
                     }
                     if (StringTools.isValidString(top)) {
                         try {
-                            overlay.top = Integer.parseInt(top);
-                        } catch (Exception ignore) {
+                            overlay.setTop(Integer.parseInt(top));
+                        } catch (NumberFormatException ignore) {
                         }
                     }
-                    if (StringTools.isValidString(align) && (align.equalsIgnoreCase(LEFT) || align.equalsIgnoreCase("center") || align.equalsIgnoreCase(RIGHT))) {
-                        overlay.align = align;
+                    if (StringTools.isValidString(align) && (align.equalsIgnoreCase(LEFT) || align.equalsIgnoreCase(CENTER) || align.equalsIgnoreCase(RIGHT))) {
+                        overlay.setAlign(align);
                     }
-                    if (StringTools.isValidString(valign) && (valign.equalsIgnoreCase(TOP) || valign.equalsIgnoreCase("center") || valign.equalsIgnoreCase("bottom"))) {
-                        overlay.valign = valign;
+                    if (StringTools.isValidString(valign) && (valign.equalsIgnoreCase(TOP) || valign.equalsIgnoreCase(CENTER) || valign.equalsIgnoreCase(BOTTOM))) {
+                        overlay.setValign(valign);
                     }
                     if (StringTools.isValidString(width) && (width.equalsIgnoreCase(EQUAL) || width.equalsIgnoreCase(AUTO) || width.matches(D_PLUS))) {
-                        overlay.width = width;
+                        overlay.setWidth(width);
                     }
                     if (StringTools.isValidString(height) && (height.equalsIgnoreCase(EQUAL) || height.equalsIgnoreCase(AUTO) || height.matches(D_PLUS))) {
-                        overlay.height = height;
+                        overlay.setHeight(height);
                     }
 
                     List<HierarchicalConfiguration> images = c.configurationsAt("layer(" + index + ").images.image");
@@ -1588,26 +1482,26 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         String filename = image.getString("[@filename]");
 
                         if (StringTools.isNotValidString(name)) {
-                            name = overlay.names.get(0);
+                            name = overlay.getNames().get(0);
                         }
-                        if (!overlay.names.contains(name) || StringTools.isNotValidString(value) || StringTools.isNotValidString(filename)) {
+                        if (!overlay.getNames().contains(name) || StringTools.isNotValidString(value) || StringTools.isNotValidString(filename)) {
                             continue;
                         }
 
                         ImageOverlay img = new ImageOverlay(name, value, filename, Arrays.asList(value.split("/")));
-                        if (img.values.size() > 1) {
-                            for (int i = 0; i < overlay.names.size(); i++) {
-                                if (img.values.size() <= i) {
-                                    img.values.add(Movie.UNKNOWN);
-                                } else if (StringTools.isNotValidString(img.values.get(i))) {
-                                    img.values.set(i, Movie.UNKNOWN);
+                        if (img.getValues().size() > 1) {
+                            for (int i = 0; i < overlay.getNames().size(); i++) {
+                                if (img.getValues().size() <= i) {
+                                    img.getValues().add(Movie.UNKNOWN);
+                                } else if (StringTools.isNotValidString(img.getValues().get(i))) {
+                                    img.getValues().set(i, Movie.UNKNOWN);
                                 }
                             }
                         }
-                        overlay.images.add(img);
+                        overlay.getImages().add(img);
                     }
 
-                    if (overlay.names.size() > 1) {
+                    if (overlay.getNames().size() > 1) {
                         List<HierarchicalConfiguration> positions = c.configurationsAt("layer(" + index + ").positions.position");
                         for (HierarchicalConfiguration position : positions) {
                             String value = position.getString("[@value]");
@@ -1622,24 +1516,24 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                 continue;
                             }
                             ConditionOverlay condition = new ConditionOverlay();
-                            condition.values = Arrays.asList(value.split("/"));
+                            condition.setValues(Arrays.asList(value.split("/")));
                             if (StringTools.isNotValidString(left)) {
-                                left = Integer.toString(overlay.left);
+                                left = Integer.toString(overlay.getLeft());
                             }
                             if (StringTools.isNotValidString(top)) {
-                                top = Integer.toString(overlay.top);
+                                top = Integer.toString(overlay.getTop());
                             }
                             if (StringTools.isNotValidString(align)) {
-                                align = overlay.align;
+                                align = overlay.getAlign();
                             }
                             if (StringTools.isNotValidString(valign)) {
-                                valign = overlay.valign;
+                                valign = overlay.getValign();
                             }
                             if (StringTools.isNotValidString(width)) {
-                                width = overlay.width;
+                                width = overlay.getWidth();
                             }
                             if (StringTools.isNotValidString(height)) {
-                                height = overlay.height;
+                                height = overlay.getHeight();
                             }
                             List<String> lefts = Arrays.asList(left.split("/"));
                             List<String> tops = Arrays.asList(top.split("/"));
@@ -1647,19 +1541,19 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             List<String> valigns = Arrays.asList(valign.split("/"));
                             List<String> widths = Arrays.asList(width.split("/"));
                             List<String> heights = Arrays.asList(height.split("/"));
-                            for (int i = 0; i < overlay.names.size(); i++) {
-                                if (StringTools.isNotValidString(condition.values.get(i))) {
-                                    condition.values.set(i, Movie.UNKNOWN);
+                            for (int i = 0; i < overlay.getNames().size(); i++) {
+                                if (StringTools.isNotValidString(condition.getValues().get(i))) {
+                                    condition.getValues().set(i, Movie.UNKNOWN);
                                 }
-                                PositionOverlay p = new PositionOverlay((lefts.size() <= i || StringTools.isNotValidString(lefts.get(i))) ? overlay.left : Integer.parseInt(lefts.get(i)),
-                                        (tops.size() <= i || StringTools.isNotValidString(tops.get(i))) ? overlay.top : Integer.parseInt(tops.get(i)),
-                                        (aligns.size() <= i || StringTools.isNotValidString(aligns.get(i))) ? overlay.align : aligns.get(i),
-                                        (valigns.size() <= i || StringTools.isNotValidString(valigns.get(i))) ? overlay.valign : valigns.get(i),
-                                        (widths.size() <= i || StringTools.isNotValidString(widths.get(i))) ? overlay.width : widths.get(i),
-                                        (heights.size() <= i || StringTools.isNotValidString(heights.get(i))) ? overlay.height : heights.get(i));
-                                condition.positions.add(p);
+                                PositionOverlay p = new PositionOverlay((lefts.size() <= i || StringTools.isNotValidString(lefts.get(i))) ? overlay.getLeft() : Integer.parseInt(lefts.get(i)),
+                                        (tops.size() <= i || StringTools.isNotValidString(tops.get(i))) ? overlay.getTop() : Integer.parseInt(tops.get(i)),
+                                        (aligns.size() <= i || StringTools.isNotValidString(aligns.get(i))) ? overlay.getAlign() : aligns.get(i),
+                                        (valigns.size() <= i || StringTools.isNotValidString(valigns.get(i))) ? overlay.getValign() : valigns.get(i),
+                                        (widths.size() <= i || StringTools.isNotValidString(widths.get(i))) ? overlay.getWidth() : widths.get(i),
+                                        (heights.size() <= i || StringTools.isNotValidString(heights.get(i))) ? overlay.getHeight() : heights.get(i));
+                                condition.getPositions().add(p);
                             }
-                            overlay.positions.add(condition);
+                            overlay.getPositions().add(condition);
                         }
                     }
                     overlayLayers.add(overlay);
@@ -1763,7 +1657,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     protected int getOverlayY(int fieldHeight, int itemHeight, Integer top, String align) {
         if (align.equalsIgnoreCase(TOP)) {
             return (int) (top >= 0 ? top : fieldHeight + top);
-        } else if (align.equalsIgnoreCase("bottom")) {
+        } else if (align.equalsIgnoreCase(BOTTOM)) {
             return (int) (top >= 0 ? fieldHeight - top - itemHeight : -top - itemHeight);
         } else {
             return (int) (top == 0 ? ((fieldHeight - itemHeight) / 2) : top > 0 ? (fieldHeight / 2 + top) : (fieldHeight / 2 + top - itemHeight));

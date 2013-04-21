@@ -300,7 +300,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
     private String prep(final String input) {
         String str = input;
 
-        if (null == str || (blankUNKNOWN && (UNKNOWN.equals(str) || UNDEFINED.equals(str)))) {
+        if (null == str || (isBlankUnknown() && (UNKNOWN.equals(str) || getUndefined().equals(str)))) {
             // clean 'UNKNOWN' values
             str = "";
         } else {
@@ -360,7 +360,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
             mDateFormatter = new SimpleDateFormat(dateFormat);
         }
 
-        String filename = baseFilename + ".csv";
+        String filename = getBaseFilename() + ".csv";
         File csvFile = new File(jukebox.getJukeboxTempLocation(), filename);
 
         ArrayList<String> alTypes = getSelectedTypes();
@@ -371,7 +371,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
             // write header line
             writer.line(headerLine());
 
-            if (!groupByType) {
+            if (!isGroupByType()) {
                 for (Movie movie : library.values()) {
                     logger.debug(movie.toString());
 
