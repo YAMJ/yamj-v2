@@ -62,6 +62,16 @@ public class MovieJukebox {
     private static final String logFilename = "moviejukebox";
     private static final Logger logger = Logger.getLogger(MovieJukebox.class);
     private static Collection<MediaLibraryPath> mediaLibraryPaths;
+    private static final String SKIN_DIR = "mjb.skin.dir";
+    private static final String SPACE_TO_SPACE = " to ";
+    private static final String EXT_PNG = "png";
+    public static final String EXT_DOT_XML = ".xml";
+    private static final String DUMMY_JPG = "dummy.jpg";
+    private static final String ERROR_TEXT = " - Error: ";
+    private static final String RIGHT = "right";
+    private static final String LEFT = "left";
+    private static final String THUMBNAILS = "thumbnails";
+    private static final String POSTERS = "posters";
     private String movieLibraryRoot;
     private static String userPropertiesName = "./moviejukebox.properties";
     // Jukebox parameters
@@ -227,21 +237,21 @@ public class MovieJukebox {
         setPropertiesStreamName(userPropertiesName, Boolean.FALSE);
 
         // Grab the skin from the command-line properties
-        if (cmdLineProps.containsKey("mjb.skin.dir")) {
-            setProperty("mjb.skin.dir", cmdLineProps.get("mjb.skin.dir"));
+        if (cmdLineProps.containsKey(SKIN_DIR)) {
+            setProperty(SKIN_DIR, cmdLineProps.get(SKIN_DIR));
         }
 
         // Load the skin.properties file
-        if (!setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/skin.properties", Boolean.TRUE)) {
+        if (!setPropertiesStreamName(getProperty(SKIN_DIR, "./skins/default") + "/skin.properties", Boolean.TRUE)) {
             return;
         }
 
         // Load the skin-user.properties file (ignore the error)
-        setPropertiesStreamName(getProperty("mjb.skin.dir", "./skins/default") + "/skin-user.properties", Boolean.FALSE);
+        setPropertiesStreamName(getProperty(SKIN_DIR, "./skins/default") + "/skin-user.properties", Boolean.FALSE);
 
         // Load the overlay.properties file (ignore the error)
         String overlayRoot = getProperty("mjb.overlay.dir", Movie.UNKNOWN);
-        overlayRoot = (PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", Boolean.TRUE) ? (getProperty("mjb.skin.dir", "./skins/default") + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
+        overlayRoot = (PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", Boolean.TRUE) ? (getProperty(SKIN_DIR, "./skins/default") + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
         setPropertiesStreamName(overlayRoot + "overlay.properties", Boolean.FALSE);
 
         // Load the apikeys.properties file
@@ -528,7 +538,7 @@ public class MovieJukebox {
 
     private static void dumpDir(File sourceDir, File destDir) {
         String[] extensionToCopy = {"nfo", "NFO", "properties", "xml", "xsl"};
-        logger.info("Dumping  : " + sourceDir + " to " + destDir);
+        logger.info("Dumping  : " + sourceDir + SPACE_TO_SPACE + destDir);
         File[] files = sourceDir.listFiles();
         for (File file : files) {
             try {
@@ -545,7 +555,7 @@ public class MovieJukebox {
 
                         // Copy NFO / properties / .XML
                         if (ArrayUtils.contains(extensionToCopy, fileName.substring(fileName.length() - 3))) {
-                            logger.info("Coyping " + file + " to " + newFile);
+                            logger.info("Coyping " + file + SPACE_TO_SPACE + newFile);
                             FileTools.copyFile(file, newFile);
                         } else {
                             logger.info("Creating dummy for " + file);
@@ -631,9 +641,9 @@ public class MovieJukebox {
         thumbnailToken = getProperty("mjb.scanner.thumbnailToken", "_small");
         footerToken = getProperty("mjb.scanner.footerToken", ".footer");
 
-        posterExtension = getProperty("posters.format", "png");
-        thumbnailExtension = getProperty("thumbnails.format", "png");
-        bannerExtension = getProperty("banners.format", "png");
+        posterExtension = getProperty("posters.format", EXT_PNG);
+        thumbnailExtension = getProperty("thumbnails.format", EXT_PNG);
+        bannerExtension = getProperty("banners.format", EXT_PNG);
         fanartExtension = getProperty("fanart.format", "jpg");
 
         footerCount = PropertiesUtil.getIntProperty("mjb.footer.count", 0);
@@ -643,7 +653,7 @@ public class MovieJukebox {
             footerName.add(fName);
             footerWidth.add(PropertiesUtil.getIntProperty(fName + ".width", 400));
             footerHeight.add(PropertiesUtil.getIntProperty(fName + ".height", 80));
-            footerExtension.add(getProperty(fName + ".format", "png"));
+            footerExtension.add(getProperty(fName + ".format", EXT_PNG));
         }
 
         trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", Boolean.TRUE);
@@ -782,7 +792,7 @@ public class MovieJukebox {
             jukebox.getJukeboxRootLocationDetailsFile().mkdirs();
             new File(jukebox.getJukeboxRootLocationDetailsFile(), ".mjbignore").createNewFile();
             FileTools.addJukeboxFile(".mjbignore");
-            
+
             if (getBooleanProperty("mjb.nmjCompliant", Boolean.FALSE)) {
                 new File(jukebox.getJukeboxRootLocationDetailsFile(), ".no_photo.nmj").createNewFile();
                 FileTools.addJukeboxFile(".no_photo.nmj");
@@ -927,7 +937,7 @@ public class MovieJukebox {
                         ToolSet tools = threadTools.get();
 
                         // Change the output message depending on the existance of the XML file
-                        boolean xmlExists = FileTools.fileCache.fileExists(jukebox.getJukeboxRootLocationDetails() + File.separator + movie.getBaseName() + ".xml");
+                        boolean xmlExists = FileTools.fileCache.fileExists(StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), movie.getBaseName()) + EXT_DOT_XML);
                         if (xmlExists) {
                             logger.info("Checking existing video: " + movieTitleExt);
                             JukeboxStatistics.increment(JukeboxStatistic.EXISTING_VIDEOS);
@@ -1415,7 +1425,7 @@ public class MovieJukebox {
             for (Movie setMovie : library.getMoviesList()) {
                 if (setMovie.isSetMaster()) {
                     indexFilename = new StringBuilder(jukebox.getJukeboxRootLocationDetails());
-                    indexFilename.append(File.separator).append(setMovie.getBaseName()).append(".xml");
+                    indexFilename.append(File.separator).append(setMovie.getBaseName()).append(EXT_DOT_XML);
                     File xmlFile = FileTools.fileCache.getFile(indexFilename.toString());
                     if (xmlFile.exists()) {
                         xmlReader.parseSetXML(xmlFile, setMovie, library.getMoviesList());
@@ -1810,7 +1820,7 @@ public class MovieJukebox {
          * information, just parse the XML data.
          */
         String safeBaseName = movie.getBaseName();
-        File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + safeBaseName + ".xml");
+        File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + safeBaseName + EXT_DOT_XML);
 
         // See if we can find the NFO associated with this video file.
         List<File> nfoFiles = MovieNFOScanner.locateNFOs(movie);
@@ -1998,7 +2008,7 @@ public class MovieJukebox {
     public void updatePersonData(MovieJukeboxXMLReader xmlReader, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Person person, MovieImagePlugin imagePlugin) throws FileNotFoundException, XMLStreamException {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", Boolean.FALSE);
         person.setFilename();
-        File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + person.getFilename() + ".xml");
+        File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + person.getFilename() + EXT_DOT_XML);
 
         // Change the output message depending on the existance of the XML file
         if (xmlFile.exists()) {
@@ -2058,7 +2068,7 @@ public class MovieJukebox {
 
             if (!isValidString(movie.getPosterURL())) {
                 logger.debug("Dummy image used for " + movie.getBaseName());
-                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), tmpDestFile);
+                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + DUMMY_JPG), tmpDestFile);
             } else {
                 try {
                     // Issue 201 : we now download to local temp dir
@@ -2066,8 +2076,8 @@ public class MovieJukebox {
                     FileTools.downloadImage(tmpDestFile, movie.getPosterURL());
                     logger.debug("Downloaded poster for " + movie.getBaseName());
                 } catch (IOException error) {
-                    logger.debug("Failed downloading movie poster: " + movie.getPosterURL() + " - Error: " + error.getMessage());
-                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), tmpDestFile);
+                    logger.debug("Failed downloading movie poster: " + movie.getPosterURL() + ERROR_TEXT + error.getMessage());
+                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + DUMMY_JPG), tmpDestFile);
                 }
             }
         }
@@ -2109,7 +2119,7 @@ public class MovieJukebox {
                     logger.debug("Downloading banner for '" + movie.getBaseName() + "' to '" + origDestFile.getName() + "'");
                     FileTools.downloadImage(origDestFile, movie.getBannerURL());
                 } catch (IOException error) {
-                    logger.debug("Failed downloading banner: " + movie.getBannerURL() + " - Error: " + error.getMessage());
+                    logger.debug("Failed downloading banner: " + movie.getBannerURL() + ERROR_TEXT + error.getMessage());
                     FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), origDestFile);
                 }
             }
@@ -2121,9 +2131,9 @@ public class MovieJukebox {
                     GraphicTools.saveImageToDisk(bannerImage, tmpDestFilename);
                 }
             } catch (ImageReadException ex) {
-                logger.debug("MovieJukebox: Failed read banner: " + origDestFilename + " - Error: " + ex.getMessage());
+                logger.debug("MovieJukebox: Failed read banner: " + origDestFilename + ERROR_TEXT + ex.getMessage());
             } catch (IOException ex) {
-                logger.debug("MovieJukebox: Failed generate banner: " + tmpDestFilename + " - Error: " + ex.getMessage());
+                logger.debug("MovieJukebox: Failed generate banner: " + tmpDestFilename + ERROR_TEXT + ex.getMessage());
             }
         }
     }
@@ -2157,13 +2167,13 @@ public class MovieJukebox {
             Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
             return pluginClass.newInstance();
         } catch (InstantiationException ex) {
-            logger.error("Failed instanciating ImagePlugin: " + className + " - Error: " + ex.getMessage());
+            logger.error("Failed instanciating ImagePlugin: " + className + ERROR_TEXT + ex.getMessage());
             logger.error(SystemTools.getStackTrace(ex));
         } catch (IllegalAccessException ex) {
-            logger.error("Failed accessing ImagePlugin: " + className + " - Error: " + ex.getMessage());
+            logger.error("Failed accessing ImagePlugin: " + className + ERROR_TEXT + ex.getMessage());
             logger.error(SystemTools.getStackTrace(ex));
         } catch (ClassNotFoundException ex) {
-            logger.error("ImagePlugin class not found: " + className + " - Error: " + ex.getMessage());
+            logger.error("ImagePlugin class not found: " + className + ERROR_TEXT + ex.getMessage());
             logger.error(SystemTools.getStackTrace(ex));
         }
         logger.error("Default poster plugin will be used instead.");
@@ -2177,13 +2187,13 @@ public class MovieJukebox {
             Class<? extends MovieImagePlugin> pluginClass = cl.loadClass(className).asSubclass(MovieImagePlugin.class);
             return pluginClass.newInstance();
         } catch (InstantiationException ex) {
-            logger.error("Failed instanciating BackgroundPlugin: " + className + " - Error: " + ex.getMessage());
+            logger.error("Failed instanciating BackgroundPlugin: " + className + ERROR_TEXT + ex.getMessage());
             logger.error(SystemTools.getStackTrace(ex));
         } catch (IllegalAccessException ex) {
-            logger.error("Failed accessing BackgroundPlugin: " + className + " - Error: " + ex.getMessage());
+            logger.error("Failed accessing BackgroundPlugin: " + className + ERROR_TEXT + ex.getMessage());
             logger.error(SystemTools.getStackTrace(ex));
         } catch (ClassNotFoundException ex) {
-            logger.error("BackgroundPlugin class not found: " + className + " - Error: " + ex.getMessage());
+            logger.error("BackgroundPlugin class not found: " + className + ERROR_TEXT + ex.getMessage());
             logger.error(SystemTools.getStackTrace(ex));
         }
 
@@ -2198,13 +2208,13 @@ public class MovieJukebox {
             Class<? extends MovieListingPlugin> pluginClass = cl.loadClass(className).asSubclass(MovieListingPlugin.class);
             return pluginClass.newInstance();
         } catch (InstantiationException ex) {
-            logger.error("Failed instanciating ListingPlugin: " + className + " - Error: " + ex.getMessage());
+            logger.error("Failed instanciating ListingPlugin: " + className + ERROR_TEXT + ex.getMessage());
             logger.error(SystemTools.getStackTrace(ex));
         } catch (IllegalAccessException ex) {
-            logger.error("Failed accessing ListingPlugin: " + className + " - Error: " + ex.getMessage());
+            logger.error("Failed accessing ListingPlugin: " + className + ERROR_TEXT + ex.getMessage());
             logger.error(SystemTools.getStackTrace(ex));
         } catch (ClassNotFoundException ex) {
-            logger.error("ListingPlugin class not found: " + className + " - Error: " + ex.getMessage());
+            logger.error("ListingPlugin class not found: " + className + ERROR_TEXT + ex.getMessage());
             logger.error(SystemTools.getStackTrace(ex));
         }
 
@@ -2261,7 +2271,7 @@ public class MovieJukebox {
                     logger.info("Using dummy thumbnail image for " + movie.getBaseName());
                     // There was an error with the URL, assume it's a bad URL and clear it so we try again
                     movie.setPosterURL(Movie.UNKNOWN);
-                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), tmpPosterFile);
+                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + DUMMY_JPG), tmpPosterFile);
                     try {
                         bi = GraphicTools.loadJPEGImage(tmpPosterFile);
                     } catch (Exception error) {
@@ -2270,7 +2280,7 @@ public class MovieJukebox {
                 }
 
                 // Perspective code.
-                String perspectiveDirection = getProperty("thumbnails.perspectiveDirection", "right");
+                String perspectiveDirection = getProperty("thumbnails.perspectiveDirection", RIGHT);
 
                 // Generate and save both images
                 if (perspectiveDirection.equalsIgnoreCase("both")) {
@@ -2278,32 +2288,32 @@ public class MovieJukebox {
                     String dstMirror = tmpThumbnailFile.substring(0, tmpThumbnailFile.lastIndexOf('.')) + "_mirror" + tmpThumbnailFile.substring(tmpThumbnailFile.lastIndexOf('.'));
 
                     // Generate left & save as copy
-                    logger.debug("Generating mirror thumbnail from " + tmpPosterFile + " to " + dstMirror);
-                    BufferedImage biMirror = imagePlugin.generate(movie, bi, "thumbnails", "left");
+                    logger.debug("Generating mirror thumbnail from " + tmpPosterFile + SPACE_TO_SPACE + dstMirror);
+                    BufferedImage biMirror = imagePlugin.generate(movie, bi, THUMBNAILS, LEFT);
                     GraphicTools.saveImageToDisk(biMirror, dstMirror);
 
                     // Generate right as per normal
-                    logger.debug("Generating right thumbnail from " + tmpPosterFile + " to " + tmpThumbnailFile);
-                    bi = imagePlugin.generate(movie, bi, "thumbnails", "right");
+                    logger.debug("Generating right thumbnail from " + tmpPosterFile + SPACE_TO_SPACE + tmpThumbnailFile);
+                    bi = imagePlugin.generate(movie, bi, THUMBNAILS, RIGHT);
                     GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
                 }
 
                 // Only generate the right image
-                if (perspectiveDirection.equalsIgnoreCase("right")) {
-                    bi = imagePlugin.generate(movie, bi, "thumbnails", "right");
+                if (perspectiveDirection.equalsIgnoreCase(RIGHT)) {
+                    bi = imagePlugin.generate(movie, bi, THUMBNAILS, RIGHT);
 
                     // Save the right perspective image.
                     GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
-                    logger.debug("Generating right thumbnail from " + tmpPosterFile + " to " + tmpThumbnailFile);
+                    logger.debug("Generating right thumbnail from " + tmpPosterFile + SPACE_TO_SPACE + tmpThumbnailFile);
                 }
 
                 // Only generate the left image
-                if (perspectiveDirection.equalsIgnoreCase("left")) {
-                    bi = imagePlugin.generate(movie, bi, "thumbnails", "left");
+                if (perspectiveDirection.equalsIgnoreCase(LEFT)) {
+                    bi = imagePlugin.generate(movie, bi, THUMBNAILS, LEFT);
 
                     // Save the right perspective image.
                     GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
-                    logger.debug("Generating left thumbnail from " + tmpPosterFile + " to " + tmpThumbnailFile);
+                    logger.debug("Generating left thumbnail from " + tmpPosterFile + SPACE_TO_SPACE + tmpThumbnailFile);
                 }
             }
         } catch (Exception error) {
@@ -2361,7 +2371,7 @@ public class MovieJukebox {
             if (bi == null) {
                 // There was an error with the URL, assume it's a bad URL and clear it so we try again
                 movie.setPosterURL(Movie.UNKNOWN);
-                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy.jpg"), jkbPosterFile);
+                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + DUMMY_JPG), jkbPosterFile);
                 try {
                     bi = GraphicTools.loadJPEGImage(tmpPosterFile);
                     logger.info("Using dummy poster image for " + movie.getOriginalTitle());
@@ -2373,10 +2383,10 @@ public class MovieJukebox {
                     logger.error(SystemTools.getStackTrace(ex));
                 }
             }
-            logger.debug("Generating poster from " + tmpPosterFile + " to " + tmpThumbnailFile);
+            logger.debug("Generating poster from " + tmpPosterFile + SPACE_TO_SPACE + tmpThumbnailFile);
 
             // Perspective code.
-            String perspectiveDirection = getProperty("posters.perspectiveDirection", "right");
+            String perspectiveDirection = getProperty("posters.perspectiveDirection", RIGHT);
 
             // Generate and save both images
             if (perspectiveDirection.equalsIgnoreCase("both")) {
@@ -2384,32 +2394,32 @@ public class MovieJukebox {
                 String dstMirror = FilenameUtils.removeExtension(tmpThumbnailFile) + "_mirror." + FilenameUtils.getExtension(tmpThumbnailFile);
 
                 // Generate left & save as copy
-                logger.debug("Generating mirror poster from " + tmpPosterFile + " to " + dstMirror);
-                BufferedImage biMirror = posterManager.generate(movie, bi, "posters", "left");
+                logger.debug("Generating mirror poster from " + tmpPosterFile + SPACE_TO_SPACE + dstMirror);
+                BufferedImage biMirror = posterManager.generate(movie, bi, POSTERS, LEFT);
                 GraphicTools.saveImageToDisk(biMirror, dstMirror);
 
                 // Generate right as per normal
-                logger.debug("Generating right poster from " + tmpPosterFile + " to " + tmpThumbnailFile);
-                bi = posterManager.generate(movie, bi, "posters", "right");
+                logger.debug("Generating right poster from " + tmpPosterFile + SPACE_TO_SPACE + tmpThumbnailFile);
+                bi = posterManager.generate(movie, bi, POSTERS, RIGHT);
                 GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
             }
 
             // Only generate the right image
-            if (perspectiveDirection.equalsIgnoreCase("right")) {
-                bi = posterManager.generate(movie, bi, "posters", "right");
+            if (perspectiveDirection.equalsIgnoreCase(RIGHT)) {
+                bi = posterManager.generate(movie, bi, POSTERS, RIGHT);
 
                 // Save the right perspective image.
                 GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
-                logger.debug("Generating right poster from " + tmpPosterFile + " to " + tmpThumbnailFile);
+                logger.debug("Generating right poster from " + tmpPosterFile + SPACE_TO_SPACE + tmpThumbnailFile);
             }
 
             // Only generate the left image
-            if (perspectiveDirection.equalsIgnoreCase("left")) {
-                bi = posterManager.generate(movie, bi, "posters", "left");
+            if (perspectiveDirection.equalsIgnoreCase(LEFT)) {
+                bi = posterManager.generate(movie, bi, POSTERS, LEFT);
 
                 // Save the right perspective image.
                 GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
-                logger.debug("Generating left poster from " + tmpPosterFile + " to " + tmpThumbnailFile);
+                logger.debug("Generating left poster from " + tmpPosterFile + SPACE_TO_SPACE + tmpThumbnailFile);
             }
         }
     }
