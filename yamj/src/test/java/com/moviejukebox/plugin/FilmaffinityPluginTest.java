@@ -38,6 +38,7 @@ public class FilmaffinityPluginTest {
     public FilmaffinityPluginTest() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("priority.movie.country", "filmaffinity,imdb");
+        PropertiesUtil.setProperty("priority.movie.runtime", "filmaffinity,imdb");
     }
 
     /**
@@ -68,11 +69,21 @@ public class FilmaffinityPluginTest {
     }
 
     @Test
+    public void testScanYear() {
+        Movie movie = new Movie();
+        movie.setTitle("Avatar", Movie.UNKNOWN);
+        movie.setYear("2009", Movie.UNKNOWN);
+        
+        assertEquals(true, faPlugin.scan(movie));
+        assertEquals("2009", movie.getYear());
+    }
+
+    @Test
     public void testScanCountry1() {
         Movie movie = new Movie();
         movie.setTitle("25 grados en invierno", Movie.UNKNOWN);
         assertEquals(true, faPlugin.scan(movie));
-        assertEquals("Bélgica",movie.getCountry());
+        assertEquals("Bélgica", movie.getCountry());
     }
 
     @Test
