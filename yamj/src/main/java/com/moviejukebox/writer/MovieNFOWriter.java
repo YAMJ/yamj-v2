@@ -177,6 +177,10 @@ public class MovieNFOWriter {
                 DOMHelper.appendChild(docNFO, eRoot, SHOW_STATUS, movie.getReleaseDate());
             }
 
+            if (movie.getTop250() > 0) {
+                DOMHelper.appendChild(docNFO, eRoot, "top250", Integer.toString(movie.getTop250()));
+            }
+            
             if (movie.getRating() >= 0) {
                 eRatings = docNFO.createElement(RATINGS);
                 eRoot.appendChild(eRatings);

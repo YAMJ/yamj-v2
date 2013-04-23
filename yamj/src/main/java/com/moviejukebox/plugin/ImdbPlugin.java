@@ -52,7 +52,6 @@ import org.pojava.datetime.DateTime;
 
 import com.moviejukebox.model.Award;
 import com.moviejukebox.model.AwardEvent;
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Identifiable;
 import com.moviejukebox.model.ImdbSiteDataDefinition;
@@ -385,12 +384,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             movie.addRating(IMDB_PLUGIN_ID, parseRating(HTMLTools.stripTags(rating)));
         }
 
-        if (movie.getTop250() == -1) {
-            try {
-                movie.setTop250(Integer.parseInt(HTMLTools.extractTag(xml, "Top 250: #")));
-            } catch (NumberFormatException error) {
-                movie.setTop250(-1);
-            }
+        // TOP250
+        if (OverrideTools.checkOverwriteTop250(movie, IMDB_PLUGIN_ID)) {
+            movie.setTop250(HTMLTools.extractTag(xml, "Top 250: #"), IMDB_PLUGIN_ID);
         }
 
         // RELEASE DATE
@@ -618,15 +614,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // TOP250
-        int currentTop250 = movie.getTop250();
-        // Check to see if the top250 is empty or the movie needs re-checking (in which case overwrite it)
-        if (currentTop250 == -1 || movie.isDirty(DirtyFlag.RECHECK)) {
-            try {
-                movie.setTop250(Integer.parseInt(HTMLTools.extractTag(xml, "Top 250 #")));
-            } catch (NumberFormatException error) {
-                // We failed to convert the value, so replace it with the old one.
-                movie.setTop250(currentTop250);
-            }
+        if (OverrideTools.checkOverwriteTop250(movie, IMDB_PLUGIN_ID)) {
+            movie.setTop250(HTMLTools.extractTag(xml, "Top 250 #"), IMDB_PLUGIN_ID);
         }
 
         // RUNTIME

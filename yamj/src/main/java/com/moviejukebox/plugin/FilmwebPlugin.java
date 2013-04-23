@@ -166,12 +166,9 @@ public class FilmwebPlugin extends ImdbPlugin {
                 movie.addRating(FILMWEB_PLUGIN_ID, parseRating(HTMLTools.getTextAfterElem(xml, "average")));
             }
 
-            if (movie.getTop250() == -1) {
-                try {
-                    movie.setTop250(Integer.parseInt(HTMLTools.extractTag(xml, "worldRanking", 0, ">.")));
-                } catch (NumberFormatException error) {
-                    movie.setTop250(-1);
-                }
+            // TOP250
+            if (OverrideTools.checkOverwriteTop250(movie, FILMWEB_PLUGIN_ID)) {
+                movie.setTop250(HTMLTools.extractTag(xml, "worldRanking", 0, ">."), FILMWEB_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteReleaseDate(movie, FILMWEB_PLUGIN_ID)) {

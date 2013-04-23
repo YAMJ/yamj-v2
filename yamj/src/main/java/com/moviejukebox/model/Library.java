@@ -445,6 +445,7 @@ public class Library implements Map<String, Movie> {
             int countTV = 0;
             int countHD = 0;
             int top250 = -1;
+            String top250source = Movie.UNKNOWN;
             boolean watched = true; // Assume watched for the check, because any false value will reset it.
             int maxRating = 0;
             int sumRating = 0;
@@ -471,6 +472,7 @@ public class Library implements Map<String, Movie> {
                 int mTop250 = movie.getTop250();
                 if (mTop250 > 0 && (top250 < 0 || mTop250 < top250)) {
                     top250 = mTop250;
+                    top250source = movie.getOverrideSource(OverrideFlag.TOP250);
                 }
 
                 currentRating = movie.getRating();
@@ -498,7 +500,7 @@ public class Library implements Map<String, Movie> {
             indexMaster.setMovieType(countTV > 0 ? Movie.TYPE_TVSHOW : Movie.TYPE_MOVIE);
             indexMaster.setVideoType(countHD > 0 ? Movie.TYPE_VIDEO_HD : null);
             indexMaster.setWatchedFile(watched);
-            indexMaster.setTop250(top250);
+            indexMaster.setTop250(top250, top250source);
 
             if (setsRating.equalsIgnoreCase("max") || (setsRating.equalsIgnoreCase("average") && (indexMovieList.size() > 0))) {
                 HashMap<String, Integer> ratings = new HashMap<String, Integer>();

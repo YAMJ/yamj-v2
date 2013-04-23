@@ -1026,7 +1026,7 @@ public class MovieJukeboxXMLWriter {
         if (movie.isWatched()) {
             DOMHelper.appendChild(doc, eMovie, "watchedDate", movie.getWatchedDateString());
         }
-        DOMHelper.appendChild(doc, eMovie, "top250", Integer.toString(movie.getTop250()));
+        DOMHelper.appendChild(doc, eMovie, "top250", Integer.toString(movie.getTop250()), SOURCE, movie.getOverrideSource(OverrideFlag.TOP250));
         DOMHelper.appendChild(doc, eMovie, DETAILS, HTMLTools.encodeUrl(movie.getBaseName()) + EXT_HTML);
         DOMHelper.appendChild(doc, eMovie, "posterURL", HTMLTools.encodeUrl(movie.getPosterURL()));
         DOMHelper.appendChild(doc, eMovie, "posterFile", HTMLTools.encodeUrl(movie.getPosterFilename()));

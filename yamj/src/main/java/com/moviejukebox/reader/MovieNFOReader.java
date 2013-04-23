@@ -404,12 +404,8 @@ public final class MovieNFOReader {
                 if (OverrideTools.checkOverwriteCountry(movie, NFO_PLUGIN_ID)) {
                     movie.setCountry(DOMHelper.getValueFromElement(eCommon, "country"), NFO_PLUGIN_ID);
                 }
-
-                if (!movie.isTVShow()) {
-                    String tempTop250 = DOMHelper.getValueFromElement(eCommon, "top250");
-                    if (StringUtils.isNumeric(tempTop250)) {
-                        movie.setTop250(Integer.parseInt(tempTop250));
-                    }
+                if (OverrideTools.checkOverwriteTop250(movie, NFO_PLUGIN_ID)) {
+                    movie.setTop250(DOMHelper.getValueFromElement(eCommon, "top250"), NFO_PLUGIN_ID);
                 }
 
                 // Poster and Fanart

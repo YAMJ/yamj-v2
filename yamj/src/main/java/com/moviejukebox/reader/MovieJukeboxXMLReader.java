@@ -166,9 +166,6 @@ public class MovieJukeboxXMLReader {
                     }
                 }   // End of Ratings
 
-                // get the IMDB top250 rating
-                movie.setTop250(Integer.parseInt(DOMHelper.getValueFromElement(eMovie, "top250")));
-
                 // Get the watched flags
                 // The "watched" attribute is transient, based on the status of the watched movie files
 //                movie.setWatchedFile(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watched")));
@@ -215,6 +212,9 @@ public class MovieJukeboxXMLReader {
                 // get the runtime
                 parseOverridableRuntime(movie, eMovie);
 
+                // get the top 250
+                parseOverridableTop250(movie, eMovie);
+                
                 // Get the directors
                 nlElements = eMovie.getElementsByTagName("directors");
                 if (nlElements.getLength() > 0) {
@@ -1151,6 +1151,16 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName(TITLE);
             Element tagElement = (Element) nlElement.item(0);
             movie.setTitle(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
+        } catch (Exception ignore) {
+            // ignore this error
+        }
+    }
+
+    private void parseOverridableTop250(Movie movie, Element element) {
+        try {
+            NodeList nlElement = element.getElementsByTagName("top250");
+            Element tagElement = (Element) nlElement.item(0);
+            movie.setTop250(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
         } catch (Exception ignore) {
             // ignore this error
         }
