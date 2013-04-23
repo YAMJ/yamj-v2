@@ -158,6 +158,11 @@ public final class OverrideTools {
         putMoviePriorities(OverrideFlag.TITLE, sources);
         sources = PropertiesUtil.getProperty("priority.tv.title", "nfo,PLUGIN,ALTERNATE,filename");
         putTvPriorities(OverrideFlag.TITLE, sources);
+        // top250
+        sources = PropertiesUtil.getProperty("priority.movie.top250", "nfo,PLUGIN,ALTERNATE");
+        putMoviePriorities(OverrideFlag.TOP250, sources);
+        sources = PropertiesUtil.getProperty("priority.tv.top250", "nfo,PLUGIN,ALTERNATE");
+        putTvPriorities(OverrideFlag.TOP250, sources);
         // video output
         sources = PropertiesUtil.getProperty("priority.movie.videooutput", "nfo,mediainfo,filename");
         putMoviePriorities(OverrideFlag.VIDEOOUTPUT, sources);
@@ -619,6 +624,16 @@ public final class OverrideTools {
             return Boolean.TRUE;
         }
         return checkOverwrite(movie, OverrideFlag.TITLE, source);
+    }
+
+    public static boolean checkOverwriteTop250(Movie movie, String source) {
+        if (skipCheck(movie, OverrideFlag.TOP250, source)) {
+            // skip the check
+            return Boolean.FALSE;
+        } else if (movie.getTop250() <= 0) {
+            return Boolean.TRUE;
+        }
+        return checkOverwrite(movie, OverrideFlag.TOP250, source);
     }
 
     public static boolean checkOverwriteVideoOutput(Movie movie, String source) {

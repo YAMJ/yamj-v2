@@ -2037,10 +2037,19 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return top250;
     }
 
-    public void setTop250(int top250) {
-        if (top250 != this.top250) {
-            setDirty(DirtyFlag.INFO);
-            this.top250 = top250;
+    public void setTop250(String top250, String source) {
+        if (StringUtils.isNumeric(top250)) {
+            setTop250(Integer.parseInt(top250), source);
+        }
+    }
+
+    public void setTop250(int top250, String source) {
+        if (top250 > 0) {
+            if (top250 != this.top250) {
+                setDirty(DirtyFlag.INFO);
+                this.top250 = top250;
+            }
+            setOverrideSource(OverrideFlag.TOP250, source);
         }
     }
 

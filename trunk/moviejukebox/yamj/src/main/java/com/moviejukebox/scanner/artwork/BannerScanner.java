@@ -40,6 +40,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
@@ -81,8 +82,9 @@ public class BannerScanner {
             while (st.hasMoreTokens()) {
                 bannerImageName.add(st.nextToken());
             }
+        } else {
+            bannerImageName = Collections.emptyList();
         }
-
     }
 
     private BannerScanner() {

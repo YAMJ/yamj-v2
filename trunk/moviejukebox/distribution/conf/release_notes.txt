@@ -61,6 +61,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2627 Respect movie.actor.maxCount in any case when parsing NFO file
  - Fixed defect #2629 Find correct filmweb url from Filmweb due layout change
  - Enhancement  #2630 Set a default language for audio codes with unknown language
+ - Enhancement  #2648 Use priority checks for Top250
 
 MovieJukebox 2.8 2012-12-17)
 -----------------------------

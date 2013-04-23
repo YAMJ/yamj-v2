@@ -22,6 +22,9 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.OverrideTools;
+
 import com.moviejukebox.model.*;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.*;
@@ -60,7 +63,6 @@ public class KinopoiskPlugin extends ImdbPlugin {
     // Set NFO information priority
     private boolean nfoPriority = PropertiesUtil.getBooleanProperty("kinopoisk.NFOpriority", Boolean.FALSE);
     private boolean nfoRating = false;
-    private boolean nfoTop250 = false;
     private boolean nfoFanart = false;
     private boolean nfoPoster = false;
     private boolean nfoAwards = false;
@@ -108,7 +110,6 @@ public class KinopoiskPlugin extends ImdbPlugin {
         if (nfoPriority) {
             // checked NFO data
             nfoRating = mediaFile.getRating() > -1;
-            nfoTop250 = mediaFile.getTop250() > -1;
             nfoFanart = StringTools.isValidString(mediaFile.getFanartURL());
             nfoPoster = StringTools.isValidString(mediaFile.getPosterURL());
             nfoAwards = mediaFile.getAwards().size() > 0;
@@ -603,21 +604,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             // Top250
-            // Clear previous rating : if KinoPoisk is selected as search engine -
-            // it means user wants KinoPoisk's rating, not global.
-            if (!nfoTop250) {
-                movie.setTop250(-1);
-                String top250 = HTMLTools.extractTag(xml, "<a href=\"/level/20/#", 0, "\"");
-                valueFounded = false;
-                try {
-                    movie.setTop250(Integer.parseInt(top250));
-                    valueFounded = true;
-                } catch (Exception ignore) {
-                    // Ignore
-                }
-                if (!valueFounded && etalonFlag) {
-                    LOG.error(LOG_MESSAGE + "Site design changed - failed get Top250!");
-                }
+            if (OverrideTools.checkOverwriteTop250(movie, KINOPOISK_PLUGIN_ID)) {
+                movie.setTop250(HTMLTools.extractTag(xml, "<a href=\"/level/20/#", 0, "\""), KINOPOISK_PLUGIN_ID);
             }
 
             // Poster
