@@ -52,7 +52,7 @@ public class FilmAffinityInfo {
     /*
      * To isolate every title (with id) from search results
      */
-    private Pattern linkPattern = Pattern.compile("<b><a href=\"/es/(film[0-9]{6}\\.html)\">([^<]+)</a></b>");
+    private Pattern linkPattern = Pattern.compile("<div class=\"mc-title\"><a href=\"/es/(film[0-9]{6}\\.html)\">([^<]+)</a>");
     public static final String FILMAFFINITY_PLUGIN_ID = "filmaffinity";
 
     public FilmAffinityInfo() {

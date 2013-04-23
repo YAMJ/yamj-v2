@@ -45,17 +45,18 @@ public class FilmaffinityPlugin extends ImdbPlugin {
     /*
      * Literals of web of each movie info
      */
-    private static final String FA_ORIGINAL_TITLE = "<th>T&Iacute;TULO ORIGINAL</th>";
-    private static final String FA_YEAR = "<th>A&Ntilde;O</th>";
-    private static final String FA_RUNTIME = "<th>DURACI&Oacute;N</th>";
-    private static final String FA_DIRECTOR = "<th>DIRECTOR</th>";
-    private static final String FA_WRITER = "<th>GUI&Oacute;N</th>";
-    private static final String FA_CAST = "<th>REPARTO</th>";
-    private static final String FA_GENRE = "<th>G&Eacute;NERO</th>";
-    private static final String FA_COMPANY = "<th>PRODUCTORA</th>";
-    private static final String FA_PLOT = "<th>SINOPSIS</th>";
+    private static final String FA_ORIGINAL_TITLE = "<dt>T&iacute;tulo original</dt>";
+    private static final String FA_YEAR = "<dt>A&ntilde;o</dt>";
+    private static final String FA_RUNTIME = "<dt>Duraci&oacute;n</dt>";
+    private static final String FA_DIRECTOR = "<dt>Director</dt>";
+    private static final String FA_WRITER = "<dt>Gui&oacute;n</dt>";
+    private static final String FA_CAST = "<dt>Reparto</dt>";
+    private static final String FA_GENRE = "<dt>G&eacute;nero</dt>";
+    private static final String FA_COMPANY = "<dt>Productora</dt>";
+    private static final String FA_PLOT = "<dt>Sinopsis</dt>";
     private FilmAffinityInfo filmAffinityInfo;
 
+    
     public FilmaffinityPlugin() {
         super();  // use IMDB if FilmAffinity doesn't know movie
         filmAffinityInfo = new FilmAffinityInfo();
@@ -108,7 +109,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             }
 
             if (OverrideTools.checkOverwriteTitle(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
-                String spanishTitle = HTMLTools.getTextAfterElem(xml, "<img src=\"http://www.filmaffinity.com/images/movie.gif\" border=\"0\">").replaceAll("\\s{2,}", " ");
+                String spanishTitle = HTMLTools.getTextAfterElem(xml, "<h1 id=\"main-title\">").replaceAll("\\s{2,}", " ");
                 movie.setTitle(spanishTitle, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
             if (OverrideTools.checkOverwriteOriginalTitle(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
@@ -125,7 +126,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             }
 
             if (OverrideTools.checkOverwriteRuntime(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
-                String runTime = HTMLTools.getTextAfterElem(xml, FA_RUNTIME, 1).replace(" min.", "m");
+                String runTime = HTMLTools.getTextAfterElem(xml, FA_RUNTIME).replace("min.", "m");
                 if (!runTime.equals("min.")) {
                     movie.setRuntime(runTime, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
                 }
@@ -139,7 +140,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             }
 
             if (OverrideTools.checkOverwriteDirectors(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
-                List<String> newDirectors = Arrays.asList(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_DIRECTOR, "</a></td>")).split(","));
+                List<String> newDirectors = Arrays.asList(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_DIRECTOR, "</a></dd>")).split(","));
                 movie.setDirectors(newDirectors, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
 
@@ -157,7 +158,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             }
 
             if (OverrideTools.checkOverwriteActors(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
-                List<String> newActors = Arrays.asList(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_CAST, "</a></td>")).split(","));
+                List<String> newActors = Arrays.asList(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_CAST, "</a></dd>")).split(","));
                 movie.setCast(newActors, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
 
@@ -168,14 +169,14 @@ public class FilmaffinityPlugin extends ImdbPlugin {
 
             if (OverrideTools.checkOverwriteGenres(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
                 List<String> newGenres = new ArrayList<String>();
-                for (String genre : HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_GENRE, "</td>")).split("\\.|\\|")) {
+                for (String genre : HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_GENRE, "</dd>")).split("\\.|\\|")) {
                     newGenres.add(Library.getIndexingGenre(cleanStringEnding(genre.trim())));
                 }
                 movie.setGenres(newGenres, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
             }
 
             try {
-                movie.addRating(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID, (int) (Float.parseFloat(HTMLTools.extractTag(xml, "<td align=\"center\" style=\"color:#990000; font-size:22px; font-weight: bold;\">", "</td>").replace(",", ".")) * 10));
+                movie.addRating(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID, (int) (Float.parseFloat(HTMLTools.extractTag(xml, "<div id=\"movie-rat-avg\">", "</div>").replace(",", ".")) * 10));
             } catch (Exception e) {
                 // Don't set a rating
             }
