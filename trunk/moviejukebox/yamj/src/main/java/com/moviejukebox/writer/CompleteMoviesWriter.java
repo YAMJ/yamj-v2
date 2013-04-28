@@ -47,11 +47,11 @@ import org.apache.log4j.Logger;
  */
 public class CompleteMoviesWriter {
 
-    private static final Logger logger = Logger.getLogger(CompleteMoviesWriter.class);
+    private static final Logger LOG = Logger.getLogger(CompleteMoviesWriter.class);
     private static final String LOG_MESSAGE = "CompleteMovies: ";
-    private static final String completeMoviesXmlFileName = "CompleteMovies.xml";
-    private static final String rssXmlFileName = "rss.xml";
-    private static final String rssXslFileName = "rss.xsl";
+    private static final String COMPLETE_MOVIES_XML = "CompleteMovies.xml";
+    private static final String RSS_XML_FILENAME = "rss.xml";
+    private static final String RSS_XSL_FILENAME = "rss.xsl";
 
     protected CompleteMoviesWriter() {
         throw new UnsupportedOperationException("Class cannot be initialised");
@@ -68,18 +68,19 @@ public class CompleteMoviesWriter {
         JAXBContext context;
 
         try {
+            LOG.info(LOG_MESSAGE + "Generating " + COMPLETE_MOVIES_XML);
             context = JAXBContext.newInstance(MovieJukebox.JukeboxXml.class);
         } catch (JAXBException error) {
-            logger.warn(LOG_MESSAGE + "RSS is not generated (Context creation error).");
-            logger.warn(SystemTools.getStackTrace(error));
+            LOG.warn(LOG_MESSAGE + "RSS is not generated (Context creation error).");
+            LOG.warn(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         }
 
         MovieJukebox.JukeboxXml jukeboxXml = new MovieJukebox.JukeboxXml();
         jukeboxXml.movies = library.values();
 
-        File totalMoviesXmlFile = new File(jukebox.getJukeboxTempLocationDetails(), completeMoviesXmlFileName);
-        File rootTotalMoviesFile = FileTools.fileCache.getFile(StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), completeMoviesXmlFileName));
+        File totalMoviesXmlFile = new File(jukebox.getJukeboxTempLocationDetails(), COMPLETE_MOVIES_XML);
+        File rootTotalMoviesFile = FileTools.fileCache.getFile(StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), COMPLETE_MOVIES_XML));
 
         if (library.isDirty() || !rootTotalMoviesFile.exists()) {
             OutputStream marStream = null;
@@ -87,12 +88,12 @@ public class CompleteMoviesWriter {
                 marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
                 context.createMarshaller().marshal(jukeboxXml, marStream);
             } catch (JAXBException ex) {
-                logger.warn(LOG_MESSAGE + "RSS is not generated (JAXB error): " + ex.getMessage());
-                logger.warn(SystemTools.getStackTrace(ex));
+                LOG.warn(LOG_MESSAGE + "RSS is not generated (JAXB error): " + ex.getMessage());
+                LOG.warn(SystemTools.getStackTrace(ex));
                 return Boolean.FALSE;
             } catch (FileNotFoundException ex) {
-                logger.warn(LOG_MESSAGE + "RSS is not generated (Jukebox error): " + ex.getMessage());
-                logger.warn(SystemTools.getStackTrace(ex));
+                LOG.warn(LOG_MESSAGE + "RSS is not generated (Jukebox error): " + ex.getMessage());
+                LOG.warn(SystemTools.getStackTrace(ex));
                 return Boolean.FALSE;
             } finally {
                 if (marStream != null) {
@@ -100,28 +101,28 @@ public class CompleteMoviesWriter {
                         marStream.flush();
                         marStream.close();
                     } catch (IOException ex) {
-                        logger.trace(LOG_MESSAGE + "Failed to close marshal file: " + ex.getMessage());
+                        LOG.trace(LOG_MESSAGE + "Failed to close marshal file: " + ex.getMessage());
                     }
                 }
             }
 
             try {
-                Transformer transformer = MovieJukeboxHTMLWriter.getTransformer(new File(rssXslFileName), jukebox.getJukeboxRootLocationDetails());
+                Transformer transformer = MovieJukeboxHTMLWriter.getTransformer(new File(RSS_XSL_FILENAME), jukebox.getJukeboxRootLocationDetails());
 
-                Result xmlResult = new StreamResult(new File(jukebox.getJukeboxTempLocationDetails(), rssXmlFileName));
+                Result xmlResult = new StreamResult(new File(jukebox.getJukeboxTempLocationDetails(), RSS_XML_FILENAME));
                 transformer.transform(new StreamSource(totalMoviesXmlFile), xmlResult);
 
-                logger.debug(LOG_MESSAGE + "RSS has been generated.");
+                LOG.debug(LOG_MESSAGE + "RSS has been generated.");
             } catch (TransformerException ex) {
-                logger.warn(LOG_MESSAGE + "RSS is not generated (Transformer error): " + ex.getMessage());
-                logger.warn(SystemTools.getStackTrace(ex));
+                LOG.warn(LOG_MESSAGE + "RSS is not generated (Transformer error): " + ex.getMessage());
+                LOG.warn(SystemTools.getStackTrace(ex));
                 return Boolean.FALSE;
             }
         }
 
         // These should be added to the list of jukebox files regardless of the state of the library
-        FileTools.addJukeboxFile(completeMoviesXmlFileName);
-        FileTools.addJukeboxFile(rssXmlFileName);
+        FileTools.addJukeboxFile(COMPLETE_MOVIES_XML);
+        FileTools.addJukeboxFile(RSS_XML_FILENAME);
         return Boolean.TRUE;
     }
 }

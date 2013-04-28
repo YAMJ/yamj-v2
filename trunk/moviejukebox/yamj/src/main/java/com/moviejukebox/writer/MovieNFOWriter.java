@@ -36,7 +36,7 @@ import org.w3c.dom.Element;
  *
  * @author stuart.boston
  */
-public class MovieNFOWriter {
+final public class MovieNFOWriter {
 
     private static final Logger LOG = Logger.getLogger(MovieNFOWriter.class);
     private static final String LOG_MESSAGE = "MovieNFOWriter: ";
@@ -180,7 +180,7 @@ public class MovieNFOWriter {
             if (movie.getTop250() > 0) {
                 DOMHelper.appendChild(docNFO, eRoot, "top250", Integer.toString(movie.getTop250()));
             }
-            
+
             if (movie.getRating() >= 0) {
                 eRatings = docNFO.createElement(RATINGS);
                 eRoot.appendChild(eRatings);
