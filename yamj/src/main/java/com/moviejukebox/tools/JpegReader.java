@@ -94,12 +94,16 @@ public class JpegReader {
                 image = readImageCmyk(file, reader);
             } catch (IIOException ex) {
                 image = readImageCmyk(file, reader);
+            } finally {
+                reader.dispose();
             }
 
             if (image != null) {
                 break;
             }
         }
+
+        stream.close();
 
         return image;
     }
