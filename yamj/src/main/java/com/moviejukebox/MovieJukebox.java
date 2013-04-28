@@ -698,22 +698,17 @@ public class MovieJukebox {
          * ******************************************************************************
          * @author Gabriel Corneanu
          *
-         * The tools used for parallel processing are NOT thread safe (some
-         * operations are, but not all) therefore all are added to a container
-         * which is instantiated one per thread
+         * The tools used for parallel processing are NOT thread safe (some operations are, but not all) therefore all are added to
+         * a container which is instantiated one per thread
          *
-         * - xmlWriter looks thread safe - htmlWriter was not thread safe, -
-         * getTransformer is fixed (simple workaround) - MovieImagePlugin : not
-         * clear, made thread specific for safety - MediaInfoScanner : not sure,
-         * made thread specific
+         * - xmlWriter looks thread safe - htmlWriter was not thread safe, - getTransformer is fixed (simple workaround) -
+         * MovieImagePlugin : not clear, made thread specific for safety - MediaInfoScanner : not sure, made thread specific
          *
-         * Also important: The library itself is not thread safe for
-         * modifications (API says so) it could be adjusted with concurrent
-         * versions, but it needs many changes it seems that it is safe for
-         * subsequent reads (iterators), so leave for now...
+         * Also important: The library itself is not thread safe for modifications (API says so) it could be adjusted with
+         * concurrent versions, but it needs many changes it seems that it is safe for subsequent reads (iterators), so leave for
+         * now...
          *
-         * - DatabasePluginController is also fixed to be thread safe (plugins
-         * map for each thread)
+         * - DatabasePluginController is also fixed to be thread safe (plugins map for each thread)
          *
          */
         class ToolSet {
@@ -1025,7 +1020,7 @@ public class MovieJukebox {
                                         if (tools.miScanner.extendedExtention(filename) == Boolean.TRUE) {
 
                                             if (mf.getArchiveName() == null) {
-                                                LOG.debug("MovieJukebox: Attempting to get Archivename for " + filename);
+                                                LOG.debug("MovieJukebox: Attempting to get archive name for " + filename);
                                                 String archive = tools.miScanner.archiveScan(movie, filename);
                                                 if (archive != null) {
                                                     LOG.debug("MovieJukebox: Setting archive name to " + archive);
@@ -1492,7 +1487,13 @@ public class MovieJukebox {
             LOG.info("Writing Library data...");
             // Multi-thread: Parallel Executor
             tasks.restart();
+
+            int totalCount = library.values().size();
+            int currentCount = 1;
+
             for (final Movie movie : library.values()) {
+                System.out.print("\r    Processing library #" + currentCount++ + "/" + totalCount);
+
                 // Issue 997: Skip the processing of extras if not required
                 if (movie.isExtra() && !processExtras) {
                     continue;
@@ -1539,6 +1540,7 @@ public class MovieJukebox {
             );
             }
             tasks.waitFor();
+            System.out.print("\n");
 
             SystemTools.showMemory();
             JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.WRITE_INDEX_END, System.currentTimeMillis());
@@ -1547,8 +1549,12 @@ public class MovieJukebox {
                 LOG.info("Writing people data...");
                 // Multi-thread: Parallel Executor
                 tasks.restart();
+
+                totalCount = library.getPeople().size();
+                currentCount = 1;
                 for (final Person person : library.getPeople()) {
                     // Multi-tread: Start Parallel Processing
+                    System.out.print("\r    Processing person #" + currentCount++ + "/" + totalCount);
                     tasks.submit(new Callable<Void>() {
                         @Override
                         public Void call() throws FileNotFoundException, XMLStreamException {
@@ -1569,6 +1575,7 @@ public class MovieJukebox {
                 );
                 }
                 tasks.waitFor();
+                System.out.print("\n");
 
                 SystemTools.showMemory();
                 JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.WRITE_PEOPLE_END, System.currentTimeMillis());
@@ -1577,11 +1584,14 @@ public class MovieJukebox {
             if (!skipIndexGeneration) {
                 if (!skipHtmlGeneration) {
                     LOG.info("Writing Indexes HTML...");
+                    LOG.info("  Video indexes...");
                     htmlWriter.generateMoviesIndexHTML(jukebox, library, tasks);
+                    LOG.info("  Category indexes...");
                     htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Categories", "categories.xsl", library.isDirty());
 
                     // Issue 1882: Separate index files for each category
                     if (separateCategories) {
+                        LOG.info("  Separate category indexes...");
                         for (String categoryName : categoriesList) {
                             htmlWriter.generateMoviesCategoryHTML(jukebox, library, categoryName, "category.xsl", library.isDirty());
                         }
@@ -1589,8 +1599,9 @@ public class MovieJukebox {
                 }
 
                 /*
-                 * Generate the index file. Do not skip this part as it's the
-                 * index that starts the jukebox
+                 * Generate the index file.
+                 *
+                 * Do not skip this part as it's the index that starts the jukebox
                  */
                 htmlWriter.generateMainIndexHTML(jukebox, library);
                 JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.WRITE_HTML_END, System.currentTimeMillis());
@@ -1723,8 +1734,7 @@ public class MovieJukebox {
     /**
      * Clean up the jukebox folder of any extra files that are not needed.
      *
-     * If the jukeboxClean parameter is not set, just report on the files that
-     * would be cleaned.
+     * If the jukeboxClean parameter is not set, just report on the files that would be cleaned.
      */
     private void cleanJukeboxFolder() {
         boolean cleanReport = PropertiesUtil.getBooleanProperty("mjb.jukeboxCleanReport", Boolean.FALSE);
@@ -1803,11 +1813,10 @@ public class MovieJukebox {
      * Generates a movie XML file which contains data in the <tt>Movie</tt>
      * bean.
      *
-     * When an XML file exists for the specified movie file, it is loaded into
-     * the specified <tt>Movie</tt> object.
+     * When an XML file exists for the specified movie file, it is loaded into the specified <tt>Movie</tt> object.
      *
-     * When no XML file exist, scanners are called in turn, in order to add
-     * information to the specified <tt>movie</tt> object. Once scanned, the
+     * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt> object. Once
+     * scanned, the
      * <tt>movie</tt> object is persisted.
      */
     public boolean updateMovieData(MovieJukeboxXMLReader xmlReader, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
@@ -2040,11 +2049,9 @@ public class MovieJukebox {
     }
 
     /**
-     * Update the movie poster for the specified movie. When an existing
-     * thumbnail is found for the movie, it is not overwritten, unless the
-     * mjb.forceThumbnailOverwrite is set to true in the property file. When the
-     * specified movie does not contain a valid URL for the poster, a dummy
-     * image is used instead.
+     * Update the movie poster for the specified movie. When an existing thumbnail is found for the movie, it is not overwritten,
+     * unless the mjb.forceThumbnailOverwrite is set to true in the property file. When the specified movie does not contain a valid
+     * URL for the poster, a dummy image is used instead.
      *
      * @param tempJukeboxDetailsRoot
      */
@@ -2086,11 +2093,10 @@ public class MovieJukebox {
     /**
      * Update the banner for the specified TV Show.
      *
-     * When an existing banner is found for the movie, it is not overwritten,
-     * unless the mjb.forcePosterOverwrite is set to true in the property file.
+     * When an existing banner is found for the movie, it is not overwritten, unless the mjb.forcePosterOverwrite is set to true in
+     * the property file.
      *
-     * When the specified movie does not contain a valid URL for the banner, a
-     * dummy image is used instead.
+     * When the specified movie does not contain a valid URL for the banner, a dummy image is used instead.
      *
      */
     public void updateTvBanner(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
