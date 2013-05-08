@@ -1047,31 +1047,6 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "seasonThumbFile", HTMLTools.encodeUrl(movie.getSeasonThumbFilename()));
         DOMHelper.appendChild(doc, eMovie, "movieDiscURL", HTMLTools.encodeUrl(movie.getMovieDiscURL()));
         DOMHelper.appendChild(doc, eMovie, "movieDiscFile", HTMLTools.encodeUrl(movie.getMovieDiscFilename()));
-
-        // Removed for the time being until the artwork scanner is in place
-        /*
-         * Element eArtwork = doc.createElement("artwork"); for (ArtworkType artworkType : ArtworkType.values()) {
-         * Collection<Artwork> artworkList = movie.getArtwork(artworkType); if (artworkList.size() > 0) { Element
-         * eArtworkType;
-         *
-         * for (Artwork artwork : artworkList) { eArtworkType = doc.createElement(artworkType.toString());
-         * eArtworkType.setAttribute(COUNT, String.valueOf(artworkList.size()));
-         *
-         * DOMHelper.appendChild(doc, eArtworkType, "sourceSite", artwork.getSourceSite()); DOMHelper.appendChild(doc,
-         * eArtworkType, URL, artwork.getUrl());
-         *
-         * for (ArtworkFile artworkFile : artwork.getSizes()) { DOMHelper.appendChild(doc, eArtworkType,
-         * artworkFile.getSize().toString(), artworkFile.getFilename(), "downloaded",
-         * String.valueOf(artworkFile.isDownloaded())); } eArtwork.appendChild(eArtworkType); } } else { // Write a
-         * dummy node Element eArtworkType = doc.createElement(artworkType.toString());
-         * eArtworkType.setAttribute(COUNT, String.valueOf(0));
-         *
-         * DOMHelper.appendChild(doc, eArtworkType, URL, Movie.UNKNOWN); DOMHelper.appendChild(doc, eArtworkType,
-         * ArtworkSize.LARGE.toString(), Movie.UNKNOWN, "downloaded", FALSE);
-         *
-         * eArtwork.appendChild(eArtworkType); } } eMovie.appendChild(eArtwork);
-         */
-
         DOMHelper.appendChild(doc, eMovie, "plot", movie.getPlot(), SOURCE, movie.getOverrideSource(OverrideFlag.PLOT));
         DOMHelper.appendChild(doc, eMovie, "outline", movie.getOutline(), SOURCE, movie.getOverrideSource(OverrideFlag.OUTLINE));
         DOMHelper.appendChild(doc, eMovie, "quote", movie.getQuote(), SOURCE, movie.getOverrideSource(OverrideFlag.QUOTE));
@@ -1415,7 +1390,7 @@ public class MovieJukeboxXMLWriter {
             DOMHelper.appendChild(doc, eFileItem, "fileURL", filename);
 
             for (int part = mf.getFirstPart(); part <= mf.getLastPart(); ++part) {
-                
+
                 childAttributes.clear();
                 childAttributes.put(PART, Integer.toString(part));
                 childAttributes.put(SOURCE, mf.getOverrideSource(OverrideFlag.EPISODE_TITLE));

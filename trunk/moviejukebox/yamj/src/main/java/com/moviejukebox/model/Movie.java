@@ -22,8 +22,6 @@
  */
 package com.moviejukebox.model;
 
-import com.moviejukebox.model.Artwork.Artwork;
-import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.enumerations.CodecSource;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
@@ -144,7 +142,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String libraryDescription = UNKNOWN;
     private long prebuf = -1;
     // Graphics URLs & files
-    private Set<Artwork> artwork = new LinkedHashSet<Artwork>();
     private String posterURL = UNKNOWN; // The original, unaltered, poster
     private String posterFilename = UNKNOWN; // The poster filename
     private String detailPosterFilename = UNKNOWN; // The resized poster for skins
@@ -2750,53 +2747,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return returnDate;
     }
 
-    /**
-     * @return the artwork
-     */
-    public Set<Artwork> getArtwork() {
-        return artwork;
-    }
-
-    /**
-     * @param artwork the artwork to set
-     */
-    public void setArtwork(Set<Artwork> artwork) {
-        this.artwork = artwork;
-    }
-
-    public void addArtwork(Artwork artwork) {
-        //TODO: Check to see if the artwork source/type/url exists and add to it rather than overwrite or append to the list
-        this.artwork.add(artwork);
-    }
-
-    /**
-     * Check to see if an artwork already exists.
-     *
-     * @param artwork
-     * @return
-     */
-    @SuppressWarnings("unused")
-    private Artwork artworkExists(Artwork artwork) {
-        for (Artwork artworkTest : getArtwork(artwork.getType())) {
-            if (artworkTest.equals(artwork)) {
-                return artworkTest;
-            }
-        }
-        return null;
-    }
-
-    public Collection<Artwork> getArtwork(ArtworkType artworkType) {
-        Collection<Artwork> artworkList = new LinkedHashSet<Artwork>();
-
-        for (Artwork tempArtwork : this.artwork) {
-            if (tempArtwork.getType() == artworkType) {
-                artworkList.add(tempArtwork);
-            }
-        }
-
-        return artworkList;
-    }
-
     public String getShowStatus() {
         return showStatus;
     }
@@ -2902,7 +2852,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.writers = new LinkedHashSet<String>(aMovie.writers);
         newMovie.awards = new ArrayList<AwardEvent>(aMovie.awards);
         newMovie.people = new ArrayList<Filmography>(aMovie.people);
-        newMovie.artwork = new LinkedHashSet<Artwork>(aMovie.artwork);
         newMovie.indexes = new HashMap<String, String>(aMovie.indexes);
         newMovie.movieFiles = new TreeSet<MovieFile>(aMovie.movieFiles);
         newMovie.extraFiles = new TreeSet<ExtraFile>(aMovie.extraFiles);
