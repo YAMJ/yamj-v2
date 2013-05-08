@@ -31,12 +31,13 @@ import com.omertron.thetvdbapi.model.BannerType;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Series;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime2.DateTime;
 
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 
-    private static final Logger logger = Logger.getLogger(TheTvDBPosterPlugin.class);
+    private static final Logger LOG = Logger.getLogger(TheTvDBPosterPlugin.class);
     private static final String LOG_MESSAGE = "TheTvDBPosterPlugin: ";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
     private static final String DEFAULT_LANGUAGE = "en";
@@ -158,7 +159,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
 
             if (StringTools.isValidString(posterURL)) {
-                logger.debug(LOG_MESSAGE + "Used poster " + posterURL);
+                LOG.debug(LOG_MESSAGE + "Used poster " + posterURL);
                 return new Image(posterURL);
             }
         } finally {
@@ -213,14 +214,23 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     }
 
     private String findPosterURL(final Banners bannerList, final int season, final String languageId) {
+        String backupUrl = null;
         for (Banner banner : bannerList.getSeasonList()) {
-            if ((banner.getSeason() == season)
-                    && (banner.getBannerType2() == BannerType.Season)
-                    && (banner.getLanguage().equalsIgnoreCase(languageId))) {
-                return banner.getUrl();
+            if ((banner.getSeason() == season) && (banner.getBannerType2() == BannerType.Season)) {
+                if (banner.getLanguage().equalsIgnoreCase(languageId)) {
+                    return banner.getUrl();
+                } else if (StringUtils.isBlank(banner.getLanguage())) {
+                    backupUrl = banner.getUrl();
+                }
             }
         }
-        return null;
+
+        // Log a message to indicate that this is a non-language banner
+        if (backupUrl != null) {
+            LOG.info(LOG_MESSAGE + "No poster found for " + languageId + ", using poster with no language: " + backupUrl);
+        }
+
+        return backupUrl;
     }
 
     @Override
