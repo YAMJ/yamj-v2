@@ -22,9 +22,6 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import com.moviejukebox.model.Artwork.ArtworkFile;
-import com.moviejukebox.model.Artwork.ArtworkSize;
-import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Jukebox;
@@ -239,10 +236,6 @@ public class FanartScanner {
                         }
                         GraphicTools.saveImageToDisk(fanartImage, destFileName);
                         logger.debug(LOG_MESSAGE + fullFanartFilename + " has been copied to " + destFileName);
-
-                        ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, fullFanartFilename, false);
-                        movie.addArtwork(new com.moviejukebox.model.Artwork.Artwork(ArtworkType.Fanart, "local", fullFanartFilename, artworkFile));
-
                     } else {
                         movie.setFanartFilename(Movie.UNKNOWN);
                         movie.setFanartURL(Movie.UNKNOWN);

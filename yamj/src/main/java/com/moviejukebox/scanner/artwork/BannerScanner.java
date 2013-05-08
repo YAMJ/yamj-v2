@@ -22,10 +22,6 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import com.moviejukebox.model.Artwork.Artwork;
-import com.moviejukebox.model.Artwork.ArtworkFile;
-import com.moviejukebox.model.Artwork.ArtworkSize;
-import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
@@ -210,9 +206,6 @@ public final class BannerScanner {
                         bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                         GraphicTools.saveImageToDisk(bannerImage, destFileName);
                         LOG.debug(LOG_MESSAGE + fullBannerFilename + " has been copied to " + destFileName);
-
-                        ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, Movie.UNKNOWN, false);
-                        movie.addArtwork(new Artwork(ArtworkType.Banner, "local", fullBannerFilename, artworkFile));
                     } else {
                         movie.setBannerFilename(Movie.UNKNOWN);
                         movie.setWideBannerFilename(Movie.UNKNOWN);

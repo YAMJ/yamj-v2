@@ -22,10 +22,6 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Artwork.Artwork;
-import com.moviejukebox.model.Artwork.ArtworkFile;
-import com.moviejukebox.model.Artwork.ArtworkSize;
-import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -188,10 +184,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                     if (StringTools.isValidString(bannerUrl)) {
                         movie.setBannerURL(bannerUrl);
-
-                        ArtworkFile artworkFile = new ArtworkFile(ArtworkSize.LARGE, movie.getBannerFilename(), Boolean.FALSE);
-                        Artwork artwork = new Artwork(ArtworkType.Banner, THETVDB_PLUGIN_ID, bannerUrl, artworkFile);
-                        movie.addArtwork(artwork);
                         logger.debug(LOG_MESSAGE + "Used banner " + bannerUrl);
                     }
                 }
