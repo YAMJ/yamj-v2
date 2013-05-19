@@ -40,6 +40,7 @@ import com.omertron.themoviedbapi.model.PersonType;
 import com.omertron.themoviedbapi.model.ProductionCompany;
 import com.omertron.themoviedbapi.model.ProductionCountry;
 import com.omertron.themoviedbapi.model.ReleaseInfo;
+import com.omertron.themoviedbapi.results.TmdbResultsList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -151,10 +152,13 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     if (StringTools.isValidString(movie.getYear()) && StringUtils.isNumeric(movie.getYear())) {
                         movieYear = Integer.parseInt(movie.getYear());
                     }
-                    movieList = TMDb.searchMovie(movie.getTitle(), movieYear, languageCode, INCLUDE_ADULT, 0);
+
+                    TmdbResultsList<MovieDb> result = TMDb.searchMovie(movie.getTitle(), movieYear, languageCode, INCLUDE_ADULT, 0);
+                    movieList = result.getResults();
+
                     // Iterate over the list until we find a match
                     for (MovieDb m : movieList) {
-                        logger.debug(LOG_MESSAGE + "Checking " + m.getTitle() + " (" + m.getReleaseDate().substring(0,4) + ")");
+                        logger.debug(LOG_MESSAGE + "Checking " + m.getTitle() + " (" + m.getReleaseDate().substring(0, 4) + ")");
                         if (TheMovieDbApi.compareMovies(m, movie.getTitle(), Integer.toString(movieYear), SEARCH_MATCH)) {
                             moviedb = m;
                             break;
@@ -187,20 +191,18 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             }
 
 
-            if (moviedb != null) {
-                try {
-                    // Get the release information
-                    movieReleaseInfo = TMDb.getMovieReleaseInfo(moviedb.getId(), countryCode);
-                } catch (MovieDbException ex) {
-                    logger.debug(LOG_MESSAGE + "Failed to get release information");
-                }
+            try {
+                // Get the release information
+                movieReleaseInfo = TMDb.getMovieReleaseInfo(moviedb.getId(), countryCode).getResults();
+            } catch (MovieDbException ex) {
+                logger.debug(LOG_MESSAGE + "Failed to get release information");
+            }
 
-                try {
-                    // Get the cast information
-                    moviePeople = TMDb.getMovieCasts(moviedb.getId());
-                } catch (MovieDbException ex) {
-                    logger.debug(LOG_MESSAGE + "Failed to get cast information");
-                }
+            try {
+                // Get the cast information
+                moviePeople = TMDb.getMovieCasts(moviedb.getId()).getResults();
+            } catch (MovieDbException ex) {
+                logger.debug(LOG_MESSAGE + "Failed to get cast information");
             }
         } finally {
             // the rest is not web search anymore
@@ -391,7 +393,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
             if (moviedb.getSpokenLanguages().size() > 1) {
                 for (Language lang : moviedb.getSpokenLanguages()) {
-                    if (movieLanguage.length() > 0 ) {
+                    if (movieLanguage.length() > 0) {
                         movieLanguage.append(LANGUAGE_DELIMITER);
                     }
                     movieLanguage.append(MovieFilenameScanner.determineLanguage(lang.getIsoCode()));

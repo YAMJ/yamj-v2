@@ -35,6 +35,7 @@ import com.moviejukebox.tools.*;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
 import com.omertron.themoviedbapi.model.MovieDb;
+import com.omertron.themoviedbapi.results.TmdbResultsList;
 import com.omertron.thetvdbapi.TheTVDBApi;
 import com.omertron.thetvdbapi.model.Banner;
 import com.omertron.thetvdbapi.model.BannerType;
@@ -344,7 +345,9 @@ public class FanartScanner {
                     movieYear = Integer.parseInt(movie.getYear());
                 }
 
-                List<MovieDb> movieList = TMDb.searchMovie(movie.getOriginalTitle(), movieYear, language, TheMovieDbPlugin.INCLUDE_ADULT, 0);
+                TmdbResultsList<MovieDb> result = TMDb.searchMovie(movie.getOriginalTitle(), movieYear, language, TheMovieDbPlugin.INCLUDE_ADULT, 0);
+                List<MovieDb> movieList = result.getResults();
+                
                 for (MovieDb m : movieList) {
                     if (m.getTitle().equals(movie.getTitle())
                             || m.getTitle().equalsIgnoreCase(movie.getOriginalTitle())

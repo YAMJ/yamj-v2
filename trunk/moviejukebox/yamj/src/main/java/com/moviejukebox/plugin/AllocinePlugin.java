@@ -47,7 +47,8 @@ public class AllocinePlugin extends ImdbPlugin {
     private static final String CACHE_SEARCH_SERIES = "AllocineSearchSeries";
     private static final String CACHE_MOVIE = "AllocineMovie";
     private static final String CACHE_SERIES = "AllocineSeries";
-
+    private static final String API_KEY_PARTNER = PropertiesUtil.getProperty("API_KEY_Allocine_Partner");
+    private static final String API_KEY_SECRET = PropertiesUtil.getProperty("API_KEY_Allocine_Secret");
     private AllocineAPIHelper allocineAPI;
     private SearchEngineTools searchEngines;
     private boolean includeVideoImages;
@@ -59,14 +60,16 @@ public class AllocinePlugin extends ImdbPlugin {
         // set up the Allocine API for XML or JSON
         String format = PropertiesUtil.getProperty("allocine.api.format", "json");
         if ("xml".equalsIgnoreCase(format)) {
-            allocineAPI = new XMLAllocineAPIHelper(PropertiesUtil.getProperty("API_KEY_Allocine"));
+//            allocineAPI = new XMLAllocineAPIHelper(PropertiesUtil.getProperty("API_KEY_Allocine"));
+            allocineAPI = new XMLAllocineAPIHelper(API_KEY_PARTNER, API_KEY_SECRET);
         } else {
-            allocineAPI = new JSONAllocineAPIHelper(PropertiesUtil.getProperty("API_KEY_Allocine"));
+//            allocineAPI = new JSONAllocineAPIHelper(PropertiesUtil.getProperty("API_KEY_Allocine"));
+            allocineAPI = new JSONAllocineAPIHelper(API_KEY_PARTNER, API_KEY_SECRET);
         }
         allocineAPI.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
 
         searchEngines = new SearchEngineTools("fr");
-        
+
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
         downloadFanart = PropertiesUtil.getBooleanProperty("fanart.tv.download", Boolean.FALSE);
@@ -94,14 +97,14 @@ public class AllocinePlugin extends ImdbPlugin {
             } else {
                 allocineId = getAllocineMovieId(title, year);
             }
-            if (isNotValidString(allocineId))  {
+            if (isNotValidString(allocineId)) {
                 // try to find the id with search engine
                 allocineId = getAllocineIdFromSearchEngine(title, year, season);
             }
         } catch (Exception error) {
             LOGGER.error(LOG_MESSAGE + "Failed to retrieve Allocine id for movie : " + title);
             LOGGER.error(SystemTools.getStackTrace(error));
-       }
+        }
         return allocineId;
     }
 
@@ -202,7 +205,7 @@ public class AllocinePlugin extends ImdbPlugin {
     @Override
     public boolean scan(Movie movie) {
         String allocineId = getMovieId(movie);
-        
+
         // we also get imdb Id for extra infos
         if (isNotValidString(movie.getId(IMDB_PLUGIN_ID))) {
             movie.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(movie.getOriginalTitle(), movie.getYear(), movie.isTVShow()));
@@ -325,7 +328,7 @@ public class AllocinePlugin extends ImdbPlugin {
                 int count = 0;
                 for (MoviePerson person : movieInfos.getActors()) {
                     if (movie.addActor(Movie.UNKNOWN, person.getName(), person.getRole(), Movie.UNKNOWN, Movie.UNKNOWN, ALLOCINE_PLUGIN_ID)) {
-                        count ++;
+                        count++;
                     }
                     if (count == actorMax) {
                         break;
@@ -444,19 +447,19 @@ public class AllocinePlugin extends ImdbPlugin {
                 if (currentSeason <= 0 || currentSeason > tvSeriesInfos.getSeasonCount()) {
                     throw new Exception("Invalid season " + movie.getSeason());
                 }
-                
+
                 TvSeasonInfos tvSeasonInfos = allocineAPI.getTvSeasonInfos(tvSeriesInfos.getSeasonCode(currentSeason));
                 if (tvSeasonInfos.isValid()) {
                     for (MovieFile file : movie.getFiles()) {
-                    
+
                         for (int numEpisode = file.getFirstPart(); numEpisode <= file.getLastPart(); ++numEpisode) {
                             Episode episode = tvSeasonInfos.getEpisode(numEpisode);
                             if (episode != null) {
-    
+
                                 if (OverrideTools.checkOverwriteEpisodeTitle(file, numEpisode, ALLOCINE_PLUGIN_ID)) {
                                     file.setTitle(numEpisode, episode.getTitle(), ALLOCINE_PLUGIN_ID);
                                 }
-    
+
                                 if (StringTools.isValidString(episode.getSynopsis()) && OverrideTools.checkOverwriteEpisodePlot(file, numEpisode, ALLOCINE_PLUGIN_ID)) {
                                     String episodePlot = HTMLTools.replaceHtmlTags(episode.getSynopsis(), " ");
                                     file.setPlot(numEpisode, episodePlot, ALLOCINE_PLUGIN_ID);
@@ -542,7 +545,7 @@ public class AllocinePlugin extends ImdbPlugin {
                 }
             }
         }
-        
+
         LOGGER.debug(LOG_MESSAGE + "No Allocine id found in NFO");
         return Boolean.FALSE;
     }

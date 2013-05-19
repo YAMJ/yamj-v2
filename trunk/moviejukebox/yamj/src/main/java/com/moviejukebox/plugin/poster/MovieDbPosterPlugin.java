@@ -30,6 +30,7 @@ import com.moviejukebox.tools.WebBrowser;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
 import com.omertron.themoviedbapi.model.MovieDb;
+import com.omertron.themoviedbapi.results.TmdbResultsList;
 import java.net.URL;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -83,7 +84,8 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                 movieYear = Integer.parseInt(searchYear);
             }
 
-            movieList = TMDb.searchMovie(title, movieYear, languageCode, INCLUDE_ADULT, 0);
+            TmdbResultsList<MovieDb> result = TMDb.searchMovie(title, movieYear, languageCode, INCLUDE_ADULT, 0);
+            movieList = result.getResults();
         } catch (MovieDbException ex) {
             logger.warn(LOG_MESSAGE + "Failed to get TMDB ID for " + title + "(" + searchYear + ")");
             return Movie.UNKNOWN;
