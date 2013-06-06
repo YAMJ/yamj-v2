@@ -44,7 +44,6 @@ public class FileTools {
     static final int BUFF_SIZE = 16 * 1024;
     private static final Collection<String> SUBTITLE_EXTENSIONS = new ArrayList<String>();
     private static final Collection<ReplaceEntry> UNSAFE_CHARS = new ArrayList<ReplaceEntry>();
-    private static final Character ENCODE_ESCAPE_CHAR;
     private static final Collection<String> GENERATED_FILENAMES = Collections.synchronizedCollection(new ArrayList<String>());
     private static boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
     private static int footerImageEnabled = PropertiesUtil.getIntProperty("mjb.footer.count", 0);
@@ -57,7 +56,7 @@ public class FileTools {
     // Lock for mkdirs
     private static Lock fsLock = new ReentrantLock();
 
-    static {
+    public static void initSubtitleExtensions() {
         if (SUBTITLE_EXTENSIONS.isEmpty()) {
             SUBTITLE_EXTENSIONS.addAll(Arrays.asList(PropertiesUtil.getProperty("filename.scanner.subtitle", "SRT,SUB,SSA,SMI,PGS").split(",")));
         }
@@ -96,12 +95,16 @@ public class FileTools {
         }
     };
 
-    static {
+    public static void initUnsafeChars() {
+        if (!UNSAFE_CHARS.isEmpty()) {
+            return;
+        }
+
         // What to do if the user specifies a blank encodeEscapeChar? I guess disable encoding.
         String encodeEscapeCharString = PropertiesUtil.getProperty("mjb.charset.filenameEncodingEscapeChar", "$");
         if (encodeEscapeCharString.length() > 0) {
             // What to do if the user specifies a >1 character long string? I guess just use the first char.
-            ENCODE_ESCAPE_CHAR = encodeEscapeCharString.charAt(0);
+            final Character ENCODE_ESCAPE_CHAR = encodeEscapeCharString.charAt(0);
 
             String repChars = PropertiesUtil.getProperty("mjb.charset.unsafeFilenameChars", "<>:\"/\\|?*");
             for (String repChar : repChars.split("")) {
@@ -115,8 +118,6 @@ public class FileTools {
                     }
                 }
             }
-        } else {
-            ENCODE_ESCAPE_CHAR = null;
         }
 
         // Parse transliteration map: (source_character [-] transliteration_sequence [,])+
