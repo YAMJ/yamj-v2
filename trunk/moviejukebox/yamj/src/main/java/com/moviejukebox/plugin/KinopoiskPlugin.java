@@ -82,6 +82,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
     private boolean translitCountry = PropertiesUtil.getBooleanProperty("kinopoisk.translit.country", Boolean.FALSE);
     private String etalonId = PropertiesUtil.getProperty("kinopoisk.etalon", "448");
     // Personal information
+    private boolean translateName = PropertiesUtil.getBooleanProperty("kinopoisk.translateName", Boolean.FALSE);
     private int biographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", 500);
     private boolean skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", Boolean.FALSE);
     private boolean skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", Boolean.FALSE);
@@ -341,7 +342,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
                         // Original title
                         originalTitle = newTitle;
-                        for (String s : HTMLTools.extractTags(xml, "<span style=\"color: #666", "</span>", "font-size: 13px\" itemprop=\"alternativeHeadline\">", "</span>")) {
+                        for (String s : HTMLTools.extractTags(xml, "class=\"moviename-big\" itemprop=\"name\">", "</span>", "itemprop=\"alternativeHeadline\">", "</span>")) {
                             if (!s.isEmpty()) {
                                 originalTitle = s;
                                 if (joinTitles) {
@@ -381,7 +382,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             boolean valueFounded = false;
-            for (String item : HTMLTools.extractTags(xml, "<table class=\"info\">", "</table>", "<tr>", "</tr>")) {
+            for (String item : HTMLTools.extractTags(xml, "<table class=\"info \">", "</table>", "<tr>", "</tr>")) {
                 item = "<td>" + item + "</tr>";
 
                 // Genres
@@ -446,7 +447,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 // Country
                 if (OverrideTools.checkOverwriteCountry(movie, KINOPOISK_PLUGIN_ID)) {
                     boolean countryFounded = false;
-                    Collection<String> country = HTMLTools.extractTags(item, ">страна<", "</tr>", "<a href=\"/level/10", "</a>");
+                    Collection<String> country = HTMLTools.extractTags(xml, ">страна<", "</tr>", "<a href=\"/level/10", "</a>");
                     if (country != null && country.size() > 0) {
                         String strCountry = countryAll ? StringUtils.join(country, Movie.SPACE_SLASH_SPACE) : new ArrayList<String>(country).get(0);
                         if (translitCountry) {
@@ -680,7 +681,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
 
-                    if (kadr && StringTools.isNotValidString(fanURL)) {
+                    if (!kadr && StringTools.isNotValidString(fanURL)) {
                         // Load page with all videoimage
                         wholeArts = webBrowser.request(FILM_URL + kinopoiskId + "/stills/");
                         if (StringTools.isValidString(wholeArts)) {
@@ -744,10 +745,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 if (clearAward) {
                     movie.clearAwards();
                 }
-                xml = webBrowser.request("http://www.kinopoisk.ru/awards/film/" + kinopoiskId);
+                xml = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/awards/");
                 Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
                 if (StringTools.isValidString(xml)) {
-                    int beginIndex = xml.indexOf("/awards/award/");
+                    int beginIndex = xml.indexOf("<b><a href=\"/awards");
                     if (beginIndex != -1) {
                         for (String item : HTMLTools.extractTags(xml, "<table cellspacing=0 cellpadding=0 border=0 width=100%>", "<br /><br /><br /><br /><br /><br />", "<table cellspacing=0 cellpadding=0 border=0 width=100% ", "</table>")) {
                             String name = Movie.UNKNOWN;
@@ -756,7 +757,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             int nominated = 0;
                             Collection<String> wons = new ArrayList<String>();
                             Collection<String> nominations = new ArrayList<String>();
-                            for (String tmp : HTMLTools.extractTags(item, "<td height=40 class=\"news\" style=\"padding:10px\">", "</td>", "<a href=\"/awards/award/", "</a>")) {
+                            for (String tmp : HTMLTools.extractTags(item, "<td height=40 class=\"news\" style=\"padding:10px\">", "</td>", "<a href=\"/awards/", "</a>")) {
                                 int coma = tmp.indexOf(",");
                                 name = tmp.substring(0, coma);
                                 year = Integer.parseInt(tmp.substring(coma + 2, coma + 6));
@@ -947,12 +948,16 @@ public class KinopoiskPlugin extends ImdbPlugin {
         boolean clearList = Boolean.TRUE;
 
         if (personMax > 0 && xml.indexOf("<a name=\"" + mode + "\">") != -1) {
-            for (String item : HTMLTools.extractTags(xml, "<a name=\"" + mode + "\">", "<a name=\"", "<div class=\"dub ", "<div class=\"clear\"></div>")) {
+            for (String item : HTMLTools.extractTags(xml, "<a name=\"" + mode + "\">", "<a name=\"", "<div class=\"dub ", "</div>      <div class=\"clear\"></div>   </div>   <div class=\"clear\"></div></div>")) {
                 String name = HTMLTools.extractTag(item, "<div class=\"name\"><a href=\"/name/", "</a>");
                 int beginIndex = name.indexOf("/\">");
                 String personID = name.substring(0, beginIndex);
                 name = name.substring(beginIndex + 3);
                 String origName = HTMLTools.extractTag(item, "<span class=\"gray\">", "</span>").replace('\u00A0', ' ').trim();
+                beginIndex = origName.indexOf(" (");
+                if (beginIndex > -1) {
+                    origName = origName.substring(0, beginIndex);
+                }
                 if (StringTools.isNotValidString(origName)) {
                     origName = name;
                 }
@@ -961,7 +966,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 if (mode.equals("actor")) {
                     role = HTMLTools.extractTag(item, "<div class=\"role\">", "</div>").replaceAll("^\\.+\\s", "").replaceAll("\\s.$", "");
                     if (item.indexOf("<div class=\"dubInfo\">") > -1) {
-                        dubler = HTMLTools.extractTag(HTMLTools.extractTag(item, "<div class=\"dubInfo\">", "</span></div>"), "<div class=\"name\"><a href=\"/name/", "</a>");
+                        dubler = HTMLTools.extractTag(HTMLTools.extractTag(item, "<div class=\"dubInfo\">", "</span>"), "<div class=\"name\"><a href=\"/name/", "</a>");
                         dubler = dubler.substring(dubler.indexOf("/\">") + 3);
                     }
                 }
@@ -997,19 +1002,19 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             movie.clearCast();
                             clearList = Boolean.FALSE;
                         }
-                        movie.addActor(origName, KINOPOISK_PLUGIN_ID);
+                        movie.addActor(translateName ? name : origName, KINOPOISK_PLUGIN_ID);
                     } else if (mode.equals("director")) {
                         if (clearList) {
                             movie.clearDirectors();
                             clearList = Boolean.FALSE;
                         }
-                        movie.addDirector(origName, KINOPOISK_PLUGIN_ID);
+                        movie.addDirector(translateName ? name : origName, KINOPOISK_PLUGIN_ID);
                     } else if (mode.equals("writer")) {
                         if (clearList) {
                             movie.clearWriters();
                             clearList = Boolean.FALSE;
                         }
-                        movie.addWriter(origName, KINOPOISK_PLUGIN_ID);
+                        movie.addWriter(translateName ? name : origName, KINOPOISK_PLUGIN_ID);
                     }
                 }
 
