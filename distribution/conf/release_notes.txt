@@ -8,6 +8,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2008 Remove HTML tags from allocine TV episode plots
  - Enhancement  #2035 MediaInfo can determine a 3D video source
  - Fixed defect #2088 Listing plugin size fix for seasons
+ - Fixed defect #2122 Problem with non english characters
  - Fixed defect #2145 Added ability to use MovieMeter via proxy
  - Fixed defect #2175 Get tagline from IMDb if imdb.full.info is enabled
  - Fixed defect #2321 Countries with accent will be scraped from FilmAffinity
@@ -45,6 +46,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2589 Corrected retrieval of country from IMDB
  - Fixed defect #2590 Added possibility to scrape localized titles for preferred country from AKA section
  - Fixed defect #2596 IMDB does not retrieve Spanish language (ES)
+ - Fixed defect #2597 FileTools: Failed copying file with non english characters
  - Fixed defect #2599 Fixed retrieval of cast and directors from Filmweb
  - Enhancement  #2600 Movie class should handle several movie properties itself
  - Fixed defect #2603 Remove year periods from title
