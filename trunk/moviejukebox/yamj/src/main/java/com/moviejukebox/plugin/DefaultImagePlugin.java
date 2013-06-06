@@ -583,7 +583,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         } else if (name.equalsIgnoreCase(LANGUAGE)) {
                             value = movie.getLanguage();
                         } else if (name.equalsIgnoreCase("rating")) {
-                            value = ((!movie.isTVShow() && !movie.isSetMaster()) || (movie.isTVShow() && movie.isSetMaster())) ? Integer.toString(realRating ? movie.getRating() : (movie.getRating() / 10) * 10) : Movie.UNKNOWN;
+                            value = ((!movie.isTVShow() && !movie.isSetMaster()) || (movie.isTVShow() && movie.isSetMaster())) ? Integer.toString(realRating ? movie.getRating() : Math.floor(movie.getRating() / 10) * 10) : Movie.UNKNOWN;
                         } else if (name.equalsIgnoreCase(VIDEOSOURCE) || name.equalsIgnoreCase("source") || name.equalsIgnoreCase("VS")) {
                             value = movie.getVideoSource();
                         } else if (name.equalsIgnoreCase("videoout") || name.equalsIgnoreCase("out") || name.equalsIgnoreCase("VO")) {

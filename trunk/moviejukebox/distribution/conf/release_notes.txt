@@ -13,6 +13,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2321 Countries with accent will be scraped from FilmAffinity
  - Enhancement  #2345 Get actor role from allocine
  - Enhancement  #2397 Read MediaInfo values from file
+ - Fixed defect #2466 Not correct rounded rating at the overlay
  - Fixed defect #2525 Adjusted sratim plugin and poster plugin to new website layout
  - Fixed defect #2532 Fixed set sorting for non-TV shows
  - Enhancement  #2533 Use priority checks for several movie values
