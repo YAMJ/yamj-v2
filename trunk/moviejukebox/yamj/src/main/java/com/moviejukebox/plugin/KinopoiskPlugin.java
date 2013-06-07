@@ -80,6 +80,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
     private boolean clearAward = PropertiesUtil.getBooleanProperty("kinopoisk.clear.award", Boolean.FALSE);
     private boolean clearTrivia = PropertiesUtil.getBooleanProperty("kinopoisk.clear.trivia", Boolean.FALSE);
     private boolean translitCountry = PropertiesUtil.getBooleanProperty("kinopoisk.translit.country", Boolean.FALSE);
+    private boolean russianCertification = PropertiesUtil.getBooleanProperty("kinopoisk.russianCertification", Boolean.FALSE);
     private String etalonId = PropertiesUtil.getProperty("kinopoisk.etalon", "448");
     // Personal information
     private boolean translateName = PropertiesUtil.getBooleanProperty("kinopoisk.translateName", Boolean.FALSE);
@@ -271,19 +272,16 @@ public class KinopoiskPlugin extends ImdbPlugin {
             int beginIndex = xml.indexOf("id_film = ");
             if (beginIndex == -1) {
                 // It's search results page, searching a link to the movie page
-                //beginIndex = xml.indexOf("<!-- результаты поиска");
                 beginIndex = xml.indexOf("class=\"search_results\"");
                 if (beginIndex == -1) {
                     return Movie.UNKNOWN;
                 }
 
-                //beginIndex = xml.indexOf("href=\"/level/1/film/", beginIndex);
                 beginIndex = xml.indexOf("/level/1/film/", beginIndex);
                 if (beginIndex == -1) {
                     return Movie.UNKNOWN;
                 }
 
-                //StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 20), "/\"");
                 StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 14), "/\"");
                 kinopoiskId = st.nextToken();
             } else {
@@ -309,6 +307,26 @@ public class KinopoiskPlugin extends ImdbPlugin {
             LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
+    }
+
+    private boolean getCertification(Movie movie, String xml, String open, String close, String begin, String end, String key) {
+        boolean certificationFounded = false;
+
+        for (String mpaaTag : HTMLTools.extractTags(xml, open, close, begin, end)) {
+            int pos = mpaaTag.indexOf(key);
+            if (pos != -1) {
+                int start = pos + key.length();
+                pos = mpaaTag.indexOf("\"", start);
+                if (pos != -1) {
+                    mpaaTag = mpaaTag.substring(start, pos);
+                    movie.setCertification(mpaaTag, KINOPOISK_PLUGIN_ID);
+                    certificationFounded = true;
+                }
+            }
+            break;
+        }
+
+        return certificationFounded;
     }
 
     /**
@@ -382,15 +400,21 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             boolean valueFounded = false;
+            boolean genresFounded = false;
+            boolean certificationFounded = false;
+            boolean countryFounded = false;
+            boolean yearFounded = false;
+            boolean runtimeFounded = false;
+            boolean taglineFounded = false;
+            boolean releaseFounded = false;
             for (String item : HTMLTools.extractTags(xml, "<table class=\"info \">", "</table>", "<tr>", "</tr>")) {
                 item = "<td>" + item + "</tr>";
 
                 // Genres
                 if (OverrideTools.checkOverwriteGenres(movie, KINOPOISK_PLUGIN_ID)) {
-                    boolean genresFounded = false;
                     LinkedList<String> newGenres = new LinkedList<String>();
                     boolean innerGenresFound = false;
-                    for (String genre : HTMLTools.extractTags(item, ">жанр<", "</tr>", "<a href=\"/level/10", "</a>")) {
+                    for (String genre : HTMLTools.extractTags(item, ">жанр<", "</tr>", "<a href=\"/lists/m_act%5Bgenre%5D/", "</a>")) {
                         innerGenresFound = true;
                         genre = genre.substring(0, 1).toUpperCase() + genre.substring(1, genre.length());
                         if (genre.equalsIgnoreCase("мультфильм")) {
@@ -414,40 +438,19 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         movie.setGenres(newGenres, KINOPOISK_PLUGIN_ID);
                         genresFounded = true;
                     }
-
-                    if (etalonFlag && !genresFounded) {
-                        LOG.error(LOG_MESSAGE + "Site design changed - failed get genres!");
-                    }
                 }
 
                 // Certification from MPAA
                 if (OverrideTools.checkOverwriteCertification(movie, KINOPOISK_PLUGIN_ID)) {
-                    boolean certificationFounded = false;
-                    for (String mpaaTag : HTMLTools.extractTags(xml, ">рейтинг MPAA<", "</tr>", "<a href=\"/film", "</a>")) {
-                        // Now need scan for 'alt' attribute of 'img'
-                        String key = "alt=\"рейтинг ";
-                        int pos = mpaaTag.indexOf(key);
-                        if (pos != -1) {
-                            int start = pos + key.length();
-                            pos = mpaaTag.indexOf("\"", start);
-                            if (pos != -1) {
-                                mpaaTag = mpaaTag.substring(start, pos);
-                                movie.setCertification(mpaaTag, KINOPOISK_PLUGIN_ID);
-                                certificationFounded = true;
-                            }
-                        }
-                        break;
-                    }
-
-                    if (etalonFlag && !certificationFounded) {
-                        LOG.error(LOG_MESSAGE + "Site design changed - failed get certification!");
+                    certificationFounded = getCertification(movie, xml, ">рейтинг MPAA<", "</tr>", "<a href=\"/film", "</a>", "alt=\"рейтинг ");
+                    if (!certificationFounded || russianCertification) {
+                        certificationFounded |= getCertification(movie, xml, ">возраст<", "</tr>", "<td  style='color", " </span>", "ageLimit ");
                     }
                 }
 
                 // Country
                 if (OverrideTools.checkOverwriteCountry(movie, KINOPOISK_PLUGIN_ID)) {
-                    boolean countryFounded = false;
-                    Collection<String> country = HTMLTools.extractTags(xml, ">страна<", "</tr>", "<a href=\"/level/10", "</a>");
+                    Collection<String> country = HTMLTools.extractTags(xml, ">страна<", "</tr>", "a href=\"/lists/m_act%5Bcountry%5D/", "</a>");
                     if (country != null && country.size() > 0) {
                         String strCountry = countryAll ? StringUtils.join(country, Movie.SPACE_SLASH_SPACE) : new ArrayList<String>(country).get(0);
                         if (translitCountry) {
@@ -456,29 +459,19 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         movie.setCountry(strCountry, KINOPOISK_PLUGIN_ID);
                         countryFounded = true;
                     }
-
-                    if (etalonFlag && !countryFounded) {
-                        LOG.error(LOG_MESSAGE + "Site design changed - failed get country!");
-                    }
                 }
 
                 // Year
                 if (OverrideTools.checkOverwriteYear(movie, KINOPOISK_PLUGIN_ID)) {
-                    boolean yearFounded = false;
-                    for (String year : HTMLTools.extractTags(item, ">год<", "</tr>", "<a href=\"/level/10", "</a>")) {
+                    for (String year : HTMLTools.extractTags(item, ">год<", "</tr>", "<a href=\"/lists/m_act%5Byear%5D/", "</a>")) {
                         movie.setYear(year, KINOPOISK_PLUGIN_ID);
                         yearFounded = true;
                         break;
-                    }
-
-                    if (etalonFlag && !yearFounded) {
-                        LOG.error(LOG_MESSAGE + "Site design changed - failed get year!");
                     }
                 }
 
                 // Run time
                 if (OverrideTools.checkOverwriteRuntime(movie, KINOPOISK_PLUGIN_ID) || etalonFlag) {
-                    boolean runtimeFounded = false;
                     for (String runtime : HTMLTools.extractTags(item, ">время<", "</tr>", "<td", "</td>")) {
                         if (runtime.contains("<span")) {
                             runtime = runtime.substring(0, runtime.indexOf("<span"));
@@ -487,15 +480,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         runtimeFounded = true;
                         break;
                     }
-
-                    if (etalonFlag && !runtimeFounded) {
-                        LOG.error(LOG_MESSAGE + "Site design changed - failed get runtime!");
-                    }
                 }
 
                 // Tagline
                 if (OverrideTools.checkOverwriteTagline(movie, KINOPOISK_PLUGIN_ID)) {
-                    boolean taglineFounded = false;
                     for (String tagline : HTMLTools.extractTags(item, ">слоган<", "</tr>", "<td ", "</td>")) {
                         if (tagline.length() > 0) {
                             movie.setTagline(tagline.replace("\u00AB", "\"").replace("\u00BB", "\""), KINOPOISK_PLUGIN_ID);
@@ -503,15 +491,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             break;
                         }
                     }
-
-                    if (etalonFlag && !taglineFounded) {
-                        LOG.error(LOG_MESSAGE + "Site design changed - failed get tagline!");
-                    }
                 }
 
                 // Release date
                 if (OverrideTools.checkOverwriteReleaseDate(movie, KINOPOISK_PLUGIN_ID)) {
-                    boolean releaseFounded = false;
                     String releaseDate = "";
                     for (String release : HTMLTools.extractTags(item, ">премьера (мир)<", "</tr>", "<a href=\"/film/", "</a>")) {
                         releaseDate = release;
@@ -526,10 +509,30 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
                     movie.setReleaseDate(releaseDate, KINOPOISK_PLUGIN_ID);
+                }
+            }
 
-                    if (etalonFlag && !releaseFounded) {
-                        LOG.error(LOG_MESSAGE + "Site design changed - failed get release!");
-                    }
+            if (etalonFlag) {
+                if (!genresFounded) {
+                    LOG.error(LOG_MESSAGE + "Site design changed - failed get genres!");
+                }
+                if (!certificationFounded) {
+                    LOG.error(LOG_MESSAGE + "Site design changed - failed get certification!");
+                }
+                if (!countryFounded) {
+                    LOG.error(LOG_MESSAGE + "Site design changed - failed get country!");
+                }
+                if (!yearFounded) {
+                    LOG.error(LOG_MESSAGE + "Site design changed - failed get year!");
+                }
+                if (!runtimeFounded) {
+                    LOG.error(LOG_MESSAGE + "Site design changed - failed get runtime!");
+                }
+                if (!taglineFounded) {
+                    LOG.error(LOG_MESSAGE + "Site design changed - failed get tagline!");
+                }
+                if (!releaseFounded) {
+                    LOG.error(LOG_MESSAGE + "Site design changed - failed get release!");
                 }
             }
 
@@ -653,14 +656,14 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Fanart
             String fanURL = movie.getFanartURL();
-            if (StringTools.isNotValidString(fanURL) || (!nfoFanart && (fanArt || kadr)) || etalonFlag) {
+            if (StringTools.isNotValidString(fanURL) || (!nfoFanart && (fanArt || kadr)) || etalonFlag || fanURL.indexOf("originalnull") != -1) {
                 valueFounded = false;
                 try {
                     String previousURL = fanURL;
                     fanURL = Movie.UNKNOWN;
 
                     // Load page with all wallpaper
-                    String wholeArts = webBrowser.request("http://www.kinopoisk.ru/level/12/film/" + kinopoiskId + "/");
+                    String wholeArts = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/wall/");
                     if (StringTools.isValidString(wholeArts)) {
                         if (wholeArts.indexOf("<table class=\"fotos") != -1) {
                             String picture = HTMLTools.extractTag(wholeArts, "src=\"http://st.kinopoisk.ru/images/wallpaper/sm_", 0, ".jpg");
@@ -671,7 +674,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                 String size = HTMLTools.extractTag(wholeArts, "<u><a href=\"/picture/" + picture + "/w_size/", 0, "/");
                                 wholeArts = webBrowser.request("http://www.kinopoisk.ru/picture/" + picture + "/w_size/" + size);
                                 if (StringTools.isValidString(wholeArts)) {
-                                    picture = HTMLTools.extractTag(wholeArts, "src=\"http://st.kinopoisk.ru/im/wallpaper/", 0, "\"");
+                                    picture = HTMLTools.extractTag(wholeArts, "src=\"http://st-im.kinopoisk.r/im/wallpaper/", 0, "\"");
                                     if (StringTools.isValidString(picture)) {
                                         fanURL = "http://st.kinopoisk.ru/im/wallpaper/" + picture;
                                         valueFounded = true;
@@ -681,7 +684,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
 
-                    if (!kadr && StringTools.isNotValidString(fanURL)) {
+                    if (kadr && (StringTools.isNotValidString(fanURL) || fanURL.indexOf("originalnull") != -1)) {
                         // Load page with all videoimage
                         wholeArts = webBrowser.request(FILM_URL + kinopoiskId + "/stills/");
                         if (StringTools.isValidString(wholeArts)) {
@@ -718,7 +721,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 if (StringTools.isValidString(xml)) {
                     Collection<String> studio = new ArrayList<String>();
                     if (xml.indexOf(">Производство:<") != -1) {
-                        for (String tmp : HTMLTools.extractTags(xml, ">Производство:<", "</table>", "<a href=\"/level/10/m_act%5B", "</a>")) {
+                        for (String tmp : HTMLTools.extractTags(xml, ">Производство:<", "</table>", "<a href=\"/lists/m_act%5Bstudio%5D/", "</a>")) {
                             studio.add(HTMLTools.removeHtmlTags(tmp));
                             if (!companyAll) {
                                 break;
@@ -726,7 +729,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
                     if (xml.indexOf(">Прокат:<") != -1 && (companyAll || studio.isEmpty())) {
-                        for (String tmp : HTMLTools.extractTags(xml, ">Прокат:<", "</table>", "<a href=\"/level/10/m_act%5B", "</a>")) {
+                        for (String tmp : HTMLTools.extractTags(xml, ">Прокат:<", "</table>", "<a href=\"/lists/m_act%5Bcompany%5D/", "</a>")) {
                             studio.add(HTMLTools.removeHtmlTags(tmp));
                         }
                     }
