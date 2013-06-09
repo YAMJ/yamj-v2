@@ -25,10 +25,27 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import java.net.URLEncoder;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -45,6 +62,8 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
     private static final String LOG_MESSAGE = "FilmKatalogusPlugin: ";
     public static final String FILMKAT_PLUGIN_ID = "filmkatalogus";
     private TheTvDBPlugin tvdb;
+    private static String mjbProxyHost = PropertiesUtil.getProperty("mjb.ProxyHost");
+    private static String mjbProxyPort = PropertiesUtil.getProperty("mjb.ProxyPort");
 
     public FilmKatalogusPlugin() {
         super(); // use IMDB as basis
@@ -75,15 +94,97 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
     }
 
     private void getHunPlot(Movie movie) {
+        String filmKatURL = "http://filmkatalogus.hu";
+
         try {
-            String filmKatURL;
 
             if (StringTools.isNotValidString(movie.getId(FILMKAT_PLUGIN_ID))) {
-                filmKatURL = "http://filmkatalogus.hu/kereses?keres0=1&szo0=";
-                filmKatURL = filmKatURL.concat(URLEncoder.encode(movie.getTitle(), "ISO-8859-2"));
+
+                logger.debug(LOG_MESSAGE + "Movie title for filmkatalogus search = " + movie.getTitle());
+                HttpClient httpClient = new DefaultHttpClient();
+                //httpClient.getParams().setBooleanParameter("http.protocol.expect-continue", false);
+                httpClient.getParams().setParameter("http.useragent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)"); //User-Agent header should be overwrittem with somehting Apache is not accepted by filmkatalogus.hu
+
+                if (mjbProxyHost != null) {
+                    HttpHost proxy = new HttpHost(mjbProxyHost, Integer.parseInt(mjbProxyPort));
+                    httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+                }
+
+
+                HttpPost httppost = new HttpPost("http://www.filmkatalogus.hu/kereses");
+
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                nameValuePairs.add(new BasicNameValuePair("gyorskeres", "0"));
+                nameValuePairs.add(new BasicNameValuePair("keres0", "1"));
+                nameValuePairs.add(new BasicNameValuePair("szo0", movie.getTitle()));
+
+                httppost.addHeader("Content-type", "application/x-www-form-urlencoded");
+                httppost.addHeader("Accept", "text/plain");
+
+
+
+                try {
+                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "ISO-8859-2"));
+                } catch (UnsupportedEncodingException ex) {
+                    // writing error to Log
+                    logger.error(SystemTools.getStackTrace(ex));
+                    return;
+
+                }
+
+                try {
+                    HttpResponse response = httpClient.execute(httppost);
+
+                    System.out.println(response.getStatusLine());
+                    Header[] h = response.getAllHeaders();
+                    for (int x = 0; x < h.length; x++) {
+                        System.out.println(h[x]);
+                    }
+
+                    switch (response.getStatusLine().getStatusCode()) {
+                        case 302:
+                            filmKatURL = filmKatURL.concat(response.getHeaders("location")[0].getValue());
+                            logger.debug(LOG_MESSAGE + "FilmkatalogusURL = " + filmKatURL);
+                            break;
+
+                        case 200:
+                            HttpEntity body = response.getEntity();
+                            if (body == null) {
+                                return;
+                            }
+
+                            String xml = EntityUtils.toString(body);
+
+                            int beginIndex = xml.indexOf("Találat(ok) filmek között");
+                            if (beginIndex != -1) { // more then one entry found use the first one
+                                beginIndex = xml.indexOf("HREF='/", beginIndex);
+                                int endIndex = xml.indexOf("TITLE", beginIndex);
+                                filmKatURL = "http://filmkatalogus.hu";
+                                filmKatURL = filmKatURL.concat(xml.substring((beginIndex + 6), endIndex - 2));
+                                logger.debug(LOG_MESSAGE + "FilmkatalogusURL = " + filmKatURL);
+                            } else {
+                                return;
+                            }
+
+                            break;
+
+                        default:
+                            return;
+                    }
+
+                } catch (ClientProtocolException ex) {
+                    // writing exception to log
+                    logger.error(SystemTools.getStackTrace(ex));
+                    return;
+                } catch (IOException ex) {
+                    // writing exception to log
+                    logger.error(SystemTools.getStackTrace(ex));
+                    return;
+                }
             } else {
                 filmKatURL = "http://filmkatalogus.hu/f";
                 filmKatURL = filmKatURL.concat(movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
+                logger.debug(LOG_MESSAGE + "FilmkatalogusURL = " + filmKatURL);
             }
 
             String xml = webBrowser.request(filmKatURL);
@@ -94,39 +195,17 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 if (OverrideTools.checkOverwriteTitle(movie, FILMKAT_PLUGIN_ID)) {
                     int endIndex = xml.indexOf("</H1>", beginIndex);
                     movie.setTitle(xml.substring((beginIndex + 4), endIndex), FILMKAT_PLUGIN_ID);
+                    System.out.println(movie.getTitle());
                 }
 
                 // PLOT
                 if (OverrideTools.checkOverwritePlot(movie, FILMKAT_PLUGIN_ID)) {
                     beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
-                    int endIndex = xml.indexOf("</DIV>", beginIndex);
-                    String plot = xml.substring((beginIndex + 19), endIndex);
-                    movie.setPlot(plot, FILMKAT_PLUGIN_ID);
-                }
-            }
-
-            beginIndex = xml.indexOf("Találat(ok) filmek között");
-            if (beginIndex != -1) { // more then one entry found use the first one
-                beginIndex = xml.indexOf("HREF='/", beginIndex);
-                int endIndex = xml.indexOf("TITLE", beginIndex);
-                filmKatURL = "http://filmkatalogus.hu";
-                filmKatURL = filmKatURL.concat(xml.substring((beginIndex + 6), endIndex - 2));
-                xml = webBrowser.request(filmKatURL);
-
-                // name
-                beginIndex = xml.indexOf("<H1>");
-                if (beginIndex != -1) {
-                    if (OverrideTools.checkOverwriteTitle(movie, FILMKAT_PLUGIN_ID)) {
-                        endIndex = xml.indexOf("</H1>", beginIndex);
-                        movie.setTitle(xml.substring((beginIndex + 4), endIndex), FILMKAT_PLUGIN_ID);
-                    }
-
-                    // PLOT
-                    if (OverrideTools.checkOverwritePlot(movie, FILMKAT_PLUGIN_ID)) {
-                        beginIndex = xml.indexOf("<DIV ALIGN=JUSTIFY>", beginIndex);
-                        endIndex = xml.indexOf("</DIV>", beginIndex);
+                    if (beginIndex > 0) {
+                        int endIndex = xml.indexOf("</DIV>", beginIndex);
                         String plot = xml.substring((beginIndex + 19), endIndex);
                         movie.setPlot(plot, FILMKAT_PLUGIN_ID);
+                        System.out.println(movie.getPlot());
                     }
                 }
             }
@@ -147,7 +226,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             if (beginIndex != -1) {
                 StringTokenizer filmKatID = new StringTokenizer(nfo.substring(beginIndex + 3), "/ \n,:!&é\"'(--è_çà)=$<>");
                 movie.setId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID, filmKatID.nextToken());
-                logger.debug(LOG_MESSAGE + "Id found in nfo = " + movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
+                logger.debug(LOG_MESSAGE + "ID found in NFO = " + movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
                 result = true;
             }
         }
