@@ -1100,9 +1100,6 @@ public final class MovieNFOReader {
         // Set the title sort
         if (isValidString(titleSort)) {
             movie.setTitleSort(titleSort);
-        } else {
-            // use the movie title
-            movie.setTitleSort(movie.getTitle());
         }
     }
 
