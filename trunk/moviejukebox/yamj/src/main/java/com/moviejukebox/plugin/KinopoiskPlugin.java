@@ -951,7 +951,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
         boolean clearList = Boolean.TRUE;
 
         if (personMax > 0 && xml.indexOf("<a name=\"" + mode + "\">") != -1) {
-            for (String item : HTMLTools.extractTags(xml, "<a name=\"" + mode + "\">", "<a name=\"", "<div class=\"dub ", "</div>      <div class=\"clear\"></div>   </div>   <div class=\"clear\"></div></div>")) {
+            for (String item : HTMLTools.extractTags(xml, "<a name=\"" + mode + "\">", "<a name=\"", "<div class=\"dub ", "<div class=\"clear\"></div>   </div>   <div class=\"clear\"></div>")) {
                 String name = HTMLTools.extractTag(item, "<div class=\"name\"><a href=\"/name/", "</a>");
                 int beginIndex = name.indexOf("/\">");
                 String personID = name.substring(0, beginIndex);
