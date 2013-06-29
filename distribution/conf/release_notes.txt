@@ -25,7 +25,7 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2554 Scrape people in same way before priority checks
  - Fixed defect #2553 Use advanced IMDB search cause IMDB search site has changed
  - Fixed defect #2556 index.htm REFRESH URL broken
- - Fixed defect #2559 tvshow nfo file is effectively ignored if filename does not include SxxExx
+ - Fixed defect #2559 tvshow NFO file is effectively ignored if filename does not include SxxExx
  - Fixed defect #2560 Read correct FPS value from stored xml file
  - Fixed defect #2561 Set source with highest priority even if movie value has not changed
  - Fixed defect #2562 Accented letters fail in IMDB plot description plugin
@@ -70,7 +70,8 @@ MovieJukebox 2.9-SNAPSHOT
  - Fixed defect #2639 Fixed FilmAffinity plugin due layout change
  - Fixed defect #2646 Fixed hash paths for videos with non-alpha characters in the filename
  - Enhancement  #2648 Use priority checks for Top250
- - Enhancement  #2661 FilmKataloguPlugin stopped working
+ - Fixed defect #2661 FilmKataloguPlugin stopped working
+ - Fixed defect #2662 videoimageToken property is ignored
 
 MovieJukebox 2.8 (2012-12-17)
 -----------------------------
@@ -132,7 +133,7 @@ MovieJukebox 2.7 (2012-09-25)
  - Enhancement  #2423 Add 'container' to the NFO file
  - Fixed defect #2424 Sets are always recreated each run
  - Enhancement  #2425 Automatic creation of a .watched file when playing a video (Default skin)
- - Enhancement  #2428 XBMC tvshow.nfo support
+ - Enhancement  #2428 XBMC tvshow.NFO support
  - Fixed defect #2437 Clicking movie Rating gives dead link in skins gfb107 and gfb107-sd
  - Fixed defect #2438 TheTVDBPlugin broken
  - Fixed defect #2443 Indexing sorting does not work for renamed indexes
@@ -196,7 +197,7 @@ MovieJukebox 2.6 (20-Mar-2012)
  - Fixed defect #2231 Filmweb.pl genres are now correctly scraped
  - Enhancement  #2232 Support for MediaInfo-rar with BD ISOs
  - Fixed defect #2235 When using thumbnails.addText.setSize set thumnails are not updated when adding a new movie to set
- - Fixed defect #2236 When use kinopoisk plugin and title in nfo, title in xml = UNKNOWN
+ - Fixed defect #2236 When use kinopoisk plugin and title in NFO, title in xml = UNKNOWN
  - Fixed defect #2237 Rescan breaks episode data of multi-episode videos/DVDs
  - Enhancement  #2239 Add "fileinfo/streamdetails" section to the NFO files written by YAMJ
  - Enhancement  #2240 Add Audio Channels to codec information
@@ -318,7 +319,7 @@ MovieJukebox 2.5 (24-Oct-2011)
  - Enhancement  #1981 Improve round corner quality / add image stretching
  - Fixed defect #1986 Incorrect search by year
  - Fixes issue  #1989 New categories not updated
- - Enhancement  #1991 Add aired info to episode nfo (first aired, airs after season, airs before season, airs before episode)
+ - Enhancement  #1991 Add aired info to episode NFO (first aired, airs after season, airs before season, airs before episode)
  - Fixed defect #1993 Index encoded name
  - Enhancement  #1994 Option to put Season 0 after all seasons
  - Enhancement  #1995 Additional TV Show information: ReleaseDate & Show Status populated
@@ -592,7 +593,7 @@ MovieJukebox 2.0 (5-Jun-2010)
   - Fixed defect #1431 Dolby TrueHD Codec, Case Changed from NFO, Breaks Skin
   - Enhancement  #1434 Option to specify different plot line break type (other then {br})
   - Fixed defect #1435 ComingSoon.IT Plugin needs changes due to new website format
-  - Fixed defect #1436 Scraping of nfo-file fails for year
+  - Fixed defect #1436 Scraping of NFO-file fails for year
   - Fixed defect #1438 Proper parsing of MPAA rating by Kinopoisk plugin
   - Fixed defect #1443 Aliens(1986).avi parsed incorrectly
   - Enhancement  #1444 Property to turn off case sensitivity for skip keywords
@@ -666,7 +667,7 @@ MovieJukebox 1.8 (r1402)
   - Fixed defect #1006 Wrong fanart file name if NFO <fanart> field filled in link
   - Enhancement  #1013 Support for localised IMDB, e.g. (ES, FR, DE, etc)
   - Fixed issue  #1018 Null pointer in main if you remove Title index from moviejukebox.properties.
-  - Fixed defect #1022 ofdb.plugin overwrites nfo information
+  - Fixed defect #1022 ofdb.plugin overwrites NFO information
   - Enhancement  #1148 Categories.xml list ordering
   - Fixed defect #1152 Moviejukebox does not complete - stuck on Sratim plugin
   - Fixed defect #1156 Bad form date with plugin mjb.internet.plugin=com.moviejukebox.plugin.FilmUpITPlugin
@@ -782,7 +783,7 @@ MovieJukebox 1.5 (r1139)
   - Enhancement  #455 Split HD Category into 720 and 1080
   - Enhancement  #506 Setting Video Source in NFO file
   - Enhancement  #530 Move preferences out of the XML files into preferences.xsl
-  - Enhancement  #595 Manual Language Settings in nfo
+  - Enhancement  #595 Manual Language Settings in NFO
   - Enhancement  #632 Disable OpenSubtitle plugin if Internet scraping is turned off in library.xml
   - Enhancement  #665 Specify technical info for video files
   - Enhancement  #686 Video Image Files created when no image found
@@ -835,7 +836,7 @@ MovieJukebox 1.5 (r1139)
   - Fixed defect #979 Java Heap Space error when processing ISO files
   - Fixed defect #987 No IFO found for disk images
   - Fixed defect #988 Some SD content is erroneously flagged as HD
-  - Fixed defect #996 Sratim plugin fails to correctly strip html tags from actor names
+  - Fixed defect #996 Sratim plugin fails to correctly strip HTML tags from actor names
   - Fixed defect #1020 fullMovieInfoInIndexes=false uses a "banner" entry instead of bannerFile or bannerURL
   - Enhancement  #1023 Playing BluRay backups with menu in C200
   - Fixed defect #1031 Multi-threading causes issues when scanning ISO files
@@ -872,7 +873,7 @@ MovieJukebox 1.0.17 beta (r1003)
   - Fixed defect #668 Can't connect to TheTVDB behind authenticated proxy
   - Fixed defect #670 BD structure in excluded directory causes exception
   - Enhancement  #671 Option to create posters for set masters
-  - Fixed defect #673 Sets no longer appear on categories.html page
+  - Fixed defect #673 Sets no longer appear on categories.HTML page
   - Enhancement  #675 (Default skin only for now) Play all files in a set by highlighting the set and pressing "play" button on remote
   - Fixed defect #676 MovieMeterPlugin: problem when no movie duration is available
   - Fixed defect #677 Exception in MovieMeterPlugin
@@ -937,7 +938,7 @@ MovieJukebox 1.0.16 beta r(850)
   - Enhancement  #397 Episode image for TV show episodes downloaded from TheTVDB.com
   - Enhancement  #418 Option to exclude files without external subtitles
   - Enhancement  #421 Plugin for Swedish movie database filmdelta.se
-  - Fixed defect #422 Encoding problems with link of accentuated categories or two words categories on Categories.html
+  - Fixed defect #422 Encoding problems with link of accentuated categories or two words categories on Categories.HTML
   - Fixed defect #433 Local fanart not handled correctly for Unknown TV series
   - Enhancement  #435 User customizeable perspective angle
   - Fixed defect #436 If the mjb.homePage property is unspecified, a valid home page will be chosen
@@ -953,9 +954,9 @@ MovieJukebox 1.0.16 beta r(850)
   - Fixed defect #476 XBMC NFO movie xml encoding is ignored
   - Fixed defect #479 XML <releaseDate> not correct with allocine Plugin
   - Fixed defect #480 AppleTrailerPlugin uses a charset not universally supported
-  - Fixed defect #483 The rating is the same as top250 when using nfo file
+  - Fixed defect #483 The rating is the same as top250 when using NFO file
   - Fixed defect #484 WebBrowser charset detection error
-  - Fixed defect #485 Update for Kinopoisk plugin that allows you to specify IMDB movie URL in .nfo
+  - Fixed defect #485 Update for Kinopoisk plugin that allows you to specify IMDB movie URL in .NFO
   - Enhancement  #492 Updates for Sratim plugin and the Hebrew skin
   - Enhancement  #496 Allocine Trailer Plugin : Fill the <originalTitle> tag
   - Enhancement  #497 Bug fix and update for FilmDeltaSEPlugin
@@ -969,13 +970,13 @@ MovieJukebox 1.0.16 beta r(850)
                         6) not to overwrite XBMC NFO data
   - Fixed defect #511 Sending cookies to subdomains
   - Fixed defect #514 Episode plots not loaded for files with episode titles.
-  - Fixed defect #519 R721 broke tv show nfo
+  - Fixed defect #519 R721 broke tv show NFO
   - Enhancement  #524 Grouping movies into "boxed sets"
   - Fixed defect #526 R738 mis-used the max.genres property.
   - Fixed defect #531 TV/HD logos not showing up on set/series masters
   - Enhancement  #532 Update for FilmDeltaSEPlugin
                         1) Improved scan-function to get more filmdelta matches
-                        2) If only imdbId is found in nfo this is used to get movie title and search filmdelta with that title
+                        2) If only imdbId is found in NFO this is used to get movie title and search filmdelta with that title
                         3) Code refactored for testability
                         4) Added properties to moviejukebox.properties
   - Fixed defect #534 Fixed encoding of filenames and URLs for TV Series and Sets
@@ -1017,18 +1018,18 @@ MovieJukebox 1.0.15 beta (r665)
   - Enhancement   #90 Skins now have the ability to wrap around from the last index page to the first and vice versa
   - Enhancement  #225 Improved sorting of movies (by IMdB rating and by year)
   - Enhancement  #250 So how do we customize the categories?
-  - Enhancement  #254 Use XBMC tvshow nfo layout to override scraper info
+  - Enhancement  #254 Use XBMC tvshow NFO layout to override scraper info
   - Enhancement  #281 Support DVD order from TheTVDB.com
   - Enhancement  #331 FilmUp.it scraper (Italian Plug-In)
   - Enhancement  #343 Allowing prebuf to be set
-  - Fixed defect #346 Errors on multiple part movies - empty details html file
+  - Fixed defect #346 Errors on multiple part movies - empty details HTML file
   - Enhancement  #348 Enhanced BD-50 Disk RIP Scanner
   - Fixed defect #352 Fanart not being resized
-  - Fixed defect #353 Some of the html files are not getting copied from the temp dir to the jukebox dir
+  - Fixed defect #353 Some of the HTML files are not getting copied from the temp dir to the jukebox dir
   - Fixed defect #354 Jukebox clean-up doesn't handle files with no extension cleanly
   - Fixed defect #356 ForceFanartOverwrite setting doesn't work
   - Fixed defect #359 Allow either Series url or Season url in NFO for TheTVDB
-  - Fixed defect #361 TV Shows with new episodes do not show in the YAMJ "new" html output
+  - Fixed defect #361 TV Shows with new episodes do not show in the YAMJ "new" HTML output
   - Fixed defect #362 Genres.xml has un-necessary entries
   - Enhancement  #363 Subtitle download as part of movie information collection
                       NOTE: YAMJ needs write access to the video directory for this enhancement to work
@@ -1097,7 +1098,7 @@ MovieJukebox 1.0.14 beta (r556)
   - Enhancement  #328 Enable or Disable reading metadata from media files (Issue 148)
   - Fixed defect #329 thetvdb.com id in NFO files
   - Fixed defect #330 Genres collapsed too much
-  - Fixed defect #333 xbmc nfo mpaa value should be cleaned
+  - Fixed defect #333 xbmc NFO mpaa value should be cleaned
   - Enhancement  #334 Add command line option to specify a properties file other than moviejukebox.properties
   - Enhancement  #335 ability to override fanart using the NFO xml file
   - Fixed defect #340 NullPointerException handling dummy thumbnail
@@ -1111,7 +1112,7 @@ MovieJukebox 1.0.13 beta (r439)
 -------------------------------
   - Enhancement   #59 Use TheTVDB.com to look up TV series information
   - Enhancement   #76 Addition of a TV logo to TV Series
-  - Enhancement   #86 Search NFO directory for nfo files as well
+  - Enhancement   #86 Search NFO directory for NFO files as well
   - Enhancement  #101 Allow NFO file to override information from scanner
   - Fixed defect #119 Automatic clean up deleted movies (Use command line argument "-c")
   - Enhancement  #151 Season indicator on SD and Default skins for TV Series
@@ -1120,9 +1121,9 @@ MovieJukebox 1.0.13 beta (r439)
   - Enhancement  #194 Configurable number of days for "New" Category. 0 (Zero) will disable new category.
   - Fixed defect #200 Semi-colon in dir/file name breaks image/page link
   - Fixed defect #202 scanner.skip.keywords problems
-  - Fixed Defect #216 HTML generation fails if the xml is not created as part of this run (i.e. the html is deleted from the source directory)
+  - Fixed Defect #216 HTML generation fails if the xml is not created as part of this run (i.e. the HTML is deleted from the source directory)
   - Fixed defect #217 NFO Scanner now checks the movie folder for NFO files (For VIDEO_TS)
-  - Fixed defext #217 NFO scanner now looks for directory.nfo first then specific video.nfo second
+  - Fixed defext #217 NFO scanner now looks for directory.NFO first then specific video.NFO second
   - Fixed defect #223 When the first fanart file is corrupt or has an error
   - Enhancement  #224 Trailer names...
   - Fixed Defect #228 Thumbnail and poster generation fails if the artwork is not downloaded as part of this run
@@ -1152,7 +1153,7 @@ MovieJukebox 1.0.13 beta (r439)
 
 MovieJukebox 1.0.12 beta (r320)
 -------------------------------
-  - Enhancement #66 Ability to recognise a movie trailer and add it to the movie html page
+  - Enhancement #66 Ability to recognise a movie trailer and add it to the movie HTML page
   - Enhancement #67 New category: Trailer
     Trailers must contain the word Trailer (case-insensitive) somewhere between brackets []
     Trailers will only be included in the new "Trailers" category, and no other genre or alpha-listing
@@ -1189,7 +1190,7 @@ MovieJukebox 1.0.11 beta (r270)
 -------------------------------
   - Enhancement Issue #78 Custom coverart Enhancement
     Quick first implementation (not flexible but working ;) )
-    Scan the .nfo file for the URL of poster (currently only URL starting with
+    Scan the .NFO file for the URL of poster (currently only URL starting with
     http:// and ending with .jpg or .JPG)
     If this URL exists, set it as poster URL and to not search for another poster.
   - Enhancement Issue #81 Additional Video Sources (HD2DVD)
@@ -1214,7 +1215,7 @@ MovieJukebox 1.0.11 beta (r270)
   - Enhancement Issue #124 Getting episode title from filename if episode not found by www scanner
     Episde title must be after "-" character, eg: TVShow name - 1x01 - episode name.mpg
   - Fixed defect #130 Fixes for the Allocine plugin
-    Fixes for the Allocine plugin in order to follow the changes in alloCine html
+    Fixes for the Allocine plugin in order to follow the changes in alloCine HTML
     layout. I should be now more robust to futur changes.
     Fixes also a problem with "&nbsp;" in genre categories for some movies.
   - Enhancement Issue #147 Management of genres in a external xml file
@@ -1258,7 +1259,7 @@ MovieJukebox 1.0.10 beta (r225)
   - Fixed defect #73 Indexing by "Movie Title" instead of "File Name"
   - Fixed defect #82 Folders with DISC or CD in name cause MJB to fail
   - Fixed defect #83 java 7 drops support for JPEGCodec
-  - Fixed defect #84 The .nfo files should also be accepted as .NFO
+  - Fixed defect #84 The .NFO files should also be accepted as .NFO
   - Fixed defect #85 Exception thrown when IMPAwards image not found
   - Fixed defect #88 sun.security.action.GetPropertyAction is Sun proprietary API
 
@@ -1281,7 +1282,7 @@ MovieJukebox 1.0.9 beta
   - Fixed defect #26 Picking up ripped DVD's
   - Fixed defect #27 Additional Movie Poster Plugin
   - Fixed defect #28 impruvment
-  - Fixed defect #30 Invalid html in output
+  - Fixed defect #30 Invalid HTML in output
   - Fixed defect #33 Additional filename word separator "_"
   - Fixed defect #39 No media info with DVD rips (VIDEO_TS...)
   - Fixed defect #48 Scroll buttons don't work
@@ -1309,7 +1310,7 @@ MovieJukebox 1.0.7 beta
 MovieJukebox 1.0.6 beta
 -----------------------
   - Fixed defect #4 ISO files not supported
-  - Fixed defect #8 automatically start the index.html when you click on the share
+  - Fixed defect #8 automatically start the index.HTML when you click on the share
   - Fixed defect #9 multiple CD movies not detected properly
   - Fixed defect #15 sXXeYY pattern for TVShows do not find episode titles
   - Fixed defect #16 MPG file not taken into account
