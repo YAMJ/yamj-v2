@@ -834,7 +834,7 @@ public class Library implements Map<String, Movie> {
         for (int j = 0; j < moviesList.size(); j++) {
             Movie movie = moviesList.get(j);
             if (!movie.isExtra()) {
-                movie.setFirst(first.getBaseName());
+                movie.setFirst(first == null ? "" : first.getBaseName());
 
                 for (int p = j - 1; p >= 0; p--) {
                     Movie prev = moviesList.get(p);
@@ -852,7 +852,7 @@ public class Library implements Map<String, Movie> {
                     }
                 }
 
-                movie.setLast(last.getBaseName());
+                movie.setLast(last == null ? "" : last.getBaseName());
             }
         }
 
@@ -955,8 +955,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Index the videos by the property values This is slightly different from the other indexes as there may be
-     * multiple entries for each of the videos
+     * Index the videos by the property values This is slightly different from the other indexes as there may be multiple entries
+     * for each of the videos
      *
      * @param moviesList
      * @return
@@ -1667,8 +1667,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the un-modified category name. The Category name could be changed by the use of the Category XML file. This
-     * function will return the original, unchanged name
+     * Find the un-modified category name. The Category name could be changed by the use of the Category XML file. This function
+     * will return the original, unchanged name
      *
      * @param newCategory
      * @return
@@ -1689,8 +1689,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the renamed category name from the original name The Category name could be changed by the use of the
-     * Category XML file. This function will return the new name.
+     * Find the renamed category name from the original name The Category name could be changed by the use of the Category XML file.
+     * This function will return the new name.
      *
      * @param test
      * @return
@@ -1717,19 +1717,19 @@ public class Library implements Map<String, Movie> {
 
     public static Collection<String> getPrefixes() {
         return Arrays.asList(new String[]{INDEX_OTHER.toUpperCase(),
-                    INDEX_CERTIFICATION.toUpperCase(),
-                    INDEX_TITLE.toUpperCase(),
-                    INDEX_YEAR.toUpperCase(),
-                    INDEX_GENRES.toUpperCase(),
-                    INDEX_SET.toUpperCase(),
-                    INDEX_LIBRARY.toUpperCase(),
-                    INDEX_CAST.toUpperCase(),
-                    INDEX_DIRECTOR.toUpperCase(),
-                    INDEX_COUNTRY.toUpperCase(),
-                    INDEX_CATEGORIES.toUpperCase(),
-                    INDEX_AWARD.toUpperCase(),
-                    INDEX_PERSON.toUpperCase(),
-                    INDEX_RATINGS.toUpperCase()});
+            INDEX_CERTIFICATION.toUpperCase(),
+            INDEX_TITLE.toUpperCase(),
+            INDEX_YEAR.toUpperCase(),
+            INDEX_GENRES.toUpperCase(),
+            INDEX_SET.toUpperCase(),
+            INDEX_LIBRARY.toUpperCase(),
+            INDEX_CAST.toUpperCase(),
+            INDEX_DIRECTOR.toUpperCase(),
+            INDEX_COUNTRY.toUpperCase(),
+            INDEX_CATEGORIES.toUpperCase(),
+            INDEX_AWARD.toUpperCase(),
+            INDEX_PERSON.toUpperCase(),
+            INDEX_RATINGS.toUpperCase()});
     }
 
     /**
