@@ -407,7 +407,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             boolean runtimeFounded = false;
             boolean taglineFounded = false;
             boolean releaseFounded = false;
-            for (String item : HTMLTools.extractTags(xml, "<table class=\"info \">", "</table>", "<tr>", "</tr>")) {
+            for (String item : HTMLTools.extractTags(xml, "<table class=\"info\">", "</table>", "<tr>", "</tr>")) {
                 item = "<td>" + item + "</tr>";
 
                 // Genres
@@ -751,16 +751,16 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 xml = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/awards/");
                 Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
                 if (StringTools.isValidString(xml)) {
-                    int beginIndex = xml.indexOf("<b><a href=\"/awards");
+                    int beginIndex = xml.indexOf("<b><a href=\"/awards/");
                     if (beginIndex != -1) {
-                        for (String item : HTMLTools.extractTags(xml, "<table cellspacing=0 cellpadding=0 border=0 width=100%>", "<br /><br /><br /><br /><br /><br />", "<table cellspacing=0 cellpadding=0 border=0 width=100% ", "</table>")) {
+                        for (String item : HTMLTools.extractTags(xml, "<table cellspacing=0 cellpadding=0 border=0 width=100%>", "<br /><br /><br /><br /><br /><br />", "<table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" ", "</table>")) {
                             String name = Movie.UNKNOWN;
                             int year = -1;
                             int won = 0;
                             int nominated = 0;
                             Collection<String> wons = new ArrayList<String>();
                             Collection<String> nominations = new ArrayList<String>();
-                            for (String tmp : HTMLTools.extractTags(item, "<td height=40 class=\"news\" style=\"padding:10px\">", "</td>", "<a href=\"/awards/", "</a>")) {
+                            for (String tmp : HTMLTools.extractTags(item, "<td height=\"40\" class=\"news\" style=\"padding: 10px\">", "</td>", "<a href=\"/awards/", "</a>")) {
                                 int coma = tmp.indexOf(",");
                                 name = tmp.substring(0, coma);
                                 year = Integer.parseInt(tmp.substring(coma + 2, coma + 6));
@@ -772,7 +772,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             }
                             if (won > 0) {
                                 for (String tmp : HTMLTools.extractTags(item, ">Победитель<", "</ul>", "<li class=\"trivia\">", "</li>")) {
-                                    wons.add(HTMLTools.removeHtmlTags(tmp));
+                                    wons.add(HTMLTools.removeHtmlTags(tmp).replaceAll(" {2,}", " "));
                                 }
                             }
                             for (String tmp : HTMLTools.extractTags(item, ">Номинации<", ":", "(", ")")) {
@@ -781,7 +781,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             }
                             if (nominated > 0) {
                                 for (String tmp : HTMLTools.extractTags(item, ">Номинации<", "</ul>", "<li class=\"trivia\"", "</li>")) {
-                                    nominations.add(HTMLTools.removeHtmlTags(tmp));
+                                    nominations.add(HTMLTools.removeHtmlTags(tmp).replaceAll(" {2,}", " "));
                                 }
                             }
                             if (StringTools.isValidString(name) && year > 1900 && year < 2020 && (!scrapeWonAwards || (won > 0))) {
