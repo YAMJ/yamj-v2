@@ -275,7 +275,7 @@
             <dependency>
                 <groupId>org.javolution</groupId>
                 <artifactId>javolution</artifactId>
-                <version>6.0.0</version>
+                <version>5.3.1</version>
                 <type>jar</type>
             </dependency>
             <dependency>
