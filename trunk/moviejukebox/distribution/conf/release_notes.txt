@@ -2,8 +2,12 @@
 ** MovieJukebox Release Notes
 ***************************************************************
 
-MovieJukebox 2.9-SNAPSHOT
--------------------------
+MovieJukebox 2.10-SNAPSHOT
+--------------------------
+
+
+MovieJukebox 2.9
+----------------
  - Fixed defect #1721 Get last certification for country from IMDB instead first one found
  - Fixed defect #2008 Remove HTML tags from allocine TV episode plots
  - Enhancement  #2035 MediaInfo can determine a 3D video source
