@@ -200,7 +200,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void setSkipped (Boolean skipped) {
+    public void setSkipped(Boolean skipped) {
         this.skipped = skipped;
     }
 
@@ -916,8 +916,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Returns true if ANY of the dirty flags are set. Use with caution, it's better to test individual flags as you
-     * need them, rather than this generic flag
+     * Returns true if ANY of the dirty flags are set. Use with caution, it's better to test individual flags as you need them,
+     * rather than this generic flag
      *
      * @return
      */
@@ -2250,6 +2250,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * @param fileDate
      */
     public synchronized void addFileDate(Date fileDate) {
+        if (fileDate == null) {
+            return;
+        }
+
         if (this.fileDate == null) {
             this.fileDate = fileDate;
         } else if (fileDate.after(this.fileDate)) {
