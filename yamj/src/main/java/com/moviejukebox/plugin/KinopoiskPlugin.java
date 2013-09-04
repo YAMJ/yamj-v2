@@ -407,9 +407,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
             boolean runtimeFounded = false;
             boolean taglineFounded = false;
             boolean releaseFounded = false;
-            for (String item : HTMLTools.extractTags(xml, "<table class=\"info\">", "</table>", "<tr>", "</tr>")) {
-                item = "<td>" + item + "</tr>";
-
+            for (String item : HTMLTools.extractTags(xml, "<table class=\"info\">", "</table>", "<tr", "</tr>")) {
+                item = "<tr>" + item + "</tr>";
                 // Genres
                 if (OverrideTools.checkOverwriteGenres(movie, KINOPOISK_PLUGIN_ID)) {
                     LinkedList<String> newGenres = new LinkedList<String>();
@@ -442,15 +441,17 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
                 // Certification from MPAA
                 if (OverrideTools.checkOverwriteCertification(movie, KINOPOISK_PLUGIN_ID)) {
-                    certificationFounded = getCertification(movie, xml, ">рейтинг MPAA<", "</tr>", "<a href=\"/film", "</a>", "alt=\"рейтинг ");
+                    if (!certificationFounded) {
+                        certificationFounded = getCertification(movie, item, ">рейтинг MPAA<", "</tr>", "<a href=\"/film", "</a>", "alt=\"рейтинг ");
+                    }
                     if (!certificationFounded || russianCertification) {
-                        certificationFounded |= getCertification(movie, xml, ">возраст<", "</tr>", "<td  style='color", " </span>", "ageLimit ");
+                        certificationFounded |= getCertification(movie, item, ">возраст<", "</tr>", "<td style=\"color", "</span>", "ageLimit ");
                     }
                 }
 
                 // Country
                 if (OverrideTools.checkOverwriteCountry(movie, KINOPOISK_PLUGIN_ID)) {
-                    Collection<String> country = HTMLTools.extractTags(xml, ">страна<", "</tr>", "a href=\"/lists/m_act%5Bcountry%5D/", "</a>");
+                    Collection<String> country = HTMLTools.extractTags(item, ">страна<", "</tr>", "a href=\"/lists/m_act%5Bcountry%5D/", "</a>");
                     if (country != null && country.size() > 0) {
                         String strCountry = countryAll ? StringUtils.join(country, Movie.SPACE_SLASH_SPACE) : new ArrayList<String>(country).get(0);
                         if (translitCountry) {
