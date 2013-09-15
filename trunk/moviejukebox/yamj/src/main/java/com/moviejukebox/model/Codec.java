@@ -26,6 +26,8 @@ import com.moviejukebox.model.enumerations.CodecSource;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 public class Codec {
@@ -57,10 +59,15 @@ public class Codec {
     public static final String MI_CODEC_FORMAT_VERSION = "Format Version";
     public static final String MI_CODEC_FORMAT_PROFILE = "Format profile";
     public static final String MI_CODEC_LANGUAGE = "Language";
-    public static final String MI_CODEC_CHANNELS = "Channel(s)";
+    public static final List<String> MI_CODEC_CHANNELS = new ArrayList<String>();
     public static final String MI_CODEC_BITRATE = "Bit rate";
     public static final String MI_CODEC_NOMINAL_BITRATE = "Nominal bit rate";
     public static final String MI_CODEC_OVERALL_BITRATE = "Overall bit rate";
+
+    static {
+        MI_CODEC_CHANNELS.add("Channel(s)");
+        MI_CODEC_CHANNELS.add("Channel count");
+    }
 
     /**
      * Constructor with just the codec type
@@ -311,5 +318,4 @@ public class Codec {
 
         return true;
     }
-
 }
