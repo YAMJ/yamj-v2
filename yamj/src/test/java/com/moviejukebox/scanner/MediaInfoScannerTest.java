@@ -32,13 +32,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
 import static org.junit.Assert.*;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MediaInfoScannerTest {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MediaInfoScannerTest.class);
     private static MediaInfoScanner toTest = new MediaInfoScanner();
     private static final String testDir = "src/test/java/TestFiles/MediaInfo/";
     Map<String, String> infosGeneral = new HashMap<String, String>();
@@ -70,9 +72,7 @@ public class MediaInfoScannerTest {
     @Test
     public void testAudioStreamFile() {
         getMediaInfoTestFile("mediainfo-2.txt");
-
         assertEquals(7, infosAudio.size());
-
         assertEquals(1, infosVideo.size());
     }
 
@@ -108,12 +108,49 @@ public class MediaInfoScannerTest {
         }
     }
 
+    @Test
+    public void testChannels() {
+        getMediaInfoTestFile("mediainfo-channels.txt");
+
+        Codec codec;
+        int counter = 1;
+        for (Map<String, String> codecInfo : infosAudio) {
+            codec = toTest.getCodecInfo(CodecType.AUDIO, codecInfo);
+            LOG.debug("{} = {}", counter++, codec.toString());
+            assertTrue("No channels found!", codec.getCodecChannels()>0);
+        }
+    }
+
+    /**
+     * Output the infos
+     *
+     * printTextInfos("General", Arrays.asList(infosGeneral));
+     *
+     * printTextInfos("Video", infosVideo);
+     *
+     * printTextInfos("Audio", infosAudio);
+     *
+     * printTextInfos("Text", infosText);
+     *
+     * @param title
+     * @param infos
+     */
+    public void printTextInfos(String title, List<Map<String, String>> infos) {
+        LOG.info("***** {}", title);
+        for (Map<String, String> info : infos) {
+            for (Map.Entry<String, String> entry : info.entrySet()) {
+                LOG.info("{}-{}", entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
     /**
      * Load a test file
+     *
      * @param filename
      */
     private void getMediaInfoTestFile(String filename) {
-        File file = new File(testDir + filename);
+        File file = FileUtils.getFile(testDir, filename);
         System.out.print("File:" + file.getAbsolutePath());
         System.out.print(" Length:" + file.length());
         System.out.println(" Exists: " + file.exists());
@@ -128,10 +165,10 @@ public class MediaInfoScannerTest {
 
             toTest.parseMediaInfo(fis, infosGeneral, infosVideo, infosAudio, infosText);
         } catch (FileNotFoundException error) {
-            Logger.getLogger(MediaInfoScannerTest.class.getName()).log(Level.SEVERE, null, error);
+            LOG.warn("File not found.", error);
             assertFalse("No exception expected : " + error.getMessage(), true);
         } catch (IOException error) {
-            Logger.getLogger(MediaInfoScannerTest.class.getName()).log(Level.SEVERE, null, error);
+            LOG.warn("IOException.", error);
             assertFalse("No exception expected : " + error.getMessage(), true);
         }
     }

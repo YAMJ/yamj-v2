@@ -35,6 +35,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -97,6 +98,7 @@ public class MediaInfoScanner {
 
         if (!checkMediainfo.canExecute()) {
             LOG.info(LOG_MESSAGE + "Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
+            LOG.info(LOG_MESSAGE + "File; " + checkMediainfo.getAbsolutePath());
             isActivated = Boolean.FALSE;
         } else {
             if (isMediaInfoRar) {
@@ -858,7 +860,15 @@ public class MediaInfoScanner {
             }
         }
 
-        String codecChannels = codecInfos.get(Codec.MI_CODEC_CHANNELS);
+        // Cycle through the codec channel labels
+        String codecChannels = "";
+        for (String cc : Codec.MI_CODEC_CHANNELS) {
+            codecChannels = codecInfos.get(cc);
+            if (StringUtils.isNotBlank(codecChannels)) {
+                // We have our channels
+                break;
+            }
+        }
 
         if (StringUtils.isNotBlank(codecChannels)) {
             if (codecChannels.contains("/")) {
@@ -932,19 +942,19 @@ public class MediaInfoScanner {
         File mediaInfoFile;
 
         if (OS_NAME.contains("Windows")) {
-            mediaInfoFile = new File(MI_PATH.getAbsolutePath() + File.separator + MI_RAR_FILENAME_WINDOWS);
+            mediaInfoFile = FileUtils.getFile(MI_PATH.getAbsolutePath(), MI_RAR_FILENAME_WINDOWS);
             if (!mediaInfoFile.exists()) {
                 // Fall back to the normal filename
-                mediaInfoFile = new File(MI_PATH.getAbsolutePath() + File.separator + MI_FILENAME_WINDOWS);
+                mediaInfoFile = FileUtils.getFile(MI_PATH.getAbsolutePath(), MI_FILENAME_WINDOWS);
             } else {
                 // Enable the extra mediainfo-rar features
                 isMediaInfoRar = Boolean.TRUE;
             }
         } else {
-            mediaInfoFile = new File(MI_PATH.getAbsolutePath() + File.separator + MI_RAR_FILENAME_LINUX);
+            mediaInfoFile = FileUtils.getFile(MI_PATH.getAbsolutePath(), MI_RAR_FILENAME_LINUX);
             if (!mediaInfoFile.exists()) {
                 // Fall back to the normal filename
-                mediaInfoFile = new File(MI_PATH.getAbsolutePath() + File.separator + MI_FILENAME_LINUX);
+                mediaInfoFile = FileUtils.getFile(MI_PATH.getAbsolutePath(), MI_FILENAME_LINUX);
             } else {
                 // Enable the extra mediainfo-rar features
                 isMediaInfoRar = Boolean.TRUE;

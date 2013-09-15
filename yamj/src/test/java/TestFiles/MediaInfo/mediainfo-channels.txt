@@ -1,0 +1,103 @@
+General
+Unique ID                                : 203340460981241030693988494429362850175 (0x98F9F2C1E22DFA87AC32A8F30E14097F)
+Complete name                            : X:\Video\Series_II\Park Avenue\Season 1\666 Park Avenue S01E01 [720p HDiT][Dual AC3].mkv
+Format                                   : Matroska
+Format version                           : Version 2
+File size                                : 1.38 GiB
+Duration                                 : 42mn 57s
+Overall bit rate                         : 4 603 Kbps
+Movie name                               : 666 Park Avenue 1x01 - Piloto [720p.HDiT] [Dual AC3] [HDTeam]
+Encoded date                             : UTC 2012-10-10 17:07:05
+Writing application                      : mkvmerge v5.6.0 ('Kenya Kane') built on May 27 2012 16:44:04
+Writing library                          : libebml v1.2.3 + libmatroska v1.3.0
+
+Video
+ID                                       : 1
+Format                                   : AVC
+Format/Info                              : Advanced Video Codec
+Format profile                           : High@L3.1
+Format settings, CABAC                   : No
+Format settings, ReFrames                : 2 frames
+Codec ID                                 : V_MPEG4/ISO/AVC
+Duration                                 : 42mn 57s
+Bit rate                                 : 3 871 Kbps
+Width                                    : 1 280 pixels
+Height                                   : 720 pixels
+Display aspect ratio                     : 16:9
+Frame rate mode                          : Constant
+Frame rate                               : 23.976 fps
+Color space                              : YUV
+Chroma subsampling                       : 4:2:0
+Bit depth                                : 8 bits
+Scan type                                : Progressive
+Bits/(Pixel*Frame)                       : 0.175
+Stream size                              : 1.16 GiB (84%)
+Title                                    : 666 Park Avenue - Temp. 1, Episodio 01: Piloto
+Language                                 : English
+Default                                  : Yes
+Forced                                   : No
+Color primaries                          : BT.709
+Transfer characteristics                 : BT.709
+Matrix coefficients                      : BT.709
+
+Audio #1
+ID                                       : 2
+Format                                   : AC-3
+Format/Info                              : Audio Coding 3
+Mode extension                           : CM (complete main)
+Format settings, Endianness              : Big
+Codec ID                                 : A_AC3
+Duration                                 : 42mn 57s
+Bit rate mode                            : Constant
+Bit rate                                 : 256 Kbps
+Channel count                            : 2 channels
+Channel positions                        : Front: L R
+Sampling rate                            : 48.0 KHz
+Bit depth                                : 16 bits
+Compression mode                         : Lossy
+Stream size                              : 78.6 MiB (6%)
+Title                                    : Castellano AC3 2.0 @ 256 Kbps
+Language                                 : Spanish
+Default                                  : Yes
+Forced                                   : No
+
+Audio #2
+ID                                       : 3
+Format                                   : AC-3
+Format/Info                              : Audio Coding 3
+Mode extension                           : CM (complete main)
+Format settings, Endianness              : Big
+Codec ID                                 : A_AC3
+Duration                                 : 42mn 57s
+Bit rate mode                            : Constant
+Bit rate                                 : 384 Kbps
+Channel count                            : 6 channels
+Channel positions                        : Front: L C R, Side: L R, LFE
+Sampling rate                            : 48.0 KHz
+Bit depth                                : 16 bits
+Compression mode                         : Lossy
+Stream size                              : 118 MiB (8%)
+Title                                    : English AC3 5.1 @ 384 Kbps
+Language                                 : English
+Default                                  : No
+Forced                                   : No
+
+Text #1
+ID                                       : 4
+Format                                   : UTF-8
+Codec ID                                 : S_TEXT/UTF8
+Codec ID/Info                            : UTF-8 Plain Text
+Title                                    : Castellano Planos
+Language                                 : Spanish
+Default                                  : No
+Forced                                   : No
+
+Text #2
+ID                                       : 5
+Format                                   : UTF-8
+Codec ID                                 : S_TEXT/UTF8
+Codec ID/Info                            : UTF-8 Plain Text
+Title                                    : English Planos
+Language                                 : English
+Default                                  : No
+Forced                                   : No
