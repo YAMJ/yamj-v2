@@ -944,7 +944,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                                 break;
                             }
                         }
-                        
+
                         if (valid) {
                             foundValue = aka.getValue().trim();
                             break;
@@ -1840,6 +1840,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     public boolean scan(Person person) {
         String imdbId = person.getId(IMDB_PLUGIN_ID);
         if (isNotValidString(imdbId)) {
+            LOG.debug("Looking for IMDB ID for " + person.getName());
             String movieId = Movie.UNKNOWN;
             for (Movie movie : person.getMovies()) {
                 movieId = movie.getId(IMDB_PLUGIN_ID);
@@ -1854,6 +1855,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         boolean retval = Boolean.TRUE;
         if (isValidString(imdbId)) {
             retval = updateImdbPersonInfo(person);
+        } else {
+            LOG.debug("IMDB ID not found for " + person.getName());
         }
         return retval;
     }
@@ -1865,13 +1868,15 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         String imdbID = person.getId(IMDB_PLUGIN_ID);
         boolean returnStatus = Boolean.FALSE;
 
-        try {
-            if (!imdbID.startsWith("nm")) {
-                imdbID = "nm" + imdbID;
-                // Correct the ID if it's wrong
-                person.setId(IMDB_PLUGIN_ID, "nm" + imdbID);
-            }
+        if (!imdbID.startsWith("nm")) {
+            imdbID = "nm" + imdbID;
+            // Correct the ID if it's wrong
+            person.setId(IMDB_PLUGIN_ID, "nm" + imdbID);
+        }
 
+        LOG.info("Getting information for " + person.getName() + " (" + imdbID + ")");
+
+        try {
             String xml = getImdbUrl(person);
 
             xml = webBrowser.request(xml, siteDefinition.getCharset());
@@ -1916,15 +1921,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        if (xml.indexOf("<td id=\"img_primary\"") > -1) {
-            String photoURL = HTMLTools.extractTag(xml, "<td id=\"img_primary\"", HTML_TD);
+        if (xml.indexOf("id=\"img_primary\"") > -1) {
+            LOG.debug("Looking for image on webpage for " + person.getName());
+            String photoURL = HTMLTools.extractTag(xml, "id=\"img_primary\"", HTML_TD);
+
             if (photoURL.indexOf("http://ia.media-imdb.com/images") > -1) {
-                photoURL = "http://ia.media-imdb.com/images" + HTMLTools.extractTag(photoURL, "<img src=\"http://ia.media-imdb.com/images", "\"");
+                photoURL = "http://ia.media-imdb.com/images" + HTMLTools.extractTag(photoURL, "src=\"http://ia.media-imdb.com/images", "\"");
                 if (isValidString(photoURL)) {
                     person.setPhotoURL(photoURL);
                     person.setPhotoFilename();
                 }
             }
+        } else {
+            LOG.debug("No image found on webpage for " + person.getName());
         }
 
         // get personal information
