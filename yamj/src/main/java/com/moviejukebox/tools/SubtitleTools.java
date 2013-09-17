@@ -29,12 +29,14 @@ import org.apache.log4j.Logger;
 
 public final class SubtitleTools {
 
-    private static final Logger logger = Logger.getLogger(SubtitleTools.class);
+    private static final Logger LOG = Logger.getLogger(SubtitleTools.class);
     private static final String LOG_MESSAGE = "SubtitleTools: ";
     private static final String SPLIT_PATTERN = "\\||,|/";
     private static final String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
     private static final boolean subtitleUnique = PropertiesUtil.getBooleanProperty("mjb.subtitle.unique", Boolean.TRUE);
     private static final List<String> skippedSubtitles = new ArrayList<String>();
+    private static final String YES = "YES";
+    private static final String NO = "NO";
 
     static {
         // process allowed subtitles
@@ -100,14 +102,14 @@ public final class SubtitleTools {
         String newMovieSubtitles = actualSubtitles;
 
         if (StringTools.isValidString(infoLanguage) && !isSkippedSubtitle(infoLanguage)) {
-            if (StringTools.isNotValidString(actualSubtitles) || actualSubtitles.equalsIgnoreCase("NO")) {
+            if (StringTools.isNotValidString(actualSubtitles) || actualSubtitles.equalsIgnoreCase(NO)) {
                 // Overwrite existing sub titles
                 newMovieSubtitles = infoLanguage;
-            } else if ("YES".equalsIgnoreCase(newSubtitle)) {
-                logger.trace(LOG_MESSAGE + "Subtitles already exist");
+            } else if (YES.equalsIgnoreCase(newSubtitle)) {
+                LOG.trace(LOG_MESSAGE + "Subtitles already exist");
                 // Nothing to change, cause there are already valid subtitle languages present
                 // TODO Inspect if UNKNOWN should be added add the end of the subtitles list
-            } else if ("YES".equalsIgnoreCase(actualSubtitles)) {
+            } else if (YES.equalsIgnoreCase(actualSubtitles)) {
                 // override with subtitle language
                 newMovieSubtitles = infoLanguage;
                 // TODO Inspect if UNKNOWN should be added add the end of the subtitles list
@@ -128,15 +130,15 @@ public final class SubtitleTools {
 
         boolean skipped = skippedSubtitles.contains(language.toUpperCase());
         if (skipped) {
-            logger.debug(LOG_MESSAGE + "Skipping subtitle '" + language + "'");
+            LOG.debug(LOG_MESSAGE + "Skipping subtitle '" + language + "'");
         }
         return skipped;
     }
 
     public static List<String> getSubtitles(Movie movie) {
         if (StringTools.isNotValidString(movie.getSubtitles())
-                || "YES".equalsIgnoreCase(movie.getSubtitles())
-                || "NO".equalsIgnoreCase(movie.getSubtitles())) {
+                || YES.equalsIgnoreCase(movie.getSubtitles())
+                || NO.equalsIgnoreCase(movie.getSubtitles())) {
             // skip none-language subtitles
             return Collections.emptyList();
         }
