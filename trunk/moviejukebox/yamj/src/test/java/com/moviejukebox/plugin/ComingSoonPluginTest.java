@@ -28,27 +28,30 @@ import com.moviejukebox.tools.StringTools;
 import org.apache.log4j.BasicConfigurator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  *
  * @author iuk
  */
-
 public class ComingSoonPluginTest {
 
-    static {
-        PropertiesUtil.setProperty("comingsoon.imdb.scan", "nevwe");
-        PropertiesUtil.setProperty("priority.title", "comingsoon,imdb");
-        PropertiesUtil.setProperty("priority.originaltitle", "comingsoon,imdb");
-    }
+    private ComingSoonPlugin csPlugin;
 
-    private ComingSoonPlugin csPlugin = new ComingSoonPlugin();
-
-    public ComingSoonPluginTest() {
+    @BeforeClass
+    public static void configure() {
         BasicConfigurator.configure();
     }
 
+    @Before
+    public void setup() {
+        PropertiesUtil.setProperty("comingsoon.imdb.scan", "nevwe");
+        PropertiesUtil.setProperty("priority.title", "comingsoon,imdb");
+        PropertiesUtil.setProperty("priority.originaltitle", "comingsoon,imdb");
+        csPlugin = new ComingSoonPlugin();
+    }
 
     @Test
     public void testScanNoYear() {
@@ -69,11 +72,11 @@ public class ComingSoonPluginTest {
     @Test
     public void testScanList() {
         String[] titleList = {
-                        "Matrix",
-                        "Gli Aristogatti",
-                        "Inception",
-                        "L'arte del sogno",
-                        "Lettere da Iwo Jima"
+            "Matrix",
+            "Gli Aristogatti",
+            "Inception",
+            "L'arte del sogno",
+            "Lettere da Iwo Jima"
         };
 
         for (int i = 0; i < titleList.length; i++) {

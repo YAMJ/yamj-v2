@@ -28,15 +28,23 @@ import com.moviejukebox.tools.PropertiesUtil;
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 public class AllocinePluginTest {
-    
+
     private AllocinePlugin allocinePlugin;
-    
-    public AllocinePluginTest() {
-        BasicConfigurator.configure();
-        PropertiesUtil.setProperty("API_KEY_Allocine", "YW5kcm9pZC12M3M");
+
+    @BeforeClass
+    public static void configure() {
+        PropertiesUtil.setProperty("API_KEY_Allocine_Partner", "100043982026");
+        PropertiesUtil.setProperty("API_KEY_Allocine_Secret", "29d185d98c984a359e6e6f26a0474269");
         PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
+        BasicConfigurator.configure();
+    }
+
+    @Before
+    public void setup() {
         allocinePlugin = new AllocinePlugin();
     }
 
@@ -46,7 +54,7 @@ public class AllocinePluginTest {
         movie.setMovieType(Movie.TYPE_MOVIE);
         movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, "45322");
         movie.setId(AllocinePlugin.IMDB_PLUGIN_ID, "tt0320691");
-        
+
         allocinePlugin.scan(movie);
         assertEquals("Underworld", movie.getTitle());
         assertEquals("12", movie.getCertification());
@@ -63,7 +71,7 @@ public class AllocinePluginTest {
         mf.setFirstPart(1);
         mf.setLastPart(1);
         movie.addMovieFile(mf);
-        
+
         allocinePlugin.scan(movie);
         assertEquals("Millennium", movie.getOriginalTitle());
         assertTrue(mf.getPlot(1).startsWith("Chaque année depuis quarante-quatre ans, le jour de son anniversaire, le président d’un "));

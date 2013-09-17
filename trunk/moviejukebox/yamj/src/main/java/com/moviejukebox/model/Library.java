@@ -44,7 +44,7 @@ import org.apache.log4j.Logger;
 
 public class Library implements Map<String, Movie> {
 
-    private static final Logger logger = Logger.getLogger(Library.class);
+    private static final Logger LOG = Logger.getLogger(Library.class);
     private static final String LOG_MESSAGE = "Library: ";
     // Constants
     public static final String TV_SERIES = "TVSeries";
@@ -214,7 +214,7 @@ public class Library implements Map<String, Movie> {
             SORT_COMP.add(INDEX_YEAR.toLowerCase());
         }
 
-        logger.debug(LOG_MESSAGE + "Valid sort types are: " + SORT_COMP.toString());
+        LOG.debug(LOG_MESSAGE + "Valid sort types are: " + SORT_COMP.toString());
 
         if (SORT_KEYS.isEmpty()) {
             setSortProperty(INDEX_PERSON, INDEX_TITLE, Boolean.TRUE);
@@ -249,13 +249,13 @@ public class Library implements Map<String, Movie> {
         }
 
         StringBuilder msg;
-        logger.debug(LOG_MESSAGE + "Library sorting:");
+        LOG.debug(LOG_MESSAGE + "Library sorting:");
         for (Entry<String, String> sk : SORT_KEYS.entrySet()) {
             msg = new StringBuilder(LOG_MESSAGE);
             msg.append("  Category='").append(sk.getKey());
             msg.append("', OrderBy='").append(sk.getValue()).append("'");
             msg.append(SORT_ASC.get(sk.getKey()) ? " (Ascending)" : " (Descending)");
-            logger.debug(msg.toString());
+            LOG.debug(msg.toString());
         }
     }
 
@@ -279,7 +279,7 @@ public class Library implements Map<String, Movie> {
         String sortType = PropertiesUtil.getProperty("indexing.sort." + spIndexKey, defaultSort).toLowerCase();
 
         if (StringTools.isNotValidString(sortType) || !SORT_COMP.contains(sortType)) {
-            logger.warn(LOG_MESSAGE + "Invalid sort type '" + sortType + "' for category '" + spIndexKey + "' using default of " + defaultSort);
+            LOG.warn(LOG_MESSAGE + "Invalid sort type '" + sortType + "' for category '" + spIndexKey + "' using default of " + defaultSort);
             sortType = defaultSort.toLowerCase();
         }
 
@@ -298,19 +298,19 @@ public class Library implements Map<String, Movie> {
         newTvCount = PropertiesUtil.getReplacedIntProperty("mjb.newcount.tv", "mjb.newcount", 0);
 
         if (newMovieDays > 0) {
-            logger.debug("New Movie category will have " + (newMovieCount > 0 ? ("the " + newMovieCount) : "all of the") + " most recent movies in the last " + newMovieDays + " days");
+            LOG.debug("New Movie category will have " + (newMovieCount > 0 ? ("the " + newMovieCount) : "all of the") + " most recent movies in the last " + newMovieDays + " days");
             // Convert newDays from DAYS to MILLISECONDS for comparison purposes
             newMovieDays *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
         } else {
-            logger.debug("New Movie category is disabled");
+            LOG.debug("New Movie category is disabled");
         }
 
         if (newTvDays > 0) {
-            logger.debug("New TV category will have " + (newTvCount > 0 ? ("the " + newTvCount) : "all of the") + " most recent TV Shows in the last " + newTvDays + " days");
+            LOG.debug("New TV category will have " + (newTvCount > 0 ? ("the " + newTvCount) : "all of the") + " most recent TV Shows in the last " + newTvDays + " days");
             // Convert newDays from DAYS to MILLISECONDS for comparison purposes
             newTvDays *= 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
         } else {
-            logger.debug("New category is disabled");
+            LOG.debug("New category is disabled");
         }
     }
 
@@ -514,7 +514,7 @@ public class Library implements Map<String, Movie> {
 
             masters.put(indexName, indexMaster);
 
-            if (logger.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 StringBuilder sb = new StringBuilder("Setting index master '");
                 sb.append(indexMaster.getTitle());
                 sb.append("' - isTV: ").append(indexMaster.isTVShow());
@@ -525,7 +525,7 @@ public class Library implements Map<String, Movie> {
                 sb.append(" - watched: ").append(indexMaster.isWatched());
                 sb.append(" - rating: ").append(indexMaster.getRating());
                 sb.append(" - dirty: ").append(indexMaster.showDirty());
-                logger.debug(sb.toString());
+                LOG.debug(sb.toString());
             }
 
         }
@@ -581,7 +581,7 @@ public class Library implements Map<String, Movie> {
                     @Override
                     public Void call() {
                         SystemTools.showMemory();
-                        logger.info("  Indexing " + indexStr + "...");
+                        LOG.info("  Indexing " + indexStr + "...");
                         if (indexStr.equals(INDEX_OTHER)) {
                             syncindexes.put(INDEX_OTHER, indexByProperties(indexMovies));
                         } else if (indexStr.equals(INDEX_GENRES)) {
@@ -653,7 +653,7 @@ public class Library implements Map<String, Movie> {
             tasks.restart();
 
             // OK, now that all the index masters are in-place, sort everything.
-            logger.info("  Sorting Indexes ...");
+            LOG.info("  Sorting Indexes ...");
             for (final Map.Entry<String, Index> indexesEntry : indexes.entrySet()) {
                 for (final Map.Entry<String, List<Movie>> indexEntry : indexesEntry.getValue().entrySet()) {
                     tasks.submit(new Callable<Void>() {
@@ -716,7 +716,7 @@ public class Library implements Map<String, Movie> {
                         categoryMessage.append(newTVShows).append(" new TV Show").append(newTVShows > 1 ? "s" : "");
                     }
 
-                    logger.debug(categoryMessage.toString());
+                    LOG.debug(categoryMessage.toString());
                     otherIndexes.put(categoriesMap.get(INDEX_NEW), newList);
                     Collections.sort(otherIndexes.get(categoriesMap.get(INDEX_NEW)), new LastModifiedComparator());
                 }
@@ -747,7 +747,7 @@ public class Library implements Map<String, Movie> {
                     @Override
                     public Void call() {
                         SystemTools.showMemory();
-                        logger.info("  Indexing " + indexStr + " (person)...");
+                        LOG.info("  Indexing " + indexStr + " (person)...");
                         indexByJob(indexPersons, indexStr.equals(INDEX_CAST) ? Filmography.DEPT_ACTORS
                                 : indexStr.equals(INDEX_DIRECTOR) ? Filmography.DEPT_DIRECTING
                                 : indexStr.equals(INDEX_WRITER) ? Filmography.DEPT_WRITING : Movie.UNKNOWN, indexStr);
@@ -781,7 +781,7 @@ public class Library implements Map<String, Movie> {
                     otherIndexes.put(category, newList);
                 }
             } else {
-                logger.warn("Warning : You need to enable index 'Other' to get '" + catName + "' ('" + category + "') category");
+                LOG.warn("Warning : You need to enable index 'Other' to get '" + catName + "' ('" + category + "') category");
                 trimOK = false;
             }
         }
@@ -793,7 +793,7 @@ public class Library implements Map<String, Movie> {
         this.unCompressedIndexes = new HashMap<String, Index>(indexes.size());
         Set<String> indexeskeySet = this.indexes.keySet();
         for (String key : indexeskeySet) {
-            logger.debug("Copying " + key + " indexes");
+            LOG.debug("Copying " + key + " indexes");
             Index index = this.indexes.get(key);
             Index indexTmp = new Index();
 
@@ -1102,13 +1102,13 @@ public class Library implements Map<String, Movie> {
                             continue;
                         }
                         String actor = person.getTitle();
-                        logger.debug(ADDING + movie.getTitle() + " to cast list for " + actor);
+                        LOG.debug(ADDING + movie.getTitle() + " to cast list for " + actor);
                         index.addMovie(actor, movie);
                         movie.addIndex(INDEX_ACTOR, actor);
                     }
                 } else {
                     for (String actor : movie.getCast()) {
-                        logger.debug(ADDING + movie.getTitle() + " to cast list for " + actor);
+                        LOG.debug(ADDING + movie.getTitle() + " to cast list for " + actor);
                         index.addMovie(actor, movie);
                         movie.addIndex(INDEX_ACTOR, actor);
                     }
@@ -1201,13 +1201,13 @@ public class Library implements Map<String, Movie> {
                             continue;
                         }
                         String director = person.getTitle();
-                        logger.debug(ADDING + movie.getTitle() + " to director list for " + director);
+                        LOG.debug(ADDING + movie.getTitle() + " to director list for " + director);
                         index.addMovie(director, movie);
                         movie.addIndex(INDEX_DIRECTOR, director);
                     }
                 } else {
                     for (String director : movie.getDirectors()) {
-                        logger.debug(ADDING + movie.getTitle() + " to director list for " + director);
+                        LOG.debug(ADDING + movie.getTitle() + " to director list for " + director);
                         index.addMovie(director, movie);
                         movie.addIndex(INDEX_DIRECTOR, director);
                     }
@@ -1228,13 +1228,13 @@ public class Library implements Map<String, Movie> {
                             continue;
                         }
                         String writer = person.getTitle();
-                        logger.debug(ADDING + movie.getTitle() + " to writer list for " + writer);
+                        LOG.debug(ADDING + movie.getTitle() + " to writer list for " + writer);
                         index.addMovie(writer, movie);
                         movie.addIndex(INDEX_WRITER, writer);
                     }
                 } else {
                     for (String writer : movie.getWriters()) {
-                        logger.debug(ADDING + movie.getTitle() + " to writer list for " + writer);
+                        LOG.debug(ADDING + movie.getTitle() + " to writer list for " + writer);
                         index.addMovie(writer, movie);
                         movie.addIndex(INDEX_WRITER, writer);
                     }
@@ -1282,7 +1282,7 @@ public class Library implements Map<String, Movie> {
                         }
                     }
                     if (found) {
-                        logger.debug(ADDING + movie.getTitle() + " to award list for " + awardName);
+                        LOG.debug(ADDING + movie.getTitle() + " to award list for " + awardName);
                         index.addMovie(awardName, movie);
                         movie.addIndex(INDEX_AWARD, awardName);
                     }
@@ -1304,7 +1304,7 @@ public class Library implements Map<String, Movie> {
                     continue;
                 }
                 String name = person.getName();
-                logger.debug(ADDING + movie.getTitle() + " to person list for " + name);
+                LOG.debug(ADDING + movie.getTitle() + " to person list for " + name);
                 index.addMovie(name, movie);
                 movie.addIndex(INDEX_PERSON, name);
             }
@@ -1319,7 +1319,7 @@ public class Library implements Map<String, Movie> {
             if (!movie.isExtra() && (movie.getRating() > 0)) {
                 String rating = Double.toString(Math.floor((double) movie.getRating() / (double) 10));
                 rating = rating + ".0-" + rating + ".9";
-                logger.debug(ADDING + movie.getTitle() + " to ratings list for " + rating);
+                LOG.debug(ADDING + movie.getTitle() + " to ratings list for " + rating);
                 index.addMovie(rating, movie);
                 movie.addIndex(INDEX_RATINGS, rating);
             }
@@ -1505,11 +1505,11 @@ public class Library implements Map<String, Movie> {
 
                 }
             } catch (ConfigurationException error) {
-                logger.error("Failed parsing moviejukebox genre input file: " + xmlGenreFile.getName());
-                logger.error(SystemTools.getStackTrace(error));
+                LOG.error("Failed parsing moviejukebox genre input file: " + xmlGenreFile.getName());
+                LOG.error(SystemTools.getStackTrace(error));
             }
         } else {
-            logger.error("The moviejukebox genre input file you specified is invalid: " + xmlGenreFile.getName());
+            LOG.error("The moviejukebox genre input file you specified is invalid: " + xmlGenreFile.getName());
         }
     }
 
@@ -1530,14 +1530,14 @@ public class Library implements Map<String, Movie> {
                 }
                 if (conf.containsKey("default")) {
                     defaultCertification = conf.getString("default");
-                    logger.info("Found default certification: " + defaultCertification);
+                    LOG.info("Found default certification: " + defaultCertification);
                 }
             } catch (ConfigurationException error) {
-                logger.error("Failed parsing moviejukebox certification input file: " + xmlCertificationFile.getName());
-                logger.error(SystemTools.getStackTrace(error));
+                LOG.error("Failed parsing moviejukebox certification input file: " + xmlCertificationFile.getName());
+                LOG.error(SystemTools.getStackTrace(error));
             }
         } else {
-            logger.error("The moviejukebox certification input file you specified is invalid: " + xmlCertificationFile.getName());
+            LOG.error("The moviejukebox certification input file you specified is invalid: " + xmlCertificationFile.getName());
         }
     }
 
@@ -1560,11 +1560,11 @@ public class Library implements Map<String, Movie> {
                     }
                 }
             } catch (ConfigurationException error) {
-                logger.error("Failed parsing moviejukebox category input file: " + xmlFile.getName());
-                logger.error(SystemTools.getStackTrace(error));
+                LOG.error("Failed parsing moviejukebox category input file: " + xmlFile.getName());
+                LOG.error(SystemTools.getStackTrace(error));
             }
         } else {
-            logger.error("The moviejukebox category input file you specified is invalid: " + xmlFile.getName());
+            LOG.error("The moviejukebox category input file you specified is invalid: " + xmlFile.getName());
         }
     }
 
@@ -1758,16 +1758,16 @@ public class Library implements Map<String, Movie> {
                         // Otherwise it's 9
                         endYear = filmYear.substring(0, filmYear.length() - 1) + "9";
                     }
-                    logger.trace("Library years for categories: Begin='" + beginYear + "' End='" + endYear + "'");
+                    LOG.trace("Library years for categories: Begin='" + beginYear + "' End='" + endYear + "'");
                     yearCat = new StringBuilder(beginYear);
                     yearCat.append("-").append(endYear.substring(endYear.length() >= 4 ? endYear.length() - 2 : 0));
                 } catch (NumberFormatException e) {
-                    logger.debug("Year is not number: " + filmYear);
+                    LOG.debug("Year is not number: " + filmYear);
                     return Movie.UNKNOWN;
                 }
             }
         } else {
-            logger.trace("Library: Invalid year: '" + filmYear + "'");
+            LOG.trace("Library: Invalid year: '" + filmYear + "'");
             yearCat = new StringBuilder(Movie.UNKNOWN);
         }
 
@@ -1784,7 +1784,7 @@ public class Library implements Map<String, Movie> {
 
         for (Movie movie : boxedSetMovies) {
             if (list.contains(movie)) {
-                logger.debug("Movie " + movie.getTitle() + " match for " + indexName + "[" + categorie + "]");
+                LOG.debug("Movie " + movie.getTitle() + " match for " + indexName + "[" + categorie + "]");
                 response.add(movie);
             }
         }

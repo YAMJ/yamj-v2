@@ -50,6 +50,8 @@ public class ImdbInfo {
     private static final String CATEGORY_TV = "tv";
     private static final String SEARCH_FIRST = "first";
     private static final String SEARCH_EXACT = "exact";
+    private static final String PAREN_LEFT = "("; // Use for searches - was %28
+    private static final String PAREN_RIGHT = ")"; // Use for searches - was %29
     protected static final Map<String, ImdbSiteDataDefinition> MATCHES_DATA_PER_SITE = new HashMap<String, ImdbSiteDataDefinition>();
     private static final String UTF_8 = "UTF-8";
     private static final String ISO_8859_1 = "ISO-8859-1";
@@ -90,21 +92,21 @@ public class ImdbInfo {
 
         // Not 100% sure these are correct
         MATCHES_DATA_PER_SITE.put("fr2", new ImdbSiteDataDefinition("http://www.imdb.fr/", ISO_8859_1, "R&#xE9;alisateur|R&#xE9;alis&#xE9; par", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Aspect Ratio", "Pays",
-                        "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes|Sc&#xE9;naristes", "Taglines", "original title"));
+                "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes|Sc&#xE9;naristes", "Taglines", "original title"));
 
         MATCHES_DATA_PER_SITE.put("es2", new ImdbSiteDataDefinition("http://www.imdb.es/", ISO_8859_1, "Director|Dirigida por", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Relaci&#xF3;n de Aspecto", "Pa&#xED;s",
-                        "Compa&#xF1;&#xED;a", "G&#xE9;nero", "Citas", "Trama", "Rated", "Clasificaci&#xF3;n", "Fecha de Estreno", "Escritores|Cr&#xE9;ditos del gui&#xF3;n", "Taglines", "original title"));
+                "Compa&#xF1;&#xED;a", "G&#xE9;nero", "Citas", "Trama", "Rated", "Clasificaci&#xF3;n", "Fecha de Estreno", "Escritores|Cr&#xE9;ditos del gui&#xF3;n", "Taglines", "original title"));
 
         MATCHES_DATA_PER_SITE.put("de2", new ImdbSiteDataDefinition("http://www.imdb.de/", ISO_8859_1, "Regisseur|Regie", "Besetzung", "Premierendatum", "L&#xE4;nge", "Seitenverh&#xE4;ltnis", "Land",
                 "Firma", "Genre", "Nutzerkommentare", "Handlung", "Rated", "Altersfreigabe", "Premierendatum", "Drehbuchautor", "Unterhaltsames", "Originaltitle"));
 
         MATCHES_DATA_PER_SITE.put("it2", new ImdbSiteDataDefinition("http://www.imdb.it/", UTF_8, "Regista|Registi|Regia di", "Attori", "Data di uscita", "Durata", "Aspect Ratio",
-                        "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Divieti", "Data di uscita", "Sceneggiatore|Scritto da", "Taglines", "original title"));
+                "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Divieti", "Data di uscita", "Sceneggiatore|Scritto da", "Taglines", "original title"));
 
         MATCHES_DATA_PER_SITE.put("pt2", new ImdbSiteDataDefinition("http://www.imdb.pt/", UTF_8, "Diretor|Dirigido por", "Elenco", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o", "Aspect Ratio",
-                        "Pa&#xED;s", "Companhia", "G&#xEA;nero", "Quotes", "Argumento", "Rated", "Certifica&#xE7;&#xE3;o", "Data de Lan&#xE7;amento",
-                        "Roteirista|Cr&#xE9;ditos como roteirista", "Taglines", "original title"));
-}
+                "Pa&#xED;s", "Companhia", "G&#xEA;nero", "Quotes", "Argumento", "Rated", "Certifica&#xE7;&#xE3;o", "Data de Lan&#xE7;amento",
+                "Roteirista|Cr&#xE9;ditos como roteirista", "Taglines", "original title"));
+    }
 
     public void setPreferredSearchEngine(String preferredSearchEngine) {
         this.preferredSearchEngine = preferredSearchEngine;
@@ -119,17 +121,16 @@ public class ImdbInfo {
         this.webBrowser = new WebBrowser();
 
         preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
-        siteDef = MATCHES_DATA_PER_SITE.get(this.imdbSite );
+        siteDef = MATCHES_DATA_PER_SITE.get(this.imdbSite);
         if (siteDef == null) {
-            logger.warn(LOG_MESSAGE + "No site definition for " + this.imdbSite  + " using the default instead " + DEFAULT_SITE);
+            logger.warn(LOG_MESSAGE + "No site definition for " + this.imdbSite + " using the default instead " + DEFAULT_SITE);
             this.imdbSite = DEFAULT_SITE;
-            siteDef = MATCHES_DATA_PER_SITE.get(this.imdbSite );
+            siteDef = MATCHES_DATA_PER_SITE.get(this.imdbSite);
         }
     }
 
     /**
-     * Retrieve the IMDb matching the specified movie name and year. This
-     * routine is based on a IMDb request.
+     * Retrieve the IMDb matching the specified movie name and year. This routine is based on a IMDb request.
      *
      * @param movieName the name of the movie
      * @param year the year
@@ -140,8 +141,7 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb matching the specified movie name and year. This
-     * routine is based on a IMDb request.
+     * Retrieve the IMDb matching the specified movie name and year. This routine is based on a IMDb request.
      *
      * @param movieName the name of the movie
      * @param year the year
@@ -149,12 +149,11 @@ public class ImdbInfo {
      * @return the movie ID or UNKNOWN
      */
     public String getImdbId(String movieName, String year, boolean isTVShow) {
-        return getImdbId(movieName, year, (isTVShow?CATEGORY_TV:CATEGORY_MOVIE));
+        return getImdbId(movieName, year, (isTVShow ? CATEGORY_TV : CATEGORY_MOVIE));
     }
 
     /**
-     * Retrieve the IMDb matching the specified movie name and year. This
-     * routine is based on a IMDb request.
+     * Retrieve the IMDb matching the specified movie name and year. This routine is based on a IMDb request.
      *
      * @param movieName the name of the movie
      * @param year the year
@@ -231,8 +230,7 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb Id matching the specified movie name and year. This
-     * routine is base on a yahoo request.
+     * Retrieve the IMDb Id matching the specified movie name and year. This routine is base on a yahoo request.
      *
      * @param movieName The name of the Movie to search for
      * @param year The year of the movie
@@ -244,7 +242,7 @@ public class ImdbInfo {
             sb.append(URLEncoder.encode(movieName, UTF_8));
 
             if (StringTools.isValidString(year)) {
-                sb.append("+%28").append(year).append("%29");
+                sb.append("+").append(PAREN_LEFT).append(year).append(PAREN_RIGHT);
             }
 
             sb.append("+site%3Aimdb.com&fr=yfp-t-501&ei=UTF-8&rd=r1");
@@ -261,8 +259,7 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb matching the specified movie name and year. This
-     * routine is base on a Google request.
+     * Retrieve the IMDb matching the specified movie name and year. This routine is base on a Google request.
      *
      * @param movieName The name of the Movie to search for
      * @param year The year of the movie
@@ -276,7 +273,7 @@ public class ImdbInfo {
             sb.append(URLEncoder.encode(movieName, UTF_8));
 
             if (StringTools.isValidString(year)) {
-                sb.append("+%28").append(year).append("%29");
+                sb.append("+").append(PAREN_LEFT).append(year).append(PAREN_RIGHT);
             }
 
             sb.append("+site%3Awww.imdb.com&meta=");
@@ -317,8 +314,7 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb matching the specified movie name and year. This
-     * routine is base on a IMDb request.
+     * Retrieve the IMDb matching the specified movie name and year. This routine is base on a IMDb request.
      */
     private String getImdbIdFromImdb(String movieName, String year, String objectType, String categoryType) {
         /*
@@ -347,7 +343,7 @@ public class ImdbInfo {
         }
 
         if (StringTools.isValidString(year)) {
-            sb.append("+%28").append(year).append("%29");
+                sb.append("+").append(PAREN_LEFT).append(year).append(PAREN_RIGHT);
         }
         sb.append("&s=");
         if (objectType.equals(OBJECT_MOVIE)) {
@@ -376,8 +372,8 @@ public class ImdbInfo {
 
         // Check if this is an exact match (we got a movie page instead of a results list)
         Pattern titleregex = siteDef.getPersonRegex();
-        if(objectType.equals(OBJECT_MOVIE)){
-            titleregex= siteDef.getTitleRegex();
+        if (objectType.equals(OBJECT_MOVIE)) {
+            titleregex = siteDef.getTitleRegex();
         }
 
         Matcher titlematch = titleregex.matcher(xml);
@@ -439,7 +435,7 @@ public class ImdbInfo {
             } else {
                 // regular match: name and year match independent from each other
                 int nameIndex = searchResult.toLowerCase().indexOf(formattedName);
-                if (nameIndex != -1 ) {
+                if (nameIndex != -1) {
                     foundMatch = (searchResult.indexOf(formattedYear) > nameIndex);
                 }
             }
@@ -457,8 +453,8 @@ public class ImdbInfo {
             }
         }
 
-       // alternate search for person ID
-       if (objectType.equals(OBJECT_PERSON)) {
+        // alternate search for person ID
+        if (objectType.equals(OBJECT_PERSON)) {
             String firstPersonId = HTMLTools.extractTag(HTMLTools.extractTag(xml, "<table><tr> <td valign=\"top\">", "</td></tr></table>"), "<a href=\"/name/", "/\"");
             if (StringTools.isNotValidString(firstPersonId)) {
                 // alternate approach
@@ -488,30 +484,29 @@ public class ImdbInfo {
      * @return
      */
     /*
-    private String getImdbIdFromImdbApi(final String movieName, final String year) {
-        String imdbId = Movie.UNKNOWN;
-        Map<String, List<SearchObject>> result = ImdbApi.getSearch(movieName);
+     private String getImdbIdFromImdbApi(final String movieName, final String year) {
+     String imdbId = Movie.UNKNOWN;
+     Map<String, List<SearchObject>> result = ImdbApi.getSearch(movieName);
 
-        if (result == null || result.isEmpty()) {
-            logger.debug(LOG_MESSAGE + "No results found for " + movieName);
-            return Movie.UNKNOWN;
-        }
+     if (result == null || result.isEmpty()) {
+     logger.debug(LOG_MESSAGE + "No results found for " + movieName);
+     return Movie.UNKNOWN;
+     }
 
-        ImdbMovieDetails imdbMovie;
-        for (String searchType : SEARCH_ORDER) {
-            logger.trace(LOG_MESSAGE + "Checking search type: " + searchType + " for " + movieName + "(" + year + ")");
-            imdbMovie = matchSearchObject(result.get(searchType), movieName, year);
-            if (imdbMovie != null) {
-                logger.debug(LOG_MESSAGE + "Match found in " + searchType + ": " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
-                imdbId = imdbMovie.getImdbId();
-                break;
-            }
-        }
+     ImdbMovieDetails imdbMovie;
+     for (String searchType : SEARCH_ORDER) {
+     logger.trace(LOG_MESSAGE + "Checking search type: " + searchType + " for " + movieName + "(" + year + ")");
+     imdbMovie = matchSearchObject(result.get(searchType), movieName, year);
+     if (imdbMovie != null) {
+     logger.debug(LOG_MESSAGE + "Match found in " + searchType + ": " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
+     imdbId = imdbMovie.getImdbId();
+     break;
+     }
+     }
 
-        return imdbId;
-    }
-    */
-
+     return imdbId;
+     }
+     */
     /**
      * Loops around the search results looking for a close match based on year
      *
@@ -521,28 +516,27 @@ public class ImdbInfo {
      * @return
      */
     /*
-    private ImdbMovieDetails matchSearchObject(final List<SearchObject> resultList, final String movieName, final String year) {
-        if (resultList == null || (!resultList.isEmpty() && resultList.get(0).getClass() != ImdbMovieDetails.class)) {
-            logger.trace(LOG_MESSAGE + movieName + "(" + year + ") - No results found for this search type");
-            return null;
-        } else {
-            logger.trace(LOG_MESSAGE + movieName + "(" + year + ") - Found " + resultList.size() + " results");
-        }
+     private ImdbMovieDetails matchSearchObject(final List<SearchObject> resultList, final String movieName, final String year) {
+     if (resultList == null || (!resultList.isEmpty() && resultList.get(0).getClass() != ImdbMovieDetails.class)) {
+     logger.trace(LOG_MESSAGE + movieName + "(" + year + ") - No results found for this search type");
+     return null;
+     } else {
+     logger.trace(LOG_MESSAGE + movieName + "(" + year + ") - Found " + resultList.size() + " results");
+     }
 
-        for (SearchObject searchResult : resultList) {
-            if (searchResult.getClass() == ImdbMovieDetails.class) {
-                ImdbMovieDetails imdbMovie = (ImdbMovieDetails) searchResult;
-                logger.debug(LOG_MESSAGE + "Checking: " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
-                if (year.equals(String.valueOf(imdbMovie.getYear())) || StringTools.isNotValidString(year)) {
-                    return (ImdbMovieDetails) searchResult;
-                }
-            }
-        }
+     for (SearchObject searchResult : resultList) {
+     if (searchResult.getClass() == ImdbMovieDetails.class) {
+     ImdbMovieDetails imdbMovie = (ImdbMovieDetails) searchResult;
+     logger.debug(LOG_MESSAGE + "Checking: " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
+     if (year.equals(String.valueOf(imdbMovie.getYear())) || StringTools.isNotValidString(year)) {
+     return (ImdbMovieDetails) searchResult;
+     }
+     }
+     }
 
-        return null;
-    }
-    */
-
+     return null;
+     }
+     */
     public ImdbSiteDataDefinition getSiteDef() {
         return siteDef;
     }

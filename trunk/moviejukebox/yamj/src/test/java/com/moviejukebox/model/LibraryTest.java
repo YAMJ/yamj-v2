@@ -25,16 +25,26 @@ package com.moviejukebox.model;
 import com.moviejukebox.tools.PropertiesUtil;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.TestCase;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
+public class LibraryTest {
 
-public class LibraryTest extends TestCase {
-
+    private static final Logger LOG = Logger.getLogger(LibraryTest.class);
     Library lib;
     final List<Movie> movies = new ArrayList<Movie>();
 
-    @Override
-    protected void setUp() throws Exception {
+    @BeforeClass
+    public static void configure() {
+        BasicConfigurator.configure();
+    }
+
+    @Before
+    public void setup() {
         // TODO Artem: Decouple library from config.
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
         lib = new Library();
@@ -58,6 +68,7 @@ public class LibraryTest extends TestCase {
         }
     }
 
+    @Test
     public void testIndex() {
         Index index = new Index();
         assertEquals(0, index.size());
@@ -70,12 +81,7 @@ public class LibraryTest extends TestCase {
         assertEquals(5, index.size());
     }
 
-    private void add10Movies(Index index) {
-        for (int i = 0; i < 10; i++) {
-            index.addMovie("i" + i, new Movie());
-        }
-    }
-
+    @Test
     public void testIndexByTVShowSeasons() {
         Library.setSingleSeriesPage(true);
         Index index = Library.indexBySets(movies);
@@ -84,6 +90,12 @@ public class LibraryTest extends TestCase {
         assertTrue(index.containsKey("Star Trek"));
         assertTrue(index.containsKey("M*A*S*H"));
         assertEquals(4, index.get("The Sopranos").size());
+    }
+
+    private void add10Movies(Index index) {
+        for (int i = 0; i < 10; i++) {
+            index.addMovie("i" + i, new Movie());
+        }
     }
 
     private static Movie tv(String title, int season) {
