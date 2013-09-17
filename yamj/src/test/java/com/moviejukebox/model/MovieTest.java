@@ -27,13 +27,14 @@ import com.moviejukebox.tools.PropertiesUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class MovieTest extends TestCase {
+public class MovieTest {
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setup() {
         PropertiesUtil.setProperty("movie.director.maxCount", 2);
         PropertiesUtil.setProperty("movie.writer.maxCount", 1);
         PropertiesUtil.setProperty("movie.actor.maxCount", 10);
