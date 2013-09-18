@@ -26,6 +26,8 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
 import org.apache.log4j.BasicConfigurator;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -43,9 +45,17 @@ public class AllocinePluginTest {
         BasicConfigurator.configure();
     }
 
+    @AfterClass
+    public static void tearDownClass() {
+    }
+
     @Before
     public void setup() {
         allocinePlugin = new AllocinePlugin();
+    }
+
+    @After
+    public void tearDown() {
     }
 
     @Test

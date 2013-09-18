@@ -32,10 +32,10 @@ import org.junit.BeforeClass;
 
 public class ImdbInfoTest {
 
-    private static final Logger LOG = org.apache.log4j.Logger.getLogger(ImdbInfoTest.class);
+    private static final Logger LOG = Logger.getLogger(ImdbInfoTest.class);
 
     @BeforeClass
-    public static void setup() {
+    public static void setUpClass() {
         BasicConfigurator.configure();
     }
 

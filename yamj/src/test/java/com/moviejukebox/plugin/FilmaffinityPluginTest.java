@@ -25,20 +25,38 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import org.apache.log4j.BasicConfigurator;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 /**
  *
  * @author Stuart
  */
 public class FilmaffinityPluginTest {
+
     private FilmaffinityPlugin faPlugin = new FilmaffinityPlugin();
 
-    public FilmaffinityPluginTest() {
+    @BeforeClass
+    public static void setUpClass() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("priority.movie.country", "filmaffinity,imdb");
         PropertiesUtil.setProperty("priority.movie.runtime", "filmaffinity,imdb");
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+    }
+
+    @Before
+    public void setUp() {
+    }
+
+    @After
+    public void tearDown() {
     }
 
     /**
@@ -73,7 +91,7 @@ public class FilmaffinityPluginTest {
         Movie movie = new Movie();
         movie.setTitle("Avatar", Movie.UNKNOWN);
         movie.setYear("2009", Movie.UNKNOWN);
-        
+
         assertEquals(true, faPlugin.scan(movie));
         assertEquals("2009", movie.getYear());
     }

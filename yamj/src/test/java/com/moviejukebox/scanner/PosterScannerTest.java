@@ -25,18 +25,19 @@ package com.moviejukebox.scanner;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbInfo;
 import java.io.UnsupportedEncodingException;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
 
-public class PosterScannerTest extends TestCase {
+public class PosterScannerTest {
 
     private Movie movieTest;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() {
         movieTest = new Movie();
     }
 
-    @SuppressWarnings("unused")
+    @Test
     public void testGetPosterURLFromMovieDbAPI() throws UnsupportedEncodingException {
         String baseURL = "http://www.moviecovers.com/getjpg.html/";
         String expectedURL = Movie.UNKNOWN;
@@ -45,7 +46,7 @@ public class PosterScannerTest extends TestCase {
         ImdbInfo imdbInfo = new ImdbInfo();
     }
 
-    @SuppressWarnings("unused")
+    @Test
     public void testGetPosterURLFromMovieCovers() throws UnsupportedEncodingException {
         String baseURL = "http://www.moviecovers.com/getjpg.html/";
         String expectedURL = Movie.UNKNOWN;
@@ -82,5 +83,4 @@ public class PosterScannerTest extends TestCase {
          * PosterScanner.getPosterURLFromMovieCovers(movieTest); assertEquals(expectedURL, returnURL);
          */
     }
-
 }

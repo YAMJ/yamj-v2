@@ -702,9 +702,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      *
      * Taken from: http://forums.sun.com/thread.jspa?threadID=528155&messageID=2537096
      *
-     * @param posterImage Artwork image to check
-     * @param posterWidth The width to check
-     * @param posterHeight The height to check
+     * @param artworkImage Artwork image to check
+     * @param artworkWidth The width to check
+     * @param artworkHeight The height to check
      * @param checkAspect Should the aspect ratio be checked
      * @return True if the poster is good, false otherwise
      */
@@ -1028,7 +1028,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Set the list of artwork extensions to search for using a delimited string
      *
-     * @param artworkExtensions
+     * @param extensions
      */
     private void setArtworkExtensions(String extensions) {
         StringTokenizer st = new StringTokenizer(extensions, SPLITTER);
@@ -1057,7 +1057,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Set the list of folder artwork image names
      *
-     * @param artworkImageName
+     * @param artworkImageNameString
      */
     private void setArtworkImageName(String artworkImageNameString) {
         StringTokenizer st = new StringTokenizer(artworkImageNameString, SPLITTER);
@@ -1070,7 +1070,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     /**
      * Set the name for the artwork type to be used in logger messages
      *
-     * @param artworkType The artwork type to instantiate the scanner for
+     * @param setArtworkType The artwork type to instantiate the scanner for
      */
     private void setArtworkType(ArtworkType setArtworkType) {
         artworkType = setArtworkType;

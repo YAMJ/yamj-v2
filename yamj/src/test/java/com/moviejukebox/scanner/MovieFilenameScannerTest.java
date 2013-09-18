@@ -28,13 +28,17 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import junit.framework.TestCase;
+import org.apache.log4j.BasicConfigurator;
+import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class MovieFilenameScannerTest extends TestCase {
+public class MovieFilenameScannerTest {
 
-    @Override
-    protected void setUp() throws Exception {
-        MovieFilenameScanner.setSkipKeywords(new String[] { "xor", "XOR", "vfua", "SMB", "hdclub", "KB", "DiAMOND" }, true);
+    @BeforeClass
+    public static void setUpClass() {
+        BasicConfigurator.configure();
+        MovieFilenameScanner.setSkipKeywords(new String[]{"xor", "XOR", "vfua", "SMB", "hdclub", "KB", "DiAMOND"}, true);
         MovieFilenameScanner.setMovieVersionKeywords(StringTools.tokenizeToArray("remastered,directors cut,extended cut,final cut,remux", ",;|"));
 
         MovieFilenameScanner.clearLanguages();
@@ -59,23 +63,28 @@ public class MovieFilenameScannerTest extends TestCase {
         MovieFilenameScanner.addLanguage("Danish", "DA DAN DANISH da dan danish", "DA DAN DANISH");
         MovieFilenameScanner.addLanguage("Dutch", "NL Nl nl NLD Nld nld DUTCH Dutch dutch", "NL NLD DUTCH");
     }
-    public void testNoSpaceBeforeBracket(){
+
+    @Test
+    public void testNoSpaceBeforeBracket() {
         MovieFileNameDTO d = scan("Aliens(1986).avi");
         assertEquals("Aliens", d.getTitle());
         assertEquals(1986, d.getYear());
 
     }
-    public void testTrailer(){
-      MovieFileNameDTO d = scan("Gladiator[PART1].[TRAILER-gladiator_480_sv2].mov");
-      assertEquals("Gladiator", d.getTitle());
-      assertEquals("TRAILER-gladiator_480_sv2", d.getPartTitle());
 
-      d = scan("Gladiator[PART1] - Movie .[TRAILER-gladiator_480_sv2].mov");
-      assertEquals("Gladiator", d.getTitle());
-      assertEquals("TRAILER-gladiator_480_sv2", d.getPartTitle());
+    @Test
+    public void testTrailer() {
+        MovieFileNameDTO d = scan("Gladiator[PART1].[TRAILER-gladiator_480_sv2].mov");
+        assertEquals("Gladiator", d.getTitle());
+        assertEquals("TRAILER-gladiator_480_sv2", d.getPartTitle());
+
+        d = scan("Gladiator[PART1] - Movie .[TRAILER-gladiator_480_sv2].mov");
+        assertEquals("Gladiator", d.getTitle());
+        assertEquals("TRAILER-gladiator_480_sv2", d.getPartTitle());
 
     }
 
+    @Test
     public void testPatterns() {
         Matcher matcher = MovieFilenameScanner.getTokenDelimitersMatchPattern().matcher("a]bc.def");
         assertTrue(matcher.find());
@@ -93,6 +102,7 @@ public class MovieFilenameScannerTest extends TestCase {
         assertFalse(matcher.find());
     }
 
+    @Test
     public void testWPatterns() {
         final Pattern wpatt = MovieFilenameScanner.wpatt("-SMB");
         //Pattern.compile("(?<=[\\]\\.])(?:def)");
@@ -113,13 +123,15 @@ public class MovieFilenameScannerTest extends TestCase {
 //        assertFalse(matcher.find());
     }
 
-    public void testNaming(){
+    @Test
+    public void testNaming() {
         MovieFileNameDTO d = scan("Aime ton Père (2002) [Jacob Berger, Gérard Depardieu, Guillaume Depardieu, Sylvie Testud].ISO");
         assertEquals("Aime ton Père", d.getTitle());
         assertEquals(2002, d.getYear());
     }
 
-    public void testDate(){
+    @Test
+    public void testDate() {
         MovieFileNameDTO d = scan("Time masters (Laloux Moebius) (1982) Eng.Hun.Fra.De.Ru.mkv");
         assertEquals(1982, d.getYear());
 
@@ -135,7 +147,8 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals(2008, d.getYear());
     }
 
-    public void testSkipKeywords(){
+    @Test
+    public void testSkipKeywords() {
         MovieFileNameDTO d = scan("Blood Diamond.mkv");
         assertEquals("Blood Diamond", d.getTitle());
 
@@ -143,13 +156,14 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals("Blood", d.getTitle());
     }
 
+    @Test
     public void testScan() {
         MovieFileNameDTO d = scan("Desperate Housewives S04E01E02E03E06.iso");
         assertEquals("Desperate Housewives", d.getTitle());
         assertEquals("iso", d.getExtension());
         assertEquals("ISO", d.getContainer());
         assertEquals(4, d.getSeason());
-        assertEquals(Arrays.asList(new Integer[] { 1, 2, 3, 6 }), d.getEpisodes());
+        assertEquals(Arrays.asList(new Integer[]{1, 2, 3, 6}), d.getEpisodes());
 
         d = scan("The.Matrix.[Trailer-Unrated].avi");
         assertEquals("The Matrix", d.getTitle());
@@ -175,7 +189,7 @@ public class MovieFilenameScannerTest extends TestCase {
 
         d = scan("House 3x101x19x3.avi");
         assertEquals(3, d.getSeason());
-        assertEquals(Arrays.asList(new Integer[] { 101, 19, 3 }), d.getEpisodes());
+        assertEquals(Arrays.asList(new Integer[]{101, 19, 3}), d.getEpisodes());
 
         d = scan("Dinner.Game.(Diner.De.Cons).1998.FRENCH.720p.BluRay.x264-zzz.ts");
         assertEquals(1998, d.getYear());
@@ -264,6 +278,7 @@ public class MovieFilenameScannerTest extends TestCase {
 
     }
 
+    @Test
     public void testScanSets() {
         MovieFileNameDTO d = scan("X-Men 3 [SET X-Men - 99].avi");
         assertEquals(1, d.getSets().size());
@@ -290,6 +305,7 @@ public class MovieFilenameScannerTest extends TestCase {
 
     }
 
+    @Test
     public void testScanLanguages() {
         MovieFileNameDTO d = scan("Time masters (Laloux Moebius) (1982) Eng.Hun.Fra.De.Ru.mkv");
         assertEquals(1982, d.getYear());
@@ -322,6 +338,7 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals(0, d.getLanguages().size());
     }
 
+    @Test
     public void testScanSeries() {
         MovieFileNameDTO d = scan("Formula.1.S2008E1.avi");
         assertEquals("Formula 1", d.getTitle());
@@ -358,6 +375,7 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals("Forget Me Not", d.getEpisodeTitle());
     }
 
+    @Test
     public void testScanVersion() {
         MovieFileNameDTO d = scan("Ghost Rider.2007.Extended.Cut.720p.BluRay.x264.mkv");
         assertEquals("Ghost Rider", d.getTitle());
@@ -371,6 +389,7 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals("Troy", d.getTitle());
     }
 
+    @Test
     public void testScanParts() {
         MovieFileNameDTO d = scan("How Music Works - part 1 of 4 - Melody.avi");
         assertEquals(-1, d.getSeason());
@@ -397,6 +416,7 @@ public class MovieFilenameScannerTest extends TestCase {
 
     }
 
+    @Test
     public void testRussian() {
         MovieFileNameDTO d = scan("Воображариум доктора Парнаса.mkv");
         assertEquals("Воображариум доктора Парнаса", d.getTitle());
@@ -408,6 +428,7 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals("Russian", d.getLanguages().get(0));
     }
 
+    @Test
     public void testParentFolderName() {
         MovieFileNameDTO d = scan("Гора самоцветов 1 Рубин", "Part1 - Шейдулла-лентяй.avi");
         assertEquals("Гора самоцветов 1 Рубин", d.getTitle());
@@ -415,20 +436,22 @@ public class MovieFilenameScannerTest extends TestCase {
         assertEquals("Шейдулла-лентяй", d.getPartTitle());
     }
 
+    @Test
     public void testIssue1835() {
         MovieFileNameDTO d = scan("Tropa de Elite.[2007].BRRip.x264.PCMKV.mkv");
         assertEquals("Tropa de Elite", d.getTitle());
         assertEquals(2007, d.getYear());
 
-         d = scan("Tropa de Elite 2.[2010].BDRip.XviD-ZMG.avi");
+        d = scan("Tropa de Elite 2.[2010].BDRip.XviD-ZMG.avi");
         assertEquals("Tropa de Elite 2", d.getTitle());
         assertEquals(2010, d.getYear());
     }
 
+    @Test
     public void testIssue1946() {
         // This requires a full path.
         // The issue was caused by the scanner thinking that the parent directory was the show title.
-        MovieFileNameDTO d = scan("y:" + File.separator + "test" + File.separator +  "South Park - S14E05 - 200 (1).avi");
+        MovieFileNameDTO d = scan("y:" + File.separator + "test" + File.separator + "South Park - S14E05 - 200 (1).avi");
         assertEquals("200 (1)", d.getEpisodeTitle());
         assertEquals(14, d.getSeason());
         assertEquals(-1, d.getYear());
@@ -473,7 +496,7 @@ public class MovieFilenameScannerTest extends TestCase {
         return MovieFilenameScanner.scan(file);
     }
 
-    @SuppressWarnings({ "serial", "unused" })
+    @SuppressWarnings({"serial", "unused"})
     private static MovieFileNameDTO scan(String parentfoldername, String foldername, String filename) {
         final File parentfolder = new File(parentfoldername) {
             @Override

@@ -40,9 +40,6 @@ public class MovieJukeboxXMLReaderTest {
 
     private static final String testDir = "src/test/java/TestFiles/";
 
-    public MovieJukeboxXMLReaderTest() {
-    }
-
     @BeforeClass
     public static void setUpClass() {
         BasicConfigurator.configure();
