@@ -24,6 +24,7 @@ package com.moviejukebox.reader;
 
 import com.moviejukebox.model.Person;
 import java.io.File;
+import org.apache.log4j.BasicConfigurator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -44,6 +45,7 @@ public class MovieJukeboxXMLReaderTest {
 
     @BeforeClass
     public static void setUpClass() {
+        BasicConfigurator.configure();
     }
 
     @AfterClass

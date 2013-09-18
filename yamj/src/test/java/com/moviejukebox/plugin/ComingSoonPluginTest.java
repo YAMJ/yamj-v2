@@ -26,8 +26,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import org.apache.log4j.BasicConfigurator;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -87,8 +86,9 @@ public class ComingSoonPluginTest {
             assertTrue(movie.getDirectors().size() > 0);
             assertTrue(movie.getWriters().size() > 0);
             if (i != 1) {
-                assertTrue(movie.getCast().size() > 0);
-                assertTrue(StringTools.isValidString(movie.getReleaseDate()));
+                assertNotNull("No movie object", movie);
+                assertTrue("No cast found", movie.getCast().size() > 0);
+                assertTrue("Invalid release date", StringTools.isValidString(movie.getReleaseDate()));
 
             }
             assertTrue(StringTools.isValidString(movie.getPlot()));

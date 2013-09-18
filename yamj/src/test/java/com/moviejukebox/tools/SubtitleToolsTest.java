@@ -26,12 +26,27 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.TestCase;
+import org.apache.log4j.BasicConfigurator;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
-public class SubtitleToolsTest extends TestCase {
+public class SubtitleToolsTest {
 
-    @Override
-    protected void setUp() throws Exception {
+    @BeforeClass
+    public static void setUpClass() {
+        BasicConfigurator.configure();
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+    }
+
+    @Before
+    public void setUp() {
         // set up the file name scanner
         MovieFilenameScanner.clearLanguages();
         MovieFilenameScanner.addLanguage("English", "ENG EN ENGLISH eng en english Eng", "ENG EN ENGLISH");
@@ -44,18 +59,25 @@ public class SubtitleToolsTest extends TestCase {
         PropertiesUtil.setProperty("mjb.subtitle.skip", "nor,it");
     }
 
+    @After
+    public void tearDown() {
+    }
+
+    @Test
     public void testAddMovieSubtitles1() {
         String actualSubtitles = Movie.UNKNOWN;
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "eng");
         assertEquals("English", newSubtitles);
     }
 
+    @Test
     public void testAddMovieSubtitles2() {
         String actualSubtitles = "NO";
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "eng");
         assertEquals("English", newSubtitles);
     }
 
+    @Test
     public void testAddMovieSubtitles3() {
         String actualSubtitles = "YES";
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "eng");
@@ -63,30 +85,35 @@ public class SubtitleToolsTest extends TestCase {
         assertEquals("English / German", newSubtitles);
     }
 
+    @Test
     public void testAddMovieSubtitles4() {
         String actualSubtitles = "YES";
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "NO");
         assertEquals("NO", newSubtitles);
     }
 
+    @Test
     public void testAddMovieSubtitles5() {
         String actualSubtitles = "NO";
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "YES");
         assertEquals("YES", newSubtitles);
     }
 
+    @Test
     public void testAddMovieSubtitles6() {
         String actualSubtitles = "English / German";
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "YES");
         assertEquals("English / German", newSubtitles);
     }
 
+    @Test
     public void testAddMovieSubtitles7() {
         String actualSubtitles = "English / German";
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "German");
         assertEquals("English / German", newSubtitles);
     }
 
+    @Test
     public void testSetMovieSubtitles1() {
         List<String> subtitles = new ArrayList<String>();
         subtitles.add("");
@@ -100,6 +127,7 @@ public class SubtitleToolsTest extends TestCase {
         assertEquals("English / German", movie.getSubtitles());
     }
 
+    @Test
     public void testSetMovieSubtitles2() {
         List<String> subtitles = new ArrayList<String>();
         subtitles.add("");
@@ -114,6 +142,7 @@ public class SubtitleToolsTest extends TestCase {
         assertEquals("English / German", movie.getSubtitles());
     }
 
+    @Test
     public void testSetMovieSubtitles3() {
         List<String> subtitles = new ArrayList<String>();
         subtitles.add("en");
@@ -125,6 +154,7 @@ public class SubtitleToolsTest extends TestCase {
         assertEquals("English / German", movie.getSubtitles());
     }
 
+    @Test
     public void testSetMovieSubtitles4() {
         List<String> subtitles = new ArrayList<String>();
         subtitles.add("en");
@@ -136,6 +166,7 @@ public class SubtitleToolsTest extends TestCase {
         assertEquals("English / German", movie.getSubtitles());
     }
 
+    @Test
     public void testSetMovieSubtitlesOverride1() {
         List<String> subtitles = new ArrayList<String>();
         subtitles.add("en");
@@ -146,6 +177,7 @@ public class SubtitleToolsTest extends TestCase {
         assertEquals("English", movie.getSubtitles());
     }
 
+    @Test
     public void testSetMovieSubtitlesOverride2() {
         List<String> subtitles = new ArrayList<String>();
         subtitles.add(Movie.UNKNOWN);
@@ -158,6 +190,7 @@ public class SubtitleToolsTest extends TestCase {
         assertEquals("German / French", movie.getSubtitles());
     }
 
+    @Test
     public void testSkippedMovieSubtitles() {
         List<String> subtitles = new ArrayList<String>();
         subtitles.add("en");

@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.junit.After;
+import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -39,12 +41,16 @@ public class LibraryTest {
     final List<Movie> movies = new ArrayList<Movie>();
 
     @BeforeClass
-    public static void configure() {
+    public static void setUpClass() {
         BasicConfigurator.configure();
     }
 
+    @AfterClass
+    public static void tearDownClass() {
+    }
+
     @Before
-    public void setup() {
+    public void setUp() {
         // TODO Artem: Decouple library from config.
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
         lib = new Library();
@@ -66,6 +72,10 @@ public class LibraryTest {
         for (Movie movie : movies) {
             lib.addMovie(movie);
         }
+    }
+
+    @After
+    public void tearDown() {
     }
 
     @Test
