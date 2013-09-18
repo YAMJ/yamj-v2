@@ -27,17 +27,32 @@ import com.moviejukebox.tools.PropertiesUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.BeforeClass;
 
 public class MovieTest {
 
+    @BeforeClass
+    public static void setUpClass() {
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+    }
+
     @Before
-    public void setup() {
+    public void setUp() {
         PropertiesUtil.setProperty("movie.director.maxCount", 2);
         PropertiesUtil.setProperty("movie.writer.maxCount", 1);
         PropertiesUtil.setProperty("movie.actor.maxCount", 10);
+    }
+
+    @After
+    public void tearDown() {
     }
 
     @Test
