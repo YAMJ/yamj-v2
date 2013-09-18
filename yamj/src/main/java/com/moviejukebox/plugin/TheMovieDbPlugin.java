@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
@@ -36,11 +37,13 @@ import com.omertron.themoviedbapi.model.Genre;
 import com.omertron.themoviedbapi.model.Language;
 import com.omertron.themoviedbapi.model.MovieDb;
 import com.omertron.themoviedbapi.model.Person;
+import com.omertron.themoviedbapi.model.PersonCredit;
 import com.omertron.themoviedbapi.model.PersonType;
 import com.omertron.themoviedbapi.model.ProductionCompany;
 import com.omertron.themoviedbapi.model.ProductionCountry;
 import com.omertron.themoviedbapi.model.ReleaseInfo;
 import com.omertron.themoviedbapi.results.TmdbResultsList;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -54,7 +57,7 @@ import org.pojava.datetime2.DateTime;
  */
 public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
-    private static final Logger logger = Logger.getLogger(TheMovieDbPlugin.class);
+    private static final Logger LOG = Logger.getLogger(TheMovieDbPlugin.class);
     private static final String LOG_MESSAGE = "TheMovieDbPlugin: ";
     public static final String TMDB_PLUGIN_ID = "themoviedb";
     public static final String IMDB_PLUGIN_ID = "imdb";
@@ -69,12 +72,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public static final boolean INCLUDE_ADULT = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", Boolean.FALSE);
     public static final int SEARCH_MATCH = PropertiesUtil.getIntProperty("themoviedb.searchMatch", 3);
     private static final String LANGUAGE_DELIMITER = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
+    private int preferredBiographyLength;
+    private int preferredFilmographyMax;
 
     public TheMovieDbPlugin() {
         try {
             TMDb = new TheMovieDbApi(API_KEY);
         } catch (MovieDbException ex) {
-            logger.warn(LOG_MESSAGE + "Failed to initialise TheMovieDB API: " + ex.getMessage());
+            LOG.warn(LOG_MESSAGE + "Failed to initialise TheMovieDB API: " + ex.getMessage());
             return;
         }
 
@@ -94,11 +99,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             }
             languageCode = languageCode.substring(0, 2).toLowerCase();
         }
-        logger.debug(LOG_MESSAGE + "Using `" + languageCode + "` as the language code");
-        logger.debug(LOG_MESSAGE + "Using `" + countryCode + "` as the country code");
+        LOG.debug(LOG_MESSAGE + "Using `" + languageCode + "` as the language code");
+        LOG.debug(LOG_MESSAGE + "Using `" + countryCode + "` as the country code");
 
         downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", Boolean.FALSE);
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
+
+        preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", 500);
+        preferredFilmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", 20);
     }
 
     @Override
@@ -121,26 +129,26 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             // First look to see if we have a TMDb ID as this will make looking the film up easier
             if (StringTools.isValidString(tmdbID)) {
                 // Search based on TMdb ID
-                logger.debug(LOG_MESSAGE + "Using TMDb ID (" + tmdbID + ") for " + movie.getBaseFilename());
+                LOG.debug(LOG_MESSAGE + "Using TMDb ID (" + tmdbID + ") for " + movie.getBaseFilename());
                 try {
                     moviedb = TMDb.getMovieInfo(Integer.parseInt(tmdbID), languageCode);
                 } catch (MovieDbException ex) {
-                    logger.debug(LOG_MESSAGE + "Failed to get movie info using TMDB ID: " + tmdbID + " - " + ex.getMessage());
+                    LOG.debug(LOG_MESSAGE + "Failed to get movie info using TMDB ID: " + tmdbID + " - " + ex.getMessage());
                     moviedb = null;
                 }
             }
 
             if (moviedb == null && StringTools.isValidString(imdbID)) {
                 // Search based on IMDb ID
-                logger.debug(LOG_MESSAGE + "Using IMDb ID (" + imdbID + ") for " + movie.getBaseFilename());
+                LOG.debug(LOG_MESSAGE + "Using IMDb ID (" + imdbID + ") for " + movie.getBaseFilename());
                 try {
                     moviedb = TMDb.getMovieInfoImdb(imdbID, languageCode);
                     tmdbID = String.valueOf(moviedb.getId());
                     if (StringTools.isNotValidString(tmdbID)) {
-                        logger.debug(LOG_MESSAGE + "No TMDb ID found for movie!");
+                        LOG.debug(LOG_MESSAGE + "No TMDb ID found for movie!");
                     }
                 } catch (MovieDbException ex) {
-                    logger.debug(LOG_MESSAGE + "Failed to get movie info using IMDB ID: " + imdbID + " - " + ex.getMessage());
+                    LOG.debug(LOG_MESSAGE + "Failed to get movie info using IMDB ID: " + imdbID + " - " + ex.getMessage());
                     moviedb = null;
                 }
             }
@@ -158,7 +166,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
                     // Iterate over the list until we find a match
                     for (MovieDb m : movieList) {
-                        logger.debug(LOG_MESSAGE + "Checking " + m.getTitle() + " (" + m.getReleaseDate().substring(0, 4) + ")");
+                        LOG.debug(LOG_MESSAGE + "Checking " + m.getTitle() + " (" + m.getReleaseDate().substring(0, 4) + ")");
                         if (TheMovieDbApi.compareMovies(m, movie.getTitle(), Integer.toString(movieYear), SEARCH_MATCH)) {
                             moviedb = m;
                             break;
@@ -172,22 +180,23 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                         }
                     }
                 } catch (MovieDbException ex) {
-                    logger.debug(LOG_MESSAGE + "Failed to get movie info for " + movie.getTitle() + " - " + ex.getMessage());
+                    LOG.debug(LOG_MESSAGE + "Failed to get movie info for " + movie.getTitle() + " - " + ex.getMessage());
                     moviedb = null;
                 }
             }
 
             if (moviedb == null) {
-                logger.debug(LOG_MESSAGE + "Movie " + movie.getBaseName() + " not found!");
-                logger.debug(LOG_MESSAGE + "Try using a NFO file to specify the movie");
+                LOG.debug(LOG_MESSAGE + "Movie " + movie.getBaseName() + " not found!");
+                LOG.debug(LOG_MESSAGE + "Try using a NFO file to specify the movie");
+                return false;
             } else {
                 try {
                     // Get the full information on the film
                     moviedb = TMDb.getMovieInfo(moviedb.getId(), languageCode);
                 } catch (MovieDbException ex) {
-                    logger.debug(LOG_MESSAGE + "Failed to download remaining information for " + movie.getBaseName());
+                    LOG.debug(LOG_MESSAGE + "Failed to download remaining information for " + movie.getBaseName());
                 }
-                logger.debug(LOG_MESSAGE + "Found id (" + moviedb.getId() + ") for " + moviedb.getTitle());
+                LOG.debug(LOG_MESSAGE + "Found id (" + moviedb.getId() + ") for " + moviedb.getTitle());
             }
 
 
@@ -195,14 +204,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 // Get the release information
                 movieReleaseInfo = TMDb.getMovieReleaseInfo(moviedb.getId(), countryCode).getResults();
             } catch (MovieDbException ex) {
-                logger.debug(LOG_MESSAGE + "Failed to get release information");
+                LOG.debug(LOG_MESSAGE + "Failed to get release information");
             }
 
             try {
                 // Get the cast information
                 moviePeople = TMDb.getMovieCasts(moviedb.getId()).getResults();
             } catch (MovieDbException ex) {
-                logger.debug(LOG_MESSAGE + "Failed to get cast information");
+                LOG.debug(LOG_MESSAGE + "Failed to get cast information");
             }
         } finally {
             // the rest is not web search anymore
@@ -221,7 +230,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
             // Set the release information
             if (movieReleaseInfo.size() > 0 && OverrideTools.checkOverwriteCertification(movie, TMDB_PLUGIN_ID)) {
-                logger.debug(LOG_MESSAGE + "Found release information: " + movieReleaseInfo.get(0).toString());
+                LOG.debug(LOG_MESSAGE + "Found release information: " + movieReleaseInfo.get(0).toString());
                 movie.setCertification(movieReleaseInfo.get(0).getCertification(), TMDB_PLUGIN_ID);
             }
 
@@ -232,25 +241,25 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 List<String> newDirectors = new ArrayList<String>();
                 List<String> newWriters = new ArrayList<String>();
 
-                logger.debug(LOG_MESSAGE + "Adding " + moviePeople.size() + " people to the cast list");
+                LOG.debug(LOG_MESSAGE + "Adding " + moviePeople.size() + " people to the cast list");
                 for (Person person : moviePeople) {
                     if (person.getPersonType() == PersonType.CAST) {
-                        logger.trace(LOG_MESSAGE + "Adding cast member " + person.toString());
+                        LOG.trace(LOG_MESSAGE + "Adding cast member " + person.toString());
                         newActors.add(person.getName());
                     } else if (person.getPersonType() == PersonType.CREW) {
-                        logger.trace(LOG_MESSAGE + "Adding crew member " + person.toString());
+                        LOG.trace(LOG_MESSAGE + "Adding crew member " + person.toString());
                         if ("Director".equalsIgnoreCase(person.getJob())) {
-                            logger.trace(LOG_MESSAGE + person.getName() + " is a Director");
+                            LOG.trace(LOG_MESSAGE + person.getName() + " is a Director");
                             newDirectors.add(person.getName());
                         } else if ("Author".equalsIgnoreCase(person.getJob())) {
-                            logger.trace(LOG_MESSAGE + person.getName() + " is a Writer");
+                            LOG.trace(LOG_MESSAGE + person.getName() + " is a Writer");
                             newWriters.add(person.getName());
                             continue;
                         } else {
-                            logger.trace(LOG_MESSAGE + "Unknown job  " + person.getJob() + " for " + person.toString());
+                            LOG.trace(LOG_MESSAGE + "Unknown job  " + person.getJob() + " for " + person.toString());
                         }
                     } else {
-                        logger.trace(LOG_MESSAGE + "Unknown person type " + person.getPersonType() + " for " + person.toString());
+                        LOG.trace(LOG_MESSAGE + "Unknown person type " + person.getPersonType() + " for " + person.toString());
                     }
                 }
 
@@ -273,7 +282,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     movie.setPeopleCast(newActors, TMDB_PLUGIN_ID);
                 }
             } else {
-                logger.debug(LOG_MESSAGE + "No cast or crew members found");
+                LOG.debug(LOG_MESSAGE + "No cast or crew members found");
             }
 
             // Update TheMovieDb Id if needed
@@ -336,7 +345,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 float rating = moviedb.getVoteAverage() * 10; // Convert rating to integer
                 movie.addRating(TMDB_PLUGIN_ID, (int) rating);
             } catch (Exception error) {
-                logger.debug(LOG_MESSAGE + "Error converting rating for " + movie.getBaseName());
+                LOG.debug(LOG_MESSAGE + "Error converting rating for " + movie.getBaseName());
             }
         }
 
@@ -441,37 +450,37 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         boolean result = Boolean.FALSE;
 
         if (StringTools.isValidString(movie.getId(TMDB_PLUGIN_ID))) {
-            logger.debug(LOG_MESSAGE + "TheMovieDb ID exists for " + movie.getBaseName() + " = " + movie.getId(TMDB_PLUGIN_ID));
+            LOG.debug(LOG_MESSAGE + "TheMovieDb ID exists for " + movie.getBaseName() + " = " + movie.getId(TMDB_PLUGIN_ID));
             result = Boolean.TRUE;
         } else {
-            logger.debug(LOG_MESSAGE + "Scanning NFO for TheMovieDb ID");
+            LOG.debug(LOG_MESSAGE + "Scanning NFO for TheMovieDb ID");
             beginIndex = nfo.indexOf("/movie/");
             if (beginIndex != -1) {
                 StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$");
                 movie.setId(TMDB_PLUGIN_ID, st.nextToken());
-                logger.debug(LOG_MESSAGE + "TheMovieDb ID found in NFO = " + movie.getId(TMDB_PLUGIN_ID));
+                LOG.debug(LOG_MESSAGE + "TheMovieDb ID found in NFO = " + movie.getId(TMDB_PLUGIN_ID));
                 result = Boolean.TRUE;
             } else {
-                logger.debug(LOG_MESSAGE + "No TheMovieDb ID found in NFO!");
+                LOG.debug(LOG_MESSAGE + "No TheMovieDb ID found in NFO!");
             }
         }
 
         // We might as well look for the IMDb ID as well
         if (StringTools.isValidString(movie.getId(IMDB_PLUGIN_ID))) {
-            logger.debug(LOG_MESSAGE + "IMDB ID exists for " + movie.getBaseName() + " = " + movie.getId(IMDB_PLUGIN_ID));
+            LOG.debug(LOG_MESSAGE + "IMDB ID exists for " + movie.getBaseName() + " = " + movie.getId(IMDB_PLUGIN_ID));
             result = Boolean.TRUE;
         } else {
             beginIndex = nfo.indexOf("/tt");
             if (beginIndex != -1) {
                 StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1), "/ \n,:!&é\"'(--è_çà)=$");
                 movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, st.nextToken());
-                logger.debug(LOG_MESSAGE + "IMDB ID found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
+                LOG.debug(LOG_MESSAGE + "IMDB ID found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
             } else {
                 beginIndex = nfo.indexOf("/Title?");
                 if (beginIndex != -1 && beginIndex + 7 < nfo.length()) {
                     StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$");
                     movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt" + st.nextToken());
-                    logger.debug(LOG_MESSAGE + "IMDB ID found in NFO = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
+                    LOG.debug(LOG_MESSAGE + "IMDB ID found in NFO = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
                 }
             }
         }
@@ -493,13 +502,155 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         return FanartScanner.getFanartURL(movie);
     }
 
-    public boolean scan(Person person) {
-        return false;
-    }
-
+    /**
+     * Search for information on the person
+     *
+     * @param person
+     * @return
+     */
     @Override
     public boolean scan(com.moviejukebox.model.Person person) {
-        // TODO Auto-generated method stub
-        return false;
+        String id = getPersonId(person);
+
+        if (StringTools.isValidString(id)) {
+            int tmdbId = Integer.parseInt(id);
+            try {
+                com.omertron.themoviedbapi.model.Person tmdbPerson = TMDb.getPersonInfo(tmdbId);
+                person.setName(tmdbPerson.getName());
+
+                person.setBiography(StringUtils.abbreviate(tmdbPerson.getBiography(), preferredBiographyLength));
+                person.setId(IMDB_PLUGIN_ID, tmdbPerson.getImdbId());
+                person.setUrl("http://www.themoviedb.org/person/"+tmdbId);
+
+                List<String> akas = tmdbPerson.getAka();
+                if (akas != null && !akas.isEmpty()) {
+                    // Set the birthname to be the first aka
+                    person.setBirthName(akas.get(0));
+
+                    // Add the akas
+                    for (String aka : tmdbPerson.getAka()) {
+                        person.addAka(aka);
+                    }
+                }
+
+                if (StringTools.isValidString(tmdbPerson.getBirthday())) {
+                    // Look for the death day and append that as well
+                    if (StringTools.isValidString(tmdbPerson.getDeathday())) {
+                        person.setYear(tmdbPerson.getBirthday() + "/" + tmdbPerson.getDeathday());
+                    } else {
+                        person.setYear(tmdbPerson.getBirthday());
+                    }
+                }
+
+                person.setBirthPlace(tmdbPerson.getBirthplace());
+
+                URL url = TMDb.createImageUrl(tmdbPerson.getProfilePath(), "original");
+                person.setPhotoURL(url.toString());
+                person.setPhotoFilename();
+
+                // Filmography
+                TmdbResultsList<PersonCredit> results = TMDb.getPersonCredits(tmdbId);
+                person.setKnownMovies(results.getTotalResults());
+
+                int count = 1;
+                for (PersonCredit credit : results.getResults()) {
+                    if (count++ > preferredFilmographyMax) {
+                        // We have enough films
+                        LOG.trace(LOG_MESSAGE + "Reached limit of " + preferredFilmographyMax + " films for " + person.getName()+". Total found: " + results.getTotalResults());
+                        break;
+                    }
+
+                    Filmography film = new Filmography();
+                    film.setId(TMDB_PLUGIN_ID, Integer.toString(credit.getMovieId()));
+                    film.setName(credit.getMovieTitle());
+                    film.setOriginalTitle(credit.getMovieOriginalTitle());
+                    film.setYear(credit.getReleaseDate());
+                    film.setJob(credit.getJob());
+                    film.setCharacter(credit.getCharacter());
+                    film.setDepartment();
+                    film.setUrl("www.themoviedb.org/movie/" + tmdbId);
+                    person.addFilm(film);
+                }
+
+                // Update the version
+                int version = person.getVersion();
+                person.setVersion(++version);
+
+                return Boolean.TRUE;
+            } catch (MovieDbException ex) {
+                LOG.warn(LOG_MESSAGE + "Failed to get information on " + person.getName() + " (" + tmdbId + "), error: " + ex.getMessage(), ex);
+                return Boolean.FALSE;
+            }
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    /**
+     * Locate and return the TMDB person ID from the person object
+     *
+     * @param person
+     * @return
+     */
+    public String getPersonId(com.moviejukebox.model.Person person) {
+        String tmdbId = person.getId(TMDB_PLUGIN_ID);
+        if (StringTools.isNotValidString(tmdbId) && StringTools.isValidString(person.getName())) {
+            // Look for the ID using the person's name
+            tmdbId = getPersonId(person.getName());
+            if (StringTools.isValidString(tmdbId)) {
+                LOG.info(LOG_MESSAGE + person.getName() + ": ID found '" + tmdbId + "'");
+                person.setId(TMDB_PLUGIN_ID, tmdbId);
+            } else {
+                LOG.warn(LOG_MESSAGE + "No ID found for " + person.getName());
+            }
+        }
+        return tmdbId;
+    }
+
+    /**
+     * Attempt to find the TMDB ID for a person using their full name
+     *
+     * @param name
+     * @return
+     */
+    public String getPersonId(String name) {
+        String tmdbId = "";
+        com.omertron.themoviedbapi.model.Person closestPerson = null;
+        int closestMatch = Integer.MAX_VALUE;
+        boolean foundPerson = Boolean.FALSE;
+        boolean includeAdult = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", Boolean.FALSE);
+
+        try {
+            TmdbResultsList<com.omertron.themoviedbapi.model.Person> results = TMDb.searchPeople(name, includeAdult, 0);
+            LOG.info(LOG_MESSAGE + "Found " + results.getResults().size() + " person results for " + name);
+            for (com.omertron.themoviedbapi.model.Person person : results.getResults()) {
+                if (name.equalsIgnoreCase(person.getName())) {
+                    tmdbId = String.valueOf(person.getId());
+                    foundPerson = Boolean.TRUE;
+                    break;
+                } else {
+                    LOG.trace(LOG_MESSAGE + "Checking " + name + " against " + person.getName());
+                    int lhDistance = StringUtils.getLevenshteinDistance(name, person.getName());
+                    LOG.trace(LOG_MESSAGE + name + ": Current closest match is " + closestMatch + ", this match is " + lhDistance);
+                    if (lhDistance < closestMatch) {
+                        LOG.trace(LOG_MESSAGE + name + ": TMDB ID " + person.getId() + " is a better match");
+                        closestMatch = lhDistance;
+                        closestPerson = person;
+                    }
+                }
+            }
+
+            if (foundPerson) {
+                LOG.debug(LOG_MESSAGE + name + ": Matched against TMDB ID: " + tmdbId);
+            } else if (closestMatch < Integer.MAX_VALUE && closestPerson != null) {
+                tmdbId = String.valueOf(closestPerson.getId());
+                LOG.debug(LOG_MESSAGE + name + ": Closest match is '" + closestPerson.getName() + "' differing by " + closestMatch + " characters");
+            } else {
+                LOG.debug(LOG_MESSAGE + name + ": No match found");
+            }
+        } catch (MovieDbException ex) {
+            LOG.warn("Failed to get information on '" + name + "', error: " + ex.getMessage(), ex);
+        }
+        return tmdbId;
     }
 }
