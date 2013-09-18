@@ -28,18 +28,25 @@ import com.moviejukebox.tools.PropertiesUtil;
 
 import static org.junit.Assert.assertEquals;
 import org.apache.log4j.BasicConfigurator;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class SratimPluginTest {
-    
+
     private SratimPlugin sratimPlugin;
-    
-    public SratimPluginTest() {
+
+    @BeforeClass
+    public static void setUpClass() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.SratimPlugin");
+    }
+
+    @Before
+    public void setUp() {
         sratimPlugin = new SratimPlugin();
     }
-    
+
     @Test
     public void testMovie() {
         Movie movie = new Movie();
@@ -47,7 +54,7 @@ public class SratimPluginTest {
         movie.setMovieType(Movie.TYPE_MOVIE);
         movie.setTitle("The Croods", Movie.UNKNOWN);
         movie.setId(AllocinePlugin.IMDB_PLUGIN_ID, "tt0481499");
-        
+
         sratimPlugin.scan(movie);
         assertEquals("1123786", movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
         assertEquals("כריס סנדרס", movie.getDirector());

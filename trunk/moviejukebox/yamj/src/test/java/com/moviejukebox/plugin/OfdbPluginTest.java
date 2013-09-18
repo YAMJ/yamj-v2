@@ -31,13 +31,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class OfdbPluginTest {
 
     private OfdbPlugin ofdbPlugin;
-    
-    static {
+
+    @BeforeClass
+    public static void setUpClass() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.OfdbPlugin");
     }
@@ -58,7 +60,7 @@ public class OfdbPluginTest {
         Movie movie = new Movie();
         movie.setId(OfdbPlugin.OFDB_PLUGIN_ID,"http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora");
         ofdbPlugin.scan(movie);
-        
+
         assertEquals("Avatar - Aufbruch nach Pandora", movie.getTitle());
         assertEquals("Avatar", movie.getOriginalTitle());
         assertEquals("2009", movie.getYear());
@@ -68,11 +70,11 @@ public class OfdbPluginTest {
         assertTrue(movie.getGenres().contains("Abenteuer"));
         assertTrue(movie.getGenres().contains("Action"));
         assertTrue(movie.getGenres().contains("Science-Fiction"));
-        
+
         LinkedHashSet<String> testList = new LinkedHashSet<String>();
         testList.add("James Cameron");
         assertEquals(Arrays.asList(testList.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getDirectors().toArray(), 1)).toString());
-        
+
         testList.clear();
         testList.add("Sam Worthington");
         testList.add("Zoe Saldana");

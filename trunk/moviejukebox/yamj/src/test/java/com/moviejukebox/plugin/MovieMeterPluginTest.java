@@ -27,13 +27,15 @@ import com.moviejukebox.tools.PropertiesUtil;
 import org.apache.log4j.BasicConfigurator;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class MovieMeterPluginTest {
 
     private MovieMeterPlugin movieMeterPlugin;
-    
-    static {
+
+    @BeforeClass
+    public static void setUpClass() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.OfdbPlugin");
         PropertiesUtil.setProperty("API_KEY_MovieMeter", "tyk0awf19uqm65mjfsqw9z9rx6t706pe");

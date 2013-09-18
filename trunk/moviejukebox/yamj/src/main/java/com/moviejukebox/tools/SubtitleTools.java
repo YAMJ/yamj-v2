@@ -95,6 +95,8 @@ public final class SubtitleTools {
      * @return new subtitles string
      */
     public static String addMovieSubtitle(String actualSubtitles, String newSubtitle) {
+        LOG.info("actualSubtitles: " + actualSubtitles);
+        LOG.info("newSubtitle    : " + newSubtitle);
         // Determine the language
         String infoLanguage = MovieFilenameScanner.determineLanguage(newSubtitle);
 
@@ -119,6 +121,7 @@ public final class SubtitleTools {
             }
         }
 
+        LOG.info("Returning: " + newMovieSubtitles);
         return newMovieSubtitles;
     }
 

@@ -33,11 +33,28 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 public class ImdbPluginTest {
 
-    public ImdbPluginTest() {
+    @BeforeClass
+    public static void setUpClass() {
         BasicConfigurator.configure();
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+    }
+
+    @Before
+    public void setUp() {
+    }
+
+    @After
+    public void tearDown() {
     }
 
     @Test
@@ -122,7 +139,7 @@ public class ImdbPluginTest {
 
         Movie movie = new Movie();
         movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0499549");
-        
+
         assertTrue(imdbPlugin.scan(movie));
         assertEquals("2009", movie.getYear());
         assertNotEquals(Movie.UNKNOWN, movie.getPlot());
@@ -143,7 +160,7 @@ public class ImdbPluginTest {
 
         Movie movie = new Movie();
         movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0499549");
-        
+
         assertTrue(imdbPlugin.scan(movie));
         assertEquals("2009", movie.getYear());
         assertNotEquals(Movie.UNKNOWN, movie.getPlot());

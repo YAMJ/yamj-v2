@@ -33,9 +33,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import org.apache.log4j.BasicConfigurator;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-
 
 public class FilmDeltaSEPluginTest {
 
@@ -50,20 +52,30 @@ public class FilmDeltaSEPluginTest {
      */
     private boolean offline = true;
 
-    static {
+    @BeforeClass
+    public static void setUpClass() {
         BasicConfigurator.configure();
-        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
-        PropertiesUtil.setProperty("priority.title", "filmdelta,imdb");
-        PropertiesUtil.setProperty("priority.originaltitle", "filmdelta,imdb");
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
+        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
+        PropertiesUtil.setProperty("priority.title", "filmdelta,imdb");
+        PropertiesUtil.setProperty("priority.originaltitle", "filmdelta,imdb");
+
         // uncomment the line below to check if tests are still up to date
         // offline = false;
         toTest = new FilmDeltaPluginMock(offline);
         toTest.init();
         movie = new Movie();
+    }
+
+    @After
+    public void tearDown() {
     }
 
     @Test
@@ -228,7 +240,7 @@ public class FilmDeltaSEPluginTest {
         public void init() {
             webBrowser = new WebBrowser() {
                 public String request(URL url) throws IOException {
-                    if (offline && (getRequestResult(url) !=null)) {
+                    if (offline && (getRequestResult(url) != null)) {
                         return getRequestResult(url);
                     } else {
                         return super.request(url);
