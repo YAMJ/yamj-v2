@@ -27,15 +27,19 @@ import org.apache.log4j.BasicConfigurator;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.tools.PropertiesUtil;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class PassionXbmcPosterPluginTestCase extends TestCase {
+public class PassionXbmcPosterPluginTestCase {
 
-    public PassionXbmcPosterPluginTestCase() {
+    @BeforeClass
+    public static void configure() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "passionxbmc");
     }
 
+    @Test
     public void testGetId() {
         PassionXbmcPosterPlugin posterPlugin = new PassionXbmcPosterPlugin();
         String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Avatar", null);

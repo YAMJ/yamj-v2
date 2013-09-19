@@ -26,17 +26,21 @@ import org.apache.log4j.BasicConfigurator;
 
 import com.moviejukebox.tools.PropertiesUtil;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class CdonPosterPluginTestCase extends TestCase {
+public class CdonPosterPluginTestCase {
 
     private static final String ID_MOVIE = "http://cdon.se/film/gladiator-89625";
 
-    public CdonPosterPluginTestCase() {
+    @BeforeClass
+    public static void configure() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "cdon");
     }
 
+    @Test
     public void testGetId() {
         CdonPosterPlugin posterPlugin = new CdonPosterPlugin();
         String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Gladiator", null, -1);

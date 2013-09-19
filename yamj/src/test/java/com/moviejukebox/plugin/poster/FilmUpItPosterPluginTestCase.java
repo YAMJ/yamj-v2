@@ -28,14 +28,19 @@ import com.moviejukebox.plugin.FilmUpITPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 
 import junit.framework.TestCase;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class FilmUpItPosterPluginTestCase extends TestCase {
+public class FilmUpItPosterPluginTestCase {
 
-    public FilmUpItPosterPluginTestCase() {
+    @BeforeClass
+    public static void configure() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", FilmUpITPlugin.FILMUPIT_PLUGIN_ID);
     }
 
+    @Test
     public void testGetId() {
         FilmUpItPosterPlugin posterPlugin = new FilmUpItPosterPlugin();
         String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Avatar", "2009");

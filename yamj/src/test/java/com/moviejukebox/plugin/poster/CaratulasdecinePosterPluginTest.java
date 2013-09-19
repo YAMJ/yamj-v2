@@ -28,14 +28,22 @@ import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import com.moviejukebox.tools.PropertiesUtil;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 public class CaratulasdecinePosterPluginTest {
 
-    CaratulasdecinePosterPlugin posterPlugin = new CaratulasdecinePosterPlugin();
+    CaratulasdecinePosterPlugin posterPlugin;
 
-    public CaratulasdecinePosterPluginTest() {
+    @BeforeClass
+    public static void configure() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "caratulasdecine");
+    }
+
+    @Before
+    public void setup() {
+        posterPlugin = new CaratulasdecinePosterPlugin();
     }
 
     @Test

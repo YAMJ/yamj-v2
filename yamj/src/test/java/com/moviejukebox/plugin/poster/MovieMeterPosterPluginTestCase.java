@@ -26,16 +26,20 @@ import org.apache.log4j.BasicConfigurator;
 
 import com.moviejukebox.tools.PropertiesUtil;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class MovieMeterPosterPluginTestCase extends TestCase {
+public class MovieMeterPosterPluginTestCase {
 
-    public MovieMeterPosterPluginTestCase() {
+    @BeforeClass
+    public static void configure() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "movieposter");
-        PropertiesUtil.setProperty("API_KEY_MovieMeter","tyk0awf19uqm65mjfsqw9z9rx6t706pe");
+        PropertiesUtil.setProperty("API_KEY_MovieMeter", "tyk0awf19uqm65mjfsqw9z9rx6t706pe");
     }
 
+    @Test
     public void testGetId() {
         MovieMeterPosterPlugin posterPlugin = new MovieMeterPosterPlugin();
         String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Avatar", null);

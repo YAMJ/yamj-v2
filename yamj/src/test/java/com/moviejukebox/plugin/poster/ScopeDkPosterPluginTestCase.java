@@ -26,15 +26,19 @@ import org.apache.log4j.BasicConfigurator;
 
 import com.moviejukebox.tools.PropertiesUtil;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class ScopeDkPosterPluginTestCase extends TestCase {
+public class ScopeDkPosterPluginTestCase {
 
-    public ScopeDkPosterPluginTestCase() {
+    @BeforeClass
+    public static void configure() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "scopeDk");
     }
 
+    @Test
     public void testGetId() {
         ScopeDkPosterPlugin posterPlugin = new ScopeDkPosterPlugin();
         String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Gladiator", null);

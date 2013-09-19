@@ -26,15 +26,19 @@ import org.apache.log4j.BasicConfigurator;
 
 import com.moviejukebox.tools.PropertiesUtil;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class MovieCoversPosterPluginTestCase extends TestCase {
+public class MovieCoversPosterPluginTestCase {
 
-    public MovieCoversPosterPluginTestCase() {
+    @BeforeClass
+    public static void configure() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "moviecovers");
     }
 
+    @Test
     public void testGetId() {
         MovieCoversPosterPlugin posterPlugin = new MovieCoversPosterPlugin();
         String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Gladiator", "2000");
