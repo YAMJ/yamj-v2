@@ -1915,8 +1915,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (xml.indexOf("Alternate Names:") > -1) {
             String name = HTMLTools.extractTag(xml, "Alternate Names:</h4>", HTML_DIV);
             if (isValidString(name)) {
-                for (String item : name.split(" <span>\\|</span> ")) {
-                    person.addAka(item);
+                for (String item : name.split("<span>\\|</span>")) {
+                    person.addAka(StringUtils.trimToEmpty(item));
                 }
             }
         }
