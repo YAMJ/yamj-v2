@@ -54,7 +54,6 @@ public class ComingSoonPluginTest {
 
     @Test
     public void testScanNoYear() {
-
         Movie movie = new Movie();
         movie.setTitle("L'Incredibile Storia Di Winter Il Delfino", csPlugin.getPluginID());
 
@@ -85,19 +84,18 @@ public class ComingSoonPluginTest {
             assertEquals(titleList[i], movie.getTitle());
             assertTrue(movie.getDirectors().size() > 0);
             assertTrue(movie.getWriters().size() > 0);
+
             if (i != 1) {
                 assertNotNull("No movie object", movie);
                 assertTrue("No cast found", movie.getCast().size() > 0);
                 assertTrue("Invalid release date", StringTools.isValidString(movie.getReleaseDate()));
-
             }
+
             assertTrue(StringTools.isValidString(movie.getPlot()));
             assertTrue(StringTools.isValidString(movie.getYear()));
             assertTrue(StringTools.isValidString(movie.getRuntime()));
             assertTrue(StringTools.isValidString(movie.getCountry()));
             assertTrue(movie.getRating() > -1);
-
         }
-
     }
 }

@@ -26,15 +26,19 @@ import org.apache.log4j.BasicConfigurator;
 
 import com.moviejukebox.tools.PropertiesUtil;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class AllocinePosterPluginTestCase extends TestCase {
+public class AllocinePosterPluginTestCase  {
 
-    public AllocinePosterPluginTestCase() {
+    @BeforeClass
+    public static void configure() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "allocine");
     }
 
+    @Test
     public void testGetId() {
         AllocinePosterPlugin posterPlugin = new AllocinePosterPlugin();
         String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Avatar", "2009");

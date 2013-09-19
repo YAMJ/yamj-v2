@@ -26,23 +26,27 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import org.apache.log4j.BasicConfigurator;
 import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  *
  * @author iuk
  */
-
 public class TrailersLandPluginTest {
 
-    static {
+    private TrailersLandPlugin tlPlugin;
+
+    @BeforeClass
+    public static void configure() {
         PropertiesUtil.setProperty("trailers.download", false);
+        BasicConfigurator.configure();
     }
 
-    private TrailersLandPlugin tlPlugin = new TrailersLandPlugin();
-
-    public TrailersLandPluginTest() {
-        BasicConfigurator.configure();
+    @Before
+    public void setup() {
+        tlPlugin = new TrailersLandPlugin();
     }
 
     @Test
@@ -63,5 +67,4 @@ public class TrailersLandPluginTest {
 
         assertTrue(tlPlugin.generate(movie));
     }
-
 }

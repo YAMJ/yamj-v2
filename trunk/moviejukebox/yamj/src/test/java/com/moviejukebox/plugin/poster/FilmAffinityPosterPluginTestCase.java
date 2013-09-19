@@ -27,18 +27,27 @@ import org.apache.log4j.BasicConfigurator;
 import com.moviejukebox.plugin.FilmAffinityInfo;
 import com.moviejukebox.tools.PropertiesUtil;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
-public class FilmAffinityPosterPluginTestCase extends TestCase {
+public class FilmAffinityPosterPluginTestCase {
 
     private FilmAffinityPosterPlugin posterPlugin;
-    
-    public FilmAffinityPosterPluginTestCase() {
+
+    @BeforeClass
+    public static void configure() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
+    }
+
+    @Before
+    public void setup() {
         posterPlugin = new FilmAffinityPosterPlugin();
     }
-    
+
+    @Test
     public void testGetId_1() {
         String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Avatar", "2009", -1);
         assertEquals("film495280.html", idFromMovieInfo);
@@ -47,6 +56,7 @@ public class FilmAffinityPosterPluginTestCase extends TestCase {
         assertEquals("http://pics.filmaffinity.com/Avatar-208925608-large.jpg", posterUrl);
     }
 
+    @Test
     public void testGetId_2() {
         String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Troya", "2004", -1);
         assertEquals("film564615.html", idFromMovieInfo);
@@ -58,11 +68,12 @@ public class FilmAffinityPosterPluginTestCase extends TestCase {
         assertEquals("http://pics.filmaffinity.com/Troya-963506535-large.jpg", posterUrl);
     }
 
+    @Test
     public void testGetId_3() {
-        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("FUTURAMA",null,2);
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("FUTURAMA", null, 2);
         assertEquals("film826281.html", idFromMovieInfo);
 
-        String posterUrl =posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
+        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
         assertEquals("http://pics.filmaffinity.com/Futurama_Serie_de_TV-151391426-large.jpg", posterUrl);
     }
 }

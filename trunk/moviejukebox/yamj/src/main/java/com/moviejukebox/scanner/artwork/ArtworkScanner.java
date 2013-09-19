@@ -1049,7 +1049,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
             try {
                 artworkPriority.add(ArtworkPriority.fromString(tempPriority));
             } catch (IllegalArgumentException ex) {
-                logger.warn(LOG_MESSAGE + "Failed to set artwork priority: " + tempPriority);
+                logger.warn(LOG_MESSAGE + "Failed to set artwork priority '" + tempPriority + "', error: " + ex.getMessage(), ex);
             }
         }
     }

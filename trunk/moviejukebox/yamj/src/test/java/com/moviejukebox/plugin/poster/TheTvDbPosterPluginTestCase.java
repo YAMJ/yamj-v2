@@ -25,25 +25,29 @@ package com.moviejukebox.plugin.poster;
 import org.apache.log4j.BasicConfigurator;
 
 import com.moviejukebox.tools.PropertiesUtil;
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class TheTvDbPosterPluginTestCase extends TestCase {
+public class TheTvDbPosterPluginTestCase {
 
-    public TheTvDbPosterPluginTestCase() {
+    @BeforeClass
+    public static void configure() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "thetvdb");
         PropertiesUtil.setProperty("API_KEY_TheTVDb", "2805AD2873519EC5");
     }
 
+    @Test
     public void testGetId() {
         TheTvDBPosterPlugin posterPlugin = new TheTvDBPosterPlugin();
         String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Friends", null, 1);
         assertEquals("79168", idFromMovieInfo);
 
-        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo,1).getUrl();
+        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo, 1).getUrl();
         assertEquals("http://thetvdb.com/banners/seasons/79168-1.jpg", posterUrl);
 
-        posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo,2).getUrl();
+        posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo, 2).getUrl();
         assertEquals("http://thetvdb.com/banners/seasons/79168-2-4.jpg", posterUrl);
     }
 }

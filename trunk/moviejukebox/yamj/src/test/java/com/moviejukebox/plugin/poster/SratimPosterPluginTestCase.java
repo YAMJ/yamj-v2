@@ -22,31 +22,42 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import junit.framework.TestCase;
 import org.apache.log4j.BasicConfigurator;
 
 import com.moviejukebox.tools.PropertiesUtil;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class SratimPosterPluginTestCase extends TestCase {
+public class SratimPosterPluginTestCase {
 
     private SratimPosterPlugin posterPlugin;
-    
-    public SratimPosterPluginTestCase() {
+
+    @BeforeClass
+    public static void configure() {
         BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "sratim");
+    }
+
+    @Before
+    public void setup() {
         posterPlugin = new SratimPosterPlugin();
     }
 
+    @Test
     public void testGetIdFromMovieInfo() {
         String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Matrix", null);
         assertEquals("1147", idFromMovieInfo);
     }
 
+    @Test
     public void testGetIdFromMovieInfoTV() {
         String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("The Lost Islands", null, 1);
         assertEquals("2116", idFromMovieInfo);
     }
 
+    @Test
     public void testGetPosterUrl() {
         String posterUrl = posterPlugin.getPosterUrl("143628").getUrl();
         assertEquals("http://sratim.co.il/photos/titles/normal/8/m43628_20111205145500_824823715264.jpg", posterUrl);
