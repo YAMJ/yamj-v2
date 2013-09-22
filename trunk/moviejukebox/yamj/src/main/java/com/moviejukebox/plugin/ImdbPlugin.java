@@ -1196,12 +1196,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                                 movie.clearPeopleDirectors();
                                 clearPeopleDirectors = Boolean.FALSE;
                             }
-                            // add director
-                            movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, director, siteDef.getSite() + HTML_NAME + personID + "/", IMDB_PLUGIN_ID);
+                            // add director, but check that there are no invalid characters in the name which may indicate a bad scrape
+                            if (StringUtils.containsNone(director, "<>:/")) {
+                                movie.addDirector(IMDB_PLUGIN_ID + ":" + personID, director, siteDef.getSite() + HTML_NAME + personID + "/", IMDB_PLUGIN_ID);
+                                found = Boolean.TRUE;
+                                count++;
+                            } else {
+                                LOG.debug(LOG_MESSAGE + "Invalid director name found: '" + director + "'");
+                            }
                         }
 
-                        found = Boolean.TRUE;
-                        count++;
                         if (count == directorMax) {
                             break;
                         }
