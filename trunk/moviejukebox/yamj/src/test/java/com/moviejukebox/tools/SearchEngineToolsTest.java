@@ -30,7 +30,7 @@ import org.junit.Test;
 public class SearchEngineToolsTest {
 
     public SearchEngineToolsTest() {
-        BasicConfigurator.configure();
+        
     }
     
     @Test

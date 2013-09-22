@@ -1611,16 +1611,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             return;
         }
 
-        String parseDate = UNKNOWN;
-        try {
-            parseDate = DateTime.parse(releaseDate).toString("yyyy-MM-dd");
-        } catch (IllegalArgumentException ex) {
-            logger.debug("Error processing release date '" + releaseDate + "' for " + baseName);
-            // if this just a year, then append "-01-01" to it and try again
-            if (StringUtils.isNumeric(releaseDate) && releaseDate.length() == 4) {
-                parseDate = releaseDate + "-01-01";
-            }
-        }
+        String parseDate = DateTimeTools.parseDateTo(releaseDate, "yyyy-MM-dd");
 
         if (StringTools.isValidString(parseDate)) {
             if (!parseDate.equalsIgnoreCase(this.releaseDate)) {

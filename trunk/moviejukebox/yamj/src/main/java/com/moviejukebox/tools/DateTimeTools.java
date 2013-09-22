@@ -24,16 +24,29 @@ package com.moviejukebox.tools;
 
 import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.time.DateUtils;
+import org.apache.log4j.Logger;
 import org.pojava.datetime2.DateTime;
 
 public class DateTimeTools {
 
+    private static final Logger LOG = Logger.getLogger(DateTimeTools.class);
+    private static final String LOG_MESSAGE = "DateTimeTools: ";
     private static final String DATE_FORMAT_STRING = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
     private static final String DATE_FORMAT_LONG_STRING = DATE_FORMAT_STRING + " HH:mm:ss";
+    private static final String[] FORMATS = new String[4];
+
+    static {
+        FORMATS[0] = "yyyy-MM-dd";
+        FORMATS[1] = "dd-MM-yyyy";
+        FORMATS[2] = "yyyy/MM/dd";
+        FORMATS[3] = "dd/MM/yyyy";
+    }
 
     private DateTimeTools() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
@@ -173,5 +186,27 @@ public class DateTimeTools {
         }
 
         return returnValue;
+    }
+
+    public static String parseDateTo(String dateToParse, String targetFormat) {
+        String parsedDateString = "";
+
+        if (StringTools.isValidString(dateToParse) || StringTools.isValidString(targetFormat)) {
+            if (dateToParse.length() <= 4) {
+                parsedDateString = dateToParse + "-01-01";
+            } else {
+                parsedDateString = dateToParse;
+            }
+
+            try {
+                Date parsedDate = DateUtils.parseDate(parsedDateString, FORMATS);
+                parsedDateString = convertDateToString(parsedDate, targetFormat);
+            } catch (ParseException ex) {
+                LOG.info(LOG_MESSAGE + "Failed to parse date '" + dateToParse + "'");
+                parsedDateString = "";
+            }
+        }
+
+        return parsedDateString;
     }
 }

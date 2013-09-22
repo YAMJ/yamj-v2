@@ -46,7 +46,7 @@ public class FilmwebPluginTest {
 
     @BeforeClass
     public static void setUpClass() {
-        BasicConfigurator.configure();
+        
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
         PropertiesUtil.setProperty("priority.movie.directors", "imdb,filmweb");
     }

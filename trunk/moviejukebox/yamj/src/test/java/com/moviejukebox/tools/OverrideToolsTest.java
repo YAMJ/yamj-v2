@@ -31,7 +31,7 @@ import com.moviejukebox.model.MovieFile;
 public class OverrideToolsTest {
 
     public OverrideToolsTest() {
-        BasicConfigurator.configure();
+        
         PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
     }
 

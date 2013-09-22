@@ -22,11 +22,9 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import org.apache.log4j.BasicConfigurator;
 
 import com.moviejukebox.tools.PropertiesUtil;
 
-import junit.framework.TestCase;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 
@@ -34,7 +32,6 @@ public class ImdbPosterPluginTestCase  {
 
     @BeforeClass
     public static void configure() {
-        BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "imdb");
     }
 

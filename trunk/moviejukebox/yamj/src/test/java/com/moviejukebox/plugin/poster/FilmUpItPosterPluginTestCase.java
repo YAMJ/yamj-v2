@@ -22,12 +22,10 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import org.apache.log4j.BasicConfigurator;
 
 import com.moviejukebox.plugin.FilmUpITPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 
-import junit.framework.TestCase;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -36,7 +34,6 @@ public class FilmUpItPosterPluginTestCase {
 
     @BeforeClass
     public static void configure() {
-        BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", FilmUpITPlugin.FILMUPIT_PLUGIN_ID);
     }
 

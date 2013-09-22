@@ -22,7 +22,6 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import org.apache.log4j.BasicConfigurator;
 
 import com.moviejukebox.tools.PropertiesUtil;
 
@@ -34,7 +33,6 @@ public class MovieMeterPosterPluginTestCase {
 
     @BeforeClass
     public static void configure() {
-        BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "movieposter");
         PropertiesUtil.setProperty("API_KEY_MovieMeter", "tyk0awf19uqm65mjfsqw9z9rx6t706pe");
     }

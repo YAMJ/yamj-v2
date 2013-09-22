@@ -36,6 +36,10 @@ import org.junit.BeforeClass;
 
 public class MovieTest {
 
+    private static int actorMax;
+    private static int directorMax;
+    private static int writerMax;
+
     @BeforeClass
     public static void setUpClass() {
     }
@@ -46,9 +50,9 @@ public class MovieTest {
 
     @Before
     public void setUp() {
-        PropertiesUtil.setProperty("movie.director.maxCount", 2);
-        PropertiesUtil.setProperty("movie.writer.maxCount", 1);
-        PropertiesUtil.setProperty("movie.actor.maxCount", 10);
+        actorMax = PropertiesUtil.getIntProperty("movie.actor.maxCount", 0);
+        directorMax = PropertiesUtil.getIntProperty("movie.director.maxCount", 0);
+        writerMax = PropertiesUtil.getIntProperty("movie.writer.maxCount", 0);
     }
 
     @After
@@ -57,51 +61,41 @@ public class MovieTest {
 
     @Test
     public void testSetPeopleCast() {
-        List<String> actors = new ArrayList<String>();
-        actors.add("Bruce Willis");
-        actors.add("Renée Zellweger");
-        actors.add("Lee Majors");
-        actors.add("Bolle Pumpernickel");
-        actors.add("Dustin Hoffman");
-        actors.add("Keanuu Reeves");
-        actors.add("Tom Selleck");
-        actors.add("Robin Williams");
-        actors.add("Free Willy");
-        actors.add("Roger Roger");
-        actors.add("Humprey Bogart");
-        actors.add("Eeen Meene Zwei");
-        actors.add("Nobody Else");
-        actors.add("Someone Else");
+        List<String> actors = createList("Actor", actorMax);
 
         Movie movie = new Movie();
         movie.setPeopleCast(actors, ImdbPlugin.IMDB_PLUGIN_ID);
         Collection<String> people = movie.getPerson(Filmography.DEPT_ACTORS);
-        assertEquals(10, people.size());
+        assertEquals(actorMax, people.size());
     }
 
     @Test
     public void testSetPeopleDirectors() {
-        List<String> directors = new ArrayList<String>();
-        directors.add("This Director");
-        directors.add("That Director");
-        directors.add("Another Director");
+        List<String> directors = createList("Director", directorMax);
 
         Movie movie = new Movie();
         movie.setPeopleDirectors(directors, ImdbPlugin.IMDB_PLUGIN_ID);
         Collection<String> people = movie.getPerson(Filmography.DEPT_DIRECTING);
-        assertEquals(2, people.size());
+        assertEquals(directorMax, people.size());
     }
 
     @Test
     public void testSetPeopleWriters() {
-        List<String> directors = new ArrayList<String>();
-        directors.add("This Writer");
-        directors.add("That Writer");
-        directors.add("Another Writer");
+        List<String> writers = createList("Writer", writerMax);
 
         Movie movie = new Movie();
-        movie.setPeopleWriters(directors, ImdbPlugin.IMDB_PLUGIN_ID);
+        movie.setPeopleWriters(writers, ImdbPlugin.IMDB_PLUGIN_ID);
         Collection<String> people = movie.getPerson(Filmography.DEPT_WRITING);
-        assertEquals(1, people.size());
+        assertEquals(writerMax, people.size());
+    }
+
+    private List<String> createList(String title, int count) {
+        List<String> testList = new ArrayList<String>(count);
+
+        for (int i = 1; i <= count + 2; i++) {
+            testList.add(String.format("%s %d", title, i));
+        }
+
+        return testList;
     }
 }

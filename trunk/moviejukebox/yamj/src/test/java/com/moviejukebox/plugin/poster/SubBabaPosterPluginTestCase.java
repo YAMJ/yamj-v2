@@ -22,7 +22,6 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import org.apache.log4j.BasicConfigurator;
 
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Movie;
@@ -39,7 +38,6 @@ public class SubBabaPosterPluginTestCase {
 
     @BeforeClass
     public static void configure() {
-        BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "subbaba");
     }
 

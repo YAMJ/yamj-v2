@@ -36,7 +36,7 @@ public class MovieMeterPluginTest {
 
     @BeforeClass
     public static void setUpClass() {
-        BasicConfigurator.configure();
+        
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.OfdbPlugin");
         PropertiesUtil.setProperty("API_KEY_MovieMeter", "tyk0awf19uqm65mjfsqw9z9rx6t706pe");
     }

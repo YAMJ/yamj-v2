@@ -37,7 +37,7 @@ public class MovieFilenameScannerTest {
 
     @BeforeClass
     public static void setUpClass() {
-        BasicConfigurator.configure();
+        
         MovieFilenameScanner.setSkipKeywords(new String[]{"xor", "XOR", "vfua", "SMB", "hdclub", "KB", "DiAMOND"}, true);
         MovieFilenameScanner.setMovieVersionKeywords(StringTools.tokenizeToArray("remastered,directors cut,extended cut,final cut,remux", ",;|"));
 

@@ -54,7 +54,7 @@ public class FilmDeltaSEPluginTest {
 
     @BeforeClass
     public static void setUpClass() {
-        BasicConfigurator.configure();
+        
     }
 
     @AfterClass

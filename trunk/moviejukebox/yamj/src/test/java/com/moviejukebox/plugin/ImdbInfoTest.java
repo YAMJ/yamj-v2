@@ -36,7 +36,7 @@ public class ImdbInfoTest {
 
     @BeforeClass
     public static void setUpClass() {
-        BasicConfigurator.configure();
+        
     }
 
     @Test
