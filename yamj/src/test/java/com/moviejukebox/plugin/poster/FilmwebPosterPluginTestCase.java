@@ -22,7 +22,6 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import org.apache.log4j.BasicConfigurator;
 
 import com.moviejukebox.plugin.FilmwebPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -38,7 +37,6 @@ public class FilmwebPosterPluginTestCase {
 
     @BeforeClass
     public static void configure() {
-        BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", FilmwebPlugin.FILMWEB_PLUGIN_ID);
     }
 

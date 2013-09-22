@@ -41,7 +41,6 @@ public class ComingSoonPluginTest {
 
     @BeforeClass
     public static void configure() {
-        BasicConfigurator.configure();
     }
 
     @Before
@@ -86,9 +85,9 @@ public class ComingSoonPluginTest {
             assertTrue(movie.getWriters().size() > 0);
 
             if (i != 1) {
-                assertNotNull("No movie object", movie);
-                assertTrue("No cast found", movie.getCast().size() > 0);
-                assertTrue("Invalid release date", StringTools.isValidString(movie.getReleaseDate()));
+                assertNotNull("No movie object for " + titleList[i], movie);
+                assertTrue("No cast found for " + titleList[i], movie.getCast().size() > 0);
+                assertTrue("Invalid release date for " + titleList[i], StringTools.isValidString(movie.getReleaseDate()));
             }
 
             assertTrue(StringTools.isValidString(movie.getPlot()));

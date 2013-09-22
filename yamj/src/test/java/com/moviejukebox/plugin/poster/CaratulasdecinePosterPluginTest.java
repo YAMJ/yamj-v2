@@ -24,7 +24,6 @@ package com.moviejukebox.plugin.poster;
 
 import static org.junit.Assert.*;
 
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import com.moviejukebox.tools.PropertiesUtil;
@@ -37,7 +36,6 @@ public class CaratulasdecinePosterPluginTest {
 
     @BeforeClass
     public static void configure() {
-        BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "caratulasdecine");
     }
 

@@ -42,7 +42,7 @@ public class MovieJukeboxXMLReaderTest {
 
     @BeforeClass
     public static void setUpClass() {
-        BasicConfigurator.configure();
+        
     }
 
     @AfterClass

@@ -24,7 +24,6 @@ package com.moviejukebox.plugin.trailer;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
-import org.apache.log4j.BasicConfigurator;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -41,7 +40,6 @@ public class TrailersLandPluginTest {
     @BeforeClass
     public static void configure() {
         PropertiesUtil.setProperty("trailers.download", false);
-        BasicConfigurator.configure();
     }
 
     @Before

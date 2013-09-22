@@ -22,7 +22,6 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import org.apache.log4j.BasicConfigurator;
 
 import com.moviejukebox.plugin.FilmAffinityInfo;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -38,7 +37,6 @@ public class FilmAffinityPosterPluginTestCase {
 
     @BeforeClass
     public static void configure() {
-        BasicConfigurator.configure();
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
     }
 

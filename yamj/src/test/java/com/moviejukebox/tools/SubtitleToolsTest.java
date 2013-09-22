@@ -38,7 +38,7 @@ public class SubtitleToolsTest {
 
     @BeforeClass
     public static void setUpClass() {
-        BasicConfigurator.configure();
+        
     }
 
     @AfterClass

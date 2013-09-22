@@ -25,7 +25,6 @@ package com.moviejukebox.model;
 import com.moviejukebox.tools.PropertiesUtil;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -42,7 +41,6 @@ public class LibraryTest {
 
     @BeforeClass
     public static void setUpClass() {
-        BasicConfigurator.configure();
     }
 
     @AfterClass

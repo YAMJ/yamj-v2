@@ -106,7 +106,7 @@ public class MovieJukeboxXMLWriterTest {
 
     @Test
     public void testMultiPartFileXML() {
-        BasicConfigurator.configure();
+        
         File xmlFile = getTestFile("ExampleMultiPartFile.xml");
         Movie movie = new Movie();
 

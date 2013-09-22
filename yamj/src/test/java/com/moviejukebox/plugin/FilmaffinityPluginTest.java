@@ -42,7 +42,7 @@ public class FilmaffinityPluginTest {
 
     @BeforeClass
     public static void setUpClass() {
-        BasicConfigurator.configure();
+        
         PropertiesUtil.setProperty("priority.movie.country", "filmaffinity,imdb");
         PropertiesUtil.setProperty("priority.movie.runtime", "filmaffinity,imdb");
     }
