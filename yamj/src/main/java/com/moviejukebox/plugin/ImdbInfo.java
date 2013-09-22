@@ -63,47 +63,47 @@ public class ImdbInfo {
     private ImdbSiteDataDefinition siteDef;
 
     static {
-        MATCHES_DATA_PER_SITE.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", UTF_8, "Director|Directed by", "Cast", "Release Date", "Runtime", "Aspect Ratio", "Country",
+        MATCHES_DATA_PER_SITE.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", UTF_8, "Directed by|Director", "Cast", "Release Date", "Runtime", "Aspect Ratio", "Country",
                 "Company", "Genre", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writer|Writing credits", "Tagline", "original title"));
 
-        MATCHES_DATA_PER_SITE.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", ISO_8859_1, "R&#xE9;alisateur|R&#xE9;alis&#xE9; par", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Aspect Ratio", "Pays",
+        MATCHES_DATA_PER_SITE.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", ISO_8859_1, "R&#xE9;alis&#xE9; par|R&#xE9;alisateur", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Aspect Ratio", "Pays",
                 "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes|Sc&#xE9;naristes", "Taglines", "original title"));
 
-        MATCHES_DATA_PER_SITE.put("es", new ImdbSiteDataDefinition("http://www.imdb.es/", ISO_8859_1, "Director|Dirigida por", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Relaci&#xF3;n de Aspecto", "Pa&#xED;s",
+        MATCHES_DATA_PER_SITE.put("es", new ImdbSiteDataDefinition("http://www.imdb.es/", ISO_8859_1, "Dirigida por|Director", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Relaci&#xF3;n de Aspecto", "Pa&#xED;s",
                 "Compa&#xF1;&#xED;a", "G&#xE9;nero", "Quotes", "Trama", "Rated", "Clasificaci&#xF3;n", "Fecha de Estreno", "Escritores|Cr&#xE9;ditos del gui&#xF3;n", "Taglines", "original title"));
 
         MATCHES_DATA_PER_SITE.put("de", new ImdbSiteDataDefinition("http://www.imdb.de/", ISO_8859_1, "Regisseur|Regie", "Besetzung", "Premierendatum", "L&#xE4;nge", "Seitenverh&#xE4;ltnis", "Land",
                 "Firma", "Genre", "Quotes", "Handlung", "Rated", "Altersfreigabe", "Premierendatum", "Guionista|Buch", "Taglines", "Originaltitle"));
 
-        MATCHES_DATA_PER_SITE.put("it", new ImdbSiteDataDefinition("http://www.imdb.it/", ISO_8859_1, "Regista|Registi|Regia di", "Cast", "Data di uscita", "Durata", "Aspect Ratio",
+        MATCHES_DATA_PER_SITE.put("it", new ImdbSiteDataDefinition("http://www.imdb.it/", ISO_8859_1, "Regia di|Regista|Registi", "Cast", "Data di uscita", "Durata", "Aspect Ratio",
                 "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Divieti", "Data di uscita", "Sceneggiatore|Scritto da", "Taglines", "original title"));
 
-        MATCHES_DATA_PER_SITE.put("pt", new ImdbSiteDataDefinition("http://www.imdb.pt/", UTF_8, "Diretor|Dirigido por", "Elenco", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o", "Aspect Ratio",
+        MATCHES_DATA_PER_SITE.put("pt", new ImdbSiteDataDefinition("http://www.imdb.pt/", UTF_8, "Dirigido por|Diretor", "Elenco", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o", "Aspect Ratio",
                 "Pa&#xED;s", "Companhia", "G&#xEA;nero", "Quotes", "Argumento", "Rated", "Certifica&#xE7;&#xE3;o", "Data de Lan&#xE7;amento",
                 "Roteirista|Cr&#xE9;ditos como roteirista", "Taglines", "original title"));
 
         // Use this as a workaround for English speakers abroad who get localised versions of imdb.com
-        MATCHES_DATA_PER_SITE.put("labs", new ImdbSiteDataDefinition("http://akas.imdb.com/", UTF_8, "Director|Directors|Directed by", "Cast", "Release Date", "Runtime", "Aspect Ratio", "Country",
+        MATCHES_DATA_PER_SITE.put("labs", new ImdbSiteDataDefinition("http://akas.imdb.com/", UTF_8, "Directed by|Director|Directors", "Cast", "Release Date", "Runtime", "Aspect Ratio", "Country",
                 "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writer|Writers|Writing credits", "Taglines", "original title"));
 
         // TODO: Leaving this as labs.imdb.com for the time being, but will be updated to www.imdb.com
-        MATCHES_DATA_PER_SITE.put("us2", new ImdbSiteDataDefinition("http://labs.imdb.com/", UTF_8, "Director|Directors|Directed by", "Cast", "Release Date", "Runtime", "Aspect Ratio", "Country",
+        MATCHES_DATA_PER_SITE.put("us2", new ImdbSiteDataDefinition("http://labs.imdb.com/", UTF_8, "Directed by|Director|Directors", "Cast", "Release Date", "Runtime", "Aspect Ratio", "Country",
                 "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writer|Writers|Writing credits", "Taglines", "original title"));
 
         // Not 100% sure these are correct
-        MATCHES_DATA_PER_SITE.put("fr2", new ImdbSiteDataDefinition("http://www.imdb.fr/", ISO_8859_1, "R&#xE9;alisateur|R&#xE9;alis&#xE9; par", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Aspect Ratio", "Pays",
+        MATCHES_DATA_PER_SITE.put("fr2", new ImdbSiteDataDefinition("http://www.imdb.fr/", ISO_8859_1, "R&#xE9;alis&#xE9; par|R&#xE9;alisateur", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Aspect Ratio", "Pays",
                 "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes|Sc&#xE9;naristes", "Taglines", "original title"));
 
-        MATCHES_DATA_PER_SITE.put("es2", new ImdbSiteDataDefinition("http://www.imdb.es/", ISO_8859_1, "Director|Dirigida por", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Relaci&#xF3;n de Aspecto", "Pa&#xED;s",
+        MATCHES_DATA_PER_SITE.put("es2", new ImdbSiteDataDefinition("http://www.imdb.es/", ISO_8859_1, "Dirigida por|Director", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Relaci&#xF3;n de Aspecto", "Pa&#xED;s",
                 "Compa&#xF1;&#xED;a", "G&#xE9;nero", "Citas", "Trama", "Rated", "Clasificaci&#xF3;n", "Fecha de Estreno", "Escritores|Cr&#xE9;ditos del gui&#xF3;n", "Taglines", "original title"));
 
         MATCHES_DATA_PER_SITE.put("de2", new ImdbSiteDataDefinition("http://www.imdb.de/", ISO_8859_1, "Regisseur|Regie", "Besetzung", "Premierendatum", "L&#xE4;nge", "Seitenverh&#xE4;ltnis", "Land",
                 "Firma", "Genre", "Nutzerkommentare", "Handlung", "Rated", "Altersfreigabe", "Premierendatum", "Drehbuchautor", "Unterhaltsames", "Originaltitle"));
 
-        MATCHES_DATA_PER_SITE.put("it2", new ImdbSiteDataDefinition("http://www.imdb.it/", UTF_8, "Regista|Registi|Regia di", "Attori", "Data di uscita", "Durata", "Aspect Ratio",
+        MATCHES_DATA_PER_SITE.put("it2", new ImdbSiteDataDefinition("http://www.imdb.it/", UTF_8, "Regia di|Regista|Registi", "Attori", "Data di uscita", "Durata", "Aspect Ratio",
                 "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Divieti", "Data di uscita", "Sceneggiatore|Scritto da", "Taglines", "original title"));
 
-        MATCHES_DATA_PER_SITE.put("pt2", new ImdbSiteDataDefinition("http://www.imdb.pt/", UTF_8, "Diretor|Dirigido por", "Elenco", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o", "Aspect Ratio",
+        MATCHES_DATA_PER_SITE.put("pt2", new ImdbSiteDataDefinition("http://www.imdb.pt/", UTF_8, "Dirigido por|Diretor", "Elenco", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o", "Aspect Ratio",
                 "Pa&#xED;s", "Companhia", "G&#xEA;nero", "Quotes", "Argumento", "Rated", "Certifica&#xE7;&#xE3;o", "Data de Lan&#xE7;amento",
                 "Roteirista|Cr&#xE9;ditos como roteirista", "Taglines", "original title"));
     }
