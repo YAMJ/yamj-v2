@@ -205,7 +205,7 @@ public class FanartScanner {
         }
 
         // If we've found the fanart, copy it to the jukebox, otherwise download it.
-        if (foundLocalFanart) {
+        if (foundLocalFanart && (localFanartFile != null)) {
             fullFanartFilename = localFanartFile.getAbsolutePath();
             logger.debug(LOG_MESSAGE + "File " + fullFanartFilename + " found");
 
@@ -248,7 +248,7 @@ public class FanartScanner {
                 logger.debug(LOG_MESSAGE + finalDestinationFileName + " already exists");
             }
         } else {
-            // logger.debug(LOG_MESSAGE + "No local Fanart found for " + movie.getBaseFilename() + " attempting to download");
+            logger.debug(LOG_MESSAGE + "No local Fanart found for " + movie.getBaseFilename() + " attempting to download");
             downloadFanart(backgroundPlugin, jukebox, movie);
         }
 
@@ -347,7 +347,7 @@ public class FanartScanner {
 
                 TmdbResultsList<MovieDb> result = TMDb.searchMovie(movie.getOriginalTitle(), movieYear, language, TheMovieDbPlugin.INCLUDE_ADULT, 0);
                 List<MovieDb> movieList = result.getResults();
-                
+
                 for (MovieDb m : movieList) {
                     if (m.getTitle().equals(movie.getTitle())
                             || m.getTitle().equalsIgnoreCase(movie.getOriginalTitle())

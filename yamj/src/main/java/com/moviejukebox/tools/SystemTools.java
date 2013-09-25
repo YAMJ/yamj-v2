@@ -25,16 +25,18 @@ package com.moviejukebox.tools;
 import com.moviejukebox.MovieJukebox;
 import static com.moviejukebox.tools.StringTools.formatFileSize;
 import com.moviejukebox.tools.cache.CacheMemory;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.*;
+import java.util.logging.Level;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 public class SystemTools {
 
-    private static final Logger logger = Logger.getLogger(SystemTools.class);
+    private static final Logger LOG = Logger.getLogger(SystemTools.class);
     private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", Boolean.FALSE);
     private static final long cacheOff = (PropertiesUtil.getLongProperty("mjb.cacheOffSize", 50) * 1024L * 1024L);
 
@@ -43,8 +45,7 @@ public class SystemTools {
     }
 
     /**
-     * Show the memory available to the program and optionally try to force a
-     * garbage collection
+     * Show the memory available to the program and optionally try to force a garbage collection
      */
     public static void showMemory(boolean showAll) {
 
@@ -61,19 +62,19 @@ public class SystemTools {
                 /*
                  * Maximum amount of memory the JVM will attempt to use
                  */
-                logger.info("  Maximum memory: " + (memoryMaximum == Long.MAX_VALUE ? "no limit" : formatFileSize(memoryMaximum)));
+                LOG.info("  Maximum memory: " + (memoryMaximum == Long.MAX_VALUE ? "no limit" : formatFileSize(memoryMaximum)));
 
                 /*
                  * Total memory currently in use by the JVM
                  */
-                logger.info("Allocated memory: " + formatFileSize(memoryAllocated));
+                LOG.info("Allocated memory: " + formatFileSize(memoryAllocated));
 
                 /*
                  * Total amount of free memory available to the JVM
                  */
-                logger.info("     Free memory: " + formatFileSize(memoryFree) + " (" + (int) memoryPercentage + "%)");
+                LOG.info("     Free memory: " + formatFileSize(memoryFree) + " (" + (int) memoryPercentage + "%)");
             } else {
-                logger.info("Memory - Maximum: " + formatFileSize(memoryMaximum) + ", Allocated: " + formatFileSize(memoryAllocated) + ", Free: "
+                LOG.info("Memory - Maximum: " + formatFileSize(memoryMaximum) + ", Allocated: " + formatFileSize(memoryAllocated) + ", Free: "
                         + formatFileSize(memoryFree) + " (" + (int) memoryPercentage + "%)");
             }
         }
@@ -88,8 +89,7 @@ public class SystemTools {
     }
 
     /**
-     * Show the memory available to the program and optionally try to force a
-     * garbage collection
+     * Show the memory available to the program and optionally try to force a garbage collection
      */
     public static void showMemory() {
         showMemory(false);
@@ -101,12 +101,23 @@ public class SystemTools {
      * @param text
      */
     public static void logException(String text) {
-        logger.error("***** GENERATED EXCEPTION *****");
-        Exception tw = new Exception(text);
+        LOG.error("***** GENERATED EXCEPTION *****");
+        Exception thrownException = new Exception(text);
         final Writer sw = new StringWriter();
         final PrintWriter pw = new PrintWriter(sw, true);
-        tw.printStackTrace(pw);
-        logger.error(sw.toString());
+        thrownException.printStackTrace(pw);
+
+        try {
+            sw.flush();
+            sw.close();
+            pw.flush();
+            pw.close();
+        } catch (IOException ex) {
+            LOG.trace("Failed to close writers", ex);
+        }
+
+        LOG.error(sw.toString());
+
     }
 
     /**
@@ -125,8 +136,7 @@ public class SystemTools {
     }
 
     /**
-     * Check the 'lib' directory to see if any of the common API jars have
-     * duplicates and warn if they do
+     * Check the 'lib' directory to see if any of the common API jars have duplicates and warn if they do
      *
      * @return
      */
@@ -143,7 +153,7 @@ public class SystemTools {
         jarsToCheck.put("fanarttvapi", new ArrayList<String>());
         jarsToCheck.put("mjbsqldb", new ArrayList<String>());
         jarsToCheck.put("rottentomatoesapi", new ArrayList<String>());
-        jarsToCheck.put("subbabaapi",new ArrayList<String>());
+        jarsToCheck.put("subbabaapi", new ArrayList<String>());
         jarsToCheck.put("themoviedbapi", new ArrayList<String>());
         jarsToCheck.put("thetvdbapi", new ArrayList<String>());
         jarsToCheck.put("traileraddictapi", new ArrayList<String>());
@@ -172,17 +182,17 @@ public class SystemTools {
         }
 
         if (!installationIsValid) {
-            logger.error("WARNING: Your installation appears to be invalid.");
-            logger.error("WARNING: Please ensure you delete the 'lib' folder before you update!");
-            logger.error("WARNING: You will need to re-install YAMJ now to ensure correct running!");
-            logger.error("");
-            logger.error("The following duplicates were found:");
+            LOG.error("WARNING: Your installation appears to be invalid.");
+            LOG.error("WARNING: Please ensure you delete the 'lib' folder before you update!");
+            LOG.error("WARNING: You will need to re-install YAMJ now to ensure correct running!");
+            LOG.error("");
+            LOG.error("The following duplicates were found:");
 
             for (Map.Entry<String, List<String>> entry : jarsToCheck.entrySet()) {
                 if (entry.getValue().size() > 1) {
-                    logger.error(entry.getKey() + ":");
+                    LOG.error(entry.getKey() + ":");
                     for (String dupJar : entry.getValue()) {
-                        logger.error("    - " + dupJar);
+                        LOG.error("    - " + dupJar);
                     }
                 }
             }

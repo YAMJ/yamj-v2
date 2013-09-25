@@ -1977,12 +1977,12 @@ public class MovieJukebox {
                 PosterScanner.scan(movie);
             }
 
-            // Check for new fanart if we need to (Issue 1563)
-            if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
-                if (!isValidString(movie.getFanartURL()) || movie.isDirty(DirtyFlag.FANART)) {
-                    FanartScanner.scan(backgroundPlugin, jukebox, movie);
-                }
-            }
+            // Removed this extra fanart check.
+//            if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
+//                if (!isValidString(movie.getFanartURL()) || movie.isDirty(DirtyFlag.FANART)) {
+//                    FanartScanner.scan(backgroundPlugin, jukebox, movie);
+//                }
+//            }
             movie.setCertification(Library.getIndexingCertification(movie.getCertification()), movie.getOverrideSource(OverrideFlag.CERTIFICATION));
         }
 
