@@ -23,6 +23,8 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -40,7 +42,7 @@ public class OfdbPluginTest {
 
     @BeforeClass
     public static void setUpClass() {
-        
+
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.OfdbPlugin");
     }
 
@@ -58,7 +60,20 @@ public class OfdbPluginTest {
     @Test
     public void testScan() {
         Movie movie = new Movie();
-        movie.setId(OfdbPlugin.OFDB_PLUGIN_ID,"http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora");
+        movie.setId(OfdbPlugin.OFDB_PLUGIN_ID, "http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora");
+
+        // Force OFDB to be the first priority
+        OverrideTools.putMoviePriorities(OverrideFlag.TITLE, "ofdb,imdb");
+        OverrideTools.putMoviePriorities(OverrideFlag.ORIGINALTITLE, "ofdb,imdb");
+        OverrideTools.putMoviePriorities(OverrideFlag.YEAR, "ofdb,imdb");
+        OverrideTools.putMoviePriorities(OverrideFlag.COUNTRY, "ofdb,imdb");
+        OverrideTools.putMoviePriorities(OverrideFlag.PLOT, "ofdb,imdb");
+        OverrideTools.putMoviePriorities(OverrideFlag.OUTLINE, "ofdb,imdb");
+        OverrideTools.putMoviePriorities(OverrideFlag.GENRES, "ofdb,imdb");
+        OverrideTools.putMoviePriorities(OverrideFlag.DIRECTORS, "ofdb,imdb");
+        OverrideTools.putMoviePriorities(OverrideFlag.ACTORS, "ofdb,imdb");
+        OverrideTools.putMoviePriorities(OverrideFlag.WRITERS, "ofdb,imdb");
+
         ofdbPlugin.scan(movie);
 
         assertEquals("Avatar - Aufbruch nach Pandora", movie.getTitle());

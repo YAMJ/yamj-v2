@@ -24,10 +24,11 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
 import static org.junit.Assert.assertEquals;
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -38,7 +39,6 @@ public class SratimPluginTest {
 
     @BeforeClass
     public static void setUpClass() {
-        
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.SratimPlugin");
     }
 
@@ -53,8 +53,10 @@ public class SratimPluginTest {
         movie.addMovieFile(new MovieFile());
         movie.setMovieType(Movie.TYPE_MOVIE);
         movie.setTitle("The Croods", Movie.UNKNOWN);
-        movie.setId(AllocinePlugin.IMDB_PLUGIN_ID, "tt0481499");
+        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0481499");
 
+        // Force sratim to be the first priority
+        OverrideTools.putMoviePriorities(OverrideFlag.DIRECTORS, "sratim,imdb");
         sratimPlugin.scan(movie);
         assertEquals("1123786", movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
         assertEquals("כריס סנדרס", movie.getDirector());
