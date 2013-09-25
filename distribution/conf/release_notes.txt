@@ -4,6 +4,7 @@
 
 MovieJukebox 2.10-SNAPSHOT
 --------------------------
+ - Fixed defect #2664 Ratings categories are incorrectly named
  - Fixed defect #2668 Fanart downloaded twice
  - Fixed defect #2671 Scraping title from AKAS not working
  - Fixed defect #2672 Movie certifications not returned with Allocine

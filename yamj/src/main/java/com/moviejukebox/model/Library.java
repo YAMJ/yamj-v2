@@ -1314,14 +1314,15 @@ public class Library implements Map<String, Movie> {
     }
 
     protected static Index indexByRatings(List<Movie> list) {
+        LOG.info("INDEXING: Ratings");
         Index index = new Index(true);
         for (Movie movie : list) {
             if (!movie.isExtra() && (movie.getRating() > 0)) {
-                String rating = Double.toString(Math.floor((double) movie.getRating() / (double) 10));
-                rating = rating + ".0-" + rating + ".9";
-                LOG.debug(ADDING + movie.getTitle() + " to ratings list for " + rating);
-                index.addMovie(rating, movie);
-                movie.addIndex(INDEX_RATINGS, rating);
+                String sRating = Double.toString(Math.floor((double) movie.getRating() / (double) 10)).replace(".0", "");    // Convert and remove the ".0"
+                sRating = sRating + ".0-" + sRating + ".9";
+                LOG.debug(ADDING + movie.getTitle() + " to ratings list for " + sRating);
+                index.addMovie(sRating, movie);
+                movie.addIndex(INDEX_RATINGS, sRating);
             }
         }
 
