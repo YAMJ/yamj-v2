@@ -26,7 +26,6 @@ import java.util.Set;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import com.moviejukebox.tools.PropertiesUtil;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 
@@ -36,10 +35,10 @@ public class ImdbInfoTest {
 
     @BeforeClass
     public static void setUpClass() {
-        
+
     }
 
-    @Test
+//    @Test
     public void testImdbPersonId() {
         LOG.info("testImdbPersonId");
         Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
@@ -54,7 +53,7 @@ public class ImdbInfoTest {
         }
     }
 
-    @Test
+//    @Test
     public void testImdbMovieId_VariableOff() {
         LOG.info("testImdbMovieId_VariableOff");
         Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
@@ -70,7 +69,7 @@ public class ImdbInfoTest {
         }
     }
 
-    @Test
+//    @Test
     public void testImdbMovieId_VariableOn() {
         LOG.info("testImdbMovieId_VariableOn");
         Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
@@ -86,7 +85,7 @@ public class ImdbInfoTest {
         }
     }
 
-    @Test
+//    @Test
     public void testImdbMovieIdFirstMatch() {
         LOG.info("testImdbMovieIdFirstMatch");
         Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
@@ -102,7 +101,7 @@ public class ImdbInfoTest {
         }
     }
 
-    @Test
+//    @Test
     public void testImdbMovieIdRegularMatch() {
         LOG.info("testImdbMovieIdRegularMatch");
         Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();

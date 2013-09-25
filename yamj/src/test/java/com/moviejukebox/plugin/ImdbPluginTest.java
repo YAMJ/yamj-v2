@@ -145,7 +145,7 @@ public class ImdbPluginTest {
         assertTrue("Incorrect Rating", movie.getRating(ImdbPlugin.IMDB_PLUGIN_ID) > 0);
         assertEquals("Incorrect Country", "USA", movie.getCountry());
         assertEquals("Incorrect Company", "Twentieth Century Fox Film Corporation", movie.getCompany());
-        assertEquals("Incorrect Tagline", "Enter the World", movie.getTagline());
+        assertEquals("Incorrect Tagline", "Return to Pandora", movie.getTagline());
         assertEquals("Incorrect number of cast", 10, movie.getCast().size());
         assertEquals("Incorrect Directors", 1, movie.getDirectors().size());
         assertEquals("Incorrect Writers", 1, movie.getWriters().size());

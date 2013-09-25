@@ -28,7 +28,12 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 public class ImdbSiteDataDefinition {
-    
+
+    // Regex values
+    private static final String REGEX_START = "<link rel=\"canonical\" href=\"";
+    private static final String REGEX_TITLE = "title/(tt\\d+)/\"";
+    private static final String REGEX_NAME = "name/(nm\\d+)/\"";
+    //Properties
     private final String site;
     private final String director;
     private final String cast;
@@ -51,26 +56,26 @@ public class ImdbSiteDataDefinition {
     private final Pattern titleRegex;
 
     public ImdbSiteDataDefinition(String site,
-                                  String charsetName,
-                                  String director,
-                                  String cast,
-                                  String releaseDate,
-                                  String runtime,
-                                  String aspectRatio,
-                                  String country,
-                                  String company,
-                                  String genre,
-                                  String quotes,
-                                  String plot,
-                                  String rated,
-                                  String certification,
-                                  String originalAirDate,
-                                  String writer,
-                                  String taglines,
-                                  String originalTitle) {
+            String charsetName,
+            String director,
+            String cast,
+            String releaseDate,
+            String runtime,
+            String aspectRatio,
+            String country,
+            String company,
+            String genre,
+            String quotes,
+            String plot,
+            String rated,
+            String certification,
+            String originalAirDate,
+            String writer,
+            String taglines,
+            String originalTitle) {
         this.site = site;
         this.director = director;
-        this.cast= cast;
+        this.cast = cast;
         this.releaseDate = releaseDate;
         this.runtime = runtime;
         this.aspectRatio = aspectRatio;
@@ -84,16 +89,16 @@ public class ImdbSiteDataDefinition {
         this.originalAirDate = originalAirDate;
         this.writer = writer;
         this.taglines = taglines;
-        this.originalTitle = originalTitle; 
+        this.originalTitle = originalTitle;
 
         if (StringUtils.isBlank(charsetName)) {
             this.charset = Charset.defaultCharset();
         } else {
             this.charset = Charset.forName(charsetName);
         }
-        personRegex = Pattern.compile(Pattern.quote("<link rel=\"canonical\" href=\"" + this.getSite() + "name/(nm\\d+)/\""));
 
-        titleRegex  = Pattern.compile(Pattern.quote("<link rel=\"canonical\" href=\"" + this.getSite() + "title/(tt\\d+)/\""));
+        personRegex = Pattern.compile(Pattern.quote(REGEX_START + this.site + REGEX_NAME));
+        titleRegex = Pattern.compile(Pattern.quote(REGEX_START + this.site + REGEX_TITLE));
     }
 
     public String getSite() {
@@ -168,11 +173,11 @@ public class ImdbSiteDataDefinition {
         return charset;
     }
 
-	public Pattern getPersonRegex() {
-		return personRegex;
-	}
+    public Pattern getPersonRegex() {
+        return personRegex;
+    }
 
-	public Pattern getTitleRegex() {
-		return titleRegex;
-	}
+    public Pattern getTitleRegex() {
+        return titleRegex;
+    }
 }
