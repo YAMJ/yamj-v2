@@ -890,7 +890,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // therefore we need to look for the preferredCountry and then work backwards
             if (akas == null) {
                 // Just extract the AKA section from the page
-                List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "<a name=\"akas\">", HTML_TABLE, "<td>", HTML_TD, Boolean.FALSE);
+                List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "<a id=\"akas\" name=\"akas\">", HTML_TABLE, "<td>", HTML_TD, Boolean.FALSE);
                 akas = buildAkaMap(akaList);
             }
 
@@ -915,7 +915,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // therefore we need to look for the preferredCountry and then work backwards
             if (akas == null) {
                 // Just extract the AKA section from the page
-                List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "<a name=\"akas\">", HTML_TABLE, "<td>", HTML_TD, Boolean.FALSE);
+                List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "<a id=\"akas\" name=\"akas\">", HTML_TABLE, "<td>", HTML_TD, Boolean.FALSE);
                 akas = buildAkaMap(akaList);
             }
 
