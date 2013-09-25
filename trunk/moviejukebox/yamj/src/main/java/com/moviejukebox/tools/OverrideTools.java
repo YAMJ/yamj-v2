@@ -228,7 +228,7 @@ public final class OverrideTools {
      * @param overrideFlag
      * @param sources
      */
-    private static void putMoviePriorities(OverrideFlag overrideFlag, String sources) {
+    public static void putMoviePriorities(OverrideFlag overrideFlag, String sources) {
         List<String> priorities;
         if (StringUtils.isBlank(sources)) {
             priorities = Collections.emptyList();
@@ -266,7 +266,7 @@ public final class OverrideTools {
      * @param overrideFlag
      * @param newSources
      */
-    private static void putTvPriorities(OverrideFlag overrideFlag, String sources) {
+    public static void putTvPriorities(OverrideFlag overrideFlag, String sources) {
         List<String> priorities;
         if (StringUtils.isBlank(sources)) {
             priorities = Collections.emptyList();

@@ -23,6 +23,8 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import org.apache.log4j.BasicConfigurator;
 import org.junit.After;
@@ -42,9 +44,8 @@ public class FilmaffinityPluginTest {
 
     @BeforeClass
     public static void setUpClass() {
-        
-        PropertiesUtil.setProperty("priority.movie.country", "filmaffinity,imdb");
-        PropertiesUtil.setProperty("priority.movie.runtime", "filmaffinity,imdb");
+        OverrideTools.putMoviePriorities(OverrideFlag.COUNTRY, "filmaffinity,imdb");
+        OverrideTools.putMoviePriorities(OverrideFlag.RUNTIME, "filmaffinity,imdb");
     }
 
     @AfterClass
@@ -100,6 +101,8 @@ public class FilmaffinityPluginTest {
     public void testScanCountry1() {
         Movie movie = new Movie();
         movie.setTitle("25 grados en invierno", Movie.UNKNOWN);
+        movie.setId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID, "730391");
+        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0356317");
         assertEquals(true, faPlugin.scan(movie));
         assertEquals("Bélgica", movie.getCountry());
     }

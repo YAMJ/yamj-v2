@@ -32,7 +32,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
-import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -42,6 +42,7 @@ import org.junit.Test;
 public class FilmDeltaSEPluginTest {
 
     private FilmDeltaPluginMock toTest;
+    private static final Logger LOG = Logger.getLogger(FilmDeltaSEPluginTest.class);
     private Movie movie = new Movie();
     /* offline = true, run tests with mocked pages to verify that
      * no changes in project code has been made that breaks the
@@ -54,7 +55,6 @@ public class FilmDeltaSEPluginTest {
 
     @BeforeClass
     public static void setUpClass() {
-        
     }
 
     @AfterClass
@@ -91,10 +91,13 @@ public class FilmDeltaSEPluginTest {
 
     @Test
     public void testScanNFO() {
+        LOG.info("testScanNFO");
         toTest.scanNFO("http://www.filmdelta.se/prevsearch/aristocats/filmer/20892/aristocats/", movie);
-        assertEquals("20892/aristocats", movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
+        assertEquals("Failed prevsearch test","20892/aristocats", movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
+        LOG.info("Testing filmer");
+        movie = new Movie();
         toTest.scanNFO("http://www.filmdelta.se/filmer/22481/djungelboken/", movie);
-        assertEquals("22481/djungelboken", movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
+        assertEquals("Failed filmer test","22481/djungelboken", movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
     }
 
     @Test
@@ -239,6 +242,7 @@ public class FilmDeltaSEPluginTest {
 
         public void init() {
             webBrowser = new WebBrowser() {
+                @Override
                 public String request(URL url) throws IOException {
                     if (offline && (getRequestResult(url) != null)) {
                         return getRequestResult(url);
