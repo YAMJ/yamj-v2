@@ -66,7 +66,7 @@ public class PropertiesUtil {
         } catch (IOException error) {
             // Output a warning if required.
             if (warnFatal) {
-                LOG.error("Failed loading file " + streamName + ": Please check your configuration. The properties file should be in the classpath.");
+                LOG.error("Failed loading file " + streamName + ": Please check your configuration. The properties file should be in the classpath.", error);
             } else {
                 LOG.debug("Warning (non-fatal): User properties file '" + streamName + "', not found.");
             }
@@ -107,11 +107,7 @@ public class PropertiesUtil {
      * @return
      */
     public static boolean getBooleanProperty(String key, boolean defaultValue) {
-        String property = props.getProperty(key);
-        if (property != null) {
-            return Boolean.parseBoolean(property.trim());
-        }
-        return defaultValue;
+        return convertBooleanProperty(key, props.getProperty(key), defaultValue);
     }
 
     /**
@@ -122,14 +118,7 @@ public class PropertiesUtil {
      * @return
      */
     public static int getIntProperty(String key, int defaultValue) {
-        String property = props.getProperty(key);
-        if (property != null) {
-            try {
-                return Integer.parseInt(property.trim());
-            } catch (NumberFormatException nfe) {
-            }
-        }
-        return defaultValue;
+        return convertIntegerProperty(key, props.getProperty(key), defaultValue);
     }
 
     /**
@@ -140,14 +129,7 @@ public class PropertiesUtil {
      * @return
      */
     public static long getLongProperty(String key, long defaultValue) {
-        String property = props.getProperty(key);
-        if (property != null) {
-            try {
-                return Long.parseLong(property.trim());
-            } catch (NumberFormatException nfe) {
-            }
-        }
-        return defaultValue;
+        return convertLongProperty(key, props.getProperty(key), defaultValue);
     }
 
     /**
@@ -158,85 +140,196 @@ public class PropertiesUtil {
      * @return
      */
     public static float getFloatProperty(String key, float defaultValue) {
-        String property = props.getProperty(key);
-        if (property != null) {
-            try {
-                return Float.parseFloat(property.trim());
-            } catch (NumberFormatException nfe) {
-            }
-        }
-        return defaultValue;
+        return convertFloatProperty(key, props.getProperty(key), defaultValue);
     }
 
+    /**
+     * Returns the property specified by the newKey or oldKey.
+     *
+     * Outputs warning if the oldKey was found.
+     *
+     * @param newKey
+     * @param oldKey
+     * @param defaultValue
+     * @return
+     */
     public static String getReplacedProperty(String newKey, String oldKey, String defaultValue) {
-        String property = props.getProperty(oldKey);
-        if (property == null) {
-            property = props.getProperty(newKey, defaultValue);
-        } else {
-            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
-        }
-        return property;
+        return getReplacedKeyValue(newKey, oldKey);
     }
 
+    /**
+     * Returns the property specified by the newKey or oldKey.
+     *
+     * Outputs warning if the oldKey was found.
+     *
+     * @param newKey
+     * @param oldKey
+     * @param defaultValue
+     * @return
+     */
     public static boolean getReplacedBooleanProperty(String newKey, String oldKey, boolean defaultValue) {
-        String property = props.getProperty(oldKey);
-        if (property == null) {
-            property = props.getProperty(newKey);
-        } else {
-            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
-        }
-        if (property != null) {
-            return Boolean.parseBoolean(property.trim());
-        }
-        return defaultValue;
+        String property = getReplacedKeyValue(newKey, oldKey);
+        return convertBooleanProperty(newKey, property, defaultValue);
     }
 
+    /**
+     * Returns the property specified by the newKey or oldKey.
+     *
+     * Outputs warning if the oldKey was found.
+     *
+     * @param newKey
+     * @param oldKey
+     * @param defaultValue
+     * @return
+     */
     public static int getReplacedIntProperty(String newKey, String oldKey, int defaultValue) {
-        String property = props.getProperty(oldKey);
-        if (property == null) {
-            property = props.getProperty(newKey);
-        } else {
-            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
-        }
-        if (property != null) {
-            try {
-                return Integer.parseInt(property.trim());
-            } catch (NumberFormatException nfe) {
-            }
-        }
-        return defaultValue;
+        String property = getReplacedKeyValue(newKey, oldKey);
+        return convertIntegerProperty(newKey, property, defaultValue);
     }
 
+    /**
+     * Returns the property specified by the newKey or oldKey.
+     *
+     * Outputs warning if the oldKey was found.
+     *
+     * @param newKey
+     * @param oldKey
+     * @param defaultValue
+     * @return
+     */
     public static long getReplacedLongProperty(String newKey, String oldKey, long defaultValue) {
-        String property = props.getProperty(oldKey);
-        if (property == null) {
-            property = props.getProperty(newKey);
-        } else {
-            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
-        }
-        if (property != null) {
-            try {
-                return Long.parseLong(property.trim());
-            } catch (NumberFormatException nfe) {
-            }
-        }
-        return defaultValue;
+        String property = getReplacedKeyValue(newKey, oldKey);
+        return convertLongProperty(oldKey, property, defaultValue);
     }
 
+    /**
+     * Returns the property specified by the newKey or oldKey.
+     *
+     * Outputs warning if the oldKey was found.
+     *
+     * @param newKey
+     * @param oldKey
+     * @param defaultValue
+     * @return
+     */
     public static float getReplacedFloatProperty(String newKey, String oldKey, float defaultValue) {
-        String property = props.getProperty(oldKey);
-        if (property == null) {
-            property = props.getProperty(newKey);
+        String property = getReplacedKeyValue(newKey, oldKey);
+        return convertFloatProperty(newKey, property, defaultValue);
+    }
+
+    /**
+     * Look for both keys in the property list and warn if the old one was found
+     *
+     * @param newKey
+     * @param oldKey
+     * @return
+     */
+    private static String getReplacedKeyValue(String newKey, String oldKey) {
+        String oldProperty = props.getProperty(oldKey);
+        String newProperty = props.getProperty(newKey);
+        String returnValue;
+
+        if (newProperty == null && oldProperty != null) {
+            // We found the old property, but not the new
+            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead.");
+            returnValue = oldProperty;
+        } else if (newProperty != null && oldProperty != null) {
+            // We found both properties, so warn about the old one
+            LOG.warn("Property '" + oldKey + "' is no longer used, but was found in your configuration files, please remove it.");
+            returnValue = newProperty;
         } else {
-            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead");
+            returnValue = newProperty;
         }
-        if (property != null) {
+
+        return returnValue;
+    }
+
+    /**
+     * Convert the value to a Float
+     *
+     * Outputs warning if there was an exception during the conversion
+     *
+     * @param key
+     * @param valueToConvert
+     * @param defaultValue
+     * @return
+     */
+    private static float convertFloatProperty(String key, String valueToConvert, float defaultValue) {
+        float value = defaultValue;
+
+        if (StringUtils.isNotBlank(valueToConvert)) {
             try {
-                return Float.parseFloat(property.trim());
-            } catch (NumberFormatException nfe) {
+                value = Float.parseFloat(valueToConvert);
+            } catch (NumberFormatException ex) {
+                LOG.warn("Failed to convert property '" + key + "', value '" + valueToConvert + "' to a float number.");
             }
         }
-        return defaultValue;
+
+        return value;
+    }
+
+    /**
+     * Convert the value to a Long
+     *
+     * Outputs warning if there was an exception during the conversion
+     *
+     * @param key
+     * @param valueToConvert
+     * @param defaultValue
+     * @return
+     */
+    private static long convertLongProperty(String key, String valueToConvert, long defaultValue) {
+        long value = defaultValue;
+
+        if (StringUtils.isNotBlank(valueToConvert)) {
+            try {
+                value = Long.parseLong(valueToConvert);
+            } catch (NumberFormatException ex) {
+                LOG.warn("Failed to convert property '" + key + "', value '" + valueToConvert + "' to a long number.");
+            }
+        }
+
+        return value;
+    }
+
+    /**
+     * Convert the value to a Integer
+     *
+     * Outputs warning if there was an exception during the conversion
+     *
+     * @param key
+     * @param valueToConvert
+     * @param defaultValue
+     * @return
+     */
+    private static int convertIntegerProperty(String key, String valueToConvert, int defaultValue) {
+        int value = defaultValue;
+
+        if (StringUtils.isNotBlank(valueToConvert)) {
+            try {
+                value = Integer.parseInt(valueToConvert);
+            } catch (NumberFormatException ex) {
+                LOG.warn("Failed to convert property '" + key + "', value '" + valueToConvert + "' to an integer number.");
+            }
+        }
+
+        return value;
+    }
+
+    /**
+     * Convert the value to a Boolean
+     *
+     * @param key
+     * @param valueToConvert
+     * @param defaultValue
+     * @return
+     */
+    private static boolean convertBooleanProperty(String key, String valueToConvert, boolean defaultValue) {
+        boolean value = defaultValue;
+        if (StringUtils.isNotBlank(valueToConvert)) {
+            value = Boolean.parseBoolean(valueToConvert);
+        }
+        return value;
     }
 
     // Issue 309
