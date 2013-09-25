@@ -36,9 +36,9 @@ import org.junit.BeforeClass;
 
 public class MovieTest {
 
-    private static int actorMax;
-    private static int directorMax;
-    private static int writerMax;
+    private static int actorMax = 10;
+    private static int directorMax = 2;
+    private static int writerMax = 3;
 
     @BeforeClass
     public static void setUpClass() {
@@ -50,9 +50,6 @@ public class MovieTest {
 
     @Before
     public void setUp() {
-        actorMax = PropertiesUtil.getIntProperty("movie.actor.maxCount", 0);
-        directorMax = PropertiesUtil.getIntProperty("movie.director.maxCount", 0);
-        writerMax = PropertiesUtil.getIntProperty("movie.writer.maxCount", 0);
     }
 
     @After
@@ -66,7 +63,7 @@ public class MovieTest {
         Movie movie = new Movie();
         movie.setPeopleCast(actors, ImdbPlugin.IMDB_PLUGIN_ID);
         Collection<String> people = movie.getPerson(Filmography.DEPT_ACTORS);
-        assertEquals(actorMax, people.size());
+        assertEquals("Wrong number of actors returned", actorMax, people.size());
     }
 
     @Test
@@ -76,7 +73,7 @@ public class MovieTest {
         Movie movie = new Movie();
         movie.setPeopleDirectors(directors, ImdbPlugin.IMDB_PLUGIN_ID);
         Collection<String> people = movie.getPerson(Filmography.DEPT_DIRECTING);
-        assertEquals(directorMax, people.size());
+        assertEquals("Wrong number of directors returned", directorMax, people.size());
     }
 
     @Test
@@ -86,7 +83,7 @@ public class MovieTest {
         Movie movie = new Movie();
         movie.setPeopleWriters(writers, ImdbPlugin.IMDB_PLUGIN_ID);
         Collection<String> people = movie.getPerson(Filmography.DEPT_WRITING);
-        assertEquals(writerMax, people.size());
+        assertEquals("Wrong number of writers returned", writerMax, people.size());
     }
 
     private List<String> createList(String title, int count) {

@@ -48,7 +48,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * specifically to the Movie object
      */
 
-    private static final Logger logger = Logger.getLogger(Movie.class);
+    private static final Logger LOG = Logger.getLogger(Movie.class);
     public static final String UNKNOWN = "UNKNOWN";
     public static final String SOURCE_FILENAME = "filename";
     public static final String NOTRATED = "Not Rated";
@@ -274,7 +274,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void addSet(String set, Integer order) {
         if (StringTools.isValidString(set)) {
             setDirty(DirtyFlag.INFO);
-            logger.debug("Set added: " + set + ", order: " + order);
+            LOG.debug("Set added: " + set + ", order: " + order);
             sets.put(set, order);
         }
     }
@@ -1926,7 +1926,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 setTrailerLastScan(0);
             }
         } catch (IllegalArgumentException ex) {
-            logger.debug("Unable to parse TrailerLastScan date from '" + lastScan + "', Error: " + ex.getMessage());
+            LOG.debug("Unable to parse TrailerLastScan date from '" + lastScan + "', Error: " + ex.getMessage());
             setTrailerLastScan(0);
         }
     }
