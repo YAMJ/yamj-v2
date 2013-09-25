@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 
 public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
 
-    private static final Logger logger = Logger.getLogger(AbstractMoviePosterPlugin.class);
+    private static final Logger LOG = Logger.getLogger(AbstractMoviePosterPlugin.class);
     protected static final String SEARCH_PRIORITY_MOVIE = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie", "").toLowerCase();
     protected static final String SEARCH_PRIORITY_TV = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "").toLowerCase();
 
@@ -52,19 +52,19 @@ public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
             id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear());
             // ID found
             if (StringTools.isValidString(id)) {
-                logger.debug(this.getName() + " posterPlugin: ID found setting it to '" + id + "'");
+                LOG.debug(this.getName() + " posterPlugin: ID found setting it to '" + id + "'");
                 ident.setId(getName(), id);
             } else if (!movieInformation.getOriginalTitle().equalsIgnoreCase(movieInformation.getTitle())) {
                 // Didn't find the movie with the original title, try the normal title if it's different
                 id = getIdFromMovieInfo(movieInformation.getTitle(), movieInformation.getYear());
                 // ID found
                 if (StringTools.isValidString(id)) {
-                    logger.debug(this.getName() + " posterPlugin: ID found setting it to '" + id + "'");
+                    LOG.debug(this.getName() + " posterPlugin: ID found setting it to '" + id + "'");
                     ident.setId(getName(), id);
                 }
             }
         } else {
-            logger.debug(this.getName() + " posterPlugin: ID already in movie using it, skipping ID search: '" + id + "'");
+            LOG.debug(this.getName() + " posterPlugin: ID already in movie using it, skipping ID search: '" + id + "'");
         }
 
         if (!(StringTools.isNotValidString(id) || "-1".equals(id) || "0".equals(id))) {

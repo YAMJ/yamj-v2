@@ -33,7 +33,8 @@ import org.apache.log4j.Logger;
 public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
 
     private AllocinePlugin allocinePlugin;
-    private static final Logger logger = Logger.getLogger(AllocinePosterPlugin.class);
+    private static final Logger LOG = Logger.getLogger(AllocinePosterPlugin.class);
+    private static final String LOG_MESSAGE = "AllocinePosterPlugin: ";
 
     public AllocinePosterPlugin() {
         super();
@@ -58,14 +59,14 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
 
             MovieInfos movieInfos = allocinePlugin.getMovieInfos(id);
 
-            if (movieInfos.isValid() && movieInfos.getPosterUrls().size() > 0 ) {
+            if (movieInfos.isValid() && movieInfos.getPosterUrls().size() > 0) {
                 String posterURL = movieInfos.getPosterUrls().iterator().next();
                 if (StringTools.isValidString(posterURL)) {
                     return new Image(posterURL);
                 }
             }
         }
-        logger.debug("AllocinePosterPlugin: No poster found at allocine for movie id " + id);
+        LOG.debug(LOG_MESSAGE + "No poster found at allocine for movie id " + id);
         return Image.UNKNOWN;
     }
 

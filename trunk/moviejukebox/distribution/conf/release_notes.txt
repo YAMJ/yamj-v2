@@ -4,6 +4,7 @@
 
 MovieJukebox 2.10-SNAPSHOT
 --------------------------
+ - Fixed defect #2668 Fanart downloaded twice
  - Fixed defect #2671 Scraping title from AKAS not working
  - Fixed defect #2672 Movie certifications not returned with Allocine
  - Fixed defect #2674 MediaInfo changed name for codec channel count

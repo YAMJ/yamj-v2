@@ -41,7 +41,7 @@ import org.apache.log4j.Logger;
 public class AllocinePlugin extends ImdbPlugin {
 
     public static final String ALLOCINE_PLUGIN_ID = "allocine";
-    private static final Logger LOGGER = Logger.getLogger(AllocinePlugin.class);
+    private static final Logger LOG = Logger.getLogger(AllocinePlugin.class);
     private static final String LOG_MESSAGE = "AllocinePlugin: ";
     private static final String CACHE_SEARCH_MOVIE = "AllocineSearchMovie";
     private static final String CACHE_SEARCH_SERIES = "AllocineSearchSeries";
@@ -102,8 +102,8 @@ public class AllocinePlugin extends ImdbPlugin {
                 allocineId = getAllocineIdFromSearchEngine(title, year, season);
             }
         } catch (Exception error) {
-            LOGGER.error(LOG_MESSAGE + "Failed to retrieve Allocine id for movie : " + title);
-            LOGGER.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed to retrieve Allocine id for movie : " + title);
+            LOG.error(SystemTools.getStackTrace(error));
         }
         return allocineId;
     }
@@ -209,7 +209,7 @@ public class AllocinePlugin extends ImdbPlugin {
         // we also get imdb Id for extra infos
         if (isNotValidString(movie.getId(IMDB_PLUGIN_ID))) {
             movie.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(movie.getOriginalTitle(), movie.getYear(), movie.isTVShow()));
-            LOGGER.debug(LOG_MESSAGE + "Found imdbId = " + movie.getId(IMDB_PLUGIN_ID));
+            LOG.debug(LOG_MESSAGE + "Found imdbId = " + movie.getId(IMDB_PLUGIN_ID));
         }
 
         boolean retval;
@@ -222,7 +222,7 @@ public class AllocinePlugin extends ImdbPlugin {
             }
         } else {
             // If no AllocineId found fallback to Imdb
-            LOGGER.debug(LOG_MESSAGE + "No Allocine id available, we fall back to ImdbPlugin");
+            LOG.debug(LOG_MESSAGE + "No Allocine id available, we fall back to ImdbPlugin");
             retval = super.scan(movie);
         }
         return retval;
@@ -232,7 +232,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
         MovieInfos movieInfos = getMovieInfos(allocineId);
         if (movieInfos == null) {
-            LOGGER.error(LOG_MESSAGE + "Can't find informations for movie with id: " + allocineId);
+            LOG.error(LOG_MESSAGE + "Can't find informations for movie with id: " + allocineId);
             return false;
         }
 
@@ -366,7 +366,7 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             if (tvSeriesInfos.isNotValid()) {
-                LOGGER.error(LOG_MESSAGE + "Can't find informations for TvShow with id: " + allocineId);
+                LOG.error(LOG_MESSAGE + "Can't find informations for TvShow with id: " + allocineId);
                 return;
             }
 
@@ -469,9 +469,9 @@ public class AllocinePlugin extends ImdbPlugin {
                     }
                 }
             } catch (Exception error) {
-                LOGGER.warn(LOG_MESSAGE + "Can't find informations for season " + currentSeason
+                LOG.warn(LOG_MESSAGE + "Can't find informations for season " + currentSeason
                         + " for TvSeries with id " + allocineId + " (" + movie.getBaseName() + ")");
-                LOGGER.warn(SystemTools.getStackTrace(error));
+                LOG.warn(SystemTools.getStackTrace(error));
             }
 
             // Call the TvDBPlugin to download fanart and/or videoimages
@@ -487,12 +487,12 @@ public class AllocinePlugin extends ImdbPlugin {
                 }
             }
         } catch (JAXBException error) {
-            LOGGER.error(LOG_MESSAGE + "Failed retrieving Allocine infos for TvShow "
+            LOG.error(LOG_MESSAGE + "Failed retrieving Allocine infos for TvShow "
                     + allocineId + ". Perhaps the Allocine XML API has changed ...");
-            LOGGER.error(SystemTools.getStackTrace(error));
+            LOG.error(SystemTools.getStackTrace(error));
         } catch (Exception error) {
-            LOGGER.error(LOG_MESSAGE + "Failed retrieving Allocine infos for TvShow : " + allocineId);
-            LOGGER.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed retrieving Allocine infos for TvShow : " + allocineId);
+            LOG.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -511,12 +511,12 @@ public class AllocinePlugin extends ImdbPlugin {
             try {
                 movieInfos = allocineAPI.getMovieInfos(allocineId);
             } catch (JAXBException error) {
-                LOGGER.error(LOG_MESSAGE + "Failed retrieving Allocine infos for movie "
+                LOG.error(LOG_MESSAGE + "Failed retrieving Allocine infos for movie "
                         + allocineId + ". Perhaps the Allocine XML API has changed ...");
-                LOGGER.error(SystemTools.getStackTrace(error));
+                LOG.error(SystemTools.getStackTrace(error));
             } catch (Exception error) {
-                LOGGER.error(LOG_MESSAGE + "Failed retrieving Allocine infos for movie : " + allocineId);
-                LOGGER.error(SystemTools.getStackTrace(error));
+                LOG.error(LOG_MESSAGE + "Failed retrieving Allocine infos for movie : " + allocineId);
+                LOG.error(SystemTools.getStackTrace(error));
             }
             // Add to the cache
             CacheMemory.addToCache(cacheKey, movieInfos);
@@ -532,21 +532,21 @@ public class AllocinePlugin extends ImdbPlugin {
 
         // If we use allocine plugin look for
         // http://www.allocine.fr/...=XXXXX.html
-        LOGGER.debug(LOG_MESSAGE + "Scanning NFO for Allocine id");
+        LOG.debug(LOG_MESSAGE + "Scanning NFO for Allocine id");
         int beginIndex = nfo.indexOf("http://www.allocine.fr/");
         if (beginIndex != -1) {
             int beginIdIndex = nfo.indexOf('=', beginIndex);
             if (beginIdIndex != -1) {
                 int endIdIndex = nfo.indexOf('.', beginIdIndex);
                 if (endIdIndex != -1) {
-                    LOGGER.debug(LOG_MESSAGE + "Allocine id found in NFO = " + nfo.substring(beginIdIndex + 1, endIdIndex));
+                    LOG.debug(LOG_MESSAGE + "Allocine id found in NFO = " + nfo.substring(beginIdIndex + 1, endIdIndex));
                     movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, nfo.substring(beginIdIndex + 1, endIdIndex));
                     return Boolean.TRUE;
                 }
             }
         }
 
-        LOGGER.debug(LOG_MESSAGE + "No Allocine id found in NFO");
+        LOG.debug(LOG_MESSAGE + "No Allocine id found in NFO");
         return Boolean.FALSE;
     }
 }
