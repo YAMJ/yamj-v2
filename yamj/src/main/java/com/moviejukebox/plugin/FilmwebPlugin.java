@@ -46,7 +46,6 @@ public class FilmwebPlugin extends ImdbPlugin {
     private static final String LOG_MESSAGE = "FilmwebPlugin: ";
     public static final String FILMWEB_PLUGIN_ID = "filmweb";
     private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
-
     private SearchEngineTools searchEngineTools;
 
     public FilmwebPlugin() {
@@ -61,7 +60,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
     public void init() {
         searchEngineTools = new SearchEngineTools("pl");
-        
+
         try {
             // first request to filmweb site to skip welcome screen with ad banner
             webBrowser.request("http://www.filmweb.pl");
@@ -82,7 +81,7 @@ public class FilmwebPlugin extends ImdbPlugin {
     public String getMovieId(String title, String year) {
         return getMovieId(title, year, -1);
     }
-    
+
     public String getMovieId(String title, String year, int season) {
         // try with filmweb search
         String filmwebUrl = getFilmwebUrlFromFilmweb(title, year, season);
@@ -107,8 +106,8 @@ public class FilmwebPlugin extends ImdbPlugin {
                 int beginIndex = tag.indexOf("<a class=\"hdr hdr-medium");
                 if (beginIndex > 0) {
                     beginIndex = tag.indexOf("href=\"", beginIndex);
-                    String href = tag.substring(beginIndex+6, tag.indexOf("\"", beginIndex+6));
-                    return "http://www.filmweb.pl"+href;
+                    String href = tag.substring(beginIndex + 6, tag.indexOf("\"", beginIndex + 6));
+                    return "http://www.filmweb.pl" + href;
                 }
             }
         } catch (Exception error) {
@@ -136,9 +135,9 @@ public class FilmwebPlugin extends ImdbPlugin {
      * Scan web page for the specified movie
      */
     protected boolean updateMediaInfo(Movie movie, String filmwebUrl) {
-    
+
         boolean returnValue = Boolean.TRUE;
-    
+
         try {
             String xml = webBrowser.request(filmwebUrl);
 
@@ -178,7 +177,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             if (OverrideTools.checkOverwriteRuntime(movie, FILMWEB_PLUGIN_ID)) {
                 String runtime = HTMLTools.getTextAfterElem(xml, "czas trwania:");
                 int intRuntime = DateTimeTools.processRuntime(runtime);
-                if (intRuntime > 0 ) {
+                if (intRuntime > 0) {
                     movie.setRuntime(String.valueOf(intRuntime), FILMWEB_PLUGIN_ID);
                 }
             }
@@ -209,7 +208,7 @@ public class FilmwebPlugin extends ImdbPlugin {
                     movie.setOutline(plot, FILMWEB_PLUGIN_ID);
                 }
             }
-            
+
             if (OverrideTools.checkOverwriteYear(movie, FILMWEB_PLUGIN_ID)) {
                 String year = HTMLTools.getTextAfterElem(xml, "filmYear");
                 if (!Movie.UNKNOWN.equals(year)) {
@@ -222,7 +221,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             if (!scanPersonInformations(movie)) {
                 returnValue = Boolean.FALSE;
             }
-            
+
             // scan TV show titles
             if (movie.isTVShow()) {
                 scanTVShowTitles(movie);
@@ -240,14 +239,14 @@ public class FilmwebPlugin extends ImdbPlugin {
             LOGGER.error(SystemTools.getStackTrace(error));
             returnValue = Boolean.FALSE;
         }
-        
+
         return returnValue;
     }
 
     private boolean scanPersonInformations(Movie movie) {
         try {
             String xml = webBrowser.request(movie.getId(FILMWEB_PLUGIN_ID) + "/cast");
-        
+
             boolean overrideNormal = OverrideTools.checkOverwriteDirectors(movie, FILMWEB_PLUGIN_ID);
             boolean overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, FILMWEB_PLUGIN_ID);
             if (overrideNormal || overridePeople) {
@@ -283,7 +282,7 @@ public class FilmwebPlugin extends ImdbPlugin {
                     movie.setWriters(writers, FILMWEB_PLUGIN_ID);
                 }
             }
-            
+
             overrideNormal = OverrideTools.checkOverwriteActors(movie, FILMWEB_PLUGIN_ID);
             overridePeople = OverrideTools.checkOverwritePeopleActors(movie, FILMWEB_PLUGIN_ID);
             if (overrideNormal || overridePeople) {
@@ -309,13 +308,16 @@ public class FilmwebPlugin extends ImdbPlugin {
             return Boolean.FALSE;
         }
     }
-    
+
     private int parseRating(String rating) {
+        int returnRating = -1;
         try {
-            return Math.round(Float.parseFloat(rating.replace(",", ".")) * 10);
+            LOGGER.info("RATING TO PARSE: " + rating);
+            returnRating = Math.round(Float.parseFloat(rating.replace(",", ".")) * 10);
         } catch (Exception error) {
-            return -1;
+            LOGGER.info("Failed to parse rating '" + rating + "', error: " + error.getMessage(), error);
         }
+        return returnRating;
     }
 
     private String updateImdbId(Movie movie) {
@@ -329,7 +331,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
     @Override
     public void scanTVShowTitles(Movie movie) {
-         if (!movie.isTVShow() || !movie.hasNewMovieFiles()) {
+        if (!movie.isTVShow() || !movie.hasNewMovieFiles()) {
             return;
         }
         String filmwebUrl = movie.getId(FILMWEB_PLUGIN_ID);
@@ -345,11 +347,11 @@ public class FilmwebPlugin extends ImdbPlugin {
             boolean found = Boolean.FALSE;
             boolean wasSeraching = Boolean.FALSE;
             for (MovieFile file : movie.getMovieFiles()) {
-                
+
                 int fromIndex = xml.indexOf("sezon " + movie.getSeason() + "<");
 
                 for (int part = file.getFirstPart(); part <= file.getLastPart(); ++part) {
-                    
+
                     if (OverrideTools.checkOverwriteEpisodeTitle(file, part, FILMWEB_PLUGIN_ID)) {
                         wasSeraching = Boolean.TRUE;
                         String episodeName = HTMLTools.getTextAfterElem(xml, "odcinek&nbsp;" + part, 2, fromIndex);
@@ -360,7 +362,7 @@ public class FilmwebPlugin extends ImdbPlugin {
                     }
                 }
             }
-            
+
             if (wasSeraching && !found) {
                 // use IMDB if filmweb doesn't know episodes titles
                 updateImdbId(movie);

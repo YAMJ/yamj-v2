@@ -39,13 +39,14 @@ public class DateTimeTools {
     private static final String LOG_MESSAGE = "DateTimeTools: ";
     private static final String DATE_FORMAT_STRING = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
     private static final String DATE_FORMAT_LONG_STRING = DATE_FORMAT_STRING + " HH:mm:ss";
-    private static final String[] FORMATS = new String[4];
+    private static final String[] FORMATS = new String[5];
 
     static {
         FORMATS[0] = "yyyy-MM-dd";
         FORMATS[1] = "dd-MM-yyyy";
         FORMATS[2] = "yyyy/MM/dd";
         FORMATS[3] = "dd/MM/yyyy";
+        FORMATS[4] = "dd MMMM yyyy";
     }
 
     private DateTimeTools() {

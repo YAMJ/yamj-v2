@@ -41,7 +41,8 @@ import org.apache.log4j.Logger;
 
 public class FilmaffinityPlugin extends ImdbPlugin {
 
-    private static final Logger logger = Logger.getLogger(FilmaffinityPlugin.class);
+    private static final Logger LOG = Logger.getLogger(FilmaffinityPlugin.class);
+    private static final String LOG_MESSAGE = "FilmAffinity: ";
     /*
      * Literals of web of each movie info
      */
@@ -56,7 +57,6 @@ public class FilmaffinityPlugin extends ImdbPlugin {
     private static final String FA_PLOT = "<dt>Sinopsis</dt>";
     private FilmAffinityInfo filmAffinityInfo;
 
-    
     public FilmaffinityPlugin() {
         super();  // use IMDB if FilmAffinity doesn't know movie
         filmAffinityInfo = new FilmAffinityInfo();
@@ -93,7 +93,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
         String filmAffinityId = movie.getId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
 
         if (StringTools.isNotValidString(filmAffinityId)) {
-            logger.debug("FilmAffinity: No valid FilmAffinity ID for movie " + movie.getBaseName());
+            LOG.debug(LOG_MESSAGE + "No valid FilmAffinity ID for movie " + movie.getBaseName());
             return false;
         }
 
@@ -102,7 +102,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
 
             if (xml.contains("Serie de TV")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
-                    logger.debug("FilmAffinity: " + movie.getTitle() + " is a TV Show, skipping.");
+                    LOG.debug(LOG_MESSAGE + movie.getTitle() + " is a TV Show, skipping.");
                     movie.setMovieType(Movie.TYPE_TVSHOW);
                     return false;
                 }
@@ -205,8 +205,8 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                 movie.setTitle(title, titleSource);
             }
         } catch (Exception error) {
-            logger.error("FilmAffinity: Failed retreiving movie info: " + filmAffinityId);
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed retreiving movie info: " + filmAffinityId);
+            LOG.error(SystemTools.getStackTrace(error));
             returnStatus = false;
         }
         return returnStatus;
