@@ -4,6 +4,7 @@
 
 MovieJukebox 2.10-SNAPSHOT
 --------------------------
+ - Enhancement   #731 Get cast information and images from TheMovieDB.org
  - Fixed defect #2664 Ratings categories are incorrectly named
  - Fixed defect #2668 Fanart downloaded twice
  - Fixed defect #2671 Scraping title from AKAS not working
