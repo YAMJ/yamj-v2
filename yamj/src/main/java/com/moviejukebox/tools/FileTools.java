@@ -33,6 +33,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import static org.apache.commons.lang3.StringUtils.*;
 import org.apache.log4j.Logger;
@@ -41,7 +42,7 @@ public class FileTools {
 
     private static final Logger logger = Logger.getLogger(FileTools.class);
     private static final String LOG_MESSAGE = "FileTools: ";
-    static final int BUFF_SIZE = 16 * 1024;
+    private static final int BUFF_SIZE = 16 * 1024;
     private static final Collection<String> SUBTITLE_EXTENSIONS = new ArrayList<String>();
     private static final Collection<ReplaceEntry> UNSAFE_CHARS = new ArrayList<ReplaceEntry>();
     private static final Collection<String> GENERATED_FILENAMES = Collections.synchronizedCollection(new ArrayList<String>());
@@ -55,6 +56,7 @@ public class FileTools {
     public static ScannedFilesCache fileCache = new ScannedFilesCache();
     // Lock for mkdirs
     private static Lock fsLock = new ReentrantLock();
+    private static final String DEFAULT_CHARSET = "UTF-8";
 
     public static void initSubtitleExtensions() {
         if (SUBTITLE_EXTENSIONS.isEmpty()) {
@@ -367,46 +369,34 @@ public class FileTools {
     }
 
     /**
-     * Read a file and return it as a string
+     * Read a file and return it as a string using default encoding
      *
      * @param file
      * @return
      */
     public static String readFileToString(File file) {
-        StringBuilder out = new StringBuilder();
+        return readFileToString(file, DEFAULT_CHARSET);
+    }
 
-        if (file != null) {
-            BufferedReader in = null;
-            FileReader fr = null;
+    /**
+     * Read a file and return it as a string
+     *
+     * @param file
+     * @param encoding
+     * @return
+     */
+    public static String readFileToString(File file, String encoding) {
+        String data = "";
+        if (file == null) {
+            logger.error(LOG_MESSAGE + "Failed reading file, file is null");
+        } else {
             try {
-                fr = new FileReader(file);
-                in = new BufferedReader(fr);
-                String line = in.readLine();
-                while (line != null) {
-                    out.append(line).append(" "); // Add a space to avoid unwanted concatenation
-                    line = in.readLine();
-                }
+                data = FileUtils.readFileToString(file, encoding);
             } catch (IOException ex) {
                 logger.error(LOG_MESSAGE + "Failed reading file " + file.getName() + " - Error: " + ex.getMessage());
-            } finally {
-                if (fr != null) {
-                    try {
-                        fr.close();
-                    } catch (IOException ex) {
-                        logger.trace(LOG_MESSAGE + "Failed to close reader file for " + file.getAbsolutePath());
-                    }
-                }
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException ex) {
-                        logger.trace(LOG_MESSAGE + "Failed to close buffered reader file for " + file.getAbsolutePath());
-                    }
-                }
             }
         }
-
-        return out.toString();
+        return data;
     }
 
     /**
@@ -1096,7 +1086,7 @@ public class FileTools {
         }
 
         public void saveFileList(String filename) throws FileNotFoundException, UnsupportedEncodingException {
-            PrintWriter p = new PrintWriter(new OutputStreamWriter(new FileOutputStream(filename, Boolean.TRUE), "UTF-8"));
+            PrintWriter p = new PrintWriter(new OutputStreamWriter(new FileOutputStream(filename, Boolean.TRUE), DEFAULT_CHARSET));
 
             Set<String> names = cachedFiles.keySet();
             String[] sortednames = names.toArray(new String[names.size()]);
