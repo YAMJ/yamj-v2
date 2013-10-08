@@ -11,6 +11,7 @@ MovieJukebox 2.10-SNAPSHOT
  - Fixed defect #2672 Movie certifications not returned with Allocine
  - Fixed defect #2674 MediaInfo changed name for codec channel count
  - Fixed defect #2675 Images not downloaded for IMDB person scanner
+ - Fixed defect #2682 AKAs for IMDB incorrect
 
 
 MovieJukebox 2.9
