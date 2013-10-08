@@ -2144,8 +2144,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         int i = 0;
         do {
             try {
-                String value = list.get(i++);
                 String key = list.get(i++);
+                String value = list.get(i++);
                 map.put(key, value);
             } catch (Exception ignore) {
                 i = -1;
