@@ -40,6 +40,7 @@ public class DateTimeTools {
     private static final String DATE_FORMAT_STRING = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
     private static final String DATE_FORMAT_LONG_STRING = DATE_FORMAT_STRING + " HH:mm:ss";
     private static final String[] FORMATS = new String[5];
+    private static final Pattern DATE_COUNTRY = Pattern.compile("(.*)(\\s*?\\(\\w*\\))");
 
     static {
         FORMATS[0] = "yyyy-MM-dd";
@@ -194,16 +195,24 @@ public class DateTimeTools {
 
         if (StringTools.isValidString(dateToParse) || StringTools.isValidString(targetFormat)) {
             if (dateToParse.length() <= 4) {
+                LOG.trace(LOG_MESSAGE + "Adding '-01-01' to short date");
                 parsedDateString = dateToParse + "-01-01";
             } else {
-                parsedDateString = dateToParse;
+                // look for the date as "dd MMMM yyyy (Country)" and remove the country
+                Matcher m = DATE_COUNTRY.matcher(dateToParse);
+                if (m.find()) {
+                    LOG.info(LOG_MESSAGE + "Removed '" + m.group(2) + "' from date '" + dateToParse + "'");
+                    parsedDateString = m.group(1);
+                } else {
+                    parsedDateString = dateToParse;
+                }
             }
 
             try {
-                Date parsedDate = DateUtils.parseDate(parsedDateString, FORMATS);
+                Date parsedDate = DateUtils.parseDate(parsedDateString.trim(), FORMATS);
                 parsedDateString = convertDateToString(parsedDate, targetFormat);
             } catch (ParseException ex) {
-                LOG.info(LOG_MESSAGE + "Failed to parse date '" + dateToParse + "'");
+                LOG.info(LOG_MESSAGE + "Failed to parse date '" + dateToParse + "', error: " + ex.getMessage(), ex);
                 parsedDateString = "";
             }
         }
