@@ -201,7 +201,7 @@ public class DateTimeTools {
                 // look for the date as "dd MMMM yyyy (Country)" and remove the country
                 Matcher m = DATE_COUNTRY.matcher(dateToParse);
                 if (m.find()) {
-                    LOG.info(LOG_MESSAGE + "Removed '" + m.group(2) + "' from date '" + dateToParse + "'");
+                    LOG.trace(LOG_MESSAGE + "Removed '" + m.group(2) + "' from date '" + dateToParse + "'");
                     parsedDateString = m.group(1);
                 } else {
                     parsedDateString = dateToParse;
@@ -212,7 +212,7 @@ public class DateTimeTools {
                 Date parsedDate = DateUtils.parseDate(parsedDateString.trim(), FORMATS);
                 parsedDateString = convertDateToString(parsedDate, targetFormat);
             } catch (ParseException ex) {
-                LOG.info(LOG_MESSAGE + "Failed to parse date '" + dateToParse + "', error: " + ex.getMessage(), ex);
+                LOG.debug(LOG_MESSAGE + "Failed to parse date '" + dateToParse + "', error: " + ex.getMessage(), ex);
                 parsedDateString = "";
             }
         }
