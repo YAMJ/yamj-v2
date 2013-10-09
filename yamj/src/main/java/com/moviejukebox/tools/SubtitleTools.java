@@ -31,8 +31,9 @@ public final class SubtitleTools {
 
     private static final Logger LOG = Logger.getLogger(SubtitleTools.class);
     private static final String LOG_MESSAGE = "SubtitleTools: ";
+    public static final String SPACE_SLASH_SPACE = " / ";
     private static final String SPLIT_PATTERN = "\\||,|/";
-    private static final String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", Movie.SPACE_SLASH_SPACE);
+    private static final String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", SPACE_SLASH_SPACE);
     private static final boolean subtitleUnique = PropertiesUtil.getBooleanProperty("mjb.subtitle.unique", Boolean.TRUE);
     private static final List<String> skippedSubtitles = new ArrayList<String>();
     private static final String YES = "YES";

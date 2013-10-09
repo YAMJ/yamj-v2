@@ -37,7 +37,6 @@ public class SubtitleToolsTest {
 
     @BeforeClass
     public static void setUpClass() {
-
     }
 
     @AfterClass
