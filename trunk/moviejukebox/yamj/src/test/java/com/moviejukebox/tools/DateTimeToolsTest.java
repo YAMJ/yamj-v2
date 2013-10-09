@@ -22,8 +22,6 @@
  */
 package com.moviejukebox.tools;
 
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Date;
 import org.apache.log4j.Logger;
 import org.junit.After;

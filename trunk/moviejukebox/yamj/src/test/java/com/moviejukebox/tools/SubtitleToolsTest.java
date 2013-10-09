@@ -26,7 +26,6 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.BasicConfigurator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
