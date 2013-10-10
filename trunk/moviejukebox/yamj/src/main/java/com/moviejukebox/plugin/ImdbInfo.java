@@ -64,7 +64,7 @@ public class ImdbInfo {
 
     static {
         MATCHES_DATA_PER_SITE.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", UTF_8, "Directed by|Director", "Cast", "Release Date", "Runtime", "Aspect Ratio", "Country",
-                "Company", "Genre", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writer|Writing credits", "Tagline", "original title"));
+                "Company", "Genre", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writing Credits|Writer", "Tagline", "original title"));
 
         MATCHES_DATA_PER_SITE.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", ISO_8859_1, "R&#xE9;alis&#xE9; par|R&#xE9;alisateur", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Aspect Ratio", "Pays",
                 "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes|Sc&#xE9;naristes", "Taglines", "original title"));
@@ -88,7 +88,7 @@ public class ImdbInfo {
 
         // TODO: Leaving this as labs.imdb.com for the time being, but will be updated to www.imdb.com
         MATCHES_DATA_PER_SITE.put("us2", new ImdbSiteDataDefinition("http://labs.imdb.com/", UTF_8, "Directed by|Director|Directors", "Cast", "Release Date", "Runtime", "Aspect Ratio", "Country",
-                "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writer|Writers|Writing credits", "Taglines", "original title"));
+                "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writing Credits|Writer", "Taglines", "original title"));
 
         // Not 100% sure these are correct
         MATCHES_DATA_PER_SITE.put("fr2", new ImdbSiteDataDefinition("http://www.imdb.fr/", ISO_8859_1, "R&#xE9;alis&#xE9; par|R&#xE9;alisateur", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Aspect Ratio", "Pays",

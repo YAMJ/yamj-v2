@@ -109,7 +109,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private static final String HTML_A_START = "<a ";
     private static final String HTML_SLASH_PIPE = "\\|";
     private static final String HTML_SLASH_QUOTE = "/\"";
-    private static final String HTML_SLASH_GT = "\">";
+    private static final String HTML_QUOTE_GT = "\">";
     private static final String HTML_NAME = "name/";
     private static final String HTML_TABLE = "</table>";
     private static final String HTML_TD = "</td>";
@@ -119,6 +119,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private static final String HTML_TITLE = "title/";
     private static final String HTML_END = "<end>";
     private static final String HTML_BREAK = "<br/>";
+    private static final String HTML_SPAN_END = "</span>";
+    private static final String HTML_GT = ">";
     // Patterns for the name searching
     private static final String namePatternString = "(?:.*?)/name/(nm\\d+)/(?:.*?)'name'>(.*?)</a>(?:.*?)";
     private static final String charPatternString = "(?:.*?)/character/(ch\\d+)/(?:.*?)>(.*?)</a>(?:.*)";
@@ -868,7 +870,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 releaseInfoXML = webBrowser.request(getImdbUrl(movie, siteDef) + "releaseinfo", siteDef.getCharset());
             }
 
-            String releaseDate = HTMLTools.stripTags(HTMLTools.extractTag(releaseInfoXML, HTML_SLASH_GT + preferredCountry, "</a></td>")).trim();
+            String releaseDate = HTMLTools.stripTags(HTMLTools.extractTag(releaseInfoXML, HTML_QUOTE_GT + preferredCountry, "</a></td>")).trim();
 
             // Check to see if there's a 4 digit year in the release date and terminate at that point
             Matcher m = Pattern.compile(".*?\\d{4}+").matcher(releaseDate);
@@ -1048,18 +1050,17 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // flag to indicate if match has been found
         boolean found = Boolean.FALSE;
 
-        for (String actorBlock : HTMLTools.extractTags(fullcreditsXML, "<table class=\"cast\">", HTML_TABLE, "<td class=\"hs\"", "</tr>")) {
-
+        for (String actorBlock : HTMLTools.extractTags(fullcreditsXML, "<table class=\"cast_list\">", HTML_TABLE, "<td class=\"primary_photo\"", "</tr>")) {
             // skip faceless persons
             if (skipFaceless && actorBlock.indexOf("no_photo.png") > -1) {
                 continue;
             }
 
-            int nmPosition = actorBlock.indexOf(">", actorBlock.indexOf("<td class=\"nm\"")) + 1;
+            int nmPosition = actorBlock.indexOf("/nm");
+            String personID = actorBlock.substring(nmPosition + 1, actorBlock.indexOf("/", nmPosition + 1));
 
-            String personID = actorBlock.substring(actorBlock.indexOf("\"/name/", nmPosition) + 7, actorBlock.indexOf(HTML_SLASH_QUOTE, nmPosition));
-            String name = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "<td class=\"nm\">", HTML_TD));
-            String character = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "<td class=\"char\">", HTML_TD));
+            String name = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "itemprop=\"name\">", HTML_SPAN_END));
+            String character = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "<td class=\"character\">", HTML_TD));
 
             if (overrideNormal) {
                 // clear cast if not already done
@@ -1173,13 +1174,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         boolean found = Boolean.FALSE;
 
         for (String directorMatch : siteDef.getDirector().split(HTML_SLASH_PIPE)) {
-            if (fullcreditsXML.indexOf(">" + directorMatch + HTML_A_END) >= 0) {
-                for (String member : HTMLTools.extractTags(fullcreditsXML, ">" + directorMatch + HTML_A_END, HTML_TABLE, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
+            if (fullcreditsXML.indexOf(HTML_GT + directorMatch + "&nbsp;</h4>") >= 0) {
+                for (String member : HTMLTools.extractTags(fullcreditsXML, HTML_GT + directorMatch + "&nbsp;</h4>", HTML_TABLE, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
                     int beginIndex = member.indexOf("href=\"/name/");
                     if (beginIndex > -1) {
-                        String personID = member.substring(beginIndex + 12, member.indexOf(HTML_SLASH_QUOTE, beginIndex));
-                        String director = member.substring(member.indexOf(HTML_SLASH_GT, beginIndex) + 2);
-
+                        String personID = member.substring(beginIndex + 12, member.indexOf("/", beginIndex + 12));
+                        String director = member.substring(member.indexOf(HTML_GT, beginIndex) + 1).trim();
                         if (overrideNormal) {
                             // clear directors if not already done
                             if (clearDirectors) {
@@ -1235,7 +1235,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 int beginIndex = member.indexOf("<a href=\"/name/");
                 if (beginIndex > -1) {
                     String personID = member.substring(beginIndex + 15, member.indexOf(HTML_SLASH_QUOTE, beginIndex));
-                    String director = member.substring(member.indexOf(HTML_SLASH_GT, beginIndex) + 2);
+                    String director = member.substring(member.indexOf(HTML_QUOTE_GT, beginIndex) + 2);
 
                     if (overrideNormal) {
                         // clear directors if not already done
@@ -1282,13 +1282,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // flag to indicate if match has been found
         boolean found = Boolean.FALSE;
 
-        for (String categoryMatch : siteDef.getWriter().split(HTML_SLASH_PIPE)) {
-            if (fullcreditsXML.indexOf(">" + categoryMatch + HTML_A_END) >= 0) {
-                for (String member : HTMLTools.extractTags(fullcreditsXML, ">" + categoryMatch + HTML_A_END, HTML_TABLE, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
+        for (String writerMatch : siteDef.getWriter().split(HTML_SLASH_PIPE)) {
+            if (fullcreditsXML.indexOf(HTML_GT + writerMatch) >= 0) {
+                for (String member : HTMLTools.extractTags(fullcreditsXML, HTML_GT + writerMatch, HTML_TABLE, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
                     int beginIndex = member.indexOf("href=\"/name/");
                     if (beginIndex > -1) {
-                        String personID = member.substring(beginIndex + 12, member.indexOf(HTML_SLASH_QUOTE, beginIndex));
-                        String name = member.substring(member.indexOf(HTML_SLASH_GT, beginIndex) + 2);
+                        String personID = member.substring(beginIndex + 12, member.indexOf("/", beginIndex + 12));
+                        String name = member.substring(member.indexOf(HTML_GT, beginIndex) + 2);
                         if (name.indexOf("more credit") == -1) {
 
                             if (overrideNormal) {
@@ -1343,7 +1343,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 int beginIndex = member.indexOf("<a href=\"/name/");
                 if (beginIndex > -1) {
                     String personID = member.substring(beginIndex + 15, member.indexOf(HTML_SLASH_QUOTE, beginIndex));
-                    String name = member.substring(member.indexOf(HTML_SLASH_GT, beginIndex) + 2);
+                    String name = member.substring(member.indexOf(HTML_QUOTE_GT, beginIndex) + 2);
                     if (overrideNormal) {
                         // clear writers if not already done
                         if (clearWriters) {
@@ -1411,7 +1411,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         int year = yearStr.equals("????") ? -1 : Integer.parseInt(yearStr);
                         int won = 0;
                         int nominated = 0;
-                        tmpString = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("/" + (yearStr.equals("????") ? "0000" : yearStr) + HTML_SLASH_GT + yearStr)), "<td rowspan=\"", "</b></td>");
+                        tmpString = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("/" + (yearStr.equals("????") ? "0000" : yearStr) + HTML_QUOTE_GT + yearStr)), "<td rowspan=\"", "</b></td>");
                         int count = Integer.parseInt(tmpString.substring(0, tmpString.indexOf('\"')));
                         String title = tmpString.substring(tmpString.indexOf("<b>") + 3);
                         String awardPattern = " align=\"center\" valign=\"middle\">";
@@ -1962,7 +1962,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             beginIndex = xmlInfo.indexOf("birth_place=", beginIndex);
             String place;
             if (beginIndex > -1) {
-                place = xmlInfo.substring(xmlInfo.indexOf(HTML_SLASH_GT, beginIndex) + 2, xmlInfo.indexOf(HTML_A_END, beginIndex));
+                place = xmlInfo.substring(xmlInfo.indexOf(HTML_QUOTE_GT, beginIndex) + 2, xmlInfo.indexOf(HTML_A_END, beginIndex));
                 if (isValidString(place)) {
                     person.setBirthPlace(place);
                 }
@@ -2123,7 +2123,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     String character = Movie.UNKNOWN;
                     if (beginIndex > -1) {
                         character = HTMLTools.extractTag(movieXML.substring(beginIndex), "<a href=\"/name/" + person.getId(), "</td></tr>");
-                        character = character.substring(character.lastIndexOf(HTML_SLASH_GT) + 2).replace(HTML_A_END, "").replace("\"", "'").replaceAll("^\\s+", "");
+                        character = character.substring(character.lastIndexOf(HTML_QUOTE_GT) + 2).replace(HTML_A_END, "").replace("\"", "'").replaceAll("^\\s+", "");
                     }
                     if (isValidString(character)) {
                         film.setCharacter(character);
