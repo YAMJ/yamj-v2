@@ -181,7 +181,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private File file;
     private File containerFile;
     // Set information
-    private boolean isSetMaster = Boolean.FALSE;    // True if movie actually is only a entry point to movies set.
+    private boolean setMaster = Boolean.FALSE;    // True if movie actually is only a entry point to movies set.
     private int setSize = 0;                        // Amount of movies in set
     private MovieDatabasePlugin movieScanner = null;
     private boolean skipped = Boolean.FALSE;
@@ -274,7 +274,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void addSet(String set, Integer order) {
         if (StringTools.isValidString(set)) {
             setDirty(DirtyFlag.INFO);
-            LOG.debug("Set added: " + set + ", order: " + order);
+            LOG.debug("Set added: " + set + (order == null ? ", unordered" : ", order: " + order));
             sets.put(set, order);
         }
     }
@@ -810,7 +810,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
          * This could be changed later to allow multi season movie objects. Do
          * not return a value for the set master.
          */
-        if (movieFiles.size() > 0 && !isSetMaster) {
+        if (movieFiles.size() > 0 && !setMaster) {
             return getFirstFile().getSeason();
         } else {
             // Strictly speaking this isn't "-1" its a non-existent season.
@@ -2219,11 +2219,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     @XmlAttribute(name = "isSet")
     @Override
     public boolean isSetMaster() {
-        return isSetMaster;
+        return setMaster;
     }
 
-    public void setSetMaster(boolean isSetMaster) {
-        this.isSetMaster = isSetMaster;
+    public void setSetMaster(boolean setMaster) {
+        this.setMaster = setMaster;
     }
 
     @XmlAttribute(name = "setSize")
@@ -2835,7 +2835,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.last = aMovie.last;
         newMovie.file = aMovie.file;
         newMovie.containerFile = aMovie.containerFile;
-        newMovie.isSetMaster = aMovie.isSetMaster;
+        newMovie.setMaster = aMovie.setMaster;
         newMovie.setSize = aMovie.setSize;
 
         newMovie.idMap = new HashMap<String, String>(aMovie.idMap);
