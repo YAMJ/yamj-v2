@@ -31,8 +31,11 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
+import com.omertron.themoviedbapi.model.Collection;
+import com.omertron.themoviedbapi.model.CollectionInfo;
 import com.omertron.themoviedbapi.model.Genre;
 import com.omertron.themoviedbapi.model.Language;
 import com.omertron.themoviedbapi.model.MovieDb;
@@ -72,6 +75,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public static final boolean INCLUDE_ADULT = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", Boolean.FALSE);
     public static final int SEARCH_MATCH = PropertiesUtil.getIntProperty("themoviedb.searchMatch", 3);
     private static final String LANGUAGE_DELIMITER = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
+    private static final boolean AUTO_COLLECTION = PropertiesUtil.getBooleanProperty("themoviedb.collection", Boolean.FALSE);
+    public static final String CACHE_COLLECTION = "Collection";
     private int preferredBiographyLength;
     private int preferredFilmographyMax;
 
@@ -294,7 +299,23 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             if (StringTools.isNotValidString(movie.getId(IMDB_PLUGIN_ID))) {
                 movie.setId(IMDB_PLUGIN_ID, moviedb.getImdbID());
             }
+
+            // Create the auto sets
+            if (AUTO_COLLECTION) {
+                Collection coll = moviedb.getBelongsToCollection();
+                if (coll != null) {
+                    LOG.debug(LOG_MESSAGE + movie.getTitle() + " belongs to a collection: '" + coll.getName() + "'");
+                    CollectionInfo collInfo = getCollectionInfo(coll.getId(), languageCode);
+                    if (collInfo != null) {
+                        movie.addSet(collInfo.getName());
+                        movie.setId(CACHE_COLLECTION, coll.getId());
+                    } else {
+                        LOG.debug(LOG_MESSAGE + "Failed to get collection information!");
+                    }
+                }
+            }
         }
+
         if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
             movie.setFanartURL(getFanartURL(movie));
             if (StringTools.isValidString(movie.getFanartURL())) {
@@ -520,7 +541,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
                 person.setBiography(StringUtils.abbreviate(tmdbPerson.getBiography(), preferredBiographyLength));
                 person.setId(IMDB_PLUGIN_ID, tmdbPerson.getImdbId());
-                person.setUrl("http://www.themoviedb.org/person/"+tmdbId);
+                person.setUrl("http://www.themoviedb.org/person/" + tmdbId);
 
                 List<String> akas = tmdbPerson.getAka();
                 if (akas != null && !akas.isEmpty()) {
@@ -556,7 +577,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 for (PersonCredit credit : results.getResults()) {
                     if (count++ > preferredFilmographyMax) {
                         // We have enough films
-                        LOG.trace(LOG_MESSAGE + "Reached limit of " + preferredFilmographyMax + " films for " + person.getName()+". Total found: " + results.getTotalResults());
+                        LOG.trace(LOG_MESSAGE + "Reached limit of " + preferredFilmographyMax + " films for " + person.getName() + ". Total found: " + results.getTotalResults());
                         break;
                     }
 
@@ -652,5 +673,76 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             LOG.warn("Failed to get information on '" + name + "', error: " + ex.getMessage(), ex);
         }
         return tmdbId;
+    }
+
+    /**
+     * Get the Collection information from the cache or online
+     *
+     * @param collectionId
+     * @return
+     */
+    public CollectionInfo getCollectionInfo(int collectionId) {
+        return getCollectionInfo(collectionId, languageCode);
+    }
+
+    /**
+     * Get the Collection information from the cache or online
+     *
+     * @param collectionId
+     * @param languageCode
+     * @return
+     */
+    public CollectionInfo getCollectionInfo(int collectionId, String languageCode) {
+        String cacheKey = CacheMemory.generateCacheKey(CACHE_COLLECTION, Integer.toString(collectionId));
+        CollectionInfo collInfo = (CollectionInfo) CacheMemory.getFromCache(cacheKey);
+
+        if (collInfo == null) {
+            // Not found in cache, so look online
+            ThreadExecutor.enterIO(webhost);
+            try {
+                collInfo = TMDb.getCollectionInfo(collectionId, languageCode);
+                if (collInfo != null) {
+                    URL newUrl;
+                    if (collInfo.getPosterPath() != null) {
+                        newUrl = TMDb.createImageUrl(collInfo.getPosterPath(), "original");
+                        collInfo.setPosterPath(newUrl.toString());
+                    }
+
+                    if (collInfo.getBackdropPath() != null) {
+                        newUrl = TMDb.createImageUrl(collInfo.getBackdropPath(), "original");
+                        collInfo.setBackdropPath(newUrl.toString());
+                    }
+
+                    // Add to the cache
+                    CacheMemory.addToCache(cacheKey, collInfo);
+                }
+            } catch (Exception error) {
+                LOG.warn(LOG_MESSAGE + "Error getting CollectionInfo: " + error.getMessage());
+            } finally {
+                ThreadExecutor.leaveIO();
+            }
+        }
+
+        return collInfo;
+    }
+
+    /**
+     * Get a cache key for the collection
+     *
+     * @param collectionId
+     * @return
+     */
+    public static String getCacheKey(int collectionId) {
+        return getCacheKey(Integer.toString(collectionId));
+    }
+
+    /**
+     * Get a cache key for the collection
+     *
+     * @param collectionId
+     * @return
+     */
+    public static String getCacheKey(String collectionId) {
+        return CacheMemory.generateCacheKey(CACHE_COLLECTION, collectionId);
     }
 }

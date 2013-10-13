@@ -39,6 +39,7 @@ import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.writer.CompleteMoviesWriter;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
+import com.omertron.themoviedbapi.model.CollectionInfo;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -50,6 +51,7 @@ import java.util.regex.PatternSyntaxException;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.stream.XMLStreamException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -1327,6 +1329,8 @@ public class MovieJukebox {
 
             // Multi-thread: Parallel Executor
             tasks.restart();
+            final boolean autoCollection = PropertiesUtil.getBooleanProperty("themoviedb.collection", Boolean.FALSE);
+            final TheMovieDbPlugin tmdb = new TheMovieDbPlugin();
 
             for (final Movie movie : indexMasters) {
                 // Multi-tread: Start Parallel Processing
@@ -1350,7 +1354,25 @@ public class MovieJukebox {
                         movie.setPosterFilename(safeSetMasterBaseName + "." + posterExtension);
                         if (isNotValidString(PosterScanner.scan(jukebox, movie))) {
                             LOG.debug("Local set poster (" + safeSetMasterBaseName + ") not found.");
-                            movie.setPosterFilename(oldArtworkFilename);
+
+                            String collectionId = movie.getId(TheMovieDbPlugin.CACHE_COLLECTION);
+                            if (autoCollection && StringTools.isValidString(collectionId)) {
+                                LOG.debug("MovieDb Collection detected with ID " + collectionId);
+                                CollectionInfo ci = tmdb.getCollectionInfo(Integer.parseInt(collectionId));
+                                if (ci != null) {
+                                    if (ci.getPosterPath() != null) {
+                                        movie.setPosterURL(ci.getPosterPath());
+                                    }
+
+                                    if (ci.getBackdropPath() != null) {
+                                        movie.setFanartURL(ci.getBackdropPath());
+                                    }
+
+                                    updateMoviePoster(jukebox, movie);
+                                }
+                            } else {
+                                movie.setPosterFilename(oldArtworkFilename);
+                            }
                         }
 
                         // If this is a TV Show and we want to download banners, then also check for a banner Set file
@@ -2061,8 +2083,9 @@ public class MovieJukebox {
     public void updateMoviePoster(Jukebox jukebox, Movie movie) {
         String posterFilename = movie.getPosterFilename();
         String skinHome = SkinProperties.getSkinHome();
-        File posterFile = new File(jukebox.getJukeboxRootLocationDetails() + File.separator + posterFilename);
-        File tmpDestFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + posterFilename);
+        File dummyFile = FileUtils.getFile(skinHome, "resources", DUMMY_JPG);
+        File posterFile = new File(FilenameUtils.concat(jukebox.getJukeboxRootLocationDetails(), posterFilename));
+        File tmpDestFile = new File(FilenameUtils.concat(jukebox.getJukeboxTempLocationDetails(), posterFilename));
 
         FileTools.makeDirectories(posterFile);
         FileTools.makeDirectories(tmpDestFile);
@@ -2078,7 +2101,7 @@ public class MovieJukebox {
 
             if (!isValidString(movie.getPosterURL())) {
                 LOG.debug("Dummy image used for " + movie.getBaseName());
-                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + DUMMY_JPG), tmpDestFile);
+                FileTools.copyFile(dummyFile, tmpDestFile);
             } else {
                 try {
                     // Issue 201 : we now download to local temp dir
@@ -2087,7 +2110,7 @@ public class MovieJukebox {
                     LOG.debug("Downloaded poster for " + movie.getBaseName());
                 } catch (IOException error) {
                     LOG.debug("Failed downloading movie poster: " + movie.getPosterURL() + ERROR_TEXT + error.getMessage());
-                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + DUMMY_JPG), tmpDestFile);
+                    FileTools.copyFile(dummyFile, tmpDestFile);
                 }
             }
         }
