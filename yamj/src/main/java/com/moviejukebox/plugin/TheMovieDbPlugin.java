@@ -300,8 +300,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 movie.setId(IMDB_PLUGIN_ID, moviedb.getImdbID());
             }
 
-            // Create the auto sets
-            if (AUTO_COLLECTION) {
+            // Create the auto sets for movies and not extras
+            if (AUTO_COLLECTION && !movie.isExtra()) {
                 Collection coll = moviedb.getBelongsToCollection();
                 if (coll != null) {
                     LOG.debug(LOG_MESSAGE + movie.getTitle() + " belongs to a collection: '" + coll.getName() + "'");

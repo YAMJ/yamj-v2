@@ -92,7 +92,7 @@ public class SearchEngineToolsTest {
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
             LOG.info("Testing " + engine);
-            String url = search.searchMovieURL("Two and a Half Men", "2005", "www.filmdelta.se/filmer", "sasong_3");
+            String url = search.searchMovieURL("Two and a Half Men", "2003", "www.filmdelta.se/filmer", "sasong_3");
             assertEquals("Search engine '" + engine + "' failed", "http://www.filmdelta.se/filmer/148233/two_and_a_half_men-sasong_3/", url);
         }
     }
@@ -115,7 +115,7 @@ public class SearchEngineToolsTest {
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
             LOG.info("Testing " + engine);
-            String url = search.searchMovieURL("Two and a Half Men", "2005", "www.allocine.fr/series");
+            String url = search.searchMovieURL("Two and a Half Men", "2003", "www.allocine.fr/series");
             assertTrue("Search engine '" + engine + "' failed: " + url, url.startsWith("http://www.allocine.fr/series/ficheserie_gen_cserie=132.html"));
         }
     }
