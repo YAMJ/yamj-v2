@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -44,7 +46,7 @@ import org.xml.sax.SAXException;
 
 public class YouTubeTrailersPlugin extends TrailerPlugin {
 
-    private static final Logger logger = Logger.getLogger(YouTubeTrailersPlugin.class);
+    private static final Logger LOG = Logger.getLogger(YouTubeTrailersPlugin.class);
     private static final String TRAILER_TITLE = "TRAILER-";
     private static final String TEXT_FAILED = "Failed to trailer information for ";
     // API Key
@@ -71,7 +73,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
     @Override
     public final boolean generate(Movie movie) {
         if (movie.isTVShow()) {
-            logger.debug(LOG_MESSAGE + movie.getBaseName() + " is a TV Show, skipping trailer search");
+            LOG.debug(LOG_MESSAGE + movie.getBaseName() + " is a TV Show, skipping trailer search");
             return Boolean.FALSE;
         }
 
@@ -83,7 +85,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         if (ytTrailers.isEmpty()) {
             sb.append("No trailers found for ");
             sb.append(movie.getBaseName());
-            logger.debug(sb.toString());
+            LOG.debug(sb.toString());
             return Boolean.FALSE;
         } else {
             sb.append("Found ");
@@ -97,7 +99,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
             } else {
                 sb.append(" saving them all to the movie");
             }
-            logger.debug(sb.toString());
+            LOG.debug(sb.toString());
         }
 
         for (YouTubeTrailer ytTrailer : ytTrailers) {
@@ -110,7 +112,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
             sb.append(ytTrailer.url);
             sb.append(" to ");
             sb.append(movie.getBaseName());
-            logger.debug(sb.toString());
+            LOG.debug(sb.toString());
         }
         movie.setTrailerExchange(Boolean.TRUE);
         return Boolean.TRUE;
@@ -148,7 +150,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         try {
             webPage = webBrowser.request(searchUrl);
         } catch (IOException ex) {
-            logger.warn(LOG_MESSAGE + "Failed to retrieve webpage. Error: " + ex.getMessage());
+            LOG.warn(LOG_MESSAGE + "Failed to retrieve webpage. Error: " + ex.getMessage());
             return trailers;
         }
 
@@ -157,20 +159,20 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         try {
             doc = DOMHelper.getDocFromString(webPage);
         } catch (MalformedURLException error) {
-            logger.error(LOG_MESSAGE + TEXT_FAILED + movie.getBaseName());
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + TEXT_FAILED + movie.getBaseName());
+            LOG.error(SystemTools.getStackTrace(error));
             return trailers;
         } catch (IOException error) {
-            logger.error(LOG_MESSAGE + TEXT_FAILED + movie.getBaseName());
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + TEXT_FAILED + movie.getBaseName());
+            LOG.error(SystemTools.getStackTrace(error));
             return trailers;
         } catch (ParserConfigurationException error) {
-            logger.error(LOG_MESSAGE + TEXT_FAILED + movie.getBaseName());
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + TEXT_FAILED + movie.getBaseName());
+            LOG.error(SystemTools.getStackTrace(error));
             return trailers;
         } catch (SAXException error) {
-            logger.error(LOG_MESSAGE + TEXT_FAILED + movie.getBaseName());
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + TEXT_FAILED + movie.getBaseName());
+            LOG.error(SystemTools.getStackTrace(error));
             return trailers;
         }
 
@@ -199,7 +201,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         try {
             stringUrl.append(URLEncoder.encode(title, "UTF-8"));
         } catch (UnsupportedEncodingException ex) {
-            logger.warn(LOG_MESSAGE + "Failed to encode movie title: " + title + " - " + ex.getMessage());
+            LOG.warn(LOG_MESSAGE + "Failed to encode movie title: " + title + " - " + ex.getMessage());
             // Something went wrong with the encoding, try the default string
             stringUrl.append(title);
         }
@@ -214,7 +216,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         stringUrl.append(TRAILER_VERSION);
         stringUrl.append(TRAILER_KEY).append(API_KEY);
 
-        logger.info(LOG_MESSAGE + "Trailer Search URL: " + stringUrl.toString());
+        LOG.debug(LOG_MESSAGE + "Trailer Search URL: " + stringUrl.toString());
         return stringUrl.toString();
     }
 
@@ -241,7 +243,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
 
         @Override
         public String toString() {
-            return "YouTubeTrailer{" + "url=" + url + ", title=" + title + '}';
+            return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
         }
     }
 }
