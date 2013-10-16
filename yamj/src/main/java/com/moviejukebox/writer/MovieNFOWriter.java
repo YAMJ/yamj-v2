@@ -36,7 +36,7 @@ import org.w3c.dom.Element;
  *
  * @author stuart.boston
  */
-final public class MovieNFOWriter {
+public final class MovieNFOWriter {
 
     private static final Logger LOG = Logger.getLogger(MovieNFOWriter.class);
     private static final String LOG_MESSAGE = "MovieNFOWriter: ";

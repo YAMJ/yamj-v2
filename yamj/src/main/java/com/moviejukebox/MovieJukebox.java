@@ -39,7 +39,6 @@ import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.writer.CompleteMoviesWriter;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
-import com.omertron.themoviedbapi.model.CollectionInfo;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
