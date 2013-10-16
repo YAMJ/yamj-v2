@@ -1356,20 +1356,13 @@ public class MovieJukebox {
                             LOG.debug("Local set poster (" + safeSetMasterBaseName + ") not found.");
 
                             String collectionId = movie.getId(TheMovieDbPlugin.CACHE_COLLECTION);
-                            if (autoCollection && StringTools.isValidString(collectionId)) {
+                            if (autoCollection && StringUtils.isNumeric(collectionId)) {
                                 LOG.debug("MovieDb Collection detected with ID " + collectionId);
-                                CollectionInfo ci = tmdb.getCollectionInfo(Integer.parseInt(collectionId));
-                                if (ci != null) {
-                                    if (ci.getPosterPath() != null) {
-                                        movie.setPosterURL(ci.getPosterPath());
-                                    }
 
-                                    if (ci.getBackdropPath() != null) {
-                                        movie.setFanartURL(ci.getBackdropPath());
-                                    }
+                                movie.setPosterURL(tmdb.getCollectionPoster(Integer.parseInt(collectionId)));
+                                movie.setFanartURL(tmdb.getCollectionFanart(Integer.parseInt(collectionId)));
 
-                                    updateMoviePoster(jukebox, movie);
-                                }
+                                updateMoviePoster(jukebox, movie);
                             } else {
                                 movie.setPosterFilename(oldArtworkFilename);
                             }

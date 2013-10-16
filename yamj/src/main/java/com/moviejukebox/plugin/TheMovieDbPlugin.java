@@ -34,6 +34,7 @@ import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
+import com.omertron.themoviedbapi.model.Artwork;
 import com.omertron.themoviedbapi.model.Collection;
 import com.omertron.themoviedbapi.model.CollectionInfo;
 import com.omertron.themoviedbapi.model.Genre;
@@ -77,6 +78,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private static final String LANGUAGE_DELIMITER = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     private static final boolean AUTO_COLLECTION = PropertiesUtil.getBooleanProperty("themoviedb.collection", Boolean.FALSE);
     public static final String CACHE_COLLECTION = "Collection";
+    public static final String CACHE_COLLECTION_IMAGES = "CollectionImages";
     private int preferredBiographyLength;
     private int preferredFilmographyMax;
 
@@ -94,24 +96,48 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // Set the timeouts
         TMDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
 
-        languageCode = PropertiesUtil.getProperty("themoviedb.language", "en");
-        countryCode = PropertiesUtil.getProperty("themoviedb.country", "");     // Don't default this as we might get it from the language (old setting)
-
-        if (languageCode.length() > 2) {
-            if (StringUtils.isBlank(countryCode)) {
-                // Guess that the last 2 characters of the language code is the country code.
-                countryCode = languageCode.substring(languageCode.length() - 2).toUpperCase();
-            }
-            languageCode = languageCode.substring(0, 2).toLowerCase();
-        }
-        LOG.debug(LOG_MESSAGE + "Using `" + languageCode + "` as the language code");
-        LOG.debug(LOG_MESSAGE + "Using `" + countryCode + "` as the country code");
+        decodeLanguage();
 
         downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", Boolean.FALSE);
         fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
 
         preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", 500);
         preferredFilmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", 20);
+    }
+
+    /**
+     * Decode the language code property into language and country
+     */
+    private void decodeLanguage() {
+        String language = PropertiesUtil.getProperty("themoviedb.language", "en");
+        String country = PropertiesUtil.getProperty("themoviedb.country", "");     // Don't default this as we might get it from the language (old setting)
+
+        if (language.length() > 2) {
+            if (StringUtils.isBlank(country)) {
+                // Guess that the last 2 characters of the language code is the country code.
+                country = language.substring(language.length() - 2).toUpperCase();
+            }
+            language = language.substring(0, 2).toLowerCase();
+        }
+
+        // Default the country to US
+        if (StringUtils.isBlank(country)) {
+            country = "US";
+        }
+
+        setLanguageCode(language);
+        setCountryCode(country);
+
+        LOG.debug(LOG_MESSAGE + "Using '" + language + "' as the language code");
+        LOG.debug(LOG_MESSAGE + "Using '" + country + "' as the country code");
+    }
+
+    public void setLanguageCode(String languageCode) {
+        this.languageCode = languageCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
     }
 
     @Override
@@ -134,31 +160,32 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             // First look to see if we have a TMDb ID as this will make looking the film up easier
             if (StringTools.isValidString(tmdbID)) {
                 // Search based on TMdb ID
-                LOG.debug(LOG_MESSAGE + "Using TMDb ID (" + tmdbID + ") for " + movie.getBaseFilename());
+                LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Using TMDb ID (" + tmdbID + ") for " + movie.getBaseName());
                 try {
                     moviedb = TMDb.getMovieInfo(Integer.parseInt(tmdbID), languageCode);
                 } catch (MovieDbException ex) {
-                    LOG.debug(LOG_MESSAGE + "Failed to get movie info using TMDB ID: " + tmdbID + " - " + ex.getMessage());
+                    LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Failed to get movie info using TMDB ID: " + tmdbID + " - " + ex.getMessage());
                     moviedb = null;
                 }
             }
 
             if (moviedb == null && StringTools.isValidString(imdbID)) {
                 // Search based on IMDb ID
-                LOG.debug(LOG_MESSAGE + "Using IMDb ID (" + imdbID + ") for " + movie.getBaseFilename());
+                LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Using IMDb ID (" + imdbID + ") for " + movie.getBaseName());
                 try {
                     moviedb = TMDb.getMovieInfoImdb(imdbID, languageCode);
                     tmdbID = String.valueOf(moviedb.getId());
                     if (StringTools.isNotValidString(tmdbID)) {
-                        LOG.debug(LOG_MESSAGE + "No TMDb ID found for movie!");
+                        LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": No TMDb ID found for movie!");
                     }
                 } catch (MovieDbException ex) {
-                    LOG.debug(LOG_MESSAGE + "Failed to get movie info using IMDB ID: " + imdbID + " - " + ex.getMessage());
+                    LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Failed to get movie info using IMDB ID: " + imdbID + " - " + ex.getMessage());
                     moviedb = null;
                 }
             }
 
             if (moviedb == null) {
+                LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": No IDs provided for movie, search using title & year");
                 try {
                     // Search using movie name
                     int movieYear = 0;
@@ -166,8 +193,10 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                         movieYear = Integer.parseInt(movie.getYear());
                     }
 
+                    LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Using '" + movie.getTitle() + "' & '" + movieYear + "' to locate movie information");
                     TmdbResultsList<MovieDb> result = TMDb.searchMovie(movie.getTitle(), movieYear, languageCode, INCLUDE_ADULT, 0);
                     movieList = result.getResults();
+                    LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Found " + result.getResults().size() + " potential matches");
 
                     // Iterate over the list until we find a match
                     for (MovieDb m : movieList) {
@@ -510,7 +539,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
     @Override
     public void scanTVShowTitles(Movie movie) {
-        // TheMovieDB.org does not have any TV Shows, so just return
+        // TheMovieDB.org does not have any TV Shows (yet), so just return
     }
 
     /**
@@ -693,7 +722,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * @return
      */
     public CollectionInfo getCollectionInfo(int collectionId, String languageCode) {
-        String cacheKey = CacheMemory.generateCacheKey(CACHE_COLLECTION, Integer.toString(collectionId));
+        String cacheKey = getCollectionCacheKey(collectionId, languageCode);
         CollectionInfo collInfo = (CollectionInfo) CacheMemory.getFromCache(cacheKey);
 
         if (collInfo == null) {
@@ -703,11 +732,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 collInfo = TMDb.getCollectionInfo(collectionId, languageCode);
                 if (collInfo != null) {
                     URL newUrl;
+
+                    // Update the URL to be the full URL
                     if (collInfo.getPosterPath() != null) {
                         newUrl = TMDb.createImageUrl(collInfo.getPosterPath(), "original");
                         collInfo.setPosterPath(newUrl.toString());
                     }
 
+                    // Update the URL to be the full URL
                     if (collInfo.getBackdropPath() != null) {
                         newUrl = TMDb.createImageUrl(collInfo.getBackdropPath(), "original");
                         collInfo.setBackdropPath(newUrl.toString());
@@ -727,13 +759,103 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * Get a cache key for the collection
+     * Get the poster for a collection using the default language
      *
      * @param collectionId
      * @return
      */
-    public static String getCacheKey(int collectionId) {
-        return getCacheKey(Integer.toString(collectionId));
+    public String getCollectionPoster(int collectionId) {
+        return getCollectionPoster(collectionId, languageCode);
+    }
+
+    /**
+     * Get the poster for a collection
+     *
+     * @param collectionId
+     * @param languageCode
+     * @return
+     */
+    public String getCollectionPoster(int collectionId, String languageCode) {
+        return getCollectionImage(collectionId, com.omertron.themoviedbapi.model.ArtworkType.POSTER, languageCode);
+    }
+
+    /**
+     * Get the fanart for a collection using the default language
+     *
+     * @param collectionId
+     * @return
+     */
+    public String getCollectionFanart(int collectionId) {
+        return getCollectionFanart(collectionId, languageCode);
+    }
+
+    /**
+     * Get the fanart for a collection
+     *
+     * @param collectionId
+     * @param languageCode
+     * @return
+     */
+    public String getCollectionFanart(int collectionId, String languageCode) {
+        return getCollectionImage(collectionId, com.omertron.themoviedbapi.model.ArtworkType.BACKDROP, languageCode);
+    }
+
+    /**
+     * Generic method to get the artwork for a collection.
+     *
+     * @param collectionId
+     * @param artworkType
+     * @param languageCode
+     * @return
+     */
+    private String getCollectionImage(int collectionId, com.omertron.themoviedbapi.model.ArtworkType artworkType, String languageCode) {
+        String returnUrl = Movie.UNKNOWN;
+        String cacheKey = getCollectionImagesCacheKey(collectionId, languageCode);
+
+        LOG.debug(LOG_MESSAGE + "Getting " + artworkType + " for collection ID " + collectionId + ", language '" + languageCode + "'");
+
+        ArrayList<Artwork> results = (ArrayList<Artwork>) CacheMemory.getFromCache(cacheKey);
+
+        if (results == null) {
+            ThreadExecutor.enterIO(webhost);
+            try {
+                // Pass the language as null so that we get all images returned, even those without a language.
+                TmdbResultsList<Artwork> collResults = TMDb.getCollectionImages(collectionId, null);
+
+                if (collResults != null && collResults.getResults() != null && !collResults.getResults().isEmpty()) {
+                    results = new ArrayList<Artwork>(collResults.getResults());
+                    // Add to the cache
+                    CacheMemory.addToCache(cacheKey, results);
+                } else {
+                    LOG.debug(LOG_MESSAGE + "No results found for " + collectionId + "-" + languageCode);
+                }
+            } catch (Exception error) {
+                LOG.warn(LOG_MESSAGE + "Error getting CollectionImages: " + error.getMessage());
+            } finally {
+                ThreadExecutor.leaveIO();
+            }
+        }
+
+        // Check we got some results
+        if (results != null && !results.isEmpty()) {
+            // Loop over the results looking for the required artwork type
+            for (Artwork artwork : results) {
+                if (artwork.getArtworkType() == artworkType && (StringUtils.isBlank(artwork.getLanguage()) || artwork.getLanguage().equalsIgnoreCase(languageCode))) {
+                    try {
+                        // We have a match, update the URL with the full path
+                        URL url = TMDb.createImageUrl(artwork.getFilePath(), "original");
+                        returnUrl = url.toString();
+
+                        // Stop processing now.
+                        break;
+                    } catch (MovieDbException ex) {
+                        LOG.warn(LOG_MESSAGE + "Failed to get URL for " + artworkType + ", error: " + ex.getMessage(), ex);
+                    }
+                }
+            }
+        }
+
+        return returnUrl;
     }
 
     /**
@@ -742,7 +864,28 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * @param collectionId
      * @return
      */
-    public static String getCacheKey(String collectionId) {
-        return CacheMemory.generateCacheKey(CACHE_COLLECTION, collectionId);
+    public static String getCollectionCacheKey(int collectionId, String languageCode) {
+        return getCacheKey(CACHE_COLLECTION, Integer.toString(collectionId), languageCode);
+    }
+
+    /**
+     * Get a cache key for the collection images
+     *
+     * @param collectionId
+     * @param languageCode
+     * @return
+     */
+    public static String getCollectionImagesCacheKey(int collectionId, String languageCode) {
+        return getCacheKey(CACHE_COLLECTION_IMAGES, Integer.toString(collectionId), languageCode);
+    }
+
+    /**
+     * Get a cache key
+     *
+     * @param collectionId
+     * @return
+     */
+    private static String getCacheKey(String cacheType, String collectionId, String languageCode) {
+        return CacheMemory.generateCacheKey(cacheType, collectionId, languageCode);
     }
 }
