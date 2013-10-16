@@ -343,7 +343,7 @@ public class ImdbInfo {
         }
 
         if (StringTools.isValidString(year)) {
-                sb.append("+").append(PAREN_LEFT).append(year).append(PAREN_RIGHT);
+            sb.append("+").append(PAREN_LEFT).append(year).append(PAREN_RIGHT);
         }
         sb.append("&s=");
         if (objectType.equals(OBJECT_MOVIE)) {
@@ -477,65 +477,9 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb ID using the ImdbAPI.
+     * Get the current site definition
      *
-     * @param movieName
-     * @param year
      * @return
-     */
-    /*
-     private String getImdbIdFromImdbApi(final String movieName, final String year) {
-     String imdbId = Movie.UNKNOWN;
-     Map<String, List<SearchObject>> result = ImdbApi.getSearch(movieName);
-
-     if (result == null || result.isEmpty()) {
-     logger.debug(LOG_MESSAGE + "No results found for " + movieName);
-     return Movie.UNKNOWN;
-     }
-
-     ImdbMovieDetails imdbMovie;
-     for (String searchType : SEARCH_ORDER) {
-     logger.trace(LOG_MESSAGE + "Checking search type: " + searchType + " for " + movieName + "(" + year + ")");
-     imdbMovie = matchSearchObject(result.get(searchType), movieName, year);
-     if (imdbMovie != null) {
-     logger.debug(LOG_MESSAGE + "Match found in " + searchType + ": " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
-     imdbId = imdbMovie.getImdbId();
-     break;
-     }
-     }
-
-     return imdbId;
-     }
-     */
-    /**
-     * Loops around the search results looking for a close match based on year
-     *
-     * @param resultList
-     * @param movieName
-     * @param year
-     * @return
-     */
-    /*
-     private ImdbMovieDetails matchSearchObject(final List<SearchObject> resultList, final String movieName, final String year) {
-     if (resultList == null || (!resultList.isEmpty() && resultList.get(0).getClass() != ImdbMovieDetails.class)) {
-     logger.trace(LOG_MESSAGE + movieName + "(" + year + ") - No results found for this search type");
-     return null;
-     } else {
-     logger.trace(LOG_MESSAGE + movieName + "(" + year + ") - Found " + resultList.size() + " results");
-     }
-
-     for (SearchObject searchResult : resultList) {
-     if (searchResult.getClass() == ImdbMovieDetails.class) {
-     ImdbMovieDetails imdbMovie = (ImdbMovieDetails) searchResult;
-     logger.debug(LOG_MESSAGE + "Checking: " + imdbMovie.getTitle() + " (" + imdbMovie.getYear() + ") = " + imdbMovie.getImdbId());
-     if (year.equals(String.valueOf(imdbMovie.getYear())) || StringTools.isNotValidString(year)) {
-     return (ImdbMovieDetails) searchResult;
-     }
-     }
-     }
-
-     return null;
-     }
      */
     public ImdbSiteDataDefinition getSiteDef() {
         return siteDef;
@@ -551,10 +495,18 @@ public class ImdbInfo {
         return MATCHES_DATA_PER_SITE.get(requiredSiteDef);
     }
 
+    /**
+     * Get the name of the preferred search engine
+     * @return
+     */
     public String getPreferredSearchEngine() {
         return preferredSearchEngine;
     }
 
+    /**
+     * Get the imdb site
+     * @return
+     */
     public String getImdbSite() {
         return imdbSite;
     }

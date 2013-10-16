@@ -125,7 +125,7 @@ public class ImdbInfoTest {
             LOG.info("Testing site '" + site + "'");
             PropertiesUtil.setProperty("imdb.site", site);
             PropertiesUtil.setProperty("imdb.id.search.match", "exact");
-            PropertiesUtil.setProperty("imdb.id.search.variable", false);
+            PropertiesUtil.setProperty("imdb.id.search.variable", true);
             ImdbInfo imdbInfo = new ImdbInfo();
 
             String id = imdbInfo.getImdbId("Avatar", "2009", false);
