@@ -27,7 +27,6 @@ import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import static com.moviejukebox.tools.StringTools.trimToLength;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.NumberFormat;
@@ -45,11 +44,9 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime.DateTime;
-
 import com.moviejukebox.model.Award;
 import com.moviejukebox.model.AwardEvent;
 import com.moviejukebox.model.Filmography;

@@ -33,25 +33,30 @@ public final class SubtitleTools {
     private static final String LOG_MESSAGE = "SubtitleTools: ";
     public static final String SPACE_SLASH_SPACE = " / ";
     private static final String SPLIT_PATTERN = "\\||,|/";
-    private static final String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", SPACE_SLASH_SPACE);
-    private static final boolean subtitleUnique = PropertiesUtil.getBooleanProperty("mjb.subtitle.unique", Boolean.TRUE);
-    private static final List<String> skippedSubtitles = new ArrayList<String>();
     private static final String YES = "YES";
     private static final String NO = "NO";
-
-    static {
-        // process allowed subtitles
-        List<String> types = Arrays.asList(PropertiesUtil.getProperty("mjb.subtitle.skip", "").split(","));
-        for (String type : types) {
-            String determined = MovieFilenameScanner.determineLanguage(type.trim());
-            if (StringTools.isValidString(determined)) {
-                skippedSubtitles.add(determined.toUpperCase());
-            }
-        }
-    }
+    private static final String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", SPACE_SLASH_SPACE);
+    private static final boolean subtitleUnique = PropertiesUtil.getBooleanProperty("mjb.subtitle.unique", Boolean.TRUE);
+    private static final List<String> skippedSubtitles = populateSkippedSubtitles();
 
     private SubtitleTools() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
+    /**
+     * Populate the skipped subtitles from the property
+     *
+     * @return
+     */
+    private static List<String> populateSkippedSubtitles() {
+        List<String> skipped = new ArrayList<String>();
+        for (String type : PropertiesUtil.getProperty("mjb.subtitle.skip", "").split(",")) {
+            String determined = MovieFilenameScanner.determineLanguage(type.trim());
+            if (StringTools.isValidString(determined)) {
+                skipped.add(determined.toUpperCase());
+            }
+        }
+        return skipped;
     }
 
     /**
@@ -95,7 +100,7 @@ public final class SubtitleTools {
      * @param newSubtitle
      * @return new subtitles string
      */
-    public static String addMovieSubtitle(String actualSubtitles, String newSubtitle) {
+    public static String addMovieSubtitle(final String actualSubtitles, final String newSubtitle) {
         // Determine the language
         String infoLanguage = MovieFilenameScanner.determineLanguage(newSubtitle);
 

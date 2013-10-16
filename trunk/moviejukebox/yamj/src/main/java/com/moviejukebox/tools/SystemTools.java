@@ -30,7 +30,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.*;
-import java.util.logging.Level;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 

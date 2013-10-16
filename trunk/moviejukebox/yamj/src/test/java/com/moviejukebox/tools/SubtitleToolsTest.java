@@ -55,6 +55,7 @@ public class SubtitleToolsTest {
 
         // set property for subtitle restriction
         PropertiesUtil.setProperty("mjb.subtitle.skip", "nor,it");
+        PropertiesUtil.setProperty("mjb.subtitle.delimiter", " / ");
     }
 
     @After
@@ -108,6 +109,14 @@ public class SubtitleToolsTest {
         String actualSubtitles = "English / German";
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "German");
         assertEquals("English / German", newSubtitles);
+    }
+
+    @Test
+    public void testStu() {
+        String subs = SubtitleTools.addMovieSubtitle("", "en");
+        subs = SubtitleTools.addMovieSubtitle(subs, "german");
+        subs = SubtitleTools.addMovieSubtitle(subs, "de");
+        assertEquals("English / German", subs);
     }
 
     @Test

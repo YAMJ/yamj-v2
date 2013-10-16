@@ -104,7 +104,7 @@ public class JukeboxStatistics {
      * @param stat
      * @param value
      */
-    public synchronized static void setStatistic(JukeboxStatistic stat, Integer value) {
+    public static synchronized void setStatistic(JukeboxStatistic stat, Integer value) {
         statistics.put(stat, value);
     }
 
@@ -113,7 +113,7 @@ public class JukeboxStatistics {
      *
      * @param stat
      */
-    public synchronized static void increment(JukeboxStatistic stat) {
+    public static synchronized void increment(JukeboxStatistic stat) {
         increment(stat, 1);
     }
 
@@ -123,7 +123,7 @@ public class JukeboxStatistics {
      * @param stat
      * @param amount
      */
-    public synchronized static void increment(JukeboxStatistic stat, Integer amount) {
+    public static synchronized void increment(JukeboxStatistic stat, Integer amount) {
         Integer current = statistics.get(stat);
         statistics.put(stat, current + amount);
     }
@@ -133,7 +133,7 @@ public class JukeboxStatistics {
      *
      * @param stat
      */
-    public synchronized static void decrement(JukeboxStatistic stat) {
+    public static synchronized void decrement(JukeboxStatistic stat) {
         decrement(stat, 1);
     }
 
@@ -143,7 +143,7 @@ public class JukeboxStatistics {
      * @param stat
      * @param amount
      */
-    public synchronized static void decrement(JukeboxStatistic stat, Integer amount) {
+    public static synchronized void decrement(JukeboxStatistic stat, Integer amount) {
         Integer current = statistics.get(stat);
         statistics.put(stat, current - amount);
     }

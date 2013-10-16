@@ -199,8 +199,7 @@ public class AttachmentScanner {
     }
 
     /**
-     * Checks if a file is scanable for attachments. Therefore the file must
-     * exist and the extension must be equal to MKV.
+     * Checks if a file is scanable for attachments. Therefore the file must exist and the extension must be equal to MKV.
      *
      * @param file the file to scan
      * @return true, if file is scanable, else false
@@ -242,8 +241,7 @@ public class AttachmentScanner {
      *
      * @param movie the movie which will be scanned
      * @param xmlFile the xmlFile to use for checking lastModificationDate
-     * @return true, if movieFile is never than xmlFile and attachments have
-     * been found, else false
+     * @return true, if movieFile is never than xmlFile and attachments have been found, else false
      */
     public static boolean rescan(Movie movie, File xmlFile) {
         if (!isActivated) {
@@ -455,7 +453,7 @@ public class AttachmentScanner {
             attachment.setType(AttachmentType.MATROSKA); // one and only type at the moment
             attachment.setAttachmentId(id);
             attachment.setContentType(content.getContentType());
-            attachment.setMimeType(fixedMimeType.toLowerCase());
+            attachment.setMimeType(fixedMimeType == null ? null : fixedMimeType.toLowerCase());
             attachment.setPart(content.getPart());
             LOGGER.debug(LOG_MESSAGE + "Found attachment " + attachment);
         }
@@ -497,15 +495,15 @@ public class AttachmentScanner {
                 check = FilenameUtils.removeExtension(check);
             }
             for (String posterToken : POSTER_TOKENS) {
-	            if (check.endsWith(posterToken) || check.equals(posterToken.substring(1))) {
-	                if (isSetImage) {
-	                    // fileName = <any>.<posterToken>.set.<extension>
-	                    return new AttachmentContent(ContentType.SET_POSTER);
-	                } else {
-	                    // fileName = <any>.<posterToken>.<extension>
-	                    return new AttachmentContent(ContentType.POSTER);
-	                }
-	            }
+                if (check.endsWith(posterToken) || check.equals(posterToken.substring(1))) {
+                    if (isSetImage) {
+                        // fileName = <any>.<posterToken>.set.<extension>
+                        return new AttachmentContent(ContentType.SET_POSTER);
+                    } else {
+                        // fileName = <any>.<posterToken>.<extension>
+                        return new AttachmentContent(ContentType.POSTER);
+                    }
+                }
             }
             if (check.endsWith(FANART_TOKEN) || check.equals(FANART_TOKEN.substring(1))) {
                 if (isSetImage) {
@@ -730,13 +728,10 @@ public class AttachmentScanner {
     /**
      * Find attachments for a movie.
      *
-     * @param movie
-     *            the movie where attachments should be searched for
-     * @param contentType
-     *            the content type to use for searching attachments
-     * @param part
-     *            -1, for all parts (search in attachments of all movie files) 0, just for first part (search in attachments of first movie file) >0, for
-     *            explicit part (search in attachments of movie file <part>)
+     * @param movie the movie where attachments should be searched for
+     * @param contentType the content type to use for searching attachments
+     * @param part -1, for all parts (search in attachments of all movie files) 0, just for first part (search in attachments of
+     * first movie file) >0, for explicit part (search in attachments of movie file <part>)
      * @return
      */
     private static List<Attachment> findAttachments(Movie movie, ContentType contentType, int part) {
@@ -786,8 +781,9 @@ public class AttachmentScanner {
                                 attachments.add(attachment);
                             } else if (attachment.getPart() <= 0) {
                                 // generic attachment
-                                genericAttachments.add(attachment);                            }
-                         }
+                                genericAttachments.add(attachment);
+                            }
+                        }
                     }
 
                     // add generic attachments
@@ -804,15 +800,12 @@ public class AttachmentScanner {
     /**
      * Extract an attachment
      *
-     * @param attachment
-     *            the attachment to extract
-     * @param setImage
-     *            true, if a set image should be extracted; in this case ".set" is append before file extension
-     * @param counter
-     *            a counter (only used for NFOs cause there may be multiple NFOs in one file)
+     * @param attachment the attachment to extract
+     * @param setImage true, if a set image should be extracted; in this case ".set" is append before file extension
+     * @param counter a counter (only used for NFOs cause there may be multiple NFOs in one file)
      * @return
      */
-    private static final File extractAttachment(Attachment attachment) {
+    private static File extractAttachment(Attachment attachment) {
         File sourceFile = attachment.getSourceFile();
         if (sourceFile == null) {
             // source file must exist
@@ -823,7 +816,7 @@ public class AttachmentScanner {
         }
 
         // build return file name
-        StringBuffer returnFileName = new StringBuffer();
+        StringBuilder returnFileName = new StringBuilder();
         returnFileName.append(tempDirectory.getAbsolutePath());
         returnFileName.append(File.separatorChar);
         returnFileName.append(FilenameUtils.removeExtension(sourceFile.getName()));
