@@ -238,14 +238,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 // Get the release information
                 movieReleaseInfo = TMDb.getMovieReleaseInfo(moviedb.getId(), countryCode).getResults();
             } catch (MovieDbException ex) {
-                LOG.debug(LOG_MESSAGE + "Failed to get release information");
+                LOG.debug(LOG_MESSAGE + "Failed to get release information: " + ex.getMessage(), ex);
             }
 
             try {
                 // Get the cast information
                 moviePeople = TMDb.getMovieCasts(moviedb.getId()).getResults();
             } catch (MovieDbException ex) {
-                LOG.debug(LOG_MESSAGE + "Failed to get cast information");
+                LOG.debug(LOG_MESSAGE + "Failed to get cast information: " + ex.getMessage(), ex);
             }
         } finally {
             // the rest is not web search anymore
@@ -282,13 +282,12 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                         newActors.add(person.getName());
                     } else if (person.getPersonType() == PersonType.CREW) {
                         LOG.trace(LOG_MESSAGE + "Adding crew member " + person.toString());
-                        if ("Director".equalsIgnoreCase(person.getJob())) {
+                        if ("Directing".equalsIgnoreCase(person.getDepartment())) {
                             LOG.trace(LOG_MESSAGE + person.getName() + " is a Director");
                             newDirectors.add(person.getName());
-                        } else if ("Author".equalsIgnoreCase(person.getJob())) {
+                        } else if ("Writing".equalsIgnoreCase(person.getDepartment())) {
                             LOG.trace(LOG_MESSAGE + person.getName() + " is a Writer");
                             newWriters.add(person.getName());
-                            continue;
                         } else {
                             LOG.trace(LOG_MESSAGE + "Unknown job  " + person.getJob() + " for " + person.toString());
                         }
