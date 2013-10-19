@@ -31,6 +31,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.CodecSource;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.*;
@@ -53,11 +54,12 @@ import org.xml.sax.SAXParseException;
 
 /**
  * Class to read the NFO files
+ *
  * @author stuart.boston
  */
 public final class MovieNFOReader {
 
-    private static final Logger logger = Logger.getLogger(MovieNFOReader.class);
+    private static final Logger LOG = Logger.getLogger(MovieNFOReader.class);
     private static final String LOG_MESSAGE = "MovieNFOReader: ";
     // Types of nodes
     public static final String TYPE_MOVIE = "movie";
@@ -145,13 +147,13 @@ public final class MovieNFOReader {
 
         // If the XML wasn't found or parsed correctly, then fall back to the old method
         if (parsedNfo) {
-            logger.debug(LOG_MESSAGE + "Successfully scanned " + nfoFile.getName() + " as XML format");
+            LOG.debug(LOG_MESSAGE + "Successfully scanned " + nfoFile.getName() + " as XML format");
         } else {
             parsedNfo = MovieNFOReader.readTextNfo(nfoText, movie);
             if (parsedNfo) {
-                logger.debug(LOG_MESSAGE + "Successfully scanned " + nfoFile.getName() + " as text format");
+                LOG.debug(LOG_MESSAGE + "Successfully scanned " + nfoFile.getName() + " as text format");
             } else {
-                logger.debug(LOG_MESSAGE + "Failed to find any information in " + nfoFile.getName());
+                LOG.debug(LOG_MESSAGE + "Failed to find any information in " + nfoFile.getName());
             }
         }
 
@@ -204,7 +206,7 @@ public final class MovieNFOReader {
     public static boolean readTextNfo(String nfo, Movie movie) {
         boolean foundInfo = DatabasePluginController.scanNFO(nfo, movie);
 
-        logger.debug(LOG_MESSAGE + "Scanning NFO for Poster URL");
+        LOG.debug(LOG_MESSAGE + "Scanning NFO for Poster URL");
         int urlStartIndex = 0;
         while (urlStartIndex >= 0 && urlStartIndex < nfo.length()) {
             int currentUrlStartIndex = nfo.indexOf("http://", urlStartIndex);
@@ -230,14 +232,14 @@ public final class MovieNFOReader {
                         if (foundUrl.contains(" ") || foundUrl.contains("*")) {
                             urlStartIndex = currentUrlStartIndex + 3;
                         } else {
-                            logger.debug(LOG_MESSAGE + "Poster URL found in nfo = " + foundUrl);
+                            LOG.debug(LOG_MESSAGE + "Poster URL found in nfo = " + foundUrl);
                             movie.setPosterURL(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
                             urlStartIndex = -1;
                             movie.setDirty(DirtyFlag.POSTER, Boolean.TRUE);
                             foundInfo = Boolean.TRUE;
                         }
                     } else {
-                        logger.debug(LOG_MESSAGE + "Poster URL ignored in NFO because it's a fanart URL");
+                        LOG.debug(LOG_MESSAGE + "Poster URL ignored in NFO because it's a fanart URL");
                         // Search for the URL again
                         urlStartIndex = currentUrlStartIndex + 3;
                     }
@@ -278,19 +280,19 @@ public final class MovieNFOReader {
                 xmlDoc = DOMHelper.getDocFromFile(nfoFile);
             }
         } catch (SAXParseException ex) {
-            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
+            LOG.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
             return Boolean.FALSE;
         } catch (MalformedURLException ex) {
-            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
+            LOG.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
             return Boolean.FALSE;
         } catch (IOException ex) {
-            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
+            LOG.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
             return Boolean.FALSE;
         } catch (ParserConfigurationException ex) {
-            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
+            LOG.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
             return Boolean.FALSE;
         } catch (SAXException ex) {
-            logger.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
+            LOG.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
             return Boolean.FALSE;
         }
 
@@ -331,7 +333,7 @@ public final class MovieNFOReader {
 
                 String tempYear = DOMHelper.getValueFromElement(eCommon, "year");
                 if (!parseYear(tempYear, movie)) {
-                    logger.warn(LOG_MESSAGE + "Invalid year: '" + tempYear + "' in " + nfoFilename);
+                    LOG.warn(LOG_MESSAGE + "Invalid year: '" + tempYear + "' in " + nfoFilename);
                 }
 
                 // ID specific to TV Shows
@@ -438,7 +440,7 @@ public final class MovieNFOReader {
                         try {
                             movie.setFps(Float.parseFloat(tempString), NFO_PLUGIN_ID);
                         } catch (NumberFormatException error) {
-                            logger.warn(LOG_MESSAGE + "Error reading FPS value " + tempString);
+                            LOG.warn(LOG_MESSAGE + "Error reading FPS value " + tempString);
                         }
                     }
                 }
@@ -661,7 +663,7 @@ public final class MovieNFOReader {
                 DateTime dateTime;
                 if (parseDate.length() == 4 && StringUtils.isNumeric(parseDate)) {
                     // Warn the user
-                    logger.debug(LOG_MESSAGE + "Partial date detected in premiered field of NFO for " + movie.getBaseFilename());
+                    LOG.debug(LOG_MESSAGE + "Partial date detected in premiered field of NFO for " + movie.getBaseFilename());
                     // Assume just the year an append "-01-01" to the end
                     dateTime = new DateTime(parseDate + "-01-01");
                 } else {
@@ -676,9 +678,9 @@ public final class MovieNFOReader {
                     movie.setYear(dateTime.toString("yyyy"), NFO_PLUGIN_ID);
                 }
             } catch (Exception ex) {
-                logger.warn(LOG_MESSAGE + "Failed parsing NFO file for movie: " + movie.getBaseFilename() + ". Please fix or remove it.");
-                logger.warn(LOG_MESSAGE + "premiered or releasedate does not contain a valid date: " + parseDate);
-                logger.warn(LOG_MESSAGE + SystemTools.getStackTrace(ex));
+                LOG.warn(LOG_MESSAGE + "Failed parsing NFO file for movie: " + movie.getBaseFilename() + ". Please fix or remove it.");
+                LOG.warn(LOG_MESSAGE + "premiered or releasedate does not contain a valid date: " + parseDate);
+                LOG.warn(LOG_MESSAGE + SystemTools.getStackTrace(ex));
 
                 if (OverrideTools.checkOverwriteReleaseDate(movie, NFO_PLUGIN_ID)) {
                     movie.setReleaseDate(parseDate, NFO_PLUGIN_ID);
@@ -1038,7 +1040,7 @@ public final class MovieNFOReader {
                     return 0;
                 }
             } catch (NumberFormatException ex) {
-                logger.trace(LOG_MESSAGE + "Failed to transform rating " + ratingString);
+                LOG.trace(LOG_MESSAGE + "Failed to transform rating " + ratingString);
                 return -1;
             }
         }
@@ -1068,7 +1070,14 @@ public final class MovieNFOReader {
                     }
                 }
                 movie.setId(movieDb, eId.getTextContent());
-                logger.debug(LOG_MESSAGE + "Found " + movieDb + " ID: " + eId.getTextContent());
+                LOG.debug(LOG_MESSAGE + "Found " + movieDb + " ID: " + eId.getTextContent());
+
+                // Process the TMDB id
+                movieDb = eId.getAttribute("TMDB");
+                if (StringTools.isValidString(movieDb)) {
+                    LOG.debug(LOG_MESSAGE + "Found TheMovieDb ID: " + movieDb);
+                    movie.setId(TheMovieDbPlugin.TMDB_PLUGIN_ID, movieDb);
+                }
             }
         }
     }
