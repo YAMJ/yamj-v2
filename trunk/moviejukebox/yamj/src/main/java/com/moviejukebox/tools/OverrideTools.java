@@ -58,6 +58,7 @@ public final class OverrideTools {
     private static final String MOVIE_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(Movie.TYPE_MOVIE).toUpperCase();
     private static final String TVSHOW_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(Movie.TYPE_TVSHOW).toUpperCase();
     private static final String ALTERNATE_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(TYPE_ALTERNATE).toUpperCase();
+    private static final String PERSON_PLUGIN = DatabasePluginController.getMovieDatabasePluginName(Movie.TYPE_PERSON).toUpperCase();
     private static final String IMDB_PLUGIN = ImdbPlugin.IMDB_PLUGIN_ID.toUpperCase();
 
     static {
@@ -65,9 +66,9 @@ public final class OverrideTools {
 
         // actors
         sources = PropertiesUtil.getProperty("priority.movie.actors", "nfo,PLUGIN,ALTERNATE");
-        putMoviePriorities(OverrideFlag.ACTORS, sources);
+        putMoviePersonPriorities(OverrideFlag.ACTORS, sources);
         sources = PropertiesUtil.getProperty("priority.tv.actors", "nfo,PLUGIN,ALTERNATE");
-        putTvPriorities(OverrideFlag.ACTORS, sources);
+        putTvPersonPriorities(OverrideFlag.ACTORS, sources);
         // aspect ratio
         sources = PropertiesUtil.getProperty("priority.movie.aspectratio", "nfo,mediainfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.ASPECTRATIO, sources);
@@ -95,9 +96,9 @@ public final class OverrideTools {
         putTvPriorities(OverrideFlag.COUNTRY, sources);
         // directors
         sources = PropertiesUtil.getProperty("priority.movie.directors", "nfo,PLUGIN,ALTERNATE");
-        putMoviePriorities(OverrideFlag.DIRECTORS, sources);
+        putMoviePersonPriorities(OverrideFlag.DIRECTORS, sources);
         sources = PropertiesUtil.getProperty("priority.tv.directors", "nfo,PLUGIN,ALTERNATE");
-        putTvPriorities(OverrideFlag.DIRECTORS, sources);
+        putTvPersonPriorities(OverrideFlag.DIRECTORS, sources);
         // genres
         sources = PropertiesUtil.getProperty("priority.movie.genres", "nfo,PLUGIN,ALTERNATE");
         putMoviePriorities(OverrideFlag.GENRES, sources);
@@ -175,9 +176,9 @@ public final class OverrideTools {
         putTvPriorities(OverrideFlag.VIDEOSOURCE, sources);
         // writers
         sources = PropertiesUtil.getProperty("priority.movie.writers", "nfo,PLUGIN,ALTERNATE");
-        putMoviePriorities(OverrideFlag.WRITERS, sources);
+        putMoviePersonPriorities(OverrideFlag.WRITERS, sources);
         sources = PropertiesUtil.getProperty("priority.tv.writers", "nfo,PLUGIN,ALTERNATE");
-        putTvPriorities(OverrideFlag.WRITERS, sources);
+        putTvPersonPriorities(OverrideFlag.WRITERS, sources);
         // year
         sources = PropertiesUtil.getProperty("priority.movie.year", "nfo,PLUGIN,ALTERNATE,filename");
         putMoviePriorities(OverrideFlag.YEAR, sources);
@@ -188,19 +189,19 @@ public final class OverrideTools {
 
         // actors
         sources = PropertiesUtil.getProperty("priority.movie.people.actors", "nfo,PLUGIN,ALTERNATE");
-        putMoviePriorities(OverrideFlag.PEOPLE_ACTORS, sources);
+        putMoviePersonPriorities(OverrideFlag.PEOPLE_ACTORS, sources);
         sources = PropertiesUtil.getProperty("priority.tv.people.actors", "nfo,PLUGIN,ALTERNATE");
-        putTvPriorities(OverrideFlag.PEOPLE_ACTORS, sources);
+        putTvPersonPriorities(OverrideFlag.PEOPLE_ACTORS, sources);
         // directors
         sources = PropertiesUtil.getProperty("priority.movie.people.directors", "nfo,PLUGIN,ALTERNATE");
-        putMoviePriorities(OverrideFlag.PEOPLE_DIRECTORS, sources);
+        putMoviePersonPriorities(OverrideFlag.PEOPLE_DIRECTORS, sources);
         sources = PropertiesUtil.getProperty("priority.tv.people.directors", "nfo,PLUGIN,ALTERNATE");
-        putTvPriorities(OverrideFlag.PEOPLE_DIRECTORS, sources);
+        putTvPersonPriorities(OverrideFlag.PEOPLE_DIRECTORS, sources);
         // writers
         sources = PropertiesUtil.getProperty("priority.movie.people.writers", "nfo,PLUGIN,ALTERNATE");
-        putMoviePriorities(OverrideFlag.PEOPLE_WRITERS, sources);
+        putMoviePersonPriorities(OverrideFlag.PEOPLE_WRITERS, sources);
         sources = PropertiesUtil.getProperty("priority.tv.people.writers", "nfo,PLUGIN,ALTERNATE");
-        putTvPriorities(OverrideFlag.PEOPLE_WRITERS, sources);
+        putTvPersonPriorities(OverrideFlag.PEOPLE_WRITERS, sources);
 
         // EXTRA properties for episodes
 
@@ -229,35 +230,7 @@ public final class OverrideTools {
      * @param sources
      */
     public static void putMoviePriorities(OverrideFlag overrideFlag, String sources) {
-        List<String> priorities;
-        if (StringUtils.isBlank(sources)) {
-            priorities = Collections.emptyList();
-        } else {
-            String newSources = sources.toUpperCase();
-            if (newSources.contains(TYPE_PLUGIN) && !newSources.contains(MOVIE_PLUGIN)) {
-                // replace pattern with database plugin
-                newSources = newSources.replace(TYPE_PLUGIN, MOVIE_PLUGIN);
-            }
-
-            if (newSources.contains(TYPE_ALTERNATE)) {
-                if (StringTools.isValidString(ALTERNATE_PLUGIN) && !newSources.contains(ALTERNATE_PLUGIN)) {
-                    // replace pattern with alternate plugin
-                    newSources = newSources.replace(TYPE_ALTERNATE, ALTERNATE_PLUGIN);
-                } else if (!newSources.contains(IMDB_PLUGIN)) {
-                    // cause: most plugins extend the IMDB plugin
-                    newSources = newSources.replace(TYPE_ALTERNATE, IMDB_PLUGIN);
-                }
-            }
-
-            priorities = new ArrayList<String>(Arrays.asList(newSources.split(",")));
-            priorities.remove(TYPE_PLUGIN);
-            priorities.remove(TYPE_ALTERNATE);
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(LOG_MESSAGE + overrideFlag.name() + " (Movie) priorities " + priorities.toString().toLowerCase());
-            }
-        }
-        MOVIE_PRIORITIES_MAP.put(overrideFlag, priorities);
+        putPriorities(MOVIE_PRIORITIES_MAP, MOVIE_PLUGIN, "Movie", overrideFlag, sources);
     }
 
     /**
@@ -267,15 +240,49 @@ public final class OverrideTools {
      * @param newSources
      */
     public static void putTvPriorities(OverrideFlag overrideFlag, String sources) {
+        putPriorities(TV_PRIORITIES_MAP, TVSHOW_PLUGIN, "TV", overrideFlag, sources);
+    }
+
+    /**
+     * Put movie person priorities into map
+     *
+     * @param overrideFlag
+     * @param sources
+     */
+    public static void putMoviePersonPriorities(OverrideFlag overrideFlag, String sources) {
+        putPriorities(MOVIE_PRIORITIES_MAP, PERSON_PLUGIN, "Movie", overrideFlag, sources);
+    }
+
+    /**
+     * Put TV person priorities into map
+     *
+     * @param overrideFlag
+     * @param sources
+     */
+    public static void putTvPersonPriorities(OverrideFlag overrideFlag, String sources) {
+        putPriorities(TV_PRIORITIES_MAP, PERSON_PLUGIN, "TV", overrideFlag, sources);
+    }
+
+    /**
+     * Generic method for updating the priority map
+     *
+     * @param priorityMap The map to update
+     * @param pluginName The name of the plugin to replace
+     * @param videoType The type of the video: TV/Movie - used for the log message
+     * @param overrideFlag The flag to override
+     * @param sources The list of sources
+     */
+    private static void putPriorities(Map<OverrideFlag, List<String>> priorityMap, String pluginName, String videoType, OverrideFlag overrideFlag, String sources) {
         List<String> priorities;
         if (StringUtils.isBlank(sources)) {
             priorities = Collections.emptyList();
         } else {
             String newSources = sources.toUpperCase();
-            if (newSources.contains(TYPE_PLUGIN) && !newSources.contains(TVSHOW_PLUGIN)) {
+            if (newSources.contains(TYPE_PLUGIN) && !newSources.contains(pluginName)) {
                 // replace pattern with database plugin
-                newSources = newSources.replace(TYPE_PLUGIN, TVSHOW_PLUGIN);
+                newSources = newSources.replace(TYPE_PLUGIN, pluginName);
             }
+
             if (newSources.contains(TYPE_ALTERNATE)) {
                 if (StringTools.isValidString(ALTERNATE_PLUGIN) && !newSources.contains(ALTERNATE_PLUGIN)) {
                     // replace pattern with alternate plugin
@@ -291,10 +298,14 @@ public final class OverrideTools {
             priorities.remove(TYPE_ALTERNATE);
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug(LOG_MESSAGE + overrideFlag.name() + " (TV) priorities " + priorities.toString().toLowerCase());
+                StringBuilder sb = new StringBuilder(LOG_MESSAGE);
+                sb.append(overrideFlag.name()).append(" (").append(videoType).append(") ");
+                sb.append("priorities ").append(priorities.toString().toLowerCase());
+                LOG.debug(sb.toString());
             }
         }
-        TV_PRIORITIES_MAP.put(overrideFlag, priorities);
+        priorityMap.put(overrideFlag, priorities);
+
     }
 
     private static boolean skipCheck(Movie movie, OverrideFlag overrideFlag, String source) {
