@@ -50,24 +50,24 @@ public class Library implements Map<String, Movie> {
     public static final String TV_SERIES = "TVSeries";
     public static final String SET = "Set";
     // Library values
-    private Collection<IndexInfo> generatedIndexes = Collections.synchronizedCollection(new ArrayList<IndexInfo>());
+    private final Collection<IndexInfo> generatedIndexes = Collections.synchronizedCollection(new ArrayList<IndexInfo>());
     private static boolean filterGenres;
-    private static boolean filterCertificationn;
+    private static final boolean filterCertificationn;
     private static boolean singleSeriesPage;
     private static final List<String> CERTIFICATION_ORDERING = new ArrayList<String>();
-    private static List<String> libraryOrdering = new ArrayList<String>();
-    private static Map<String, String> genresMap = new HashMap<String, String>();
-    private static Map<String, String> certificationsMap = new HashMap<String, String>();
+    private static final List<String> LIBRARY_ORDERING = new ArrayList<String>();
+    private static final Map<String, String> GENRES_MAP = new HashMap<String, String>();
+    private static final Map<String, String> CERTIFICATIONS_MAP = new HashMap<String, String>();
     private static String defaultCertification = null;
-    private static Map<String, String> categoriesMap = new LinkedHashMap<String, String>(); // This is a LinkedHashMap to ensure that the order that the items are inserted into the Map is retained
+    private static final Map<String, String> CATEGORIES_MAP = new LinkedHashMap<String, String>(); // This is a LinkedHashMap to ensure that the order that the items are inserted into the Map is retained
     private static boolean charGroupEnglish = false;
-    private HashMap<Movie, String> keys = new HashMap<Movie, String>();
-    private TreeMap<String, Movie> library = new TreeMap<String, Movie>();
-    private Map<String, Movie> extras = new TreeMap<String, Movie>();
+    private final HashMap<Movie, String> keys = new HashMap<Movie, String>();
+    private final TreeMap<String, Movie> library = new TreeMap<String, Movie>();
+    private final Map<String, Movie> extras = new TreeMap<String, Movie>();
     private List<Movie> moviesList = new ArrayList<Movie>();
-    private Map<String, Index> indexes = new LinkedHashMap<String, Index>();
+    private final Map<String, Index> indexes;
     private Map<String, Index> unCompressedIndexes = new LinkedHashMap<String, Index>();
-    private static DecimalFormat paddedFormat = new DecimalFormat("000"); // Issue 190
+    private static final DecimalFormat PADDED_FORMAT = new DecimalFormat("000"); // Issue 190
     private static int categoryMinCountMaster = 3;
     private static int categoryMaxCountMaster = 0;
     private static int movieMaxCountMaster = 0;
@@ -78,25 +78,25 @@ public class Library implements Map<String, Movie> {
     private static long newTvDays;
     private static int minSetCount = 2;
     private static boolean setsRequireAll = false;
-    private static List<String> categoriesExplodeSet;
+    private static final List<String> CATEGORIES_EXPLODE_SET;
     private static boolean removeExplodeSet = false;
     private static boolean keepTVExplodeSet = true;
     private static boolean beforeSortExplodeSet = false;
     private static boolean removeTitleExplodeSet = false;
     private static String setsRating = "first";
-    private static String indexList;
-    private static List<String> awardEventList;
-    private static List<String> awardNameList;
-    private static List<String> awardNominated;
-    private static List<String> awardWon;
+    private static final String INDEX_LIST;
+    private static final List<String> AWARD_EVENT_LIST;
+    private static final List<String> AWARD_NAME_LIST;
+    private static final List<String> AWARD_NOMINATED;
+    private static final List<String> AWARD_WON;
     private static boolean scrapeWonAwards = false;
     private static boolean splitHD = false;
     private static boolean processExtras = true;
     private static boolean hideWatched = true;
     private static final boolean ENABLE_WATCH_SCANNER;
-    private static List<String> dirtyLibraries = new ArrayList<String>();
+    private static final List<String> DIRTY_LIBRARIES = new ArrayList<String>();
     // Issue 1897: Cast enhancement
-    private TreeMap<String, Person> people = new TreeMap<String, Person>();
+    private final TreeMap<String, Person> people;
     private boolean isDirty = false;
     private static boolean peopleScan = false;
     private static boolean peopleExclusive = false;
@@ -152,21 +152,21 @@ public class Library implements Map<String, Movie> {
         minSetCount = PropertiesUtil.getIntProperty("mjb.sets.minSetCount", 2);
         setsRequireAll = PropertiesUtil.getBooleanProperty("mjb.sets.requireAll", Boolean.FALSE);
         setsRating = PropertiesUtil.getProperty("mjb.sets.rating", "first");
-        categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
+        CATEGORIES_EXPLODE_SET = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
         removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", Boolean.FALSE);
         keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", Boolean.TRUE);
         beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", Boolean.FALSE);
         removeTitleExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet.title", Boolean.FALSE);
         singleSeriesPage = PropertiesUtil.getBooleanProperty("mjb.singleSeriesPage", Boolean.FALSE);
-        indexList = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
+        INDEX_LIST = PropertiesUtil.getProperty("mjb.categories.indexList", "Other,Genres,Title,Certification,Year,Library,Set");
         String awardTmp = PropertiesUtil.getProperty("mjb.categories.award.events", "");
-        awardEventList = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
+        AWARD_EVENT_LIST = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
         awardTmp = PropertiesUtil.getProperty("mjb.categories.award.name", "");
-        awardNameList = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
+        AWARD_NAME_LIST = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
         awardTmp = PropertiesUtil.getProperty("mjb.categories.award.nominated", "");
-        awardNominated = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
+        AWARD_NOMINATED = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
         awardTmp = PropertiesUtil.getProperty("mjb.categories.award.won", "");
-        awardWon = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
+        AWARD_WON = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
         scrapeWonAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", FALSE).equalsIgnoreCase("won");
         splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", Boolean.FALSE);
         processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", Boolean.TRUE);
@@ -322,14 +322,19 @@ public class Library implements Map<String, Movie> {
         if (movie.isTVShow()) {
             // Issue 190
             key.append(" Season ");
-            key.append(paddedFormat.format(movie.getSeason()));
+            key.append(PADDED_FORMAT.format(movie.getSeason()));
         }
 
         return key.toString().toLowerCase();
     }
 
     public static List<String> getLibraryOrdering() {
-        return libraryOrdering;
+        return LIBRARY_ORDERING;
+    }
+
+    public Library() {
+        this.people = new TreeMap<String, Person>();
+        this.indexes = new LinkedHashMap<String, Index>();
     }
 
     // synchronized because scanning can be multi-threaded
@@ -344,8 +349,8 @@ public class Library implements Map<String, Movie> {
         } else if (existingMovie == null) {
             keys.put(movie, key);
             library.put(key, movie);
-            if (movie.getLibraryDescription().length() > 0 && !libraryOrdering.contains(movie.getLibraryDescription())) {
-                libraryOrdering.add(movie.getLibraryDescription());
+            if (movie.getLibraryDescription().length() > 0 && !LIBRARY_ORDERING.contains(movie.getLibraryDescription())) {
+                LIBRARY_ORDERING.add(movie.getLibraryDescription());
             }
         } else {
             MovieFile firstMovieFile = movie.getFirstFile();
@@ -550,7 +555,7 @@ public class Library implements Map<String, Movie> {
             List<Movie> lm = inMoviesEntry.getValue();
             if (lm.size() >= minSetCount && (!setsRequireAll || lm.size() == index.get(inMoviesEntry.getKey()).size())) {
                 boolean tvSet = keepTVExplodeSet && lm.get(0).isTVShow();
-                boolean explodeSet = categoriesExplodeSet.contains(indexName) || (indexName.equalsIgnoreCase(INDEX_OTHER) && categoriesExplodeSet.contains(subIndexName));
+                boolean explodeSet = CATEGORIES_EXPLODE_SET.contains(indexName) || (indexName.equalsIgnoreCase(INDEX_OTHER) && CATEGORIES_EXPLODE_SET.contains(subIndexName));
                 if (!beforeSortExplodeSet || !explodeSet || tvSet) {
                     movies.removeAll(lm);
                 }
@@ -576,7 +581,7 @@ public class Library implements Map<String, Movie> {
 
             final Map<String, Index> syncindexes = Collections.synchronizedMap(indexes);
 
-            for (final String indexStr : indexList.split(",")) {
+            for (final String indexStr : INDEX_LIST.split(",")) {
                 tasks.submit(new Callable<Void>() {
                     @Override
                     public Void call() {
@@ -636,7 +641,7 @@ public class Library implements Map<String, Movie> {
 
             // Now add the masters to the titles index
             // Issue 1018 - Check that this index was selected
-            if (indexList.contains(INDEX_TITLE)) {
+            if (INDEX_LIST.contains(INDEX_TITLE)) {
                 for (Map.Entry<String, Map<String, Movie>> dynamicIndexMastersEntry : dynamicIndexMasters.entrySet()) {
                     Index mastersTitlesIndex = indexByTitle(dynamicIndexMastersEntry.getValue().values());
                     for (Map.Entry<String, List<Movie>> indexEntry : mastersTitlesIndex.entrySet()) {
@@ -678,30 +683,29 @@ public class Library implements Map<String, Movie> {
             boolean trimNewMovieOK = trimNewCategory(INDEX_NEW_MOVIE, newMovieCount);
 
             // Merge the two categories into the Master "New" category
-
-            if (categoriesMap.get(INDEX_NEW) != null) {
+            if (CATEGORIES_MAP.get(INDEX_NEW) != null) {
                 Index otherIndexes = indexes.get(INDEX_OTHER);
                 List<Movie> newList = new ArrayList<Movie>();
                 int newMovies = 0;
                 int newTVShows = 0;
 
-                if (trimNewMovieOK && (categoriesMap.get(INDEX_NEW_MOVIE) != null) && (otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)) != null)) {
-                    newList.addAll(otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)));
-                    newMovies = otherIndexes.get(categoriesMap.get(INDEX_NEW_MOVIE)).size();
+                if (trimNewMovieOK && (CATEGORIES_MAP.get(INDEX_NEW_MOVIE) != null) && (otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_MOVIE)) != null)) {
+                    newList.addAll(otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_MOVIE)));
+                    newMovies = otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_MOVIE)).size();
                 } else {
                     // Remove the empty "New Movie" category
-                    if (categoriesMap.get(INDEX_NEW_MOVIE) != null) {
-                        otherIndexes.remove(categoriesMap.get(INDEX_NEW_MOVIE));
+                    if (CATEGORIES_MAP.get(INDEX_NEW_MOVIE) != null) {
+                        otherIndexes.remove(CATEGORIES_MAP.get(INDEX_NEW_MOVIE));
                     }
                 }
 
-                if (trimNewTvOK && (categoriesMap.get(INDEX_NEW_TV) != null) && (otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)) != null)) {
-                    newList.addAll(otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)));
-                    newTVShows = otherIndexes.get(categoriesMap.get(INDEX_NEW_TV)).size();
+                if (trimNewTvOK && (CATEGORIES_MAP.get(INDEX_NEW_TV) != null) && (otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_TV)) != null)) {
+                    newList.addAll(otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_TV)));
+                    newTVShows = otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_TV)).size();
                 } else {
                     // Remove the empty "New TV" category
-                    if (categoriesMap.get(INDEX_NEW_TV) != null) {
-                        otherIndexes.remove(categoriesMap.get(INDEX_NEW_TV));
+                    if (CATEGORIES_MAP.get(INDEX_NEW_TV) != null) {
+                        otherIndexes.remove(CATEGORIES_MAP.get(INDEX_NEW_TV));
                     }
                 }
 
@@ -717,8 +721,8 @@ public class Library implements Map<String, Movie> {
                     }
 
                     LOG.debug(categoryMessage.toString());
-                    otherIndexes.put(categoriesMap.get(INDEX_NEW), newList);
-                    Collections.sort(otherIndexes.get(categoriesMap.get(INDEX_NEW)), new LastModifiedComparator());
+                    otherIndexes.put(CATEGORIES_MAP.get(INDEX_NEW), newList);
+                    Collections.sort(otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW)), new LastModifiedComparator());
                 }
             }
 
@@ -739,7 +743,7 @@ public class Library implements Map<String, Movie> {
         final List<Person> indexPersons = new ArrayList<Person>(people.values());
 
         if (indexPersons.size() > 0) {
-            for (final String indexStr : indexList.split(",")) {
+            for (final String indexStr : INDEX_LIST.split(",")) {
                 if ((INDEX_CAST + INDEX_DIRECTOR + INDEX_WRITER + INDEX_PERSON).indexOf(indexStr) < 0) {
                     continue;
                 }
@@ -769,7 +773,7 @@ public class Library implements Map<String, Movie> {
      */
     private boolean trimNewCategory(String catName, int catCount) {
         boolean trimOK = true;
-        String category = categoriesMap.get(catName);
+        String category = CATEGORIES_MAP.get(catName);
         //logger.info("Trimming '" + catName + "' ('" + category + "') to " + catCount + " videos");
         if (catCount > 0 && category != null) {
             Index otherIndexes = indexes.get(INDEX_OTHER);
@@ -968,9 +972,9 @@ public class Library implements Map<String, Movie> {
             if (movie.isExtra()) {
                 // Issue 997: Skip the processing of extras
                 if (processExtras) {
-                    if (categoriesMap.get(INDEX_EXTRAS) != null) {
-                        index.addMovie(categoriesMap.get(INDEX_EXTRAS), movie);
-                        movie.addIndex(INDEX_EXTRAS, categoriesMap.get(INDEX_EXTRAS));
+                    if (CATEGORIES_MAP.get(INDEX_EXTRAS) != null) {
+                        index.addMovie(CATEGORIES_MAP.get(INDEX_EXTRAS), movie);
+                        movie.addIndex(INDEX_EXTRAS, CATEGORIES_MAP.get(INDEX_EXTRAS));
                     }
                 }
             } else {
@@ -978,93 +982,93 @@ public class Library implements Map<String, Movie> {
                     if (splitHD) {
                         // Split the HD category into two categories: HD-720 and HD-1080
                         if (movie.isHD1080()) {
-                            if (categoriesMap.get(INDEX_HD1080) != null) {
-                                index.addMovie(categoriesMap.get(INDEX_HD1080), movie);
-                                movie.addIndex(INDEX_HD, categoriesMap.get(INDEX_HD1080));
+                            if (CATEGORIES_MAP.get(INDEX_HD1080) != null) {
+                                index.addMovie(CATEGORIES_MAP.get(INDEX_HD1080), movie);
+                                movie.addIndex(INDEX_HD, CATEGORIES_MAP.get(INDEX_HD1080));
                             }
                         } else {
-                            if (categoriesMap.get(INDEX_HD720) != null) {
-                                index.addMovie(categoriesMap.get(INDEX_HD720), movie);
-                                movie.addIndex(INDEX_HD, categoriesMap.get(INDEX_HD720));
+                            if (CATEGORIES_MAP.get(INDEX_HD720) != null) {
+                                index.addMovie(CATEGORIES_MAP.get(INDEX_HD720), movie);
+                                movie.addIndex(INDEX_HD, CATEGORIES_MAP.get(INDEX_HD720));
                             }
                         }
                     } else {
-                        if (categoriesMap.get(INDEX_HD) != null) {
-                            index.addMovie(categoriesMap.get(INDEX_HD), movie);
-                            movie.addIndex(INDEX_HD, categoriesMap.get(INDEX_HD));
+                        if (CATEGORIES_MAP.get(INDEX_HD) != null) {
+                            index.addMovie(CATEGORIES_MAP.get(INDEX_HD), movie);
+                            movie.addIndex(INDEX_HD, CATEGORIES_MAP.get(INDEX_HD));
                         }
                     }
                 }
 
                 if (movie.is3D()) {
-                    if (categoriesMap.get(INDEX_3D) != null) {
-                        index.addMovie(categoriesMap.get(INDEX_3D), movie);
-                        movie.addIndex(INDEX_3D, categoriesMap.get(INDEX_3D));
+                    if (CATEGORIES_MAP.get(INDEX_3D) != null) {
+                        index.addMovie(CATEGORIES_MAP.get(INDEX_3D), movie);
+                        movie.addIndex(INDEX_3D, CATEGORIES_MAP.get(INDEX_3D));
                     }
                 }
 
                 if (movie.getTop250() > 0) {
-                    if (categoriesMap.get(INDEX_TOP250) != null) {
-                        index.addMovie(categoriesMap.get(INDEX_TOP250), movie);
-                        movie.addIndex(INDEX_TOP250, categoriesMap.get(INDEX_TOP250));
+                    if (CATEGORIES_MAP.get(INDEX_TOP250) != null) {
+                        index.addMovie(CATEGORIES_MAP.get(INDEX_TOP250), movie);
+                        movie.addIndex(INDEX_TOP250, CATEGORIES_MAP.get(INDEX_TOP250));
                     }
                 }
 
                 if (movie.getRating() > 0) {
-                    if (categoriesMap.get(INDEX_RATING) != null) {
-                        index.addMovie(categoriesMap.get(INDEX_RATING), movie);
-                        movie.addIndex(INDEX_RATING, categoriesMap.get(INDEX_RATING));
+                    if (CATEGORIES_MAP.get(INDEX_RATING) != null) {
+                        index.addMovie(CATEGORIES_MAP.get(INDEX_RATING), movie);
+                        movie.addIndex(INDEX_RATING, CATEGORIES_MAP.get(INDEX_RATING));
                     }
                 }
 
                 if (ENABLE_WATCH_SCANNER) { // Issue 1938 don't create watched/unwatched indexes if scanner is disabled
                     // Add to the Watched or Unwatched category
                     if (movie.isWatched()) {
-                        index.addMovie(categoriesMap.get(INDEX_WATCHED), movie);
-                        movie.addIndex(INDEX_WATCHED, categoriesMap.get(INDEX_WATCHED));
+                        index.addMovie(CATEGORIES_MAP.get(INDEX_WATCHED), movie);
+                        movie.addIndex(INDEX_WATCHED, CATEGORIES_MAP.get(INDEX_WATCHED));
                     } else {
-                        index.addMovie(categoriesMap.get(INDEX_UNWATCHED), movie);
-                        movie.addIndex(INDEX_UNWATCHED, categoriesMap.get(INDEX_UNWATCHED));
+                        index.addMovie(CATEGORIES_MAP.get(INDEX_UNWATCHED), movie);
+                        movie.addIndex(INDEX_UNWATCHED, CATEGORIES_MAP.get(INDEX_UNWATCHED));
                     }
                 }
 
                 // Add to the New Movie category
                 if (!movie.isTVShow() && (newMovieDays > 0) && (now - movie.getLastModifiedTimestamp() <= newMovieDays) && !(movie.isWatched() && hideWatched && ENABLE_WATCH_SCANNER)) {
-                    if (categoriesMap.get(INDEX_NEW_MOVIE) != null) {
-                        index.addMovie(categoriesMap.get(INDEX_NEW_MOVIE), movie);
-                        movie.addIndex(INDEX_NEW_MOVIE, categoriesMap.get(INDEX_NEW_MOVIE));
+                    if (CATEGORIES_MAP.get(INDEX_NEW_MOVIE) != null) {
+                        index.addMovie(CATEGORIES_MAP.get(INDEX_NEW_MOVIE), movie);
+                        movie.addIndex(INDEX_NEW_MOVIE, CATEGORIES_MAP.get(INDEX_NEW_MOVIE));
                     }
                 }
 
                 // Add to the New TV category
                 if (movie.isTVShow() && (newTvDays > 0) && (now - movie.getLastModifiedTimestamp() <= newTvDays) && !(movie.isWatched() && hideWatched && ENABLE_WATCH_SCANNER)) {
-                    if (categoriesMap.get(INDEX_NEW_TV) != null) {
-                        index.addMovie(categoriesMap.get(INDEX_NEW_TV), movie);
-                        movie.addIndex(INDEX_NEW_TV, categoriesMap.get(INDEX_NEW_TV));
+                    if (CATEGORIES_MAP.get(INDEX_NEW_TV) != null) {
+                        index.addMovie(CATEGORIES_MAP.get(INDEX_NEW_TV), movie);
+                        movie.addIndex(INDEX_NEW_TV, CATEGORIES_MAP.get(INDEX_NEW_TV));
                     }
                 }
 
-                if (categoriesMap.get(INDEX_ALL) != null) {
-                    index.addMovie(categoriesMap.get(INDEX_ALL), movie);
-                    movie.addIndex(INDEX_ALL, categoriesMap.get(INDEX_ALL));
+                if (CATEGORIES_MAP.get(INDEX_ALL) != null) {
+                    index.addMovie(CATEGORIES_MAP.get(INDEX_ALL), movie);
+                    movie.addIndex(INDEX_ALL, CATEGORIES_MAP.get(INDEX_ALL));
                 }
 
                 if (movie.isTVShow()) {
-                    if (categoriesMap.get(INDEX_TVSHOWS) != null) {
-                        index.addMovie(categoriesMap.get(INDEX_TVSHOWS), movie);
-                        movie.addIndex(INDEX_TVSHOWS, categoriesMap.get(INDEX_TVSHOWS));
+                    if (CATEGORIES_MAP.get(INDEX_TVSHOWS) != null) {
+                        index.addMovie(CATEGORIES_MAP.get(INDEX_TVSHOWS), movie);
+                        movie.addIndex(INDEX_TVSHOWS, CATEGORIES_MAP.get(INDEX_TVSHOWS));
                     }
                 } else {
-                    if (categoriesMap.get(INDEX_MOVIES) != null) {
-                        index.addMovie(categoriesMap.get(INDEX_MOVIES), movie);
-                        movie.addIndex(INDEX_MOVIES, categoriesMap.get(INDEX_MOVIES));
+                    if (CATEGORIES_MAP.get(INDEX_MOVIES) != null) {
+                        index.addMovie(CATEGORIES_MAP.get(INDEX_MOVIES), movie);
+                        movie.addIndex(INDEX_MOVIES, CATEGORIES_MAP.get(INDEX_MOVIES));
                     }
                 }
 
                 if (!movie.isTVShow() && (movie.getSetsKeys().size() > 0)) {
-                    if (categoriesMap.get(INDEX_SETS) != null) {
-                        index.addMovie(categoriesMap.get(INDEX_SETS), movie);
-                        movie.addIndex(INDEX_SETS, categoriesMap.get(INDEX_SETS));
+                    if (CATEGORIES_MAP.get(INDEX_SETS) != null) {
+                        index.addMovie(CATEGORIES_MAP.get(INDEX_SETS), movie);
+                        movie.addIndex(INDEX_SETS, CATEGORIES_MAP.get(INDEX_SETS));
                     }
                 }
             }
@@ -1166,6 +1170,8 @@ public class Library implements Map<String, Movie> {
      * Calculate the minimum/maximum count for a category/movie based on it's property value.
      *
      * @param categoryName
+     * @param getMinimum
+     * @param byMovie
      * @return
      */
     public static int calcCategoryCount(String categoryName, boolean getMinimum, boolean byMovie) {
@@ -1173,7 +1179,6 @@ public class Library implements Map<String, Movie> {
         propertyName.append(byMovie ? "movies." : "categories.");
         propertyName.append(getMinimum ? "minCount." : "maxCount.");
         propertyName.append(categoryName);
-
         int defaultValue = getMinimum ? categoryMinCountMaster : (byMovie ? movieMaxCountMaster : categoryMaxCountMaster);
 
         return PropertiesUtil.getIntProperty(propertyName.toString(), defaultValue);
@@ -1251,24 +1256,24 @@ public class Library implements Map<String, Movie> {
             if (!movie.isExtra()) {
                 for (AwardEvent awardEvent : movie.getAwards()) {
                     String awardName = awardEvent.getName();
-                    boolean found = awardEventList.isEmpty() && awardNameList.isEmpty();
-                    if (found || awardEventList.contains(awardName) || !awardNameList.isEmpty()) {
+                    boolean found = AWARD_EVENT_LIST.isEmpty() && AWARD_NAME_LIST.isEmpty();
+                    if (found || AWARD_EVENT_LIST.contains(awardName) || !AWARD_NAME_LIST.isEmpty()) {
                         if (!found) {
                             for (Award award : awardEvent.getAwards()) {
-                                if (awardNameList.isEmpty() || awardNameList.contains(award.getName())) {
-                                    int flag = (scrapeWonAwards ? 0 : ((awardNominated.isEmpty() ? 0 : 8) + (award.getNominations().isEmpty() ? 0 : 4))) + (awardWon.isEmpty() ? 0 : 2) + (award.getWons().isEmpty() ? 0 : 1);
+                                if (AWARD_NAME_LIST.isEmpty() || AWARD_NAME_LIST.contains(award.getName())) {
+                                    int flag = (scrapeWonAwards ? 0 : ((AWARD_NOMINATED.isEmpty() ? 0 : 8) + (award.getNominations().isEmpty() ? 0 : 4))) + (AWARD_WON.isEmpty() ? 0 : 2) + (award.getWons().isEmpty() ? 0 : 1);
                                     found = "145".indexOf(Integer.toString(flag)) > -1;
                                     if (!found && (flag > 10)) {
                                         for (String nomination : award.getNominations()) {
-                                            found = awardNominated.contains(nomination);
+                                            found = AWARD_NOMINATED.contains(nomination);
                                             if (found) {
                                                 break;
                                             }
                                         }
                                     }
-                                    if (!found && !awardWon.isEmpty() && !award.getWons().isEmpty()) {
+                                    if (!found && !AWARD_WON.isEmpty() && !award.getWons().isEmpty()) {
                                         for (String nomination : award.getWons()) {
-                                            found = awardWon.contains(nomination);
+                                            found = AWARD_WON.contains(nomination);
                                             if (found) {
                                                 break;
                                             }
@@ -1360,7 +1365,7 @@ public class Library implements Map<String, Movie> {
             return genre;
         }
 
-        String masterGenre = genresMap.get(genre);
+        String masterGenre = GENRES_MAP.get(genre);
         if (masterGenre != null) {
             return masterGenre;
         } else {
@@ -1379,7 +1384,7 @@ public class Library implements Map<String, Movie> {
             return certification;
         }
 
-        String masterCertification = certificationsMap.get(certification);
+        String masterCertification = CERTIFICATIONS_MAP.get(certification);
         if (StringUtils.isNotBlank(masterCertification)) {
             return masterCertification;
         } else if (StringTools.isValidString(defaultCertification)) {
@@ -1501,7 +1506,7 @@ public class Library implements Map<String, Movie> {
                     List<Object> subgenres = genre.getList("subgenre");
                     for (Object subgenre : subgenres) {
 //                         logger.debug("New genre added to map : (" + subgenre+ "," + masterGenre+ ")");
-                        genresMap.put((String) subgenre, masterGenre);
+                        GENRES_MAP.put((String) subgenre, masterGenre);
                     }
 
                 }
@@ -1525,7 +1530,7 @@ public class Library implements Map<String, Movie> {
                     String masterCertification = certification.getString("[@name]");
                     List<Object> subcertifications = certification.getList("subcertification");
                     for (Object subcertification : subcertifications) {
-                        certificationsMap.put((String) subcertification, masterCertification);
+                        CERTIFICATIONS_MAP.put((String) subcertification, masterCertification);
                     }
 
                 }
@@ -1556,7 +1561,7 @@ public class Library implements Map<String, Movie> {
                     if (enabled) {
                         String origName = category.getString("[@name]");
                         String newName = category.getString("rename", origName);
-                        categoriesMap.put(origName, newName);
+                        CATEGORIES_MAP.put(origName, newName);
                         //logger.debug("Added category '" + origName + "' with name '" + newName + "'");
                     }
                 }
@@ -1570,15 +1575,17 @@ public class Library implements Map<String, Movie> {
     }
 
     public Map<String, String> getCategoriesMap() {
-        return categoriesMap;
+        return CATEGORIES_MAP;
     }
 
     /**
      * Find the first category in the first index that has any movies in it For Issue 436
+     *
+     * @return
      */
     public String getDefaultCategory() {
         for (Index index : indexes.values()) {
-            for (String cat : categoriesMap.values()) {
+            for (String cat : CATEGORIES_MAP.values()) {
                 if (index.containsKey(cat) && index.get(cat).size() > 0) {
                     return cat;
                 }
@@ -1595,31 +1602,31 @@ public class Library implements Map<String, Movie> {
         if (category.equals(SET)) {
             cmpMovie = new MovieSetComparator(key);
         } else if (category.equals(INDEX_OTHER)) {
-            if (key.equals(categoriesMap.get(INDEX_NEW))
-                    || key.equals(categoriesMap.get(INDEX_NEW_TV))
-                    || key.equals(categoriesMap.get(INDEX_NEW_MOVIE))) {
+            if (key.equals(CATEGORIES_MAP.get(INDEX_NEW))
+                    || key.equals(CATEGORIES_MAP.get(INDEX_NEW_TV))
+                    || key.equals(CATEGORIES_MAP.get(INDEX_NEW_MOVIE))) {
                 cmpMovie = new LastModifiedComparator(SORT_ASC.get(originalKey));
-            } else if (key.equals(categoriesMap.get(INDEX_TOP250))) {
+            } else if (key.equals(CATEGORIES_MAP.get(INDEX_TOP250))) {
                 cmpMovie = new MovieTop250Comparator(SORT_ASC.get(INDEX_TOP250));
-            } else if (key.equals(categoriesMap.get(INDEX_ALL))) {
+            } else if (key.equals(CATEGORIES_MAP.get(INDEX_ALL))) {
                 cmpMovie = getComparator(INDEX_ALL);
-            } else if (key.equals(categoriesMap.get(INDEX_TVSHOWS))) {
+            } else if (key.equals(CATEGORIES_MAP.get(INDEX_TVSHOWS))) {
                 cmpMovie = getComparator(INDEX_TVSHOWS);
-            } else if (key.equals(categoriesMap.get(INDEX_MOVIES))) {
+            } else if (key.equals(CATEGORIES_MAP.get(INDEX_MOVIES))) {
                 cmpMovie = getComparator(INDEX_MOVIES);
-            } else if (key.equals(categoriesMap.get(INDEX_WATCHED))) {
+            } else if (key.equals(CATEGORIES_MAP.get(INDEX_WATCHED))) {
                 cmpMovie = getComparator(INDEX_WATCHED);
-            } else if (key.equals(categoriesMap.get(INDEX_UNWATCHED))) {
+            } else if (key.equals(CATEGORIES_MAP.get(INDEX_UNWATCHED))) {
                 cmpMovie = getComparator(INDEX_UNWATCHED);
-            } else if (key.equals(categoriesMap.get(INDEX_RATING))) {
+            } else if (key.equals(CATEGORIES_MAP.get(INDEX_RATING))) {
                 cmpMovie = getComparator(INDEX_RATING);
-            } else if (key.equals(categoriesMap.get(INDEX_HD))) {
+            } else if (key.equals(CATEGORIES_MAP.get(INDEX_HD))) {
                 cmpMovie = getComparator(INDEX_HD);
-            } else if (key.equals(categoriesMap.get(INDEX_HD1080))) {
+            } else if (key.equals(CATEGORIES_MAP.get(INDEX_HD1080))) {
                 cmpMovie = getComparator(INDEX_HD1080);
-            } else if (key.equals(categoriesMap.get(INDEX_HD720))) {
+            } else if (key.equals(CATEGORIES_MAP.get(INDEX_HD720))) {
                 cmpMovie = getComparator(INDEX_HD720);
-            } else if (key.equals(categoriesMap.get(INDEX_3D))) {
+            } else if (key.equals(CATEGORIES_MAP.get(INDEX_3D))) {
                 cmpMovie = getComparator(INDEX_3D);
             }
         } else {
@@ -1663,7 +1670,6 @@ public class Library implements Map<String, Movie> {
 //                cmpMovie = new MovieRatingComparator(ascending);
 //            }
 //        }
-
         return cmpMovie;
     }
 
@@ -1672,10 +1678,11 @@ public class Library implements Map<String, Movie> {
      * will return the original, unchanged name
      *
      * @param newCategory
+     * @param returnCategory
      * @return
      */
     public static String getOriginalCategory(String newCategory, boolean returnCategory) {
-        for (Map.Entry<String, String> singleCategory : categoriesMap.entrySet()) {
+        for (Map.Entry<String, String> singleCategory : CATEGORIES_MAP.entrySet()) {
             if (singleCategory.getValue().equals(newCategory)) {
                 return singleCategory.getKey();
             }
@@ -1693,11 +1700,11 @@ public class Library implements Map<String, Movie> {
      * Find the renamed category name from the original name The Category name could be changed by the use of the Category XML file.
      * This function will return the new name.
      *
-     * @param test
+     * @param newCategory
      * @return
      */
     public static String getRenamedCategory(String newCategory) {
-        return categoriesMap.get(newCategory);
+        return CATEGORIES_MAP.get(newCategory);
     }
 
     public static boolean isFilterGenres() {
@@ -1865,13 +1872,13 @@ public class Library implements Map<String, Movie> {
     }
 
     public void addDirtyLibrary(String name) {
-        if (StringTools.isValidString(name) && !dirtyLibraries.contains(name)) {
-            dirtyLibraries.add(name);
+        if (StringTools.isValidString(name) && !DIRTY_LIBRARIES.contains(name)) {
+            DIRTY_LIBRARIES.add(name);
             setDirty();
         }
     }
 
     public boolean isDirtyLibrary(String name) {
-        return StringTools.isValidString(name) && dirtyLibraries.contains(name);
+        return StringTools.isValidString(name) && DIRTY_LIBRARIES.contains(name);
     }
 }
