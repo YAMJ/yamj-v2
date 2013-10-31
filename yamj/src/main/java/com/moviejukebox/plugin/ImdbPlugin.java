@@ -72,32 +72,32 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private static final Logger LOG = Logger.getLogger(ImdbPlugin.class);
     private static final String LOG_MESSAGE = "ImdbPlugin: ";
     protected String preferredCountry;
-    private String imdbPlot;
+    private final String imdbPlot;
     protected WebBrowser webBrowser;
     protected boolean downloadFanart;
-    private boolean extractCertificationFromMPAA;
-    private boolean fullInfo;
+    private final boolean extractCertificationFromMPAA;
+    private final boolean fullInfo;
     protected String fanartToken;
     protected String fanartExtension;
-    private int preferredBiographyLength;
-    private int preferredFilmographyMax;
+    private final int preferredBiographyLength;
+    private final int preferredFilmographyMax;
     protected int actorMax;
     protected int directorMax;
     protected int writerMax;
-    private int triviaMax;
+    private final int triviaMax;
     protected ImdbSiteDataDefinition siteDefinition;
     protected static final String DEFAULT_SITE_DEF = "us";
     protected ImdbInfo imdbInfo;
     protected AspectRatioTools aspectTools;
-    private boolean skipFaceless;
-    private boolean skipVG;
-    private boolean skipTV;
-    private boolean skipV;
-    private List<String> jobsInclude;
-    private boolean scrapeAwards;   // Should we scrape the award information
-    private boolean scrapeWonAwards;// Should we scrape the won awards only
-    private boolean scrapeBusiness; // Should we scrape the business information
-    private boolean scrapeTrivia;   // Shoulw we scrape the trivia information
+    private final boolean skipFaceless;
+    private final boolean skipVG;
+    private final boolean skipTV;
+    private final boolean skipV;
+    private final List<String> jobsInclude;
+    private final boolean scrapeAwards;   // Should we scrape the award information
+    private final boolean scrapeWonAwards;// Should we scrape the won awards only
+    private final boolean scrapeBusiness; // Should we scrape the business information
+    private final boolean scrapeTrivia;   // Shoulw we scrape the trivia information
     // Literals
     private static final String HTML_H5_END = ":</h5>";
     private static final String HTML_H5_START = "<h5>";
@@ -124,9 +124,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private static final Pattern personNamePattern = Pattern.compile(namePatternString, Pattern.CASE_INSENSITIVE);
     private static final Pattern personCharPattern = Pattern.compile(charPatternString, Pattern.CASE_INSENSITIVE);
     // AKA scraping
-    private boolean akaScrapeTitle;
-    private String[] akaMatchingCountries;
-    private String[] akaIgnoreVersions;
+    private final boolean akaScrapeTitle;
+    private final String[] akaMatchingCountries;
+    private final String[] akaIgnoreVersions;
 
     public ImdbPlugin() {
         imdbInfo = new ImdbInfo();
@@ -360,7 +360,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // always true
             returnStatus = Boolean.TRUE;
 
-        } catch (Exception error) {
+        } catch (IOException error) {
+            LOG.error(LOG_MESSAGE + "Failed retrieving IMDb data for movie : " + movie.getId(IMDB_PLUGIN_ID));
+            LOG.error(SystemTools.getStackTrace(error));
+        } catch (NumberFormatException error) {
             LOG.error(LOG_MESSAGE + "Failed retrieving IMDb data for movie : " + movie.getId(IMDB_PLUGIN_ID));
             LOG.error(SystemTools.getStackTrace(error));
         }
@@ -691,7 +694,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
             movie.setOutline(imdbOutline, IMDB_PLUGIN_ID);
         }
-
 
         // PLOT
         if (OverrideTools.checkOverwritePlot(movie, IMDB_PLUGIN_ID)) {
@@ -1575,7 +1577,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         StringTokenizer st = new StringTokenizer(rating, "/ ()");
         try {
             return (int) (Float.parseFloat(st.nextToken()) * 10);
-        } catch (Exception error) {
+        } catch (NumberFormatException error) {
             return -1;
         }
     }
@@ -1643,6 +1645,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     /**
      * Get the TV show information from IMDb
      *
+     * @param movie
+     *
      * @throws IOException
      * @throws MalformedURLException
      */
@@ -1672,7 +1676,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (isValidString(result) && result.indexOf("This plot synopsis is empty") < 0) {
                 plot = HTMLTools.stripTags(result);
             }
-        } catch (Exception error) {
+        } catch (IOException error) {
+            LOG.warn("Failed to get plot summary: " + error.getMessage());
             plot = Movie.UNKNOWN;
         }
 
@@ -1894,7 +1899,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             person.setName(title);
 
             returnStatus = updateInfoNew(person, xml);
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error("Failed retrieving IMDb data for person : " + imdbID);
             LOG.error(SystemTools.getStackTrace(error));
         }

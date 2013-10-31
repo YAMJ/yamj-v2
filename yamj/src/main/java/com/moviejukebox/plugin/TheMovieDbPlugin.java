@@ -70,23 +70,24 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private TheMovieDbApi TMDb;
     private String languageCode;
     private String countryCode;
-    private boolean downloadFanart;
-    private static String fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
-    private String fanartExtension;
+    private final boolean downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", Boolean.FALSE);
+    private static final String FANART_TOKEN = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
+    private final String fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
     public static final boolean INCLUDE_ADULT = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", Boolean.FALSE);
     public static final int SEARCH_MATCH = PropertiesUtil.getIntProperty("themoviedb.searchMatch", 3);
     private static final String LANGUAGE_DELIMITER = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     private static final boolean AUTO_COLLECTION = PropertiesUtil.getBooleanProperty("themoviedb.collection", Boolean.FALSE);
     public static final String CACHE_COLLECTION = "Collection";
     public static final String CACHE_COLLECTION_IMAGES = "CollectionImages";
-    private int preferredBiographyLength;
-    private int preferredFilmographyMax;
+    private final int preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", 500);
+    private final int preferredFilmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", 20);
 
     public TheMovieDbPlugin() {
         try {
             TMDb = new TheMovieDbApi(API_KEY);
         } catch (MovieDbException ex) {
             LOG.warn(LOG_MESSAGE + "Failed to initialise TheMovieDB API: " + ex.getMessage());
+            TMDb = null;
             return;
         }
 
@@ -97,12 +98,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         TMDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
 
         decodeLanguage();
-
-        downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", Boolean.FALSE);
-        fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
-
-        preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", 500);
-        preferredFilmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", 20);
     }
 
     /**
@@ -233,7 +228,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 LOG.debug(LOG_MESSAGE + "Found id (" + moviedb.getId() + ") for " + moviedb.getTitle());
             }
 
-
             try {
                 // Get the release information
                 movieReleaseInfo = TMDb.getMovieReleaseInfo(moviedb.getId(), countryCode).getResults();
@@ -347,7 +341,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
             movie.setFanartURL(getFanartURL(movie));
             if (StringTools.isValidString(movie.getFanartURL())) {
-                movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
+                movie.setFanartFilename(movie.getBaseName() + FANART_TOKEN + "." + fanartExtension);
             }
         }
         return retval;
@@ -479,17 +473,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * @return True if valid to overwrite
      */
     private boolean overwriteCheck(String sourceString, String targetString) {
-        // false if the source is null or UNKNOWN
-        if (StringTools.isValidString(sourceString)) {
-            // sourceString is valid, check target string IS null OR UNKNOWN
-            if (StringTools.isNotValidString(targetString) || targetString.equals("-1")) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
+        return StringTools.isValidString(sourceString) && (StringTools.isNotValidString(targetString) || targetString.equals("-1"));
     }
 
     @Override
@@ -747,7 +731,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     // Add to the cache
                     CacheMemory.addToCache(cacheKey, collInfo);
                 }
-            } catch (Exception error) {
+            } catch (MovieDbException error) {
                 LOG.warn(LOG_MESSAGE + "Error getting CollectionInfo: " + error.getMessage());
             } finally {
                 ThreadExecutor.leaveIO();
@@ -828,7 +812,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 } else {
                     LOG.debug(LOG_MESSAGE + "No results found for " + collectionId + "-" + languageCode);
                 }
-            } catch (Exception error) {
+            } catch (MovieDbException error) {
                 LOG.warn(LOG_MESSAGE + "Error getting CollectionImages: " + error.getMessage());
             } finally {
                 ThreadExecutor.leaveIO();
@@ -861,6 +845,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * Get a cache key for the collection
      *
      * @param collectionId
+     * @param languageCode
      * @return
      */
     public static String getCollectionCacheKey(int collectionId, String languageCode) {
