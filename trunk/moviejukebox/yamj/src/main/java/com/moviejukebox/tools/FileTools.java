@@ -33,6 +33,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import static org.apache.commons.lang3.StringUtils.*;
@@ -40,7 +41,7 @@ import org.apache.log4j.Logger;
 
 public class FileTools {
 
-    private static final Logger logger = Logger.getLogger(FileTools.class);
+    private static final Logger LOG = Logger.getLogger(FileTools.class);
     private static final String LOG_MESSAGE = "FileTools: ";
     private static final int BUFF_SIZE = 16 * 1024;
     private static final Collection<String> SUBTITLE_EXTENSIONS = new ArrayList<String>();
@@ -204,7 +205,7 @@ public class FileTools {
         boolean returnValue = Boolean.FALSE;
 
         if (!src.exists()) {
-            logger.error(LOG_MESSAGE + "The file '" + src + "' does not exist!");
+            LOG.error(LOG_MESSAGE + "The file '" + src + "' does not exist!");
             return returnValue;
         }
 
@@ -229,8 +230,8 @@ public class FileTools {
                 }
                 return Boolean.TRUE;
             } catch (IOException error) {
-                logger.error(LOG_MESSAGE + "Failed copying file '" + src + TO + dst + "'");
-                logger.error(SystemTools.getStackTrace(error));
+                LOG.error(LOG_MESSAGE + "Failed copying file '" + src + TO + dst + "'");
+                LOG.error(SystemTools.getStackTrace(error));
                 returnValue = Boolean.FALSE;
             } finally {
                 if (inChannel != null) {
@@ -307,7 +308,7 @@ public class FileTools {
         try {
             File srcDir = new File(srcPathName);
             if (!srcDir.exists()) {
-                logger.error(LOG_MESSAGE + "Source directory " + srcPathName + " does not exist!");
+                LOG.error(LOG_MESSAGE + "Source directory " + srcPathName + " does not exist!");
                 return;
             }
 
@@ -315,7 +316,7 @@ public class FileTools {
             dstDir.mkdirs();
 
             if (!dstDir.exists()) {
-                logger.error(LOG_MESSAGE + "Target directory " + dstPathName + " does not exist!");
+                LOG.error(LOG_MESSAGE + "Target directory " + dstPathName + " does not exist!");
                 return;
             }
 
@@ -346,8 +347,8 @@ public class FileTools {
                             } else {
                                 if (updateDisplay) {
                                     System.out.print("\r    Copying directory " + displayPath + " (" + currentFile + "/" + totalSize + ")");
-                                    if (logger.isTraceEnabled()) {
-                                        logger.trace(LOG_MESSAGE + "Copying: " + file.getName());
+                                    if (LOG.isTraceEnabled()) {
+                                        LOG.trace(LOG_MESSAGE + "Copying: " + file.getName());
                                     }
                                 }
                                 copyFile(file, dstDir);
@@ -359,12 +360,12 @@ public class FileTools {
                         System.out.print("\n");
                     }
 
-                    logger.debug(LOG_MESSAGE + "Copied " + totalSize + " files from " + srcDir.getCanonicalPath());
+                    LOG.debug(LOG_MESSAGE + "Copied " + totalSize + " files from " + srcDir.getCanonicalPath());
                 }
             }
         } catch (IOException error) {
-            logger.error(LOG_MESSAGE + "Failed to copy '" + srcPathName + TO + dstPathName + "'");
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed to copy '" + srcPathName + TO + dstPathName + "'");
+            LOG.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -388,12 +389,12 @@ public class FileTools {
     public static String readFileToString(File file, String encoding) {
         String data = "";
         if (file == null) {
-            logger.error(LOG_MESSAGE + "Failed reading file, file is null");
+            LOG.error(LOG_MESSAGE + "Failed reading file, file is null");
         } else {
             try {
                 data = FileUtils.readFileToString(file, encoding);
             } catch (IOException ex) {
-                logger.error(LOG_MESSAGE + "Failed reading file " + file.getName() + " - Error: " + ex.getMessage());
+                LOG.error(LOG_MESSAGE + "Failed reading file " + file.getName() + " - Error: " + ex.getMessage());
             }
         }
         return data;
@@ -406,21 +407,12 @@ public class FileTools {
      * @param outputString
      */
     public static void writeStringToFile(String filename, String outputString) {
-        FileWriter out = null;
-
+        File outFile = new File(filename);
         try {
-            File outFile = new File(filename);
-
-            out = new FileWriter(outFile);
-            out.write(outputString);
-        } catch (Exception ignore) {
-            logger.debug(LOG_MESSAGE + "Error writing string to " + filename);
-        } finally {
-            try {
-                out.close();
-            } catch (IOException e) {
-                // Failed to close out file.
-            }
+            LOG.debug(LOG_MESSAGE + "Writing string to '" + outFile.getAbsolutePath() + "'");
+            FileUtils.writeStringToFile(outFile, outputString);
+        } catch (IOException ex) {
+            LOG.warn(LOG_MESSAGE + "Failed to write to file '" + outFile.getAbsolutePath() + "': " + ex.getMessage(), ex);
         }
     }
 
@@ -500,7 +492,7 @@ public class FileTools {
         }
 
         if (!newFilename.equals(filename)) {
-            logger.debug(LOG_MESSAGE + "Encoded filename string '" + filename + TO + newFilename + "'");
+            LOG.debug(LOG_MESSAGE + "Encoded filename string '" + filename + TO + newFilename + "'");
         }
 
         return newFilename;
@@ -511,6 +503,9 @@ public class FileTools {
      *
      * i.e. no duplicated separators, no ".", ".."..., and ending without trailing separator the only exception is a root! the
      * canonical form for a root INCLUDES the separator
+     *
+     * @param path
+     * @return
      */
     public static String getCanonicalPath(String path) {
         try {
@@ -522,6 +517,9 @@ public class FileTools {
 
     /**
      * when concatenating paths and the source MIGHT be a root, use this function to safely add the separator
+     *
+     * @param path
+     * @return
      */
     public static String getDirPathWithSeparator(String path) {
         return path.endsWith(File.separator) ? path : path + File.separator;
@@ -539,6 +537,9 @@ public class FileTools {
 
     /**
      * Returns the parent folder name only; used when searching for artwork...
+     *
+     * @param file
+     * @return
      */
     public static String getParentFolderName(File file) {
         if (file == null) {
@@ -554,7 +555,7 @@ public class FileTools {
      *
      * This function will scan for the filename plus extensions and return the File
      *
-     * @param filename
+     * @param fullBaseFilename
      * @param fileExtensions
      * @return always a File, to be tested with exists() for valid file
      */
@@ -564,8 +565,8 @@ public class FileTools {
         for (String extension : fileExtensions) {
             localFile = fileCache.getFile(fullBaseFilename + "." + extension);
             if (localFile.exists()) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace(LOG_MESSAGE + "Found " + localFile + " in the file cache");
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace(LOG_MESSAGE + "Found " + localFile + " in the file cache");
                 }
                 return localFile;
             }
@@ -651,12 +652,12 @@ public class FileTools {
             }
 
             if (searchFile != null) {
-                logger.debug(logPrefix + "Using first one found: " + searchFile.getAbsolutePath());
+                LOG.debug(logPrefix + "Using first one found: " + searchFile.getAbsolutePath());
             } else {
-                logger.debug(logPrefix + "No matching files found for " + safeFilename);
+                LOG.debug(logPrefix + "No matching files found for " + safeFilename);
             }
         } else {
-            logger.debug(logPrefix + "No scanned files found for " + searchFilename);
+            LOG.debug(logPrefix + "No scanned files found for " + searchFilename);
         }
 
         return searchFile;
@@ -668,6 +669,7 @@ public class FileTools {
      *
      * @param imageFile
      * @param imageURL
+     * @return
      * @throws IOException
      */
     public static boolean downloadImage(File imageFile, String imageURL) throws IOException {
@@ -678,7 +680,7 @@ public class FileTools {
     /**
      * Find the parent directory of the movie file.
      *
-     * @param file (movieFile)
+     * @param movieFile
      * @return Parent folder
      * @author Stuart Boston
      */
@@ -718,8 +720,8 @@ public class FileTools {
     public static boolean deleteDir(File dir) {
         if (dir.isDirectory()) {
             String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
+            for (String children1 : children) {
+                boolean success = deleteDir(new File(dir, children1));
                 if (!success) {
                     // System.out.println("Failed");
                     return Boolean.FALSE;
@@ -749,8 +751,8 @@ public class FileTools {
         if (StringTools.isValidString(filename)) {
             GENERATED_FILENAMES.add(filename);
 
-            if (logger.isTraceEnabled()) {
-                logger.trace(LOG_MESSAGE + "Adding " + filename + " to safe jukebox files");
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(LOG_MESSAGE + "Adding " + filename + " to safe jukebox files");
             }
         }
     }
@@ -974,7 +976,7 @@ public class FileTools {
     public static class ScannedFilesCache {
         //cache for ALL files found during initial scan
 
-        private Map<String, File> cachedFiles = new ConcurrentHashMap<String, File>(1000);
+        private final Map<String, File> cachedFiles = new ConcurrentHashMap<String, File>(1000);
 
         /**
          * Check whether the file exists
@@ -1145,7 +1147,7 @@ public class FileTools {
     /**
      * Create all directories up to the level of the file passed
      *
-     * @param sourceDirectory Source directory or file to create the directories directories
+     * @param file Source directory or file to create the directories directories
      * @return
      */
     public static Boolean makeDirectories(File file) {
@@ -1170,7 +1172,7 @@ public class FileTools {
         if (targetDirectory.exists()) {
             return Boolean.TRUE;
         }
-        logger.debug(LOG_MESSAGE + "Creating directories for " + targetDirectory.getAbsolutePath());
+        LOG.debug(LOG_MESSAGE + "Creating directories for " + targetDirectory.getAbsolutePath());
 
         fsLock.lock();
         try {
@@ -1180,7 +1182,7 @@ public class FileTools {
                 status = targetDirectory.mkdirs();
             }
             if (status && looper > 10) {
-                logger.error("Failed creating the directory (" + targetDirectory.getAbsolutePath() + "). Ensure this directory is read/write!");
+                LOG.error("Failed creating the directory (" + targetDirectory.getAbsolutePath() + "). Ensure this directory is read/write!");
                 return Boolean.FALSE;
             }
             return Boolean.TRUE;
