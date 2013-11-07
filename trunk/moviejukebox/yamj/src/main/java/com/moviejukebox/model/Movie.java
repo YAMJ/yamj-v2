@@ -846,7 +846,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
 
         // There are three choices for the sort title: title, original, filename
-
         if (titleSortType == TitleSortType.TITLE) {
             // Set the title sort (so this is only done once)
             setTitleSort(title);
@@ -1225,11 +1224,19 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void setCountry(String country, String source) {
+    public void setCountry(final String country, String source) {
         if (StringTools.isValidString(country)) {
-            if (!country.equalsIgnoreCase(this.country)) {
+            String tmpCountry;
+            // Shorten country to USA
+            if (country.equalsIgnoreCase("United States of America")) {
+                tmpCountry = "USA";
+            } else {
+                tmpCountry = country;
+            }
+
+            if (!tmpCountry.equalsIgnoreCase(this.country)) {
                 setDirty(DirtyFlag.INFO);
-                this.country = country;
+                this.country = tmpCountry;
             }
             setOverrideSource(OverrideFlag.COUNTRY, source);
         }
@@ -2131,7 +2138,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (dto.getHdResolution() != null) {
             setVideoType(TYPE_VIDEO_HD);
         }
-
 
         // set video output
         if (OverrideTools.checkOverwriteVideoOutput(this, SOURCE_FILENAME)) {
