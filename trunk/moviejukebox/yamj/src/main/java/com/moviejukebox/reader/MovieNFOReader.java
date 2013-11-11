@@ -61,26 +61,36 @@ public final class MovieNFOReader {
 
     private static final Logger LOG = Logger.getLogger(MovieNFOReader.class);
     private static final String LOG_MESSAGE = "MovieNFOReader: ";
-    // Types of nodes
+    /**
+     * Node Type: Movie
+     */
     public static final String TYPE_MOVIE = "movie";
+    /**
+     * Node Type: TV Show
+     */
     public static final String TYPE_TVSHOW = "tvshow";
+    /**
+     * Node Type: Episode
+     */
     public static final String TYPE_EPISODE = "episodedetails";
-    // Plugin ID
+    /**
+     * Plugin ID
+     */
     public static final String NFO_PLUGIN_ID = "NFO";
     // Other properties
     private static final String XML_START = "<";
     private static final String XML_END = "</";
     private static final String TEXT_FAILED = "Failed parsing NFO file: ";
     private static final String TEXT_FIXIT = ". Does not seem to be an XML format. Error: ";
-    private static boolean skipNfoUrl = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", Boolean.TRUE);
-    private static boolean skipNfoTrailer = PropertiesUtil.getBooleanProperty("filename.nfo.skipTrailer", Boolean.FALSE);
-    private static AspectRatioTools aspectTools = new AspectRatioTools();
-    private static boolean getCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE);
-    private static String imdbPreferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
-    private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
+    private static final boolean SKIP_NFO_URL = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", Boolean.TRUE);
+    private static final boolean SKIP_NFO_TRAILER = PropertiesUtil.getBooleanProperty("filename.nfo.skipTrailer", Boolean.FALSE);
+    private static final AspectRatioTools ASPECT_TOOLS = new AspectRatioTools();
+    private static final boolean CERT_FROM_MPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE);
+    private static final String IMDB_PREFERRED_COUNTRY = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
+    private static final String LANGUAGE_DELIMITER = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     // Fanart settings
-    private static String fanartToken = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
-    private static String fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
+    private static final String FANART_TOKEN = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
+    private static final String FANART_EXT = PropertiesUtil.getProperty("fanart.format", "jpg");
     // Patterns
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
     // Max People values
@@ -191,6 +201,7 @@ public final class MovieNFOReader {
      *
      * @param nfoFile
      * @param movie
+     * @return
      */
     public static boolean readXmlNfo(File nfoFile, Movie movie) {
         return convertNfoToDoc(nfoFile, null, movie, nfoFile.getName());
@@ -411,16 +422,16 @@ public final class MovieNFOReader {
                 }
 
                 // Poster and Fanart
-                if (!skipNfoUrl) {
+                if (!SKIP_NFO_URL) {
                     movie.setPosterURL(DOMHelper.getValueFromElement(eCommon, "thumb"));
                     movie.setFanartURL(DOMHelper.getValueFromElement(eCommon, "fanart"));
                     if (StringTools.isValidString(movie.getFanartURL())) {
-                        movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
+                        movie.setFanartFilename(movie.getBaseName() + FANART_TOKEN + "." + FANART_EXT);
                     }
                 }
 
                 // Trailers
-                if (!skipNfoTrailer) {
+                if (!SKIP_NFO_TRAILER) {
                     parseTrailers(eCommon.getElementsByTagName("trailer"), movie);
                 }
 
@@ -447,12 +458,8 @@ public final class MovieNFOReader {
 
                 // VideoSource: Issue 506 - Even though it's not strictly XBMC standard
                 if (OverrideTools.checkOverwriteVideoSource(movie, NFO_PLUGIN_ID)) {
-                    String tempString = DOMHelper.getValueFromElement(eCommon, "videosource");
-                    if (StringTools.isNotValidString(tempString)) {
-                        // Issue 2531: Try the alternative "videoSource"
-                        tempString = DOMHelper.getValueFromElement(eCommon, "videoSource");
-                    }
-                    movie.setVideoSource(tempString, NFO_PLUGIN_ID);
+                    // Issue 2531: Try the alternative "videoSource"
+                    movie.setVideoSource(DOMHelper.getValueFromElement(eCommon, "videosource", "videoSource"), NFO_PLUGIN_ID);
                 }
 
                 // Video Output
@@ -517,7 +524,7 @@ public final class MovieNFOReader {
 
                 if (OverrideTools.checkOverwriteAspectRatio(movie, NFO_PLUGIN_ID)) {
                     temp = DOMHelper.getValueFromElement(eStreams, "aspect");
-                    movie.setAspectRatio(aspectTools.cleanAspectRatio(temp), NFO_PLUGIN_ID);
+                    movie.setAspectRatio(ASPECT_TOOLS.cleanAspectRatio(temp), NFO_PLUGIN_ID);
                 }
 
                 if (OverrideTools.checkOverwriteResolution(movie, NFO_PLUGIN_ID)) {
@@ -561,7 +568,7 @@ public final class MovieNFOReader {
             for (Codec codec : movie.getCodecs()) {
                 if (codec.getCodecType() == CodecType.AUDIO) {
                     if (movieLanguage.length() > 0) {
-                        movieLanguage.append(languageDelimiter);
+                        movieLanguage.append(LANGUAGE_DELIMITER);
                     }
                     movieLanguage.append(codec.getCodecLanguage());
                 }
@@ -643,9 +650,9 @@ public final class MovieNFOReader {
             }
         }
 
-        epDetail.setAirsAfterSeason(DOMHelper.getValueFromElement(eEpisodeDetails, "airsafterseason"));
-        epDetail.setAirsBeforeEpisode(DOMHelper.getValueFromElement(eEpisodeDetails, "airsbeforeepisode"));
-        epDetail.setAirsBeforeSeason(DOMHelper.getValueFromElement(eEpisodeDetails, "airsbeforeseason"));
+        epDetail.setAirsAfterSeason(DOMHelper.getValueFromElement(eEpisodeDetails, "airsafterseason", "airsAfterSeason"));
+        epDetail.setAirsBeforeSeason(DOMHelper.getValueFromElement(eEpisodeDetails, "airsbeforeseason", "airsBeforeSeason"));
+        epDetail.setAirsBeforeEpisode(DOMHelper.getValueFromElement(eEpisodeDetails, "airsbeforeepisode", "airsBeforeEpisode"));
 
         return epDetail;
     }
@@ -962,7 +969,7 @@ public final class MovieNFOReader {
         }
 
         String tempCert;
-        if (getCertificationFromMPAA) {
+        if (CERT_FROM_MPAA) {
             tempCert = DOMHelper.getValueFromElement(eCommon, "mpaa");
             if (isValidString(tempCert)) {
                 // Issue 333
@@ -986,7 +993,7 @@ public final class MovieNFOReader {
             tempCert = DOMHelper.getValueFromElement(eCommon, "certification");
 
             if (isValidString(tempCert)) {
-                int countryPos = tempCert.lastIndexOf(imdbPreferredCountry);
+                int countryPos = tempCert.lastIndexOf(IMDB_PREFERRED_COUNTRY);
                 if (countryPos > 0) {
                     // We've found the country, so extract just that tag
                     tempCert = tempCert.substring(countryPos);
@@ -1095,8 +1102,8 @@ public final class MovieNFOReader {
 
         // Determine title elements
         String titleMain = DOMHelper.getValueFromElement(eCommon, "title");
-        String titleSort = DOMHelper.getValueFromElement(eCommon, "sorttitle");
-        String titleOrig = DOMHelper.getValueFromElement(eCommon, "originaltitle");
+        String titleSort = DOMHelper.getValueFromElement(eCommon, "sorttitle", "sortTitle");
+        String titleOrig = DOMHelper.getValueFromElement(eCommon, "originaltitle", "originalTitle");
 
         if (OverrideTools.checkOverwriteOriginalTitle(movie, NFO_PLUGIN_ID)) {
             movie.setOriginalTitle(titleOrig, NFO_PLUGIN_ID);
