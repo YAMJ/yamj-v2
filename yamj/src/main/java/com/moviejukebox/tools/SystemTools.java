@@ -45,6 +45,8 @@ public class SystemTools {
 
     /**
      * Show the memory available to the program and optionally try to force a garbage collection
+     *
+     * @param showAll
      */
     public static void showMemory(boolean showAll) {
 
@@ -175,7 +177,6 @@ public class SystemTools {
                         installationIsValid = Boolean.FALSE;
                     }
                     // No need to check for further matches
-                    continue;
                 }
             }
         }

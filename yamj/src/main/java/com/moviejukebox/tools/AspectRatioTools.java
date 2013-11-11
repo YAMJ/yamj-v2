@@ -138,7 +138,7 @@ public class AspectRatioTools {
             }
         }
 
-        if (!found) {
+        if (!found && aspectRatioFind != null) {
             if (ratioValue > aspectRatioFind.getMaxFloat()) {
                 // Too big! Use last value
                 return aspectRatioFind;
@@ -155,8 +155,7 @@ public class AspectRatioTools {
     }
 
     /**
-     * Populate the aspect list with the values These are static values because calculated values give slight wrong
-     * figures
+     * Populate the aspect list with the values These are static values because calculated values give slight wrong figures
      *
      * @param aspectList
      */
@@ -250,11 +249,7 @@ public class AspectRatioTools {
          * @return
          */
         public boolean testAspectRatio(float ratioValue) {
-            if (ratioValue >= this.minFloat && ratioValue <= this.maxFloat) {
-                return true;
-            } else {
-                return false;
-            }
+            return (ratioValue >= this.minFloat && ratioValue <= this.maxFloat);
         }
 
         public String getRatioName() {

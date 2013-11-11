@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import org.apache.log4j.Logger;
 import com.moviejukebox.model.Movie;
+import java.io.IOException;
 
 public class SearchEngineTools {
 
@@ -174,7 +175,7 @@ public class SearchEngineTools {
             if (beginIndex != -1) {
                 returnedXml = xml.substring(beginIndex, xml.indexOf("\"", beginIndex));
             }
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error(LOG_MESSAGE + "Failed retrieving link url by google search: " + title);
             LOG.error(SystemTools.getStackTrace(error));
         }
@@ -222,7 +223,7 @@ public class SearchEngineTools {
                     return "http:" + link;
                 }
             }
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error(LOG_MESSAGE + "Failed retrieving link url by yahoo search: " + title);
             LOG.error(SystemTools.getStackTrace(error));
         }
@@ -260,7 +261,7 @@ public class SearchEngineTools {
             if (beginIndex != -1) {
                 return xml.substring(beginIndex, xml.indexOf("\"", beginIndex));
             }
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error(LOG_MESSAGE + "Failed retrieving link url by bing search: " + title);
             LOG.error(SystemTools.getStackTrace(error));
         }

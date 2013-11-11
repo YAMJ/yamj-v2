@@ -41,7 +41,7 @@ public class PropertiesUtil {
     private static final String PREFERENCES_FILENAME = "preferences.xsl";
     public static final String TRUE = "true";
     public static final String FALSE = "false";
-    private static Properties props = new Properties();
+    private static final Properties props = new Properties();
 
     private PropertiesUtil() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
@@ -373,6 +373,7 @@ public class PropertiesUtil {
      * = French
      *
      * @param prefix Key for keywords list and prefix for value searching.
+     * @param defaultValue
      * @return Ordered keyword list and map.
      */
     public static KeywordMap getKeywordMap(String prefix, String defaultValue) {
@@ -435,16 +436,12 @@ public class PropertiesUtil {
             // Can't write to file
             LOG.error(LOG_MESSAGE + "Can't write to file");
             LOG.error(SystemTools.getStackTrace(error));
-        } catch (Exception error) {
-            // Some other error
-            LOG.error(LOG_MESSAGE + "Error with file");
-            LOG.error(SystemTools.getStackTrace(error));
         } finally {
             if (out != null) {
                 try {
                     out.flush();
                     out.close();
-                } catch (Exception error) {
+                } catch (IOException error) {
                     // ignore this error
                 }
             }
@@ -453,7 +450,7 @@ public class PropertiesUtil {
                 try {
                     osw.flush();
                     osw.close();
-                } catch (Exception error) {
+                } catch (IOException error) {
                     // ignore this error
                 }
             }
@@ -462,7 +459,7 @@ public class PropertiesUtil {
                 try {
                     fos.flush();
                     fos.close();
-                } catch (Exception error) {
+                } catch (IOException error) {
                     // ignore this error
                 }
             }

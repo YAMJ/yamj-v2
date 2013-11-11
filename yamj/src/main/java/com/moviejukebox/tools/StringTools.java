@@ -125,6 +125,9 @@ public class StringTools {
 
     /**
      * Format the file size
+     *
+     * @param fileSize
+     * @return
      */
     public static String formatFileSize(long fileSize) {
 

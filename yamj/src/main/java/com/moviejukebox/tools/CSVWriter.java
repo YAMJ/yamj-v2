@@ -43,13 +43,14 @@ public class CSVWriter {
     public CSVWriter(File csvFile) {
         try {
             writer = new FileWriter(csvFile);
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             logger.error(LOG_MESSAGE + "Error creating CSV file: " + csvFile);
         }
     }
 
     /**
      * @param str
+     * @throws java.io.IOException
      */
     public void line(String str) throws IOException {
         writer.write(str + S_EOL);
@@ -68,7 +69,7 @@ public class CSVWriter {
     public void close() {
         try {
             writer.close();
-        } catch (Exception ignore) {
+        } catch (IOException ignore) {
         }
     }
 } // class CSVWriter

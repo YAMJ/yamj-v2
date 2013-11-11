@@ -35,7 +35,7 @@ public class SqlTools {
     private static final Logger LOG = Logger.getLogger(SqlTools.class);
     private static final String LOG_MESSAGE = "SqlTools: ";
     private static Connection connection = null;
-    private static String INSERT_VIDEO = "insert into VIDEO (TITLE, POSTER, PATH) values (?, ?, ?)";
+    private static final String INSERT_VIDEO = "insert into VIDEO (TITLE, POSTER, PATH) values (?, ?, ?)";
 
     private SqlTools() {
         throw new UnsupportedOperationException("Class cannot be instantiated");

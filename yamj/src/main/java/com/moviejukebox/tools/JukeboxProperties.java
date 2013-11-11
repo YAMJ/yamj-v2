@@ -33,15 +33,19 @@ import com.moviejukebox.model.PropertyOverwrites;
 import static com.moviejukebox.model.PropertyOverwrites.*;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.log4j.Logger;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * Save a pre-defined list of attributes of the jukebox and properties for use in subsequent processing runs to determine if an
@@ -257,8 +261,9 @@ public class JukeboxProperties {
     /**
      * Create the mjbDetails file and populate with the attributes
      *
-     * @param mjbDetails
      * @param jukebox
+     * @param library
+     * @param mediaLibraryPaths
      */
     public static void writeFile(Jukebox jukebox, Library library, Collection<MediaLibraryPath> mediaLibraryPaths) {
         File mjbDetails = new File(jukebox.getJukeboxRootLocationDetailsFile(), "jukebox_details.xml");
@@ -354,7 +359,10 @@ public class JukeboxProperties {
             }
 
             DOMHelper.writeDocumentToFile(docMjbDetails, mjbDetails.getAbsolutePath());
-        } catch (Exception error) {
+        } catch (ParserConfigurationException error) {
+            logger.error(LOG_MESSAGE + "Error creating " + mjbDetails.getName() + " file");
+            logger.error(SystemTools.getStackTrace(error));
+        } catch (DOMException error) {
             logger.error(LOG_MESSAGE + "Error creating " + mjbDetails.getName() + " file");
             logger.error(SystemTools.getStackTrace(error));
         }
@@ -437,7 +445,15 @@ public class JukeboxProperties {
         // Try to open and read the document file
         try {
             docMjbDetails = DOMHelper.getDocFromFile(mjbDetails);
-        } catch (Exception error) {
+        } catch (ParserConfigurationException error) {
+            logger.warn(LOG_MESSAGE + "Failed creating the file, no checks performed");
+            logger.warn(SystemTools.getStackTrace(error));
+            return piReturn;
+        } catch (SAXException error) {
+            logger.warn(LOG_MESSAGE + "Failed creating the file, no checks performed");
+            logger.warn(SystemTools.getStackTrace(error));
+            return piReturn;
+        } catch (IOException error) {
             logger.warn(LOG_MESSAGE + "Failed creating the file, no checks performed");
             logger.warn(SystemTools.getStackTrace(error));
             return piReturn;
