@@ -30,9 +30,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
 
 /**
- * Utility class to provide a caching mechanism for data across threads Initially this will be stored in memory, but
- * ideally should be cached to a database Many sites provide a "last modified" date/time attribute, so we should
- * consider also caching that in the database
+ * Utility class to provide a caching mechanism for data across threads Initially this will be stored in memory, but ideally should
+ * be cached to a database Many sites provide a "last modified" date/time attribute, so we should consider also caching that in the
+ * database
  *
  * @author Stuart.Boston
  *
@@ -140,6 +140,7 @@ public class CacheMemory {
     /**
      * Generate a simple cache key based on string values
      *
+     * @param cacheKeys
      * @return cache key
      */
     public static String generateCacheKey(List<String> cacheKeys) {
@@ -160,6 +161,8 @@ public class CacheMemory {
 
     /**
      * Set the state of the cache
+     *
+     * @param cacheState
      */
     public static void setCacheState(boolean cacheState) {
         cacheEnabled = cacheState;
@@ -170,8 +173,7 @@ public class CacheMemory {
     }
 
     /**
-     * Called when running low on memory, clear the cache and turn off the caching routine Also print out a message to
-     * warn the user
+     * Called when running low on memory, clear the cache and turn off the caching routine Also print out a message to warn the user
      */
     public static void purgeCache() {
         if (cacheEnabled) {

@@ -272,7 +272,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
             returnValue = copyLocalArtwork(jukebox, movie);
         }
 
-        // If we sucessfully copied or downloaded the artwork, we need to process it
+        // If we Successfully copied or downloaded the artwork, we need to process it
         if (returnValue) {
             returnValue = processArtwork(jukebox, movie);
         }
