@@ -43,6 +43,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -54,9 +55,9 @@ public class MovieJukeboxXMLReader {
 
     private static final Logger logger = Logger.getLogger(MovieJukeboxXMLReader.class);
     private static final String LOG_MESSAGE = "XMLReader: ";
-    private static AspectRatioTools aspectTools = new AspectRatioTools();
+    private static final AspectRatioTools aspectTools = new AspectRatioTools();
     // Should we scrape the trivia information
-    private static boolean enableTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", Boolean.FALSE);
+    private static final boolean ENABLE_TRIVIA = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", Boolean.FALSE);
 
     /**
      * Parse a single movie detail XML file
@@ -214,7 +215,7 @@ public class MovieJukeboxXMLReader {
 
                 // get the top 250
                 parseOverridableTop250(movie, eMovie);
-                
+
                 // Get the directors
                 nlElements = eMovie.getElementsByTagName("directors");
                 if (nlElements.getLength() > 0) {
@@ -508,7 +509,7 @@ public class MovieJukeboxXMLReader {
                 }   // End of business info
 
                 // Issue 2013: Add trivia
-                if (enableTrivia) {
+                if (ENABLE_TRIVIA) {
                     nlElements = eMovie.getElementsByTagName("trivia");
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
                         nElements = nlElements.item(looper);
@@ -1000,7 +1001,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("aspect");
             Element tagElement = (Element) nlElement.item(0);
             movie.setAspectRatio(aspectTools.cleanAspectRatio(((Node) tagElement.getChildNodes().item(0)).getNodeValue()), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1010,7 +1011,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("certification");
             Element tagElement = (Element) nlElement.item(0);
             movie.setCertification(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1020,7 +1021,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("company");
             Element tagElement = (Element) nlElement.item(0);
             movie.setCompany(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1030,7 +1031,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("container");
             Element tagElement = (Element) nlElement.item(0);
             movie.setContainer(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1040,7 +1041,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("country");
             Element tagElement = (Element) nlElement.item(0);
             movie.setCountry(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1051,7 +1052,7 @@ public class MovieJukeboxXMLReader {
             Element tagElement = (Element) nlElement.item(0);
             float fps = Float.parseFloat(((Node) tagElement.getChildNodes().item(0)).getNodeValue());
             movie.setFps(fps, tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1061,7 +1062,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName(LANGUAGE);
             Element tagElement = (Element) nlElement.item(0);
             movie.setLanguage(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1071,7 +1072,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName(ORIGINAL_TITLE);
             Element tagElement = (Element) nlElement.item(0);
             movie.setOriginalTitle(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1081,7 +1082,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("outline");
             Element tagElement = (Element) nlElement.item(0);
             movie.setOutline(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE), Boolean.FALSE);
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1091,7 +1092,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("plot");
             Element tagElement = (Element) nlElement.item(0);
             movie.setPlot(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE), Boolean.FALSE);
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1101,7 +1102,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("quote");
             Element tagElement = (Element) nlElement.item(0);
             movie.setQuote(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1111,7 +1112,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("releaseDate");
             Element tagElement = (Element) nlElement.item(0);
             movie.setReleaseDate(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1121,7 +1122,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("resolution");
             Element tagElement = (Element) nlElement.item(0);
             movie.setResolution(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1131,7 +1132,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("runtime");
             Element tagElement = (Element) nlElement.item(0);
             movie.setRuntime(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1141,7 +1142,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("tagline");
             Element tagElement = (Element) nlElement.item(0);
             movie.setTagline(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1151,7 +1152,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName(TITLE);
             Element tagElement = (Element) nlElement.item(0);
             movie.setTitle(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1161,7 +1162,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("top250");
             Element tagElement = (Element) nlElement.item(0);
             movie.setTop250(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1171,7 +1172,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("videoOutput");
             Element tagElement = (Element) nlElement.item(0);
             movie.setVideoOutput(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1181,7 +1182,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName("videoSource");
             Element tagElement = (Element) nlElement.item(0);
             movie.setVideoSource(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }
@@ -1191,7 +1192,7 @@ public class MovieJukeboxXMLReader {
             NodeList nlElement = element.getElementsByTagName(YEAR);
             Element tagElement = (Element) nlElement.item(0);
             movie.setYear(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             // ignore this error
         }
     }

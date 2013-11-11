@@ -26,10 +26,11 @@ import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
@@ -59,8 +60,7 @@ public class MovieJukeboxLibraryReader {
             XMLConfiguration c = new XMLConfiguration(libraryFile);
 
             List<HierarchicalConfiguration> fields = c.configurationsAt("library");
-            for (Iterator<HierarchicalConfiguration> it = fields.iterator(); it.hasNext();) {
-                HierarchicalConfiguration sub = it.next();
+            for (HierarchicalConfiguration sub : fields) {
                 // sub contains now all data about a single medialibrary node
                 String path = sub.getString("path");
                 String nmtpath = sub.getString("nmtpath"); // This should be depreciated
@@ -81,7 +81,7 @@ public class MovieJukeboxLibraryReader {
                 if (prebufString != null && !prebufString.isEmpty()) {
                     try {
                         prebuf = Long.parseLong(prebufString);
-                    } catch (Exception ignore) {
+                    } catch (NumberFormatException ignore) {
                     }
                 }
 
@@ -130,7 +130,10 @@ public class MovieJukeboxLibraryReader {
                     logger.info(LOG_MESSAGE + "Skipped invalid media library: " + path);
                 }
             }
-        } catch (Exception error) {
+        } catch (ConfigurationException error) {
+            logger.error(LOG_MESSAGE + "Failed parsing moviejukebox library input file: " + libraryFile.getName());
+            logger.error(SystemTools.getStackTrace(error));
+        } catch (IOException error) {
             logger.error(LOG_MESSAGE + "Failed parsing moviejukebox library input file: " + libraryFile.getName());
             logger.error(SystemTools.getStackTrace(error));
         }

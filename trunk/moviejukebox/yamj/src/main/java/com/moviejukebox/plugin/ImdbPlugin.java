@@ -65,6 +65,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import org.apache.commons.lang3.math.NumberUtils;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 
@@ -1394,20 +1395,34 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             site = HTML_SITE_FULL;
         }
         String awardXML = webBrowser.request(site + HTML_TITLE + imdbId + "/awards");
-        if (awardXML.indexOf("Category/Recipient(s)") > -1) {
+        FileTools.writeStringToFile("../" + movie.getBaseFilename() + "-IMDB.xml", awardXML);  // XXX DEBUG
+        if (awardXML.indexOf("<h1 class=\"header\">Awards</h1>") > -1) {
+
+            List<String> awardHtmlList = HTMLTools.extractTags(awardXML, "<h1 class=\"header\">Awards</h1>", "<div class=\"article\"", "<h3>", "</table>", false);
+            LOG.info("Found " + awardHtmlList.size() + " records");
+
             Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
-            for (String awardBlock : HTMLTools.extractTags(awardXML, "<table style=\"margin-top: 8px; margin-bottom: 8px\" cellspacing=\"2\" cellpadding=\"2\" border=\"1\">", HTML_TABLE, "bgcolor=\"#ffffdb\"", "<td colspan=\"4\" align=\"center\" valign=\"top\"")) {
-                String name = HTMLTools.extractTag(awardBlock, "<big><a href=", "</a></big>");
-                name = name.substring(name.indexOf('>') + 1);
+            for (String awardBlock : awardHtmlList) {
+                LOG.info(StringUtils.repeat('*', 40));  // XXX DEBUG
+                LOG.info(awardBlock);                   // XXX DEBUG
+//                String name = HTMLTools.extractTag(awardBlock, "<big><a href=", "</a></big>");
+//                name = name.substring(name.indexOf('>') + 1);
+                String name = awardBlock.substring(0, awardBlock.indexOf('<')).trim();
+                LOG.info("Award Name: '" + name + "'");        // XXX DEBUG
 
                 AwardEvent event = new AwardEvent();
                 event.setName(name);
 
+                String tmpString = HTMLTools.extractTag(awardBlock, "<a href=", HTML_A_END).trim();
+                tmpString = tmpString.substring(tmpString.indexOf('>') + 1).trim();
+                int year = NumberUtils.isNumber(tmpString) ? Integer.parseInt(tmpString) : -1;
+                LOG.info("Year: " + year);  // XXX DEBUG
+
                 for (String yearBlock : HTMLTools.extractTags(awardBlock + HTML_END, "</th>", HTML_END, "<tr", "<td colspan=\"4\">")) {
                     if (yearBlock.indexOf("Sections/Awards") > -1) {
-                        String tmpString = HTMLTools.extractTag(yearBlock, "<a href=", HTML_A_END);
+                        tmpString = HTMLTools.extractTag(yearBlock, "<a href=", HTML_A_END);
                         String yearStr = tmpString.substring(tmpString.indexOf('>') + 1).substring(0, 4);
-                        int year = yearStr.equals("????") ? -1 : Integer.parseInt(yearStr);
+                        year = yearStr.equals("????") ? -1 : Integer.parseInt(yearStr);
                         int won = 0;
                         int nominated = 0;
                         tmpString = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("/" + (yearStr.equals("????") ? "0000" : yearStr) + HTML_QUOTE_GT + yearStr)), "<td rowspan=\"", "</b></td>");
@@ -1445,6 +1460,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (awards.size() > 0) {
                 movie.setAwards(awards);
             }
+        } else {
+            LOG.debug(LOG_MESSAGE + "No awards found for " + movie.getBaseName());
         }
         return Boolean.TRUE;
     }

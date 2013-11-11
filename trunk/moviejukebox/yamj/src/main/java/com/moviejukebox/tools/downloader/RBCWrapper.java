@@ -38,9 +38,9 @@ import java.nio.channels.ReadableByteChannel;
  */
 public final class RBCWrapper implements ReadableByteChannel {
 
-    private RBCWrapperDelegate delegate;
-    private long expectedSize;
-    private ReadableByteChannel rbc;
+    private final RBCWrapperDelegate delegate;
+    private final long expectedSize;
+    private final ReadableByteChannel rbc;
     private long readSoFar;
 
     RBCWrapper(ReadableByteChannel rbc, long expectedSize, RBCWrapperDelegate delegate) {
