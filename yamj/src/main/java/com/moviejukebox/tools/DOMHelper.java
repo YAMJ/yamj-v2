@@ -234,12 +234,16 @@ public class DOMHelper {
                 Element tagElement = (Element) nlElement.item(0);
                 if (tagElement != null) {
                     NodeList tagNodeList = tagElement.getChildNodes();
-                    if (tagNodeList != null) {
+                    if (tagNodeList != null && tagNodeList.getLength() > 0) {
                         returnValue = ((Node) tagNodeList.item(0)).getNodeValue();
                     }
                 }
             }
-        } catch (DOMException ignore) {
+        } catch (DOMException ex) {
+            return returnValue;
+        } catch (NullPointerException ex) {
+            // Shouldn't really catch null pointer exceptions, but there you go.
+            LOG.debug(LOG_MESSAGE + "Failed to get '" + tagName + "' from element");
             return returnValue;
         }
 
