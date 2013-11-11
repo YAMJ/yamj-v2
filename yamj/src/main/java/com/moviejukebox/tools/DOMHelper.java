@@ -219,32 +219,36 @@ public class DOMHelper {
     }
 
     /**
-     * Gets the string value of the tag element name passed
+     * Gets the string value from a list of tag element names passed
      *
      * @param element
-     * @param tagName
+     * @param tagNames
      * @return
      */
-    public static String getValueFromElement(Element element, String tagName) {
+    public static String getValueFromElement(Element element, String... tagNames) {
         String returnValue = DEFAULT_RETURN;
+        NodeList nlElement;
+        Element tagElement;
+        NodeList tagNodeList;
 
-        try {
-            NodeList nlElement = element.getElementsByTagName(tagName);
-            if (nlElement != null) {
-                Element tagElement = (Element) nlElement.item(0);
-                if (tagElement != null) {
-                    NodeList tagNodeList = tagElement.getChildNodes();
-                    if (tagNodeList != null && tagNodeList.getLength() > 0) {
-                        returnValue = ((Node) tagNodeList.item(0)).getNodeValue();
+        for (String tagName : tagNames) {
+            try {
+                nlElement = element.getElementsByTagName(tagName);
+                if (nlElement != null) {
+                    tagElement = (Element) nlElement.item(0);
+                    if (tagElement != null) {
+                        tagNodeList = tagElement.getChildNodes();
+                        if (tagNodeList != null && tagNodeList.getLength() > 0) {
+                            returnValue = ((Node) tagNodeList.item(0)).getNodeValue();
+                        }
                     }
                 }
+            } catch (DOMException ex) {
+                LOG.trace(LOG_MESSAGE + "DOM processing exception, error: " + ex.getMessage());
+            } catch (NullPointerException ex) {
+                // Shouldn't really catch null pointer exceptions, but there you go.
+                LOG.trace(LOG_MESSAGE + "Null pointer exception, error: " + ex.getMessage());
             }
-        } catch (DOMException ex) {
-            return returnValue;
-        } catch (NullPointerException ex) {
-            // Shouldn't really catch null pointer exceptions, but there you go.
-            LOG.debug(LOG_MESSAGE + "Failed to get '" + tagName + "' from element");
-            return returnValue;
         }
 
         return returnValue;
@@ -336,10 +340,23 @@ public class DOMHelper {
             throw new SAXParseException(null, null, exception);
         }
 
+        /**
+         * Build the error message from the exception
+         *
+         * @param exception
+         * @return
+         */
         public String buildMessage(SAXParseException exception) {
             return buildMessage(exception, null);
         }
 
+        /**
+         * Build the error message from the exception
+         *
+         * @param exception
+         * @param level
+         * @return
+         */
         public String buildMessage(SAXParseException exception, String level) {
             StringBuilder message = new StringBuilder("Parsing ");
             if (StringUtils.isNotBlank(level)) {
