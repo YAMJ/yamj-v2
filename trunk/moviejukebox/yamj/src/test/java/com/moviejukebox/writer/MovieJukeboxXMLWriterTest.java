@@ -68,9 +68,6 @@ public class MovieJukeboxXMLWriterTest {
         // Check that the scan was sucessful
         assertTrue(result);
 
-//        System.out.println(movie.toString().replace("][", "\n").replace("[Movie [", "").replace("]]", ""));
-//        System.out.println(mf.toString().replace("][", "\n").replace("[MovieFile [", "").replace("]]", ""));
-
         assertEquals("The Godfather", movie.getTitle());
         assertEquals("tt0068646", movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
         assertNotNull(movie.getRating(ImdbPlugin.IMDB_PLUGIN_ID));
@@ -106,7 +103,7 @@ public class MovieJukeboxXMLWriterTest {
 
     @Test
     public void testMultiPartFileXML() {
-        
+
         File xmlFile = getTestFile("ExampleMultiPartFile.xml");
         Movie movie = new Movie();
 
