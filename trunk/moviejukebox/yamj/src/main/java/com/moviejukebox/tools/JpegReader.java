@@ -69,7 +69,6 @@ public class JpegReader {
      * @param file
      * @return
      * @throws IOException
-     * @throws ImageReadException
      */
     public BufferedImage readImage(File file) throws IOException {
         colorType = COLOR_TYPE_RGB;

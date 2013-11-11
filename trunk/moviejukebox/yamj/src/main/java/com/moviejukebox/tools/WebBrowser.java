@@ -48,15 +48,15 @@ public class WebBrowser {
 
     private static final Logger logger = Logger.getLogger(WebBrowser.class);
     private static final String LOG_MESSAGE = "WebBrowser: ";
-    private Map<String, String> browserProperties;
-    private Map<String, Map<String, String>> cookies;
-    private static String mjbProxyHost = PropertiesUtil.getProperty("mjb.ProxyHost");
-    private static String mjbProxyPort = PropertiesUtil.getProperty("mjb.ProxyPort");
-    private static String mjbProxyUsername = PropertiesUtil.getProperty("mjb.ProxyUsername");
-    private static String mjbProxyPassword = PropertiesUtil.getProperty("mjb.ProxyPassword");
-    private static String mjbEncodedPassword = encodePassword();
-    private static int mjbTimeoutConnect = PropertiesUtil.getIntProperty("mjb.Timeout.Connect", 25000);
-    private static int mjbTimeoutRead = PropertiesUtil.getIntProperty("mjb.Timeout.Read", 90000);
+    private final Map<String, String> browserProperties;
+    private final Map<String, Map<String, String>> cookies;
+    private static final String PROXY_HOST = PropertiesUtil.getProperty("mjb.ProxyHost");
+    private static final String PROXY_PORT = PropertiesUtil.getProperty("mjb.ProxyPort");
+    private static final String PROXY_USERNAME = PropertiesUtil.getProperty("mjb.ProxyUsername");
+    private static final String PROXY_PASSWORD = PropertiesUtil.getProperty("mjb.ProxyPassword");
+    private static final String ENCODED_PASSWORD = encodePassword();
+    private static final int TIMEOUT_CONNECT = PropertiesUtil.getIntProperty("mjb.Timeout.Connect", 25000);
+    private static final int TIMEOUT_READ = PropertiesUtil.getIntProperty("mjb.Timeout.Read", 90000);
     private int imageRetryCount;
 
     public WebBrowser() {
@@ -82,10 +82,10 @@ public class WebBrowser {
     public void addBrowserProperty(String key, String value) {
         this.browserProperties.put(key, value);
     }
-    
+
     private static String encodePassword() {
-        if (mjbProxyUsername != null) {
-            return ("Basic " + new String(Base64.encodeBase64((mjbProxyUsername + ":" + mjbProxyPassword).getBytes())));
+        if (PROXY_USERNAME != null) {
+            return ("Basic " + new String(Base64.encodeBase64((PROXY_USERNAME + ":" + PROXY_PASSWORD).getBytes())));
         } else {
             return "";
         }
@@ -100,20 +100,20 @@ public class WebBrowser {
     }
 
     public URLConnection openProxiedConnection(URL url) throws IOException {
-        if (mjbProxyHost != null) {
+        if (PROXY_HOST != null) {
             System.getProperties().put("proxySet", TRUE);
-            System.getProperties().put("proxyHost", mjbProxyHost);
-            System.getProperties().put("proxyPort", mjbProxyPort);
+            System.getProperties().put("proxyHost", PROXY_HOST);
+            System.getProperties().put("proxyPort", PROXY_PORT);
         }
 
         URLConnection cnx = url.openConnection();
 
-        if (mjbProxyUsername != null) {
-            cnx.setRequestProperty("Proxy-Authorization", mjbEncodedPassword);
+        if (PROXY_USERNAME != null) {
+            cnx.setRequestProperty("Proxy-Authorization", ENCODED_PASSWORD);
         }
 
-        cnx.setConnectTimeout(mjbTimeoutConnect);
-        cnx.setReadTimeout(mjbTimeoutRead);
+        cnx.setConnectTimeout(TIMEOUT_CONNECT);
+        cnx.setReadTimeout(TIMEOUT_READ);
 
         return cnx;
     }
@@ -183,6 +183,9 @@ public class WebBrowser {
     /**
      * Download the image for the specified URL into the specified file.
      *
+     * @param imageFile
+     * @param imageURL
+     * @return
      * @throws IOException
      */
     public boolean downloadImage(File imageFile, String imageURL) throws IOException {
@@ -245,7 +248,7 @@ public class WebBrowser {
         }
 
         if (success) {
-            logger.debug(LOG_MESSAGE + "Sucessfully downloaded '" + imageURL + "' to '" + imageFile.getAbsolutePath() + "', Size: " + reportedLength);
+            logger.debug(LOG_MESSAGE + "Successfully downloaded '" + imageURL + "' to '" + imageFile.getAbsolutePath() + "', Size: " + reportedLength);
         } else {
             logger.debug(LOG_MESSAGE + "Failed " + imageRetryCount + " times to download image, aborting. URL: " + imageURL);
         }
@@ -409,47 +412,47 @@ public class WebBrowser {
     }
 
     public static String getMjbProxyHost() {
-        return mjbProxyHost;
+        return PROXY_HOST;
     }
 
     public static String getMjbProxyPort() {
-        return mjbProxyPort;
+        return PROXY_PORT;
     }
 
     public static String getMjbProxyUsername() {
-        return mjbProxyUsername;
+        return PROXY_USERNAME;
     }
 
     public static String getMjbProxyPassword() {
-        return mjbProxyPassword;
+        return PROXY_PASSWORD;
     }
 
     public static int getMjbTimeoutConnect() {
-        return mjbTimeoutConnect;
+        return TIMEOUT_CONNECT;
     }
 
     public static int getMjbTimeoutRead() {
-        return mjbTimeoutRead;
+        return TIMEOUT_READ;
     }
 
     public static void showStatus() {
-        if (mjbProxyHost != null) {
-            logger.debug(LOG_MESSAGE + "Proxy Host: " + mjbProxyHost);
-            logger.debug(LOG_MESSAGE + "Proxy Port: " + mjbProxyPort);
+        if (PROXY_HOST != null) {
+            logger.debug(LOG_MESSAGE + "Proxy Host: " + PROXY_HOST);
+            logger.debug(LOG_MESSAGE + "Proxy Port: " + PROXY_PORT);
         } else {
             logger.debug(LOG_MESSAGE + "No proxy set");
         }
 
-        if (mjbProxyUsername != null) {
-            logger.debug(LOG_MESSAGE + "Proxy Host: " + mjbProxyUsername);
-            if (mjbProxyPassword != null) {
+        if (PROXY_USERNAME != null) {
+            logger.debug(LOG_MESSAGE + "Proxy Host: " + PROXY_USERNAME);
+            if (PROXY_PASSWORD != null) {
                 logger.debug(LOG_MESSAGE + "Proxy Password: IS SET");
             }
         } else {
             logger.debug(LOG_MESSAGE + "No Proxy username ");
         }
 
-        logger.debug(LOG_MESSAGE + "Connect Timeout: " + mjbTimeoutConnect);
-        logger.debug(LOG_MESSAGE + "Read Timeout   : " + mjbTimeoutRead);
+        logger.debug(LOG_MESSAGE + "Connect Timeout: " + TIMEOUT_CONNECT);
+        logger.debug(LOG_MESSAGE + "Read Timeout   : " + TIMEOUT_READ);
     }
 }

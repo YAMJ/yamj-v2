@@ -149,7 +149,7 @@ public class DateTimeTools {
         try {
             returnValue = Integer.parseInt(runtime);
             return returnValue;
-        } catch (Exception ignore) {
+        } catch (NumberFormatException ignore) {
             returnValue = -1;
         }
 

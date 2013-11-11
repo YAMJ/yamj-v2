@@ -237,7 +237,7 @@ public final class OverrideTools {
      * Put movie priorities into map.
      *
      * @param overrideFlag
-     * @param newSources
+     * @param sources
      */
     public static void putTvPriorities(OverrideFlag overrideFlag, String sources) {
         putPriorities(TV_PRIORITIES_MAP, TVSHOW_PLUGIN, "TV", overrideFlag, sources);

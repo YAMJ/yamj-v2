@@ -63,7 +63,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
                 Pattern.compile(group);
                 logger.debug(group + "=" + semaphoreMatcher.group(2));
                 grouplimits.put(group, new Semaphore(Integer.parseInt(semaphoreMatcher.group(2))));
-            } catch (Exception error) {
+            } catch (NumberFormatException error) {
                 logger.debug("Rule \"" + group + "\" is not valid regexp, ignored");
             }
         }
@@ -76,6 +76,8 @@ public class ThreadExecutor<T> implements ThreadFactory {
      * - in addition processing threads should call pairs EnterIO, LeaveIO to switch from running to io state
      *
      * @author Gabriel Corneanu
+     * @param threadsRun
+     * @param threadsIo
      */
     public ThreadExecutor(int threadsRun, int threadsIo) {
         this.threadsRun = threadsRun;

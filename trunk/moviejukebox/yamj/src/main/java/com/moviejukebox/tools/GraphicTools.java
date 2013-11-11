@@ -54,6 +54,7 @@ public class GraphicTools {
      * @param filename
      * @return
      * @throws IOException
+     * @throws org.apache.sanselan.ImageReadException
      */
     public static BufferedImage loadJPEGImage(String filename) throws IOException, ImageReadException {
         return loadJPEGImage(new File(filename));
@@ -65,6 +66,7 @@ public class GraphicTools {
      * @param fileImage
      * @return
      * @throws IOException
+     * @throws org.apache.sanselan.ImageReadException
      */
     public static BufferedImage loadJPEGImage(File fileImage) throws IOException, ImageReadException {
         if (fileImage.exists()) {
@@ -123,7 +125,7 @@ public class GraphicTools {
             writer.setOutput(output);
             IIOImage image = new IIOImage(bufImage, null, null);
             writer.write(null, image, iwp);
-        } catch (Exception error) {
+        } catch (IOException error) {
             logger.error(LOG_MESSAGE + "Failed Saving thumbnail file: " + filename);
             logger.error(SystemTools.getStackTrace(error));
         } finally {
@@ -155,7 +157,7 @@ public class GraphicTools {
             // Create the output directories if needed
             FileTools.makeDirectories(outputFile);
             ImageIO.write(bi, "png", outputFile);
-        } catch (Exception error) {
+        } catch (IOException error) {
             logger.error(LOG_MESSAGE + "Failed Saving thumbnail file: " + filename);
             logger.error(SystemTools.getStackTrace(error));
         }

@@ -154,6 +154,9 @@ public class DOMHelper {
      *
      * @param docString
      * @return
+     * @throws javax.xml.parsers.ParserConfigurationException
+     * @throws org.xml.sax.SAXException
+     * @throws java.io.IOException
      */
     public static Document getDocFromString(String docString) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -209,7 +212,9 @@ public class DOMHelper {
             }
         }
 
-        doc.getDocumentElement().normalize();
+        if (doc != null) {
+            doc.getDocumentElement().normalize();
+        }
         return doc;
     }
 
@@ -228,7 +233,7 @@ public class DOMHelper {
             Element tagElement = (Element) nlElement.item(0);
             NodeList tagNodeList = tagElement.getChildNodes();
             returnValue = ((Node) tagNodeList.item(0)).getNodeValue();
-        } catch (Exception ignore) {
+        } catch (DOMException ignore) {
             return returnValue;
         }
 
@@ -256,7 +261,7 @@ public class DOMHelper {
      * Write the Document out to a file using nice formatting
      *
      * @param doc The document to save
-     * @param localFile The file to write to
+     * @param localFilename The file to write to
      * @return
      */
     public static boolean writeDocumentToFile(Document doc, String localFilename) {
@@ -283,7 +288,15 @@ public class DOMHelper {
 
             trans.transform(new DOMSource(doc), new StreamResult(localFile));
             return true;
-        } catch (Exception error) {
+        } catch (IllegalArgumentException error) {
+            LOG.error(LOG_MESSAGE + "Error writing the document to " + localFile);
+            LOG.error(LOG_MESSAGE + "Message: " + error.getMessage());
+            return false;
+        } catch (DOMException error) {
+            LOG.error(LOG_MESSAGE + "Error writing the document to " + localFile);
+            LOG.error(LOG_MESSAGE + "Message: " + error.getMessage());
+            return false;
+        } catch (TransformerException error) {
             LOG.error(LOG_MESSAGE + "Error writing the document to " + localFile);
             LOG.error(LOG_MESSAGE + "Message: " + error.getMessage());
             return false;
