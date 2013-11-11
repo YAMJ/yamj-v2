@@ -35,9 +35,21 @@ public final class SubtitleTools {
     private static final String SPLIT_PATTERN = "\\||,|/";
     private static final String YES = "YES";
     private static final String NO = "NO";
-    private static final String subtitleDelimiter = PropertiesUtil.getProperty("mjb.subtitle.delimiter", SPACE_SLASH_SPACE);
+    private static final String subtitleDelimiter;
     private static final boolean subtitleUnique = PropertiesUtil.getBooleanProperty("mjb.subtitle.unique", Boolean.TRUE);
     private static final List<String> skippedSubtitles = populateSkippedSubtitles();
+
+    static {
+        // Check for the delimiter in the properties file
+        String tmpDelim = PropertiesUtil.getProperty("mjb.subtitle.delimiter");
+        if (StringTools.isValidString(tmpDelim)) {
+            subtitleDelimiter = tmpDelim;
+        } else {
+            // If there is no delimiter use the default " / ".
+            // Do it this way so the property is not trimmed by the properties functions.
+            subtitleDelimiter = SPACE_SLASH_SPACE;
+        }
+    }
 
     private SubtitleTools() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
