@@ -230,9 +230,15 @@ public class DOMHelper {
 
         try {
             NodeList nlElement = element.getElementsByTagName(tagName);
-            Element tagElement = (Element) nlElement.item(0);
-            NodeList tagNodeList = tagElement.getChildNodes();
-            returnValue = ((Node) tagNodeList.item(0)).getNodeValue();
+            if (nlElement != null) {
+                Element tagElement = (Element) nlElement.item(0);
+                if (tagElement != null) {
+                    NodeList tagNodeList = tagElement.getChildNodes();
+                    if (tagNodeList != null) {
+                        returnValue = ((Node) tagNodeList.item(0)).getNodeValue();
+                    }
+                }
+            }
         } catch (DOMException ignore) {
             return returnValue;
         }
