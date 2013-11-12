@@ -1395,7 +1395,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             site = HTML_SITE_FULL;
         }
         String awardXML = webBrowser.request(site + HTML_TITLE + imdbId + "/awards");
-        FileTools.writeStringToFile("../" + movie.getBaseFilename() + "-IMDB.xml", awardXML);  // XXX DEBUG
+//        FileTools.writeStringToFile("../" + movie.getBaseFilename() + "-IMDB.xml", awardXML);  // XXX DEBUG
         if (awardXML.indexOf("<h1 class=\"header\">Awards</h1>") > -1) {
 
             List<String> awardHtmlList = HTMLTools.extractTags(awardXML, "<h1 class=\"header\">Awards</h1>", "<div class=\"article\"", "<h3>", "</table>", false);
