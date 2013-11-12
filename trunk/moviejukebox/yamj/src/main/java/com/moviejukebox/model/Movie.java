@@ -71,11 +71,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * Properties that control the object
      */
     private static final List<String> SORT_IGNORE_PREFIXES = new ArrayList<String>();
-    private int highdef720 = PropertiesUtil.getIntProperty("highdef.720.width", 1280);    // Get the minimum width for a high-definition movies
-    private int highdef1080 = PropertiesUtil.getIntProperty("highdef.1080.width", 1920);  // Get the minimum width for a high-definition movies
-    private String[] ratingSource = PropertiesUtil.getProperty("mjb.rating.source", "average").split(",");
-    private String tmpRatingIgnore = PropertiesUtil.getProperty("mjb.rating.ignore", "");
-    private List<String> ratingIgnore = StringTools.isValidString(tmpRatingIgnore) ? Arrays.asList(tmpRatingIgnore.split(",")) : new ArrayList<String>();
+    private final int highdef720 = PropertiesUtil.getIntProperty("highdef.720.width", 1280);    // Get the minimum width for a high-definition movies
+    private final int highdef1080 = PropertiesUtil.getIntProperty("highdef.1080.width", 1920);  // Get the minimum width for a high-definition movies
+    private final String[] ratingSource = PropertiesUtil.getProperty("mjb.rating.source", "average").split(",");
+    private final String tmpRatingIgnore = PropertiesUtil.getProperty("mjb.rating.ignore", "");
+    private final List<String> ratingIgnore = StringTools.isValidString(tmpRatingIgnore) ? Arrays.asList(tmpRatingIgnore.split(",")) : new ArrayList<String>();
     private static final Set<String> GENRE_SKIP_LIST = new HashSet<String>();   // List of genres to ignore
     private static final TitleSortType titleSortType = TitleSortType.fromString(PropertiesUtil.getProperty("mjb.sortTitle", "title"));
     // TODO: This will be removed in the future, once hashing has been completed
@@ -783,10 +783,12 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     // Return the width of the movie
     public int getWidth() {
-        int width;
+        int width = 0;
         try {
-            width = Integer.parseInt(getResolution().substring(0, getResolution().indexOf("x")));
-        } catch (Exception error) {
+            if (StringTools.isValidString(getResolution()) && getResolution().contains("x")) {
+                width = Integer.parseInt(getResolution().substring(0, getResolution().indexOf("x")));
+            }
+        } catch (NumberFormatException error) {
             // This will catch the exception if mediainfo is not installed.
             width = 0;
         }
@@ -836,6 +838,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      */
     /**
      * Return the correct sort title based on the mjb.sortTitle parameter
+     *
+     * @return
      */
     @Override
     @XmlElement
@@ -1399,10 +1403,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * java.lang.String)
      */
     @Override
-    public void setId(String key, String id) {
-        if (StringTools.isValidString(key) && StringTools.isValidString(id) && !id.equalsIgnoreCase(this.getId(key))) {
+    public void setId(final String key, final String id) {
+        String tmpId = StringUtils.trim(id);    // Clean the ID
+        if (StringTools.isValidString(key) && StringTools.isValidString(tmpId) && !tmpId.equalsIgnoreCase(this.getId(key))) {
             setDirty(DirtyFlag.INFO);
-            this.idMap.put(key, id);
+            this.idMap.put(key, tmpId);
         }
     }
 
@@ -1902,7 +1907,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     /**
      * This function will return true if the movie can have trailers.
      *
-     * @param movie
      * @return
      */
     public boolean canHaveTrailers() {

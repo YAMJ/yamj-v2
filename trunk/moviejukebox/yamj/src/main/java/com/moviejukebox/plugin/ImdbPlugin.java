@@ -1786,7 +1786,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             LOG.error(error.getMessage());
         }
 
-        return id;
+        return StringUtils.trim(id);
     }
 
     /**
