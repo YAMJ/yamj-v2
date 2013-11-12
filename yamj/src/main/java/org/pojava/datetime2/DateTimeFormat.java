@@ -154,7 +154,7 @@ public class DateTimeFormat {
             symbols.put(locale, new DateFormatSymbols(locale));
         }
         DateFormatSymbols dfs=symbols.get(locale);
-        String bcPrefix=(template.indexOf('g')<0 && template.indexOf('G')<0) ? dt.config().getBcPrefix() : "";
+						        String bcPrefix=(template.indexOf('g')<0 && template.indexOf('G')<0) ? dt.config().getBcPrefix() : "";
         boolean isLiteral=(prior=='\'');
         for (int i = 1; i < fmt.length; i++) {
             if (fmt[i]=='\'') {

@@ -15,14 +15,13 @@ package org.pojava.datetime2;
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 /**
- * This class converts a DateTime into year, month, day, hour, minute, second, millisecond,
- * nanosecond. It is similar to the tm struct in C.
+ * This class converts a DateTime into year, month, day, hour, minute, second, millisecond, nanosecond. It is similar to the tm
+ * struct in C.
  *
  * @author John Pile
  *
@@ -39,13 +38,12 @@ public class Tm {
     private static final long CENT = QUADYEAR * 25 - DAY;
     private static final long QUADCENT = 4 * CENT + DAY;
     // Our year starts March 1
-    private static final long[] MONTH = { 0, 31 * DAY, 61 * DAY, 92 * DAY, 122 * DAY,
-            153 * DAY, 184 * DAY, 214 * DAY, 245 * DAY, 275 * DAY, 306 * DAY, 337 * DAY,
-            365 * DAY };
+    private static final long[] MONTH = {0, 31 * DAY, 61 * DAY, 92 * DAY, 122 * DAY,
+        153 * DAY, 184 * DAY, 214 * DAY, 245 * DAY, 275 * DAY, 306 * DAY, 337 * DAY,
+        365 * DAY};
     /**
-     * The true Gregorian Calendar was initiated in October 1582, but this start date is easier
-     * for calculations, so I use it as an epoch. The year starts on March 1 so that a leap day
-     * is always at the end of a year.
+     * The true Gregorian Calendar was initiated in October 1582, but this start date is easier for calculations, so I use it as an
+     * epoch. The year starts on March 1 so that a leap day is always at the end of a year.
      */
     private static final long GREG_EPOCH_UTC = -11670912000000L;
     private static final long START_OF_AD = -62135740800000L;
@@ -65,8 +63,7 @@ public class Tm {
     /**
      * Populate year, month, day, hour, min, sec, nano from a DateTime
      *
-     * @param dt
-     *            DateTime object
+     * @param dt DateTime object
      */
     public Tm(DateTime dt) {
         init(dt, dt.timeZone());
@@ -74,6 +71,7 @@ public class Tm {
 
     /**
      * Constructor
+     *
      * @param dt Populate year, month, day, hour, min, sec, nano from a DateTime
      * @param tz Assert the time zone under which those values are sampled.
      */
@@ -84,30 +82,29 @@ public class Tm {
     /**
      * Populate year, month, day, hour, min, sec, nano
      *
-     * @param millis
-     *            Date/Time in UTC assuming the default time zone.
+     * @param millis Date/Time in UTC assuming the default time zone.
      */
     public Tm(long millis) {
-    	DateTimeConfig config=DateTimeConfig.getGlobalDefault();
+        DateTimeConfig config = DateTimeConfig.getGlobalDefault();
         init(new DateTime(millis, config), config.getOutputTimeZone());
     }
 
     /**
      * Constructor
+     *
      * @param millis Millis since epoch
      * @param tz TimeZone under which the date is assumed
      */
     public Tm(long millis, TimeZone tz) {
-    	DateTimeConfig config=DateTimeConfig.getGlobalDefault().clone();
-    	if (tz!=null) {
-    		config.setOutputTimeZone(tz);
-    	}
+        DateTimeConfig config = DateTimeConfig.getGlobalDefault().clone();
+        if (tz != null) {
+            config.setOutputTimeZone(tz);
+        }
         init(new DateTime(millis, config), tz);
     }
 
     /**
-     * We'll direct the pre-GREG_EPOCH times here for now. Most folks don't use them, so
-     * optimizing is not my highest priority.
+     * We'll direct the pre-GREG_EPOCH times here for now. Most folks don't use them, so optimizing is not my highest priority.
      *
      * @param millis
      */
@@ -122,24 +119,22 @@ public class Tm {
         this.minute = cal.get(Calendar.MINUTE);
         this.second = cal.get(Calendar.SECOND);
         this.weekday = cal.get(Calendar.DAY_OF_WEEK);
-        if (millis<START_OF_AD) {
-        	year=-year;
+        if (millis < START_OF_AD) {
+            year = -year;
         }
     }
 
     /**
      * Calculate date parts.
      *
-     * @param dt
-     *          DateTime
-     * @param timeZone
-     * 			TimeZone
+     * @param dt DateTime
+     * @param timeZone TimeZone
      */
     private void init(DateTime dt, TimeZone timeZone) {
-        if (timeZone==null) {
-            timeZone=dt.config().getInputTimeZone();
+        if (timeZone == null) {
+            timeZone = dt.config().getInputTimeZone();
         }
-        this.tz=timeZone;
+        this.tz = timeZone;
         long millis = dt.toMillis();
         // Compensate for difference between the system time zone and the recorded time zone
         long duration = millis - GREG_EPOCH_UTC + timeZone.getOffset(dt.toMillis());
@@ -198,12 +193,11 @@ public class Tm {
      * @return Numeric day of week, usually Sun=1, Mon=2, ... , Sat=7. See DateTimeConfig.
      */
     public static int calcWeekday(long millis, TimeZone timeZone) {
-        long leftover = 0;
         // Adding 2000 years in weeks makes all calculations positive.
         // Adding epoch DOW shifts us into phase with start of week.
         long offset = DateTimeConfig.getGlobalDefault().getEpochDOW() * Duration.DAY + 52
                 * Duration.WEEK * 2000;
-        leftover = offset + millis + timeZone.getOffset(millis);
+        long leftover = offset + millis + timeZone.getOffset(millis);
         leftover %= Duration.WEEK;
         leftover /= Duration.DAY;
         // Convert from zero to one based
@@ -220,7 +214,7 @@ public class Tm {
      * @return time in milliseconds since epoch, UTC.
      */
     public static long calcTime(int year, int month, int day) {
-    	DateTimeConfig config=DateTimeConfig.getGlobalDefault();
+        DateTimeConfig config = DateTimeConfig.getGlobalDefault();
         return calcTime(year, month, day, 0, 0, 0, 0, config.getOutputTimeZone());
     }
 
@@ -238,7 +232,7 @@ public class Tm {
      */
     public static long calcTime(int year, int month, int day, int hour, int min, int sec,
             int milli) {
-    	DateTimeConfig config=DateTimeConfig.getGlobalDefault();
+        DateTimeConfig config = DateTimeConfig.getGlobalDefault();
         return calcTime(year, month, day, hour, min, sec, milli, config.getOutputTimeZone());
     }
 
@@ -314,8 +308,7 @@ public class Tm {
     }
 
     /**
-     * Returns month between 1 and 12. Differs from C version of tm, but you can always subtract
-     * 1 if you want zero-based.
+     * Returns month between 1 and 12. Differs from C version of tm, but you can always subtract 1 if you want zero-based.
      *
      * @return Month as Jan=1, Feb=2, ..., Dec=12
      */

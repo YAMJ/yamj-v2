@@ -23,25 +23,24 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
+import org.pojava.util.StringTool;
+
 /**
  * <p>
  * DateTime provides an immutable representation of Date and Time to the nearest nanosecond. You can access DateTime properties
  * either in milliseconds or in seconds and nanoseconds. Both the seconds and milliseconds values can be understood as being
  * truncated to their respective precisions. Nanos holds the fractional portion of a second in the range 0-999999999. Note that
- * whether seconds is positive or negative, the internal values will be adjusted if necessary to support a positive value for
- * nanos.
+ * whether seconds is positive or negative, the internal values will be adjusted if necessary to support a positive value for nanos.
  * </p>
  * <p>
  * You may think of a DateTime object as a fixed offset of System time measured from the Unix epoch in non-leap milliseconds or
- * non-leap seconds and nanoseconds. Leap years are calculated according to the Gregorian Calendar, matching the same
- * interpretation as the java.util.Date object (every 4th year is a leap year, except for years divisible by 100 but not divisible
- * by 400). The times are stored according to the UTC (aka GMT) time zone, and a TimeZone object is referenced to translate to a
- * local time zone.
+ * non-leap seconds and nanoseconds. Leap years are calculated according to the Gregorian Calendar, matching the same interpretation
+ * as the java.util.Date object (every 4th year is a leap year, except for years divisible by 100 but not divisible by 400). The
+ * times are stored according to the UTC (aka GMT) time zone, and a TimeZone object is referenced to translate to a local time zone.
  * </p>
  * <p>
- * DateTime includes a robust parser for interpreting date and time from a String. It parses a date and time using heuristics
- * rather than comparing against preset formats, so it is point-and-shoot simple. The following, for example, are interpreted the
- * same:
+ * DateTime includes a robust parser for interpreting date and time from a String. It parses a date and time using heuristics rather
+ * than comparing against preset formats, so it is point-and-shoot simple. The following, for example, are interpreted the same:
  * <ul>
  * <li>3:21pm on January 26, 1969</li>
  * <li>26-Jan-1969 03:21 PM</li>
@@ -54,21 +53,21 @@ import java.util.regex.Pattern;
  * </p>
  *
  * <p>
- * All dates are interpreted in your local time zone, unless a time zone is specified in the String. Time zones are configurable
- * in the DateTimeConfig object, so you can determine for your own application whether CST, for example, would adjust to Central
+ * All dates are interpreted in your local time zone, unless a time zone is specified in the String. Time zones are configurable in
+ * the DateTimeConfig object, so you can determine for your own application whether CST, for example, would adjust to Central
  * Standard Time or Chinese Standard Time.
  * </p>
  *
  * <p>
  * A two-digit year will assume up to 80 years in the past and 20 years in the future. It is prudent in many cases to follow this
  * with a check based on whether you know the date to represent a past or future date. If you know you parsed a birthday, you can
- * compare with today's date and subtract 100 yrs if needed (references to birthdays 20 years in the future are rare). Similarly,
- * if you're dealing with an annuity date, you can add 100 years if the parsed date occurred in the past.
+ * compare with today's date and subtract 100 yrs if needed (references to birthdays 20 years in the future are rare). Similarly, if
+ * you're dealing with an annuity date, you can add 100 years if the parsed date occurred in the past.
  * </p>
  *
  * <p>
- * If you're parsing European dates expecting DD/MM/YYYY instead of MM/DD/YYYY, then you can alter the global DateTimeConfig
- * setting by first calling, " <code>DateTimeConfig.globalEuropeanDateFormat();</code>".
+ * If you're parsing European dates expecting DD/MM/YYYY instead of MM/DD/YYYY, then you can alter the global DateTimeConfig setting
+ * by first calling, " <code>DateTimeConfig.globalEuropeanDateFormat();</code>".
  * </p>
  *
  * @author John Pile
@@ -111,8 +110,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * DateTime constructed from time in milliseconds since epoch.
      *
-     * @param millis
-     *            time
+     * @param millis time
      */
     public DateTime(long millis) {
         config();
@@ -123,8 +121,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * DateTime constructed from time in milliseconds since epoch.
      *
      * @param millis
-     * @param config
-     *            time
+     * @param config time
      */
     public DateTime(long millis, IDateTimeConfig config) {
         this.config = config;
@@ -134,10 +131,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * DateTime constructed from time in milliseconds since epoch.
      *
-     * @param millis
-     *            Number of milliseconds since epoch
-     * @param tz
-     *            Override the output Time Zone
+     * @param millis Number of milliseconds since epoch
+     * @param tz Override the output Time Zone
      */
     public DateTime(long millis, TimeZone tz) {
         DateTimeConfig newConfig = DateTimeConfig.getGlobalDefault().clone();
@@ -149,10 +144,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * DateTime constructed from time in milliseconds since epoch.
      *
-     * @param millis
-     *            Number of milliseconds since epoch
-     * @param tzId
-     *            Override the output time zone
+     * @param millis Number of milliseconds since epoch
+     * @param tzId Override the output time zone
      */
     public DateTime(long millis, String tzId) {
         DateTimeConfig newConfig = DateTimeConfig.getGlobalDefault().clone();
@@ -164,10 +157,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Construct a DateTime from seconds and fractional seconds.
      *
-     * @param seconds
-     *            Number of seconds since epoch (typically 1970-01-01)
-     * @param nanos
-     *            Nanosecond offset in range +/- 999999999
+     * @param seconds Number of seconds since epoch (typically 1970-01-01)
+     * @param nanos Nanosecond offset in range +/- 999999999
      */
     public DateTime(long seconds, int nanos) {
         config();
@@ -177,12 +168,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Construct a DateTime from seconds and fractional seconds.
      *
-     * @param seconds
-     *            Number of seconds since epoch (typically 1970-01-01)
-     * @param nanos
-     *            Nanosecond offset in range +/- 999999999
-     * @param tz
-     *            Override the output time zone
+     * @param seconds Number of seconds since epoch (typically 1970-01-01)
+     * @param nanos Nanosecond offset in range +/- 999999999
+     * @param tz Override the output time zone
      */
     public DateTime(long seconds, int nanos, TimeZone tz) {
         DateTimeConfig newConfig = DateTimeConfig.getGlobalDefault().clone();
@@ -194,12 +182,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Construct a DateTime from seconds and fractional seconds.
      *
-     * @param seconds
-     *            Number of seconds since epoch (typically 1970-01-01)
-     * @param nanos
-     *            Nanosecond offset in range +/- 999999999
-     * @param tzId
-     *            Override the output time zone
+     * @param seconds Number of seconds since epoch (typically 1970-01-01)
+     * @param nanos Nanosecond offset in range +/- 999999999
+     * @param tzId Override the output time zone
      */
     public DateTime(long seconds, int nanos, String tzId) {
         DateTimeConfig newConfig = DateTimeConfig.getGlobalDefault().clone();
@@ -211,12 +196,9 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Construct a DateTime from seconds and fractional seconds.
      *
-     * @param seconds
-     *            Number of seconds since epoch (typically 1970-01-01)
-     * @param nanos
-     *            Nanosecond offset in range +/- 999999999
-     * @param config
-     *            Provide custom configuration options
+     * @param seconds Number of seconds since epoch (typically 1970-01-01)
+     * @param nanos Nanosecond offset in range +/- 999999999
+     * @param config Provide custom configuration options
      */
     public DateTime(long seconds, int nanos, IDateTimeConfig config) {
         this.config = config;
@@ -237,10 +219,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * DateTime constructed from a string using global defaults.
      *
-     * @param str
-     *            String to parse
-     * @param config
-     *            Custom configuration options
+     * @param str String to parse
+     * @param config Custom configuration options
      */
     public DateTime(String str, IDateTimeConfig config) {
         this.config = config;
@@ -251,8 +231,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * DateTime constructed from a Timestamp includes nanos.
      *
-     * @param ts
-     *            Timestamp
+     * @param ts Timestamp
      */
     public DateTime(Timestamp ts) {
         config();
@@ -262,11 +241,10 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Derive a time zone descriptor from the right side of the date/time string.
      *
-     * @param str
-     *            String to parse date/time
+     * @param str String to parse date/time
      * @return
      */
-    private static final String tzParse(String str) {
+    private static String tzParse(String str) {
         char[] chars = str.toCharArray();
         int min = 7;
         int max = str.length() - 1;
@@ -310,10 +288,10 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Compare two DateTime objects to determine ordering.
      *
-     * @param other
-     *            DateTime to compare to this
+     * @param other DateTime to compare to this
      * @return -1, 0, or 1 based on comparison to another DateTime.
      */
+    @Override
     public int compareTo(DateTime other) {
         if (other == null) {
             throw new NullPointerException("Cannot compare DateTime to null.");
@@ -379,8 +357,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * Return a String according to the provided format.
      *
      * @param format
-     * @param tz
-     *            Show formatted date & time at the given TimeZone
+     * @param tz Show formatted date & time at the given TimeZone
      * @return A formatted string version of the current DateTime.
      */
     public String toString(String format, TimeZone tz) {
@@ -391,8 +368,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * Return a String according to the provided format.
      *
      * @param format
-     * @param locale
-     *            Show formatted date & time at the given TimeZone
+     * @param locale Show formatted date & time at the given TimeZone
      * @return A formatted string version of the current DateTime.
      */
     public String toString(String format, Locale locale) {
@@ -402,8 +378,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Return a String according to the provided format.
      *
-     * @param tz
-     *            Show formatted date & time at the given TimeZone
+     * @param tz Show formatted date & time at the given TimeZone
      * @return A formatted string version of the current DateTime.
      */
     public String toString(TimeZone tz) {
@@ -414,10 +389,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * Return a String according to the provided format.
      *
      * @param format
-     * @param tz
-     *            Show formatted date & time at the given TimeZone
-     * @param locale
-     *            Display date words like month or day of week in a given language.
+     * @param tz Show formatted date & time at the given TimeZone
+     * @param locale Display date words like month or day of week in a given language.
      * @return A formatted string version of the current DateTime.
      */
     public String toString(String format, TimeZone tz, Locale locale) {
@@ -462,8 +435,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * make adjustments to preserve non-linear values such as daylight saving or day-of-month offsets.
      *
      * @param calUnit
-     * @param qty
-     *            May be positive or negative.
+     * @param qty May be positive or negative.
      * @return Newly calculated DateTime object.
      */
     public DateTime shift(CalendarUnit calUnit, int qty) {
@@ -510,8 +482,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Shift this DateTime +/- a Shift offset.
      *
-     * @param shift
-     *            a pre-defined shift of various calendar time increments.
+     * @param shift a pre-defined shift of various calendar time increments.
      * @return a new DateTime offset by the values specified.
      */
     public DateTime shift(Shift shift) {
@@ -547,8 +518,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Shift this DateTime +/- a Shift offset specified as an ISO 8601 string.
      *
-     * @param iso8601
-     *            A string of format "P[#Y][#M][#D][T[#H][#M][#S[.#]]" holding a list of offsets.
+     * @param iso8601 A string of format "P[#Y][#M][#D][T[#H][#M][#S[.#]]" holding a list of offsets.
      * @return a new DateTime shifted by the specified amounts.
      */
     public DateTime shift(String iso8601) {
@@ -561,11 +531,10 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      * @return Numeric day of week, usually Sun=1, Mon=2, ... , Sat=7. See DateTimeConfig.
      */
     public int weekday() {
-        long leftover = 0;
         // Adding 2000 years in weeks makes all calculations positive.
         // Adding epoch DOW shifts us into phase with start of week.
         long offset = config().getEpochDOW() * Duration.DAY + 52 * Duration.WEEK * 2000;
-        leftover = offset + this.toMillis() + config().getOutputTimeZone().getOffset(this.toMillis());
+        long leftover = offset + this.toMillis() + config().getOutputTimeZone().getOffset(this.toMillis());
         leftover %= Duration.WEEK;
         leftover /= Duration.DAY;
         // Convert from zero to one based
@@ -576,10 +545,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Parse a time reference that fits in a single word. Supports: YYYYMMDD, [+-]D, [0-9]+Y
      *
-     * @param str
-     *            Date/Time string to be parsed.
-     * @param config
-     *            Configuration parameters governing parsing and presentation.
+     * @param str Date/Time string to be parsed.
+     * @param config Configuration parameters governing parsing and presentation.
      * @return New DateTime interpreted from string.
      */
     private static DateTime parseRelativeDate(String str, IDateTimeConfig config) {
@@ -587,7 +554,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         char lastChar = str.charAt(str.length() - 1);
         DateTime dt = new DateTime();
         if ((firstChar == '+' || firstChar == '-') && lastChar >= '0' && lastChar <= '9') {
-            if (ParseTool.onlyDigits(str.substring(1))) {
+            if (StringTool.onlyDigits(str.substring(1))) {
                 int offset = (new Integer((firstChar == '+') ? str.substring(1) : str)).intValue();
                 return dt.add(CalendarUnit.DAY, offset);
             }
@@ -604,13 +571,13 @@ public class DateTime implements Serializable, Comparable<DateTime> {
             String inner = str.substring((firstChar >= '0' && firstChar <= '9') ? 0 : 1, str.length() - 1);
             // ^[+-][0-9]+$
             if (firstChar == '+') {
-                if (ParseTool.onlyDigits(inner)) {
+                if (StringTool.onlyDigits(inner)) {
                     int offset = (new Integer(inner)).intValue();
                     return dt.add(unit, offset);
                 }
             }
             if (firstChar == '-' || firstChar >= '0' && firstChar <= '9') {
-                if (ParseTool.isInteger(inner)) {
+                if (StringTool.isInteger(inner)) {
                     String offset = firstChar == '-' ? "-" + inner : inner;
                     int innerVal = (new Integer(offset)).intValue();
                     return dt.add(unit, innerVal);
@@ -623,8 +590,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Interpret a DateTime from a String using global defaults.
      *
-     * @param str
-     *            Date/Time string to be parsed.
+     * @param str Date/Time string to be parsed.
      *
      * @return New DateTime interpreted from string.
      */
@@ -636,10 +602,8 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Interpret a DateTime from a String.
      *
-     * @param str
-     *            Date/Time string to be parsed.
-     * @param config
-     *            Configuration parameters governing parsing and presentation.
+     * @param str Date/Time string to be parsed.
+     * @param config Configuration parameters governing parsing and presentation.
      * @return New DateTime interpreted from string according to alternate rules.
      */
     public static DateTime parse(String str, IDateTimeConfig config) {
@@ -705,7 +669,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         boolean[] integers = new boolean[parts.length];
         boolean[] usedint = new boolean[parts.length];
         for (int i = 0; i < parts.length; i++) {
-            if (ParseTool.startsWithDigit(parts[i])) {
+            if (StringTool.startsWithDigit(parts[i])) {
                 integers[i] = true;
             }
         }
@@ -715,7 +679,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                 Object[] langs = config.getSupportedLanguages();
                 for (Object lang2 : langs) {
                     String[] mos = config.getMonthArray((String) lang2);
-                    int mo = ParseTool.indexedStartMatch(mos, parts[i]);
+                    int mo = StringTool.indexedStartMatch(mos, parts[i]);
                     if (mo >= 0) {
                         month = mo;
                         hasMonth = true;
@@ -733,21 +697,21 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                 if (!hasYear && (parts[i].length() == 4 || parts[i].length() == 5)) {
                     char c = parts[i].charAt(parts[i].length() - 1);
                     if (c >= '0' && c <= '9') {
-                        year = ParseTool.parseIntFragment(parts[i]);
+                        year = StringTool.parseIntFragment(parts[i]);
                         hasYear = true;
                         usedint[i] = true;
                         isYearFirst = (i == 0);
                         // If integer is to the immediate left of year, use now.
                         if (config.isDmyOrder()) {
                             if (!hasMonth && i > 0 && integers[i - 1] && !usedint[i - 1]) {
-                                month = ParseTool.parseIntFragment(parts[i - 1]);
+                                month = StringTool.parseIntFragment(parts[i - 1]);
                                 month--;
                                 hasMonth = true;
                                 usedint[i - 1] = true;
                             }
                         } else {
                             if (!hasDay && i > 0 && integers[i - 1] && !usedint[i - 1]) {
-                                day = ParseTool.parseIntFragment(parts[i - 1]);
+                                day = StringTool.parseIntFragment(parts[i - 1]);
                                 hasDay = true;
                                 usedint[i - 1] = true;
                             }
@@ -789,7 +753,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
         // Assign integers to remaining slots in order
         for (int i = 0; i < parts.length; i++) {
             if (integers[i] && !usedint[i]) {
-                int part = ParseTool.parseIntFragment(parts[i]);
+                int part = StringTool.parseIntFragment(parts[i]);
                 if (!hasDay && part < 32 && config.isDmyOrder()) {
                     /*
                      * If one sets the isDmyOrder to true in DateTimeConfig, then this will properly interpret DD before MM in
@@ -874,7 +838,6 @@ public class DateTime implements Serializable, Comparable<DateTime> {
                     nanosecond = Integer.parseInt((parts[i].split("[^0-9]+")[0] + "00000000").substring(0, 9));
                     hasNanosecond = true;
                     usedint[i] = true;
-                    continue;
                 }
             }
         }
@@ -928,12 +891,11 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * Truncate DateTime down to its nearest time unit as a time. CalendarUnit.(WEEK|DAY|HOUR|MINUTE|SECOND|MILLISECOND)
      *
-     * @param unit
-     *            Unit of time to which new DateTime will be truncated.
+     * @param unit Unit of time to which new DateTime will be truncated.
      * @return A newly calculated DateTime.
      */
     public DateTime truncate(CalendarUnit unit) {
-        long trim = 0;
+        long trim;
         if (unit.compareTo(CalendarUnit.HOUR) < 0) {
             if (unit == CalendarUnit.MINUTE) {
                 trim = this.systemDur.millis % Duration.MINUTE;
@@ -1038,8 +1000,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
     /**
      * This compares a DateTime with another DateTime.
      *
-     * @param dateTime
-     *            DateTime to which this DateTime will be compared.
+     * @param dateTime DateTime to which this DateTime will be compared.
      * @return True if DateTime values represent the same point in time.
      */
     @Override
@@ -1069,7 +1030,7 @@ public class DateTime implements Serializable, Comparable<DateTime> {
      *
      * @return the global DateTimeConfig object used by DateTime.
      */
-    public IDateTimeConfig config() {
+    public final IDateTimeConfig config() {
         if (this.config == null) {
             this.config = DateTimeConfig.getGlobalDefault();
         }
