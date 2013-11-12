@@ -1399,16 +1399,16 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (awardXML.indexOf("<h1 class=\"header\">Awards</h1>") > -1) {
 
             List<String> awardHtmlList = HTMLTools.extractTags(awardXML, "<h1 class=\"header\">Awards</h1>", "<div class=\"article\"", "<h3>", "</table>", false);
-            LOG.info("Found " + awardHtmlList.size() + " records");
+//            LOG.info("Found " + awardHtmlList.size() + " records");
 
             Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
             for (String awardBlock : awardHtmlList) {
-                LOG.info(StringUtils.repeat('*', 40));  // XXX DEBUG
-                LOG.info(awardBlock);                   // XXX DEBUG
+//                LOG.info(StringUtils.repeat('*', 40));  // XXX DEBUG
+//                LOG.info(awardBlock);                   // XXX DEBUG
 //                String name = HTMLTools.extractTag(awardBlock, "<big><a href=", "</a></big>");
 //                name = name.substring(name.indexOf('>') + 1);
                 String name = awardBlock.substring(0, awardBlock.indexOf('<')).trim();
-                LOG.info("Award Name: '" + name + "'");        // XXX DEBUG
+//                LOG.info("Award Name: '" + name + "'");        // XXX DEBUG
 
                 AwardEvent event = new AwardEvent();
                 event.setName(name);
@@ -1416,7 +1416,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 String tmpString = HTMLTools.extractTag(awardBlock, "<a href=", HTML_A_END).trim();
                 tmpString = tmpString.substring(tmpString.indexOf('>') + 1).trim();
                 int year = NumberUtils.isNumber(tmpString) ? Integer.parseInt(tmpString) : -1;
-                LOG.info("Year: " + year);  // XXX DEBUG
+//                LOG.info("Year: " + year);  // XXX DEBUG
 
                 for (String yearBlock : HTMLTools.extractTags(awardBlock + HTML_END, "</th>", HTML_END, "<tr", "<td colspan=\"4\">")) {
                     if (yearBlock.indexOf("Sections/Awards") > -1) {
