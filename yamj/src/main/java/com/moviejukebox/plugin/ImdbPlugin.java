@@ -46,7 +46,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.pojava.datetime.DateTime;
 import com.moviejukebox.model.Award;
 import com.moviejukebox.model.AwardEvent;
 import com.moviejukebox.model.Filmography;
@@ -66,6 +65,7 @@ import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.pojava.datetime2.DateTime;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 
@@ -1395,98 +1395,63 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             site = HTML_SITE_FULL;
         }
         String awardXML = webBrowser.request(site + HTML_TITLE + imdbId + "/awards");
-//        FileTools.writeStringToFile("../" + movie.getBaseFilename() + "-IMDB.xml", awardXML);  // XXX DEBUG
         if (awardXML.indexOf("<h1 class=\"header\">Awards</h1>") > -1) {
 
             List<String> awardHtmlList = HTMLTools.extractTags(awardXML, "<h1 class=\"header\">Awards</h1>", "<div class=\"article\"", "<h3>", "</table>", false);
-//            LOG.info("Found " + awardHtmlList.size() + " records");
 
-            Collection<AwardEvent> awards = new ArrayList<AwardEvent>();
+            Collection<AwardEvent> awardList = new ArrayList<AwardEvent>();
             for (String awardBlock : awardHtmlList) {
-//                LOG.info(StringUtils.repeat('*', 40));  // XXX DEBUG
-//                LOG.info(awardBlock);                   // XXX DEBUG
-//                String name = HTMLTools.extractTag(awardBlock, "<big><a href=", "</a></big>");
-//                name = name.substring(name.indexOf('>') + 1);
-                String name = awardBlock.substring(0, awardBlock.indexOf('<')).trim();
-//                LOG.info("Award Name: '" + name + "'");        // XXX DEBUG
+                String awardEvent = awardBlock.substring(0, awardBlock.indexOf('<')).trim();
 
-                AwardEvent event = new AwardEvent();
-                event.setName(name);
+                AwardEvent aEvent = new AwardEvent();
+                aEvent.setName(awardEvent);
 
                 String tmpString = HTMLTools.extractTag(awardBlock, "<a href=", HTML_A_END).trim();
                 tmpString = tmpString.substring(tmpString.indexOf('>') + 1).trim();
-                int year = NumberUtils.isNumber(tmpString) ? Integer.parseInt(tmpString) : -1;
-//                LOG.info("Year: " + year);  // XXX DEBUG
+                int awardYear = NumberUtils.isNumber(tmpString) ? Integer.parseInt(tmpString) : -1;
 
-                for (String yearBlock : HTMLTools.extractTags(awardBlock + HTML_END, "</th>", HTML_END, "<tr", "<td colspan=\"4\">")) {
-                    if (yearBlock.indexOf("Sections/Awards") > -1) {
-                        tmpString = HTMLTools.extractTag(yearBlock, "<a href=", HTML_A_END);
-                        String yearStr = tmpString.substring(tmpString.indexOf('>') + 1).substring(0, 4);
-                        year = yearStr.equals("????") ? -1 : Integer.parseInt(yearStr);
-                        int won = 0;
-                        int nominated = 0;
-                        tmpString = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("/" + (yearStr.equals("????") ? "0000" : yearStr) + HTML_QUOTE_GT + yearStr)), "<td rowspan=\"", "</b></td>");
-                        int count = Integer.parseInt(tmpString.substring(0, tmpString.indexOf('\"')));
-                        String title = tmpString.substring(tmpString.indexOf("<b>") + 3);
-                        String awardPattern = " align=\"center\" valign=\"middle\">";
-                        name = HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf("<b>" + title + "</b>")), awardPattern, HTML_TD);
-                        if (title.equals("Won") || title.equals("2nd place")) {
-                            won = count;
-                            if (yearBlock.indexOf("<b>Nominated</b>") > -1) {
-                                nominated = Integer.parseInt(HTMLTools.extractTag(yearBlock.substring(yearBlock.indexOf(awardPattern + name + HTML_TD) + 1), "<td rowspan=\"", "\""));
-                            }
-                        } else if (title.equals("Nominated")) {
-                            nominated = count;
-                        }
+                tmpString = StringUtils.trimToEmpty(HTMLTools.extractTag(awardBlock, "<span class=\"award_category\">", "</span>"));
+                Award aAward = new Award();
+                aAward.setName(tmpString);
+                aAward.setYear(awardYear);
 
-                        if (!scrapeWonAwards || (won > 0)) {
-                            Award award = new Award();
-                            award.setName(name);
-                            award.setYear(year);
-                            if (won > 0) {
-                                award.setWons(extractNominationNames(Boolean.TRUE, yearBlock, nominated));
-                            }
-                            if (nominated > 0) {
-                                award.setNominations(extractNominationNames(Boolean.FALSE, yearBlock, nominated));
-                            }
-                            event.addAward(award);
-                        }
+                boolean awardOutcomeWon = true;
+                for (String outcomeBlock : HTMLTools.extractHtmlTags(awardBlock, "<table class=", null, "<tr>", "</tr>")) {
+                    String outcome = HTMLTools.extractTag(outcomeBlock, "<b>", "</b>");
+                    if (StringTools.isValidString(outcome)) {
+                        awardOutcomeWon = outcome.equalsIgnoreCase("won");
+                    }
+
+                    String awardDescription = StringUtils.trimToEmpty(HTMLTools.extractTag(outcomeBlock, "<td class=\"award_description\">", "<br />"));
+                    // Check to see if there was a missing title and just the name in the result
+                    if (awardDescription.contains("href=\"/name/")) {
+                        awardDescription = StringUtils.trimToEmpty(HTMLTools.extractTag(outcomeBlock, "<span class=\"award_category\">", "</span>"));
+                    }
+
+                    if (awardOutcomeWon) {
+                        aAward.addWon(awardDescription);
+                    } else {
+                        aAward.addNomination(awardDescription);
                     }
                 }
-                if (event.getAwards().size() > 0) {
-                    awards.add(event);
+
+                if (!scrapeWonAwards || (aAward.getWon() > 0)) {
+                    LOG.debug(LOG_MESSAGE + movie.getBaseName() + " - Adding award: " + aAward.toString());
+                    aEvent.addAward(aAward);
+                }
+
+                if (aEvent.getAwards().size() > 0) {
+                    awardList.add(aEvent);
                 }
             }
-            if (awards.size() > 0) {
-                movie.setAwards(awards);
+
+            if (awardList.size() > 0) {
+                movie.setAwards(awardList);
             }
         } else {
             LOG.debug(LOG_MESSAGE + "No awards found for " + movie.getBaseName());
         }
         return Boolean.TRUE;
-    }
-
-    private Collection<String> extractNominationNames(boolean won, String yearBlock, Integer nominated) {
-        Collection<String> wons = new ArrayList<String>();
-        String blockContent;
-        for (String nameBlock : HTMLTools.extractTags(yearBlock + HTML_END, won ? "<b>Won</b>" : "<b>Nominated</b>", won && (nominated > 0) ? "<b>Nominated</b>" : HTML_END, "<td valign=\"top\"", HTML_TD)) {
-            if (nameBlock.indexOf(HTML_A_START) > -1 && nameBlock.indexOf(HTML_A_START) < nameBlock.indexOf("<br>") && nameBlock.indexOf("<small>") > -1) {
-                blockContent = HTMLTools.extractTag(nameBlock, "<small>", "</small>");
-            } else if (nameBlock.indexOf("<br>") > -1) {
-                blockContent = nameBlock.substring(0, nameBlock.indexOf("<br>"));
-            } else {
-                blockContent = nameBlock;
-            }
-            blockContent = HTMLTools.removeHtmlTags(blockContent);
-            if (isNotValidString(blockContent)) {
-                blockContent = HTMLTools.removeHtmlTags(nameBlock);
-            }
-            blockContent = blockContent.replaceAll("^\\s+", "").replaceAll("\\s+$", "").replaceAll("\\s+", " ");
-//            if (isValidString(blockContent)) {
-            wons.add(blockContent);
-//            }
-        }
-        return wons;
     }
 
     /**

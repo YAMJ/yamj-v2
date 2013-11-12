@@ -24,6 +24,8 @@ package com.moviejukebox.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /*
  * @author ilgizar
@@ -113,6 +115,6 @@ public class Award {
 
     @Override
     public String toString() {
-        return "Award{" + "name=" + name + ", won=" + won + ", nominated=" + nominated + ", year=" + year + ", wons=" + wons + ", nominations=" + nominations + '}';
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }

@@ -24,6 +24,8 @@ package com.moviejukebox.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 /*
  * @author ilgizar
  */
@@ -59,6 +61,6 @@ public class AwardEvent {
 
     @Override
     public String toString() {
-        return "AwardEvent{" + "event=" + event + ", awards=" + awards + '}';
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }
