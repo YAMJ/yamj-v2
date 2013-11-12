@@ -506,13 +506,13 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             beginIndex = nfo.indexOf("/tt");
             if (beginIndex != -1) {
                 StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1), "/ \n,:!&é\"'(--è_çà)=$");
-                movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, st.nextToken());
+                movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, StringUtils.trim(st.nextToken()));
                 LOG.debug(LOG_MESSAGE + "IMDB ID found in nfo = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
             } else {
                 beginIndex = nfo.indexOf("/Title?");
                 if (beginIndex != -1 && beginIndex + 7 < nfo.length()) {
                     StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$");
-                    movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt" + st.nextToken());
+                    movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt" + StringUtils.trim(st.nextToken()));
                     LOG.debug(LOG_MESSAGE + "IMDB ID found in NFO = " + movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
                 }
             }
