@@ -103,21 +103,6 @@ public class ImdbPluginTest {
         assertEquals("2011", mf2.getFirstAired(14));
     }
 
-    @Ignore("This test no longer works with the new geo-location from IMDB")
-    public void testImdbMovieGeoLocalization() {
-        PropertiesUtil.setProperty("imdb.site", "us");
-        PropertiesUtil.setProperty("imdb.preferredCountry", "U.S.A.");
-        PropertiesUtil.setProperty("imdb.aka.scrape.title", true);
-        PropertiesUtil.setProperty("imdb.aka.ignore.versions", "IMAX version,longer title,promotional title,working title,version IMAX,Arbeitstitel,Titel zu Werbezwecken,IMAX Fassung,längere Fassung,version longue,titre promotionnel,titre provisoire");
-        PropertiesUtil.setProperty("imdb.aka.fallback.countries", "Taiwan");
-        ImdbPlugin imdbPlugin = new ImdbPlugin();
-
-        Movie movie = new Movie();
-        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0499549");
-        assertTrue(imdbPlugin.scan(movie));
-        assertEquals("Afanda", movie.getTitle());
-    }
-
     @Ignore
     public void testImdbPerson() {
         PropertiesUtil.setProperty("imdb.site", "us");
@@ -135,6 +120,7 @@ public class ImdbPluginTest {
     public void testImdb_NewLayout() {
         PropertiesUtil.setProperty("imdb.site", "us");
         PropertiesUtil.setProperty("imdb.full.info", "false");
+        PropertiesUtil.setProperty("mjb.scrapeAwards", "true");
         ImdbPlugin imdbPlugin = new ImdbPlugin();
 
         Movie movie = new Movie();
@@ -151,6 +137,7 @@ public class ImdbPluginTest {
         assertEquals("Incorrect number of cast", 10, movie.getCast().size());
         assertEquals("Incorrect Directors", 1, movie.getDirectors().size());
         assertEquals("Incorrect Writers", 1, movie.getWriters().size());
+        assertTrue("No awards scraped", movie.getAwards().size() > 1);
     }
 
     @Ignore

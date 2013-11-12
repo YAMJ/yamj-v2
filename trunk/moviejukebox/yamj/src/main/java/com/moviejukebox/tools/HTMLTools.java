@@ -436,7 +436,7 @@ public class HTMLTools {
             return tags;
         }
         index += sectionStart.length();
-        int endIndex = src.indexOf(sectionEnd, index);
+        int endIndex = (sectionEnd == null ? src.length() : src.indexOf(sectionEnd, index));
         if (endIndex == -1) {
             return tags;
         }
@@ -542,7 +542,7 @@ public class HTMLTools {
             return tags;
         }
         startIndex += sectionStart.length();
-        int endIndex = src.indexOf(sectionEnd, startIndex);
+        int endIndex = (sectionEnd == null ? src.length() : src.indexOf(sectionEnd, startIndex));
         if (endIndex == -1) {
             return tags;
         }
