@@ -1,17 +1,16 @@
 package org.pojava.datetime2;
 
-
 /**
- * Shift describes an offset in time in terms of CalendarUnit increments of various proportions.
- * Compare this to the "Duration" class, which describes fixed units of time in a self-contained
- * manner. A Shift, by contrast, may use a 23, 24 or 25 hour day depending on Daylight Saving
- * Time, or a 28, 29, 30, or 31 day month. The amount of time described by a Shift is dependent
- * on a start time and a time zone, both external to the Shift object itself.
+ * Shift describes an offset in time in terms of CalendarUnit increments of various proportions. Compare this to the "Duration"
+ * class, which describes fixed units of time in a self-contained manner. A Shift, by contrast, may use a 23, 24 or 25 hour day
+ * depending on Daylight Saving Time, or a 28, 29, 30, or 31 day month. The amount of time described by a Shift is dependent on a
+ * start time and a time zone, both external to the Shift object itself.
  *
  * @author John Pile
  *
  */
 public class Shift {
+
     /**
      * Nanoseconds per second
      */
@@ -40,8 +39,7 @@ public class Shift {
     /**
      * Constructor parsing from a string.
      *
-     * @param iso8601
-     *            String representation of a duration.
+     * @param iso8601 String representation of a duration.
      */
     public Shift(String iso8601) {
         char[] chars = iso8601.toCharArray();
@@ -67,14 +65,14 @@ public class Shift {
             } else if (c == 'Y') {
                 if (accum != 0) {
                     shiftYears(accum);
-                    accum=0;
+                    accum = 0;
                     dec = 1.0;
                     sign = 1;
                 }
             } else if (c == 'W') {
                 if (accum != 0) {
                     shiftWeeks(accum);
-                    accum=0;
+                    accum = 0;
                     dec = 1.0;
                     sign = 1;
                 }
@@ -94,7 +92,7 @@ public class Shift {
                 }
             } else if (c == 'M') {
                 if (accum != 0) {
-                    if (time==0) {
+                    if (time == 0) {
                         shiftMonths(accum);
                     } else {
                         shiftMinutes(accum);
@@ -116,9 +114,10 @@ public class Shift {
 
     /**
      * Shift by number of years
+     *
      * @param accum
      */
-    public void shiftYears(double accum) {
+    public final void shiftYears(double accum) {
         if (accum >= 1.0 || accum <= -1.0) {
             year += (long) accum;
             accum -= (long) accum;
@@ -130,9 +129,10 @@ public class Shift {
 
     /**
      * Shift by whole number of months
+     *
      * @param accum
      */
-    public void shiftMonths(double accum) {
+    public final void shiftMonths(double accum) {
         if (accum >= 1.0 || accum <= -1.0) {
             month += (long) accum;
             accum -= (long) accum;
@@ -144,9 +144,10 @@ public class Shift {
 
     /**
      * Shift by whole number of weeks
+     *
      * @param accum
      */
-    public void shiftWeeks(double accum) {
+    public final void shiftWeeks(double accum) {
         if (accum >= 1.0 || accum <= -1.0) {
             week += (long) accum;
             accum -= (long) accum;
@@ -154,7 +155,7 @@ public class Shift {
         if (accum != 0) {
             shiftDays(accum * 7);
         } else {
-        	settleContents();
+            settleContents();
         }
     }
 
@@ -162,7 +163,7 @@ public class Shift {
      *
      * @param accum
      */
-    public void shiftDays(double accum) {
+    public final void shiftDays(double accum) {
         if (accum >= 1.0 || accum <= -1.0) {
             day += (long) accum;
             accum -= (long) accum;
@@ -170,11 +171,11 @@ public class Shift {
         if (accum != 0) {
             shiftHours(accum * 24);
         } else {
-        	settleContents();
+            settleContents();
         }
     }
 
-    public void shiftHours(double accum) {
+    public final void shiftHours(double accum) {
         if (accum >= 1.0 || accum <= -1.0) {
             hour += (long) accum;
             accum -= (long) accum;
@@ -182,11 +183,11 @@ public class Shift {
         if (accum != 0) {
             shiftMinutes(accum * MPH);
         } else {
-        	settleContents();
+            settleContents();
         }
     }
 
-    public void shiftMinutes(double accum) {
+    public final void shiftMinutes(double accum) {
         if (accum >= 1.0 || accum <= -1.0) {
             minute += (long) accum;
             accum -= (long) accum;
@@ -194,20 +195,20 @@ public class Shift {
         if (accum != 0) {
             shiftSeconds(accum * SPM);
         } else {
-        	settleContents();
+            settleContents();
         }
     }
 
-    public void shiftSeconds(double accum) {
+    public final void shiftSeconds(double accum) {
         if (accum >= 1.0 || accum <= -1.0) {
             second += (long) accum;
             accum -= (long) accum;
         }
         if (accum != 0) {
             accum += (accum < 0 ? -0.0000000005 : 0.0000000005);
-            nanosec += (long)(accum * 1000000000);
+            nanosec += (long) (accum * 1000000000);
         }
-    	settleContents();
+        settleContents();
     }
 
     private void settleContents() {
@@ -226,24 +227,25 @@ public class Shift {
             hour += calchour;
             minute -= calchour * MPH;
         }
-        while (day<0 && week>0) {
-        	week--;
-        	day+=7;
+        while (day < 0 && week > 0) {
+            week--;
+            day += 7;
         }
-        while (minute<0 && hour>0) {
-        	hour--;
-        	minute+=60;
+        while (minute < 0 && hour > 0) {
+            hour--;
+            minute += 60;
         }
-        while (second<0 && minute>0) {
-        	minute--;
-        	second+=60;
+        while (second < 0 && minute > 0) {
+            minute--;
+            second += 60;
         }
-        while (nanosec<0 && second>0) {
-        	second--;
-        	nanosec+=1000000000;
+        while (nanosec < 0 && second > 0) {
+            second--;
+            nanosec += 1000000000;
         }
     }
 
+    @Override
     public String toString() {
         // See ISO 8601
         settleContents();
@@ -279,7 +281,7 @@ public class Shift {
                 if (nanosec == 0) {
                     sb.append(second);
                 } else {
-                    sb.append((double)(second+nanosec/1000000000.0));
+                    sb.append((double) (second + nanosec / 1000000000.0));
                 }
                 sb.append('S');
             }

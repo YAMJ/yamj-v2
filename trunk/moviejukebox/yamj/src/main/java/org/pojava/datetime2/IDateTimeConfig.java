@@ -15,7 +15,6 @@ package org.pojava.datetime2;
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
@@ -33,39 +32,40 @@ public interface IDateTimeConfig {
      *
      * @return True if parser interprets DD/MM/YYYY vs MM/DD/YYYY.
      */
-    public boolean isDmyOrder();
+    boolean isDmyOrder();
 
     /**
-     * Map of timezones and their offsets. You can customize the default map to add your own
-     * timezones by referencing other timezones.
+     * Map of timezones and their offsets.
+     *
+     * You can customize the default map to add your own timezones by referencing other timezones.
      *
      * @return TimeZones.
      */
-    public Map<String, String> getTzMap();
+    Map<String, String> getTzMap();
 
     /**
      * Language support for interpreting names of months.
      *
      * @return Array of supported language refs.
      */
-    public Object[] getSupportedLanguages();
+    Object[] getSupportedLanguages();
 
-    public String[] getMonthArray(String langAbbr);
+    String[] getMonthArray(String langAbbr);
 
-    public TimeZone getInputTimeZone();
+    TimeZone getInputTimeZone();
 
-    public TimeZone getOutputTimeZone();
+    TimeZone getOutputTimeZone();
 
-    public Locale getLocale();
+    Locale getLocale();
 
-    public String getFormat();
+    String getFormat();
 
-    public String getBcPrefix();
+    String getBcPrefix();
 
-    public int getEpochDOW();
+    int getEpochDOW();
 
-    public TimeZone lookupTimeZone(String str);
+    TimeZone lookupTimeZone(String str);
 
-	public boolean isUnspecifiedCenturyAlwaysInPast();
+    boolean isUnspecifiedCenturyAlwaysInPast();
 
 }

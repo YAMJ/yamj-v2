@@ -33,7 +33,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import static org.apache.commons.lang3.StringUtils.*;

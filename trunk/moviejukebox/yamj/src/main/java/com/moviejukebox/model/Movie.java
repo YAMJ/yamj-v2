@@ -2340,7 +2340,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             } else {
                 this.posterFilename = posterFilename;
             }
-
         } else {
             this.posterFilename = UNKNOWN;
         }
