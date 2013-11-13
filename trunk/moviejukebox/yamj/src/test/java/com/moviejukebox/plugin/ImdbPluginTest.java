@@ -110,6 +110,7 @@ public class ImdbPluginTest {
     public void testImdbPerson() {
         LOG.info("testImdbPerson");
         PropertiesUtil.setProperty("imdb.site", "us");
+        PropertiesUtil.setProperty("plugin.filmography.max", 2);
         ImdbPlugin imdbPlugin = new ImdbPlugin();
 
         Person person = new Person();
@@ -120,7 +121,8 @@ public class ImdbPluginTest {
         assertNotEquals("No bio", Movie.UNKNOWN, person.getBiography());
         assertEquals("Wrong name", "Gérard Xavier Marcel Depardieu", person.getBirthName());
         assertEquals("Wrong birth place", "Châteauroux, Indre, France", person.getBirthPlace());
-
+        assertTrue("No Filmography", person.getFilmography().size() > 0);
+        assertTrue("No character", StringTools.isValidString(person.getFilmography().get(0).getCharacter()));
     }
 
     @Test

@@ -64,6 +64,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import org.apache.commons.io.EndianUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.pojava.datetime2.DateTime;
 
@@ -2039,7 +2040,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @throws IOException
      */
     private void processFilmography(Person person, String sourceXml) throws IOException {
-        int beginIndex;
+        int beginIndex, endIndex;
 
         String xmlInfo = webBrowser.request(getImdbUrl(person) + "filmorate", siteDefinition.getCharset());
         if (xmlInfo.indexOf("<div class=\"filmo\">") > -1) {
@@ -2131,11 +2132,20 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 Filmography film = filmography.get(iterFilm.next());
                 if ((film.getJob().equalsIgnoreCase("actor") || film.getJob().equalsIgnoreCase("actress")) && isNotValidString(film.getCharacter())) {
                     String movieXML = webBrowser.request(siteDefinition.getSite() + HTML_TITLE + film.getId() + "/" + "fullcredits");
-                    beginIndex = movieXML.indexOf("Cast</a>");
+
+                    beginIndex = movieXML.indexOf("(in credits order)");
                     String character = Movie.UNKNOWN;
                     if (beginIndex > -1) {
-                        character = HTMLTools.extractTag(movieXML.substring(beginIndex), "<a href=\"/name/" + person.getId(), "</td></tr>");
-                        character = character.substring(character.lastIndexOf(HTML_QUOTE_GT) + 2).replace(HTML_A_END, "").replace("\"", "'").replaceAll("^\\s+", "");
+                        endIndex = movieXML.indexOf(">Produced by", beginIndex);
+                        endIndex = endIndex < 0 ? movieXML.length() : endIndex;
+
+                        character = HTMLTools.extractTag(movieXML.substring(beginIndex, endIndex), "<a href=\"/name/" + person.getId(), "</tr>");
+                        character = HTMLTools.stripTags(HTMLTools.extractTag(character, "<td class=\"character\">", "</td>"));
+                        // Remove any text in brackets
+                        endIndex = character.indexOf('(');
+                        if (endIndex > -1) {
+                            character = StringUtils.trimToEmpty(character.substring(0, endIndex));
+                        }
                     }
                     if (isValidString(character)) {
                         film.setCharacter(character);
