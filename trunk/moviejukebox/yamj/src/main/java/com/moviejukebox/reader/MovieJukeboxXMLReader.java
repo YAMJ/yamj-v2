@@ -972,7 +972,7 @@ public class MovieJukeboxXMLReader {
                             }
                             if (ns.equalsIgnoreCase(URL)) {
                                 film.setUrl(nAttr.getTextContent());
-                                continue;
+                                //continue; // Last contine not needed
                             }
                         }
 
@@ -996,203 +996,143 @@ public class MovieJukeboxXMLReader {
     }
 
     private void parseOverridableAspectRatio(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("aspect");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setAspectRatio(aspectTools.cleanAspectRatio(((Node) tagElement.getChildNodes().item(0)).getNodeValue()), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "aspect");
+        movie.setAspectRatio(aspectTools.cleanAspectRatio(ov.getValue()), ov.getSource());
     }
 
     private void parseOverridableCertification(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("certification");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setCertification(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "certification");
+        movie.setCertification(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableCompany(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("company");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setCompany(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "company");
+        movie.setCompany(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableContainer(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("container");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setContainer(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "container");
+        movie.setContainer(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableCountry(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("country");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setCountry(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "country");
+        movie.setCountry(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableFramesPerSecond(Movie movie, Element element) {
+        OverridableValue ov = new OverridableValue(element, "fps");
         try {
-            NodeList nlElement = element.getElementsByTagName("fps");
-            Element tagElement = (Element) nlElement.item(0);
-            float fps = Float.parseFloat(((Node) tagElement.getChildNodes().item(0)).getNodeValue());
-            movie.setFps(fps, tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
+            float fps = Float.parseFloat(ov.getValue());
+            movie.setFps(fps, ov.getSource());
+        } catch (NumberFormatException ex) {
+            LOG.trace(LOG_MESSAGE + "Failed to transform '" + ov.getValue() + "' to a float number: " + ex.getMessage(), ex);
         }
     }
 
     private void parseOverridableLanguage(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName(LANGUAGE);
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setLanguage(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, LANGUAGE);
+        movie.setLanguage(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableOriginalTitle(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName(ORIGINAL_TITLE);
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setOriginalTitle(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, ORIGINAL_TITLE);
+        movie.setOriginalTitle(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableOutline(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("outline");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setOutline(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE), Boolean.FALSE);
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "outline");
+        movie.setOutline(ov.getValue(), ov.getSource(), Boolean.FALSE);
     }
 
     private void parseOverridablePlot(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("plot");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setPlot(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE), Boolean.FALSE);
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "plot");
+        movie.setPlot(ov.getValue(), ov.getSource(), Boolean.FALSE);
     }
 
     private void parseOverridableQuote(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("quote");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setQuote(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "quote");
+        movie.setQuote(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableReleaseDate(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("releaseDate");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setReleaseDate(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "releaseDate");
+        movie.setReleaseDate(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableResolution(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("resolution");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setResolution(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "resolution");
+        movie.setResolution(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableRuntime(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("runtime");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setRuntime(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "runtime");
+        movie.setRuntime(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableTagline(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("tagline");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setTagline(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "tagline");
+        movie.setTagline(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableTitle(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName(TITLE);
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setTitle(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, TITLE);
+        movie.setTitle(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableTop250(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("top250");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setTop250(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "top250");
+        movie.setTop250(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableVideoOutput(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("videoOutput");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setVideoOutput(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "videoOutput");
+        movie.setVideoOutput(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableVideoSource(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName("videoSource");
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setVideoSource(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
-        }
+        OverridableValue ov = new OverridableValue(element, "videoSource");
+        movie.setVideoSource(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableYear(Movie movie, Element element) {
-        try {
-            NodeList nlElement = element.getElementsByTagName(YEAR);
-            Element tagElement = (Element) nlElement.item(0);
-            movie.setYear(((Node) tagElement.getChildNodes().item(0)).getNodeValue(), tagElement.getAttribute(SOURCE));
-        } catch (DOMException ignore) {
-            // ignore this error
+        OverridableValue ov = new OverridableValue(element, YEAR);
+        movie.setYear(ov.getValue(), ov.getValue());
+    }
+
+    /**
+     * Returns the value and source for an overridable element
+     */
+    private class OverridableValue {
+
+        private String value = "";
+        private String source = "";
+
+        public OverridableValue(Element element, String tagName) {
+            NodeList nlElement = element.getElementsByTagName(tagName);
+            if (nlElement != null && nlElement.getLength() > 0) {
+                Element tagElement = (Element) nlElement.item(0);
+
+                // Get the value if it exists
+                if (tagElement.getChildNodes() != null & tagElement.getChildNodes().getLength() > 0) {
+                    try {
+                        value = ((Node) tagElement.getChildNodes().item(0)).getNodeValue();
+                        // Get the source
+                        source = tagElement.getAttribute(SOURCE);
+                    } catch (DOMException ex) {
+                        // Log the error but otherwise ignore it
+                        LOG.trace(LOG_MESSAGE + "Failed getting '" + tagName + "': " + ex.getMessage(), ex);
+                    }
+                }
+            }
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public String getSource() {
+            return source;
         }
     }
 }
