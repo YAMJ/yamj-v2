@@ -32,12 +32,13 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * This is the new bean for the Person
  *
- * @author ilgizar Initial code copied from
- * com.moviejukebox.themoviedb.model.Person
+ * @author ilgizar Initial code copied from com.moviejukebox.themoviedb.model.Person
  *
  */
 public class Person extends Filmography {
@@ -54,11 +55,11 @@ public class Person extends Filmography {
     private String backdropURL = UNKNOWN;
     private boolean isDirtyBackdrop = false;
     private List<Filmography> filmography = new ArrayList<Filmography>();
-    private List<String> aka = new ArrayList<String>();
-    private List<String> departments = new ArrayList<String>();
-    private List<Movie> movies = new ArrayList<Movie>();
+    private final List<String> aka = new ArrayList<String>();
+    private final List<String> departments = new ArrayList<String>();
+    private final List<Movie> movies = new ArrayList<Movie>();
     private Map<String, String> indexes = new HashMap<String, String>();
-    private String backdropToken = PropertiesUtil.getProperty("mjb.scanner.backdropToken", ".backdrop");
+    private final String backdropToken = PropertiesUtil.getProperty("mjb.scanner.backdropToken", ".backdrop");
 
     public Person() {
     }
@@ -356,23 +357,6 @@ public class Person extends Filmography {
 
     @Override
     public String toString() {
-        StringBuilder p = new StringBuilder("Person [");
-        p.append("biography=").append(biography);
-        p.append(", version=").append(version);
-        p.append(", knownMovies=").append(knownMovies);
-        p.append(", birthPlace=").append(birthPlace);
-        p.append(", birthName=").append(birthName);
-        p.append(", popularity=").append(popularity);
-        p.append(", lastModifiedAt=").append(lastModifiedAt);
-        p.append(", backdropFilename=").append(backdropFilename);
-        p.append(", backdropURL=").append(backdropURL);
-        p.append(", isDirtyBackdrop=").append(isDirtyBackdrop);
-        p.append(", filmography=").append(filmography.size()).append(" films");
-        p.append(", aka=").append(aka);
-        p.append(", departments=").append(departments);
-        p.append(", movies=").append(movies.size()).append(" movies");
-        p.append(", backdropToken=").append(backdropToken);
-        p.append(']');
-        return p.toString();
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }
