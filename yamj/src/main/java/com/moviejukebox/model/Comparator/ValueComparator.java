@@ -29,7 +29,7 @@ import java.util.Map;
 public class ValueComparator implements Comparator<Object>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private transient Map<String, Integer> base;
+    private final transient Map<String, Integer> base;
 
     public ValueComparator(Map<String, Integer> base) {
         this.base = base;

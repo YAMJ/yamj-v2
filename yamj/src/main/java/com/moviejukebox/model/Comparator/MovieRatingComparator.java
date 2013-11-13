@@ -32,7 +32,7 @@ import java.util.Comparator;
 public class MovieRatingComparator implements Comparator<Movie>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private boolean ascending;
+    private final boolean ascending;
 
     public MovieRatingComparator() {
         this.ascending = Boolean.FALSE;
@@ -52,7 +52,7 @@ public class MovieRatingComparator implements Comparator<Movie>, Serializable {
      *
      * @param movie1
      * @param movie2
-     * @param descending
+     * @param ascending
      * @return
      */
     public int compare(Movie movie1, Movie movie2, boolean ascending) {

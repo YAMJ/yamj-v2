@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.model;
 
+import com.moviejukebox.model.Comparator.FilmographyDateComparator;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
@@ -29,9 +30,11 @@ import static com.moviejukebox.tools.StringTools.isValidString;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -60,6 +63,8 @@ public class Person extends Filmography {
     private final List<Movie> movies = new ArrayList<Movie>();
     private Map<String, String> indexes = new HashMap<String, String>();
     private final String backdropToken = PropertiesUtil.getProperty("mjb.scanner.backdropToken", ".backdrop");
+    private boolean sortFilmographyAsc = PropertiesUtil.getBooleanProperty("plugin.filmography.sort.asc", false);
+    private FilmographyDateComparator filmographyCmp = new FilmographyDateComparator(sortFilmographyAsc);
 
     public Person() {
     }
@@ -143,6 +148,7 @@ public class Person extends Filmography {
     }
 
     public List<Filmography> getFilmography() {
+        Collections.sort(filmography, filmographyCmp);
         return filmography;
     }
 
@@ -159,8 +165,9 @@ public class Person extends Filmography {
     }
 
     public void addAka(String alsoKnownAs) {
-        if (isValidString(alsoKnownAs) && !getName().equals(alsoKnownAs) && !getTitle().equals(alsoKnownAs) && !this.aka.contains(alsoKnownAs)) {
-            this.aka.add(alsoKnownAs);
+        String tmpAka = StringUtils.trimToEmpty(alsoKnownAs);
+        if (isValidString(tmpAka) && !getName().equals(tmpAka) && !getTitle().equals(tmpAka) && !this.aka.contains(tmpAka)) {
+            this.aka.add(tmpAka);
             setDirty();
         }
     }

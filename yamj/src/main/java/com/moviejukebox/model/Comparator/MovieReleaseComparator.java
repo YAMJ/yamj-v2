@@ -41,7 +41,7 @@ public class MovieReleaseComparator extends MovieYearComparator {
     private static final Logger logger = Logger.getLogger(MovieReleaseComparator.class);
     private static final String LOG_MESSAGE = "ReleaseComparator: ";
     private Locale locale = Locale.ENGLISH;
-    private String dateLocale = PropertiesUtil.getProperty("mjb.locale", "en_US");
+    private final String dateLocale = PropertiesUtil.getProperty("mjb.locale", "en_US");
 
     public MovieReleaseComparator() {
         super(Boolean.TRUE);

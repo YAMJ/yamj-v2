@@ -22,36 +22,38 @@
  */
 package com.moviejukebox.model.Comparator;
 
-import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Filmography;
+import static com.moviejukebox.tools.StringTools.isValidString;
 import java.io.Serializable;
 import java.util.Comparator;
 
 /**
- * @author altman.matthew
+ *
+ * @author stuart.boston
  */
-public class LastModifiedComparator implements Comparator<Movie>, Serializable {
+public class FilmographyDateComparator implements Comparator<Filmography>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private final boolean ascending;//Sort the videos in ascending date order (oldest first)
+    private final boolean ascending;
 
-    public LastModifiedComparator() {
-        // Use default sort of descending
-        this.ascending = Boolean.FALSE;
-    }
-
-    public LastModifiedComparator(boolean ascending) {
+    public FilmographyDateComparator(boolean ascending) {
         this.ascending = ascending;
     }
 
     @Override
-    public int compare(Movie movie1, Movie movie2) {
-        int retVal = 0;
-
-        if (movie1.getLastModifiedTimestamp() > movie2.getLastModifiedTimestamp()) {
-            retVal = (ascending ? 1 : -1);
-        } else if (movie1.getLastModifiedTimestamp() < movie2.getLastModifiedTimestamp()) {
-            retVal = (ascending ? -1 : 1);
-        }
-        return retVal;
+    public int compare(Filmography f1, Filmography f2) {
+        return compare(f1, f2, ascending);
     }
+
+    public int compare(Filmography f1, Filmography f2, boolean ascending) {
+        if (isValidString(f1.getYear()) && isValidString(f2.getYear())) {
+            try {
+                return ascending ? (Integer.parseInt(f1.getYear()) - Integer.parseInt(f2.getYear())) : (Integer.parseInt(f2.getYear()) - Integer.parseInt(f1.getYear()));
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
+        return isValidString(f1.getYear()) ? ascending ? 1 : -1 : isValidString(f2.getYear()) ? ascending ? -1 : 1 : 0;
+    }
+
 }
