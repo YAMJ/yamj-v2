@@ -34,7 +34,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
@@ -73,11 +73,11 @@ public final class MovieMeterPluginSession {
                 System.getProperties().put("proxyHost", WebBrowser.getMjbProxyHost());
                 System.getProperties().put("proxyPort", WebBrowser.getMjbProxyPort());
             }
-            
+
             XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
             config.setServerURL(new URL("http://www.moviemeter.nl/ws"));
             config.setConnectionTimeout(WebBrowser.getMjbTimeoutConnect());
-            
+
             client = new XmlRpcClient();
             client.setConfig(config);
         } catch (MalformedURLException error) {
@@ -85,7 +85,7 @@ public final class MovieMeterPluginSession {
         }
     }
 
-    
+
     /**
      * Creates a new session to www.moviemeter.nl or if a session exists on disk, it is checked and resumed if valid.
      *

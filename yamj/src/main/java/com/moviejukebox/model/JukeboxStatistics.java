@@ -32,7 +32,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.TimeZone;
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime2.DateTime;
 import org.w3c.dom.Document;
@@ -52,7 +52,7 @@ public class JukeboxStatistics {
     private static final String XML_FILENAME = "jukebox_statistics.xml";
     // Properties
     private static final EnumMap<JukeboxStatistic, Integer> statistics = new EnumMap<JukeboxStatistic, Integer>(JukeboxStatistic.class);
-    private static EnumMap<JukeboxTimes, Long> times = new EnumMap<JukeboxTimes, Long>(JukeboxTimes.class);
+    private static final EnumMap<JukeboxTimes, Long> TIMES = new EnumMap<JukeboxTimes, Long>(JukeboxTimes.class);
     // Literals
     private static final String DEFAULT_FORMAT = "HH:mm:ss.S";
     private static final String DEFAULT_TZ = "GMT";
@@ -173,7 +173,7 @@ public class JukeboxStatistics {
      * @param timeValue
      */
     public static void setJukeboxTime(JukeboxTimes timeType, long timeValue) {
-        JukeboxStatistics.times.put(timeType, timeValue);
+        JukeboxStatistics.TIMES.put(timeType, timeValue);
     }
 
     /**
@@ -184,8 +184,8 @@ public class JukeboxStatistics {
      * @return
      */
     public static String getProcessingTime(JukeboxTimes timeStart, JukeboxTimes timeEnd) {
-        if (times.containsKey(timeStart) && times.containsKey(timeEnd)) {
-            DateTime processTime = new DateTime(times.get(JukeboxTimes.END) - times.get(JukeboxTimes.START));
+        if (TIMES.containsKey(timeStart) && TIMES.containsKey(timeEnd)) {
+            DateTime processTime = new DateTime(TIMES.get(JukeboxTimes.END) - TIMES.get(JukeboxTimes.START));
             return processTime.toString(DEFAULT_FORMAT, TimeZone.getTimeZone(DEFAULT_TZ));
         } else {
             return "";
@@ -210,11 +210,11 @@ public class JukeboxStatistics {
      */
     public static String getTime(JukeboxTimes timeType, String timeFormat) {
         String returnValue = "";
-        if (times.containsKey(timeType)) {
+        if (TIMES.containsKey(timeType)) {
             if (StringTools.isValidString(timeFormat)) {
-                returnValue = (new DateTime(times.get(timeType)).toString(timeFormat));
+                returnValue = (new DateTime(TIMES.get(timeType)).toString(timeFormat));
             } else {
-                returnValue = (new DateTime(times.get(timeType)).toString(DEFAULT_FORMAT));
+                returnValue = (new DateTime(TIMES.get(timeType)).toString(DEFAULT_FORMAT));
 
             }
         }
@@ -228,8 +228,8 @@ public class JukeboxStatistics {
      * @return
      */
     public static long getTime(JukeboxTimes timeType) {
-        if (times.containsKey(timeType)) {
-            return times.get(timeType);
+        if (TIMES.containsKey(timeType)) {
+            return TIMES.get(timeType);
         } else {
             return 0;
         }
@@ -239,6 +239,7 @@ public class JukeboxStatistics {
      * Output the jukebox statistics
      *
      * @param skipZero Skip zero values from the output
+     * @return
      */
     public static String generateStatistics(Boolean skipZero) {
         StringBuilder statOutput = new StringBuilder("Jukebox Statistics:\n");
@@ -311,7 +312,7 @@ public class JukeboxStatistics {
             eRoot.appendChild(eTimes);
 
             DateTime dt;
-            for (Map.Entry<JukeboxTimes, Long> entry : times.entrySet()) {
+            for (Map.Entry<JukeboxTimes, Long> entry : TIMES.entrySet()) {
                 if (entry.getValue() > 0) {
                     dt = new DateTime(entry.getValue());
                     DOMHelper.appendChild(docJbStats, eTimes, entry.getKey().toString().toLowerCase(), dt.toString(DateTimeTools.getDateFormatLongString()));

@@ -52,8 +52,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.sanselan.ImageReadException;
@@ -1313,7 +1313,6 @@ public class MovieJukebox {
              *
              * PART 3B - Indexing masters
              */
-
             LOG.info("Indexing masters...");
             /*
              * This is kind of a hack -- library.values() are the movies that
@@ -1344,7 +1343,6 @@ public class MovieJukebox {
                          * The master's movie XML is used for generating the
                          * playlist it will be overwritten by the index XML
                          */
-
                         LOG.debug("Updating set artwork for: " + movie.getOriginalTitle() + "...");
                         // If we can find a set artwork file, use it; otherwise, stick with the first movie's artwork
                         String oldArtworkFilename = movie.getPosterFilename();
@@ -1415,7 +1413,6 @@ public class MovieJukebox {
 
                         // No playlist for index masters
                         // htmlWriter.generatePlaylist(jukeboxDetailsRoot, tempJukeboxDetailsRoot, movie);
-
                         // Add all the movie files to the exclusion list
                         FileTools.addMovieToJukeboxFilenames(movie);
 
@@ -1791,25 +1788,21 @@ public class MovieJukebox {
         } else {
             skipPatt = null;
         }
-
-
-        for (int nbFiles = 0; nbFiles < cleanList.length; nbFiles++) {
+        for (File cleanList1 : cleanList) {
             // Scan each file in here
-            if (cleanList[nbFiles].isFile() && !generatedFileNames.contains(cleanList[nbFiles].getName())) {
+            if (cleanList1.isFile() && !generatedFileNames.contains(cleanList1.getName())) {
                 skip = Boolean.FALSE;
-
                 // If the file is in the skin's exclusion regex, skip it
                 if (skipPatt != null) {
-                    skip = skipPatt.matcher(cleanList[nbFiles].getName()).matches();
+                    skip = skipPatt.matcher(cleanList1.getName()).matches();
                 }
-
                 // If the file isn't skipped and it's not part of the library, delete it
                 if (!skip) {
                     if (jukeboxClean) {
-                        LOG.debug("Deleted: " + cleanList[nbFiles].getName() + " from library");
-                        cleanList[nbFiles].delete();
+                        LOG.debug("Deleted: " + cleanList1.getName() + " from library");
+                        cleanList1.delete();
                     } else {
-                        LOG.debug("Unused: " + cleanList[nbFiles].getName());
+                        LOG.debug("Unused: " + cleanList1.getName());
                     }
                     cleanDeletedTotal++;
                 }
@@ -1835,6 +1828,16 @@ public class MovieJukebox {
      * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt> object. Once
      * scanned, the
      * <tt>movie</tt> object is persisted.
+     *
+     * @param xmlReader
+     * @param miScanner
+     * @param backgroundPlugin
+     * @param movie
+     * @param jukebox
+     * @param library
+     * @return
+     * @throws java.io.FileNotFoundException
+     * @throws javax.xml.stream.XMLStreamException
      */
     public boolean updateMovieData(MovieJukeboxXMLReader xmlReader, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", Boolean.FALSE);
@@ -2066,11 +2069,15 @@ public class MovieJukebox {
     }
 
     /**
-     * Update the movie poster for the specified movie. When an existing thumbnail is found for the movie, it is not overwritten,
-     * unless the mjb.forceThumbnailOverwrite is set to true in the property file. When the specified movie does not contain a valid
-     * URL for the poster, a dummy image is used instead.
+     * Update the movie poster for the specified movie.
+     * <p>
+     * When an existing thumbnail is found for the movie, it is not overwritten, unless the mjb.forceThumbnailOverwrite is set to
+     * true in the property file.
+     * <p>
+     * When the specified movie does not contain a valid URL for the poster, a dummy image is used instead.
      *
-     * @param tempJukeboxDetailsRoot
+     * @param jukebox
+     * @param movie
      */
     public void updateMoviePoster(Jukebox jukebox, Movie movie) {
         String posterFilename = movie.getPosterFilename();
@@ -2086,7 +2093,6 @@ public class MovieJukebox {
         // Check to see if there are posters in the jukebox directories (target and temp)
         // Check to see if the local poster is newer than either of the jukebox posters
         // Download poster
-
         // Do not overwrite existing posters, unless there is a new poster URL in the nfo file.
         if ((!tmpDestFile.exists() && !posterFile.exists()) || movie.isDirty(DirtyFlag.POSTER) || forcePosterOverwrite) {
             posterFile.getParentFile().mkdirs();
@@ -2116,6 +2122,9 @@ public class MovieJukebox {
      *
      * When the specified movie does not contain a valid URL for the banner, a dummy image is used instead.
      *
+     * @param jukebox
+     * @param movie
+     * @param imagePlugin
      */
     public void updateTvBanner(Jukebox jukebox, Movie movie, MovieImagePlugin imagePlugin) {
         String skinHome = SkinProperties.getSkinHome();
@@ -2130,7 +2139,6 @@ public class MovieJukebox {
         // Check to see if there are banners in the jukebox directories (target and temp)
         // Check to see if the local banner is newer than either of the jukebox banners
         // Download banner
-
         // Do not overwrite existing banners, unless there is a new poster URL in the nfo file.
         if ((!tmpDestFile.exists() && !bannerFile.exists()) || movie.isDirty(DirtyFlag.BANNER) || forceBannerOverwrite) {
             FileTools.makeDirectories(tmpDestFile);
@@ -2249,10 +2257,9 @@ public class MovieJukebox {
     /**
      * Create a thumbnail from the original poster file.
      *
-     * @param thumbnailManager
-     * @param rootPath
-     * @param tempRootPath
+     * @param imagePlugin
      * @param skinHome
+     * @param jukebox
      * @param movie
      * @param forceThumbnailOverwrite
      */
@@ -2350,8 +2357,7 @@ public class MovieJukebox {
      * Create a detailed poster file from the original poster file
      *
      * @param posterManager
-     * @param rootPath
-     * @param tempRootPath
+     * @param jukebox
      * @param skinHome
      * @param movie
      * @param forcePosterOverwrite

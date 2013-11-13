@@ -275,20 +275,20 @@
             <dependency>
                 <groupId>org.javolution</groupId>
                 <artifactId>javolution</artifactId>
-                <version>5.3.1</version>
+                <version>6.0.0</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>com.j256.ormlite</groupId>
                 <artifactId>ormlite-core</artifactId>
-                <version>4.46</version>
+                <version>4.47</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>com.j256.ormlite</groupId>
                 <artifactId>ormlite-jdbc</artifactId>
-                <version>4.46</version>
+                <version>4.47</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
