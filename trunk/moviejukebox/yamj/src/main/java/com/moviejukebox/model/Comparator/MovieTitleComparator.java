@@ -29,7 +29,7 @@ import java.util.Comparator;
 public class MovieTitleComparator implements Comparator<Movie>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private boolean ascending;
+    private final boolean ascending;
 
     public MovieTitleComparator() {
         this.ascending = Boolean.TRUE;

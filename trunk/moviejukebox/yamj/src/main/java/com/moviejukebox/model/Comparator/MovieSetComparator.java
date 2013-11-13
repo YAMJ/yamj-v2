@@ -30,7 +30,7 @@ import java.util.Comparator;
 public class MovieSetComparator implements Comparator<Movie>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private String set;
+    private final String set;
     private static final boolean SPECIALS_AT_END = PropertiesUtil.getBooleanProperty("mjb.sets.specialsAtEnd", Boolean.FALSE);
 
     public MovieSetComparator(String set) {
