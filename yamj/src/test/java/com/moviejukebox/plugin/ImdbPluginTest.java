@@ -33,6 +33,7 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -40,6 +41,8 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 
 public class ImdbPluginTest {
+
+    private static final Logger LOG = Logger.getLogger(ImdbPluginTest.class);
 
     @BeforeClass
     public static void setUpClass() {
@@ -103,17 +106,21 @@ public class ImdbPluginTest {
         assertEquals("2011", mf2.getFirstAired(14));
     }
 
-    @Ignore
+    @Test
     public void testImdbPerson() {
+        LOG.info("testImdbPerson");
         PropertiesUtil.setProperty("imdb.site", "us");
         ImdbPlugin imdbPlugin = new ImdbPlugin();
 
         Person person = new Person();
-        person.setName("Daniel Craig");
+        person.setName("Gérard Depardieu");
 
-        assertTrue(imdbPlugin.scan(person));
-        assertNotNull(person.getBiography());
-        assertNotEquals(Movie.UNKNOWN, person.getBiography());
+        assertTrue("Scan failed", imdbPlugin.scan(person));
+        assertNotNull("Null bio", person.getBiography());
+        assertNotEquals("No bio", Movie.UNKNOWN, person.getBiography());
+        assertEquals("Wrong name", "Gérard Xavier Marcel Depardieu", person.getBirthName());
+        assertEquals("Wrong birth place", "Châteauroux, Indre, France", person.getBirthPlace());
+
     }
 
     @Test

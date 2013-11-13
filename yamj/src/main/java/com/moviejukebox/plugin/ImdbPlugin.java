@@ -115,7 +115,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private static final String HTML_SITE = ".imdb.com";
     private static final String HTML_SITE_FULL = "http://www.imdb.com/";
     private static final String HTML_TITLE = "title/";
-    private static final String HTML_END = "<end>";
     private static final String HTML_BREAK = "<br/>";
     private static final String HTML_SPAN_END = "</span>";
     private static final String HTML_GT = ">";
@@ -1926,17 +1925,19 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
         } else {
-            LOG.debug("No image found on webpage for " + person.getName());
+            LOG.debug(LOG_MESSAGE + "No image found on webpage for " + person.getName());
         }
 
         // get personal information
         String xmlInfo = webBrowser.request(getImdbUrl(person) + "bio", siteDefinition.getCharset());
 
         String date = "";
-        int beginIndex, endIndex;
-        if (xmlInfo.indexOf("<h5>Date of Birth</h5>") > -1) {
+        int endIndex;
+        int beginIndex = xmlInfo.indexOf("<h5>Date of Birth</h5>");
+
+        if (beginIndex > -1) {
             endIndex = xmlInfo.indexOf("<h5>Date of Death</h5>");
-            beginIndex = xmlInfo.indexOf("<a href=\"/date/");
+            beginIndex = xmlInfo.indexOf("birth_monthday=", beginIndex);
             if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
                 date = xmlInfo.substring(beginIndex + 18, beginIndex + 20) + "-" + xmlInfo.substring(beginIndex + 15, beginIndex + 17);
             }
@@ -1951,16 +1952,21 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             beginIndex = xmlInfo.indexOf("birth_place=", beginIndex);
             String place;
             if (beginIndex > -1) {
-                place = xmlInfo.substring(xmlInfo.indexOf(HTML_QUOTE_GT, beginIndex) + 2, xmlInfo.indexOf(HTML_A_END, beginIndex));
+                place = HTMLTools.extractTag(xmlInfo, "birth_place=", HTML_A_END);
+                int start = place.indexOf('>');
+                if (start > -1 && start < place.length()) {
+                    place = place.substring(start + 1);
+                }
                 if (isValidString(place)) {
                     person.setBirthPlace(place);
                 }
             }
         }
 
-        if (xmlInfo.indexOf("<h5>Date of Death</h5>") > -1) {
-            endIndex = xmlInfo.indexOf("<h5>Mini Biography</h5>");
-            beginIndex = xmlInfo.indexOf("<a href=\"/date/");
+        beginIndex = xmlInfo.indexOf("<h5>Date of Death</h5>");
+        if (beginIndex > -1) {
+            endIndex = xmlInfo.indexOf("<h5>Mini Biography</h5>", beginIndex);
+            beginIndex = xmlInfo.indexOf("death_monthday=", beginIndex);
             String dDate = "";
             if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
                 dDate = xmlInfo.substring(beginIndex + 18, beginIndex + 20) + "-" + xmlInfo.substring(beginIndex + 15, beginIndex + 17);
@@ -1977,7 +1983,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        if (!date.equals("")) {
+        if (StringUtils.isNotBlank(date)) {
             person.setYear(date);
         }
 
@@ -1985,7 +1991,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (beginIndex > -1) {
             String name = xmlInfo.substring(beginIndex + 19, xmlInfo.indexOf(HTML_BREAK, beginIndex));
             if (isValidString(name)) {
-                person.setBirthName(name);
+                person.setBirthName(HTMLTools.decodeHtml(name));
             }
         }
 
@@ -2001,7 +2007,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (xmlInfo.indexOf("<h5>Mini Biography</h5>") > -1) {
             biography = HTMLTools.extractTag(xmlInfo, "<h5>Mini Biography</h5>", "<b>IMDb Mini Biography By: </b>");
         }
-        if (!isValidString(biography) && xmlInfo.indexOf("<h5>Trivia</h5>") > -1) {
+        if (isNotValidString(biography) && xmlInfo.indexOf("<h5>Trivia</h5>") > -1) {
             biography = HTMLTools.extractTag(xmlInfo, "<h5>Trivia</h5>", HTML_BREAK);
         }
         if (isValidString(biography)) {
@@ -2018,9 +2024,26 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // get filmography
-        xmlInfo = webBrowser.request(getImdbUrl(person) + "filmorate", siteDefinition.getCharset());
+        processFilmography(person, xml);
+
+        int version = person.getVersion();
+        person.setVersion(++version);
+        return Boolean.TRUE;
+    }
+
+    /**
+     * Process the person's filmography from the source XML
+     *
+     * @param person
+     * @param sourceXml
+     * @throws IOException
+     */
+    private void processFilmography(Person person, String sourceXml) throws IOException {
+        int beginIndex;
+
+        String xmlInfo = webBrowser.request(getImdbUrl(person) + "filmorate", siteDefinition.getCharset());
         if (xmlInfo.indexOf("<div class=\"filmo\">") > -1) {
-            String fg = HTMLTools.extractTag(xml, "<div id=\"filmography\">", "<div class=\"article\" >");
+            String fg = HTMLTools.extractTag(sourceXml, "<div id=\"filmography\">", "<div class=\"article\" >");
             TreeMap<Float, Filmography> filmography = new TreeMap<Float, Filmography>();
             Pattern tvPattern = Pattern.compile("( \\(#\\d+\\.\\d+\\))|(: Episode #\\d+\\.\\d+)");
             for (String department : HTMLTools.extractTags(xmlInfo, "<div id=\"tn15content\">", "<style>", "<div class=\"filmo\"", HTML_DIV)) {
@@ -2122,12 +2145,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 count++;
             }
         }
-
-        int version = person.getVersion();
-        person.setVersion(++version);
-        return Boolean.TRUE;
     }
 
+    /**
+     * Create a map of the AKA values
+     *
+     * @param list
+     * @return
+     */
     private static Map<String, String> buildAkaMap(List<String> list) {
         Map<String, String> map = new LinkedHashMap<String, String>();
         int i = 0;
