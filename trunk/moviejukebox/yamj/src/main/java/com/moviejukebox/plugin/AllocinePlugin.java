@@ -35,7 +35,7 @@ import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.cache.CacheMemory;
 import java.util.List;
 import javax.xml.bind.JAXBException;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 public class AllocinePlugin extends ImdbPlugin {

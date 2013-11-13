@@ -29,7 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime2.DateTime;
 

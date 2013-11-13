@@ -28,7 +28,6 @@ import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import static com.moviejukebox.tools.StringTools.trimToLength;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,7 +63,6 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
-import org.apache.commons.io.EndianUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.pojava.datetime2.DateTime;
 
@@ -1390,7 +1388,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      *
      * @param movie
      * @return
-     * @throws MalformedURLException
      * @throws IOException
      */
     private boolean updateAwards(Movie movie) throws IOException {
@@ -1464,7 +1461,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      *
      * @param movie
      * @return
-     * @throws MalformedURLException
      * @throws IOException
      */
     private boolean updateBusiness(Movie movie) throws IOException, NumberFormatException {
@@ -1510,7 +1506,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      *
      * @param movie
      * @return
-     * @throws MalformedURLException
      * @throws IOException
      */
     private boolean updateTrivia(Movie movie) throws IOException {
@@ -1635,7 +1630,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param movie
      *
      * @throws IOException
-     * @throws MalformedURLException
      */
     protected void updateTVShowInfo(Movie movie) throws IOException {
         scanTVShowTitles(movie);
@@ -1899,7 +1893,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param person
      * @param xml
      * @return
-     * @throws MalformedURLException
      * @throws IOException
      */
     private boolean updateInfoNew(Person person, String xml) throws IOException {

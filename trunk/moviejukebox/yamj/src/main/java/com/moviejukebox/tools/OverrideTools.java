@@ -30,7 +30,7 @@ import com.moviejukebox.plugin.DatabasePluginController;
 import static com.moviejukebox.plugin.DatabasePluginController.TYPE_ALTERNATE;
 import com.moviejukebox.plugin.ImdbPlugin;
 import java.util.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 /**

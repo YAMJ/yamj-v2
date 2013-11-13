@@ -40,7 +40,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.DOMException;
