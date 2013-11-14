@@ -782,7 +782,7 @@ public class MovieJukeboxXMLWriter {
                         continue;
                     }
                 }
-                eLibrary.appendChild(writePerson(xmlDoc, person));
+                eLibrary.appendChild(writePerson(xmlDoc, person, false));
                 break;
             }
         }
@@ -1571,13 +1571,27 @@ public class MovieJukeboxXMLWriter {
         }
     }
 
-    private Element writePerson(Document doc, Person person) {
+    /**
+     * Generate the person
+     *
+     * @param doc
+     * @param person
+     * @param includeVersion
+     * @return
+     */
+    private Element writePerson(Document doc, Person person, boolean includeVersion) {
         Element ePerson = doc.createElement("person");
 
         for (Map.Entry<String, String> e : person.getIdMap().entrySet()) {
             DOMHelper.appendChild(doc, ePerson, "id", e.getValue(), "persondb", e.getKey());
         }
 
+        // Add the version information to the output
+        if (includeVersion) {
+            DOMHelper.appendChild(doc, ePerson, "mjbVersion", SystemTools.getVersion());
+            DOMHelper.appendChild(doc, ePerson, "mjbRevision", SystemTools.getRevision());
+            DOMHelper.appendChild(doc, ePerson, "xmlGenerationDate", DateTimeTools.convertDateToString(new Date(), DateTimeTools.getDateFormatLongString()));
+        }
         DOMHelper.appendChild(doc, ePerson, NAME, person.getName());
         DOMHelper.appendChild(doc, ePerson, TITLE, person.getTitle());
         DOMHelper.appendChild(doc, ePerson, BASE_FILENAME, person.getFilename());
@@ -1662,7 +1676,7 @@ public class MovieJukeboxXMLWriter {
             try {
                 Document personDoc = DOMHelper.createDocument();
                 Element eDetails = personDoc.createElement(DETAILS);
-                eDetails.appendChild(writePerson(personDoc, person));
+                eDetails.appendChild(writePerson(personDoc, person, true));
                 personDoc.appendChild(eDetails);
                 DOMHelper.writeDocumentToFile(personDoc, tempXmlFile);
             } catch (ParserConfigurationException error) {
