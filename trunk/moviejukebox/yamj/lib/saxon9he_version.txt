@@ -1,155 +1,185 @@
 ==============================
 
-Saxon-HE 9.4 is the latest major release of the open-source edition of Saxon.
+Saxon-HE 9.5 is the latest major release of the open-source edition of Saxon. 
 It is available for both the Java and .NET platforms.
 
-The current maintenance release is Saxon-HE 9.4.0.4.
+The current maintenance release is Saxon-HE 9.5.1.3.
 
 The documentation for Saxon is at http://www.saxonica.com/documentation/
 and includes a detailed list of changes for each release.
 
-For the Java platform, download file SaxonHE9-4-0-4J.zip. Installation instructions are at
-http://www.saxonica.com/documentation/about/installationjava.xml
+For the Java platform, download file SaxonHE9-5-1-3J.zip. Installation instructions are at:
 
-For the .NET platform, download file SaxonHE9-4-0-4N-setup.exe.
-Installation instructions are at http://www.saxonica.com/documentation/about/installationdotnet.xml
+http://www.saxonica.com/documentation9.5/index.html#!about/installationjava
 
-The file saxon-resources9-4.zip contains documentation, sample files, test drivers and other miscellaneous resources.
+For the .NET platform, download file SaxonHE9-5-1-3N-setup.exe. 
+Installation instructions are at:
+
+http://www.saxonica.com/documentation9.5/index.html#!about/installationdotnet
+
+The file saxon-resources9-5.zip contains documentation, sample files, test drivers and other miscellaneous resources. 
 It is common to both platforms, and is not normally updated when new maintenance releases appear.
 
-The file saxon9-4-0-4source.zip contains source code for both platforms; a new version is produced with each
+The file saxon9-5-1-3source.zip contains source code for both platforms; a new version is produced with each 
 maintenance release. Source code with the latest patches can also be obtained from a Subversion repository
 maintained at http://dev.saxonica.com/archive/opensource. The Subversion repository on the SourceForge
 site is no longer maintained.
 
-The following bugs are cleared in 9.4.0.4, issued 2012-06-25 (this includes bugs that appear only in the commercial
+The following bugs are cleared in 9.5.1.3, issued 2013-10-25 (this includes bugs that appear only in the commercial
 versions of the product). Bugs are listed under the number used on the new Saxonica Community site at
-http://dev.saxonica.com/community/projects/saxon/issues :
+https://saxonica.plan.io/projects/saxon/issues :
 
-	1565	NullPointerException if xs:assert used in a schema without enabling XSD 1.1
-	1564	Incorrect NaN comparisons using bytecode generation
-	1558	FeatureKeys.STANDARD_ERROR_OUTPUT_FILE defined log-file is still locked when transform(...) is completed
-	1549	UnsupportedOperationException: StreamingCopy.copy()
-	1547	-outval:recover doesn't work
-	1546	incorrect XPST0081 if an attribute misc:as is present at xsl:param
-	1543	Wrong priority for pattern containing a trivial predicate
-	1541	xsl:number has dutch translation issues
-	1540	XSLT 2.0: "union" keyword not allowed as an alternative to "|" in a predicate of a pattern
-	1538	ArrayIndexOutOfBoundException with TinyTree
-	1537	Incorrect bytecode for conditional sort expression
-	1534	Setting omit-xml-declaration in a Saxon s9api pipeline does not produce a result with no xml declaration
-	1532	Function-lookup on context dependent function not supported
-	1528	NullPointerException if a literal sequence cannot be converted to the target type
-	1509	Serialization error SEPM0004 not always detected
-	1505	XSD 1.1 IllegalArgumentException - reference to imported element inside override
-	1504	XSD NPE on identity constraint - simple type with attribute
-	1497	Bug	Closed	Low	XSD 1.1 violation of ##definedSibling has slightly misleading error message
-	1493	XSD Error message for invalid Name refers to NCName instead
-	1492	XSD ClassCastException when restricting a list whose item type can't be found
-	1491	XSD 1.1 value "extension" not allowed in final attribute on simpleType
-	1489	XSD "Element declarations consistent" not checked in extensions
-	1488	XSD 1.1 "all" extends "all" and both are optional
-	1487	XSD 1.1 "all" extends "all" and minOccurs is different
-	1485	XSD 1.1 saxon:preprocess does not actually preprocess
-	1484	XSD 1.1 override always results in warning
-	1481	Memory "leak" caused by ThreadLocal converter cache
-	1479	NullPointerException if streaming code executed without Saxon-EE
-	1478	fn:serialize() crashes if document node supplied as second argument
-	1475	saxon:sort() fails to atomize result of supplied function
-	1472	Saxon says "cannot compare" (schema-aware mode) for an XPath expression
-	1467	NegativeArraySizeException when generating bytecode
-	1453	Failure to stream an expression that should be streamable
-	1452	XPathFactory.setFeature(X, false) sets feature to true
-	1451	datatypes.dtd not resolved by built-in entity resolver
-	1450	Poor diagnostics for streamability failure
-	1449	When streaming, NPE during analysis of field[@name]
-	1443	Whitespace normalization of anySimpleType
-	1442	NullPointer Exception in NamespaceConstructor
-	1441	Inadequate checks of XSD facet restrictions
-	1439	Bug	Closed	Low	ArrayIndexOutOfBoundsException when 'group by' and 'order by' used together
-	1438	XSD 1.1 allows any value of source URI in xs:appInfo and xs:documentation
-	1437	XSD 1.1 allows xs:all maxOccurs="0"
-	1436	Failed Modules with spaces in pathnames in .NET
-	1434	Failure in typeCheck of EquivalenceComparison
-	1433	Trace calls with no namespace context
-	1430	NullPointerException if current-grouping-key() called when there is no current grouping key
+	1810: SXST0063: Template body is an expression that returns nodes from the streamed input document
+	1854: Source code cannot easily be browsed
+	1866: Parse errors in imported stylesheet cause no exception
+	1877: current() throws dynamic error in expand-text directives
+	1878: bind-group attribute not working properly in for-each-group
+	1882: net.sf.saxon.s9api.SaxonApiException: net.sf.saxon.trans.XPathException: Axis step child::element while validating document
+	1885: AttributeCollectionImpl.setAttribute()
+	1886: In XML Schema 1.0 maxOccurs="unbounded" on a particle of the "all" compositor should be reported as an error
+	1890: Problems with accumulators
+	1891: NullPointerException with XSD 1.1 conditional type assignment
+	1893: java.lang.NullPointerException because of xsl:strip-space
+	1894: IndexOutOfRangeException thrown in .NET
+	1899: Parameter not evaluated when the only usage is in a predicate of a pattern
+	1901: PrependIterator.getAnother()
+	1907: Use of expanded QName in XQuery computed attribute constructor
+	1908: Performance: patterns calling a function in a predicate
+	1910: Infinite recursion in Optimizer
+	1912: Race condition on loading license file
+	1916: Internal Saxon error: local variable encountered whose binding has been deleted (intersect operator)
+	1917: Namespace undeclarations in XQuery element constructors
+	1918: Incorrect W3C streamability analysis for filter expressions
+	1919: Failure to detect that query parameters are in wrong Configuration
+	1920: NullPointerException while evaluating global variable
+	1924: ArrayIndexOutOfBounds in Chain.ChainIterator
+	1925: java.lang.UnsupportedOperationException with message append() method is not supported in this class
 
-The following bugs are cleared in 9.4.0.3, issued 2012-02-28 (this includes bugs that appear only in the commercial
+
+The following bugs are cleared in 9.5.1.2, issued 2013-08-29 (this includes bugs that appear only in the commercial
 versions of the product). Bugs are listed under the number used on the new Saxonica Community site at
-http://dev.saxonica.com/community/projects/saxon/issues :
+https://saxonica.plan.io/projects/saxon/issues :
 
-    1422    NullPointerException when inline function in XSLT refers to XSLT local variables
-    1421    XQuery error in Saxon-EE 9.4.0.1N: failure to close output file under opt:10
-    1420    XPath evaluation against DOM broken for child nodes in empty namespace
-    1419    NullPointer Exception in NamespaceConstructor
-    1418    NullPointerException when using bad FunctionLiteral in XSLT
-    1417    ArrayIndexOutOfBoundsException when 'group by' and 'order by' used together
-    1416    Failed Modules with spaces in pathnames in .NET
-    1415    Failure in typeCheck of EquivalenceComparison
-    1414    Failure to retrieve part of SVG DTD
-    1411    Streaming: NPE in FleetingNode getting name of node
-    172     Setting ModuleURIResolver from Initializer
-    171     xsl:template match="node()" mode="#all"
-    170     SchemaURIResolver not called by xs:import
-    169     position variable incorrectly removed in ForClause
-    168     Tracing of FLWOR expressions
-    167     ClassLoader for generated bytecode
-    166     Incorrect optimization of xsl:value-of
-    165	    NPE when using new option -threads
-    164	    Invalid method Code length exception for bytecode
-
-An incorrect build of 9.4.0.3 was uploaded on 2012-02-27; it was incorrect in that it did not incorporate all
-the above fixes. This build was replaced in-situ on 2012-02-28. The two builds have the same version number, but
-can be distinguished by the result of Version.getReleaseDate().
-
-The following bugs are cleared in 9.4.0.2, issued 2012-01-20 (this includes bugs that appear only in the commercial
-versions of the product). Bugs are listed under their old SourceForge numbers:
-
- 3476703 	xs:openContent / xs:any / @maxOccurs
- 3476096 	Failing function not properly named in error Message
- 3474854 	Update Expressions: Not Inlining of variable in FLWOR
- 3474341 	NPE after copying extension function call
- 3473810 	Unicode surrogate pairs
- 3473561 	AssertionError for shared append expression
- 3473555 	XPath setAllowUndeclaredVariables()
- 3473031 	NPE after reporting XSLT compilation errors
- 3471840 	IllegalArgumentException in StringToUntypedAtomicCompiler
- 3469783 	Saxon EE 9.4.0.1 - ASM library version conflict
- 3469431 	Tracing of FLWOR expressions
- 3469423 	Saxon 9.4 Dependency on JDK 1.6.
- 3469332 	Location info for FLWOR clauses
- 3468905 	Type-checking for higher-order functions
- 3468419 	Dependencies on JAXP XMLStreamWriter
- 3467644 	Window clause following for clause
- 3467607 	Tumbling windows implicitly closed
- 3467590 	FLWOR window clause: variables at end of sequence
- 3467555 	Overlapping windows
- 3467539 	NPE after Block.copy()
- 3467006 	Optimization of FLWOR expressions
- 3466144 	Only one window notified at end of sequence
- 3466143 	Tail calls and FLWOR expressions
- 3466125 	Tail calls and FLWOR expressions
- 3464429 	position variable incorrectly removed in ForClause
- 3463028 	XQuery 3.0 window clause: left paren after 'when'
- 3462928 	Cannot cast CompiledExpression to VariableReference
- 3462497 	Inadequate XQuery tracing
- 3462473 	xsl:template entry missing in -T output
- 3462470 	XSLT Trace output displays text nodes wrongly
- 3460053 	With bytecode generation, no stack trace produced
- 3459776 	Validation adding namespaced attribute using SCM
- 3459503 	Failing to display byte code for certain inner classes
- 3459500 	Bytecode generation failure of filter expression
-
-In addition there are two changes in the way the product is built in 9.4.0.2:
-
-(a) on .NET, the version of IKVM used is 0.46.0.2. This clears a bug in
-bytecode verification that affected Saxon.
-
-(b) in Saxon-EE, the classes making up the ASM bytecode library are now renamed
-into com.saxonica packages. This avoids conflicts when Saxon is used with an
-application that has a dependency on a different version of the ASM library.
+	1873	base64Binary output method writes to wrong file
+	1872	doc-available() fails with error on XML parse error
+	1868	Ineffective optimization of GeneralComparison
+	1866	Parse errors in imported stylesheet cause no exception
+	1864	Subclassing StaticQueryContext
+	1862	Saxon Documentation - fn:serialize() - non-working link
+	1861	Error location with generated bytecode
+	1858	Missing link in documentation
+	1857	Result-document left open after dynamic error
+	1854	Source code cannot easily be browsed
+	1853	"jar" URIs no longer supported in 9.5
+	1852	ArrayIndexOutOfBounds doing Unicode normalization
+	1851	Fallback to HE when there is no license
+	1848	ClassCastException when pattern on streamable template is not a NodeTest
+	1847	NullPointerException when assessing the streamability of an attribute-set
+	1846	Sample C# applications omitted from saxon-resources
+	1844	Out-of-memory due to non-synchronisation of TinyTree statistics
+	1842	Greek perispomeni and normalize-unicode
+	1840	Reflexive extensions function arguments not casting correctly
+	1838	XQuery parsing bug: incorrect function declaration syntax is accepted
+	1836	Constants with different names and the same value
+	1835	Namespace inheritance in XQuery
+	1834	ClassCastException in XdmNode.getParent()
+	1831	java.lang.ArrayIndexOutOfBoundsException when XML is processed with XSL
+	1830	Multithreaded DOM Access
+	1829	Undeclared namespace in DOM input
+	1828	Incorrect optimization of /a/b/c[2]/d[@e='pqrs']
+	1824	Saxon-EE collection() fails if collection is empty
+	1823	NullPointerException using DOM tree with parentless element
+	1822	Incorrect Javadoc details in method call of class ExtensionFunctionCall
+	1820	Documentation browser: accept %21 in URL fragment
+	1819	java.lang.UnsupportedOperationException: Cannot enumerate an infinite set exception
+	1813	Absent XHTML DTD entities
+	1810	SXST0063: Template body is an expression that returns nodes from the streamed input document
 
 
+The Saxon 9.5.1.1, is primarily a maintenance release. However, the increment in the third part of the version number indicates that there are
+also some small functionality changes. The details of these changes can be found at:
 
-The first release in this series, 9.4.0.1, was issued on 9 December 2011. Release 9.4.0.1 fixes all bugs logged in the
-SourceForge bug tracker dated earlier than 9 December 2011.
+http://www.saxonica.com/documentation/index.html#!changes/installation/9.5-9.5.1.1
+
+The following bugs are cleared in 9.5.1.1, issued 2013-06-19 (this includes bugs that appear only in the commercial
+versions of the product). Bugs are listed under the number used on the new Saxonica Community site at
+https://saxonica.plan.io/projects/saxon/issues :
+
+	1817	Element output with incorrect prefix (bytecode only)
+	1812	Legal pattern rejected
+	1811	Local variable used in a pattern
+	1809	XSLT 3.0 on-no-match="deep-skip"
+	1807	HTML 5 serialization: DOCTYPE declaration
+	1806	HTML 4.0 serializer, end tags for XHTML elements
+	1805	require/prohibit feature names
+	1802	Hyphens in regular expressions
+	1801	Cast to union fails with bytecode generation
+	1800	format-dateTime - Ignored padding given the picture with width for roman numerals
+	1799	Handling of calendar argument of format-date()
+	1798	Incorrect example of ExtensionFunctionCall
+	1795	Increased memory requirements of tree model in Saxon 9.4 compared to Saxon 9.3
+	1793	Problem with EntityResolver and document()
+	1792	ArrayIndexOutOfBoundsException when converting xs:string variable with occurrence indicator
+	1790	[Regression?] Saxon-HE 9.5 and XsltExecutable.getGlobalParameters()
+	1789	Transformation fails when DOMSource has expanded EntityRef in it
+	1788	Serialization problem with XHTML meta tag
+	1787	Performance of substring()
+	1774	xsl:stream not documented
+	1772	Saxon release userdoc incomplete
+	1767	CDATA Section not being serialized to HTML when using option cdata-section-elements
+	1759	Unsupported node type in DOM! 10 instance
+	1752	Scaleability of Chain sequence
+
+
+
+The following bugs are cleared in 9.5.0.2, issued 2013-05-22 (this includes bugs that appear only in the commercial
+versions of the product). Bugs are listed under the number used on the new Saxonica Community site at
+https://saxonica.plan.io/projects/saxon/issues :
+
+	1783	Unknown system function function()
+	1782    Empty unions in XSD 1.1
+	1780	version decl for XQuery incorrectly relaxed under XQuery 1.0
+	1779	Reserved function name function not handled correctly
+	1778	Handling errors in processing xsi:schemaLocation
+	1777	Java.lang.ClassCastException: net.sf.saxon.value.Int64Value cannot be cast to net.sf.saxon.om.FunctionItem
+	1776	DTD module xhtml-inlpres1.mod is miscatalogued
+	1775	format-number() requires '0' in picture, disallows '9'
+	1771	TypeCheck bypassed by optimizer
+	1768	search tool broken in Saxon documentation
+	1766	Incorrect serialization of HTML 5.0 elements in XHTML ns
+	1765	<embed> missing from list of HTML 4.0 tags that have no closing tag
+	1762	Inefficient hashing for applyTemplates
+	1761	Bad link to documentation from command-line help
+	1760	Regular expression matching zero-length string
+	1758	count() is interpreted, not compiled
+	1757	function-available() on constructors for abstract types
+	1756	Saxon HE 9.5 .Net sample project fails to build with Target Framework set to 3.5
+	1755	format-date() with [w] option (week in month)
+	1754	Redistributing Saxon-HE .NET with 3rd party notice files
+	1753	EXSLT extension function NPE when passed empty sequence
+	1752	Scaleability of Chain sequence
+	1751	Wrong location information when debugging
+	1750	Lazy evaluation of variables: regression in 9.5
+	1749	Error message for saxon:index() incorrect
+	1748	saxon:index available in Saxon-PE
+	1747	s9api piping XQuery output into XSLT destination
+	1746	ProgressiveIterator.materialize()
+	1745	High	Variable stack frame allocation issue - PE 0.5.0.1
+	1744	NPE in compiling xsl:iterate under
+	1743	Broken links in documentation
+	1742	Reflexive extension functions: passing empty sequence
+	1741	Out of date information on extensibility
+	1740	Performance regression for $x[$i]
+	1738	Null pointer exception when bytecode is on
+	1737	collections with recurse=yes
+	1736	Out of date info in documentation about EQName
+	1735	IndexOutofBounds exception using substring() with non-BMP string
+	1734	xs:error not supported in XPath/XSLT/XQuery
+	1733	.net api documentation: interface members not shown
+	1652	fn:collection() does not declare its results to be in document order
+
+
+The first release in this series, 9.5.0.1, was issued on 16 April 2013. 
+
+Bugs can be reported, and known bugs inspected, on the Saxon community site at https://saxonica.plan.io/projects/saxon
+The sourceforge bug tracker is no longer maintained.
