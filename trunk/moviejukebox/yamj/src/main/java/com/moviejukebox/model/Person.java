@@ -63,8 +63,8 @@ public class Person extends Filmography {
     private final List<Movie> movies = new ArrayList<Movie>();
     private Map<String, String> indexes = new HashMap<String, String>();
     private final String backdropToken = PropertiesUtil.getProperty("mjb.scanner.backdropToken", ".backdrop");
-    private boolean sortFilmographyAsc = PropertiesUtil.getBooleanProperty("plugin.filmography.sort.asc", false);
-    private FilmographyDateComparator filmographyCmp = new FilmographyDateComparator(sortFilmographyAsc);
+    private final boolean sortFilmographyAsc = PropertiesUtil.getBooleanProperty("plugin.filmography.sort.asc", false);
+    private final FilmographyDateComparator filmographyCmp = new FilmographyDateComparator(sortFilmographyAsc);
 
     public Person() {
     }

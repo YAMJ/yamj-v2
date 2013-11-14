@@ -36,6 +36,10 @@ public class FilmographyDateComparator implements Comparator<Filmography>, Seria
     private static final long serialVersionUID = 1L;
     private final boolean ascending;
 
+    public FilmographyDateComparator() {
+        this.ascending = Boolean.FALSE;
+    }
+
     public FilmographyDateComparator(boolean ascending) {
         this.ascending = ascending;
     }
@@ -48,7 +52,9 @@ public class FilmographyDateComparator implements Comparator<Filmography>, Seria
     public int compare(Filmography f1, Filmography f2, boolean ascending) {
         if (isValidString(f1.getYear()) && isValidString(f2.getYear())) {
             try {
-                return ascending ? (Integer.parseInt(f1.getYear()) - Integer.parseInt(f2.getYear())) : (Integer.parseInt(f2.getYear()) - Integer.parseInt(f1.getYear()));
+                Integer i1 = Integer.parseInt(f1.getYear());
+                Integer i2 = Integer.parseInt(f2.getYear());
+                return ascending ? (i1.compareTo(i2)) : (i2.compareTo(i1));
             } catch (NumberFormatException e) {
                 return 0;
             }
