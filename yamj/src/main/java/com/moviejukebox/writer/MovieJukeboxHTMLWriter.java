@@ -54,16 +54,16 @@ public class MovieJukeboxHTMLWriter {
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";
     private static final String EXT_XSL = ".xsl";
-    private boolean forceHTMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", Boolean.FALSE);
+    private final boolean forceHTMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceHTMLOverwrite", Boolean.FALSE);
     private String peopleFolder;
-    private static String skinHome = SkinProperties.getSkinHome();
-    private static TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    private static String playlistIgnoreExtensions = PropertiesUtil.getProperty("mjb.playlist.IgnoreExtensions", "iso,img");
-    private static File playlistFile = new File("playlist.xsl");
-    private static String indexHtmFile = "../" + PropertiesUtil.getProperty("mjb.indexFile", "index.htm");
-    private static String myiHomeIP = PropertiesUtil.getProperty("mjb.myiHome.IP", "");
-    private static boolean generateMultiPartPlaylist = PropertiesUtil.getBooleanProperty("mjb.playlist.generateMultiPart", Boolean.TRUE);
-    private static int maxRetryCount = 3;   // The number of times to retry writing a HTML page
+    private static final String SKIN_HOME = SkinProperties.getSkinHome();
+    private static final TransformerFactory TRANSFORMER = TransformerFactory.newInstance();
+    private static final String PLAYLIST_IGNORE_EXT = PropertiesUtil.getProperty("mjb.playlist.IgnoreExtensions", "iso,img");
+    private static final File PLAYLIST_FILE = new File("playlist.xsl");
+    private static final String INDEX_HTML_FILE = "../" + PropertiesUtil.getProperty("mjb.indexFile", "index.htm");
+    private static final String MYIHOME_IP = PropertiesUtil.getProperty("mjb.myiHome.IP", "");
+    private static final boolean GENERATE_MULTIPART_PLAYLIST = PropertiesUtil.getBooleanProperty("mjb.playlist.generateMultiPart", Boolean.TRUE);
+    private static final int MAX_RETRY_COUNT = 3;   // The number of times to retry writing a HTML page
 
     public MovieJukeboxHTMLWriter() {
 
@@ -82,6 +82,12 @@ public class MovieJukeboxHTMLWriter {
         }
     }
 
+    /**
+     * Generate the HTML for the movie details
+     *
+     * @param jukebox
+     * @param movie
+     */
     public void generateMovieDetailsHTML(Jukebox jukebox, Movie movie) {
         try {
             String baseName = movie.getBaseName();
@@ -117,7 +123,7 @@ public class MovieJukeboxHTMLWriter {
                     Result xmlResult = new StreamResult(tempHtmlFile);
 
                     if (xmlSource != null && xmlResult != null) {
-                        File skinFile = new File(skinHome, indexStr);
+                        File skinFile = new File(SKIN_HOME, indexStr);
                         Transformer transformer = getTransformer(skinFile, jukebox.getJukeboxRootLocationDetails());
 
                         doTransform(transformer, xmlSource, xmlResult, "Movie: " + movie.getBaseFilename());
@@ -133,6 +139,12 @@ public class MovieJukeboxHTMLWriter {
         }
     }
 
+    /**
+     * Generate HTML person details
+     *
+     * @param jukebox
+     * @param person
+     */
     public void generatePersonDetailsHTML(Jukebox jukebox, Person person) {
         try {
             String baseName = person.getFilename();
@@ -166,9 +178,13 @@ public class MovieJukeboxHTMLWriter {
                     Result xmlResult = new StreamResult(tempHtmlFile);
 
                     if (xmlSource != null && xmlResult != null) {
-                        File skinFile = new File(skinHome, indexStr);
-                        Transformer transformer = getTransformer(skinFile, jukebox.getJukeboxRootLocationDetails());
-                        doTransform(transformer, xmlSource, xmlResult, "Person: " + person.getName());
+                        File skinFile = new File(SKIN_HOME, indexStr);
+                        if (skinFile.exists()) {
+                            Transformer transformer = getTransformer(skinFile, jukebox.getJukeboxRootLocationDetails());
+                            doTransform(transformer, xmlSource, xmlResult, "Person: " + person.getName());
+                        } else {
+                            LOG.warn(LOG_MESSAGE + "XSL file '" + skinFile.getAbsolutePath() + "' does not exist!");
+                        }
                     } else {
                         LOG.error(LOG_MESSAGE + "Unable to transform XML for person " + person.getName() + " source: " + (xmlSource == null ? true : false)
                                 + " result: " + (xmlResult == null ? true : false));
@@ -184,15 +200,14 @@ public class MovieJukeboxHTMLWriter {
     /**
      * Generates a playlist per part of the video. Used primarily with TV Series
      *
-     * @param rootPath
-     * @param tempRootPath
+     * @param jukebox
      * @param movie
      * @return List of generated file names
      */
     public Collection<String> generatePlaylist(Jukebox jukebox, Movie movie) {
         Collection<String> fileNames = new ArrayList<String>();
 
-        if (playlistFile == null) {
+        if (PLAYLIST_FILE == null) {
             return fileNames;
         }
 
@@ -212,10 +227,9 @@ public class MovieJukeboxHTMLWriter {
 
             // Issue 884: Remove ISO and IMG files from playlists
             int partCount = 0;
-            for (int i = 0; i < movieFileArray.length; i++) {
-                MovieFile moviePart = movieFileArray[i];
+            for (MovieFile moviePart : movieFileArray) {
                 String partExt = moviePart.getFilename().substring(moviePart.getFilename().lastIndexOf(".") + 1);
-                if (playlistIgnoreExtensions.indexOf(partExt) > -1) {
+                if (PLAYLIST_IGNORE_EXT.indexOf(partExt) > -1) {
                     partCount++;
                 }
             }
@@ -228,7 +242,7 @@ public class MovieJukeboxHTMLWriter {
             if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty(DirtyFlag.INFO)) {
                 tempPlaylistFile.getParentFile().mkdirs();
 
-                Transformer transformer = getTransformer(playlistFile, jukebox.getJukeboxRootLocationDetails());
+                Transformer transformer = getTransformer(PLAYLIST_FILE, jukebox.getJukeboxRootLocationDetails());
 
                 if (tempXmlFile.exists()) {
                     // Use the temp file
@@ -251,7 +265,7 @@ public class MovieJukeboxHTMLWriter {
         }
 
         // if the multi part playlists are not required
-        if (generateMultiPartPlaylist) {
+        if (GENERATE_MULTIPART_PLAYLIST) {
             try {
                 if (movie.getFiles().size() > 1) {
                     for (int i = 0; i < movieFileArray.length; i++) {
@@ -357,7 +371,7 @@ public class MovieJukeboxHTMLWriter {
             for (int i = 0; i < movieFiles.length; i++) {
                 MovieFile part = movieFiles[(i + offset) % movieFiles.length];
                 // write one line each in the format "name|0|0|IP/path" replacing an | that may exist in the title
-                writer.println(movie.getTitle().replace('|', ' ') + " " + part.getFirstPart() + "|0|0|" + myiHomeIP + part.getFilename() + "|");
+                writer.println(movie.getTitle().replace('|', ' ') + " " + part.getFirstPart() + "|0|0|" + MYIHOME_IP + part.getFilename() + "|");
             }
             writer.flush();
             writer.close();
@@ -366,14 +380,15 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Generate the mjb.indexFile page from a template. If the template is not found, then create a default index page
+     * Generate the mjb.indexFile page from a template.
+     * <p>
+     * If the template is not found, then create a default index page
      *
      * @param jukebox
      * @param library
-     * @param indexFilename
      */
     public void generateMainIndexHTML(Jukebox jukebox, Library library) {
-        File jukeboxIndexFile = new File(skinHome, "jukebox-index.xsl");
+        File jukeboxIndexFile = new File(SKIN_HOME, "jukebox-index.xsl");
 
         if (jukeboxIndexFile.exists()) {
             generateTransformedIndexHTML(jukebox, library);
@@ -421,7 +436,7 @@ public class MovieJukeboxHTMLWriter {
             FileTools.addJukeboxFile(indexXmlFile.getName());
             FileTools.addJukeboxFile(htmlFile.getName());
 
-            Transformer transformer = getTransformer(new File(skinHome, "jukebox-index.xsl"), jukebox.getJukeboxTempLocation());
+            Transformer transformer = getTransformer(new File(SKIN_HOME, "jukebox-index.xsl"), jukebox.getJukeboxTempLocation());
 
             Source xmlSource = new StreamSource(indexXmlFile);
             Result xmlResult = new StreamResult(htmlFile);
@@ -540,7 +555,7 @@ public class MovieJukeboxHTMLWriter {
             FileTools.addJukeboxFile(htmlFile.getName());
             Result xmlResult = new StreamResult(htmlFile);
 
-            Transformer transformer = getTransformer(new File(skinHome, template), jukebox.getJukeboxTempLocation());
+            Transformer transformer = getTransformer(new File(SKIN_HOME, template), jukebox.getJukeboxTempLocation());
             doTransform(transformer, xmlSource, xmlResult, "Playlist generation");
 
         } catch (Exception error) {
@@ -598,9 +613,9 @@ public class MovieJukeboxHTMLWriter {
                 File htmlFile = new File(detailsDir, filename + suffix + EXT_HTML);
                 FileTools.addJukeboxFile(htmlFile.getName());
 
-                File transformCatKey = new File(skinHome, FileTools.makeSafeFilename(idx.categoryName + "_" + idx.key) + EXT_XSL);
-                File transformCategory = new File(skinHome, FileTools.makeSafeFilename(idx.categoryName) + EXT_XSL);
-                File transformBase = new File(skinHome, indexStr);
+                File transformCatKey = new File(SKIN_HOME, FileTools.makeSafeFilename(idx.categoryName + "_" + idx.key) + EXT_XSL);
+                File transformCategory = new File(SKIN_HOME, FileTools.makeSafeFilename(idx.categoryName) + EXT_XSL);
+                File transformBase = new File(SKIN_HOME, indexStr);
 
                 Transformer transformer;
 
@@ -628,6 +643,10 @@ public class MovieJukeboxHTMLWriter {
 
     /**
      * Creates and caches Transformer, one for every thread/xsl file.
+     *
+     * @param xslFile
+     * @param styleSheetTargetRootPath
+     * @return
      */
     public static Transformer getTransformer(File xslFile, String styleSheetTargetRootPath) {
         /*
@@ -649,8 +668,8 @@ public class MovieJukeboxHTMLWriter {
 
         Transformer transformer = null;
         try {
-            transformer = transformerFactory.newTransformer(xslSource);
-            transformer.setParameter("homePage", indexHtmFile);
+            transformer = TRANSFORMER.newTransformer(xslSource);
+            transformer.setParameter("homePage", INDEX_HTML_FILE);
             transformer.setParameter("rootPath", new File(styleSheetTargetRootPath).getAbsolutePath().replace('\\', '/'));
             for (Entry<Object, Object> e : PropertiesUtil.getEntrySet()) {
                 if (e.getKey() != null && e.getValue() != null) {
@@ -680,7 +699,7 @@ public class MovieJukeboxHTMLWriter {
                 transformer.transform(xmlSource, xmlResult);
                 return;  // If the transform didn't throw an error, return
             } catch (TransformerException ex) {
-                int retryTimes = maxRetryCount - ++retryCount;
+                int retryTimes = MAX_RETRY_COUNT - ++retryCount;
 
                 if (retryTimes == 0) {
                     // We've exceeded the maximum number of retries, so throw the exception and quit
@@ -695,6 +714,6 @@ public class MovieJukeboxHTMLWriter {
                     }
                 }
             }   // Catch
-        } while (retryCount <= maxRetryCount);
+        } while (retryCount <= MAX_RETRY_COUNT);
     }
 }
