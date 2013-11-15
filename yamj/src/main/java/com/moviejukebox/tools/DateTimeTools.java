@@ -41,6 +41,7 @@ public class DateTimeTools {
     private static final String DATE_FORMAT_LONG_STRING = DATE_FORMAT_STRING + " HH:mm:ss";
     private static final String[] FORMATS = new String[5];
     private static final Pattern DATE_COUNTRY = Pattern.compile("(.*)(\\s*?\\(\\w*\\))");
+    private static final Pattern YEAR_PATTERN = Pattern.compile("(?:.*?)(\\d{4})(?:.*?)");
 
     static {
         FORMATS[0] = "yyyy-MM-dd";
@@ -190,6 +191,13 @@ public class DateTimeTools {
         return returnValue;
     }
 
+    /**
+     * Convert a date to a specific format
+     *
+     * @param dateToParse
+     * @param targetFormat
+     * @return
+     */
     public static String parseDateTo(String dateToParse, String targetFormat) {
         String parsedDateString = "";
 
@@ -215,8 +223,28 @@ public class DateTimeTools {
                 LOG.debug(LOG_MESSAGE + "Failed to parse date '" + dateToParse + "', error: " + ex.getMessage(), ex);
                 parsedDateString = "";
             }
+        } else {
+            LOG.debug(LOG_MESSAGE + "Invalid date '" + dateToParse + "' or target format '" + targetFormat + "' passed");
         }
 
         return parsedDateString;
     }
+
+    /**
+     * locate a 4 digit year in a date string
+     *
+     * @param date
+     * @return
+     */
+    public static int extractYear(String date) {
+        int year = 0;
+        Matcher m = YEAR_PATTERN.matcher(date);
+        if (m.find()) {
+            year = Integer.valueOf(m.group(1)).intValue();
+        }
+
+        // Give up and return 0
+        return year;
+    }
+
 }
