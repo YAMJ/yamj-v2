@@ -39,7 +39,7 @@ import org.apache.sanselan.ImageReadException;
 
 public class GraphicTools {
 
-    private static final Logger logger = Logger.getLogger(GraphicTools.class);
+    private static final Logger LOG = Logger.getLogger(GraphicTools.class);
     private static final String LOG_MESSAGE = "GraphicsTools: ";
     private static float quality;
     private static int jpegQuality;
@@ -87,7 +87,7 @@ public class GraphicTools {
         try {
             return ImageIO.read(url);
         } catch (IOException ex) {
-            logger.error(LOG_MESSAGE + "Error reading image file. Possibly corrupt image, please try another image. " + ex.getMessage());
+            LOG.error(LOG_MESSAGE + "Error reading image file. Possibly corrupt image, please try another image. " + ex.getMessage());
             return null;
         }
     }
@@ -126,8 +126,8 @@ public class GraphicTools {
             IIOImage image = new IIOImage(bufImage, null, null);
             writer.write(null, image, iwp);
         } catch (IOException error) {
-            logger.error(LOG_MESSAGE + "Failed Saving thumbnail file: " + filename);
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed Saving thumbnail file: " + filename);
+            LOG.error(SystemTools.getStackTrace(error));
         } finally {
             if (writer != null) {
                 writer.dispose();
@@ -136,7 +136,7 @@ public class GraphicTools {
                 try {
                     output.close();
                 } catch (IOException ex) {
-                    logger.trace(LOG_MESSAGE + "Failed to close output file for " + filename);
+                    LOG.trace(LOG_MESSAGE + "Failed to close output file for " + filename);
                 }
             }
         }
@@ -158,8 +158,8 @@ public class GraphicTools {
             FileTools.makeDirectories(outputFile);
             ImageIO.write(bi, "png", outputFile);
         } catch (IOException error) {
-            logger.error(LOG_MESSAGE + "Failed Saving thumbnail file: " + filename);
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed Saving thumbnail file: " + filename);
+            LOG.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -406,13 +406,13 @@ public class GraphicTools {
         try {
             perspectiveTop = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveTop", "3"));
         } catch (NumberFormatException nfe) {
-            logger.error(LOG_MESSAGE + "NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveTop");
+            LOG.error(LOG_MESSAGE + "NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveTop");
         }
 
         try {
             perspectiveBottom = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveBottom", "3"));
         } catch (NumberFormatException nfe) {
-            logger.error(LOG_MESSAGE + "NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveBottom");
+            LOG.error(LOG_MESSAGE + "NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveBottom");
         }
 
         int top3d = (int) (h * perspectiveTop / 100);

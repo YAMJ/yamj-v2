@@ -37,7 +37,7 @@ import org.apache.log4j.Logger;
 public class FilmUpITPlugin extends ImdbPlugin {
 
     public static final String FILMUPIT_PLUGIN_ID = "filmupit";
-    private static final Logger LOGGER = Logger.getLogger(FilmUpITPlugin.class);
+    private static final Logger LOG = Logger.getLogger(FilmUpITPlugin.class);
     private static final String LOG_MESSAGE = "FilmUpITPlugin: ";
 
     public FilmUpITPlugin() {
@@ -58,7 +58,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
         }
         return filmUpITId;
     }
-    
+
     public String getMovieId(String title, String year) {
         try {
             StringBuilder sb = new StringBuilder("http://filmup.leonardo.it/cgi-bin/search.cgi?ps=10&fmt=long&q=");
@@ -71,8 +71,8 @@ public class FilmUpITPlugin extends ImdbPlugin {
                 return searchResult;
             }
         } catch (Exception error) {
-            LOGGER.error(LOG_MESSAGE + "Failed retrieving FilmUpIT id for title : " + title);
-            LOGGER.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed retrieving FilmUpIT id for title : " + title);
+            LOG.error(SystemTools.getStackTrace(error));
         }
         return Movie.UNKNOWN;
     }
@@ -84,15 +84,15 @@ public class FilmUpITPlugin extends ImdbPlugin {
         // we also get IMDb id for extra informations
         if (StringTools.isNotValidString(movie.getId(IMDB_PLUGIN_ID))) {
             movie.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(movie.getTitle(), movie.getYear(), movie.isTVShow()));
-            LOGGER.debug("Found imdbId = " + movie.getId(IMDB_PLUGIN_ID));
+            LOG.debug("Found imdbId = " + movie.getId(IMDB_PLUGIN_ID));
         }
 
         if (StringTools.isValidString(filmUpITId)) {
-            LOGGER.debug(LOG_MESSAGE + "FilmUpIT id available (" + filmUpITId + "), updating media info");
+            LOG.debug(LOG_MESSAGE + "FilmUpIT id available (" + filmUpITId + "), updating media info");
             return updateMediaInfo(movie, filmUpITId);
         }
-        
-        LOGGER.debug(LOG_MESSAGE + "FilmUpIT id not available : " + movie.getTitle() + "; fall back to IMDb");
+
+        LOG.debug(LOG_MESSAGE + "FilmUpIT id not available : " + movie.getTitle() + "; fall back to IMDb");
         return super.scan(movie);
     }
 
@@ -159,7 +159,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             if (StringTools.isValidString(opinionsPageID)) {
                 int pageID = Integer.parseInt(opinionsPageID);
                 updateRating(movie, pageID);
-                LOGGER.debug("Opinions page UID = " + pageID);
+                LOG.debug("Opinions page UID = " + pageID);
             }
 
             if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
@@ -171,8 +171,8 @@ public class FilmUpITPlugin extends ImdbPlugin {
 
             return Boolean.TRUE;
         } catch (Exception error) {
-            LOGGER.error(LOG_MESSAGE + "Failed retrieving media info : " + filmUpITId);
-            LOGGER.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed retrieving media info : " + filmUpITId);
+            LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         }
     }
@@ -184,11 +184,11 @@ public class FilmUpITPlugin extends ImdbPlugin {
             float rating = Float.parseFloat(HTMLTools.extractTag(xml, "Media Voto:&nbsp;&nbsp;&nbsp;</td><td align=\"left\"><b>", "</b>")) * 10;
             movie.addRating(FILMUPIT_PLUGIN_ID, (int) rating);
         } catch (Exception error) {
-            LOGGER.error(LOG_MESSAGE + "Failed retreiving rating : " + movie.getId(FILMUPIT_PLUGIN_ID));
-            LOGGER.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed retreiving rating : " + movie.getId(FILMUPIT_PLUGIN_ID));
+            LOG.error(SystemTools.getStackTrace(error));
         }
     }
-    
+
     @Override
     public boolean scanNFO(String nfo, Movie movie) {
         // Always scan for IMDb id, look for ttXXXXXX
@@ -199,7 +199,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             return Boolean.TRUE;
         }
 
-        LOGGER.debug(LOG_MESSAGE + "Scanning NFO for FilmUpIT id");
+        LOG.debug(LOG_MESSAGE + "Scanning NFO for FilmUpIT id");
 
         // If we use FilmUpIT plugIn look for
         // http://www.FilmUpIT.fr/...=XXXXX.html
@@ -209,14 +209,14 @@ public class FilmUpITPlugin extends ImdbPlugin {
             if (beginIdIndex != -1) {
                 int endIdIndex = nfo.indexOf('.', beginIdIndex);
                 if (endIdIndex != -1) {
-                    LOGGER.debug(LOG_MESSAGE + "FilmUpIT id found in NFO = " + nfo.substring(beginIdIndex + 3, endIdIndex));
+                    LOG.debug(LOG_MESSAGE + "FilmUpIT id found in NFO = " + nfo.substring(beginIdIndex + 3, endIdIndex));
                     movie.setId(FILMUPIT_PLUGIN_ID, nfo.substring(beginIdIndex + 3, endIdIndex));
                     return Boolean.TRUE;
                 }
             }
         }
-        
-        LOGGER.debug(LOG_MESSAGE + "No FilmUpIT id found in NFO : " + movie.getTitle());
+
+        LOG.debug(LOG_MESSAGE + "No FilmUpIT id found in NFO : " + movie.getTitle());
         return Boolean.FALSE;
     }
 }

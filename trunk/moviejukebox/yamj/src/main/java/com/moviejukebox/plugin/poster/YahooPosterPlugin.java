@@ -32,7 +32,7 @@ import java.net.URLEncoder;
 import org.apache.log4j.Logger;
 
 public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
-    private static final Logger logger = Logger.getLogger(YahooPosterPlugin.class);
+    private static final Logger LOG = Logger.getLogger(YahooPosterPlugin.class);
     private WebBrowser webBrowser;
 
     public YahooPosterPlugin() {
@@ -69,8 +69,8 @@ public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
                 posterURL = URLDecoder.decode(xml.substring(beginIndex + 7, endIndex), "UTF-8");
             }
         } catch (Exception error) {
-            logger.error("YahooPosterPlugin : Failed retreiving poster URL from yahoo images : " + title);
-            logger.error("Error : " + error.getMessage());
+            LOG.error("YahooPosterPlugin : Failed retreiving poster URL from yahoo images : " + title);
+            LOG.error("Error : " + error.getMessage());
         }
 
         if (StringTools.isValidString(posterURL)) {

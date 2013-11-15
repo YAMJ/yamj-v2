@@ -56,7 +56,7 @@ public final class MovieMeterPluginSession {
 
     private static final String SESSION_FILENAME = "./temp/moviemeter.session";
     private static final String MOVIEMETER_API_KEY = PropertiesUtil.getProperty("API_KEY_MovieMeter");
-    private static final Logger logger = Logger.getLogger(MovieMeterPluginSession.class);
+    private static final Logger LOG = Logger.getLogger(MovieMeterPluginSession.class);
     private static final String LOG_MESSAGE = "MovieMeterPluginSession: ";
     private String key;
     private Integer timestamp;
@@ -81,7 +81,7 @@ public final class MovieMeterPluginSession {
             client = new XmlRpcClient();
             client.setConfig(config);
         } catch (MalformedURLException error) {
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -94,7 +94,7 @@ public final class MovieMeterPluginSession {
     public MovieMeterPluginSession() throws XmlRpcException {
         init();
 
-        logger.debug(LOG_MESSAGE + "Getting stored session");
+        LOG.debug(LOG_MESSAGE + "Getting stored session");
         // Read previous session
         FileReader fileRead = null;
         BufferedReader bufRead = null;
@@ -115,7 +115,7 @@ public final class MovieMeterPluginSession {
                 }
             }
         } catch (IOException ex) {
-            logger.debug(LOG_MESSAGE + "Error creating session: " + ex.getMessage());
+            LOG.debug(LOG_MESSAGE + "Error creating session: " + ex.getMessage());
         } finally {
             if (fileRead != null) {
                 try {
@@ -134,7 +134,7 @@ public final class MovieMeterPluginSession {
             }
         }
 
-        logger.debug(LOG_MESSAGE + "Stored session: " + getKey());
+        LOG.debug(LOG_MESSAGE + "Stored session: " + getKey());
 
         if (!isValid()) {
             createNewSession(MOVIEMETER_API_KEY);
@@ -155,12 +155,12 @@ public final class MovieMeterPluginSession {
         try {
             session = (HashMap) client.execute("api.startSession", params);
         } catch (Exception error) {
-            logger.warn(LOG_MESSAGE + "Unable to contact website");
+            LOG.warn(LOG_MESSAGE + "Unable to contact website");
         }
 
         if (session != null) {
             if (session.size() > 0) {
-                logger.debug(LOG_MESSAGE + "Created new session with moviemeter.nl");
+                LOG.debug(LOG_MESSAGE + "Created new session with moviemeter.nl");
                 setKey((String) session.get("session_key"));
                 setTimestamp((Integer) session.get("valid_till"));
                 setCounter(0);
@@ -192,15 +192,15 @@ public final class MovieMeterPluginSession {
             films = (Object[]) client.execute("film.search", params);
             increaseCounter();
             if (films != null && films.length > 0) {
-                logger.debug(LOG_MESSAGE + "MovieMeterPlugin: Search for " + movieName + " returned " + films.length + " results");
+                LOG.debug(LOG_MESSAGE + "MovieMeterPlugin: Search for " + movieName + " returned " + films.length + " results");
                 for (int i = 0; i < films.length; i++) {
-                    logger.info("Film " + i + ": " + films[i]);
+                    LOG.info("Film " + i + ": " + films[i]);
                 }
                 // Choose first result
                 result = (HashMap) films[0];
             }
         } catch (XmlRpcException error) {
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(SystemTools.getStackTrace(error));
         }
 
         return result;
@@ -227,11 +227,11 @@ public final class MovieMeterPluginSession {
             films = (Object[]) client.execute("film.search", params);
             increaseCounter();
             if (films != null && films.length > 0) {
-                logger.debug(LOG_MESSAGE + "Searching for " + movieName + " returned " + films.length + " results");
+                LOG.debug(LOG_MESSAGE + "Searching for " + movieName + " returned " + films.length + " results");
 
                 if (StringTools.isValidString(year)) {
-                    for (int i = 0; i < films.length; i++) {
-                        HashMap film = (HashMap) films[i];
+                    for (Object film1 : films) {
+                        HashMap film = (HashMap) film1;
                         if (film.get("year").toString().equals(year)) {
                             // Probably best match
                             return film;
@@ -242,7 +242,7 @@ public final class MovieMeterPluginSession {
                 result = (HashMap) films[0];
             }
         } catch (XmlRpcException error) {
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(SystemTools.getStackTrace(error));
         }
 
         return result;
@@ -287,7 +287,7 @@ public final class MovieMeterPluginSession {
             result = (HashMap) client.execute("film.retrieveDetails", params);
             increaseCounter();
         } catch (XmlRpcException error) {
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(SystemTools.getStackTrace(error));
         }
 
         return result;
@@ -304,12 +304,7 @@ public final class MovieMeterPluginSession {
         }
 
         if ((System.currentTimeMillis() / 1000) < getTimestamp()) {
-            // Timestamp still valid
-            if (counter < 48) {
-                return true;
-            } else {
-                return false;
-            }
+            return counter < 48;
         }
 
         try {
@@ -324,10 +319,10 @@ public final class MovieMeterPluginSession {
 
             return true;
         } catch (XmlRpcException error) {
-            logger.debug(LOG_MESSAGE + "" + error.getMessage());
+            LOG.debug(LOG_MESSAGE + "" + error.getMessage());
             return false;
         } catch (MalformedURLException error) {
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(SystemTools.getStackTrace(error));
         }
         return false;
     }
@@ -349,7 +344,7 @@ public final class MovieMeterPluginSession {
             ps = new PrintStream(fout);
             ps.println(getKey() + "," + getTimestamp() + "," + getCounter());
         } catch (FileNotFoundException ignore) {
-            logger.debug(LOG_MESSAGE + "" + ignore.getMessage());
+            LOG.debug(LOG_MESSAGE + "" + ignore.getMessage());
         } finally {
             if (ps != null) {
                 ps.close();

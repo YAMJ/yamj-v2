@@ -35,8 +35,10 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
-    private WebBrowser webBrowser = new WebBrowser();
-    private static final Logger logger = Logger.getLogger(CaratulasdecinePosterPlugin.class);
+
+    private final WebBrowser webBrowser = new WebBrowser();
+    private static final Logger LOG = Logger.getLogger(CaratulasdecinePosterPlugin.class);
+    private static final String LOG_MESSAGE = "CaratulasdecinePosterPlugin:";
 
     private static final String SEARCH_START = "La Web";
     private static final String SEARCH_END = "Sugerencias de búsqueda";
@@ -54,8 +56,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     /**
-     * Look for the movie URL in the XML. If there is no title, or the title is
-     * not found, return the first movie URL
+     * Look for the movie URL in the XML. If there is no title, or the title is not found, return the first movie URL
      *
      * @param xml
      * @param title
@@ -127,8 +128,8 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                 }
             }
         } catch (Exception error) {
-            logger.error("Failed retreiving CaratulasdecinePoster Id for movie: " + title);
-            logger.error("Error : " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Failed retreiving CaratulasdecinePoster Id for movie: " + title);
+            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
         }
 
         return response;
@@ -151,8 +152,8 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                 }
 
             } catch (Exception error) {
-                logger.error("Failed retreiving CaratulasdecinePoster url for movie : " + id);
-                logger.error("Error : " + error.getMessage());
+                LOG.error(LOG_MESSAGE + "Failed retreiving CaratulasdecinePoster url for movie : " + id);
+                LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
             }
         }
 

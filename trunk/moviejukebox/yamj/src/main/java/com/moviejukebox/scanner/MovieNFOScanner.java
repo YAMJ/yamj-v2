@@ -51,7 +51,7 @@ import org.pojava.datetime2.DateTimeConfig;
  */
 public class MovieNFOScanner {
 
-    private static final Logger logger = Logger.getLogger(MovieNFOScanner.class);
+    private static final Logger LOG = Logger.getLogger(MovieNFOScanner.class);
     private static final String LOG_MESSAGE = "MovieNFOScanner: ";
     // Other properties
     private static final String XBMC_TV_NFO_NAME = "tvshow";
@@ -67,7 +67,7 @@ public class MovieNFOScanner {
 
     static {
         if (ACCEPT_ALL_NFO) {
-            logger.info(LOG_MESSAGE + "Accepting all NFO files in the directory");
+            LOG.info(LOG_MESSAGE + "Accepting all NFO files in the directory");
         }
 
         // Construct regex for filtering NFO files
@@ -107,7 +107,7 @@ public class MovieNFOScanner {
      */
     public static void scan(Movie movie, List<File> nfoFiles) {
         for (File nfoFile : nfoFiles) {
-            logger.debug(LOG_MESSAGE + "Scanning NFO file for information: " + nfoFile.getName());
+            LOG.debug(LOG_MESSAGE + "Scanning NFO file for information: " + nfoFile.getName());
             // Set the NFO as dirty so that the information will be re-scanned at the appropriate points.
             movie.setDirty(DirtyFlag.NFO);
             MovieNFOReader.readNfoFile(nfoFile, movie);
@@ -222,7 +222,7 @@ public class MovieNFOScanner {
             // Also check the directory above, for the case where movies are in a multi-part named directory (CD/PART/DISK/Etc.)
             Matcher allNfoMatch = partPattern.matcher(currentDir.getAbsolutePath());
             if (allNfoMatch.find()) {
-                logger.debug(LOG_MESSAGE + "Found multi-part directory, checking parent directory for NFOs");
+                LOG.debug(LOG_MESSAGE + "Found multi-part directory, checking parent directory for NFOs");
                 checkRNFO(nfoFiles, currentDir.getParentFile().getParentFile(), fFilter);
             }
         } else {
@@ -270,7 +270,7 @@ public class MovieNFOScanner {
         File[] fFiles = currentDir.listFiles(fFilter);
         if (fFiles != null && fFiles.length > 0) {
             for (File foundFile : fFiles) {
-                logger.debug(LOG_MESSAGE + "Found " + foundFile.getName());
+                LOG.debug(LOG_MESSAGE + "Found " + foundFile.getName());
                 nfoFiles.add(foundFile);
             }
         }
@@ -288,7 +288,7 @@ public class MovieNFOScanner {
         for (String ext : NFO_EXTENSIONS) {
             nfoFile = FileTools.fileCache.getFile(checkNFOfilename + "." + ext);
             if (nfoFile.exists()) {
-                logger.debug(LOG_MESSAGE + "Found " + nfoFile.getAbsolutePath());
+                LOG.debug(LOG_MESSAGE + "Found " + nfoFile.getAbsolutePath());
                 nfoFiles.add(nfoFile);
             }
         }

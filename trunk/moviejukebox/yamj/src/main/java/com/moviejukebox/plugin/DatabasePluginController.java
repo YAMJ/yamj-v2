@@ -43,7 +43,7 @@ import org.apache.log4j.Logger;
  */
 public class DatabasePluginController {
 
-    private static final Logger LOGGER = Logger.getLogger(DatabasePluginController.class);
+    private static final Logger LOG = Logger.getLogger(DatabasePluginController.class);
     public static final String TYPE_ALTERNATE = "ALTERNATE";
     private static boolean autoDetect = false;
     private static ArrayList<String> autoDetectList = new ArrayList<String>();
@@ -54,7 +54,7 @@ public class DatabasePluginController {
     /**
      * @author Gabriel Corneanu: Store the map in a thread local field to make it thread safe
      */
-    private static ThreadLocal<Map<String, MovieDatabasePlugin>> pluginMap = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
+    private static final ThreadLocal<Map<String, MovieDatabasePlugin>> pluginMap = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
         @Override
         protected Map<String, MovieDatabasePlugin> initialValue() {
             HashMap<String, MovieDatabasePlugin> movieDatabasePlugin = new HashMap<String, MovieDatabasePlugin>(2);
@@ -103,7 +103,7 @@ public class DatabasePluginController {
         }
 
         if (ignore) {
-            LOGGER.debug("Skipping internet search for " + movie.getBaseFilename());
+            LOG.debug("Skipping internet search for " + movie.getBaseFilename());
         } else {
             // store off the original type because if it wasn't scanned we need to compare to see if we need to rescan
             String origType = movie.getMovieType();
@@ -126,7 +126,7 @@ public class DatabasePluginController {
                         }
                     }
                     if (!isScanned) {
-                        LOGGER.warn("Video '" + movie.getBaseName() + "' was not able to be scanned using the current plugins");
+                        LOG.warn("Video '" + movie.getBaseName() + "' was not able to be scanned using the current plugins");
                     }
                 }
             }
@@ -135,11 +135,11 @@ public class DatabasePluginController {
 
     public static void scan(Person person) {
         if (!person.isScrapeLibrary()) {
-            LOGGER.debug("Skipping internet search for " + person.getName());
+            LOG.debug("Skipping internet search for " + person.getName());
             return;
         }
         if (!pluginMap.get().get(Movie.TYPE_PERSON).scan(person)) {
-            LOGGER.warn("Person '" + person.getName() + "' was not able to be scanned using the current plugins");
+            LOG.warn("Person '" + person.getName() + "' was not able to be scanned using the current plugins");
         }
     }
 
@@ -167,9 +167,9 @@ public class DatabasePluginController {
             Class<? extends MovieDatabasePlugin> pluginClass = Class.forName(className).asSubclass(MovieDatabasePlugin.class);
             return pluginClass.newInstance();
         } catch (Exception error) {
-            LOGGER.error("Failed instantiating MovieDatabasePlugin: " + className);
-            LOGGER.error("Default IMDb plugin will be used instead.");
-            LOGGER.error(SystemTools.getStackTrace(error));
+            LOG.error("Failed instantiating MovieDatabasePlugin: " + className);
+            LOG.error("Default IMDb plugin will be used instead.");
+            LOG.error(SystemTools.getStackTrace(error));
             return new ImdbPlugin();
         }
     }

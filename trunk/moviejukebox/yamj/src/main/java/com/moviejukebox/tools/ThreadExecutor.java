@@ -32,19 +32,22 @@ import org.apache.log4j.Logger;
 
 public class ThreadExecutor<T> implements ThreadFactory {
 
+    private static final Logger LOG = Logger.getLogger(ThreadExecutor.class);
     private Collection<Future<T>> values = new ArrayList<Future<T>>(100);
     private ThreadPoolExecutor pool = null;
     private BlockingQueue<Runnable> queue = null;
     private int threadsRun, threadsIo, threadsTotal;
     private boolean ignoreErrors = true;
-    private static final Logger logger = Logger.getLogger(ThreadExecutor.class);
     private Semaphore runningThreads, ioThreads;
     private static final Map<String, String> hostgrp = new HashMap<String, String>();
     private static final Map<String, Semaphore> grouplimits = new HashMap<String, Semaphore>();
 
     /**
-     * Handle IO slots allocation to avoid throttling / ban on source sites Find the proper semaphore for each host: -
-     * Map each unique host to a group (hostgrp) - Max each group (rule) to a semaphore
+     * Handle IO slots allocation to avoid throttling / ban on source sites
+     * <p>
+     * Find the proper semaphore for each host:<br/>
+     * - Map each unique host to a group (hostgrp)<br/>
+     * - Max each group (rule) to a semaphore
      *
      * @author Gabriel Corneanu
      */
@@ -53,7 +56,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
         // Default, can be overridden
         grouplimits.put(".*", new Semaphore(1));
         String limitsProperty = PropertiesUtil.getProperty("mjb.MaxDownloadSlots", ".*=1");
-        logger.debug("Using download limits: " + limitsProperty);
+        LOG.debug("Using download limits: " + limitsProperty);
 
         Pattern semaphorePattern = Pattern.compile(",?\\s*([^=]+)=(\\d+)");
         Matcher semaphoreMatcher = semaphorePattern.matcher(limitsProperty);
@@ -61,17 +64,17 @@ public class ThreadExecutor<T> implements ThreadFactory {
             String group = semaphoreMatcher.group(1);
             try {
                 Pattern.compile(group);
-                logger.debug(group + "=" + semaphoreMatcher.group(2));
+                LOG.debug(group + "=" + semaphoreMatcher.group(2));
                 grouplimits.put(group, new Semaphore(Integer.parseInt(semaphoreMatcher.group(2))));
             } catch (NumberFormatException error) {
-                logger.debug("Rule \"" + group + "\" is not valid regexp, ignored");
+                LOG.debug("Rule \"" + group + "\" is not valid regexp, ignored");
             }
         }
     }
 
     /**
-     * Helper class Encapsulates a fixed thread pool ExecutorService Saves futures, used just to catch inner exceptions
-     * Usage patter: - create with thread count and io slots - submit tasks (Callable) - call waitFor; this logs
+     * Helper class Encapsulates a fixed thread pool ExecutorService Saves futures, used just to catch inner exceptions Usage
+     * patter: - create with thread count and io slots - submit tasks (Callable) - call waitFor; this logs
      *
      * - in addition processing threads should call pairs EnterIO, LeaveIO to switch from running to io state
      *
@@ -116,7 +119,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
             if (!hosts.empty()) {
                 //going to the same host is ok
                 if (!host.equals(hosts.peek())) {
-                    logger.debug("ThreadExecutor: Nested EnterIO(" + host + "); previous(" + hosts.peek() + "); ignored");
+                    LOG.debug("ThreadExecutor: Nested EnterIO(" + host + "); previous(" + hosts.peek() + "); ignored");
                 }
                 hosts.push(host);
                 return;
@@ -134,7 +137,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
                             }
                         }
                     }
-                    logger.debug(String.format("IO download host: %s; rule: %s", host, semaphoreGroup));
+                    LOG.debug(String.format("IO download host: %s; rule: %s", host, semaphoreGroup));
                     hostgrp.put(host, semaphoreGroup);
                 }
             }
@@ -154,13 +157,13 @@ public class ThreadExecutor<T> implements ThreadFactory {
 
         private void leaveIO() {
             if (hosts.empty()) {
-                logger.info(SystemTools.getStackTrace(new Throwable("ThreadExecutor: Unbalanced LeaveIO call.")));
+                LOG.info(SystemTools.getStackTrace(new Throwable("ThreadExecutor: Unbalanced LeaveIO call.")));
                 return;
             }
             String host = hosts.pop();
             if (!hosts.empty()) {
                 if (!host.equals(hosts.peek())) {
-                    logger.debug("Nested LeaveIO(" + host + "); previous(" + hosts.peek() + "); ignored");
+                    LOG.debug("Nested LeaveIO(" + host + "); previous(" + hosts.peek() + "); ignored");
                 }
                 return;
             }
@@ -192,8 +195,8 @@ public class ThreadExecutor<T> implements ThreadFactory {
             try {
                 u = new URL("http://" + url);
             } catch (MalformedURLException e1) {
-                logger.info("ThreadExecutor: Invalid call to EnterIO.");
-                logger.info(SystemTools.getStackTrace(e1));
+                LOG.info("ThreadExecutor: Invalid call to EnterIO.");
+                LOG.info(SystemTools.getStackTrace(e1));
                 return;
             }
         }
@@ -254,7 +257,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
                 v.add(f.get());
             } catch (ExecutionException e) {
                 if (ignoreErrors) {
-                    logger.info(SystemTools.getStackTrace(e.getCause()));
+                    LOG.info(SystemTools.getStackTrace(e.getCause()));
                 } else {
                     throw e.getCause();
                 }
@@ -270,7 +273,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
         waitForValues();
         int dif = threadsIo - ioThreads.availablePermits();
         if (dif != 0) {
-            logger.error("ThreadExecutor: Unfinished downloading threads detected: " + dif);
+            LOG.error("ThreadExecutor: Unfinished downloading threads detected: " + dif);
         }
     }
 }

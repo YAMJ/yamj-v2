@@ -37,7 +37,7 @@ import org.apache.log4j.Logger;
  */
 public class MovieListingPluginCsv extends MovieListingPluginBase implements MovieListingPlugin {
 
-    private static final Logger logger = Logger.getLogger(MovieListingPluginCsv.class);
+    private static final Logger LOG = Logger.getLogger(MovieListingPluginCsv.class);
 
     /**
      * @return CSV-formatted header row
@@ -175,7 +175,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
     } // prepOutput()
 
     /**
-     * @param newString
+     * @param inputString
      * @param bAddComma
      * @return String cleaned up, optional comma appended
      */
@@ -207,8 +207,6 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
     } // encloseInQuotes()
 
     /**
-     * @param tempJukeboxRoot
-     * @param jukeboxRoot
      * @param library
      */
     @Override
@@ -221,14 +219,14 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         ArrayList<String> alTypes = getSelectedTypes();
         try {
             CSVWriter writer = new CSVWriter(csvFile);
-            logger.debug("  Writing CSV to: " + csvFile.getAbsolutePath());
+            LOG.debug("  Writing CSV to: " + csvFile.getAbsolutePath());
 
             // write header line
             writer.line(headerLine());
 
             if (!isGroupByType()) {
                 for (Movie movie : library.values()) {
-                    logger.debug(movie.toString());
+                    LOG.debug(movie.toString());
 
                     String sType;
                     if (movie.isExtra()) {
@@ -264,7 +262,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
 
             writer.close();
         } catch (IOException error) {
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(SystemTools.getStackTrace(error));
         }
 
         // move to configured (default) location

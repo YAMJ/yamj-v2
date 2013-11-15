@@ -29,13 +29,15 @@ import com.moviejukebox.plugin.AllocinePlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.io.IOException;
 import org.apache.log4j.Logger;
 
 public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
 
     private WebBrowser webBrowser;
     private AllocinePlugin allocinePlugin;
-    private static final Logger logger = Logger.getLogger(PassionXbmcPosterPlugin.class);
+    private static final Logger LOG = Logger.getLogger(PassionXbmcPosterPlugin.class);
+    private static final String LOG_MESSAGE = "PassionXbmcPlugin: ";
 
     public PassionXbmcPosterPlugin() {
         super();
@@ -58,18 +60,17 @@ public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
     public IImage getPosterUrl(String id) {
         String posterURL = Movie.UNKNOWN;
         if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
-            String xml = "";
             try {
-                xml = webBrowser.request("http://passion-xbmc.org/scraper/index2.php?Page=ViewMovie&ID=" + id);
+                String xml = webBrowser.request("http://passion-xbmc.org/scraper/index2.php?Page=ViewMovie&ID=" + id);
                 String baseUrl = "http://passion-xbmc.org/scraper/Gallery/main/";
                 String posterImg = HTMLTools.extractTag(xml, "href=\"" + baseUrl, "\"");
                 if (!Movie.UNKNOWN.equalsIgnoreCase(posterImg)) {
                     // logger.fine("PassionXbmcPlugin: posterImg : " + posterImg);
                     posterURL = baseUrl + posterImg;
                 }
-            } catch (Exception error) {
-                logger.error("PassionXbmcPlugin: Failed retrieving poster for movie : " + id);
-                logger.error(SystemTools.getStackTrace(error));
+            } catch (IOException ex) {
+                LOG.error(LOG_MESSAGE + "Failed retrieving poster for movie : " + id);
+                LOG.error(SystemTools.getStackTrace(ex));
             }
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {

@@ -57,7 +57,7 @@ import org.apache.log4j.Logger;
  */
 public class AttachmentScanner {
 
-    private static final Logger LOGGER = Logger.getLogger(AttachmentScanner.class);
+    private static final Logger LOG = Logger.getLogger(AttachmentScanner.class);
     private static final String LOG_MESSAGE = "AttachmentScanner: ";
     // Enabled
     private static final Boolean IS_ENABLED = PropertiesUtil.getBooleanProperty("attachment.scanner.enable", Boolean.FALSE);
@@ -145,13 +145,13 @@ public class AttachmentScanner {
             }
 
             if (!checkMkvInfo.canExecute()) {
-                LOGGER.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvinfo'");
+                LOG.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvinfo'");
                 isActivated = Boolean.FALSE;
             } else if (!checkMkvExtract.canExecute()) {
-                LOGGER.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvextract'");
+                LOG.info(LOG_MESSAGE + "Couldn't find MKV toolnix executable tool 'mkvextract'");
                 isActivated = Boolean.FALSE;
             } else {
-                LOGGER.info(LOG_MESSAGE + "MkvToolnix will be used to extract matroska attachments");
+                LOG.info(LOG_MESSAGE + "MkvToolnix will be used to extract matroska attachments");
                 isActivated = Boolean.TRUE;
             }
 
@@ -167,7 +167,7 @@ public class AttachmentScanner {
                     if (tempFile.exists()) {
                         tempDirectory = tempFile;
                     } else {
-                        LOGGER.debug(LOG_MESSAGE + "Creating temporary attachment location: (" + tempLocation + ")");
+                        LOG.debug(LOG_MESSAGE + "Creating temporary attachment location: (" + tempLocation + ")");
                         boolean status = tempFile.mkdirs();
                         int i = 1;
                         while (!status && i++ <= 10) {
@@ -176,7 +176,7 @@ public class AttachmentScanner {
                         }
 
                         if (status && i > 10) {
-                            LOGGER.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: (" + tempLocation + ")");
+                            LOG.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: (" + tempLocation + ")");
                             // scanner will not be active without temporary directory
                             isActivated = Boolean.FALSE;
                         } else {
@@ -184,7 +184,7 @@ public class AttachmentScanner {
                         }
                     }
                 } catch (Exception ex) {
-                    LOGGER.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: " + ex.getMessage());
+                    LOG.error(LOG_MESSAGE + "Failed creating the temporary attachment directory: " + ex.getMessage());
                     // scanner will not be active without temporary directory
                     isActivated = Boolean.FALSE;
                 }
@@ -330,7 +330,7 @@ public class AttachmentScanner {
         // the file with possible attachments
         File scanFile = movieFile.getFile();
 
-        LOGGER.debug(LOG_MESSAGE + "Scanning file " + scanFile.getName());
+        LOG.debug(LOG_MESSAGE + "Scanning file " + scanFile.getName());
         int attachmentId = 0;
         try {
             // create the command line
@@ -367,10 +367,10 @@ public class AttachmentScanner {
             }
 
             if (p.waitFor() != 0) {
-                LOGGER.error(LOG_MESSAGE + "Error during attachment retrieval - ErrorCode=" + p.exitValue());
+                LOG.error(LOG_MESSAGE + "Error during attachment retrieval - ErrorCode=" + p.exitValue());
             }
         } catch (Exception error) {
-            LOGGER.error(SystemTools.getStackTrace(error));
+            LOG.error(SystemTools.getStackTrace(error));
         }
 
         // attachments has been scanned; no double scan of attachments needed
@@ -447,7 +447,7 @@ public class AttachmentScanner {
 
         Attachment attachment = null;
         if (content == null) {
-            LOGGER.debug(LOG_MESSAGE + "Failed to dertermine attachment type for '" + fixedFileName + "' (" + fixedMimeType + ")");
+            LOG.debug(LOG_MESSAGE + "Failed to dertermine attachment type for '" + fixedFileName + "' (" + fixedMimeType + ")");
         } else {
             attachment = new Attachment();
             attachment.setType(AttachmentType.MATROSKA); // one and only type at the moment
@@ -455,7 +455,7 @@ public class AttachmentScanner {
             attachment.setContentType(content.getContentType());
             attachment.setMimeType(fixedMimeType == null ? null : fixedMimeType.toLowerCase());
             attachment.setPart(content.getPart());
-            LOGGER.debug(LOG_MESSAGE + "Found attachment " + attachment);
+            LOG.debug(LOG_MESSAGE + "Found attachment " + attachment);
         }
         return attachment;
     }
@@ -560,7 +560,7 @@ public class AttachmentScanner {
             File nfoFile = extractAttachment(attachment);
             if (nfoFile != null) {
                 // extracted a valid NFO file
-                LOGGER.debug(LOG_MESSAGE + "Extracted NFO file " + nfoFile.getAbsolutePath());
+                LOG.debug(LOG_MESSAGE + "Extracted NFO file " + nfoFile.getAbsolutePath());
                 // add to NFO file list
                 nfoFiles.add(nfoFile);
             }
@@ -717,7 +717,7 @@ public class AttachmentScanner {
         for (Attachment attachment : attachments) {
             File attachmentFile = extractAttachment(attachment);
             if (attachmentFile != null) {
-                LOGGER.debug(LOG_MESSAGE + "Extracted image (" + attachment + ")");
+                LOG.debug(LOG_MESSAGE + "Extracted image (" + attachment + ")");
                 return attachmentFile;
             }
         }
@@ -842,7 +842,7 @@ public class AttachmentScanner {
         File returnFile = new File(returnFileName.toString());
         if (returnFile.exists() && (returnFile.lastModified() >= sourceFile.lastModified())) {
             // already present or extracted
-            LOGGER.debug(LOG_MESSAGE + "File to extract already exists; no extraction needed");
+            LOG.debug(LOG_MESSAGE + "File to extract already exists; no extraction needed");
             return returnFile;
         }
 
@@ -860,11 +860,11 @@ public class AttachmentScanner {
             Process p = pb.start();
 
             if (p.waitFor() != 0) {
-                LOGGER.error(LOG_MESSAGE + "Error during extraction - ErrorCode=" + p.exitValue());
+                LOG.error(LOG_MESSAGE + "Error during extraction - ErrorCode=" + p.exitValue());
                 returnFile = null;
             }
         } catch (Exception ex) {
-            LOGGER.error(SystemTools.getStackTrace(ex));
+            LOG.error(SystemTools.getStackTrace(ex));
             returnFile = null;
         }
 

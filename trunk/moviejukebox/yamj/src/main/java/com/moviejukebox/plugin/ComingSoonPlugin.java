@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
+
 /**
  * @author iuk
  *
@@ -43,6 +44,7 @@ import org.apache.log4j.Logger;
 public class ComingSoonPlugin extends ImdbPlugin {
 
     private static final Logger LOG = Logger.getLogger(ComingSoonPlugin.class);
+    private static final String LOG_MESSAGE = "ComingSoonPlugin: ";
     public static final String COMINGSOON_PLUGIN_ID = "comingsoon";
     public static final String COMINGSOON_NOT_PRESENT = "na";
     public static final String COMINGSOON_BASE_URL = "http://www.comingsoon.it/";
@@ -64,7 +66,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 || !PropertiesUtil.getProperty("comingsoon.trailer.setExchange", "DEPRECATED").equals("DEPRECATED")
                 || !PropertiesUtil.getProperty("comingsoon.trailer.download", "DEPRECATED").equals("DEPRECATED")
                 || !PropertiesUtil.getProperty("comingsoon.trailer.label", "DEPRECATED").equals("DEPRECATED")) {
-            LOG.error("ComingSoon: comingsoon.trailer.* properties are not supported anymore. Please add comingsoon to trailers.scanner property and configure the plugin using comingsoontrailers.* properties.");
+            LOG.error(LOG_MESSAGE + "comingsoon.trailer.* properties are not supported anymore. Please add comingsoon to trailers.scanner property and configure the plugin using comingsoontrailers.* properties.");
         }
     }
 
@@ -79,44 +81,43 @@ public class ComingSoonPlugin extends ImdbPlugin {
         String comingSoonId = movie.getId(COMINGSOON_PLUGIN_ID);
 
         // First we try on comingsoon.it
-
         if (StringTools.isNotValidString(comingSoonId)) {
             comingSoonId = getComingSoonId(movie.getTitle(), movie.getYear());
             movie.setId(COMINGSOON_PLUGIN_ID, comingSoonId);
 
             if (StringTools.isNotValidString(comingSoonId)) {
-                LOG.debug("ComingSoon: unable to find id on first scan");
+                LOG.debug(LOG_MESSAGE + "unable to find id on first scan");
             }
         }
 
         boolean firstScanImdb = false;
 
         if (scanImdb.equalsIgnoreCase("always") || (scanImdb.equalsIgnoreCase("fallback") && (StringTools.isNotValidString(comingSoonId) || comingSoonId.equals(COMINGSOON_NOT_PRESENT)))) {
-            LOG.debug("ComingSoon: Checking IMDB");
+            LOG.debug("Checking IMDB");
             firstScanImdb = super.scan(movie);
             if (StringTools.isNotValidString(comingSoonId) && firstScanImdb) {
                 // We try to fetch again ComingSoon, hopefully with more info
-                LOG.debug("ComingSoon: First search on ComingSoon was KO, retrying after succesful query to IMDB");
+                LOG.debug(LOG_MESSAGE + "First search on ComingSoon was KO, retrying after succesful query to IMDB");
                 comingSoonId = getComingSoonId(movie.getTitle(), movie.getYear());
                 movie.setId(COMINGSOON_PLUGIN_ID, comingSoonId);
             }
 
             if (StringTools.isNotValidString(comingSoonId)) {
-                LOG.debug("ComingSoon: unable to find id on second scan");
+                LOG.debug(LOG_MESSAGE + "unable to find id on second scan");
             }
         }
 
         boolean scanComingSoon = false;
         if (StringTools.isValidString(comingSoonId)) {
 
-            LOG.debug("ComingSoon: Fetching movie data from ComingSoon");
+            LOG.debug(LOG_MESSAGE + "Fetching movie data from ComingSoon");
             scanComingSoon = updateComingSoonMediaInfo(movie);
         }
 
         if (!firstScanImdb && scanComingSoon && scanImdb.equalsIgnoreCase("always")) {
             // Scan was successful on ComingSoon but not on IMDB, let's try again with more info
 
-            LOG.debug("ComingSoon: First scan on IMDB KO, retrying after succesful scan on ComingSoon");
+            LOG.debug(LOG_MESSAGE + "First scan on IMDB KO, retrying after succesful scan on ComingSoon");
 
             // Set title to original title, more likely to be found on IMDB
             String title = null;
@@ -175,21 +176,19 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             sb.append("+site%3Acomingsoon.it");
 
-            LOG.debug("ComingSoon: Fetching ComingSoon search URL: " + sb.toString());
+            LOG.debug(LOG_MESSAGE + "Fetching ComingSoon search URL: " + sb.toString());
             String xml = webBrowser.request(sb.toString());
-
 
             int beginIndex = xml.indexOf(COMINGSOON_BASE_URL + COMINGSOON_SEARCH_URL);
             if (beginIndex > 0) {
                 comingSoonId = getComingSoonIdFromURL(xml.substring(beginIndex, xml.indexOf('"', beginIndex)));
-                LOG.debug("ComingSoon: Found ComingSoon ID: " + comingSoonId);
+                LOG.debug(LOG_MESSAGE + "Found ComingSoon ID: " + comingSoonId);
             }
             return comingSoonId;
 
-
         } catch (Exception error) {
-            LOG.error("ComingSoon: Failed retreiving ComingSoon Id for movie : " + movieName);
-            LOG.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed retreiving ComingSoon Id for movie : " + movieName);
+            LOG.error(LOG_MESSAGE + SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
         }
     }
@@ -224,7 +223,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     sbPage.append("&p=").append(searchPage);
                 }
 
-                LOG.debug("ComingSoon: Fetching ComingSoon search URL: " + sbPage.toString());
+                LOG.debug(LOG_MESSAGE + "Fetching ComingSoon search URL: " + sbPage.toString());
                 String xml = webBrowser.request(sbPage.toString(), Charset.forName("iso-8859-1"));
 
                 ArrayList<String[]> movieList = parseComingSoonSearchResults(xml);
@@ -241,10 +240,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
                         difference = (differenceOrig < difference ? differenceOrig : difference);
                         if (difference < currentScore) {
                             if (difference == 0) {
-                                LOG.debug("ComingSoon: Found perfect match for: " + lTitle + ", " + lOrig);
+                                LOG.debug(LOG_MESSAGE + "Found perfect match for: " + lTitle + ", " + lOrig);
                                 searchPage = COMINGSOON_MAX_SEARCH_PAGES; //End loop
                             } else {
-                                LOG.debug("ComingSoon: Found a match for: " + lTitle + ", " + lOrig + ", difference " + difference);
+                                LOG.debug(LOG_MESSAGE + "Found a match for: " + lTitle + ", " + lOrig + ", difference " + difference);
                             }
                             comingSoonId = lId;
                             currentScore = difference;
@@ -256,20 +255,20 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
 
             if (StringTools.isValidString(year) && currentScore > 0) {
-                LOG.debug("ComingSoon: Perfect match not found, trying removing by year...");
+                LOG.debug(LOG_MESSAGE + "Perfect match not found, trying removing by year...");
                 String newComingSoonId = getComingSoonIdFromComingSoon(movieName, Movie.UNKNOWN, currentScore);
                 comingSoonId = (StringTools.isNotValidString(newComingSoonId) ? comingSoonId : newComingSoonId);
             }
 
             if (StringTools.isValidString(comingSoonId)) {
-                LOG.debug("ComingSoon: Found ComingSoon ID: " + comingSoonId);
+                LOG.debug(LOG_MESSAGE + "Found ComingSoon ID: " + comingSoonId);
             }
 
             return comingSoonId;
 
         } catch (Exception error) {
-            LOG.error("ComingSoon: Failed retreiving ComingSoon Id for movie : " + movieName);
-            LOG.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed retreiving ComingSoon Id for movie : " + movieName);
+            LOG.error(LOG_MESSAGE + SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
         }
     }
@@ -280,7 +279,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
          * Search results end with "Trovati NNN Film" (found NNN movies). After
          * this string, more movie URL are found, so we have to set a boundary
          */
-
         ArrayList<String[]> listaFilm = new ArrayList<String[]>();
         int trovatiIndex = xml.indexOf("Trovati");
         int moviesFound = -1;
@@ -295,10 +293,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
         }
 
         if (moviesFound < 0) {
-            LOG.error("ComingSoon: couldn't find 'Trovati NNN Film' string. Search page layout probably changed");
+            LOG.error(LOG_MESSAGE + "couldn't find 'Trovati NNN Film' string. Search page layout probably changed");
             return listaFilm;
         } else {
-            LOG.debug("ComingSoon: search found " + moviesFound + " movies");
+            LOG.debug(LOG_MESSAGE + "search found " + moviesFound + " movies");
         }
 
         if (moviesFound == 0) {
@@ -309,7 +307,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         while (beginIndex >= 0 && beginIndex < trovatiIndex) {
             int urlIndex = xml.indexOf(COMINGSOON_SEARCH_URL, beginIndex);
-            LOG.debug("ComingSoon: Found movie URL " + xml.substring(urlIndex, xml.indexOf('"', urlIndex)));
+            LOG.debug(LOG_MESSAGE + "Found movie URL " + xml.substring(urlIndex, xml.indexOf('"', urlIndex)));
             String comingSoonId = getComingSoonIdFromURL(xml.substring(urlIndex, xml.indexOf('"', urlIndex)));
 
             int nextIndex = xml.indexOf("<div id=\"BoxFilm\">", beginIndex + 1);
@@ -355,8 +353,8 @@ public class ComingSoonPlugin extends ImdbPlugin {
     }
 
     /**
-     * Returns difference between two titles. Since ComingSoon returns strange results on some researches, difference is
-     * defined as follows: abs(word count difference) - (searchedTitle word count - matched words);
+     * Returns difference between two titles. Since ComingSoon returns strange results on some researches, difference is defined as
+     * follows: abs(word count difference) - (searchedTitle word count - matched words);
      *
      * @param searchedTitle
      * @param returnedTitle
@@ -367,7 +365,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             return COMINGSOON_MAX_DIFF;
         }
 
-        LOG.debug("ComingSoon: Comparing " + searchedTitle + " and " + returnedTitle);
+        LOG.debug(LOG_MESSAGE + "Comparing " + searchedTitle + " and " + returnedTitle);
 
         StringTokenizer st1 = new StringTokenizer(searchedTitle);
         int lastMatchedWord = -1;
@@ -419,14 +417,14 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         try {
             String movieURL = COMINGSOON_BASE_URL + COMINGSOON_SEARCH_URL + COMINGSOON_KEY_PARAM + movie.getId(COMINGSOON_PLUGIN_ID);
-            LOG.debug("ComingSoon: Querying ComingSoon for " + movieURL);
+            LOG.debug(LOG_MESSAGE + "Querying ComingSoon for " + movieURL);
             String xml = webBrowser.request(movieURL, Charset.forName("iso-8859-1"));
 
             // TITLE
             if (OverrideTools.checkOverwriteTitle(movie, COMINGSOON_PLUGIN_ID)) {
                 String title = HTMLTools.extractTag(xml, "<h1 itemprop='name' class='titoloFilm", 1, "<>", false).trim();
                 if (StringTools.isNotValidString(title)) {
-                    LOG.error("ComingSoon: No title found at ComingSoon page. HTML layout has changed?");
+                    LOG.error(LOG_MESSAGE + "No title found at ComingSoon page. HTML layout has changed?");
                     return false;
                 }
                 title = correctCapsTitle(title);
@@ -453,10 +451,9 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
 
             // RATING
-
             if (movie.getRating(COMINGSOON_PLUGIN_ID) == -1) {
                 String rating = HTMLTools.extractTag(xml, "<li class=\"current-rating\"", 1, "<>", false).trim();
-                LOG.debug("ComingSoon: found rating " + rating);
+                LOG.debug(LOG_MESSAGE + "found rating " + rating);
                 if (StringTools.isValidString(rating)) {
                     rating = rating.substring(rating.indexOf(' ') + 1, rating.indexOf('/'));
                     int ratingInt = (int) (Float.parseFloat(rating.replace(',', '.')) * 20); // Rating is 0 to 5, we normalize to 100
@@ -503,7 +500,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     }
                 }
 
-                LOG.debug("ComingSoon: found countryYear " + countryYear + ", country " + country + ", year " + year);
+                LOG.debug(LOG_MESSAGE + "found countryYear " + countryYear + ", country " + country + ", year " + year);
 
                 if ((Integer.parseInt(year) > 1900) && OverrideTools.checkOverwriteYear(movie, COMINGSOON_PLUGIN_ID)) {
                     movie.setYear(year, COMINGSOON_PLUGIN_ID);
@@ -542,24 +539,23 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
 
             // PLOT AND OUTLINE
-
             if (OverrideTools.checkOneOverwrite(movie, COMINGSOON_PLUGIN_ID, OverrideFlag.PLOT, OverrideFlag.OUTLINE)) {
 
                 int beginIndex = xml.indexOf("<span class='vociFilm'>Trama del film");
                 if (beginIndex < 0) {
-                    LOG.error("ComingSoon: No plot found at ComingSoon page. HTML layout has changed?");
+                    LOG.error(LOG_MESSAGE + "No plot found at ComingSoon page. HTML layout has changed?");
                     return false;
                 }
 
                 beginIndex = xml.indexOf("</span>", beginIndex);
                 if (beginIndex < 0) {
-                    LOG.error("ComingSoon: No plot found at ComingSoon page. HTML layout has changed?");
+                    LOG.error(LOG_MESSAGE + "No plot found at ComingSoon page. HTML layout has changed?");
                     return false;
                 }
 
                 int endIndex = xml.indexOf("</div>", beginIndex);
                 if (endIndex < 0) {
-                    LOG.error("ComingSoon: No plot found at ComingSoon page. HTML layout has changed?");
+                    LOG.error(LOG_MESSAGE + "No plot found at ComingSoon page. HTML layout has changed?");
                     return false;
                 }
 
@@ -571,7 +567,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
                  * between the plot (TRAMA LUNGA) and the outline (TRAMA BREVE).
                  * We should extract these and use them appropriately
                  */
-
                 String plot;
                 String outline;
                 int plotStart = xmlPlot.toUpperCase().indexOf("TRAMA LUNGA");
@@ -676,8 +671,8 @@ public class ComingSoonPlugin extends ImdbPlugin {
             return true;
 
         } catch (Exception error) {
-            LOG.error("ComingSoon: Failed retreiving ComingSoon data for movie : " + movie.getId(COMINGSOON_PLUGIN_ID));
-            LOG.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed retreiving ComingSoon data for movie : " + movie.getId(COMINGSOON_PLUGIN_ID));
+            LOG.error(LOG_MESSAGE + SystemTools.getStackTrace(error));
             return false;
         }
 
@@ -719,10 +714,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 5), "/ \n,:!&é\"'(--è_çà)=$");
             movie.setId(COMINGSOON_PLUGIN_ID, st.nextToken());
-            LOG.debug("ComingSoon Id found in nfo = " + movie.getId(COMINGSOON_PLUGIN_ID));
+            LOG.debug(LOG_MESSAGE + "ComingSoon Id found in nfo = " + movie.getId(COMINGSOON_PLUGIN_ID));
             result = true;
         } else {
-            LOG.debug("No ComingSoon Id found in nfo!");
+            LOG.debug(LOG_MESSAGE + "No ComingSoon Id found in nfo!");
         }
         return result;
     }

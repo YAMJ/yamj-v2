@@ -46,7 +46,7 @@ import org.apache.log4j.Logger;
  */
 public final class Downloader implements RBCWrapperDelegate {
 
-    private static final Logger logger = Logger.getLogger(Downloader.class);
+    private static final Logger LOG = Logger.getLogger(Downloader.class);
     private static final String LOG_MESSAGE = "Downloader: ";
     private static final String FORMAT_PERCENTAGE = "Download progress %,d Kb received, %.02f%%";
     private static final String FORMAT_NOPER = "Download progress %,d Kb received";
@@ -72,7 +72,7 @@ public final class Downloader implements RBCWrapperDelegate {
             int contentLength = contentLength(url);
 
             if (contentLength < 0) {
-                logger.warn(LOG_MESSAGE + "WARNING: Remote URL is not a file! " + remoteURL);
+                LOG.warn(LOG_MESSAGE + "WARNING: Remote URL is not a file! " + remoteURL);
                 return;
             }
 
@@ -80,10 +80,10 @@ public final class Downloader implements RBCWrapperDelegate {
             HttpURLConnection connection = (HttpURLConnection) wb.openProxiedConnection(url);
 
             if (remoteURL.toLowerCase().contains(".apple.")) {
-                logger.debug(LOG_MESSAGE + "Using Apple user agent - '" + USER_AGENT_APPLE + "'");
+                LOG.debug(LOG_MESSAGE + "Using Apple user agent - '" + USER_AGENT_APPLE + "'");
                 connection.setRequestProperty("User-Agent", USER_AGENT_APPLE);
             } else {
-                logger.debug(LOG_MESSAGE + "Using normal user agent - '" + USER_AGENT_NORMAL + "'");
+                LOG.debug(LOG_MESSAGE + "Using normal user agent - '" + USER_AGENT_NORMAL + "'");
                 connection.setRequestProperty("User-Agent", USER_AGENT_NORMAL);
             }
 
@@ -94,16 +94,16 @@ public final class Downloader implements RBCWrapperDelegate {
 
             fos.flush();
         } catch (MalformedURLException ex) {
-            logger.debug(LOG_MESSAGE + "Failed to transform URL: " + ex.getMessage());
+            LOG.debug(LOG_MESSAGE + "Failed to transform URL: " + ex.getMessage());
         } catch (IOException ex) {
-            logger.debug(LOG_MESSAGE + "Output error: " + ex.getMessage());
+            LOG.debug(LOG_MESSAGE + "Output error: " + ex.getMessage());
         } finally {
             try {
                 if (fos != null) {
                     fos.close();
                 }
             } catch (IOException ex) {
-                logger.trace(LOG_MESSAGE + "Failed to close output stream: " + ex.getMessage());
+                LOG.trace(LOG_MESSAGE + "Failed to close output stream: " + ex.getMessage());
             }
 
             try {
@@ -111,7 +111,7 @@ public final class Downloader implements RBCWrapperDelegate {
                     rbc.close();
                 }
             } catch (IOException ex) {
-                logger.trace(LOG_MESSAGE + "Failed to close ReadableByteChannel: " + ex.getMessage());
+                LOG.trace(LOG_MESSAGE + "Failed to close ReadableByteChannel: " + ex.getMessage());
             }
         }
 
@@ -161,7 +161,7 @@ public final class Downloader implements RBCWrapperDelegate {
             contentLength = connection.getContentLength();
             connection.disconnect();
         } catch (IOException ex) {
-            logger.trace(LOG_MESSAGE + "Failed to get length from header: " + ex.getMessage());
+            LOG.trace(LOG_MESSAGE + "Failed to get length from header: " + ex.getMessage());
         }
 
         return contentLength;

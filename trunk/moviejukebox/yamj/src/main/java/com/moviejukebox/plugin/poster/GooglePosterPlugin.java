@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 
 public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
 
-    private static final Logger logger = Logger.getLogger(GooglePosterPlugin.class);
+    private static final Logger LOG = Logger.getLogger(GooglePosterPlugin.class);
     private static final String LOG_MESSAGE = "GooglePosterPlugin: ";
     private WebBrowser webBrowser;
 
@@ -85,8 +85,8 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
             // }
             // }
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed retreiving poster URL from google images : " + title);
-            logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Failed retreiving poster URL from google images : " + title);
+            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
         }
         return posterImage;
     }

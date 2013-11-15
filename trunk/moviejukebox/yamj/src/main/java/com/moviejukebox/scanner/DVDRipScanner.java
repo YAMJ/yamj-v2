@@ -47,7 +47,7 @@ import org.apache.log4j.Logger;
  */
 public class DVDRipScanner {
 
-    private static final Logger logger = Logger.getLogger(DVDRipScanner.class);
+    private static final Logger LOG = Logger.getLogger(DVDRipScanner.class);
     private static final String LOG_MESSAGE = "DVDRipScanner: ";
 
     public DVDRipScanner() {
@@ -93,7 +93,7 @@ public class DVDRipScanner {
             File[] ifo = (File[]) ifoList.toArray(new File[ifoList.size()]);
 
             if (ifo == null || ifo.length == 0) {
-                logger.info(LOG_MESSAGE + "No Ifo Found with disk format.");
+                LOG.info(LOG_MESSAGE + "No Ifo Found with disk format.");
             } else {
 
                 int longestDuration = 0;
@@ -111,19 +111,19 @@ public class DVDRipScanner {
                         }
 
                     } catch (Exception error) {
-                        logger.debug(LOG_MESSAGE + "Error when parsing file:" + ifo[i]);
+                        LOG.debug(LOG_MESSAGE + "Error when parsing file:" + ifo[i]);
                     }
                 }
 
                 if (longestDurationIndex == -1) {
-                    logger.info(LOG_MESSAGE + "Error retrieving file durations for IFO file, processing skipped.");
+                    LOG.info(LOG_MESSAGE + "Error retrieving file durations for IFO file, processing skipped.");
                     return null;
                 } else {
                     return fileProperties[longestDurationIndex];
                 }
             }
         } catch (Exception error) {
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(SystemTools.getStackTrace(error));
             return null;
         }
         return null;

@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 
 public class FileLocationChange {
 
-    private static final Logger logger = Logger.getLogger(FileLocationChange.class);
+    private static final Logger LOG = Logger.getLogger(FileLocationChange.class);
     private static final String LOG_MESSAGE = "FileLocationChange: ";
 
     private FileLocationChange() {
@@ -81,7 +81,7 @@ public class FileLocationChange {
 
             // VIDEO_TS.IFO check added for Issue 1851
             if ((!matchFilename && !matchVideoTs && !matchArchive) || !matchPathLoc) {
-                logger.debug(LOG_MESSAGE + "Detected change of file location for >" + xmlLoop.getFilename() + "< to: >" + scannedFilename + "<");
+                LOG.debug(LOG_MESSAGE + "Detected change of file location for >" + xmlLoop.getFilename() + "< to: >" + scannedFilename + "<");
                 xmlLoop.setFilename(scannedFilename);
                 xmlLoop.setNewFile(true);
                 movie.addMovieFile(xmlLoop);
@@ -98,7 +98,7 @@ public class FileLocationChange {
                             }
 
                             if (flag) {
-                                logger.debug(LOG_MESSAGE + "Changing libray description for video '" + movie.getTitle() + "' from '" + movie.getLibraryDescription() + "' to '" + mlp.getDescription() + "'");
+                                LOG.debug(LOG_MESSAGE + "Changing libray description for video '" + movie.getTitle() + "' from '" + movie.getLibraryDescription() + "' to '" + mlp.getDescription() + "'");
                                 library.addDirtyLibrary(movie.getLibraryDescription());
                                 movie.setLibraryDescription(mlp.getDescription());
                                 break;

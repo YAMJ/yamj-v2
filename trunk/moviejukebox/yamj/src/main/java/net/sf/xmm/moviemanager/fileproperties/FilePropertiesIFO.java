@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
 
 class FilePropertiesIFO extends FileProperties {
 
-    private static final Logger logger = Logger.getLogger(FilePropertiesIFO.class);
+    private static final Logger LOG = Logger.getLogger(FilePropertiesIFO.class);
     private static final int DVDVIDEO_VTS = 0x535456; // 'VTS'
     private static final int SIZE = 100000;
 
@@ -62,7 +62,7 @@ class FilePropertiesIFO extends FileProperties {
 
             //log.finest("Processing IFO file done.");
         } else {
-            logger.debug("IFO type (" + Integer.toString(streamType) + ") not supported. Expecting (" + Integer.toString(DVDVIDEO_VTS) + ")");
+            LOG.debug("IFO type (" + Integer.toString(streamType) + ") not supported. Expecting (" + Integer.toString(DVDVIDEO_VTS) + ")");
         }
     }
 

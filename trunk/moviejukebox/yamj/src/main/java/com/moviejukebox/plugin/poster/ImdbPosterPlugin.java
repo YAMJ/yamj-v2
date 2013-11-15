@@ -32,7 +32,9 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
 public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
-    private static final Logger logger = Logger.getLogger(ImdbPosterPlugin.class);
+
+    private static final Logger LOG = Logger.getLogger(ImdbPosterPlugin.class);
+    private static final String LOG_MESSAGE = "PosterScanner: ";
     private WebBrowser webBrowser;
     private ImdbInfo imdbInfo;
 
@@ -58,7 +60,7 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
                 response = imdbId;
             }
         } catch (Exception error) {
-            logger.error("PosterScanner: Imdb Error: " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Imdb Error: " + error.getMessage());
             return Movie.UNKNOWN;
         }
         return response;
@@ -81,7 +83,7 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
                 StringTokenizer st;
 
                 // Use cast token to avoid internalization trouble
-                int castIndex, beginIndex ;
+                int castIndex, beginIndex;
                 castIndex = imdbXML.indexOf("<h3>" + imdbInfo.getSiteDef().getCast() + "</h3>");
 
                 if (castIndex > -1) {
@@ -104,13 +106,12 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
                     } else {
                         posterURL = Movie.UNKNOWN;
                     }
-                    logger.debug("PosterScanner: Imdb found poster @: " + posterURL);
+                    LOG.debug(LOG_MESSAGE + "Imdb found poster @: " + posterURL);
                 }
-
 
             }
         } catch (Exception error) {
-            logger.error("PosterScanner: Imdb Error: " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Imdb Error: " + error.getMessage());
             return Image.UNKNOWN;
         }
 
