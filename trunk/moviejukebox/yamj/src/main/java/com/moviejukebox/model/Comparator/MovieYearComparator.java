@@ -23,6 +23,7 @@
 package com.moviejukebox.model.Comparator;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.DateTimeTools;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import java.io.Serializable;
 import java.util.Comparator;
@@ -44,14 +45,22 @@ public class MovieYearComparator implements Comparator<Movie>, Serializable {
         return compare(movie1, movie2, ascending);
     }
 
+    /**
+     * Compare two movies based on the respective years
+     *
+     * @param movie1
+     * @param movie2
+     * @param ascending
+     * @return
+     */
     public int compare(Movie movie1, Movie movie2, boolean ascending) {
+        int cmpValue = 0;
+
         if (isValidString(movie1.getYear()) && isValidString(movie2.getYear())) {
-            try {
-                return ascending ? (Integer.parseInt(movie1.getYear()) - Integer.parseInt(movie2.getYear())) : (Integer.parseInt(movie2.getYear()) - Integer.parseInt(movie1.getYear()));
-            } catch (NumberFormatException e) {
-                return 0;
-            }
+            int year1 = DateTimeTools.extractYear(movie1.getYear());
+            int year2 = DateTimeTools.extractYear(movie2.getYear());
+            cmpValue = ascending ? (year1 - year2) : (year2 - year1);
         }
-        return isValidString(movie1.getYear()) ? ascending ? 1 : -1 : isValidString(movie2.getYear()) ? ascending ? -1 : 1 : 0;
+        return cmpValue;
     }
 }

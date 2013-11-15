@@ -23,6 +23,7 @@
 package com.moviejukebox.model.Comparator;
 
 import com.moviejukebox.model.Filmography;
+import com.moviejukebox.tools.DateTimeTools;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import java.io.Serializable;
 import java.util.Comparator;
@@ -49,17 +50,23 @@ public class FilmographyDateComparator implements Comparator<Filmography>, Seria
         return compare(f1, f2, ascending);
     }
 
-    public int compare(Filmography f1, Filmography f2, boolean ascending) {
-        if (isValidString(f1.getYear()) && isValidString(f2.getYear())) {
-            try {
-                Integer i1 = Integer.parseInt(f1.getYear());
-                Integer i2 = Integer.parseInt(f2.getYear());
-                return ascending ? (i1.compareTo(i2)) : (i2.compareTo(i1));
-            } catch (NumberFormatException e) {
-                return 0;
-            }
+    /**
+     * Compare two filmographies based on the respective years
+     *
+     * @param film1
+     * @param film2
+     * @param ascending
+     * @return
+     */
+    public int compare(Filmography film1, Filmography film2, boolean ascending) {
+        int cmpValue = 0;
+
+        if (isValidString(film1.getYear()) && isValidString(film2.getYear())) {
+            int year1 = DateTimeTools.extractYear(film1.getYear());
+            int year2 = DateTimeTools.extractYear(film2.getYear());
+            cmpValue = ascending ? (year1 - year2) : (year2 - year1);
         }
-        return isValidString(f1.getYear()) ? ascending ? 1 : -1 : isValidString(f2.getYear()) ? ascending ? -1 : 1 : 0;
+        return cmpValue;
     }
 
 }
