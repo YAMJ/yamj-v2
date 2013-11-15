@@ -28,8 +28,7 @@ import com.moviejukebox.model.Person;
 /**
  * MovieDatabasePlugin classes must implement this interface in order to be integrated to moviejukebox.
  *
- * Custom implementations classes must be registered into the moviejukebox.properties file (see property
- * "mjb.internet.plugin").
+ * Custom implementations classes must be registered into the moviejukebox.properties file (see property "mjb.internet.plugin").
  *
  * Once the class is registered, is called once at the program init, then for each movie in the library.
  *
@@ -39,6 +38,7 @@ public interface MovieDatabasePlugin {
 
     /**
      * Get the name if the plugIn
+     *
      * @return plugIn name
      */
     String getPluginID();
@@ -46,25 +46,24 @@ public interface MovieDatabasePlugin {
     /**
      * Called by movie jukebox when processing a movie.
      *
-     * Scan information for the specified movie. The provided movie object contains at least the following data: 
+     * Scan information for the specified movie. The provided movie object contains at least the following data:
      * <ul>
-     *   <li>Title
-     *   <li>Year (can be unknown)
-     *   <li>Season (can be unknown)
-     *   <li>movieFiles (at least one)
+     * <li>Title
+     * <li>Year (can be unknown)
+     * <li>Season (can be unknown)
+     * <li>movieFiles (at least one)
      * </ul>
      *
      * @param movie a <tt>Movie</tt> object to update.
-     * @return boolean true if the movie was successfully scanned, or false if it needs to be rescanned by a different
-     * plugIn if false, then the plugIn should set appropriate type by calling movie.setMovieType() before returning
+     * @return boolean true if the movie was successfully scanned, or false if it needs to be rescanned by a different plugIn if
+     * false, then the plugIn should set appropriate type by calling movie.setMovieType() before returning
      */
     boolean scan(Movie movie);
 
     boolean scan(Person person);
 
     /**
-     * Called by jukebox when there are new episodes files added. Method checks if movie id exists and scan only for new
-     * MovieFiles.
+     * Called by jukebox when there are new episodes files added. Method checks if movie id exists and scan only for new MovieFiles.
      *
      * @param movie a <tt>Movie</tt> object to update.
      */
@@ -75,6 +74,7 @@ public interface MovieDatabasePlugin {
      *
      * @param nfo the NFO string representation
      * @param movie a <tt>Movie</tt> object to update.
+     * @return
      */
     boolean scanNFO(String nfo, Movie movie);
 }

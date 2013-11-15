@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
  */
 public class MovieListingPluginBase implements MovieListingPlugin {
 
-    private static final Logger logger = Logger.getLogger(MovieListingPluginBase.class);
+    private static final Logger LOG = Logger.getLogger(MovieListingPluginBase.class);
     private static final String LOG_MESSAGE = "MovieListingPluginBase: ";
     private static final String UNDEFINED = "UNDEFINED";
     private boolean groupByType = Boolean.TRUE;
@@ -45,7 +45,7 @@ public class MovieListingPluginBase implements MovieListingPlugin {
     private String destination = "";
 
     /**
-     * @param jukeboxRoot
+     * @param jukebox
      */
     protected void initialize(Jukebox jukebox) {
         groupByType = PropertiesUtil.getBooleanProperty("mjb.listing.GroupByType", Boolean.TRUE);
@@ -102,20 +102,21 @@ public class MovieListingPluginBase implements MovieListingPlugin {
 
     /**
      * @param file
+     * @param filename
      */
     protected void copyListingFile(File file, String filename) {
         // move to configured (default) location
         String dest = destination + File.separator + filename;
-        logger.info(LOG_MESSAGE + "Copying to: " + dest);
+        LOG.info(LOG_MESSAGE + "Copying to: " + dest);
         FileTools.copyFile(file, new File(dest));
     } // copyListingFile()
 
     /**
-     * @param Jukebox
+     * @param jukebox
      * @param library
      */
     @Override
     public void generate(Jukebox jukebox, Library library) {
-        logger.info(LOG_MESSAGE + "Not generating listing file.");
+        LOG.info(LOG_MESSAGE + "Not generating listing file.");
     } // generate()
 } // class MovieListingPluginBase

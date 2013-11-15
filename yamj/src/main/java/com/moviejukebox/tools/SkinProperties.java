@@ -39,7 +39,7 @@ import org.apache.log4j.Logger;
 public class SkinProperties {
 
     // Logger
-    private static final Logger logger = Logger.getLogger(SkinProperties.class);
+    private static final Logger LOG = Logger.getLogger(SkinProperties.class);
     private static final String LOG_MESSAGE = "SkinProperties: ";
     // Skin location
     private static final String SKIN_HOME = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
@@ -67,9 +67,9 @@ public class SkinProperties {
         File xmlFile = new File(skinVersionPath);
 
         if (xmlFile.exists()) {
-            logger.debug(LOG_MESSAGE + "Scanning file " + xmlFile.getAbsolutePath());
+            LOG.debug(LOG_MESSAGE + "Scanning file " + xmlFile.getAbsolutePath());
         } else {
-            logger.debug(LOG_MESSAGE + xmlFile.getAbsolutePath() + " does not exist, skipping");
+            LOG.debug(LOG_MESSAGE + xmlFile.getAbsolutePath() + " does not exist, skipping");
             return;
         }
 
@@ -81,11 +81,11 @@ public class SkinProperties {
             setSkinMessage(StringTools.castList(String.class, xmlConfig.getList("message")));
             setFileDate(xmlFile.lastModified());
         } catch (ConfigurationException error) {
-            logger.error(LOG_MESSAGE + "Failed reading version information file (" + SKIN_VERSION_FILENAME + ")");
-            logger.warn(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed reading version information file (" + SKIN_VERSION_FILENAME + ")");
+            LOG.warn(SystemTools.getStackTrace(error));
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed processing version information file (" + SKIN_VERSION_FILENAME + ")");
-            logger.warn(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed processing version information file (" + SKIN_VERSION_FILENAME + ")");
+            LOG.warn(SystemTools.getStackTrace(error));
         }
     }
 
@@ -94,20 +94,20 @@ public class SkinProperties {
      */
     public static void printSkinVersion() {
         if (StringTools.isValidString(getSkinName())) {
-            logger.info("");
-            logger.info("Skin Name   : " + getSkinName());
+            LOG.info("");
+            LOG.info("Skin Name   : " + getSkinName());
 
             if (StringTools.isValidString(getSkinDate())) {
-                logger.info("Skin Version: " + getSkinVersion() + " (" + getSkinDate() + ")");
+                LOG.info("Skin Version: " + getSkinVersion() + " (" + getSkinDate() + ")");
             } else {
-                logger.info("Skin Version: " + getSkinVersion());
+                LOG.info("Skin Version: " + getSkinVersion());
             }
             for (String message : getSkinMessage()) {
-                logger.info(message);
+                LOG.info(message);
             }
-            logger.info("");
+            LOG.info("");
         } else {
-            logger.debug(LOG_MESSAGE + "No version information available for the skin");
+            LOG.debug(LOG_MESSAGE + "No version information available for the skin");
         }
     }
 

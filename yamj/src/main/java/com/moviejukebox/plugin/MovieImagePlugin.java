@@ -26,5 +26,6 @@ import com.moviejukebox.model.Movie;
 import java.awt.image.BufferedImage;
 
 public interface MovieImagePlugin {
+
     BufferedImage generate(Movie movie, BufferedImage moviePoster, String imageType, String perspectiveDirection);
 }

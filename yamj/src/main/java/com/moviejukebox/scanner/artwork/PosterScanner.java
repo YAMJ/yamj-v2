@@ -56,7 +56,7 @@ import org.apache.log4j.Logger;
  */
 public class PosterScanner {
 
-    private static final Logger logger = Logger.getLogger(PosterScanner.class);
+    private static final Logger LOG = Logger.getLogger(PosterScanner.class);
     private static final String LOG_MESSAGE = "PosterScanner: ";
     private static Map<String, IPosterPlugin> posterPlugins;
     private static Map<String, IMoviePosterPlugin> moviePosterPlugins = new HashMap<String, IMoviePosterPlugin>();
@@ -149,8 +149,8 @@ public class PosterScanner {
         } else if (SEARCH_FOR_EXISTING_POSTER.equalsIgnoreCase(EXISTING_FIXED)) {
             localPosterBaseFilename = FIXED_POSTER_NAME;
         } else {
-            logger.info(LOG_MESSAGE + "Wrong value for 'poster.scanner.searchForExistingCoverArt' property ('" + SEARCH_FOR_EXISTING_POSTER + "')!");
-            logger.info(LOG_MESSAGE + "Expected '" + EXISTING_MOVIE + "' or '" + EXISTING_FIXED + "'");
+            LOG.info(LOG_MESSAGE + "Wrong value for 'poster.scanner.searchForExistingCoverArt' property ('" + SEARCH_FOR_EXISTING_POSTER + "')!");
+            LOG.info(LOG_MESSAGE + "Expected '" + EXISTING_MOVIE + "' or '" + EXISTING_FIXED + "'");
             return Movie.UNKNOWN;
         }
 
@@ -194,10 +194,10 @@ public class PosterScanner {
 
             if (USE_FOLDER_IMAGE) {
                 // Checking for MovieFolderName.* AND folder.*
-                logger.debug(LOG_MESSAGE + "Checking for '" + localPosterBaseFilename + ".*' posters AND " + POSTER_IMAGE_NAME + ".* posters");
+                LOG.debug(LOG_MESSAGE + "Checking for '" + localPosterBaseFilename + ".*' posters AND " + POSTER_IMAGE_NAME + ".* posters");
             } else {
                 // Only checking for the MovieFolderName.* and not folder.*
-                logger.debug(LOG_MESSAGE + "Checking for '" + localPosterBaseFilename + ".*' posters");
+                LOG.debug(LOG_MESSAGE + "Checking for '" + localPosterBaseFilename + ".*' posters");
             }
 
             // Check for the directory name with extension for poster
@@ -239,7 +239,7 @@ public class PosterScanner {
         if (foundLocalPoster) {
             fullPosterFilename = localPosterFile.getAbsolutePath();
             Dimension imageSize = getFileImageSize(localPosterFile);
-            logger.debug(LOG_MESSAGE + "Local poster file " + fullPosterFilename + " found, size " + imageSize.width + " x " + imageSize.height);
+            LOG.debug(LOG_MESSAGE + "Local poster file " + fullPosterFilename + " found, size " + imageSize.width + " x " + imageSize.height);
 
             String safePosterFilename = movie.getPosterFilename();
             String finalJukeboxPosterFileName = StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), safePosterFilename);
@@ -273,7 +273,7 @@ public class PosterScanner {
 
             if (copyLocalPoster) {
                 FileTools.copyFile(localPosterFile, tempJukeboxFile);
-                logger.debug(LOG_MESSAGE + "'" + fullPosterFilename + "' has been copied to '" + tempJukeboxPosterFileName + "'");
+                LOG.debug(LOG_MESSAGE + "'" + fullPosterFilename + "' has been copied to '" + tempJukeboxPosterFileName + "'");
             }
             // Update poster URL with local poster
             String posterURI = localPosterFile.toURI().toString();
@@ -281,7 +281,7 @@ public class PosterScanner {
 
             return posterURI;
         } else {
-            logger.debug(LOG_MESSAGE + "No local poster found for " + movie.getBaseFilename());
+            LOG.debug(LOG_MESSAGE + "No local poster found for " + movie.getBaseFilename());
             return Movie.UNKNOWN;
         }
     }
@@ -321,7 +321,7 @@ public class PosterScanner {
 
             // Check that plugin is register even on movie or tv
             if (iPosterPlugin == null) {
-                logger.error(LOG_MESSAGE + "'" + posterSearchToken + "' plugin doesn't exist, please check your moviejukebox properties. Valid plugins are : "
+                LOG.error(LOG_MESSAGE + "'" + posterSearchToken + "' plugin doesn't exist, please check your moviejukebox properties. Valid plugins are : "
                         + getPluginsCode());
             }
 
@@ -336,9 +336,9 @@ public class PosterScanner {
             }
 
             if (iPosterPlugin == null) {
-                logger.info(LOG_MESSAGE + posterSearchToken + " is not a " + msg + " Poster plugin - skipping");
+                LOG.info(LOG_MESSAGE + posterSearchToken + " is not a " + msg + " Poster plugin - skipping");
             } else {
-                logger.debug(LOG_MESSAGE + "Using " + posterSearchToken + " to search for a " + msg + " poster for " + movie.getTitle());
+                LOG.debug(LOG_MESSAGE + "Using " + posterSearchToken + " to search for a " + msg + " poster for " + movie.getTitle());
                 posterImage = iPosterPlugin.getPosterUrl(movie, movie);
             }
 
@@ -347,7 +347,7 @@ public class PosterScanner {
                 posterImage = Image.UNKNOWN;
             } else {
                 if (!Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl())) {
-                    logger.debug(LOG_MESSAGE + "Poster URL found at " + posterSearchToken + ": " + posterImage.getUrl());
+                    LOG.debug(LOG_MESSAGE + "Poster URL found at " + posterSearchToken + ": " + posterImage.getUrl());
                     posterImage.setSubimage(posterSearchToken);     // TODO: This is a hack, but seeing as only one poster scanner uses it, it should be safe until it's all refactored to use the Artwork class
                     movie.setDirty(DirtyFlag.POSTER, Boolean.TRUE);
                 }
@@ -408,7 +408,7 @@ public class PosterScanner {
         urlAspect = (float) urlWidth / (float) urlHeight;
 
         if (checkAspect && urlAspect > 1.0) {
-            logger.debug(posterImage + " rejected: URL is landscape format");
+            LOG.debug(posterImage + " rejected: URL is landscape format");
             return Boolean.FALSE;
         }
 
@@ -417,12 +417,12 @@ public class PosterScanner {
         int newPosterHeight = (posterHeight * posterValidateMatch) / 100;
 
         if (urlWidth < newPosterWidth) {
-            logger.debug(LOG_MESSAGE + posterImage + " rejected: URL width (" + urlWidth + ") is smaller than poster width (" + newPosterWidth + ")");
+            LOG.debug(LOG_MESSAGE + posterImage + " rejected: URL width (" + urlWidth + ") is smaller than poster width (" + newPosterWidth + ")");
             return Boolean.FALSE;
         }
 
         if (urlHeight < newPosterHeight) {
-            logger.debug(LOG_MESSAGE + posterImage + " rejected: URL height (" + urlHeight + ") is smaller than poster height (" + newPosterHeight + ")");
+            LOG.debug(LOG_MESSAGE + posterImage + " rejected: URL height (" + urlHeight + ") is smaller than poster height (" + newPosterHeight + ")");
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
@@ -448,7 +448,7 @@ public class PosterScanner {
         Dimension imageDimension = getUrlDimensions(imageUrl, imageExtension);
 
         if (imageDimension.equals(new Dimension(0, 0))) {
-            logger.info(LOG_MESSAGE + "Looks like an invalid image, trying a different reader");
+            LOG.info(LOG_MESSAGE + "Looks like an invalid image, trying a different reader");
             if (imageExtension.equals("png")) {
                 imageExtension = "jpeg";
             } else {
@@ -485,7 +485,7 @@ public class PosterScanner {
 
             imageDimension.setSize(reader.getWidth(0), reader.getHeight(0));
         } catch (IOException ex) {
-            logger.debug(LOG_MESSAGE + "getUrlDimensions error: " + ex.getMessage() + ": can't open url: " + imageUrl);
+            LOG.debug(LOG_MESSAGE + "getUrlDimensions error: " + ex.getMessage() + ": can't open url: " + imageUrl);
         } finally {
             reader.dispose();
 
@@ -515,21 +515,21 @@ public class PosterScanner {
 
     private static void register(String key, IMoviePosterPlugin posterPlugin) {
         if (posterPlugin.isNeeded()) {
-            logger.debug(LOG_MESSAGE + posterPlugin.getClass().getName() + " registered as Movie Poster Plugin with key '" + key + "'");
+            LOG.debug(LOG_MESSAGE + posterPlugin.getClass().getName() + " registered as Movie Poster Plugin with key '" + key + "'");
             moviePosterPlugins.put(key, posterPlugin);
             register(key, (IPosterPlugin) posterPlugin);
         } else {
-            logger.debug(LOG_MESSAGE + posterPlugin.getClass().getName() + " available, but not loaded use key '" + key + "' to enable it.");
+            LOG.debug(LOG_MESSAGE + posterPlugin.getClass().getName() + " available, but not loaded use key '" + key + "' to enable it.");
         }
     }
 
     public static void register(String key, ITvShowPosterPlugin posterPlugin) {
         if (posterPlugin.isNeeded()) {
-            logger.debug(LOG_MESSAGE + posterPlugin.getClass().getName() + " registered as TvShow Poster Plugin with key '" + key + "'");
+            LOG.debug(LOG_MESSAGE + posterPlugin.getClass().getName() + " registered as TvShow Poster Plugin with key '" + key + "'");
             tvShowPosterPlugins.put(key, posterPlugin);
             register(key, (IPosterPlugin) posterPlugin);
         } else {
-            logger.debug(LOG_MESSAGE + posterPlugin.getClass().getName() + " available, but not loaded use key '" + key + "' to enable it.");
+            LOG.debug(LOG_MESSAGE + posterPlugin.getClass().getName() + " available, but not loaded use key '" + key + "' to enable it.");
         }
     }
 
@@ -537,11 +537,11 @@ public class PosterScanner {
         // check the default ID for a 0 or -1 and skip poster processing
         String id = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID);
         if (!movie.isScrapeLibrary() || id.equals("0") || id.equals("-1")) {
-            logger.debug(LOG_MESSAGE + "Skipping online poster search for " + movie.getBaseFilename());
+            LOG.debug(LOG_MESSAGE + "Skipping online poster search for " + movie.getBaseFilename());
             return;
         }
 
-        logger.debug(LOG_MESSAGE + "Searching online for " + movie.getBaseFilename());
+        LOG.debug(LOG_MESSAGE + "Searching online for " + movie.getBaseFilename());
         IImage posterImage = getPosterURL(movie);
         if (StringTools.isValidString(posterImage.getUrl())) {
             movie.setPosterURL(posterImage.getUrl());
@@ -572,12 +572,12 @@ public class PosterScanner {
                 }
             }
         } catch (IOException ex) {
-            logger.error(LOG_MESSAGE + "Failed to read image dimensions for " + imageFile.getName());
-            logger.error(LOG_MESSAGE + "Error: " + ex.getMessage());
+            LOG.error(LOG_MESSAGE + "Failed to read image dimensions for " + imageFile.getName());
+            LOG.error(LOG_MESSAGE + "Error: " + ex.getMessage());
             return imageSize;
         } catch (CMMException ex) {
-            logger.error(LOG_MESSAGE + "Failed to read image dimensions for " + imageFile.getName());
-            logger.error(LOG_MESSAGE + "Error: " + ex.getMessage());
+            LOG.error(LOG_MESSAGE + "Failed to read image dimensions for " + imageFile.getName());
+            LOG.error(LOG_MESSAGE + "Error: " + ex.getMessage());
             return imageSize;
         } finally {
             if (reader != null) {

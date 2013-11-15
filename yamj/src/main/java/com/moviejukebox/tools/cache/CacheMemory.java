@@ -40,7 +40,7 @@ import org.apache.log4j.Logger;
 public class CacheMemory {
 
     private static final ConcurrentHashMap<String, Object> mjbCache = new ConcurrentHashMap<String, Object>();
-    private static final Logger logger = Logger.getLogger(CacheMemory.class);
+    private static final Logger LOG = Logger.getLogger(CacheMemory.class);
     private static boolean cacheEnabled = initCacheState();
 
     private CacheMemory() {
@@ -59,10 +59,10 @@ public class CacheMemory {
         }
 
         if (mjbCache.containsKey(key)) {
-            logger.debug("Cache (Add): Already contains object (" + value.getClass().getSimpleName() + ") with key " + key + " overwriting...");
+            LOG.debug("Cache (Add): Already contains object (" + value.getClass().getSimpleName() + ") with key " + key + " overwriting...");
             mjbCache.remove(key);
         } else {
-            logger.debug("Cache (Add): Adding object (" + value.getClass().getSimpleName() + ") for key " + key);
+            LOG.debug("Cache (Add): Adding object (" + value.getClass().getSimpleName() + ") for key " + key);
         }
         mjbCache.put(key, value);
     }
@@ -81,13 +81,13 @@ public class CacheMemory {
         if (mjbCache.containsKey(key)) {
             Object value = mjbCache.get(key);
             if (value == null) {
-                logger.debug("Cache (Get): No object found for " + key);
+                LOG.debug("Cache (Get): No object found for " + key);
             } else {
-                logger.debug("Cache (Get): Got object (" + value.getClass().getSimpleName() + ") for " + key);
+                LOG.debug("Cache (Get): Got object (" + value.getClass().getSimpleName() + ") for " + key);
                 return value;
             }
         } else {
-            logger.debug("Cache (Get): No object found for " + key);
+            LOG.debug("Cache (Get): No object found for " + key);
         }
 
         return null;
@@ -177,7 +177,7 @@ public class CacheMemory {
      */
     public static void purgeCache() {
         if (cacheEnabled) {
-            logger.debug("Cache: Disabling cache due to low memory.");
+            LOG.debug("Cache: Disabling cache due to low memory.");
             setCacheState(false);
             clear();
         }
@@ -187,7 +187,7 @@ public class CacheMemory {
      * Clear the cache
      */
     public static void clear() {
-        logger.debug("Cache: Clearing cache");
+        LOG.debug("Cache: Clearing cache");
         mjbCache.clear();
     }
 }

@@ -32,9 +32,11 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.TimeZone;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime2.DateTime;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -46,7 +48,7 @@ import org.w3c.dom.Element;
 public class JukeboxStatistics {
 
     // Logger
-    private static final Logger logger = Logger.getLogger(JukeboxStatistics.class);
+    private static final Logger LOG = Logger.getLogger(JukeboxStatistics.class);
     private static final String LOG_MESSAGE = "JukeboxStatistics: ";
     // Filename
     private static final String XML_FILENAME = "jukebox_statistics.xml";
@@ -278,13 +280,13 @@ public class JukeboxStatistics {
         Element eRoot, eStats, eTimes;
 
         try {
-            logger.debug(LOG_MESSAGE + "Creating JukeboxStatistics file: " + jbStats.getAbsolutePath());
+            LOG.debug(LOG_MESSAGE + "Creating JukeboxStatistics file: " + jbStats.getAbsolutePath());
             if (jbStats.exists() && !jbStats.delete()) {
-                logger.error(LOG_MESSAGE + "Failed to delete " + jbStats.getName() + ". Please make sure it's not read only");
+                LOG.error(LOG_MESSAGE + "Failed to delete " + jbStats.getName() + ". Please make sure it's not read only");
                 return;
             }
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed to create/delete " + jbStats.getName() + ". Please make sure it's not read only");
+            LOG.error(LOG_MESSAGE + "Failed to create/delete " + jbStats.getName() + ". Please make sure it's not read only");
             return;
         }
 
@@ -321,9 +323,12 @@ public class JukeboxStatistics {
             DOMHelper.appendChild(docJbStats, eTimes, "processing", getProcessingTime());
 
             DOMHelper.writeDocumentToFile(docJbStats, jbStats.getAbsolutePath());
-        } catch (Exception ex) {
-            logger.error(LOG_MESSAGE + "Error creating " + jbStats.getName() + " file: " + ex.getMessage());
-            logger.error(SystemTools.getStackTrace(ex));
+        } catch (ParserConfigurationException ex) {
+            LOG.error(LOG_MESSAGE + "Error creating " + jbStats.getName() + " file: " + ex.getMessage());
+            LOG.error(SystemTools.getStackTrace(ex));
+        } catch (DOMException ex) {
+            LOG.error(LOG_MESSAGE + "Error creating " + jbStats.getName() + " file: " + ex.getMessage());
+            LOG.error(SystemTools.getStackTrace(ex));
         }
 
     }

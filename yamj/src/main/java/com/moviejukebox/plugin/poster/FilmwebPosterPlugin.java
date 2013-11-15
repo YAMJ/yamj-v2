@@ -36,7 +36,8 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IT
 
     private WebBrowser webBrowser;
     private FilmwebPlugin filmwebPlugin;
-    private static final Logger logger = Logger.getLogger(FilmwebPosterPlugin.class);
+    private static final Logger LOG = Logger.getLogger(FilmwebPosterPlugin.class);
+    private static final String LOG_MESSAGE = "FilmwebPosterPlugin:";
 
     public FilmwebPosterPlugin() {
         super();
@@ -52,14 +53,16 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IT
             // first request to filmweb site to skip welcome screen with ad banner
             webBrowser.request("http://www.filmweb.pl");
         } catch (IOException error) {
-            logger.error("Error : " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
         }
     }
 
+    @Override
     public String getIdFromMovieInfo(String title, String year) {
         return filmwebPlugin.getMovieId(title, year);
     }
 
+    @Override
     public IImage getPosterUrl(String id) {
         String posterURL = Movie.UNKNOWN;
         String xml;
@@ -67,8 +70,8 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IT
             xml = webBrowser.request(id);
             posterURL = HTMLTools.extractTag(xml, "posterLightbox", 3, "\"");
         } catch (Exception error) {
-            logger.error("Failed retreiving filmweb poster for movie : " + id);
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed retreiving filmweb poster for movie : " + id);
+            LOG.error(SystemTools.getStackTrace(error));
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
             return new Image(posterURL);
@@ -76,22 +79,27 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IT
         return Image.UNKNOWN;
     }
 
+    @Override
     public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
+    @Override
     public String getIdFromMovieInfo(String title, String year, int tvSeason) {
         return getIdFromMovieInfo(title, year);
     }
 
+    @Override
     public IImage getPosterUrl(String title, String year, int tvSeason) {
         return getPosterUrl(title, year);
     }
 
+    @Override
     public IImage getPosterUrl(String id, int season) {
         return getPosterUrl(id);
     }
 
+    @Override
     public String getName() {
         return FilmwebPlugin.FILMWEB_PLUGIN_ID;
     }

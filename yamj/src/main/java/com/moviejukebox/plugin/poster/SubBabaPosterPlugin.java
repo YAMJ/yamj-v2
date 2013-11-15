@@ -37,7 +37,7 @@ import org.apache.log4j.Logger;
 
 public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
 
-    private static final Logger logger = Logger.getLogger(SubBabaPosterPlugin.class);
+    private static final Logger LOG = Logger.getLogger(SubBabaPosterPlugin.class);
     private static final String LOG_MESSAGE = "SubBabaPosterPlugin: ";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_SubBaba");
     private SubBabaApi subBaba;
@@ -72,12 +72,12 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
             return Movie.UNKNOWN;
         }
 
-        logger.debug(LOG_MESSAGE + "Searching for title '" + title + "' with year '" + year + "'");
+        LOG.debug(LOG_MESSAGE + "Searching for title '" + title + "' with year '" + year + "'");
         // Use the ALL search type because we don't care what type there is
         List<SubBabaMovie> sbMovies = subBaba.searchByEnglishName(title, SearchType.ALL);
 
         if (sbMovies != null && !sbMovies.isEmpty()) {
-            logger.debug(LOG_MESSAGE + "Found " + sbMovies.size() + " movies");
+            LOG.debug(LOG_MESSAGE + "Found " + sbMovies.size() + " movies");
             for (SubBabaMovie sbm : sbMovies) {
                 return sbm.getImdbId();
             }
@@ -93,7 +93,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
      */
     @Override
     public IImage getPosterUrl(String id) {
-        logger.debug(LOG_MESSAGE + "Searching for poster URL with ID: " + id);
+        LOG.debug(LOG_MESSAGE + "Searching for poster URL with ID: " + id);
         if (StringTools.isNotValidString(id)) {
             // Invalid ID
             return Image.UNKNOWN;
@@ -105,13 +105,13 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
             posterImage = getFirstContent(id, SearchType.DVD_COVERS);
             if (!posterImage.equals(Image.UNKNOWN)) {
                 // Crop the image
-                logger.debug(LOG_MESSAGE + "Found DVD Cover for ID " + id + ", cropping image to poster size.");
+                LOG.debug(LOG_MESSAGE + "Found DVD Cover for ID " + id + ", cropping image to poster size.");
                 posterImage.setSubimage("0, 0, 47, 100");
             }
         }
 
         if (!posterImage.equals(Image.UNKNOWN)) {
-            logger.debug(LOG_MESSAGE + "Found poster URL: " + posterImage.getUrl());
+            LOG.debug(LOG_MESSAGE + "Found poster URL: " + posterImage.getUrl());
         }
 
         return posterImage;
@@ -128,7 +128,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
         SubBabaMovie sbm = subBaba.searchByImdbId(imdbId, searchType);
         if (sbm == null) {
             // Nothing returned for the movie
-            logger.debug(LOG_MESSAGE + "No information found for movie ID " + imdbId);
+            LOG.debug(LOG_MESSAGE + "No information found for movie ID " + imdbId);
             return Image.UNKNOWN;
         }
 
@@ -136,7 +136,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
 
         if (content == null || content.isEmpty()) {
             // Nothing returned for the movie
-            logger.debug(LOG_MESSAGE + "No " + searchType.toString() + " found for movie ID " + imdbId);
+            LOG.debug(LOG_MESSAGE + "No " + searchType.toString() + " found for movie ID " + imdbId);
             return Image.UNKNOWN;
         }
 

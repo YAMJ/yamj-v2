@@ -54,12 +54,13 @@ import org.apache.log4j.Logger;
  */
 public class AnimatorPlugin extends ImdbPlugin {
 
-    private static final Logger logger = Logger.getLogger(AnimatorPlugin.class);
+    private static final Logger LOG = Logger.getLogger(AnimatorPlugin.class);
+    private static final String LOG_MESSAGE = "AnimatorPlugin: ";
     public static final String ANIMATOR_PLUGIN_ID = "animator";
-    private String preferredSites = PropertiesUtil.getProperty("animator.sites", "all");
-    private String[] listSites = preferredSites.split(",");
-    private boolean animatorDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "animator") != -1);
-    private boolean multsDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "allmults") != -1);
+    private final String preferredSites = PropertiesUtil.getProperty("animator.sites", "all");
+    private final String[] listSites = preferredSites.split(",");
+    private final boolean animatorDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "animator") != -1);
+    private final boolean multsDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "allmults") != -1);
 
     @Override
     public String getPluginID() {
@@ -97,15 +98,15 @@ public class AnimatorPlugin extends ImdbPlugin {
     @Override
     public boolean scanNFO(String nfo, Movie movie) {
         boolean result = false;
-        logger.debug("Scanning NFO for Animator Id");
+        LOG.debug(LOG_MESSAGE + "Scanning NFO for Animator Id");
         int beginIndex = nfo.indexOf("animator.ru/db/");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 33), "");
             movie.setId(AnimatorPlugin.ANIMATOR_PLUGIN_ID, st.nextToken());
-            logger.debug("Animator Id found in nfo = " + movie.getId(AnimatorPlugin.ANIMATOR_PLUGIN_ID));
+            LOG.debug(LOG_MESSAGE + "Animator Id found in nfo = " + movie.getId(AnimatorPlugin.ANIMATOR_PLUGIN_ID));
             result = true;
         } else {
-            logger.debug("No Animator Id found in nfo !");
+            LOG.debug(LOG_MESSAGE + "No Animator Id found in nfo !");
         }
         super.scanNFO(nfo, movie);
         return result;
@@ -162,7 +163,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                             // Check if ID is integer
                             try {
                                 Integer.parseInt(animatorId);
-                            } catch (Exception ignore) {
+                            } catch (NumberFormatException ignore) {
                                 // Ignore
                             }
                         }
@@ -233,7 +234,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                         // Check if ID is integer
                         try {
                             Integer.parseInt(allmultsId);
-                        } catch (Exception ignore) {
+                        } catch (NumberFormatException ignore) {
                             // Ignore
                         }
                     }
@@ -241,9 +242,9 @@ public class AnimatorPlugin extends ImdbPlugin {
             }
 
             return (animatorId.equals(Movie.UNKNOWN) && allmultsId.equals(Movie.UNKNOWN)) ? Movie.UNKNOWN : animatorId + ":" + allmultsId;
-        } catch (Exception error) {
-            logger.error("Failed retreiving Animator Id for movie : " + movieName);
-            logger.error("Error : " + error.getMessage());
+        } catch (IOException error) {
+            LOG.error(LOG_MESSAGE + "Failed retreiving Animator Id for movie : " + movieName);
+            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -495,7 +496,6 @@ public class AnimatorPlugin extends ImdbPlugin {
 //              } else if (Country.equals("СССР")) {
 //                  country = "USSR";
 //              }
-
                 movie.setCountry(country, ANIMATOR_PLUGIN_ID);
             }
 
@@ -532,9 +532,12 @@ public class AnimatorPlugin extends ImdbPlugin {
                 movie.setPosterURL(posterURL);
                 movie.setPosterFilename(movie.getBaseName() + ".jpg");
             }
-        } catch (Exception error) {
-            logger.error("Failed retreiving movie data from Animator : " + animatorId);
-            logger.error(SystemTools.getStackTrace(error));
+        } catch (IOException error) {
+            LOG.error("Failed retreiving movie data from Animator : " + animatorId);
+            LOG.error(SystemTools.getStackTrace(error));
+        } catch (NumberFormatException error) {
+            LOG.error("Failed retreiving movie data from Animator : " + animatorId);
+            LOG.error(SystemTools.getStackTrace(error));
         }
         return true;
     }

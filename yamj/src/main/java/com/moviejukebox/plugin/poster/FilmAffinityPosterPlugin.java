@@ -33,9 +33,11 @@ import com.moviejukebox.tools.WebBrowser;
 import org.apache.log4j.Logger;
 
 public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
+
     private WebBrowser webBrowser;
     private FilmAffinityInfo filmAffinityInfo;
-    private static final Logger logger = Logger.getLogger(FilmAffinityPosterPlugin.class);
+    private static final Logger LOG = Logger.getLogger(FilmAffinityPosterPlugin.class);
+    private static final String LOG_MESSAGE = "FilmAffinityPosterPlugin:";
 
     public FilmAffinityPosterPlugin() {
         super();
@@ -54,6 +56,7 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
         return filmAffinityInfo.getIdFromMovieInfo(title, year);
     }
 
+    @Override
     public String getIdFromMovieInfo(String title, String year, int tvSeason) {
         return filmAffinityInfo.getIdFromMovieInfo(title, year, tvSeason);
     }
@@ -70,8 +73,8 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
                 posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
 
             } catch (Exception e) {
-                logger.error("Failed retreiving FilmAffinity poster url for movie : " + id);
-                logger.error("Error : " + e.getMessage());
+                LOG.error(LOG_MESSAGE + "Failed retreiving FilmAffinity poster url for movie : " + id);
+                LOG.error(LOG_MESSAGE + "Error : " + e.getMessage());
             }
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
@@ -80,6 +83,7 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
         return Image.UNKNOWN;
     }
 
+    @Override
     public IImage getPosterUrl(String title, String year, int tvSeason) {
         return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
     }

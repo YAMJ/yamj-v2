@@ -57,7 +57,7 @@ import org.xml.sax.SAXException;
 public class JukeboxProperties {
 
     // Logger
-    private static final Logger logger = Logger.getLogger(JukeboxProperties.class);
+    private static final Logger LOG = Logger.getLogger(JukeboxProperties.class);
     private static final String LOG_MESSAGE = "JukeboxProperties: ";
     // Filename
     private static final String XML_FILENAME = "jukebox_details.xml";
@@ -243,18 +243,18 @@ public class JukeboxProperties {
                 PropertyInformation pi = processFile(mjbDetails, mediaLibraryPaths);
 
                 if (pi.getOverwrites().size() > 0) {
-                    logger.debug(LOG_MESSAGE + "Found " + pi.getOverwrites().size() + " overwites to set.");
+                    LOG.debug(LOG_MESSAGE + "Found " + pi.getOverwrites().size() + " overwites to set.");
                     for (PropertyOverwrites po : pi.getOverwrites()) {
-                        logger.debug(LOG_MESSAGE + "Setting 'force" + po.toString() + "Overwrite = true' due to property file changes");
+                        LOG.debug(LOG_MESSAGE + "Setting 'force" + po.toString() + "Overwrite = true' due to property file changes");
                         PropertiesUtil.setProperty("mjb.force" + po.toString() + "Overwrite", Boolean.TRUE);
                     }
                 } else {
-                    logger.debug(LOG_MESSAGE + "Properties haven't changed, no updates necessary");
+                    LOG.debug(LOG_MESSAGE + "Properties haven't changed, no updates necessary");
                 }
             }
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed creating " + mjbDetails.getName() + " file!");
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed creating " + mjbDetails.getName() + " file!");
+            LOG.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -273,13 +273,13 @@ public class JukeboxProperties {
         Element eRoot, eJukebox, eProperties;
 
         try {
-            logger.debug(LOG_MESSAGE + "Creating JukeboxProperties file: " + mjbDetails.getAbsolutePath());
+            LOG.debug(LOG_MESSAGE + "Creating JukeboxProperties file: " + mjbDetails.getAbsolutePath());
             if (mjbDetails.exists() && !mjbDetails.delete()) {
-                logger.error(LOG_MESSAGE + "Failed to delete " + mjbDetails.getName() + ". Please make sure it's not read only");
+                LOG.error(LOG_MESSAGE + "Failed to delete " + mjbDetails.getName() + ". Please make sure it's not read only");
                 return;
             }
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed to create/delete " + mjbDetails.getName() + ". Please make sure it's not read only");
+            LOG.error(LOG_MESSAGE + "Failed to create/delete " + mjbDetails.getName() + ". Please make sure it's not read only");
             return;
         }
 
@@ -360,11 +360,11 @@ public class JukeboxProperties {
 
             DOMHelper.writeDocumentToFile(docMjbDetails, mjbDetails.getAbsolutePath());
         } catch (ParserConfigurationException error) {
-            logger.error(LOG_MESSAGE + "Error creating " + mjbDetails.getName() + " file");
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Error creating " + mjbDetails.getName() + " file");
+            LOG.error(SystemTools.getStackTrace(error));
         } catch (DOMException error) {
-            logger.error(LOG_MESSAGE + "Error creating " + mjbDetails.getName() + " file");
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Error creating " + mjbDetails.getName() + " file");
+            LOG.error(SystemTools.getStackTrace(error));
         }
     }
 
@@ -446,16 +446,16 @@ public class JukeboxProperties {
         try {
             docMjbDetails = DOMHelper.getDocFromFile(mjbDetails);
         } catch (ParserConfigurationException error) {
-            logger.warn(LOG_MESSAGE + "Failed creating the file, no checks performed");
-            logger.warn(SystemTools.getStackTrace(error));
+            LOG.warn(LOG_MESSAGE + "Failed creating the file, no checks performed");
+            LOG.warn(SystemTools.getStackTrace(error));
             return piReturn;
         } catch (SAXException error) {
-            logger.warn(LOG_MESSAGE + "Failed creating the file, no checks performed");
-            logger.warn(SystemTools.getStackTrace(error));
+            LOG.warn(LOG_MESSAGE + "Failed creating the file, no checks performed");
+            LOG.warn(SystemTools.getStackTrace(error));
             return piReturn;
         } catch (IOException error) {
-            logger.warn(LOG_MESSAGE + "Failed creating the file, no checks performed");
-            logger.warn(SystemTools.getStackTrace(error));
+            LOG.warn(LOG_MESSAGE + "Failed creating the file, no checks performed");
+            LOG.warn(SystemTools.getStackTrace(error));
             return piReturn;
         }
 
@@ -481,21 +481,21 @@ public class JukeboxProperties {
             if (!validXmlFileDetails("mjb.xmlCategoryFile", CATEGORY, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation(CATEGORY, EnumSet.of(Index)));
-                logger.debug(LOG_MESSAGE + "Categories has changed, so need to update");
+                LOG.debug(LOG_MESSAGE + "Categories has changed, so need to update");
             }
 
             // Check the Genres file
             if (!validXmlFileDetails("mjb.xmlGenreFile", GENRE, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation(GENRE, EnumSet.of(Index)));
-                logger.debug(LOG_MESSAGE + "Genres has changed, so need to update");
+                LOG.debug(LOG_MESSAGE + "Genres has changed, so need to update");
             }
 
             // Check the Certifications file
             if (!validXmlFileDetails("mjb.xmlCertificationFile", CERTIFICATION, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation("Certifications", EnumSet.of(Index)));
-                logger.debug(LOG_MESSAGE + "Certifications has changed, so need to update");
+                LOG.debug(LOG_MESSAGE + "Certifications has changed, so need to update");
             }
         }
 
@@ -523,7 +523,7 @@ public class JukeboxProperties {
             }
         }
 
-        logger.debug(LOG_MESSAGE + "Returning: " + piReturn.toString());
+        LOG.debug(LOG_MESSAGE + "Returning: " + piReturn.toString());
         return piReturn;
     }
 
@@ -552,7 +552,7 @@ public class JukeboxProperties {
                 return Boolean.FALSE;
             }
         } catch (Exception ex) {
-            logger.warn(LOG_MESSAGE + "Error validating " + jukeboxPropertyCategory);
+            LOG.warn(LOG_MESSAGE + "Error validating " + jukeboxPropertyCategory);
             return Boolean.TRUE;
         }
 

@@ -45,7 +45,7 @@ import org.apache.log4j.Logger;
 public class MovieDirectoryScanner {
 
     private static final String SOURCE_FILENAME = "filename";
-    private static final Logger logger = Logger.getLogger(MovieDirectoryScanner.class);
+    private static final Logger LOG = Logger.getLogger(MovieDirectoryScanner.class);
     private static int dirCount = 1;
     private static int fileCount = 0;
     private static Pattern patternRarPart = Pattern.compile("\\.part(\\d+)\\.rar");
@@ -65,7 +65,7 @@ public class MovieDirectoryScanner {
     private Boolean excludeMultiPartBluRay;
     private Boolean playFullBluRayDisk;
     private Boolean nmjCompliant;
-    
+
     // BD rip infos Scanner
     private BDRipScanner localBDRipScanner;
 
@@ -87,7 +87,7 @@ public class MovieDirectoryScanner {
         hashpathdepth = PropertiesUtil.getIntProperty("mjb.scanner.hashpathdepth", 0);
         playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", Boolean.FALSE);
         nmjCompliant = PropertiesUtil.getBooleanProperty("mjb.nmjCompliant", Boolean.FALSE);
-        
+
         localBDRipScanner = new BDRipScanner();
     }
 
@@ -125,13 +125,13 @@ public class MovieDirectoryScanner {
         if (directory.isFile()) {
             scanFile(srcPath, directory, collection);
         } else {
-            
+
             // skip this directory if it is the nmj_database
             if (nmjCompliant && directory.getName().equalsIgnoreCase("nmj_database")) {
-                logger.debug("Scanning of directory " + directory.getAbsolutePath() + " skipped due nmj database");
+                LOG.debug("Scanning of directory " + directory.getAbsolutePath() + " skipped due nmj database");
                 return;
             }
-            
+
             File[] files = directory.listFiles();
 
             if (files != null) {
@@ -148,18 +148,18 @@ public class MovieDirectoryScanner {
                 // TODO May be read the file and exclude files by mask (similar to .cvsignore)
                 for (File file : files) {
                     if (file.getName().equalsIgnoreCase(".mjbignore")) {
-                        logger.debug("Scanning of directory " + directory.getAbsolutePath() + " skipped due to override file");
+                        LOG.debug("Scanning of directory " + directory.getAbsolutePath() + " skipped due to override file");
                         return;
                     }
-                    
+
                     if (nmjCompliant) {
                         // also check for .no_all.nmj and .no_video.nmj and the
                         if (file.getName().equalsIgnoreCase(".no_all.nmj")) {
-                            logger.debug("Scanning of directory " + directory.getAbsolutePath() + " skipped due to nmj all override file");
+                            LOG.debug("Scanning of directory " + directory.getAbsolutePath() + " skipped due to nmj all override file");
                             return;
                         }
                         if (file.getName().equalsIgnoreCase(".no_video.nmj")) {
-                            logger.debug("Scanning of directory " + directory.getAbsolutePath() + " skipped due to nmj video override file");
+                            LOG.debug("Scanning of directory " + directory.getAbsolutePath() + " skipped due to nmj video override file");
                             return;
                         }
                     }
@@ -211,7 +211,7 @@ public class MovieDirectoryScanner {
             // Exclude files without external subtitles
             if (opensubtitles.equals("")) { // We are not downloading subtitles, so exclude those that don't have any.
                 if (excludeFilesWithoutExternalSubtitles && !hasSubtitles(file)) {
-                    logger.info("File " + filename + " excluded. (no external subtitles)");
+                    LOG.info("File " + filename + " excluded. (no external subtitles)");
                     return true;
                 }
             }
@@ -228,11 +228,11 @@ public class MovieDirectoryScanner {
                 try {
                     Pattern excludePatt = Pattern.compile(excluded, Pattern.CASE_INSENSITIVE);
                     if (excludePatt.matcher(relativeFileNameLower).find()) {
-                        logger.debug((isDirectory ? "Directory '" : "File '") + relativeFilename + "' excluded.");
+                        LOG.debug((isDirectory ? "Directory '" : "File '") + relativeFilename + "' excluded.");
                         return true;
                     }
                 } catch (Exception error) {
-                    logger.info("MovieDirectoryScanner: Error processing exclusion pattern: " + excluded);
+                    LOG.info("MovieDirectoryScanner: Error processing exclusion pattern: " + excluded);
                 }
 
                 excluded = excluded.replace("/", File.separator);
@@ -240,7 +240,7 @@ public class MovieDirectoryScanner {
                 if (relativeFileNameLower.indexOf(excluded.toLowerCase()) >= 0) {
                     // Don't print a message for the exclusion of Jukebox files
                     if (!relativeFileNameLower.contains(jukeboxName)) {
-                        logger.debug((isDirectory ? "Directory '" : "File '") + relativeFilename + "' excluded.");
+                        LOG.debug((isDirectory ? "Directory '" : "File '") + relativeFilename + "' excluded.");
                     }
                     return true;
                 }
@@ -254,7 +254,7 @@ public class MovieDirectoryScanner {
 
         if(m.find() && (m.groupCount() == 1)) {
             if (Integer.parseInt(m.group(1)) != 1) {
-                logger.debug("MovieDirectoryScanner: Excluding file " + relativeFilename + " as it is a non-first part RAR archive ("+m.group(1)+")");
+                LOG.debug("MovieDirectoryScanner: Excluding file " + relativeFilename + " as it is a non-first part RAR archive ("+m.group(1)+")");
                 return true;
             }
         }
@@ -296,7 +296,7 @@ public class MovieDirectoryScanner {
 
                 // Exclude multi part BluRay that include more than one file
                 if (excludeMultiPartBluRay && bdPropertiesMovie.fileList.length > 1) {
-                    logger.info("File " + file.getName() + " excluded. (multi part BluRay)");
+                    LOG.info("File " + file.getName() + " excluded. (multi part BluRay)");
                     return;
                 }
 

@@ -34,7 +34,7 @@ import org.apache.log4j.Logger;
 
 public class OutputDirectoryScanner {
 
-    private static final Logger logger = Logger.getLogger(OutputDirectoryScanner.class);
+    private static final Logger LOG = Logger.getLogger(OutputDirectoryScanner.class);
     private static final String LOG_MESSAGE = "OutputDirectoryScanner: ";
     private String scanDir;
 
@@ -51,7 +51,7 @@ public class OutputDirectoryScanner {
 
          protected void scanXMLFiles(Map<String, Movie> library) {
          */
-        logger.debug(LOG_MESSAGE + "Scanning " + scanDir);
+        LOG.debug(LOG_MESSAGE + "Scanning " + scanDir);
         File scanDirFile = new FileTools.FileEx(scanDir);
         if (null != scanDirFile) {
 
@@ -79,7 +79,7 @@ public class OutputDirectoryScanner {
                             continue;
                         }
 
-                        logger.debug(LOG_MESSAGE + "  Found XML file: " + filename);
+                        LOG.debug(LOG_MESSAGE + "  Found XML file: " + filename);
 
                         Movie movie = new Movie();
                         /*
@@ -92,27 +92,27 @@ public class OutputDirectoryScanner {
                         String key = Library.getMovieKey(movie);
 
                         if (library.containsKey(key)) {
-                            logger.debug(LOG_MESSAGE + "  Video already in library: " + key);
+                            LOG.debug(LOG_MESSAGE + "  Video already in library: " + key);
                         } else {
                             if (xmlReader.parseMovieXML(file, movie) && StringTools.isValidString(movie.getBaseName())) {
-                                logger.debug(LOG_MESSAGE + "  Parsed movie: " + movie.getTitle());
+                                LOG.debug(LOG_MESSAGE + "  Parsed movie: " + movie.getTitle());
 
                                 if (!library.containsKey(Library.getMovieKey(movie))) {
-                                    logger.debug(LOG_MESSAGE + "  Adding unscanned video " + Library.getMovieKey(movie));
+                                    LOG.debug(LOG_MESSAGE + "  Adding unscanned video " + Library.getMovieKey(movie));
                                     movie.setFile(file);
                                     library.addMovie(key, movie);
                                 }
 
                             } else {
-                                logger.debug(LOG_MESSAGE + "  Invalid video XML file");
+                                LOG.debug(LOG_MESSAGE + "  Invalid video XML file");
                             }
                         }
                     } else {
-                        logger.debug(LOG_MESSAGE + "  Skipping file: " + filename);
+                        LOG.debug(LOG_MESSAGE + "  Skipping file: " + filename);
                     }
                 }
             } else {
-                logger.debug(LOG_MESSAGE + "  Specified path is not a directory: " + scanDir);
+                LOG.debug(LOG_MESSAGE + "  Specified path is not a directory: " + scanDir);
             }
         }
     }

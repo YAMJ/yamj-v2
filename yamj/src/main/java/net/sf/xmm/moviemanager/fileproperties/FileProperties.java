@@ -3,17 +3,17 @@
  *
  * Copyright (2003) Mediterranean
  *
- * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
- * License as published by the Free Software Foundation; either version 2, or any later version.
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2, or any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
- * Software Foundation, Inc., 59 Temple Place, Boston, MA 02111.
+ * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Boston, MA 02111.
  *
- * Contact: mediterranean@users.sourceforge.net ----------------------------------------------------- gaelead
- * modifications : - org.apache.log4j.Logger switched to org.apache.log4j.Logger - removed all unused code
+ * Contact: mediterranean@users.sourceforge.net ----------------------------------------------------- gaelead modifications : -
+ * org.apache.log4j.Logger switched to org.apache.log4j.Logger - removed all unused code
  *
  */
 package net.sf.xmm.moviemanager.fileproperties;
@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 
 abstract class FileProperties {
 
-    private static final Logger logger = Logger.getLogger(FileProperties.class);
+    private static final Logger LOG = Logger.getLogger(FileProperties.class);
     protected boolean supported = false;
     protected boolean errorOccured = false;
     /**
@@ -202,7 +202,7 @@ abstract class FileProperties {
         }
 
         if (printBits) {
-            logger.debug("dec:" + dec.toString());
+            LOG.debug("dec:" + dec.toString());
         }
 
         return Integer.parseInt(dec.toString(), 2);

@@ -47,7 +47,7 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.MongeElkan;
 
 public class SratimPlugin extends ImdbPlugin {
 
-    private static final Logger logger = Logger.getLogger(SratimPlugin.class);
+    private static final Logger LOG = Logger.getLogger(SratimPlugin.class);
     private static final String LOG_MESSAGE = "Sratim Plugin: ";
     public static final String SRATIM_PLUGIN_ID = "sratim";
     public static final String SRATIM_PLUGIN_SUBTITLE_ID = "sratim_subtitle";
@@ -140,8 +140,8 @@ public class SratimPlugin extends ImdbPlugin {
                     movie.setId(SRATIM_PLUGIN_SUBTITLE_ID, subtitle);
                 }
             }
-            
-            String tmp_url = HTMLTools.extractTag(xml,"<div class=\"browse_title_name\"","</div>");           
+
+            String tmp_url = HTMLTools.extractTag(xml,"<div class=\"browse_title_name\"","</div>");
             String detailsUrl = HTMLTools.extractTag(tmp_url, "<a href=\"view.php?", 0, "\"");
             if (StringTools.isNotValidString(detailsUrl)) {
                 // try TV series view page
@@ -158,14 +158,14 @@ public class SratimPlugin extends ImdbPlugin {
                 String movieId = detailsUrl.substring(id + 3);
                 int idEnd = movieId.indexOf("&");
                 if (idEnd > -1 ) {
-                    movieId = movieId.substring(0, idEnd); 
+                    movieId = movieId.substring(0, idEnd);
                 }
                 movie.setId(SRATIM_PLUGIN_ID, movieId);
                 return movieId;
             }
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed retrieving sratim informations for movie : " + movie.getTitle());
-            logger.error(LOG_MESSAGE + "" + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Failed retrieving sratim informations for movie : " + movie.getTitle());
+            LOG.error(LOG_MESSAGE + "" + error.getMessage());
         }
 
         return Movie.UNKNOWN;
@@ -664,7 +664,7 @@ public class SratimPlugin extends ImdbPlugin {
                     movie.setPeopleDirectors(Collections.singleton(director), SRATIM_PLUGIN_ID);
                 }
             }
-            
+
             boolean overrideActors = OverrideTools.checkOverwriteActors(movie, SRATIM_PLUGIN_ID);
             boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, SRATIM_PLUGIN_ID);
             if (overrideActors || overridePeopleActors) {
@@ -685,8 +685,8 @@ public class SratimPlugin extends ImdbPlugin {
             }
 
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed retrieving information for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed retrieving information for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
+            LOG.error(SystemTools.getStackTrace(error));
         }
         return true;
     }
@@ -706,7 +706,7 @@ public class SratimPlugin extends ImdbPlugin {
             imdbId = imdbInfo.getImdbId(movie.getTitle(), movie.getYear(), movie.isTVShow());
             movie.setId(IMDB_PLUGIN_ID, imdbId);
         }
-        
+
         return imdbId;
     }
 
@@ -802,8 +802,8 @@ public class SratimPlugin extends ImdbPlugin {
             seasonXML = webBrowser.request(seasonUrl, Charset.forName("UTF-8"));
 
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Failed retreiving information for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed retreiving information for movie : " + movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
+            LOG.error(SystemTools.getStackTrace(error));
 
             if (newMainXML == null) {
                 return;
@@ -866,7 +866,7 @@ public class SratimPlugin extends ImdbPlugin {
                     String scanName = seasonXML.substring(index, endIndex);
 
                     if (scanPart.equals(Integer.toString(part))) {
-                        
+
                         if (OverrideTools.checkOverwriteEpisodeTitle(file, part, SRATIM_PLUGIN_ID)) {
                             String episodeTitle = logicalToVisual(HTMLTools.decodeHtml(scanName));
                             file.setTitle(part, episodeTitle, SRATIM_PLUGIN_ID);
@@ -893,7 +893,7 @@ public class SratimPlugin extends ImdbPlugin {
                             downloadSubtitle(movie, file);
 
                         } catch (Exception error) {
-                            logger.error(LOG_MESSAGE + "Error - " + error.getMessage());
+                            LOG.error(LOG_MESSAGE + "Error - " + error.getMessage());
                         }
 
                         break;
@@ -943,9 +943,9 @@ public class SratimPlugin extends ImdbPlugin {
 
         basename = basename.replace('.', ' ').replace('-', ' ').replace('_', ' ');
 
-        logger.debug(LOG_MESSAGE + "downloadSubtitle: " + mf.getFile().getAbsolutePath());
-        logger.debug(LOG_MESSAGE + "basename: " + basename);
-        logger.debug(LOG_MESSAGE + "bluRay: " + bluRay);
+        LOG.debug(LOG_MESSAGE + "downloadSubtitle: " + mf.getFile().getAbsolutePath());
+        LOG.debug(LOG_MESSAGE + "basename: " + basename);
+        LOG.debug(LOG_MESSAGE + "bluRay: " + bluRay);
 
         int bestFPSCount = 0;
         int bestBlurayCount = 0;
@@ -971,11 +971,11 @@ public class SratimPlugin extends ImdbPlugin {
         // Check that hebrew subtitle exist
         String hebrewSub = HTMLTools.getTextAfterElem(mainXML, "<img src=\"images/Flags/1.png");
 
-        logger.debug(LOG_MESSAGE + "hebrewSub: " + hebrewSub);
+        LOG.debug(LOG_MESSAGE + "hebrewSub: " + hebrewSub);
 
         // Check that there is no 0 hebrew sub
         if (Movie.UNKNOWN.equals(hebrewSub)) {
-            logger.debug(LOG_MESSAGE + "No Hebrew subtitles");
+            LOG.debug(LOG_MESSAGE + "No Hebrew subtitles");
             return;
         }
 
@@ -1095,7 +1095,7 @@ public class SratimPlugin extends ImdbPlugin {
                 bestSimilar = scanID;
             }
 
-            logger.debug(LOG_MESSAGE + "scanFileName: " + scanFileName + " scanFPS: " + scanFPS + " scanID: " + scanID + " scanCount: " + scanCount
+            LOG.debug(LOG_MESSAGE + "scanFileName: " + scanFileName + " scanFPS: " + scanFPS + " scanID: " + scanID + " scanCount: " + scanCount
                     + " scanDiscs: " + scanDiscs + " scanFormat: " + scanFormat + " similarity: " + result);
 
             // Check if movie parts matches
@@ -1125,7 +1125,7 @@ public class SratimPlugin extends ImdbPlugin {
                     scanFPSFloat = 0;
                 }
 
-                logger.debug(LOG_MESSAGE + "FPS: " + movie.getFps() + " scanFPS: " + scanFPSFloat);
+                LOG.debug(LOG_MESSAGE + "FPS: " + movie.getFps() + " scanFPS: " + scanFPSFloat);
 
                 if (bluRay
                         && ((scanFileName.indexOf("BRRIP") != -1) || (scanFileName.indexOf("BDRIP") != -1) || (scanFileName.indexOf("BLURAY") != -1)
@@ -1158,40 +1158,40 @@ public class SratimPlugin extends ImdbPlugin {
 
         // Check for exact file name match
         if (!bestFileID.equals("")) {
-            logger.debug(LOG_MESSAGE + "Best Filename");
+            LOG.debug(LOG_MESSAGE + "Best Filename");
             bestID = bestFileID;
         } else if (maxMatch >= matchThreshold) {
             // Check for text similarity match, similarity threshold takes precedence over FPS check
-            logger.debug(LOG_MESSAGE + "Best Text Similarity threshold");
+            LOG.debug(LOG_MESSAGE + "Best Text Similarity threshold");
             bestID = bestSimilar;
         } else if (!bestBlurayFPSID.equals("")) {
             // Check for bluray match
-            logger.debug(LOG_MESSAGE + "Best Bluray FPS");
+            LOG.debug(LOG_MESSAGE + "Best Bluray FPS");
             bestID = bestBlurayFPSID;
         } else if (!bestBlurayID.equals("")) {
             // Check for bluray match
-            logger.debug(LOG_MESSAGE + "Best Bluray");
+            LOG.debug(LOG_MESSAGE + "Best Bluray");
             bestID = bestBlurayID;
         } else if (!bestFPSID.equals("")) {
             // Check for fps match
-            logger.debug(LOG_MESSAGE + "Best FPS");
+            LOG.debug(LOG_MESSAGE + "Best FPS");
             bestID = bestFPSID;
         } else if (maxMatch > 0) {
             // Check for text match, now just choose the best similar name
-            logger.debug(LOG_MESSAGE + "Best Similar");
+            LOG.debug(LOG_MESSAGE + "Best Similar");
             bestID = bestSimilar;
         } else {
-            logger.debug(LOG_MESSAGE + "No subtitle found");
+            LOG.debug(LOG_MESSAGE + "No subtitle found");
             return;
         }
 
-        logger.debug(LOG_MESSAGE + "bestID: " + bestID);
+        LOG.debug(LOG_MESSAGE + "bestID: " + bestID);
 
         // reconstruct movie filename with full path
         String orgName = mf.getFile().getAbsolutePath();
         File subtitleFile = new File(orgName.substring(0, orgName.lastIndexOf('.')));
         if (!downloadSubtitleZip(movie, "http://www.sratim.co.il/downloadsubtitle.php?id=" + bestID, subtitleFile, bluRay)) {
-            logger.error(LOG_MESSAGE + "Error - Subtitle download failed");
+            LOG.error(LOG_MESSAGE + "Error - Subtitle download failed");
             return;
         }
 
@@ -1214,11 +1214,11 @@ public class SratimPlugin extends ImdbPlugin {
 
             String contentType = connection.getContentType();
 
-            logger.debug(LOG_MESSAGE + "contentType:" + contentType);
+            LOG.debug(LOG_MESSAGE + "contentType:" + contentType);
 
             // Check that the content is zip and that the site did not blocked the download
             if (!contentType.equals("application/octet-stream")) {
-                logger.error(LOG_MESSAGE + "********** Error - Sratim subtitle download limit may have been reached. Suspending subtitle download.");
+                LOG.error(LOG_MESSAGE + "********** Error - Sratim subtitle download limit may have been reached. Suspending subtitle download.");
 
                 subtitleDownload = false;
                 return false;
@@ -1236,7 +1236,7 @@ public class SratimPlugin extends ImdbPlugin {
                 // for each entry to be extracted
                 String entryName = zipentry.getName();
 
-                logger.debug(LOG_MESSAGE + "ZIP entryname: " + entryName);
+                LOG.debug(LOG_MESSAGE + "ZIP entryname: " + entryName);
 
                 // Check if this is a subtitle file
                 if (entryName.toUpperCase().endsWith(".SRT") || entryName.toUpperCase().endsWith(".SUB")) {
@@ -1281,7 +1281,7 @@ public class SratimPlugin extends ImdbPlugin {
             }
 
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Error - " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Error - " + error.getMessage());
             return false;
         } finally {
             try {
@@ -1341,7 +1341,7 @@ public class SratimPlugin extends ImdbPlugin {
                     content.close();
                 }
             } catch (IOException ex) {
-                logger.debug(LOG_MESSAGE + "Failed to close content stream: " + ex.getMessage());
+                LOG.debug(LOG_MESSAGE + "Failed to close content stream: " + ex.getMessage());
             }
 
             try {
@@ -1349,7 +1349,7 @@ public class SratimPlugin extends ImdbPlugin {
                     in.close();
                 }
             } catch (IOException ex) {
-                logger.debug(LOG_MESSAGE + "Failed to close content stream: " + ex.getMessage());
+                LOG.debug(LOG_MESSAGE + "Failed to close content stream: " + ex.getMessage());
             }
 
             try {
@@ -1357,7 +1357,7 @@ public class SratimPlugin extends ImdbPlugin {
                     inputStream.close();
                 }
             } catch (IOException ex) {
-                logger.debug(LOG_MESSAGE + "Failed to close content stream: " + ex.getMessage());
+                LOG.debug(LOG_MESSAGE + "Failed to close content stream: " + ex.getMessage());
             }
         }
     }
@@ -1378,7 +1378,7 @@ public class SratimPlugin extends ImdbPlugin {
         if (found) {
             return true; // IMDB nfo found, no need of further scanning.
         }
-        logger.debug(LOG_MESSAGE + "Scanning NFO for sratim url");
+        LOG.debug(LOG_MESSAGE + "Scanning NFO for sratim url");
         Matcher m = nfoPattern.matcher(nfo);
         while (m.find()) {
             String url = m.group();
@@ -1388,9 +1388,9 @@ public class SratimPlugin extends ImdbPlugin {
             }
         }
         if (found) {
-            logger.debug(LOG_MESSAGE + "URL found in nfo = " + movie.getId(SRATIM_PLUGIN_ID));
+            LOG.debug(LOG_MESSAGE + "URL found in nfo = " + movie.getId(SRATIM_PLUGIN_ID));
         } else {
-            logger.debug(LOG_MESSAGE + "No URL found in nfo!");
+            LOG.debug(LOG_MESSAGE + "No URL found in nfo!");
         }
         return found;
     }
@@ -1422,7 +1422,7 @@ public class SratimPlugin extends ImdbPlugin {
         if (bluray) { // Check if the BDRIp folder contains subtitle file in PCH expected convention.
             int bdFolderIndex = mf.getFile().getAbsolutePath().lastIndexOf("BDMV");
             if (bdFolderIndex == -1) {
-                logger.debug("Could not find BDMV FOLDER, Invalid BDRip Stracture, subtitle wont be downloaded");
+                LOG.debug("Could not find BDMV FOLDER, Invalid BDRip Stracture, subtitle wont be downloaded");
                 return true;
             }
             String bdFolder = mf.getFile().getAbsolutePath().substring(0, bdFolderIndex);

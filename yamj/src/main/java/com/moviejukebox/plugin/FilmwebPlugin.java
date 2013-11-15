@@ -42,10 +42,10 @@ import org.apache.log4j.Logger;
 
 public class FilmwebPlugin extends ImdbPlugin {
 
-    private static final Logger LOGGER = Logger.getLogger(FilmwebPlugin.class);
+    private static final Logger LOG = Logger.getLogger(FilmwebPlugin.class);
     private static final String LOG_MESSAGE = "FilmwebPlugin: ";
     public static final String FILMWEB_PLUGIN_ID = "filmweb";
-    private static Pattern nfoPattern = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
+    private static final Pattern NFO_PATTERN = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
     private SearchEngineTools searchEngineTools;
 
     public FilmwebPlugin() {
@@ -65,7 +65,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             // first request to filmweb site to skip welcome screen with ad banner
             webBrowser.request("http://www.filmweb.pl");
         } catch (IOException error) {
-            LOGGER.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
         }
     }
 
@@ -111,8 +111,8 @@ public class FilmwebPlugin extends ImdbPlugin {
                 }
             }
         } catch (Exception error) {
-            LOGGER.error(LOG_MESSAGE + "Failed retrieving Filmweb url for title : " + title);
-            LOGGER.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed retrieving Filmweb url for title : " + title);
+            LOG.error(SystemTools.getStackTrace(error));
         }
         return Movie.UNKNOWN;
     }
@@ -133,6 +133,10 @@ public class FilmwebPlugin extends ImdbPlugin {
 
     /**
      * Scan web page for the specified movie
+     *
+     * @param movie
+     * @param filmwebUrl
+     * @return
      */
     protected boolean updateMediaInfo(Movie movie, String filmwebUrl) {
 
@@ -235,8 +239,8 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
         } catch (Exception error) {
-            LOGGER.error(LOG_MESSAGE + "Failed retreiving filmweb informations for movie : " + movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
-            LOGGER.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed retreiving filmweb informations for movie : " + movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
+            LOG.error(SystemTools.getStackTrace(error));
             returnValue = Boolean.FALSE;
         }
 
@@ -303,8 +307,8 @@ public class FilmwebPlugin extends ImdbPlugin {
 
             return Boolean.TRUE;
         } catch (IOException error) {
-            LOGGER.error(LOG_MESSAGE + "Failed retreiving person informations for movie : " + movie.getTitle());
-            LOGGER.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Failed retreiving person informations for movie : " + movie.getTitle());
+            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
             return Boolean.FALSE;
         }
     }
@@ -312,10 +316,10 @@ public class FilmwebPlugin extends ImdbPlugin {
     private int parseRating(String rating) {
         int returnRating = -1;
         try {
-            LOGGER.info("RATING TO PARSE: " + rating);
+            LOG.info("RATING TO PARSE: " + rating);
             returnRating = Math.round(Float.parseFloat(rating.replace(",", ".")) * 10);
         } catch (Exception error) {
-            LOGGER.info("Failed to parse rating '" + rating + "', error: " + error.getMessage(), error);
+            LOG.info("Failed to parse rating '" + rating + "', error: " + error.getMessage(), error);
         }
         return returnRating;
     }
@@ -369,8 +373,8 @@ public class FilmwebPlugin extends ImdbPlugin {
                 super.scanTVShowTitles(movie);
             }
         } catch (IOException error) {
-            LOGGER.error(LOG_MESSAGE + "Failed retreiving episodes titles for movie : " + movie.getTitle());
-            LOGGER.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            LOG.error(LOG_MESSAGE + "Failed retreiving episodes titles for movie : " + movie.getTitle());
+            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
         }
     }
 
@@ -384,18 +388,18 @@ public class FilmwebPlugin extends ImdbPlugin {
             return Boolean.TRUE;
         }
 
-        LOGGER.debug(LOG_MESSAGE + "Scanning NFO for filmweb url");
-        Matcher m = nfoPattern.matcher(nfo);
+        LOG.debug(LOG_MESSAGE + "Scanning NFO for filmweb url");
+        Matcher m = NFO_PATTERN.matcher(nfo);
         while (m.find()) {
             String url = m.group();
             if (!url.endsWith(".jpg") && !url.endsWith(".jpeg") && !url.endsWith(".gif") && !url.endsWith(".png") && !url.endsWith(".bmp")) {
                 movie.setId(FILMWEB_PLUGIN_ID, url);
-                LOGGER.debug(LOG_MESSAGE + "Filmweb url found in NFO = " + url);
+                LOG.debug(LOG_MESSAGE + "Filmweb url found in NFO = " + url);
                 return Boolean.TRUE;
             }
         }
 
-        LOGGER.debug(LOG_MESSAGE + "No filmweb url found in NFO");
+        LOG.debug(LOG_MESSAGE + "No filmweb url found in NFO");
         return Boolean.FALSE;
     }
 }

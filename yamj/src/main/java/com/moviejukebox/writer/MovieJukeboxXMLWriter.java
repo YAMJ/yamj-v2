@@ -103,7 +103,7 @@ public class MovieJukeboxXMLWriter {
     private final boolean includeEpisodePlots;
     private final boolean includeVideoImages;
     private final boolean includeEpisodeRating;
-    private final static boolean IS_PLAYON_HD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", Boolean.FALSE);
+    private static final boolean IS_PLAYON_HD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", Boolean.FALSE);
     private static final boolean IS_EXTENDED_URL = PropertiesUtil.getBooleanProperty("mjb.scanner.mediainfo.rar.extended.url", Boolean.FALSE);
     private static final String DEFAULT_SOURCE = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
     private final List<String> CATEGORIES_EXPLODE_SET = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));

@@ -37,12 +37,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import org.apache.log4j.Logger;
 
-/**
- * User: nmn Date: Aug 15, 2010
- */
 public class MovieListingPluginCustomCsv extends MovieListingPluginBase implements MovieListingPlugin {
 
-    private static final Logger logger = Logger.getLogger(MovieListingPluginCustomCsv.class);
+    private static final Logger LOG = Logger.getLogger(MovieListingPluginCustomCsv.class);
     private List<String> mFields;
     private String mDelimiter = ",";
     private String mSecondDelimiter = "|";
@@ -55,8 +52,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
     private static final String DEFAULT_FIELDS = createDefaultFields();
 
     /**
-     * Take a comma-separated list of field names and split them into separate
-     * fields
+     * Take a comma-separated list of field names and split them into separate fields
      *
      * @param aFields Text to split
      * @return Number of fields found
@@ -111,12 +107,8 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
             type = type.substring(0, type.length() - 1).trim();
         }
 
-        if (field.equalsIgnoreCase(type)) {
-            return true;
-        }
-
-        return false;
-    } // checkHeaderField()
+        return field.equalsIgnoreCase(type);
+    }
 
     /**
      * @param sItemType
@@ -366,14 +358,14 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         ArrayList<String> alTypes = getSelectedTypes();
         try {
             CSVWriter writer = new CSVWriter(csvFile);
-            logger.debug("  Writing CSV to: " + csvFile.getAbsolutePath());
+            LOG.debug("  Writing CSV to: " + csvFile.getAbsolutePath());
 
             // write header line
             writer.line(headerLine());
 
             if (!isGroupByType()) {
                 for (Movie movie : library.values()) {
-                    logger.debug(movie.toString());
+                    LOG.debug(movie.toString());
 
                     String sType;
                     if (movie.isExtra()) {
@@ -408,7 +400,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
             }
             writer.close();
         } catch (IOException error) {
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(SystemTools.getStackTrace(error));
         }
 
         // move to configured (default) location

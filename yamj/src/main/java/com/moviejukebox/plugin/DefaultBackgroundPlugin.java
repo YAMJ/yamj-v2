@@ -46,7 +46,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
 
     private static final int MAX_WIDTH = 1920;
     private static final int MAX_HEIGHT = 1080;
-    private static final Logger logger = Logger.getLogger(DefaultBackgroundPlugin.class);
+    private static final Logger LOG = Logger.getLogger(DefaultBackgroundPlugin.class);
     private String overlayResources;
     private boolean highdefDiff;
     private boolean roundCorners;
@@ -244,9 +244,9 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
 
             return returnBI;
         } catch (ImageReadException ex) {
-            logger.warn("Failed to read " + overlayFilename + ", please ensure it is valid");
+            LOG.warn("Failed to read " + overlayFilename + ", please ensure it is valid");
         } catch (IOException ex) {
-            logger.warn("Failed drawing overlay to " + movie.getBaseName() + ". Please check that overlay_fanart_" + source + ".png is in the resources directory.");
+            LOG.warn("Failed drawing overlay to " + movie.getBaseName() + ". Please check that overlay_fanart_" + source + ".png is in the resources directory.");
         }
 
         return bi;

@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
  */
 public class CSVWriter {
 
-    private static final Logger logger = Logger.getLogger(CSVWriter.class);
+    private static final Logger LOG = Logger.getLogger(CSVWriter.class);
     private static final String LOG_MESSAGE = "CSVWriter: ";
     private static final String S_EOL = System.getProperty("line.separator");
     private FileWriter writer;
@@ -44,7 +44,7 @@ public class CSVWriter {
         try {
             writer = new FileWriter(csvFile);
         } catch (IOException ex) {
-            logger.error(LOG_MESSAGE + "Error creating CSV file: " + csvFile);
+            LOG.error(LOG_MESSAGE + "Error creating CSV file: " + csvFile);
         }
     }
 

@@ -42,7 +42,7 @@ import org.apache.log4j.Logger;
 
 public class AppleTrailersPlugin extends TrailerPlugin {
 
-    private static final Logger logger = Logger.getLogger(AppleTrailersPlugin.class);
+    private static final Logger LOG = Logger.getLogger(AppleTrailersPlugin.class);
     private static String configResolution = PropertiesUtil.getProperty("appletrailers.resolution", "");
     private static boolean configDownload = PropertiesUtil.getBooleanProperty("appletrailers.download", Boolean.FALSE);
     private static String configTrailerTypes = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec,640w");
@@ -74,7 +74,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         movie.setTrailerLastScan(new Date().getTime()); // Set the last scan to now
 
         if (Movie.UNKNOWN.equalsIgnoreCase(trailerPageUrl)) {
-            logger.debug(LOG_MESSAGE + "Trailer not found for " + movie.getBaseName());
+            LOG.debug(LOG_MESSAGE + "Trailer not found for " + movie.getBaseName());
             return false;
         }
 
@@ -88,7 +88,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         int trailerDownloadCnt = 0;
 
         if (bestTrailersUrl.isEmpty()) {
-            logger.debug(LOG_MESSAGE + "No trailers found for " + movie.getBaseName());
+            LOG.debug(LOG_MESSAGE + "No trailers found for " + movie.getBaseName());
             return false;
         }
 
@@ -97,7 +97,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         for (String trailerRealUrl : bestTrailersUrl) {
 
             if (trailerDownloadCnt >= configMax) {
-                logger.debug(LOG_MESSAGE + "Downloaded maximum of " + configMax + (configMax == 1 ? " trailer" : " trailers"));
+                LOG.debug(LOG_MESSAGE + "Downloaded maximum of " + configMax + (configMax == 1 ? " trailer" : " trailers"));
                 break;
             }
 
@@ -107,7 +107,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
 
             // Is the found trailer one of the types to download/link to?
             if (!isValidTrailer(getFilenameFromUrl(trailerRealUrl))) {
-                logger.debug(LOG_MESSAGE + "Trailer skipped: " + getFilenameFromUrl(trailerRealUrl));
+                LOG.debug(LOG_MESSAGE + "Trailer skipped: " + getFilenameFromUrl(trailerRealUrl));
                 continue; // Quit the rest of the trailer loop.
             }
 
@@ -117,7 +117,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             trailerRealUrl = trailerRealUrl.replace("images.apple.com", configReplaceUrl);
             trailerRealUrl = trailerRealUrl.replace("movies.apple.com", configReplaceUrl);
 
-            logger.debug(LOG_MESSAGE + "Trailer found for " + movie.getBaseName() + " (" + getFilenameFromUrl(trailerRealUrl) + ")");
+            LOG.debug(LOG_MESSAGE + "Trailer found for " + movie.getBaseName() + " (" + getFilenameFromUrl(trailerRealUrl) + ")");
             trailerDownloadCnt++;
 
             // Check if we need to download the trailer, or just link to it
@@ -208,8 +208,8 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             }
 
         } catch (IOException error) {
-            logger.error(LOG_MESSAGE + "Failed retreiving trailer for movie : " + movieName);
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Failed retreiving trailer for movie : " + movieName);
+            LOG.error(SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
         }
 
@@ -246,26 +246,26 @@ public class AppleTrailersPlugin extends TrailerPlugin {
                 // Try to find the movie link on the WebInc HD page
                 getTrailerMovieUrl(xmlHDWebInc, trailersUrl);
             } else {
-                logger.debug(LOG_MESSAGE + "No valid HD URL found for " + trailerPageUrl);
+                LOG.debug(LOG_MESSAGE + "No valid HD URL found for " + trailerPageUrl);
             }
         } catch (IOException ex) {
-            logger.error(LOG_MESSAGE + "Error : " + ex.getMessage());
-            logger.error(SystemTools.getStackTrace(ex));
+            LOG.error(LOG_MESSAGE + "Error : " + ex.getMessage());
+            LOG.error(SystemTools.getStackTrace(ex));
         }
     }
 
     // Get sub page url - if error return empty page
     private String getSubPage(String url) {
-        Level oldlevel = logger.getLevel();
+        Level oldlevel = LOG.getLevel();
 
         try {
             // Don't log error getting URL
-            logger.setLevel(Level.OFF);
+            LOG.setLevel(Level.OFF);
             return webBrowser.request(url);
         } catch (Exception error) {
             return "";
         } finally {
-            logger.setLevel(oldlevel);
+            LOG.setLevel(oldlevel);
         }
     }
 
@@ -336,8 +336,8 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             return absRealURL;
 
         } catch (Exception error) {
-            logger.error(LOG_MESSAGE + "Error : " + error.getMessage());
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            LOG.error(SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
         }
     }

@@ -41,7 +41,7 @@ import org.pojava.datetime2.DateTime;
 
 public class WatchedScanner {
 
-    private static final Logger logger = Logger.getLogger(WatchedScanner.class);
+    private static final Logger LOG = Logger.getLogger(WatchedScanner.class);
     private static final String LOG_MESSAGE = "Watched Scanner: ";
     private static Collection<String> watchedExtensions = Arrays.asList(PropertiesUtil.getProperty("mjb.watchedExtensions", "watched").split(",;\\|"));
     private static WatchedWithLocation watchedLocation = WatchedWithLocation.fromString(PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo"));
@@ -67,7 +67,7 @@ public class WatchedScanner {
         boolean returnStatus = Boolean.FALSE;           // Assume no changes
 
         if (!warned && (watchedLocation == WatchedWithLocation.custom)) {
-            logger.warn(LOG_MESSAGE + "Custom file location not supported for watched scanner");
+            LOG.warn(LOG_MESSAGE + "Custom file location not supported for watched scanner");
             warned = Boolean.TRUE;
         }
 
@@ -164,7 +164,7 @@ public class WatchedScanner {
 
         returnStatus |= movieFileWatchChanged;
         if (returnStatus) {
-            logger.debug(LOG_MESSAGE + "The video has one or more files that have changed status.");
+            LOG.debug(LOG_MESSAGE + "The video has one or more files that have changed status.");
         }
 
         return returnStatus;

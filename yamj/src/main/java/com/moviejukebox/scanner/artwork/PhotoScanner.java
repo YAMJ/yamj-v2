@@ -47,7 +47,7 @@ import org.apache.log4j.Logger;
  */
 public class PhotoScanner {
 
-    private static final Logger logger = Logger.getLogger(PhotoScanner.class);
+    private static final Logger LOG = Logger.getLogger(PhotoScanner.class);
     private static final String LOG_MESSAGE = "PhotoScanner: ";
     private static final Collection<String> photoExtensions = setPhotoExtensions(PropertiesUtil.getProperty("photo.scanner.photoExtensions", "jpg,jpeg,gif,bmp,png"));
     private static boolean photoOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", Boolean.FALSE);
@@ -142,7 +142,7 @@ public class PhotoScanner {
             // Do not overwrite existing photo unless ForcePhotoOverwrite = true
             if (photoOverwrite || person.isDirtyPhoto() || (!photoFile.exists() && !tmpDestFile.exists())) {
                 try {
-                    logger.debug(LOG_MESSAGE + "Downloading photo for " + person.getName() + " to " + tmpDestFileName + " [calling plugin]");
+                    LOG.debug(LOG_MESSAGE + "Downloading photo for " + person.getName() + " to " + tmpDestFileName + " [calling plugin]");
 
                     // Download the photo using the proxy save downloadImage
                     FileTools.downloadImage(tmpDestFile, person.getPhotoURL());
@@ -151,21 +151,21 @@ public class PhotoScanner {
                     if (photoImage != null) {
 //                        photoImage = imagePlugin.generate(person, photoImage, "photos", null);
                         GraphicTools.saveImageToDisk(photoImage, tmpDestFileName);
-                        logger.debug(LOG_MESSAGE + "Downloaded photo for " + person.getPhotoURL());
+                        LOG.debug(LOG_MESSAGE + "Downloaded photo for " + person.getPhotoURL());
                     } else {
                         person.setPhotoFilename(Movie.UNKNOWN);
                         person.setPhotoURL(Movie.UNKNOWN);
                     }
                 } catch (Exception error) {
-                    logger.debug(LOG_MESSAGE + "Failed to download photo: " + person.getPhotoURL());
+                    LOG.debug(LOG_MESSAGE + "Failed to download photo: " + person.getPhotoURL());
                     person.setPhotoURL(Movie.UNKNOWN);
                 }
             } else {
-                logger.debug(LOG_MESSAGE + "Photo exists for " + person.getName());
+                LOG.debug(LOG_MESSAGE + "Photo exists for " + person.getName());
             }
         } else if ((photoOverwrite || (!photoFile.exists() && !tmpDestFile.exists()))) {
             if (dummyFile.exists()) {
-                logger.debug("Dummy image used for " + person.getName());
+                LOG.debug("Dummy image used for " + person.getName());
                 FileTools.copyFile(dummyFile, tmpDestFile);
             } else {
                 person.clearPhotoFilename();

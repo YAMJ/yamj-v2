@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
  */
 public class ScanningLimit {
 
-    private static final Logger LOGGER = Logger.getLogger(ScanningLimit.class);
+    private static final Logger LOG = Logger.getLogger(ScanningLimit.class);
     private static final String LOG_MESSAGE = "ScanningLimit: ";
     private static final int CHECK_MAX = PropertiesUtil.getIntProperty("mjb.check.Max", 0);
     private static int tokensUsed = 0;
@@ -47,9 +47,9 @@ public class ScanningLimit {
 
         if (tokensUsed < CHECK_MAX) {
             tokensUsed++;
-            LOGGER.trace(LOG_MESSAGE + "Got token (" + (CHECK_MAX - tokensUsed) + " left)");
+            LOG.trace(LOG_MESSAGE + "Got token (" + (CHECK_MAX - tokensUsed) + " left)");
         } else {
-            LOGGER.debug(LOG_MESSAGE + "Maximum scan limit of " + CHECK_MAX + " reached");
+            LOG.debug(LOG_MESSAGE + "Maximum scan limit of " + CHECK_MAX + " reached");
             limitReached = Boolean.TRUE;
         }
         // Return value: Was the token assigned
@@ -71,7 +71,7 @@ public class ScanningLimit {
     public static synchronized void releaseToken() {
         if (CHECK_MAX > 0) {
             tokensUsed--;
-            LOGGER.trace(LOG_MESSAGE + "Released token (" + (CHECK_MAX - tokensUsed) + " left)");
+            LOG.trace(LOG_MESSAGE + "Released token (" + (CHECK_MAX - tokensUsed) + " left)");
         }
     }
 

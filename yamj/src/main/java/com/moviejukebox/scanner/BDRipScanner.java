@@ -51,7 +51,7 @@ import org.apache.log4j.Logger;
  */
 public class BDRipScanner {
 
-    private static final Logger logger = Logger.getLogger(BDRipScanner.class);
+    private static final Logger LOG = Logger.getLogger(BDRipScanner.class);
     private static final String LOG_MESSAGE = "BDRipScanner: ";
 
     public class BDPlaylistInfo {
@@ -197,8 +197,8 @@ public class BDRipScanner {
             return ret;
 
         } catch (Exception error) {
-            logger.warn(LOG_MESSAGE + "Error processing file " + mediaRep.getName());
-            logger.error(SystemTools.getStackTrace(error));
+            LOG.warn(LOG_MESSAGE + "Error processing file " + mediaRep.getName());
+            LOG.error(SystemTools.getStackTrace(error));
             return null;
         }
     }
@@ -214,7 +214,7 @@ public class BDRipScanner {
         /* Some ported code from the bdinfo free project */
         byte[] data = new byte[(int) fileReader.length()];
         int dataLength = fileReader.read(data, 0, data.length);
-        logger.trace(LOG_MESSAGE + "Read data length: " + dataLength);
+        LOG.trace(LOG_MESSAGE + "Read data length: " + dataLength);
 
         fileReader.close();
 
@@ -223,7 +223,7 @@ public class BDRipScanner {
 
         String fileTypeString = new String(fileType);
         if ((fileTypeString.equals("MPLS0100") && fileTypeString.equals("MPLS0200")) /*|| data[45] != 1*/) {
-            logger.info(LOG_MESSAGE + "Invalid playlist file " + fileTypeString);
+            LOG.info(LOG_MESSAGE + "Invalid playlist file " + fileTypeString);
             return ret;
         }
 
@@ -239,7 +239,7 @@ public class BDRipScanner {
                 + (((int) data[playlistIndex + 1] & 0xFF) << 16)
                 + (((int) data[playlistIndex + 2] & 0xFF) << 8)
                 + (((int) data[playlistIndex + 3] & 0xFF));
-        logger.trace(LOG_MESSAGE + "Playlist Length Correct: " + playlistLengthCorrect);
+        LOG.trace(LOG_MESSAGE + "Playlist Length Correct: " + playlistLengthCorrect);
 
         byte[] playlistData = new byte[playlistLength];
         System.arraycopy(data, playlistIndex + 4,

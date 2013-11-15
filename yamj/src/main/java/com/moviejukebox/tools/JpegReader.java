@@ -55,7 +55,7 @@ import org.apache.sanselan.formats.jpeg.segments.UnknownSegment;
  */
 public class JpegReader {
 
-    private static final Logger logger = Logger.getLogger(JpegReader.class);
+    private static final Logger LOG = Logger.getLogger(JpegReader.class);
     private static final String LOG_MESSAGE = "JpegReader: ";
     public static final int COLOR_TYPE_RGB = 1;
     public static final int COLOR_TYPE_CMYK = 2;
@@ -75,7 +75,7 @@ public class JpegReader {
         hasAdobeMarker = Boolean.FALSE;
 
         if (!file.exists()) {
-            logger.debug(LOG_MESSAGE + "Error reading file, does not exist: " + file.getName());
+            LOG.debug(LOG_MESSAGE + "Error reading file, does not exist: " + file.getName());
             return null;
         }
 
@@ -132,13 +132,13 @@ public class JpegReader {
 
             image = convertCmykToRgb(raster, profile);
         } catch (IOException ex) {
-            logger.warn(LOG_MESSAGE + "Failed to transform image: " + file.getName() + ", error: " + ex.getMessage());
+            LOG.warn(LOG_MESSAGE + "Failed to transform image: " + file.getName() + ", error: " + ex.getMessage());
             image = null;
         } catch (ImageReadException ex) {
-            logger.warn(LOG_MESSAGE + "Failed to transform image: " + file.getName() + ", error: " + ex.getMessage());
+            LOG.warn(LOG_MESSAGE + "Failed to transform image: " + file.getName() + ", error: " + ex.getMessage());
             image = null;
         } catch (CMMException ex) {
-            logger.warn(LOG_MESSAGE + "Failed to transform image: " + file.getName() + ", error: " + ex.getMessage());
+            LOG.warn(LOG_MESSAGE + "Failed to transform image: " + file.getName() + ", error: " + ex.getMessage());
             image = null;
         }
         return image;

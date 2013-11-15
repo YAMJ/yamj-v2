@@ -44,7 +44,7 @@ import org.apache.log4j.Logger;
  */
 public class TVRagePlugin extends ImdbPlugin {
 
-    private static final Logger logger = Logger.getLogger(TVRagePlugin.class);
+    private static final Logger LOG = Logger.getLogger(TVRagePlugin.class);
     private static final String LOG_MESSAGE = "TVRagePlugin: ";
     public static final String TVRAGE_PLUGIN_ID = "tvrage";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TVRage");
@@ -76,7 +76,7 @@ public class TVRagePlugin extends ImdbPlugin {
             if (isValidString(id)) {
                 tvrageID = Integer.parseInt(id);
             }
-        } catch (Exception ignore) {
+        } catch (NumberFormatException ignore) {
             // We failed, so set the ID to 0
             tvrageID = 0;
         }
@@ -85,19 +85,19 @@ public class TVRagePlugin extends ImdbPlugin {
         try {
             // Try and search using the ID
             if (tvrageID > 0) {
-                logger.debug(LOG_MESSAGE + "Searching using TVRage ID '" + tvrageID + "'");
+                LOG.debug(LOG_MESSAGE + "Searching using TVRage ID '" + tvrageID + "'");
                 showInfo = tvRage.getShowInfo(tvrageID);
             }
 
             // Try using the vanity ID
             if (!showInfo.isValid() && (tvrageID == 0 && isValidString(id))) {
-                logger.debug(LOG_MESSAGE + "Searching using Vanity URL '" + id + "'");
+                LOG.debug(LOG_MESSAGE + "Searching using Vanity URL '" + id + "'");
                 showList = tvRage.searchShow(id);
             }
 
             // Try using the title
             if ((showList == null || showList.isEmpty()) && (isValidString(movie.getTitle()))) {
-                logger.debug(LOG_MESSAGE + "Searching using title '" + movie.getTitle() + "'");
+                LOG.debug(LOG_MESSAGE + "Searching using title '" + movie.getTitle() + "'");
                 showList = tvRage.searchShow(movie.getTitle());
             }
 
@@ -116,7 +116,7 @@ public class TVRagePlugin extends ImdbPlugin {
 
         // Update the show specific information
         if (!showInfo.isValid() || showInfo.getShowID() == 0) {
-            logger.debug(LOG_MESSAGE + "Show '" + movie.getTitle() + "' not found");
+            LOG.debug(LOG_MESSAGE + "Show '" + movie.getTitle() + "' not found");
             return false;
         } else {
             id = String.valueOf(showInfo.getShowID());
@@ -185,7 +185,7 @@ public class TVRagePlugin extends ImdbPlugin {
         }
 
         if (episodeList == null) {
-            logger.debug(LOG_MESSAGE + "Episodes not found for '" + movie.getTitle() + "'");
+            LOG.debug(LOG_MESSAGE + "Episodes not found for '" + movie.getTitle() + "'");
             return;
         }
 
@@ -196,7 +196,7 @@ public class TVRagePlugin extends ImdbPlugin {
                     Episode episode = episodeList.getEpisode(movie.getSeason(), part);
 
                     if (episode == null) {
-                        logger.debug(LOG_MESSAGE + "Episode not found!");
+                        LOG.debug(LOG_MESSAGE + "Episode not found!");
                         if (movie.getSeason() > 0 && file.getFirstPart() == 0 && isNotValidString(file.getPlot(part))) {
                             file.setTitle(part, "Special", TVRAGE_PLUGIN_ID);
                         }
@@ -232,14 +232,14 @@ public class TVRagePlugin extends ImdbPlugin {
         // http://www.tvrage.com/shows/id-22771
 
         if (StringTools.isValidString(movie.getId(TVRAGE_PLUGIN_ID))) {
-            logger.debug(LOG_MESSAGE + "ID already found for TVRage (" + movie.getId(TVRAGE_PLUGIN_ID) + "), skipping NFO check");
+            LOG.debug(LOG_MESSAGE + "ID already found for TVRage (" + movie.getId(TVRAGE_PLUGIN_ID) + "), skipping NFO check");
             return Boolean.TRUE;
         }
 
         int beginIndex;
         String text;
 
-        logger.debug(LOG_MESSAGE + "Scanning NFO for TVRage Id");
+        LOG.debug(LOG_MESSAGE + "Scanning NFO for TVRage Id");
 
         text = "/shows/";
         beginIndex = nfo.indexOf(text);
@@ -248,7 +248,7 @@ public class TVRagePlugin extends ImdbPlugin {
             // Remove the "id-" from the front of the ID
             String id = st.nextToken().substring("id-".length());
             movie.setId(TVRAGE_PLUGIN_ID, id);
-            logger.debug(LOG_MESSAGE + "TVRage Id found in nfo = " + movie.getId(TVRAGE_PLUGIN_ID));
+            LOG.debug(LOG_MESSAGE + "TVRage Id found in nfo = " + movie.getId(TVRAGE_PLUGIN_ID));
             return Boolean.TRUE;
         }
 
@@ -257,11 +257,11 @@ public class TVRagePlugin extends ImdbPlugin {
         if (beginIndex > -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + text.length()), "/ \n,:!&\"'=$");
             movie.setId(TVRAGE_PLUGIN_ID, st.nextToken());
-            logger.debug(LOG_MESSAGE + "TVRage Vanity Id found in nfo = " + movie.getId(TVRAGE_PLUGIN_ID));
+            LOG.debug(LOG_MESSAGE + "TVRage Vanity Id found in nfo = " + movie.getId(TVRAGE_PLUGIN_ID));
             return Boolean.TRUE;
         }
 
-        logger.debug(LOG_MESSAGE + "No TVRage Id found in nfo!");
+        LOG.debug(LOG_MESSAGE + "No TVRage Id found in nfo!");
         return Boolean.FALSE;
     }
 }

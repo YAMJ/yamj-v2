@@ -39,4 +39,4 @@ public interface MovieListingPlugin {
     String UNKNOWN = Movie.UNKNOWN;
 
     void generate(Jukebox jukebox, Library library);
-} // interface MovieListingPlugin
+}
