@@ -376,10 +376,7 @@ public final class MovieNFOReader {
                 }
 
                 // Runtime
-                if (OverrideTools.checkOverwriteRuntime(movie, NFO_PLUGIN_ID)) {
-                    String runtime = DOMHelper.getValueFromElement(eCommon, "runtime");
-                    movie.setRuntime(runtime, NFO_PLUGIN_ID);
-                }
+                parseRuntime(eCommon, movie);
 
                 // Certification
                 parseCertification(eCommon, movie);
@@ -1019,6 +1016,36 @@ public final class MovieNFOReader {
 
                 movie.setCertification(tempCert, NFO_PLUGIN_ID);
             }
+        }
+    }
+
+    /**
+     * Parse Runtime from the XML NFO file
+     *
+     * @param eCommon
+     * @param movie
+     */
+    public static void parseRuntime(Element eCommon, Movie movie) {
+        if (OverrideTools.checkOverwriteRuntime(movie, NFO_PLUGIN_ID)) {
+            String runtime = DOMHelper.getValueFromElement(eCommon, "runtime");
+
+            // Save the first runtime to use if no preferred one is found
+            String prefRuntime = null;
+            // Split the runtime into individual parts
+            for (String rtSingle : runtime.split("\\|")) {
+                // IF we don't have a current preferred runtime, set it now.
+                if (StringUtils.isBlank(prefRuntime)) {
+                    prefRuntime = rtSingle;
+                }
+
+                // Check to see if we have our preferred country in the string
+                if (StringUtils.containsIgnoreCase(rtSingle, IMDB_PREFERRED_COUNTRY)) {
+                    // Lets get the country runtime
+                    prefRuntime = rtSingle.substring(rtSingle.indexOf(IMDB_PREFERRED_COUNTRY) + IMDB_PREFERRED_COUNTRY.length() + 1);
+                }
+            }
+
+            movie.setRuntime(prefRuntime, NFO_PLUGIN_ID);
         }
     }
 
