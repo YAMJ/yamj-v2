@@ -18,6 +18,7 @@ MovieJukebox 2.10-SNAPSHOT
  - Fixed defect #2691 Scrape more than one country from IMDB
  - Fixed defect #2692 Correctly scrape accented birth name and birth place as well as correct birthday from IMDB
  - Fixed defect #2695 Awards not being scraped from IMDB
+ - Fixed defect #2697 Filmography from TheMovieDB now sorted before being truncated to "plugin.filmography.max" amount
 
 MovieJukebox 2.9
 ----------------

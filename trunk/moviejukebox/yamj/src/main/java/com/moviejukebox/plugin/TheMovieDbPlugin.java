@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Comparator.FilmographyDateComparator;
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.MovieFilenameScanner;
@@ -49,6 +50,7 @@ import com.omertron.themoviedbapi.model.ReleaseInfo;
 import com.omertron.themoviedbapi.results.TmdbResultsList;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
@@ -81,6 +83,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public static final String CACHE_COLLECTION_IMAGES = "CollectionImages";
     private final int preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", 500);
     private final int preferredFilmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", 20);
+    private final boolean sortFilmographyAsc = PropertiesUtil.getBooleanProperty("plugin.filmography.sort.asc", false);
+    private final FilmographyDateComparator filmographyCmp = new FilmographyDateComparator(sortFilmographyAsc);
 
     public TheMovieDbPlugin() {
         try {
@@ -585,14 +589,9 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 TmdbResultsList<PersonCredit> results = TMDb.getPersonCredits(tmdbId);
                 person.setKnownMovies(results.getTotalResults());
 
-                int count = 1;
+                // Process the credits into a filmography list
+                List<Filmography> filmList = new ArrayList<Filmography>();
                 for (PersonCredit credit : results.getResults()) {
-                    if (count++ > preferredFilmographyMax) {
-                        // We have enough films
-                        LOG.trace(LOG_MESSAGE + "Reached limit of " + preferredFilmographyMax + " films for " + person.getName() + ". Total found: " + results.getTotalResults());
-                        break;
-                    }
-
                     Filmography film = new Filmography();
                     film.setId(TMDB_PLUGIN_ID, Integer.toString(credit.getMovieId()));
                     film.setName(credit.getMovieTitle());
@@ -600,9 +599,20 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     film.setYear(credit.getReleaseDate());
                     film.setJob(credit.getJob());
                     film.setCharacter(credit.getCharacter());
-                    film.setDepartment();
+                    film.setDepartment(credit.getDepartment());
                     film.setUrl("www.themoviedb.org/movie/" + tmdbId);
-                    person.addFilm(film);
+
+                    filmList.add(film);
+                }
+
+                // See if we need to trim the list
+                if (filmList.size() > preferredFilmographyMax) {
+                    LOG.debug(LOG_MESSAGE + "Reached limit of " + preferredFilmographyMax + " films for " + person.getName() + ". Total found: " + filmList.size());
+                    // Sort the collection to ensure the most relevant films are at the start
+                    Collections.sort(filmList, filmographyCmp);
+                    person.setFilmography(filmList.subList(0, preferredFilmographyMax));
+                } else {
+                    person.setFilmography(filmList);
                 }
 
                 // Update the version

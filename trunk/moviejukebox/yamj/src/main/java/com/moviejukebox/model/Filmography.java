@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * This is the new bean for the Person
@@ -441,5 +443,10 @@ public class Filmography {
 
     public String getSource() {
         return source;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }
