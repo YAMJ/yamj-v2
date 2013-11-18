@@ -95,7 +95,7 @@ public final class MovieFilenameScanner {
     // Number at the end of string preceded with '-'
     private static final Pattern SET_INDEX_PATTERN = patt("-\\s*(\\d+)\\s*$");
     private static final String[] AUDIO_CODECS_ARRAY = new String[]{"AC3", "DTS", "DD", "AAC", "FLAC"};
-    private static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,2})(?:(\\s|\\.|x))??((?:(e|x)\\s??[0-9]+)+)");
+    private static final Pattern TV_PATTERN = ipatt("(?<![0-9])((s[0-9]{1,4})|[0-9]{1,4})(?:(\\s|\\.|x))??((?:(e|x)\\s??[0-9]+)+)");
     private static final Pattern SEASON_PATTERN = ipatt("s{0,1}([0-9]+)(\\s|\\.)??[ex-]");
     private static final Pattern EPISODE_PATTERN = ipatt("[ex]\\s??([0-9]+)");
     private static final String TOKEN_DELIMITERS_STRING = ".[]()";
