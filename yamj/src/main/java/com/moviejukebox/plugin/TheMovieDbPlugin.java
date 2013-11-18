@@ -83,8 +83,9 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public static final String CACHE_COLLECTION_IMAGES = "CollectionImages";
     private final int preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", 500);
     private final int preferredFilmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", 20);
-    private final boolean sortFilmographyAsc = PropertiesUtil.getBooleanProperty("plugin.filmography.sort.asc", false);
+    private final boolean sortFilmographyAsc = PropertiesUtil.getBooleanProperty("plugin.filmography.sort.asc", Boolean.FALSE);
     private final FilmographyDateComparator filmographyCmp = new FilmographyDateComparator(sortFilmographyAsc);
+    private final boolean skipFaceless = PropertiesUtil.getBooleanProperty("plugin.people.skip.faceless", Boolean.FALSE);
 
     public TheMovieDbPlugin() {
         try {
@@ -553,6 +554,13 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             int tmdbId = Integer.parseInt(id);
             try {
                 com.omertron.themoviedbapi.model.Person tmdbPerson = TMDb.getPersonInfo(tmdbId);
+
+                LOG.info(tmdbPerson.toString());
+                if (skipFaceless && StringUtils.isBlank(tmdbPerson.getProfilePath())) {
+                    LOG.debug(LOG_MESSAGE + "Skipped '" + tmdbPerson.getName() + "' no profile picture found (skip.faceless=true)");
+                    return Boolean.FALSE;
+                }
+
                 person.setName(tmdbPerson.getName());
 
                 person.setBiography(StringUtils.abbreviate(tmdbPerson.getBiography(), preferredBiographyLength));
