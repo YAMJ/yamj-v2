@@ -14,6 +14,7 @@ MovieJukebox 2.10-SNAPSHOT
  - Fixed defect #2682 AKAs for IMDB incorrect
  - Fixed defect #2683 Failed to parse dates from OFDB
  - Fixed defect #2686 No Cast, Directors or Writers from IMDB
+ - Fixed defect #2688 Video not recognized as TV episode with YYYYxNNNN number format
  - Enhancement  #2689 Sort person filmography by year
  - Fixed defect #2691 Scrape more than one country from IMDB
  - Fixed defect #2692 Correctly scrape accented birth name and birth place as well as correct birthday from IMDB
