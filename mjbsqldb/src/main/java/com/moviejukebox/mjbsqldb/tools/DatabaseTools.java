@@ -49,8 +49,6 @@ import java.util.Date;
  */
 public final class DatabaseTools {
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
     private DatabaseTools() {
         throw new IllegalArgumentException("Class cannot be initialised!");
     }
@@ -58,6 +56,8 @@ public final class DatabaseTools {
     /**
      * Create the database at the end of the connection The database file must already exist and be open
      *
+     * @param connection
+     * @param version
      * @throws SQLException
      */
     public static void createTables(Connection connection, float version) throws SQLException {
@@ -67,7 +67,8 @@ public final class DatabaseTools {
 
         Statement stmt = null;
         try {
-            String dbDate = DATE_FORMAT.format(new Date());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String dbDate = sdf.format(new Date());
             stmt = connection.createStatement();
 
             stmt.addBatch(ArtworkDTO.CREATE_TABLE);
@@ -100,13 +101,16 @@ public final class DatabaseTools {
         } catch (SQLException ex) {
             throw new SQLException("Error creating database tables: " + ex.getMessage(), ex);
         } finally {
-            stmt.close();
+            if (stmt != null) {
+                stmt.close();
+            }
         }
     }
 
     /**
      * Remove all the tables from the database The connection must be open
      *
+     * @param connection
      * @throws SQLException
      */
     public static void deleteTables(Connection connection) throws SQLException {
@@ -142,13 +146,16 @@ public final class DatabaseTools {
         } catch (SQLException ex) {
             throw new SQLException("Error deleting the tables: " + ex.getMessage(), ex);
         } finally {
-            stmt.close();
+            if (stmt != null) {
+                stmt.close();
+            }
         }
     }
 
     /**
      * Get the database version
      *
+     * @param connection
      * @return (float) database version
      * @throws SQLException
      */
@@ -166,12 +173,12 @@ public final class DatabaseTools {
         } catch (SQLException ex) {
             throw new SQLException("Error: Unable to get database version: " + ex.getMessage(), ex);
         } finally {
-            if (rs != null) {
-                rs.close();
-            }
-
             if (stmt != null) {
                 stmt.close();
+            }
+
+            if (rs != null) {
+                rs.close();
             }
         }
 
