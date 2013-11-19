@@ -66,7 +66,9 @@ public final class DatabaseWriter {
         } catch (SQLException ex) {
             throw new SQLException("Error deleting row from " + tableName + " table: " + ex.getMessage(), ex);
         } finally {
-            pstmt.close();
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
 
         return 0;
@@ -101,7 +103,9 @@ public final class DatabaseWriter {
         } catch (SQLException ex) {
             throw new SQLException("Error inserting Artwork:  " + ex.getMessage(), ex);
         } finally {
-            pstmt.close();
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -131,7 +135,9 @@ public final class DatabaseWriter {
         } catch (SQLException ex) {
             throw new SQLException("Error inserting Certification:  " + ex.getMessage(), ex);
         } finally {
-            pstmt.close();
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -162,7 +168,9 @@ public final class DatabaseWriter {
         } catch (SQLException ex) {
             throw new SQLException("Error inserting Codec " + codecDTO.toString() + ":  " + ex.getMessage(), ex);
         } finally {
-            pstmt.close();
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -192,7 +200,9 @@ public final class DatabaseWriter {
         } catch (SQLException ex) {
             throw new SQLException("Error inserting Company:  " + ex.getMessage(), ex);
         } finally {
-            pstmt.close();
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -222,7 +232,9 @@ public final class DatabaseWriter {
         } catch (SQLException ex) {
             throw new SQLException("Error inserting Country:  " + ex.getMessage(), ex);
         } finally {
-            pstmt.close();
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -252,7 +264,9 @@ public final class DatabaseWriter {
         } catch (SQLException ex) {
             throw new SQLException("Error inserting Genre:  " + ex.getMessage(), ex);
         } finally {
-            pstmt.close();
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -284,7 +298,9 @@ public final class DatabaseWriter {
         } catch (SQLException ex) {
             throw new SQLException("Error inserting Language:  " + ex.getMessage(), ex);
         } finally {
-            pstmt.close();
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -318,7 +334,9 @@ public final class DatabaseWriter {
         } catch (SQLException ex) {
             throw new SQLException("Error inserting Person:  " + ex.getMessage(), ex);
         } finally {
-            pstmt.close();
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -367,7 +385,9 @@ public final class DatabaseWriter {
         } catch (SQLException ex) {
             throw new SQLException("Error inserting Video:  " + ex.getMessage(), ex);
         } finally {
-            pstmt.close();
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -412,7 +432,9 @@ public final class DatabaseWriter {
         } catch (SQLException ex) {
             throw new SQLException("Error inserting Video File:  " + ex.getMessage(), ex);
         } finally {
-            pstmt.close();
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -445,7 +467,9 @@ public final class DatabaseWriter {
         } catch (SQLException ex) {
             throw new SQLException("Error inserting Video File Part:  " + ex.getMessage(), ex);
         } finally {
-            pstmt.close();
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 
@@ -468,7 +492,9 @@ public final class DatabaseWriter {
             } catch (SQLException ex) {
                 throw new SQLException("Error inserting Video Site: " + ex.getMessage(), ex);
             } finally {
-                pstmt.close();
+                if (pstmt != null) {
+                    pstmt.close();
+                }
             }
         } else {
             return siteID;
@@ -515,7 +541,9 @@ public final class DatabaseWriter {
         } catch (SQLException ex) {
             throw new SQLException("Error writing to join table (" + joinTable + "):  " + ex.getMessage(), ex);
         } finally {
-            pstmt.close();
+            if (pstmt != null) {
+                pstmt.close();
+            }
         }
     }
 

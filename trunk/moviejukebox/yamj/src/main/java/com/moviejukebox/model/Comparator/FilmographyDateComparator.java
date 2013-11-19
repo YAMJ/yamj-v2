@@ -24,7 +24,6 @@ package com.moviejukebox.model.Comparator;
 
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.tools.DateTimeTools;
-import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import java.io.Serializable;
 import java.util.Comparator;
