@@ -55,6 +55,10 @@ public class FilmDeltaSEPluginTest {
 
     @BeforeClass
     public static void setUpClass() {
+        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
+        PropertiesUtil.setProperty("priority.title", "filmdelta,imdb");
+        PropertiesUtil.setProperty("priority.originaltitle", "filmdelta,imdb");
+        PropertiesUtil.setProperty("API_KEY_TheTVDb", "2805AD2873519EC5");
     }
 
     @AfterClass
@@ -63,10 +67,6 @@ public class FilmDeltaSEPluginTest {
 
     @Before
     public void setUp() {
-        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
-        PropertiesUtil.setProperty("priority.title", "filmdelta,imdb");
-        PropertiesUtil.setProperty("priority.originaltitle", "filmdelta,imdb");
-
         // uncomment the line below to check if tests are still up to date
         // offline = false;
         toTest = new FilmDeltaPluginMock(offline);
@@ -93,11 +93,11 @@ public class FilmDeltaSEPluginTest {
     public void testScanNFO() {
         LOG.info("testScanNFO");
         toTest.scanNFO("http://www.filmdelta.se/prevsearch/aristocats/filmer/20892/aristocats/", movie);
-        assertEquals("Failed prevsearch test","20892/aristocats", movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
+        assertEquals("Failed prevsearch test", "20892/aristocats", movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
         LOG.info("Testing filmer");
         movie = new Movie();
         toTest.scanNFO("http://www.filmdelta.se/filmer/22481/djungelboken/", movie);
-        assertEquals("Failed filmer test","22481/djungelboken", movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
+        assertEquals("Failed filmer test", "22481/djungelboken", movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
     }
 
     @Test

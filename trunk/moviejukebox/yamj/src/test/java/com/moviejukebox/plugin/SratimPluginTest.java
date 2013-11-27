@@ -27,7 +27,6 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
-
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -40,6 +39,7 @@ public class SratimPluginTest {
     @BeforeClass
     public static void setUpClass() {
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.SratimPlugin");
+        PropertiesUtil.setProperty("API_KEY_TheTVDb", "2805AD2873519EC5");
     }
 
     @Before

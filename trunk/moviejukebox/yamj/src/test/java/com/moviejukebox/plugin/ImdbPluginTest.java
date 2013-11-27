@@ -22,23 +22,23 @@
  */
 package com.moviejukebox.plugin;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Test;
 
 public class ImdbPluginTest {
 
@@ -46,6 +46,7 @@ public class ImdbPluginTest {
 
     @BeforeClass
     public static void setUpClass() {
+        PropertiesUtil.setProperty("API_KEY_TheTVDb", "2805AD2873519EC5");
     }
 
     @AfterClass
