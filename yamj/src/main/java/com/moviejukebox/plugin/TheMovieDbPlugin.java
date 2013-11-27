@@ -50,6 +50,7 @@ import com.omertron.themoviedbapi.model.ReleaseInfo;
 import com.omertron.themoviedbapi.results.TmdbResultsList;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -81,11 +82,21 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private static final boolean AUTO_COLLECTION = PropertiesUtil.getBooleanProperty("themoviedb.collection", Boolean.FALSE);
     public static final String CACHE_COLLECTION = "Collection";
     public static final String CACHE_COLLECTION_IMAGES = "CollectionImages";
+
+    // People properties
     private final int preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", 500);
     private final int preferredFilmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", 20);
     private final boolean sortFilmographyAsc = PropertiesUtil.getBooleanProperty("plugin.filmography.sort.asc", Boolean.FALSE);
     private final FilmographyDateComparator filmographyCmp = new FilmographyDateComparator(sortFilmographyAsc);
     private final boolean skipFaceless = PropertiesUtil.getBooleanProperty("plugin.people.skip.faceless", Boolean.FALSE);
+
+    private final int actorMax = PropertiesUtil.getReplacedIntProperty("movie.actor.maxCount", "plugin.people.maxCount.actor", 10);
+    private final int directorMax = PropertiesUtil.getReplacedIntProperty("movie.director.maxCount", "plugin.people.maxCount.director", 2);
+    private final int writerMax = PropertiesUtil.getReplacedIntProperty("movie.writer.maxCount", "plugin.people.maxCount.writer", 3);
+    private final boolean skipVG = PropertiesUtil.getBooleanProperty("plugin.people.skip.VG", Boolean.TRUE);
+    private final boolean skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", Boolean.FALSE);
+    private final boolean skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", Boolean.FALSE);
+    private final List<String> jobsInclude = Arrays.asList(PropertiesUtil.getProperty("plugin.filmography.jobsInclude", "Director,Writer,Actor,Actress").split(","));
 
     public TheMovieDbPlugin() {
         try {
@@ -597,9 +608,41 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 TmdbResultsList<PersonCredit> results = TMDb.getPersonCredits(tmdbId);
                 person.setKnownMovies(results.getTotalResults());
 
+                int actorCount = 0;
+                int directorCount = 0;
+                int writerCount = 0;
+
                 // Process the credits into a filmography list
                 List<Filmography> filmList = new ArrayList<Filmography>();
+                // TODO: Need to sort this list
+//                List<PersonCredit> creditList = results.getResults();
                 for (PersonCredit credit : results.getResults()) {
+                    LOG.info("Credit job: " + credit.getPersonType() + " = '" + credit.getJob() + "' - "+ credit.getMovieTitle() + " (" + credit.getReleaseDate() + ")");
+
+                    if (credit.getPersonType() == PersonType.CAST
+                            && jobsInclude.contains("Actor")
+                            && (++actorCount > actorMax)) {
+                        // Skip this record as no more are needed
+                        LOG.info("Skipping ACTOR (max reached)");
+                        continue;
+                    }
+
+                    if (credit.getPersonType() == PersonType.CREW
+                            && jobsInclude.contains("Director")
+                            && (++directorCount > directorMax)) {
+                        // Skip this record as no more are needed
+                        LOG.info("Skipping DIRECTOR (max reached)");
+                        continue;
+                    }
+
+                    if (credit.getPersonType() == PersonType.CREW
+                            && jobsInclude.contains("Writer")
+                            && (++writerCount > writerMax)) {
+                        // Skip this record as no more are needed
+                        LOG.info("Skipping WRITER (max reached)");
+                        continue;
+                    }
+
                     Filmography film = new Filmography();
                     film.setId(TMDB_PLUGIN_ID, Integer.toString(credit.getMovieId()));
                     film.setName(credit.getMovieTitle());
@@ -612,6 +655,10 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
                     filmList.add(film);
                 }
+
+                LOG.info("Actors found   : " + actorCount + ", max: " + actorMax);
+                LOG.info("Directors found: " + directorCount + ", max: " + directorMax);
+                LOG.info("Writers found  : " + writerCount + ", max: " + writerMax);
 
                 // See if we need to trim the list
                 if (filmList.size() > preferredFilmographyMax) {

@@ -27,15 +27,13 @@ import com.moviejukebox.tools.DateTimeTools;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import java.io.Serializable;
 import java.util.Comparator;
-import org.apache.log4j.Logger;
 
 /**
- *
+ * Compare two filmographies by date
  * @author stuart.boston
  */
 public class FilmographyDateComparator implements Comparator<Filmography>, Serializable {
 
-    private static final Logger LOG = Logger.getLogger(FilmographyDateComparator.class);
     private static final long serialVersionUID = 1L;
     private final boolean ascending;
 
@@ -80,5 +78,4 @@ public class FilmographyDateComparator implements Comparator<Filmography>, Seria
         int year2 = DateTimeTools.extractYear(film2.getYear());
         return ascending ? (year1 - year2) : (year2 - year1);
     }
-
 }

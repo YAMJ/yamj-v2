@@ -53,7 +53,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
         subBaba = new SubBabaApi(API_KEY);
 
         // We need to set the proxy parameters if set.
-        subBaba.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+        subBaba.setProxy(WebBrowser.getMjbProxyHost(), String.valueOf(WebBrowser.getMjbProxyPort()), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
 
         // Set the timeout values
         subBaba.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
