@@ -26,9 +26,13 @@ import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.FanartScanner;
-import com.moviejukebox.tools.*;
-
-import static com.moviejukebox.tools.StringTools.*;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.thetvdbapi.TheTVDBApi;
 import com.omertron.thetvdbapi.model.Banner;
@@ -55,16 +59,16 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private static final String defaultLanguage = "en";
     public static final String CACHE_SERIES = "Series";
     public static final String CACHE_BANNERS = "Banners";
-    private static TheTVDBApi tvDB = new TheTVDBApi(API_KEY);
-    private static String language = PropertiesUtil.getProperty("thetvdb.language", defaultLanguage).trim();
-    private static String language2nd = initLanguage2();
-    private boolean forceBannerOverwrite;
-    private boolean forceFanartOverwrite;
-    private boolean includeVideoImages;
-    private boolean includeWideBanners;
-    private boolean onlySeriesBanners;
-    private boolean cycleSeriesBanners;
-    private boolean textBanners;
+    private static final TheTVDBApi TVDB = new TheTVDBApi(API_KEY);
+    private static final String LANGUAGE_PRIMARY = PropertiesUtil.getProperty("thetvdb.language", defaultLanguage).trim();
+    private static final String LANGUAGE_SECONDARY = initLanguage2();
+    private final boolean forceBannerOverwrite;
+    private final boolean forceFanartOverwrite;
+    private final boolean includeVideoImages;
+    private final boolean includeWideBanners;
+    private final boolean onlySeriesBanners;
+    private final boolean cycleSeriesBanners;
+    private final boolean textBanners;
     private boolean dvdEpisodes = Boolean.FALSE;
 
     public TheTvDBPlugin() {
@@ -81,16 +85,16 @@ public class TheTvDBPlugin extends ImdbPlugin {
         textBanners = PropertiesUtil.getBooleanProperty("banners.addText.season", Boolean.FALSE);
 
         // We need to set the proxy parameters if set.
-        tvDB.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+        TVDB.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
 
         // Set the timeout values
-        tvDB.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+        TVDB.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
     }
 
     private static String initLanguage2() {
         String lang = PropertiesUtil.getProperty("thetvdb.language.secondary", defaultLanguage).trim();
         // We do not need use the same secondary language... So clearing when equal.
-        if (lang.equalsIgnoreCase(language)) {
+        if (lang.equalsIgnoreCase(LANGUAGE_PRIMARY)) {
             lang = "";
         }
         return lang;
@@ -123,9 +127,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                     ThreadExecutor.enterIO(webhost);
                     try {
-                        year = tvDB.getSeasonYear(id, movie.getSeason(), language);
-                        if (StringTools.isNotValidString(year) && StringTools.isValidString(language2nd)) {
-                            year = tvDB.getSeasonYear(id, movie.getSeason(), language2nd);
+                        year = TVDB.getSeasonYear(id, movie.getSeason(), LANGUAGE_PRIMARY);
+                        if (StringTools.isNotValidString(year) && StringTools.isValidString(LANGUAGE_SECONDARY)) {
+                            year = TVDB.getSeasonYear(id, movie.getSeason(), LANGUAGE_SECONDARY);
                         }
                     } finally {
                         ThreadExecutor.leaveIO();
@@ -212,29 +216,29 @@ public class TheTvDBPlugin extends ImdbPlugin {
         // If we are adding the "Season ?" text to a banner, try searching for these first
         if (textBanners && !banners.getSeriesList().isEmpty()) {
             // Trying to grab localized banner at first...
-            urlBanner = findBannerURL2(banners, BannerType.Blank, language, season);
+            urlBanner = findBannerURL2(banners, BannerType.Blank, LANGUAGE_PRIMARY, season);
             // In a case of failure - trying to grab banner in alternative language.
-            if (StringTools.isNotValidString(urlBanner) && StringTools.isValidString(language2nd)) {
-                urlBanner = findBannerURL2(banners, BannerType.Blank, language2nd, season);
+            if (StringTools.isNotValidString(urlBanner) && StringTools.isValidString(LANGUAGE_SECONDARY)) {
+                urlBanner = findBannerURL2(banners, BannerType.Blank, LANGUAGE_SECONDARY, season);
             }
         }
 
         // Get the specific season banners. If a season banner can't be found, then a generic series banner will be used
         if (!onlySeriesBanners && !banners.getSeasonList().isEmpty()) {
             // Trying to grab localized banner at first...
-            urlBanner = findBannerURL(banners, BannerType.SeasonWide, language, season);
+            urlBanner = findBannerURL(banners, BannerType.SeasonWide, LANGUAGE_PRIMARY, season);
             // In a case of failure - trying to grab banner in alternative language.
             if (StringUtils.isBlank(urlBanner)) {
-                urlBanner = findBannerURL(banners, BannerType.SeasonWide, language2nd, season);
+                urlBanner = findBannerURL(banners, BannerType.SeasonWide, LANGUAGE_SECONDARY, season);
             }
         }
 
         // If we didn't find a season banner or only want series banners, check for a series banner
         if (StringUtils.isBlank(urlBanner) && !banners.getSeriesList().isEmpty()) {
-            urlBanner = findBannerURL2(banners, BannerType.Graphical, language, season);
+            urlBanner = findBannerURL2(banners, BannerType.Graphical, LANGUAGE_PRIMARY, season);
             // In a case of failure - trying to grab banner in alternative language.
             if (StringUtils.isBlank(urlBanner)) {
-                urlBanner = findBannerURL2(banners, BannerType.Graphical, language2nd, season);
+                urlBanner = findBannerURL2(banners, BannerType.Graphical, LANGUAGE_SECONDARY, season);
             }
         }
 
@@ -272,10 +276,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
         ThreadExecutor.enterIO(webhost);
         try {
-            episodeList = tvDB.getSeasonEpisodes(id, (dvdEpisodes ? -1 : movie.getSeason()), language);
+            episodeList = TVDB.getSeasonEpisodes(id, (dvdEpisodes ? -1 : movie.getSeason()), LANGUAGE_PRIMARY);
 
-            if (!language.equalsIgnoreCase(language2nd) && StringTools.isValidString(language2nd)) {
-                episodeList2ndLanguage = tvDB.getSeasonEpisodes(id, (dvdEpisodes ? -1 : movie.getSeason()), language2nd);
+            if (!LANGUAGE_PRIMARY.equalsIgnoreCase(LANGUAGE_SECONDARY) && StringTools.isValidString(LANGUAGE_SECONDARY)) {
+                episodeList2ndLanguage = TVDB.getSeasonEpisodes(id, (dvdEpisodes ? -1 : movie.getSeason()), LANGUAGE_SECONDARY);
             }
         } catch (Exception error) {
             LOG.warn(LOG_MESSAGE + "Error getting episode information: " + error.getMessage());
@@ -295,7 +299,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     Episode episode = null;
                     if (dvdEpisodes) {
                         episode = findDvdEpisode(episodeList, movie.getSeason(), part);
-                        if (episode == null && StringTools.isValidString(language2nd)) {
+                        if (episode == null && StringTools.isValidString(LANGUAGE_SECONDARY)) {
                             episode = findDvdEpisode(episodeList2ndLanguage, movie.getSeason(), part);
                         }
                     }
@@ -303,7 +307,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     if (episode == null) {
                         //episode = tvDB.getEpisode(id, movie.getSeason(), part, language);
                         episode = findEpisode(episodeList, movie.getSeason(), part);
-                        if (episode == null && StringTools.isValidString(language2nd)) {
+                        if (episode == null && StringTools.isValidString(LANGUAGE_SECONDARY)) {
                             episode = findEpisode(episodeList2ndLanguage, movie.getSeason(), part);
                         }
                     }
@@ -515,26 +519,26 @@ public class TheTvDBPlugin extends ImdbPlugin {
      * @return
      */
     public static Series getSeries(String id) {
-        Series series = (Series) CacheMemory.getFromCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, language));
+        Series series = (Series) CacheMemory.getFromCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, LANGUAGE_PRIMARY));
 
         if (series == null) {
             // Not found in cache, so look online
             ThreadExecutor.enterIO(webhost);
             try {
-                series = tvDB.getSeries(id, language);
+                series = TVDB.getSeries(id, LANGUAGE_PRIMARY);
                 if (series != null) {
                     // Add to the cache
-                    CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, language), series);
+                    CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, LANGUAGE_PRIMARY), series);
                 }
 
-                if (series == null && !language2nd.isEmpty()) {
-                    series = (Series) CacheMemory.getFromCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, language2nd));
+                if (series == null && !LANGUAGE_SECONDARY.isEmpty()) {
+                    series = (Series) CacheMemory.getFromCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, LANGUAGE_SECONDARY));
 
                     if (series == null) {
-                        series = tvDB.getSeries(id, language2nd);
+                        series = TVDB.getSeries(id, LANGUAGE_SECONDARY);
                         if (series != null) {
                             // Add to the cache
-                            CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, language2nd), series);
+                            CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, LANGUAGE_SECONDARY), series);
                         }
                     }
                 }
@@ -563,16 +567,16 @@ public class TheTvDBPlugin extends ImdbPlugin {
             ThreadExecutor.enterIO(webhost);
             try {
                 if (!movie.getTitle().equals(Movie.UNKNOWN)) {
-                    seriesList = tvDB.searchSeries(movie.getTitle(), language);
-                    if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
-                        seriesList = tvDB.searchSeries(movie.getTitle(), language2nd);
+                    seriesList = TVDB.searchSeries(movie.getTitle(), LANGUAGE_PRIMARY);
+                    if ((seriesList == null || seriesList.isEmpty()) && !LANGUAGE_SECONDARY.isEmpty()) {
+                        seriesList = TVDB.searchSeries(movie.getTitle(), LANGUAGE_SECONDARY);
                     }
                 }
 
                 if (seriesList == null || seriesList.isEmpty()) {
-                    seriesList = tvDB.searchSeries(movie.getBaseName(), language);
-                    if ((seriesList == null || seriesList.isEmpty()) && !language2nd.isEmpty()) {
-                        seriesList = tvDB.searchSeries(movie.getBaseName(), language2nd);
+                    seriesList = TVDB.searchSeries(movie.getBaseName(), LANGUAGE_PRIMARY);
+                    if ((seriesList == null || seriesList.isEmpty()) && !LANGUAGE_SECONDARY.isEmpty()) {
+                        seriesList = TVDB.searchSeries(movie.getBaseName(), LANGUAGE_SECONDARY);
                     }
                 }
             } catch (Exception error) {
@@ -586,15 +590,16 @@ public class TheTvDBPlugin extends ImdbPlugin {
             } else {
                 Series series = null;
                 for (Series s : seriesList) {
-                    if (s.getFirstAired() != null && !s.getFirstAired().isEmpty()) {
-                        if (movie.getYear() != null && !movie.getYear().equals(Movie.UNKNOWN)) {
+                    if (StringTools.isValidString(s.getFirstAired())) {
+                        if (StringTools.isValidString(movie.getYear())) {
                             try {
                                 DateTime firstAired = DateTime.parse(s.getFirstAired());
                                 if (Integer.parseInt(firstAired.toString("yyyy")) == Integer.parseInt(movie.getYear())) {
                                     series = s;
                                     break;
                                 }
-                            } catch (Exception ignore) {
+                            } catch (NumberFormatException ex) {
+                                LOG.trace(LOG_MESSAGE + "Failed to convert year: '" + s.getFirstAired() + "', error: " + ex.getMessage());
                             }
                         } else {
                             series = s;
@@ -614,7 +619,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 series = getSeries(id);
 
                 // Add the series to the cache (no need to get it again
-                CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, language), series);
+                CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, LANGUAGE_PRIMARY), series);
 
                 movie.setId(THETVDB_PLUGIN_ID, id);
 
@@ -634,13 +639,13 @@ public class TheTvDBPlugin extends ImdbPlugin {
      * @return
      */
     public static Banners getBanners(String id) {
-        Banners banners = (Banners) CacheMemory.getFromCache(CacheMemory.generateCacheKey(CACHE_BANNERS, id, language));
+        Banners banners = (Banners) CacheMemory.getFromCache(CacheMemory.generateCacheKey(CACHE_BANNERS, id, LANGUAGE_PRIMARY));
 
         if (banners == null) {
             ThreadExecutor.enterIO(webhost);
             try {
-                banners = tvDB.getBanners(id);
-                CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_BANNERS, id, language), banners);
+                banners = TVDB.getBanners(id);
+                CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_BANNERS, id, LANGUAGE_PRIMARY), banners);
             } catch (Exception error) {
                 LOG.warn(LOG_MESSAGE + "Error getting Banners: " + error.getMessage());
             } finally {
