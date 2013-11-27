@@ -22,7 +22,11 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import com.moviejukebox.model.*;
+import com.moviejukebox.model.DirtyFlag;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.poster.IMoviePosterPlugin;
 import com.moviejukebox.plugin.poster.IPosterPlugin;
@@ -37,7 +41,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.StringTokenizer;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -54,7 +65,7 @@ import org.apache.log4j.Logger;
  * @version 1.0, 7 October 2008
  * @version 2.0 6 July 2009
  */
-public class PosterScanner {
+public final class PosterScanner {
 
     private static final Logger LOG = Logger.getLogger(PosterScanner.class);
     private static final String LOG_MESSAGE = "PosterScanner: ";

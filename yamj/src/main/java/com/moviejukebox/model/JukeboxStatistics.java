@@ -45,7 +45,7 @@ import org.w3c.dom.Element;
  *
  * @author stuart.boston
  */
-public class JukeboxStatistics {
+public final class JukeboxStatistics {
 
     // Logger
     private static final Logger LOG = Logger.getLogger(JukeboxStatistics.class);

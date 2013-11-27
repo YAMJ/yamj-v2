@@ -31,7 +31,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import org.apache.log4j.Logger;
 
-public class FileLocationChange {
+public final class FileLocationChange {
 
     private static final Logger LOG = Logger.getLogger(FileLocationChange.class);
     private static final String LOG_MESSAGE = "FileLocationChange: ";

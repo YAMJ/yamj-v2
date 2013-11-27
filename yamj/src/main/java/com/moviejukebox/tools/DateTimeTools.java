@@ -33,7 +33,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime2.DateTime;
 
-public class DateTimeTools {
+public final class DateTimeTools {
 
     private static final Logger LOG = Logger.getLogger(DateTimeTools.class);
     private static final String LOG_MESSAGE = "DateTimeTools: ";

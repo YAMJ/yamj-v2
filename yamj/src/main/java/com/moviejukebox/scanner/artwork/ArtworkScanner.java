@@ -31,14 +31,25 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultImagePlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.SkinProperties;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.WebBrowser;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.StringTokenizer;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -1021,7 +1032,6 @@ public abstract class ArtworkScanner implements IArtworkScanner {
             // There was an issue with the correct properties, so use poster as a default.
             artworkWidth = PropertiesUtil.getIntProperty(artworkPropertyType + ".width", 400);
             artworkHeight = PropertiesUtil.getIntProperty(artworkPropertyType + ".height", 600);
-            artworkHeight = 600;
         }
     }
 

@@ -23,8 +23,19 @@
 package com.moviejukebox.reader;
 
 import com.moviejukebox.MovieJukebox;
-import com.moviejukebox.model.*;
-import com.moviejukebox.model.Attachment.*;
+import com.moviejukebox.model.Attachment.Attachment;
+import com.moviejukebox.model.Attachment.AttachmentType;
+import com.moviejukebox.model.Attachment.ContentType;
+import com.moviejukebox.model.Award;
+import com.moviejukebox.model.AwardEvent;
+import com.moviejukebox.model.Codec;
+import com.moviejukebox.model.CodecType;
+import com.moviejukebox.model.DirtyFlag;
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Filmography;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Person;
 import com.moviejukebox.model.enumerations.CodecSource;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.plugin.ImdbPlugin;
@@ -34,14 +45,39 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.*;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.BASE_FILENAME;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.CHARACTER;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.COUNTRY;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.DEPARTMENT;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.ID;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.JOB;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.LANGUAGE;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.MOVIE;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.MOVIEDB;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.NAME;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.ORDER;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.ORIGINAL_TITLE;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.PART;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.RATING;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.SEASON;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.SORT_TITLE;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.SOURCE;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.TITLE;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.TRAILER_LAST_SCAN;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.URL;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.WON;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.YEAR;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.YES;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -1114,7 +1150,7 @@ public class MovieJukeboxXMLReader {
                 Element tagElement = (Element) nlElement.item(0);
 
                 // Get the value if it exists
-                if (tagElement.getChildNodes() != null & tagElement.getChildNodes().getLength() > 0) {
+                if (tagElement.getChildNodes() != null && tagElement.getChildNodes().getLength() > 0) {
                     try {
                         value = ((Node) tagElement.getChildNodes().item(0)).getNodeValue();
                         // Get the source

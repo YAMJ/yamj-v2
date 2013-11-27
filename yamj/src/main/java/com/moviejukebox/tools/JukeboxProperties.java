@@ -30,7 +30,23 @@ import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.PropertyInformation;
 import com.moviejukebox.model.PropertyOverwrites;
-import static com.moviejukebox.model.PropertyOverwrites.*;
+import static com.moviejukebox.model.PropertyOverwrites.Banners;
+import static com.moviejukebox.model.PropertyOverwrites.Clearart;
+import static com.moviejukebox.model.PropertyOverwrites.Clearlogo;
+import static com.moviejukebox.model.PropertyOverwrites.Fanart;
+import static com.moviejukebox.model.PropertyOverwrites.HTML;
+import static com.moviejukebox.model.PropertyOverwrites.Index;
+import static com.moviejukebox.model.PropertyOverwrites.Movieart;
+import static com.moviejukebox.model.PropertyOverwrites.Moviedisc;
+import static com.moviejukebox.model.PropertyOverwrites.Movielogo;
+import static com.moviejukebox.model.PropertyOverwrites.Posters;
+import static com.moviejukebox.model.PropertyOverwrites.Seasonthumb;
+import static com.moviejukebox.model.PropertyOverwrites.Skin;
+import static com.moviejukebox.model.PropertyOverwrites.Thumbnails;
+import static com.moviejukebox.model.PropertyOverwrites.Trailers;
+import static com.moviejukebox.model.PropertyOverwrites.Tvthumb;
+import static com.moviejukebox.model.PropertyOverwrites.VideoImages;
+import static com.moviejukebox.model.PropertyOverwrites.XML;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +70,7 @@ import org.xml.sax.SAXException;
  * @author stuart.boston
  *
  */
-public class JukeboxProperties {
+public final class JukeboxProperties {
 
     // Logger
     private static final Logger LOG = Logger.getLogger(JukeboxProperties.class);

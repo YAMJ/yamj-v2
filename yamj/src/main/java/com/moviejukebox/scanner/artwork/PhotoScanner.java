@@ -45,7 +45,7 @@ import org.apache.log4j.Logger;
  * @author ilgizar Initial code copied from BannerScanner.java
  *
  */
-public class PhotoScanner {
+public final class PhotoScanner {
 
     private static final Logger LOG = Logger.getLogger(PhotoScanner.class);
     private static final String LOG_MESSAGE = "PhotoScanner: ";

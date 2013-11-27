@@ -37,7 +37,7 @@ import org.apache.log4j.Logger;
  * @author Stuart.Boston
  *
  */
-public class CacheMemory {
+public final class CacheMemory {
 
     private static final ConcurrentHashMap<String, Object> mjbCache = new ConcurrentHashMap<String, Object>();
     private static final Logger LOG = Logger.getLogger(CacheMemory.class);

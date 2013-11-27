@@ -31,7 +31,11 @@ import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.scanner.AttachmentScanner;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
 import com.omertron.themoviedbapi.model.MovieDb;
@@ -46,7 +50,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -61,7 +70,7 @@ import org.apache.sanselan.ImageReadException;
  * @version 1.0, 10th December 2008 - Initial code
  * @version 1.1, 19th July 2009 - Added Internet search
  */
-public class FanartScanner {
+public final class FanartScanner {
 
     private static final Logger LOG = Logger.getLogger(FanartScanner.class);
     private static final String LOG_MESSAGE = "FanartScanner: ";

@@ -35,7 +35,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
-public class StringTools {
+public final class StringTools {
 
     private static final Pattern CLEAN_STRING_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
     // Number formatting

@@ -22,8 +22,13 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.*;
+import com.moviejukebox.model.Award;
+import com.moviejukebox.model.AwardEvent;
 import com.moviejukebox.model.Comparator.ValueComparator;
+import com.moviejukebox.model.IMovieBasicInformation;
+import com.moviejukebox.model.Identifiable;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.enumerations.MyColor;
 import com.moviejukebox.model.overlay.ConditionOverlay;
 import com.moviejukebox.model.overlay.ImageOverlay;
@@ -39,7 +44,12 @@ import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.omertron.fanarttvapi.model.FTArtworkType;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -52,6 +62,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang3.StringUtils;
@@ -78,7 +89,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static final String CENTER = "center";
     private static final String BOTTOM = "bottom";
     private String overlayRoot;
-    private String overlayResources;
+    private final String overlayResources;
     // Filenames
     private static final String FILENAME_SET = "set.png";
     private static final String FILENAME_SUBTITLE = "subtitle.png";
@@ -120,7 +131,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean blockSubTitle;
     private boolean addLanguage;
     private boolean blockLanguage;
-    private boolean highdefDiff;
+    private final boolean highdefDiff;
     private boolean addTextSetSize;
     private String textAlignment;
     private String textFont;
@@ -140,7 +151,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private String frameColorSD;
     private String overlaySource;
     // Issue 1937: Overlay configuration XML
-    private List<LogoOverlay> overlayLayers = new ArrayList<LogoOverlay>();
+    private final List<LogoOverlay> overlayLayers = new ArrayList<LogoOverlay>();
     private boolean xmlOverlay;
     private boolean addRating;
     private boolean realRating;
@@ -173,22 +184,22 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean blockClones;
     private boolean addEpisode;
     private boolean blockEpisode;
-    private Map<String, ArrayList<String>> keywordsRating = new HashMap<String, ArrayList<String>>();
-    private Map<String, ArrayList<String>> keywordsVideoSource = new HashMap<String, ArrayList<String>>();
-    private Map<String, ArrayList<String>> keywordsVideoOut = new HashMap<String, ArrayList<String>>();
-    private Map<String, ArrayList<String>> keywordsVideoCodec = new HashMap<String, ArrayList<String>>();
-    private Map<String, ArrayList<String>> keywordsAudioCodec = new HashMap<String, ArrayList<String>>();
-    private Map<String, ArrayList<String>> keywordsAudioChannels = new HashMap<String, ArrayList<String>>();
-    private Map<String, ArrayList<String>> keywordsAudioLang = new HashMap<String, ArrayList<String>>();
-    private Map<String, ArrayList<String>> keywordsContainer = new HashMap<String, ArrayList<String>>();
-    private Map<String, ArrayList<String>> keywordsAspectRatio = new HashMap<String, ArrayList<String>>();
-    private Map<String, ArrayList<String>> keywordsFPS = new HashMap<String, ArrayList<String>>();
-    private Map<String, ArrayList<String>> keywordsCertification = new HashMap<String, ArrayList<String>>();
-    private Map<String, ArrayList<String>> keywordsKeywords = new HashMap<String, ArrayList<String>>();
-    private Map<String, ArrayList<String>> keywordsCountry = new HashMap<String, ArrayList<String>>();
-    private Map<String, ArrayList<String>> keywordsCompany = new HashMap<String, ArrayList<String>>();
-    private Map<String, ArrayList<String>> keywordsAward = new HashMap<String, ArrayList<String>>();
-    private Map<String, LogosBlock> overlayBlocks = new HashMap<String, LogosBlock>();
+    private final Map<String, ArrayList<String>> keywordsRating = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> keywordsVideoSource = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> keywordsVideoOut = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> keywordsVideoCodec = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> keywordsAudioCodec = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> keywordsAudioChannels = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> keywordsAudioLang = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> keywordsContainer = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> keywordsAspectRatio = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> keywordsFPS = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> keywordsCertification = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> keywordsKeywords = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> keywordsCountry = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> keywordsCompany = new HashMap<String, ArrayList<String>>();
+    private final Map<String, ArrayList<String>> keywordsAward = new HashMap<String, ArrayList<String>>();
+    private final Map<String, LogosBlock> overlayBlocks = new HashMap<String, LogosBlock>();
     private int viIndex;
 
     public DefaultImagePlugin() {
@@ -554,7 +565,9 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      * Draw the TV and HD logos onto the image
      *
      * @param movie The source movie
-     * @param newBi The image to draw on
+     * @param bi The image to draw on
+     * @param imageType
+     * @param beforeMainOverlay
      * @return The new image with the added logos
      */
     protected BufferedImage drawLogos(Movie movie, BufferedImage bi, String imageType, boolean beforeMainOverlay) {
@@ -583,7 +596,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         } else if (name.equalsIgnoreCase(LANGUAGE)) {
                             value = movie.getLanguage();
                         } else if (name.equalsIgnoreCase("rating")) {
-                            value = ((!movie.isTVShow() && !movie.isSetMaster()) || (movie.isTVShow() && movie.isSetMaster())) ? Integer.toString(realRating ? movie.getRating() : (int) Math.floor(movie.getRating() / 10) * 10) : Movie.UNKNOWN;
+                            value = ((!movie.isTVShow() && !movie.isSetMaster()) || (movie.isTVShow() && movie.isSetMaster())) ? Integer.toString(realRating ? movie.getRating() : (int) (Math.floor(movie.getRating() / 10) * 10)) : Movie.UNKNOWN;
                         } else if (name.equalsIgnoreCase(VIDEOSOURCE) || name.equalsIgnoreCase("source") || name.equalsIgnoreCase("VS")) {
                             value = movie.getVideoSource();
                         } else if (name.equalsIgnoreCase("videoout") || name.equalsIgnoreCase("out") || name.equalsIgnoreCase("VO")) {
@@ -763,8 +776,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             filename = "languages/English.png";
                         }
                         String[] values = value.split(Movie.SPACE_SLASH_SPACE);
-                        for (int j = 0; j < values.length; j++) {
-                            value = values[j];
+                        for (String splitValue : values) {
+                            value = splitValue;
                             for (ImageOverlay img : layer.getImages()) {
                                 if (img.getName().equalsIgnoreCase(name)) {
                                     boolean accept = false;
@@ -878,7 +891,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
                     if (name.equalsIgnoreCase("set")) {
                         newBi = drawSetSize(movie, newBi);
-                        continue;
                     }
                 }
             }
@@ -1584,9 +1596,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             size.equalsIgnoreCase("static"),
                             cols, rows, hmargin, vmargin, StringTools.isNotValidString(clones) ? blockClones : (clones.equalsIgnoreCase(TRUE) ? true : (clones.equalsIgnoreCase(FALSE) ? false : blockClones))));
                 }
-            } catch (Exception error) {
+            } catch (ConfigurationException ex) {
                 LOG.error("Failed parsing moviejukebox overlay configuration file: " + xmlOverlayFile.getName());
-                LOG.error(SystemTools.getStackTrace(error));
+                LOG.error(SystemTools.getStackTrace(ex));
+            } catch (NumberFormatException ex) {
+                LOG.error("Failed parsing moviejukebox overlay configuration file: " + xmlOverlayFile.getName());
+                LOG.error(SystemTools.getStackTrace(ex));
             }
         } else {
             LOG.error("The moviejukebox overlay configuration file you specified is invalid: " + xmlOverlayFile.getAbsolutePath());
@@ -1664,21 +1679,20 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         }
     }
 
-    protected void fillOverlayKeywords(Map<String, ArrayList<String>> data, String value) {
+    protected void fillOverlayKeywords(Map<String, ArrayList<String>> data, String keywordList) {
         data.clear();
-        if (StringTools.isValidString(value)) {
-            String[] temp = value.split(" ; ");
-            for (int i = 0; i < temp.length; i++) {
-                String[] values = temp[i].split(Movie.SPACE_SLASH_SPACE);
-                if (values.length > 1) {
-                    ArrayList<String> arr = new ArrayList<String>(Arrays.asList(values));
-                    data.put(values[0], arr);
+        if (StringTools.isValidString(keywordList)) {
+            for (String keyword : keywordList.split(" ; ")) {
+                String[] keywordValues = keyword.split(Movie.SPACE_SLASH_SPACE);
+                if (keywordValues.length > 1) {
+                    ArrayList<String> arr = new ArrayList<String>(Arrays.asList(keywordValues));
+                    data.put(keywordValues[0], arr);
                 }
             }
         }
     }
 
-    protected boolean cmpOverlayValue(String name, String condition, String value) {
+    protected boolean cmpOverlayValue(final String name, final String condition, final String value) {
         boolean result = ((name.equalsIgnoreCase(KEYWORDS) && value.indexOf(condition.toLowerCase()) > -1)
                 || condition.equalsIgnoreCase(value)
                 || condition.equalsIgnoreCase(DEFAULT));

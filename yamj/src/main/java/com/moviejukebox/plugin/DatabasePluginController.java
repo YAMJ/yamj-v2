@@ -25,15 +25,14 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -41,7 +40,7 @@ import org.apache.log4j.Logger;
  *
  * @author altman.matthew
  */
-public class DatabasePluginController {
+public final class DatabasePluginController {
 
     private static final Logger LOG = Logger.getLogger(DatabasePluginController.class);
     public static final String TYPE_ALTERNATE = "ALTERNATE";

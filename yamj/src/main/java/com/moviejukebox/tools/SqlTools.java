@@ -30,7 +30,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import org.apache.log4j.Logger;
 
-public class SqlTools {
+public final class SqlTools {
 
     private static final Logger LOG = Logger.getLogger(SqlTools.class);
     private static final String LOG_MESSAGE = "SqlTools: ";

@@ -23,7 +23,11 @@
 package com.moviejukebox.tools;
 
 import com.jhlabs.image.PerspectiveFilter;
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -32,12 +36,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
-import javax.imageio.*;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 import org.apache.log4j.Logger;
 import org.apache.sanselan.ImageReadException;
 
-public class GraphicTools {
+public final class GraphicTools {
 
     private static final Logger LOG = Logger.getLogger(GraphicTools.class);
     private static final String LOG_MESSAGE = "GraphicsTools: ";
