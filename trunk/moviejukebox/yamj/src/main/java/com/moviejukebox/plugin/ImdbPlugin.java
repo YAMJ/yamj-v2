@@ -142,6 +142,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE);
         fullInfo = PropertiesUtil.getBooleanProperty("imdb.full.info", Boolean.FALSE);
 
+        // People properties
         preferredBiographyLength = PropertiesUtil.getIntProperty("plugin.biography.maxlength", 500);
         preferredFilmographyMax = PropertiesUtil.getIntProperty("plugin.filmography.max", 20);
         actorMax = PropertiesUtil.getReplacedIntProperty("movie.actor.maxCount", "plugin.people.maxCount.actor", 10);
@@ -153,15 +154,21 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", Boolean.FALSE);
         jobsInclude = Arrays.asList(PropertiesUtil.getProperty("plugin.filmography.jobsInclude", "Director,Writer,Actor,Actress").split(","));
 
+        // Trivia properties
         triviaMax = PropertiesUtil.getIntProperty("plugin.trivia.maxCount", 15);
 
+        // Award properties
         String tmpAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", FALSE);
         scrapeWonAwards = tmpAwards.equalsIgnoreCase("won");
         scrapeAwards = tmpAwards.equalsIgnoreCase(TRUE) || scrapeWonAwards;
 
+        // Business properties
         scrapeBusiness = PropertiesUtil.getBooleanProperty("mjb.scrapeBusiness", Boolean.FALSE);
+
+        // Trivia properties
         scrapeTrivia = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", Boolean.FALSE);
 
+        // Other properties
         akaScrapeTitle = PropertiesUtil.getBooleanProperty("imdb.aka.scrape.title", Boolean.FALSE);
         akaIgnoreVersions = PropertiesUtil.getProperty("imdb.aka.ignore.versions", "").split(",");
 

@@ -51,7 +51,7 @@ public class WebBrowser {
     private final Map<String, String> browserProperties;
     private final Map<String, Map<String, String>> cookies;
     private static final String PROXY_HOST = PropertiesUtil.getProperty("mjb.ProxyHost");
-    private static final String PROXY_PORT = PropertiesUtil.getProperty("mjb.ProxyPort");
+    private static final int PROXY_PORT = PropertiesUtil.getIntProperty("mjb.ProxyPort", 0);
     private static final String PROXY_USERNAME = PropertiesUtil.getProperty("mjb.ProxyUsername");
     private static final String PROXY_PASSWORD = PropertiesUtil.getProperty("mjb.ProxyPassword");
     private static final String ENCODED_PASSWORD = encodePassword();
@@ -265,7 +265,6 @@ public class WebBrowser {
         String checkUrl = checkCnx.getURL().getHost().toLowerCase();
 
         // TODO: Move these workarounds into a property file so they can be overridden at runtime
-
         // A workaround for the need to use a referrer for thetvdb.com
         if (checkUrl.contains("thetvdb")) {
             checkCnx.setRequestProperty("Referer", "http://forums.thetvdb.com/");
@@ -415,7 +414,7 @@ public class WebBrowser {
         return PROXY_HOST;
     }
 
-    public static String getMjbProxyPort() {
+    public static int getMjbProxyPort() {
         return PROXY_PORT;
     }
 
