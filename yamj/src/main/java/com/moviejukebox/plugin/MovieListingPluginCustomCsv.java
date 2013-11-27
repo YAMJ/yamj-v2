@@ -35,6 +35,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 public class MovieListingPluginCustomCsv extends MovieListingPluginBase implements MovieListingPlugin {
@@ -58,17 +59,17 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * @return Number of fields found
      */
     private int initFields(String aFields) {
-        ArrayList<String> list = new ArrayList<String>(50); // Ensure capacity
+        // Clear the current list (if there is one)
+        mFields = new ArrayList<String>();
+
         for (StringTokenizer t = new StringTokenizer(aFields, ","); t.hasMoreTokens();) {
-            String st = t.nextToken();
-            if (st != null && st.trim().length() > 0) {
-                list.add(st);
+            String st = StringUtils.trimToNull(t.nextToken());
+            if (st != null) {
+                mFields.add(st);
             }
         }
-        list.trimToSize();
-        mFields = list;
-        return list.size();
-    } // initFields()
+        return mFields.size();
+    }
 
     /**
      * @return CSV-formatted header row
@@ -268,6 +269,9 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                 sb.append(prep(movie.getDetailPosterFilename()));
             } else if (checkHeaderField(header, "Watched")) {
                 sb.append(prep(String.valueOf(movie.isWatched())));
+            } else {
+                LOG.debug("Unknown field: '" + header + "'");
+                
             }
         }
         return sb.toString();
@@ -321,12 +325,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
     @Override
     public void generate(Jukebox jukebox, Library library) {
         initialize(jukebox);
-        String fields = PropertiesUtil.getProperty("mjb.listing.csv.fields", DEFAULT_FIELDS);
-        if (StringTools.isNotValidString(fields)) {
-            // If the "fields" is blank, populate it with the default
-            fields = DEFAULT_FIELDS;
-        }
-        initFields(fields);
+        initFields(PropertiesUtil.getProperty("mjb.listing.csv.fields", DEFAULT_FIELDS));
 
         mDelimiter = PropertiesUtil.getProperty("mjb.listing.csv.delimiter", ",");
         mSecondDelimiter = PropertiesUtil.getProperty("mjb.listing.csv.secondDelimiter", "|");
@@ -334,18 +333,8 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         String ratingFactor = PropertiesUtil.getProperty("mjb.listing.csv.ratingFactor", "1.00");
         DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.US);
         mRatingFormatter = new DecimalFormat("#0.00", decimalFormatSymbols);
-
-        try {
-            limitCast = PropertiesUtil.getIntProperty("mjb.listing.csv.limitCast", 100);
-        } catch (Exception ignore) {
-            limitCast = 100;
-        }
-
-        try {
-            limitGenres = PropertiesUtil.getIntProperty("mjb.listing.csv.limitGenres", 100);
-        } catch (Exception ignore) {
-            limitGenres = 100;
-        }
+        limitCast = PropertiesUtil.getIntProperty("mjb.listing.csv.limitCast", 100);
+        limitGenres = PropertiesUtil.getIntProperty("mjb.listing.csv.limitGenres", 100);
 
         mRatingFactor = new Double(ratingFactor);
         if (dateFormat.length() > 1) {
