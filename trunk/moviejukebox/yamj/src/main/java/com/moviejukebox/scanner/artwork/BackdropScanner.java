@@ -43,7 +43,7 @@ import org.apache.log4j.Logger;
  * @author ilgizar
  *
  */
-public class BackdropScanner {
+public final class BackdropScanner {
 
     private static final Logger LOG = Logger.getLogger(BackdropScanner.class);
     private static final String LOG_MESSAGE = "BackdropScanner: ";
@@ -82,10 +82,9 @@ public class BackdropScanner {
     /**
      * Scan for local backdrop and download if necessary
      *
-     * @param imagePlugin
-     * @param jukeboxDetailsRoot
-     * @param tempJukeboxDetailsRoot
+     * @param jukebox
      * @param person
+     * @return
      */
     public static boolean scan(Jukebox jukebox, Person person) {
         String localBackdropBaseFilename = person.getFilename();
@@ -132,7 +131,6 @@ public class BackdropScanner {
                     BufferedImage backdropImage = GraphicTools.loadJPEGImage(tmpDestFile);
 
                     if (backdropImage != null) {
-//                        backdropImage = imagePlugin.generate(person, backdropImage, "backdrops", null);
                         GraphicTools.saveImageToDisk(backdropImage, tmpDestFileName);
                         LOG.debug(LOG_MESSAGE + "Downloaded backdrop for " + person.getBackdropURL());
                     } else {

@@ -47,7 +47,7 @@ import org.apache.log4j.Logger;
  * @version 1.0, 25th August 2009 - Initial code copied from FanartScanner.java
  *
  */
-public class VideoImageScanner {
+public final class VideoImageScanner {
 
     private static final Logger LOG = Logger.getLogger(VideoImageScanner.class);
     private static final String LOG_MESSAGE = "VideoImageScanner: ";

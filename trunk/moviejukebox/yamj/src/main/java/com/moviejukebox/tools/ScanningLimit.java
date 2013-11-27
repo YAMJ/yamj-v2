@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
  *
  * @author iuk
  */
-public class ScanningLimit {
+public final class ScanningLimit {
 
     private static final Logger LOG = Logger.getLogger(ScanningLimit.class);
     private static final String LOG_MESSAGE = "ScanningLimit: ";

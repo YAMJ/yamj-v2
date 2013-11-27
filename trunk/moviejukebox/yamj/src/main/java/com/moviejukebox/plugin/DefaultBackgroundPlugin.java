@@ -47,8 +47,8 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     private static final int MAX_WIDTH = 1920;
     private static final int MAX_HEIGHT = 1080;
     private static final Logger LOG = Logger.getLogger(DefaultBackgroundPlugin.class);
-    private String overlayResources;
-    private boolean highdefDiff;
+    private final String overlayResources;
+    private final boolean highdefDiff;
     private boolean roundCorners;
     private int cornerRadius;
     private float rcqFactor;
@@ -153,9 +153,10 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     }
 
     /**
-     * Checks for older Background width property in case the skin hasn't been
-     * updated. TODO: Remove this procedure at some point
+     * Checks for older Background width property in case the skin hasn't been updated. TODO: Remove this procedure at some point
      *
+     * @param isTvShow
+     * @param imageType
      * @return the width of the fanart
      */
     public static int checkWidth(boolean isTvShow, String imageType) {
@@ -180,21 +181,22 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
     }
 
     /**
-     * Checks for older Background width property in case the skin hasn't been
-     * updated. TODO: Remove this procedure at some point
+     * Checks for older Background width property in case the skin hasn't been updated. <br/>
+     * TODO: Remove this procedure at some point
      *
+     * @param isTvShow
+     * @param imageType
      * @return the width of the fanart
      */
     public static int checkHeight(boolean isTvShow, String imageType) {
-         if (isTvShow) {
+        if (isTvShow) {
             return PropertiesUtil.getReplacedIntProperty(imageType + ".tv.height", "background.height", 720);
         }
         return PropertiesUtil.getReplacedIntProperty(imageType + ".movie.height", "background.height", 720);
     }
 
     /**
-     * Draw an overlay on the fanarts (shading, static menu backgrounds, etc.)
-     * specific for TV, Movie, SET and Extras backgrounds
+     * Draw an overlay on the fanarts (shading, static menu backgrounds, etc.) specific for TV, Movie, SET and Extras backgrounds
      *
      * @param movie
      * @param bi
@@ -216,7 +218,6 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
         }
         // Don't know why, but I had to differ between Sets containing only one season and Sets with more than one Season.
         // (comments can be deleted)
-
 
         // Make sure the source is formatted correctly
         source = source.toLowerCase().trim();

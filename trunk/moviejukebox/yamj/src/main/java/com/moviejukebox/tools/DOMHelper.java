@@ -23,7 +23,11 @@
 package com.moviejukebox.tools;
 
 import com.moviejukebox.reader.MovieNFOReader;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
@@ -38,7 +42,12 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.w3c.dom.*;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -50,7 +59,7 @@ import org.xml.sax.SAXParseException;
  * @author Stuart.Boston
  *
  */
-public class DOMHelper {
+public final class DOMHelper {
 
     private static final Logger LOG = Logger.getLogger(DOMHelper.class);
     private static final String LOG_MESSAGE = "DOMHelper: ";

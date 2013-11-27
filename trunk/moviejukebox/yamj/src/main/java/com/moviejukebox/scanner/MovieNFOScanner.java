@@ -49,7 +49,7 @@ import org.pojava.datetime2.DateTimeConfig;
  *
  * @author jjulien
  */
-public class MovieNFOScanner {
+public final class MovieNFOScanner {
 
     private static final Logger LOG = Logger.getLogger(MovieNFOScanner.class);
     private static final String LOG_MESSAGE = "MovieNFOScanner: ";

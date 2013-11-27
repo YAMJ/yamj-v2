@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
  * @author stuart.boston
  *
  */
-public class SkinProperties {
+public final class SkinProperties {
 
     // Logger
     private static final Logger LOG = Logger.getLogger(SkinProperties.class);

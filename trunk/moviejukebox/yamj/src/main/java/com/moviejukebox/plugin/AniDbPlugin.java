@@ -54,7 +54,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,7 +70,11 @@ import javax.xml.parsers.SAXParserFactory;
 import net.anidb.Anime;
 import net.anidb.Episode;
 import net.anidb.checksum.Ed2kChecksum;
-import net.anidb.udp.*;
+import net.anidb.udp.AniDbException;
+import net.anidb.udp.UdpConnection;
+import net.anidb.udp.UdpConnectionException;
+import net.anidb.udp.UdpConnectionFactory;
+import net.anidb.udp.UdpReturnCodes;
 import net.anidb.udp.mask.AnimeFileMask;
 import net.anidb.udp.mask.AnimeMask;
 import net.anidb.udp.mask.FileMask;
@@ -274,10 +284,9 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 
     private static synchronized void initTvdb() {
-        if (tvdb != null) {
-            return;
+        if (tvdb == null) {
+            tvdb = new TheTVDBApi(PropertiesUtil.getProperty("API_KEY_TheTVDb"));
         }
-        tvdb = new TheTVDBApi(PropertiesUtil.getProperty("API_KEY_TheTVDb"));
     }
 
     @Override
@@ -393,7 +402,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             } else {
                 movie.setMovieType(Movie.TYPE_TVSHOW);
             }
-
 
             // XXX: DEBUG
             LOG.info("getAnimeId         : " + anime.getAnimeId());
@@ -602,7 +610,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             AnidbLocalFile localFile = loadLocalFile(movie.getFile());
 
             String ed2kHash = null;
-            AnidbFile file ;
+            AnidbFile file;
             if (localFile == null) {
                 ed2kHash = getEd2kChecksum(movie.getFile());
                 if (ed2kHash.equals("")) {
