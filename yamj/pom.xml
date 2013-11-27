@@ -28,17 +28,12 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>allocine-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.omertron</groupId>
-            <artifactId>fanarttvapi</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>mjbsqldb</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.moviejukebox</groupId>
+            <artifactId>allocine-api</artifactId>
         </dependency>
 
         <dependency>
@@ -177,6 +172,11 @@
             <groupId>org.apache.sanselan</groupId>
             <artifactId>sanselan</artifactId>
             <version>0.97-incubator</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.omertron</groupId>
+            <artifactId>fanarttvapi</artifactId>
         </dependency>
 
     </dependencies>
