@@ -39,15 +39,14 @@ import org.apache.log4j.Logger;
 /**
  * Simple movie filename scanner.
  *
- * Scans a movie filename for keywords commonly used in scene released video
- * files.
+ * Scans a movie filename for keywords commonly used in scene released video files.
  *
  * Main pattern for file scanner is the following:
  *
  * <MovieTitle>[Keyword*].<container>
  *
- * The movie title is in the first position of the filename. It is followed by
- * zero or more keywords. The file extension match the container name.
+ * The movie title is in the first position of the filename. It is followed by zero or more keywords. The file extension match the
+ * container name.
  *
  * @author jjulien
  * @author quickfinga
@@ -116,22 +115,21 @@ public final class MovieFilenameScanner {
     private static final Pattern SECOND_TITLE_PATTERN = patt("(?<!/TVSHOW/|/PART/)-([^/]+)");
     // Parts/disks markers. CAUTION: Grouping is used for part number detection/parsing.
     private static final List<Pattern> PART_PATTERNS = new ArrayList<Pattern>() {
-		private static final long serialVersionUID = 2534565160759765860L;
+        private static final long serialVersionUID = 2534565160759765860L;
 
-		{
+        {
             add(iwpatt("CD ([0-9]+)"));
             add(iwpatt("(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)"));
             add(tpatt("([0-9]{1,2})[ \\.]{0,1}DVD"));
         }
     };
     /**
-     * Detect if the file/folder name is incomplete and additional info must be
-     * taken from parent folder.
+     * Detect if the file/folder name is incomplete and additional info must be taken from parent folder.
      *
      * CAUTION: Grouping is used for part number detection/parsing.
      */
     private static final List<Pattern> PARENT_FOLDER_PART_PATTERNS = new ArrayList<Pattern>() {
-		private static final long serialVersionUID = 6125546333783004357L;
+        private static final long serialVersionUID = 6125546333783004357L;
 
         {
             for (Pattern p : PART_PATTERNS) {
@@ -142,7 +140,8 @@ public final class MovieFilenameScanner {
     };
 
     private abstract static class TokensPatternMap extends HashMap<String, Pattern> {
-		private static final long serialVersionUID = 2239121205124537392L;
+
+        private static final long serialVersionUID = 2239121205124537392L;
 
         /**
          * Generate pattern using tokens from given string.
@@ -183,21 +182,18 @@ public final class MovieFilenameScanner {
     /**
      * Mapping exact tokens to language.
      *
-     * Strict mapping is case sensitive and must be obvious, it must avoid
-     * confusing movie name words and language markers.
+     * Strict mapping is case sensitive and must be obvious, it must avoid confusing movie name words and language markers.
      *
-     * For example the English word "it" and Italian language marker "it", or
-     * "French" as part of the title and "french" as language marker.
+     * For example the English word "it" and Italian language marker "it", or "French" as part of the title and "french" as language
+     * marker.
      *
-     * However, described above is important only by file naming with token
-     * delimiters (see tokens description constants TOKEN_DELIMITERS*). Language
-     * detection in non-token separated titles will be skipped automatically.
+     * However, described above is important only by file naming with token delimiters (see tokens description constants
+     * TOKEN_DELIMITERS*). Language detection in non-token separated titles will be skipped automatically.
      *
-     * Language markers, found with this pattern are counted as token delimiters
-     * (they will cut movie title)
+     * Language markers, found with this pattern are counted as token delimiters (they will cut movie title)
      */
     private static final TokensPatternMap STRICT_LANGUAGE_MAP = new TokensPatternMap() {
-		private static final long serialVersionUID = 3630995345545037071L;
+        private static final long serialVersionUID = 3630995345545037071L;
 
         @Override
         protected void put(String key, Collection<String> tokens) {
@@ -218,14 +214,13 @@ public final class MovieFilenameScanner {
     /**
      * Mapping loose language markers.
      *
-     * The second pass of language detection is being started after movie title
-     * detection. Language markers will be scanned with loose pattern in order
-     * to find out more languages without chance to confuse with movie title.
+     * The second pass of language detection is being started after movie title detection. Language markers will be scanned with
+     * loose pattern in order to find out more languages without chance to confuse with movie title.
      *
      * Markers in this map are case insensitive.
      */
     private static final TokensPatternMap LOOSE_LANGUAGE_MAP = new TokensPatternMap() {
-		private static final long serialVersionUID = 1383819843117148442L;
+        private static final long serialVersionUID = 1383819843117148442L;
 
         @Override
         protected void put(String key, Collection<String> tokens) {
@@ -285,7 +280,7 @@ public final class MovieFilenameScanner {
         }
     };
     private static final TokensPatternMap VIDEO_SOURCE_MAP = new TokensPatternMap() {
-		private static final long serialVersionUID = 4166458100829813911L;
+        private static final long serialVersionUID = 4166458100829813911L;
 
         {
             put("SDTV", "TVRip,PAL,NTSC");
@@ -464,17 +459,21 @@ public final class MovieFilenameScanner {
         {
             final Matcher matcher = TV_PATTERN.matcher(rest);
             if (matcher.find()) {
-                // logger.finest("It's a TV Show: " + group0);
-                rest = cutMatch(rest, matcher, "./TVSHOW/.");
+                if (matcher.group(1).equals("720") || matcher.group(1).equals("1080")) {
+                    LOG.trace(LOG_MESSAGE + "Skipping pattern detection of '" + matcher.group(0) + "' because it looks like a resolution");
+                } else {
+                    // logger.finest("It's a TV Show: " + group0);
+                    rest = cutMatch(rest, matcher, "./TVSHOW/.");
 
-                final Matcher smatcher = SEASON_PATTERN.matcher(matcher.group(0));
-                smatcher.find();
-                int season = Integer.parseInt(smatcher.group(1));
-                dto.setSeason(season);
+                    final Matcher smatcher = SEASON_PATTERN.matcher(matcher.group(0));
+                    smatcher.find();
+                    int season = Integer.parseInt(smatcher.group(1));
+                    dto.setSeason(season);
 
-                final Matcher ematcher = EPISODE_PATTERN.matcher(matcher.group(0));
-                while (ematcher.find()) {
-                    dto.getEpisodes().add(Integer.parseInt(ematcher.group(1)));
+                    final Matcher ematcher = EPISODE_PATTERN.matcher(matcher.group(0));
+                    while (ematcher.find()) {
+                        dto.getEpisodes().add(Integer.parseInt(ematcher.group(1)));
+                    }
                 }
             }
         }
@@ -695,8 +694,7 @@ public final class MovieFilenameScanner {
     }
 
     /**
-     * Replace all dividers with spaces and trim trailing spaces and redundant
-     * braces/minuses at the end.
+     * Replace all dividers with spaces and trim trailing spaces and redundant braces/minuses at the end.
      *
      * @param token String to clean up.
      * @return Prepared title.
