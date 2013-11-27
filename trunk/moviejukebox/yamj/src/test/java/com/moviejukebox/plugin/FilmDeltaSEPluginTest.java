@@ -22,8 +22,6 @@
  */
 package com.moviejukebox.plugin;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -35,6 +33,8 @@ import java.net.URL;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -234,7 +234,7 @@ public class FilmDeltaSEPluginTest {
     class FilmDeltaPluginMock extends FilmDeltaSEPlugin {
 
         private String requestResult;
-        private boolean offline;
+        private final boolean offline;
 
         public FilmDeltaPluginMock(boolean offline) {
             this.offline = offline;

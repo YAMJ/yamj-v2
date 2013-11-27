@@ -23,14 +23,21 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.fanarttvapi.FanartTvApi;
 import com.omertron.fanarttvapi.FanartTvException;
 import com.omertron.fanarttvapi.model.FTArtworkType;
 import com.omertron.fanarttvapi.model.FTSourceType;
 import com.omertron.fanarttvapi.model.FanartTvArtwork;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
