@@ -132,13 +132,13 @@ public class JpegReader {
 
             image = convertCmykToRgb(raster, profile);
         } catch (IOException ex) {
-            LOG.warn(LOG_MESSAGE + "Failed to transform image: " + file.getName() + ", error: " + ex.getMessage());
+            LOG.warn(LOG_MESSAGE + "Failed to transform image: " + file.getAbsolutePath() + ", error: " + ex.getMessage());
             image = null;
         } catch (ImageReadException ex) {
-            LOG.warn(LOG_MESSAGE + "Failed to transform image: " + file.getName() + ", error: " + ex.getMessage());
+            LOG.warn(LOG_MESSAGE + "Failed to transform image: " + file.getAbsolutePath() + ", error: " + ex.getMessage());
             image = null;
         } catch (CMMException ex) {
-            LOG.warn(LOG_MESSAGE + "Failed to transform image: " + file.getName() + ", error: " + ex.getMessage());
+            LOG.warn(LOG_MESSAGE + "Failed to transform image: " + file.getAbsolutePath() + ", error: " + ex.getMessage());
             image = null;
         }
         return image;
