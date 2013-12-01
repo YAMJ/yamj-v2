@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
@@ -280,5 +281,33 @@ public final class StringTools {
             keywords.add(st.nextToken());
         }
         return keywords.toArray(new String[keywords.size()]);
+    }
+
+    /**
+     * Get the certification from the MPAA string
+     *
+     * @param mpaa
+     * @return
+     */
+    public static String processMpaaCertification(String mpaa) {
+        return processMpaaCertification("Rating", mpaa);
+    }
+
+    /**
+     * Get the certification from the MPAA rating string
+     *
+     * @param rating
+     * @param mpaa
+     * @return
+     */
+    public static String processMpaaCertification(String rating, String mpaa) {
+        // Strip out the "Rated " and extra words at the end of the MPAA certification
+        Pattern mpaaPattern = Pattern.compile("(?:" + rating + "\\s)?(.*?)(?:($|\\s).*?)");
+        Matcher m = mpaaPattern.matcher(mpaa);
+        if (m.find()) {
+            return m.group(1).trim();
+        } else {
+            return mpaa;
+        }
     }
 }
