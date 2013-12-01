@@ -970,21 +970,7 @@ public final class MovieNFOReader {
             tempCert = DOMHelper.getValueFromElement(eCommon, "mpaa");
             if (isValidString(tempCert)) {
                 // Issue 333
-                if (tempCert.startsWith("Rated ")) {
-                    int start = 6; // "Rated ".length()
-                    int pos = tempCert.indexOf(" on appeal for ", start);
-
-                    if (pos == -1) {
-                        pos = tempCert.indexOf(" for ", start);
-                    }
-
-                    if (pos > start) {
-                        tempCert = tempCert.substring(start, pos);
-                    } else {
-                        tempCert = tempCert.substring(start);
-                    }
-                }
-                movie.setCertification(tempCert, NFO_PLUGIN_ID);
+                movie.setCertification(StringTools.processMpaaCertification(tempCert), NFO_PLUGIN_ID);
             }
         } else {
             tempCert = DOMHelper.getValueFromElement(eCommon, "certification");

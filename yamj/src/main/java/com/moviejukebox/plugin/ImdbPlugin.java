@@ -109,7 +109,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private static final String HTML_QUOTE_GT = "\">";
     private static final String HTML_NAME = "name/";
     private static final String HTML_TABLE = "</table>";
-    private static final String HTML_TD = "</td>";
+    private static final String HTML_TD_END = "</td>";
     private static final String HTML_H4_END = ":</h4>";
     private static final String HTML_SITE = ".imdb.com";
     private static final String HTML_SITE_FULL = "http://www.imdb.com/";
@@ -511,18 +511,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (extractCertificationFromMPAA) {
                 String mpaa = HTMLTools.extractTag(xml, "<h5><a href=\"/mpaa\">MPAA</a>:</h5>", 1);
                 if (StringTools.isValidString(mpaa)) {
-                    String key = siteDef.getRated() + " ";
-                    int pos = mpaa.indexOf(key);
-                    if (pos != -1) {
-                        int start = key.length();
-                        pos = mpaa.indexOf(" on appeal for ", start);
-                        if (pos == -1) {
-                            pos = mpaa.indexOf(" for ", start);
-                        }
-                        if (pos != -1) {
-                            certification = mpaa.substring(start, pos);
-                        }
-                    }
+                    certification = StringTools.processMpaaCertification(siteDef.getRated(), mpaa);
                 }
             }
 
@@ -902,7 +891,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // therefore we need to look for the preferredCountry and then work backwards
             if (akas == null) {
                 // Just extract the AKA section from the page
-                List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "<a id=\"akas\" name=\"akas\">", HTML_TABLE, "<td>", HTML_TD, Boolean.FALSE);
+                List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "<a id=\"akas\" name=\"akas\">", HTML_TABLE, "<td>", HTML_TD_END, Boolean.FALSE);
                 akas = buildAkaMap(akaList);
             }
 
@@ -927,7 +916,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // therefore we need to look for the preferredCountry and then work backwards
             if (akas == null) {
                 // Just extract the AKA section from the page
-                List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "<a id=\"akas\" name=\"akas\">", HTML_TABLE, "<td>", HTML_TD, Boolean.FALSE);
+                List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "<a id=\"akas\" name=\"akas\">", HTML_TABLE, "<td>", HTML_TD_END, Boolean.FALSE);
                 akas = buildAkaMap(akaList);
             }
 
@@ -1070,7 +1059,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String personID = actorBlock.substring(nmPosition + 1, actorBlock.indexOf("/", nmPosition + 1));
 
             String name = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "itemprop=\"name\">", HTML_SPAN_END));
-            String character = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "<td class=\"character\">", HTML_TD));
+            String character = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "<td class=\"character\">", HTML_TD_END));
 
             if (overrideNormal) {
                 // clear cast if not already done
@@ -1916,7 +1905,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         if (xml.indexOf("id=\"img_primary\"") > -1) {
             LOG.debug("Looking for image on webpage for " + person.getName());
-            String photoURL = HTMLTools.extractTag(xml, "id=\"img_primary\"", HTML_TD);
+            String photoURL = HTMLTools.extractTag(xml, "id=\"img_primary\"", HTML_TD_END);
 
             if (photoURL.indexOf("http://ia.media-imdb.com/images") > -1) {
                 photoURL = "http://ia.media-imdb.com/images" + HTMLTools.extractTag(photoURL, "src=\"http://ia.media-imdb.com/images", "\"");
@@ -1934,14 +1923,15 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         String date = "";
         int endIndex;
-        int beginIndex = xmlInfo.indexOf("<h5>Date of Birth</h5>");
+        int beginIndex = xmlInfo.indexOf(">Date of Birth</td>");
 
         if (beginIndex > -1) {
-            endIndex = xmlInfo.indexOf("<h5>Date of Death</h5>");
+            endIndex = xmlInfo.indexOf(">Date of Death</td>");
             beginIndex = xmlInfo.indexOf("birth_monthday=", beginIndex);
             if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
                 date = xmlInfo.substring(beginIndex + 18, beginIndex + 20) + "-" + xmlInfo.substring(beginIndex + 15, beginIndex + 17);
             }
+
             beginIndex = xmlInfo.indexOf("birth_year=", beginIndex);
             if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
                 if (!date.equals("")) {
@@ -1964,9 +1954,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        beginIndex = xmlInfo.indexOf("<h5>Date of Death</h5>");
+        beginIndex = xmlInfo.indexOf(">Date of Death</td>");
         if (beginIndex > -1) {
-            endIndex = xmlInfo.indexOf("<h5>Mini Biography</h5>", beginIndex);
+            endIndex = xmlInfo.indexOf(">Mini Bio (1)</h4>", beginIndex);
             beginIndex = xmlInfo.indexOf("death_monthday=", beginIndex);
             String dDate = "";
             if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
@@ -1988,19 +1978,28 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             person.setYear(date);
         }
 
-        beginIndex = xmlInfo.indexOf("<h5>Birth Name</h5>");
+        beginIndex = xmlInfo.indexOf(">Birth Name</td>");
         if (beginIndex > -1) {
-            String name = xmlInfo.substring(beginIndex + 19, xmlInfo.indexOf(HTML_BREAK, beginIndex));
+            beginIndex += 19;
+            String name = xmlInfo.substring(beginIndex, xmlInfo.indexOf(HTML_TD_END, beginIndex));
             if (isValidString(name)) {
                 person.setBirthName(HTMLTools.decodeHtml(name));
             }
         }
 
-        beginIndex = xmlInfo.indexOf("<h5>Nickname</h5>");
+        beginIndex = xmlInfo.indexOf(">Nickname</td>");
         if (beginIndex > -1) {
-            String name = xmlInfo.substring(beginIndex + 17, xmlInfo.indexOf(HTML_BREAK, beginIndex));
+            String name = xmlInfo.substring(beginIndex + 17, xmlInfo.indexOf(HTML_TD_END, beginIndex));
             if (isValidString(name)) {
                 person.addAka(name);
+            }
+        } else {
+            beginIndex = xmlInfo.indexOf(">Nicknames</td>");
+            if (beginIndex > -1) {
+                String name = xmlInfo.substring(beginIndex + 17, xmlInfo.indexOf(HTML_TD_END, beginIndex));
+                if (isValidString(name)) {
+                    person.addAka(name);
+                }
             }
         }
 
