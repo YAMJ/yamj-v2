@@ -304,18 +304,17 @@ public class Codec {
             return false;
         }
 
-        if ((this.codec == null) ? (other.codec != null) : !this.codec.equals(other.codec)) {
+        if (!StringUtils.equals(this.codec, other.codec)) {
             return false;
         }
 
-        if ((this.codecLanguage == null) ? (other.codecLanguage != null) : !this.codecLanguage.equals(other.codecLanguage)) {
-            return false;
+        // Are both languages the same? or is either one "UNKNOWN" which we will treat as a match
+        if (!StringUtils.equalsIgnoreCase(this.codecLanguage, other.codecLanguage)
+                && StringTools.isValidString(this.codecLanguage)
+                && StringTools.isValidString(other.codecLanguage)) {
+            return true;
         }
 
-        if (this.codecChannels != other.codecChannels) {
-            return false;
-        }
-
-        return true;
+        return this.codecChannels == other.codecChannels;
     }
 }
