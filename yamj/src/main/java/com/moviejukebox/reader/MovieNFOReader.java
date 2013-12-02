@@ -34,8 +34,16 @@ import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.scanner.MovieFilenameScanner;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.AspectRatioTools;
+import com.moviejukebox.tools.DOMHelper;
+import com.moviejukebox.tools.DateTimeTools;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 import static com.moviejukebox.tools.StringTools.isValidString;
+import com.moviejukebox.tools.SubtitleTools;
+import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -991,6 +999,9 @@ public final class MovieNFOReader {
                             tempCert = tempCert.substring(pos + 1);
                         }
                     }
+                } else if (StringUtils.containsIgnoreCase(tempCert, "Rated")) {
+                    // Extract the MPAA rating from the certification
+                    tempCert = StringTools.processMpaaCertification(tempCert);
                 } else {
                     // The country wasn't found in the value, so grab the last one
                     int pos = tempCert.lastIndexOf(':');
