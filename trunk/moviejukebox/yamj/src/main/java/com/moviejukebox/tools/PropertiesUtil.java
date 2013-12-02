@@ -54,7 +54,15 @@ public final class PropertiesUtil {
     private static final String LOG_MESSAGE = "PropertiesUtil: ";
     private static final String PROPERTIES_CHARSET = "UTF-8";
     private static final String PREFERENCES_FILENAME = "preferences.xsl";
+
+    /**
+     * String representing TRUE
+     */
     public static final String TRUE = "true";
+
+    /**
+     * String representing FALSE
+     */
     public static final String FALSE = "false";
     private static final Properties props = new Properties();
 
@@ -62,10 +70,23 @@ public final class PropertiesUtil {
         throw new UnsupportedOperationException("Class cannot be instantiated");
     }
 
+    /**
+     * Set the properties filename
+     *
+     * @param streamName
+     * @return
+     */
     public static boolean setPropertiesStreamName(String streamName) {
         return setPropertiesStreamName(streamName, Boolean.TRUE);
     }
 
+    /**
+     * Set the properties filename with a warning if the file is not found
+     *
+     * @param streamName
+     * @param warnFatal
+     * @return
+     */
     public static boolean setPropertiesStreamName(String streamName, boolean warnFatal) {
         LOG.info("Using properties file " + streamName);
         InputStream propertiesStream = ClassLoader.getSystemResourceAsStream(streamName);
@@ -106,10 +127,23 @@ public final class PropertiesUtil {
         return Boolean.TRUE;
     }
 
+    /**
+     * Get a property via a key.
+     *
+     * @param key
+     * @return the value if found, otherwise null
+     */
     public static String getProperty(String key) {
         return props.getProperty(key);
     }
 
+    /**
+     * Get a property via a key
+     *
+     * @param key
+     * @param defaultValue
+     * @return the value if found, otherwise the default value
+     */
     public static String getProperty(String key, String defaultValue) {
         return props.getProperty(key, defaultValue);
     }
@@ -240,8 +274,8 @@ public final class PropertiesUtil {
      * @return
      */
     private static String getReplacedKeyValue(String newKey, String oldKey) {
-        String oldProperty = props.getProperty(oldKey);
-        String newProperty = props.getProperty(newKey);
+        String oldProperty = props.getProperty(oldKey).trim();
+        String newProperty = props.getProperty(newKey).trim();
         String returnValue;
 
         if (newProperty == null && oldProperty != null) {
@@ -274,7 +308,7 @@ public final class PropertiesUtil {
 
         if (StringUtils.isNotBlank(valueToConvert)) {
             try {
-                value = Float.parseFloat(valueToConvert);
+                value = Float.parseFloat(valueToConvert.trim());
             } catch (NumberFormatException ex) {
                 LOG.warn("Failed to convert property '" + key + "', value '" + valueToConvert + "' to a float number.");
             }
@@ -298,7 +332,7 @@ public final class PropertiesUtil {
 
         if (StringUtils.isNotBlank(valueToConvert)) {
             try {
-                value = Long.parseLong(valueToConvert);
+                value = Long.parseLong(valueToConvert.trim());
             } catch (NumberFormatException ex) {
                 LOG.warn("Failed to convert property '" + key + "', value '" + valueToConvert + "' to a long number.");
             }
@@ -322,7 +356,7 @@ public final class PropertiesUtil {
 
         if (StringUtils.isNotBlank(valueToConvert)) {
             try {
-                value = Integer.parseInt(valueToConvert);
+                value = Integer.parseInt(valueToConvert.trim());
             } catch (NumberFormatException ex) {
                 LOG.warn("Failed to convert property '" + key + "', value '" + valueToConvert + "' to an integer number.");
             }
@@ -342,30 +376,59 @@ public final class PropertiesUtil {
     private static boolean convertBooleanProperty(String key, String valueToConvert, boolean defaultValue) {
         boolean value = defaultValue;
         if (StringUtils.isNotBlank(valueToConvert)) {
-            value = Boolean.parseBoolean(valueToConvert);
+            value = Boolean.parseBoolean(valueToConvert.trim());
         }
         return value;
     }
 
-    // Issue 309
+    /**
+     * Get the properties as an entry set for iteration<br>
+     * Issue 309
+     *
+     * @return
+     */
     public static Set<Entry<Object, Object>> getEntrySet() {
         // Issue 728
         // Shamelessly adapted from: http://stackoverflow.com/questions/54295/how-to-write-java-util-properties-to-xml-with-sorted-keys
         return new TreeMap<Object, Object>(props).entrySet();
     }
 
+    /**
+     * Set a property key to the string value
+     *
+     * @param key
+     * @param value
+     */
     public static void setProperty(String key, String value) {
         props.setProperty(key, value);
     }
 
+    /**
+     * Set a property key to the boolean value
+     *
+     * @param key
+     * @param value
+     */
     public static void setProperty(String key, boolean value) {
         props.setProperty(key, Boolean.toString(value));
     }
 
+    /**
+     * Set a property key to the integer value
+     *
+     * @param key
+     * @param value
+     */
     public static void setProperty(String key, int value) {
         props.setProperty(key, Integer.toString(value));
     }
 
+    /**
+     * Set a property key to the long value
+     *
+     * @param key
+     * @param value
+     */
     public static void setProperty(String key, long value) {
         props.setProperty(key, Long.toString(value));
     }
@@ -378,14 +441,19 @@ public final class PropertiesUtil {
         private static final long serialVersionUID = 1L;
         private final transient List<String> keywords = new ArrayList<String>();
 
+        /**
+         * Get the list of keywords
+         *
+         * @return
+         */
         public List<String> getKeywords() {
             return keywords;
         }
     }
 
     /**
-     * Collect keywords list and appropriate keyword values. Example: my.languages = EN,FR my.languages.EN = English my.languages.FR
-     * = French
+     * Collect keywords list and appropriate keyword values. <br>
+     * Example: my.languages = EN,FR my.languages.EN = English my.languages.FR = French
      *
      * @param prefix Key for keywords list and prefix for value searching.
      * @param defaultValue
@@ -412,6 +480,9 @@ public final class PropertiesUtil {
         return keywordMap;
     }
 
+    /**
+     * Write the properties out to a file
+     */
     public static void writeProperties() {
         FileOutputStream fos = null;
         OutputStreamWriter osw = null;
@@ -481,6 +552,12 @@ public final class PropertiesUtil {
         }
     }
 
+    /**
+     * Get the skin properties filename
+     *
+     * @param fullPath
+     * @return
+     */
     public static String getPropertiesFilename(boolean fullPath) {
         if (fullPath) {
             return StringTools.appendToPath(getProperty("mjb.skin.dir", "./skins/default"), PREFERENCES_FILENAME);
