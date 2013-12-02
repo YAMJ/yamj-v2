@@ -25,7 +25,6 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import org.apache.log4j.BasicConfigurator;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;

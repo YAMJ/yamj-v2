@@ -22,13 +22,12 @@
  */
 package com.moviejukebox.plugin.poster;
 
-
 import com.moviejukebox.tools.PropertiesUtil;
 
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 
-public class ImdbPosterPluginTestCase  {
+public class ImdbPosterPluginTestCase {
 
     @BeforeClass
     public static void configure() {

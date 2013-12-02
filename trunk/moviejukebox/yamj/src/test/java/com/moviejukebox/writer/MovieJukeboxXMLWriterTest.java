@@ -29,7 +29,6 @@ import com.moviejukebox.model.Person;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.reader.MovieJukeboxXMLReader;
 import java.io.File;
-import org.apache.log4j.BasicConfigurator;
 import static org.junit.Assert.*;
 import org.junit.Test;
 

@@ -22,7 +22,6 @@
  */
 package com.moviejukebox.plugin.poster;
 
-
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.tools.PropertiesUtil;
 

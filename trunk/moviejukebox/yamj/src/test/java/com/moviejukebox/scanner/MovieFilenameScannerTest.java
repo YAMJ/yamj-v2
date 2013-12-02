@@ -28,7 +28,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.BasicConfigurator;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -37,7 +36,7 @@ public class MovieFilenameScannerTest {
 
     @BeforeClass
     public static void setUpClass() {
-        
+
         MovieFilenameScanner.setSkipKeywords(new String[]{"xor", "XOR", "vfua", "SMB", "hdclub", "KB", "DiAMOND"}, true);
         MovieFilenameScanner.setMovieVersionKeywords(StringTools.tokenizeToArray("remastered,directors cut,extended cut,final cut,remux", ",;|"));
 
@@ -275,7 +274,6 @@ public class MovieFilenameScannerTest {
 //        d = scan("WWII in HD S01E01.avi");
 //        assertEquals("WWII in HD", d.getTitle());
 //        assertEquals(1, d.getSeason());
-
     }
 
     @Test
@@ -400,7 +398,6 @@ public class MovieFilenameScannerTest {
         assertEquals(5, d.getPart());
         assertEquals("AAC", d.getAudioCodec());
         assertEquals("File", d.getTitle());
-
 
         d = scan("The File [cd3]h.264.avi");
         assertEquals(-1, d.getSeason());

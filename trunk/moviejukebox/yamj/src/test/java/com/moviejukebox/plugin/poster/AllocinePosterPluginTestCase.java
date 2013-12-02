@@ -22,14 +22,13 @@
  */
 package com.moviejukebox.plugin.poster;
 
-
 import com.moviejukebox.tools.PropertiesUtil;
 
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class AllocinePosterPluginTestCase  {
+public class AllocinePosterPluginTestCase {
 
     @BeforeClass
     public static void configure() {

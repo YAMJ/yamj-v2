@@ -25,8 +25,6 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import org.apache.log4j.BasicConfigurator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -40,7 +38,7 @@ import org.junit.BeforeClass;
  */
 public class FilmaffinityPluginTest {
 
-    private FilmaffinityPlugin faPlugin = new FilmaffinityPlugin();
+    private final FilmaffinityPlugin faPlugin = new FilmaffinityPlugin();
 
     @BeforeClass
     public static void setUpClass() {

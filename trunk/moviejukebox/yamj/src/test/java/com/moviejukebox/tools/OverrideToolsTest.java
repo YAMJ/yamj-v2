@@ -23,7 +23,6 @@
 package com.moviejukebox.tools;
 
 import static org.junit.Assert.assertEquals;
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -31,7 +30,7 @@ import com.moviejukebox.model.MovieFile;
 public class OverrideToolsTest {
 
     public OverrideToolsTest() {
-        
+
         PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
     }
 
