@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class MediaInfoScannerTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaInfoScannerTest.class);
-    private static MediaInfoScanner toTest = new MediaInfoScanner();
+    private static final MediaInfoScanner MI_TEST = new MediaInfoScanner();
     private static final String testDir = "src/test/java/TestFiles/MediaInfo/";
     Map<String, String> infosGeneral = new HashMap<String, String>();
     List<Map<String, String>> infosVideo = new ArrayList<Map<String, String>>();
@@ -83,13 +83,13 @@ public class MediaInfoScannerTest {
         Codec codec;
         int counter = 1;
         for (Map<String, String> codecInfo : infosVideo) {
-            codec = toTest.getCodecInfo(CodecType.VIDEO, codecInfo);
+            codec = MI_TEST.getCodecInfo(CodecType.VIDEO, codecInfo);
             System.out.println(counter++ + " = " + codec.toString());
         }
 
         counter = 1;
         for (Map<String, String> codecInfo : infosAudio) {
-            codec = toTest.getCodecInfo(CodecType.AUDIO, codecInfo);
+            codec = MI_TEST.getCodecInfo(CodecType.AUDIO, codecInfo);
             System.out.println(counter++ + " = " + codec.toString());
         }
 
@@ -97,13 +97,13 @@ public class MediaInfoScannerTest {
 
         counter = 1;
         for (Map<String, String> codecInfo : infosVideo) {
-            codec = toTest.getCodecInfo(CodecType.VIDEO, codecInfo);
+            codec = MI_TEST.getCodecInfo(CodecType.VIDEO, codecInfo);
             System.out.println(counter++ + " = " + codec.toString());
         }
 
         counter = 1;
         for (Map<String, String> codecInfo : infosAudio) {
-            codec = toTest.getCodecInfo(CodecType.AUDIO, codecInfo);
+            codec = MI_TEST.getCodecInfo(CodecType.AUDIO, codecInfo);
             System.out.println(counter++ + " = " + codec.toString());
         }
     }
@@ -115,7 +115,7 @@ public class MediaInfoScannerTest {
         Codec codec;
         int counter = 1;
         for (Map<String, String> codecInfo : infosAudio) {
-            codec = toTest.getCodecInfo(CodecType.AUDIO, codecInfo);
+            codec = MI_TEST.getCodecInfo(CodecType.AUDIO, codecInfo);
             LOG.debug("{} = {}", counter++, codec.toString());
             assertTrue("No channels found!", codec.getCodecChannels()>0);
         }
@@ -163,7 +163,7 @@ public class MediaInfoScannerTest {
             infosAudio.clear();
             infosText.clear();
 
-            toTest.parseMediaInfo(fis, infosGeneral, infosVideo, infosAudio, infosText);
+            MI_TEST.parseMediaInfo(fis, infosGeneral, infosVideo, infosAudio, infosText);
         } catch (FileNotFoundException error) {
             LOG.warn("File not found.", error);
             assertFalse("No exception expected : " + error.getMessage(), true);

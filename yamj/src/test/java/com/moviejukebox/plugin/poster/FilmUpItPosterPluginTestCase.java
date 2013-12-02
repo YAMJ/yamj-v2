@@ -22,7 +22,6 @@
  */
 package com.moviejukebox.plugin.poster;
 
-
 import com.moviejukebox.plugin.FilmUpITPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 

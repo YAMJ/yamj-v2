@@ -37,6 +37,7 @@ import org.pojava.datetime2.DateTime;
  * @author Stuart
  */
 public class DateTimeToolsTest {
+
     private static final Logger LOG = Logger.getLogger(DateTimeToolsTest.class);
 
     public DateTimeToolsTest() {
@@ -60,6 +61,8 @@ public class DateTimeToolsTest {
 
     /**
      * Test of convertDateToString method, of class DateTimeTools.
+     *
+     * @throws java.lang.Exception
      */
     @Test
     public void testConvertDateToString_Date() throws Exception {
@@ -112,7 +115,7 @@ public class DateTimeToolsTest {
     @Test
     public void testFormatDuration() {
         LOG.info("formatDuration");
-        int duration = ((2*60)+(12))*60;
+        int duration = ((2 * 60) + (12)) * 60;
         String expResult = "2h 12m";
         String result = DateTimeTools.formatDuration(duration);
         assertEquals(expResult, result);

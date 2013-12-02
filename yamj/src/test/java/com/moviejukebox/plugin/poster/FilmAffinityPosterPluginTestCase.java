@@ -22,7 +22,6 @@
  */
 package com.moviejukebox.plugin.poster;
 
-
 import com.moviejukebox.plugin.FilmAffinityInfo;
 import com.moviejukebox.tools.PropertiesUtil;
 

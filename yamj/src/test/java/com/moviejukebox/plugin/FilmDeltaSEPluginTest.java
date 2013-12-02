@@ -51,7 +51,7 @@ public class FilmDeltaSEPluginTest {
      * offline = false, run tests against the actual web pages to
      * check that no changes in their page structure has been made
      */
-    private boolean offline = true;
+    private boolean offline;
 
     @BeforeClass
     public static void setUpClass() {
@@ -68,7 +68,7 @@ public class FilmDeltaSEPluginTest {
     @Before
     public void setUp() {
         // uncomment the line below to check if tests are still up to date
-        // offline = false;
+        offline = true;
         toTest = new FilmDeltaPluginMock(offline);
         toTest.init();
         movie = new Movie();

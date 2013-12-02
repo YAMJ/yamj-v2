@@ -23,7 +23,6 @@
 package com.moviejukebox.model;
 
 import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.tools.PropertiesUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,9 +35,9 @@ import org.junit.BeforeClass;
 
 public class MovieTest {
 
-    private static int actorMax = 10;
-    private static int directorMax = 2;
-    private static int writerMax = 3;
+    private static final int ACTOR_MAX = 10;
+    private static final int DIRECTOR_MAX = 2;
+    private static final int WRITER_MAX = 3;
 
     @BeforeClass
     public static void setUpClass() {
@@ -58,32 +57,32 @@ public class MovieTest {
 
     @Test
     public void testSetPeopleCast() {
-        List<String> actors = createList("Actor", actorMax);
+        List<String> actors = createList("Actor", ACTOR_MAX);
 
         Movie movie = new Movie();
         movie.setPeopleCast(actors, ImdbPlugin.IMDB_PLUGIN_ID);
         Collection<String> people = movie.getPerson(Filmography.DEPT_ACTORS);
-        assertEquals("Wrong number of actors returned", actorMax, people.size());
+        assertEquals("Wrong number of actors returned", ACTOR_MAX, people.size());
     }
 
     @Test
     public void testSetPeopleDirectors() {
-        List<String> directors = createList("Director", directorMax);
+        List<String> directors = createList("Director", DIRECTOR_MAX);
 
         Movie movie = new Movie();
         movie.setPeopleDirectors(directors, ImdbPlugin.IMDB_PLUGIN_ID);
         Collection<String> people = movie.getPerson(Filmography.DEPT_DIRECTING);
-        assertEquals("Wrong number of directors returned", directorMax, people.size());
+        assertEquals("Wrong number of directors returned", DIRECTOR_MAX, people.size());
     }
 
     @Test
     public void testSetPeopleWriters() {
-        List<String> writers = createList("Writer", writerMax);
+        List<String> writers = createList("Writer", WRITER_MAX);
 
         Movie movie = new Movie();
         movie.setPeopleWriters(writers, ImdbPlugin.IMDB_PLUGIN_ID);
         Collection<String> people = movie.getPerson(Filmography.DEPT_WRITING);
-        assertEquals("Wrong number of writers returned", writerMax, people.size());
+        assertEquals("Wrong number of writers returned", WRITER_MAX, people.size());
     }
 
     private List<String> createList(String title, int count) {

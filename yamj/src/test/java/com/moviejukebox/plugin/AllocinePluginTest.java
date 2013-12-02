@@ -25,7 +25,6 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
-import org.apache.log4j.BasicConfigurator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -42,7 +41,7 @@ public class AllocinePluginTest {
         PropertiesUtil.setProperty("API_KEY_Allocine_Partner", "100043982026");
         PropertiesUtil.setProperty("API_KEY_Allocine_Secret", "29d185d98c984a359e6e6f26a0474269");
         PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
-        
+
     }
 
     @AfterClass
