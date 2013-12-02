@@ -48,7 +48,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -569,14 +571,29 @@ public final class MovieNFOReader {
 
         // Update the language
         if (OverrideTools.checkOverwriteLanguage(movie, NFO_PLUGIN_ID)) {
-            StringBuilder movieLanguage = new StringBuilder();
+            Set<String> langs = new HashSet<String>();
+            // Process the languages and remove any duplicates
             for (Codec codec : movie.getCodecs()) {
                 if (codec.getCodecType() == CodecType.AUDIO) {
-                    if (movieLanguage.length() > 0) {
-                        movieLanguage.append(LANGUAGE_DELIMITER);
-                    }
-                    movieLanguage.append(codec.getCodecLanguage());
+                    langs.add(codec.getCodecLanguage());
                 }
+            }
+
+            // Remove UNKNOWN if it is NOT the only entry
+            if (langs.contains(Movie.UNKNOWN) && langs.size() > 1) {
+                langs.remove(Movie.UNKNOWN);
+            } else if (langs.isEmpty()) {
+                // Add the language as UNKNOWN by default.
+                langs.add(Movie.UNKNOWN);
+            }
+
+            // Build the language string
+            StringBuilder movieLanguage = new StringBuilder();
+            for (String lang : langs) {
+                if (movieLanguage.length() > 0) {
+                    movieLanguage.append(LANGUAGE_DELIMITER);
+                }
+                movieLanguage.append(lang);
             }
             movie.setLanguage(movieLanguage.toString(), NFO_PLUGIN_ID);
         }
