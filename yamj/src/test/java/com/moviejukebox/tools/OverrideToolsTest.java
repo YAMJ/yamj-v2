@@ -22,16 +22,33 @@
  */
 package com.moviejukebox.tools;
 
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import org.junit.After;
+import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class OverrideToolsTest {
 
-    public OverrideToolsTest() {
-
+    @BeforeClass
+    public static void setUpClass() {
         PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
+        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+    }
+
+    @Before
+    public void setUp() {
+    }
+
+    @After
+    public void tearDown() {
     }
 
     @Test

@@ -56,9 +56,9 @@ public class FilmDeltaSEPluginTest {
     @BeforeClass
     public static void setUpClass() {
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
+        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
         PropertiesUtil.setProperty("priority.title", "filmdelta,imdb");
         PropertiesUtil.setProperty("priority.originaltitle", "filmdelta,imdb");
-        PropertiesUtil.setProperty("API_KEY_TheTVDb", "2805AD2873519EC5");
     }
 
     @AfterClass
