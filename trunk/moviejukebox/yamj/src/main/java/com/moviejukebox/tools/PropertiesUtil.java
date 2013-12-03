@@ -274,8 +274,8 @@ public final class PropertiesUtil {
      * @return
      */
     private static String getReplacedKeyValue(String newKey, String oldKey) {
-        String oldProperty = props.getProperty(oldKey).trim();
-        String newProperty = props.getProperty(newKey).trim();
+        String oldProperty = StringUtils.trimToNull(props.getProperty(oldKey));
+        String newProperty = StringUtils.trimToNull(props.getProperty(newKey));
         String returnValue;
 
         if (newProperty == null && oldProperty != null) {
@@ -308,7 +308,7 @@ public final class PropertiesUtil {
 
         if (StringUtils.isNotBlank(valueToConvert)) {
             try {
-                value = Float.parseFloat(valueToConvert.trim());
+                value = Float.parseFloat(StringUtils.trimToEmpty(valueToConvert));
             } catch (NumberFormatException ex) {
                 LOG.warn("Failed to convert property '" + key + "', value '" + valueToConvert + "' to a float number.");
             }
@@ -332,7 +332,7 @@ public final class PropertiesUtil {
 
         if (StringUtils.isNotBlank(valueToConvert)) {
             try {
-                value = Long.parseLong(valueToConvert.trim());
+                value = Long.parseLong(StringUtils.trimToEmpty(valueToConvert));
             } catch (NumberFormatException ex) {
                 LOG.warn("Failed to convert property '" + key + "', value '" + valueToConvert + "' to a long number.");
             }
@@ -356,7 +356,7 @@ public final class PropertiesUtil {
 
         if (StringUtils.isNotBlank(valueToConvert)) {
             try {
-                value = Integer.parseInt(valueToConvert.trim());
+                value = Integer.parseInt(StringUtils.trimToEmpty(valueToConvert));
             } catch (NumberFormatException ex) {
                 LOG.warn("Failed to convert property '" + key + "', value '" + valueToConvert + "' to an integer number.");
             }
@@ -376,7 +376,7 @@ public final class PropertiesUtil {
     private static boolean convertBooleanProperty(String key, String valueToConvert, boolean defaultValue) {
         boolean value = defaultValue;
         if (StringUtils.isNotBlank(valueToConvert)) {
-            value = Boolean.parseBoolean(valueToConvert.trim());
+            value = Boolean.parseBoolean(StringUtils.trimToEmpty(valueToConvert));
         }
         return value;
     }
