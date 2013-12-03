@@ -38,8 +38,9 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
 /**
- * Plugin to retrieve movie data from Swedish movie database www.filmdelta.se Modified from imdb plugin and Kinopoisk
- * plugin written by Yury Sidorov.
+ * Plugin to retrieve movie data from Swedish movie database www.filmdelta.se
+ *
+ * Modified from imdb plugin and Kinopoisk plugin written by Yury Sidorov.
  *
  * Contains code for an alternate plugin for fetching information on movies in Swedish
  *
@@ -54,8 +55,8 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     private static final String SEARCH_RESULT_UNIQUE = "window.location = \"http://www.filmdelta.se/filmer/";
     private static final String SEARCH_RESULT_LINE = "<a href=\"/filmer/";
 
-    private TheTvDBPlugin tvdb;
-    private SearchEngineTools searchEngines;
+    private final TheTvDBPlugin tvdb;
+    private final SearchEngineTools searchEngines;
 
     public FilmDeltaSEPlugin() {
         super();
@@ -67,7 +68,6 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     public String getPluginID() {
         return FILMDELTA_PLUGIN_ID;
     }
-
 
     public String getMovieId(Movie movie) {
         String filmdeltaId = movie.getId(FILMDELTA_PLUGIN_ID);
@@ -116,7 +116,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
                 boolean searchYear = StringTools.isValidString(year);
                 for (String tag : HTMLTools.extractHtmlTags(xml, "<div class=\"box\" id=\"search-results\">", "<form action=\"/googlesearch.php", "<li>", "</li>")) {
                     beginIndex = tag.indexOf(SEARCH_RESULT_LINE);
-                    if (beginIndex > -1 && (!searchYear || (tag.contains("("+year+")")))) {
+                    if (beginIndex > -1 && (!searchYear || (tag.contains("(" + year + ")")))) {
                         // found a match
                         beginIndex = beginIndex + SEARCH_RESULT_LINE.length();
                         String filmdeltaId = makeFilmdeltaId(xml, beginIndex, 0);
@@ -141,7 +141,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     private String getFilmdeltaIdFromSearchEngine(String title, String year, int season) {
         String url;
         if (season > -1) {
-            url = searchEngines.searchMovieURL(title, year, "www.filmdelta.se/filmer", "sasong_"+season);
+            url = searchEngines.searchMovieURL(title, year, "www.filmdelta.se/filmer", "sasong_" + season);
         } else {
             url = searchEngines.searchMovieURL(title, year, "www.filmdelta.se/filmer");
         }
