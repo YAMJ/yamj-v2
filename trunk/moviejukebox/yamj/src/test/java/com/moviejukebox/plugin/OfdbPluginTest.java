@@ -41,7 +41,6 @@ public class OfdbPluginTest {
 
     @BeforeClass
     public static void setUpClass() {
-
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.OfdbPlugin");
     }
 

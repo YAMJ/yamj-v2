@@ -28,8 +28,6 @@ import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -39,7 +37,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ImdbPluginTest {
@@ -48,7 +45,8 @@ public class ImdbPluginTest {
 
     @BeforeClass
     public static void setUpClass() {
-        PropertiesUtil.setProperty("API_KEY_TheTVDb", "2805AD2873519EC5");
+        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
+        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
     }
 
     @AfterClass
@@ -63,8 +61,9 @@ public class ImdbPluginTest {
     public void tearDown() {
     }
 
-    @Ignore
+    @Test
     public void testImdbMoviePlotLong() {
+        LOG.info("testImdbMoviePlotLong");
         PropertiesUtil.setProperty("imdb.site", "us");
         PropertiesUtil.setProperty("imdb.plot", "long");
         PropertiesUtil.setProperty("imdb.full.info", true);
@@ -78,8 +77,9 @@ public class ImdbPluginTest {
         assertNotEquals(Movie.UNKNOWN, movie.getPlot());
     }
 
-    @Ignore
+    @Test
     public void testImdbTvShow() {
+        LOG.info("testImdbTvShow");
         PropertiesUtil.setProperty("imdb.site", "us");
         PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
         PropertiesUtil.setProperty("imdb.full.info", true);
@@ -117,23 +117,22 @@ public class ImdbPluginTest {
         ImdbPlugin imdbPlugin = new ImdbPlugin();
 
         Person person = new Person();
-//        person.setName("Gérard Depardieu");
-        person.setName("Charles Chaplin");
+        person.setName("Gérard Depardieu");
+//        person.setName("Charles Chaplin");
 
         assertTrue("Scan failed", imdbPlugin.scan(person));
 
-        LOG.info(ToStringBuilder.reflectionToString(person, ToStringStyle.MULTI_LINE_STYLE));
-
-//        assertNotNull("Null bio", person.getBiography());
-//        assertNotEquals("No bio", Movie.UNKNOWN, person.getBiography());
-//        assertEquals("Wrong name", "Gérard Xavier Marcel Depardieu", person.getBirthName());
-//        assertEquals("Wrong birth place", "Châteauroux, Indre, France", person.getBirthPlace());
-//        assertTrue("No Filmography", person.getFilmography().size() > 0);
-//        assertTrue("No character", StringTools.isValidString(person.getFilmography().get(0).getCharacter()));
+        assertNotNull("Null bio", person.getBiography());
+        assertNotEquals("No bio", Movie.UNKNOWN, person.getBiography());
+        assertEquals("Wrong birth name", "Gérard Xavier Marcel Depardieu", person.getBirthName());
+        assertEquals("Wrong birth place", "Châteauroux, Indre, France", person.getBirthPlace());
+        assertTrue("No Filmography", person.getFilmography().size() > 0);
+        assertTrue("No character", StringTools.isValidString(person.getFilmography().get(0).getCharacter()));
     }
 
-    @Ignore
+    @Test
     public void testImdb_NewLayout() {
+        LOG.info("testImdb_NewLayout");
         PropertiesUtil.setProperty("imdb.site", "us");
         PropertiesUtil.setProperty("imdb.full.info", "false");
         PropertiesUtil.setProperty("mjb.scrapeAwards", "true");
@@ -156,29 +155,32 @@ public class ImdbPluginTest {
         assertTrue("No awards scraped", movie.getAwards().size() > 1);
     }
 
-    @Ignore
+    @Test
     public void testImdb_Combined() {
+        LOG.info("testImdb_Combined");
         PropertiesUtil.setProperty("imdb.site", "us");
         PropertiesUtil.setProperty("imdb.full.info", "true");
         ImdbPlugin imdbPlugin = new ImdbPlugin();
 
         Movie movie = new Movie();
         movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0499549");
+        movie.setBaseName("Test Movie - Avatar");
 
         assertTrue(imdbPlugin.scan(movie));
         assertEquals("Incorrect year", "2009", movie.getYear());
         assertNotEquals("Incorrect Plot", Movie.UNKNOWN, movie.getPlot());
         assertTrue("Incorrect Rating", movie.getRating(ImdbPlugin.IMDB_PLUGIN_ID) > 0);
-        assertEquals("Incorrect Country", "USA", movie.getCountry());
+        assertEquals("Incorrect Country", "USA / UK", movie.getCountry());
         assertEquals("Incorrect Company", "Twentieth Century Fox Film Corporation", movie.getCompany());
         assertEquals("Incorrect Tagline", "Enter the World", movie.getTagline());
         assertEquals("Incorrect number of cast", 10, movie.getCast().size());
         assertEquals("Incorrect Directors", 1, movie.getDirectors().size());
-        assertEquals("Incorrect Writers", 1, movie.getWriters().size());
+        assertEquals("Incorrect Writers", 3, movie.getWriters().size());
     }
 
-    @Ignore
+    @Test
     public void testScanNFO() {
+        LOG.info("testScanNFO");
         String nfo = "\nhttp://www.imdb.com/title/tt0458339/\n";
         Movie movie = new Movie();
 
