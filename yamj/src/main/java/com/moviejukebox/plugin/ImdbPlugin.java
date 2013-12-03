@@ -22,11 +22,29 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Award;
+import com.moviejukebox.model.AwardEvent;
+import com.moviejukebox.model.Filmography;
+import com.moviejukebox.model.Identifiable;
+import com.moviejukebox.model.ImdbSiteDataDefinition;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Person;
+import com.moviejukebox.scanner.artwork.FanartScanner;
+import com.moviejukebox.tools.AspectRatioTools;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+import com.moviejukebox.tools.StringTools;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import static com.moviejukebox.tools.StringTools.trimToLength;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.WebBrowser;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -44,26 +62,8 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import com.moviejukebox.model.Award;
-import com.moviejukebox.model.AwardEvent;
-import com.moviejukebox.model.Filmography;
-import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.ImdbSiteDataDefinition;
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.scanner.artwork.FanartScanner;
-import com.moviejukebox.tools.AspectRatioTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.log4j.Logger;
 import org.pojava.datetime2.DateTime;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
@@ -1980,7 +1980,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         beginIndex = xmlInfo.indexOf(">Birth Name</td>");
         if (beginIndex > -1) {
-            beginIndex += 19;
+            beginIndex += 20;
             String name = xmlInfo.substring(beginIndex, xmlInfo.indexOf(HTML_TD_END, beginIndex));
             if (isValidString(name)) {
                 person.setBirthName(HTMLTools.decodeHtml(name));
@@ -1996,24 +1996,22 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         } else {
             beginIndex = xmlInfo.indexOf(">Nicknames</td>");
             if (beginIndex > -1) {
-                String name = xmlInfo.substring(beginIndex + 17, xmlInfo.indexOf(HTML_TD_END, beginIndex));
-                if (isValidString(name)) {
-                    person.addAka(name);
+                String name = xmlInfo.substring(beginIndex + 19, xmlInfo.indexOf(HTML_TD_END, beginIndex + 19));
+                for (String n : name.split("<br>")) {
+                    person.addAka(n.trim());
                 }
             }
         }
 
         String biography = Movie.UNKNOWN;
-        if (xmlInfo.indexOf("<h5>Mini Biography</h5>") > -1) {
-            biography = HTMLTools.extractTag(xmlInfo, "<h5>Mini Biography</h5>", "<b>IMDb Mini Biography By: </b>");
-        }
-        if (isNotValidString(biography) && xmlInfo.indexOf("<h5>Trivia</h5>") > -1) {
-            biography = HTMLTools.extractTag(xmlInfo, "<h5>Trivia</h5>", HTML_BREAK);
-        }
-        if (isValidString(biography)) {
-            biography = HTMLTools.removeHtmlTags(biography);
-            biography = trimToLength(biography, preferredBiographyLength);
-            person.setBiography(biography);
+        if (xmlInfo.indexOf(">Mini Bio (1)</h4>") > -1) {
+            biography = HTMLTools.extractTag(xmlInfo, ">Mini Bio (1)</h4>", "<em>- IMDb Mini Biography By");
+
+            if (isValidString(biography)) {
+                biography = HTMLTools.removeHtmlTags(biography);
+                biography = trimToLength(biography, preferredBiographyLength);
+                person.setBiography(biography);
+            }
         }
 
         // get known movies
