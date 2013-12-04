@@ -352,9 +352,11 @@ public final class MovieNFOReader {
                 // Get all of the title elements from the NFO file
                 parseTitle(eCommon, movie);
 
-                String tempYear = DOMHelper.getValueFromElement(eCommon, "year");
-                if (!parseYear(tempYear, movie)) {
-                    LOG.warn(LOG_MESSAGE + "Invalid year: '" + tempYear + "' in " + nfoFilename);
+                if (OverrideTools.checkOverwriteYear(movie, NFO_PLUGIN_ID)) {
+                    String tempYear = DOMHelper.getValueFromElement(eCommon, "year");
+                    if (!parseYear(tempYear, movie)) {
+                        LOG.warn(LOG_MESSAGE + "Invalid year: '" + tempYear + "' in " + nfoFilename);
+                    }
                 }
 
                 // ID specific to TV Shows
@@ -386,10 +388,14 @@ public final class MovieNFOReader {
                 }
 
                 // Runtime
-                parseRuntime(eCommon, movie);
+                if (OverrideTools.checkOverwriteRuntime(movie, NFO_PLUGIN_ID)) {
+                    parseRuntime(eCommon, movie);
+                }
 
                 // Certification
-                parseCertification(eCommon, movie);
+                if (OverrideTools.checkOverwriteCertification(movie, NFO_PLUGIN_ID)) {
+                    parseCertification(eCommon, movie);
+                }
 
                 // Plot
                 if (OverrideTools.checkOverwritePlot(movie, NFO_PLUGIN_ID)) {
@@ -414,16 +420,20 @@ public final class MovieNFOReader {
                 if (OverrideTools.checkOverwriteQuote(movie, NFO_PLUGIN_ID)) {
                     movie.setQuote(DOMHelper.getValueFromElement(eCommon, "quote"), NFO_PLUGIN_ID);
                 }
+
                 if (OverrideTools.checkOverwriteTagline(movie, NFO_PLUGIN_ID)) {
                     movie.setTagline(DOMHelper.getValueFromElement(eCommon, "tagline"), NFO_PLUGIN_ID);
                 }
+
                 if (OverrideTools.checkOverwriteCompany(movie, NFO_PLUGIN_ID)) {
                     movie.setCompany(DOMHelper.getValueFromElement(eCommon, "studio"), NFO_PLUGIN_ID);
                     movie.setCompany(DOMHelper.getValueFromElement(eCommon, "company"), NFO_PLUGIN_ID);
                 }
+
                 if (OverrideTools.checkOverwriteCountry(movie, NFO_PLUGIN_ID)) {
                     movie.setCountry(DOMHelper.getValueFromElement(eCommon, "country"), NFO_PLUGIN_ID);
                 }
+
                 if (OverrideTools.checkOverwriteTop250(movie, NFO_PLUGIN_ID)) {
                     movie.setTop250(DOMHelper.getValueFromElement(eCommon, "top250"), NFO_PLUGIN_ID);
                 }
