@@ -33,6 +33,7 @@ import com.omertron.subbabaapi.enumerations.SearchType;
 import com.omertron.subbabaapi.model.SubBabaContent;
 import com.omertron.subbabaapi.model.SubBabaMovie;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
@@ -72,14 +73,21 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
             return Movie.UNKNOWN;
         }
 
-        LOG.debug(LOG_MESSAGE + "Searching for title '" + title + "' with year '" + year + "'");
+        if (StringUtils.isBlank(year)) {
+            LOG.debug(LOG_MESSAGE + "Searching for title '" + title + "'");
+        } else {
+            LOG.debug(LOG_MESSAGE + "Searching for title '" + title + "' with year '" + year + "'");
+        }
         // Use the ALL search type because we don't care what type there is
         List<SubBabaMovie> sbMovies = subBaba.searchByEnglishName(title, SearchType.ALL);
 
         if (sbMovies != null && !sbMovies.isEmpty()) {
             LOG.debug(LOG_MESSAGE + "Found " + sbMovies.size() + " movies");
             for (SubBabaMovie sbm : sbMovies) {
-                return sbm.getImdbId();
+                for (SubBabaContent m : sbm.getContent()) {
+                    LOG.debug(LOG_MESSAGE + "SubBaba ID: " + m.getId());
+                    return String.valueOf(m.getId());
+                }
             }
         }
         return Movie.UNKNOWN;

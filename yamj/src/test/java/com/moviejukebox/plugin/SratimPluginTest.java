@@ -38,8 +38,8 @@ public class SratimPluginTest {
 
     @BeforeClass
     public static void setUpClass() {
+        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.SratimPlugin");
-        PropertiesUtil.setProperty("API_KEY_TheTVDb", "2805AD2873519EC5");
     }
 
     @Before
