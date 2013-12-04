@@ -28,9 +28,8 @@ public class TheMovieDbPluginTest {
     private static TheMovieDbPlugin TMDb;
 
     public TheMovieDbPluginTest() {
-        PropertiesUtil.setProperty("API_KEY_TheMovieDB", "5a1a77e2eba8984804586122754f969f");
-        PropertiesUtil.setProperty("themoviedb.language", "en");
-        PropertiesUtil.setProperty("themoviedb.country", "US");
+        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
+        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
         TMDb = new TheMovieDbPlugin();
     }
 

@@ -31,8 +31,8 @@ public class TheTvDbPosterPluginTestCase {
 
     @BeforeClass
     public static void configure() {
+        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "thetvdb");
-        PropertiesUtil.setProperty("API_KEY_TheTVDb", "2805AD2873519EC5");
     }
 
     @Test
