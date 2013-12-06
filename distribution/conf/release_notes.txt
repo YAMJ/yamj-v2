@@ -21,6 +21,7 @@ MovieJukebox 2.10-SNAPSHOT
  - Fixed defect #2695 Awards not being scraped from IMDB
  - Fixed defect #2697 Filmography from TheMovieDB now sorted before being truncated to "plugin.filmography.max" amount
  - Fixed defect #2699 Ensure properties are trimmed so they are converted properly
+ - Fixed defect #2704 Birthday showing incorrect characters
 
 MovieJukebox 2.9
 ----------------

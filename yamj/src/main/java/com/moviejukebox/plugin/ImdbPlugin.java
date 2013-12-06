@@ -126,6 +126,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private final boolean akaScrapeTitle;
     private final String[] akaMatchingCountries;
     private final String[] akaIgnoreVersions;
+    // Patterns
+    private static final Pattern PATTERN_DOB = Pattern.compile("(\\d{1,2})-(\\d{1,2})");
 
     public ImdbPlugin() {
         imdbInfo = new ImdbInfo();
@@ -1921,7 +1923,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // get personal information
         String xmlInfo = webBrowser.request(getImdbUrl(person) + "bio", siteDefinition.getCharset());
 
-        String date = "";
+        StringBuilder date = new StringBuilder();
         int endIndex;
         int beginIndex = xmlInfo.indexOf(">Date of Birth</td>");
 
@@ -1929,15 +1931,18 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             endIndex = xmlInfo.indexOf(">Date of Death</td>");
             beginIndex = xmlInfo.indexOf("birth_monthday=", beginIndex);
             if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
-                date = xmlInfo.substring(beginIndex + 18, beginIndex + 20) + "-" + xmlInfo.substring(beginIndex + 15, beginIndex + 17);
+                Matcher m = PATTERN_DOB.matcher(xmlInfo.substring(beginIndex, beginIndex + 5));
+                if (m.find()) {
+                    date.append(m.group(2)).append("-").append(m.group(1));
+                }
             }
 
             beginIndex = xmlInfo.indexOf("birth_year=", beginIndex);
             if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
-                if (!date.equals("")) {
-                    date += "-";
+                if (date.length() > 0) {
+                    date.append("-");
                 }
-                date += xmlInfo.substring(beginIndex + 11, beginIndex + 15);
+                date.append(xmlInfo.substring(beginIndex + 11, beginIndex + 15));
             }
 
             beginIndex = xmlInfo.indexOf("birth_place=", beginIndex);
@@ -1958,24 +1963,29 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (beginIndex > -1) {
             endIndex = xmlInfo.indexOf(">Mini Bio (1)</h4>", beginIndex);
             beginIndex = xmlInfo.indexOf("death_monthday=", beginIndex);
-            String dDate = "";
+            StringBuilder dDate = new StringBuilder();
             if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
-                dDate = xmlInfo.substring(beginIndex + 18, beginIndex + 20) + "-" + xmlInfo.substring(beginIndex + 15, beginIndex + 17);
+                Matcher m = PATTERN_DOB.matcher(xmlInfo.substring(beginIndex, beginIndex + 5));
+                if (m.find()) {
+                    dDate.append(m.group(2));
+                    dDate.append("-");
+                    dDate.append(m.group(1));
+                }
             }
             beginIndex = xmlInfo.indexOf("death_date=", beginIndex);
             if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
-                if (!dDate.equals("")) {
-                    dDate += "-";
+                if (dDate.length() > 0) {
+                    dDate.append("-");
                 }
-                dDate += xmlInfo.substring(beginIndex + 11, beginIndex + 15);
+                dDate.append(xmlInfo.substring(beginIndex + 11, beginIndex + 15));
             }
-            if (!dDate.equals("")) {
-                date += "/" + dDate;
+            if (dDate.length() > 0) {
+                date.append("/").append(dDate);
             }
         }
 
         if (StringUtils.isNotBlank(date)) {
-            person.setYear(date);
+            person.setYear(date.toString());
         }
 
         beginIndex = xmlInfo.indexOf(">Birth Name</td>");
@@ -2003,9 +2013,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        String biography = Movie.UNKNOWN;
         if (xmlInfo.indexOf(">Mini Bio (1)</h4>") > -1) {
-            biography = HTMLTools.extractTag(xmlInfo, ">Mini Bio (1)</h4>", "<em>- IMDb Mini Biography By");
+            String biography = HTMLTools.extractTag(xmlInfo, ">Mini Bio (1)</h4>", "<em>- IMDb Mini Biography By");
 
             if (isValidString(biography)) {
                 biography = HTMLTools.removeHtmlTags(biography);
