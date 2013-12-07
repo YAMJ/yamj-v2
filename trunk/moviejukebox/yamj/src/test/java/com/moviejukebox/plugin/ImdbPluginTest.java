@@ -61,7 +61,7 @@ public class ImdbPluginTest {
     public void tearDown() {
     }
 
-    @Test
+//    @Test
     public void testImdbMoviePlotLong() {
         LOG.info("testImdbMoviePlotLong");
         PropertiesUtil.setProperty("imdb.site", "us");
@@ -77,7 +77,7 @@ public class ImdbPluginTest {
         assertNotEquals(Movie.UNKNOWN, movie.getPlot());
     }
 
-    @Test
+//    @Test
     public void testImdbTvShow() {
         LOG.info("testImdbTvShow");
         PropertiesUtil.setProperty("imdb.site", "us");
@@ -127,10 +127,11 @@ public class ImdbPluginTest {
         assertEquals("Wrong birth name", "Gérard Xavier Marcel Depardieu", person.getBirthName());
         assertEquals("Wrong birth place", "Châteauroux, Indre, France", person.getBirthPlace());
         assertTrue("No Filmography", person.getFilmography().size() > 0);
+        assertEquals("Wrong birthday", "27-12-1948", person.getYear());
         assertTrue("No character", StringTools.isValidString(person.getFilmography().get(0).getCharacter()));
     }
 
-    @Test
+//    @Test
     public void testImdb_NewLayout() {
         LOG.info("testImdb_NewLayout");
         PropertiesUtil.setProperty("imdb.site", "us");
@@ -155,7 +156,7 @@ public class ImdbPluginTest {
         assertTrue("No awards scraped", movie.getAwards().size() > 1);
     }
 
-    @Test
+//    @Test
     public void testImdb_Combined() {
         LOG.info("testImdb_Combined");
         PropertiesUtil.setProperty("imdb.site", "us");
@@ -178,7 +179,7 @@ public class ImdbPluginTest {
         assertEquals("Incorrect Writers", 3, movie.getWriters().size());
     }
 
-    @Test
+//    @Test
     public void testScanNFO() {
         LOG.info("testScanNFO");
         String nfo = "\nhttp://www.imdb.com/title/tt0458339/\n";

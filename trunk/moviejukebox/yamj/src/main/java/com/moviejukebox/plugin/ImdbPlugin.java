@@ -1931,7 +1931,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             endIndex = xmlInfo.indexOf(">Date of Death</td>");
             beginIndex = xmlInfo.indexOf("birth_monthday=", beginIndex);
             if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
-                Matcher m = PATTERN_DOB.matcher(xmlInfo.substring(beginIndex, beginIndex + 5));
+                Matcher m = PATTERN_DOB.matcher(xmlInfo.substring(beginIndex + 15, beginIndex + 20));
                 if (m.find()) {
                     date.append(m.group(2)).append("-").append(m.group(1));
                 }
@@ -1965,7 +1965,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             beginIndex = xmlInfo.indexOf("death_monthday=", beginIndex);
             StringBuilder dDate = new StringBuilder();
             if (beginIndex > -1 && (endIndex == -1 || beginIndex < endIndex)) {
-                Matcher m = PATTERN_DOB.matcher(xmlInfo.substring(beginIndex, beginIndex + 5));
+                Matcher m = PATTERN_DOB.matcher(xmlInfo.substring(beginIndex + 15, beginIndex + 20));
                 if (m.find()) {
                     dDate.append(m.group(2));
                     dDate.append("-");
