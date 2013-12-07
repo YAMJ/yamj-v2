@@ -1663,19 +1663,15 @@ public class Library implements Map<String, Movie> {
             cmpMovie = new MovieReleaseComparator(ascending);
         }
 
-//        if (StringTools.isValidString(sortKey) && !sortKey.equalsIgnoreCase(INDEX_TITLE)) {
-//            if (sortKey.equalsIgnoreCase(INDEX_YEAR)) {
-//                cmpMovie = new MovieReleaseComparator(ascending);
-//            } else if (sortKey.equalsIgnoreCase(INDEX_RATING)) {
-//                cmpMovie = new MovieRatingComparator(ascending);
-//            }
-//        }
         return cmpMovie;
     }
 
     /**
-     * Find the un-modified category name. The Category name could be changed by the use of the Category XML file. This function
-     * will return the original, unchanged name
+     * Find the un-modified category name.
+     *
+     * The Category name could be changed by the use of the Category XML file.
+     *
+     * This function will return the original, unchanged name
      *
      * @param newCategory
      * @param returnCategory
@@ -1697,7 +1693,10 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the renamed category name from the original name The Category name could be changed by the use of the Category XML file.
+     * Find the renamed category name from the original name
+     *
+     * The Category name could be changed by the use of the Category XML file.
+     *
      * This function will return the new name.
      *
      * @param newCategory

@@ -1529,13 +1529,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setPlot(String plot, String source, boolean trimToLength) {
         if (StringTools.isValidString(plot)) {
-            if (!plot.equalsIgnoreCase(this.plot)) {
+            String tmpPlot = StringTools.replaceQuotes(plot);
+            if (trimToLength) {
+                tmpPlot = StringTools.trimToLength(tmpPlot, MAX_LENGTH_PLOT);
+            }
+
+            if (!tmpPlot.equalsIgnoreCase(this.plot)) {
                 setDirty(DirtyFlag.INFO);
-                if (trimToLength) {
-                    this.plot = StringTools.trimToLength(plot, MAX_LENGTH_PLOT);
-                } else {
-                    this.plot = plot;
-                }
+                this.plot = tmpPlot;
             }
             setOverrideSource(OverrideFlag.PLOT, source);
         }
@@ -1551,13 +1552,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setOutline(String outline, String source, boolean trimToLength) {
         if (StringTools.isValidString(outline)) {
-            if (!outline.equalsIgnoreCase(this.outline)) {
+            String tmpOutline = StringTools.replaceQuotes(outline);
+            if (trimToLength) {
+                tmpOutline = StringTools.trimToLength(tmpOutline, MAX_LENGTH_PLOT);
+            }
+
+            if (!tmpOutline.equalsIgnoreCase(this.outline)) {
                 setDirty(DirtyFlag.INFO);
-                if (trimToLength) {
-                    this.outline = StringTools.trimToLength(outline, MAX_LENGTH_OUTLINE);
-                } else {
-                    this.outline = outline;
-                }
+                this.outline = tmpOutline;
             }
             setOverrideSource(OverrideFlag.OUTLINE, source);
         }
