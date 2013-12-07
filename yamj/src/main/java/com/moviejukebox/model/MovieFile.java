@@ -52,40 +52,42 @@ public class MovieFile implements Comparable<MovieFile> {
     private boolean newFile = Boolean.TRUE;     // is new file or already exists in XML data
     private boolean subtitlesExchange = false;  // Are the subtitles for this file already downloaded/uploaded to the server
     private Map<String, String> playLink = new HashMap<String, String>();
-    private Map<Integer, String> titles = new LinkedHashMap<Integer, String>();
-    private Map<Integer, String> plots = new LinkedHashMap<Integer, String>();
-    private Map<Integer, String> videoImageURL = new LinkedHashMap<Integer, String>();
-    private Map<Integer, String> videoImageFilename = new LinkedHashMap<Integer, String>();
-    private Map<Integer, String> airsAfterSeason = new LinkedHashMap<Integer, String>();
-    private Map<Integer, String> airsBeforeSeason = new LinkedHashMap<Integer, String>();
-    private Map<Integer, String> airsBeforeEpisode = new LinkedHashMap<Integer, String>();
-    private Map<Integer, String> firstAired = new LinkedHashMap<Integer, String>();
-    private Map<Integer, String> ratings = new LinkedHashMap<Integer, String>();
-    private Map<OverrideFlag, String> overrideSources = new EnumMap<OverrideFlag, String>(OverrideFlag.class);
+    private final Map<Integer, String> titles = new LinkedHashMap<Integer, String>();
+    private final Map<Integer, String> plots = new LinkedHashMap<Integer, String>();
+    private final Map<Integer, String> videoImageURL = new LinkedHashMap<Integer, String>();
+    private final Map<Integer, String> videoImageFilename = new LinkedHashMap<Integer, String>();
+    private final Map<Integer, String> airsAfterSeason = new LinkedHashMap<Integer, String>();
+    private final Map<Integer, String> airsBeforeSeason = new LinkedHashMap<Integer, String>();
+    private final Map<Integer, String> airsBeforeEpisode = new LinkedHashMap<Integer, String>();
+    private final Map<Integer, String> firstAired = new LinkedHashMap<Integer, String>();
+    private final Map<Integer, String> ratings = new LinkedHashMap<Integer, String>();
+    private final Map<OverrideFlag, String> overrideSources = new EnumMap<OverrideFlag, String>(OverrideFlag.class);
     private File file;
     private MovieFileNameDTO info;
-    private List<Attachment> attachments = new ArrayList<Attachment>();
+    private final List<Attachment> attachments = new ArrayList<Attachment>();
     private boolean attachmentsScanned = false;
     private boolean watched = false;
     private long watchedDate = 0;
-    private boolean playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", Boolean.TRUE);
-    private boolean includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", Boolean.FALSE);
-    private boolean includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
-    private boolean includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", Boolean.FALSE);
+    private final boolean playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", Boolean.TRUE);
+    private final boolean includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", Boolean.FALSE);
+    private final boolean includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
+    private final boolean includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", Boolean.FALSE);
     private static final Boolean DIR_HASH = PropertiesUtil.getBooleanProperty("mjb.dirHash", Boolean.FALSE);
-    private String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
-    private String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");
-    
+    private final String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
+    private final String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");
+
     // checks
     private static final int MAX_LENGTH_EPISODE_PLOT = PropertiesUtil.getReplacedIntProperty("movie.episodeplot.maxLength", "plugin.plot.maxlength", 500);
-    
+
     private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
         private static final long serialVersionUID = 1247815606593469672L;
+
         {
             String scannerTypes = PropertiesUtil.getProperty("filename.scanner.types", "ZCD,VOD");
 
             HashMap<String, String> scannerTypeDefaults = new HashMap<String, String>() {
                 private static final long serialVersionUID = -6480597100092105116L;
+
                 {
                     put("ZCD", "ISO,IMG,VOB,MDF,NRG,BIN");
                     put("VOD", "");
@@ -172,11 +174,11 @@ public class MovieFile implements Comparable<MovieFile> {
             }
         } else if (parsedFromXml) {
             // set plot when parsed from XML
-            plots.put(part, plot);
+            plots.put(part, StringTools.replaceQuotes(plot));
             setOverrideSource(OverrideFlag.EPISODE_PLOT, source);
         } else if (includeEpisodePlots) {
             // only add if parameter is set
-            plots.put(part, StringTools.trimToLength(plot, MAX_LENGTH_EPISODE_PLOT));
+            plots.put(part, StringTools.trimToLength(StringTools.replaceQuotes(plot), MAX_LENGTH_EPISODE_PLOT));
             setOverrideSource(OverrideFlag.EPISODE_PLOT, source);
         }
     }
