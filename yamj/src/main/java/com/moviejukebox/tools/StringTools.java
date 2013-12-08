@@ -23,21 +23,24 @@
 package com.moviejukebox.tools;
 
 import com.moviejukebox.model.Movie;
-import java.io.File;
 import java.text.BreakIterator;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 
 public final class StringTools {
 
+    private static final Logger LOG = Logger.getLogger(StringTools.class);
     private static final Pattern CLEAN_STRING_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
     // Number formatting
     private static final long KB = 1024;
@@ -48,14 +51,45 @@ public final class StringTools {
     private static final DecimalFormat FILESIZE_FORMAT_2 = new DecimalFormat("0.##");
     private static final Map<Character, Character> CHAR_REPLACEMENT_MAP = new HashMap<Character, Character>();
     // Quote replacements
-    private static final String QUOTE_BACKTICK = "`";
-    private static final String QUOTE_DOUBLE = "\"";
-    private static final String QUOTE_FORWARD = "’";
     private static final String QUOTE_SINGLE = "\'";
-    private static final Pattern QUOTE_PATTERN = Pattern.compile(QUOTE_BACKTICK + "|" + QUOTE_DOUBLE + "|" + QUOTE_FORWARD);
+    private static final Pattern QUOTE_PATTERN = Pattern.compile(generateQuoteList());
 
     private StringTools() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
+    /**
+     * Generate the pattern string for all available quote marks
+     *
+     * @return
+     */
+    private static String generateQuoteList() {
+        HashSet<String> quotes = new HashSet<String>();
+        // Double quote - "
+        quotes.add("\"");
+        // Single left quote - ‘
+        quotes.add("\u2018");
+        // Single right quote - ’
+        quotes.add("\u2019");
+        // Double left quote - “
+        quotes.add("\u201C");
+        // Double right quote - ”
+        quotes.add("\u201D");
+        // Low single quote - ‚
+        quotes.add("\u201A");
+        // Low double quote - „
+        quotes.add("\u201E");
+        // Backtick "quote" - `
+        quotes.add("`");
+        // Odd quote character that comes across from TheTVDB
+        quotes.add("â€™");
+
+        StringBuilder quoteString = new StringBuilder();
+        for (String quote : quotes) {
+            quoteString.append(quote).append("|");
+        }
+        quoteString.deleteCharAt(quoteString.length() - 1);
+        return quoteString.toString();
     }
 
     static {
@@ -119,11 +153,16 @@ public final class StringTools {
      * @param additionalPath
      * @return
      */
-    public static String appendToPath(String basePath, String additionalPath) {
-        StringBuilder newPath = new StringBuilder(basePath.trim());
-        newPath.append((basePath.trim().endsWith(File.separator) ? "" : File.separator));
-        newPath.append(additionalPath.trim());
-        return newPath.toString();
+    public static String appendToPath(final String basePath, final String additionalPath) {
+        String tmpAdditionalPath;
+        if (additionalPath.startsWith("\\") || additionalPath.startsWith("/")) {
+            // Remove any path characters from the additional path as this interferes with the conncat
+            tmpAdditionalPath = additionalPath.substring(1);
+        } else {
+            tmpAdditionalPath = additionalPath;
+        }
+
+        return FilenameUtils.concat(basePath, tmpAdditionalPath);
     }
 
     public static String cleanString(String sourceString) {
@@ -235,7 +274,7 @@ public final class StringTools {
                 if (trimToWord) {
                     BreakIterator bi = BreakIterator.getWordInstance();
                     bi.setText(changedString);
-                    int biLength = bi.preceding(requiredLength - endingSuffix.length());
+                    int biLength = bi.preceding(requiredLength - endingSuffix.length() + 1);
                     return changedString.substring(0, biLength).trim() + endingSuffix;
                 } else {
                     // We know that the source string is longer that the required length, so trim it to size
@@ -247,8 +286,9 @@ public final class StringTools {
     }
 
     /**
-     * Cast a generic list to a specfic class See:
-     * http://stackoverflow.com/questions/367626/how-do-i-fix-the-expression-of-type-list-needs-unchecked-conversion
+     * Cast a generic list to a specific class
+     *
+     * See: http://stackoverflow.com/questions/367626/how-do-i-fix-the-expression-of-type-list-needs-unchecked-conversion
      *
      * @param <T>
      * @param objClass
