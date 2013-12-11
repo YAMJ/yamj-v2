@@ -22,12 +22,14 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.model.Movie;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.LinkedList;
+import javax.xml.ws.WebServiceException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import com.moviejukebox.model.Movie;
-import java.io.IOException;
 
 public class SearchEngineTools {
 
@@ -36,8 +38,8 @@ public class SearchEngineTools {
     private WebBrowser webBrowser;
     private LinkedList<String> searchSites;
     private String searchSuffix = "";
-    private String country;
-    private String language;
+    private final String country;
+    private String language = "";
     private String googleHost = "www.google.com";
     private String yahooHost = "search.yahoo.com";
     private String bingHost = "www.bing.com";
@@ -56,7 +58,10 @@ public class SearchEngineTools {
         searchSites.addAll(Arrays.asList(PropertiesUtil.getProperty("searchengine.sites", "google,yahoo,bing").split(",")));
 
         // country specific presets
-        if ("de".equalsIgnoreCase(country)) {
+        if ("us".equalsIgnoreCase(country)) {
+            this.country = "us";
+            // Leave the rest as defaults
+        } else if ("de".equalsIgnoreCase(country)) {
             this.country = "de";
             language = "de";
             googleHost = "www.google.de";
@@ -94,6 +99,8 @@ public class SearchEngineTools {
             this.country = "nl";
             language = "nl";
             googleHost = "www.google.nl";
+        } else {
+            throw new WebServiceException("Invalid country '" + country + "' specified");
         }
     }
 
@@ -149,7 +156,7 @@ public class SearchEngineTools {
             StringBuilder sb = new StringBuilder("https://");
             sb.append(googleHost);
             sb.append("/search?");
-            if (language != null) {
+            if (StringUtils.isNotBlank(language)) {
                 sb.append("hl=");
                 sb.append(language);
                 sb.append("&");
@@ -162,7 +169,7 @@ public class SearchEngineTools {
                 sb.append(")");
             }
 
-            if (additional != null) {
+            if (StringUtils.isNotBlank(additional)) {
                 sb.append("+");
                 sb.append(URLEncoder.encode(additional, "UTF-8"));
             }
@@ -174,6 +181,17 @@ public class SearchEngineTools {
             int beginIndex = xml.indexOf("http://" + site + searchSuffix);
             if (beginIndex != -1) {
                 returnedXml = xml.substring(beginIndex, xml.indexOf("\"", beginIndex));
+
+                if (country.equals("pl")) {
+                    // Strip out anythign after the first sub-URL
+                    int pos = returnedXml.indexOf(site);
+                    if (pos > -1) {
+                        pos = returnedXml.indexOf('/', pos + site.length() + 1);
+                        if (pos > -1) {
+                            returnedXml = returnedXml.substring(0, pos);
+                        }
+                    }
+                }
             }
         } catch (IOException error) {
             LOG.error(LOG_MESSAGE + "Failed retrieving link url by google search: " + title);
@@ -189,7 +207,7 @@ public class SearchEngineTools {
             StringBuilder sb = new StringBuilder("http://");
             sb.append(yahooHost);
             sb.append("/search?vc=");
-            if (country != null) {
+            if (StringUtils.isNotBlank(country)) {
                 sb.append(country);
                 sb.append("&rd=r2");
             }
@@ -201,7 +219,7 @@ public class SearchEngineTools {
                 sb.append("%29");
             }
 
-            if (additional != null) {
+            if (StringUtils.isNotBlank(additional)) {
                 sb.append("+");
                 sb.append(URLEncoder.encode(additional, "UTF-8"));
             }
@@ -224,7 +242,7 @@ public class SearchEngineTools {
                 }
             }
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed retrieving link url by yahoo search: " + title);
+            LOG.error(LOG_MESSAGE + "Failed retrieving link URL by yahoo search: " + title);
             LOG.error(SystemTools.getStackTrace(error));
         }
         return Movie.UNKNOWN;
@@ -243,13 +261,13 @@ public class SearchEngineTools {
                 sb.append(year);
                 sb.append("%29");
             }
-            if (additional != null) {
+            if (StringUtils.isNotBlank(additional)) {
                 sb.append("+");
                 sb.append(URLEncoder.encode(additional, "UTF-8"));
             }
             sb.append("+site%3A");
             sb.append(site);
-            if (country != null) {
+            if (StringUtils.isNotBlank(country)) {
                 sb.append("&cc=");
                 sb.append(country);
                 sb.append("&filt=rf");
