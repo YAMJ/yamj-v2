@@ -72,19 +72,15 @@ public class FilmwebPlugin extends ImdbPlugin {
     public String getMovieId(Movie movie) {
         String filmwebUrl = movie.getId(FILMWEB_PLUGIN_ID);
         if (StringTools.isNotValidString(filmwebUrl)) {
-            filmwebUrl = getMovieId(movie.getTitle(), movie.getYear(), movie.getSeason());
+            filmwebUrl = getMovieId(movie.getTitle(), movie.getYear());
             movie.setId(FILMWEB_PLUGIN_ID, filmwebUrl);
         }
         return filmwebUrl;
     }
 
     public String getMovieId(String title, String year) {
-        return getMovieId(title, year, -1);
-    }
-
-    public String getMovieId(String title, String year, int season) {
         // try with filmweb search
-        String filmwebUrl = getFilmwebUrlFromFilmweb(title, year, season);
+        String filmwebUrl = getFilmwebUrlFromFilmweb(title, year);
         if (StringTools.isNotValidString(filmwebUrl)) {
             // try with search engines
             filmwebUrl = searchEngineTools.searchMovieURL(title, year, "www.filmweb.pl");
@@ -92,7 +88,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         return filmwebUrl;
     }
 
-    private String getFilmwebUrlFromFilmweb(String title, String year, int season) {
+    private String getFilmwebUrlFromFilmweb(String title, String year) {
         try {
             StringBuilder sb = new StringBuilder("http://www.filmweb.pl/search?q=");
             sb.append(URLEncoder.encode(title, "UTF-8"));
@@ -110,7 +106,7 @@ public class FilmwebPlugin extends ImdbPlugin {
                     return "http://www.filmweb.pl" + href;
                 }
             }
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error(LOG_MESSAGE + "Failed retrieving Filmweb url for title : " + title);
             LOG.error(SystemTools.getStackTrace(error));
         }
@@ -179,7 +175,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (OverrideTools.checkOverwriteRuntime(movie, FILMWEB_PLUGIN_ID)) {
-                String runtime = HTMLTools.getTextAfterElem(xml, "czas trwania:");
+                String runtime = HTMLTools.getTextAfterElem(xml, "<div class=filmTime>");
                 int intRuntime = DateTimeTools.processRuntime(runtime);
                 if (intRuntime > 0) {
                     movie.setRuntime(String.valueOf(intRuntime), FILMWEB_PLUGIN_ID);
@@ -197,7 +193,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
             if (OverrideTools.checkOverwriteGenres(movie, FILMWEB_PLUGIN_ID)) {
                 List<String> newGenres = new ArrayList<String>();
-                for (String genre : HTMLTools.extractTags(xml, "gatunek:", "premiera:", "<a ", "</a>")) {
+                for (String genre : HTMLTools.extractTags(xml, "gatunek:", "produkcja:", "<a ", "</a>")) {
                     newGenres.add(Library.getIndexingGenre(genre));
                 }
                 movie.setGenres(newGenres, FILMWEB_PLUGIN_ID);
@@ -238,7 +234,7 @@ public class FilmwebPlugin extends ImdbPlugin {
                 }
             }
 
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error(LOG_MESSAGE + "Failed retreiving filmweb informations for movie : " + movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
             LOG.error(SystemTools.getStackTrace(error));
             returnValue = Boolean.FALSE;
@@ -316,9 +312,8 @@ public class FilmwebPlugin extends ImdbPlugin {
     private int parseRating(String rating) {
         int returnRating = -1;
         try {
-            LOG.info("RATING TO PARSE: " + rating);
             returnRating = Math.round(Float.parseFloat(rating.replace(",", ".")) * 10);
-        } catch (Exception error) {
+        } catch (NumberFormatException error) {
             LOG.info("Failed to parse rating '" + rating + "', error: " + error.getMessage(), error);
         }
         return returnRating;
@@ -358,7 +353,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
                     if (OverrideTools.checkOverwriteEpisodeTitle(file, part, FILMWEB_PLUGIN_ID)) {
                         wasSeraching = Boolean.TRUE;
-                        String episodeName = HTMLTools.getTextAfterElem(xml, "odcinek&nbsp;" + part, 2, fromIndex);
+                        String episodeName = HTMLTools.getTextAfterElem(xml, "odcinek&nbsp;" + part, 4, fromIndex);
                         if (StringTools.isValidString(episodeName)) {
                             found = Boolean.TRUE;
                             file.setTitle(part, episodeName, FILMWEB_PLUGIN_ID);

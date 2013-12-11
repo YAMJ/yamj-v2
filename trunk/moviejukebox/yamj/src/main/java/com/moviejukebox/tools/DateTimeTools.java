@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime2.DateTime;
@@ -149,42 +150,35 @@ public final class DateTimeTools {
         // See if we can convert this to a number and assume it's correct if we can
         try {
             returnValue = Integer.parseInt(runtime);
-            return returnValue;
         } catch (NumberFormatException ignore) {
             returnValue = -1;
         }
 
-        // This is for the format xx(hour/hr/min)yy(min), e.g. 1h30, 90mins, 1h30m
-        Pattern hrmnPattern = Pattern.compile("(?i)(\\d+)(\\D*)(\\d*)(.*?)");
+        if (returnValue < 0) {
+            // This is for the format xx(hour/hr/min)yy(min), e.g. 1h30, 90mins, 1h30m
+            Pattern hrmnPattern = Pattern.compile("(?i)(\\d+)(\\D*)(\\d*)(.*?)");
 
-        Matcher matcher = hrmnPattern.matcher(runtime);
-        if (matcher.find()) {
-            String first = matcher.group(1);
-            String divide = matcher.group(2);
-            String second = matcher.group(3);
+            Matcher matcher = hrmnPattern.matcher(runtime);
+            if (matcher.find()) {
+                int first = NumberUtils.toInt(matcher.group(1), -1);
+                String divide = matcher.group(2);
+                int second = NumberUtils.toInt(matcher.group(3), -1);
 
-            if (isValidString(second)) {
-                // Assume that this is HH(text)MM
-                returnValue = (Integer.parseInt(first) * 60) + Integer.parseInt(second);
-                return returnValue;
-            }
-
-            if (isNotValidString(divide)) {
-                // No divider value, so assume this is a straight minute value
-                returnValue = Integer.parseInt(first);
-                return returnValue;
-            }
-
-            if (isNotValidString(second) && isValidString(divide)) {
-                // this is xx(text) so we need to work out what the (text) is
-                if (divide.toLowerCase().contains("h")) {
-                    // Assume it is a form of "hours", so convert to minutes
-                    returnValue = Integer.parseInt(first) * 60;
-                } else {
-                    // Assume it's a form of "minutes"
-                    returnValue = Integer.parseInt(first);
+                if (first > -1 && second > -1) {
+                    returnValue = (first > -1 ? first * 60 : 0) + (second > -1 ? second : 0);
+                } else if (isNotValidString(divide)) {
+                    // No divider value, so assume this is a straight minute value
+                    returnValue = first;
+                } else if (second > -1 && isValidString(divide)) {
+                    // this is xx(text) so we need to work out what the (text) is
+                    if (divide.toLowerCase().contains("h")) {
+                        // Assume it is a form of "hours", so convert to minutes
+                        returnValue = first * 60;
+                    } else {
+                        // Assume it's a form of "minutes"
+                        returnValue = first;
+                    }
                 }
-                return returnValue;
             }
         }
 

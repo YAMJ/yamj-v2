@@ -61,7 +61,7 @@ public class ImdbPluginTest {
     public void tearDown() {
     }
 
-//    @Test
+    @Test
     public void testImdbMoviePlotLong() {
         LOG.info("testImdbMoviePlotLong");
         PropertiesUtil.setProperty("imdb.site", "us");
@@ -71,13 +71,14 @@ public class ImdbPluginTest {
 
         Movie movie = new Movie();
         movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt1515091");
+        movie.setBaseName("Test_Movie_Avatar");
 
         assertTrue(imdbPlugin.scan(movie));
         assertNotNull(movie.getPlot());
         assertNotEquals(Movie.UNKNOWN, movie.getPlot());
     }
 
-//    @Test
+    @Test
     public void testImdbTvShow() {
         LOG.info("testImdbTvShow");
         PropertiesUtil.setProperty("imdb.site", "us");
@@ -131,7 +132,7 @@ public class ImdbPluginTest {
         assertTrue("No character", StringTools.isValidString(person.getFilmography().get(0).getCharacter()));
     }
 
-//    @Test
+    @Test
     public void testImdb_NewLayout() {
         LOG.info("testImdb_NewLayout");
         PropertiesUtil.setProperty("imdb.site", "us");
@@ -141,7 +142,7 @@ public class ImdbPluginTest {
 
         Movie movie = new Movie();
         movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0499549");
-        movie.setBaseName("Test Movie - Avatar");
+        movie.setBaseName("Test_Movie_Avatar");
 
         assertTrue(imdbPlugin.scan(movie));
         assertEquals("Incorrect year", "2009", movie.getYear());
@@ -156,7 +157,7 @@ public class ImdbPluginTest {
         assertTrue("No awards scraped", movie.getAwards().size() > 1);
     }
 
-//    @Test
+    @Test
     public void testImdb_Combined() {
         LOG.info("testImdb_Combined");
         PropertiesUtil.setProperty("imdb.site", "us");
@@ -165,7 +166,7 @@ public class ImdbPluginTest {
 
         Movie movie = new Movie();
         movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0499549");
-        movie.setBaseName("Test Movie - Avatar");
+        movie.setBaseName("Test_Movie_Avatar");
 
         assertTrue(imdbPlugin.scan(movie));
         assertEquals("Incorrect year", "2009", movie.getYear());
@@ -179,7 +180,7 @@ public class ImdbPluginTest {
         assertEquals("Incorrect Writers", 3, movie.getWriters().size());
     }
 
-//    @Test
+    @Test
     public void testScanNFO() {
         LOG.info("testScanNFO");
         String nfo = "\nhttp://www.imdb.com/title/tt0458339/\n";
