@@ -1554,7 +1554,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringTools.isValidString(outline)) {
             String tmpOutline = StringTools.replaceQuotes(outline);
             if (trimToLength) {
-                tmpOutline = StringTools.trimToLength(tmpOutline, MAX_LENGTH_PLOT);
+                tmpOutline = StringTools.trimToLength(tmpOutline, MAX_LENGTH_OUTLINE);
             }
 
             if (!tmpOutline.equalsIgnoreCase(this.outline)) {
