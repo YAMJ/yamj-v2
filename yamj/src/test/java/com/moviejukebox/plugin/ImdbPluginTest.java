@@ -165,19 +165,23 @@ public class ImdbPluginTest {
         ImdbPlugin imdbPlugin = new ImdbPlugin();
 
         Movie movie = new Movie();
-        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0499549");
-        movie.setBaseName("Test_Movie_Avatar");
+        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0133093");
+        movie.setBaseName("Test_Movie_Matrix");
 
         assertTrue(imdbPlugin.scan(movie));
-        assertEquals("Incorrect year", "2009", movie.getYear());
+        assertEquals("Incorrect year", "1999", movie.getYear());
         assertNotEquals("Incorrect Plot", Movie.UNKNOWN, movie.getPlot());
         assertTrue("Incorrect Rating", movie.getRating(ImdbPlugin.IMDB_PLUGIN_ID) > 0);
-        assertEquals("Incorrect Country", "USA / UK", movie.getCountry());
-        assertEquals("Incorrect Company", "Twentieth Century Fox Film Corporation", movie.getCompany());
-        assertEquals("Incorrect Tagline", "Enter the World", movie.getTagline());
+        assertEquals("Incorrect Country", "USA / Australia", movie.getCountry());
+        assertEquals("Incorrect Company", "Warner Bros.", movie.getCompany());
+        assertEquals("Incorrect Tagline", "Free your mind", movie.getTagline());
         assertEquals("Incorrect number of cast", 10, movie.getCast().size());
-        assertEquals("Incorrect Directors", 1, movie.getDirectors().size());
-        assertEquals("Incorrect Writers", 3, movie.getWriters().size());
+
+        assertTrue("Andy W not found in Directors", movie.getDirectors().contains("Andy Wachowski"));
+        assertTrue("Lana W not found in Directors", movie.getDirectors().contains("Lana Wachowski"));
+        assertTrue("Andy W not found in Writers", movie.getWriters().contains("Andy Wachowski"));
+        assertTrue("Lana W not found in Writers", movie.getWriters().contains("Lana Wachowski"));
+
     }
 
     @Test
