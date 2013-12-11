@@ -26,15 +26,16 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,7 +44,6 @@ public class FilmDeltaSEPluginTest {
 
     private FilmDeltaPluginMock toTest;
     private static final Logger LOG = Logger.getLogger(FilmDeltaSEPluginTest.class);
-    private Movie movie = new Movie();
     /* offline = true, run tests with mocked pages to verify that
      * no changes in project code has been made that breaks the
      * plugin code
@@ -71,7 +71,6 @@ public class FilmDeltaSEPluginTest {
         offline = true;
         toTest = new FilmDeltaPluginMock(offline);
         toTest.init();
-        movie = new Movie();
     }
 
     @After
@@ -85,6 +84,8 @@ public class FilmDeltaSEPluginTest {
 
     @Test
     public void testScanNFONoUrl() {
+        LOG.info("testScanNFONoUrl");
+        Movie movie = new Movie();
         toTest.scanNFO("", movie);
         assertEquals(Movie.UNKNOWN, movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
     }
@@ -92,6 +93,7 @@ public class FilmDeltaSEPluginTest {
     @Test
     public void testScanNFO() {
         LOG.info("testScanNFO");
+        Movie movie = new Movie();
         toTest.scanNFO("http://www.filmdelta.se/prevsearch/aristocats/filmer/20892/aristocats/", movie);
         assertEquals("Failed prevsearch test", "20892/aristocats", movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
         LOG.info("Testing filmer");
@@ -102,82 +104,70 @@ public class FilmDeltaSEPluginTest {
 
     @Test
     public void testScanNFOWithImdbAndFilmdeltaUrl() {
+        LOG.info("testScanNFOWithImdbAndFilmdeltaUrl");
+        Movie movie = new Movie();
         toTest.scanNFO("http://www.imdb.com/title/tt0065421/\n\nhttp://www.filmdelta.se/prevsearch/aristocats/filmer/20892/aristocats/", movie);
         assertEquals("20892/aristocats", movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID));
     }
 
     @Test
     public void testGetFilmdeltaIdWithName() {
+        LOG.info("testGetFilmdeltaIdWithName");
         toTest.setRequestResult("<p><a href=\"/url?q=http://www.filmdelta.se/filmer/20892/aristocats/&amp;sa=U&amp;ei=FXI0TPOCNNCcOOnekKMC&amp;ved=0CAUQFjAA&amp;usg=AFQjCNGLoWMaWaUe85eWov0O7odTgg9WMg\"><b>Aristocats</b> - Filmdelta - Filmdatabas på svenska</a><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>");
         assertEquals("20892/aristocats", toTest.getMovieId("aristocats", null));
     }
 
     @Test
     public void testGetFilmdeltaIdWithNameAndYear() {
+        LOG.info("testGetFilmdeltaIdWithNameAndYear");
         toTest.setRequestResult("</table><p><a href=\"/url?q=http://www.filmdelta.se/filmer/147238/barbie_mariposa/&amp;sa=U&amp;ei=KXQ0TKvkI42XOI28xIIC&amp;ved=0CAUQFjAA&amp;usg=AFQjCNFkufV1Q48m6uKgaLa0MHxSAEWbAQ\"><b>Barbie</b> i en julsaga - Filmdelta - Filmdatabas på svenska</a><table");
         assertEquals("147238/barbie_mariposa", toTest.getMovieId("barbie mariposa", "2007"));
     }
 
     @Test
     public void testGetFilmdeltaIdNotFound() {
+        LOG.info("testGetFilmdeltaIdNotFound");
         toTest.setRequestResult("<br>Din sökning - <b>xxyyzz+site:filmdelta.se/filmer</b> - matchade inte något dokument.<br><br>Förslag:<ul><li>Kontrollera att alla ord är rättstavade.</li>");
         assertEquals(Movie.UNKNOWN, toTest.getMovieId("xxyyzz", null));
     }
 
     @Test
     public void testGetFilmdeltaIdTheMatrix() {
+        LOG.info("testGetFilmdeltaIdTheMatrix");
         toTest.setRequestResult("</table></p><p><a href=\"/url?q=http://www.filmdelta.se/filmer/74403/the_matrix/&amp;sa=U&amp;ei=B5pWTNTFC4nLOLHD2LIO&amp;ved=0CAcQFjAB&amp;usg=AFQjCNEhfuVFg77dObKQcs-uc2pxE-7s3g\">The <b>Matrix</b> - Filmdelta - Filmdatabas på svenska</a><table");
         assertEquals("74403/the_matrix", toTest.getMovieId("matrix", "1999"));
     }
 
     @Test
     public void testGetFilmdeltaIdAliensVsAvatars() {
+        LOG.info("testGetFilmdeltaIdAliensVsAvatars");
         toTest.setRequestResult(null);
         assertEquals("174073/aliens_vs_avatars", toTest.getMovieId("Aliens vs Avatars", "2011"));
     }
 
     @Test
     public void testUpdateFilmdeltaMediaInfo() {
-        //first read the testdata - a sample page from Filmdelta.se
-        //into variable testpage
-        String testpage = "";
-        FileReader fileReader = null;
-        BufferedReader br = null;
-        try {
-            fileReader = new FileReader("src/test/java/com/moviejukebox/plugin/FilmDeltaSEPluginTest_page_aristocats.txt");
-            br = new BufferedReader(fileReader);
-            String line;
-            StringBuilder result = new StringBuilder();
-            while ((line = br.readLine()) != null) {
-                result.append(line);
-            }
-            testpage = result.toString();
-        } catch (Exception error) {
-            System.out.print(System.getProperty("user.dir") + "\n");
-            System.out.print("Testfile for testUpdateFilmdeltaMediaInfo not found\n");
-        } finally {
-            if (fileReader != null) {
-                try {
-                    fileReader.close();
-                } catch (IOException ex) {
-                    // ignore
-                }
-            }
+        LOG.info("testUpdateFilmdeltaMediaInfo");
+        // Set the plot and outline lengths
+        PropertiesUtil.setProperty("movie.plot.maxLength", 500);
+        PropertiesUtil.setProperty("movie.outline.maxLength", 300);
+        Movie movie = new Movie();
 
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException ex) {
-                    // ignore
-                }
-            }
+        // First read the testdata - a sample page from Filmdelta.se into variable testpage
+        String testpage;
+        try {
+            testpage = FileUtils.readFileToString(new File("src/test/java/com/moviejukebox/plugin/FilmDeltaSEPluginTest_page_aristocats.txt"));
+        } catch (IOException ex) {
+            LOG.info(System.getProperty("user.dir"));
+            fail("Testfile for testUpdateFilmdeltaMediaInfo not found");
+            return;
         }
 
-        //prepare the mock to use this testdata
+        // Prepare the mock to use this testdata
         toTest.setRequestResult(testpage);
         String filmdeltaId = "20892/aristocats";
 
-        //do the testing
+        // Do the testing
         toTest.updateMediaInfo(movie, filmdeltaId);
         assertEquals("Aristocats", movie.getTitle());
         assertEquals("USA", movie.getCountry());
@@ -193,6 +183,13 @@ public class FilmDeltaSEPluginTest {
 
     @Test
     public void testSetOutline550() {
+        LOG.info("testSetOutline550");
+
+        // Set the plot and outline lengths
+        PropertiesUtil.setProperty("movie.plot.maxLength", 550);
+        PropertiesUtil.setProperty("movie.outline.maxLength", 550);
+
+        Movie movie = new Movie();
         movie.setTitle("Testing outlines-550chars", FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID);
         String plot550 = "<div class=\"text\"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. <br /> In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, vehicula et mauris. Integer ultrices enim et mi feugiat malesuada. Sed quam ligula, adipiscing non euismod quis, luctus a dui. Maecenas pulvinar dui nec velit aliquam a gravida risus faucibus. Nulla sit amet arcu nisl. <br />Sed pulvinar volutpat erat id.</p>";
         //String expectedOutline550 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, v...";
@@ -203,17 +200,31 @@ public class FilmDeltaSEPluginTest {
 
     @Test
     public void testSetOutline350() {
+        LOG.info("testSetOutline350");
+
+        // Set the plot and outline lengths
+        PropertiesUtil.setProperty("movie.plot.maxLength", 350);
+        PropertiesUtil.setProperty("movie.outline.maxLength", 300);
+
+        Movie movie = new Movie();
         movie.setTitle("Testing outlines-350chars", FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID);
         String plot350 = "<div class=\"text\"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. <br /> In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, vehicula et mauris. Integer ultrices enim et mi feugiat malesuada.</p>";
         //String expectedOutline550 = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, v...";
-        String expectedOutline550 = StringTools.trimToLength("Lorem ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, vehicula et mauris. Integer ultrices enim et mi feugiat malesuada.", 300);
+        String expectedOutline300 = StringTools.trimToLength("Lorem ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus elit, luctus ac mattis eu, vehicula et mauris. Integer ultrices enim et mi feugiat malesuada.", 300);
         toTest.getFilmdeltaPlot(movie, plot350);
         //expect same result as with 550 characters cause outlines are cut at 300 chars
-        assertEquals(expectedOutline550, movie.getOutline());
+        assertEquals(expectedOutline300, movie.getOutline());
     }
 
     @Test
     public void testSetOutline250() {
+        LOG.info("testSetOutline250");
+
+        // Set the plot and outline lengths
+        PropertiesUtil.setProperty("movie.plot.maxLength", 250);
+        PropertiesUtil.setProperty("movie.outline.maxLength", 250);
+
+        Movie movie = new Movie();
         movie.setTitle("Testing outlines-250chars", FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID);
         String plot250 = "<div class=\"text\"><p>Testa ipsum dolor sit amet, consectetur adipiscing elit. <br /> In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus eli</p>";
         String expectedOutline250 = "Testa ipsum dolor sit amet, consectetur adipiscing elit.  In ut nisi et nibh scelerisque pellentesque. Duis lacinia, libero et semper feugiat, mi tellus aliquet sapien, ac fringilla lacus ipsum eget mauris. Donec suscipit velit in odio gravida consectetur. Fusce metus eli";
@@ -223,6 +234,7 @@ public class FilmDeltaSEPluginTest {
 
     @Test
     public void testRemoveIllegalHtmlChars() {
+        LOG.info("testRemoveIllegalHtmlChars");
         String test = "\u0093\u0094\u00E4\u00E5\u00F6\u00C4\u00C5\u00D6";
         String result = "&quot;&quot;&auml;&aring;&ouml;&Auml;&Aring;&Ouml;";
         assertEquals(result, toTest.removeIllegalHtmlChars(test));

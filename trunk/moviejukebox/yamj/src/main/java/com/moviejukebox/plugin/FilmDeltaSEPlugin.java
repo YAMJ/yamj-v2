@@ -28,6 +28,7 @@ import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.SearchEngineTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -131,7 +132,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
                 }
             }
 
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error(LOG_MESSAGE + "Failed retrieving FilmDelta id for title : " + title);
             LOG.error(SystemTools.getStackTrace(error));
         }
@@ -268,7 +269,7 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
                 getFilmdeltaRuntime(movie, html);
                 return Boolean.TRUE;
             }
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error(LOG_MESSAGE + "Failed retrieving media info : " + filmdeltaId);
             LOG.error(SystemTools.getStackTrace(error));
         }
