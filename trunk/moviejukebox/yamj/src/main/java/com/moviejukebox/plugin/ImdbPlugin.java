@@ -101,14 +101,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     // Literals
     private static final String HTML_H5_END = ":</h5>";
     private static final String HTML_H5_START = "<h5>";
-    private static final String HTML_DIV = "</div>";
+    private static final String HTML_DIV_END = "</div>";
     private static final String HTML_A_END = "</a>";
     private static final String HTML_A_START = "<a ";
     private static final String HTML_SLASH_PIPE = "\\|";
     private static final String HTML_SLASH_QUOTE = "/\"";
     private static final String HTML_QUOTE_GT = "\">";
     private static final String HTML_NAME = "name/";
-    private static final String HTML_TABLE = "</table>";
+    private static final String HTML_TABLE_END = "</table>";
     private static final String HTML_TD_END = "</td>";
     private static final String HTML_H4_END = ":</h4>";
     private static final String HTML_SITE = ".imdb.com";
@@ -413,7 +413,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (OverrideTools.checkOverwriteCountry(movie, IMDB_PLUGIN_ID)) {
             boolean first = true;
             StringBuilder countries = new StringBuilder();
-            for (String country : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCountry() + HTML_H5_END, HTML_DIV)) {
+            for (String country : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCountry() + HTML_H5_END, HTML_DIV_END)) {
                 if (StringTools.isValidString(country)) {
                     if (first) {
                         first = false;
@@ -428,7 +428,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // COMPANY
         if (OverrideTools.checkOverwriteCompany(movie, IMDB_PLUGIN_ID)) {
-            for (String company : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCompany() + HTML_H5_END, HTML_DIV, "<a href", HTML_A_END)) {
+            for (String company : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCompany() + HTML_H5_END, HTML_DIV_END, "<a href", HTML_A_END)) {
                 if (company != null) {
                     // TODO Save more than one company
                     movie.setCompany(company, IMDB_PLUGIN_ID);
@@ -440,7 +440,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // GENRES
         if (OverrideTools.checkOverwriteGenres(movie, IMDB_PLUGIN_ID)) {
             List<String> newGenres = new ArrayList<String>();
-            for (String genre : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getGenre() + HTML_H5_END, HTML_DIV)) {
+            for (String genre : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getGenre() + HTML_H5_END, HTML_DIV_END)) {
                 genre = HTMLTools.removeHtmlTags(genre);
                 newGenres.add(Library.getIndexingGenre(cleanStringEnding(genre)));
             }
@@ -449,7 +449,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // QUOTE
         if (OverrideTools.checkOverwriteQuote(movie, IMDB_PLUGIN_ID)) {
-            for (String quote : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getQuotes() + HTML_H5_END, HTML_DIV, "<a href=\"/name/nm", "</a class=\"")) {
+            for (String quote : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getQuotes() + HTML_H5_END, HTML_DIV_END, "<a href=\"/name/nm", "</a class=\"")) {
                 if (quote != null) {
                     quote = HTMLTools.stripTags(quote);
                     movie.setQuote(cleanStringEnding(quote), IMDB_PLUGIN_ID);
@@ -518,12 +518,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (isNotValidString(certification)) {
-                certification = getPreferredValue(HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCertification() + HTML_H5_END, HTML_DIV,
+                certification = getPreferredValue(HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCertification() + HTML_H5_END, HTML_DIV_END,
                         "<a href=\"/search/title?certificates=", HTML_A_END), true);
             }
 
             if (isNotValidString(certification)) {
-                certification = getPreferredValue(HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCertification() + HTML_H5_END + "<div class=\"info-content\">", HTML_DIV,
+                certification = getPreferredValue(HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCertification() + HTML_H5_END + "<div class=\"info-content\">", HTML_DIV_END,
                         null, "|", false), true);
             }
 
@@ -567,10 +567,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (startTag != -1) {
                 // We need to work out which of the two formats to use, this is dependent on which comes first "<a class" or "</div"
                 String endMarker;
-                if (StringUtils.indexOf(xml, "<a class", startTag) < StringUtils.indexOf(xml, HTML_DIV, startTag)) {
+                if (StringUtils.indexOf(xml, "<a class", startTag) < StringUtils.indexOf(xml, HTML_DIV_END, startTag)) {
                     endMarker = "<a class";
                 } else {
-                    endMarker = HTML_DIV;
+                    endMarker = HTML_DIV_END;
                 }
 
                 // Now look for the right string
@@ -605,7 +605,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // RATING
         if (movie.getRating(IMDB_PLUGIN_ID) == -1) {
-            String srtRating = HTMLTools.extractTag(xml, "star-box-giga-star\">", HTML_DIV).replace(",", ".");
+            String srtRating = HTMLTools.extractTag(xml, "star-box-giga-star\">", HTML_DIV_END).replace(",", ".");
             int intRating = parseRating(HTMLTools.stripTags(srtRating));
 
             // Try another format for the rating
@@ -625,7 +625,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // RUNTIME
         if (OverrideTools.checkOverwriteRuntime(movie, IMDB_PLUGIN_ID)) {
             String runtime = siteDef.getRuntime() + HTML_H4_END;
-            List<String> runtimes = HTMLTools.extractTags(xml, runtime, HTML_DIV, null, "|", Boolean.FALSE);
+            List<String> runtimes = HTMLTools.extractTags(xml, runtime, HTML_DIV_END, null, "|", Boolean.FALSE);
             runtime = getPreferredValue(runtimes, false);
 
             // Strip any extraneous characters from the runtime
@@ -638,7 +638,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // COUNTRY
         if (OverrideTools.checkOverwriteCountry(movie, IMDB_PLUGIN_ID)) {
-            for (String country : HTMLTools.extractTags(xml, siteDef.getCountry() + HTML_H4_END, HTML_DIV, "<a href=\"", HTML_A_END)) {
+            for (String country : HTMLTools.extractTags(xml, siteDef.getCountry() + HTML_H4_END, HTML_DIV_END, "<a href=\"", HTML_A_END)) {
                 if (country != null) {
                     // TODO Save more than one country
                     movie.setCountry(HTMLTools.removeHtmlTags(country), IMDB_PLUGIN_ID);
@@ -649,7 +649,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // COMPANY
         if (OverrideTools.checkOverwriteCompany(movie, IMDB_PLUGIN_ID)) {
-            for (String company : HTMLTools.extractTags(xml, siteDef.getCompany() + HTML_H4_END, HTML_DIV, "<span class", "</span>")) {
+            for (String company : HTMLTools.extractTags(xml, siteDef.getCompany() + HTML_H4_END, HTML_DIV_END, "<span class", "</span>")) {
                 if (company != null) {
                     // TODO Save more than one company
                     movie.setCompany(company, IMDB_PLUGIN_ID);
@@ -661,7 +661,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // GENRES
         if (OverrideTools.checkOverwriteGenres(movie, IMDB_PLUGIN_ID)) {
             List<String> newGenres = new ArrayList<String>();
-            for (String genre : HTMLTools.extractTags(xml, siteDef.getGenre() + HTML_H4_END, HTML_DIV)) {
+            for (String genre : HTMLTools.extractTags(xml, siteDef.getGenre() + HTML_H4_END, HTML_DIV_END)) {
                 // Check normally for the genre
                 String iGenre = HTMLTools.getTextAfterElem(genre, "<a");
                 // Sometimes the genre is just "{genre}</a>???" so try and remove the trailing element
@@ -765,7 +765,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             if (isNotValidString(certification)) {
-                certification = getPreferredValue(HTMLTools.extractTags(certXML, HTML_H5_START + siteDef.getCertification() + HTML_H5_END, HTML_DIV,
+                certification = getPreferredValue(HTMLTools.extractTags(certXML, HTML_H5_START + siteDef.getCertification() + HTML_H5_END, HTML_DIV_END,
                         "<a href=\"/search/title?certificates=", HTML_A_END), true);
             }
 
@@ -806,10 +806,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             if (startTag != -1) {
                 // We need to work out which of the two formats to use, this is dependent on which comes first "<span" or "</div"
                 String endMarker;
-                if (StringUtils.indexOf(xml, "<span", startTag) < StringUtils.indexOf(xml, HTML_DIV, startTag)) {
+                if (StringUtils.indexOf(xml, "<span", startTag) < StringUtils.indexOf(xml, HTML_DIV_END, startTag)) {
                     endMarker = "<span";
                 } else {
-                    endMarker = HTML_DIV;
+                    endMarker = HTML_DIV_END;
                 }
 
                 // Now look for the right string
@@ -847,7 +847,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String endString;
             if (!fullInfo && imdbInfo.getImdbSite().equals(DEFAULT_SITE_DEF)) {
                 startString = "<h4 class=\"inline\">" + siteDef.getAspectRatio() + HTML_H4_END;
-                endString = HTML_DIV;
+                endString = HTML_DIV_END;
             } else {
                 startString = HTML_H5_START + siteDef.getAspectRatio() + HTML_H5_END + "<div class=\"info-content\">";
                 endString = "<a class";
@@ -893,7 +893,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // therefore we need to look for the preferredCountry and then work backwards
             if (akas == null) {
                 // Just extract the AKA section from the page
-                List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "<a id=\"akas\" name=\"akas\">", HTML_TABLE, "<td>", HTML_TD_END, Boolean.FALSE);
+                List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "<a id=\"akas\" name=\"akas\">", HTML_TABLE_END, "<td>", HTML_TD_END, Boolean.FALSE);
                 akas = buildAkaMap(akaList);
             }
 
@@ -918,7 +918,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // therefore we need to look for the preferredCountry and then work backwards
             if (akas == null) {
                 // Just extract the AKA section from the page
-                List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "<a id=\"akas\" name=\"akas\">", HTML_TABLE, "<td>", HTML_TD_END, Boolean.FALSE);
+                List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "<a id=\"akas\" name=\"akas\">", HTML_TABLE_END, "<td>", HTML_TD_END, Boolean.FALSE);
                 akas = buildAkaMap(akaList);
             }
 
@@ -1051,7 +1051,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // flag to indicate if match has been found
         boolean found = Boolean.FALSE;
 
-        for (String actorBlock : HTMLTools.extractTags(fullcreditsXML, "<table class=\"cast_list\">", HTML_TABLE, "<td class=\"primary_photo\"", "</tr>")) {
+        for (String actorBlock : HTMLTools.extractTags(fullcreditsXML, "<table class=\"cast_list\">", HTML_TABLE_END, "<td class=\"primary_photo\"", "</tr>")) {
             // skip faceless persons ("loadlate hidden" is present for actors with photos)
             if (skipFaceless && actorBlock.indexOf("loadlate hidden") == -1) {
                 continue;
@@ -1102,10 +1102,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // flag to indicate if match has been found
         boolean found = Boolean.FALSE;
 
-        List<String> peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", HTML_TABLE, "<td class=\"name\"", "</tr>");
+        List<String> peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", HTML_TABLE_END, "<td class=\"name\"", "</tr>");
         if (peopleList.isEmpty()) {
             // alternative search
-            peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", HTML_TABLE, "<td class=\"nm\"", "</tr>", Boolean.TRUE);
+            peopleList = HTMLTools.extractTags(xml, "<table class=\"cast_list\">", HTML_TABLE_END, "<td class=\"nm\"", "</tr>", Boolean.TRUE);
         }
 
         Matcher matcher;
@@ -1176,7 +1176,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         for (String directorMatch : siteDef.getDirector().split(HTML_SLASH_PIPE)) {
             if (fullcreditsXML.indexOf(HTML_GT + directorMatch + "&nbsp;</h4>") >= 0) {
-                for (String member : HTMLTools.extractTags(fullcreditsXML, HTML_GT + directorMatch + "&nbsp;</h4>", HTML_TABLE, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
+                for (String member : HTMLTools.extractTags(fullcreditsXML, HTML_GT + directorMatch + "&nbsp;</h4>", HTML_TABLE_END, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
                     int beginIndex = member.indexOf("href=\"/name/");
                     if (beginIndex > -1) {
                         String personID = member.substring(beginIndex + 12, member.indexOf("/", beginIndex + 12));
@@ -1232,7 +1232,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         boolean found = Boolean.FALSE;
 
         for (String directorMatch : siteDef.getDirector().split(HTML_SLASH_PIPE)) {
-            for (String member : HTMLTools.extractTags(xml, HTML_H5_START + directorMatch, HTML_DIV, "", HTML_A_END)) {
+            for (String member : HTMLTools.extractTags(xml, HTML_H5_START + directorMatch, HTML_DIV_END, "", HTML_A_END)) {
                 int beginIndex = member.indexOf("<a href=\"/name/");
                 if (beginIndex > -1) {
                     String personID = member.substring(beginIndex + 15, member.indexOf(HTML_SLASH_QUOTE, beginIndex));
@@ -1284,12 +1284,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         boolean found = Boolean.FALSE;
 
         for (String writerMatch : siteDef.getWriter().split(HTML_SLASH_PIPE)) {
-            if (fullcreditsXML.indexOf(HTML_GT + writerMatch) >= 0) {
-                for (String member : HTMLTools.extractTags(fullcreditsXML, HTML_GT + writerMatch, HTML_TABLE, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
+            if (StringUtils.indexOfIgnoreCase(fullcreditsXML, HTML_GT + writerMatch) >= 0) {
+                for (String member : HTMLTools.extractTags(fullcreditsXML, HTML_GT + writerMatch, HTML_TABLE_END, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
                     int beginIndex = member.indexOf("href=\"/name/");
                     if (beginIndex > -1) {
                         String personID = member.substring(beginIndex + 12, member.indexOf("/", beginIndex + 12));
-                        String name = member.substring(member.indexOf(HTML_GT, beginIndex) + 2);
+                        String name = StringUtils.trimToEmpty(member.substring(member.indexOf(HTML_GT, beginIndex) + 1));
                         if (name.indexOf("more credit") == -1) {
 
                             if (overrideNormal) {
@@ -1321,6 +1321,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     }
                 }
             }
+
             if (found) {
                 // We found a match, so stop search.
                 break;
@@ -1340,7 +1341,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         boolean found = Boolean.FALSE;
 
         for (String categoryMatch : siteDef.getWriter().split(HTML_SLASH_PIPE)) {
-            for (String member : HTMLTools.extractTags(xml, HTML_H5_START + categoryMatch, HTML_DIV, "", HTML_A_END)) {
+            for (String member : HTMLTools.extractTags(xml, HTML_H5_START + categoryMatch, HTML_DIV_END, "", HTML_A_END)) {
                 int beginIndex = member.indexOf("<a href=\"/name/");
                 if (beginIndex > -1) {
                     String personID = member.substring(beginIndex + 15, member.indexOf(HTML_SLASH_QUOTE, beginIndex));
@@ -1518,7 +1519,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         String xml = webBrowser.request(site + HTML_TITLE + imdbId + "/trivia");
         if (isValidString(xml)) {
             int i = 0;
-            for (String tmp : HTMLTools.extractTags(xml, "<div class=\"list\">", "<div class=\"list\">", "<div class=\"sodatext\"", HTML_DIV)) {
+            for (String tmp : HTMLTools.extractTags(xml, "<div class=\"list\">", "<div class=\"list\">", "<div class=\"sodatext\"", HTML_DIV_END)) {
                 if (i < triviaMax || triviaMax == -1) {
                     tmp = HTMLTools.removeHtmlTags(tmp);
                     tmp = tmp.trim();
@@ -1547,7 +1548,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         for (String category : categoryList) {
             if (sourceXml.indexOf(category + ":") >= 0) {
-                people = HTMLTools.extractTags(sourceXml, category, HTML_DIV, HTML_A_START, HTML_A_END);
+                people = HTMLTools.extractTags(sourceXml, category, HTML_DIV_END, HTML_A_START, HTML_A_END);
             }
         }
         return people;
@@ -1601,7 +1602,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     }
 
                     if (OverrideTools.checkOverwriteEpisodePlot(file, episode, IMDB_PLUGIN_ID)) {
-                        String plot = HTMLTools.extractTag(episodeXml, "itemprop=\"description\">", HTML_DIV);
+                        String plot = HTMLTools.extractTag(episodeXml, "itemprop=\"description\">", HTML_DIV_END);
                         file.setPlot(episode, plot, IMDB_PLUGIN_ID);
                     }
 
@@ -1651,7 +1652,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             // Second parsing other site (fr/ es / etc ...)
-            result = HTMLTools.extractTag(xml, "<div id=\"swiki.2.1\">", HTML_DIV);
+            result = HTMLTools.extractTag(xml, "<div id=\"swiki.2.1\">", HTML_DIV_END);
             if (isValidString(result) && result.indexOf("This plot synopsis is empty") < 0) {
                 plot = HTMLTools.stripTags(result);
             }
@@ -1897,7 +1898,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         person.setUrl(getImdbUrl(person));
 
         if (xml.indexOf("Alternate Names:") > -1) {
-            String name = HTMLTools.extractTag(xml, "Alternate Names:</h4>", HTML_DIV);
+            String name = HTMLTools.extractTag(xml, "Alternate Names:</h4>", HTML_DIV_END);
             if (isValidString(name)) {
                 for (String item : name.split("<span>\\|</span>")) {
                     person.addAka(StringUtils.trimToEmpty(item));
@@ -2026,7 +2027,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // get known movies
         xmlInfo = webBrowser.request(getImdbUrl(person) + "filmoyear", siteDefinition.getCharset());
         if (xmlInfo.indexOf("<div id=\"tn15content\">") > -1) {
-            int count = HTMLTools.extractTags(xmlInfo, "<div id=\"tn15content\">", HTML_DIV, "<li>", "</li>").size();
+            int count = HTMLTools.extractTags(xmlInfo, "<div id=\"tn15content\">", HTML_DIV_END, "<li>", "</li>").size();
             person.setKnownMovies(count);
         }
 
@@ -2053,7 +2054,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String fg = HTMLTools.extractTag(sourceXml, "<div id=\"filmography\">", "<div class=\"article\" >");
             TreeMap<Float, Filmography> filmography = new TreeMap<Float, Filmography>();
             Pattern tvPattern = Pattern.compile("( \\(#\\d+\\.\\d+\\))|(: Episode #\\d+\\.\\d+)");
-            for (String department : HTMLTools.extractTags(xmlInfo, "<div id=\"tn15content\">", "<style>", "<div class=\"filmo\"", HTML_DIV)) {
+            for (String department : HTMLTools.extractTags(xmlInfo, "<div id=\"tn15content\">", "<style>", "<div class=\"filmo\"", HTML_DIV_END)) {
                 String job = HTMLTools.removeHtmlTags(HTMLTools.extractTag(department, HTML_H5_START, "</h5>"));
                 if (!jobsInclude.contains(job)) {
                     continue;

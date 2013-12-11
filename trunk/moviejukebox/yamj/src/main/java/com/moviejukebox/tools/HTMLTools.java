@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 public final class HTMLTools {
@@ -542,17 +543,24 @@ public final class HTMLTools {
 
     public static List<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag, boolean forceCloseTag) {
         ArrayList<String> tags = new ArrayList<String>();
-        int startIndex = src.indexOf(sectionStart);
+        int startIndex = StringUtils.indexOfIgnoreCase(src, sectionStart);
         if (startIndex == -1) {
             return tags;
         }
+
         startIndex += sectionStart.length();
-        int endIndex = (sectionEnd == null ? src.length() : src.indexOf(sectionEnd, startIndex));
+        int endIndex = (sectionEnd == null) ? src.length() : StringUtils.indexOfIgnoreCase(src, sectionEnd, startIndex);
         if (endIndex == -1) {
             return tags;
         }
 
         String sectionText = src.substring(startIndex, endIndex);
+//        LOG.info("sectionStart  : " + sectionStart);
+//        LOG.info("sectionEnd    : " + sectionEnd);
+//        LOG.info("startTag      : " + startTag);
+//        LOG.info("endTag        : " + endTag);
+//        LOG.info("forceCloseTag : " + forceCloseTag);
+//        LOG.info("Section:\n" + sectionText);
         int lastIndex = sectionText.length();
         startIndex = 0;
         int startLen = 0;
