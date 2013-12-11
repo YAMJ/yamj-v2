@@ -61,10 +61,10 @@ public class SearchEngineToolsTest {
         // movie
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
-            if (engine.equalsIgnoreCase("bing")) {
-                LOG.warn("Bing does not work in Germany");
+            if (engine.equalsIgnoreCase("bing") || engine.equalsIgnoreCase("yahoo")) {
+                LOG.warn("Skipping '" + engine + "' does not work in Germany");
             } else {
+                LOG.info("Testing " + engine);
                 String url = search.searchMovieURL("Avatar", "2009", "www.ofdb.de/film");
                 assertEquals("Search engine '" + engine + "' failed", "http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora", url);
             }
@@ -73,10 +73,10 @@ public class SearchEngineToolsTest {
         // TV show
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
-            if (engine.equalsIgnoreCase("bing")) {
-                LOG.warn("Bing does not work in Germany");
+            if (engine.equalsIgnoreCase("bing") || engine.equalsIgnoreCase("yahoo")) {
+                LOG.warn("Skipping '" + engine + "' does not work in Germany");
             } else {
+                LOG.info("Testing " + engine);
                 String url = search.searchMovieURL("Two and a Half Men", "2003", "www.ofdb.de/film");
                 assertEquals("Search engine '" + engine + "' failed", "http://www.ofdb.de/film/66192,Mein-cooler-Onkel-Charlie", url);
             }
@@ -96,6 +96,7 @@ public class SearchEngineToolsTest {
             String url = search.searchMovieURL("Avatar", "2009", "www.filmdelta.se/filmer");
             assertEquals("Search engine '" + engine + "' failed", "http://www.filmdelta.se/filmer/144938/avatar/", url);
         }
+
         // TV show, must search for season
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
