@@ -182,7 +182,8 @@ public class SearchEngineTools {
             if (beginIndex != -1) {
                 returnedXml = xml.substring(beginIndex, xml.indexOf("\"", beginIndex));
 
-                if (country.equals("pl")) {
+                // Remove extra characters from the end of the film URL
+                if (country.equals("pl") && !returnedXml.contains("/serial/")) {
                     // Strip out anythign after the first sub-URL
                     int pos = returnedXml.indexOf(site);
                     if (pos > -1) {
