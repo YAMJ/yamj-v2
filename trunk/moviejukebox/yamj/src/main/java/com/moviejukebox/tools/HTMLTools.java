@@ -555,12 +555,6 @@ public final class HTMLTools {
         }
 
         String sectionText = src.substring(startIndex, endIndex);
-//        LOG.info("sectionStart  : " + sectionStart);
-//        LOG.info("sectionEnd    : " + sectionEnd);
-//        LOG.info("startTag      : " + startTag);
-//        LOG.info("endTag        : " + endTag);
-//        LOG.info("forceCloseTag : " + forceCloseTag);
-//        LOG.info("Section:\n" + sectionText);
         int lastIndex = sectionText.length();
         startIndex = 0;
         int startLen = 0;
