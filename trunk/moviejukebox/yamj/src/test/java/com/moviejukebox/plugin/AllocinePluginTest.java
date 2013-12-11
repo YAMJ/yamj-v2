@@ -25,16 +25,21 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class AllocinePluginTest {
 
     private AllocinePlugin allocinePlugin;
+    private static final Logger LOG = Logger.getLogger(AllocinePluginTest.class);
 
     @BeforeClass
     public static void configure() {
@@ -58,6 +63,7 @@ public class AllocinePluginTest {
 
     @Test
     public void testMovie() {
+        LOG.info("testMovie");
         Movie movie = new Movie();
         movie.setMovieType(Movie.TYPE_MOVIE);
         movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, "45322");
@@ -70,6 +76,7 @@ public class AllocinePluginTest {
 
     @Test
     public void testTvSeries() {
+        LOG.info("testTvSeries");
         Movie movie = new Movie();
         movie.setMovieType(Movie.TYPE_TVSHOW);
         movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, "5676");
@@ -81,7 +88,12 @@ public class AllocinePluginTest {
         movie.addMovieFile(mf);
 
         allocinePlugin.scan(movie);
-        assertEquals("Millennium", movie.getOriginalTitle());
-        assertTrue(mf.getPlot(1).startsWith("Chaque année depuis quarante-quatre ans, le jour de son anniversaire, le président d’un "));
+        assertEquals("Incorrect series title", "Millennium", movie.getOriginalTitle());
+        assertFalse("No video files found", movie.getFiles().isEmpty());
+
+        mf = movie.getFirstFile();
+        assertTrue(StringUtils.isNotBlank(mf.getPlot(1)));
+        String plotStart="Chaque année depuis quarante-quatre ans, le jour de son anniversaire, le président d'un ";
+        assertEquals(plotStart,mf.getPlot(1).substring(0, plotStart.length()));
     }
 }
