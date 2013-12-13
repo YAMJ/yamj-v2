@@ -54,6 +54,8 @@ public final class StringTools {
     // Quote replacements
     private static final String QUOTE_SINGLE = "\'";
     private static final Pattern QUOTE_PATTERN = Pattern.compile(generateQuoteList());
+    // Literals
+    private static final String MPPA_RATED = "Rated";
 
     private StringTools() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
@@ -339,28 +341,28 @@ public final class StringTools {
     /**
      * Get the certification from the MPAA string
      *
-     * @param mpaa
+     * @param mpaaCertification
      * @return
      */
-    public static String processMpaaCertification(String mpaa) {
-        return processMpaaCertification("Rating", mpaa);
+    public static String processMpaaCertification(String mpaaCertification) {
+        return processMpaaCertification(MPPA_RATED, mpaaCertification);
     }
 
     /**
      * Get the certification from the MPAA rating string
      *
-     * @param rating
-     * @param mpaa
+     * @param mpaaRated
+     * @param mpaaCertification
      * @return
      */
-    public static String processMpaaCertification(String rating, String mpaa) {
+    public static String processMpaaCertification(String mpaaRated, String mpaaCertification) {
         // Strip out the "Rated " and extra words at the end of the MPAA certification
-        Pattern mpaaPattern = Pattern.compile("(?:" + rating + "\\s)?(.*?)(?:($|\\s).*?)");
-        Matcher m = mpaaPattern.matcher(mpaa);
+        Pattern mpaaPattern = Pattern.compile("(?:" + (isValidString(mpaaRated) ? mpaaRated : MPPA_RATED) + "\\s)?(.*?)(?:($|\\s).*?)");
+        Matcher m = mpaaPattern.matcher(mpaaCertification);
         if (m.find()) {
             return m.group(1).trim();
         } else {
-            return mpaa.trim();
+            return mpaaCertification.trim();
         }
     }
 
