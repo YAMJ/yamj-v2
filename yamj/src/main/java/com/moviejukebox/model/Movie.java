@@ -58,6 +58,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime2.DateTime;
 
@@ -810,13 +811,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     // Return the width of the movie
     public int getWidth() {
         int width = 0;
-        try {
-            if (StringTools.isValidString(getResolution()) && getResolution().contains("x")) {
-                width = Integer.parseInt(getResolution().substring(0, getResolution().indexOf("x")));
-            }
-        } catch (NumberFormatException error) {
-            // This will catch the exception if mediainfo is not installed.
-            width = 0;
+        if (StringTools.isValidString(getResolution()) && getResolution().contains("x")) {
+            width = NumberUtils.toInt(getResolution().substring(0, getResolution().indexOf("x")), 0);
         }
         return width;
     }

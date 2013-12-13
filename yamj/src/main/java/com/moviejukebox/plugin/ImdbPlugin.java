@@ -371,9 +371,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         } catch (IOException error) {
             LOG.error(LOG_MESSAGE + "Failed retrieving IMDb data for movie : " + movie.getId(IMDB_PLUGIN_ID));
             LOG.error(SystemTools.getStackTrace(error));
-        } catch (NumberFormatException error) {
-            LOG.error(LOG_MESSAGE + "Failed retrieving IMDb data for movie : " + movie.getId(IMDB_PLUGIN_ID));
-            LOG.error(SystemTools.getStackTrace(error));
         }
 
         return returnStatus;
@@ -1462,7 +1459,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @return
      * @throws IOException
      */
-    private boolean updateBusiness(Movie movie) throws IOException, NumberFormatException {
+    private boolean updateBusiness(Movie movie) throws IOException {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
         String site = siteDefinition.getSite();
         if (!siteDefinition.getSite().contains(HTML_SITE)) {
@@ -1477,14 +1474,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 for (String oWeek : HTMLTools.extractTags(xml, HTML_H5_START + (i == 0 ? "Opening Weekend" : "Gross") + "</h5", HTML_H5_START, "", "<br/")) {
                     if (isValidString(oWeek)) {
                         String currency = oWeek.replaceAll("\\d+.*", "");
-                        long value = Long.parseLong(oWeek.replaceAll("^\\D*\\s*", "").replaceAll("\\s.*", "").replaceAll(",", ""));
+                        long value = NumberUtils.toLong(oWeek.replaceAll("^\\D*\\s*", "").replaceAll("\\s.*", "").replaceAll(",", ""), -1L);
                         String country = HTMLTools.extractTag(oWeek, "(", ")");
                         if (country.equals("Worldwide") && !currency.equals("$")) {
                             continue;
                         }
                         String money = i == 0 ? movie.getOpenWeek(country) : movie.getGross(country);
                         if (isValidString(money)) {
-                            long m = Long.parseLong(money.replaceAll("^\\D*\\s*", "").replaceAll(",", ""));
+                            long m = NumberUtils.toLong(money.replaceAll("^\\D*\\s*", "").replaceAll(",", ""), -1L);
                             value = i == 0 ? value + m : value > m ? value : m;
                         }
                         if (i == 0) {
@@ -1554,13 +1551,15 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         return people;
     }
 
+    /**
+     * Parse the rating
+     *
+     * @param rating
+     * @return
+     */
     private int parseRating(String rating) {
         StringTokenizer st = new StringTokenizer(rating, "/ ()");
-        try {
-            return (int) (Float.parseFloat(st.nextToken()) * 10);
-        } catch (NumberFormatException error) {
-            return -1;
-        }
+        return StringTools.parseRating(st.nextToken());
     }
 
     /**
@@ -2064,7 +2063,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     if (beginIndex > -1) {
                         item = item.substring(0, beginIndex);
                     }
-                    int rating = (int) (Float.valueOf(HTMLTools.extractTag(item, "(", ")")).floatValue() * 10);
+                    int rating = StringTools.parseRating(HTMLTools.extractTag(item, "(", ")"));
+
                     String id = HTMLTools.extractTag(item, "<a href=\"/title/", "/\">");
                     String name = HTMLTools.extractTag(item, "/\">", HTML_A_END).replaceAll("\"", "");
                     String year = Movie.UNKNOWN;

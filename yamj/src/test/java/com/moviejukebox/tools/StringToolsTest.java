@@ -250,4 +250,19 @@ public class StringToolsTest {
         assertEquals(expResult, result);
     }
 
+    /**
+     * Test of parseRating method, of class StringTools.
+     */
+    @Test
+    public void testParseRating() {
+        LOG.info("replaceQuotes");
+        assertEquals(41, StringTools.parseRating("4.1"));
+        assertEquals(89, StringTools.parseRating("8.88"));
+        assertEquals(0, StringTools.parseRating("0"));
+        assertEquals(99, StringTools.parseRating("9,9"));
+        assertEquals(-1, StringTools.parseRating("UNKNOWN"));
+        assertEquals(-1, StringTools.parseRating("-100"));
+        assertEquals(100, StringTools.parseRating("11"));
+    }
+
 }

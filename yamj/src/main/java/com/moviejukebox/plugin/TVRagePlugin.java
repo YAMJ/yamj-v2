@@ -28,7 +28,8 @@ import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import static com.moviejukebox.tools.StringTools.*;
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.omertron.tvrageapi.TVRageApi;
 import com.omertron.tvrageapi.model.CountryDetail;
@@ -37,6 +38,7 @@ import com.omertron.tvrageapi.model.EpisodeList;
 import com.omertron.tvrageapi.model.ShowInfo;
 import java.util.List;
 import java.util.StringTokenizer;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -70,16 +72,7 @@ public class TVRagePlugin extends ImdbPlugin {
 
         // Note: The ID might be a vanity ID (A String rather than an Integer)
         String id = movie.getId(TVRAGE_PLUGIN_ID);
-        int tvrageID = 0;
-
-        try {
-            if (isValidString(id)) {
-                tvrageID = Integer.parseInt(id);
-            }
-        } catch (NumberFormatException ignore) {
-            // We failed, so set the ID to 0
-            tvrageID = 0;
-        }
+        int tvrageID = NumberUtils.toInt(id, 0);
 
         ThreadExecutor.enterIO(webhost);
         try {

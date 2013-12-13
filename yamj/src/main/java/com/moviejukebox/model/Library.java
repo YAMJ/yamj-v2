@@ -22,10 +22,17 @@
  */
 package com.moviejukebox.model;
 
-import com.moviejukebox.model.Comparator.*;
+import com.moviejukebox.model.Comparator.CertificationComparator;
+import com.moviejukebox.model.Comparator.LastModifiedComparator;
+import com.moviejukebox.model.Comparator.MovieRatingComparator;
+import com.moviejukebox.model.Comparator.MovieReleaseComparator;
+import com.moviejukebox.model.Comparator.MovieSetComparator;
+import com.moviejukebox.model.Comparator.MovieTitleComparator;
+import com.moviejukebox.model.Comparator.MovieTop250Comparator;
 import com.moviejukebox.model.enumerations.OverrideFlag;
-
-import static com.moviejukebox.tools.FileTools.*;
+import static com.moviejukebox.tools.FileTools.createCategoryKey;
+import static com.moviejukebox.tools.FileTools.createPrefix;
+import static com.moviejukebox.tools.FileTools.makeSafeFilename;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
@@ -34,12 +41,25 @@ import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import java.io.File;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 public class Library implements Map<String, Movie> {
@@ -1757,21 +1777,21 @@ public class Library implements Map<String, Movie> {
             } else {
                 String beginYear = filmYear.substring(0, filmYear.length() - 1) + "0";
                 String endYear;
-                try {
-                    if (Integer.parseInt(filmYear) >= CURRENT_DECADE) {
-                        // The film year is in the current decade, so we need to adjust the end year
-                        endYear = String.valueOf(FINAL_YEAR);
-                    } else {
-                        // Otherwise it's 9
-                        endYear = filmYear.substring(0, filmYear.length() - 1) + "9";
-                    }
-                    LOG.trace("Library years for categories: Begin='" + beginYear + "' End='" + endYear + "'");
-                    yearCat = new StringBuilder(beginYear);
-                    yearCat.append("-").append(endYear.substring(endYear.length() >= 4 ? endYear.length() - 2 : 0));
-                } catch (NumberFormatException e) {
+
+                int tmpYear = NumberUtils.toInt(filmYear, -1);
+                if (tmpYear < 0) {
                     LOG.debug("Year is not number: " + filmYear);
                     return Movie.UNKNOWN;
+                } else if (tmpYear >= CURRENT_DECADE) {
+                    // The film year is in the current decade, so we need to adjust the end year
+                    endYear = String.valueOf(FINAL_YEAR);
+                } else {
+                    // Otherwise it's 9
+                    endYear = filmYear.substring(0, filmYear.length() - 1) + "9";
                 }
+                LOG.trace("Library years for categories: Begin='" + beginYear + "' End='" + endYear + "'");
+                yearCat = new StringBuilder(beginYear);
+                yearCat.append("-").append(endYear.substring(endYear.length() >= 4 ? endYear.length() - 2 : 0));
             }
         } else {
             LOG.trace("Library: Invalid year: '" + filmYear + "'");

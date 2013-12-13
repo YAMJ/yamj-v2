@@ -66,6 +66,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.apache.sanselan.ImageReadException;
 
@@ -1462,17 +1463,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     String height = layer.getString("height");
 
                     overlay.setNames(Arrays.asList(name.split("/")));
-                    if (StringTools.isValidString(left)) {
-                        try {
-                            overlay.setLeft(Integer.parseInt(left));
-                        } catch (NumberFormatException ignore) {
-                        }
+                    if (StringUtils.isNumeric(left)) {
+                        overlay.setLeft(NumberUtils.toInt(left, 0));
                     }
-                    if (StringTools.isValidString(top)) {
-                        try {
-                            overlay.setTop(Integer.parseInt(top));
-                        } catch (NumberFormatException ignore) {
-                        }
+                    if (StringUtils.isNumeric(top)) {
+                        overlay.setTop(NumberUtils.toInt(top, 0));
                     }
                     if (StringTools.isValidString(align) && (align.equalsIgnoreCase(LEFT) || align.equalsIgnoreCase(CENTER) || align.equalsIgnoreCase(RIGHT))) {
                         overlay.setAlign(align);
@@ -1597,9 +1592,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             cols, rows, hmargin, vmargin, StringTools.isNotValidString(clones) ? blockClones : (clones.equalsIgnoreCase(TRUE) ? true : (clones.equalsIgnoreCase(FALSE) ? false : blockClones))));
                 }
             } catch (ConfigurationException ex) {
-                LOG.error("Failed parsing moviejukebox overlay configuration file: " + xmlOverlayFile.getName());
-                LOG.error(SystemTools.getStackTrace(ex));
-            } catch (NumberFormatException ex) {
                 LOG.error("Failed parsing moviejukebox overlay configuration file: " + xmlOverlayFile.getName());
                 LOG.error(SystemTools.getStackTrace(ex));
             }

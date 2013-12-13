@@ -216,29 +216,29 @@ public class TheTvDBPlugin extends ImdbPlugin {
         // If we are adding the "Season ?" text to a banner, try searching for these first
         if (textBanners && !banners.getSeriesList().isEmpty()) {
             // Trying to grab localized banner at first...
-            urlBanner = findBannerURL2(banners, BannerType.Blank, LANGUAGE_PRIMARY, season);
+            urlBanner = findBannerURL2(banners, BannerType.BLANK, LANGUAGE_PRIMARY, season);
             // In a case of failure - trying to grab banner in alternative language.
             if (StringTools.isNotValidString(urlBanner) && StringTools.isValidString(LANGUAGE_SECONDARY)) {
-                urlBanner = findBannerURL2(banners, BannerType.Blank, LANGUAGE_SECONDARY, season);
+                urlBanner = findBannerURL2(banners, BannerType.BLANK, LANGUAGE_SECONDARY, season);
             }
         }
 
         // Get the specific season banners. If a season banner can't be found, then a generic series banner will be used
         if (!onlySeriesBanners && !banners.getSeasonList().isEmpty()) {
             // Trying to grab localized banner at first...
-            urlBanner = findBannerURL(banners, BannerType.SeasonWide, LANGUAGE_PRIMARY, season);
+            urlBanner = findBannerURL(banners, BannerType.SEASONWIDE, LANGUAGE_PRIMARY, season);
             // In a case of failure - trying to grab banner in alternative language.
             if (StringUtils.isBlank(urlBanner)) {
-                urlBanner = findBannerURL(banners, BannerType.SeasonWide, LANGUAGE_SECONDARY, season);
+                urlBanner = findBannerURL(banners, BannerType.SEASONWIDE, LANGUAGE_SECONDARY, season);
             }
         }
 
         // If we didn't find a season banner or only want series banners, check for a series banner
         if (StringUtils.isBlank(urlBanner) && !banners.getSeriesList().isEmpty()) {
-            urlBanner = findBannerURL2(banners, BannerType.Graphical, LANGUAGE_PRIMARY, season);
+            urlBanner = findBannerURL2(banners, BannerType.GRAPHICAL, LANGUAGE_PRIMARY, season);
             // In a case of failure - trying to grab banner in alternative language.
             if (StringUtils.isBlank(urlBanner)) {
-                urlBanner = findBannerURL2(banners, BannerType.Graphical, LANGUAGE_SECONDARY, season);
+                urlBanner = findBannerURL2(banners, BannerType.GRAPHICAL, LANGUAGE_SECONDARY, season);
             }
         }
 
@@ -358,9 +358,8 @@ public class TheTvDBPlugin extends ImdbPlugin {
                         }
 
                         if (isValidString(episode.getRating()) && OverrideTools.checkOverwriteEpisodeRating(file, part, THETVDB_PLUGIN_ID)) {
-                            float episodeRating1 = new Float(episode.getRating());
-                            String episodeRating2 = String.valueOf(Math.round(episodeRating1 * 10f));
-                            file.setRating(part, episodeRating2, THETVDB_PLUGIN_ID);
+                            int episodeRating = StringTools.parseRating(episode.getRating());
+                            file.setRating(part, String.valueOf(episodeRating), THETVDB_PLUGIN_ID);
                         }
 
                         if (OverrideTools.checkOverwriteEpisodePlot(file, part, THETVDB_PLUGIN_ID)) {
