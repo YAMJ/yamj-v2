@@ -1038,7 +1038,7 @@ public final class MovieNFOReader {
                     }
                 }
 
-                movie.setCertification(tempCert, NFO_PLUGIN_ID);
+                movie.setCertification(tempCert.trim(), NFO_PLUGIN_ID);
             }
         }
     }

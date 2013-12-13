@@ -360,7 +360,7 @@ public final class StringTools {
         if (m.find()) {
             return m.group(1).trim();
         } else {
-            return mpaa;
+            return mpaa.trim();
         }
     }
 
