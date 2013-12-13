@@ -33,7 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +78,7 @@ public class MediaInfoScannerTest {
         assertEquals(1, infosVideo.size());
     }
 
-//    @Test
+    @Test
     public void testAvi() {
         getMediaInfoTestFile("AVI_DTS_ES_6.1.AVI.txt");
 
@@ -117,7 +119,7 @@ public class MediaInfoScannerTest {
         for (Map<String, String> codecInfo : infosAudio) {
             codec = MI_TEST.getCodecInfo(CodecType.AUDIO, codecInfo);
             LOG.debug("{} = {}", counter++, codec.toString());
-            assertTrue("No channels found!", codec.getCodecChannels()>0);
+            assertTrue("No channels found!", codec.getCodecChannels() > 0);
         }
     }
 
@@ -151,9 +153,7 @@ public class MediaInfoScannerTest {
      */
     private void getMediaInfoTestFile(String filename) {
         File file = FileUtils.getFile(testDir, filename);
-        System.out.print("File:" + file.getAbsolutePath());
-        System.out.print(" Length:" + file.length());
-        System.out.println(" Exists: " + file.exists());
+        LOG.info("File: {} Length: {} Exists: {}", file.getAbsolutePath(), file.length(), file.exists());
 
         try {
             FileInputStream fis = new FileInputStream(file);

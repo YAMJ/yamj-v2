@@ -78,7 +78,7 @@ public class ImdbPluginTest {
         assertNotEquals(Movie.UNKNOWN, movie.getPlot());
     }
 
-    //@Test
+    @Test
     public void testImdbTvShow() {
         LOG.info("testImdbTvShow");
         PropertiesUtil.setProperty("imdb.site", "us");
@@ -110,7 +110,7 @@ public class ImdbPluginTest {
         assertEquals("2011", mf2.getFirstAired(14));
     }
 
-    //@Test
+    @Test
     public void testImdbPerson() {
         LOG.info("testImdbPerson");
         PropertiesUtil.setProperty("imdb.site", "us");
@@ -132,7 +132,7 @@ public class ImdbPluginTest {
         assertTrue("No character", StringTools.isValidString(person.getFilmography().get(0).getCharacter()));
     }
 
-    //@Test
+    @Test
     public void testImdb_NewLayout() {
         LOG.info("testImdb_NewLayout");
         PropertiesUtil.setProperty("imdb.site", "us");
@@ -155,9 +155,10 @@ public class ImdbPluginTest {
         assertEquals("Incorrect Directors", 1, movie.getDirectors().size());
         assertEquals("Incorrect Writers", 1, movie.getWriters().size());
         assertTrue("No awards scraped", movie.getAwards().size() > 1);
+        assertEquals("Wrong release date", "2009-12-16", movie.getReleaseDate());
     }
 
-    //@Test
+    @Test
     public void testImdb_Combined() {
         LOG.info("testImdb_Combined");
         PropertiesUtil.setProperty("imdb.site", "us");
@@ -184,7 +185,7 @@ public class ImdbPluginTest {
 
     }
 
-    //@Test
+    @Test
     public void testScanNFO() {
         LOG.info("testScanNFO");
         String nfo = "\nhttp://www.imdb.com/title/tt0458339/\n";

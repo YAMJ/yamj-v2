@@ -29,7 +29,11 @@ import com.moviejukebox.model.Person;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.reader.MovieJukeboxXMLReader;
 import java.io.File;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -87,7 +91,7 @@ public class MovieJukeboxXMLWriterTest {
     /**
      * Test of parsePersonXML method, of class MovieJukeboxXMLWriter.
      */
-//    @Test
+    @Ignore("Need to write test")
     public void testParsePersonXML() {
         System.out.println("parsePersonXML");
         File xmlFile = null;
