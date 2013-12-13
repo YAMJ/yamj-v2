@@ -863,19 +863,22 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // RELEASE DATE
         if (OverrideTools.checkOverwriteReleaseDate(movie, IMDB_PLUGIN_ID)) {
-            // Load the release page from IMDb0
+            // Load the release page from IMDB
             if (StringTools.isNotValidString(releaseInfoXML)) {
                 releaseInfoXML = webBrowser.request(getImdbUrl(movie, siteDef) + "releaseinfo", siteDef.getCharset());
             }
 
-            String releaseDate = HTMLTools.stripTags(HTMLTools.extractTag(releaseInfoXML, HTML_QUOTE_GT + preferredCountry, "</a></td>")).trim();
+            Pattern pRelease = Pattern.compile("(?:.*?)\\Q" + preferredCountry + "\\E(?:.*?)\\Qrelease_date\">\\E(.*?)(?:<.*?>)(.*?)(?:</a>.*)");
+            Matcher mRelease = pRelease.matcher(releaseInfoXML);
 
-            // Check to see if there's a 4 digit year in the release date and terminate at that point
-            Matcher m = Pattern.compile(".*?\\d{4}+").matcher(releaseDate);
-            if (m.find()) {
-                movie.setReleaseDate(m.group(0), IMDB_PLUGIN_ID);
-            } else {
-                movie.setReleaseDate(releaseDate, IMDB_PLUGIN_ID);
+            if (mRelease.find()) {
+                String releaseDate = mRelease.group(1) + " " + mRelease.group(2);
+                try {
+                    movie.setReleaseDate(DateTime.parse(releaseDate).toString("yyyy-MM-dd"), IMDB_PLUGIN_ID);
+                } catch (IllegalArgumentException ex) {
+                    LOG.trace(LOG_MESSAGE + "Failed to convert release date: " + releaseDate, ex);
+                    movie.setReleaseDate(Movie.UNKNOWN, IMDB_PLUGIN_ID);
+                }
             }
         }
 
