@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime2.DateTime;
 import org.w3c.dom.Document;
@@ -94,6 +95,8 @@ public final class MovieNFOReader {
     private static final String TEXT_FIXIT = ". Does not seem to be an XML format. Error: ";
     private static final boolean SKIP_NFO_URL = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", Boolean.TRUE);
     private static final boolean SKIP_NFO_TRAILER = PropertiesUtil.getBooleanProperty("filename.nfo.skipTrailer", Boolean.FALSE);
+    private static final boolean SKIP_NFO_CAST = PropertiesUtil.getBooleanProperty("filename.nfo.skipCast", Boolean.FALSE);
+    private static final boolean SKIP_NFO_CREW = PropertiesUtil.getBooleanProperty("filename.nfo.skipCrew", Boolean.FALSE);
     private static final AspectRatioTools ASPECT_TOOLS = new AspectRatioTools();
     private static final boolean CERT_FROM_MPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE);
     private static final String IMDB_PREFERRED_COUNTRY = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
@@ -453,22 +456,22 @@ public final class MovieNFOReader {
                 }
 
                 // Director
-                parseDirectors(eCommon.getElementsByTagName("director"), movie);
+                if (!SKIP_NFO_CREW) {
+                    parseDirectors(eCommon.getElementsByTagName("director"), movie);
 
-                // Credits/Writer
-                parseWriters(eCommon.getElementsByTagName("writer"), movie);
-                parseWriters(eCommon.getElementsByTagName("credits"), movie);
+                    // Credits/Writer
+                    parseWriters(eCommon.getElementsByTagName("writer"), movie);
+                    parseWriters(eCommon.getElementsByTagName("credits"), movie);
+                }
 
-                // Actors
-                parseActors(eCommon.getElementsByTagName("actor"), movie);
+                if (!SKIP_NFO_CAST) {
+                    // Actors
+                    parseActors(eCommon.getElementsByTagName("actor"), movie);
 
-                if (OverrideTools.checkOverwriteFPS(movie, NFO_PLUGIN_ID)) {
-                    String tempString = DOMHelper.getValueFromElement(eCommon, "fps");
-                    if (isValidString(tempString)) {
-                        try {
-                            movie.setFps(Float.parseFloat(tempString), NFO_PLUGIN_ID);
-                        } catch (NumberFormatException error) {
-                            LOG.warn(LOG_MESSAGE + "Error reading FPS value " + tempString);
+                    if (OverrideTools.checkOverwriteFPS(movie, NFO_PLUGIN_ID)) {
+                        float tmpFps = NumberUtils.toFloat(DOMHelper.getValueFromElement(eCommon, "fps"), -1F);
+                        if (tmpFps > -1F) {
+                            movie.setFps(tmpFps, NFO_PLUGIN_ID);
                         }
                     }
                 }
