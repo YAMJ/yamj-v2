@@ -432,7 +432,7 @@ public final class FanartScanner {
             int countHD = 0;
 
             for (Banner banner : banners.getFanartList()) {
-                if (banner.getBannerType2() == BannerType.FanartHD) {
+                if (banner.getBannerType2() == BannerType.FANART_HD) {
                     bannerHD = banner;  // Save the current banner
                     countHD++;
                     if (countHD >= index) {

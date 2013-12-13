@@ -25,7 +25,6 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 import com.omertron.rottentomatoesapi.RottenTomatoesApi;
@@ -34,6 +33,7 @@ import com.omertron.rottentomatoesapi.model.RTMovie;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -104,16 +104,8 @@ public class RottenTomatoesPlugin {
      * @return
      */
     private boolean doScan(Movie movie) {
-        int rtId = 0;
         RTMovie rtMovie = null;
-
-        if (StringTools.isValidString(movie.getId(ROTTENTOMATOES_PLUGIN_ID))) {
-            try {
-                rtId = Integer.parseInt(movie.getId(ROTTENTOMATOES_PLUGIN_ID));
-            } catch (NumberFormatException error) {
-                rtId = 0;
-            }
-        }
+        int rtId = NumberUtils.toInt(movie.getId(ROTTENTOMATOES_PLUGIN_ID), 0);
 
         if (rtId == 0) {
             List<RTMovie> rtMovies;

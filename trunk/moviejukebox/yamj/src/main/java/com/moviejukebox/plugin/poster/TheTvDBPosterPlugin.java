@@ -22,15 +22,23 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import com.moviejukebox.model.*;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.IMovieBasicInformation;
+import com.moviejukebox.model.Identifiable;
+import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.TheTvDBPlugin;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.WebBrowser;
 import com.omertron.thetvdbapi.TheTVDBApi;
 import com.omertron.thetvdbapi.model.Banner;
 import com.omertron.thetvdbapi.model.BannerType;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Series;
 import java.util.List;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime2.DateTime;
@@ -88,18 +96,17 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
         }
 
+        int iYear = NumberUtils.toInt(year, -1);
+
         if (seriesList != null && !seriesList.isEmpty()) {
             Series series = null;
             for (Series s : seriesList) {
-                if (s.getFirstAired() != null && !s.getFirstAired().isEmpty()) {
-                    if (StringTools.isValidString(year)) {
-                        try {
-                            DateTime firstAired = DateTime.parse(s.getFirstAired());
-                            if (Integer.parseInt(firstAired.toString("yyyy")) == Integer.parseInt(year)) {
-                                series = s;
-                                break;
-                            }
-                        } catch (Exception ignore) {
+                if (StringUtils.isNotBlank(s.getFirstAired())) {
+                    if (iYear > -1) {
+                        DateTime firstAired = DateTime.parse(s.getFirstAired());
+                        if (NumberUtils.toInt(firstAired.toString("yyyy"), -1) == iYear) {
+                            series = s;
+                            break;
                         }
                     } else {
                         series = s;
@@ -216,7 +223,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private String findPosterURL(final Banners bannerList, final int season, final String languageId) {
         String backupUrl = null;
         for (Banner banner : bannerList.getSeasonList()) {
-            if ((banner.getSeason() == season) && (banner.getBannerType2() == BannerType.Season)) {
+            if ((banner.getSeason() == season) && (banner.getBannerType2() == BannerType.SEASON)) {
                 if (banner.getLanguage().equalsIgnoreCase(languageId)) {
                     return banner.getUrl();
                 } else if (StringUtils.isBlank(banner.getLanguage())) {

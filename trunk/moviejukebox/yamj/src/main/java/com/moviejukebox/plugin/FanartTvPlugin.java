@@ -39,6 +39,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 public class FanartTvPlugin {
@@ -127,12 +128,7 @@ public class FanartTvPlugin {
         Map<FTArtworkType, Integer> requiredArtworkTypes = new EnumMap<FTArtworkType, Integer>(artworkTypes);
 
         if (movie.isTVShow()) {
-            int tvdbid;
-            try {
-                tvdbid = Integer.parseInt(movie.getId(TheTvDBPlugin.THETVDB_PLUGIN_ID));
-            } catch (NumberFormatException ex) {
-                tvdbid = 0;
-            }
+            int tvdbid = NumberUtils.toInt(movie.getId(TheTvDBPlugin.THETVDB_PLUGIN_ID), 0);
 
             // Remove the non-TV types
             for (FTArtworkType at : requiredArtworkTypes.keySet()) {
@@ -146,12 +142,7 @@ public class FanartTvPlugin {
             requiredQuantity = totalRequiredTv;
             requiredLanguage = LANG_TV;
         } else {
-            int tmdbId;
-            try {
-                tmdbId = Integer.parseInt(movie.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID));
-            } catch (NumberFormatException ex) {
-                tmdbId = 0;
-            }
+            int tmdbId = NumberUtils.toInt(movie.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID), 0);;
 
             // Remove the non-Movie types
             for (FTArtworkType at : requiredArtworkTypes.keySet()) {

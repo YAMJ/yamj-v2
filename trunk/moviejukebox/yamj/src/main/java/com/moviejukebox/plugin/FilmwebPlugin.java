@@ -162,7 +162,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (movie.getRating() == -1) {
-                movie.addRating(FILMWEB_PLUGIN_ID, parseRating(HTMLTools.getTextAfterElem(xml, "average")));
+                movie.addRating(FILMWEB_PLUGIN_ID, StringTools.parseRating(HTMLTools.getTextAfterElem(xml, "average")));
             }
 
             // TOP250
@@ -307,16 +307,6 @@ public class FilmwebPlugin extends ImdbPlugin {
             LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
             return Boolean.FALSE;
         }
-    }
-
-    private int parseRating(String rating) {
-        int returnRating = -1;
-        try {
-            returnRating = Math.round(Float.parseFloat(rating.replace(",", ".")) * 10);
-        } catch (NumberFormatException error) {
-            LOG.info("Failed to parse rating '" + rating + "', error: " + error.getMessage(), error);
-        }
-        return returnRating;
     }
 
     private String updateImdbId(Movie movie) {

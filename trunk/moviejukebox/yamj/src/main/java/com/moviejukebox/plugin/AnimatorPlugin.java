@@ -113,7 +113,9 @@ public class AnimatorPlugin extends ImdbPlugin {
     }
 
     /**
-     * Retrieve Animator matching the specified movie name and year. This routine is base on a Google request.
+     * Retrieve Animator matching the specified movie name and year.
+     *
+     * This routine is base on a Google request.
      */
     private String getAnimatorId(String movieName, String year, int season) {
         try {
@@ -157,14 +159,6 @@ public class AnimatorPlugin extends ImdbPlugin {
                                         }
                                     }
                                 }
-                            }
-                        }
-                        if (!animatorId.equals("") && !animatorId.equals(Movie.UNKNOWN)) {
-                            // Check if ID is integer
-                            try {
-                                Integer.parseInt(animatorId);
-                            } catch (NumberFormatException ignore) {
-                                // Ignore
                             }
                         }
                     }
@@ -227,15 +221,6 @@ public class AnimatorPlugin extends ImdbPlugin {
                                     }
                                 }
                             }
-                        }
-                    }
-
-                    if (!allmultsId.equals("") && !allmultsId.equals(Movie.UNKNOWN)) {
-                        // Check if ID is integer
-                        try {
-                            Integer.parseInt(allmultsId);
-                        } catch (NumberFormatException ignore) {
-                            // Ignore
                         }
                     }
                 }

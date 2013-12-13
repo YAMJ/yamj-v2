@@ -35,6 +35,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -56,6 +57,24 @@ public final class StringTools {
 
     private StringTools() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
+    static {
+        // Populate the charReplacementMap
+        String temp = PropertiesUtil.getProperty("indexing.character.replacement", "");
+        //String temp = PropertiesUtil.getProperty("mjb.charset.filename.translate", "");
+        StringTokenizer tokenizer = new StringTokenizer(temp, ",");
+        while (tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken();
+            int idx = token.indexOf('-');
+            if (idx > 0) {
+                String key = token.substring(0, idx).trim();
+                String value = token.substring(idx + 1).trim();
+                if (key.length() == 1 && value.length() == 1) {
+                    CHAR_REPLACEMENT_MAP.put(Character.valueOf(key.charAt(0)), Character.valueOf(value.charAt(0)));
+                }
+            }
+        }
     }
 
     /**
@@ -90,24 +109,6 @@ public final class StringTools {
         }
         quoteString.deleteCharAt(quoteString.length() - 1);
         return quoteString.toString();
-    }
-
-    static {
-        // Populate the charReplacementMap
-        String temp = PropertiesUtil.getProperty("indexing.character.replacement", "");
-        //String temp = PropertiesUtil.getProperty("mjb.charset.filename.translate", "");
-        StringTokenizer tokenizer = new StringTokenizer(temp, ",");
-        while (tokenizer.hasMoreTokens()) {
-            String token = tokenizer.nextToken();
-            int idx = token.indexOf('-');
-            if (idx > 0) {
-                String key = token.substring(0, idx).trim();
-                String value = token.substring(idx + 1).trim();
-                if (key.length() == 1 && value.length() == 1) {
-                    CHAR_REPLACEMENT_MAP.put(Character.valueOf(key.charAt(0)), Character.valueOf(value.charAt(0)));
-                }
-            }
-        }
     }
 
     /**
@@ -165,6 +166,12 @@ public final class StringTools {
         return FilenameUtils.concat(basePath, tmpAdditionalPath);
     }
 
+    /**
+     * Strip all non-alphanumeric characters from a string replacing with a space
+     *
+     * @param sourceString
+     * @return
+     */
     public static String cleanString(String sourceString) {
         return CLEAN_STRING_PATTERN.matcher(sourceString).replaceAll(" ").trim();
     }
@@ -366,4 +373,40 @@ public final class StringTools {
     public static String replaceQuotes(String original) {
         return QUOTE_PATTERN.matcher(original).replaceAll(QUOTE_SINGLE);
     }
+
+    /**
+     * Parse a string value and convert it into an integer rating
+     *
+     * The rating should be between 0 and 10 inclusive.<br/>
+     * Invalid values or values less than 0 will return -1
+     *
+     * @param rating the converted rating or -1 if there was an error
+     * @return
+     */
+    public static int parseRating(String rating) {
+        return parseRating(NumberUtils.toFloat(rating.replace(',', '.'), -1));
+    }
+
+    /**
+     * Parse a float rating into an integer
+     *
+     * The rating should be between 0 and 10 inclusive.<br/>
+     * Invalid values or values less than 0 will return -1
+     *
+     * @param rating the converted rating or -1 if there was an error
+     * @return
+     */
+    public static int parseRating(float rating) {
+        float tmp;
+        if (rating < 0) {
+            return -1;
+        } else if (rating > 10f) {
+            tmp = 10;
+        } else {
+            tmp = rating;
+        }
+
+        return Math.round(tmp * 10f);
+    }
+
 }

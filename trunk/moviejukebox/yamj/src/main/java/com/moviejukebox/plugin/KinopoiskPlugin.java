@@ -22,17 +22,29 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Award;
+import com.moviejukebox.model.AwardEvent;
+import com.moviejukebox.model.Filmography;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Person;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.OverrideTools;
-
-import com.moviejukebox.model.*;
-import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import java.net.URLEncoder;
 import java.text.Normalizer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -1205,10 +1217,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                 }
                             }
                             String ratingStr = HTMLTools.extractTag(item, "<div class=\"rating\"><a href=\"", "</a>").replaceAll("[^>]*>", "");
-                            Integer rating = 0;
-                            if (StringTools.isValidString(ratingStr)) {
-                                rating = (int) (Float.valueOf(ratingStr).floatValue() * 10);
-                            }
+                            int rating = StringTools.parseRating(ratingStr);
 
                             float key = 101 - (rating + Float.valueOf("0." + id).floatValue());
 
