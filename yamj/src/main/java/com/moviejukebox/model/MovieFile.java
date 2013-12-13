@@ -32,13 +32,23 @@ import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.pojava.datetime2.DateTime;
 
 @XmlType
@@ -584,35 +594,6 @@ public class MovieFile implements Comparable<MovieFile> {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("[MovieFile ");
-        sb.append("[filename=").append(filename);
-        sb.append("][season=").append(season);
-        sb.append("][firstPart=").append(firstPart);
-        sb.append("][lastPart=").append(lastPart);
-        sb.append("][newFile=").append(newFile);
-        sb.append("][subtitlesExchange=").append(subtitlesExchange);
-        sb.append("][playLink=").append(playLink);
-        sb.append("][titles=").append(titles);
-        sb.append("][plots=").append(plots);
-        sb.append("][videoImageURL=").append(videoImageURL);
-        sb.append("][videoImageFilename=").append(videoImageFilename);
-        sb.append("][airsAfterSeason=").append(airsAfterSeason);
-        sb.append("][airsBeforeSeason=").append(airsBeforeSeason);
-        sb.append("][airsBeforeEpisode=").append(airsBeforeEpisode);
-        sb.append("][firstAired=").append(firstAired);
-        sb.append("][ratings=").append(ratings);
-        sb.append("][file=").append(file);
-        sb.append("][info=").append(info);
-        sb.append("][watched=").append(watched);
-        sb.append("][watchedDate=").append(watchedDate);
-        sb.append("][playFullBluRayDisk=").append(playFullBluRayDisk);
-        sb.append("][includeEpisodePlots=").append(includeEpisodePlots);
-        sb.append("][includeVideoImages=").append(includeVideoImages);
-        sb.append("][includeEpisodeRating=").append(includeEpisodeRating);
-        sb.append("][playLinkVOD=").append(playLinkVOD);
-        sb.append("][playLinkZCD=").append(playLinkZCD);
-        sb.append("][archivename=").append(archiveName);
-        sb.append("]]");
-        return sb.toString();
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }

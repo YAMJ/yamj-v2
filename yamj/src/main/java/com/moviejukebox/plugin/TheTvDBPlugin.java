@@ -188,7 +188,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                     if (StringTools.isValidString(bannerUrl)) {
                         movie.setBannerURL(bannerUrl);
-                        LOG.debug(LOG_MESSAGE + "Used banner " + bannerUrl);
+                        LOG.trace(LOG_MESSAGE + "Used banner " + bannerUrl);
                     }
                 }
 
