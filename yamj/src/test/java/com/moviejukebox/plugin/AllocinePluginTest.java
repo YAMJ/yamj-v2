@@ -87,13 +87,13 @@ public class AllocinePluginTest {
         mf.setLastPart(1);
         movie.addMovieFile(mf);
 
-        allocinePlugin.scan(movie);
+        assertTrue("Failed to scan correctly", allocinePlugin.scan(movie));
         assertEquals("Incorrect series title", "Millennium", movie.getOriginalTitle());
         assertFalse("No video files found", movie.getFiles().isEmpty());
 
         mf = movie.getFirstFile();
         assertTrue(StringUtils.isNotBlank(mf.getPlot(1)));
-        String plotStart="Chaque année depuis quarante-quatre ans, le jour de son anniversaire, le président d'un ";
-        assertEquals(plotStart,mf.getPlot(1).substring(0, plotStart.length()));
+        String plotStart = "Chaque année depuis quarante-quatre ans, le jour de son anniversaire, le président d'un ";
+        assertEquals(plotStart, mf.getPlot(1).substring(0, plotStart.length()));
     }
 }

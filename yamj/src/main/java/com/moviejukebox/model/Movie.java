@@ -1519,13 +1519,30 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         this.next = validateString(next, this.next);
     }
 
+    /**
+     * Set the movie plot.
+     *
+     * Will replace non-standard quotes and "&amp;" as needed
+     *
+     * @param plot
+     * @param source
+     */
     public void setPlot(String plot, String source) {
         this.setPlot(plot, source, Boolean.TRUE);
     }
 
+    /**
+     * Set the movie plot.
+     *
+     * Will replace non-standard quotes and "&amp;" as needed
+     *
+     * @param plot
+     * @param source
+     * @param trimToLength
+     */
     public void setPlot(String plot, String source, boolean trimToLength) {
         if (StringTools.isValidString(plot)) {
-            String tmpPlot = StringTools.replaceQuotes(plot);
+            String tmpPlot = StringUtils.replace(StringTools.replaceQuotes(plot), "&amp;", "&");
             if (trimToLength) {
                 tmpPlot = StringTools.trimToLength(tmpPlot, MAX_LENGTH_PLOT);
             }
@@ -1542,13 +1559,30 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return outline;
     }
 
+    /**
+     * Set the movie outline.
+     *
+     * Will replace non-standard quotes and "&amp;" as needed
+     *
+     * @param outline
+     * @param source
+     */
     public void setOutline(String outline, String source) {
         this.setOutline(outline, source, Boolean.TRUE);
     }
 
+    /**
+     * Set the movie outline.
+     *
+     * Will replace non-standard quotes and "&amp;" as needed
+     *
+     * @param outline
+     * @param source
+     * @param trimToLength
+     */
     public void setOutline(String outline, String source, boolean trimToLength) {
         if (StringTools.isValidString(outline)) {
-            String tmpOutline = StringTools.replaceQuotes(outline);
+            String tmpOutline = StringUtils.replace(StringTools.replaceQuotes(outline), "&amp;", "&");
             if (trimToLength) {
                 tmpOutline = StringTools.trimToLength(tmpOutline, MAX_LENGTH_OUTLINE);
             }
