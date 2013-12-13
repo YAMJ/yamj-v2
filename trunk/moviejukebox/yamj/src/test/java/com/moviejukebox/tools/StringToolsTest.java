@@ -23,17 +23,15 @@
 package com.moviejukebox.tools;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  *
@@ -230,11 +228,14 @@ public class StringToolsTest {
     @Test
     public void testProcessMpaaCertification() {
         LOG.info("processMpaaCertification");
-        String rating = "Rated";
-        String mpaa = "Rated 12 for something silly";
-        String expResult = "12";
-        String result = StringTools.processMpaaCertification(rating, mpaa);
-        assertEquals(expResult, result);
+        // Test for a different start to the certification string
+        String mpaa = "Certificate 12 for something silly";
+        String result = StringTools.processMpaaCertification("Certificate", mpaa);
+        assertEquals("12", result);
+
+        // Test the standard certification String
+        result = StringTools.processMpaaCertification("Rated PG-13 for some violent images and brief nudity");
+        assertEquals("PG-13", result);
     }
 
     /**
