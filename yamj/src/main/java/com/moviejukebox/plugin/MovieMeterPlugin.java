@@ -28,7 +28,11 @@ import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.SearchEngineTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
@@ -151,7 +155,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             if (OverrideTools.checkOverwriteReleaseDate(movie, MOVIEMETER_PLUGIN_ID)) {
                 Object[] dates = (Object[]) filmInfo.get("dates_cinema");
                 if (dates != null && dates.length > 0) {
-                    HashMap dateshm = (HashMap) dates[0];
+                    Map dateshm = (HashMap) dates[0];
                     movie.setReleaseDate(dateshm.get("date").toString(), MOVIEMETER_PLUGIN_ID);
                     LOG.debug(LOG_MESSAGE + "Fetched releasedate: " + movie.getReleaseDate());
                 }
@@ -161,7 +165,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 if (filmInfo.get("durations") != null) {
                     Object[] durationsArray = (Object[]) filmInfo.get("durations");
                     if (durationsArray.length > 0) {
-                        HashMap durations = (HashMap) (durationsArray[0]);
+                        Map durations = (HashMap) (durationsArray[0]);
                         movie.setRuntime(durations.get("duration").toString(), MOVIEMETER_PLUGIN_ID);
                         LOG.debug(LOG_MESSAGE + "Fetched runtime: " + movie.getRuntime());
                     }
@@ -220,7 +224,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             if (OverrideTools.checkOverwriteDirectors(movie, MOVIEMETER_PLUGIN_ID)) {
                 Object[] directors = (Object[]) filmInfo.get("directors");
                 if (directors != null && directors.length > 0) {
-                    HashMap directorshm = (HashMap) directors[0];
+                    Map directorshm = (HashMap) directors[0];
                     movie.setDirector(directorshm.get("name").toString(), MOVIEMETER_PLUGIN_ID);
                     LOG.debug(LOG_MESSAGE + "Fetched director: " + movie.getDirector());
                 }
@@ -234,7 +238,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             }
 
             return Boolean.TRUE;
-        } catch (Exception error) {
+        } catch (NumberFormatException error) {
             LOG.error(LOG_MESSAGE + "Failed retrieving media info : " + moviemeterId);
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
