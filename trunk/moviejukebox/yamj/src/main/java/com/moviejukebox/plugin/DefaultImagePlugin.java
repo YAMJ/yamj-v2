@@ -720,7 +720,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         } else if (name.equalsIgnoreCase(AWARD)) {
                             value = "";
                             int awardCount = 0;
-                            HashMap<String, Integer> awards = new HashMap<String, Integer>();
+                            Map<String, Integer> awards = new HashMap<String, Integer>();
                             if (!movie.isSetMaster()) {
                                 for (AwardEvent awardEvent : movie.getAwards()) {
                                     for (Award award : awardEvent.getAwards()) {
@@ -743,7 +743,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
                             if (blockAward) {
                                 ValueComparator bvc = new ValueComparator(awards);
-                                TreeMap<String, Integer> sortedAwards = new TreeMap<String, Integer>(bvc);
+                                Map<String, Integer> sortedAwards = new TreeMap<String, Integer>(bvc);
                                 sortedAwards.putAll(awards);
 
                                 StringBuilder sbAwards = new StringBuilder();
@@ -1677,8 +1677,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             for (String keyword : keywordList.split(" ; ")) {
                 String[] keywordValues = keyword.split(Movie.SPACE_SLASH_SPACE);
                 if (keywordValues.length > 1) {
-                    ArrayList<String> arr = new ArrayList<String>(Arrays.asList(keywordValues));
-                    data.put(keywordValues[0], arr);
+                    data.put(keywordValues[0], new ArrayList<String>(Arrays.asList(keywordValues)));
                 }
             }
         }
@@ -1723,7 +1722,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             } else {
                 return false;
             }
-            ArrayList<String> arr = data.get(condition);
+            List<String> arr = data.get(condition);
             if (arr != null) {
                 for (int loop = 0; loop < arr.size(); loop++) {
                     if (name.equalsIgnoreCase(KEYWORDS)) {

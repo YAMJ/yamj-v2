@@ -22,21 +22,47 @@
  */
 package com.moviejukebox.scanner;
 
+import com.moviejukebox.model.Codec;
+import com.moviejukebox.model.CodecType;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.enumerations.CodecSource;
 import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.model.*;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.AspectRatioTools;
+import com.moviejukebox.tools.DateTimeTools;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SubtitleTools;
+import com.moviejukebox.tools.SystemTools;
 import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
 import com.mucommander.file.FileFactory;
 import com.mucommander.file.impl.iso.IsoArchiveFile;
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -115,7 +141,7 @@ public class MediaInfoScanner {
         }
     }
     // DVD rip infos Scanner
-    private DVDRipScanner localDVDRipScanner;
+    private final DVDRipScanner localDVDRipScanner;
 
     public MediaInfoScanner() {
         localDVDRipScanner = new DVDRipScanner();
@@ -142,7 +168,6 @@ public class MediaInfoScanner {
 
         // TODO add check if movie file is newer than generated movie XML
         //      in order to update possible changed media info values
-
         // no update if movie has no new files
         if (!currentMovie.hasNewMovieFiles()) {
             return;
@@ -165,12 +190,12 @@ public class MediaInfoScanner {
                             mainFileIsNew = Boolean.TRUE;
                             break;
                         }
-                    } catch (Exception ignore) {
+                    } catch (IOException ignore) {
                         // nothing to do
                     }
                 }
             }
-        } catch (Exception ignore) {
+        } catch (IOException ignore) {
             // nothing to do
         }
 
@@ -227,7 +252,9 @@ public class MediaInfoScanner {
                         fosCurrentIFO.write(ifoFileContent);
                     }
                 }
-            } catch (Exception error) {
+            } catch (IOException error) {
+                LOG.info(error.getMessage());
+            } catch (NumberFormatException error) {
                 LOG.info(error.getMessage());
             } finally {
                 if (fosCurrentIFO != null) {
@@ -299,7 +326,7 @@ public class MediaInfoScanner {
             if (is != null) {
                 try {
                     is.close();
-                } catch (Exception ignore) {
+                } catch (IOException ignore) {
                     // ignore this error
                 }
             }
@@ -347,7 +374,7 @@ public class MediaInfoScanner {
             if (is != null) {
                 try {
                     is.close();
-                } catch (Exception ignore) {
+                } catch (IOException ignore) {
                     // ignore this error
                 }
             }
@@ -433,7 +460,7 @@ public class MediaInfoScanner {
                 List<Map<String, String>> currentCat = matches.get(line);
 
                 if (currentCat != null) {
-                    HashMap<String, String> currentData = new HashMap<String, String>();
+                    Map<String, String> currentData = new HashMap<String, String>();
                     int indexSeparator = -1;
                     while (((line = localInputReadLine(bufReader)) != null) && ((indexSeparator = line.indexOf(" : ")) != -1)) {
                         label = line.substring(0, indexSeparator).trim();
@@ -449,8 +476,8 @@ public class MediaInfoScanner {
 
             // Setting General Info - Beware of lose data if infosGeneral already have some ...
             try {
-                for (int i = 0; i < generalKey.length; i++) {
-                    List<Map<String, String>> arrayList = matches.get(generalKey[i]);
+                for (String singleKey : generalKey) {
+                    List<Map<String, String>> arrayList = matches.get(singleKey);
                     if (arrayList.size() > 0) {
                         Map<String, String> datas = arrayList.get(0);
                         if (datas.size() > 0) {
@@ -535,7 +562,7 @@ public class MediaInfoScanner {
                     float r = Float.parseFloat(infoValue);
                     r = r * 20.0f;
                     movie.addRating(MEDIAINFO_PLUGIN_ID, Math.round(r));
-                } catch (Exception ignore) {
+                } catch (NumberFormatException ignore) {
                     // nothing to do
                 }
             }
@@ -690,8 +717,7 @@ public class MediaInfoScanner {
         // Cycle through Audio Streams
         // boolean previousAudioCodec = !movie.getAudioCodec().equals(Movie.UNKNOWN); // Do we have AudioCodec already?
         // boolean previousAudioChannels = !movie.getAudioChannels().equals(Movie.UNKNOWN); // Do we have AudioChannels already?
-
-        HashSet<String> foundLanguages = new HashSet<String>();
+        Set<String> foundLanguages = new HashSet<String>();
 
         for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
             Map<String, String> infosCurAudio = infosAudio.get(numAudio);
@@ -815,21 +841,14 @@ public class MediaInfoScanner {
         }
 
         String runtimeValue = infosMultiPart.get("MultiPart_Duration");
-        if (runtimeValue != null) {
-            try {
-                return Integer.parseInt(runtimeValue);
-            } catch (Exception ignore) {
-                // should never happen
-            }
-        }
-        return 0;
+        return NumberUtils.toInt(runtimeValue, 0);
     }
 
     /**
      * Create a Codec object with the information from the file
      *
      * @param codecType
-     * @param Video
+     * @param codecInfos
      * @return
      */
     protected Codec getCodecInfo(CodecType codecType, Map<String, String> codecInfos) {
@@ -891,9 +910,8 @@ public class MediaInfoScanner {
 
         try {
             // Create the command line
-            ArrayList<String> commandMedia = new ArrayList<String>(MI_EXE);
-            // Technically, mediaInfoExe has "-f" in it from above, but "-s"
-            // will over-ride it anyway.
+            List<String> commandMedia = new ArrayList<String>(MI_EXE);
+            // Technically, mediaInfoExe has "-f" in it from above, but "-s" will override it anyway.
             // "-s" will dump just "$size $path" inside RAR/ISO.
             commandMedia.add("-s");
             commandMedia.add(movieFilePath);
@@ -907,13 +925,13 @@ public class MediaInfoScanner {
 
             BufferedReader input = new BufferedReader(
                     new InputStreamReader(
-                    p.getInputStream()));
+                            p.getInputStream()));
             String line;
             String mediaArchive = null;
 
             while ((line = localInputReadLine(input)) != null) {
-                Pattern patternArchive =
-                        Pattern.compile("^\\s*\\d+\\s(.*)$");
+                Pattern patternArchive
+                        = Pattern.compile("^\\s*\\d+\\s(.*)$");
                 Matcher m = patternArchive.matcher(line);
                 if (m.find() && (m.groupCount() == 1)) {
                     mediaArchive = m.group(1);
@@ -925,7 +943,7 @@ public class MediaInfoScanner {
 
             return mediaArchive;
 
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error(SystemTools.getStackTrace(error));
         }
 
@@ -935,7 +953,6 @@ public class MediaInfoScanner {
     /**
      * Look for the mediaInfo filename and return it. Will check first for the mediainfo-rar file and then mediainfo
      *
-     * @param osName
      * @return
      */
     protected static File findMediaInfo() {

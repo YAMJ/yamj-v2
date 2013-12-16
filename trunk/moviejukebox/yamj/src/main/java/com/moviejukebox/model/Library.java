@@ -81,8 +81,8 @@ public class Library implements Map<String, Movie> {
     private static String defaultCertification = null;
     private static final Map<String, String> CATEGORIES_MAP = new LinkedHashMap<String, String>(); // This is a LinkedHashMap to ensure that the order that the items are inserted into the Map is retained
     private static boolean charGroupEnglish = false;
-    private final HashMap<Movie, String> keys = new HashMap<Movie, String>();
-    private final TreeMap<String, Movie> library = new TreeMap<String, Movie>();
+    private final Map<Movie, String> keys = new HashMap<Movie, String>();
+    private final Map<String, Movie> library = new TreeMap<String, Movie>();
     private final Map<String, Movie> extras = new TreeMap<String, Movie>();
     private List<Movie> moviesList = new ArrayList<Movie>();
     private final Map<String, Index> indexes;
@@ -116,7 +116,7 @@ public class Library implements Map<String, Movie> {
     private static final boolean ENABLE_WATCH_SCANNER;
     private static final List<String> DIRTY_LIBRARIES = new ArrayList<String>();
     // Issue 1897: Cast enhancement
-    private final TreeMap<String, Person> people;
+    private final Map<String, Person> people;
     private boolean isDirty = false;
     private static boolean peopleScan = false;
     private static boolean peopleExclusive = false;
@@ -528,7 +528,7 @@ public class Library implements Map<String, Movie> {
             indexMaster.setTop250(top250, top250source);
 
             if (setsRating.equalsIgnoreCase("max") || (setsRating.equalsIgnoreCase("average") && (indexMovieList.size() > 0))) {
-                HashMap<String, Integer> ratings = new HashMap<String, Integer>();
+                Map<String, Integer> ratings = new HashMap<String, Integer>();
                 ratings.put("setrating", setsRating.equalsIgnoreCase("max") ? maxRating : (sumRating / indexMovieList.size()));
                 indexMaster.setRatings(ratings);
             }
