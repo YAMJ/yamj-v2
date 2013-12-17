@@ -29,6 +29,7 @@ import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -52,8 +53,8 @@ public class ComingSoonPlugin extends ImdbPlugin {
     public static final String COMINGSOON_KEY_PARAM = "key=";
     private static final int COMINGSOON_MAX_DIFF = 1000;
     private static final int COMINGSOON_MAX_SEARCH_PAGES = 5;
-    private String scanImdb;
-    private String searchId;
+    private final String scanImdb;
+    private final String searchId;
 
     public ComingSoonPlugin() {
         super();
@@ -186,7 +187,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
             return comingSoonId;
 
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error(LOG_MESSAGE + "Failed retreiving ComingSoon Id for movie : " + movieName);
             LOG.error(LOG_MESSAGE + SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
@@ -226,7 +227,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 LOG.debug(LOG_MESSAGE + "Fetching ComingSoon search URL: " + sbPage.toString());
                 String xml = webBrowser.request(sbPage.toString(), Charset.forName("iso-8859-1"));
 
-                ArrayList<String[]> movieList = parseComingSoonSearchResults(xml);
+                List<String[]> movieList = parseComingSoonSearchResults(xml);
 
                 if (movieList.size() > 0) {
 
@@ -266,20 +267,20 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             return comingSoonId;
 
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error(LOG_MESSAGE + "Failed retreiving ComingSoon Id for movie : " + movieName);
             LOG.error(LOG_MESSAGE + SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
         }
     }
 
-    private ArrayList<String[]> parseComingSoonSearchResults(String xml) {
+    private List<String[]> parseComingSoonSearchResults(String xml) {
 
         /*
          * Search results end with "Trovati NNN Film" (found NNN movies). After
          * this string, more movie URL are found, so we have to set a boundary
          */
-        ArrayList<String[]> listaFilm = new ArrayList<String[]>();
+        List<String[]> listaFilm = new ArrayList<String[]>();
         int trovatiIndex = xml.indexOf("Trovati");
         int moviesFound = -1;
 
@@ -670,7 +671,11 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             return true;
 
-        } catch (Exception error) {
+        } catch (IOException error) {
+            LOG.error(LOG_MESSAGE + "Failed retreiving ComingSoon data for movie : " + movie.getId(COMINGSOON_PLUGIN_ID));
+            LOG.error(LOG_MESSAGE + SystemTools.getStackTrace(error));
+            return false;
+        } catch (NumberFormatException error) {
             LOG.error(LOG_MESSAGE + "Failed retreiving ComingSoon data for movie : " + movie.getId(COMINGSOON_PLUGIN_ID));
             LOG.error(LOG_MESSAGE + SystemTools.getStackTrace(error));
             return false;

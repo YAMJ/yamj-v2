@@ -22,20 +22,71 @@
  */
 package com.moviejukebox;
 
-import com.moviejukebox.tools.cache.CacheMemory;
-import com.moviejukebox.model.*;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.Comparator.PersonComparator;
+import com.moviejukebox.model.DirtyFlag;
+import com.moviejukebox.model.Filmography;
+import com.moviejukebox.model.IndexInfo;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.JukeboxStatistic;
+import com.moviejukebox.model.JukeboxStatistics;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.MediaLibraryPath;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Person;
 import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.plugin.*;
+import com.moviejukebox.plugin.AniDbPlugin;
+import com.moviejukebox.plugin.DatabasePluginController;
+import com.moviejukebox.plugin.DefaultBackgroundPlugin;
+import com.moviejukebox.plugin.DefaultImagePlugin;
+import com.moviejukebox.plugin.MovieImagePlugin;
+import com.moviejukebox.plugin.MovieListingPlugin;
+import com.moviejukebox.plugin.MovieListingPluginBase;
+import com.moviejukebox.plugin.OpenSubtitlesPlugin;
+import com.moviejukebox.plugin.RottenTomatoesPlugin;
+import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.reader.MovieJukeboxLibraryReader;
 import com.moviejukebox.reader.MovieJukeboxXMLReader;
-import com.moviejukebox.scanner.*;
-import com.moviejukebox.scanner.artwork.*;
-import com.moviejukebox.tools.*;
-import static com.moviejukebox.tools.PropertiesUtil.*;
+import com.moviejukebox.scanner.AttachmentScanner;
+import com.moviejukebox.scanner.MediaInfoScanner;
+import com.moviejukebox.scanner.MovieDirectoryScanner;
+import com.moviejukebox.scanner.MovieFilenameScanner;
+import com.moviejukebox.scanner.MovieNFOScanner;
+import com.moviejukebox.scanner.OutputDirectoryScanner;
+import com.moviejukebox.scanner.RecheckScanner;
+import com.moviejukebox.scanner.TrailerScanner;
+import com.moviejukebox.scanner.WatchedScanner;
+import com.moviejukebox.scanner.artwork.ArtworkScanner;
+import com.moviejukebox.scanner.artwork.BackdropScanner;
+import com.moviejukebox.scanner.artwork.BannerScanner;
+import com.moviejukebox.scanner.artwork.FanartScanner;
+import com.moviejukebox.scanner.artwork.FanartTvScanner;
+import com.moviejukebox.scanner.artwork.PhotoScanner;
+import com.moviejukebox.scanner.artwork.PosterScanner;
+import com.moviejukebox.scanner.artwork.VideoImageScanner;
+import com.moviejukebox.tools.FileLocationChange;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.FilteringLayout;
+import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.JukeboxProperties;
+import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
-import static com.moviejukebox.tools.StringTools.*;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+import static com.moviejukebox.tools.PropertiesUtil.getBooleanProperty;
+import static com.moviejukebox.tools.PropertiesUtil.getProperty;
+import static com.moviejukebox.tools.PropertiesUtil.setPropertiesStreamName;
+import static com.moviejukebox.tools.PropertiesUtil.setProperty;
+import com.moviejukebox.tools.ScanningLimit;
+import com.moviejukebox.tools.SkinProperties;
+import com.moviejukebox.tools.StringTools;
+import static com.moviejukebox.tools.StringTools.appendToPath;
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+import static com.moviejukebox.tools.StringTools.tokenizeToArray;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.cache.CacheMemory;
 import com.moviejukebox.writer.CompleteMoviesWriter;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
@@ -43,7 +94,17 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -1071,7 +1132,7 @@ public class MovieJukebox {
             if (peopleScan && peopleScrape && !ScanningLimit.isLimitReached()) {
                 LOG.info("Searching for people information...");
                 int peopleCounter = 0;
-                TreeMap<String, Person> popularPeople = new TreeMap<String, Person>();
+                Map<String, Person> popularPeople = new TreeMap<String, Person>();
                 for (Movie movie : library.values()) {
                     // Issue 997: Skip the processing of extras if not required
                     if (movie.isExtra() && !processExtras) {
@@ -1105,7 +1166,7 @@ public class MovieJukebox {
 
                 tasks.restart();
                 if (popularity > 0) {
-                    ArrayList<Person> as = new ArrayList<Person>(popularPeople.values());
+                    List<Person> as = new ArrayList<Person>(popularPeople.values());
 
                     Collections.sort(as, new PersonComparator());
 
@@ -1164,7 +1225,7 @@ public class MovieJukebox {
                         if (movie.isExtra() && !processExtras) {
                             continue;
                         }
-                        TreeMap<String, Integer> typeCounter = new TreeMap<String, Integer>();
+                        Map<String, Integer> typeCounter = new TreeMap<String, Integer>();
                         for (Filmography person : movie.getPeople()) {
                             final int count = ++peopleCounter;
                             String job = person.getJob();
