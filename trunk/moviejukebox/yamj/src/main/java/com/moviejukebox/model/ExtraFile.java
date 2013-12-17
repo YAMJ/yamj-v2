@@ -30,7 +30,8 @@ import java.util.Map;
  */
 public class ExtraFile extends MovieFile {
 
-    public ExtraFile() {}
+    public ExtraFile() {
+    }
 
     public ExtraFile(MovieFile mf) {
         this.setFile(mf.getFile());
@@ -39,7 +40,7 @@ public class ExtraFile extends MovieFile {
         this.setTitle(mf.getTitle());
         this.setNewFile(mf.isNewFile());
     }
-    
+
     @Override
     public int compareTo(MovieFile that) {
         return this.getFilename().compareToIgnoreCase(that.getFilename());

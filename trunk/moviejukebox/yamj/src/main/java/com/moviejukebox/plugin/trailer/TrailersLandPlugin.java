@@ -473,20 +473,43 @@ public class TrailersLandPlugin extends TrailerPlugin {
         }
 
         @Override
-        public int compareTo(TrailersLandTrailer o) {
-            String thisLang = this.getLang();
-            String thisType = this.getType();
-            String thatLang = o.getLang();
-            String thatType = o.getType();
-            int thisFoundOrder = this.getFoundOrder();
-            int thatFoundOder = o.getFoundOrder();
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final TrailersLandTrailer other = (TrailersLandTrailer) obj;
+            if ((this.res == null) ? (other.res != null) : !this.res.equals(other.res)) {
+                return false;
+            }
+            if ((this.type == null) ? (other.type != null) : !this.type.equals(other.type)) {
+                return false;
+            }
+            if ((this.lang == null) ? (other.lang != null) : !this.lang.equals(other.lang)) {
+                return false;
+            }
+            return true;
+        }
 
-            int diff = evaluateAgainstList(thatLang, trailerPreferredLanguages) - evaluateAgainstList(thisLang, trailerPreferredLanguages);
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 19 * hash + (this.res != null ? this.res.hashCode() : 0);
+            hash = 19 * hash + (this.type != null ? this.type.hashCode() : 0);
+            hash = 19 * hash + (this.lang != null ? this.lang.hashCode() : 0);
+            return hash;
+        }
+
+        @Override
+        public int compareTo(TrailersLandTrailer o) {
+            int diff = evaluateAgainstList(o.getLang(), trailerPreferredLanguages) - evaluateAgainstList(this.getLang(), trailerPreferredLanguages);
 
             if (diff == 0) {
-                diff = evaluateAgainstList(thatType, trailerPreferredTypes) - evaluateAgainstList(thisType, trailerPreferredTypes);
+                diff = evaluateAgainstList(o.getType(), trailerPreferredTypes) - evaluateAgainstList(this.getType(), trailerPreferredTypes);
                 if (diff == 0) {
-                    diff = thatFoundOder - thisFoundOrder;
+                    diff = o.getFoundOrder() - this.getFoundOrder();
                 }
             }
             return diff;

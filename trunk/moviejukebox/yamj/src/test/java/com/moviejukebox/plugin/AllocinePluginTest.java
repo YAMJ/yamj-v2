@@ -24,6 +24,8 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -78,6 +80,12 @@ public class AllocinePluginTest {
     @Test
     public void testTvSeries() {
         LOG.info("testTvSeries");
+        // Change the override priorities for allocine
+        OverrideTools.putTvPriorities(OverrideFlag.TITLE, "allocine,imdb");
+        OverrideTools.putTvPriorities(OverrideFlag.ORIGINALTITLE, "allocine,imdb");
+        OverrideTools.putTvPriorities(OverrideFlag.PLOT, "allocine,imdb");
+        OverrideTools.putTvPriorities(OverrideFlag.OUTLINE, "allocine,imdb");
+
         Movie movie = new Movie();
         movie.setMovieType(Movie.TYPE_TVSHOW);
         movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, "5676");
