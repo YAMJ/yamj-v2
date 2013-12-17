@@ -49,6 +49,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.StringTokenizer;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -95,8 +96,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     // Local search settings
     protected Collection<String> artworkExtensions = new ArrayList<String>();
     protected Collection<String> artworkImageName = new ArrayList<String>();    // List of fixed artwork names
-    private String artworkDirectory;                    // The name of the artwork directory to search from from either the video directory or the root of the library
-    private List<ArtworkPriority> artworkPriority = new ArrayList<ArtworkPriority>();     // The order of the searches performed for the local artwork.
+    private final String artworkDirectory;                    // The name of the artwork directory to search from from either the video directory or the root of the library
+    private final List<ArtworkPriority> artworkPriority = new ArrayList<ArtworkPriority>();     // The order of the searches performed for the local artwork.
     // Artwork attributes
     protected String artworkFormat;                     // Format of the artwork to save, e.g. JPG, PNG, etc.
     protected String artworkTokenOriginal;              // The suffix of the artwork filename to search for.
@@ -169,6 +170,10 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
     /**
      * A catch all routine to scan local artwork and then online artwork.
+     *
+     * @param jukebox
+     * @param movie
+     * @return
      */
     @Override
     public final String scan(Jukebox jukebox, Movie movie) {
@@ -301,6 +306,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * TODO: Parameter to control if the original artwork is saved in the jukebox or not. We should save this in an
      * "originalArtwork" folder or something
      *
+     * @param jukebox
+     * @param movie
      * @return the status of the save. True if saved correctly, false otherwise.
      */
     public boolean downloadArtwork(Jukebox jukebox, Movie movie) {
@@ -571,8 +578,8 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      *
      * @return
      */
-    public static EnumSet<ArtworkType> getRequiredArtworkTypes() {
-        EnumSet<ArtworkType> artworkTypeRequired = EnumSet.noneOf(ArtworkType.class);
+    public static Set<ArtworkType> getRequiredArtworkTypes() {
+        Set<ArtworkType> artworkTypeRequired = EnumSet.noneOf(ArtworkType.class);
         for (ArtworkType artworkType : EnumSet.allOf(ArtworkType.class)) {
             if (isRequired(artworkType)) {
                 artworkTypeRequired.add(artworkType);
@@ -590,6 +597,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      *
      * @param jukebox
      * @param movie
+     * @param artworkImagePlugin
      * @return The URL (path) to the first found artwork in the priority list
      */
     protected String scanLocalArtwork(Jukebox jukebox, Movie movie, MovieImagePlugin artworkImagePlugin) {
@@ -612,19 +620,19 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
             if (artworkSearch.equals(ArtworkPriority.VIDEO)) {
                 artworkUrl = scanVideoArtwork(movie, artworkFilename);
-//                logger.debug(LOG_MESSAGE + movie.getBaseFilename() + " scanVideoArtwork    : " + movieArtwork); // XXX DEBUG
+                LOG.trace(LOG_MESSAGE + movie.getBaseFilename() + " scanVideoArtwork    : " + artworkUrl);
                 continue;
             }
 
             if (artworkSearch.equals(ArtworkPriority.FOLDER)) {
                 artworkUrl = scanFolderArtwork(movie);
-//                logger.debug(LOG_MESSAGE + movie.getBaseFilename() + " scanFolderArtwork   : " + movieArtwork); // XXX DEBUG
+                LOG.trace(LOG_MESSAGE + movie.getBaseFilename() + " scanFolderArtwork   : " + artworkUrl);
                 continue;
             }
 
             if (artworkSearch.equals(ArtworkPriority.FIXED)) {
                 artworkUrl = scanFixedArtwork(movie);
-//                logger.debug(LOG_MESSAGE + movie.getBaseFilename() + " scanFixedArtwork    : " + movieArtwork); // XXX DEBUG
+                LOG.trace(LOG_MESSAGE + movie.getBaseFilename() + " scanFixedArtwork    : " + artworkUrl);
                 continue;
             }
 
@@ -632,15 +640,14 @@ public abstract class ArtworkScanner implements IArtworkScanner {
                 // This is only for TV Sets as it searches the directory above the one the episode is in for fixed artwork
                 if (movie.isTVShow() && movie.isSetMaster()) {
                     artworkUrl = scanTvSeriesArtwork(movie);
-//                    logger.debug(LOG_MESSAGE + movie.getBaseFilename() + " scanTvSeriesArtwork : " + movieArtwork); // XXX DEBUG
+                    LOG.trace(LOG_MESSAGE + movie.getBaseFilename() + " scanTvSeriesArtwork : " + artworkUrl);
                 }
                 continue;
             }
 
             if (artworkSearch.equals(ArtworkPriority.DIRECTORY)) {
                 artworkUrl = scanArtworkDirectory(movie, artworkFilename);
-//                logger.debug(LOG_MESSAGE + movie.getBaseFilename() + " scanArtworkDirectory: " + movieArtwork); // XXX DEBUG
-                continue;
+                LOG.trace(LOG_MESSAGE + movie.getBaseFilename() + " scanArtworkDirectory: " + artworkUrl);
             }
 
         }
@@ -789,6 +796,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      *
      * Checks the overwrite parameters Checks to see if the local artwork is newer
      *
+     * @param jukebox
      * @param movie
      * @return
      */
@@ -848,6 +856,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * The relative path should include the directory of the movie as well as the library root
      *
      * @param movie
+     * @param artworkFilename
      * @return UNKNOWN or Absolute Path
      */
     protected String scanArtworkDirectory(Movie movie, String artworkFilename) {
@@ -957,6 +966,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * Scan for artwork named like <videoFileName><artworkToken>.<artworkExtensions>
      *
      * @param movie
+     * @param artworkFilename
      * @return UNKNOWN or Absolute Path
      */
     protected String scanVideoArtwork(Movie movie, String artworkFilename) {
@@ -967,6 +977,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * Scan for artwork named like <videoFileName><artworkToken>.<artworkExtensions>
      *
      * @param movie
+     * @param artworkFilename
      * @param additionalPath A sub-directory of the movie to scan
      * @return UNKNOWN or Absolute Path
      */
@@ -1210,6 +1221,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * This is needed because of the disconnection between what was originally in the properties files and making it generic enough
      * for this scanner
      *
+     * @param artworkType
      * @return
      */
     public static String getPropertyName(ArtworkType artworkType) {

@@ -26,12 +26,13 @@ import com.moviejukebox.tools.PropertiesUtil;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.StringTokenizer;
 
 public class SortIgnorePrefixesComparator implements Comparator<Object>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private final ArrayList<String> sortIgnorePrefixes = new ArrayList<String>();
+    private final List<String> sortIgnorePrefixes = new ArrayList<String>();
     private boolean inited = false;
 
     @Override

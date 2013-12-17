@@ -2943,7 +2943,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         // Check to see if the codec already exists
         boolean alreadyExists = Boolean.FALSE;
         // Store the codecs to delete in an array to prevent a concurent modification exception
-        ArrayList<Codec> codecsToDelete = new ArrayList<Codec>();
+        List<Codec> codecsToDelete = new ArrayList<Codec>();
 
         for (Codec existingCodec : codecs) {
             if (existingCodec.getCodecType() != newCodec.getCodecType()) {

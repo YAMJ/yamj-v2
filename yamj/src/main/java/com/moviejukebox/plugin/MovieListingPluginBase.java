@@ -28,6 +28,7 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
@@ -77,8 +78,8 @@ public class MovieListingPluginBase implements MovieListingPlugin {
     /**
      * @return ArrayList of selected movie types, possibly from .properties file
      */
-    protected ArrayList<String> getSelectedTypes() {
-        ArrayList<String> alResult = new ArrayList<String>();
+    protected List<String> getSelectedTypes() {
+        List<String> alResult = new ArrayList<String>();
 
         String types = PropertiesUtil.getProperty("mjb.listing.types", typeAll).trim();
         if (typeAll.equalsIgnoreCase(types)) {

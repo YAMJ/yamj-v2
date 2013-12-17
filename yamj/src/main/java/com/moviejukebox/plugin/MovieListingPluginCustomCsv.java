@@ -22,7 +22,11 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.*;
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.CSVWriter;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -34,7 +38,13 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -271,7 +281,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                 sb.append(prep(String.valueOf(movie.isWatched())));
             } else {
                 LOG.debug("Unknown field: '" + header + "'");
-                
+
             }
         }
         return sb.toString();
@@ -344,7 +354,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         String filename = getBaseFilename() + ".csv";
         File csvFile = new File(jukebox.getJukeboxTempLocation(), filename);
 
-        ArrayList<String> alTypes = getSelectedTypes();
+        List<String> alTypes = getSelectedTypes();
         try {
             CSVWriter writer = new CSVWriter(csvFile);
             LOG.debug("  Writing CSV to: " + csvFile.getAbsolutePath());

@@ -95,7 +95,7 @@ public class MovieFile implements Comparable<MovieFile> {
         {
             String scannerTypes = PropertiesUtil.getProperty("filename.scanner.types", "ZCD,VOD");
 
-            HashMap<String, String> scannerTypeDefaults = new HashMap<String, String>() {
+            Map<String, String> scannerTypeDefaults = new HashMap<String, String>() {
                 private static final long serialVersionUID = -6480597100092105116L;
 
                 {
