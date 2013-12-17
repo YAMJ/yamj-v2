@@ -225,50 +225,50 @@ public final class RecheckScanner {
     }
 
     /**
-     * Fanart.TV checking
+     * FANART.TV checking
      *
      * @param movie
      * @return
      */
     private static boolean fanartTvCheck(Movie movie) {
         if (movie.isTVShow()) {
-            if (isNotValidString(movie.getClearArtURL()) && ARTWORK_REQUIRED.contains(ArtworkType.ClearArt)) {
+            if (isNotValidString(movie.getClearArtURL()) && ARTWORK_REQUIRED.contains(ArtworkType.CLEARART)) {
                 LOG.debug(LOG_MESSAGE + movie.getBaseName() + " is missing ClearArt, will rescan");
                 recheckCount++;
                 return true;
             }
 
-            if (isNotValidString(movie.getClearLogoURL()) && ARTWORK_REQUIRED.contains(ArtworkType.ClearLogo)) {
+            if (isNotValidString(movie.getClearLogoURL()) && ARTWORK_REQUIRED.contains(ArtworkType.CLEARLOGO)) {
                 LOG.debug(LOG_MESSAGE + movie.getBaseName() + " is missing ClearLogo, will rescan");
                 recheckCount++;
                 return true;
             }
 
-            if (isNotValidString(movie.getSeasonThumbURL()) && ARTWORK_REQUIRED.contains(ArtworkType.SeasonThumb)) {
+            if (isNotValidString(movie.getSeasonThumbURL()) && ARTWORK_REQUIRED.contains(ArtworkType.SEASONTHUMB)) {
                 LOG.debug(LOG_MESSAGE + movie.getBaseName() + " is missing SeasonThumb, will rescan");
                 recheckCount++;
                 return true;
             }
 
-            if (isNotValidString(movie.getTvThumbURL()) && ARTWORK_REQUIRED.contains(ArtworkType.TvThumb)) {
+            if (isNotValidString(movie.getTvThumbURL()) && ARTWORK_REQUIRED.contains(ArtworkType.TVTHUMB)) {
                 LOG.debug(LOG_MESSAGE + movie.getBaseName() + " is missing TvThumb, will rescan");
                 recheckCount++;
                 return true;
             }
         } else {
-            if (isNotValidString(movie.getClearArtURL()) && ARTWORK_REQUIRED.contains(ArtworkType.MovieArt)) {
+            if (isNotValidString(movie.getClearArtURL()) && ARTWORK_REQUIRED.contains(ArtworkType.MOVIEART)) {
                 LOG.debug(LOG_MESSAGE + movie.getBaseName() + " is missing MovieArt, will rescan");
                 recheckCount++;
                 return true;
             }
 
-            if (isNotValidString(movie.getClearLogoURL()) && ARTWORK_REQUIRED.contains(ArtworkType.MovieLogo)) {
+            if (isNotValidString(movie.getClearLogoURL()) && ARTWORK_REQUIRED.contains(ArtworkType.MOVIELOGO)) {
                 LOG.debug(LOG_MESSAGE + movie.getBaseName() + " is missing MovieLogo, will rescan");
                 recheckCount++;
                 return true;
             }
 
-            if (isNotValidString(movie.getMovieDiscURL()) && ARTWORK_REQUIRED.contains(ArtworkType.MovieDisc)) {
+            if (isNotValidString(movie.getMovieDiscURL()) && ARTWORK_REQUIRED.contains(ArtworkType.MOVIEDISC)) {
                 LOG.debug(LOG_MESSAGE + movie.getBaseName() + " is missing MovieDisc, will rescan");
                 recheckCount++;
                 return true;

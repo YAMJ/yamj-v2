@@ -22,9 +22,30 @@
  */
 package com.moviejukebox.writer;
 
-import com.moviejukebox.model.*;
-import com.moviejukebox.tools.*;
-import java.io.*;
+import com.moviejukebox.model.DirtyFlag;
+import com.moviejukebox.model.IndexInfo;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Person;
+import com.moviejukebox.tools.DOMHelper;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.SkinProperties;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.ThreadExecutor;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map.Entry;
@@ -33,7 +54,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.*;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.lang3.StringUtils;
@@ -151,7 +177,7 @@ public class MovieJukeboxHTMLWriter {
             String tempFilename = jukebox.getJukeboxTempLocationDetails() + File.separator + peopleFolder + baseName;
             File tempXmlFile = new File(tempFilename + EXT_XML);
             File oldXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + baseName + EXT_XML);
-            tempXmlFile.getParentFile().mkdirs();
+            FileTools.makeDirectories(tempXmlFile.getParentFile());
 
             FileTools.addJukeboxFile(baseName + EXT_XML);
             String indexList = PropertiesUtil.getProperty("mjb.view.personList", "people.xsl");
@@ -240,7 +266,7 @@ public class MovieJukeboxHTMLWriter {
             } // Issue 884
 
             if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty(DirtyFlag.INFO)) {
-                tempPlaylistFile.getParentFile().mkdirs();
+                FileTools.makeDirectories(tempPlaylistFile.getParentFile());
 
                 Transformer transformer = getTransformer(PLAYLIST_FILE, jukebox.getJukeboxRootLocationDetails());
 
@@ -361,7 +387,7 @@ public class MovieJukeboxHTMLWriter {
         File tempPlaylistFile = new File(tempFilename + fileSuffix);
 
         if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty(DirtyFlag.INFO)) {
-            tempPlaylistFile.getParentFile().mkdirs();
+            FileTools.makeDirectories(tempPlaylistFile.getParentFile());
 
             PrintWriter writer = new PrintWriter(tempPlaylistFile, "UTF-8");
 
@@ -420,7 +446,7 @@ public class MovieJukeboxHTMLWriter {
         try {
             // Create the index.xml file with some properties in it.
             File indexXmlFile = new File(jukebox.getJukeboxTempLocation(), "index.xml");
-            indexXmlFile.getParentFile().mkdirs();
+            FileTools.makeDirectories(indexXmlFile.getParentFile());
 
             Document docIndex = DOMHelper.createDocument();
             Element eRoot = docIndex.createElement("index");
@@ -463,7 +489,7 @@ public class MovieJukeboxHTMLWriter {
 
         try {
             File htmlFile = new File(jukebox.getJukeboxTempLocation(), PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
-            htmlFile.getParentFile().mkdirs();
+            FileTools.makeDirectories(htmlFile.getParentFile());
 
             fos = FileTools.createFileOutputStream(htmlFile);
             XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
@@ -543,7 +569,7 @@ public class MovieJukeboxHTMLWriter {
             File oldXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + filename + EXT_XML);
             File htmlFile = new File(detailsFolder, filename + EXT_HTML);
 
-            htmlFile.getParentFile().mkdirs();
+            FileTools.makeDirectories(htmlFile.getParentFile());
 
             if (xmlFile.exists()) {
                 FileTools.addJukeboxFile(xmlFile.getName());
@@ -595,7 +621,7 @@ public class MovieJukeboxHTMLWriter {
     private void writeSingleIndexPage(Jukebox jukebox, IndexInfo idx, int page) {
         try {
             File detailsDir = jukebox.getJukeboxTempLocationDetailsFile();
-            detailsDir.mkdirs();
+            FileTools.makeDirectories(detailsDir);
 
             String filename = idx.baseName + page;
 

@@ -79,7 +79,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
         boolean result;
 
         result = super.scan(mediaFile); // use IMDB as basis
-        if (result == false && mediaFile.isTVShow()) {
+        if (!result && mediaFile.isTVShow()) {
             result = tvdb.scan(mediaFile);
         }
 

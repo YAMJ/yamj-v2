@@ -533,12 +533,7 @@ public class MovieJukebox {
 
             // Try and create the directory if needed, but don't stop the rename if we can't
             if (StringTools.isValidString(logDir)) {
-                try {
-                    newLogFile.getParentFile().mkdirs();
-                } catch (Exception error) {
-                    // This isn't an important error
-                    LOG.warn("Error creating log file directory");
-                }
+                FileTools.makeDirectories(newLogFile.getParentFile());
             }
 
             // First we need to tell Log4J to change the name of the current log file to something else so it unlocks the file
@@ -581,7 +576,7 @@ public class MovieJukebox {
 
             String libraryRoot = mediaLibraryRoot.replaceAll(":", "_").replaceAll(Pattern.quote(File.separator), "-");
             File libraryRootDump = new File("./dumpDir/" + libraryRoot);
-            libraryRootDump.mkdirs();
+            FileTools.makeDirectories(libraryRootDump);
             // libraryRootDump.deleteOnExit();
             dumpDir(new File(mediaLibraryRoot), libraryRootDump);
             LOG.info("Dumping YAMJ root dir");
@@ -784,15 +779,15 @@ public class MovieJukebox {
             private final OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
             private final RottenTomatoesPlugin rtPlugin = new RottenTomatoesPlugin();
             private final TrailerScanner trailerScanner = new TrailerScanner();
-            // Fanart.TV TV Artwork Scanners
-            private final ArtworkScanner clearArtScanner = new FanartTvScanner(ArtworkType.ClearArt);
-            private final ArtworkScanner clearLogoScanner = new FanartTvScanner(ArtworkType.ClearLogo);
-            private final ArtworkScanner tvThumbScanner = new FanartTvScanner(ArtworkType.TvThumb);
-            private final ArtworkScanner seasonThumbScanner = new FanartTvScanner(ArtworkType.SeasonThumb);
-            // Fanart.TV Movie Artwork Scanners
-            private final ArtworkScanner movieArtScanner = new FanartTvScanner(ArtworkType.MovieArt);
-            private final ArtworkScanner movieLogoScanner = new FanartTvScanner(ArtworkType.MovieLogo);
-            private final ArtworkScanner movieDiscScanner = new FanartTvScanner(ArtworkType.MovieDisc);
+            // FANART.TV TV Artwork Scanners
+            private final ArtworkScanner clearArtScanner = new FanartTvScanner(ArtworkType.CLEARART);
+            private final ArtworkScanner clearLogoScanner = new FanartTvScanner(ArtworkType.CLEARLOGO);
+            private final ArtworkScanner tvThumbScanner = new FanartTvScanner(ArtworkType.TVTHUMB);
+            private final ArtworkScanner seasonThumbScanner = new FanartTvScanner(ArtworkType.SEASONTHUMB);
+            // FANART.TV Movie Artwork Scanners
+            private final ArtworkScanner movieArtScanner = new FanartTvScanner(ArtworkType.MOVIEART);
+            private final ArtworkScanner movieLogoScanner = new FanartTvScanner(ArtworkType.MOVIELOGO);
+            private final ArtworkScanner movieDiscScanner = new FanartTvScanner(ArtworkType.MOVIEDISC);
         }
 
         final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
@@ -849,7 +844,7 @@ public class MovieJukebox {
 
         // create the ".mjbignore" and ".no_photo.nmj" file in the jukebox folder
         try {
-            jukebox.getJukeboxRootLocationDetailsFile().mkdirs();
+            FileTools.makeDirectories(jukebox.getJukeboxRootLocationDetailsFile());
             new File(jukebox.getJukeboxRootLocationDetailsFile(), ".mjbignore").createNewFile();
             FileTools.addJukeboxFile(".mjbignore");
 
@@ -1039,13 +1034,13 @@ public class MovieJukebox {
                                     VideoImageScanner.scan(tools.imagePlugin, jukebox, movie);
                                 }
 
-                                // Get Fanart only if requested
+                                // Get FANART only if requested
                                 // Note that the FanartScanner will check if the file is newer / different
                                 if ((fanartMovieDownload && !movie.isTVShow()) || (fanartTvDownload && movie.isTVShow())) {
                                     FanartScanner.scan(tools.backgroundPlugin, jukebox, movie);
                                 }
 
-                                // Get Banner if requested and is a TV show
+                                // Get BANNER if requested and is a TV show
                                 if (bannerDownload && movie.isTVShow()) {
                                     if (!BannerScanner.scan(tools.imagePlugin, jukebox, movie)) {
                                         updateTvBanner(jukebox, movie, tools.imagePlugin);
@@ -1439,7 +1434,7 @@ public class MovieJukebox {
                             }
                         }
 
-                        // Check for Set Fanart
+                        // Check for Set FANART
                         if (setIndexFanart) {
                             // Set a default fanart filename in case it's not found during the scan
                             movie.setFanartFilename(safeSetMasterBaseName + fanartToken + "." + fanartExtension);
@@ -2156,7 +2151,7 @@ public class MovieJukebox {
         // Download poster
         // Do not overwrite existing posters, unless there is a new poster URL in the nfo file.
         if ((!tmpDestFile.exists() && !posterFile.exists()) || movie.isDirty(DirtyFlag.POSTER) || forcePosterOverwrite) {
-            posterFile.getParentFile().mkdirs();
+            FileTools.makeDirectories(posterFile.getParentFile());
 
             if (!isValidString(movie.getPosterURL())) {
                 LOG.debug("Dummy image used for " + movie.getBaseName());
@@ -2178,7 +2173,7 @@ public class MovieJukebox {
     /**
      * Update the banner for the specified TV Show.
      *
-     * When an existing banner is found for the movie, it is not overwritten, unless the mjb.forcePosterOverwrite is set to true in
+     * When an existing banner is found for the movie, it is not overwritten, unless the mjb.forcePOSTEROverwrite is set to true in
      * the property file.
      *
      * When the specified movie does not contain a valid URL for the banner, a dummy image is used instead.
@@ -2243,7 +2238,7 @@ public class MovieJukebox {
         File tmpDestFile = new File(tmpDestFilename);
 
         if (forceFooterOverwrite || (!tmpDestFile.exists() && !footerFile.exists())) {
-            footerFile.getParentFile().mkdirs();
+            FileTools.makeDirectories(footerFile.getParentFile());
 
             BufferedImage footerImage = GraphicTools.createBlankImage(FOOTER_WIDTH.get(inx), FOOTER_HEIGHT.get(inx));
             if (footerImage != null) {
@@ -2342,7 +2337,7 @@ public class MovieJukebox {
                 || forceThumbnailOverwrite
                 || !FileTools.fileCache.fileExists(jkbThumbnailFile)
                 || tmpPosterFile.exists()) {
-                // Issue 228: If the PNG files are deleted before running the jukebox this fails.
+            // Issue 228: If the PNG files are deleted before running the jukebox this fails.
             // Therefore check to see if they exist in the original directory
             if (tmpPosterFile.exists()) {
                 // logger.debug("Use new file: " + tmpPosterFile.getAbsolutePath());

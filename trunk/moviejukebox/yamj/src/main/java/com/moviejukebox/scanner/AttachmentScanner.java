@@ -75,10 +75,10 @@ public class AttachmentScanner {
     private static boolean isActivated = Boolean.FALSE;
     // temporary directory
     private static File tempDirectory = null;
-    private static boolean tempCleanup = PropertiesUtil.getBooleanProperty("attachment.temp.cleanup", Boolean.TRUE);
+    private static final boolean CLEANUP_TEMP = PropertiesUtil.getBooleanProperty("attachment.temp.cleanup", Boolean.TRUE);
     // enable/disable some checks
-    private static boolean recheckEnabled = PropertiesUtil.getBooleanProperty("attachment.recheck.enable", Boolean.TRUE);
-    private static boolean includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
+    private static final boolean RECHECK_ENABLED = PropertiesUtil.getBooleanProperty("attachment.recheck.enable", Boolean.TRUE);
+    private static final boolean INCLUDE_VIDEOIMAGES = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
     // the operating system name
     public static final String OS_NAME = System.getProperty("os.name");
     // properties for NFO handling
@@ -246,7 +246,7 @@ public class AttachmentScanner {
     public static boolean rescan(Movie movie, File xmlFile) {
         if (!isActivated) {
             return Boolean.FALSE;
-        } else if (!recheckEnabled) {
+        } else if (!RECHECK_ENABLED) {
             return Boolean.FALSE;
         } else if (!Movie.TYPE_FILE.equalsIgnoreCase(movie.getFormatType())) {
             // movie the scan must be a file
@@ -271,7 +271,7 @@ public class AttachmentScanner {
                         movie.setDirty(DirtyFlag.NFO);
                     } else if (ContentType.VIDEOIMAGE == attachment.getContentType()) {
                         // Only check if videoimages are needed
-                        if (movie.isTVShow() && includeVideoImages) {
+                        if (movie.isTVShow() && INCLUDE_VIDEOIMAGES) {
                             returnValue = Boolean.TRUE;
                             // no need for dirty flag
                         }
@@ -837,6 +837,9 @@ public class AttachmentScanner {
             case VIDEOIMAGE:
                 returnFileName.append(VALID_IMAGE_MIME_TYPES.get(attachment.getMimeType()));
                 break;
+            default:
+                returnFileName.append(VALID_IMAGE_MIME_TYPES.get(attachment.getMimeType()));
+                break;
         }
 
         File returnFile = new File(returnFileName.toString());
@@ -846,8 +849,7 @@ public class AttachmentScanner {
             return returnFile;
         }
 
-        //LOGGER.debug(LOG_MESSAGE + "Extract attachement (" + attachment + ")");
-
+        LOG.trace(LOG_MESSAGE + "Extract attachement (" + attachment + ")");
         try {
             // Create the command line
             List<String> commandMedia = new ArrayList<String>(MT_EXTRACT_EXE);
@@ -863,7 +865,10 @@ public class AttachmentScanner {
                 LOG.error(LOG_MESSAGE + "Error during extraction - ErrorCode=" + p.exitValue());
                 returnFile = null;
             }
-        } catch (Exception ex) {
+        } catch (IOException ex) {
+            LOG.error(SystemTools.getStackTrace(ex));
+            returnFile = null;
+        } catch (InterruptedException ex) {
             LOG.error(SystemTools.getStackTrace(ex));
             returnFile = null;
         }
@@ -889,7 +894,7 @@ public class AttachmentScanner {
      * Clean up the temporary directory for attachments
      */
     public static void cleanUp() {
-        if (isActivated && tempCleanup && (tempDirectory != null) && tempDirectory.exists()) {
+        if (isActivated && CLEANUP_TEMP && (tempDirectory != null) && tempDirectory.exists()) {
             FileTools.deleteDir(tempDirectory);
         }
     }

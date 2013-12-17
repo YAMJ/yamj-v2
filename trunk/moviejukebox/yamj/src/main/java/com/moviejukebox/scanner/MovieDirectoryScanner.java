@@ -22,7 +22,11 @@
  */
 package com.moviejukebox.scanner;
 
-import com.moviejukebox.model.*;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.MediaLibraryPath;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.scanner.BDRipScanner.BDFilePropertiesMovie;
 import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.FileTools;
@@ -30,7 +34,12 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
@@ -93,6 +102,7 @@ public class MovieDirectoryScanner {
 
     /**
      * Scan the specified directory for video files.
+     *
      * @param srcPath
      * @param library
      * @return a new library
@@ -116,6 +126,7 @@ public class MovieDirectoryScanner {
 
     /**
      * Recursively scan the directory for video files
+     *
      * @param srcPath
      * @param directory
      * @param collection
@@ -249,12 +260,11 @@ public class MovieDirectoryScanner {
 
         // Handle special case of RARs. If ".rar", and it is ".partXXX.rar"
         // exclude all NON-"part001.rar" files.
-
         Matcher m = patternRarPart.matcher(relativeFileNameLower);
 
-        if(m.find() && (m.groupCount() == 1)) {
+        if (m.find() && (m.groupCount() == 1)) {
             if (Integer.parseInt(m.group(1)) != 1) {
-                LOG.debug("MovieDirectoryScanner: Excluding file " + relativeFilename + " as it is a non-first part RAR archive ("+m.group(1)+")");
+                LOG.debug("MovieDirectoryScanner: Excluding file " + relativeFilename + " as it is a non-first part RAR archive (" + m.group(1) + ")");
                 return true;
             }
         }
@@ -264,6 +274,7 @@ public class MovieDirectoryScanner {
 
     /**
      * Check to see if the file has subtitles or not
+     *
      * @param fileToScan
      * @return
      */
@@ -275,6 +286,7 @@ public class MovieDirectoryScanner {
 
     /**
      * Scan the file for the information to be added to the object
+     *
      * @param srcPath
      * @param file
      * @param library
@@ -337,7 +349,7 @@ public class MovieDirectoryScanner {
                 if (isBluRay && playFullBluRayDisk) {
                     // A BluRay File and playFullBluRayDisk, so link to the directory and not the file
                     String tempFilename = srcPath.getPlayerRootPath() + HTMLTools.encodeUrlPath(relativeFilename);
-                    tempFilename =tempFilename.substring(0, tempFilename.toUpperCase().lastIndexOf("BDMV"));
+                    tempFilename = tempFilename.substring(0, tempFilename.toUpperCase().lastIndexOf("BDMV"));
                     movieFile.setFilename(tempFilename);
                 } else {
                     // Normal movie file so link to it
@@ -363,12 +375,12 @@ public class MovieDirectoryScanner {
 
             // Ensure that filename is unique. Prevent interference between files like "disk1.avi".
             // TODO: Actually it makes sense to use normalized movie name instead of first part name.
-            if(hashpathdepth > 0){
+            if (hashpathdepth > 0) {
                 int d, pos = relativeFilename.length();
-                for(d = hashpathdepth+1; d > 0 && pos > 0; d-- ) {
-                    pos = relativeFilename.lastIndexOf("/", pos-1);
+                for (d = hashpathdepth + 1; d > 0 && pos > 0; d--) {
+                    pos = relativeFilename.lastIndexOf("/", pos - 1);
                 }
-                hashstr = relativeFilename.substring(pos+1);
+                hashstr = relativeFilename.substring(pos + 1);
                 hashstr = Integer.toHexString(hashstr.hashCode());
             }
             movie.setBaseName(FileTools.makeSafeFilename(baseFileName) + hashstr);
@@ -379,7 +391,7 @@ public class MovieDirectoryScanner {
             movie.setDetailPosterFilename(movie.getBaseName() + posterToken + "." + postersFormat);
             movie.setBannerFilename(movie.getBaseName() + bannerToken + "." + bannersFormat);
             movie.setWideBannerFilename(movie.getBaseName() + wideBannerToken + "." + bannersFormat);
-            movie.setSubtitles(hasSubtitles(movie.getFile())==true?"YES":"NO");
+            movie.setSubtitles(hasSubtitles(movie.getFile()) ? "YES" : "NO");
             movie.setLibraryDescription(srcPath.getDescription());
             movie.setPrebuf(srcPath.getPrebuf());
 
@@ -401,18 +413,18 @@ public class MovieDirectoryScanner {
                     movieFile.mergeFileNameDTO(dto);
                 }
                 if (OverrideTools.checkOverwriteRuntime(movie, SOURCE_FILENAME)) {
-	                // Set duration for BD disks using the data in the playlist + mark Bluray source and container
-	                movie.setRuntime(DateTimeTools.formatDuration(bdDuration), SOURCE_FILENAME);
+                    // Set duration for BD disks using the data in the playlist + mark Bluray source and container
+                    movie.setRuntime(DateTimeTools.formatDuration(bdDuration), SOURCE_FILENAME);
                 }
 
                 // Pretend that HDDVD is also BluRay
                 if (!movie.getVideoSource().equalsIgnoreCase("HDDVD")) {
                     movie.setFormatType(Movie.TYPE_BLURAY);
                     if (OverrideTools.checkOverwriteContainer(movie, SOURCE_FILENAME)) {
-                    	movie.setContainer("BluRay", SOURCE_FILENAME);
+                        movie.setContainer("BluRay", SOURCE_FILENAME);
                     }
                     if (OverrideTools.checkOverwriteVideoSource(movie, SOURCE_FILENAME)) {
-                    	movie.setVideoSource("BluRay", SOURCE_FILENAME);
+                        movie.setVideoSource("BluRay", SOURCE_FILENAME);
                     }
                 }
             }
@@ -435,23 +447,22 @@ public class MovieDirectoryScanner {
     }
 
     /**
-     * Return the file length, or if file is the directory, the sum of all files in directory.
-     * Created for issue 1241
+     * Return the file length, or if file is the directory, the sum of all files in directory. Created for issue 1241
+     *
      * @param file
      * @return
      */
     private long calculateFileSize(File file) {
         long total = 0;
-        if(file.isDirectory()){
+        if (file.isDirectory()) {
             File[] listFiles = file.listFiles();
             // Check for empty directories
             if (listFiles != null && listFiles.length > 0) {
                 for (File fileTmp : listFiles) {
-                    total+=calculateFileSize(fileTmp);
+                    total += calculateFileSize(fileTmp);
                 }
             }
-        }
-        else{
+        } else {
             total += file.length();
         }
         return total;

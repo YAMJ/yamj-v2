@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -428,9 +429,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     LOG.error(LOG_MESSAGE + "No title found at ComingSoon page. HTML layout has changed?");
                     return false;
                 }
-                title = correctCapsTitle(title);
-
-                movie.setTitle(title, COMINGSOON_PLUGIN_ID);
+                movie.setTitle(WordUtils.capitalizeFully(title), COMINGSOON_PLUGIN_ID);
             }
 
             // ORIGINAL TITLE
@@ -444,11 +443,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
                 }
 
-                if (StringTools.isValidString(originalTitle)) {
-                    originalTitle = correctCapsTitle(originalTitle);
-                }
-
-                movie.setOriginalTitle(originalTitle, COMINGSOON_PLUGIN_ID);
+                movie.setOriginalTitle(WordUtils.capitalizeFully(originalTitle), COMINGSOON_PLUGIN_ID);
             }
 
             // RATING
@@ -679,33 +674,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
             LOG.error(LOG_MESSAGE + "Failed retreiving ComingSoon data for movie : " + movie.getId(COMINGSOON_PLUGIN_ID));
             LOG.error(LOG_MESSAGE + SystemTools.getStackTrace(error));
             return false;
-        }
-
-    }
-
-    /**
-     * ComingSoon has some titles all caps. We normalize them
-     *
-     * @param title
-     * @return
-     */
-    private String correctCapsTitle(String title) {
-        if (title.equals(title.toUpperCase())) {
-            StringBuilder sb = new StringBuilder();
-            StringTokenizer st = new StringTokenizer(title);
-            while (st.hasMoreTokens()) {
-                String word = st.nextToken();
-                sb.append(word.substring(0, 1).toUpperCase());
-                if (word.length() > 1) {
-                    sb.append(word.substring(1).toLowerCase());
-                }
-                if (st.hasMoreTokens()) {
-                    sb.append(' ');
-                }
-            }
-            return sb.toString();
-        } else {
-            return title;
         }
 
     }

@@ -33,8 +33,8 @@ import com.omertron.fanarttvapi.model.FTArtworkType;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Scanner for Fanart.TV artwork. Must be instantiated with the correct
- * Fanart.TV type
+ * Scanner for FANART.TV artwork. Must be instantiated with the correct
+ FANART.TV type
  *
  * @author stuart.boston
  */
@@ -75,21 +75,21 @@ public class FanartTvScanner extends ArtworkScanner {
 
     @Override
     public String getOriginalFilename(Movie movie) {
-        if (artworkType == ArtworkType.ClearArt) {
+        if (artworkType == ArtworkType.CLEARART) {
             return movie.getClearArtFilename();
-        } else if (artworkType == ArtworkType.ClearLogo) {
+        } else if (artworkType == ArtworkType.CLEARLOGO) {
             return movie.getClearLogoFilename();
-        } else if (artworkType == ArtworkType.TvThumb) {
+        } else if (artworkType == ArtworkType.TVTHUMB) {
             return movie.getTvThumbFilename();
-        } else if (artworkType == ArtworkType.SeasonThumb) {
+        } else if (artworkType == ArtworkType.SEASONTHUMB) {
             return movie.getSeasonThumbFilename();
-        } else if (artworkType == ArtworkType.MovieArt) {
+        } else if (artworkType == ArtworkType.MOVIEART) {
             return movie.getClearArtFilename();
-        } else if (artworkType == ArtworkType.MovieLogo) {
+        } else if (artworkType == ArtworkType.MOVIELOGO) {
             return movie.getClearLogoFilename();
-        } else if (artworkType == ArtworkType.MovieDisc) {
+        } else if (artworkType == ArtworkType.MOVIEDISC) {
             return movie.getMovieDiscFilename();
-        } else if (artworkType == ArtworkType.CharacterArt) {
+        } else if (artworkType == ArtworkType.CHARACTERART) {
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
         } else {
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
@@ -98,21 +98,21 @@ public class FanartTvScanner extends ArtworkScanner {
 
     @Override
     public void setOriginalFilename(Movie movie, String artworkFilename) {
-        if (artworkType == ArtworkType.ClearArt) {
+        if (artworkType == ArtworkType.CLEARART) {
             movie.setClearArtFilename(artworkFilename);
-        } else if (artworkType == ArtworkType.ClearLogo) {
+        } else if (artworkType == ArtworkType.CLEARLOGO) {
             movie.setClearLogoFilename(artworkFilename);
-        } else if (artworkType == ArtworkType.TvThumb) {
+        } else if (artworkType == ArtworkType.TVTHUMB) {
             movie.setTvThumbFilename(artworkFilename);
-        } else if (artworkType == ArtworkType.SeasonThumb) {
+        } else if (artworkType == ArtworkType.SEASONTHUMB) {
             movie.setSeasonThumbFilename(artworkFilename);
-        } else if (artworkType == ArtworkType.MovieArt) {
+        } else if (artworkType == ArtworkType.MOVIEART) {
             movie.setClearArtFilename(artworkFilename);
-        } else if (artworkType == ArtworkType.MovieLogo) {
+        } else if (artworkType == ArtworkType.MOVIELOGO) {
             movie.setClearLogoFilename(artworkFilename);
-        } else if (artworkType == ArtworkType.MovieDisc) {
+        } else if (artworkType == ArtworkType.MOVIEDISC) {
             movie.setMovieDiscFilename(artworkFilename);
-        } else if (artworkType == ArtworkType.CharacterArt) {
+        } else if (artworkType == ArtworkType.CHARACTERART) {
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
         } else {
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
@@ -121,21 +121,21 @@ public class FanartTvScanner extends ArtworkScanner {
 
     @Override
     public String getArtworkUrl(Movie movie) {
-        if (artworkType == ArtworkType.ClearArt) {
+        if (artworkType == ArtworkType.CLEARART) {
             return movie.getClearArtURL();
-        } else if (artworkType == ArtworkType.ClearLogo) {
+        } else if (artworkType == ArtworkType.CLEARLOGO) {
             return movie.getClearLogoURL();
-        } else if (artworkType == ArtworkType.TvThumb) {
+        } else if (artworkType == ArtworkType.TVTHUMB) {
             return movie.getTvThumbURL();
-        } else if (artworkType == ArtworkType.SeasonThumb) {
+        } else if (artworkType == ArtworkType.SEASONTHUMB) {
             return movie.getSeasonThumbURL();
-        } else if (artworkType == ArtworkType.MovieArt) {
+        } else if (artworkType == ArtworkType.MOVIEART) {
             return movie.getClearArtURL();
-        } else if (artworkType == ArtworkType.MovieLogo) {
+        } else if (artworkType == ArtworkType.MOVIELOGO) {
             return movie.getClearLogoURL();
-        } else if (artworkType == ArtworkType.MovieDisc) {
+        } else if (artworkType == ArtworkType.MOVIEDISC) {
             return movie.getMovieDiscURL();
-        } else if (artworkType == ArtworkType.CharacterArt) {
+        } else if (artworkType == ArtworkType.CHARACTERART) {
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
         } else {
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
@@ -144,21 +144,21 @@ public class FanartTvScanner extends ArtworkScanner {
 
     @Override
     public void setArtworkUrl(Movie movie, String artworkUrl) {
-        if (artworkType == ArtworkType.ClearArt) {
+        if (artworkType == ArtworkType.CLEARART) {
             movie.setClearArtURL(artworkUrl);
-        } else if (artworkType == ArtworkType.ClearLogo) {
+        } else if (artworkType == ArtworkType.CLEARLOGO) {
             movie.setClearLogoURL(artworkUrl);
-        } else if (artworkType == ArtworkType.TvThumb) {
+        } else if (artworkType == ArtworkType.TVTHUMB) {
             movie.setTvThumbURL(artworkUrl);
-        } else if (artworkType == ArtworkType.SeasonThumb) {
+        } else if (artworkType == ArtworkType.SEASONTHUMB) {
             movie.setSeasonThumbURL(artworkUrl);
-        } else if (artworkType == ArtworkType.MovieArt) {
+        } else if (artworkType == ArtworkType.MOVIEART) {
             movie.setClearArtURL(artworkUrl);
-        } else if (artworkType == ArtworkType.MovieLogo) {
+        } else if (artworkType == ArtworkType.MOVIELOGO) {
             movie.setClearLogoURL(artworkUrl);
-        } else if (artworkType == ArtworkType.MovieDisc) {
+        } else if (artworkType == ArtworkType.MOVIEDISC) {
             movie.setMovieDiscURL(artworkUrl);
-        } else if (artworkType == ArtworkType.CharacterArt) {
+        } else if (artworkType == ArtworkType.CHARACTERART) {
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
         } else {
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
@@ -167,21 +167,21 @@ public class FanartTvScanner extends ArtworkScanner {
 
     @Override
     public boolean isDirtyArtwork(Movie movie) {
-        if (artworkType == ArtworkType.ClearArt) {
+        if (artworkType == ArtworkType.CLEARART) {
             movie.isDirty(DirtyFlag.CLEARART);
-        } else if (artworkType == ArtworkType.ClearLogo) {
+        } else if (artworkType == ArtworkType.CLEARLOGO) {
             movie.isDirty(DirtyFlag.CLEARLOGO);
-        } else if (artworkType == ArtworkType.TvThumb) {
+        } else if (artworkType == ArtworkType.TVTHUMB) {
             movie.isDirty(DirtyFlag.TVTHUMB);
-        } else if (artworkType == ArtworkType.SeasonThumb) {
+        } else if (artworkType == ArtworkType.SEASONTHUMB) {
             movie.isDirty(DirtyFlag.SEASONTHUMB);
-        } else if (artworkType == ArtworkType.MovieArt) {
+        } else if (artworkType == ArtworkType.MOVIEART) {
             movie.isDirty(DirtyFlag.CLEARART);
-        } else if (artworkType == ArtworkType.MovieLogo) {
+        } else if (artworkType == ArtworkType.MOVIELOGO) {
             movie.isDirty(DirtyFlag.CLEARLOGO);
-        } else if (artworkType == ArtworkType.MovieDisc) {
+        } else if (artworkType == ArtworkType.MOVIEDISC) {
             movie.isDirty(DirtyFlag.MOVIEDISC);
-        } else if (artworkType == ArtworkType.CharacterArt) {
+        } else if (artworkType == ArtworkType.CHARACTERART) {
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
         } else {
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
@@ -191,21 +191,21 @@ public class FanartTvScanner extends ArtworkScanner {
 
     @Override
     public void setDirtyArtwork(Movie movie, boolean dirty) {
-        if (artworkType == ArtworkType.ClearArt) {
+        if (artworkType == ArtworkType.CLEARART) {
             movie.setDirty(DirtyFlag.CLEARART, dirty);
-        } else if (artworkType == ArtworkType.ClearLogo) {
+        } else if (artworkType == ArtworkType.CLEARLOGO) {
             movie.setDirty(DirtyFlag.CLEARLOGO, dirty);
-        } else if (artworkType == ArtworkType.TvThumb) {
+        } else if (artworkType == ArtworkType.TVTHUMB) {
             movie.setDirty(DirtyFlag.TVTHUMB, dirty);
-        } else if (artworkType == ArtworkType.SeasonThumb) {
+        } else if (artworkType == ArtworkType.SEASONTHUMB) {
             movie.setDirty(DirtyFlag.SEASONTHUMB, dirty);
-        } else if (artworkType == ArtworkType.MovieArt) {
+        } else if (artworkType == ArtworkType.MOVIEART) {
             movie.setDirty(DirtyFlag.CLEARART, dirty);
-        } else if (artworkType == ArtworkType.MovieLogo) {
+        } else if (artworkType == ArtworkType.MOVIELOGO) {
             movie.setDirty(DirtyFlag.CLEARLOGO, dirty);
-        } else if (artworkType == ArtworkType.MovieDisc) {
+        } else if (artworkType == ArtworkType.MOVIEDISC) {
             movie.setDirty(DirtyFlag.MOVIEDISC, dirty);
-        } else if (artworkType == ArtworkType.CharacterArt) {
+        } else if (artworkType == ArtworkType.CHARACTERART) {
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
         } else {
             throw new IllegalArgumentException(artworkTypeName + " is not supported by this scanner");
@@ -228,28 +228,28 @@ public class FanartTvScanner extends ArtworkScanner {
      * Optimise the downloads based on the artwork type.
      */
     private void setDownloadByType() {
-        if (artworkType == ArtworkType.ClearArt) {
+        if (artworkType == ArtworkType.CLEARART) {
             // Movie download is not supported for this type
             artworkDownloadMovie = Boolean.FALSE;
-        } else if (artworkType == ArtworkType.ClearLogo) {
+        } else if (artworkType == ArtworkType.CLEARLOGO) {
             // Movie download is not supported for this type
             artworkDownloadMovie = Boolean.FALSE;
-        } else if (artworkType == ArtworkType.TvThumb) {
+        } else if (artworkType == ArtworkType.TVTHUMB) {
             // Movie download is not supported for this type
             artworkDownloadMovie = Boolean.FALSE;
-        } else if (artworkType == ArtworkType.SeasonThumb) {
+        } else if (artworkType == ArtworkType.SEASONTHUMB) {
             // Movie download is not supported for this type
             artworkDownloadMovie = Boolean.FALSE;
-        } else if (artworkType == ArtworkType.MovieArt) {
+        } else if (artworkType == ArtworkType.MOVIEART) {
             // TV download is not supported for this type
             artworkDownloadTv = Boolean.FALSE;
-        } else if (artworkType == ArtworkType.MovieLogo) {
+        } else if (artworkType == ArtworkType.MOVIELOGO) {
             // TV download is not supported for this type
             artworkDownloadTv = Boolean.FALSE;
-        } else if (artworkType == ArtworkType.MovieDisc) {
+        } else if (artworkType == ArtworkType.MOVIEDISC) {
             // TV download is not supported for this type
             artworkDownloadTv = Boolean.FALSE;
-        } else if (artworkType == ArtworkType.CharacterArt) {
+        } else if (artworkType == ArtworkType.CHARACTERART) {
             artworkSearchLocal = Boolean.FALSE;
             artworkOverwrite = Boolean.FALSE;
             artworkDownloadMovie = Boolean.FALSE;

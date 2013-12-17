@@ -29,7 +29,12 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SubtitleTools;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -169,7 +174,6 @@ public class OpenSubtitlesPlugin {
                     // The file pointer doesn't exist, so skip the file
                     continue;
                 }
-
 
                 String path = mf.getFile().getAbsolutePath();
                 int index = path.lastIndexOf('.');
@@ -620,9 +624,8 @@ public class OpenSubtitlesPlugin {
         StringBuilder str = new StringBuilder();
         str.append(OS_METHOD_START);
         str.append(procname).append("</methodName><params>");
-
-        for (int i = 0; i < s.length; i++) {
-            str.append("<param><value><string>").append(s[i]).append("</string></value></param>");
+        for (String item : s) {
+            str.append("<param><value><string>").append(item).append("</string></value></param>");
         }
 
         str.append("</params></methodCall>");
@@ -656,7 +659,8 @@ public class OpenSubtitlesPlugin {
                 tri |= (s[iii] & 0xff) << 16;
                 tri |= (s[iii + 1] & 0xff) << 8;
                 tri |= (s[iii + 2] & 0xff);
-            } catch (Exception error) {
+            } catch (Exception ex) {
+                LOG.trace("Failed to convert string in tuBase64", ex);
             }
 
             for (int j = 0; j < 4; j++) {
