@@ -88,16 +88,16 @@ public class MediaInfoScanner {
     public static final String OS_NAME = System.getProperty("os.name");
     public static final String OS_VERSION = System.getProperty("os.version");
     public static final String OS_ARCH = System.getProperty("os.arch");
-    private static boolean isActivated;
+    private static final boolean IS_ACTIVATED;
     private static final boolean ENABLE_METADATA = PropertiesUtil.getBooleanProperty("mediainfo.metadata.enable", Boolean.FALSE);
     private static final boolean ENABLE_UPDATE = PropertiesUtil.getBooleanProperty("mediainfo.update.enable", Boolean.FALSE);
     private static final boolean ENABLE_MULTIPART = PropertiesUtil.getBooleanProperty("mediainfo.multipart.enable", Boolean.TRUE);
     private static final boolean MI_OVERALL_BITRATE = PropertiesUtil.getBooleanProperty("mediainfo.overallbitrate", Boolean.FALSE);
     private static final boolean MI_READ_FROM_FILE = PropertiesUtil.getBooleanProperty("mediainfo.readfromfile", Boolean.FALSE);
     private String randomDirName;
-    private static AspectRatioTools aspectTools = new AspectRatioTools();
-    private static String languageDelimiter = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
-    private static String audioLanguageUnknown = PropertiesUtil.getProperty("mjb.language.audio.unknown");
+    private static final AspectRatioTools ASPECT_TOOLS = new AspectRatioTools();
+    private static final String LANG_DELIM = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
+    private static String AUDIO_LANG_UNKNOWN = PropertiesUtil.getProperty("mjb.language.audio.unknown");
     private static final List<String> MI_DISK_IMAGES = new ArrayList<String>();
 
     static {
@@ -125,14 +125,14 @@ public class MediaInfoScanner {
         if (!checkMediainfo.canExecute()) {
             LOG.info(LOG_MESSAGE + "Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
             LOG.info(LOG_MESSAGE + "File; " + checkMediainfo.getAbsolutePath());
-            isActivated = Boolean.FALSE;
+            IS_ACTIVATED = Boolean.FALSE;
         } else {
             if (isMediaInfoRar) {
                 LOG.info(LOG_MESSAGE + "MediaInfo-rar tool found, additional scanning functions enabled.");
             } else {
                 LOG.info(LOG_MESSAGE + "MediaInfo tool will be used to extract video data. But not RAR and ISO formats");
             }
-            isActivated = Boolean.TRUE;
+            IS_ACTIVATED = Boolean.TRUE;
         }
 
         // Add a list of supported extensions
@@ -210,7 +210,7 @@ public class MediaInfoScanner {
             // Scan IFO files
             FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(currentMovie.getFile());
             if (mainMovieIFO != null) {
-                if (isActivated) {
+                if (IS_ACTIVATED) {
                     scan(currentMovie, mainMovieIFO.getLocation(), Boolean.FALSE);
                     // Issue 1176 - Prevent lost of NFO Data
                     if (StringTools.isNotValidString(currentMovie.getRuntime())) {
@@ -235,7 +235,7 @@ public class MediaInfoScanner {
 
             IsoArchiveFile scannedIsoFile = new IsoArchiveFile(abstractIsoFile);
             File tempRep = new File(randomDirName + "/VIDEO_TS");
-            tempRep.mkdirs();
+            FileTools.makeDirectories(tempRep);
 
             OutputStream fosCurrentIFO = null;
             try {
@@ -269,7 +269,7 @@ public class MediaInfoScanner {
             // Scan IFO files
             FilePropertiesMovie mainMovieIFO = localDVDRipScanner.executeGetDVDInfo(tempRep);
             if (mainMovieIFO != null) {
-                if (isActivated) {
+                if (IS_ACTIVATED) {
                     scan(currentMovie, mainMovieIFO.getLocation(), Boolean.FALSE);
                     // Issue 1176 - Prevent lost of NFO Data
                     if (StringTools.isNotValidString(currentMovie.getRuntime())) {
@@ -282,7 +282,7 @@ public class MediaInfoScanner {
 
             // Clean up
             FileTools.deleteDir(randomDirName);
-        } else if (isActivated) {
+        } else if (IS_ACTIVATED) {
             if (isMediaInfoRar && MI_DISK_IMAGES.contains(FilenameUtils.getExtension(currentMovie.getFile().getName()))) {
                 LOG.debug(LOG_MESSAGE + "Using MediaInfo-rar to scan " + currentMovie.getFile().getName());
             }
@@ -648,7 +648,7 @@ public class MediaInfoScanner {
             if (OverrideTools.checkOverwriteAspectRatio(movie, MEDIAINFO_PLUGIN_ID)) {
                 infoValue = infosMainVideo.get("Display aspect ratio");
                 if (infoValue != null) {
-                    movie.setAspectRatio(aspectTools.cleanAspectRatio(infoValue), MEDIAINFO_PLUGIN_ID);
+                    movie.setAspectRatio(ASPECT_TOOLS.cleanAspectRatio(infoValue), MEDIAINFO_PLUGIN_ID);
                 }
             }
 
@@ -747,15 +747,15 @@ public class MediaInfoScanner {
             StringBuilder movieLanguage = new StringBuilder();
             for (String language : foundLanguages) {
                 if (movieLanguage.length() > 0) {
-                    movieLanguage.append(languageDelimiter);
+                    movieLanguage.append(LANG_DELIM);
                 }
                 movieLanguage.append(language);
             }
 
             if (StringTools.isValidString(movieLanguage.toString())) {
                 movie.setLanguage(movieLanguage.toString(), MEDIAINFO_PLUGIN_ID);
-            } else if (StringTools.isValidString(audioLanguageUnknown)) {
-                String determineLanguage = MovieFilenameScanner.determineLanguage(audioLanguageUnknown);
+            } else if (StringTools.isValidString(AUDIO_LANG_UNKNOWN)) {
+                String determineLanguage = MovieFilenameScanner.determineLanguage(AUDIO_LANG_UNKNOWN);
                 movie.setLanguage(determineLanguage, MEDIAINFO_PLUGIN_ID);
             }
         }
@@ -902,7 +902,7 @@ public class MediaInfoScanner {
     }
 
     public String archiveScan(Movie currentMovie, String movieFilePath) {
-        if (!isActivated) {
+        if (!IS_ACTIVATED) {
             return null;
         }
 

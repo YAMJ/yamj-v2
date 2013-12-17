@@ -119,8 +119,9 @@ public final class BackdropScanner {
         File backdropFile = FileTools.fileCache.getFile(backdropFilename);
         String tmpDestFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + PEOPLE_FOLDER + safeBackdropFilename;
         File tmpDestFile = new File(tmpDestFileName);
-        backdropFile.getParentFile().mkdirs();
-        tmpDestFile.getParentFile().mkdirs();
+
+        FileTools.makeDirectories(backdropFile.getParentFile());
+        FileTools.makeDirectories(tmpDestFile.getParentFile());
 
         if (StringTools.isValidString(person.getBackdropURL())) {
             // Do not overwrite existing backdrop unless ForceBackdropOverwrite = true

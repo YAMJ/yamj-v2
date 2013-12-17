@@ -22,56 +22,41 @@
  */
 package com.moviejukebox.model.Artwork;
 
-import java.util.EnumSet;
 import org.apache.commons.lang3.StringUtils;
 
 public enum ArtworkType {
     // Define the lowercase equivalents of the Enum names
 
-    Poster("poster"), // Thumbnail is a sub-type of poster
-    Fanart("fanart"),
-    Banner("banner"),
-    ClearArt("clearart"),
-    ClearLogo("clearlogo"),
-    TvThumb("tvthumb"),
-    SeasonThumb("seasonthumb"),
-    CharacterArt("characterart"),
-    MovieArt("movieart"),
-    MovieLogo("movielogo"),
-    MovieDisc("moviedisc"),
-    VideoImage("videoimage");    // We don't store VideoImages in this artwork type as it's specific to a video file
-    private String type;
-
-    /**
-     * Constructor
-     *
-     * @param type
-     */
-    private ArtworkType(String type) {
-        this.type = type;
-    }
-
-    public String getType() {
-        return this.type;
-    }
+    POSTER, // Thumbnail is a sub-type of poster
+    FANART,
+    BANNER,
+    CLEARART,
+    CLEARLOGO,
+    TVTHUMB,
+    SEASONTHUMB,
+    CHARACTERART,
+    MOVIEART,
+    MOVIELOGO,
+    MOVIEDISC,
+    VIDEOIMAGE;    // We don't store VideoImages in this artwork type as it's specific to a video file
 
     /**
      * Convert a string into an Enum type
      *
-     * @param artworkType
+     * @param artworkTypeString
      * @return
      * @throws IllegalArgumentException If type is not recognised
      *
      */
     public static ArtworkType fromString(String artworkTypeString) {
         if (StringUtils.isNotBlank(artworkTypeString)) {
-            for (final ArtworkType artworkType : EnumSet.allOf(ArtworkType.class)) {
-                if (artworkTypeString.equalsIgnoreCase(artworkType.type)) {
-                    return artworkType;
-                }
+            try {
+                return ArtworkType.valueOf(artworkTypeString.trim().toUpperCase());
+            } catch (IllegalArgumentException ex) {
+                throw new IllegalArgumentException("ArtworkType " + artworkTypeString + " does not exist.", ex);
             }
         }
         // We've not found the type, so raise an exception
-                throw new IllegalArgumentException("ArtworkType " + artworkTypeString + " does not exist.");
+        throw new IllegalArgumentException("ArtworkType " + artworkTypeString + " does not exist.");
     }
 }

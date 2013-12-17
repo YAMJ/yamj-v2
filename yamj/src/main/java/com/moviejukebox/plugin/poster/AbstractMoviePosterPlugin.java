@@ -22,7 +22,11 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import com.moviejukebox.model.*;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.IMovieBasicInformation;
+import com.moviejukebox.model.Identifiable;
+import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import org.apache.log4j.Logger;
@@ -38,11 +42,7 @@ public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
 
     @Override
     public boolean isNeeded() {
-        if (SEARCH_PRIORITY_MOVIE.contains(this.getName())) {
-            return true;
-        } else {
-            return false;
-        }
+        return SEARCH_PRIORITY_MOVIE.contains(this.getName());
     }
 
     @Override

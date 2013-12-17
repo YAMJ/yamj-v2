@@ -335,7 +335,7 @@ public final class FileTools {
             }
 
             File dstDir = new File(dstPathName);
-            dstDir.mkdirs();
+            makeDirectories(dstDir);
 
             if (!dstDir.exists()) {
                 LOG.error(LOG_MESSAGE + "Target directory " + dstPathName + " does not exist!");
@@ -1194,7 +1194,7 @@ public final class FileTools {
         if (targetDirectory.exists()) {
             return Boolean.TRUE;
         }
-        LOG.debug(LOG_MESSAGE + "Creating directories for " + targetDirectory.getAbsolutePath());
+        LOG.trace(LOG_MESSAGE + "Creating directories for " + targetDirectory.getAbsolutePath());
 
         fsLock.lock();
         try {

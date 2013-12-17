@@ -133,13 +133,13 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
         setArtworkExtensions(PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkExtensions", "jpg,png,gif"));
         artworkTokenOriginal = PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkToken", "");
-        if (StringUtils.isBlank(artworkTokenOriginal) && artworkType != ArtworkType.Poster) {
+        if (StringUtils.isBlank(artworkTokenOriginal) && artworkType != ArtworkType.POSTER) {
             // If the token is empty, create a default from the name
             artworkTokenOriginal = "." + artworkTypeName + "_orig";
         }
 
         artworkTokenJukebox = PropertiesUtil.getProperty(artworkTypeName + ".scanner.artworkToken", "");
-        if (StringUtils.isBlank(artworkTokenJukebox) && artworkType != ArtworkType.Poster) {
+        if (StringUtils.isBlank(artworkTokenJukebox) && artworkType != ArtworkType.POSTER) {
             artworkTokenJukebox = "." + artworkTypeName + "_jb";
         }
 
@@ -277,7 +277,6 @@ public abstract class ArtworkScanner implements IArtworkScanner {
         }
 
         String artworkUrl = getArtworkUrl(movie);
-        String artworkPath = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), artworkFilename);
 
         // Determine the type of artwork, either local or online and act accordingly
         if (artworkUrl.startsWith("http")) {
@@ -687,7 +686,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
         // Do not overwrite existing artwork, unless there is a new URL in the nfo file.
         if ((!tmpDestFile.exists() && !artworkFile.exists()) || isDirtyArtwork(movie) || isOverwrite()) {
-            artworkFile.getParentFile().mkdirs();
+            FileTools.makeDirectories(artworkFile.getParentFile());
 
             if (artworkUrl == null || artworkUrl.equals(Movie.UNKNOWN)) {
                 LOG.debug("Dummy " + artworkType + " used for " + movie.getBaseName());
@@ -1020,7 +1019,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
         LOG.error(logMessage + "Default plugin will be used instead.");
         // Use the background plugin for fanart, the image plugin for all others
-        if (artworkType == ArtworkType.Fanart) {
+        if (artworkType == ArtworkType.FANART) {
             artworkImagePlugin = new DefaultBackgroundPlugin();
         } else {
             artworkImagePlugin = new DefaultImagePlugin();
@@ -1039,7 +1038,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
         if ((artworkWidth == 0) || (artworkHeight == 0)) {
             // Get the poster type for looking up the defaults
-            artworkPropertyType = ArtworkScanner.getPropertyName(ArtworkType.Poster);
+            artworkPropertyType = ArtworkScanner.getPropertyName(ArtworkType.POSTER);
             // There was an issue with the correct properties, so use poster as a default.
             artworkWidth = PropertiesUtil.getIntProperty(artworkPropertyType + ".width", 400);
             artworkHeight = PropertiesUtil.getIntProperty(artworkPropertyType + ".height", 600);
@@ -1225,19 +1224,19 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      * @return
      */
     public static String getPropertyName(ArtworkType artworkType) {
-        if (artworkType == ArtworkType.Poster) {
+        if (artworkType == ArtworkType.POSTER) {
             return "posters";
         }
 
-        if (artworkType == ArtworkType.Fanart) {
+        if (artworkType == ArtworkType.FANART) {
             return "";
         }
 
-        if (artworkType == ArtworkType.Banner) {
+        if (artworkType == ArtworkType.BANNER) {
             return "banners";
         }
 
-        if (artworkType == ArtworkType.VideoImage) {
+        if (artworkType == ArtworkType.VIDEOIMAGE) {
             return "videoimages";
         }
 
@@ -1251,9 +1250,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
      */
     protected final String getDummyFilename() {
         StringBuilder artworkDummy;
-        if (artworkType == ArtworkType.Poster) {
+        if (artworkType == ArtworkType.POSTER) {
             artworkDummy = new StringBuilder("dummy.jpg");
-        } else if (artworkType == ArtworkType.Fanart) {
+        } else if (artworkType == ArtworkType.FANART) {
             // There is no dummy artwork for fanart
             artworkDummy = new StringBuilder("");
         } else {
