@@ -220,7 +220,7 @@ public class FanartTvScanner extends ArtworkScanner {
     private boolean setOverwrite() {
         String propName = "mjb.force" + StringUtils.capitalize(artworkTypeName) + "Overwrite";
         artworkOverwrite = PropertiesUtil.getBooleanProperty(propName, Boolean.FALSE);
-//        logger.debug(LOG_MESSAGE + propName + "=" + artworkOverwrite);
+//        logger.debug(logMessage + propName + "=" + artworkOverwrite);
         return artworkOverwrite;
     }
 

@@ -26,7 +26,12 @@ import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.downloader.Downloader;
 import java.io.File;
 import org.apache.commons.io.FilenameUtils;
@@ -36,16 +41,16 @@ import org.apache.log4j.Logger;
 public class TrailerPlugin implements ITrailerPlugin {
 
     private static final Logger LOG = Logger.getLogger(TrailerPlugin.class);
-    protected String LOG_MESSAGE = "TrailerPlugin: ";
+    protected String logMessage = "TrailerPlugin: ";
     protected WebBrowser webBrowser;
     protected String trailersPluginName = "Abstract";
-    private static String trailersScanerPath = PropertiesUtil.getProperty("trailers.path.scaner", "");
-    private static String trailersPlayerPath = PropertiesUtil.getProperty("trailers.path.player", "");
-    private static boolean trailersDownload = PropertiesUtil.getBooleanProperty("trailers.download", Boolean.FALSE);
-    private static boolean trailersSafeFilename = PropertiesUtil.getBooleanProperty("trailers.safeFilename", Boolean.FALSE);
-    private static boolean trailersOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceTrailersOverwrite", Boolean.FALSE);
-    private static boolean trailersShowProgress = PropertiesUtil.getBooleanProperty("trailers.showProgress", Boolean.TRUE);
-    private static boolean trailersScanHdOnly = PropertiesUtil.getBooleanProperty("trailers.scanHdOnly", Boolean.FALSE);
+    private static final String SCANNER_PATH = PropertiesUtil.getProperty("trailers.path.scaner", "");
+    private static final String PLAYER_PATH = PropertiesUtil.getProperty("trailers.path.player", "");
+    private static final boolean DOWNLOAD = PropertiesUtil.getBooleanProperty("trailers.download", Boolean.FALSE);
+    private static final boolean SAFE_FILENAME = PropertiesUtil.getBooleanProperty("trailers.safeFilename", Boolean.FALSE);
+    private static final boolean OVERWRITE = PropertiesUtil.getBooleanProperty("mjb.forceTrailersOverwrite", Boolean.FALSE);
+    private static final boolean SHOW_PROGRESS = PropertiesUtil.getBooleanProperty("trailers.showProgress", Boolean.TRUE);
+    private static final boolean SCAN_LOCAL_ONLY = PropertiesUtil.getBooleanProperty("trailers.scanHdOnly", Boolean.FALSE);
     // Resolutions Available
     protected static final String RESOLUTION_1080P = "1080p";
     protected static final String RESOLUTION_720P = "720p";
@@ -66,27 +71,27 @@ public class TrailerPlugin implements ITrailerPlugin {
     }
 
     public String getScanerPath() {
-        return trailersScanerPath;
+        return SCANNER_PATH;
     }
 
     public String getPlayerPath() {
-        return trailersPlayerPath;
+        return PLAYER_PATH;
     }
 
     public boolean isDownload() {
-        return trailersDownload;
+        return DOWNLOAD;
     }
 
     public boolean isSafeFilename() {
-        return trailersSafeFilename;
+        return SAFE_FILENAME;
     }
 
     public boolean isOverwrite() {
-        return trailersOverwrite;
+        return OVERWRITE;
     }
 
     public static boolean isScanHdOnly() {
-        return trailersScanHdOnly;
+        return SCAN_LOCAL_ONLY;
     }
 
     /**
@@ -96,14 +101,14 @@ public class TrailerPlugin implements ITrailerPlugin {
      * @return
      */
     public boolean isScanForTrailer(Movie movie) {
-        if (trailersScanHdOnly && !movie.isHD()) {
+        if (SCAN_LOCAL_ONLY && !movie.isHD()) {
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
     }
 
     public boolean downloadTrailer(Movie movie, String trailerUrl, String title, ExtraFile extra) {
-        if (!trailersDownload) {
+        if (!DOWNLOAD) {
             return Boolean.FALSE;
         }
         boolean isExchangeOk = Boolean.FALSE;
@@ -124,36 +129,36 @@ public class TrailerPlugin implements ITrailerPlugin {
             basename = index == -1 ? name : name.substring(0, index);
         }
 
-        if (StringTools.isValidString(trailersScanerPath)) {
-            parentPath = trailersScanerPath;
+        if (StringTools.isValidString(SCANNER_PATH)) {
+            parentPath = SCANNER_PATH;
             (new File(parentPath)).mkdirs();
         }
 
         String trailerExt = FilenameUtils.getExtension(trailerUrl);
         String trailerBasename = basename + ".[TRAILER-" + title + "]." + trailerExt;
-        if (trailersSafeFilename) {
+        if (SAFE_FILENAME) {
             trailerBasename = FileTools.makeSafeFilename(trailerBasename);
         }
         String trailerFileName = parentPath + File.separator + trailerBasename;
 
         int slash = mf.getFilename().lastIndexOf("/");
         String playPath = slash == -1 ? mf.getFilename() : mf.getFilename().substring(0, slash);
-        if (StringTools.isValidString(trailersPlayerPath)) {
-            playPath = trailersPlayerPath;
+        if (StringTools.isValidString(PLAYER_PATH)) {
+            playPath = PLAYER_PATH;
         }
         String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug(LOG_MESSAGE + "Found trailer: " + trailerUrl);
-            LOG.debug(LOG_MESSAGE + "Download path: " + trailerFileName);
-            LOG.debug(LOG_MESSAGE + "     Play URL: " + trailerPlayFileName);
+            LOG.debug(logMessage + "Found trailer: " + trailerUrl);
+            LOG.debug(logMessage + "Download path: " + trailerFileName);
+            LOG.debug(logMessage + "     Play URL: " + trailerPlayFileName);
         }
 
         File trailerFile = new File(trailerFileName);
 
         // Check if the file already exists - after jukebox directory was deleted for example
         if (trailerFile.exists()) {
-            LOG.debug(LOG_MESSAGE + "Trailer file (" + trailerPlayFileName + ") already exists for " + movie.getBaseName());
+            LOG.debug(logMessage + "Trailer file (" + trailerPlayFileName + ") already exists for " + movie.getBaseName());
             extra.setFilename(trailerPlayFileName);
             movie.addExtraFile(extra);
             isExchangeOk = Boolean.TRUE;
@@ -170,8 +175,8 @@ public class TrailerPlugin implements ITrailerPlugin {
 
     public boolean existsTrailerFiles(Movie movie) {
         boolean fileExists = Boolean.TRUE;
-        if (!movie.getExtraFiles().isEmpty() && trailersDownload) {
-            String trailersPath = (StringUtils.isNotBlank(trailersScanerPath)) ? trailersScanerPath : movie.getFirstFile().getFile().getParent();
+        if (!movie.getExtraFiles().isEmpty() && DOWNLOAD) {
+            String trailersPath = (StringUtils.isNotBlank(SCANNER_PATH)) ? SCANNER_PATH : movie.getFirstFile().getFile().getParent();
             for (ExtraFile extraFile : movie.getExtraFiles()) {
                 File trailerFile = new File(trailersPath + "/" + HTMLTools.decodeUrl(new File(extraFile.getFilename()).getName()));
                 fileExists &= trailerFile.exists();
@@ -194,9 +199,9 @@ public class TrailerPlugin implements ITrailerPlugin {
     public boolean trailerDownload(final IMovieBasicInformation movie, String trailerUrlString, File trailerFile) {
         ThreadExecutor.enterIO(trailerUrlString);
         try {
-            LOG.debug(LOG_MESSAGE + "Attempting to download URL " + trailerUrlString + ", saving to " + trailerFile.getAbsolutePath());
+            LOG.debug(logMessage + "Attempting to download URL " + trailerUrlString + ", saving to " + trailerFile.getAbsolutePath());
 
-            Downloader dl = new Downloader(trailerFile.getAbsolutePath(), trailerUrlString, trailersShowProgress);
+            Downloader dl = new Downloader(trailerFile.getAbsolutePath(), trailerUrlString, SHOW_PROGRESS);
 
             if (dl.isDownloadOk()) {
                 LOG.info("Trailer downloaded in " + dl.getDownloadTime());

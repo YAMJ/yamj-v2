@@ -52,7 +52,7 @@ public class KinopoiskTrailersPlugin extends TrailerPlugin {
     public KinopoiskTrailersPlugin() {
         super();
         trailersPluginName = "KinopoiskTrailers";
-        LOG_MESSAGE = "KinopoiskTrailersPlugin: ";
+        logMessage = "KinopoiskTrailersPlugin: ";
     }
 
     @Override
@@ -64,7 +64,7 @@ public class KinopoiskTrailersPlugin extends TrailerPlugin {
         if (!movie.getExtraFiles().isEmpty()) {
             boolean fileExists = existsTrailerFiles(movie);
             if (fileExists) {
-                LOG.debug(LOG_MESSAGE + "Movie has trailers, skipping");
+                LOG.debug(logMessage + "Movie has trailers, skipping");
                 return false;
             } else {
                 Collection<ExtraFile> files = new ArrayList<ExtraFile>();
@@ -74,11 +74,11 @@ public class KinopoiskTrailersPlugin extends TrailerPlugin {
 
         String trailerUrl = getTrailerUrl(movie);
         if (StringTools.isNotValidString(trailerUrl)) {
-            LOG.debug(LOG_MESSAGE + "No trailer found");
+            LOG.debug(logMessage + "No trailer found");
             return false;
         }
 
-        LOG.debug(LOG_MESSAGE + "Found trailer at URL " + trailerUrl);
+        LOG.debug(logMessage + "Found trailer at URL " + trailerUrl);
 
         movie.setTrailerLastScan(new Date().getTime());
 
@@ -122,19 +122,19 @@ public class KinopoiskTrailersPlugin extends TrailerPlugin {
             String siteName = "http://www.kinopoisk.ru";
             String siteSuffix = "/level/16/film/";
             String searchUrl = siteName + siteSuffix + kinopoiskId;
-            LOG.debug(LOG_MESSAGE + "Searching for trailer at URL " + searchUrl);
+            LOG.debug(logMessage + "Searching for trailer at URL " + searchUrl);
             String xml = webBrowser.request(searchUrl);
 
             int beginIndex = xml.indexOf(siteSuffix + kinopoiskId + "/t/");
             if (beginIndex < 0) {
                 // No link to movie page found. We have been redirected to the general video page
-                LOG.debug(LOG_MESSAGE + "No video found for movie " + movie.getTitle());
+                LOG.debug(logMessage + "No video found for movie " + movie.getTitle());
                 return Movie.UNKNOWN;
             }
 
             String xmlUrl = siteName + xml.substring(beginIndex, xml.indexOf("/\"", beginIndex));
             if (StringTools.isNotValidString(xmlUrl)) {
-                LOG.debug(LOG_MESSAGE + "No downloadable trailer found for movie: " + movie.getTitle());
+                LOG.debug(logMessage + "No downloadable trailer found for movie: " + movie.getTitle());
                 return Movie.UNKNOWN;
             }
 
@@ -154,10 +154,10 @@ public class KinopoiskTrailersPlugin extends TrailerPlugin {
                     }
                 }
             } else {
-                LOG.error(LOG_MESSAGE + "Cannot find trailer URL in XML. Layout changed?");
+                LOG.error(logMessage + "Cannot find trailer URL in XML. Layout changed?");
             }
         } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving trailer for movie: " + movie.getTitle());
+            LOG.error(logMessage + "Failed retreiving trailer for movie: " + movie.getTitle());
             LOG.error(SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
         }

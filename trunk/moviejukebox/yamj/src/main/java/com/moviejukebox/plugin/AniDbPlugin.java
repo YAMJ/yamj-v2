@@ -1106,7 +1106,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             animeDao.create(anime);
 
             /*
-             * Add categories and reload anime from database
+             * Add categoriesForeign and reload anime from database
              */
             createCategories(anime, animeAid);
             anime = animeDao.queryForId(Long.toString(anime.getAnimeId()));
@@ -1148,7 +1148,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * Add categories and reload anime from database.
+     * Add categoriesForeign and reload anime from database.
      *
      * @param anime
      * @param anidbResult
@@ -1159,7 +1159,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private void createCategories(AnidbAnime anime, Anime anidbResult) throws SQLException, UdpConnectionException, AniDbException {
         /*
          * Response was most likely truncated if we got less than five
-         * categories
+         * categoriesForeign
          */
         Anime ccAnidbResult;
         if (anidbResult.getCategoryList() == null || anidbResult.getCategoryWeightList() == null || anidbResult.getCategoryList().size() < 5) {
@@ -1302,9 +1302,9 @@ class AnidbFile {
     @DatabaseField()
     private String ed2k;
     @DatabaseField()
-    private String SHA1;
+    private String sha1;
     @DatabaseField()
-    private String CRC32;
+    private String crc32;
     @DatabaseField()
     private long size; // This might seem redundant, but it's needed so we can query for AnidbFiles using hash+size without consulting anidb
     @DatabaseField(index = true)
@@ -1315,14 +1315,14 @@ class AnidbFile {
 
     public AnidbFile(net.anidb.File file) {
         setAnimeId(file.getEpisode().getAnime().getAnimeId());
-        setCRC32(file.getCrc32());
+        setCrc32(file.getCrc32());
         setEd2k(file.getEd2k());
         setEpisodeId(file.getEpisode().getEpisodeId());
         setFileId(file.getFileId());
         setGroupId(file.getGroup().getGroupId());
         setMD5(file.getMd5());
         setRetrieved(new Date());
-        setSHA1(file.getSha1());
+        setSha1(file.getSha1());
         setSize(file.getSize());
     }
 
@@ -1374,20 +1374,20 @@ class AnidbFile {
         this.ed2k = ed2k;
     }
 
-    public String getSHA1() {
-        return SHA1;
+    public String getSha1() {
+        return sha1;
     }
 
-    public final void setSHA1(String sHA1) {
-        SHA1 = sHA1;
+    public final void setSha1(String sHA1) {
+        sha1 = sHA1;
     }
 
-    public String getCRC32() {
-        return CRC32;
+    public String getCrc32() {
+        return crc32;
     }
 
-    public final void setCRC32(String cRC32) {
-        CRC32 = cRC32;
+    public final void setCrc32(String cRC32) {
+        crc32 = cRC32;
     }
 
     public Date getRetrieved() {
@@ -1590,8 +1590,8 @@ class AnidbAnime {
     @DatabaseField()
     private int parodyCount;
     @ForeignCollectionField(eager = true)
-    private ForeignCollection<AnidbCategory> categories;
-    private List<AnidbCategory> _categories;
+    private ForeignCollection<AnidbCategory> categoriesForeign;
+    private List<AnidbCategory> categoriesAnidb;
 
     public AnidbAnime() {
         endDate = 0;
@@ -1735,15 +1735,15 @@ class AnidbAnime {
     }
 
     public List<AnidbCategory> getCategories() {
-        if (_categories == null) {
-            _categories = new ArrayList<AnidbCategory>(categories);
-            Collections.sort(_categories, new CategoryComparator());
+        if (categoriesAnidb == null) {
+            categoriesAnidb = new ArrayList<AnidbCategory>(categoriesForeign);
+            Collections.sort(categoriesAnidb, new CategoryComparator());
         }
-        return _categories;
+        return categoriesAnidb;
     }
 
     public final void setCategories(ForeignCollection<AnidbCategory> categories) {
-        this.categories = categories;
+        this.categoriesForeign = categories;
     }
 
     public long getSpecialsCount() {

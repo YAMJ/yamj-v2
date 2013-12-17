@@ -991,11 +991,9 @@ public class Library implements Map<String, Movie> {
         for (Movie movie : moviesList) {
             if (movie.isExtra()) {
                 // Issue 997: Skip the processing of extras
-                if (processExtras) {
-                    if (CATEGORIES_MAP.get(INDEX_EXTRAS) != null) {
-                        index.addMovie(CATEGORIES_MAP.get(INDEX_EXTRAS), movie);
-                        movie.addIndex(INDEX_EXTRAS, CATEGORIES_MAP.get(INDEX_EXTRAS));
-                    }
+                if (processExtras && CATEGORIES_MAP.get(INDEX_EXTRAS) != null) {
+                    index.addMovie(CATEGORIES_MAP.get(INDEX_EXTRAS), movie);
+                    movie.addIndex(INDEX_EXTRAS, CATEGORIES_MAP.get(INDEX_EXTRAS));
                 }
             } else {
                 if (movie.isHD()) {
@@ -1020,25 +1018,19 @@ public class Library implements Map<String, Movie> {
                     }
                 }
 
-                if (movie.is3D()) {
-                    if (CATEGORIES_MAP.get(INDEX_3D) != null) {
-                        index.addMovie(CATEGORIES_MAP.get(INDEX_3D), movie);
-                        movie.addIndex(INDEX_3D, CATEGORIES_MAP.get(INDEX_3D));
-                    }
+                if (movie.is3D() && CATEGORIES_MAP.get(INDEX_3D) != null) {
+                    index.addMovie(CATEGORIES_MAP.get(INDEX_3D), movie);
+                    movie.addIndex(INDEX_3D, CATEGORIES_MAP.get(INDEX_3D));
                 }
 
-                if (movie.getTop250() > 0) {
-                    if (CATEGORIES_MAP.get(INDEX_TOP250) != null) {
-                        index.addMovie(CATEGORIES_MAP.get(INDEX_TOP250), movie);
-                        movie.addIndex(INDEX_TOP250, CATEGORIES_MAP.get(INDEX_TOP250));
-                    }
+                if (movie.getTop250() > 0 && CATEGORIES_MAP.get(INDEX_TOP250) != null) {
+                    index.addMovie(CATEGORIES_MAP.get(INDEX_TOP250), movie);
+                    movie.addIndex(INDEX_TOP250, CATEGORIES_MAP.get(INDEX_TOP250));
                 }
 
-                if (movie.getRating() > 0) {
-                    if (CATEGORIES_MAP.get(INDEX_RATING) != null) {
-                        index.addMovie(CATEGORIES_MAP.get(INDEX_RATING), movie);
-                        movie.addIndex(INDEX_RATING, CATEGORIES_MAP.get(INDEX_RATING));
-                    }
+                if (movie.getRating() > 0 && CATEGORIES_MAP.get(INDEX_RATING) != null) {
+                    index.addMovie(CATEGORIES_MAP.get(INDEX_RATING), movie);
+                    movie.addIndex(INDEX_RATING, CATEGORIES_MAP.get(INDEX_RATING));
                 }
 
                 if (ENABLE_WATCH_SCANNER) { // Issue 1938 don't create watched/unwatched indexes if scanner is disabled
@@ -1061,11 +1053,13 @@ public class Library implements Map<String, Movie> {
                 }
 
                 // Add to the New TV category
-                if (movie.isTVShow() && (newTvDays > 0) && (now - movie.getLastModifiedTimestamp() <= newTvDays) && !(movie.isWatched() && hideWatched && ENABLE_WATCH_SCANNER)) {
-                    if (CATEGORIES_MAP.get(INDEX_NEW_TV) != null) {
-                        index.addMovie(CATEGORIES_MAP.get(INDEX_NEW_TV), movie);
-                        movie.addIndex(INDEX_NEW_TV, CATEGORIES_MAP.get(INDEX_NEW_TV));
-                    }
+                if (movie.isTVShow()
+                        && (newTvDays > 0)
+                        && (now - movie.getLastModifiedTimestamp() <= newTvDays)
+                        && !(movie.isWatched() && hideWatched && ENABLE_WATCH_SCANNER)
+                        && CATEGORIES_MAP.get(INDEX_NEW_TV) != null) {
+                    index.addMovie(CATEGORIES_MAP.get(INDEX_NEW_TV), movie);
+                    movie.addIndex(INDEX_NEW_TV, CATEGORIES_MAP.get(INDEX_NEW_TV));
                 }
 
                 if (CATEGORIES_MAP.get(INDEX_ALL) != null) {
@@ -1085,11 +1079,9 @@ public class Library implements Map<String, Movie> {
                     }
                 }
 
-                if (!movie.isTVShow() && (movie.getSetsKeys().size() > 0)) {
-                    if (CATEGORIES_MAP.get(INDEX_SETS) != null) {
-                        index.addMovie(CATEGORIES_MAP.get(INDEX_SETS), movie);
-                        movie.addIndex(INDEX_SETS, CATEGORIES_MAP.get(INDEX_SETS));
-                    }
+                if (!movie.isTVShow() && (movie.getSetsKeys().size() > 0) && CATEGORIES_MAP.get(INDEX_SETS) != null) {
+                    index.addMovie(CATEGORIES_MAP.get(INDEX_SETS), movie);
+                    movie.addIndex(INDEX_SETS, CATEGORIES_MAP.get(INDEX_SETS));
                 }
             }
         }
@@ -1277,32 +1269,30 @@ public class Library implements Map<String, Movie> {
                 for (AwardEvent awardEvent : movie.getAwards()) {
                     String awardName = awardEvent.getName();
                     boolean found = AWARD_EVENT_LIST.isEmpty() && AWARD_NAME_LIST.isEmpty();
-                    if (found || AWARD_EVENT_LIST.contains(awardName) || !AWARD_NAME_LIST.isEmpty()) {
-                        if (!found) {
-                            for (Award award : awardEvent.getAwards()) {
-                                if (AWARD_NAME_LIST.isEmpty() || AWARD_NAME_LIST.contains(award.getName())) {
-                                    int flag = (scrapeWonAwards ? 0 : ((AWARD_NOMINATED.isEmpty() ? 0 : 8) + (award.getNominations().isEmpty() ? 0 : 4))) + (AWARD_WON.isEmpty() ? 0 : 2) + (award.getWons().isEmpty() ? 0 : 1);
-                                    found = "145".indexOf(Integer.toString(flag)) > -1;
-                                    if (!found && (flag > 10)) {
-                                        for (String nomination : award.getNominations()) {
-                                            found = AWARD_NOMINATED.contains(nomination);
-                                            if (found) {
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    if (!found && !AWARD_WON.isEmpty() && !award.getWons().isEmpty()) {
-                                        for (String nomination : award.getWons()) {
-                                            found = AWARD_WON.contains(nomination);
-                                            if (found) {
-                                                break;
-                                            }
+                    if (found || AWARD_EVENT_LIST.contains(awardName) || !AWARD_NAME_LIST.isEmpty() && !found) {
+                        for (Award award : awardEvent.getAwards()) {
+                            if (AWARD_NAME_LIST.isEmpty() || AWARD_NAME_LIST.contains(award.getName())) {
+                                int flag = (scrapeWonAwards ? 0 : ((AWARD_NOMINATED.isEmpty() ? 0 : 8) + (award.getNominations().isEmpty() ? 0 : 4))) + (AWARD_WON.isEmpty() ? 0 : 2) + (award.getWons().isEmpty() ? 0 : 1);
+                                found = "145".indexOf(Integer.toString(flag)) > -1;
+                                if (!found && (flag > 10)) {
+                                    for (String nomination : award.getNominations()) {
+                                        found = AWARD_NOMINATED.contains(nomination);
+                                        if (found) {
+                                            break;
                                         }
                                     }
                                 }
-                                if (found) {
-                                    break;
+                                if (!found && !AWARD_WON.isEmpty() && !award.getWons().isEmpty()) {
+                                    for (String nomination : award.getWons()) {
+                                        found = AWARD_WON.contains(nomination);
+                                        if (found) {
+                                            break;
+                                        }
+                                    }
                                 }
+                            }
+                            if (found) {
+                                break;
                             }
                         }
                     }

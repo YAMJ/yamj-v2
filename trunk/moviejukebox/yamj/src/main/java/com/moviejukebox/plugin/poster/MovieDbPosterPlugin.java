@@ -22,7 +22,11 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import com.moviejukebox.model.*;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.IMovieBasicInformation;
+import com.moviejukebox.model.Identifiable;
+import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -42,7 +46,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
     private static final String LOG_MESSAGE = "MovieDbPosterPlugin: ";
     private String apiKey = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
     private String languageCode;
-    private TheMovieDbApi TMDb;
+    private TheMovieDbApi tmdb;
     private static final String DEFAULT_POSTER_SIZE = "original";
     private static final Boolean INCLUDE_ADULT = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", Boolean.FALSE);
 
@@ -62,17 +66,17 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         LOG.debug(LOG_MESSAGE + "Using `" + languageCode + "` as the language code");
 
         try {
-            TMDb = new TheMovieDbApi(apiKey);
+            tmdb = new TheMovieDbApi(apiKey);
         } catch (MovieDbException ex) {
             LOG.warn(LOG_MESSAGE + "Failed to initialise TheMovieDB API.");
             return;
         }
 
         // Set the proxy
-        TMDb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+        tmdb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
 
         // Set the timeouts
-        TMDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+        tmdb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
     }
 
     @Override
@@ -84,7 +88,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                 movieYear = Integer.parseInt(searchYear);
             }
 
-            TmdbResultsList<MovieDb> result = TMDb.searchMovie(title, movieYear, languageCode, INCLUDE_ADULT, 0);
+            TmdbResultsList<MovieDb> result = tmdb.searchMovie(title, movieYear, languageCode, INCLUDE_ADULT, 0);
             movieList = result.getResults();
         } catch (MovieDbException ex) {
             LOG.warn(LOG_MESSAGE + "Failed to get TMDB ID for " + title + "(" + searchYear + ")");
@@ -119,9 +123,9 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
 
         if (StringUtils.isNumeric(id)) {
             try {
-                MovieDb moviedb = TMDb.getMovieInfo(Integer.parseInt(id), languageCode);
+                MovieDb moviedb = tmdb.getMovieInfo(Integer.parseInt(id), languageCode);
                 LOG.debug(LOG_MESSAGE + "Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
-                posterURL = TMDb.createImageUrl(moviedb.getPosterPath(), DEFAULT_POSTER_SIZE);
+                posterURL = tmdb.createImageUrl(moviedb.getPosterPath(), DEFAULT_POSTER_SIZE);
                 return new Image(posterURL.toString());
             } catch (MovieDbException ex) {
                 LOG.warn(LOG_MESSAGE + "Failed to get the poster URL for TMDB ID " + id + " " + ex.getMessage());
@@ -169,7 +173,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                 // Search based on IMDb ID
                 MovieDb moviedb;
                 try {
-                    moviedb = TMDb.getMovieInfoImdb(imdbID, languageCode);
+                    moviedb = tmdb.getMovieInfoImdb(imdbID, languageCode);
                 } catch (MovieDbException ex) {
                     LOG.warn(LOG_MESSAGE + "Failed to get TMDB ID for " + imdbID + " - " + ex.getMessage());
                     return response;
