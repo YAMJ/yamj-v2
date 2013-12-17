@@ -31,6 +31,7 @@ import com.moviejukebox.tools.SearchEngineTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,9 +47,9 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     private static final Logger LOG = Logger.getLogger(OfdbPlugin.class);
     private static final String LOG_MESSAGE = "OfdbPlugin: ";
 
-    private ImdbPlugin imdbp;
-    private WebBrowser webBrowser;
-    private SearchEngineTools searchEngineTools;
+    private final ImdbPlugin imdbp;
+    private final WebBrowser webBrowser;
+    private final SearchEngineTools searchEngineTools;
 
     public OfdbPlugin() {
         imdbp = new com.moviejukebox.plugin.ImdbPlugin();
@@ -106,11 +107,11 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             if (beginIndex != -1) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("http://www.ofdb.de/");
-                sb.append(xml.substring(beginIndex, xml.indexOf("\"", beginIndex)));
+                sb.append(xml.substring(beginIndex, xml.indexOf('\"', beginIndex)));
                 return sb.toString();
             }
 
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error(LOG_MESSAGE + "Failed retreiving OFDb url for IMDb id: " + imdbId);
             LOG.error(SystemTools.getStackTrace(error));
         }
@@ -148,7 +149,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             sb.append(xml.substring(beginIndex+6, xml.indexOf("\"", beginIndex+10)));
             return sb.toString();
 
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error(LOG_MESSAGE + "Failed retrieving OFDb url for title : " + title);
             LOG.error(SystemTools.getStackTrace(error));
         }
@@ -193,9 +194,9 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
             if (OverrideTools.checkOverwriteTitle(movie, OFDB_PLUGIN_ID)) {
                 String titleShort = HTMLTools.extractTag(xml, "<title>OFDb -", "</title>");
-                if (titleShort.indexOf("(") > 0) {
+                if (titleShort.indexOf('(') > 0) {
                     // strip year from title
-                    titleShort = titleShort.substring(0, titleShort.lastIndexOf("(")).trim();
+                    titleShort = titleShort.substring(0, titleShort.lastIndexOf('(')).trim();
                 }
                 movie.setTitle(titleShort, OFDB_PLUGIN_ID);
             }
@@ -218,7 +219,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                     if (OverrideTools.checkOverwriteOutline(movie, OFDB_PLUGIN_ID)) {
                         movie.setOutline(plot, OFDB_PLUGIN_ID);
                     }
-                } catch (Exception error) {
+                } catch (IOException error) {
                     LOG.error(LOG_MESSAGE + "Failed retrieving plot : " + ofdbUrl);
                     LOG.error(SystemTools.getStackTrace(error));
                     returnValue = Boolean.FALSE;
@@ -228,7 +229,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             // scrape additional informations
             int beginIndex = xml.indexOf("view.php?page=film_detail");
             if (beginIndex != -1) {
-                String detailUrl = "http://www.ofdb.de/" + xml.substring(beginIndex, xml.indexOf("\"", beginIndex));
+                String detailUrl = "http://www.ofdb.de/" + xml.substring(beginIndex, xml.indexOf('\"', beginIndex));
                 String detailXml = webBrowser.request(detailUrl);
 
                 // resolve for additional informations
@@ -324,7 +325,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
                     }
                 }
             }
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error(LOG_MESSAGE + "Failed retrieving media info : " + ofdbUrl);
             LOG.error(SystemTools.getStackTrace(error));
             returnValue = Boolean.FALSE;
