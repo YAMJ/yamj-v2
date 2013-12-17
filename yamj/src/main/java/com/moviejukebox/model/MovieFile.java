@@ -352,6 +352,40 @@ public class MovieFile implements Comparable<MovieFile> {
         return this.getFirstPart() - anotherMovieFile.getFirstPart();
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 73 * hash + (this.filename != null ? this.filename.hashCode() : 0);
+        hash = 73 * hash + this.season;
+        hash = 73 * hash + this.firstPart;
+        hash = 73 * hash + this.lastPart;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final MovieFile other = (MovieFile) obj;
+        if ((this.filename == null) ? (other.filename != null) : !this.filename.equals(other.filename)) {
+            return false;
+        }
+        if (this.season != other.season) {
+            return false;
+        }
+        if (this.firstPart != other.firstPart) {
+            return false;
+        }
+        if (this.lastPart != other.lastPart) {
+            return false;
+        }
+        return true;
+    }
+
     @XmlTransient
     public File getFile() {
         return file;
