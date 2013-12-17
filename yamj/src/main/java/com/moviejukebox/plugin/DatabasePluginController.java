@@ -31,6 +31,7 @@ import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +46,7 @@ public final class DatabasePluginController {
     private static final Logger LOG = Logger.getLogger(DatabasePluginController.class);
     public static final String TYPE_ALTERNATE = "ALTERNATE";
     private static boolean autoDetect = false;
-    private static ArrayList<String> autoDetectList = new ArrayList<String>();
+    private static List<String> autoDetectList = new ArrayList<String>();
 
     private DatabasePluginController() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
@@ -56,7 +57,7 @@ public final class DatabasePluginController {
     private static final ThreadLocal<Map<String, MovieDatabasePlugin>> pluginMap = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
         @Override
         protected Map<String, MovieDatabasePlugin> initialValue() {
-            HashMap<String, MovieDatabasePlugin> movieDatabasePlugin = new HashMap<String, MovieDatabasePlugin>(2);
+            Map<String, MovieDatabasePlugin> movieDatabasePlugin = new HashMap<String, MovieDatabasePlugin>(2);
 
             movieDatabasePlugin.put(Movie.TYPE_MOVIE, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin").trim()));
             movieDatabasePlugin.put(Movie.TYPE_TVSHOW, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.tv.plugin", "com.moviejukebox.plugin.TheTvDBPlugin").trim()));

@@ -43,8 +43,9 @@ public class AllocinePluginTest {
 
     @BeforeClass
     public static void configure() {
-        PropertiesUtil.setProperty("API_KEY_Allocine_Partner", "100043982026");
-        PropertiesUtil.setProperty("API_KEY_Allocine_Secret", "29d185d98c984a359e6e6f26a0474269");
+        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
+        PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.AllocinePlugin");
+        PropertiesUtil.setProperty("mjb.internet.tv.plugin", "com.moviejukebox.plugin.AllocinePlugin");
         PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
     }
 
