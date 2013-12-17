@@ -24,8 +24,22 @@ package com.moviejukebox.tools;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
@@ -33,11 +47,11 @@ import org.apache.log4j.Logger;
 public class ThreadExecutor<T> implements ThreadFactory {
 
     private static final Logger LOG = Logger.getLogger(ThreadExecutor.class);
-    private Collection<Future<T>> values = new ArrayList<Future<T>>(100);
+    private final Collection<Future<T>> values = new ArrayList<Future<T>>(100);
     private ThreadPoolExecutor pool = null;
     private BlockingQueue<Runnable> queue = null;
-    private int threadsRun, threadsIo, threadsTotal;
-    private boolean ignoreErrors = true;
+    private final int threadsRun, threadsIo, threadsTotal;
+    private final boolean ignoreErrors = true;
     private Semaphore runningThreads, ioThreads;
     private static final Map<String, String> hostgrp = new HashMap<String, String>();
     private static final Map<String, Semaphore> grouplimits = new HashMap<String, Semaphore>();
@@ -94,8 +108,9 @@ public class ThreadExecutor<T> implements ThreadFactory {
      */
     private static final class ScheduledThread extends Thread {
 
-        private Semaphore sRun, sIo, sIotarget;
-        private Stack<String> hosts = new Stack<String>();
+        private final Semaphore sRun, sIo;
+        private Semaphore sIotarget;
+        private final Stack<String> hosts = new Stack<String>();
 
         private ScheduledThread(Runnable r, Semaphore sRun, Semaphore sIo) {
             super(r);
@@ -249,9 +264,9 @@ public class ThreadExecutor<T> implements ThreadFactory {
         submit(Executors.callable(r, result));
     }
 
-    public ArrayList<T> waitForValues() throws Throwable {
+    public List<T> waitForValues() throws Throwable {
         pool.shutdown();
-        ArrayList<T> v = new ArrayList<T>(values.size());
+        List<T> v = new ArrayList<T>(values.size());
         for (Future<T> f : values) {
             try {
                 v.add(f.get());

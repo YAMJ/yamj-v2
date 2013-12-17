@@ -39,6 +39,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
@@ -328,8 +329,8 @@ public class AnimatorPlugin extends ImdbPlugin {
             // Genre + Run time (animator.ru)
             // String MultType = "";
             String time = Movie.UNKNOWN;
-            LinkedList<String> newGenres = new LinkedList<String>();
-            newGenres.addFirst("мультфильм");
+            List<String> newGenres = new LinkedList<String>();
+            newGenres.add(0, "мультфильм");
             for (String tmp : HTMLTools.extractTags(xml, "class=\"FilmType\"><i", "</td>", "", "</i>")) {
                 for (String temp : tmp.split(",")) {
                     if (!temp.equals("")) {
@@ -344,7 +345,7 @@ public class AnimatorPlugin extends ImdbPlugin {
 
             if (OverrideTools.checkOverwriteGenres(movie, ANIMATOR_PLUGIN_ID)) {
                 // Genre (allmults.org)
-                if (newGenres.size() == 0 && !allmultsId.equals(Movie.UNKNOWN)) {
+                if (newGenres.isEmpty() && !allmultsId.equals(Movie.UNKNOWN)) {
                     for (String tmp : HTMLTools.extractTags(xml2, "<b>Жанр:", "<b>", "", "<br>")) {
                         for (String temp : tmp.split(",")) {
                             if (!temp.equals("")) {

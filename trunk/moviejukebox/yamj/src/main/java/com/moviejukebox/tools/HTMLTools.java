@@ -436,7 +436,7 @@ public final class HTMLTools {
     }
 
     public static List<String> extractHtmlTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
-        ArrayList<String> tags = new ArrayList<String>();
+        List<String> tags = new ArrayList<String>();
         int index = src.indexOf(sectionStart);
         if (index == -1) {
             return tags;
@@ -542,7 +542,7 @@ public final class HTMLTools {
     }
 
     public static List<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag, boolean forceCloseTag) {
-        ArrayList<String> tags = new ArrayList<String>();
+        List<String> tags = new ArrayList<String>();
         int startIndex = StringUtils.indexOfIgnoreCase(src, sectionStart);
         if (startIndex == -1) {
             return tags;

@@ -34,7 +34,7 @@ import java.util.Set;
 public class PropertyInformation {
 
     private String propertyName = Movie.UNKNOWN;
-    private EnumSet<PropertyOverwrites> propertyOverwrites = EnumSet.noneOf(PropertyOverwrites.class);
+    private final Set<PropertyOverwrites> propertyOverwrites = EnumSet.noneOf(PropertyOverwrites.class);
 
     public PropertyInformation(String property, Set<PropertyOverwrites> propOverwrites) {
         this.propertyName = property;
@@ -49,7 +49,7 @@ public class PropertyInformation {
         this.propertyName = propertyName;
     }
 
-    public EnumSet<PropertyOverwrites> getOverwrites() {
+    public Set<PropertyOverwrites> getOverwrites() {
         return propertyOverwrites;
     }
 

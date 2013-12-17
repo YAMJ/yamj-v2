@@ -153,7 +153,7 @@ public final class SystemTools {
         }
 
         // List of the jars to check for duplicates
-        HashMap<String, List<String>> jarsToCheck = new HashMap<String, List<String>>();
+        Map<String, List<String>> jarsToCheck = new HashMap<String, List<String>>();
         jarsToCheck.put("allocine-api", new ArrayList<String>());
         jarsToCheck.put("fanarttvapi", new ArrayList<String>());
         jarsToCheck.put("mjbsqldb", new ArrayList<String>());

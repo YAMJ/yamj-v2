@@ -22,14 +22,18 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.*;
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.CSVWriter;
 import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
@@ -216,7 +220,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         String filename = getBaseFilename() + ".csv";
         File csvFile = new File(jukebox.getJukeboxTempLocation(), filename);
 
-        ArrayList<String> alTypes = getSelectedTypes();
+        List<String> alTypes = getSelectedTypes();
         try {
             CSVWriter writer = new CSVWriter(csvFile);
             LOG.debug("  Writing CSV to: " + csvFile.getAbsolutePath());

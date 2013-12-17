@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -85,7 +86,7 @@ public final class StringTools {
      * @return
      */
     private static String generateQuoteList() {
-        HashSet<String> quotes = new HashSet<String>();
+        Set<String> quotes = new HashSet<String>();
         // Double quote - "
         quotes.add("\"");
         // Single left quote - ‘

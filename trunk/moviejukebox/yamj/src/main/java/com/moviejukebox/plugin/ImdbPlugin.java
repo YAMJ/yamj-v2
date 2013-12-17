@@ -2054,7 +2054,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         String xmlInfo = webBrowser.request(getImdbUrl(person) + "filmorate", siteDefinition.getCharset());
         if (xmlInfo.indexOf("<div class=\"filmo\">") > -1) {
             String fg = HTMLTools.extractTag(sourceXml, "<div id=\"filmography\">", "<div class=\"article\" >");
-            TreeMap<Float, Filmography> filmography = new TreeMap<Float, Filmography>();
+            Map<Float, Filmography> filmography = new TreeMap<Float, Filmography>();
             Pattern tvPattern = Pattern.compile("( \\(#\\d+\\.\\d+\\))|(: Episode #\\d+\\.\\d+)");
             for (String department : HTMLTools.extractTags(xmlInfo, "<div id=\"tn15content\">", "<style>", "<div class=\"filmo\"", HTML_DIV_END)) {
                 String job = HTMLTools.removeHtmlTags(HTMLTools.extractTag(department, HTML_H5_START, "</h5>"));

@@ -30,6 +30,7 @@ import com.moviejukebox.tools.SystemTools;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Date;
@@ -78,8 +79,8 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             return false;
         }
 
-        LinkedHashSet<String> trailersUrl = new LinkedHashSet<String>();
-        LinkedHashSet<String> bestTrailersUrl = new LinkedHashSet<String>();
+        Set<String> trailersUrl = new LinkedHashSet<String>();
+        Set<String> bestTrailersUrl = new LinkedHashSet<String>();
 
         getTrailerSubUrl(trailerPageUrl, trailersUrl);
 
@@ -254,7 +255,12 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         }
     }
 
-    // Get sub page url - if error return empty page
+    /**
+     * Get sub page url - if error return empty page
+     *
+     * @param url
+     * @return
+     */
     private String getSubPage(String url) {
         Level oldlevel = LOG.getLevel();
 
@@ -262,7 +268,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             // Don't log error getting URL
             LOG.setLevel(Level.OFF);
             return webBrowser.request(url);
-        } catch (Exception error) {
+        } catch (IOException ex) {
             return "";
         } finally {
             LOG.setLevel(oldlevel);
@@ -335,9 +341,9 @@ public class AppleTrailersPlugin extends TrailerPlugin {
 
             return absRealURL;
 
-        } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
-            LOG.error(SystemTools.getStackTrace(error));
+        } catch (IOException ex) {
+            LOG.error(LOG_MESSAGE + "Error : " + ex.getMessage());
+            LOG.error(SystemTools.getStackTrace(ex));
             return Movie.UNKNOWN;
         }
     }
@@ -372,7 +378,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             URL baseURL = new URL(baseUrl);
             URL absURL = new URL(baseURL, relativeUrl);
             return absURL.toString();
-        } catch (Exception error) {
+        } catch (MalformedURLException ex) {
             return Movie.UNKNOWN;
         }
     }
@@ -410,32 +416,33 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         return newString.toString();
     }
 
-    // Extract the filename from the URL
+    /**
+     * Extract the filename from the URL
+     *
+     * @param fullUrl
+     * @return
+     */
     private String getFilenameFromUrl(String fullUrl) {
         int nameStart = fullUrl.lastIndexOf('/') + 1;
         return fullUrl.substring(nameStart);
     }
 
-    // Check the trailer filename against the valid trailer types from appletrailers.trailertypes
+    /**
+     * Check the trailer filename against the valid trailer types from appletrailers.trailertypes
+     *
+     * @param trailerFilename
+     * @return
+     */
     private boolean isValidTrailer(String trailerFilename) {
-        boolean validTrailer;
-
-        if (configTypesInclude) {
-            validTrailer = false;
-        } else {
-            validTrailer = true;
-        }
+        // Set the default response for the validTrailer
+        boolean validTrailer = !configTypesInclude;
 
         for (String ttype : configTrailerTypes.split(",")) {
             if (trailerFilename.lastIndexOf(ttype) > 0) {
-                if (configTypesInclude) {
-                    // Found the trailer type, so this is a valid trailer
-                    validTrailer = true;
-                } else {
-                    // Found the trailer type, so this trailer should be excluded
-                    validTrailer = false;
-                }
-                break;
+                /*
+                 If the type is found, and configTypesInclude, then this is a valid trailer, otherwise it's invalid and should be excluded
+                 */
+                validTrailer = configTypesInclude;
             }
         }
 

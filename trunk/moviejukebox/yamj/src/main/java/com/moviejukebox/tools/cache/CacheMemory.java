@@ -26,6 +26,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.Logger;
 
@@ -39,7 +40,7 @@ import org.apache.log4j.Logger;
  */
 public final class CacheMemory {
 
-    private static final ConcurrentHashMap<String, Object> mjbCache = new ConcurrentHashMap<String, Object>();
+    private static final Map<String, Object> mjbCache = new ConcurrentHashMap<String, Object>();
     private static final Logger LOG = Logger.getLogger(CacheMemory.class);
     private static boolean cacheEnabled = initCacheState();
 
@@ -103,7 +104,7 @@ public final class CacheMemory {
             return;
         }
 
-        if (mjbCache.contains(key)) {
+        if (mjbCache.containsKey(key)) {
             mjbCache.remove(key);
         }
     }
@@ -117,7 +118,7 @@ public final class CacheMemory {
     }
 
     public static String generateCacheKey(String stringOne, String stringTwo, String stringThree, String stringFour) {
-        ArrayList<String> cacheKeys = new ArrayList<String>();
+        List<String> cacheKeys = new ArrayList<String>();
         if (StringTools.isValidString(stringOne)) {
             cacheKeys.add(stringOne);
         }

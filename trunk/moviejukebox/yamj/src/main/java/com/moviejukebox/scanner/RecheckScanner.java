@@ -30,7 +30,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
 import com.moviejukebox.tools.SystemTools;
 import java.util.Date;
-import java.util.EnumSet;
+import java.util.Set;
 import org.apache.log4j.Logger;
 
 /**
@@ -53,7 +53,7 @@ public final class RecheckScanner {
     private static final int RECHECK_REVISION = PropertiesUtil.getIntProperty("mjb.recheck.Revision", 25);
     private static final boolean RECHECK_UNKNOWN = PropertiesUtil.getBooleanProperty("mjb.recheck.Unknown", Boolean.TRUE);
     private static final boolean RECHECK_EPISODE_PLOTS = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", Boolean.FALSE);
-// How many rechecks have been performed
+    // How many rechecks have been performed
     private static int recheckCount = 0;
 
     /*
@@ -65,7 +65,7 @@ public final class RecheckScanner {
     private static final boolean BANNER_DOWNLOAD = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", Boolean.FALSE);
     private static final boolean INCLUDE_EPISODE_RATING = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", Boolean.FALSE);
     private static final boolean INCLUDE_PEOPLE = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE);
-    private static final EnumSet<ArtworkType> ARTWORK_REQUIRED = ArtworkScanner.getRequiredArtworkTypes();
+    private static final Set<ArtworkType> ARTWORK_REQUIRED = ArtworkScanner.getRequiredArtworkTypes();
     private static final String TV_PART_TEXT = " - Part ";
 
     private RecheckScanner() {

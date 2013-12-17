@@ -862,7 +862,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
         LOG.debug(LOG_MESSAGE + "Getting " + artworkType + " for collection ID " + collectionId + ", language '" + languageCode + "'");
 
-        ArrayList<Artwork> results = (ArrayList<Artwork>) CacheMemory.getFromCache(cacheKey);
+        List<Artwork> results = (ArrayList<Artwork>) CacheMemory.getFromCache(cacheKey);
 
         if (results == null) {
             ThreadExecutor.enterIO(webhost);

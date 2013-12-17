@@ -25,6 +25,7 @@ package com.moviejukebox.scanner;
 import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
 import org.apache.log4j.Logger;
 
@@ -80,13 +81,11 @@ public class DVDRipScanner {
             /* Get the ifo files */
             list = selectedFile.listFiles();
 
-            ArrayList<File> ifoList = new ArrayList<File>(4);
-
-            for (int i = 0; i < list.length; i++) {
-
-                if (list[i].getName().regionMatches(true,
-                        list[i].getName().lastIndexOf("."), ".ifo", 0, 4) && !"VIDEO_TS.IFO".equalsIgnoreCase(list[i].getName())) {//$NON-NLS-1$ //$NON-NLS-2$
-                    ifoList.add(list[i]);
+            List<File> ifoList = new ArrayList<File>(4);
+            for (File list1 : list) {
+                if (list1.getName().regionMatches(true, list1.getName().lastIndexOf("."), ".ifo", 0, 4) && !"VIDEO_TS.IFO".equalsIgnoreCase(list1.getName())) {
+                    //$NON-NLS-1$ //$NON-NLS-2$
+                    ifoList.add(list1);
                 }
             }
 

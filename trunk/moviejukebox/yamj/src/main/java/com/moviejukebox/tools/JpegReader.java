@@ -32,8 +32,8 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -148,7 +148,7 @@ public class JpegReader {
         JpegImageParser parser = new JpegImageParser();
         ByteSource byteSource = new ByteSourceFile(file);
         @SuppressWarnings("rawtypes")
-        ArrayList segments = parser.readSegments(byteSource, new int[]{0xffee}, true);
+        List segments = parser.readSegments(byteSource, new int[]{0xffee}, true);
         if (segments != null && segments.size() >= 1) {
             UnknownSegment app14Segment = (UnknownSegment) segments.get(0);
             byte[] data = app14Segment.bytes;

@@ -53,8 +53,8 @@ public final class JukeboxStatistics {
     // Filename
     private static final String XML_FILENAME = "jukebox_statistics.xml";
     // Properties
-    private static final EnumMap<JukeboxStatistic, Integer> statistics = new EnumMap<JukeboxStatistic, Integer>(JukeboxStatistic.class);
-    private static final EnumMap<JukeboxTimes, Long> TIMES = new EnumMap<JukeboxTimes, Long>(JukeboxTimes.class);
+    private static final Map<JukeboxStatistic, Integer> statistics = new EnumMap<JukeboxStatistic, Integer>(JukeboxStatistic.class);
+    private static final Map<JukeboxTimes, Long> TIMES = new EnumMap<JukeboxTimes, Long>(JukeboxTimes.class);
     // Literals
     private static final String DEFAULT_FORMAT = "HH:mm:ss.S";
     private static final String DEFAULT_TZ = "GMT";
