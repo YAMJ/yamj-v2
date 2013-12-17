@@ -48,7 +48,7 @@ public class TrailerAddictPlugin extends TrailerPlugin {
     public TrailerAddictPlugin() {
         super();
         trailersPluginName = "TrailerAddict";
-        LOG_MESSAGE = "TrailerAddictPlugin: ";
+        logMessage = "TrailerAddictPlugin: ";
         trailerMaxCount = PropertiesUtil.getIntProperty("traileraddict.max", 3);
     }
 
@@ -58,7 +58,7 @@ public class TrailerAddictPlugin extends TrailerPlugin {
 
         String imdbId = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID);
         if (StringTools.isNotValidString(imdbId)) {
-            LOG.debug(LOG_MESSAGE + "No IMDB Id found for " + movie.getBaseName() + ", trailers not downloaded");
+            LOG.debug(logMessage + "No IMDB Id found for " + movie.getBaseName() + ", trailers not downloaded");
             return Boolean.FALSE;
         }
 
@@ -66,17 +66,17 @@ public class TrailerAddictPlugin extends TrailerPlugin {
         try {
             trailerList = TrailerAddictApi.getFilmImdb(imdbId, trailerMaxCount);
         } catch (TrailerAddictException ex) {
-            LOG.warn(LOG_MESSAGE + "Failed to get trailer information: " + ex.getResponse());
+            LOG.warn(logMessage + "Failed to get trailer information: " + ex.getResponse());
             return Boolean.FALSE;
         }
 
         if (trailerList.isEmpty()) {
-            LOG.debug(LOG_MESSAGE + "No trailers found for " + movie.getBaseName());
+            LOG.debug(logMessage + "No trailers found for " + movie.getBaseName());
             return Boolean.FALSE;
         }
 
         for (Trailer trailer : trailerList) {
-            LOG.debug(LOG_MESSAGE + "Found trailer at URL " + trailer.getLink());
+            LOG.debug(logMessage + "Found trailer at URL " + trailer.getLink());
 
             ExtraFile extra = new ExtraFile();
             extra.setTitle("TRAILER-" + trailer.getCombinedTitle());
@@ -115,7 +115,7 @@ public class TrailerAddictPlugin extends TrailerPlugin {
         try {
             downloadPage = webBrowser.request(trailer.getTrailerDownloadUrl());
         } catch (IOException ex) {
-            LOG.warn(LOG_MESSAGE + "Failed to get webpage: " + ex.getMessage());
+            LOG.warn(logMessage + "Failed to get webpage: " + ex.getMessage());
             return Movie.UNKNOWN;
         }
 
@@ -123,7 +123,7 @@ public class TrailerAddictPlugin extends TrailerPlugin {
         if (startPos > -1) {
             return downloadPage.substring(startPos + 8, downloadPage.indexOf('%', startPos));
         } else {
-            LOG.debug(LOG_MESSAGE + "Download URL not found for " + trailer.getCombinedTitle());
+            LOG.debug(logMessage + "Download URL not found for " + trailer.getCombinedTitle());
         }
 
         return Movie.UNKNOWN;

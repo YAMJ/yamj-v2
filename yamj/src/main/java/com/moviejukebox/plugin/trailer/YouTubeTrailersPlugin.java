@@ -67,13 +67,13 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
     public YouTubeTrailersPlugin() {
         super();
         trailersPluginName = "YouTubeTrailers";
-        LOG_MESSAGE = "YouTubeTrailersPlugin: ";
+        logMessage = "YouTubeTrailersPlugin: ";
     }
 
     @Override
     public final boolean generate(Movie movie) {
         if (movie.isTVShow()) {
-            LOG.debug(LOG_MESSAGE + movie.getBaseName() + " is a TV Show, skipping trailer search");
+            LOG.debug(logMessage + movie.getBaseName() + " is a TV Show, skipping trailer search");
             return Boolean.FALSE;
         }
 
@@ -81,7 +81,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
 
         List<YouTubeTrailer> ytTrailers = getTrailerUrl(movie);
 
-        StringBuilder sb = new StringBuilder(LOG_MESSAGE);
+        StringBuilder sb = new StringBuilder(logMessage);
         if (ytTrailers.isEmpty()) {
             sb.append("No trailers found for ");
             sb.append(movie.getBaseName());
@@ -105,7 +105,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         for (YouTubeTrailer ytTrailer : ytTrailers) {
             addTrailer(movie, ytTrailer);
 
-            sb = new StringBuilder(LOG_MESSAGE);
+            sb = new StringBuilder(logMessage);
             sb.append("Saving ");
             sb.append(ytTrailer.title);
             sb.append(" URL: ");
@@ -150,7 +150,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         try {
             webPage = webBrowser.request(searchUrl);
         } catch (IOException ex) {
-            LOG.warn(LOG_MESSAGE + "Failed to retrieve webpage. Error: " + ex.getMessage());
+            LOG.warn(logMessage + "Failed to retrieve webpage. Error: " + ex.getMessage());
             return trailers;
         }
 
@@ -159,19 +159,19 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         try {
             doc = DOMHelper.getDocFromString(webPage);
         } catch (MalformedURLException error) {
-            LOG.error(LOG_MESSAGE + TEXT_FAILED + movie.getBaseName());
+            LOG.error(logMessage + TEXT_FAILED + movie.getBaseName());
             LOG.error(SystemTools.getStackTrace(error));
             return trailers;
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + TEXT_FAILED + movie.getBaseName());
+            LOG.error(logMessage + TEXT_FAILED + movie.getBaseName());
             LOG.error(SystemTools.getStackTrace(error));
             return trailers;
         } catch (ParserConfigurationException error) {
-            LOG.error(LOG_MESSAGE + TEXT_FAILED + movie.getBaseName());
+            LOG.error(logMessage + TEXT_FAILED + movie.getBaseName());
             LOG.error(SystemTools.getStackTrace(error));
             return trailers;
         } catch (SAXException error) {
-            LOG.error(LOG_MESSAGE + TEXT_FAILED + movie.getBaseName());
+            LOG.error(logMessage + TEXT_FAILED + movie.getBaseName());
             LOG.error(SystemTools.getStackTrace(error));
             return trailers;
         }
@@ -201,7 +201,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         try {
             stringUrl.append(URLEncoder.encode(title, "UTF-8"));
         } catch (UnsupportedEncodingException ex) {
-            LOG.warn(LOG_MESSAGE + "Failed to encode movie title: " + title + " - " + ex.getMessage());
+            LOG.warn(logMessage + "Failed to encode movie title: " + title + " - " + ex.getMessage());
             // Something went wrong with the encoding, try the default string
             stringUrl.append(title);
         }
@@ -216,7 +216,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         stringUrl.append(TRAILER_VERSION);
         stringUrl.append(TRAILER_KEY).append(API_KEY);
 
-        LOG.debug(LOG_MESSAGE + "Trailer Search URL: " + stringUrl.toString());
+        LOG.debug(logMessage + "Trailer Search URL: " + stringUrl.toString());
         return stringUrl.toString();
     }
 

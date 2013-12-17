@@ -141,7 +141,7 @@ public class MovieJukeboxXMLWriter {
     private static final boolean IS_PLAYON_HD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", Boolean.FALSE);
     private static final boolean IS_EXTENDED_URL = PropertiesUtil.getBooleanProperty("mjb.scanner.mediainfo.rar.extended.url", Boolean.FALSE);
     private static final String DEFAULT_SOURCE = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
-    private final List<String> CATEGORIES_EXPLODE_SET = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
+    private final List<String> categoriesExplodeSet = Arrays.asList(PropertiesUtil.getProperty("mjb.categories.explodeSet", "").split(","));
     private final boolean removeExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.removeSet", Boolean.FALSE);
     private final boolean keepTVExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.keepTV", Boolean.TRUE);
     private final boolean beforeSortExplodeSet = PropertiesUtil.getBooleanProperty("mjb.categories.explodeSet.beforeSort", Boolean.FALSE);
@@ -581,7 +581,7 @@ public class MovieJukeboxXMLWriter {
 
                             if (!beforeSortExplodeSet) {
                                 // Issue 1263 - Allow explode of Set in category .
-                                if (movie.isSetMaster() && (CATEGORIES_EXPLODE_SET.contains(categoryName) || CATEGORIES_EXPLODE_SET.contains(group.getKey()))
+                                if (movie.isSetMaster() && (categoriesExplodeSet.contains(categoryName) || categoriesExplodeSet.contains(group.getKey()))
                                         && (!keepTVExplodeSet || !movie.isTVShow())) {
                                     List<Movie> boxedSetMovies = library.getIndexes().get(Library.INDEX_SET).get(movie.getTitle());
                                     boxedSetMovies = library.getMatchingMoviesList(categoryName, boxedSetMovies, key);
