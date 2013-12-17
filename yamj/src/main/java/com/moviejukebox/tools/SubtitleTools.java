@@ -24,7 +24,10 @@ package com.moviejukebox.tools;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.MovieFilenameScanner;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import org.apache.log4j.Logger;
 
 public final class SubtitleTools {
@@ -35,19 +38,19 @@ public final class SubtitleTools {
     private static final String SPLIT_PATTERN = "\\||,|/";
     private static final String YES = "YES";
     private static final String NO = "NO";
-    private static final String subtitleDelimiter;
-    private static final boolean subtitleUnique = PropertiesUtil.getBooleanProperty("mjb.subtitle.unique", Boolean.TRUE);
-    private static final List<String> skippedSubtitles = populateSkippedSubtitles();
+    private static final String SUBTITLE_DELIM;
+    private static final boolean SUBTITLE_UNIQUE = PropertiesUtil.getBooleanProperty("mjb.subtitle.unique", Boolean.TRUE);
+    private static final List<String> SUBTITLE_SKIPPED = populateSkippedSubtitles();
 
     static {
         // Check for the delimiter in the properties file
         String tmpDelim = PropertiesUtil.getProperty("mjb.subtitle.delimiter");
         if (StringTools.isValidString(tmpDelim)) {
-            subtitleDelimiter = tmpDelim;
+            SUBTITLE_DELIM = tmpDelim;
         } else {
             // If there is no delimiter use the default " / ".
             // Do it this way so the property is not trimmed by the properties functions.
-            subtitleDelimiter = SPACE_SLASH_SPACE;
+            SUBTITLE_DELIM = SPACE_SLASH_SPACE;
         }
     }
 
@@ -131,9 +134,9 @@ public final class SubtitleTools {
                 // override with subtitle language
                 newMovieSubtitles = infoLanguage;
                 // TODO Inspect if UNKNOWN should be added add the end of the subtitles list
-            } else if (!subtitleUnique || !actualSubtitles.contains(infoLanguage)) {
+            } else if (!SUBTITLE_UNIQUE || !actualSubtitles.contains(infoLanguage)) {
                 // Add subtitle to subtitles list
-                newMovieSubtitles = actualSubtitles + subtitleDelimiter + infoLanguage;
+                newMovieSubtitles = actualSubtitles + SUBTITLE_DELIM + infoLanguage;
             }
         }
 
@@ -141,12 +144,12 @@ public final class SubtitleTools {
     }
 
     private static boolean isSkippedSubtitle(String language) {
-        if (skippedSubtitles.isEmpty()) {
+        if (SUBTITLE_SKIPPED.isEmpty()) {
             // not skipped if list is empty
             return false;
         }
 
-        boolean skipped = skippedSubtitles.contains(language.toUpperCase());
+        boolean skipped = SUBTITLE_SKIPPED.contains(language.toUpperCase());
         if (skipped) {
             LOG.debug(LOG_MESSAGE + "Skipping subtitle '" + language + "'");
         }

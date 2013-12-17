@@ -53,8 +53,8 @@ public class ThreadExecutor<T> implements ThreadFactory {
     private final int threadsRun, threadsIo, threadsTotal;
     private final boolean ignoreErrors = true;
     private Semaphore runningThreads, ioThreads;
-    private static final Map<String, String> hostgrp = new HashMap<String, String>();
-    private static final Map<String, Semaphore> grouplimits = new HashMap<String, Semaphore>();
+    private static final Map<String, String> HOST_GROUP = new HashMap<String, String>();
+    private static final Map<String, Semaphore> GROUP_LIMITS = new HashMap<String, Semaphore>();
 
     /**
      * Handle IO slots allocation to avoid throttling / ban on source sites
@@ -68,7 +68,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
     static {
         // First we have to read/create the rules
         // Default, can be overridden
-        grouplimits.put(".*", new Semaphore(1));
+        GROUP_LIMITS.put(".*", new Semaphore(1));
         String limitsProperty = PropertiesUtil.getProperty("mjb.MaxDownloadSlots", ".*=1");
         LOG.debug("Using download limits: " + limitsProperty);
 
@@ -79,7 +79,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
             try {
                 Pattern.compile(group);
                 LOG.debug(group + "=" + semaphoreMatcher.group(2));
-                grouplimits.put(group, new Semaphore(Integer.parseInt(semaphoreMatcher.group(2))));
+                GROUP_LIMITS.put(group, new Semaphore(Integer.parseInt(semaphoreMatcher.group(2))));
             } catch (NumberFormatException error) {
                 LOG.debug("Rule \"" + group + "\" is not valid regexp, ignored");
             }
@@ -140,12 +140,12 @@ public class ThreadExecutor<T> implements ThreadFactory {
                 return;
             }
             String semaphoreGroup;
-            synchronized (hostgrp) {
-                semaphoreGroup = hostgrp.get(host);
+            synchronized (HOST_GROUP) {
+                semaphoreGroup = HOST_GROUP.get(host);
                 // first time not found, search for matching group
                 if (semaphoreGroup == null) {
                     semaphoreGroup = ".*";
-                    for (String searchGroup : grouplimits.keySet()) {
+                    for (String searchGroup : GROUP_LIMITS.keySet()) {
                         if (host.matches(searchGroup)) {
                             if (searchGroup.length() > semaphoreGroup.length()) {
                                 semaphoreGroup = searchGroup;
@@ -153,14 +153,14 @@ public class ThreadExecutor<T> implements ThreadFactory {
                         }
                     }
                     LOG.debug(String.format("IO download host: %s; rule: %s", host, semaphoreGroup));
-                    hostgrp.put(host, semaphoreGroup);
+                    HOST_GROUP.put(host, semaphoreGroup);
                 }
             }
 
             // there should be NO way to fail
             //String dbgstr = "host="+host+"; thread="+getName();
             //logger.finest("ThreadExecutor: Try EnterIO: "+dbgstr);
-            Semaphore s = grouplimits.get(semaphoreGroup);
+            Semaphore s = GROUP_LIMITS.get(semaphoreGroup);
             sIotarget = s;
             sRun.release(); // exit running state; another thread might be released;
             sIotarget.acquireUninterruptibly(); // aquire URL target semaphore

@@ -121,7 +121,7 @@ import org.apache.sanselan.ImageReadException;
 
 public class MovieJukebox {
 
-    private static final String logFilename = "moviejukebox";
+    private static final String LOG_FILENAME = "moviejukebox";
     private static final Logger LOG = Logger.getLogger(MovieJukebox.class);
     private static Collection<MediaLibraryPath> mediaLibraryPaths;
     private static final String SKIN_DIR = "mjb.skin.dir";
@@ -160,11 +160,11 @@ public class MovieJukebox {
     private static String bannerExtension;
     private static String fanartExtension;
     private static Integer footerCount;
-    private static List<String> footerName = new ArrayList<String>();
-    private static List<Boolean> footerEnable = new ArrayList<Boolean>();
-    private static List<Integer> footerWidth = new ArrayList<Integer>();
-    private static List<Integer> footerHeight = new ArrayList<Integer>();
-    private static List<String> footerExtension = new ArrayList<String>();
+    private static final List<String> FOOTER_NAME = new ArrayList<String>();
+    private static final List<Boolean> FOOTER_ENABLE = new ArrayList<Boolean>();
+    private static final List<Integer> FOOTER_WIDTH = new ArrayList<Integer>();
+    private static final List<Integer> FOOTER_HEIGHT = new ArrayList<Integer>();
+    private static final List<String> FOOTER_EXTENSION = new ArrayList<String>();
     private static boolean fanartMovieDownload;
     private static boolean fanartTvDownload;
     private static boolean videoimageDownload;
@@ -172,7 +172,7 @@ public class MovieJukebox {
     private static boolean photoDownload;
     private static boolean backdropDownload;
     private static boolean enableRottenTomatoes;
-    private boolean setIndexFanart;
+    private final boolean setIndexFanart;
     private static boolean skipIndexGeneration = Boolean.FALSE;
     private static boolean skipHtmlGeneration = Boolean.FALSE;
     private static boolean skipPlaylistGeneration = Boolean.FALSE;
@@ -183,11 +183,11 @@ public class MovieJukebox {
     private static int peopleMax = 10;
     private static int popularity = 5;
     private static String peopleFolder = "";
-    private static Collection<String> photoExtensions = new ArrayList<String>();
+    private static final Collection<String> PHOTO_EXTENSIONS = new ArrayList<String>();
     // These are pulled from the Manifest.MF file that is created by the build script
-    private static String mjbVersion = SystemTools.getVersion();
-    private static String mjbRevision = SystemTools.getRevision();
-    private static String mjbBuildDate = SystemTools.getBuildDate();
+    private static final String MJB_VERSION = SystemTools.getVersion();
+    private static final String MJB_REVISION = SystemTools.getRevision();
+    private static final String MJB_BUILD_DATE = SystemTools.getBuildDate();
     private static boolean trailersScannerEnable;
     private static int maxThreadsProcess = 1;
     private static int maxThreadsDownload = 1;
@@ -197,17 +197,17 @@ public class MovieJukebox {
     private static final int EXIT_NORMAL = 0;
     private static final int EXIT_SCAN_LIMIT = 1;
     // Directories to exclude from dump command
-    private static final String[] excluded = {"dumpDir", ".svn", "src", "test", "bin", "skins"};
+    private static final String[] EXCLUDED = {"dumpDir", ".svn", "src", "test", "bin", "skins"};
 
     public static void main(String[] args) throws Throwable {
         JukeboxStatistics.setTimeStart(System.currentTimeMillis());
 
         // Create the log file name here, so we can change it later (because it's locked
-        System.setProperty("file.name", logFilename);
+        System.setProperty("file.name", LOG_FILENAME);
         PropertyConfigurator.configure("properties/log4j.properties");
 
-        LOG.info("Yet Another Movie Jukebox " + mjbVersion);
-        LOG.info("~~~ ~~~~~~~ ~~~~~ ~~~~~~~ " + StringUtils.repeat("~", mjbVersion.length()));
+        LOG.info("Yet Another Movie Jukebox " + MJB_VERSION);
+        LOG.info("~~~ ~~~~~~~ ~~~~~ ~~~~~~~ " + StringUtils.repeat("~", MJB_VERSION.length()));
         LOG.info("http://code.google.com/p/moviejukebox/");
         LOG.info("Copyright (c) 2004-2013 YAMJ Members");
         LOG.info("");
@@ -216,12 +216,12 @@ public class MovieJukebox {
         LOG.info("");
 
         // Print the revision information if it was populated
-        if (mjbRevision.equals("0000")) {
+        if (MJB_REVISION.equals("0000")) {
             LOG.info("     Revision: *Custom Build*");
         } else {
-            LOG.info("     Revision: r" + mjbRevision);
+            LOG.info("     Revision: r" + MJB_REVISION);
         }
-        LOG.info("   Build Date: " + mjbBuildDate);
+        LOG.info("   Build Date: " + MJB_BUILD_DATE);
         LOG.info("");
 
         LOG.info(" Java Version: " + java.lang.System.getProperties().getProperty("java.version"));
@@ -366,7 +366,7 @@ public class MovieJukebox {
             }
             StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("photo.scanner.photoExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
             while (st.hasMoreTokens()) {
-                photoExtensions.add(st.nextToken());
+                PHOTO_EXTENSIONS.add(st.nextToken());
             }
         }
 
@@ -493,7 +493,7 @@ public class MovieJukebox {
      * @param logFilename
      */
     private static void renameLogFile() {
-        StringBuilder newLogFilename = new StringBuilder(logFilename);    // Use the base log filename
+        StringBuilder newLogFilename = new StringBuilder(LOG_FILENAME);    // Use the base log filename
         boolean renameFile = Boolean.FALSE;
 
         String libraryName = "_Library";
@@ -526,7 +526,7 @@ public class MovieJukebox {
 
         if (renameFile) {
             // File (or directory) with old name
-            File oldLogFile = new File(logFilename + ".log");
+            File oldLogFile = new File(LOG_FILENAME + ".log");
 
             // File with new name
             File newLogFile = new File(newLogFilename.toString() + ".log");
@@ -542,7 +542,7 @@ public class MovieJukebox {
             }
 
             // First we need to tell Log4J to change the name of the current log file to something else so it unlocks the file
-            System.setProperty("file.name", PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp") + File.separator + logFilename + ".tmp");
+            System.setProperty("file.name", PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp") + File.separator + LOG_FILENAME + ".tmp");
             PropertyConfigurator.configure("properties/log4j.properties");
 
             // Rename file (or directory)
@@ -551,7 +551,7 @@ public class MovieJukebox {
             }
 
             // Try and rename the ERROR file too.
-            oldLogFile = new File(logFilename + ".ERROR.log");
+            oldLogFile = new File(LOG_FILENAME + ".ERROR.log");
             if (oldLogFile.length() > 0) {
                 newLogFile = new File(newLogFilename.toString() + ".ERROR.log");
                 if (!oldLogFile.renameTo(newLogFile)) {
@@ -593,7 +593,7 @@ public class MovieJukebox {
 
     private static boolean isExcluded(File file) {
 
-        for (String string : excluded) {
+        for (String string : EXCLUDED) {
             if (file.getName().endsWith(string)) {
                 return Boolean.TRUE;
             }
@@ -713,12 +713,12 @@ public class MovieJukebox {
 
         footerCount = PropertiesUtil.getIntProperty("mjb.footer.count", 0);
         for (int i = 0; i < MovieJukebox.footerCount; i++) {
-            footerEnable.add(PropertiesUtil.getBooleanProperty("mjb.footer." + i + ".enable", Boolean.FALSE));
+            FOOTER_ENABLE.add(PropertiesUtil.getBooleanProperty("mjb.footer." + i + ".enable", Boolean.FALSE));
             String fName = getProperty("mjb.footer." + i + ".name", "footer." + i);
-            footerName.add(fName);
-            footerWidth.add(PropertiesUtil.getIntProperty(fName + ".width", 400));
-            footerHeight.add(PropertiesUtil.getIntProperty(fName + ".height", 80));
-            footerExtension.add(getProperty(fName + ".format", EXT_PNG));
+            FOOTER_NAME.add(fName);
+            FOOTER_WIDTH.add(PropertiesUtil.getIntProperty(fName + ".width", 400));
+            FOOTER_HEIGHT.add(PropertiesUtil.getIntProperty(fName + ".height", 80));
+            FOOTER_EXTENSION.add(getProperty(fName + ".format", EXT_PNG));
         }
 
         trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", Boolean.TRUE);
@@ -778,21 +778,21 @@ public class MovieJukebox {
          */
         class ToolSet {
 
-            private MovieImagePlugin imagePlugin = MovieJukebox.getImagePlugin(getProperty("mjb.image.plugin", "com.moviejukebox.plugin.DefaultImagePlugin"));
-            private MovieImagePlugin backgroundPlugin = MovieJukebox.getBackgroundPlugin(getProperty("mjb.background.plugin", "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
-            private MediaInfoScanner miScanner = new MediaInfoScanner();
-            private OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
-            private RottenTomatoesPlugin rtPlugin = new RottenTomatoesPlugin();
-            private TrailerScanner trailerScanner = new TrailerScanner();
+            private final MovieImagePlugin imagePlugin = MovieJukebox.getImagePlugin(getProperty("mjb.image.plugin", "com.moviejukebox.plugin.DefaultImagePlugin"));
+            private final MovieImagePlugin backgroundPlugin = MovieJukebox.getBackgroundPlugin(getProperty("mjb.background.plugin", "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
+            private final MediaInfoScanner miScanner = new MediaInfoScanner();
+            private final OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
+            private final RottenTomatoesPlugin rtPlugin = new RottenTomatoesPlugin();
+            private final TrailerScanner trailerScanner = new TrailerScanner();
             // Fanart.TV TV Artwork Scanners
-            private ArtworkScanner clearArtScanner = new FanartTvScanner(ArtworkType.ClearArt);
-            private ArtworkScanner clearLogoScanner = new FanartTvScanner(ArtworkType.ClearLogo);
-            private ArtworkScanner tvThumbScanner = new FanartTvScanner(ArtworkType.TvThumb);
-            private ArtworkScanner seasonThumbScanner = new FanartTvScanner(ArtworkType.SeasonThumb);
+            private final ArtworkScanner clearArtScanner = new FanartTvScanner(ArtworkType.ClearArt);
+            private final ArtworkScanner clearLogoScanner = new FanartTvScanner(ArtworkType.ClearLogo);
+            private final ArtworkScanner tvThumbScanner = new FanartTvScanner(ArtworkType.TvThumb);
+            private final ArtworkScanner seasonThumbScanner = new FanartTvScanner(ArtworkType.SeasonThumb);
             // Fanart.TV Movie Artwork Scanners
-            private ArtworkScanner movieArtScanner = new FanartTvScanner(ArtworkType.MovieArt);
-            private ArtworkScanner movieLogoScanner = new FanartTvScanner(ArtworkType.MovieLogo);
-            private ArtworkScanner movieDiscScanner = new FanartTvScanner(ArtworkType.MovieDisc);
+            private final ArtworkScanner movieArtScanner = new FanartTvScanner(ArtworkType.MovieArt);
+            private final ArtworkScanner movieLogoScanner = new FanartTvScanner(ArtworkType.MovieLogo);
+            private final ArtworkScanner movieDiscScanner = new FanartTvScanner(ArtworkType.MovieDisc);
         }
 
         final ThreadLocal<ToolSet> threadTools = new ThreadLocal<ToolSet>() {
@@ -857,7 +857,7 @@ public class MovieJukebox {
                 new File(jukebox.getJukeboxRootLocationDetailsFile(), ".no_photo.nmj").createNewFile();
                 FileTools.addJukeboxFile(".no_photo.nmj");
             }
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.error("Failed creating jukebox directory. Ensure this directory is read/write!");
             LOG.error(SystemTools.getStackTrace(error));
             return;
@@ -1067,7 +1067,7 @@ public class MovieJukebox {
                                 }
 
                                 for (int i = 0; i < footerCount; i++) {
-                                    if (footerEnable.get(i)) {
+                                    if (FOOTER_ENABLE.get(i)) {
                                         updateFooter(jukebox, movie, tools.imagePlugin, i, forceFooterOverwrite || movie.isDirty());
                                     }
                                 }
@@ -1460,14 +1460,14 @@ public class MovieJukebox {
 
                         // Generate footer filenames
                         for (int inx = 0; inx < footerCount; inx++) {
-                            if (footerEnable.get(inx)) {
+                            if (FOOTER_ENABLE.get(inx)) {
                                 artworkFilename = new StringBuilder(safeSetMasterBaseName);
-                                if (footerName.get(inx).contains("[")) {
+                                if (FOOTER_NAME.get(inx).contains("[")) {
                                     artworkFilename.append(footerToken).append("_").append(inx);
                                 } else {
-                                    artworkFilename.append(".").append(footerName.get(inx));
+                                    artworkFilename.append(".").append(FOOTER_NAME.get(inx));
                                 }
-                                artworkFilename.append(".").append(footerExtension.get(inx));
+                                artworkFilename.append(".").append(FOOTER_EXTENSION.get(inx));
                                 movie.setFooterFilename(artworkFilename.toString(), inx);
                             }
                         }
@@ -1536,8 +1536,8 @@ public class MovieJukebox {
                             createThumbnail(tools.imagePlugin, jukebox, SkinProperties.getSkinHome(), movie, Boolean.TRUE);
 
                             for (int inx = 0; inx < footerCount; inx++) {
-                                if (footerEnable.get(inx)) {
-                                    LOG.debug("Create/update footer for set: " + movie.getBaseName() + ", footerName: " + footerName.get(inx));
+                                if (FOOTER_ENABLE.get(inx)) {
+                                    LOG.debug("Create/update footer for set: " + movie.getBaseName() + ", footerName: " + FOOTER_NAME.get(inx));
                                     updateFooter(jukebox, movie, tools.imagePlugin, inx, Boolean.TRUE);
                                 }
                             }
@@ -2069,7 +2069,7 @@ public class MovieJukebox {
             if (isValidString(person.getPhotoFilename())) {
                 continue;
             }
-            if (FileTools.findFilenameInCache(person.getName(), photoExtensions, jukebox, "MovieJukebox: ", Boolean.TRUE, peopleFolder) != null) {
+            if (FileTools.findFilenameInCache(person.getName(), PHOTO_EXTENSIONS, jukebox, "MovieJukebox: ", Boolean.TRUE, peopleFolder) != null) {
                 person.setPhotoFilename();
                 photoFound = Boolean.TRUE;
             }
@@ -2080,14 +2080,14 @@ public class MovieJukebox {
 
         // Update footer format if needed
         for (int i = 0; i < footerCount; i++) {
-            if (footerEnable.get(i)) {
+            if (FOOTER_ENABLE.get(i)) {
                 StringBuilder sb = new StringBuilder(movie.getBaseFilename());
-                if (footerName.get(i).contains("[")) {
+                if (FOOTER_NAME.get(i).contains("[")) {
                     sb.append(footerToken).append(" ").append(i);
                 } else {
-                    sb.append(".").append(footerName.get(i));
+                    sb.append(".").append(FOOTER_NAME.get(i));
                 }
-                sb.append(".").append(footerExtension.get(i));
+                sb.append(".").append(FOOTER_EXTENSION.get(i));
                 movie.setFooterFilename(sb.toString(), i);
             }
         }
@@ -2245,9 +2245,9 @@ public class MovieJukebox {
         if (forceFooterOverwrite || (!tmpDestFile.exists() && !footerFile.exists())) {
             footerFile.getParentFile().mkdirs();
 
-            BufferedImage footerImage = GraphicTools.createBlankImage(footerWidth.get(inx), footerHeight.get(inx));
+            BufferedImage footerImage = GraphicTools.createBlankImage(FOOTER_WIDTH.get(inx), FOOTER_HEIGHT.get(inx));
             if (footerImage != null) {
-                footerImage = imagePlugin.generate(movie, footerImage, "footer" + footerName.get(inx), null);
+                footerImage = imagePlugin.generate(movie, footerImage, "footer" + FOOTER_NAME.get(inx), null);
                 GraphicTools.saveImageToDisk(footerImage, tmpDestFilename);
             }
         }
@@ -2326,91 +2326,93 @@ public class MovieJukebox {
      */
     public static void createThumbnail(MovieImagePlugin imagePlugin, Jukebox jukebox, String skinHome, Movie movie,
             boolean forceThumbnailOverwrite) {
-        try {
-            // TODO Move all temp directory code to FileTools for a cleaner method
-            // Issue 201 : we now download to local temp directory
-            String safePosterFilename = movie.getPosterFilename();
-            String safeThumbnailFilename = movie.getThumbnailFilename();
 
-            File tmpPosterFile = new File(appendToPath(jukebox.getJukeboxTempLocationDetails(), safePosterFilename));
-            File jkbPosterFile = FileTools.fileCache.getFile(appendToPath(jukebox.getJukeboxRootLocationDetails(), safePosterFilename));
-            String tmpThumbnailFile = appendToPath(jukebox.getJukeboxTempLocationDetails(), safeThumbnailFilename);
-            String jkbThumbnailFile = appendToPath(jukebox.getJukeboxRootLocationDetails(), safeThumbnailFilename);
-            File destinationFile;
+        // TODO Move all temp directory code to FileTools for a cleaner method
+        // Issue 201 : we now download to local temp directory
+        String safePosterFilename = movie.getPosterFilename();
+        String safeThumbnailFilename = movie.getThumbnailFilename();
 
-            if (movie.isDirty(DirtyFlag.POSTER)
-                    || forceThumbnailOverwrite
-                    || !FileTools.fileCache.fileExists(jkbThumbnailFile)
-                    || tmpPosterFile.exists()) {
+        File tmpPosterFile = new File(appendToPath(jukebox.getJukeboxTempLocationDetails(), safePosterFilename));
+        File jkbPosterFile = FileTools.fileCache.getFile(appendToPath(jukebox.getJukeboxRootLocationDetails(), safePosterFilename));
+        String tmpThumbnailFile = appendToPath(jukebox.getJukeboxTempLocationDetails(), safeThumbnailFilename);
+        String jkbThumbnailFile = appendToPath(jukebox.getJukeboxRootLocationDetails(), safeThumbnailFilename);
+        File destinationFile;
+
+        if (movie.isDirty(DirtyFlag.POSTER)
+                || forceThumbnailOverwrite
+                || !FileTools.fileCache.fileExists(jkbThumbnailFile)
+                || tmpPosterFile.exists()) {
                 // Issue 228: If the PNG files are deleted before running the jukebox this fails.
-                // Therefore check to see if they exist in the original directory
-                if (tmpPosterFile.exists()) {
-                    // logger.debug("Use new file: " + tmpPosterFile.getAbsolutePath());
-                    destinationFile = tmpPosterFile;
-                } else {
-                    // logger.debug("Use jukebox file: " + jkbPosterFile.getAbsolutePath());
-                    destinationFile = jkbPosterFile;
-                }
+            // Therefore check to see if they exist in the original directory
+            if (tmpPosterFile.exists()) {
+                // logger.debug("Use new file: " + tmpPosterFile.getAbsolutePath());
+                destinationFile = tmpPosterFile;
+            } else {
+                // logger.debug("Use jukebox file: " + jkbPosterFile.getAbsolutePath());
+                destinationFile = jkbPosterFile;
+            }
 
-                BufferedImage bi = null;
+            BufferedImage bi = null;
+            try {
+                bi = GraphicTools.loadJPEGImage(destinationFile);
+            } catch (IOException ex) {
+                LOG.warn("Error reading the thumbnail file: " + destinationFile.getAbsolutePath() + ", error: " + ex.getMessage());
+            } catch (ImageReadException ex) {
+                LOG.warn("Error processing the thumbnail file: " + destinationFile.getAbsolutePath() + ", error: " + ex.getMessage());
+            }
+
+            if (bi == null) {
+                LOG.info("Using dummy thumbnail image for " + movie.getBaseName());
+                // There was an error with the URL, assume it's a bad URL and clear it so we try again
+                movie.setPosterURL(Movie.UNKNOWN);
+                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + DUMMY_JPG), tmpPosterFile);
                 try {
-                    bi = GraphicTools.loadJPEGImage(destinationFile);
+                    bi = GraphicTools.loadJPEGImage(tmpPosterFile);
                 } catch (IOException ex) {
-                    LOG.warn("Error reading the thumbnail file: " + destinationFile.getAbsolutePath() + ", error: " + ex.getMessage());
-                }
-
-                if (bi == null) {
-                    LOG.info("Using dummy thumbnail image for " + movie.getBaseName());
-                    // There was an error with the URL, assume it's a bad URL and clear it so we try again
-                    movie.setPosterURL(Movie.UNKNOWN);
-                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + DUMMY_JPG), tmpPosterFile);
-                    try {
-                        bi = GraphicTools.loadJPEGImage(tmpPosterFile);
-                    } catch (Exception error) {
-                        LOG.warn("Error reading the dummy image file: " + tmpPosterFile.getAbsolutePath());
-                    }
-                }
-
-                // Perspective code.
-                String perspectiveDirection = getProperty("thumbnails.perspectiveDirection", RIGHT);
-
-                // Generate and save both images
-                if (perspectiveDirection.equalsIgnoreCase("both")) {
-                    // Calculate mirror thumbnail name.
-                    String dstMirror = tmpThumbnailFile.substring(0, tmpThumbnailFile.lastIndexOf('.')) + "_mirror" + tmpThumbnailFile.substring(tmpThumbnailFile.lastIndexOf('.'));
-
-                    // Generate left & save as copy
-                    LOG.debug("Generating mirror thumbnail from " + tmpPosterFile + SPACE_TO_SPACE + dstMirror);
-                    BufferedImage biMirror = imagePlugin.generate(movie, bi, THUMBNAILS, LEFT);
-                    GraphicTools.saveImageToDisk(biMirror, dstMirror);
-
-                    // Generate right as per normal
-                    LOG.debug("Generating right thumbnail from " + tmpPosterFile + SPACE_TO_SPACE + tmpThumbnailFile);
-                    bi = imagePlugin.generate(movie, bi, THUMBNAILS, RIGHT);
-                    GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
-                }
-
-                // Only generate the right image
-                if (perspectiveDirection.equalsIgnoreCase(RIGHT)) {
-                    bi = imagePlugin.generate(movie, bi, THUMBNAILS, RIGHT);
-
-                    // Save the right perspective image.
-                    GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
-                    LOG.debug("Generating right thumbnail from " + tmpPosterFile + SPACE_TO_SPACE + tmpThumbnailFile);
-                }
-
-                // Only generate the left image
-                if (perspectiveDirection.equalsIgnoreCase(LEFT)) {
-                    bi = imagePlugin.generate(movie, bi, THUMBNAILS, LEFT);
-
-                    // Save the right perspective image.
-                    GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
-                    LOG.debug("Generating left thumbnail from " + tmpPosterFile + SPACE_TO_SPACE + tmpThumbnailFile);
+                    LOG.warn("Error reading the dummy file: " + tmpPosterFile.getAbsolutePath());
+                    LOG.warn("Error: " + ex.getMessage());
+                } catch (ImageReadException ex) {
+                    LOG.warn("Error reading the dummy image file: " + tmpPosterFile.getAbsolutePath());
+                    LOG.warn("Error: " + ex.getMessage());
                 }
             }
-        } catch (Exception error) {
-            LOG.error("Failed creating thumbnail for " + movie.getOriginalTitle());
-            LOG.error(SystemTools.getStackTrace(error));
+
+            // Perspective code.
+            String perspectiveDirection = getProperty("thumbnails.perspectiveDirection", RIGHT);
+
+            // Generate and save both images
+            if (perspectiveDirection.equalsIgnoreCase("both")) {
+                // Calculate mirror thumbnail name.
+                String dstMirror = tmpThumbnailFile.substring(0, tmpThumbnailFile.lastIndexOf('.')) + "_mirror" + tmpThumbnailFile.substring(tmpThumbnailFile.lastIndexOf('.'));
+
+                // Generate left & save as copy
+                LOG.debug("Generating mirror thumbnail from " + tmpPosterFile + SPACE_TO_SPACE + dstMirror);
+                BufferedImage biMirror = imagePlugin.generate(movie, bi, THUMBNAILS, LEFT);
+                GraphicTools.saveImageToDisk(biMirror, dstMirror);
+
+                // Generate right as per normal
+                LOG.debug("Generating right thumbnail from " + tmpPosterFile + SPACE_TO_SPACE + tmpThumbnailFile);
+                bi = imagePlugin.generate(movie, bi, THUMBNAILS, RIGHT);
+                GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
+            }
+
+            // Only generate the right image
+            if (perspectiveDirection.equalsIgnoreCase(RIGHT)) {
+                bi = imagePlugin.generate(movie, bi, THUMBNAILS, RIGHT);
+
+                // Save the right perspective image.
+                GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
+                LOG.debug("Generating right thumbnail from " + tmpPosterFile + SPACE_TO_SPACE + tmpThumbnailFile);
+            }
+
+            // Only generate the left image
+            if (perspectiveDirection.equalsIgnoreCase(LEFT)) {
+                bi = imagePlugin.generate(movie, bi, THUMBNAILS, LEFT);
+
+                // Save the right perspective image.
+                GraphicTools.saveImageToDisk(bi, tmpThumbnailFile);
+                LOG.debug("Generating left thumbnail from " + tmpPosterFile + SPACE_TO_SPACE + tmpThumbnailFile);
+            }
         }
     }
 

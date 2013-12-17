@@ -234,11 +234,11 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
 
                     String sType;
                     if (movie.isExtra()) {
-                        sType = typeExtra;
+                        sType = TYPE_EXTRA;
                     } else if (movie.isTVShow()) {
-                        sType = typeTVShow;
+                        sType = TYPE_TV_SHOW;
                     } else {
-                        sType = typeMovie;
+                        sType = TYPE_MOVIE;
                     }
 
                     if (null != sType && alTypes.contains(sType)) {
@@ -250,11 +250,11 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                     for (Movie movie : library.values()) {
                         String sType;
                         if (movie.isExtra()) {
-                            sType = typeExtra;
+                            sType = TYPE_EXTRA;
                         } else if (movie.isTVShow()) {
-                            sType = typeTVShow;
+                            sType = TYPE_TV_SHOW;
                         } else {
-                            sType = typeMovie;
+                            sType = TYPE_MOVIE;
                         }
 
                         if (null != sType && thisType.equalsIgnoreCase(sType)) {

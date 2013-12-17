@@ -55,12 +55,12 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private static final String LOG_MESSAGE = "TheTVDBPlugin: ";
     public static final String THETVDB_PLUGIN_ID = "thetvdb";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
-    private static final String webhost = "thetvdb.com";
-    private static final String defaultLanguage = "en";
+    private static final String WEBHOST = "thetvdb.com";
+    private static final String LANGUAGE_DEFAULT = "en";
     public static final String CACHE_SERIES = "Series";
     public static final String CACHE_BANNERS = "Banners";
     private static final TheTVDBApi TVDB = new TheTVDBApi(API_KEY);
-    private static final String LANGUAGE_PRIMARY = PropertiesUtil.getProperty("thetvdb.language", defaultLanguage).trim();
+    private static final String LANGUAGE_PRIMARY = PropertiesUtil.getProperty("thetvdb.language", LANGUAGE_DEFAULT).trim();
     private static final String LANGUAGE_SECONDARY = initLanguage2();
     private final boolean forceBannerOverwrite;
     private final boolean forceFanartOverwrite;
@@ -92,7 +92,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
     }
 
     private static String initLanguage2() {
-        String lang = PropertiesUtil.getProperty("thetvdb.language.secondary", defaultLanguage).trim();
+        String lang = PropertiesUtil.getProperty("thetvdb.language.secondary", LANGUAGE_DEFAULT).trim();
         // We do not need use the same secondary language... So clearing when equal.
         if (lang.equalsIgnoreCase(LANGUAGE_PRIMARY)) {
             lang = "";
@@ -125,7 +125,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 if (OverrideTools.checkOverwriteYear(movie, THETVDB_PLUGIN_ID)) {
                     String year = Movie.UNKNOWN;
 
-                    ThreadExecutor.enterIO(webhost);
+                    ThreadExecutor.enterIO(WEBHOST);
                     try {
                         year = TVDB.getSeasonYear(id, movie.getSeason(), LANGUAGE_PRIMARY);
                         if (StringTools.isNotValidString(year) && StringTools.isValidString(LANGUAGE_SECONDARY)) {
@@ -274,7 +274,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         List<Episode> episodeList = null;
         List<Episode> episodeList2ndLanguage = null;
 
-        ThreadExecutor.enterIO(webhost);
+        ThreadExecutor.enterIO(WEBHOST);
         try {
             episodeList = TVDB.getSeasonEpisodes(id, (dvdEpisodes ? -1 : movie.getSeason()), LANGUAGE_PRIMARY);
 
@@ -522,7 +522,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
         if (series == null) {
             // Not found in cache, so look online
-            ThreadExecutor.enterIO(webhost);
+            ThreadExecutor.enterIO(WEBHOST);
             try {
                 series = TVDB.getSeries(id, LANGUAGE_PRIMARY);
                 if (series != null) {
@@ -563,7 +563,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         if (StringTools.isNotValidString(id)) {
             List<Series> seriesList = null;
 
-            ThreadExecutor.enterIO(webhost);
+            ThreadExecutor.enterIO(WEBHOST);
             try {
                 if (!movie.getTitle().equals(Movie.UNKNOWN)) {
                     seriesList = TVDB.searchSeries(movie.getTitle(), LANGUAGE_PRIMARY);
@@ -641,7 +641,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         Banners banners = (Banners) CacheMemory.getFromCache(CacheMemory.generateCacheKey(CACHE_BANNERS, id, LANGUAGE_PRIMARY));
 
         if (banners == null) {
-            ThreadExecutor.enterIO(webhost);
+            ThreadExecutor.enterIO(WEBHOST);
             try {
                 banners = TVDB.getBanners(id);
                 CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_BANNERS, id, LANGUAGE_PRIMARY), banners);

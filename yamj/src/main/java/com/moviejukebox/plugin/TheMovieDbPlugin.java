@@ -68,7 +68,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private static final String LOG_MESSAGE = "TheMovieDbPlugin: ";
     public static final String TMDB_PLUGIN_ID = "themoviedb";
     public static final String IMDB_PLUGIN_ID = "imdb";
-    private static final String webhost = "themoviedb.org";
+    private static final String WEBHOST = "themoviedb.org";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
     private TheMovieDbApi TMDb;
     private String languageCode;
@@ -166,7 +166,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         MovieDb moviedb = null;
         boolean retval = false;
 
-        ThreadExecutor.enterIO(webhost);
+        ThreadExecutor.enterIO(WEBHOST);
         try {
             // First look to see if we have a TMDb ID as this will make looking the film up easier
             if (StringTools.isValidString(tmdbID)) {
@@ -775,7 +775,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
         if (collInfo == null) {
             // Not found in cache, so look online
-            ThreadExecutor.enterIO(webhost);
+            ThreadExecutor.enterIO(WEBHOST);
             try {
                 collInfo = TMDb.getCollectionInfo(collectionId, languageCode);
                 if (collInfo != null) {
@@ -865,7 +865,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         List<Artwork> results = (ArrayList<Artwork>) CacheMemory.getFromCache(cacheKey);
 
         if (results == null) {
-            ThreadExecutor.enterIO(webhost);
+            ThreadExecutor.enterIO(WEBHOST);
             try {
                 // Pass the language as null so that we get all images returned, even those without a language.
                 TmdbResultsList<Artwork> collResults = TMDb.getCollectionImages(collectionId, null);

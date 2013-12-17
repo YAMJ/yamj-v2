@@ -64,7 +64,7 @@ public final class PropertiesUtil {
      * String representing FALSE
      */
     public static final String FALSE = "false";
-    private static final Properties props = new Properties();
+    private static final Properties PROPS = new Properties();
 
     private PropertiesUtil() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
@@ -98,7 +98,7 @@ public final class PropertiesUtil {
             }
 
             reader = new InputStreamReader(propertiesStream, PROPERTIES_CHARSET);
-            props.load(reader);
+            PROPS.load(reader);
         } catch (IOException error) {
             // Output a warning if required.
             if (warnFatal) {
@@ -134,7 +134,7 @@ public final class PropertiesUtil {
      * @return the value if found, otherwise null
      */
     public static String getProperty(String key) {
-        return props.getProperty(key);
+        return PROPS.getProperty(key);
     }
 
     /**
@@ -145,7 +145,7 @@ public final class PropertiesUtil {
      * @return the value if found, otherwise the default value
      */
     public static String getProperty(String key, String defaultValue) {
-        return props.getProperty(key, defaultValue);
+        return PROPS.getProperty(key, defaultValue);
     }
 
     /**
@@ -156,7 +156,7 @@ public final class PropertiesUtil {
      * @return
      */
     public static boolean getBooleanProperty(String key, boolean defaultValue) {
-        return convertBooleanProperty(key, props.getProperty(key), defaultValue);
+        return convertBooleanProperty(key, PROPS.getProperty(key), defaultValue);
     }
 
     /**
@@ -167,7 +167,7 @@ public final class PropertiesUtil {
      * @return
      */
     public static int getIntProperty(String key, int defaultValue) {
-        return convertIntegerProperty(key, props.getProperty(key), defaultValue);
+        return convertIntegerProperty(key, PROPS.getProperty(key), defaultValue);
     }
 
     /**
@@ -178,7 +178,7 @@ public final class PropertiesUtil {
      * @return
      */
     public static long getLongProperty(String key, long defaultValue) {
-        return convertLongProperty(key, props.getProperty(key), defaultValue);
+        return convertLongProperty(key, PROPS.getProperty(key), defaultValue);
     }
 
     /**
@@ -189,7 +189,7 @@ public final class PropertiesUtil {
      * @return
      */
     public static float getFloatProperty(String key, float defaultValue) {
-        return convertFloatProperty(key, props.getProperty(key), defaultValue);
+        return convertFloatProperty(key, PROPS.getProperty(key), defaultValue);
     }
 
     /**
@@ -274,8 +274,8 @@ public final class PropertiesUtil {
      * @return
      */
     private static String getReplacedKeyValue(String newKey, String oldKey) {
-        String oldProperty = StringUtils.trimToNull(props.getProperty(oldKey));
-        String newProperty = StringUtils.trimToNull(props.getProperty(newKey));
+        String oldProperty = StringUtils.trimToNull(PROPS.getProperty(oldKey));
+        String newProperty = StringUtils.trimToNull(PROPS.getProperty(newKey));
         String returnValue;
 
         if (newProperty == null && oldProperty != null) {
@@ -390,7 +390,7 @@ public final class PropertiesUtil {
     public static Set<Entry<Object, Object>> getEntrySet() {
         // Issue 728
         // Shamelessly adapted from: http://stackoverflow.com/questions/54295/how-to-write-java-util-properties-to-xml-with-sorted-keys
-        return new TreeMap<Object, Object>(props).entrySet();
+        return new TreeMap<Object, Object>(PROPS).entrySet();
     }
 
     /**
@@ -400,7 +400,7 @@ public final class PropertiesUtil {
      * @param value
      */
     public static void setProperty(String key, String value) {
-        props.setProperty(key, value);
+        PROPS.setProperty(key, value);
     }
 
     /**
@@ -410,7 +410,7 @@ public final class PropertiesUtil {
      * @param value
      */
     public static void setProperty(String key, boolean value) {
-        props.setProperty(key, Boolean.toString(value));
+        PROPS.setProperty(key, Boolean.toString(value));
     }
 
     /**
@@ -420,7 +420,7 @@ public final class PropertiesUtil {
      * @param value
      */
     public static void setProperty(String key, int value) {
-        props.setProperty(key, Integer.toString(value));
+        PROPS.setProperty(key, Integer.toString(value));
     }
 
     /**
@@ -430,7 +430,7 @@ public final class PropertiesUtil {
      * @param value
      */
     public static void setProperty(String key, long value) {
-        props.setProperty(key, Long.toString(value));
+        PROPS.setProperty(key, Long.toString(value));
     }
 
     /**
@@ -490,7 +490,7 @@ public final class PropertiesUtil {
 
         // Save the properties in order
         List<String> propertiesList = new ArrayList<String>();
-        for (Object propertyObject : props.keySet()) {
+        for (Object propertyObject : PROPS.keySet()) {
             propertiesList.add((String) propertyObject);
         }
         // Sort the properties

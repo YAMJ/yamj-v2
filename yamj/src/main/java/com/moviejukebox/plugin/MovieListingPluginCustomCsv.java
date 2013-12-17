@@ -368,11 +368,11 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
 
                     String sType;
                     if (movie.isExtra()) {
-                        sType = typeExtra;
+                        sType = TYPE_EXTRA;
                     } else if (movie.isTVShow()) {
-                        sType = typeTVShow;
+                        sType = TYPE_TV_SHOW;
                     } else {
-                        sType = typeMovie;
+                        sType = TYPE_MOVIE;
                     }
 
                     if (null != sType && alTypes.contains(sType)) {
@@ -384,11 +384,11 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                     for (Movie movie : library.values()) {
                         String sType;
                         if (movie.isExtra()) {
-                            sType = typeExtra;
+                            sType = TYPE_EXTRA;
                         } else if (movie.isTVShow()) {
-                            sType = typeTVShow;
+                            sType = TYPE_TV_SHOW;
                         } else {
-                            sType = typeMovie;
+                            sType = TYPE_MOVIE;
                         }
 
                         if (null != sType && thisType.equalsIgnoreCase(sType)) {

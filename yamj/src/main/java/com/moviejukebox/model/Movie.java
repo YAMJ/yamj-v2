@@ -104,7 +104,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private final String tmpRatingIgnore = PropertiesUtil.getProperty("mjb.rating.ignore", "");
     private final List<String> ratingIgnore = StringTools.isValidString(tmpRatingIgnore) ? Arrays.asList(tmpRatingIgnore.split(",")) : new ArrayList<String>();
     private static final Set<String> GENRE_SKIP_LIST = new HashSet<String>();   // List of genres to ignore
-    private static final TitleSortType titleSortType = TitleSortType.fromString(PropertiesUtil.getProperty("mjb.sortTitle", "title"));
+    private static final TitleSortType TITLE_SORT_TYPE = TitleSortType.fromString(PropertiesUtil.getProperty("mjb.sortTitle", "title"));
     // TODO: This will be removed in the future, once hashing has been completed
     private static final Boolean DIR_HASH = PropertiesUtil.getBooleanProperty("mjb.dirHash", Boolean.FALSE);
     // checks
@@ -872,13 +872,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
 
         // There are three choices for the sort title: title, original, filename
-        if (titleSortType == TitleSortType.TITLE) {
+        if (TITLE_SORT_TYPE == TitleSortType.TITLE) {
             // Set the title sort (so this is only done once)
             setTitleSort(title);
-        } else if (titleSortType == TitleSortType.FILENAME) {
+        } else if (TITLE_SORT_TYPE == TitleSortType.FILENAME) {
             // Set the title sort (so this is only done once)
             setTitleSort(baseName);
-        } else if ((titleSortType == TitleSortType.ORIGINAL || titleSortType == TitleSortType.ADOPT_ORIGINAL) && StringTools.isValidString(originalTitle)) {
+        } else if ((TITLE_SORT_TYPE == TitleSortType.ORIGINAL || TITLE_SORT_TYPE == TitleSortType.ADOPT_ORIGINAL) && StringTools.isValidString(originalTitle)) {
             // Set the title sort (so this is only done once)
             setTitleSort(originalTitle);
         }

@@ -81,9 +81,9 @@ public class MovieListingPluginBase implements MovieListingPlugin {
     protected List<String> getSelectedTypes() {
         List<String> alResult = new ArrayList<String>();
 
-        String types = PropertiesUtil.getProperty("mjb.listing.types", typeAll).trim();
-        if (typeAll.equalsIgnoreCase(types)) {
-            types = typeMovie + "," + typeExtra + "," + typeTVShow;
+        String types = PropertiesUtil.getProperty("mjb.listing.types", TYPE_ALL).trim();
+        if (TYPE_ALL.equalsIgnoreCase(types)) {
+            types = TYPE_MOVIE + "," + TYPE_EXTRA + "," + TYPE_TV_SHOW;
         }
 
         //break into a list
@@ -92,8 +92,8 @@ public class MovieListingPluginBase implements MovieListingPlugin {
             String token = tokenizer.nextToken().trim();
 
             //easy to skip space
-            if (typeTVShowNoSpace.equalsIgnoreCase(token)) {
-                token = typeTVShow;
+            if (TYPE_TVSHOW.equalsIgnoreCase(token)) {
+                token = TYPE_TV_SHOW;
             }
             alResult.add(token);
         }

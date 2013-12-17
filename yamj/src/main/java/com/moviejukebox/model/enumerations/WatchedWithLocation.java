@@ -35,20 +35,20 @@ public enum WatchedWithLocation {
     /*
      * Watched file is stored with the video
      */
-    withVideo,
+    WITHVIDEO,
     /*
      * Watched file is stored with the jukebox
      */
-    withJukebox,
+    WITHJUKEBOX,
     /*
      * Watched files are stored elsewhere
      */
-    custom;
+    CUSTOM;
 
     /**
      * Convert a string into an Enum type
      *
-     * @param artworkType
+     * @param location
      * @return
      * @throws IllegalArgumentException If type is not recognised
      *
@@ -61,7 +61,7 @@ public enum WatchedWithLocation {
                 }
             }
         }
-        // We've not found the type, so reutrn custom
-        return custom;
+        // We've not found the type, so reutrn CUSTOM
+        return CUSTOM;
     }
 }

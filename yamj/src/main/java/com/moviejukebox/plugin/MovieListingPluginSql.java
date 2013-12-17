@@ -24,7 +24,18 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.mjbsqldb.DatabaseWriter;
 import com.moviejukebox.mjbsqldb.MjbSqlDb;
-import com.moviejukebox.mjbsqldb.dto.*;
+import com.moviejukebox.mjbsqldb.dto.ArtworkDTO;
+import com.moviejukebox.mjbsqldb.dto.CertificationDTO;
+import com.moviejukebox.mjbsqldb.dto.CodecDTO;
+import com.moviejukebox.mjbsqldb.dto.CompanyDTO;
+import com.moviejukebox.mjbsqldb.dto.CountryDTO;
+import com.moviejukebox.mjbsqldb.dto.GenreDTO;
+import com.moviejukebox.mjbsqldb.dto.LanguageDTO;
+import com.moviejukebox.mjbsqldb.dto.PersonDTO;
+import com.moviejukebox.mjbsqldb.dto.VideoDTO;
+import com.moviejukebox.mjbsqldb.dto.VideoFileDTO;
+import com.moviejukebox.mjbsqldb.dto.VideoFilePartDTO;
+import com.moviejukebox.mjbsqldb.dto.VideoSiteDTO;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
@@ -45,15 +56,15 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
 
     private static final Logger LOG = Logger.getLogger(MovieListingPluginSql.class);
     private static final String LOG_MESSAGE = "MovieListingPluginSql: ";
-    private static final String dbLocation = PropertiesUtil.getProperty("mjb.sql.location", "./");
-    private static final String dbName = PropertiesUtil.getProperty("mjb.sql.dbname", "listing.db");
+    private static final String DB_LOCATION = PropertiesUtil.getProperty("mjb.sql.location", "./");
+    private static final String DB_NAME = PropertiesUtil.getProperty("mjb.sql.dbname", "listing.db");
     private Connection mjbConn = null;
 
     @Override
     public void generate(Jukebox jukebox, Library library) {
         MjbSqlDb mjbSqlDb;
         try {
-            mjbSqlDb = new MjbSqlDb(dbLocation, dbName);
+            mjbSqlDb = new MjbSqlDb(DB_LOCATION, DB_NAME);
         } catch (SQLException ex) {
             LOG.error(LOG_MESSAGE + "Failed to generate the listing: " + ex.getMessage());
             return;

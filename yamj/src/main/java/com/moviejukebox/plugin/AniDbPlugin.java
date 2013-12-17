@@ -120,7 +120,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private static String anidbPassword;
     private static boolean hash;
     private boolean getAdditionalInformationFromTheTvDB = false;
-    private static final HashMap<String, Movie> mainSeriesMovieObjects;
+    private static final HashMap<String, Movie> MAIN_SERIES_MOVIES;
     private static final int TABLE_VERSION = 1;
     private Dao<AnidbLocalFile, String> localFileDao;
     private Dao<AnidbFile, String> anidbFileDao;
@@ -140,7 +140,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private static Boolean loadedTvdbMappings = false;
 
     static {
-        mainSeriesMovieObjects = new HashMap<String, Movie>();
+        MAIN_SERIES_MOVIES = new HashMap<String, Movie>();
     }
 
     public AniDbPlugin() {
@@ -488,9 +488,9 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             season = 0;
         }
 
-        synchronized (mainSeriesMovieObjects) {
-            if (mainSeriesMovieObjects.containsKey(generateHashmapKey(movie))) {
-                final Movie main = mainSeriesMovieObjects.get(generateHashmapKey(movie));
+        synchronized (MAIN_SERIES_MOVIES) {
+            if (MAIN_SERIES_MOVIES.containsKey(generateHashmapKey(movie))) {
+                final Movie main = MAIN_SERIES_MOVIES.get(generateHashmapKey(movie));
                 final MovieFile mf = movie.getMovieFiles().iterator().next();
                 if (movie.getMovieFiles().size() > 1) {
                     LOG.error(LOG_MESSAGE + "Discarding a movie object with more than one movie file. This will most likely cause files to be missing from the jukebox");
@@ -502,7 +502,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 movie.setMovieType(Movie.REMOVE);
                 return false;
             } else {
-                mainSeriesMovieObjects.put(generateHashmapKey(movie), movie);
+                MAIN_SERIES_MOVIES.put(generateHashmapKey(movie), movie);
             }
         }
 

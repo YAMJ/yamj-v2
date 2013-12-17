@@ -94,7 +94,7 @@ public class MovieJukeboxXMLWriter {
     // Literals
     public static final String EXT_XML = ".xml";
     public static final String EXT_HTML = ".html";
-    public static final String evFileSuffix = "_small";   // String to append to the eversion categories file if needed
+    public static final String EV_FILE_SUFFIX = "_small";   // String to append to the eversion categories file if needed
     public static final String WON = "won";
     public static final String MOVIE = "movie";
     public static final String MOVIEDB = "moviedb";
@@ -370,7 +370,7 @@ public class MovieJukeboxXMLWriter {
             if (Library.INDEX_CATEGORIES.equals(filename)) {
                 LOG.debug("Writing non-movie categories file...");
                 // Create the eversion filename
-                File xmlEvFile = new File(jukebox.getJukeboxTempLocationDetailsFile(), filename + evFileSuffix + EXT_XML);
+                File xmlEvFile = new File(jukebox.getJukeboxTempLocationDetailsFile(), filename + EV_FILE_SUFFIX + EXT_XML);
                 // Add the eversion file to the cleanup list
                 FileTools.addJukeboxFile(xmlEvFile.getName());
 
