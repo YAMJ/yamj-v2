@@ -23,7 +23,9 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
-import static com.moviejukebox.tools.HTMLTools.*;
+import static com.moviejukebox.tools.HTMLTools.extractTag;
+import static com.moviejukebox.tools.HTMLTools.extractTags;
+import static com.moviejukebox.tools.HTMLTools.removeHtmlTags;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -41,8 +43,8 @@ public class ScopeDkPlugin extends ImdbPlugin {
     public static final String SCOPEDK_PLUGIN_ID = "scopedk";
     private static final Logger LOG = Logger.getLogger(ScopeDkPlugin.class);
     private static final String LOG_MESSAGE = "ScopeDkPlugin: ";
-    private static final Pattern patternScopeDkIp = Pattern.compile("^(.*)(http://www.scope.dk/film/)([0-9]+)(.*)");
-    private static final Pattern patternScopeDkIpMovidedb = Pattern.compile("^(.*)(<id moviedb=\"scopedk\")>([0-9]+)(</id>.*)");
+    private static final Pattern PATTERN_ID = Pattern.compile("^(.*)(http://www.scope.dk/film/)([0-9]+)(.*)");
+    private static final Pattern PATTERN_ID_MOVIEDB = Pattern.compile("^(.*)(<id moviedb=\"scopedk\")>([0-9]+)(</id>.*)");
 
     public ScopeDkPlugin() {
         super();
@@ -180,9 +182,9 @@ public class ScopeDkPlugin extends ImdbPlugin {
 
         // If we use Scope.dk plugIn look for
         // http://www.scope.dk/...=XXXXX.html
-        Matcher idMatcher = patternScopeDkIp.matcher(nfo);
+        Matcher idMatcher = PATTERN_ID.matcher(nfo);
         if (!idMatcher.matches()) {
-            idMatcher = patternScopeDkIpMovidedb.matcher(nfo);
+            idMatcher = PATTERN_ID_MOVIEDB.matcher(nfo);
         }
         if (idMatcher.matches()) {
             String idMovie = idMatcher.group(3);

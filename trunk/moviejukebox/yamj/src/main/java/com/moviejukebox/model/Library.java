@@ -72,7 +72,7 @@ public class Library implements Map<String, Movie> {
     // Library values
     private final Collection<IndexInfo> generatedIndexes = Collections.synchronizedCollection(new ArrayList<IndexInfo>());
     private static boolean filterGenres;
-    private static final boolean filterCertificationn;
+    private static final boolean FILTER_CERTIFICAION;
     private static boolean singleSeriesPage;
     private static final List<String> CERTIFICATION_ORDERING = new ArrayList<String>();
     private static final List<String> LIBRARY_ORDERING = new ArrayList<String>();
@@ -195,7 +195,7 @@ public class Library implements Map<String, Movie> {
         filterGenres = PropertiesUtil.getBooleanProperty("mjb.filter.genres", Boolean.FALSE);
         fillGenreMap(PropertiesUtil.getProperty("mjb.xmlGenreFile", "genres-default.xml"));
 
-        filterCertificationn = PropertiesUtil.getBooleanProperty("mjb.filter.certification", Boolean.FALSE);
+        FILTER_CERTIFICAION = PropertiesUtil.getBooleanProperty("mjb.filter.certification", Boolean.FALSE);
         fillCertificationMap(PropertiesUtil.getProperty("mjb.xmlCertificationFile", "certification-default.xml"));
 
         maxGenresPerMovie = PropertiesUtil.getIntProperty("genres.max", 3);
@@ -1400,7 +1400,7 @@ public class Library implements Map<String, Movie> {
      * @return Certification itself or master if available.
      */
     public static String getIndexingCertification(String certification) {
-        if (!filterCertificationn) {
+        if (!FILTER_CERTIFICAION) {
             return certification;
         }
 

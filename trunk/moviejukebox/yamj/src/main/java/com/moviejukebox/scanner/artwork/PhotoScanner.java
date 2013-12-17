@@ -33,11 +33,13 @@ import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.StringTools;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
+import org.apache.sanselan.ImageReadException;
 
 /**
  * Scanner for photo files in local directory
@@ -49,10 +51,10 @@ public final class PhotoScanner {
 
     private static final Logger LOG = Logger.getLogger(PhotoScanner.class);
     private static final String LOG_MESSAGE = "PhotoScanner: ";
-    private static final Collection<String> photoExtensions = setPhotoExtensions(PropertiesUtil.getProperty("photo.scanner.photoExtensions", "jpg,jpeg,gif,bmp,png"));
-    private static boolean photoOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", Boolean.FALSE);
-    private static String skinHome = SkinProperties.getSkinHome();
-    private static String peopleFolder = setPeopleFolder(PropertiesUtil.getProperty("mjb.people.folder", ""));
+    private static final Collection<String> EXTENSIONS = setPhotoExtensions(PropertiesUtil.getProperty("photo.scanner.photoExtensions", "jpg,jpeg,gif,bmp,png"));
+    private static final boolean OVERWRITE = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", Boolean.FALSE);
+    private static final String SKIN_HOME = SkinProperties.getSkinHome();
+    private static final String PEOPLE_FOLDER = setPeopleFolder(PropertiesUtil.getProperty("mjb.people.folder", ""));
 
     private PhotoScanner() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
@@ -95,9 +97,9 @@ public final class PhotoScanner {
      * Scan for local photo and download if necessary
      *
      * @param imagePlugin
-     * @param jukeboxDetailsRoot
-     * @param tempJukeboxDetailsRoot
+     * @param jukebox
      * @param person
+     * @return
      */
     public static boolean scan(MovieImagePlugin imagePlugin, Jukebox jukebox, Person person) {
         String localPhotoBaseFilename = person.getFilename();
@@ -105,7 +107,7 @@ public final class PhotoScanner {
         boolean foundLocalPhoto = false;
 
         // Try searching the fileCache for the filename.
-        localPhotoFile = FileTools.findFilenameInCache(localPhotoBaseFilename, photoExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
+        localPhotoFile = FileTools.findFilenameInCache(localPhotoBaseFilename, EXTENSIONS, jukebox, LOG_MESSAGE, Boolean.TRUE);
         if (localPhotoFile != null) {
             foundLocalPhoto = true;
         }
@@ -128,11 +130,11 @@ public final class PhotoScanner {
         String prevPhotoFilename = person.getPhotoFilename();
         person.setPhotoFilename();
         String safePhotoFilename = person.getPhotoFilename();
-        String photoFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + safePhotoFilename;
+        String photoFilename = jukebox.getJukeboxRootLocationDetails() + File.separator + PEOPLE_FOLDER + safePhotoFilename;
         File photoFile = FileTools.fileCache.getFile(photoFilename);
-        String tmpDestFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + peopleFolder + safePhotoFilename;
+        String tmpDestFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + PEOPLE_FOLDER + safePhotoFilename;
         File tmpDestFile = new File(tmpDestFileName);
-        String dummyFileName = skinHome + File.separator + "resources" + File.separator + "dummy_photo.jpg";
+        String dummyFileName = SKIN_HOME + File.separator + "resources" + File.separator + "dummy_photo.jpg";
         File dummyFile = new File(dummyFileName);
         photoFile.getParentFile().mkdirs();
         tmpDestFile.getParentFile().mkdirs();
@@ -140,7 +142,7 @@ public final class PhotoScanner {
         if (StringTools.isValidString(person.getPhotoURL())) {
 
             // Do not overwrite existing photo unless ForcePhotoOverwrite = true
-            if (photoOverwrite || person.isDirtyPhoto() || (!photoFile.exists() && !tmpDestFile.exists())) {
+            if (OVERWRITE || person.isDirtyPhoto() || (!photoFile.exists() && !tmpDestFile.exists())) {
                 try {
                     LOG.debug(LOG_MESSAGE + "Downloading photo for " + person.getName() + " to " + tmpDestFileName + " [calling plugin]");
 
@@ -156,14 +158,17 @@ public final class PhotoScanner {
                         person.setPhotoFilename(Movie.UNKNOWN);
                         person.setPhotoURL(Movie.UNKNOWN);
                     }
-                } catch (Exception error) {
-                    LOG.debug(LOG_MESSAGE + "Failed to download photo: " + person.getPhotoURL());
+                } catch (IOException ex) {
+                    LOG.debug(LOG_MESSAGE + "Failed to download photo: " + person.getPhotoURL() + ", error: " + ex.getMessage());
+                    person.setPhotoURL(Movie.UNKNOWN);
+                } catch (ImageReadException ex) {
+                    LOG.debug(LOG_MESSAGE + "Failed to process photo: " + person.getPhotoURL() + ", error: " + ex.getMessage());
                     person.setPhotoURL(Movie.UNKNOWN);
                 }
             } else {
                 LOG.debug(LOG_MESSAGE + "Photo exists for " + person.getName());
             }
-        } else if ((photoOverwrite || (!photoFile.exists() && !tmpDestFile.exists()))) {
+        } else if ((OVERWRITE || (!photoFile.exists() && !tmpDestFile.exists()))) {
             if (dummyFile.exists()) {
                 LOG.debug("Dummy image used for " + person.getName());
                 FileTools.copyFile(dummyFile, tmpDestFile);

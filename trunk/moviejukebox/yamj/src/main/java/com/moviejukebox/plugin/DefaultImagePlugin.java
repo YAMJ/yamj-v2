@@ -86,7 +86,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static final String MOVIEART = FTArtworkType.MOVIEART.toString().toLowerCase();
     private static final String MOVIEDISC = FTArtworkType.MOVIEDISC.toString().toLowerCase();
     private static final String MOVIELOGO = FTArtworkType.MOVIELOGO.toString().toLowerCase();
-    private static final List<String> validImageTypes = Collections.synchronizedList(new ArrayList<String>());
+    private static final List<String> VALID_IMAGE_TYPES = Collections.synchronizedList(new ArrayList<String>());
     private static final String CENTER = "center";
     private static final String BOTTOM = "bottom";
     private String overlayRoot;
@@ -212,21 +212,21 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         overlayResources = overlayRoot + PropertiesUtil.getProperty("mjb.overlay.resources", "resources") + File.separator;
         highdefDiff = PropertiesUtil.getBooleanProperty("highdef.differentiate", Boolean.FALSE);
 
-        synchronized (validImageTypes) {
-            if (validImageTypes.isEmpty()) {
-                validImageTypes.add(BANNER);
-                validImageTypes.add(POSTER);
-                validImageTypes.add(VIDEOIMAGE);
-                validImageTypes.add(THUMBNAIL);
-                validImageTypes.add(FOOTER);
-                validImageTypes.add(CLEARART);
-                validImageTypes.add(CLEARLOGO);
-                validImageTypes.add(SEASONTHUMB);
-                validImageTypes.add(TVTHUMB);
-                validImageTypes.add(CHARACTERART);
-                validImageTypes.add(MOVIEART);
-                validImageTypes.add(MOVIEDISC);
-                validImageTypes.add(MOVIELOGO);
+        synchronized (VALID_IMAGE_TYPES) {
+            if (VALID_IMAGE_TYPES.isEmpty()) {
+                VALID_IMAGE_TYPES.add(BANNER);
+                VALID_IMAGE_TYPES.add(POSTER);
+                VALID_IMAGE_TYPES.add(VIDEOIMAGE);
+                VALID_IMAGE_TYPES.add(THUMBNAIL);
+                VALID_IMAGE_TYPES.add(FOOTER);
+                VALID_IMAGE_TYPES.add(CLEARART);
+                VALID_IMAGE_TYPES.add(CLEARLOGO);
+                VALID_IMAGE_TYPES.add(SEASONTHUMB);
+                VALID_IMAGE_TYPES.add(TVTHUMB);
+                VALID_IMAGE_TYPES.add(CHARACTERART);
+                VALID_IMAGE_TYPES.add(MOVIEART);
+                VALID_IMAGE_TYPES.add(MOVIEDISC);
+                VALID_IMAGE_TYPES.add(MOVIELOGO);
             }
         }
     }
@@ -245,7 +245,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             viIndex = Integer.parseInt(imageType.replaceFirst(VIDEOIMAGE, ""));
             viIndex = (viIndex > 0 && viIndex <= movie.getFiles().size()) ? (viIndex - 1) : 0;
             imageType = VIDEOIMAGE;
-        } else if (!validImageTypes.contains(imageType)) {
+        } else if (!VALID_IMAGE_TYPES.contains(imageType)) {
             // This is an error with the calling function
             LOG.error("YAMJ Error with calling function in DefaultImagePlugin.java");
             LOG.error("The image type '" + imageType + "' cannot be found");

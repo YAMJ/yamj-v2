@@ -40,8 +40,8 @@ import org.apache.log4j.Logger;
 public final class SystemTools {
 
     private static final Logger LOG = Logger.getLogger(SystemTools.class);
-    private static final boolean showMemory = PropertiesUtil.getBooleanProperty("mjb.showMemory", Boolean.FALSE);
-    private static final long cacheOff = (PropertiesUtil.getLongProperty("mjb.cacheOffSize", 50) * 1024L * 1024L);
+    private static final boolean SHOW_MEMORY = PropertiesUtil.getBooleanProperty("mjb.showMemory", Boolean.FALSE);
+    private static final long CACHE_MAX_SIZE = (PropertiesUtil.getLongProperty("mjb.cacheOffSize", 50) * 1024L * 1024L);
 
     private SystemTools() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
@@ -62,7 +62,7 @@ public final class SystemTools {
         long memoryFree = Runtime.getRuntime().freeMemory();
         float memoryPercentage = (float) (((float) memoryFree / (float) memoryMaximum) * 100F);
 
-        if (showMemory) {
+        if (SHOW_MEMORY) {
             if (showAll) {
                 /*
                  * Maximum amount of memory the JVM will attempt to use
@@ -85,7 +85,7 @@ public final class SystemTools {
         }
 
         // Check to see if we need to turn the cache off.
-        if (memoryFree < cacheOff) {
+        if (memoryFree < CACHE_MAX_SIZE) {
             CacheMemory.purgeCache();
         }
 

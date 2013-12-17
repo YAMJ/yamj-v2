@@ -118,10 +118,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private static final String HTML_SPAN_END = "</span>";
     private static final String HTML_GT = ">";
     // Patterns for the name searching
-    private static final String namePatternString = "(?:.*?)/name/(nm\\d+)/(?:.*?)'name'>(.*?)</a>(?:.*?)";
-    private static final String charPatternString = "(?:.*?)/character/(ch\\d+)/(?:.*?)>(.*?)</a>(?:.*)";
-    private static final Pattern personNamePattern = Pattern.compile(namePatternString, Pattern.CASE_INSENSITIVE);
-    private static final Pattern personCharPattern = Pattern.compile(charPatternString, Pattern.CASE_INSENSITIVE);
+    private static final String STRING_PATTERN_NAME = "(?:.*?)/name/(nm\\d+)/(?:.*?)'name'>(.*?)</a>(?:.*?)";
+    private static final String STRING_PATTERN_CHAR = "(?:.*?)/character/(ch\\d+)/(?:.*?)>(.*?)</a>(?:.*)";
+    private static final Pattern PATTERN_PERSON_NAME = Pattern.compile(STRING_PATTERN_NAME, Pattern.CASE_INSENSITIVE);
+    private static final Pattern PATTERN_PERSON_CHAR = Pattern.compile(STRING_PATTERN_CHAR, Pattern.CASE_INSENSITIVE);
     // AKA scraping
     private final boolean akaScrapeTitle;
     private final String[] akaMatchingCountries;
@@ -1117,13 +1117,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 continue;
             }
 
-            matcher = personNamePattern.matcher(actorBlock);
+            matcher = PATTERN_PERSON_NAME.matcher(actorBlock);
             String personID, name, charID, character;
             if (matcher.find()) {
                 personID = matcher.group(1).trim();
                 name = matcher.group(2).trim();
 
-                matcher = personCharPattern.matcher(actorBlock);
+                matcher = PATTERN_PERSON_CHAR.matcher(actorBlock);
                 if (matcher.find()) {
                     charID = matcher.group(1).trim();
                     character = matcher.group(2).trim();

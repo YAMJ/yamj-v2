@@ -40,7 +40,7 @@ import org.apache.log4j.Logger;
  */
 public final class CacheMemory {
 
-    private static final Map<String, Object> mjbCache = new ConcurrentHashMap<String, Object>();
+    private static final Map<String, Object> CACHE = new ConcurrentHashMap<String, Object>();
     private static final Logger LOG = Logger.getLogger(CacheMemory.class);
     private static boolean cacheEnabled = initCacheState();
 
@@ -59,13 +59,13 @@ public final class CacheMemory {
             return;
         }
 
-        if (mjbCache.containsKey(key)) {
+        if (CACHE.containsKey(key)) {
             LOG.debug("Cache (Add): Already contains object (" + value.getClass().getSimpleName() + ") with key " + key + " overwriting...");
-            mjbCache.remove(key);
+            CACHE.remove(key);
         } else {
             LOG.debug("Cache (Add): Adding object (" + value.getClass().getSimpleName() + ") for key " + key);
         }
-        mjbCache.put(key, value);
+        CACHE.put(key, value);
     }
 
     /**
@@ -79,8 +79,8 @@ public final class CacheMemory {
             return null;
         }
 
-        if (mjbCache.containsKey(key)) {
-            Object value = mjbCache.get(key);
+        if (CACHE.containsKey(key)) {
+            Object value = CACHE.get(key);
             if (value == null) {
                 LOG.debug("Cache (Get): No object found for " + key);
             } else {
@@ -104,8 +104,8 @@ public final class CacheMemory {
             return;
         }
 
-        if (mjbCache.containsKey(key)) {
-            mjbCache.remove(key);
+        if (CACHE.containsKey(key)) {
+            CACHE.remove(key);
         }
     }
 
@@ -189,6 +189,6 @@ public final class CacheMemory {
      */
     public static void clear() {
         LOG.debug("Cache: Clearing cache");
-        mjbCache.clear();
+        CACHE.clear();
     }
 }

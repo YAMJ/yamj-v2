@@ -48,7 +48,7 @@ public class RottenTomatoesPlugin {
     private static final String LOG_MESSAGE = "RottenTomatoesPlugin: ";
     public static final String ROTTENTOMATOES_PLUGIN_ID = "rottentomatoes";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_RottenTomatoes");
-    private static final String webhost = "rottentomatoes.com";
+    private static final String WEBHOST = "rottentomatoes.com";
     private static final String[] PRIORITY_LIST = PropertiesUtil.getProperty("mjb.rottentomatoes.priority", "critics_score,audience_score,critics_rating,audience_rating").split(",");
     private RottenTomatoesApi rt = null;
 
@@ -89,7 +89,7 @@ public class RottenTomatoesPlugin {
         }
 
         // We seem to have a valid movie, so let's scan
-        ThreadExecutor.enterIO(webhost);
+        ThreadExecutor.enterIO(WEBHOST);
         try {
             return doScan(movie);
         } finally {

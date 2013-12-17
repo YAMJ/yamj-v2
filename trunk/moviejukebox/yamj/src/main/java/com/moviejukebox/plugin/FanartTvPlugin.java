@@ -49,8 +49,8 @@ public class FanartTvPlugin {
     public static final String FANARTTV_PLUGIN_ID = "fanarttv";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_FanartTv");
     private FanartTvApi ft;
-    private static final String webhost = "fanart.tv";
-    private static final Map<FTArtworkType, Integer> artworkTypes = new EnumMap<FTArtworkType, Integer>(FTArtworkType.class);
+    private static final String WEBHOST = "fanart.tv";
+    private static final Map<FTArtworkType, Integer> ARTWORK_TYPES = new EnumMap<FTArtworkType, Integer>(FTArtworkType.class);
     private static int totalRequiredTv = 0;
     private static int totalRequireMovie = 0;
     private static final String DEFAULT_LANGUAGE = "en";
@@ -69,12 +69,12 @@ public class FanartTvPlugin {
             artworkPropertyName.append(".download");
 
             if (PropertiesUtil.getBooleanProperty(artworkPropertyName.toString(), Boolean.FALSE)) {
-                artworkTypes.put(artworkType, 1);
+                ARTWORK_TYPES.put(artworkType, 1);
             }
         }
 
-        if (artworkTypes.size() > 0) {
-            LOG.debug(LOG_MESSAGE + "Looking for " + artworkTypes.toString() + " Fanart.TV Types");
+        if (ARTWORK_TYPES.size() > 0) {
+            LOG.debug(LOG_MESSAGE + "Looking for " + ARTWORK_TYPES.toString() + " Fanart.TV Types");
         } else {
             LOG.debug(LOG_MESSAGE + "No Fanart.TV artwork required.");
         }
@@ -95,11 +95,11 @@ public class FanartTvPlugin {
 
         // Calculate the required number of artworks (Only do it once though)
         if (totalRequireMovie + totalRequiredTv == 0) {
-            for (FTArtworkType key : artworkTypes.keySet()) {
+            for (FTArtworkType key : ARTWORK_TYPES.keySet()) {
                 if (key == FTArtworkType.MOVIEART || key == FTArtworkType.MOVIEDISC || key == FTArtworkType.MOVIELOGO) {
-                    totalRequireMovie += artworkTypes.get(key);
+                    totalRequireMovie += ARTWORK_TYPES.get(key);
                 } else {
-                    totalRequiredTv += artworkTypes.get(key);
+                    totalRequiredTv += ARTWORK_TYPES.get(key);
                 }
             }
         }
@@ -116,7 +116,7 @@ public class FanartTvPlugin {
     }
 
     public boolean scan(Movie movie, FTArtworkType artworkType) {
-        if (artworkType != FTArtworkType.ALL && !artworkTypes.containsKey(artworkType)) {
+        if (artworkType != FTArtworkType.ALL && !ARTWORK_TYPES.containsKey(artworkType)) {
             LOG.debug(LOG_MESSAGE + artworkType.toString().toLowerCase() + " not required");
             return true;
         }
@@ -125,7 +125,7 @@ public class FanartTvPlugin {
         int requiredQuantity;
         String requiredLanguage;
 
-        Map<FTArtworkType, Integer> requiredArtworkTypes = new EnumMap<FTArtworkType, Integer>(artworkTypes);
+        Map<FTArtworkType, Integer> requiredArtworkTypes = new EnumMap<FTArtworkType, Integer>(ARTWORK_TYPES);
 
         if (movie.isTVShow()) {
             int tvdbid = NumberUtils.toInt(movie.getId(TheTvDBPlugin.THETVDB_PLUGIN_ID), 0);
@@ -142,7 +142,7 @@ public class FanartTvPlugin {
             requiredQuantity = totalRequiredTv;
             requiredLanguage = LANG_TV;
         } else {
-            int tmdbId = NumberUtils.toInt(movie.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID), 0);;
+            int tmdbId = NumberUtils.toInt(movie.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID), 0);
 
             // Remove the non-Movie types
             for (FTArtworkType at : requiredArtworkTypes.keySet()) {
@@ -237,7 +237,7 @@ public class FanartTvPlugin {
         List<FanartTvArtwork> ftArtwork = (List<FanartTvArtwork>) CacheMemory.getFromCache(key);
 
         if (ftArtwork == null || ftArtwork.isEmpty()) {
-            ThreadExecutor.enterIO(webhost);
+            ThreadExecutor.enterIO(WEBHOST);
             try {
                 ftArtwork = ft.getTvArtwork(tvdbId, artworkType);
 
@@ -273,7 +273,7 @@ public class FanartTvPlugin {
         List<FanartTvArtwork> ftArtwork = (List<FanartTvArtwork>) CacheMemory.getFromCache(key);
 
         if (ftArtwork == null || ftArtwork.isEmpty()) {
-            ThreadExecutor.enterIO(webhost);
+            ThreadExecutor.enterIO(WEBHOST);
             try {
                 if (StringTools.isValidString(imdbId)) {
                     ftArtwork = ft.getMovieArtwork(imdbId, artworkType);
@@ -298,8 +298,8 @@ public class FanartTvPlugin {
     }
 
     public static boolean isArtworkRequired(FTArtworkType requiredType) {
-        if (artworkTypes.containsKey(requiredType)) {
-            return artworkTypes.get(requiredType) > 0;
+        if (ARTWORK_TYPES.containsKey(requiredType)) {
+            return ARTWORK_TYPES.get(requiredType) > 0;
         } else {
             // Not found, so not required
             return false;

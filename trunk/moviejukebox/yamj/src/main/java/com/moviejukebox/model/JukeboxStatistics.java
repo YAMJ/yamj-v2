@@ -53,7 +53,7 @@ public final class JukeboxStatistics {
     // Filename
     private static final String XML_FILENAME = "jukebox_statistics.xml";
     // Properties
-    private static final Map<JukeboxStatistic, Integer> statistics = new EnumMap<JukeboxStatistic, Integer>(JukeboxStatistic.class);
+    private static final Map<JukeboxStatistic, Integer> STATISTICS = new EnumMap<JukeboxStatistic, Integer>(JukeboxStatistic.class);
     private static final Map<JukeboxTimes, Long> TIMES = new EnumMap<JukeboxTimes, Long>(JukeboxTimes.class);
     // Literals
     private static final String DEFAULT_FORMAT = "HH:mm:ss.S";
@@ -64,7 +64,7 @@ public final class JukeboxStatistics {
         FileTools.addJukeboxFile(XML_FILENAME);
         // Initialise the values
         for (JukeboxStatistic stat : JukeboxStatistic.values()) {
-            statistics.put(stat, 0);
+            STATISTICS.put(stat, 0);
         }
     }
 
@@ -97,7 +97,7 @@ public final class JukeboxStatistics {
      * @return
      */
     public static int getStatistic(JukeboxStatistic stat) {
-        return statistics.get(stat);
+        return STATISTICS.get(stat);
     }
 
     /**
@@ -107,7 +107,7 @@ public final class JukeboxStatistics {
      * @param value
      */
     public static synchronized void setStatistic(JukeboxStatistic stat, Integer value) {
-        statistics.put(stat, value);
+        STATISTICS.put(stat, value);
     }
 
     /**
@@ -126,8 +126,8 @@ public final class JukeboxStatistics {
      * @param amount
      */
     public static synchronized void increment(JukeboxStatistic stat, Integer amount) {
-        Integer current = statistics.get(stat);
-        statistics.put(stat, current + amount);
+        Integer current = STATISTICS.get(stat);
+        STATISTICS.put(stat, current + amount);
     }
 
     /**
@@ -146,8 +146,8 @@ public final class JukeboxStatistics {
      * @param amount
      */
     public static synchronized void decrement(JukeboxStatistic stat, Integer amount) {
-        Integer current = statistics.get(stat);
-        statistics.put(stat, current - amount);
+        Integer current = STATISTICS.get(stat);
+        STATISTICS.put(stat, current - amount);
     }
 
     /**
@@ -249,7 +249,7 @@ public final class JukeboxStatistics {
         // Build the counts
         int value;
         for (JukeboxStatistic stat : JukeboxStatistic.values()) {
-            value = statistics.get(stat);
+            value = STATISTICS.get(stat);
             if (value > 0 || !skipZero) {
                 statOutput.append(WordUtils.capitalizeFully(stat.toString().replace("_", " ").toLowerCase()));
                 statOutput.append(" = ").append(value).append("\n");
@@ -304,7 +304,7 @@ public final class JukeboxStatistics {
             eStats = docJbStats.createElement("statistics");
             eRoot.appendChild(eStats);
 
-            for (Map.Entry<JukeboxStatistic, Integer> entry : statistics.entrySet()) {
+            for (Map.Entry<JukeboxStatistic, Integer> entry : STATISTICS.entrySet()) {
                 DOMHelper.appendChild(docJbStats, eStats, entry.getKey().toString().toLowerCase(), entry.getValue().toString());
             }
             DOMHelper.appendChild(docJbStats, eStats, "libraries", Integer.toString(mediaLibraryPaths.size()));

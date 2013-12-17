@@ -40,7 +40,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class FanartTvScanner extends ArtworkScanner {
 
-    private static final FanartTvPlugin fanartTvPlugin = new FanartTvPlugin();
+    private static final FanartTvPlugin FT_PLUGIN = new FanartTvPlugin();
 
     public FanartTvScanner(ArtworkType fanartTvArtworkType) {
         super(fanartTvArtworkType);
@@ -67,7 +67,7 @@ public class FanartTvScanner extends ArtworkScanner {
         // Don't scan if we are not needed
         if ((isOverwrite() || StringTools.isNotValidString(getArtworkUrl(movie))) && isSearchOnline(movie)) {
             // Check the type of the video and whether it is required or not
-            fanartTvPlugin.scan(movie, FTArtworkType.fromString(artworkType.toString()));
+            FT_PLUGIN.scan(movie, FTArtworkType.fromString(artworkType.toString()));
         }
 
         return getArtworkUrl(movie);

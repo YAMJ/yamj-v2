@@ -32,10 +32,12 @@ import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.StringTools;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
+import org.apache.sanselan.ImageReadException;
 
 /**
  * Scanner for personal backdrop files in local directory
@@ -47,7 +49,7 @@ public final class BackdropScanner {
 
     private static final Logger LOG = Logger.getLogger(BackdropScanner.class);
     private static final String LOG_MESSAGE = "BackdropScanner: ";
-    protected static final List<String> backdropExtensions = new ArrayList<String>();
+    protected static final List<String> EXT = new ArrayList<String>();
     protected static final boolean BACKDROP_OVERWRITE = PropertiesUtil.getBooleanProperty("mjb.forceBackdropOverwrite", Boolean.FALSE);
     protected static List<String> backdropImageName;
     protected static String skinHome = SkinProperties.getSkinHome();
@@ -60,7 +62,7 @@ public final class BackdropScanner {
         // We get valid extensions
         StringTokenizer st = new StringTokenizer(PropertiesUtil.getProperty("backdrop.scanner.backdropExtensions", "jpg,jpeg,gif,bmp,png"), ",;| ");
         while (st.hasMoreTokens()) {
-            backdropExtensions.add(st.nextToken());
+            EXT.add(st.nextToken());
         }
     }
 
@@ -91,7 +93,7 @@ public final class BackdropScanner {
         boolean foundLocalBackdrop = false;
 
         // Try searching the fileCache for the filename.
-        File localBackdropFile = FileTools.findFilenameInCache(localBackdropBaseFilename + BACKDROP_TOKEN, backdropExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
+        File localBackdropFile = FileTools.findFilenameInCache(localBackdropBaseFilename + BACKDROP_TOKEN, EXT, jukebox, LOG_MESSAGE, Boolean.TRUE);
         if (localBackdropFile != null) {
             foundLocalBackdrop = true;
             person.setBackdropFilename();
@@ -137,8 +139,11 @@ public final class BackdropScanner {
                         person.setBackdropFilename(Movie.UNKNOWN);
                         person.setBackdropURL(Movie.UNKNOWN);
                     }
-                } catch (Exception error) {
-                    LOG.debug(LOG_MESSAGE + "Failed to download backdrop: " + person.getBackdropURL());
+                } catch (IOException ex) {
+                    LOG.debug(LOG_MESSAGE + "Failed to download/process backdrop: " + person.getBackdropURL() + ", error: " + ex.getMessage());
+                    person.setBackdropURL(Movie.UNKNOWN);
+                } catch (ImageReadException ex) {
+                    LOG.debug(LOG_MESSAGE + "Failed to process backdrop: " + person.getBackdropURL() + ", error: " + ex.getMessage());
                     person.setBackdropURL(Movie.UNKNOWN);
                 }
             } else {

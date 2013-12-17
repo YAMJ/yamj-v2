@@ -91,7 +91,7 @@ public class MovieJukeboxXMLReader {
 
     private static final Logger LOG = Logger.getLogger(MovieJukeboxXMLReader.class);
     private static final String LOG_MESSAGE = "XMLReader: ";
-    private static final AspectRatioTools aspectTools = new AspectRatioTools();
+    private static final AspectRatioTools ASPECT_TOOLS = new AspectRatioTools();
     // Should we scrape the trivia information
     private static final boolean ENABLE_TRIVIA = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", Boolean.FALSE);
 
@@ -1033,7 +1033,7 @@ public class MovieJukeboxXMLReader {
 
     private void parseOverridableAspectRatio(Movie movie, Element element) {
         OverridableValue ov = new OverridableValue(element, "aspect");
-        movie.setAspectRatio(aspectTools.cleanAspectRatio(ov.getValue()), ov.getSource());
+        movie.setAspectRatio(ASPECT_TOOLS.cleanAspectRatio(ov.getValue()), ov.getSource());
     }
 
     private void parseOverridableCertification(Movie movie, Element element) {

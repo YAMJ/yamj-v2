@@ -66,7 +66,7 @@ public class WatchedScanner {
         boolean fileWatched;
         boolean returnStatus = Boolean.FALSE;           // Assume no changes
 
-        if (!warned && (watchedLocation == WatchedWithLocation.custom)) {
+        if (!warned && (watchedLocation == WatchedWithLocation.CUSTOM)) {
             LOG.warn(LOG_MESSAGE + "Custom file location not supported for watched scanner");
             warned = Boolean.TRUE;
         }
@@ -93,7 +93,7 @@ public class WatchedScanner {
                 }
 
                 if (withExtension == WatchedWithExtension.EXTENSION || withExtension == WatchedWithExtension.BOTH || movie.isBluray()) {
-                    if (watchedLocation == WatchedWithLocation.withJukebox) {
+                    if (watchedLocation == WatchedWithLocation.WITHJUKEBOX) {
                         foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
                     } else {
                         foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, LOG_MESSAGE, Boolean.FALSE);
@@ -104,7 +104,7 @@ public class WatchedScanner {
                     // Remove the extension from the filename
                     filename = FilenameUtils.removeExtension(filename);
                     // Check again without the extension
-                    if (watchedLocation == WatchedWithLocation.withJukebox) {
+                    if (watchedLocation == WatchedWithLocation.WITHJUKEBOX) {
                         foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
                     } else {
                         foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, LOG_MESSAGE, Boolean.FALSE);

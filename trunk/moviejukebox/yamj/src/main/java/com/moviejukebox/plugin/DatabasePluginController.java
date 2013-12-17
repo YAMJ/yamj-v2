@@ -54,7 +54,7 @@ public final class DatabasePluginController {
     /**
      * @author Gabriel Corneanu: Store the map in a thread local field to make it thread safe
      */
-    private static final ThreadLocal<Map<String, MovieDatabasePlugin>> pluginMap = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
+    private static final ThreadLocal<Map<String, MovieDatabasePlugin>> PLUGIN_MAP = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
         @Override
         protected Map<String, MovieDatabasePlugin> initialValue() {
             Map<String, MovieDatabasePlugin> movieDatabasePlugin = new HashMap<String, MovieDatabasePlugin>(2);
@@ -113,14 +113,14 @@ public final class DatabasePluginController {
                     isScanned = movie.getMovieScanner().scan(movie);
                 }
                 if (!isScanned) {
-                    isScanned = pluginMap.get().get(origType).scan(movie);
+                    isScanned = PLUGIN_MAP.get().get(origType).scan(movie);
                     String newType = movie.getMovieType();
                     // so if the movie wasn't scanned and it is now a different valid type, then rescan
                     if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(Movie.REMOVE) && !newType.equals(origType)) {
-                        isScanned = pluginMap.get().get(newType).scan(movie);
+                        isScanned = PLUGIN_MAP.get().get(newType).scan(movie);
                     }
                     if (!isScanned && !newType.equals(Movie.TYPE_UNKNOWN) && !newType.equals(Movie.REMOVE)) {
-                        MovieDatabasePlugin alternatePlugin = pluginMap.get().get(TYPE_ALTERNATE);
+                        MovieDatabasePlugin alternatePlugin = PLUGIN_MAP.get().get(TYPE_ALTERNATE);
                         if (alternatePlugin != null) {
                             isScanned = alternatePlugin.scan(movie);
                         }
@@ -138,16 +138,16 @@ public final class DatabasePluginController {
             LOG.debug("Skipping internet search for " + person.getName());
             return;
         }
-        if (!pluginMap.get().get(Movie.TYPE_PERSON).scan(person)) {
+        if (!PLUGIN_MAP.get().get(Movie.TYPE_PERSON).scan(person)) {
             LOG.warn("Person '" + person.getName() + "' was not able to be scanned using the current plugins");
         }
     }
 
     public static boolean scanNFO(String nfo, Movie movie) {
         boolean scannedOk = Boolean.FALSE;
-        if (!pluginMap.get().get(movie.getMovieType()).scanNFO(nfo, movie) && autoDetect) {
+        if (!PLUGIN_MAP.get().get(movie.getMovieType()).scanNFO(nfo, movie) && autoDetect) {
             for (String pluginID : autoDetectList) {
-                MovieDatabasePlugin movieDBPlugin = pluginMap.get().get(pluginID);
+                MovieDatabasePlugin movieDBPlugin = PLUGIN_MAP.get().get(pluginID);
                 scannedOk = movieDBPlugin.scanNFO(nfo, movie);
                 if (scannedOk) {
                     movie.setMovieScanner(movieDBPlugin);
@@ -159,7 +159,7 @@ public final class DatabasePluginController {
     }
 
     public static void scanTVShowTitles(Movie movie) {
-        pluginMap.get().get(Movie.TYPE_TVSHOW).scanTVShowTitles(movie);
+        PLUGIN_MAP.get().get(Movie.TYPE_TVSHOW).scanTVShowTitles(movie);
     }
 
     private static MovieDatabasePlugin getMovieDatabasePlugin(String className) {
@@ -177,7 +177,7 @@ public final class DatabasePluginController {
     public static String getMovieDatabasePluginName(String movieType) {
         String pluginName = null;
         try {
-            pluginName = pluginMap.get().get(movieType).getPluginID();
+            pluginName = PLUGIN_MAP.get().get(movieType).getPluginID();
         } catch (Exception ignore) {
             // ignore this error
         }

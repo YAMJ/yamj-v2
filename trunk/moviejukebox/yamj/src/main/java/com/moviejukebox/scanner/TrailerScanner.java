@@ -26,7 +26,13 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.trailer.ITrailerPlugin;
 import com.moviejukebox.plugin.trailer.TrailerPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 
 /**
@@ -39,15 +45,15 @@ public class TrailerScanner {
     private static final String LOG_MESSAGE = "TrailerScanner: ";
     private static final long MILLIS_IN_DAY = 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
     // Convert trailers.rescan.days from DAYS to MILLISECONDS for comparison purposes
-    private static long trailersRescanDaysMillis = PropertiesUtil.getLongProperty("trailers.rescan.days", 15) * MILLIS_IN_DAY;
-    private static boolean trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", Boolean.TRUE);
-    private static String trailersScanner = PropertiesUtil.getProperty("trailers.scanner", "apple");
+    private static final long RESCAN_DAYS_MILLIS = PropertiesUtil.getLongProperty("trailers.rescan.days", 15) * MILLIS_IN_DAY;
+    private static final boolean SCANNER_ENABLE = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", Boolean.TRUE);
+    private static final String TRAILERS_SCANNER = PropertiesUtil.getProperty("trailers.scanner", "apple");
     private String trailerPluginList = Movie.UNKNOWN;
     private static final Map<String, ITrailerPlugin> trailerPlugins = Collections.synchronizedMap(new HashMap<String, ITrailerPlugin>());
-    private static TrailerPlugin trailersPlugin = new TrailerPlugin();
+    private static final TrailerPlugin TRAILERS_PLUGIN = new TrailerPlugin();
 
     public TrailerScanner() {
-        if (trailersScannerEnable) {
+        if (SCANNER_ENABLE) {
             synchronized (trailerPlugins) {
                 ServiceLoader<ITrailerPlugin> trailerPluginsSet = ServiceLoader.load(ITrailerPlugin.class);
 
@@ -72,13 +78,13 @@ public class TrailerScanner {
             return Boolean.FALSE;
         }
 
-        if (!trailersPlugin.isScanForTrailer(movie)) {
+        if (!TRAILERS_PLUGIN.isScanForTrailer(movie)) {
             LOG.debug(LOG_MESSAGE + "Scanning skipped because " + movie.getBaseName() + " is not HD");
             return Boolean.FALSE;
         }
 
         // Does the trailer need to be overwritten?
-        if (trailersPlugin.isOverwrite()) {
+        if (TRAILERS_PLUGIN.isOverwrite()) {
             return Boolean.TRUE;
         }
 
@@ -90,7 +96,7 @@ public class TrailerScanner {
 
         // Check if we need to scan or rescan for trailers
         long now = new Date().getTime();
-        if ((now - movie.getTrailerLastScan()) < trailersRescanDaysMillis) {
+        if ((now - movie.getTrailerLastScan()) < RESCAN_DAYS_MILLIS) {
             return Boolean.FALSE;
         }
 
@@ -106,7 +112,7 @@ public class TrailerScanner {
         boolean result = Boolean.FALSE;
         String trailersSearchToken;
 
-        StringTokenizer st = new StringTokenizer(trailersScanner, ",");
+        StringTokenizer st = new StringTokenizer(TRAILERS_SCANNER, ",");
         while (st.hasMoreTokens() && !result) {
             trailersSearchToken = st.nextToken();
             ITrailerPlugin trailerPlugin = trailerPlugins.get(trailersSearchToken);
@@ -120,7 +126,7 @@ public class TrailerScanner {
         // Update trailerExchange
         if (result == Boolean.FALSE) {
             // Set trailerExchange to true if trailersRescanDaysMillis is < 0 (disable)
-            result = trailersRescanDaysMillis < 0 ? Boolean.TRUE : Boolean.FALSE;
+            result = RESCAN_DAYS_MILLIS < 0 ? Boolean.TRUE : Boolean.FALSE;
         }
         movie.setTrailerExchange(result);
 

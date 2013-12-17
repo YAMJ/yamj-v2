@@ -30,22 +30,22 @@ import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.PropertyInformation;
 import com.moviejukebox.model.PropertyOverwrites;
-import static com.moviejukebox.model.PropertyOverwrites.Banners;
-import static com.moviejukebox.model.PropertyOverwrites.Clearart;
-import static com.moviejukebox.model.PropertyOverwrites.Clearlogo;
-import static com.moviejukebox.model.PropertyOverwrites.Fanart;
+import static com.moviejukebox.model.PropertyOverwrites.BANNERS;
+import static com.moviejukebox.model.PropertyOverwrites.CLEARART;
+import static com.moviejukebox.model.PropertyOverwrites.CLEARLOGO;
+import static com.moviejukebox.model.PropertyOverwrites.FANART;
 import static com.moviejukebox.model.PropertyOverwrites.HTML;
-import static com.moviejukebox.model.PropertyOverwrites.Index;
-import static com.moviejukebox.model.PropertyOverwrites.Movieart;
-import static com.moviejukebox.model.PropertyOverwrites.Moviedisc;
-import static com.moviejukebox.model.PropertyOverwrites.Movielogo;
-import static com.moviejukebox.model.PropertyOverwrites.Posters;
-import static com.moviejukebox.model.PropertyOverwrites.Seasonthumb;
-import static com.moviejukebox.model.PropertyOverwrites.Skin;
-import static com.moviejukebox.model.PropertyOverwrites.Thumbnails;
-import static com.moviejukebox.model.PropertyOverwrites.Trailers;
-import static com.moviejukebox.model.PropertyOverwrites.Tvthumb;
-import static com.moviejukebox.model.PropertyOverwrites.VideoImages;
+import static com.moviejukebox.model.PropertyOverwrites.INDEX;
+import static com.moviejukebox.model.PropertyOverwrites.MOVIEART;
+import static com.moviejukebox.model.PropertyOverwrites.MOVIEDISC;
+import static com.moviejukebox.model.PropertyOverwrites.MOVIELOGO;
+import static com.moviejukebox.model.PropertyOverwrites.POSTERS;
+import static com.moviejukebox.model.PropertyOverwrites.SEASONTHUMB;
+import static com.moviejukebox.model.PropertyOverwrites.SKIN;
+import static com.moviejukebox.model.PropertyOverwrites.THUMBNAILS;
+import static com.moviejukebox.model.PropertyOverwrites.TRAILERS;
+import static com.moviejukebox.model.PropertyOverwrites.TVTHUMB;
+import static com.moviejukebox.model.PropertyOverwrites.VIDEOIMAGES;
 import static com.moviejukebox.model.PropertyOverwrites.XML;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
 import java.io.File;
@@ -79,11 +79,11 @@ public final class JukeboxProperties {
     private static final String XML_FILENAME = "jukebox_details.xml";
     // Properties
     private static final boolean MONITOR = PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", Boolean.FALSE);
-    private static final Collection<PropertyInformation> propInfo = new ArrayList<PropertyInformation>();
+    private static final Collection<PropertyInformation> PROPINFO = new ArrayList<PropertyInformation>();
     private static boolean scanningLimitReached = Boolean.FALSE;   // Were videos skipped during processing?
     // Literals
     private static final String JUKEBOX = "jukebox";
-    private static final String SKIN = "skin";
+    private static final String SKIN_ELEMENT = "skin";
     private static final String PROPERTIES = "properties";
     private static final String CATEGORY = "Category";
     private static final String GENRE = "Genre";
@@ -92,149 +92,149 @@ public final class JukeboxProperties {
     static {
         FileTools.addJukeboxFile(XML_FILENAME);
 
-        propInfo.add(new PropertyInformation("userPropertiesName", EnumSet.noneOf(PropertyOverwrites.class)));
-        propInfo.add(new PropertyInformation("mjb.skin.dir", EnumSet.of(HTML, Thumbnails, Posters, Index, Skin)));
+        PROPINFO.add(new PropertyInformation("userPropertiesName", EnumSet.noneOf(PropertyOverwrites.class)));
+        PROPINFO.add(new PropertyInformation("mjb.skin.dir", EnumSet.of(HTML, THUMBNAILS, POSTERS, INDEX, SKIN)));
 
-        propInfo.add(new PropertyInformation("mjb.includeEpisodePlots", EnumSet.of(XML)));
-        propInfo.add(new PropertyInformation("mjb.includeEpisodeRating", EnumSet.of(XML)));
-        propInfo.add(new PropertyInformation("filename.scanner.skip.episodeTitle", EnumSet.of(XML, HTML)));
+        PROPINFO.add(new PropertyInformation("mjb.includeEpisodePlots", EnumSet.of(XML)));
+        PROPINFO.add(new PropertyInformation("mjb.includeEpisodeRating", EnumSet.of(XML)));
+        PROPINFO.add(new PropertyInformation("filename.scanner.skip.episodeTitle", EnumSet.of(XML, HTML)));
 
-        propInfo.add(new PropertyInformation("mjb.categories.minCount", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Other", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Genres", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Title", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Certification", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Year", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Library", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Set", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Cast", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Director", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Writer", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("mjb.categories.minCount.Country", EnumSet.of(Index)));
+        PROPINFO.add(new PropertyInformation("mjb.categories.minCount", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("mjb.categories.minCount.Other", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("mjb.categories.minCount.Genres", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("mjb.categories.minCount.Title", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("mjb.categories.minCount.Certification", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("mjb.categories.minCount.Year", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("mjb.categories.minCount.Library", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("mjb.categories.minCount.Set", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("mjb.categories.minCount.Cast", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("mjb.categories.minCount.Director", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("mjb.categories.minCount.Writer", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("mjb.categories.minCount.Country", EnumSet.of(INDEX)));
 
-        propInfo.add(new PropertyInformation("trailers.rescan.days", EnumSet.of(Trailers)));
+        PROPINFO.add(new PropertyInformation("trailers.rescan.days", EnumSet.of(TRAILERS)));
 
-        // Posters
-        propInfo.add(new PropertyInformation("posters.width", EnumSet.of(HTML, Posters)));
-        propInfo.add(new PropertyInformation("posters.height", EnumSet.of(HTML, Posters)));
-        propInfo.add(new PropertyInformation("posters.logoHD", EnumSet.of(HTML, Posters)));
-        propInfo.add(new PropertyInformation("posters.logoTV", EnumSet.of(HTML, Posters)));
-        propInfo.add(new PropertyInformation("posters.language", EnumSet.of(HTML, Posters)));
+        // POSTERS
+        PROPINFO.add(new PropertyInformation("posters.width", EnumSet.of(HTML, POSTERS)));
+        PROPINFO.add(new PropertyInformation("posters.height", EnumSet.of(HTML, POSTERS)));
+        PROPINFO.add(new PropertyInformation("posters.logoHD", EnumSet.of(HTML, POSTERS)));
+        PROPINFO.add(new PropertyInformation("posters.logoTV", EnumSet.of(HTML, POSTERS)));
+        PROPINFO.add(new PropertyInformation("posters.language", EnumSet.of(HTML, POSTERS)));
 
-        // Thumbnails
-        propInfo.add(new PropertyInformation("mjb.nbThumbnailsPerPage", EnumSet.of(HTML, Thumbnails, Index)));
-        propInfo.add(new PropertyInformation("mjb.nbThumbnailsPerLine", EnumSet.of(HTML, Thumbnails, Index)));
-        propInfo.add(new PropertyInformation("mjb.nbTvThumbnailsPerPage", EnumSet.of(HTML, Thumbnails, Index)));
-        propInfo.add(new PropertyInformation("mjb.nbTvThumbnailsPerLine", EnumSet.of(HTML, Thumbnails, Index)));
-        propInfo.add(new PropertyInformation("thumbnails.width", EnumSet.of(HTML, Thumbnails)));
-        propInfo.add(new PropertyInformation("thumbnails.height", EnumSet.of(HTML, Thumbnails)));
-        propInfo.add(new PropertyInformation("thumbnails.logoHD", EnumSet.of(HTML, Thumbnails)));
-        propInfo.add(new PropertyInformation("thumbnails.logoTV", EnumSet.of(HTML, Thumbnails)));
-        propInfo.add(new PropertyInformation("thumbnails.logoSet", EnumSet.of(HTML, Thumbnails)));
-        propInfo.add(new PropertyInformation("thumbnails.language", EnumSet.of(HTML, Thumbnails)));
+        // THUMBNAILS
+        PROPINFO.add(new PropertyInformation("mjb.nbThumbnailsPerPage", EnumSet.of(HTML, THUMBNAILS, INDEX)));
+        PROPINFO.add(new PropertyInformation("mjb.nbThumbnailsPerLine", EnumSet.of(HTML, THUMBNAILS, INDEX)));
+        PROPINFO.add(new PropertyInformation("mjb.nbTvThumbnailsPerPage", EnumSet.of(HTML, THUMBNAILS, INDEX)));
+        PROPINFO.add(new PropertyInformation("mjb.nbTvThumbnailsPerLine", EnumSet.of(HTML, THUMBNAILS, INDEX)));
+        PROPINFO.add(new PropertyInformation("thumbnails.width", EnumSet.of(HTML, THUMBNAILS)));
+        PROPINFO.add(new PropertyInformation("thumbnails.height", EnumSet.of(HTML, THUMBNAILS)));
+        PROPINFO.add(new PropertyInformation("thumbnails.logoHD", EnumSet.of(HTML, THUMBNAILS)));
+        PROPINFO.add(new PropertyInformation("thumbnails.logoTV", EnumSet.of(HTML, THUMBNAILS)));
+        PROPINFO.add(new PropertyInformation("thumbnails.logoSet", EnumSet.of(HTML, THUMBNAILS)));
+        PROPINFO.add(new PropertyInformation("thumbnails.language", EnumSet.of(HTML, THUMBNAILS)));
 
-        // Banners
-        propInfo.add(new PropertyInformation("mjb.includeWideBanners", EnumSet.of(HTML, Banners)));
-        propInfo.add(new PropertyInformation("banners.width", EnumSet.of(HTML, Banners)));
-        propInfo.add(new PropertyInformation("banners.height", EnumSet.of(HTML, Banners)));
+        // BANNERS
+        PROPINFO.add(new PropertyInformation("mjb.includeWideBanners", EnumSet.of(HTML, BANNERS)));
+        PROPINFO.add(new PropertyInformation("banners.width", EnumSet.of(HTML, BANNERS)));
+        PROPINFO.add(new PropertyInformation("banners.height", EnumSet.of(HTML, BANNERS)));
 
-        // Fanart
-        propInfo.add(new PropertyInformation("fanart.movie.download", EnumSet.of(HTML, Fanart)));
-        propInfo.add(new PropertyInformation("fanart.tv.download", EnumSet.of(HTML, Fanart)));
+        // FANART
+        PROPINFO.add(new PropertyInformation("fanart.movie.download", EnumSet.of(HTML, FANART)));
+        PROPINFO.add(new PropertyInformation("fanart.tv.download", EnumSet.of(HTML, FANART)));
 
-        // VideoImages
-        propInfo.add(new PropertyInformation("mjb.includeVideoImages", EnumSet.of(XML, VideoImages)));
-        propInfo.add(new PropertyInformation("videoimages.width", EnumSet.of(XML, VideoImages)));
-        propInfo.add(new PropertyInformation("videoimages.height", EnumSet.of(XML, VideoImages)));
+        // VIDEOIMAGES
+        PROPINFO.add(new PropertyInformation("mjb.includeVideoImages", EnumSet.of(XML, VIDEOIMAGES)));
+        PROPINFO.add(new PropertyInformation("videoimages.width", EnumSet.of(XML, VIDEOIMAGES)));
+        PROPINFO.add(new PropertyInformation("videoimages.height", EnumSet.of(XML, VIDEOIMAGES)));
 
-        // Clearart
-        propInfo.add(new PropertyInformation("clearart.tv.download", EnumSet.of(Clearart)));
-        propInfo.add(new PropertyInformation("clearart.width", EnumSet.of(Clearart)));
-        propInfo.add(new PropertyInformation("clearart.height", EnumSet.of(Clearart)));
+        // CLEARART
+        PROPINFO.add(new PropertyInformation("clearart.tv.download", EnumSet.of(CLEARART)));
+        PROPINFO.add(new PropertyInformation("clearart.width", EnumSet.of(CLEARART)));
+        PROPINFO.add(new PropertyInformation("clearart.height", EnumSet.of(CLEARART)));
 
-        // Clearlogo
-        propInfo.add(new PropertyInformation("clearlogo.tv.download", EnumSet.of(Clearlogo)));
-        propInfo.add(new PropertyInformation("clearlogo.width", EnumSet.of(Clearlogo)));
-        propInfo.add(new PropertyInformation("clearlogo.height", EnumSet.of(Clearlogo)));
+        // CLEARLOGO
+        PROPINFO.add(new PropertyInformation("clearlogo.tv.download", EnumSet.of(CLEARLOGO)));
+        PROPINFO.add(new PropertyInformation("clearlogo.width", EnumSet.of(CLEARLOGO)));
+        PROPINFO.add(new PropertyInformation("clearlogo.height", EnumSet.of(CLEARLOGO)));
 
         // TvThumb
-        propInfo.add(new PropertyInformation("tvthumb.tv.download", EnumSet.of(Tvthumb)));
-        propInfo.add(new PropertyInformation("tvthumb.width", EnumSet.of(Tvthumb)));
-        propInfo.add(new PropertyInformation("tvthumb.height", EnumSet.of(Tvthumb)));
+        PROPINFO.add(new PropertyInformation("tvthumb.tv.download", EnumSet.of(TVTHUMB)));
+        PROPINFO.add(new PropertyInformation("tvthumb.width", EnumSet.of(TVTHUMB)));
+        PROPINFO.add(new PropertyInformation("tvthumb.height", EnumSet.of(TVTHUMB)));
 
         // SeasonThumb
-        propInfo.add(new PropertyInformation("seasonthumb.tv.download", EnumSet.of(Seasonthumb)));
-        propInfo.add(new PropertyInformation("seasonthumb.width", EnumSet.of(Seasonthumb)));
-        propInfo.add(new PropertyInformation("seasonthumb.height", EnumSet.of(Seasonthumb)));
+        PROPINFO.add(new PropertyInformation("seasonthumb.tv.download", EnumSet.of(SEASONTHUMB)));
+        PROPINFO.add(new PropertyInformation("seasonthumb.width", EnumSet.of(SEASONTHUMB)));
+        PROPINFO.add(new PropertyInformation("seasonthumb.height", EnumSet.of(SEASONTHUMB)));
 
         // MovieArt
-        propInfo.add(new PropertyInformation("movieart.movie.download", EnumSet.of(Movieart)));
-        propInfo.add(new PropertyInformation("movieart.width", EnumSet.of(Movieart)));
-        propInfo.add(new PropertyInformation("movieart.height", EnumSet.of(Movieart)));
+        PROPINFO.add(new PropertyInformation("movieart.movie.download", EnumSet.of(MOVIEART)));
+        PROPINFO.add(new PropertyInformation("movieart.width", EnumSet.of(MOVIEART)));
+        PROPINFO.add(new PropertyInformation("movieart.height", EnumSet.of(MOVIEART)));
 
         // MovieDisc
-        propInfo.add(new PropertyInformation("moviedisc.movie.download", EnumSet.of(Moviedisc)));
-        propInfo.add(new PropertyInformation("moviedisc.width", EnumSet.of(Moviedisc)));
-        propInfo.add(new PropertyInformation("moviedisc.height", EnumSet.of(Moviedisc)));
+        PROPINFO.add(new PropertyInformation("moviedisc.movie.download", EnumSet.of(MOVIEDISC)));
+        PROPINFO.add(new PropertyInformation("moviedisc.width", EnumSet.of(MOVIEDISC)));
+        PROPINFO.add(new PropertyInformation("moviedisc.height", EnumSet.of(MOVIEDISC)));
 
         // MovieLogo
-        propInfo.add(new PropertyInformation("movielogo.movie.download", EnumSet.of(Movielogo)));
-        propInfo.add(new PropertyInformation("movielogo.width", EnumSet.of(Movielogo)));
-        propInfo.add(new PropertyInformation("movielogo.height", EnumSet.of(Movielogo)));
+        PROPINFO.add(new PropertyInformation("movielogo.movie.download", EnumSet.of(MOVIELOGO)));
+        PROPINFO.add(new PropertyInformation("movielogo.width", EnumSet.of(MOVIELOGO)));
+        PROPINFO.add(new PropertyInformation("movielogo.height", EnumSet.of(MOVIELOGO)));
 
         // Library sorting
-        propInfo.add(new PropertyInformation("indexing.sort.3d", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.3d.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.all", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.all.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.award", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.award.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.cast", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.cast.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.certification", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.certification.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.country", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.country.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.director", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.director.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.genres", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.genres.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.hd", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.hd-1080", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.hd-1080.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.hd-720", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.hd-720.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.hd.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.library", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.library.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.movies", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.movies.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.new", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.new-movie", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.new-movie.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.new-tv", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.new-tv.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.new.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.person", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.person.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.rating", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.rating.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.ratings", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.ratings.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.title", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.title.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.top250", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.top250.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.tvshows", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.tvshows.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.unwatched", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.unwatched.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.watched", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.watched.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.writer", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.writer.asc", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.year", EnumSet.of(Index)));
-        propInfo.add(new PropertyInformation("indexing.sort.year.asc", EnumSet.of(Index)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.3d", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.3d.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.all", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.all.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.award", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.award.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.cast", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.cast.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.certification", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.certification.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.country", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.country.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.director", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.director.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.genres", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.genres.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.hd", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.hd-1080", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.hd-1080.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.hd-720", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.hd-720.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.hd.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.library", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.library.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.movies", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.movies.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.new", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.new-movie", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.new-movie.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.new-tv", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.new-tv.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.new.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.person", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.person.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.rating", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.rating.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.ratings", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.ratings.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.title", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.title.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.top250", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.top250.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.tvshows", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.tvshows.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.unwatched", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.unwatched.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.watched", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.watched.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.writer", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.writer.asc", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.year", EnumSet.of(INDEX)));
+        PROPINFO.add(new PropertyInformation("indexing.sort.year.asc", EnumSet.of(INDEX)));
     }
 
     private JukeboxProperties() {
@@ -345,7 +345,7 @@ public final class JukeboxProperties {
             writeGenericXmlFileDetails("mjb.xmlCertificationFile", CERTIFICATION, docMjbDetails, eJukebox);
 
             if (StringTools.isValidString(SkinProperties.getSkinName())) {
-                Element eSkin = docMjbDetails.createElement(SKIN);
+                Element eSkin = docMjbDetails.createElement(SKIN_ELEMENT);
                 eRoot.appendChild(eSkin);
 
                 DOMHelper.appendChild(docMjbDetails, eSkin, "name", SkinProperties.getSkinName());
@@ -370,7 +370,7 @@ public final class JukeboxProperties {
             eProperties = docMjbDetails.createElement(PROPERTIES);
             eRoot.appendChild(eProperties);
 
-            for (PropertyInformation pi : propInfo) {
+            for (PropertyInformation pi : PROPINFO) {
                 appendProperty(docMjbDetails, eProperties, pi.getPropertyName());
             }
 
@@ -490,27 +490,27 @@ public final class JukeboxProperties {
             String mlp = DOMHelper.getValueFromElement(eJukebox, "LibraryPath");
             if (!mediaLibraryPaths.toString().equalsIgnoreCase(mlp)) {
                 // Overwrite the indexes only.
-                piReturn.mergePropertyInformation(new PropertyInformation("LibraryPath", EnumSet.of(Index)));
+                piReturn.mergePropertyInformation(new PropertyInformation("LibraryPath", EnumSet.of(INDEX)));
             }
 
             // Check the Categories file
             if (!validXmlFileDetails("mjb.xmlCategoryFile", CATEGORY, eJukebox)) {
                 // Details are wrong, so overwrite
-                piReturn.mergePropertyInformation(new PropertyInformation(CATEGORY, EnumSet.of(Index)));
+                piReturn.mergePropertyInformation(new PropertyInformation(CATEGORY, EnumSet.of(INDEX)));
                 LOG.debug(LOG_MESSAGE + "Categories has changed, so need to update");
             }
 
             // Check the Genres file
             if (!validXmlFileDetails("mjb.xmlGenreFile", GENRE, eJukebox)) {
                 // Details are wrong, so overwrite
-                piReturn.mergePropertyInformation(new PropertyInformation(GENRE, EnumSet.of(Index)));
+                piReturn.mergePropertyInformation(new PropertyInformation(GENRE, EnumSet.of(INDEX)));
                 LOG.debug(LOG_MESSAGE + "Genres has changed, so need to update");
             }
 
             // Check the Certifications file
             if (!validXmlFileDetails("mjb.xmlCertificationFile", CERTIFICATION, eJukebox)) {
                 // Details are wrong, so overwrite
-                piReturn.mergePropertyInformation(new PropertyInformation("Certifications", EnumSet.of(Index)));
+                piReturn.mergePropertyInformation(new PropertyInformation("Certifications", EnumSet.of(INDEX)));
                 LOG.debug(LOG_MESSAGE + "Certifications has changed, so need to update");
             }
         }
@@ -527,7 +527,7 @@ public final class JukeboxProperties {
             Element eJukebox = (Element) nDetails;
             String propName, propValue, propCurrent;
 
-            for (PropertyInformation pi : propInfo) {
+            for (PropertyInformation pi : PROPINFO) {
                 propName = pi.getPropertyName();
                 propValue = DOMHelper.getValueFromElement(eJukebox, propName);
                 propCurrent = PropertiesUtil.getProperty(propName, "");
