@@ -173,7 +173,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             if (id > -1 && detailsUrl.length() > id) {
                 String movieId = detailsUrl.substring(id + 3);
-                int idEnd = movieId.indexOf("&");
+                int idEnd = movieId.indexOf('&');
                 if (idEnd > -1) {
                     movieId = movieId.substring(0, idEnd);
                 }

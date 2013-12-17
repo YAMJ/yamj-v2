@@ -935,7 +935,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     int startIndex = aka.getKey().indexOf(matchCountry);
                     if (startIndex > -1) {
                         String extracted = aka.getKey().substring(startIndex);
-                        int endIndex = extracted.indexOf("/");
+                        int endIndex = extracted.indexOf('/');
                         if (endIndex > -1) {
                             extracted = extracted.substring(0, endIndex);
                         }

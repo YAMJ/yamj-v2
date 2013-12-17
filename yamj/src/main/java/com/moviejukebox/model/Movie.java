@@ -369,14 +369,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
             Filmography person = new Filmography();
 
-            if (key.indexOf(":") > -1) {
+            if (key.indexOf(':') > -1) {
                 String[] keys = key.split(":");
                 person.setId(keys[0], keys[1]);
             } else {
                 person.setId(key);
             }
 
-            if (name.indexOf(":") > -1) {
+            if (name.indexOf(':') > -1) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[0])) {
                     person.setName(names[0]);
@@ -1067,7 +1067,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
         if (actorName != null) {
             String name = actorName;
-            if (actorName.indexOf(":") > -1) {
+            if (actorName.indexOf(':') > -1) {
                 String[] names = actorName.split(":");
                 if (StringTools.isValidString(names[1])) {
                     name = names[1];
@@ -1157,7 +1157,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
         if (name != null) {
             String writerName = name;
-            if (name.indexOf(":") > -1) {
+            if (name.indexOf(':') > -1) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[1])) {
                     writerName = names[1];
@@ -1354,7 +1354,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
         if (name != null) {
             String directorName = name;
-            if (name.indexOf(":") > -1) {
+            if (name.indexOf(':') > -1) {
                 String[] names = name.split(":");
                 if (StringTools.isValidString(names[1])) {
                     directorName = names[1];
