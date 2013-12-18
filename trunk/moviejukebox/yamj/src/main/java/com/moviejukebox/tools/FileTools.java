@@ -80,6 +80,7 @@ public final class FileTools {
     // Lock for mkdirs
     private static Lock fsLock = new ReentrantLock();
     private static final String DEFAULT_CHARSET = "UTF-8";
+    private static final int MAX_TRIES = 5;
 
     public static void initSubtitleExtensions() {
         if (SUBTITLE_EXTENSIONS.isEmpty()) {
@@ -232,7 +233,7 @@ public final class FileTools {
         }
 
         if (dst.isDirectory()) {
-            makeDirectories(dst);
+            makeDirs(dst);
             returnValue = copyFile(src, new File(dst + File.separator + src.getName()));
         } else {
             FileInputStream inSource = null;
@@ -335,7 +336,7 @@ public final class FileTools {
             }
 
             File dstDir = new File(dstPathName);
-            makeDirectories(dstDir);
+            makeDirs(dstDir);
 
             if (!dstDir.exists()) {
                 LOG.error(LOG_MESSAGE + "Target directory " + dstPathName + " does not exist!");
@@ -1172,40 +1173,37 @@ public final class FileTools {
      * @param file Source directory or file to create the directories directories
      * @return
      */
-    public static Boolean makeDirectories(File file) {
-        return makeDirectories(file, 10);
+    public static Boolean makeDirsForFile(final File file) {
+        if (file.isDirectory()) {
+            // no need to alter the file
+            return makeDirs(file);
+        } else {
+            return makeDirs(file.getParentFile());
+        }
     }
 
     /**
-     * Create all directories up to the level of the file passed
+     * Create all directories up to the level of the directory passed
      *
      * @param sourceDirectory Source directory or file to create the directories
-     * @param numOfTries Number of attempts that will be made to create the directories
      * @return
      */
-    public static Boolean makeDirectories(final File sourceDirectory, int numOfTries) {
-        File targetDirectory;
-        if (!sourceDirectory.exists() || sourceDirectory.isDirectory()) {
-            targetDirectory = sourceDirectory;
-        } else {
-            targetDirectory = sourceDirectory.getParentFile();
-        }
-
-        if (targetDirectory.exists()) {
+    public static Boolean makeDirs(final File sourceDirectory) {
+        if (sourceDirectory.exists()) {
             return Boolean.TRUE;
         }
 
-        LOG.trace(LOG_MESSAGE + "Creating directories for " + targetDirectory.getAbsolutePath());
+        LOG.trace(LOG_MESSAGE + "Creating directories for " + sourceDirectory.getAbsolutePath());
 
         fsLock.lock();
         try {
-            boolean status = targetDirectory.mkdirs();
+            boolean status = sourceDirectory.mkdirs();
             int looper = 1;
-            while (!status && looper++ <= numOfTries) {
-                status = targetDirectory.mkdirs();
+            while (!status && looper++ <= MAX_TRIES) {
+                status = sourceDirectory.mkdirs();
             }
             if (status && looper > 10) {
-                LOG.error("Failed creating the directory (" + targetDirectory.getAbsolutePath() + "). Ensure this directory is read/write!");
+                LOG.error("Failed creating the directory (" + sourceDirectory.getAbsolutePath() + "). Ensure this directory is read/write!");
                 return Boolean.FALSE;
             }
             return Boolean.TRUE;

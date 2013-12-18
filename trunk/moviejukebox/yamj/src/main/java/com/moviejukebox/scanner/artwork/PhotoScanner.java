@@ -137,8 +137,8 @@ public final class PhotoScanner {
         String dummyFileName = SKIN_HOME + File.separator + "resources" + File.separator + "dummy_photo.jpg";
         File dummyFile = new File(dummyFileName);
 
-        FileTools.makeDirectories(photoFile.getParentFile());
-        FileTools.makeDirectories(tmpDestFile.getParentFile());
+        FileTools.makeDirsForFile(photoFile);
+        FileTools.makeDirsForFile(tmpDestFile);
 
         if (StringTools.isValidString(person.getPhotoURL())) {
 

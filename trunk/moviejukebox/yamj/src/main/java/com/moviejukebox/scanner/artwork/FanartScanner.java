@@ -267,7 +267,7 @@ public final class FanartScanner {
             if (FANART_OVERWRITE
                     || (!fanartFile.exists() && !tmpDestFile.exists())
                     || movie.isDirty(DirtyFlag.FANART)) {
-                FileTools.makeDirectories(tmpDestFile);
+                FileTools.makeDirsForFile(tmpDestFile);
 
                 try {
                     LOG.debug(LOG_MESSAGE + "Downloading fanart for " + movie.getBaseFilename() + " to " + tmpDestFileName + " [calling plugin]");

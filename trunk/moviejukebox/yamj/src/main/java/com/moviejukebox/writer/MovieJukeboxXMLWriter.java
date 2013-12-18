@@ -253,7 +253,7 @@ public class MovieJukeboxXMLWriter {
             return;
         }
 
-        FileTools.makeDirectories(jukebox.getJukeboxTempLocationDetailsFile());
+        FileTools.makeDirs(jukebox.getJukeboxTempLocationDetailsFile());
 
         File xmlFile = new File(jukebox.getJukeboxTempLocationDetailsFile(), filename + EXT_XML);
         FileTools.addJukeboxFile(filename + EXT_XML);
@@ -1703,8 +1703,8 @@ public class MovieJukeboxXMLWriter {
         File finalXmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + PEOPLE_FOLDER + baseName + EXT_XML);
         File tempXmlFile = new File(jukebox.getJukeboxTempLocationDetails() + File.separator + PEOPLE_FOLDER + baseName + EXT_XML);
 
-        FileTools.makeDirectories(tempXmlFile.getParentFile());
-        FileTools.makeDirectories(finalXmlFile.getParentFile());
+        FileTools.makeDirsForFile(tempXmlFile);
+        FileTools.makeDirsForFile(finalXmlFile);
 
         FileTools.addJukeboxFile(finalXmlFile.getName());
 

@@ -348,7 +348,7 @@ public final class VideoImageScanner {
                     || movie.isDirty(DirtyFlag.RECHECK)
                     || movie.isDirty(DirtyFlag.NFO)
                     || movie.isDirty(DirtyFlag.WATCHED)) {
-                FileTools.makeDirectories(videoimageFile);
+                FileTools.makeDirsForFile(videoimageFile);
 
                 // Download the videoimage using the proxy save downloadImage
                 try {

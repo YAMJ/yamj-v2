@@ -40,9 +40,9 @@ public final class MovieNFOWriter {
 
     private static final Logger LOG = Logger.getLogger(MovieNFOWriter.class);
     private static final String LOG_MESSAGE = "MovieNFOWriter: ";
-    private static boolean writeSimpleNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.writeSimpleFiles", Boolean.FALSE);
-    private static boolean extractCertificationFromMPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE);
-    private static boolean enablePeople = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE);
+    private static final boolean WRITE_SIMPLE_NFO = PropertiesUtil.getBooleanProperty("filename.nfo.writeSimpleFiles", Boolean.FALSE);
+    private static final boolean GET_CERT_FROM_MPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE);
+    private static final boolean ENABLE_PEOPLE = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE);
     private static final String CREDITS = "credits";
     private static final String MPAA = "mpaa";
     private static final String CERTIFICATION = "certification";
@@ -118,10 +118,10 @@ public final class MovieNFOWriter {
         }
 
         String nfoFolder = StringTools.appendToPath(jukebox.getJukeboxTempLocationDetails(), "NFO");
-        FileTools.makeDirectories(new File(nfoFolder));
+        FileTools.makeDirs(new File(nfoFolder));
         File tempNfoFile = new File(StringTools.appendToPath(nfoFolder, movie.getBaseName() + ".nfo"));
 
-        LOG.debug(LOG_MESSAGE + "Writing " + (writeSimpleNfoFiles ? "simple " : "") + "NFO file for " + movie.getBaseName() + ".nfo");
+        LOG.debug(LOG_MESSAGE + "Writing " + (WRITE_SIMPLE_NFO ? "simple " : "") + "NFO file for " + movie.getBaseName() + ".nfo");
         FileTools.addJukeboxFile(tempNfoFile.getName());
 
         // Define the root element
@@ -136,7 +136,7 @@ public final class MovieNFOWriter {
             DOMHelper.appendChild(docNFO, eRoot, ID, movie.getId(site), MOVIEDB, site);
         }
 
-        if (!writeSimpleNfoFiles) {
+        if (!WRITE_SIMPLE_NFO) {
             if (StringTools.isValidString(movie.getTitle())) {
                 DOMHelper.appendChild(docNFO, eRoot, TITLE, movie.getTitle());
             }
@@ -191,7 +191,7 @@ public final class MovieNFOWriter {
             }
 
             if (StringTools.isValidString(movie.getCertification())) {
-                if (extractCertificationFromMPAA) {
+                if (GET_CERT_FROM_MPAA) {
                     DOMHelper.appendChild(docNFO, eRoot, MPAA, movie.getCertification());
                 } else {
                     DOMHelper.appendChild(docNFO, eRoot, CERTIFICATION, movie.getCertification());
@@ -214,7 +214,7 @@ public final class MovieNFOWriter {
              * Process the people information from the video If we are using people scraping, use that information,
              * otherwise revert to the standard people
              */
-            if (enablePeople) {
+            if (ENABLE_PEOPLE) {
                 createPeople(docNFO, movie, eRoot);
             } else {
                 createNonPeople(docNFO, movie, eRoot);

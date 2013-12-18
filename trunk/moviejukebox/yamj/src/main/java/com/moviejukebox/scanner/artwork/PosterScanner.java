@@ -259,8 +259,8 @@ public final class PosterScanner {
             File finalJukeboxFile = FileTools.fileCache.getFile(finalJukeboxPosterFileName);
             File tempJukeboxFile = new File(tempJukeboxPosterFileName);
 
-            FileTools.makeDirectories(finalJukeboxFile);
-            FileTools.makeDirectories(tempJukeboxFile);
+            FileTools.makeDirsForFile(finalJukeboxFile);
+            FileTools.makeDirsForFile(tempJukeboxFile);
 
             boolean copyLocalPoster = Boolean.FALSE;
 
