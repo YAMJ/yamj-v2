@@ -72,10 +72,10 @@ public final class GraphicTools {
      *
      * @param fileImage
      * @return
-     * @throws IOException
+     * @throws java.io.FileNotFoundException
      * @throws org.apache.sanselan.ImageReadException
      */
-    public static BufferedImage loadJPEGImage(File fileImage) throws IOException, ImageReadException {
+    public static BufferedImage loadJPEGImage(File fileImage) throws FileNotFoundException, IOException, ImageReadException {
         if (fileImage.exists()) {
             JpegReader jr = new JpegReader();
             return jr.readImage(fileImage);
@@ -339,7 +339,6 @@ public final class GraphicTools {
         Graphics2D g = gradient.createGraphics();
 
 //      GradientPaint painter = new GradientPaint(0.0f, 0.0f, new Color(1.0f, 1.0f, 1.0f, 0.3f), 0.0f, avatarHeight * (reflectionHeight / 100), new Color(1.0f, 1.0f, 1.0f, 1.0f));
-
         float reflectionStart, reflectionEnd, opacityStart, opacityEnd;
         float reflectionHeightAbsolute = avatarHeight * (reflectionHeight / 100);
 
