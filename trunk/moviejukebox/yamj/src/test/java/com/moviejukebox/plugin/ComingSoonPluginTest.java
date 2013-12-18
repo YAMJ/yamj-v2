@@ -56,7 +56,7 @@ public class ComingSoonPluginTest {
         movie.setTitle("L'Incredibile Storia Di Winter Il Delfino", csPlugin.getPluginID());
 
         assertTrue(csPlugin.scan(movie));
-        assertEquals("L'incredibile storia di Winter il delfino", movie.getTitle());
+        assertEquals("L'incredibile Storia Di Winter Il D]elfino", movie.getTitle());
         assertEquals("Dolphin Tale", movie.getOriginalTitle());
         assertEquals("2011", movie.getYear());
         assertTrue(movie.getDirectors().size() > 0);
@@ -71,8 +71,8 @@ public class ComingSoonPluginTest {
             "Matrix",
             "Gli Aristogatti",
             "Inception",
-            "L'arte del sogno",
-            "Lettere da Iwo Jima"
+            "L'arte Del S]ogno",
+            "Lettere Da Iwo Jima"
         };
 
         for (int i = 0; i < titleList.length; i++) {

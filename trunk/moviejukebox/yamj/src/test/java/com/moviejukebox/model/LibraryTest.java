@@ -25,6 +25,9 @@ package com.moviejukebox.model;
 import com.moviejukebox.tools.PropertiesUtil;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -41,6 +44,7 @@ public class LibraryTest {
 
     @BeforeClass
     public static void setUpClass() {
+        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
     }
 
     @AfterClass
@@ -49,8 +53,6 @@ public class LibraryTest {
 
     @Before
     public void setUp() {
-        // TODO Artem: Decouple library from config.
-        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
         lib = new Library();
         lib.clear();
 
@@ -80,12 +82,12 @@ public class LibraryTest {
     public void testIndex() {
         Index index = new Index();
         assertEquals(0, index.size());
-        add10Movies(index);
+        addMovies(index, 10);
         assertEquals(10, index.size());
         index.clear();
         assertEquals(0, index.size());
         index.setMaxCategories(5);
-        add10Movies(index);
+        addMovies(index, 10);
         assertEquals(5, index.size());
     }
 
@@ -100,8 +102,8 @@ public class LibraryTest {
         assertEquals(4, index.get("The Sopranos").size());
     }
 
-    private void add10Movies(Index index) {
-        for (int i = 0; i < 10; i++) {
+    private void addMovies(Index index, int number) {
+        for (int i = 0; i < number; i++) {
             index.addMovie("i" + i, new Movie());
         }
     }

@@ -521,56 +521,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return this.getStrippedTitleSort().compareToIgnoreCase(anotherMovie.getStrippedTitleSort());
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Movie other = (Movie) obj;
-        if ((this.baseName == null) ? (other.baseName != null) : !this.baseName.equals(other.baseName)) {
-            return false;
-        }
-        if ((this.baseFilename == null) ? (other.baseFilename != null) : !this.baseFilename.equals(other.baseFilename)) {
-            return false;
-        }
-        if ((this.title == null) ? (other.title != null) : !this.title.equals(other.title)) {
-            return false;
-        }
-        if ((this.originalTitle == null) ? (other.originalTitle != null) : !this.originalTitle.equals(other.originalTitle)) {
-            return false;
-        }
-        if ((this.year == null) ? (other.year != null) : !this.year.equals(other.year)) {
-            return false;
-        }
-        if ((this.releaseDate == null) ? (other.releaseDate != null) : !this.releaseDate.equals(other.releaseDate)) {
-            return false;
-        }
-        if ((this.language == null) ? (other.language != null) : !this.language.equals(other.language)) {
-            return false;
-        }
-        if ((this.videoType == null) ? (other.videoType != null) : !this.videoType.equals(other.videoType)) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 23 * hash + (this.baseName != null ? this.baseName.hashCode() : 0);
-        hash = 23 * hash + (this.baseFilename != null ? this.baseFilename.hashCode() : 0);
-        hash = 23 * hash + (this.title != null ? this.title.hashCode() : 0);
-        hash = 23 * hash + (this.originalTitle != null ? this.originalTitle.hashCode() : 0);
-        hash = 23 * hash + (this.year != null ? this.year.hashCode() : 0);
-        hash = 23 * hash + (this.releaseDate != null ? this.releaseDate.hashCode() : 0);
-        hash = 23 * hash + (this.language != null ? this.language.hashCode() : 0);
-        hash = 23 * hash + (this.videoType != null ? this.videoType.hashCode() : 0);
-        return hash;
-    }
-
     @Deprecated
     public String getAudioCodec() {
         StringBuilder sb = new StringBuilder();
