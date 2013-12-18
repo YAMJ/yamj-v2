@@ -1185,7 +1185,7 @@ public final class FileTools {
      */
     public static Boolean makeDirectories(final File sourceDirectory, int numOfTries) {
         File targetDirectory;
-        if (sourceDirectory.isDirectory()) {
+        if (!sourceDirectory.exists() || sourceDirectory.isDirectory()) {
             targetDirectory = sourceDirectory;
         } else {
             targetDirectory = sourceDirectory.getParentFile();
@@ -1194,7 +1194,7 @@ public final class FileTools {
         if (targetDirectory.exists()) {
             return Boolean.TRUE;
         }
-        
+
         LOG.trace(LOG_MESSAGE + "Creating directories for " + targetDirectory.getAbsolutePath());
 
         fsLock.lock();

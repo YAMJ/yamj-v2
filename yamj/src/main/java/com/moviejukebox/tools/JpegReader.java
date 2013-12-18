@@ -80,6 +80,10 @@ public class JpegReader {
         }
 
         ImageInputStream stream = ImageIO.createImageInputStream(file);
+        if (stream == null) {
+            LOG.debug(LOG_MESSAGE + "Error reading stream, does not exist: " + file.getName());
+            return null;
+        }
         Iterator<ImageReader> iter = ImageIO.getImageReaders(stream);
         BufferedImage image = null;
 
