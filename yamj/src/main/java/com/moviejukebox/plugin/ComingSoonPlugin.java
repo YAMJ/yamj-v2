@@ -88,7 +88,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             movie.setId(COMINGSOON_PLUGIN_ID, comingSoonId);
 
             if (StringTools.isNotValidString(comingSoonId)) {
-                LOG.debug(LOG_MESSAGE + "unable to find id on first scan");
+                LOG.debug(LOG_MESSAGE + "Unable to find ID on first scan");
             }
         }
 

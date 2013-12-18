@@ -1194,6 +1194,7 @@ public final class FileTools {
         if (targetDirectory.exists()) {
             return Boolean.TRUE;
         }
+        
         LOG.trace(LOG_MESSAGE + "Creating directories for " + targetDirectory.getAbsolutePath());
 
         fsLock.lock();

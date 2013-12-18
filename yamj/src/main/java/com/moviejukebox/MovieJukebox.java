@@ -134,19 +134,19 @@ public class MovieJukebox {
     private static final String LEFT = "left";
     private static final String THUMBNAILS = "thumbnails";
     private static final String POSTERS = "posters";
-    private String movieLibraryRoot;
+    private final String movieLibraryRoot;
     private static String userPropertiesName = "./moviejukebox.properties";
     // Jukebox parameters
     private static Jukebox jukebox;
     private static boolean jukeboxPreserve = Boolean.FALSE;
     private static boolean jukeboxClean = Boolean.FALSE;
     // Overwrite flags
-    private boolean forcePosterOverwrite;
-    private boolean forceThumbnailOverwrite;
-    private boolean forceBannerOverwrite;
-    private boolean forceSkinOverwrite;
-    private boolean forceIndexOverwrite;
-    private boolean forceFooterOverwrite;
+    private final boolean forcePosterOverwrite;
+    private final boolean forceThumbnailOverwrite;
+    private final boolean forceBannerOverwrite;
+    private final boolean forceSkinOverwrite;
+    private final boolean forceIndexOverwrite;
+    private final boolean forceFooterOverwrite;
     // Scanner Tokens
     private static String posterToken;
     private static String thumbnailToken;
@@ -533,7 +533,7 @@ public class MovieJukebox {
 
             // Try and create the directory if needed, but don't stop the rename if we can't
             if (StringTools.isValidString(logDir)) {
-                FileTools.makeDirectories(newLogFile.getParentFile());
+                FileTools.makeDirectories(newLogFile);
             }
 
             // First we need to tell Log4J to change the name of the current log file to something else so it unlocks the file
