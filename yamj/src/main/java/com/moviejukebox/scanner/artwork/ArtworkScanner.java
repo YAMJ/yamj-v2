@@ -686,7 +686,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
 
         // Do not overwrite existing artwork, unless there is a new URL in the nfo file.
         if ((!tmpDestFile.exists() && !artworkFile.exists()) || isDirtyArtwork(movie) || isOverwrite()) {
-            FileTools.makeDirectories(artworkFile.getParentFile());
+            FileTools.makeDirsForFile(artworkFile);
 
             if (artworkUrl == null || artworkUrl.equals(Movie.UNKNOWN)) {
                 LOG.debug("Dummy " + artworkType + " used for " + movie.getBaseName());

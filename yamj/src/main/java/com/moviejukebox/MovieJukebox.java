@@ -533,7 +533,7 @@ public class MovieJukebox {
 
             // Try and create the directory if needed, but don't stop the rename if we can't
             if (StringTools.isValidString(logDir)) {
-                FileTools.makeDirectories(newLogFile);
+                FileTools.makeDirsForFile(newLogFile);
             }
 
             // First we need to tell Log4J to change the name of the current log file to something else so it unlocks the file
@@ -576,7 +576,7 @@ public class MovieJukebox {
 
             String libraryRoot = mediaLibraryRoot.replaceAll(":", "_").replaceAll(Pattern.quote(File.separator), "-");
             File libraryRootDump = new File("./dumpDir/" + libraryRoot);
-            FileTools.makeDirectories(libraryRootDump);
+            FileTools.makeDirs(libraryRootDump);
             // libraryRootDump.deleteOnExit();
             dumpDir(new File(mediaLibraryRoot), libraryRootDump);
             LOG.info("Dumping YAMJ root dir");
@@ -844,7 +844,7 @@ public class MovieJukebox {
 
         // create the ".mjbignore" and ".no_photo.nmj" file in the jukebox folder
         try {
-            FileTools.makeDirectories(jukebox.getJukeboxRootLocationDetailsFile());
+            FileTools.makeDirs(jukebox.getJukeboxRootLocationDetailsFile());
             new File(jukebox.getJukeboxRootLocationDetailsFile(), ".mjbignore").createNewFile();
             FileTools.addJukeboxFile(".mjbignore");
 
@@ -886,7 +886,7 @@ public class MovieJukebox {
 
         // Try and create the temp directory
         LOG.debug("Creating temporary jukebox location: " + jukebox.getJukeboxTempLocation());
-        FileTools.makeDirectories(jukebox.getJukeboxTempLocationDetailsFile());
+        FileTools.makeDirs(jukebox.getJukeboxTempLocationDetailsFile());
 
         /*
          * ******************************************************************************
@@ -1735,7 +1735,7 @@ public class MovieJukebox {
                 if (skinFile.exists()) {
                     skinFile.setLastModified(JukeboxStatistics.getTime(JukeboxStatistics.JukeboxTimes.START));
                 } else {
-                    FileTools.makeDirectories(skinFile);
+                    FileTools.makeDirsForFile(skinFile);
                     skinFile.createNewFile();
                 }
             } else {
@@ -2142,8 +2142,8 @@ public class MovieJukebox {
         File posterFile = new File(FilenameUtils.concat(jukebox.getJukeboxRootLocationDetails(), posterFilename));
         File tmpDestFile = new File(FilenameUtils.concat(jukebox.getJukeboxTempLocationDetails(), posterFilename));
 
-        FileTools.makeDirectories(posterFile);
-        FileTools.makeDirectories(tmpDestFile);
+        FileTools.makeDirsForFile(posterFile);
+        FileTools.makeDirsForFile(tmpDestFile);
 
         // Check to see if there is a local poster.
         // Check to see if there are posters in the jukebox directories (target and temp)
@@ -2151,7 +2151,7 @@ public class MovieJukebox {
         // Download poster
         // Do not overwrite existing posters, unless there is a new poster URL in the nfo file.
         if ((!tmpDestFile.exists() && !posterFile.exists()) || movie.isDirty(DirtyFlag.POSTER) || forcePosterOverwrite) {
-            FileTools.makeDirectories(posterFile.getParentFile());
+            FileTools.makeDirsForFile(posterFile);
 
             if (!isValidString(movie.getPosterURL())) {
                 LOG.debug("Dummy image used for " + movie.getBaseName());
@@ -2197,7 +2197,7 @@ public class MovieJukebox {
         // Download banner
         // Do not overwrite existing banners, unless there is a new poster URL in the nfo file.
         if ((!tmpDestFile.exists() && !bannerFile.exists()) || movie.isDirty(DirtyFlag.BANNER) || forceBannerOverwrite) {
-            FileTools.makeDirectories(tmpDestFile);
+            FileTools.makeDirsForFile(tmpDestFile);
 
             if (isNotValidString(movie.getBannerURL())) {
                 LOG.debug("Dummy banner used for " + movie.getBaseName());
@@ -2238,7 +2238,7 @@ public class MovieJukebox {
         File tmpDestFile = new File(tmpDestFilename);
 
         if (forceFooterOverwrite || (!tmpDestFile.exists() && !footerFile.exists())) {
-            FileTools.makeDirectories(footerFile.getParentFile());
+            FileTools.makeDirsForFile(footerFile);
 
             BufferedImage footerImage = GraphicTools.createBlankImage(FOOTER_WIDTH.get(inx), FOOTER_HEIGHT.get(inx));
             if (footerImage != null) {

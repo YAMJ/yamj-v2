@@ -235,7 +235,7 @@ public class MediaInfoScanner {
 
             IsoArchiveFile scannedIsoFile = new IsoArchiveFile(abstractIsoFile);
             File tempRep = new File(randomDirName + "/VIDEO_TS");
-            FileTools.makeDirectories(tempRep);
+            FileTools.makeDirs(tempRep);
 
             OutputStream fosCurrentIFO = null;
             try {

@@ -131,7 +131,7 @@ public class TrailerPlugin implements ITrailerPlugin {
 
         if (StringTools.isValidString(SCANNER_PATH)) {
             parentPath = SCANNER_PATH;
-            FileTools.makeDirectories(new File(parentPath));
+            FileTools.makeDirs(new File(parentPath));
         }
 
         String trailerExt = FilenameUtils.getExtension(trailerUrl);

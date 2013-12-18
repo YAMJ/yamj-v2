@@ -54,9 +54,9 @@ public final class BannerScanner {
     private static final Logger LOG = Logger.getLogger(BannerScanner.class);
     private static final String LOG_MESSAGE = "BannerScanner: ";
     private static final Collection<String> EXTENSIONS = new ArrayList<String>();
-    private static String bannerToken = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
-    private static String wideBannerToken = PropertiesUtil.getProperty("mjb.scanner.wideBannerToken", ".wide");
-    private static boolean bannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", Boolean.FALSE);
+    private static final String BANNER_TOKEN = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");
+    private static final String WIDE_BANNER_TOKEN = PropertiesUtil.getProperty("mjb.scanner.wideBannerToken", ".wide");
+    private static final boolean OVERWRITE = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", Boolean.FALSE);
     private static final boolean USE_FOLDER_BANNER;
     private static final Collection<String> IMAGE_NAME;
 
@@ -89,16 +89,16 @@ public final class BannerScanner {
      * Scan for local banners and download if necessary
      *
      * @param imagePlugin
-     * @param jukeboxDetailsRoot
-     * @param tempJukeboxDetailsRoot
+     * @param jukebox
      * @param movie
+     * @return
      */
     public static boolean scan(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie) {
         String localBannerBaseFilename = movie.getBaseFilename();
         String parentPath = FileTools.getParentFolder(movie.getFile());
 
         // Look for the banner.bannerToken.Extension
-        String fullBannerFilename = parentPath + File.separator + localBannerBaseFilename + wideBannerToken;
+        String fullBannerFilename = parentPath + File.separator + localBannerBaseFilename + WIDE_BANNER_TOKEN;
         File localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, EXTENSIONS);
         boolean foundLocalBanner = localBannerFile.exists();
 
@@ -107,7 +107,7 @@ public final class BannerScanner {
             Boolean searchInJukebox = Boolean.FALSE;
 
             // Look for the local file in the cache but NOT the jukebox
-            localBannerFile = FileTools.findFilenameInCache(localBannerBaseFilename + bannerToken, EXTENSIONS, jukebox, LOG_MESSAGE, searchInJukebox);
+            localBannerFile = FileTools.findFilenameInCache(localBannerBaseFilename + BANNER_TOKEN, EXTENSIONS, jukebox, LOG_MESSAGE, searchInJukebox);
 
             if (localBannerFile != null) {
                 foundLocalBanner = Boolean.TRUE;
@@ -118,7 +118,7 @@ public final class BannerScanner {
                     searchInJukebox = Boolean.FALSE;
                 }
 
-                localBannerFile = FileTools.findFilenameInCache(localBannerBaseFilename + wideBannerToken, EXTENSIONS, jukebox, LOG_MESSAGE, searchInJukebox);
+                localBannerFile = FileTools.findFilenameInCache(localBannerBaseFilename + WIDE_BANNER_TOKEN, EXTENSIONS, jukebox, LOG_MESSAGE, searchInJukebox);
                 if (localBannerFile != null) {
                     foundLocalBanner = Boolean.TRUE;
                 }
@@ -130,13 +130,13 @@ public final class BannerScanner {
             localBannerBaseFilename = FileTools.getParentFolderName(movie.getFile());
 
             // Checking for the MovieFolderName.*
-            fullBannerFilename = StringTools.appendToPath(parentPath, localBannerBaseFilename + bannerToken);
+            fullBannerFilename = StringTools.appendToPath(parentPath, localBannerBaseFilename + BANNER_TOKEN);
             localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, EXTENSIONS);
             foundLocalBanner = localBannerFile.exists();
 
             // Try the wide banner
             if (!foundLocalBanner) {
-                fullBannerFilename = StringTools.appendToPath(parentPath, localBannerBaseFilename + wideBannerToken);
+                fullBannerFilename = StringTools.appendToPath(parentPath, localBannerBaseFilename + WIDE_BANNER_TOKEN);
                 localBannerFile = FileTools.findFileFromExtensions(fullBannerFilename, EXTENSIONS);
                 foundLocalBanner = localBannerFile.exists();
             }
@@ -177,11 +177,11 @@ public final class BannerScanner {
             LOG.debug(LOG_MESSAGE + "File " + fullBannerFilename + " found");
 
             if (StringTools.isNotValidString(movie.getBannerFilename())) {
-                movie.setBannerFilename(movie.getBaseFilename() + bannerToken + "." + PropertiesUtil.getProperty("banners.format", "png"));
+                movie.setBannerFilename(movie.getBaseFilename() + BANNER_TOKEN + "." + PropertiesUtil.getProperty("banners.format", "png"));
             }
 
             if (StringTools.isNotValidString(movie.getWideBannerFilename())) {
-                movie.setWideBannerFilename(movie.getBaseFilename() + wideBannerToken + "." + PropertiesUtil.getProperty("banners.format", "png"));
+                movie.setWideBannerFilename(movie.getBaseFilename() + WIDE_BANNER_TOKEN + "." + PropertiesUtil.getProperty("banners.format", "png"));
             }
 
             if (StringTools.isNotValidString(movie.getBannerURL())) {
@@ -193,13 +193,13 @@ public final class BannerScanner {
 
             File finalDestinationFile = FileTools.fileCache.getFile(finalDestinationFileName);
             File fullBannerFile = localBannerFile;
-            FileTools.makeDirectories(finalDestinationFile);
-            FileTools.makeDirectories(fullBannerFile);
+            FileTools.makeDirsForFile(finalDestinationFile);
+            FileTools.makeDirsForFile(fullBannerFile);
 
             // Local Banner is newer OR ForcePosterOverwrite OR DirtyBanner
             // Can't check the file size because the jukebox banner may have been re-sized
             // This may mean that the local art is different to the jukebox art even if the local file date is newer
-            if (bannerOverwrite || movie.isDirty(DirtyFlag.BANNER) || FileTools.isNewer(fullBannerFile, finalDestinationFile)) {
+            if (OVERWRITE || movie.isDirty(DirtyFlag.BANNER) || FileTools.isNewer(fullBannerFile, finalDestinationFile)) {
                 try {
                     BufferedImage bannerImage = GraphicTools.loadJPEGImage(fullBannerFile);
                     if (bannerImage != null) {
@@ -253,8 +253,8 @@ public final class BannerScanner {
             File tmpDestFile = new File(tmpDestFileName);
 
             // Do not overwrite existing banner unless ForceBannerOverwrite = true
-            if (bannerOverwrite || movie.isDirty(DirtyFlag.BANNER) || (!bannerFile.exists() && !tmpDestFile.exists())) {
-                FileTools.makeDirectories(bannerFile);
+            if (OVERWRITE || movie.isDirty(DirtyFlag.BANNER) || (!bannerFile.exists() && !tmpDestFile.exists())) {
+                FileTools.makeDirsForFile(bannerFile);
                 String origDestFileName = jukebox.getJukeboxTempLocationDetails() + File.separator + movie.getWideBannerFilename();
                 File origDestFile = new File(origDestFileName);
 
