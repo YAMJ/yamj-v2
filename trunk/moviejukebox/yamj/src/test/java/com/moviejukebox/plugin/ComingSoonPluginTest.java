@@ -25,7 +25,9 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -56,7 +58,7 @@ public class ComingSoonPluginTest {
         movie.setTitle("L'Incredibile Storia Di Winter Il Delfino", csPlugin.getPluginID());
 
         assertTrue(csPlugin.scan(movie));
-        assertEquals("L'incredibile Storia Di Winter Il D]elfino", movie.getTitle());
+        assertEquals("L'incredibile Storia Di Winter Il Delfino", movie.getTitle());
         assertEquals("Dolphin Tale", movie.getOriginalTitle());
         assertEquals("2011", movie.getYear());
         assertTrue(movie.getDirectors().size() > 0);
@@ -71,17 +73,17 @@ public class ComingSoonPluginTest {
             "Matrix",
             "Gli Aristogatti",
             "Inception",
-            "L'arte Del S]ogno",
+            "L'arte Del Sogno",
             "Lettere Da Iwo Jima"
         };
 
         for (int i = 0; i < titleList.length; i++) {
             Movie movie = new Movie();
             movie.setTitle(titleList[i], csPlugin.getPluginID());
-            assertTrue(csPlugin.scan(movie));
-            assertEquals(titleList[i], movie.getTitle());
-            assertTrue(movie.getDirectors().size() > 0);
-            assertTrue(movie.getWriters().size() > 0);
+            assertTrue("Scan failed for " + movie.getTitle(), csPlugin.scan(movie));
+            assertEquals("Wrong title", titleList[i], movie.getTitle());
+            assertTrue("Wrong number of directors", movie.getDirectors().size() > 0);
+            assertTrue("Wrong number of writers", movie.getWriters().size() > 0);
 
             if (i != 1) {
                 assertNotNull("No movie object for " + titleList[i], movie);
@@ -89,11 +91,11 @@ public class ComingSoonPluginTest {
                 assertTrue("Invalid release date for " + titleList[i], StringTools.isValidString(movie.getReleaseDate()));
             }
 
-            assertTrue(StringTools.isValidString(movie.getPlot()));
-            assertTrue(StringTools.isValidString(movie.getYear()));
-            assertTrue(StringTools.isValidString(movie.getRuntime()));
-            assertTrue(StringTools.isValidString(movie.getCountry()));
-            assertTrue(movie.getRating() > -1);
+            assertTrue("No Plot", StringTools.isValidString(movie.getPlot()));
+            assertTrue("No year", StringTools.isValidString(movie.getYear()));
+            assertTrue("No runtime", StringTools.isValidString(movie.getRuntime()));
+            assertTrue("No country", StringTools.isValidString(movie.getCountry()));
+            assertTrue("No rating", movie.getRating() > -1);
         }
     }
 }
