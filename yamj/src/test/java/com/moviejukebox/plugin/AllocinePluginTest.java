@@ -85,6 +85,8 @@ public class AllocinePluginTest {
         OverrideTools.putTvPriorities(OverrideFlag.ORIGINALTITLE, "allocine,imdb");
         OverrideTools.putTvPriorities(OverrideFlag.PLOT, "allocine,imdb");
         OverrideTools.putTvPriorities(OverrideFlag.OUTLINE, "allocine,imdb");
+        OverrideTools.putTvPriorities(OverrideFlag.EPISODE_TITLE, "allocine,imdb");
+        OverrideTools.putTvPriorities(OverrideFlag.EPISODE_PLOT, "allocine,imdb");
 
         Movie movie = new Movie();
         movie.setMovieType(Movie.TYPE_TVSHOW);
