@@ -42,6 +42,8 @@ import org.apache.log4j.Logger;
 public class MovieListingPluginCsv extends MovieListingPluginBase implements MovieListingPlugin {
 
     private static final Logger LOG = Logger.getLogger(MovieListingPluginCsv.class);
+    private static final String FALSE = "False";
+    private static final String TRUE = "True";
 
     /**
      * @return CSV-formatted header row
@@ -52,6 +54,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         headerLine.append(prepOutput("Type"));
         headerLine.append(prepOutput("Title"));
         headerLine.append(prepOutput("TitleSort"));
+        headerLine.append(prepOutput("OriginalTitle"));
         headerLine.append(prepOutput("IMDB ID"));
         headerLine.append(prepOutput("Director"));
         headerLine.append(prepOutput("Company"));
@@ -95,7 +98,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         headerLine.append(prepOutput("Watched", false));
 
         return headerLine.toString();
-    } // headerLine();
+    }
 
     /**
      * @param sItemType
@@ -113,6 +116,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         headerLine.append(prepOutput(sItemType));
         headerLine.append(prepOutput(movie.getTitle()));
         headerLine.append(prepOutput(movie.getTitleSort()));
+        headerLine.append(prepOutput(movie.getOriginalTitle()));
         headerLine.append(prepOutput(movie.getId(ImdbPlugin.IMDB_PLUGIN_ID)));
         headerLine.append(prepOutput(movie.getDirector()));
         headerLine.append(prepOutput(movie.getCompany()));
@@ -138,8 +142,8 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         headerLine.append(prepOutput(String.valueOf(null == genres ? "0" : genres.size())));
         headerLine.append(prepOutput(String.valueOf(null == cast ? "0" : cast.size())));
         headerLine.append(prepOutput(movie.getSubtitles()));
-        headerLine.append(prepOutput((null != movie.getPosterURL() ? "True" : "False")));
-        headerLine.append(prepOutput(String.valueOf(null != movie.getDetailPosterFilename() ? "True" : "False")));
+        headerLine.append(prepOutput((null != movie.getPosterURL() ? TRUE : FALSE)));
+        headerLine.append(prepOutput(String.valueOf(null != movie.getDetailPosterFilename() ? TRUE : FALSE)));
         headerLine.append(prepOutput(String.valueOf(movie.getRating())));
         headerLine.append(prepOutput(String.valueOf(movie.getTop250())));
         headerLine.append(prepOutput(movie.getLibraryDescription()));
@@ -156,7 +160,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         headerLine.append(prepOutput(String.valueOf(movie.isWatched()), false));
 
         return headerLine.toString();
-    } // toCSV()
+    }
 
     /**
      * @param i
@@ -168,7 +172,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         } else {
             return "";
         }
-    } // blankNegatives()
+    }
 
     /**
      * @param str
@@ -176,7 +180,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
      */
     protected String prepOutput(String str) {
         return prepOutput(str, true);
-    } // prepOutput()
+    }
 
     /**
      * @param inputString
@@ -208,7 +212,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         }
 
         return newString;
-    } // encloseInQuotes()
+    }
 
     /**
      * @param library
@@ -221,8 +225,8 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         File csvFile = new File(jukebox.getJukeboxTempLocation(), filename);
 
         List<String> alTypes = getSelectedTypes();
+        CSVWriter writer = new CSVWriter(csvFile);
         try {
-            CSVWriter writer = new CSVWriter(csvFile);
             LOG.debug("  Writing CSV to: " + csvFile.getAbsolutePath());
 
             // write header line
@@ -263,15 +267,15 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                     }
                 }
             }
-
+        } catch (IOException ex) {
+            LOG.error("Failed writing to CSV file, error: " + ex.getMessage());
+            LOG.error(SystemTools.getStackTrace(ex));
+        } finally {
+            writer.flush();
             writer.close();
-        } catch (IOException error) {
-            LOG.error(SystemTools.getStackTrace(error));
         }
 
         // move to configured (default) location
         copyListingFile(csvFile, filename);
-
-    } // generate()
-} // class MovieListingPluginCsv
-
+    }
+}

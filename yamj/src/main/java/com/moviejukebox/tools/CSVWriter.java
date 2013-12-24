@@ -38,17 +38,21 @@ public class CSVWriter {
     private FileWriter writer;
 
     /**
+     * Create the CSV file and leave it open for writing
+     *
      * @param csvFile
      */
     public CSVWriter(File csvFile) {
         try {
             writer = new FileWriter(csvFile);
         } catch (IOException ex) {
-            LOG.error(LOG_MESSAGE + "Error creating CSV file: " + csvFile);
+            LOG.error(LOG_MESSAGE + "Error creating CSV file: " + csvFile + ",error: " + ex.getMessage());
         }
     }
 
     /**
+     * Write the line to the file
+     *
      * @param str
      * @throws java.io.IOException
      */
@@ -57,19 +61,25 @@ public class CSVWriter {
     }
 
     /**
-     * @throws IOException
+     * Flush the file
      */
-    public void flush() throws IOException {
-        writer.flush();
+    public void flush() {
+        try {
+            writer.flush();
+        } catch (IOException ex) {
+            LOG.trace(LOG_MESSAGE + "Failed to flush CSVWriter: " + ex.getMessage());
+        }
+
     }
 
     /**
-     *
+     * Close the file
      */
     public void close() {
         try {
             writer.close();
-        } catch (IOException ignore) {
+        } catch (IOException ex) {
+            LOG.trace(LOG_MESSAGE + "Failed to close CSVWriter: " + ex.getMessage());
         }
     }
-} // class CSVWriter
+}

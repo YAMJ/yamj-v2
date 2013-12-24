@@ -729,7 +729,7 @@ public class MovieJukeboxHTMLWriter {
 
                 if (retryTimes == 0) {
                     // We've exceeded the maximum number of retries, so throw the exception and quit
-                    throw new RuntimeException("Failed generating HTML, retries exceeded", ex);
+                    throw new RuntimeException("Failed generating HTML, retries exceeded: " + ex.getMessage(), ex);
                 } else {
                     LOG.debug(LOG_MESSAGE + "Failed generating HTML, will retry "
                             + retryTimes + " more time" + (retryTimes == 1 ? ". " : "s. ") + message);

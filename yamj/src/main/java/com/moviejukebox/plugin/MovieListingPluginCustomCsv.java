@@ -144,6 +144,8 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                 sb.append(prep(movie.getTitle()));
             } else if (checkHeaderField(header, "TitleSort")) {
                 sb.append(prep(movie.getTitleSort()));
+            }else if (checkHeaderField(header, "OriginalTitle")){
+                sb.append(prep(movie.getOriginalTitle()));
             } else if (checkHeaderField(header, "IMDB ID")) {
                 sb.append(prep(movie.getId(ImdbPlugin.IMDB_PLUGIN_ID)));
             } else if (checkHeaderField(header, "TheTVDB ID")) {
@@ -417,6 +419,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         df.append("Type").append(",");
         df.append("Title").append(",");
         df.append("TitleSort").append(",");
+        df.append("OriginalTitle").append(",");
         df.append("IMDB ID").append(",");
         df.append("TheTVDB ID").append(",");
         df.append("Director").append(",");

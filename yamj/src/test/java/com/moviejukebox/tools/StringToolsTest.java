@@ -23,6 +23,8 @@
 package com.moviejukebox.tools;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -233,9 +235,16 @@ public class StringToolsTest {
         String result = StringTools.processMpaaCertification("Certificate", mpaa);
         assertEquals("12", result);
 
-        // Test the standard certification String
-        result = StringTools.processMpaaCertification("Rated PG-13 for some violent images and brief nudity");
-        assertEquals("PG-13", result);
+        // Test the standard certification Strings
+        Map<String, String> certs = new HashMap<String, String>();
+        certs.put("Rated PG-13 for some violent images and brief nudity", "PG-13");
+        certs.put("Rated R for some violence (Redux version)", "R");
+
+        for (Map.Entry<String, String> entry : certs.entrySet()) {
+            LOG.info("Checking '" + entry.getKey() + "'");
+            result = StringTools.processMpaaCertification(entry.getKey());
+            assertEquals("Failed to get correct certification", entry.getValue(), result);
+        }
     }
 
     /**
