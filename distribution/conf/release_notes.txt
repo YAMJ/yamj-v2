@@ -26,6 +26,7 @@ MovieJukebox 2.10-SNAPSHOT
  - Fixed defect #2709 Writers incorrect from IMDB Plugin
  - Enhancement  #2710 Option to skip Cast & Crew from NFO
  - Fixed defect #2711 Plot & Outline ampersand problem
+ - Fixed defect #2714 RottenTomatoes over queries per second limit
 
 MovieJukebox 2.9
 ----------------

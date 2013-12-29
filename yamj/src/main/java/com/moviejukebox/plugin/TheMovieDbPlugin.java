@@ -55,6 +55,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.pojava.datetime2.DateTime;
 
@@ -173,7 +174,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 // Search based on TMdb ID
                 LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Using TMDb ID (" + tmdbID + ") for " + movie.getBaseName());
                 try {
-                    moviedb = TMDb.getMovieInfo(Integer.parseInt(tmdbID), languageCode);
+                    moviedb = TMDb.getMovieInfo(NumberUtils.toInt(tmdbID), languageCode);
                 } catch (MovieDbException ex) {
                     LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Failed to get movie info using TMDB ID: " + tmdbID + " - " + ex.getMessage());
                     moviedb = null;
@@ -201,7 +202,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     // Search using movie name
                     int movieYear = 0;
                     if (StringTools.isValidString(movie.getYear()) && StringUtils.isNumeric(movie.getYear())) {
-                        movieYear = Integer.parseInt(movie.getYear());
+                        movieYear = NumberUtils.toInt(movie.getYear(), 0);
                     }
 
                     LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Using '" + movie.getTitle() + "' & '" + movieYear + "' to locate movie information");
@@ -211,15 +212,16 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
                     // Iterate over the list until we find a match
                     for (MovieDb m : movieList) {
-                        LOG.debug(LOG_MESSAGE + "Checking " + m.getTitle() + " (" + m.getReleaseDate().substring(0, 4) + ")");
-                        if (TheMovieDbApi.compareMovies(m, movie.getTitle(), Integer.toString(movieYear), SEARCH_MATCH)) {
+                        String year = StringUtils.isBlank(m.getReleaseDate()) ? "UNKNOWN" : m.getReleaseDate().substring(0, 4);
+                        LOG.debug(LOG_MESSAGE + "Checking " + m.getTitle() + " (" + year + ")");
+                        if (TheMovieDbApi.compareMovies(m, movie.getTitle(), String.valueOf(movieYear), SEARCH_MATCH, false)) {
                             moviedb = m;
                             break;
                         }
 
                         // See if the original title is different and then compare it too
                         if (!movie.getTitle().equals(movie.getOriginalTitle())
-                                && TheMovieDbApi.compareMovies(m, movie.getOriginalTitle(), Integer.toString(movieYear))) {
+                                && TheMovieDbApi.compareMovies(m, movie.getOriginalTitle(), Integer.toString(movieYear), 0, false)) {
                             moviedb = m;
                             break;
                         }
@@ -263,18 +265,18 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         }
 
         if (moviedb != null) {
+            retval = true;
             if (moviedb.getId() > 0) {
                 movie.setMovieType(Movie.TYPE_MOVIE);
             }
 
             if (StringTools.isValidString(moviedb.getTitle())) {
                 copyMovieInfo(moviedb, movie);
-                retval = true;
             }
 
             // Set the release information
             if (movieReleaseInfo.size() > 0 && OverrideTools.checkOverwriteCertification(movie, TMDB_PLUGIN_ID)) {
-                LOG.debug(LOG_MESSAGE + "Found release information: " + movieReleaseInfo.get(0).toString());
+                LOG.trace(LOG_MESSAGE + "Found release information: " + movieReleaseInfo.get(0).toString());
                 movie.setCertification(movieReleaseInfo.get(0).getCertification(), TMDB_PLUGIN_ID);
             }
 
@@ -617,7 +619,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 // TODO: Need to sort this list
 //                List<PersonCredit> creditList = results.getResults();
                 for (PersonCredit credit : results.getResults()) {
-                    LOG.info("Credit job: " + credit.getPersonType() + " = '" + credit.getJob() + "' - "+ credit.getMovieTitle() + " (" + credit.getReleaseDate() + ")");
+                    LOG.info("Credit job: " + credit.getPersonType() + " = '" + credit.getJob() + "' - " + credit.getMovieTitle() + " (" + credit.getReleaseDate() + ")");
 
                     if (credit.getPersonType() == PersonType.CAST
                             && jobsInclude.contains("Actor")
