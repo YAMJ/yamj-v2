@@ -5,10 +5,15 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.model.Person;
+import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.omertron.themoviedbapi.model.CollectionInfo;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -52,7 +57,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getPluginID method, of class TheMovieDbPlugin.
      */
-    @Ignore
+    @Test
     public void testGetPluginID() {
         LOG.info("getPluginID");
         String expResult = "themoviedb";
@@ -63,7 +68,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of scan method, of class TheMovieDbPlugin.
      */
-    @Ignore
+    @Test
     public void testScan_Movie() {
         LOG.info("scan Movie");
         Movie movie = new Movie();
@@ -74,14 +79,6 @@ public class TheMovieDbPluginTest {
         boolean result = TMDb.scan(movie);
         assertTrue("Failed to scan movie", result);
         assertEquals("Wrong result returned", "78", movie.getId(TMDb.getPluginID()));
-    }
-
-    /**
-     * Test of scanNFO method, of class TheMovieDbPlugin.
-     */
-    @Ignore("Not required")
-    public void testScanNFO() {
-        LOG.info("scanNFO");
     }
 
     /**
@@ -110,7 +107,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getPersonId method, of class TheMovieDbPlugin. //
      */
-    @Ignore
+    @Test
     public void testGetPersonId_Person() {
         LOG.info("getPersonId");
         Person person = new Person();
@@ -124,7 +121,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getPersonId method, of class TheMovieDbPlugin.
      */
-    @Ignore
+    @Test
     public void testGetPersonId_String() {
         LOG.info("getPersonId");
         String name = "Chloë Moretz";
@@ -136,7 +133,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getCollectionInfo method, of class TheMovieDbPlugin.
      */
-    @Ignore
+    @Test
     public void testGetCollectionInfo_int() {
         LOG.info("getCollectionInfo");
         int collectionId = 119;
@@ -150,7 +147,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getCollectionInfo method, of class TheMovieDbPlugin.
      */
-    @Ignore
+    @Test
     public void testGetCollectionInfo_int_String() {
         LOG.info("getCollectionInfo");
         int collectionId = 119;
@@ -164,7 +161,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getCollectionPoster method, of class TheMovieDbPlugin.
      */
-    @Ignore
+    @Test
     public void testGetCollectionPoster() {
         LOG.info("getCollectionPoster");
         int collectionId = 119;
@@ -177,7 +174,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getCollectionFanart method, of class TheMovieDbPlugin.
      */
-    @Ignore
+    @Test
     public void testGetCollectionFanart() {
         LOG.info("getCollectionFanart");
         int collectionId = 119;
@@ -188,25 +185,9 @@ public class TheMovieDbPluginTest {
     }
 
     /**
-     * Test of setLanguageCode method, of class TheMovieDbPlugin.
-     */
-    @Ignore("Not required")
-    public void testSetLanguageCode() {
-        LOG.info("setLanguageCode");
-    }
-
-    /**
-     * Test of setCountryCode method, of class TheMovieDbPlugin.
-     */
-    @Ignore("Not required")
-    public void testSetCountryCode() {
-        LOG.info("setCountryCode");
-    }
-
-    /**
      * Test of getCollectionCacheKey method, of class TheMovieDbPlugin.
      */
-    @Ignore
+    @Test
     public void testGetCollectionCacheKey() {
         LOG.info("getCollectionCacheKey");
         int collectionId = 666;
@@ -219,7 +200,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getCollectionImagesCacheKey method, of class TheMovieDbPlugin.
      */
-    @Ignore
+    @Test
     public void testGetCollectionImagesCacheKey() {
         LOG.info("getCollectionImagesCacheKey");
         int collectionId = 666;

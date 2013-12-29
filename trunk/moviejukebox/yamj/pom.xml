@@ -286,14 +286,14 @@
             <dependency>
                 <groupId>com.j256.ormlite</groupId>
                 <artifactId>ormlite-core</artifactId>
-                <version>4.47</version>
+                <version>4.48</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>com.j256.ormlite</groupId>
                 <artifactId>ormlite-jdbc</artifactId>
-                <version>4.47</version>
+                <version>4.48</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>

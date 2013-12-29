@@ -56,9 +56,9 @@ public final class MovieFilenameScanner {
 
     private static final Logger LOG = Logger.getLogger(MovieFilenameScanner.class);
     private static final String LOG_MESSAGE = "MovieFilenameScanner: ";
-    private static boolean skipEpisodeTitle;
+    private static final boolean skipEpisodeTitle;
     private static boolean useParentRegex;
-    private static boolean archiveScanRar;
+    private static final boolean archiveScanRar;
     private static String[] skipKeywords;
     private static String[] skipRegexKeywords;
     private static final List<Pattern> SKIP_PATTERNS = new ArrayList<Pattern>();
@@ -108,7 +108,7 @@ public final class MovieFilenameScanner {
     // Last 4 digits or last 4 digits in parenthesis.
     private static final Pattern MOVIE_YEAR_PATTERN = patt("\\({0,1}(\\d{4})(?:/|\\\\|\\||-){0,1}(I*)\\){0,1}$");
     // One or more '.[]_ '
-    private static final Pattern TITLE_CLEANUP_DIV_PATTERN = patt("([\\. _\\[\\]]+)");
+    private static final Pattern TITLE_CLEANUP_DIV_PATTERN = patt("([ _\\[\\]]+)");
     // '-' or '(' at the end
     private static final Pattern TITLE_CLEANUP_CUT_PATTERN = patt("-$|\\($");
     // All symbols between '-' and '/' but not after '/TVSHOW/' or '/PART/'
@@ -397,6 +397,7 @@ public final class MovieFilenameScanner {
 
         this.filename = this.file.getName();
         rest = filename;
+        LOG.trace(LOG_MESSAGE + "Processing filename: '" + rest + "'");
 
         // EXTENSION AND CONTAINER
         if (this.file.isFile()) {
@@ -417,6 +418,7 @@ public final class MovieFilenameScanner {
         }
 
         rest = cleanUp(rest);
+        LOG.trace(LOG_MESSAGE + "After Extension: '" + rest + "'");
 
         // Detect incomplete filenames and add parent folder name to parser
         for (Pattern pattern : PARENT_FOLDER_PART_PATTERNS) {
@@ -430,11 +432,13 @@ public final class MovieFilenameScanner {
                 break;
             }
         }
+        LOG.trace(LOG_MESSAGE + "After incomplete filename: '" + rest + "'");
 
         // Remove version info
         for (Pattern pattern : MOVIE_VERSION_PATTERNS) {
             rest = pattern.matcher(rest).replaceAll("./.");
         }
+        LOG.trace(LOG_MESSAGE + "After version info: '" + rest + "'");
 
         // EXTRAS (Including Trailers)
         {
@@ -448,6 +452,7 @@ public final class MovieFilenameScanner {
                 }
             }
         }
+        LOG.trace(LOG_MESSAGE + "After Extras: '" + rest + "'");
 
         dto.setFps(seekPatternAndUpdateRest(FPS_MAP, dto.getFps()));
         dto.setAudioCodec(seekPatternAndUpdateRest(AUDIO_CODEC_MAP, dto.getAudioCodec()));
@@ -477,6 +482,7 @@ public final class MovieFilenameScanner {
                 }
             }
         }
+        LOG.trace(LOG_MESSAGE + "After season & episode: '" + rest + "'");
 
         // PART
         {
@@ -489,6 +495,7 @@ public final class MovieFilenameScanner {
                 }
             }
         }
+        LOG.trace(LOG_MESSAGE + "After Part: '" + rest + "'");
 
         // SETS
         {
@@ -511,6 +518,7 @@ public final class MovieFilenameScanner {
                 set.setTitle(n.trim());
             }
         }
+        LOG.trace(LOG_MESSAGE + "After Sets: '" + rest + "'");
 
         // Movie ID detection
         {
@@ -532,6 +540,7 @@ public final class MovieFilenameScanner {
                 }
             }
         }
+        LOG.trace(LOG_MESSAGE + "After Movie ID: '" + rest + "'");
 
         // LANGUAGES
         if (languageDetection) {
@@ -543,6 +552,7 @@ public final class MovieFilenameScanner {
                 dto.getLanguages().add(language);
             }
         }
+        LOG.trace(LOG_MESSAGE + "After languages: '" + rest + "'");
 
         // TITLE
         {
@@ -647,6 +657,7 @@ public final class MovieFilenameScanner {
                 }
             }
         }
+        LOG.trace(LOG_MESSAGE + "Final: " + dto.toString());
 
     }
 
