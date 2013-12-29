@@ -108,7 +108,7 @@ public final class MovieFilenameScanner {
     // Last 4 digits or last 4 digits in parenthesis.
     private static final Pattern MOVIE_YEAR_PATTERN = patt("\\({0,1}(\\d{4})(?:/|\\\\|\\||-){0,1}(I*)\\){0,1}$");
     // One or more '.[]_ '
-    private static final Pattern TITLE_CLEANUP_DIV_PATTERN = patt("([ _\\[\\]]+)");
+    private static final Pattern TITLE_CLEANUP_DIV_PATTERN = patt("([\\. _\\[\\]]+)");
     // '-' or '(' at the end
     private static final Pattern TITLE_CLEANUP_CUT_PATTERN = patt("-$|\\($");
     // All symbols between '-' and '/' but not after '/TVSHOW/' or '/PART/'
