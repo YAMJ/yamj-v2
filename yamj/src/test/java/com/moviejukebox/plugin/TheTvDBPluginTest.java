@@ -101,7 +101,7 @@ public class TheTvDBPluginTest {
         movie.setId(TheTvDBPlugin.THETVDB_PLUGIN_ID, ID_BABYLON_5);
 
         String result = TVDB.getBanner(movie);
-        assertEquals("No banner returned", "http://thetvdb.com/banners/graphical/70726-g4.jpg", result);
+        assertTrue("No banner returned", result.startsWith("http://thetvdb.com/banners/graphical/70726"));
     }
 
     /**
