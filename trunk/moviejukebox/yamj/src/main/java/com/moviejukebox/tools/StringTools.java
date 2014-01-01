@@ -412,4 +412,31 @@ public final class StringTools {
         return Math.round(tmp * 10f);
     }
 
+    /**
+     * Trim a string to the 'n'th occurrence of a space.
+     *
+     * @param sentanceToTrim
+     * @param numOfWords
+     * @return
+     */
+    public static String getWords(final String sentanceToTrim, int numOfWords) {
+        // count the number of spaces in the original string
+        int numSpaces = StringUtils.countMatches(sentanceToTrim, " ");
+        LOG.trace("Found " + numSpaces + " spaces in '" + sentanceToTrim + "'");
+
+        // ensure that the number of spaces is no larger than the count
+        if (numSpaces > numOfWords) {
+            LOG.trace("Number if spaces limited to " + numOfWords);
+            numSpaces = numOfWords;
+        }
+
+        int pos = -1;
+        for (int i = 1; i <= numSpaces; i++) {
+            pos = sentanceToTrim.indexOf(' ', pos + 1);
+        }
+
+        String returnSentance = sentanceToTrim.substring(0, pos);
+        LOG.trace("Final: '" + returnSentance + "'");
+        return returnSentance;
+    }
 }

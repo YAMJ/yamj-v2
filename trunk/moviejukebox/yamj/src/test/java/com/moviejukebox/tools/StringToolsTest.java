@@ -36,6 +36,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
+ * Set of utility functions for strings
  *
  * @author Stuart
  */
@@ -273,6 +274,19 @@ public class StringToolsTest {
         assertEquals(-1, StringTools.parseRating("UNKNOWN"));
         assertEquals(-1, StringTools.parseRating("-100"));
         assertEquals(100, StringTools.parseRating("11"));
+    }
+
+    /**
+     * Test of getWords method, of class StringTools.
+     */
+    @Test
+    public void testGetWords() {
+        System.out.println("getWords");
+        String sentanceToTrim = "This is a test sentance";
+        int numOfWords = 2;
+        String expResult = "This is";
+        String result = StringTools.getWords(sentanceToTrim, numOfWords);
+        assertEquals(expResult, result);
     }
 
 }
