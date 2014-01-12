@@ -69,9 +69,9 @@ public final class PosterScanner {
 
     private static final Logger LOG = Logger.getLogger(PosterScanner.class);
     private static final String LOG_MESSAGE = "PosterScanner: ";
-    private static Map<String, IPosterPlugin> posterPlugins;
-    private static Map<String, IMoviePosterPlugin> moviePosterPlugins = new HashMap<String, IMoviePosterPlugin>();
-    private static Map<String, ITvShowPosterPlugin> tvShowPosterPlugins = new HashMap<String, ITvShowPosterPlugin>();
+    private static final Map<String, IPosterPlugin> PLUGINS;
+    private static final Map<String, IMoviePosterPlugin> MOVIE_PLUGINS = new HashMap<String, IMoviePosterPlugin>();
+    private static final Map<String, ITvShowPosterPlugin> TV_PLUGINS = new HashMap<String, ITvShowPosterPlugin>();
     private static final String EXISTING_MOVIE = "moviename";
     private static final String EXISTING_FIXED = "fixedcoverartname";
     private static final String EXISTING_NO = "no";
@@ -83,15 +83,15 @@ public final class PosterScanner {
     // We get the fixed name property
     private static final String FIXED_POSTER_NAME = PropertiesUtil.getProperty("poster.scanner.fixedCoverArtName", "folder");
     private static final Collection<String> POSTER_EXTENSIONS = new ArrayList<String>();
-    private static String posterDirectory;
+    private static final String POSTER_DIRECTORY;
     private static final Collection<String> POSTER_IMAGE_NAME = new ArrayList<String>();
-    private static boolean posterValidate;
-    private static int posterValidateMatch;
-    private static boolean posterValidateAspect;
-    private static int posterWidth;
-    private static int posterHeight;
-    private static String tvShowPosterSearchPriority;
-    private static String moviePosterSearchPriority;
+    private static final boolean POSTER_VALIDATE;
+    private static final int POSTER_VALIDATE_MATCH;
+    private static final boolean POSTER_VALIDATE_ASPECT;
+    private static final int POSTER_WIDTH;
+    private static final int POSTER_HEIGHT;
+    private static final String TV_POSTER_SEARCH_PRIORITY;
+    private static final String MOVIE_POSTER_SEARCH_PRIORITY;
 
     static {
         StringTokenizer st;
@@ -110,20 +110,20 @@ public final class PosterScanner {
         }
 
         // We get Poster Directory if needed
-        posterDirectory = PropertiesUtil.getProperty("poster.scanner.coverArtDirectory", "");
+        POSTER_DIRECTORY = PropertiesUtil.getProperty("poster.scanner.coverArtDirectory", "");
 
-        tvShowPosterSearchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "thetvdb,cdon,filmaffinity");
-        moviePosterSearchPriority = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie",
+        TV_POSTER_SEARCH_PRIORITY = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "thetvdb,cdon,filmaffinity");
+        MOVIE_POSTER_SEARCH_PRIORITY = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie",
                 "themoviedb,impawards,imdb,moviecovers,google,yahoo,motechnet");
 
-        posterWidth = PropertiesUtil.getIntProperty("posters.width", 0);
-        posterHeight = PropertiesUtil.getIntProperty("posters.height", 0);
-        posterValidate = PropertiesUtil.getBooleanProperty("poster.scanner.Validate", Boolean.TRUE);
-        posterValidateMatch = PropertiesUtil.getIntProperty("poster.scanner.ValidateMatch", 75);
-        posterValidateAspect = PropertiesUtil.getBooleanProperty("poster.scanner.ValidateAspect", Boolean.TRUE);
+        POSTER_WIDTH = PropertiesUtil.getIntProperty("posters.width", 0);
+        POSTER_HEIGHT = PropertiesUtil.getIntProperty("posters.height", 0);
+        POSTER_VALIDATE = PropertiesUtil.getBooleanProperty("poster.scanner.Validate", Boolean.TRUE);
+        POSTER_VALIDATE_MATCH = PropertiesUtil.getIntProperty("poster.scanner.ValidateMatch", 75);
+        POSTER_VALIDATE_ASPECT = PropertiesUtil.getBooleanProperty("poster.scanner.ValidateAspect", Boolean.TRUE);
 
         // Load plugins
-        posterPlugins = new HashMap<String, IPosterPlugin>();
+        PLUGINS = new HashMap<String, IPosterPlugin>();
 
         ServiceLoader<IMoviePosterPlugin> moviePosterPluginsSet = ServiceLoader.load(IMoviePosterPlugin.class);
         for (IMoviePosterPlugin iPosterPlugin : moviePosterPluginsSet) {
@@ -165,8 +165,8 @@ public final class PosterScanner {
             return Movie.UNKNOWN;
         }
 
-        if (StringUtils.isNotBlank(posterDirectory)) {
-            fullPosterFilename = StringTools.appendToPath(fullPosterFilename, posterDirectory);
+        if (StringUtils.isNotBlank(POSTER_DIRECTORY)) {
+            fullPosterFilename = StringTools.appendToPath(fullPosterFilename, POSTER_DIRECTORY);
         }
 
         // Check to see if the fullPosterFilename ends with a "\/" and only add it if needed
@@ -270,7 +270,6 @@ public final class PosterScanner {
 //            logger.debug(LOG_MESSAGE + "Local newer than temp? : " + (tempJukeboxFile.exists() && FileTools.isNewer(localPosterFile, tempJukeboxFile)));
 //            logger.debug(LOG_MESSAGE + "Posters same size?     : " + (localPosterFile.length() != finalJukeboxFile.length()));
 //            logger.debug(LOG_MESSAGE + "Local newer than final?: " + (FileTools.isNewer(localPosterFile, finalJukeboxFile)));
-
             if (!finalJukeboxFile.exists()
                     || // temp jukebox file exists and is newer ?
                     (tempJukeboxFile.exists() && FileTools.isNewer(localPosterFile, tempJukeboxFile))
@@ -300,7 +299,7 @@ public final class PosterScanner {
     private static String getPluginsCode() {
         StringBuilder response = new StringBuilder();
 
-        Set<String> keySet = posterPlugins.keySet();
+        Set<String> keySet = PLUGINS.keySet();
         for (String string : keySet) {
             response.append(string).append(Movie.SPACE_SLASH_SPACE);
         }
@@ -320,15 +319,15 @@ public final class PosterScanner {
         StringTokenizer st;
 
         if (movie.isTVShow()) {
-            st = new StringTokenizer(tvShowPosterSearchPriority, ",");
+            st = new StringTokenizer(TV_POSTER_SEARCH_PRIORITY, ",");
         } else {
-            st = new StringTokenizer(moviePosterSearchPriority, ",");
+            st = new StringTokenizer(MOVIE_POSTER_SEARCH_PRIORITY, ",");
         }
 
         while (st.hasMoreTokens() && StringTools.isNotValidString(posterImage.getUrl())) {
             posterSearchToken = st.nextToken();
 
-            IPosterPlugin iPosterPlugin = posterPlugins.get(posterSearchToken);
+            IPosterPlugin iPosterPlugin = PLUGINS.get(posterSearchToken);
 
             // Check that plugin is register even on movie or tv
             if (iPosterPlugin == null) {
@@ -339,10 +338,10 @@ public final class PosterScanner {
             String msg;
 
             if (movie.isTVShow()) {
-                iPosterPlugin = tvShowPosterPlugins.get(posterSearchToken);
+                iPosterPlugin = TV_PLUGINS.get(posterSearchToken);
                 msg = "TvShow";
             } else {
-                iPosterPlugin = moviePosterPlugins.get(posterSearchToken);
+                iPosterPlugin = MOVIE_PLUGINS.get(posterSearchToken);
                 msg = "Movie";
             }
 
@@ -354,7 +353,7 @@ public final class PosterScanner {
             }
 
             // Validate the poster- No need to validate if we're UNKNOWN
-            if (!Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl()) && posterValidate && !validatePoster(posterImage, posterWidth, posterHeight, posterValidateAspect)) {
+            if (!Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl()) && POSTER_VALIDATE && !validatePoster(posterImage, POSTER_WIDTH, POSTER_HEIGHT, POSTER_VALIDATE_ASPECT)) {
                 posterImage = Image.UNKNOWN;
             } else {
                 if (!Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl())) {
@@ -375,7 +374,7 @@ public final class PosterScanner {
      * @return
      */
     public static boolean validatePoster(IImage posterImage) {
-        return validatePoster(posterImage, posterWidth, posterHeight, posterValidateAspect);
+        return validatePoster(posterImage, POSTER_WIDTH, POSTER_HEIGHT, POSTER_VALIDATE_ASPECT);
     }
 
     /**
@@ -392,7 +391,7 @@ public final class PosterScanner {
      */
     public static boolean validatePoster(IImage posterImage, int posterWidth, int posterHeight, boolean checkAspect) {
         float urlAspect;
-        if (!posterValidate) {
+        if (!POSTER_VALIDATE) {
             return Boolean.TRUE;
         }
 
@@ -424,8 +423,8 @@ public final class PosterScanner {
         }
 
         // Adjust poster width / height by the ValidateMatch figure
-        int newPosterWidth = (posterWidth * posterValidateMatch) / 100;
-        int newPosterHeight = (posterHeight * posterValidateMatch) / 100;
+        int newPosterWidth = (posterWidth * POSTER_VALIDATE_MATCH) / 100;
+        int newPosterHeight = (posterHeight * POSTER_VALIDATE_MATCH) / 100;
 
         if (urlWidth < newPosterWidth) {
             LOG.debug(LOG_MESSAGE + posterImage + " rejected: URL width (" + urlWidth + ") is smaller than poster width (" + newPosterWidth + ")");
@@ -483,37 +482,40 @@ public final class PosterScanner {
 
         @SuppressWarnings("rawtypes")
         Iterator readers = ImageIO.getImageReadersBySuffix(imageType);
-        ImageReader reader = (ImageReader) readers.next();
 
-        InputStream in = null;
-        ImageInputStream iis = null;
+        if (readers.hasNext()) {
+            ImageReader reader = (ImageReader) readers.next();
 
-        try {
-            URL url = new URL(imageUrl);
-            in = url.openStream();
-            iis = ImageIO.createImageInputStream(in);
-            reader.setInput(iis, Boolean.TRUE);
-
-            imageDimension.setSize(reader.getWidth(0), reader.getHeight(0));
-        } catch (IOException ex) {
-            LOG.debug(LOG_MESSAGE + "getUrlDimensions error: " + ex.getMessage() + ": can't open url: " + imageUrl);
-        } finally {
-            reader.dispose();
+            InputStream in = null;
+            ImageInputStream iis = null;
 
             try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (IOException e) {
-                // Ignore the error, it's already closed
-            }
+                URL url = new URL(imageUrl);
+                in = url.openStream();
+                iis = ImageIO.createImageInputStream(in);
+                reader.setInput(iis, Boolean.TRUE);
 
-            try {
-                if (iis != null) {
-                    iis.close();
+                imageDimension.setSize(reader.getWidth(0), reader.getHeight(0));
+            } catch (IOException ex) {
+                LOG.debug(LOG_MESSAGE + "getUrlDimensions error: " + ex.getMessage() + ": can't open url: " + imageUrl);
+            } finally {
+                reader.dispose();
+
+                try {
+                    if (in != null) {
+                        in.close();
+                    }
+                } catch (IOException e) {
+                    // Ignore the error, it's already closed
                 }
-            } catch (IOException e) {
-                // Ignore the error, it's already closed
+
+                try {
+                    if (iis != null) {
+                        iis.close();
+                    }
+                } catch (IOException e) {
+                    // Ignore the error, it's already closed
+                }
             }
         }
 
@@ -521,13 +523,13 @@ public final class PosterScanner {
     }
 
     public static void register(String key, IPosterPlugin posterPlugin) {
-        posterPlugins.put(key, posterPlugin);
+        PLUGINS.put(key, posterPlugin);
     }
 
     private static void register(String key, IMoviePosterPlugin posterPlugin) {
         if (posterPlugin.isNeeded()) {
             LOG.debug(LOG_MESSAGE + posterPlugin.getClass().getName() + " registered as Movie Poster Plugin with key '" + key + "'");
-            moviePosterPlugins.put(key, posterPlugin);
+            MOVIE_PLUGINS.put(key, posterPlugin);
             register(key, (IPosterPlugin) posterPlugin);
         } else {
             LOG.debug(LOG_MESSAGE + posterPlugin.getClass().getName() + " available, but not loaded use key '" + key + "' to enable it.");
@@ -537,7 +539,7 @@ public final class PosterScanner {
     public static void register(String key, ITvShowPosterPlugin posterPlugin) {
         if (posterPlugin.isNeeded()) {
             LOG.debug(LOG_MESSAGE + posterPlugin.getClass().getName() + " registered as TvShow Poster Plugin with key '" + key + "'");
-            tvShowPosterPlugins.put(key, posterPlugin);
+            TV_PLUGINS.put(key, posterPlugin);
             register(key, (IPosterPlugin) posterPlugin);
         } else {
             LOG.debug(LOG_MESSAGE + posterPlugin.getClass().getName() + " available, but not loaded use key '" + key + "' to enable it.");
