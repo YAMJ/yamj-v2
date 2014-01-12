@@ -282,11 +282,17 @@ public class StringToolsTest {
     @Test
     public void testGetWords() {
         System.out.println("getWords");
-        String sentanceToTrim = "This is a test sentance";
-        int numOfWords = 2;
-        String expResult = "This is";
-        String result = StringTools.getWords(sentanceToTrim, numOfWords);
-        assertEquals(expResult, result);
+        String result = StringTools.getWords("This is a test sentance", 2);
+        assertEquals("This is", result);
+
+        result = StringTools.getWords("Single", 2);
+        assertEquals("Single", result);
+
+        result = StringTools.getWords("Single", 1);
+        assertEquals("Single", result);
+
+        result = StringTools.getWords("Test sentance", 5);
+        assertEquals("Test sentance", result);
     }
 
 }

@@ -157,7 +157,7 @@ public class TheTvDBPluginTest {
     }
 
     /**
-     * Test of getSeries method, of class TheTvDBPlugin.
+     * Test of getWordseries method, of class TheTvDBPlugin.
      */
     @Test
     public void testGetSeries() {

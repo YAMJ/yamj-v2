@@ -2169,9 +2169,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (OverrideTools.checkOverwriteVideoSource(this, SOURCE_FILENAME)) {
             setVideoSource(dto.getVideoSource(), SOURCE_FILENAME);
         }
+
         if (OverrideTools.checkOverwriteContainer(this, SOURCE_FILENAME)) {
             setContainer(dto.getContainer(), SOURCE_FILENAME);
         }
+        
         if ((dto.getFps() > 0) && OverrideTools.checkOverwriteFPS(this, SOURCE_FILENAME)) {
             setFps(dto.getFps(), SOURCE_FILENAME);
         }
