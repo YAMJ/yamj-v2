@@ -56,7 +56,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
@@ -94,54 +93,55 @@ public class MediaInfoScanner {
     private static final boolean ENABLE_MULTIPART = PropertiesUtil.getBooleanProperty("mediainfo.multipart.enable", Boolean.TRUE);
     private static final boolean MI_OVERALL_BITRATE = PropertiesUtil.getBooleanProperty("mediainfo.overallbitrate", Boolean.FALSE);
     private static final boolean MI_READ_FROM_FILE = PropertiesUtil.getBooleanProperty("mediainfo.readfromfile", Boolean.FALSE);
-    private String randomDirName;
+    private final String randomDirName;
     private static final AspectRatioTools ASPECT_TOOLS = new AspectRatioTools();
     private static final String LANG_DELIM = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
-    private static String AUDIO_LANG_UNKNOWN = PropertiesUtil.getProperty("mjb.language.audio.unknown");
+    private static final String AUDIO_LANG_UNKNOWN = PropertiesUtil.getProperty("mjb.language.audio.unknown");
     private static final List<String> MI_DISK_IMAGES = new ArrayList<String>();
+    // DVD rip infos Scanner
+    private final DVDRipScanner localDVDRipScanner;
 
     static {
-        LOG.debug("Operating System Name   : " + OS_NAME);
-        LOG.debug("Operating System Version: " + OS_VERSION);
-        LOG.debug("Operating System Type   : " + OS_ARCH);
-
         File checkMediainfo = findMediaInfo();
 
-        if (OS_NAME.contains("Windows")) {
-            if (MI_EXE.isEmpty()) {
-                MI_EXE.add("cmd.exe");
-                MI_EXE.add("/E:1900");
-                MI_EXE.add("/C");
-                MI_EXE.add(checkMediainfo.getName());
-                MI_EXE.add("-f");
-            }
-        } else {
-            if (MI_EXE.isEmpty()) {
-                MI_EXE.add("./" + checkMediainfo.getName());
-                MI_EXE.add("-f");
-            }
-        }
+        if (checkMediainfo.canExecute()) {
+            IS_ACTIVATED = Boolean.TRUE;
 
-        if (!checkMediainfo.canExecute()) {
-            LOG.info(LOG_MESSAGE + "Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
-            LOG.info(LOG_MESSAGE + "File; " + checkMediainfo.getAbsolutePath());
-            IS_ACTIVATED = Boolean.FALSE;
-        } else {
+            LOG.debug("Operating System Name   : " + OS_NAME);
+            LOG.debug("Operating System Version: " + OS_VERSION);
+            LOG.debug("Operating System Type   : " + OS_ARCH);
+            LOG.debug("MediaInfo file          : " + checkMediainfo.getAbsolutePath());
+
             if (isMediaInfoRar) {
                 LOG.info(LOG_MESSAGE + "MediaInfo-rar tool found, additional scanning functions enabled.");
             } else {
                 LOG.info(LOG_MESSAGE + "MediaInfo tool will be used to extract video data. But not RAR and ISO formats");
             }
-            IS_ACTIVATED = Boolean.TRUE;
+
+            if (MI_EXE.isEmpty()) {
+                if (OS_NAME.contains("Windows")) {
+                    MI_EXE.add("cmd.exe");
+                    MI_EXE.add("/E:1900");
+                    MI_EXE.add("/C");
+                    MI_EXE.add(checkMediainfo.getName());
+                    MI_EXE.add("-f");
+                } else {
+                    MI_EXE.add("./" + checkMediainfo.getName());
+                    MI_EXE.add("-f");
+                }
+            }
+
+            // Add a list of supported extensions
+            for (String ext : PropertiesUtil.getProperty("mediainfo.rar.diskExtensions", "iso,img,rar,001").split(",")) {
+                MI_DISK_IMAGES.add(ext.toLowerCase());
+            }
+        } else {
+            LOG.info(LOG_MESSAGE + "Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
+            LOG.info(LOG_MESSAGE + "File: " + checkMediainfo.getAbsolutePath());
+            IS_ACTIVATED = Boolean.FALSE;
         }
 
-        // Add a list of supported extensions
-        for (String ext : PropertiesUtil.getProperty("mediainfo.rar.diskExtensions", "iso,img,rar,001").split(",")) {
-            MI_DISK_IMAGES.add(ext.toLowerCase());
-        }
     }
-    // DVD rip infos Scanner
-    private final DVDRipScanner localDVDRipScanner;
 
     public MediaInfoScanner() {
         localDVDRipScanner = new DVDRipScanner();
@@ -240,7 +240,9 @@ public class MediaInfoScanner {
             OutputStream fosCurrentIFO = null;
             try {
                 @SuppressWarnings("unchecked")
-                Vector<ArchiveEntry> allEntries = scannedIsoFile.getEntries();
+//                Vector<ArchiveEntry> allEntries = scannedIsoFile.getEntries();
+                // Convert the returned vector to a List
+                List<ArchiveEntry> allEntries = new ArrayList<ArchiveEntry>(scannedIsoFile.getEntries());
                 Iterator<ArchiveEntry> parcoursEntries = allEntries.iterator();
                 while (parcoursEntries.hasNext()) {
                     ArchiveEntry currentArchiveEntry = (ArchiveEntry) parcoursEntries.next();
@@ -951,11 +953,13 @@ public class MediaInfoScanner {
     }
 
     /**
-     * Look for the mediaInfo filename and return it. Will check first for the mediainfo-rar file and then mediainfo
+     * Look for the mediaInfo filename and return it.
+     *
+     * Will check first for the mediainfo-rar file and then mediainfo
      *
      * @return
      */
-    protected static File findMediaInfo() {
+    private static File findMediaInfo() {
         File mediaInfoFile;
 
         if (OS_NAME.contains("Windows")) {

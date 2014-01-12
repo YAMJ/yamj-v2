@@ -761,12 +761,15 @@ public class MovieJukebox {
          * The tools used for parallel processing are NOT thread safe (some operations are, but not all) therefore all are added to
          * a container which is instantiated one per thread
          *
-         * - xmlWriter looks thread safe - htmlWriter was not thread safe, - getTransformer is fixed (simple workaround) -
-         * MovieImagePlugin : not clear, made thread specific for safety - MediaInfoScanner : not sure, made thread specific
+         * - xmlWriter looks thread safe<br>
+         * - htmlWriter was not thread safe<br>
+         * - getTransformer is fixed (simple workaround)<br>
+         * - MovieImagePlugin : not clear, made thread specific for safety<br>
+         * - MediaInfoScanner : not sure, made thread specific
          *
-         * Also important: The library itself is not thread safe for modifications (API says so) it could be adjusted with
-         * concurrent versions, but it needs many changes it seems that it is safe for subsequent reads (iterators), so leave for
-         * now...
+         * Also important: <br>
+         * The library itself is not thread safe for modifications (API says so) it could be adjusted with concurrent versions, but
+         * it needs many changes it seems that it is safe for subsequent reads (iterators), so leave for now...
          *
          * - DatabasePluginController is also fixed to be thread safe (plugins map for each thread)
          *
