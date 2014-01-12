@@ -1,6 +1,24 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *      Copyright (c) 2004-2013 YAMJ Members
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      This file is part of the Yet Another Media Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *      Web: http://code.google.com/p/moviejukebox/
+ *
  */
 package com.moviejukebox.plugin;
 
@@ -14,6 +32,8 @@ import com.omertron.themoviedbapi.model.CollectionInfo;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -54,10 +74,43 @@ public class TheMovieDbPluginTest {
     public void tearDown() {
     }
 
+    @Test
+    public void testMovieNames() {
+        LOG.info("Test Movie Names");
+
+        Map<String, Integer> filenames = new HashMap<String, Integer>();
+        filenames.put("Escape from LA (1996).avi", 10061);
+        filenames.put("AI Artificial Intelligence.mkv", 644);
+        filenames.put("Unknown (2006).mkv", 9828);
+        filenames.put("Unknown (2011).mkv", 48138);
+        filenames.put("In the Line of Duty 4 (1989).ts", 39854);
+
+        for (Map.Entry<String, Integer> entry : filenames.entrySet()) {
+            LOG.info("Testing: '" + entry.getKey() + "'");
+            MovieFileNameDTO x = scan(entry.getKey());
+            Movie movie = new Movie();
+            movie.mergeFileNameDTO(x);
+            boolean result = TMDb.scan(movie);
+            assertTrue("Failed to scan movie: " + movie.getTitle(), result);
+            assertEquals(String.valueOf(entry.getValue()), movie.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID));
+        }
+    }
+
+    private static MovieFileNameDTO scan(String filename) {
+        File file = new File(filename) {
+            @Override
+            public boolean isFile() {
+                return true;
+            }
+        };
+
+        return MovieFilenameScanner.scan(file);
+    }
+
     /**
      * Test of getPluginID method, of class TheMovieDbPlugin.
      */
-    @Test
+    @Ignore
     public void testGetPluginID() {
         LOG.info("getPluginID");
         String expResult = "themoviedb";
@@ -68,7 +121,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of scan method, of class TheMovieDbPlugin.
      */
-    @Test
+    @Ignore
     public void testScan_Movie() {
         LOG.info("scan Movie");
         Movie movie = new Movie();
@@ -92,7 +145,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of scan method, of class TheMovieDbPlugin.
      */
-    @Test
+    @Ignore
     public void testScan_Person() {
         LOG.info("scan Person");
         Person person = new Person();
@@ -107,7 +160,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getPersonId method, of class TheMovieDbPlugin. //
      */
-    @Test
+    @Ignore
     public void testGetPersonId_Person() {
         LOG.info("getPersonId");
         Person person = new Person();
@@ -121,7 +174,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getPersonId method, of class TheMovieDbPlugin.
      */
-    @Test
+    @Ignore
     public void testGetPersonId_String() {
         LOG.info("getPersonId");
         String name = "Chloë Moretz";
@@ -133,7 +186,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getCollectionInfo method, of class TheMovieDbPlugin.
      */
-    @Test
+    @Ignore
     public void testGetCollectionInfo_int() {
         LOG.info("getCollectionInfo");
         int collectionId = 119;
@@ -147,7 +200,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getCollectionInfo method, of class TheMovieDbPlugin.
      */
-    @Test
+    @Ignore
     public void testGetCollectionInfo_int_String() {
         LOG.info("getCollectionInfo");
         int collectionId = 119;
@@ -161,7 +214,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getCollectionPoster method, of class TheMovieDbPlugin.
      */
-    @Test
+    @Ignore
     public void testGetCollectionPoster() {
         LOG.info("getCollectionPoster");
         int collectionId = 119;
@@ -174,7 +227,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getCollectionFanart method, of class TheMovieDbPlugin.
      */
-    @Test
+    @Ignore
     public void testGetCollectionFanart() {
         LOG.info("getCollectionFanart");
         int collectionId = 119;
@@ -187,7 +240,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getCollectionCacheKey method, of class TheMovieDbPlugin.
      */
-    @Test
+    @Ignore
     public void testGetCollectionCacheKey() {
         LOG.info("getCollectionCacheKey");
         int collectionId = 666;
@@ -200,7 +253,7 @@ public class TheMovieDbPluginTest {
     /**
      * Test of getCollectionImagesCacheKey method, of class TheMovieDbPlugin.
      */
-    @Test
+    @Ignore
     public void testGetCollectionImagesCacheKey() {
         LOG.info("getCollectionImagesCacheKey");
         int collectionId = 666;

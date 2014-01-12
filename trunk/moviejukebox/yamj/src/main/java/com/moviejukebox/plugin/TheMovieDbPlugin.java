@@ -161,7 +161,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public boolean scan(Movie movie) {
         String imdbID = movie.getId(IMDB_PLUGIN_ID);
         String tmdbID = movie.getId(TMDB_PLUGIN_ID);
-        List<MovieDb> movieList;
         List<ReleaseInfo> movieReleaseInfo = new ArrayList<ReleaseInfo>();
         List<Person> moviePeople = new ArrayList<Person>();
         MovieDb moviedb = null;
@@ -198,17 +197,61 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
             if (moviedb == null) {
                 LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": No IDs provided for movie, search using title & year");
-                try {
-                    // Search using movie name
-                    int movieYear = 0;
-                    if (StringTools.isValidString(movie.getYear()) && StringUtils.isNumeric(movie.getYear())) {
-                        movieYear = NumberUtils.toInt(movie.getYear(), 0);
+
+                // Search using movie name
+                int movieYear = NumberUtils.toInt(movie.getYear(), 0);
+
+                // Check with the title
+                LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Using '" + movie.getTitle() + "' & '" + movieYear + "' to locate movie information");
+                moviedb = searchMovieTitle(movie, movieYear, movie.getTitle());
+
+                if (moviedb == null) {
+                    // Check with the original title
+                    LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Using '" + movie.getOriginalTitle() + "' & '" + movieYear + "' to locate movie information");
+                    moviedb = searchMovieTitle(movie, movieYear, movie.getOriginalTitle());
+                }
+
+                // If still no matches try with a shorter title
+                if (moviedb == null) {
+                    LOG.debug(LOG_MESSAGE + "");
+                    for (int words = 3; words > 0; words--) {
+                        String shortTitle = StringTools.getWords(movie.getTitle(), words);
+                        LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Using shorter title '" + shortTitle + "'");
+                        moviedb = searchMovieTitle(movie, movieYear, shortTitle);
+                        if (moviedb != null) {
+                            LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Movie found");
+                            break;
+                        }
                     }
 
+                    if (moviedb == null) {
+                        for (int words = 3; words > 0; words--) {
+                            String shortTitle = StringTools.getWords(movie.getOriginalTitle(), words);
+                            LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Using shorter title '" + shortTitle + "'");
+                            moviedb = searchMovieTitle(movie, movieYear, shortTitle);
+                            if (moviedb != null) {
+                                LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Movie found");
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                /*
+                try {
                     LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Using '" + movie.getTitle() + "' & '" + movieYear + "' to locate movie information");
                     TmdbResultsList<MovieDb> result = TMDb.searchMovie(movie.getTitle(), movieYear, languageCode, INCLUDE_ADULT, 0);
-                    movieList = result.getResults();
                     LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Found " + result.getResults().size() + " potential matches");
+
+                    if (result.getResults().isEmpty()) {
+                        // Get the first two words of the title to check for a shorter match
+                        String search = StringTools.getWords(movie.getTitle(), 2);
+                        LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Trying with '" + search + "'");
+                        result = TMDb.searchMovie(search, movieYear, languageCode, INCLUDE_ADULT, 3);
+                        LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Found " + result.getResults().size() + " potential matches");
+                    }
+
+                    movieList = result.getResults();
 
                     // Iterate over the list until we find a match
                     for (MovieDb m : movieList) {
@@ -230,6 +273,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     LOG.debug(LOG_MESSAGE + "Failed to get movie info for " + movie.getTitle() + " - " + ex.getMessage());
                     moviedb = null;
                 }
+                */
             }
 
             if (moviedb == null) {
@@ -363,6 +407,51 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             }
         }
         return retval;
+    }
+
+    /**
+     * Search for a movie title.
+     *
+     * Use a title that may be different to the actual title of the movie, but match against the full title.
+     *
+     * @param fullTitle
+     * @param year
+     * @param searchTitle
+     */
+    private MovieDb searchMovieTitle(Movie movie, int movieYear, final String searchTitle) {
+        LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Using '" + searchTitle + "' & '" + movieYear + "' to locate movie information");
+        MovieDb movieDb = null;
+        TmdbResultsList<MovieDb> result;
+        try {
+            result = TMDb.searchMovie(searchTitle, movieYear, languageCode, INCLUDE_ADULT, 0);
+        } catch (MovieDbException ex) {
+            LOG.warn(LOG_MESSAGE + "Error scanning movie '" + movie.getTitle() + "': " + ex.getMessage(), ex);
+            return movieDb;
+        }
+        LOG.debug(LOG_MESSAGE + movie.getBaseName() + ": Found " + result.getResults().size() + " potential matches");
+
+        List<MovieDb> movieList = result.getResults();
+        // Are the title and original title the same (used for performance)
+        boolean sameTitle = StringUtils.equalsIgnoreCase(movie.getTitle(), movie.getOriginalTitle());
+
+        // Iterate over the list until we find a match
+        for (MovieDb m : movieList) {
+            String year = StringUtils.isBlank(m.getReleaseDate()) ? "UNKNOWN" : m.getReleaseDate().substring(0, 4);
+            LOG.debug(LOG_MESSAGE + "Checking " + m.getTitle() + " (" + year + ")");
+            if (TheMovieDbApi.compareMovies(m, movie.getTitle(), String.valueOf(movieYear), SEARCH_MATCH, false)) {
+                LOG.info(LOG_MESSAGE + "Matched to '" + movie.getTitle() + "'");
+                movieDb = m;
+                break;
+            }
+
+            // See if the original title is different and then compare it too
+            if (!sameTitle && TheMovieDbApi.compareMovies(m, movie.getOriginalTitle(), String.valueOf(movieYear), SEARCH_MATCH, false)) {
+                LOG.info(LOG_MESSAGE + "Matched to '" + movie.getOriginalTitle() + "'");
+                movieDb = m;
+                break;
+            }
+        }
+        return movieDb;
     }
 
     /**
