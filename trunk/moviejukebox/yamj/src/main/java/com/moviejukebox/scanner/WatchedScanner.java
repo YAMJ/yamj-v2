@@ -43,9 +43,9 @@ public class WatchedScanner {
 
     private static final Logger LOG = Logger.getLogger(WatchedScanner.class);
     private static final String LOG_MESSAGE = "Watched Scanner: ";
-    private static Collection<String> watchedExtensions = Arrays.asList(PropertiesUtil.getProperty("mjb.watchedExtensions", "watched").split(",;\\|"));
-    private static WatchedWithLocation watchedLocation = WatchedWithLocation.fromString(PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo"));
-    private static WatchedWithExtension withExtension = WatchedWithExtension.fromString(PropertiesUtil.getProperty("mjb.watched.withExtension", TRUE));
+    private static final Collection<String> EXTENSIONS = Arrays.asList(PropertiesUtil.getProperty("mjb.watchedExtensions", "watched").split(",;\\|"));
+    private static final WatchedWithLocation LOCATION = WatchedWithLocation.fromString(PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo"));
+    private static final WatchedWithExtension WITH_EXTENSION = WatchedWithExtension.fromString(PropertiesUtil.getProperty("mjb.watched.withExtension", TRUE));
     private static boolean warned = Boolean.FALSE;
 
     protected WatchedScanner() {
@@ -57,7 +57,9 @@ public class WatchedScanner {
      *
      * Always assumes that the file is unwatched if nothing is found.
      *
+     * @param jukebox
      * @param movie
+     * @return
      */
     public static boolean checkWatched(Jukebox jukebox, Movie movie) {
         int fileWatchedCount = 0;                       // The number of watched files found
@@ -66,7 +68,7 @@ public class WatchedScanner {
         boolean fileWatched;
         boolean returnStatus = Boolean.FALSE;           // Assume no changes
 
-        if (!warned && (watchedLocation == WatchedWithLocation.CUSTOM)) {
+        if (!warned && (LOCATION == WatchedWithLocation.CUSTOM)) {
             LOG.warn(LOG_MESSAGE + "Custom file location not supported for watched scanner");
             warned = Boolean.TRUE;
         }
@@ -92,22 +94,22 @@ public class WatchedScanner {
                     filename = mf.getFile().getName();
                 }
 
-                if (withExtension == WatchedWithExtension.EXTENSION || withExtension == WatchedWithExtension.BOTH || movie.isBluray()) {
-                    if (watchedLocation == WatchedWithLocation.WITHJUKEBOX) {
-                        foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
+                if (WITH_EXTENSION == WatchedWithExtension.EXTENSION || WITH_EXTENSION == WatchedWithExtension.BOTH || movie.isBluray()) {
+                    if (LOCATION == WatchedWithLocation.WITHJUKEBOX) {
+                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, LOG_MESSAGE, Boolean.TRUE);
                     } else {
-                        foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, LOG_MESSAGE, Boolean.FALSE);
+                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, LOG_MESSAGE, Boolean.FALSE);
                     }
                 }
 
-                if (foundFile == null && (withExtension == WatchedWithExtension.NOEXTENSION || withExtension == WatchedWithExtension.BOTH) && !movie.isBluray()) {
+                if (foundFile == null && (WITH_EXTENSION == WatchedWithExtension.NOEXTENSION || WITH_EXTENSION == WatchedWithExtension.BOTH) && !movie.isBluray()) {
                     // Remove the extension from the filename
                     filename = FilenameUtils.removeExtension(filename);
                     // Check again without the extension
-                    if (watchedLocation == WatchedWithLocation.WITHJUKEBOX) {
-                        foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, LOG_MESSAGE, Boolean.TRUE);
+                    if (LOCATION == WatchedWithLocation.WITHJUKEBOX) {
+                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, LOG_MESSAGE, Boolean.TRUE);
                     } else {
-                        foundFile = FileTools.findFilenameInCache(filename, watchedExtensions, jukebox, LOG_MESSAGE, Boolean.FALSE);
+                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, LOG_MESSAGE, Boolean.FALSE);
                     }
                 }
 
