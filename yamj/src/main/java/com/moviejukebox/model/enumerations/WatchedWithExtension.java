@@ -13,7 +13,7 @@ public enum WatchedWithExtension {
     EXTENSION("true"),
     NOEXTENSION("false"),
     BOTH("both");
-    private String type;
+    private final String type;
 
     private WatchedWithExtension(String type) {
         this.type = type;
@@ -26,7 +26,7 @@ public enum WatchedWithExtension {
     /**
      * Convert a string into an Enum type
      *
-     * @param artworkType
+     * @param extensionString
      * @return
      */
     public static WatchedWithExtension fromString(String extensionString) {
