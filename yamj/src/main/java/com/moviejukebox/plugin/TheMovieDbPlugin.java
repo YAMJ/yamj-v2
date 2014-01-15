@@ -439,14 +439,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             String year = StringUtils.isBlank(m.getReleaseDate()) ? "UNKNOWN" : m.getReleaseDate().substring(0, 4);
             LOG.debug(LOG_MESSAGE + "Checking " + m.getTitle() + " (" + year + ")");
             if (TheMovieDbApi.compareMovies(m, movie.getTitle(), String.valueOf(movieYear), SEARCH_MATCH, false)) {
-                LOG.info(LOG_MESSAGE + "Matched to '" + movie.getTitle() + "'");
+                LOG.debug(LOG_MESSAGE + "Matched to '" + movie.getTitle() + "'");
                 movieDb = m;
                 break;
             }
 
             // See if the original title is different and then compare it too
             if (!sameTitle && TheMovieDbApi.compareMovies(m, movie.getOriginalTitle(), String.valueOf(movieYear), SEARCH_MATCH, false)) {
-                LOG.info(LOG_MESSAGE + "Matched to '" + movie.getOriginalTitle() + "'");
+                LOG.debug(LOG_MESSAGE + "Matched to '" + movie.getOriginalTitle() + "'");
                 movieDb = m;
                 break;
             }

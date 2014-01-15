@@ -1678,6 +1678,18 @@ public class MovieJukebox {
                  */
                 htmlWriter.generateMainIndexHTML(jukebox, library);
                 JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.WRITE_HTML_END, System.currentTimeMillis());
+
+                /*
+                 Generate extra pages if required
+                 */
+                String pageList = PropertiesUtil.getProperty("mjb.customPages", "");
+                if (StringUtils.isNotBlank(pageList)) {
+                    List<String> newPages = new ArrayList<String>(Arrays.asList(pageList.split(",")));
+                    for (String page : newPages) {
+                        LOG.info("Transforming skin custom page '" + page + "'");
+                        htmlWriter.transformXmlFile(jukebox, page);
+                    }
+                }
             }
 
             if (enableCompleteMovies) {
