@@ -407,7 +407,7 @@ public class MovieJukeboxHTMLWriter {
 
     /**
      * Generate the mjb.indexFile page from a template.
-     * <p>
+     *
      * If the template is not found, then create a default index page
      *
      * @param jukebox
@@ -424,7 +424,44 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Use an xsl file to generate the jukebox index file
+     * Generate a HTML file from a XSL file
+     *
+     * @param jukebox
+     * @param sourceFilename
+     * @return
+     */
+    public boolean transformXmlFile(Jukebox jukebox, String sourceFilename) {
+        // check xsl file exists
+        File sourceXSL = new File(SKIN_HOME, sourceFilename + ".xsl");
+        if (!sourceXSL.exists()) {
+            LOG.warn("Source XSL file '" + sourceFilename + ".xsl' not found");
+            return false;
+        }
+
+        // check xml file exists
+        File sourceXML = new File(SKIN_HOME, sourceFilename + ".xml");
+        if (!sourceXML.exists()) {
+            LOG.warn("Source XML file '" + sourceFilename + ".xml' not found");
+            return false;
+        }
+
+        File targetHMTL = new File(jukebox.getJukeboxTempLocationDetails(), sourceFilename + ".html");
+
+        // Transform the file
+        Transformer transformer = getTransformer(sourceXSL, jukebox.getJukeboxTempLocation());
+
+        Source xmlSource = new StreamSource(sourceXML);
+        Result xmlResult = new StreamResult(targetHMTL);
+
+        doTransform(transformer, xmlSource, xmlResult, "Skin custom file");
+
+        FileTools.addJukeboxFile(targetHMTL.getName());
+
+        return true;
+    }
+
+    /**
+     * Use an XSL file to generate the jukebox index file
      *
      * @param jukebox
      * @param library
