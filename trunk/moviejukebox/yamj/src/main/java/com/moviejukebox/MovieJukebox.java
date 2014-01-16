@@ -1,5 +1,5 @@
 /*
- *      Copyright (c) 2004-2013 YAMJ Members
+ *      Copyright (c) 2004-2014 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
  *
  *      This file is part of the Yet Another Movie Jukebox (YAMJ).
@@ -209,7 +209,7 @@ public class MovieJukebox {
         LOG.info("Yet Another Movie Jukebox " + MJB_VERSION);
         LOG.info("~~~ ~~~~~~~ ~~~~~ ~~~~~~~ " + StringUtils.repeat("~", MJB_VERSION.length()));
         LOG.info("http://code.google.com/p/moviejukebox/");
-        LOG.info("Copyright (c) 2004-2013 YAMJ Members");
+        LOG.info("Copyright (c) 2004-2014 YAMJ Members");
         LOG.info("");
         LOG.info("This software is licensed under the GNU General Public License v3+");
         LOG.info("See this page: http://code.google.com/p/moviejukebox/wiki/License");
