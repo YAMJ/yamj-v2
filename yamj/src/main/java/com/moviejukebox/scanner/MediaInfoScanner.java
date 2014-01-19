@@ -548,7 +548,6 @@ public class MediaInfoScanner {
         if (OverrideTools.checkOverwriteRuntime(movie, MEDIAINFO_PLUGIN_ID)) {
             int duration = getDuration(infosGeneral, infosVideo);
             duration = duration + getMultiPartDuration(infosMultiPart);
-            LOG.info("Returned duration: " + duration);
             if (duration > 0) {
                 // Duration is returned in minutes, convert it to seconds
                 movie.setRuntime(DateTimeTools.formatDuration(duration * 60), MEDIAINFO_PLUGIN_ID);
