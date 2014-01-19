@@ -1080,7 +1080,7 @@ public class MovieJukebox {
                                         filename = mf.getFile().getAbsolutePath();
 
                                         // Check the filename is a mediaInfo extension (RAR, ISO) ?
-                                        if (tools.miScanner.extendedExtention(filename) == Boolean.TRUE) {
+                                        if (tools.miScanner.extendedExtension(filename) == Boolean.TRUE) {
 
                                             if (mf.getArchiveName() == null) {
                                                 LOG.debug("MovieJukebox: Attempting to get archive name for " + filename);

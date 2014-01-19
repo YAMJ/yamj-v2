@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
@@ -117,7 +118,7 @@ public final class DateTimeTools {
     /**
      * Format the duration passed as ?h?m format
      *
-     * @param duration
+     * @param duration Duration in seconds
      * @return
      */
     public static String formatDuration(int duration) {
@@ -136,6 +137,7 @@ public final class DateTimeTools {
             returnString.append(nbMinutes).append("m");
         }
 
+        LOG.trace("Formatted duration " + duration + " to " + returnString.toString());
         return returnString.toString();
     }
 
@@ -146,13 +148,25 @@ public final class DateTimeTools {
      * @return
      */
     public static int processRuntime(String runtime) {
+        return processRuntime(runtime, -1);
+    }
+
+    /**
+     * Take a string runtime in various formats and try to output this in minutes
+     *
+     * @param runtime
+     * @param defaultValue
+     * @return
+     */
+    public static int processRuntime(String runtime, int defaultValue) {
+        if (StringUtils.isBlank(runtime)) {
+            // No string to parse
+            return defaultValue;
+        }
+
         int returnValue;
         // See if we can convert this to a number and assume it's correct if we can
-        try {
-            returnValue = Integer.parseInt(runtime);
-        } catch (NumberFormatException ignore) {
-            returnValue = -1;
-        }
+        returnValue = NumberUtils.toInt(runtime, defaultValue);
 
         if (returnValue < 0) {
             // This is for the format xx(hour/hr/min)yy(min), e.g. 1h30, 90mins, 1h30m
