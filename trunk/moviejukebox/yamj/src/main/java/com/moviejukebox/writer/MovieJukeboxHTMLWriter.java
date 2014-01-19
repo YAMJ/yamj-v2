@@ -308,9 +308,11 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Remove blank lines from the file The PCH does not like blank lines in the playlist.jsp files, so this routine will remove
-     * them This routine is only called for the base playlist as this is transformed with the playlist.xsl file and therefore could
-     * end up with blank lines in it
+     * Remove blank lines from the file
+     *
+     * The PCH does not like blank lines in the playlist.jsp files, so this routine will remove them <br>
+     * This routine is only called for the base playlist as this is transformed with the playlist.xsl file and therefore could end
+     * up with blank lines in it
      *
      * @param filename
      */
@@ -336,7 +338,7 @@ public class MovieJukeboxHTMLWriter {
             outFile.write(sb.toString());
             outFile.flush();
 
-        } catch (Exception error) {
+        } catch (IOException error) {
             LOG.debug(LOG_MESSAGE + "Failed deleting blank lines from " + filename);
             LOG.error(SystemTools.getStackTrace(error));
         } finally {
