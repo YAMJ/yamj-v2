@@ -105,6 +105,8 @@ public final class StringTools {
         quotes.add("`");
         // Odd quote character that comes across from TheTVDB
         quotes.add("â€™");
+        // Add the XML version of '
+        quotes.add("&#x27;");
 
         StringBuilder quoteString = new StringBuilder();
         for (String quote : quotes) {
