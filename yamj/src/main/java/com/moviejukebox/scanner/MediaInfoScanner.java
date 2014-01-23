@@ -528,7 +528,7 @@ public class MediaInfoScanner {
      * @param infosText
      * @param infosMultiPart
      */
-    private void updateMovieInfo(Movie movie, Map<String, String> infosGeneral, List<Map<String, String>> infosVideo,
+    public void updateMovieInfo(Movie movie, Map<String, String> infosGeneral, List<Map<String, String>> infosVideo,
             List<Map<String, String>> infosAudio, List<Map<String, String>> infosText,
             Map<String, String> infosMultiPart) {
 
@@ -548,9 +548,20 @@ public class MediaInfoScanner {
         if (OverrideTools.checkOverwriteRuntime(movie, MEDIAINFO_PLUGIN_ID)) {
             int duration = getDuration(infosGeneral, infosVideo);
             duration = duration + getMultiPartDuration(infosMultiPart);
+
             if (duration > 0) {
+                if (duration > 900000) {
+                    // 15 minutes in milliseconds
+                    duration = duration / 1000;
+                } else if (duration > 900) {
+                    // 15 minutes in seconds
+                    // No change required
+                } else {
+                    // probably in minutes
+                    duration = duration * 60;
+                }
                 // Duration is returned in minutes, convert it to seconds
-                movie.setRuntime(DateTimeTools.formatDuration(duration * 60), MEDIAINFO_PLUGIN_ID);
+                movie.setRuntime(DateTimeTools.formatDuration(duration), MEDIAINFO_PLUGIN_ID);
             }
         }
 

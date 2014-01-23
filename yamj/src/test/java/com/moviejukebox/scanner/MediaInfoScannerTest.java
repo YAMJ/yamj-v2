@@ -24,6 +24,7 @@ package com.moviejukebox.scanner;
 
 import com.moviejukebox.model.Codec;
 import com.moviejukebox.model.CodecType;
+import com.moviejukebox.model.Movie;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -54,21 +55,11 @@ public class MediaInfoScannerTest {
     public void testStaticFile() {
         getMediaInfoTestFile("mediainfo-1.txt");
 
-//        System.out.println(infosGeneral.values());
-        assertEquals(8, infosGeneral.size());
+        Movie movie = new Movie();
+        MI_TEST.updateMovieInfo(movie, infosGeneral, infosVideo, infosAudio, infosText, infosGeneral);
 
-//        Codec codec;
-//        int counter = 1;
-//        for (HashMap<String, String> codecInfo : infosVideo) {
-//            codec = toTest.getCodecInfo(CodecType.VIDEO, codecInfo);
-//            System.out.println(counter++ + " = " + codec.toString());
-//        }
-//
-//        counter = 1;
-//        for (HashMap<String, String> codecInfo : infosAudio) {
-//            codec = toTest.getCodecInfo(CodecType.AUDIO, codecInfo);
-//            System.out.println(counter++ + " = " + codec.toString());
-//        }
+        LOG.info("Runtime: " + movie.getRuntime());
+        assertEquals("Wrong runtime", "1h 56m", movie.getRuntime());
     }
 
     @Test
