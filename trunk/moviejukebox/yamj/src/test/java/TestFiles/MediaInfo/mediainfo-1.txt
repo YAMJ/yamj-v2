@@ -1,58 +1,339 @@
-* Général
-Complete name                    : Z:\moviename.mkv
-Format                           : Matroska
-File size                        : 683 Mio
-Duration                         : 1h 40mn
-Overall bit rate                 : 948 Kbps
-Movie name                       : Movie
-Writing application              : AVI-Mux GUI 1.17.7, Aug  8 2006  20:59:17
-Writing library                  : matroska muxer by Alexander Noe, build
-date Aug  8 2006
+General
+Count                                    : 284
+Count of stream of this kind             : 1
+Kind of stream                           : General
+Kind of stream                           : General
+Stream identifier                        : 0
+Count of video streams                   : 1
+Count of audio streams                   : 1
+Count of text streams                    : 3
+Count of menu streams                    : 1
+Video_Format_List                        : AVC
+Video_Format_WithHint_List               : AVC
+Codecs Video                             : AVC
+Video_Language_List                      : English
+Audio_Format_List                        : DTS
+Audio_Format_WithHint_List               : DTS
+Audio codecs                             : DTS
+Audio_Language_List                      : English
+Text_Format_List                         : UTF-8 / UTF-8 / UTF-8
+Text_Format_WithHint_List                : UTF-8 / UTF-8 / UTF-8
+Text codecs                              : UTF-8 / UTF-8 / UTF-8
+Text_Language_List                       : English / French / Spanish
+Complete name                            : t:\Films\_Back To The Future Collection\Back to the Future (1985)\Back to the Future (1985).BluRay.720p.mkv
+Folder name                              : t:\Films\_Back To The Future Collection\Back to the Future (1985)
+File name                                : Back to the Future (1985).BluRay.720p
+File extension                           : mkv
+Format                                   : Matroska
+Format                                   : Matroska
+Format/Url                               : http://packs.matroska.org/
+Format/Extensions usually used           : mkv mk3d mka mks
+Commercial name                          : Matroska
+Format version                           : Version 2
+Codec                                    : Matroska
+Codec                                    : Matroska
+Codec/Url                                : http://packs.matroska.org/
+Codec/Extensions usually used            : mkv mk3d mka mks
+File size                                : 7039685718
+File size                                : 6.56 GiB
+File size                                : 7 GiB
+File size                                : 6.6 GiB
+File size                                : 6.56 GiB
+File size                                : 6.556 GiB
+Duration                                 : 6965917
+Duration                                 : 1h 56mn
+Duration                                 : 1h 56mn 5s 917ms
+Duration                                 : 1h 56mn
+Duration                                 : 01:56:05.917
+Overall bit rate                         : 8084720
+Overall bit rate                         : 8 085 Kbps
+Stream size                              : 140083590
+Stream size                              : 134 MiB (2%)
+Stream size                              : 134 MiB
+Stream size                              : 134 MiB
+Stream size                              : 134 MiB
+Stream size                              : 133.6 MiB
+Stream size                              : 134 MiB (2%)
+Proportion of this stream                : 0.01990
+File creation date                       : UTC 2010-10-17 12:47:22.000
+File creation date (local)               : 2010-10-17 12:47:22.000
+File last modification date              : UTC 2010-10-17 13:48:02.146
+File last modification date (local)      : 2010-10-17 13:48:02.146
+Writing application                      : x264.exe
+Writing library                          : mkv2rls v1.3 (date: 2010 aug 28)
+Writing library                          : mkv2rls v1.3 (date: 2010 aug 28)
 
-Vidéo
-ID                               : 1
-Format                           : MPEG-4 Visual
-Format settings, BVOP            : Oui
-Format settings, QPel            : Non
-Format settings, GMC             : 2 warppoints
-Format settings, Matrix          : Default (H.263)
-Codec ID                         : DX50
-Codec ID/Hint                    : DivX 5
-Duration                         : 1h 40mn
-Bit rate                         : 801 Kbps
-Width                            : 608 pixels
-Height                           : 336 pixels
-Display aspect ratio             : 16/9
-Frame rate                       : 25,000 Im/s
-Resolution                       : 8 bits
-Scan type                        : Progressif
-Bits/(Pixel*Frame)               : 0.157
-Stream size                      : 577 Mio (84%)
-Writing library                  : DivX 5.0.2 (UTC 2002-05-16)
+Video
+Count                                    : 272
+Count of stream of this kind             : 1
+Kind of stream                           : Video
+Kind of stream                           : Video
+Stream identifier                        : 0
+StreamOrder                              : 0
+ID                                       : 1
+ID                                       : 1
+Unique ID                                : 1
+Format                                   : AVC
+Format/Info                              : Advanced Video Codec
+Format/Url                               : http://developers.videolan.org/x264.html
+Commercial name                          : AVC
+Format profile                           : High@L4.1
+Format settings                          : CABAC / 5 Ref Frames
+Format settings, CABAC                   : Yes
+Format settings, CABAC                   : Yes
+Format settings, ReFrames                : 5
+Format settings, ReFrames                : 5 frames
+Internet media type                      : video/H264
+Codec ID                                 : V_MPEG4/ISO/AVC
+Codec ID/Url                             : http://ffdshow-tryout.sourceforge.net/
+Codec                                    : V_MPEG4/ISO/AVC
+Codec                                    : AVC
+Codec/Family                             : AVC
+Codec/Info                               : Advanced Video Codec
+Codec/Url                                : http://ffdshow-tryout.sourceforge.net/
+Codec profile                            : High@L4.1
+Codec settings                           : CABAC / 5 Ref Frames
+Codec settings, CABAC                    : Yes
+Codec_Settings_RefFrames                 : 5
+Duration                                 : 6965924
+Duration                                 : 1h 56mn
+Duration                                 : 1h 56mn 5s 924ms
+Duration                                 : 1h 56mn
+Duration                                 : 01:56:05.924
+Bit rate                                 : 6575000
+Bit rate                                 : 6 575 Kbps
+Width                                    : 1280
+Width                                    : 1 280 pixels
+Height                                   : 696
+Height                                   : 696 pixels
+Pixel aspect ratio                       : 1.000
+Display aspect ratio                     : 1.839
+Display aspect ratio                     : 1.85:1
+Frame rate mode                          : CFR
+Frame rate mode                          : Constant
+Frame rate                               : 23.976
+Frame rate                               : 23.976 fps
+Frame count                              : 167015
+Resolution                               : 8
+Resolution                               : 8 bits
+Colorimetry                              : 4:2:0
+Color space                              : YUV
+Chroma subsampling                       : 4:2:0
+Bit depth                                : 8
+Bit depth                                : 8 bits
+Scan type                                : Progressive
+Scan type                                : Progressive
+Interlacement                            : PPF
+Interlacement                            : Progressive
+Bits/(Pixel*Frame)                       : 0.308
+Delay                                    : 0
+Delay                                    : 00:00:00.000
+Delay, origin                            : Container
+Delay, origin                            : Container
+Stream size                              : 5585656034
+Stream size                              : 5.20 GiB (79%)
+Stream size                              : 5 GiB
+Stream size                              : 5.2 GiB
+Stream size                              : 5.20 GiB
+Stream size                              : 5.202 GiB
+Stream size                              : 5.20 GiB (79%)
+Proportion of this stream                : 0.79345
+Writing library                          : x264 - core 107 r1745 4785e8e
+Writing library                          : x264 core 107 r1745 4785e8e
+Writing library/Name                     : x264
+Writing library/Version                  : core 107 r1745 4785e8e
+Encoding settings                        : cabac=1 / ref=5 / deblock=1:0:0 / analyse=0x3:0x133 / me=umh / subme=7 / psy=1 / psy_rd=1.00:0.00 / mixed_ref=1 / me_range=16 / chroma_me=1 / trellis=1 / 8x8dct=1 / cqm=0 / deadzone=21,11 / fast_pskip=0 / chroma_qp_offset=-2 / threads=12 / sliced_threads=0 / nr=0 / decimate=1 / interlaced=0 / constrained_intra=0 / bframes=3 / b_pyramid=2 / b_adapt=1 / b_bias=0 / direct=3 / weightb=1 / open_gop=0 / weightp=2 / keyint=240 / keyint_min=24 / scenecut=40 / intra_refresh=0 / rc_lookahead=40 / rc=2pass / mbtree=1 / bitrate=6575 / ratetol=1.0 / qcomp=0.60 / qpmin=10 / qpmax=51 / qpstep=4 / cplxblur=20.0 / qblur=0.5 / ip_ratio=1.40 / aq=1:1.00
+Language                                 : en
+Language                                 : English
+Language                                 : English
+Language                                 : en
+Language                                 : eng
+Language                                 : en
+Default                                  : Yes
+Default                                  : Yes
+Forced                                   : No
+Forced                                   : No
 
-Audio #1
-ID                               : 2
-Format                           : WMA
-Format version                   : Version 2
-Codec ID                         : 161
-Codec ID/Info                    : Windows Media Audio
-Duration                         : 1h 40mn
-Bit rate                         : 64,1 Kbps
-Channel(s)                       : 2 canaux
-Sampling rate                    : 44,1 KHz
-Resolution                       : 16 bits / 16 bits
-Stream size                      : 46,1 Mio (7%)
+Audio
+Count                                    : 222
+Count of stream of this kind             : 1
+Kind of stream                           : Audio
+Kind of stream                           : Audio
+Stream identifier                        : 0
+StreamOrder                              : 1
+ID                                       : 2
+ID                                       : 2
+Unique ID                                : 2864556435
+Format                                   : DTS
+Format/Info                              : Digital Theater Systems
+Commercial name                          : DTS
+Mode                                     : 16
+Format settings, Endianness              : Big
+Codec ID                                 : A_DTS
+Codec                                    : DTS
+Codec                                    : DTS
+Codec/Family                             : DTS
+Duration                                 : 6965917
+Duration                                 : 1h 56mn
+Duration                                 : 1h 56mn 5s 917ms
+Duration                                 : 1h 56mn
+Duration                                 : 01:56:05.917
+Bit rate mode                            : CBR
+Bit rate mode                            : Constant
+Bit rate                                 : 1509000
+Bit rate                                 : 1 509 Kbps
+Channel(s)                               : 6
+Channel(s)                               : 6 channels
+Channel positions                        : Front: L C R, Side: L R, LFE
+Channel positions                        : 3/2/0.1
+ChannelLayout                            : C L R Ls Rs LFE
+Sampling rate                            : 48000
+Sampling rate                            : 48.0 KHz
+Samples count                            : 334364016
+Resolution                               : 24
+Resolution                               : 24 bits
+Bit depth                                : 24
+Bit depth                                : 24 bits
+Compression mode                         : Lossy
+Compression mode                         : Lossy
+Delay                                    : 0
+Delay                                    : 00:00:00.000
+Delay, origin                            : Container
+Delay, origin                            : Container
+Delay relative to video                  : 0
+Video0 delay                             : 0
+Stream size                              : 1313946094
+Stream size                              : 1.22 GiB (19%)
+Stream size                              : 1 GiB
+Stream size                              : 1.2 GiB
+Stream size                              : 1.22 GiB
+Stream size                              : 1.224 GiB
+Stream size                              : 1.22 GiB (19%)
+Proportion of this stream                : 0.18665
+Language                                 : en
+Language                                 : English
+Language                                 : English
+Language                                 : en
+Language                                 : eng
+Language                                 : en
+Default                                  : Yes
+Default                                  : Yes
+Forced                                   : No
+Forced                                   : No
 
-Audio #2
-ID                               : 3
-Format                           : WMA
-Format version                   : Version 2
-Codec ID                         : 161
-Codec ID/Info                    : Windows Media Audio
-Duration                         : 1h 40mn
-Bit rate                         : 64,1 Kbps
-Channel(s)                       : 2 canaux
-Sampling rate                    : 44,1 KHz
-Resolution                       : 16 bits / 16 bits
-Stream size                      : 46,1 Mio (7%)
+Text #1
+Count                                    : 195
+Count of stream of this kind             : 3
+Kind of stream                           : Text
+Kind of stream                           : Text
+Stream identifier                        : 0
+Stream identifier                        : 1
+StreamOrder                              : 2
+ID                                       : 3
+ID                                       : 3
+Unique ID                                : 2864556437
+Format                                   : UTF-8
+Commercial name                          : UTF-8
+Codec ID                                 : S_TEXT/UTF8
+Codec ID/Info                            : UTF-8 Plain Text
+Codec                                    : S_TEXT/UTF8
+Codec                                    : UTF-8
+Codec/Info                               : UTF-8 Plain Text
+Language                                 : en
+Language                                 : English
+Language                                 : English
+Language                                 : en
+Language                                 : eng
+Language                                 : en
+Default                                  : No
+Default                                  : No
+Forced                                   : No
+Forced                                   : No
+
+Text #2
+Count                                    : 195
+Count of stream of this kind             : 3
+Kind of stream                           : Text
+Kind of stream                           : Text
+Stream identifier                        : 1
+Stream identifier                        : 2
+StreamOrder                              : 3
+ID                                       : 4
+ID                                       : 4
+Unique ID                                : 2864556439
+Format                                   : UTF-8
+Commercial name                          : UTF-8
+Codec ID                                 : S_TEXT/UTF8
+Codec ID/Info                            : UTF-8 Plain Text
+Codec                                    : S_TEXT/UTF8
+Codec                                    : UTF-8
+Codec/Info                               : UTF-8 Plain Text
+Language                                 : fr
+Language                                 : French
+Language                                 : French
+Language                                 : fr
+Language                                 : fra
+Language                                 : fr
+Default                                  : No
+Default                                  : No
+Forced                                   : No
+Forced                                   : No
+
+Text #3
+Count                                    : 195
+Count of stream of this kind             : 3
+Kind of stream                           : Text
+Kind of stream                           : Text
+Stream identifier                        : 2
+Stream identifier                        : 3
+StreamOrder                              : 4
+ID                                       : 5
+ID                                       : 5
+Unique ID                                : 2864556441
+Format                                   : UTF-8
+Commercial name                          : UTF-8
+Codec ID                                 : S_TEXT/UTF8
+Codec ID/Info                            : UTF-8 Plain Text
+Codec                                    : S_TEXT/UTF8
+Codec                                    : UTF-8
+Codec/Info                               : UTF-8 Plain Text
+Language                                 : es
+Language                                 : Spanish
+Language                                 : Spanish
+Language                                 : es
+Language                                 : spa
+Language                                 : es
+Default                                  : No
+Default                                  : No
+Forced                                   : No
+Forced                                   : No
+
+Menu
+Count                                    : 97
+Count of stream of this kind             : 1
+Kind of stream                           : Menu
+Kind of stream                           : Menu
+Stream identifier                        : 0
+Chapters_Pos_Begin                       : 77
+Chapters_Pos_End                         : 97
+00:00:00.000                             : en:00:00:00.000
+00:04:13.545                             : en:00:04:13.545
+00:06:47.282                             : en:00:06:47.282
+00:11:45.246                             : en:00:11:45.246
+00:18:04.166                             : en:00:18:04.166
+00:28:12.274                             : en:00:28:12.274
+00:31:30.680                             : en:00:31:30.680
+00:38:40.693                             : en:00:38:40.693
+00:41:22.313                             : en:00:41:22.313
+00:47:53.370                             : en:00:47:53.370
+00:55:53.141                             : en:00:55:53.141
+00:58:49.860                             : en:00:58:49.860
+01:05:16.788                             : en:01:05:16.788
+01:16:40.304                             : en:01:16:40.304
+01:20:14.643                             : en:01:20:14.643
+01:27:23.321                             : en:01:27:23.321
+01:31:12.050                             : en:01:31:12.050
+01:41:40.553                             : en:01:41:40.553
+01:46:41.437                             : en:01:46:41.437
+01:51:24.511                             : en:01:51:24.511
 
