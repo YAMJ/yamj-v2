@@ -913,9 +913,13 @@ public class MediaInfoScanner {
                 if (infoValue.indexOf(Movie.SPACE_SLASH_SPACE) > -1) {
                     infoValue = infoValue.substring(0, infoValue.indexOf(Movie.SPACE_SLASH_SPACE));
                 }
-                infoValue = infoValue.substring(0, infoValue.length() - 3);
-                codec.setCodecBitRate(infoValue);
-                break;
+
+                // Check to see if we have a valid value
+                if (StringTools.isValidString(infoValue.trim())) {
+                    infoValue = infoValue.substring(0, infoValue.length() - 3);
+                    codec.setCodecBitRate(infoValue);
+                    break;
+                }
             }
             if (codecType.equals(CodecType.AUDIO) && key.equals(Codec.MI_CODEC_BITRATE)) {
                 break;
