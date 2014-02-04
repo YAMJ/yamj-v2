@@ -50,7 +50,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     public static final String COMINGSOON_PLUGIN_ID = "comingsoon";
     public static final String COMINGSOON_NOT_PRESENT = "na";
     public static final String COMINGSOON_BASE_URL = "http://www.comingsoon.it/";
-    public static final String COMINGSOON_SEARCH_URL = "Film/Scheda/Trama/?";
+    public static final String COMINGSOON_SEARCH_URL = "Cinema/CercaFilm/?";
     public static final String COMINGSOON_KEY_PARAM = "key=";
     private static final int COMINGSOON_MAX_DIFF = 1000;
     private static final int COMINGSOON_MAX_SEARCH_PAGES = 5;
