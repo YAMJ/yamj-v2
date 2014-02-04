@@ -29,6 +29,8 @@ import com.moviejukebox.tools.StringTools;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class Codec {
 
@@ -262,20 +264,7 @@ public class Codec {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("[Codec=");
-        sb.append("[codecType=").append(codecType.toString());
-        sb.append("], [codec=").append(codec);
-        sb.append("], [codecFormat=").append(codecFormat);
-        sb.append("], [codecId=").append(codecId);
-        sb.append("], [codecIdHint=").append(codecIdHint);
-        sb.append("], [codecFormatVersion=").append(codecFormatVersion);
-        sb.append("], [codecFormatProfile=").append(codecFormatProfile);
-        sb.append("], [codecLanguage=").append(codecLanguage);
-        sb.append("], [codecBitRate=").append(codecBitRate);
-        sb.append("], [codecChannels=").append(codecChannels);
-        sb.append("], [codecSource=").append(codecSource.toString());
-        sb.append("]]");
-        return sb.toString();
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
     @Override
