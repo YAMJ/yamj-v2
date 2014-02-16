@@ -25,6 +25,7 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import org.apache.log4j.Logger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -38,14 +39,17 @@ import org.junit.Test;
  */
 public class ComingSoonPluginTest {
 
+    private static final Logger LOG = Logger.getLogger(ComingSoonPluginTest.class);
     private ComingSoonPlugin csPlugin;
 
     @BeforeClass
-    public static void configure() {
+    public static void setUpClass() {
+        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
+        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
     }
 
     @Before
-    public void setup() {
+    public void setUp() {
         PropertiesUtil.setProperty("comingsoon.imdb.scan", "nevwe");
         PropertiesUtil.setProperty("priority.title", "comingsoon,imdb");
         PropertiesUtil.setProperty("priority.originaltitle", "comingsoon,imdb");
@@ -54,21 +58,23 @@ public class ComingSoonPluginTest {
 
     @Test
     public void testScanNoYear() {
+        LOG.info("testScanNoYear");
         Movie movie = new Movie();
         movie.setTitle("L'Incredibile Storia Di Winter Il Delfino", csPlugin.getPluginID());
 
-        assertTrue(csPlugin.scan(movie));
-        assertEquals("L'incredibile Storia Di Winter Il Delfino", movie.getTitle());
-        assertEquals("Dolphin Tale", movie.getOriginalTitle());
-        assertEquals("2011", movie.getYear());
-        assertTrue(movie.getDirectors().size() > 0);
-        assertTrue(movie.getWriters().size() > 0);
-        assertTrue(movie.getCast().size() > 0);
-        assertTrue(movie.getPlot().length() > 0);
+        assertTrue("Failed to scan", csPlugin.scan(movie));
+        assertEquals("Wrong title", "L'incredibile Storia Di Winter Il Delfino", movie.getTitle());
+        assertEquals("Wrong original title", "Dolphin Tale", movie.getOriginalTitle());
+        assertEquals("Wrong year", "2011", movie.getYear());
+        assertTrue("No Directors", movie.getDirectors().size() > 0);
+        assertTrue("No Writers", movie.getWriters().size() > 0);
+        assertTrue("No Cast", movie.getCast().size() > 0);
+        assertTrue("No plot", movie.getPlot().length() > 0);
     }
 
     @Test
     public void testScanList() {
+        LOG.info("testScanList");
         String[] titleList = {
             "Matrix",
             "Gli Aristogatti",
@@ -78,6 +84,7 @@ public class ComingSoonPluginTest {
         };
 
         for (int i = 0; i < titleList.length; i++) {
+            LOG.info("Testing " + titleList[i]);
             Movie movie = new Movie();
             movie.setTitle(titleList[i], csPlugin.getPluginID());
             assertTrue("Scan failed for " + movie.getTitle(), csPlugin.scan(movie));
