@@ -36,8 +36,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.log4j.Logger;
+import org.pojava.datetime2.DateTime;
 
 /**
  * @author iuk
@@ -51,6 +54,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
     public static final String COMINGSOON_NOT_PRESENT = "na";
     public static final String COMINGSOON_BASE_URL = "http://www.comingsoon.it/";
     public static final String COMINGSOON_SEARCH_URL = "Cinema/CercaFilm/?";
+    private static final String COMINGSOON_FILM_URL = "Film/Scheda/?";
+    public static final String COMINGSOON_SEARCH_PARAMS = "&genere=&nat=&regia=&attore=&orderby=&orderdir=asc&page=";
+    public static final String CS_TITLE_PARAM = "titolo=";
+    public static final String CS_YEAR_PARAM = "anno=";
     public static final String COMINGSOON_KEY_PARAM = "key=";
     private static final int COMINGSOON_MAX_DIFF = 1000;
     private static final int COMINGSOON_MAX_SEARCH_PAGES = 5;
@@ -209,12 +216,16 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             String comingSoonId = Movie.UNKNOWN;
 
-            StringBuilder sb = new StringBuilder("http://www.comingsoon.it/Film/Database/?titoloFilm=");
-            sb.append(URLEncoder.encode(movieName, "iso-8859-1"));
+            StringBuilder sb = new StringBuilder(COMINGSOON_BASE_URL);
+            sb.append(COMINGSOON_SEARCH_URL);
+            sb.append(CS_TITLE_PARAM);
+            sb.append(URLEncoder.encode(movieName.toLowerCase(), "iso-8859-1"));
 
+            sb.append("&").append(CS_YEAR_PARAM);
             if (StringTools.isValidString(year)) {
-                sb.append("&anno=").append(year);
+                sb.append(year);
             }
+            sb.append(COMINGSOON_SEARCH_PARAMS);
 
             int searchPage = 0;
 
@@ -282,64 +293,68 @@ public class ComingSoonPlugin extends ImdbPlugin {
          * this string, more movie URL are found, so we have to set a boundary
          */
         List<String[]> listaFilm = new ArrayList<String[]>();
-        int trovatiIndex = xml.indexOf("Trovati");
+        int beginIndex = StringUtils.indexOfIgnoreCase(xml, "Trovati");
         int moviesFound = -1;
-
-        while (trovatiIndex >= 0 && moviesFound < 0) {
-            int filmIndex = xml.indexOf("Film", trovatiIndex);
-            if (filmIndex - trovatiIndex < 15 && filmIndex > 0) {
-                moviesFound = Integer.parseInt(xml.substring(trovatiIndex + 8, filmIndex - 1));
-            } else {
-                trovatiIndex = xml.indexOf("Trovati", trovatiIndex + 1);
+        if (beginIndex > 0) {
+            int end = xml.indexOf(" film", beginIndex + 7);
+            if (end > 0) {
+                String tmp = HTMLTools.stripTags(xml.substring(beginIndex + 8, xml.indexOf(" film", beginIndex)));
+                moviesFound = NumberUtils.toInt(tmp, -1);
             }
         }
 
-        if (moviesFound < 0) {
-            LOG.error(LOG_MESSAGE + "couldn't find 'Trovati NNN Film' string. Search page layout probably changed");
+        if (moviesFound <= 0) {
+            // Log an error message
+            if (moviesFound < 0) {
+                LOG.error(LOG_MESSAGE + "couldn't find 'Trovati NNN film in archivio' string. Search page layout probably changed");
+            }
             return listaFilm;
         } else {
             LOG.debug(LOG_MESSAGE + "search found " + moviesFound + " movies");
         }
 
-        if (moviesFound == 0) {
-            return listaFilm;
-        }
+        beginIndex = xml.indexOf("<section class=\"cs-components__section-contentsbox cinema\">");
 
-        int beginIndex = xml.indexOf("<div id=\"BoxFilm\">");
+        if (beginIndex >= 0) {
+            // Looks like we have a movie list, so search for the start of the items
+            beginIndex = xml.indexOf("<div class='cs-component__products-list-item'>", beginIndex + 1);
 
-        while (beginIndex >= 0 && beginIndex < trovatiIndex) {
-            int urlIndex = xml.indexOf(COMINGSOON_SEARCH_URL, beginIndex);
-            LOG.debug(LOG_MESSAGE + "Found movie URL " + xml.substring(urlIndex, xml.indexOf('"', urlIndex)));
-            String comingSoonId = getComingSoonIdFromURL(xml.substring(urlIndex, xml.indexOf('"', urlIndex)));
+            while (beginIndex > 0) {
+                int nextIndex = xml.indexOf("<div class='cs-component__products-list-item'>", beginIndex + 1);
+                if (nextIndex < 0) {
+                    nextIndex = xml.indexOf("<div class=\"central-adv-banner\">", beginIndex + 1);
+                }
 
-            int nextIndex = xml.indexOf("<div id=\"BoxFilm\">", beginIndex + 1);
+                String search = xml.substring(beginIndex, nextIndex);
 
-            String search;
-            if (nextIndex > 0 && nextIndex < trovatiIndex) {
-                search = xml.substring(beginIndex, nextIndex);
-            } else {
-                search = xml.substring(beginIndex, trovatiIndex);
+                // Look for the ID of the movie
+                int urlIndex = search.indexOf("/Film/Scheda/");
+                String comingSoonId = search.substring(urlIndex, search.indexOf('\'', urlIndex));
+                comingSoonId = getComingSoonIdFromURL(comingSoonId);
+                LOG.debug(LOG_MESSAGE + "Found Coming Soon ID: " + comingSoonId);
+
+                String title = HTMLTools.extractTag(search, "<h3>", 0, "><", false).trim();
+                String originalTitle = HTMLTools.extractTag(search, "<h4>", 0, "><", false).trim();
+                if (originalTitle.startsWith("(")) {
+                    originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
+                } else if (originalTitle.length() == 0) {
+                    originalTitle = Movie.UNKNOWN;
+                }
+
+                String year = Movie.UNKNOWN;
+                int beginYearIndex = search.indexOf("ANNO</span>:");
+                if (beginYearIndex > 0) {
+                    int end = search.indexOf("</li>", beginYearIndex);
+                    if (end > 0) {
+                        year = search.substring(beginYearIndex + 12, end).trim();
+                    }
+                }
+
+                String[] movieData = {comingSoonId, title, originalTitle, year};
+                listaFilm.add(movieData);
+
+                beginIndex = xml.indexOf("<div class='cs-component__products-list-item'>", beginIndex + 1);
             }
-
-            String title = HTMLTools.extractTag(search, "class=\"titoloFilm\"", 0, "<>", false).trim();
-            String originalTitle = HTMLTools.extractTag(search, "class=\"titoloFilm2\">", "<").trim();
-            if (originalTitle.startsWith("(")) {
-                originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
-            } else if (originalTitle.length() == 0) {
-                originalTitle = Movie.UNKNOWN;
-            }
-
-            String year = Movie.UNKNOWN;
-            int beginYearIndex = search.indexOf("ANNO PROD:</span>");
-            if (beginYearIndex > 0) {
-                year = HTMLTools.extractTag(search.substring(beginYearIndex), "<b").trim();
-            }
-
-            String[] movieData = {comingSoonId, title, originalTitle, year};
-            listaFilm.add(movieData);
-
-            beginIndex = nextIndex;
-
         }
 
         return listaFilm;
@@ -355,8 +370,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
     }
 
     /**
-     * Returns difference between two titles. Since ComingSoon returns strange results on some researches, difference is defined as
-     * follows: abs(word count difference) - (searchedTitle word count - matched words);
+     * Returns difference between two titles.
+     *
+     * Since ComingSoon returns strange results on some researches, difference is defined as follows: abs(word count difference) -
+     * (searchedTitle word count - matched words);
      *
      * @param searchedTitle
      * @param returnedTitle
@@ -369,313 +386,216 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         LOG.debug(LOG_MESSAGE + "Comparing " + searchedTitle + " and " + returnedTitle);
 
-        StringTokenizer st1 = new StringTokenizer(searchedTitle);
-        int lastMatchedWord = -1;
-        int searchedWordCount = st1.countTokens();
-        int returnedWordCount = 0;
-        int matchingWords = 0;
-
-        while (st1.hasMoreTokens()) {
-            String candidate1 = st1.nextToken();
-
-            candidate1 = candidate1.replaceAll("[,.\\!\\?\"']", "");
-
-            boolean gotMatch = false;
-            int wordCounter = 0;
-            StringTokenizer st2 = new StringTokenizer(returnedTitle);
-            returnedWordCount = st2.countTokens();
-            while (st2.hasMoreTokens() && !gotMatch) {
-                String candidate2 = st2.nextToken();
-
-                if (wordCounter > lastMatchedWord) {
-                    if (candidate1.equalsIgnoreCase(candidate2)) {
-                        gotMatch = true;
-                        matchingWords++;
-                        lastMatchedWord = wordCounter;
-                    }
-                }
-                wordCounter++;
-            }
-        }
-        int difference = (searchedWordCount - returnedWordCount > 0 ? searchedWordCount - returnedWordCount : returnedWordCount - searchedWordCount) + (searchedWordCount - matchingWords);
-
-        if (returnedTitle.indexOf('-') >= 0) {
-            StringTokenizer st2 = new StringTokenizer(returnedTitle, "-");
-            while (st2.hasMoreTokens() && difference > 0) {
-                int newDiff = compareTitles(searchedTitle, st2.nextToken().trim());
-                difference = newDiff < difference ? newDiff : difference;
-            }
-        }
+        String title1 = searchedTitle.toLowerCase().replaceAll("[,.\\!\\?\"']", "");
+        String title2 = returnedTitle.toLowerCase().replaceAll("[,.\\!\\?\"']", "");
+        int difference = StringUtils.getLevenshteinDistance(title1, title2);
 
         return difference;
-
     }
 
     protected boolean updateComingSoonMediaInfo(Movie movie) {
-
         if (movie.getId(COMINGSOON_PLUGIN_ID).equalsIgnoreCase(COMINGSOON_NOT_PRESENT)) {
             return false;
         }
 
+        String xml;
         try {
-            String movieURL = COMINGSOON_BASE_URL + COMINGSOON_SEARCH_URL + COMINGSOON_KEY_PARAM + movie.getId(COMINGSOON_PLUGIN_ID);
+            String movieURL = COMINGSOON_BASE_URL + COMINGSOON_FILM_URL + COMINGSOON_KEY_PARAM + movie.getId(COMINGSOON_PLUGIN_ID);
             LOG.debug(LOG_MESSAGE + "Querying ComingSoon for " + movieURL);
-            String xml = webBrowser.request(movieURL, Charset.forName("iso-8859-1"));
-
-            // TITLE
-            if (OverrideTools.checkOverwriteTitle(movie, COMINGSOON_PLUGIN_ID)) {
-                String title = HTMLTools.extractTag(xml, "<h1 itemprop='name' class='titoloFilm", 1, "<>", false).trim();
-                if (StringTools.isNotValidString(title)) {
-                    LOG.error(LOG_MESSAGE + "No title found at ComingSoon page. HTML layout has changed?");
-                    return false;
-                }
-                movie.setTitle(WordUtils.capitalizeFully(title), COMINGSOON_PLUGIN_ID);
-            }
-
-            // ORIGINAL TITLE
-            if (OverrideTools.checkOverwriteOriginalTitle(movie, COMINGSOON_PLUGIN_ID)) {
-                String originalTitle = HTMLTools.extractTag(xml, "<h1 class='titoloFilm2", 1, "<>", false).trim();
-                if (StringTools.isNotValidString(originalTitle)) {
-                    // Comingsoon layout slightly changed at some point and original title became h2
-                    originalTitle = HTMLTools.extractTag(xml, "<h2 class='titoloFilm2", 1, "<>", false).trim();
-                }
-                if (originalTitle.startsWith("(")) {
-                    originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
-                }
-
-                movie.setOriginalTitle(WordUtils.capitalizeFully(originalTitle), COMINGSOON_PLUGIN_ID);
-            }
-
-            // RATING
-            if (movie.getRating(COMINGSOON_PLUGIN_ID) == -1) {
-                String rating = HTMLTools.extractTag(xml, "<li class=\"current-rating\"", 1, "<>", false).trim();
-                LOG.debug(LOG_MESSAGE + "found rating " + rating);
-                if (StringTools.isValidString(rating)) {
-                    rating = rating.substring(rating.indexOf(' ') + 1, rating.indexOf('/'));
-                    int ratingInt = (int) (Float.parseFloat(rating.replace(',', '.')) * 20); // Rating is 0 to 5, we normalize to 100
-                    if (ratingInt > 0) {
-                        movie.addRating(COMINGSOON_PLUGIN_ID, ratingInt);
-                    }
-                }
-            }
-
-            // RELEASE DATE
-            if (OverrideTools.checkOverwriteReleaseDate(movie, COMINGSOON_PLUGIN_ID)) {
-                String releaseDate = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">USCITA CINEMA: ", "<br />"));
-                movie.setReleaseDate(releaseDate, COMINGSOON_PLUGIN_ID);
-            }
-
-            // RUNTIME
-            if (OverrideTools.checkOverwriteRuntime(movie, COMINGSOON_PLUGIN_ID)) {
-                String runTime = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">DURATA: ", "<br />"));
-                if (StringTools.isValidString(runTime)) {
-                    StringTokenizer st = new StringTokenizer(runTime);
-                    movie.setRuntime(st.nextToken(), COMINGSOON_PLUGIN_ID);
-                }
-
-            }
-
-            // COUNTRY AND YEAR
-            String countryYear = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PAESE: ", "<br />"));
-            String country = Movie.UNKNOWN;
-            String year;
-
-            if (StringTools.isValidString(countryYear)) {
-
-                if (countryYear.length() <= 4) {
-                    year = countryYear.trim();
-                } else {
-                    year = countryYear.substring(countryYear.length() - 4, countryYear.length());
-                }
-
-                if (countryYear.length() > 5) {
-                    StringTokenizer st = new StringTokenizer(countryYear.substring(0, countryYear.length() - 5), ",");
-                    // Last country seems to be the more appropriate
-                    while (st.hasMoreTokens()) {
-                        country = st.nextToken().trim();
-                    }
-                }
-
-                LOG.debug(LOG_MESSAGE + "found countryYear " + countryYear + ", country " + country + ", year " + year);
-
-                if ((Integer.parseInt(year) > 1900) && OverrideTools.checkOverwriteYear(movie, COMINGSOON_PLUGIN_ID)) {
-                    movie.setYear(year, COMINGSOON_PLUGIN_ID);
-                }
-
-                if (OverrideTools.checkOverwriteCountry(movie, COMINGSOON_PLUGIN_ID)) {
-                    movie.setCountry(country, COMINGSOON_PLUGIN_ID);
-                }
-            }
-
-            // COMPANY
-            if (OverrideTools.checkOverwriteCompany(movie, COMINGSOON_PLUGIN_ID)) {
-                // TODO: Add more than one company when available in Movie model
-                String companies = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PRODUZIONE: ", "<br />"));
-                StringTokenizer st = new StringTokenizer(companies, ",");
-                if (st.hasMoreTokens()) {
-                    movie.setCompany(st.nextToken().trim(), COMINGSOON_PLUGIN_ID);
-                } else {
-                    movie.setCompany(companies.trim(), COMINGSOON_PLUGIN_ID);
-                }
-
-            }
-
-            // GENRES
-            if (OverrideTools.checkOverwriteGenres(movie, COMINGSOON_PLUGIN_ID)) {
-                String genreList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">GENERE: ", "<br />"));
-                if (StringTools.isValidString(genreList)) {
-                    Collection<String> genres = new ArrayList<String>();
-
-                    StringTokenizer st = new StringTokenizer(genreList, ",");
-                    while (st.hasMoreTokens()) {
-                        genres.add(st.nextToken().trim());
-                    }
-                    movie.setGenres(genres, COMINGSOON_PLUGIN_ID);
-                }
-            }
-
-            // PLOT AND OUTLINE
-            if (OverrideTools.checkOneOverwrite(movie, COMINGSOON_PLUGIN_ID, OverrideFlag.PLOT, OverrideFlag.OUTLINE)) {
-
-                int beginIndex = xml.indexOf("<span class='vociFilm'>Trama del film");
-                if (beginIndex < 0) {
-                    LOG.error(LOG_MESSAGE + "No plot found at ComingSoon page. HTML layout has changed?");
-                    return false;
-                }
-
-                beginIndex = xml.indexOf("</span>", beginIndex);
-                if (beginIndex < 0) {
-                    LOG.error(LOG_MESSAGE + "No plot found at ComingSoon page. HTML layout has changed?");
-                    return false;
-                }
-
-                int endIndex = xml.indexOf("</div>", beginIndex);
-                if (endIndex < 0) {
-                    LOG.error(LOG_MESSAGE + "No plot found at ComingSoon page. HTML layout has changed?");
-                    return false;
-                }
-
-                String xmlPlot = xml.substring(beginIndex + 7, endIndex - 1).trim();
-                xmlPlot = HTMLTools.stripTags(xmlPlot).trim();
-
-                /*
-                 * There are sometimes two markers in the plot to differentiate
-                 * between the plot (TRAMA LUNGA) and the outline (TRAMA BREVE).
-                 * We should extract these and use them appropriately
-                 */
-                String plot;
-                String outline;
-                int plotStart = xmlPlot.toUpperCase().indexOf("TRAMA LUNGA");
-                int outlineStart = xmlPlot.toUpperCase().indexOf("TRAMA BREVE");
-
-                if (plotStart == -1 && outlineStart == -1) {
-                    // We've found neither, so the plot stays the same
-                    plot = xmlPlot;
-                    outline = xmlPlot;
-                } else {
-                    // We've found at least one of the plots
-                    if (outlineStart == -1 && plotStart > 0) {
-                        // We'll assume that the outline is at the beginning of the plot
-                        outline = xmlPlot.substring(0, plotStart);
-                    } else {
-                        outline = xmlPlot.substring(11, plotStart);
-                    }
-                    plot = xmlPlot.substring(plotStart + 11);
-                }
-
-                if (OverrideTools.checkOverwritePlot(movie, COMINGSOON_PLUGIN_ID)) {
-                    movie.setPlot(plot, COMINGSOON_PLUGIN_ID);
-                }
-                if (OverrideTools.checkOverwriteOutline(movie, COMINGSOON_PLUGIN_ID)) {
-                    movie.setOutline(outline, COMINGSOON_PLUGIN_ID);
-                }
-            }
-
-            // DIRECTOR(S)
-            boolean overrideDirectors = OverrideTools.checkOverwriteDirectors(movie, COMINGSOON_PLUGIN_ID);
-            boolean overridePeopleDirectors = OverrideTools.checkOverwritePeopleDirectors(movie, COMINGSOON_PLUGIN_ID);
-            if (overrideDirectors || overridePeopleDirectors) {
-                String directorList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">REGIA: ", "<br />"));
-
-                List<String> newDirectors = new ArrayList<String>();
-                if (directorList.contains(",")) {
-                    StringTokenizer st = new StringTokenizer(directorList, ",");
-                    while (st.hasMoreTokens()) {
-                        newDirectors.add(st.nextToken());
-                    }
-                } else {
-                    newDirectors.add(directorList);
-                }
-
-                if (overrideDirectors) {
-                    movie.setDirectors(newDirectors, COMINGSOON_PLUGIN_ID);
-                }
-                if (overridePeopleDirectors) {
-                    movie.setPeopleDirectors(newDirectors, COMINGSOON_PLUGIN_ID);
-                }
-            }
-
-            // WRITER(S)
-            boolean overrideWriters = OverrideTools.checkOverwriteWriters(movie, COMINGSOON_PLUGIN_ID);
-            boolean overridePeopleWriters = OverrideTools.checkOverwritePeopleWriters(movie, COMINGSOON_PLUGIN_ID);
-
-            if (overrideWriters || overridePeopleWriters) {
-                String writerList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">SCENEGGIATURA: ", "<br />"));
-
-                List<String> newWriters = new ArrayList<String>();
-                if (writerList.contains(",")) {
-                    StringTokenizer st = new StringTokenizer(writerList, ",");
-                    while (st.hasMoreTokens()) {
-                        newWriters.add(st.nextToken());
-                    }
-                } else {
-                    newWriters.add(writerList);
-                }
-
-                if (overrideWriters) {
-                    movie.setWriters(newWriters, COMINGSOON_PLUGIN_ID);
-                }
-                if (overridePeopleWriters) {
-                    movie.setPeopleWriters(newWriters, COMINGSOON_PLUGIN_ID);
-                }
-            }
-
-            // CAST
-            boolean overrideActors = OverrideTools.checkOverwriteActors(movie, COMINGSOON_PLUGIN_ID);
-            boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, COMINGSOON_PLUGIN_ID);
-            if (overrideActors || overridePeopleActors) {
-                String castList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ATTORI: ", "Ruoli ed Interpreti"));
-
-                List<String> newActors = new ArrayList<String>();
-                if (castList.contains(",")) {
-                    StringTokenizer st = new StringTokenizer(castList, ",");
-                    while (st.hasMoreTokens()) {
-                        newActors.add(st.nextToken());
-                    }
-                } else {
-                    newActors.add(castList);
-                }
-
-                if (overrideActors) {
-                    movie.setCast(newActors, COMINGSOON_PLUGIN_ID);
-                }
-                if (overridePeopleActors) {
-                    movie.setPeopleCast(newActors, COMINGSOON_PLUGIN_ID);
-                }
-            }
-
-            return true;
-
-        } catch (IOException error) {
+            xml = webBrowser.request(movieURL, Charset.forName("iso-8859-1"));
+        } catch (IOException ex) {
             LOG.error(LOG_MESSAGE + "Failed retreiving ComingSoon data for movie : " + movie.getId(COMINGSOON_PLUGIN_ID));
-            LOG.error(LOG_MESSAGE + SystemTools.getStackTrace(error));
-            return false;
-        } catch (NumberFormatException error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving ComingSoon data for movie : " + movie.getId(COMINGSOON_PLUGIN_ID));
-            LOG.error(LOG_MESSAGE + SystemTools.getStackTrace(error));
+            LOG.error(LOG_MESSAGE + SystemTools.getStackTrace(ex));
             return false;
         }
 
+        // TITLE
+        if (OverrideTools.checkOverwriteTitle(movie, COMINGSOON_PLUGIN_ID)) {
+            String title = HTMLTools.extractTag(xml, "<h1>", "</h1>").trim();
+            if (StringTools.isNotValidString(title)) {
+                LOG.error(LOG_MESSAGE + "No title found at ComingSoon page. HTML layout has changed?");
+                return false;
+            }
+            movie.setTitle(WordUtils.capitalizeFully(title), COMINGSOON_PLUGIN_ID);
+        }
+
+        // ORIGINAL TITLE
+        if (OverrideTools.checkOverwriteOriginalTitle(movie, COMINGSOON_PLUGIN_ID)) {
+            String originalTitle = HTMLTools.extractTag(xml, "<h2><em>", "</em></h2>").trim();
+            if (originalTitle.startsWith("(")) {
+                originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
+            }
+
+            movie.setOriginalTitle(WordUtils.capitalizeFully(originalTitle), COMINGSOON_PLUGIN_ID);
+        }
+
+        // RATING
+        if (movie.getRating(COMINGSOON_PLUGIN_ID) == -1) {
+            String rating = HTMLTools.extractTag(xml, "<li class=\'current-rating\'", 1, "<>", false).trim();
+            LOG.debug(LOG_MESSAGE + "Found rating " + rating);
+            if (StringTools.isValidString(rating)) {
+                rating = rating.substring(rating.indexOf(' ') + 1, rating.indexOf('/'));
+                int ratingInt = (int) (NumberUtils.toFloat(rating.replace(',', '.'), 0) * 20); // Rating is 0 to 5, we normalize to 100
+                if (ratingInt > 0) {
+                    movie.addRating(COMINGSOON_PLUGIN_ID, ratingInt);
+                }
+            }
+        }
+
+        // RELEASE DATE
+        if (OverrideTools.checkOverwriteReleaseDate(movie, COMINGSOON_PLUGIN_ID)) {
+            String releaseDate = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">DATA USCITA</strong>:", "</li>"));
+            DateTime rDate = new DateTime(releaseDate);
+            movie.setReleaseDate(rDate.toString("yyyy-MM-dd"), COMINGSOON_PLUGIN_ID);
+        }
+
+        // RUNTIME
+        if (OverrideTools.checkOverwriteRuntime(movie, COMINGSOON_PLUGIN_ID)) {
+            String runTime = HTMLTools.stripTags(HTMLTools.extractTag(xml, "DURATA</strong>:", "</li>"));
+            if (StringTools.isValidString(runTime)) {
+                StringTokenizer st = new StringTokenizer(runTime);
+                movie.setRuntime(st.nextToken(), COMINGSOON_PLUGIN_ID);
+            }
+        }
+
+        // COUNTRY
+        String country = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PAESE</strong>: ", "</li>")).trim();
+        if (OverrideTools.checkOverwriteCountry(movie, COMINGSOON_PLUGIN_ID)) {
+            movie.setCountry(country, COMINGSOON_PLUGIN_ID);
+        }
+
+        // YEAR
+        String year = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ANNO</strong>: ", "</li>")).trim();
+        if ((NumberUtils.toInt(year, 0) > 1900) && OverrideTools.checkOverwriteYear(movie, COMINGSOON_PLUGIN_ID)) {
+            movie.setYear(year, COMINGSOON_PLUGIN_ID);
+        }
+
+        // COMPANY
+        if (OverrideTools.checkOverwriteCompany(movie, COMINGSOON_PLUGIN_ID)) {
+            // TODO: Add more than one company when available in Movie model
+            String companies = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PRODUZIONE</strong>: ", "</li>"));
+            StringTokenizer st = new StringTokenizer(companies, ",");
+            if (st.hasMoreTokens()) {
+                movie.setCompany(st.nextToken().trim(), COMINGSOON_PLUGIN_ID);
+            } else {
+                movie.setCompany(companies.trim(), COMINGSOON_PLUGIN_ID);
+            }
+        }
+
+        // GENRES
+        if (OverrideTools.checkOverwriteGenres(movie, COMINGSOON_PLUGIN_ID)) {
+            String genreList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">GENERE</strong>: ", "</LI>"));
+            if (StringTools.isValidString(genreList)) {
+                Collection<String> genres = new ArrayList<String>();
+
+                StringTokenizer st = new StringTokenizer(genreList, ",");
+                while (st.hasMoreTokens()) {
+                    genres.add(st.nextToken().trim());
+                }
+                movie.setGenres(genres, COMINGSOON_PLUGIN_ID);
+            }
+        }
+
+        // PLOT AND OUTLINE
+        if (OverrideTools.checkOneOverwrite(movie, COMINGSOON_PLUGIN_ID, OverrideFlag.PLOT, OverrideFlag.OUTLINE)) {
+
+            int beginIndex = xml.indexOf("<div class=\"product-profile-box-toprow-text\">");
+            if (beginIndex < 0) {
+                LOG.error(LOG_MESSAGE + "No plot found at ComingSoon page. HTML layout has changed?");
+                return false;
+            }
+
+            int endIndex = xml.indexOf("</div>", beginIndex);
+            if (endIndex < 0) {
+                LOG.error(LOG_MESSAGE + "No plot found at ComingSoon page. HTML layout has changed?");
+                return false;
+            }
+
+            String xmlPlot = xml.substring(beginIndex, endIndex).trim();
+            xmlPlot = HTMLTools.stripTags(xmlPlot).trim();
+
+            if (OverrideTools.checkOverwritePlot(movie, COMINGSOON_PLUGIN_ID)) {
+                movie.setPlot(xmlPlot, COMINGSOON_PLUGIN_ID);
+            }
+            if (OverrideTools.checkOverwriteOutline(movie, COMINGSOON_PLUGIN_ID)) {
+                movie.setOutline(xmlPlot, COMINGSOON_PLUGIN_ID);
+            }
+        }
+
+        // DIRECTOR(S)
+        boolean overrideDirectors = OverrideTools.checkOverwriteDirectors(movie, COMINGSOON_PLUGIN_ID);
+        boolean overridePeopleDirectors = OverrideTools.checkOverwritePeopleDirectors(movie, COMINGSOON_PLUGIN_ID);
+        if (overrideDirectors || overridePeopleDirectors) {
+            String directorList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">REGIA</strong>: ", "</li>"));
+
+            List<String> newDirectors = new ArrayList<String>();
+            if (directorList.contains(",")) {
+                StringTokenizer st = new StringTokenizer(directorList, ",");
+                while (st.hasMoreTokens()) {
+                    newDirectors.add(st.nextToken());
+                }
+            } else {
+                newDirectors.add(directorList);
+            }
+
+            if (overrideDirectors) {
+                movie.setDirectors(newDirectors, COMINGSOON_PLUGIN_ID);
+            }
+            if (overridePeopleDirectors) {
+                movie.setPeopleDirectors(newDirectors, COMINGSOON_PLUGIN_ID);
+            }
+        }
+
+        // WRITER(S)
+        boolean overrideWriters = OverrideTools.checkOverwriteWriters(movie, COMINGSOON_PLUGIN_ID);
+        boolean overridePeopleWriters = OverrideTools.checkOverwritePeopleWriters(movie, COMINGSOON_PLUGIN_ID);
+
+        if (overrideWriters || overridePeopleWriters) {
+            String writerList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">SCENEGGIATURA</strong>: ", "</li>"));
+
+            List<String> newWriters = new ArrayList<String>();
+            if (writerList.contains(",")) {
+                StringTokenizer st = new StringTokenizer(writerList, ",");
+                while (st.hasMoreTokens()) {
+                    newWriters.add(st.nextToken());
+                }
+            } else {
+                newWriters.add(writerList);
+            }
+
+            if (overrideWriters) {
+                movie.setWriters(newWriters, COMINGSOON_PLUGIN_ID);
+            }
+            if (overridePeopleWriters) {
+                movie.setPeopleWriters(newWriters, COMINGSOON_PLUGIN_ID);
+            }
+        }
+
+        // CAST
+        boolean overrideActors = OverrideTools.checkOverwriteActors(movie, COMINGSOON_PLUGIN_ID);
+        boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, COMINGSOON_PLUGIN_ID);
+        if (overrideActors || overridePeopleActors) {
+            String castList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ATTORI</strong>: ", "</li>"));
+
+            List<String> newActors = new ArrayList<String>();
+            if (castList.contains(",")) {
+                StringTokenizer st = new StringTokenizer(castList, ",");
+                while (st.hasMoreTokens()) {
+                    newActors.add(HTMLTools.stripTags(st.nextToken()));
+                }
+            } else {
+                newActors.add(HTMLTools.stripTags(castList));
+            }
+
+            if (overrideActors) {
+                movie.setCast(newActors, COMINGSOON_PLUGIN_ID);
+            }
+            if (overridePeopleActors) {
+                movie.setPeopleCast(newActors, COMINGSOON_PLUGIN_ID);
+            }
+        }
+
+        return true;
     }
 
     @Override
@@ -690,7 +610,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             LOG.debug(LOG_MESSAGE + "ComingSoon Id found in nfo = " + movie.getId(COMINGSOON_PLUGIN_ID));
             result = true;
         } else {
-            LOG.debug(LOG_MESSAGE + "No ComingSoon Id found in nfo!");
+            LOG.debug(LOG_MESSAGE + "No ComingSoon ID found in nfo!");
         }
         return result;
     }

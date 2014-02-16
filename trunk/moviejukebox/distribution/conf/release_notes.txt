@@ -27,6 +27,7 @@ MovieJukebox 2.10-SNAPSHOT
  - Enhancement  #2710 Option to skip Cast & Crew from NFO
  - Fixed defect #2711 Plot & Outline ampersand problem
  - Fixed defect #2714 RottenTomatoes over queries per second limit
+ - Fixed defect #2724 Fixed ComingSoon Plugin after site change
 
 MovieJukebox 2.9
 ----------------

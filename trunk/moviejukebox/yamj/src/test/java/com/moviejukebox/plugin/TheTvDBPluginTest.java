@@ -51,9 +51,6 @@ public class TheTvDBPluginTest {
     private static final int ID_BABYLON_5 = 70726;
 
     public TheTvDBPluginTest() {
-        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
-        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
-
         PropertiesUtil.setProperty("mjb.includeVideoImages", true);
         PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
 
@@ -62,6 +59,8 @@ public class TheTvDBPluginTest {
 
     @BeforeClass
     public static void setUpClass() {
+        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
+        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
     }
 
     @AfterClass
