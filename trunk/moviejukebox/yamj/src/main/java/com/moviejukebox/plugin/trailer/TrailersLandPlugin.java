@@ -35,14 +35,15 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author iuk
  */
 public class TrailersLandPlugin extends TrailerPlugin {
 
-    private static final Logger LOG = Logger.getLogger(TrailersLandPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TrailersLandPlugin.class);
     private static final String TL_BASE_URL = "http://www.trailersland.com/";
     private static final String TL_SEARCH_URL = "cerca/ricerca=";
     private static final String TL_MOVIE_URL = "film/";

@@ -59,11 +59,13 @@ import org.apache.commons.io.FilenameUtils;
 import static org.apache.commons.lang3.StringUtils.substringAfter;
 import static org.apache.commons.lang3.StringUtils.substringBefore;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public final class FileTools {
 
-    private static final Logger LOG = Logger.getLogger(FileTools.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileTools.class);
     private static final String LOG_MESSAGE = "FileTools: ";
     private static final int BUFF_SIZE = 16 * 1024;
     private static final Collection<String> SUBTITLE_EXTENSIONS = new ArrayList<String>();

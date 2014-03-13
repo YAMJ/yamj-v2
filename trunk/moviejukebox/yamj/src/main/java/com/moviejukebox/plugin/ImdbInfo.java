@@ -36,11 +36,12 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ImdbInfo {
 
-    private static final Logger LOG = Logger.getLogger(ImdbInfo.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ImdbInfo.class);
     private static final String LOG_MESSAGE = "ImdbInfo: ";
     private static final String DEFAULT_SITE = "us";
     private static final String OBJECT_MOVIE = "movie";

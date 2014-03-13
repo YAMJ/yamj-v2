@@ -49,7 +49,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.pojava.datetime2.DateTime;
+import org.pojava.datetime.DateTime;
 
 @XmlType
 public class MovieFile implements Comparable<MovieFile> {

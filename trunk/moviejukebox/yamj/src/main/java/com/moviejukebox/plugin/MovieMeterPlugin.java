@@ -34,7 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.xmlrpc.XmlRpcException;
 
 /**
@@ -46,7 +48,7 @@ import org.apache.xmlrpc.XmlRpcException;
 public class MovieMeterPlugin extends ImdbPlugin {
 
     public static final String MOVIEMETER_PLUGIN_ID = "moviemeter";
-    private static final Logger LOG = Logger.getLogger(MovieMeterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieMeterPlugin.class);
     private static final String LOG_MESSAGE = "MovieMeterPlugin: ";
 
     private MovieMeterPluginSession session;

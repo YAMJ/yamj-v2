@@ -39,14 +39,16 @@ import com.omertron.tvrageapi.model.ShowInfo;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * @author Stuart.Boston
  */
 public class TVRagePlugin extends ImdbPlugin {
 
-    private static final Logger LOG = Logger.getLogger(TVRagePlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TVRagePlugin.class);
     private static final String LOG_MESSAGE = "TVRagePlugin: ";
     public static final String TVRAGE_PLUGIN_ID = "tvrage";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TVRage");

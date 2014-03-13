@@ -29,11 +29,12 @@ import com.moviejukebox.scanner.artwork.PosterScanner;
 import com.moviejukebox.tools.WebBrowser;
 import java.net.URLEncoder;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
 
-    private static final Logger LOG = Logger.getLogger(GooglePosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GooglePosterPlugin.class);
     private static final String LOG_MESSAGE = "GooglePosterPlugin: ";
     private WebBrowser webBrowser;
 

@@ -28,7 +28,9 @@ import com.moviejukebox.tools.*;
 import java.io.File;
 import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -38,7 +40,7 @@ import org.w3c.dom.Element;
  */
 public final class MovieNFOWriter {
 
-    private static final Logger LOG = Logger.getLogger(MovieNFOWriter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieNFOWriter.class);
     private static final String LOG_MESSAGE = "MovieNFOWriter: ";
     private static final boolean WRITE_SIMPLE_NFO = PropertiesUtil.getBooleanProperty("filename.nfo.writeSimpleFiles", Boolean.FALSE);
     private static final boolean GET_CERT_FROM_MPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE);

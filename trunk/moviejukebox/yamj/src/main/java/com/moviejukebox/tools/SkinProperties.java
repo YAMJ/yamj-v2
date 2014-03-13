@@ -28,7 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Process the skin information file for the details about the skin
@@ -39,7 +41,7 @@ import org.apache.log4j.Logger;
 public final class SkinProperties {
 
     // Logger
-    private static final Logger LOG = Logger.getLogger(SkinProperties.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SkinProperties.class);
     private static final String LOG_MESSAGE = "SkinProperties: ";
     // Skin location
     private static final String SKIN_HOME = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");

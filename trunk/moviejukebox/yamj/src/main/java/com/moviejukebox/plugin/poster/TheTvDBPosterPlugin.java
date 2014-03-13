@@ -40,12 +40,13 @@ import com.omertron.thetvdbapi.model.Series;
 import java.util.List;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime2.DateTime;
+import org.slf4j.Logger;
+import org.pojava.datetime.DateTime;
+import org.slf4j.LoggerFactory;
 
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 
-    private static final Logger LOG = Logger.getLogger(TheTvDBPosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TheTvDBPosterPlugin.class);
     private static final String LOG_MESSAGE = "TheTvDBPosterPlugin: ";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
     private static final String DEFAULT_LANGUAGE = "en";

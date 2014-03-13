@@ -31,7 +31,8 @@ import static com.moviejukebox.tools.StringTools.isNotValidString;
 import com.moviejukebox.tools.SystemTools;
 import java.util.Date;
 import java.util.Set;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This function will validate the current movie object and return true if the movie needs to be re-scanned.
@@ -40,7 +41,7 @@ import org.apache.log4j.Logger;
  */
 public final class RecheckScanner {
 
-    private static final Logger LOG = Logger.getLogger(RecheckScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RecheckScanner.class);
     private static final String LOG_MESSAGE = "RecheckScanner: ";
     /*
      * Recheck variables

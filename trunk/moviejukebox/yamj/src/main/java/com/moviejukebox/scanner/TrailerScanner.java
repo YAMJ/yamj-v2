@@ -33,7 +33,8 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -41,7 +42,7 @@ import org.apache.log4j.Logger;
  */
 public class TrailerScanner {
 
-    private static final Logger LOG = Logger.getLogger(TrailerScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TrailerScanner.class);
     private static final String LOG_MESSAGE = "TrailerScanner: ";
     private static final long MILLIS_IN_DAY = 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
     // Convert trailers.rescan.days from DAYS to MILLISECONDS for comparison purposes

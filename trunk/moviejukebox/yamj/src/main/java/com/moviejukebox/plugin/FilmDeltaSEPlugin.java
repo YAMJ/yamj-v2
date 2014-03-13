@@ -36,7 +36,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Plugin to retrieve movie data from Swedish movie database www.filmdelta.se
@@ -51,7 +52,7 @@ import org.apache.log4j.Logger;
 public class FilmDeltaSEPlugin extends ImdbPlugin {
 
     public static final String FILMDELTA_PLUGIN_ID = "filmdelta";
-    private static final Logger LOG = Logger.getLogger(FilmDeltaSEPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FilmDeltaSEPlugin.class);
     private static final String LOG_MESSAGE = "FilmDeltaSEPlugin: ";
     private static final String SEARCH_RESULT_UNIQUE = "window.location = \"http://www.filmdelta.se/filmer/";
     private static final String SEARCH_RESULT_LINE = "<a href=\"/filmer/";

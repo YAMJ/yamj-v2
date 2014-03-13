@@ -54,8 +54,10 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime2.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.pojava.datetime.DateTime;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -70,7 +72,7 @@ import org.xml.sax.SAXParseException;
  */
 public final class MovieNFOReader {
 
-    private static final Logger LOG = Logger.getLogger(MovieNFOReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieNFOReader.class);
     private static final String LOG_MESSAGE = "MovieNFOReader: ";
     /**
      * Node Type: Movie

@@ -34,7 +34,8 @@ import java.util.regex.Pattern;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple movie filename scanner.
@@ -54,7 +55,7 @@ import org.apache.log4j.Logger;
  */
 public final class MovieFilenameScanner {
 
-    private static final Logger LOG = Logger.getLogger(MovieFilenameScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieFilenameScanner.class);
     private static final String LOG_MESSAGE = "MovieFilenameScanner: ";
     private static final boolean skipEpisodeTitle;
     private static boolean useParentRegex;

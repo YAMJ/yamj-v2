@@ -39,11 +39,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AppleTrailersPlugin extends TrailerPlugin {
 
-    private static final Logger LOG = Logger.getLogger(AppleTrailersPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AppleTrailersPlugin.class);
     private static String configResolution = PropertiesUtil.getProperty("appletrailers.resolution", "");
     private static boolean configDownload = PropertiesUtil.getBooleanProperty("appletrailers.download", Boolean.FALSE);
     private static String configTrailerTypes = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec,640w");
@@ -262,16 +263,10 @@ public class AppleTrailersPlugin extends TrailerPlugin {
      * @return
      */
     private String getSubPage(String url) {
-        Level oldlevel = LOG.getLevel();
-
         try {
-            // Don't log error getting URL
-            LOG.setLevel(Level.OFF);
             return webBrowser.request(url);
         } catch (IOException ex) {
             return "";
-        } finally {
-            LOG.setLevel(oldlevel);
         }
     }
 

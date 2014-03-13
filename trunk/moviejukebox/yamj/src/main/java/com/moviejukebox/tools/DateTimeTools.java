@@ -32,12 +32,14 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime2.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.pojava.datetime.DateTime;
 
 public final class DateTimeTools {
 
-    private static final Logger LOG = Logger.getLogger(DateTimeTools.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DateTimeTools.class);
     private static final String LOG_MESSAGE = "DateTimeTools: ";
     private static final String DATE_FORMAT_STRING = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
     private static final String DATE_FORMAT_LONG_STRING = DATE_FORMAT_STRING + " HH:mm:ss";

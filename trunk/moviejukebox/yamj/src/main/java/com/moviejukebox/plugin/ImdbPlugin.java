@@ -63,13 +63,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime2.DateTime;
+import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 
     public static final String IMDB_PLUGIN_ID = "imdb";
-    private static final Logger LOG = Logger.getLogger(ImdbPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ImdbPlugin.class);
     private static final String LOG_MESSAGE = "ImdbPlugin: ";
     protected String preferredCountry;
     private final String imdbPlot;

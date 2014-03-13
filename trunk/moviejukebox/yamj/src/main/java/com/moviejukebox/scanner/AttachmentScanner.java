@@ -48,7 +48,8 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Scans and extracts attachments within a file i.e. matroska files.
@@ -57,7 +58,7 @@ import org.apache.log4j.Logger;
  */
 public class AttachmentScanner {
 
-    private static final Logger LOG = Logger.getLogger(AttachmentScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AttachmentScanner.class);
     private static final String LOG_MESSAGE = "AttachmentScanner: ";
     // Enabled
     private static final Boolean IS_ENABLED = PropertiesUtil.getBooleanProperty("attachment.scanner.enable", Boolean.FALSE);

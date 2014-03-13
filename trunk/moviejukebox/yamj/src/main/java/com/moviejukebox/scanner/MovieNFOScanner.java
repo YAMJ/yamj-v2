@@ -39,8 +39,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime2.DateTimeConfig;
+import org.pojava.datetime.DateTimeConfigBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * NFO file parser.
@@ -51,19 +52,18 @@ import org.pojava.datetime2.DateTimeConfig;
  */
 public final class MovieNFOScanner {
 
-    private static final Logger LOG = Logger.getLogger(MovieNFOScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieNFOScanner.class);
     private static final String LOG_MESSAGE = "MovieNFOScanner: ";
     // Other properties
     private static final String XBMC_TV_NFO_NAME = "tvshow";
     // For now, this is deprecated and we should see if there are issues before looking at a solution as the DOM Parser seems a lot more stable
-//    private static String forceNFOEncoding = PropertiesUtil.getProperty("mjb.forceNFOEncoding", "AUTO");
-    private static String nfoDirectory = PropertiesUtil.getProperty("filename.nfo.directory", "");
+    private static final String NFO_DIR = PropertiesUtil.getProperty("filename.nfo.directory", "");
     private static final boolean ACCEPT_ALL_NFO = PropertiesUtil.getBooleanProperty("filename.nfo.acceptAllNfo", Boolean.FALSE);
-    private static String nfoExtRegex;
+    private static final String NFO_EXT_REGEX;
     private static final String[] NFO_EXTENSIONS = PropertiesUtil.getProperty("filename.nfo.extensions", "NFO").split(",");
-    private static Pattern partPattern = Pattern.compile("(?i)(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)");
-    private static boolean archiveScanRar = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", Boolean.FALSE);
-    private static boolean skipTvNfoFiles = PropertiesUtil.getBooleanProperty("filename.nfo.skipTVNFOFiles", Boolean.FALSE);
+    private static final Pattern PART_PATTERN = Pattern.compile("(?i)(?:(?:CD)|(?:DISC)|(?:DISK)|(?:PART))([0-9]+)");
+    private static final boolean ARCHIVE_SCAN_RAR = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", Boolean.FALSE);
+    private static final boolean SKIP_TV_NFO_FILES = PropertiesUtil.getBooleanProperty("filename.nfo.skipTVNFOFiles", Boolean.FALSE);
 
     static {
         if (ACCEPT_ALL_NFO) {
@@ -84,11 +84,12 @@ public final class MovieNFOScanner {
                 regexBuilder.append(ext).append("$"); // Add extension
             }
             regexBuilder.append(")"); // End of REGEX
-            nfoExtRegex = regexBuilder.toString();
+            NFO_EXT_REGEX = regexBuilder.toString();
         }
 
         // Set the date format to dd-MM-yyyy
-        DateTimeConfig.globalEuropeanDateFormat();
+//        DateTimeConfig.globalEuropeanDateFormat();
+        DateTimeConfigBuilder.newInstance().setDmyOrder(true);
     }
 
     private MovieNFOScanner() {
@@ -103,7 +104,7 @@ public final class MovieNFOScanner {
      * Scanning for site specific URLs should be done by each plugin
      *
      * @param movie
-     * @param movieDB
+     * @param nfoFiles
      */
     public static void scan(Movie movie, List<File> nfoFiles) {
         for (File nfoFile : nfoFiles) {
@@ -140,7 +141,7 @@ public final class MovieNFOScanner {
             pathFileName = currentDir.getAbsolutePath();
         }
 
-        if (archiveScanRar && pathFileName.toLowerCase().contains(".rar")) {
+        if (ARCHIVE_SCAN_RAR && pathFileName.toLowerCase().contains(".rar")) {
             currentDir = new File(FileTools.getParentFolder(currentDir));
             baseFileName = currentDir.getName();
             pathFileName = currentDir.getAbsolutePath();
@@ -172,7 +173,7 @@ public final class MovieNFOScanner {
             checkNFO(nfoFiles, nfoFilename);
 
             // Check for individual episode files
-            if (!skipTvNfoFiles) {
+            if (!SKIP_TV_NFO_FILES) {
                 for (MovieFile mf : movie.getMovieFiles()) {
                     nfoFilename = mf.getFile().getParent().toUpperCase();
 
@@ -193,10 +194,10 @@ public final class MovieNFOScanner {
         // E.G. C:\Movies\Bladerunner.720p.avi => Bladerunner.720p.nfo
         checkNFO(nfoFiles, pathFileName);
 
-        if (isValidString(nfoDirectory)) {
+        if (isValidString(NFO_DIR)) {
             // *** Next step if we still haven't found the nfo file is to
             // search the NFO directory as specified in the moviejukebox.properties file
-            String sNFOPath = FileTools.getDirPathWithSeparator(movie.getLibraryPath()) + nfoDirectory;
+            String sNFOPath = FileTools.getDirPathWithSeparator(movie.getLibraryPath()) + NFO_DIR;
             checkNFO(nfoFiles, sNFOPath + File.separator + baseFileName);
         }
 
@@ -216,11 +217,11 @@ public final class MovieNFOScanner {
              */
 
             // Check the current directory
-            fFilter = new GenericFileFilter(nfoExtRegex);
+            fFilter = new GenericFileFilter(NFO_EXT_REGEX);
             checkRNFO(nfoFiles, currentDir.getParentFile(), fFilter);
 
             // Also check the directory above, for the case where movies are in a multi-part named directory (CD/PART/DISK/Etc.)
-            Matcher allNfoMatch = partPattern.matcher(currentDir.getAbsolutePath());
+            Matcher allNfoMatch = PART_PATTERN.matcher(currentDir.getAbsolutePath());
             if (allNfoMatch.find()) {
                 LOG.debug(LOG_MESSAGE + "Found multi-part directory, checking parent directory for NFOs");
                 checkRNFO(nfoFiles, currentDir.getParentFile().getParentFile(), fFilter);
@@ -232,7 +233,7 @@ public final class MovieNFOScanner {
 
             if (currentDir != null) {
                 // Check the current directory for the video filename
-                fFilter = new GenericFileFilter("(?i)" + movie.getBaseFilename() + nfoExtRegex);
+                fFilter = new GenericFileFilter("(?i)" + movie.getBaseFilename() + NFO_EXT_REGEX);
                 checkRNFO(nfoFiles, currentDir, fFilter);
             }
         }

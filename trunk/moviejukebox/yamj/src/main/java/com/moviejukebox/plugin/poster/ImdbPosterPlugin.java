@@ -29,11 +29,12 @@ import com.moviejukebox.plugin.ImdbInfo;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
 
-    private static final Logger LOG = Logger.getLogger(ImdbPosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ImdbPosterPlugin.class);
     private static final String LOG_MESSAGE = "PosterScanner: ";
     private WebBrowser webBrowser;
     private ImdbInfo imdbInfo;

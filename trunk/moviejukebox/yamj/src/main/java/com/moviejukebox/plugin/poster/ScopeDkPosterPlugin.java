@@ -31,11 +31,12 @@ import com.moviejukebox.tools.WebBrowser;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
 
-    private static final Logger LOG = Logger.getLogger(ScopeDkPosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ScopeDkPosterPlugin.class);
     private static final String LOG_MESSAGE = "ScopeDkPosterPlugin: ";
 
     private WebBrowser webBrowser;

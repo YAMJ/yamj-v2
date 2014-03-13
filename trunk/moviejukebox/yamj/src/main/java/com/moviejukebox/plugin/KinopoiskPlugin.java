@@ -49,7 +49,8 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Plugin to retrieve movie data from Russian movie database www.kinopoisk.ru Written by Yury Sidorov.
@@ -63,7 +64,7 @@ import org.apache.log4j.Logger;
  */
 public class KinopoiskPlugin extends ImdbPlugin {
 
-    private static final Logger LOG = Logger.getLogger(KinopoiskPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KinopoiskPlugin.class);
     private static final String LOG_MESSAGE = "KinopoiskPlugin: ";
     public static final String KINOPOISK_PLUGIN_ID = "kinopoisk";
     private static final String ENGLISH = "english";

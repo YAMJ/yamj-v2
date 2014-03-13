@@ -42,11 +42,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class ThreadExecutor<T> implements ThreadFactory {
 
-    private static final Logger LOG = Logger.getLogger(ThreadExecutor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ThreadExecutor.class);
     private final Collection<Future<T>> values = new ArrayList<Future<T>>(100);
     private ThreadPoolExecutor pool = null;
     private BlockingQueue<Runnable> queue = null;

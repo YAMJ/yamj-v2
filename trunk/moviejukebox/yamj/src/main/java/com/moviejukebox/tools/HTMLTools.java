@@ -35,14 +35,16 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public final class HTMLTools {
 
     private static final Map<Character, String> AGGRESSIVE_HTML_ENCODE_MAP = new HashMap<Character, String>();
     private static final Map<Character, String> DEFENSIVE_HTML_ENCODE_MAP = new HashMap<Character, String>();
     private static final Map<String, Character> HTML_DECODE_MAP = new HashMap<String, Character>();
-    private static final Logger LOG = Logger.getLogger(HTMLTools.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HTMLTools.class);
 
     static {
         /*

@@ -30,13 +30,14 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 import java.io.IOException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
 
     private WebBrowser webBrowser;
     private AllocinePlugin allocinePlugin;
-    private static final Logger LOG = Logger.getLogger(PassionXbmcPosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PassionXbmcPosterPlugin.class);
     private static final String LOG_MESSAGE = "PassionXbmcPlugin: ";
 
     public PassionXbmcPosterPlugin() {

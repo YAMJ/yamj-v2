@@ -38,11 +38,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FilmwebPlugin extends ImdbPlugin {
 
-    private static final Logger LOG = Logger.getLogger(FilmwebPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FilmwebPlugin.class);
     private static final String LOG_MESSAGE = "FilmwebPlugin: ";
     public static final String FILMWEB_PLUGIN_ID = "filmweb";
     private static final Pattern NFO_PATTERN = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");

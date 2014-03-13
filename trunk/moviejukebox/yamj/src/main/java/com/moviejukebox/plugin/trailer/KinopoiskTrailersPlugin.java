@@ -29,7 +29,8 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.util.*;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  Plugin to retrieve movie data from Russian movie database www.kinopoisk.ru
@@ -44,7 +45,7 @@ import org.apache.log4j.Logger;
  */
 public class KinopoiskTrailersPlugin extends TrailerPlugin {
 
-    private static final Logger LOG = Logger.getLogger(KinopoiskTrailersPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KinopoiskTrailersPlugin.class);
     public static String KINOPOISK_PLUGIN_ID = "kinopoisk";
     private static List<String> extensions = Arrays.asList(PropertiesUtil.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV MP4 M1V M2V M4V M2P TP TRP M2T MTS ASF RMP4 IMG MK3D FLV").toUpperCase().split(" "));
     private KinopoiskPlugin pkPlugin = new KinopoiskPlugin();

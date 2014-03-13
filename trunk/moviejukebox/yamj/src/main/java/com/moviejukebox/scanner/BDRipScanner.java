@@ -26,7 +26,8 @@ import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.io.RandomAccessFile;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Grael by using GPL Source from Mediterranean :
@@ -51,7 +52,7 @@ import org.apache.log4j.Logger;
  */
 public class BDRipScanner {
 
-    private static final Logger LOG = Logger.getLogger(BDRipScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BDRipScanner.class);
     private static final String LOG_MESSAGE = "BDRipScanner: ";
 
     public class BDPlaylistInfo {

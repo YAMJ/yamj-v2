@@ -34,7 +34,9 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * API for getting the ratings from RottenTomatoes.com
@@ -44,7 +46,7 @@ import org.apache.log4j.Logger;
  */
 public class RottenTomatoesPlugin {
 
-    private static final Logger LOG = Logger.getLogger(RottenTomatoesPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RottenTomatoesPlugin.class);
     private static final String LOG_MESSAGE = "RottenTomatoesPlugin: ";
     public static final String ROTTENTOMATOES_PLUGIN_ID = "rottentomatoes";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_RottenTomatoes");

@@ -67,12 +67,13 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.apache.sanselan.ImageReadException;
+import org.slf4j.LoggerFactory;
 
 public class DefaultImagePlugin implements MovieImagePlugin {
 
-    private static final Logger LOG = Logger.getLogger(DefaultImagePlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultImagePlugin.class);
     private static final String BANNER = "banners";
     private static final String POSTER = "posters";
     private static final String VIDEOIMAGE = "videoimages";

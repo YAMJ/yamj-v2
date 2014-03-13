@@ -30,11 +30,12 @@ import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 import java.net.URLEncoder;
 import java.text.Normalizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
 
-    private static final Logger LOG = Logger.getLogger(MovieCoversPosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieCoversPosterPlugin.class);
     private static final String LOG_MESSAGE = "MovieCoversPosterPlugin: ";
     private WebBrowser webBrowser;
 

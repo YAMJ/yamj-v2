@@ -49,12 +49,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Map;
-import org.apache.log4j.Logger;
-import org.pojava.datetime2.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.pojava.datetime.DateTime;
 
 public class MovieListingPluginSql extends MovieListingPluginBase implements MovieListingPlugin {
 
-    private static final Logger LOG = Logger.getLogger(MovieListingPluginSql.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieListingPluginSql.class);
     private static final String LOG_MESSAGE = "MovieListingPluginSql: ";
     private static final String DB_LOCATION = PropertiesUtil.getProperty("mjb.sql.location", "./");
     private static final String DB_NAME = PropertiesUtil.getProperty("mjb.sql.dbname", "listing.db");

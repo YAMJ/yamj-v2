@@ -28,7 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Utility class to provide a caching mechanism for data across threads Initially this will be stored in memory, but ideally should
@@ -41,7 +43,7 @@ import org.apache.log4j.Logger;
 public final class CacheMemory {
 
     private static final Map<String, Object> CACHE = new ConcurrentHashMap<String, Object>();
-    private static final Logger LOG = Logger.getLogger(CacheMemory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CacheMemory.class);
     private static boolean cacheEnabled = initCacheState();
 
     private CacheMemory() {

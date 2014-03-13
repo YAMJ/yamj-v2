@@ -29,11 +29,12 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FilmAffinityInfo {
 
-    private Logger logger = Logger.getLogger(FilmAffinityInfo.class);
+    private Logger logger = LoggerFactory.getLogger(FilmAffinityInfo.class);
     private WebBrowser webBrowser;
 
     /*

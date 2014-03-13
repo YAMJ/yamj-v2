@@ -12,7 +12,9 @@
  */
 package com.moviejukebox.tools;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * This class is used to limit the movies updated for each run of YAMJ.
@@ -24,7 +26,7 @@ import org.apache.log4j.Logger;
  */
 public final class ScanningLimit {
 
-    private static final Logger LOG = Logger.getLogger(ScanningLimit.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ScanningLimit.class);
     private static final String LOG_MESSAGE = "ScanningLimit: ";
     private static final int CHECK_MAX = PropertiesUtil.getIntProperty("mjb.check.Max", 0);
     private static int tokensUsed = 0;

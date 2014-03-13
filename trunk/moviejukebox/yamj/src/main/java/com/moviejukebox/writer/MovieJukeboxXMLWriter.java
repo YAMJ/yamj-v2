@@ -75,8 +75,10 @@ import java.util.concurrent.Callable;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime2.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.pojava.datetime.DateTime;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -89,7 +91,7 @@ import org.w3c.dom.Element;
  */
 public class MovieJukeboxXMLWriter {
 
-    private static final Logger LOG = Logger.getLogger(MovieJukeboxXMLWriter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieJukeboxXMLWriter.class);
     private static final String LOG_MESSAGE = "XMLWriter: ";
     // Literals
     public static final String EXT_XML = ".xml";
@@ -483,7 +485,7 @@ public class MovieJukeboxXMLWriter {
             loggerString.append(categoryName).append(" (").append(++indexCount).append("/").append(indexSize);
             loggerString.append(") contains ").append(index.size()).append(index.size() == 1 ? " index" : " indexes");
             loggerString.append(toLimitCategory && categoryMaxCount > 0 && index.size() > categoryMaxCount ? (" (limit to " + categoryMaxCount + ")") : "");
-            LOG.info(loggerString);
+            LOG.info(loggerString.toString());
 
             List<Map.Entry<String, List<Movie>>> groupArray = new ArrayList<Map.Entry<String, List<Movie>>>(index.entrySet());
             Collections.sort(groupArray, new IndexComparator(library, categoryName));
@@ -506,7 +508,7 @@ public class MovieJukeboxXMLWriter {
                             StringBuilder loggerString = new StringBuilder();
                             loggerString.append("Category '").append(categoryPath).append("' does not contain enough videos (");
                             loggerString.append(categoryCount).append("/").append(categoryMinCount).append("), skipping XML generation.");
-                            LOG.debug(loggerString);
+                            LOG.debug(loggerString.toString());
                             return null;
                         }
                         boolean skipIndex = !FORCE_INDEX_OVERWRITE;

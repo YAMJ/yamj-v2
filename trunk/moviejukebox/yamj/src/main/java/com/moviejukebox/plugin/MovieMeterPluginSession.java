@@ -35,7 +35,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
@@ -56,7 +58,7 @@ public final class MovieMeterPluginSession {
 
     private static final String SESSION_FILENAME = "./temp/moviemeter.session";
     private static final String MOVIEMETER_API_KEY = PropertiesUtil.getProperty("API_KEY_MovieMeter");
-    private static final Logger LOG = Logger.getLogger(MovieMeterPluginSession.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieMeterPluginSession.class);
     private static final String LOG_MESSAGE = "MovieMeterPluginSession: ";
     private String key;
     private Integer timestamp;

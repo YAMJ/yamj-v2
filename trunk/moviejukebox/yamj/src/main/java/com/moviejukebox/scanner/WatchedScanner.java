@@ -36,12 +36,13 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime2.DateTime;
+import org.slf4j.Logger;
+import org.pojava.datetime.DateTime;
+import org.slf4j.LoggerFactory;
 
 public class WatchedScanner {
 
-    private static final Logger LOG = Logger.getLogger(WatchedScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WatchedScanner.class);
     private static final String LOG_MESSAGE = "Watched Scanner: ";
     private static final Collection<String> EXTENSIONS = Arrays.asList(PropertiesUtil.getProperty("mjb.watchedExtensions", "watched").split(",;\\|"));
     private static final WatchedWithLocation LOCATION = WatchedWithLocation.fromString(PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo"));

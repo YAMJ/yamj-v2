@@ -78,7 +78,9 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -89,7 +91,7 @@ import org.xml.sax.SAXException;
 
 public class MovieJukeboxXMLReader {
 
-    private static final Logger LOG = Logger.getLogger(MovieJukeboxXMLReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieJukeboxXMLReader.class);
     private static final String LOG_MESSAGE = "XMLReader: ";
     private static final AspectRatioTools ASPECT_TOOLS = new AspectRatioTools();
     // Should we scrape the trivia information

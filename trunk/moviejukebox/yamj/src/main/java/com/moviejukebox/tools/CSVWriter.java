@@ -25,14 +25,16 @@ package com.moviejukebox.tools;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * User: JDGJr Date: Feb 14, 2009
  */
 public class CSVWriter {
 
-    private static final Logger LOG = Logger.getLogger(CSVWriter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CSVWriter.class);
     private static final String LOG_MESSAGE = "CSVWriter: ";
     private static final String S_EOL = System.getProperty("line.separator");
     private FileWriter writer;

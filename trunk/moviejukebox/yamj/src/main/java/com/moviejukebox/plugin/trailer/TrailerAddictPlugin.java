@@ -34,7 +34,8 @@ import com.omertron.traileraddictapi.model.Trailer;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author iuk
@@ -42,7 +43,7 @@ import org.apache.log4j.Logger;
  */
 public class TrailerAddictPlugin extends TrailerPlugin {
 
-    private static final Logger LOG = Logger.getLogger(TrailerAddictPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TrailerAddictPlugin.class);
     private int trailerMaxCount;
 
     public TrailerAddictPlugin() {

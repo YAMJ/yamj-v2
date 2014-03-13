@@ -25,6 +25,8 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.log4j.Logger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -75,28 +77,30 @@ public class ComingSoonPluginTest {
     @Test
     public void testScanList() {
         LOG.info("testScanList");
-        String[] titleList = {
-            "Matrix",
-            "Gli Aristogatti",
-            "Inception",
-            "L'arte Del Sogno",
-            "Lettere Da Iwo Jima"
-        };
+        List<String> titleList = new ArrayList<String>();
+        titleList.add("Matrix");
+        titleList.add("Gli Aristogatti");
+        titleList.add("Inception");
+        titleList.add("L'arte Del Sogno");
+        titleList.add("Lettere Da Iwo Jima");
 
-        for (int i = 0; i < titleList.length; i++) {
-            LOG.info("Testing " + titleList[i]);
+        for (String title : titleList) {
+            LOG.info("Testing " + title);
             Movie movie = new Movie();
-            movie.setTitle(titleList[i], csPlugin.getPluginID());
+            movie.setTitle(title, csPlugin.getPluginID());
             assertTrue("Scan failed for " + movie.getTitle(), csPlugin.scan(movie));
-            assertEquals("Wrong title", titleList[i], movie.getTitle());
+
+            LOG.info(movie.toString());
+
+            assertEquals("Wrong title", title, movie.getTitle());
             assertTrue("Wrong number of directors", movie.getDirectors().size() > 0);
             assertTrue("Wrong number of writers", movie.getWriters().size() > 0);
 
-            if (i != 1) {
-                assertNotNull("No movie object for " + titleList[i], movie);
-                assertTrue("No cast found for " + titleList[i], movie.getCast().size() > 0);
-                assertTrue("Invalid release date for " + titleList[i], StringTools.isValidString(movie.getReleaseDate()));
+            assertNotNull("No movie object for " + title, movie);
+            if (!title.equalsIgnoreCase("Gli Aristogatti")) {
+                assertTrue("No cast found for " + title, movie.getCast().size() > 0);
             }
+            assertTrue("Invalid release date for " + title, StringTools.isValidString(movie.getReleaseDate()));
 
             assertTrue("No Plot", StringTools.isValidString(movie.getPlot()));
             assertTrue("No year", StringTools.isValidString(movie.getYear()));

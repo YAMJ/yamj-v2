@@ -41,7 +41,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -61,7 +63,7 @@ import org.xml.sax.SAXParseException;
  */
 public final class DOMHelper {
 
-    private static final Logger LOG = Logger.getLogger(DOMHelper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DOMHelper.class);
     private static final String LOG_MESSAGE = "DOMHelper: ";
     private static final String DEFAULT_RETURN = "";
     private static final String YES = "yes";

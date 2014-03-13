@@ -63,7 +63,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -75,7 +77,7 @@ import org.w3c.dom.Element;
  */
 public class MovieJukeboxHTMLWriter {
 
-    private static final Logger LOG = Logger.getLogger(MovieJukeboxHTMLWriter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieJukeboxHTMLWriter.class);
     private static final String LOG_MESSAGE = "HTMLWriter: ";
     private static final String EXT_XML = ".xml";
     private static final String EXT_HTML = ".html";

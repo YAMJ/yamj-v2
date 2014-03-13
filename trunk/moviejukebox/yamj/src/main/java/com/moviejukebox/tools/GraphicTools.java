@@ -41,12 +41,14 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.sanselan.ImageReadException;
 
 public final class GraphicTools {
 
-    private static final Logger LOG = Logger.getLogger(GraphicTools.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GraphicTools.class);
     private static final String LOG_MESSAGE = "GraphicsTools: ";
     private static float quality;
     private static int jpegQuality;

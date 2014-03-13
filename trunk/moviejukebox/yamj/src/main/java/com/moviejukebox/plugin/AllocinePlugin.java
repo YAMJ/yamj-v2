@@ -36,12 +36,13 @@ import com.moviejukebox.tools.cache.CacheMemory;
 import java.util.List;
 import javax.xml.bind.JAXBException;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AllocinePlugin extends ImdbPlugin {
 
     public static final String ALLOCINE_PLUGIN_ID = "allocine";
-    private static final Logger LOG = Logger.getLogger(AllocinePlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AllocinePlugin.class);
     private static final String LOG_MESSAGE = "AllocinePlugin: ";
     private static final String CACHE_SEARCH_MOVIE = "AllocineSearchMovie";
     private static final String CACHE_SEARCH_SERIES = "AllocineSearchSeries";

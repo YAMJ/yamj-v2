@@ -28,11 +28,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public final class SubtitleTools {
 
-    private static final Logger LOG = Logger.getLogger(SubtitleTools.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SubtitleTools.class);
     private static final String LOG_MESSAGE = "SubtitleTools: ";
     public static final String SPACE_SLASH_SPACE = " / ";
     private static final String SPLIT_PATTERN = "\\||,|/";

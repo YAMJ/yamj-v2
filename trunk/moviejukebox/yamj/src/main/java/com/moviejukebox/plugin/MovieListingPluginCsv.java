@@ -34,14 +34,16 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * User: JDGJr Date: Feb 15, 2009
  */
 public class MovieListingPluginCsv extends MovieListingPluginBase implements MovieListingPlugin {
 
-    private static final Logger LOG = Logger.getLogger(MovieListingPluginCsv.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieListingPluginCsv.class);
     private static final String FALSE = "False";
     private static final String TRUE = "True";
 

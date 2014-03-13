@@ -36,12 +36,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class ScopeDkPlugin extends ImdbPlugin {
 
     public static final String SCOPEDK_PLUGIN_ID = "scopedk";
-    private static final Logger LOG = Logger.getLogger(ScopeDkPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ScopeDkPlugin.class);
     private static final String LOG_MESSAGE = "ScopeDkPlugin: ";
     private static final Pattern PATTERN_ID = Pattern.compile("^(.*)(http://www.scope.dk/film/)([0-9]+)(.*)");
     private static final Pattern PATTERN_ID_MOVIEDB = Pattern.compile("^(.*)(<id moviedb=\"scopedk\")>([0-9]+)(</id>.*)");

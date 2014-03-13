@@ -42,7 +42,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DirectoryScanner
@@ -54,7 +55,7 @@ import org.apache.log4j.Logger;
 public class MovieDirectoryScanner {
 
     private static final String SOURCE_FILENAME = "filename";
-    private static final Logger LOG = Logger.getLogger(MovieDirectoryScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieDirectoryScanner.class);
     private static int dirCount = 1;
     private static int fileCount = 0;
     private static Pattern patternRarPart = Pattern.compile("\\.part(\\d+)\\.rar");

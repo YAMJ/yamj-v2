@@ -33,7 +33,9 @@ import java.util.List;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  *
@@ -41,7 +43,7 @@ import org.apache.log4j.Logger;
  */
 public class MovieJukeboxLibraryReader {
 
-    private static final Logger LOG = Logger.getLogger(MovieJukeboxLibraryReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieJukeboxLibraryReader.class);
     private static final String LOG_MESSAGE = "LibraryReader: ";
 
     protected MovieJukeboxLibraryReader() {

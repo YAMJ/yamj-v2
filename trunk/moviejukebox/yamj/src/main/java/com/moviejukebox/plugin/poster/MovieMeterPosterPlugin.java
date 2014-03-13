@@ -32,13 +32,14 @@ import com.moviejukebox.tools.WebBrowser;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
+import org.slf4j.LoggerFactory;
 
 public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
 
     private WebBrowser webBrowser;
-    private static final Logger LOG = Logger.getLogger(MovieMeterPosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieMeterPosterPlugin.class);
     private static final String LOG_MESSAGE = "MovieMeterPosterPlugin:";
 
     private String preferredSearchEngine;

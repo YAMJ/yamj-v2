@@ -60,8 +60,9 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.apache.sanselan.ImageReadException;
+import org.slf4j.LoggerFactory;
 
 /**
  * Scanner for fanart files in local directory
@@ -72,7 +73,7 @@ import org.apache.sanselan.ImageReadException;
  */
 public final class FanartScanner {
 
-    private static final Logger LOG = Logger.getLogger(FanartScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FanartScanner.class);
     private static final String LOG_MESSAGE = "FanartScanner: ";
     private static final Collection<String> FANART_EXT = Collections.synchronizedList(new ArrayList<String>());
     private static final String FANART_TOKEN;

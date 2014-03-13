@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pojava.datetime2.DateTime;
+import org.pojava.datetime.DateTime;
 
 /**
  *
