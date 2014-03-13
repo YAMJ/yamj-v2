@@ -36,11 +36,12 @@ import com.moviejukebox.tools.downloader.Downloader;
 import java.io.File;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TrailerPlugin implements ITrailerPlugin {
 
-    private static final Logger LOG = Logger.getLogger(TrailerPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TrailerPlugin.class);
     protected String logMessage = "TrailerPlugin: ";
     protected WebBrowser webBrowser;
     protected String trailersPluginName = "Abstract";

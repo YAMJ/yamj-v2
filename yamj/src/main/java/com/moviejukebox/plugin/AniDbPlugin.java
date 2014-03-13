@@ -79,12 +79,13 @@ import net.anidb.udp.mask.AnimeFileMask;
 import net.anidb.udp.mask.AnimeMask;
 import net.anidb.udp.mask.FileMask;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime2.DateTime;
+import org.slf4j.Logger;
+import org.pojava.datetime.DateTime;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
+import org.slf4j.LoggerFactory;
 
 /**
  * AniDB Plugin
@@ -100,7 +101,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     // AniDb Documentation: http://wiki.anidb.info/w/UDP_API_Definition
 
     // TODO: Keep the plugin logged in until the end of the run
-    private static final Logger LOG = Logger.getLogger(AniDbPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AniDbPlugin.class);
     private static final String LOG_MESSAGE = "AniDbPlugin: ";
     public static final String ANIDB_PLUGIN_ID = "anidb";
     private static final String ANIDB_CLIENT_NAME = "yamj";

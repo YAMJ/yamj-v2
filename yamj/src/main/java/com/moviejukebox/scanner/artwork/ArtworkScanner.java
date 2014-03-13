@@ -55,8 +55,9 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.apache.sanselan.ImageReadException;
+import org.slf4j.LoggerFactory;
 
 /**
  * Scanner for artwork
@@ -79,7 +80,7 @@ public abstract class ArtworkScanner implements IArtworkScanner {
     // From skin.properties
     //  ???.width
     //  ???.height
-    private static final Logger LOG = Logger.getLogger(ArtworkScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ArtworkScanner.class);
     protected String logMessage;                        // The start of the log message
     private static final String SPLITTER = ",;|";
     protected final WebBrowser webBrowser = new WebBrowser();

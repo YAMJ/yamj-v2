@@ -30,7 +30,8 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ilgizar
@@ -38,7 +39,7 @@ import org.apache.log4j.Logger;
 public class MovieReleaseComparator extends MovieYearComparator {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = Logger.getLogger(MovieReleaseComparator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieReleaseComparator.class);
     private static final String LOG_MESSAGE = "ReleaseComparator: ";
     private Locale locale = Locale.ENGLISH;
     private final String dateLocale = PropertiesUtil.getProperty("mjb.locale", "en_US");

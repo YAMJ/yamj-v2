@@ -36,8 +36,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.apache.sanselan.ImageReadException;
+import org.slf4j.LoggerFactory;
 
 /**
  * Scanner for personal backdrop files in local directory
@@ -47,7 +48,7 @@ import org.apache.sanselan.ImageReadException;
  */
 public final class BackdropScanner {
 
-    private static final Logger LOG = Logger.getLogger(BackdropScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BackdropScanner.class);
     private static final String LOG_MESSAGE = "BackdropScanner: ";
     protected static final List<String> EXT = new ArrayList<String>();
     protected static final boolean BACKDROP_OVERWRITE = PropertiesUtil.getBooleanProperty("mjb.forceBackdropOverwrite", Boolean.FALSE);

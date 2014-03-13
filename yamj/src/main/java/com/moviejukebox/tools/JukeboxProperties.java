@@ -55,7 +55,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -73,7 +75,7 @@ import org.xml.sax.SAXException;
 public final class JukeboxProperties {
 
     // Logger
-    private static final Logger LOG = Logger.getLogger(JukeboxProperties.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JukeboxProperties.class);
     private static final String LOG_MESSAGE = "JukeboxProperties: ";
     // Filename
     private static final String XML_FILENAME = "jukebox_details.xml";

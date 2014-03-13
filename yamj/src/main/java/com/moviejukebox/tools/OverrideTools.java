@@ -31,7 +31,9 @@ import static com.moviejukebox.plugin.DatabasePluginController.TYPE_ALTERNATE;
 import com.moviejukebox.plugin.ImdbPlugin;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Holds some override tools.
@@ -40,7 +42,7 @@ import org.apache.log4j.Logger;
  */
 public final class OverrideTools {
 
-    private static final Logger LOG = Logger.getLogger(OverrideTools.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OverrideTools.class);
     private static final String LOG_MESSAGE = "OverrideTools: ";
     private static final Map<OverrideFlag, List<String>> MOVIE_PRIORITIES_MAP = new EnumMap<OverrideFlag, List<String>>(OverrideFlag.class);
     private static final Map<OverrideFlag, List<String>> TV_PRIORITIES_MAP = new EnumMap<OverrideFlag, List<String>>(OverrideFlag.class);

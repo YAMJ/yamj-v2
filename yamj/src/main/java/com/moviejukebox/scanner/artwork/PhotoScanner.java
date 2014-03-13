@@ -38,8 +38,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.apache.sanselan.ImageReadException;
+import org.slf4j.LoggerFactory;
 
 /**
  * Scanner for photo files in local directory
@@ -49,7 +50,7 @@ import org.apache.sanselan.ImageReadException;
  */
 public final class PhotoScanner {
 
-    private static final Logger LOG = Logger.getLogger(PhotoScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhotoScanner.class);
     private static final String LOG_MESSAGE = "PhotoScanner: ";
     private static final Collection<String> EXTENSIONS = setPhotoExtensions(PropertiesUtil.getProperty("photo.scanner.photoExtensions", "jpg,jpeg,gif,bmp,png"));
     private static final boolean OVERWRITE = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", Boolean.FALSE);

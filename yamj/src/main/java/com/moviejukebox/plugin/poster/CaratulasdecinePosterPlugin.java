@@ -32,12 +32,13 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
 
     private final WebBrowser webBrowser = new WebBrowser();
-    private static final Logger LOG = Logger.getLogger(CaratulasdecinePosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CaratulasdecinePosterPlugin.class);
     private static final String LOG_MESSAGE = "CaratulasdecinePosterPlugin:";
 
     private static final String SEARCH_START = "La Web";

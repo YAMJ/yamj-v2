@@ -43,15 +43,17 @@ import com.omertron.thetvdbapi.model.Series;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime2.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.pojava.datetime.DateTime;
 
 /**
  * @author styles
  */
 public class TheTvDBPlugin extends ImdbPlugin {
 
-    private static final Logger LOG = Logger.getLogger(TheTvDBPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TheTvDBPlugin.class);
     private static final String LOG_MESSAGE = "TheTVDBPlugin: ";
     public static final String THETVDB_PLUGIN_ID = "thetvdb";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");

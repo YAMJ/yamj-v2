@@ -42,7 +42,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import org.apache.commons.lang3.StringUtils;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  *
@@ -50,7 +52,7 @@ import org.apache.log4j.Logger;
  */
 public final class PropertiesUtil {
 
-    private static final Logger LOG = Logger.getLogger(PropertiesUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PropertiesUtil.class);
     private static final String LOG_MESSAGE = "PropertiesUtil: ";
     private static final String PROPERTIES_CHARSET = "UTF-8";
     private static final String PREFERENCES_FILENAME = "preferences.xsl";

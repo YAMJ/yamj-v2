@@ -39,8 +39,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.apache.sanselan.ImageReadException;
+import org.slf4j.LoggerFactory;
 
 /**
  * Scanner for banner files in local directory
@@ -51,7 +52,7 @@ import org.apache.sanselan.ImageReadException;
  */
 public final class BannerScanner {
 
-    private static final Logger LOG = Logger.getLogger(BannerScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BannerScanner.class);
     private static final String LOG_MESSAGE = "BannerScanner: ";
     private static final Collection<String> EXTENSIONS = new ArrayList<String>();
     private static final String BANNER_TOKEN = PropertiesUtil.getProperty("mjb.scanner.bannerToken", ".banner");

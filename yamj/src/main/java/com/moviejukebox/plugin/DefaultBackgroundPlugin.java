@@ -36,8 +36,9 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.apache.sanselan.ImageReadException;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author altman.matthew
@@ -46,7 +47,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
 
     private static final int MAX_WIDTH = 1920;
     private static final int MAX_HEIGHT = 1080;
-    private static final Logger LOG = Logger.getLogger(DefaultBackgroundPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultBackgroundPlugin.class);
     private final String overlayResources;
     private final boolean highdefDiff;
     private boolean roundCorners;

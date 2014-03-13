@@ -27,7 +27,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Grael by using GPL Source from Mediterranean :
@@ -48,7 +49,7 @@ import org.apache.log4j.Logger;
  */
 public class DVDRipScanner {
 
-    private static final Logger LOG = Logger.getLogger(DVDRipScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DVDRipScanner.class);
     private static final String LOG_MESSAGE = "DVDRipScanner: ";
 
     public DVDRipScanner() {

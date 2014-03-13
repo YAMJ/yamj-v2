@@ -39,8 +39,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.apache.sanselan.ImageReadException;
+import org.slf4j.LoggerFactory;
 
 /**
  * Scanner for video image files in local directory
@@ -51,7 +52,7 @@ import org.apache.sanselan.ImageReadException;
  */
 public final class VideoImageScanner {
 
-    private static final Logger LOG = Logger.getLogger(VideoImageScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VideoImageScanner.class);
     private static final String LOG_MESSAGE = "VideoImageScanner: ";
     private static final String SKIN_HOME = SkinProperties.getSkinHome();
     private static final Collection<String> VI_EXT = new ArrayList<String>();

@@ -38,7 +38,9 @@ import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
 import org.apache.sanselan.common.byteSources.ByteSource;
@@ -55,7 +57,7 @@ import org.apache.sanselan.formats.jpeg.segments.UnknownSegment;
  */
 public class JpegReader {
 
-    private static final Logger LOG = Logger.getLogger(JpegReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JpegReader.class);
     private static final String LOG_MESSAGE = "JpegReader: ";
     public static final int COLOR_TYPE_RGB = 1;
     public static final int COLOR_TYPE_CMYK = 2;

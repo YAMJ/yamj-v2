@@ -46,11 +46,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class MovieListingPluginCustomCsv extends MovieListingPluginBase implements MovieListingPlugin {
 
-    private static final Logger LOG = Logger.getLogger(MovieListingPluginCustomCsv.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieListingPluginCustomCsv.class);
     private List<String> mFields;
     private String mDelimiter = ",";
     private String mSecondDelimiter = "|";

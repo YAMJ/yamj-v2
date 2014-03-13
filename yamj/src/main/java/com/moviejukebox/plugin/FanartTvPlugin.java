@@ -40,11 +40,12 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FanartTvPlugin {
 
-    private static final Logger LOG = Logger.getLogger(FanartTvPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FanartTvPlugin.class);
     private static final String LOG_MESSAGE = "FanartTvPlugin: ";
     public static final String FANARTTV_PLUGIN_ID = "fanarttv";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_FanartTv");

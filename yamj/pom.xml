@@ -84,20 +84,14 @@
             <artifactId>xmlrpc-client</artifactId>
         </dependency>
 
-        <!--    Removed until ITA is added to the main core
         <dependency>
             <groupId>org.pojava</groupId>
             <artifactId>pojava</artifactId>
-        </dependency>-->
+        </dependency>
 
         <dependency>
             <groupId>org.javolution</groupId>
             <artifactId>javolution</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
         </dependency>
 
         <dependency>

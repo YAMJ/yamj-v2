@@ -35,11 +35,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public final class SystemTools {
 
-    private static final Logger LOG = Logger.getLogger(SystemTools.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SystemTools.class);
     private static final boolean SHOW_MEMORY = PropertiesUtil.getBooleanProperty("mjb.showMemory", Boolean.FALSE);
     private static final long CACHE_MAX_SIZE = (PropertiesUtil.getLongProperty("mjb.cacheOffSize", 50) * 1024L * 1024L);
 

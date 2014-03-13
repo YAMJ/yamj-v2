@@ -60,11 +60,12 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Library implements Map<String, Movie> {
 
-    private static final Logger LOG = Logger.getLogger(Library.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Library.class);
     private static final String LOG_MESSAGE = "Library: ";
     // Constants
     public static final String TV_SERIES = "TVSeries";

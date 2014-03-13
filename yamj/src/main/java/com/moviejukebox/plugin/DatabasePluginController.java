@@ -35,7 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -43,7 +44,7 @@ import org.apache.log4j.Logger;
  */
 public final class DatabasePluginController {
 
-    private static final Logger LOG = Logger.getLogger(DatabasePluginController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DatabasePluginController.class);
     public static final String TYPE_ALTERNATE = "ALTERNATE";
     private static boolean autoDetect = false;
     private static List<String> autoDetectList = new ArrayList<String>();

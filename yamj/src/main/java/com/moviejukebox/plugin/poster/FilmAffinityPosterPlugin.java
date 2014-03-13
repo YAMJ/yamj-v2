@@ -30,13 +30,14 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.plugin.FilmAffinityInfo;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.WebBrowser;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
 
     private WebBrowser webBrowser;
     private FilmAffinityInfo filmAffinityInfo;
-    private static final Logger LOG = Logger.getLogger(FilmAffinityPosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FilmAffinityPosterPlugin.class);
     private static final String LOG_MESSAGE = "FilmAffinityPosterPlugin:";
 
     public FilmAffinityPosterPlugin() {

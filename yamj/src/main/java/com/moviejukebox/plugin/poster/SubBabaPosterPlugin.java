@@ -34,11 +34,12 @@ import com.omertron.subbabaapi.model.SubBabaContent;
 import com.omertron.subbabaapi.model.SubBabaMovie;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
 
-    private static final Logger LOG = Logger.getLogger(SubBabaPosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SubBabaPosterPlugin.class);
     private static final String LOG_MESSAGE = "SubBabaPosterPlugin: ";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_SubBaba");
     private SubBabaApi subBaba;

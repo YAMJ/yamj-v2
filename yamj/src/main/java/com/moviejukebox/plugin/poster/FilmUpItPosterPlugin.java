@@ -31,14 +31,15 @@ import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
 
     private WebBrowser webBrowser;
     private FilmUpITPlugin filmupitPlugin;
 
-    private static final Logger LOG = Logger.getLogger(FilmUpItPosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FilmUpItPosterPlugin.class);
     private static final String LOG_MESSAGE = "FilmUpItPosterPlugin: ";
 
     public FilmUpItPosterPlugin() {

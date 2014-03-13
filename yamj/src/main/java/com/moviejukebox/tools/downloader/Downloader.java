@@ -33,7 +33,9 @@ import java.nio.channels.ReadableByteChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * This is the downloader class.
@@ -46,7 +48,7 @@ import org.apache.log4j.Logger;
  */
 public final class Downloader implements RBCWrapperDelegate {
 
-    private static final Logger LOG = Logger.getLogger(Downloader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Downloader.class);
     private static final String LOG_MESSAGE = "Downloader: ";
     private static final String FORMAT_PERCENTAGE = "Download progress %,d Kb received, %.02f%%";
     private static final String FORMAT_NOPER = "Download progress %,d Kb received";

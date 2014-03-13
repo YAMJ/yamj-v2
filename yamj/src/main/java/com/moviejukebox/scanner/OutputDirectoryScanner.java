@@ -30,13 +30,14 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.StringTools;
 import java.io.File;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OutputDirectoryScanner {
 
-    private static final Logger LOG = Logger.getLogger(OutputDirectoryScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OutputDirectoryScanner.class);
     private static final String LOG_MESSAGE = "OutputDirectoryScanner: ";
-    private String scanDir;
+    private final String scanDir;
 
     public OutputDirectoryScanner(String scanDir) {
         this.scanDir = scanDir;

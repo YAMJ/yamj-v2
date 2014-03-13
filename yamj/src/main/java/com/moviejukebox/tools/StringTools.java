@@ -38,11 +38,13 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public final class StringTools {
 
-    private static final Logger LOG = Logger.getLogger(StringTools.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StringTools.class);
     private static final Pattern CLEAN_STRING_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
     // Number formatting
     private static final long KB = 1024;

@@ -38,11 +38,12 @@ import com.omertron.themoviedbapi.results.TmdbResultsList;
 import java.net.URL;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
 
-    private static final Logger LOG = Logger.getLogger(MovieDbPosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieDbPosterPlugin.class);
     private static final String LOG_MESSAGE = "MovieDbPosterPlugin: ";
     private String apiKey = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
     private String languageCode;

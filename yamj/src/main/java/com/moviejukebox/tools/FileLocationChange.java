@@ -29,11 +29,13 @@ import com.moviejukebox.model.MovieFile;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public final class FileLocationChange {
 
-    private static final Logger LOG = Logger.getLogger(FileLocationChange.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileLocationChange.class);
     private static final String LOG_MESSAGE = "FileLocationChange: ";
 
     private FileLocationChange() {

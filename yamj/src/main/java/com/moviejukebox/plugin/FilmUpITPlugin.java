@@ -32,12 +32,13 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FilmUpITPlugin extends ImdbPlugin {
 
     public static final String FILMUPIT_PLUGIN_ID = "filmupit";
-    private static final Logger LOG = Logger.getLogger(FilmUpITPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FilmUpITPlugin.class);
     private static final String LOG_MESSAGE = "FilmUpITPlugin: ";
 
     public FilmUpITPlugin() {

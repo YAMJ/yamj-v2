@@ -34,8 +34,9 @@ import java.util.Map;
 import java.util.TimeZone;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.text.WordUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime2.DateTime;
+import org.slf4j.Logger;
+import org.pojava.datetime.DateTime;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -48,7 +49,7 @@ import org.w3c.dom.Element;
 public final class JukeboxStatistics {
 
     // Logger
-    private static final Logger LOG = Logger.getLogger(JukeboxStatistics.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JukeboxStatistics.class);
     private static final String LOG_MESSAGE = "JukeboxStatistics: ";
     // Filename
     private static final String XML_FILENAME = "jukebox_statistics.xml";

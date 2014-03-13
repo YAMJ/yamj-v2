@@ -29,10 +29,11 @@ import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
-    private static final Logger LOG = Logger.getLogger(YahooPosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(YahooPosterPlugin.class);
     private WebBrowser webBrowser;
 
     public YahooPosterPlugin() {

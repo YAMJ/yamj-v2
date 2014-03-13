@@ -30,13 +30,14 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 import java.io.IOException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
 
     private WebBrowser webBrowser;
     private FilmwebPlugin filmwebPlugin;
-    private static final Logger LOG = Logger.getLogger(FilmwebPosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FilmwebPosterPlugin.class);
     private static final String LOG_MESSAGE = "FilmwebPosterPlugin:";
 
     public FilmwebPosterPlugin() {

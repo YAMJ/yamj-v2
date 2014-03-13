@@ -56,8 +56,10 @@ import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime2.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.pojava.datetime.DateTime;
 
 /**
  * @author Stuart.Boston
@@ -65,7 +67,7 @@ import org.pojava.datetime2.DateTime;
  */
 public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
-    private static final Logger LOG = Logger.getLogger(TheMovieDbPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TheMovieDbPlugin.class);
     private static final String LOG_MESSAGE = "TheMovieDbPlugin: ";
     public static final String TMDB_PLUGIN_ID = "themoviedb";
     public static final String IMDB_PLUGIN_ID = "imdb";

@@ -42,7 +42,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Plugin to retrieve movie data from Russian animation database www.animator.ru and www.allmults.org
@@ -55,7 +56,7 @@ import org.apache.log4j.Logger;
  */
 public class AnimatorPlugin extends ImdbPlugin {
 
-    private static final Logger LOG = Logger.getLogger(AnimatorPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AnimatorPlugin.class);
     private static final String LOG_MESSAGE = "AnimatorPlugin: ";
     public static final String ANIMATOR_PLUGIN_ID = "animator";
     private final String preferredSites = PropertiesUtil.getProperty("animator.sites", "all");
@@ -90,7 +91,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             try {
                 retval = updateAnimatorMediaInfo(mediaFile, animatorId);
             } catch (IOException ex) {
-                Logger.getLogger(AnimatorPlugin.class.getName()).error(ex);
+                LOG.warn("{}Failed to update media info for '{}'", LOG_MESSAGE, animatorId, ex);
             }
         }
         return retval;

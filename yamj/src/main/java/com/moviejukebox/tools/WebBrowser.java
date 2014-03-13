@@ -46,14 +46,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Web browser with simple cookies support
  */
 public class WebBrowser {
 
-    private static final Logger LOG = Logger.getLogger(WebBrowser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WebBrowser.class);
     private static final String LOG_MESSAGE = "WebBrowser: ";
     private final Map<String, String> browserProperties;
     private final Map<String, Map<String, String>> cookies;

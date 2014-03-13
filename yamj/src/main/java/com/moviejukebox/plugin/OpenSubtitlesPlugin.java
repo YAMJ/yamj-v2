@@ -46,14 +46,16 @@ import java.util.Scanner;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Based on some code from the opensubtitles.org subtitle upload java applet
  */
 public class OpenSubtitlesPlugin {
 
-    private static final Logger LOG = Logger.getLogger(OpenSubtitlesPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpenSubtitlesPlugin.class);
     private static final String LOG_MESSAGE = "OpenSubtitles Plugin: ";
     //private static String useragent = "Yet Another Movie Jukebox";
     private static final String OS_DB_SERVER = "http://api.opensubtitles.org/xml-rpc";

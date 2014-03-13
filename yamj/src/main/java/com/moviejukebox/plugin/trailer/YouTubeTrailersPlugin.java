@@ -37,16 +37,17 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.slf4j.LoggerFactory;
 
 public class YouTubeTrailersPlugin extends TrailerPlugin {
 
-    private static final Logger LOG = Logger.getLogger(YouTubeTrailersPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(YouTubeTrailersPlugin.class);
     private static final String TRAILER_TITLE = "TRAILER-";
     private static final String TEXT_FAILED = "Failed to trailer information for ";
     // API Key

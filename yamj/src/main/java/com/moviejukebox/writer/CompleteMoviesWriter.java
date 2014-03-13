@@ -39,7 +39,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  *
@@ -47,7 +49,7 @@ import org.apache.log4j.Logger;
  */
 public class CompleteMoviesWriter {
 
-    private static final Logger LOG = Logger.getLogger(CompleteMoviesWriter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CompleteMoviesWriter.class);
     private static final String LOG_MESSAGE = "CompleteMovies: ";
     private static final String COMPLETE_MOVIES_XML = "CompleteMovies.xml";
     private static final String RSS_XML_FILENAME = "rss.xml";

@@ -27,12 +27,13 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 import java.net.URLEncoder;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
     // The AbstractMoviePosterPlugin already implements IMoviePosterPlugin
 
-    private static final Logger LOG = Logger.getLogger(CdonPosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CdonPosterPlugin.class);
     private static final String LOG_MESSAGE = "CdonPosterPlugin: ";
     private WebBrowser webBrowser;
 

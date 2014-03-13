@@ -55,13 +55,15 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.MongeElkan;
 
 public class SratimPlugin extends ImdbPlugin {
 
-    private static final Logger LOG = Logger.getLogger(SratimPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SratimPlugin.class);
     private static final String LOG_MESSAGE = "Sratim Plugin: ";
     public static final String SRATIM_PLUGIN_ID = "sratim";
     public static final String SRATIM_PLUGIN_SUBTITLE_ID = "sratim_subtitle";

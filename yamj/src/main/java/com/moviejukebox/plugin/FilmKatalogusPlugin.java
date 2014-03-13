@@ -45,7 +45,8 @@ import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Film Katalogus Plugin for Hungarian language
@@ -57,7 +58,7 @@ import org.apache.log4j.Logger;
  */
 public class FilmKatalogusPlugin extends ImdbPlugin {
 
-    private static final Logger LOG = Logger.getLogger(FilmKatalogusPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FilmKatalogusPlugin.class);
     private static final String LOG_MESSAGE = "FilmKatalogusPlugin: ";
     public static final String FILMKAT_PLUGIN_ID = "filmkatalogus";
     private TheTvDBPlugin tvdb;

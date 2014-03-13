@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
-        <version>7</version>
+        <version>9</version>
     </parent>
 
     <groupId>com.moviejukebox</groupId>
@@ -55,6 +55,7 @@
         <distribution.format>zip</distribution.format>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <version.slf4j>1.7.6</version.slf4j>
     </properties>
 
     <profiles>
@@ -98,12 +99,11 @@
                 <artifactId>xmlrpc-client</artifactId>
                 <version>3.1.3</version>
             </dependency>
-            <!--        Removed until ITA is added to the main core
             <dependency>
                 <groupId>org.pojava</groupId>
                 <artifactId>pojava</artifactId>
-                <version>2.9.0</version>
-            </dependency>-->
+                <version>3.0.0</version>
+            </dependency>
             <dependency>
                 <groupId>com.mucommander</groupId>
                 <artifactId>mucommander</artifactId>
@@ -116,21 +116,20 @@
             </dependency>
             <!-- LOGGING -->
             <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>1.2.17</version>
-                <scope>compile</scope>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${version.slf4j}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.7.5</version>
+                <version>${version.slf4j}</version>
             </dependency>
             <!-- COMMONS -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.1</version>
+                <version>3.3</version>
             </dependency>
             <dependency>
                 <groupId>commons-configuration</groupId>
@@ -145,7 +144,7 @@
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.8</version>
+                <version>1.9</version>
             </dependency>
             <!-- APIs -->
             <dependency>
@@ -256,7 +255,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
-                    <version>1.4</version>
+                    <version>1.5</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

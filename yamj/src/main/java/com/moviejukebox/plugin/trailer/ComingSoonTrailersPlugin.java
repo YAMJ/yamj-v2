@@ -30,7 +30,8 @@ import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.util.Date;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * base on ComingSoonPlugin
@@ -38,7 +39,7 @@ import org.apache.log4j.Logger;
  */
 public class ComingSoonTrailersPlugin extends TrailerPlugin {
 
-    private static final Logger LOG = Logger.getLogger(ComingSoonTrailersPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ComingSoonTrailersPlugin.class);
     private static String csVideoUrl = "Film/Scheda/Video/?";
     private ComingSoonPlugin csPlugin = new ComingSoonPlugin();
 

@@ -39,8 +39,9 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.text.WordUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime2.DateTime;
+import org.slf4j.Logger;
+import org.pojava.datetime.DateTime;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author iuk
@@ -48,7 +49,7 @@ import org.pojava.datetime2.DateTime;
  */
 public class ComingSoonPlugin extends ImdbPlugin {
 
-    private static final Logger LOG = Logger.getLogger(ComingSoonPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ComingSoonPlugin.class);
     private static final String LOG_MESSAGE = "ComingSoonPlugin: ";
     public static final String COMINGSOON_PLUGIN_ID = "comingsoon";
     public static final String COMINGSOON_NOT_PRESENT = "na";

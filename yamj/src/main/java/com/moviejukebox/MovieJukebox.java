@@ -115,14 +115,15 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.sanselan.ImageReadException;
+import org.slf4j.LoggerFactory;
 
 public class MovieJukebox {
 
     private static final String LOG_FILENAME = "moviejukebox";
-    private static final Logger LOG = Logger.getLogger(MovieJukebox.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieJukebox.class);
     private static Collection<MediaLibraryPath> mediaLibraryPaths;
     private static final String SKIN_DIR = "mjb.skin.dir";
     private static final String SPACE_TO_SPACE = " to ";

@@ -36,7 +36,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * @author Durin
@@ -44,7 +46,7 @@ import org.apache.log4j.Logger;
 public class OfdbPlugin implements MovieDatabasePlugin {
 
     public static final String OFDB_PLUGIN_ID = "ofdb";
-    private static final Logger LOG = Logger.getLogger(OfdbPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OfdbPlugin.class);
     private static final String LOG_MESSAGE = "OfdbPlugin: ";
 
     private final ImdbPlugin imdbp;

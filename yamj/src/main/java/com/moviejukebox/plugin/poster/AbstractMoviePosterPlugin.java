@@ -29,11 +29,12 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
 
-    private static final Logger LOG = Logger.getLogger(AbstractMoviePosterPlugin.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractMoviePosterPlugin.class);
     protected static final String SEARCH_PRIORITY_MOVIE = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie", "").toLowerCase();
     protected static final String SEARCH_PRIORITY_TV = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "").toLowerCase();
 

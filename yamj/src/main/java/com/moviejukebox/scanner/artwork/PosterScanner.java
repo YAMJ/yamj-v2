@@ -54,7 +54,8 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Scanner for poster files in local directory and from the Internet
@@ -67,7 +68,7 @@ import org.apache.log4j.Logger;
  */
 public final class PosterScanner {
 
-    private static final Logger LOG = Logger.getLogger(PosterScanner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PosterScanner.class);
     private static final String LOG_MESSAGE = "PosterScanner: ";
     private static final Map<String, IPosterPlugin> PLUGINS;
     private static final Map<String, IMoviePosterPlugin> MOVIE_PLUGINS = new HashMap<String, IMoviePosterPlugin>();

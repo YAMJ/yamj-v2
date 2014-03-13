@@ -28,11 +28,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public final class SqlTools {
 
-    private static final Logger LOG = Logger.getLogger(SqlTools.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SqlTools.class);
     private static final String LOG_MESSAGE = "SqlTools: ";
     private static Connection connection = null;
     private static final String INSERT_VIDEO = "insert into VIDEO (TITLE, POSTER, PATH) values (?, ?, ?)";

@@ -59,8 +59,9 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.Logger;
-import org.pojava.datetime2.DateTime;
+import org.slf4j.Logger;
+import org.pojava.datetime.DateTime;
+import org.slf4j.LoggerFactory;
 
 /**
  * Movie bean
@@ -75,7 +76,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * specifically to the Movie object
      */
 
-    private static final Logger LOG = Logger.getLogger(Movie.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Movie.class);
     public static final String UNKNOWN = "UNKNOWN";
     public static final String SOURCE_FILENAME = "filename";
     public static final String NOTRATED = "Not Rated";
@@ -2173,7 +2174,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (OverrideTools.checkOverwriteContainer(this, SOURCE_FILENAME)) {
             setContainer(dto.getContainer(), SOURCE_FILENAME);
         }
-        
+
         if ((dto.getFps() > 0) && OverrideTools.checkOverwriteFPS(this, SOURCE_FILENAME)) {
             setFps(dto.getFps(), SOURCE_FILENAME);
         }

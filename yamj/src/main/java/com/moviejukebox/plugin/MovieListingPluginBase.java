@@ -30,14 +30,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * User: JDGJr Date: Feb 15, 2009
  */
 public class MovieListingPluginBase implements MovieListingPlugin {
 
-    private static final Logger LOG = Logger.getLogger(MovieListingPluginBase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieListingPluginBase.class);
     private static final String LOG_MESSAGE = "MovieListingPluginBase: ";
     private static final String UNDEFINED = "UNDEFINED";
     private boolean groupByType = Boolean.TRUE;
