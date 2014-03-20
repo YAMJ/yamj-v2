@@ -60,8 +60,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 import org.apache.sanselan.ImageReadException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -82,7 +82,7 @@ public final class FanartScanner {
     private static final Collection<String> IMAGE_NAMES = Collections.synchronizedList(new ArrayList<String>());
     private static final boolean ARTWORK_VALIDATE;
     private static final int ARTWORK_VALIDATE_MATCH;
-    private static final TheMovieDbApi TMDB;
+    private static TheMovieDbApi TMDB = null;
 
     static {
 
@@ -465,7 +465,6 @@ public final class FanartScanner {
 //            String artworkFilename = movie.getBaseName() + fanartToken + "." + fanartExtension;
 //            movie.setFanartFilename(artworkFilename);
 //        }
-
         return url;
     }
 

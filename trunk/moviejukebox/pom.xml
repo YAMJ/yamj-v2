@@ -180,7 +180,7 @@
             <dependency>
                 <groupId>com.omertron</groupId>
                 <artifactId>rottentomatoesapi</artifactId>
-                <version>1.4-SNAPSHOT</version>
+                <version>1.5-SNAPSHOT</version>
                 <type>jar</type>
             </dependency>
             <dependency>
