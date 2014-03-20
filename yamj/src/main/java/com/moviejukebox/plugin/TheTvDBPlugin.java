@@ -54,7 +54,7 @@ import org.pojava.datetime.DateTime;
 public class TheTvDBPlugin extends ImdbPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(TheTvDBPlugin.class);
-    private static final String LOG_MESSAGE = "TheTVDBPlugin: ";
+    private static final String LOG_MESSAGE = TheTvDBPlugin.class.getSimpleName();
     public static final String THETVDB_PLUGIN_ID = "thetvdb";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
     private static final String WEBHOST = "thetvdb.com";
@@ -115,7 +115,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
             Series series = getSeries(id);
 
             if (series == null) {
-                LOG.debug(LOG_MESSAGE + "No series information found for " + movie.getTitle());
+                LOG.debug("{}: No series information found for {}", LOG_MESSAGE, movie.getTitle());
             } else {
                 if (OverrideTools.checkOverwriteTitle(movie, THETVDB_PLUGIN_ID)) {
                     movie.setTitle(series.getSeriesName(), THETVDB_PLUGIN_ID);
@@ -154,7 +154,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     try {
                         movie.addRating(THETVDB_PLUGIN_ID, (int) (Float.parseFloat(series.getRating()) * 10));
                     } catch (NumberFormatException ex) {
-                        LOG.trace(LOG_MESSAGE + "Failed to transform rating for series id " + series.getId() + " = '" + series.getRating() + "', Error: " + ex.getMessage());
+                        LOG.trace("{}: Failed to transform rating for series id {} = '{}', Error: {}", LOG_MESSAGE, series.getId(), series.getRating(), ex.getMessage());
                     }
                 }
 
@@ -190,7 +190,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                     if (StringTools.isValidString(bannerUrl)) {
                         movie.setBannerURL(bannerUrl);
-                        LOG.trace(LOG_MESSAGE + "Used banner " + bannerUrl);
+                        LOG.trace("{}: Used banner ", LOG_MESSAGE, bannerUrl);
                     }
                 }
 
@@ -284,7 +284,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 episodeList2ndLanguage = TVDB.getSeasonEpisodes(id, (dvdEpisodes ? -1 : movie.getSeason()), LANGUAGE_SECONDARY);
             }
         } catch (Exception error) {
-            LOG.warn(LOG_MESSAGE + "Error getting episode information: " + error.getMessage());
+            LOG.warn("{}: Error getting episode information: {}", LOG_MESSAGE, error.getMessage());
             return;
         } finally {
             ThreadExecutor.leaveIO();
@@ -429,7 +429,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         super.scanNFO(nfo, movie);
 
         boolean result = Boolean.FALSE;
-        LOG.debug(LOG_MESSAGE + "Scanning NFO for TheTVDB Id");
+        LOG.debug("{}: Scanning NFO for TheTVDB Id", LOG_MESSAGE);
         String compareString = nfo.toUpperCase();
         int idx = compareString.indexOf("THETVDB.COM");
         if (idx > -1) {
@@ -458,7 +458,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                 if (StringUtils.isNotBlank(id)) {
                     movie.setId(THETVDB_PLUGIN_ID, id.trim());
-                    LOG.debug(LOG_MESSAGE + "TheTVDB Id found in nfo = " + id.trim());
+                    LOG.debug("{}: TheTVDB Id found in nfo = {}", LOG_MESSAGE, id.trim());
                     result = Boolean.TRUE;
                 }
             }
@@ -544,7 +544,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
                 }
             } catch (Exception error) {
-                LOG.warn(LOG_MESSAGE + "Error getting Series: " + error.getMessage());
+                LOG.warn("{}: Error getting Series: {}", LOG_MESSAGE, error.getMessage());
             } finally {
                 ThreadExecutor.leaveIO();
             }
@@ -581,7 +581,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     }
                 }
             } catch (Exception error) {
-                LOG.warn(LOG_MESSAGE + "Error getting ID: " + error.getMessage());
+                LOG.warn("{}: Error getting ID: {}", LOG_MESSAGE, error.getMessage());
             } finally {
                 ThreadExecutor.leaveIO();
             }
@@ -600,7 +600,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                                     break;
                                 }
                             } catch (NumberFormatException ex) {
-                                LOG.trace(LOG_MESSAGE + "Failed to convert year: '" + s.getFirstAired() + "', error: " + ex.getMessage());
+                                LOG.trace("{}: Failed to convert year: '{}', error: {}", LOG_MESSAGE, s.getFirstAired(), ex.getMessage());
                             }
                         } else {
                             series = s;
@@ -612,7 +612,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 // If we can't find an exact match, select the first one
                 if (series == null) {
                     series = seriesList.get(0);
-                    LOG.debug(LOG_MESSAGE + "No exact match for " + movie.getTitle() + " found, using " + series.getSeriesName());
+                    LOG.debug("{}: No exact match for {} found, using {}", LOG_MESSAGE, movie.getTitle(), series.getSeriesName());
                 }
 
                 id = String.valueOf(series.getId());
@@ -648,7 +648,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 banners = TVDB.getBanners(id);
                 CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_BANNERS, id, LANGUAGE_PRIMARY), banners);
             } catch (Exception error) {
-                LOG.warn(LOG_MESSAGE + "Error getting Banners: " + error.getMessage());
+                LOG.warn("{}: Error getting Banners: {}", LOG_MESSAGE, error.getMessage());
             } finally {
                 ThreadExecutor.leaveIO();
             }
