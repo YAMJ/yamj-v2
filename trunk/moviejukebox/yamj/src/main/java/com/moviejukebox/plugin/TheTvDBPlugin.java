@@ -41,12 +41,12 @@ import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Episode;
 import com.omertron.thetvdbapi.model.Series;
 import java.util.List;
+import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.pojava.datetime.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.pojava.datetime.DateTime;
 
 /**
  * @author styles
@@ -86,11 +86,26 @@ public class TheTvDBPlugin extends ImdbPlugin {
         forceBannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", Boolean.FALSE);
         textBanners = PropertiesUtil.getBooleanProperty("banners.addText.season", Boolean.FALSE);
 
-        // We need to set the proxy parameters if set.
-        TVDB.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+        boolean isError = Boolean.FALSE;
+        try {
+            // We need to set the proxy parameters if set.
+            TVDB.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+        } catch (WebServiceException ex) {
+            LOG.debug("{}: Failed to set proxy info: {}", LOG_MESSAGE, ex.getMessage());
+            isError = Boolean.TRUE;
+        }
 
-        // Set the timeout values
-        TVDB.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+        try {
+            // Set the timeout values
+            TVDB.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+        } catch (WebServiceException ex) {
+            LOG.debug("{}: Failed to set timeout info: {}", LOG_MESSAGE, ex.getMessage());
+            isError = Boolean.TRUE;
+        }
+
+        if (isError) {
+            WebBrowser.showStatus();
+        }
     }
 
     private static String initLanguage2() {
