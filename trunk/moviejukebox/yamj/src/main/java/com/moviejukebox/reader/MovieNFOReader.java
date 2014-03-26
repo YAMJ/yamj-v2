@@ -54,10 +54,10 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.pojava.datetime.DateTime;
+import org.pojava.datetime.DateTimeConfigBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.pojava.datetime.DateTime;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -698,9 +698,12 @@ public final class MovieNFOReader {
      * Convert the date string to a date and update the movie object
      *
      * @param movie
+     * @param dateString
      * @param parseDate
      */
-    private static void movieDate(Movie movie, final String dateString) {
+    public static void movieDate(Movie movie, final String dateString) {
+        DateTimeConfigBuilder.newInstance().setDmyOrder(false);
+
         String parseDate = StringUtils.normalizeSpace(dateString);
         if (StringTools.isValidString(parseDate)) {
             try {
