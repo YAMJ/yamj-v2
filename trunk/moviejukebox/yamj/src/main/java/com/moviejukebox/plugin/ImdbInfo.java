@@ -70,13 +70,13 @@ public class ImdbInfo {
         MATCHES_DATA_PER_SITE.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", UTF_8, "R&#xE9;alis&#xE9; par|R&#xE9;alisateur", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Aspect Ratio", "Pays",
                 "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes|Sc&#xE9;naristes", "Taglines", "original title"));
 
-        MATCHES_DATA_PER_SITE.put("es", new ImdbSiteDataDefinition("http://www.imdb.es/", ISO_8859_1, "Dirigida por|Director", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Relaci&#xF3;n de Aspecto", "Pa&#xED;s",
+        MATCHES_DATA_PER_SITE.put("es", new ImdbSiteDataDefinition("http://www.imdb.es/", UTF_8, "Dirigida por|Director", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Relaci&#xF3;n de Aspecto", "Pa&#xED;s",
                 "Compa&#xF1;&#xED;a", "G&#xE9;nero", "Quotes", "Trama", "Rated", "Clasificaci&#xF3;n", "Fecha de Estreno", "Escritores|Cr&#xE9;ditos del gui&#xF3;n", "Taglines", "original title"));
 
-        MATCHES_DATA_PER_SITE.put("de", new ImdbSiteDataDefinition("http://www.imdb.de/", ISO_8859_1, "Regisseur|Regie", "Besetzung", "Premierendatum", "L&#xE4;nge", "Seitenverh&#xE4;ltnis", "Land",
+        MATCHES_DATA_PER_SITE.put("de", new ImdbSiteDataDefinition("http://www.imdb.de/", UTF_8, "Regisseur|Regie", "Besetzung", "Premierendatum", "L&#xE4;nge", "Seitenverh&#xE4;ltnis", "Land",
                 "Firma", "Genre", "Quotes", "Handlung", "Rated", "Altersfreigabe", "Premierendatum", "Guionista|Buch", "Taglines", "Originaltitle"));
 
-        MATCHES_DATA_PER_SITE.put("it", new ImdbSiteDataDefinition("http://www.imdb.it/", ISO_8859_1, "Regia di|Regista|Registi", "Cast", "Data di uscita", "Durata", "Aspect Ratio",
+        MATCHES_DATA_PER_SITE.put("it", new ImdbSiteDataDefinition("http://www.imdb.it/", UTF_8, "Regia di|Regista|Registi", "Cast", "Data di uscita", "Durata", "Aspect Ratio",
                 "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Divieti", "Data di uscita", "Sceneggiatore|Scritto da", "Taglines", "original title"));
 
         MATCHES_DATA_PER_SITE.put("pt", new ImdbSiteDataDefinition("http://www.imdb.pt/", UTF_8, "Dirigido por|Diretor", "Elenco", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o", "Aspect Ratio",
@@ -95,10 +95,10 @@ public class ImdbInfo {
         MATCHES_DATA_PER_SITE.put("fr2", new ImdbSiteDataDefinition("http://www.imdb.fr/", UTF_8, "R&#xE9;alis&#xE9; par|R&#xE9;alisateur", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Aspect Ratio", "Pays",
                 "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes|Sc&#xE9;naristes", "Taglines", "original title"));
 
-        MATCHES_DATA_PER_SITE.put("es2", new ImdbSiteDataDefinition("http://www.imdb.es/", ISO_8859_1, "Dirigida por|Director", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Relaci&#xF3;n de Aspecto", "Pa&#xED;s",
+        MATCHES_DATA_PER_SITE.put("es2", new ImdbSiteDataDefinition("http://www.imdb.es/", UTF_8, "Dirigida por|Director", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Relaci&#xF3;n de Aspecto", "Pa&#xED;s",
                 "Compa&#xF1;&#xED;a", "G&#xE9;nero", "Citas", "Trama", "Rated", "Clasificaci&#xF3;n", "Fecha de Estreno", "Escritores|Cr&#xE9;ditos del gui&#xF3;n", "Taglines", "original title"));
 
-        MATCHES_DATA_PER_SITE.put("de2", new ImdbSiteDataDefinition("http://www.imdb.de/", ISO_8859_1, "Regisseur|Regie", "Besetzung", "Premierendatum", "L&#xE4;nge", "Seitenverh&#xE4;ltnis", "Land",
+        MATCHES_DATA_PER_SITE.put("de2", new ImdbSiteDataDefinition("http://www.imdb.de/", UTF_8, "Regisseur|Regie", "Besetzung", "Premierendatum", "L&#xE4;nge", "Seitenverh&#xE4;ltnis", "Land",
                 "Firma", "Genre", "Nutzerkommentare", "Handlung", "Rated", "Altersfreigabe", "Premierendatum", "Drehbuchautor", "Unterhaltsames", "Originaltitle"));
 
         MATCHES_DATA_PER_SITE.put("it2", new ImdbSiteDataDefinition("http://www.imdb.it/", UTF_8, "Regia di|Regista|Registi", "Attori", "Data di uscita", "Durata", "Aspect Ratio",
