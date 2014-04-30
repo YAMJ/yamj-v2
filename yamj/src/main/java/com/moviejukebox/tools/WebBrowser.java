@@ -23,20 +23,8 @@
 package com.moviejukebox.tools;
 
 import com.moviejukebox.model.Movie;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.*;
+import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
@@ -59,6 +47,7 @@ public class WebBrowser {
     private static final String LOG_MESSAGE = "WebBrowser: ";
     private final Map<String, String> browserProperties;
     private final Map<String, Map<String, String>> cookies;
+    private static Proxy PROXY;
     private static final String PROXY_HOST = PropertiesUtil.getProperty("mjb.ProxyHost", "");
     private static final int PROXY_PORT = PropertiesUtil.getIntProperty("mjb.ProxyPort", 0);
     private static final String PROXY_USERNAME = PropertiesUtil.getProperty("mjb.ProxyUsername", "");
@@ -68,6 +57,16 @@ public class WebBrowser {
     private static final int TIMEOUT_READ = PropertiesUtil.getIntProperty("mjb.Timeout.Read", 90000);
     private int imageRetryCount;
 
+    static {
+        // create the proxy object
+        if (StringUtils.isBlank(PROXY_HOST)) {
+            PROXY = Proxy.NO_PROXY;
+        } else {
+            SocketAddress socketAddress = new InetSocketAddress(PROXY_HOST, PROXY_PORT);
+            PROXY = new Proxy(Proxy.Type.HTTP, socketAddress);
+        }
+    }
+    
     public WebBrowser() {
         browserProperties = new HashMap<String, String>();
         browserProperties.put("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
@@ -109,13 +108,7 @@ public class WebBrowser {
     }
 
     public URLConnection openProxiedConnection(URL url) throws IOException {
-        if (PROXY_HOST != null) {
-            System.getProperties().put("proxySet", TRUE);
-            System.getProperties().put("proxyHost", PROXY_HOST);
-            System.getProperties().put("proxyPort", PROXY_PORT);
-        }
-
-        URLConnection cnx = url.openConnection();
+        URLConnection cnx = url.openConnection(PROXY);
 
         if (PROXY_USERNAME != null) {
             cnx.setRequestProperty("Proxy-Authorization", ENCODED_PASSWORD);
@@ -147,30 +140,50 @@ public class WebBrowser {
                 sendHeader(cnx);
                 readHeader(cnx);
 
-                BufferedReader in = null;
+                InputStream inputStream = null;
+                InputStreamReader inputStreamReader = null;
+                BufferedReader bufferedReader = null;
+                
                 try {
-
+                    inputStream = cnx.getInputStream();
+                    
                     // If we fail to get the URL information we need to exit gracefully
                     if (charset == null) {
-                        in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), getCharset(cnx)));
+                        inputStreamReader = new InputStreamReader(inputStream, getCharset(cnx));
                     } else {
-                        in = new BufferedReader(new InputStreamReader(cnx.getInputStream(), charset));
+                        inputStreamReader = new InputStreamReader(inputStream, charset);
                     }
-
+                    bufferedReader = new BufferedReader(inputStreamReader);
+                    
                     String line;
-                    while ((line = in.readLine()) != null) {
+                    while ((line = bufferedReader.readLine()) != null) {
                         content.write(line);
                     }
+                    
                     // Attempt to force close connection
                     // We have HTTP connections, so these are always valid
                     content.flush();
+                    
                 } catch (FileNotFoundException ex) {
                     LOG.error(LOG_MESSAGE + "URL not found: " + url.toString());
                 } catch (IOException ex) {
                     LOG.error(LOG_MESSAGE + "Error getting URL " + url.toString() + ", " + ex.getMessage());
                 } finally {
-                    if (in != null) {
-                        in.close();
+                    // Close resources
+                    if (bufferedReader != null) {
+                        try {
+                            bufferedReader.close();
+                        } catch (Exception ex) {}
+                    }
+                    if (inputStreamReader != null) {
+                        try {
+                            inputStreamReader.close();
+                        } catch (Exception ex) {}
+                    }
+                    if (inputStream != null) {
+                        try {
+                            inputStream.close();
+                        } catch (Exception ex) {}
                     }
                 }
             } catch (SocketTimeoutException ex) {
@@ -418,7 +431,11 @@ public class WebBrowser {
             ThreadExecutor.leaveIO();
         }
     }
-
+    
+    public static Proxy getMjbProxy() {
+        return PROXY;
+    }
+    
     public static String getMjbProxyHost() {
         return PROXY_HOST;
     }
@@ -452,12 +469,12 @@ public class WebBrowser {
         }
 
         if (PROXY_USERNAME != null) {
-            LOG.debug(LOG_MESSAGE + "Proxy Host: " + PROXY_USERNAME);
+            LOG.debug(LOG_MESSAGE + "Proxy username: " + PROXY_USERNAME);
             if (PROXY_PASSWORD != null) {
-                LOG.debug(LOG_MESSAGE + "Proxy Password: IS SET");
+                LOG.debug(LOG_MESSAGE + "Proxy password: IS SET");
             }
         } else {
-            LOG.debug(LOG_MESSAGE + "No Proxy username ");
+            LOG.debug(LOG_MESSAGE + "No proxy username");
         }
 
         LOG.debug(LOG_MESSAGE + "Connect Timeout: " + TIMEOUT_CONNECT);
