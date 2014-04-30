@@ -61,13 +61,11 @@ public class AllocinePlugin extends ImdbPlugin {
         // set up the Allocine API for XML or JSON
         String format = PropertiesUtil.getProperty("allocine.api.format", "json");
         if ("xml".equalsIgnoreCase(format)) {
-//            allocineAPI = new XMLAllocineAPIHelper(PropertiesUtil.getProperty("API_KEY_Allocine"));
             allocineAPI = new XMLAllocineAPIHelper(API_KEY_PARTNER, API_KEY_SECRET);
         } else {
-//            allocineAPI = new JSONAllocineAPIHelper(PropertiesUtil.getProperty("API_KEY_Allocine"));
             allocineAPI = new JSONAllocineAPIHelper(API_KEY_PARTNER, API_KEY_SECRET);
         }
-        allocineAPI.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+        allocineAPI.setProxy(WebBrowser.getMjbProxy(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
 
         searchEngines = new SearchEngineTools("fr");
 
