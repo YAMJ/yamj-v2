@@ -22,35 +22,20 @@
  */
 package com.moviejukebox.reader;
 
-import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.CodecType;
-import com.moviejukebox.model.DirtyFlag;
-import com.moviejukebox.model.EpisodeDetail;
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Movie;
+import static com.moviejukebox.tools.StringTools.isValidString;
+
+import com.moviejukebox.model.*;
 import com.moviejukebox.model.enumerations.CodecSource;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.scanner.MovieFilenameScanner;
-import com.moviejukebox.tools.AspectRatioTools;
-import com.moviejukebox.tools.DOMHelper;
-import com.moviejukebox.tools.DateTimeTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import static com.moviejukebox.tools.StringTools.isValidString;
-import com.moviejukebox.tools.SubtitleTools;
-import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -457,24 +442,45 @@ public final class MovieNFOReader {
                     parseTrailers(eCommon.getElementsByTagName("trailer"), movie);
                 }
 
-                // Director
+                // Director and Writers
                 if (!SKIP_NFO_CREW) {
                     parseDirectors(eCommon.getElementsByTagName("director"), movie);
-
-                    // Credits/Writer
-                    parseWriters(eCommon.getElementsByTagName("writer"), movie);
-                    parseWriters(eCommon.getElementsByTagName("credits"), movie);
+                    
+                    List<Node> writerNodes = new ArrayList<Node>();
+                    // get writers list
+                    NodeList nlWriters = eCommon.getElementsByTagName("writer");
+                    if (nlWriters != null && nlWriters.getLength() > 0) {
+                        for (int looper = 0; looper < nlWriters.getLength(); looper++) {
+                            Node node = nlWriters.item(looper);
+                            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                                writerNodes.add(node);
+                            }
+                        }
+                    }
+                    // get credits list (old style)
+                    nlWriters = eCommon.getElementsByTagName("credits");
+                    if (nlWriters != null && nlWriters.getLength() > 0) {
+                        for (int looper = 0; looper < nlWriters.getLength(); looper++) {
+                            Node node = nlWriters.item(looper);
+                            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                                writerNodes.add(node);
+                            }
+                        }
+                    }
+                    // parse writers
+                    parseWriters(writerNodes, movie);
                 }
 
+                // Actors
                 if (!SKIP_NFO_CAST) {
-                    // Actors
                     parseActors(eCommon.getElementsByTagName("actor"), movie);
+                }
 
-                    if (OverrideTools.checkOverwriteFPS(movie, NFO_PLUGIN_ID)) {
-                        float tmpFps = NumberUtils.toFloat(DOMHelper.getValueFromElement(eCommon, "fps"), -1F);
-                        if (tmpFps > -1F) {
-                            movie.setFps(tmpFps, NFO_PLUGIN_ID);
-                        }
+                // FPS
+                if (OverrideTools.checkOverwriteFPS(movie, NFO_PLUGIN_ID)) {
+                    float tmpFps = NumberUtils.toFloat(DOMHelper.getValueFromElement(eCommon, "fps"), -1F);
+                    if (tmpFps > -1F) {
+                        movie.setFps(tmpFps, NFO_PLUGIN_ID);
                     }
                 }
 
@@ -876,9 +882,9 @@ public final class MovieNFOReader {
      * @param nlElements
      * @param movie
      */
-    private static void parseWriters(NodeList nlElements, Movie movie) {
-        // check if we have a node
-        if (nlElements == null || nlElements.getLength() == 0) {
+    private static void parseWriters(List<Node> nlWriters, Movie movie) {
+        // check if we have nodes
+        if (nlWriters == null || nlWriters.isEmpty()) {
             return;
         }
 
@@ -890,13 +896,15 @@ public final class MovieNFOReader {
             return;
         }
 
-        List<String> newWriters = new ArrayList<String>();
-        Node nElements;
-        for (int looper = 0; looper < nlElements.getLength(); looper++) {
-            nElements = nlElements.item(looper);
-            if (nElements.getNodeType() == Node.ELEMENT_NODE) {
-                Element eWriter = (Element) nElements;
-                newWriters.add(eWriter.getTextContent());
+        Set<String> newWriters = new LinkedHashSet<String>();
+        for (Node nWriter : nlWriters) {
+            NodeList nlChilds = ((Element)nWriter).getChildNodes();
+            Node nChilds;
+            for (int looper = 0; looper < nlChilds.getLength(); looper++) {
+                nChilds = nlChilds.item(looper);
+                if (nChilds.getNodeType() == Node.TEXT_NODE) {
+                    newWriters.add(nChilds.getNodeValue());
+                }
             }
         }
 
