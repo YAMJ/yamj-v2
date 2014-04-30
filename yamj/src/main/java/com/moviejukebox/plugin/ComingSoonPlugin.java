@@ -220,7 +220,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             StringBuilder sb = new StringBuilder(COMINGSOON_BASE_URL);
             sb.append(COMINGSOON_SEARCH_URL);
             sb.append(CS_TITLE_PARAM);
-            sb.append(URLEncoder.encode(movieName.toLowerCase(), "iso-8859-1"));
+            sb.append(URLEncoder.encode(movieName.toLowerCase(), "UTF-8"));
 
             sb.append("&").append(CS_YEAR_PARAM);
             if (StringTools.isValidString(year)) {
@@ -238,7 +238,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 }
 
                 LOG.debug(LOG_MESSAGE + "Fetching ComingSoon search URL: " + sbPage.toString());
-                String xml = webBrowser.request(sbPage.toString(), Charset.forName("iso-8859-1"));
+                String xml = webBrowser.request(sbPage.toString(), Charset.forName("UTF-8"));
 
                 List<String[]> movieList = parseComingSoonSearchResults(xml);
 
@@ -403,7 +403,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         try {
             String movieURL = COMINGSOON_BASE_URL + COMINGSOON_FILM_URL + COMINGSOON_KEY_PARAM + movie.getId(COMINGSOON_PLUGIN_ID);
             LOG.debug(LOG_MESSAGE + "Querying ComingSoon for " + movieURL);
-            xml = webBrowser.request(movieURL, Charset.forName("iso-8859-1"));
+            xml = webBrowser.request(movieURL, Charset.forName("UTF-8"));
         } catch (IOException ex) {
             LOG.error(LOG_MESSAGE + "Failed retreiving ComingSoon data for movie : " + movie.getId(COMINGSOON_PLUGIN_ID));
             LOG.error(LOG_MESSAGE + SystemTools.getStackTrace(ex));
