@@ -491,7 +491,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         // GENRES
         if (OverrideTools.checkOverwriteGenres(movie, COMINGSOON_PLUGIN_ID)) {
-            String genreList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">GENERE</strong>: ", "</LI>"));
+            String genreList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">GENERE</strong>: ", "</li>"));
             if (StringTools.isValidString(genreList)) {
                 Collection<String> genres = new ArrayList<String>();
 
