@@ -69,7 +69,28 @@ public class MovieNFOReaderTest {
 
         assertEquals("Wrong release year", "2005", m.getYear());
         assertEquals("Wrong release date", "2005-10-20", m.getReleaseDate());
-
     }
 
+    @Test
+    public void testParsCrew() {
+        StringBuffer nfo = new StringBuffer();
+        nfo.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+        nfo.append("<movie>");
+        nfo.append("<id>-1</id>");
+        nfo.append("<id moviedb=\"tmdb\">24021</id>");
+        nfo.append("<title>The Twilight Saga: Eclipse</title>");
+        nfo.append("<year>2010</year>");
+        nfo.append("<credits>");
+        nfo.append("<writer>Melissa Rosenberg</writer>");
+        nfo.append("<writer>Stephenie Meyer</writer>");
+        nfo.append("</credits>");
+        nfo.append("<credits>Hans Dampf</credits>");
+        nfo.append("<director>David Slade</director>");
+        nfo.append("</movie>");
+        
+        Movie movie = new Movie();
+        MovieNFOReader.readXmlNfo(nfo.toString(), movie, "test.nfo");
+        assertEquals(1, movie.getDirectors().size());
+        assertEquals(3, movie.getWriters().size());
+    }
 }
