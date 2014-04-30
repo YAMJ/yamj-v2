@@ -446,8 +446,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
         // RELEASE DATE
         if (OverrideTools.checkOverwriteReleaseDate(movie, COMINGSOON_PLUGIN_ID)) {
             String releaseDate = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">DATA USCITA</strong>:", "</li>"));
-            DateTime rDate = new DateTime(releaseDate);
-            movie.setReleaseDate(rDate.toString("yyyy-MM-dd"), COMINGSOON_PLUGIN_ID);
+            if (StringTools.isValidString(releaseDate)) {
+                DateTime rDate = new DateTime(releaseDate);
+                movie.setReleaseDate(rDate.toString("yyyy-MM-dd"), COMINGSOON_PLUGIN_ID);
+            }
         }
 
         // RUNTIME
