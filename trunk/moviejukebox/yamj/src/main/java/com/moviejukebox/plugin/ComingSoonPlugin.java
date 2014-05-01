@@ -466,17 +466,19 @@ public class ComingSoonPlugin extends ImdbPlugin {
         }
 
         // COUNTRY
-        String country = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PAESE</strong>: ", "</li>")).trim();
         if (OverrideTools.checkOverwriteCountry(movie, COMINGSOON_PLUGIN_ID)) {
+            String country = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PAESE</strong>: ", "</li>")).trim();
             movie.setCountries(country, COMINGSOON_PLUGIN_ID);
         }
 
         // YEAR
-        String year = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ANNO</strong>: ", "</li>")).trim();
-        if ((NumberUtils.toInt(year, 0) > 1900) && OverrideTools.checkOverwriteYear(movie, COMINGSOON_PLUGIN_ID)) {
-            movie.setYear(year, COMINGSOON_PLUGIN_ID);
+        if (OverrideTools.checkOverwriteYear(movie, COMINGSOON_PLUGIN_ID)) {
+            String year = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ANNO</strong>: ", "</li>")).trim();
+            if (NumberUtils.toInt(year, 0) > 1900) {
+                movie.setYear(year, COMINGSOON_PLUGIN_ID);
+            }
         }
-
+        
         // COMPANY
         if (OverrideTools.checkOverwriteCompany(movie, COMINGSOON_PLUGIN_ID)) {
             // TODO: Add more than one company when available in Movie model

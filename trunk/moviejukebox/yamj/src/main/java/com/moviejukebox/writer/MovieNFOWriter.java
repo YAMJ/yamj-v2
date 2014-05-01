@@ -70,7 +70,6 @@ public final class MovieNFOWriter {
     private static final String SHOW_STATUS = "showStatus";
     private static final String RATINGS = "ratings";
     private static final String RATING = "rating";
-    private static final String WRITER = "writer";
     private static final String SETS = "sets";
     private static final String SET = "set";
     private static final String ORDER = "order";

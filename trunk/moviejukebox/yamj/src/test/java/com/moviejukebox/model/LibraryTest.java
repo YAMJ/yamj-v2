@@ -22,23 +22,16 @@
  */
 package com.moviejukebox.model;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.moviejukebox.tools.PropertiesUtil;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 public class LibraryTest {
 
-    private static final Logger LOG = Logger.getLogger(LibraryTest.class);
     Library lib;
     final List<Movie> movies = new ArrayList<Movie>();
 

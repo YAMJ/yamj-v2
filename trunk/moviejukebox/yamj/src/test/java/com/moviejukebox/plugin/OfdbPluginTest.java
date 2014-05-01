@@ -77,7 +77,7 @@ public class OfdbPluginTest {
         assertEquals("Avatar - Aufbruch nach Pandora", movie.getTitle());
         assertEquals("Avatar", movie.getOriginalTitle());
         assertEquals("2009", movie.getYear());
-        assertEquals("Großbritannien", movie.getCountriesAsString());
+        assertEquals("Großbritannien / USA", movie.getCountriesAsString());
         assertFalse(Movie.UNKNOWN.equals(movie.getPlot()));
         assertFalse(Movie.UNKNOWN.equals(movie.getOutline()));
         assertTrue(movie.getGenres().contains("Abenteuer"));

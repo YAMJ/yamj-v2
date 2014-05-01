@@ -55,7 +55,6 @@ public class ImdbInfo {
     private static final String PAREN_RIGHT = ")"; // Use for searches - was %29
     protected static final Map<String, ImdbSiteDataDefinition> MATCHES_DATA_PER_SITE = new HashMap<String, ImdbSiteDataDefinition>();
     private static final String UTF_8 = "UTF-8";
-    private static final String ISO_8859_1 = "ISO-8859-1";
     private final String searchMatch = PropertiesUtil.getProperty("imdb.id.search.match", "regular");
     private final boolean searchVariable = PropertiesUtil.getBooleanProperty("imdb.id.search.variable", Boolean.TRUE);
     private WebBrowser webBrowser;

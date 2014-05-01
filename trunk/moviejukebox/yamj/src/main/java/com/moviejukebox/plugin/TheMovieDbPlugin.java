@@ -96,9 +96,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private final int actorMax = PropertiesUtil.getReplacedIntProperty("movie.actor.maxCount", "plugin.people.maxCount.actor", 10);
     private final int directorMax = PropertiesUtil.getReplacedIntProperty("movie.director.maxCount", "plugin.people.maxCount.director", 2);
     private final int writerMax = PropertiesUtil.getReplacedIntProperty("movie.writer.maxCount", "plugin.people.maxCount.writer", 3);
-    private final boolean skipVG = PropertiesUtil.getBooleanProperty("plugin.people.skip.VG", Boolean.TRUE);
-    private final boolean skipTV = PropertiesUtil.getBooleanProperty("plugin.people.skip.TV", Boolean.FALSE);
-    private final boolean skipV = PropertiesUtil.getBooleanProperty("plugin.people.skip.V", Boolean.FALSE);
     private final List<String> jobsInclude = Arrays.asList(PropertiesUtil.getProperty("plugin.filmography.jobsInclude", "Director,Writer,Actor,Actress").split(","));
 
     public TheMovieDbPlugin() {
@@ -529,8 +526,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         // Country
         if (OverrideTools.checkOverwriteCountry(movie, TMDB_PLUGIN_ID)) {
             List<String> countries = new ArrayList<String>();
-            for (ProductionCountry country : moviedb.getProductionCountries()) {
-                countries.add(country.getName());
+            for (ProductionCountry productionCountry : moviedb.getProductionCountries()) {
+                countries.add(productionCountry.getName());
             }
             movie.setCountries(countries, TMDB_PLUGIN_ID);
         }
