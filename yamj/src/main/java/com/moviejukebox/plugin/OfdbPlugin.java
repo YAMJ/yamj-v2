@@ -250,10 +250,11 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
                     if (OverrideTools.checkOverwriteCountry(movie, OFDB_PLUGIN_ID) && tag.contains("Herstellungsland")) {
                         List<String> scraped = HTMLTools.extractHtmlTags(tag, "class=\"Daten\"", "</td>", "<a", "</a>");
-                        if (scraped.size() > 0) {
-                            // TODO set more countries in movie
-                            movie.setCountry(HTMLTools.removeHtmlTags(scraped.get(0)).trim(), OFDB_PLUGIN_ID);
+                        List<String> countries = new ArrayList<String>();
+                        for (String country : scraped) {
+                            countries.add(HTMLTools.removeHtmlTags(country).trim());
                         }
+                        movie.setCountries(countries, OFDB_PLUGIN_ID);
                     }
 
                     if (OverrideTools.checkOverwriteGenres(movie, OFDB_PLUGIN_ID) && tag.contains("Genre(s)")) {

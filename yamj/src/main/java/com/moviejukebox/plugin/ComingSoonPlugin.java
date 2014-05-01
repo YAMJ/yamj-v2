@@ -468,7 +468,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         // COUNTRY
         String country = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PAESE</strong>: ", "</li>")).trim();
         if (OverrideTools.checkOverwriteCountry(movie, COMINGSOON_PLUGIN_ID)) {
-            movie.setCountry(country, COMINGSOON_PLUGIN_ID);
+            movie.setCountries(country, COMINGSOON_PLUGIN_ID);
         }
 
         // YEAR

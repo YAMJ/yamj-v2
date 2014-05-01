@@ -283,8 +283,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
         // Check country
         if (OverrideTools.checkOverwriteCountry(movie, ALLOCINE_PLUGIN_ID) && !movieInfos.getNationalityList().isEmpty()) {
-            String firstCountry = movieInfos.getNationalityList().get(0);
-            movie.setCountry(firstCountry, ALLOCINE_PLUGIN_ID);
+            movie.setCountries(movieInfos.getNationalityList(), ALLOCINE_PLUGIN_ID);
         }
 
         // Check Genres
@@ -412,8 +411,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
             // Check country
             if (OverrideTools.checkOverwriteCountry(movie, ALLOCINE_PLUGIN_ID) && !tvSeriesInfos.getNationalityList().isEmpty()) {
-                String firstCountry = tvSeriesInfos.getNationalityList().get(0);
-                movie.setCountry(firstCountry, ALLOCINE_PLUGIN_ID);
+                movie.setCountries(tvSeriesInfos.getNationalityList(), ALLOCINE_PLUGIN_ID);
             }
 
             // Check Genres

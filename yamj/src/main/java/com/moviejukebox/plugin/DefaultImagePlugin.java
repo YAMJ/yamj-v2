@@ -703,7 +703,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         } else if (name.equalsIgnoreCase(KEYWORDS)) {
                             value = movie.getBaseFilename().toLowerCase();
                         } else if (name.equalsIgnoreCase(COUNTRY)) {
-                            value = movie.getCountry();
+                            value = movie.getCountriesAsString();
                             if (!blockCountry) {
                                 int pos = value.indexOf(Movie.SPACE_SLASH_SPACE);
                                 if (pos > -1) {

@@ -170,7 +170,7 @@ public class FilmDeltaSEPluginTest {
         // Do the testing
         toTest.updateMediaInfo(movie, filmdeltaId);
         assertEquals("Aristocats", movie.getTitle());
-        assertEquals("USA", movie.getCountry());
+        assertEquals("USA", movie.getCountriesAsString());
         assertEquals("1970", movie.getYear());
         assertEquals(70, movie.getRating());
         assertEquals("78", movie.getRuntime());

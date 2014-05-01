@@ -122,7 +122,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         headerLine.append(prepOutput(movie.getId(ImdbPlugin.IMDB_PLUGIN_ID)));
         headerLine.append(prepOutput(movie.getDirector()));
         headerLine.append(prepOutput(movie.getCompany()));
-        headerLine.append(prepOutput(movie.getCountry()));
+        headerLine.append(prepOutput(movie.getCountriesAsString()));
         headerLine.append(prepOutput(movie.getLanguage()));
         headerLine.append(prepOutput(movie.getRuntime()));
         headerLine.append(prepOutput(movie.getReleaseDate()));

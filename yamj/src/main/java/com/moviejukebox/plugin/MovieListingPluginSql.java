@@ -167,8 +167,8 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
 
             try {
                 // Add the country
-                if (StringTools.isValidString(movie.getCountry())) {
-                    joinId = DatabaseWriter.insertCountry(mjbConn, new CountryDTO(0, movie.getCountry(), ""));
+                if (StringTools.isValidString(movie.getCountriesAsString())) {
+                    joinId = DatabaseWriter.insertCountry(mjbConn, new CountryDTO(0, movie.getCountriesAsString(), ""));
                     DatabaseWriter.joinCountry(mjbConn, videoId, joinId);
                 }
                 mjbConn.commit();

@@ -157,7 +157,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
             } else if (checkHeaderField(header, "Company")) {
                 sb.append(prep(movie.getCompany()));
             } else if (checkHeaderField(header, "Country")) {
-                sb.append(prep(movie.getCountry()));
+                sb.append(prep(movie.getCountriesAsString()));
             } else if (checkHeaderField(header, "Language")) {
                 sb.append(prep(movie.getLanguage()));
             } else if (checkHeaderField(header, "Runtime")) {

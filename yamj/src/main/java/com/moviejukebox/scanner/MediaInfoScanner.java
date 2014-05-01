@@ -847,7 +847,7 @@ public class MediaInfoScanner {
             if (infoValue == null) {
                 infoValue = infosGeneral.get("Movie name/Country");
             }
-            movie.setCountry(infoValue, MEDIAINFO_PLUGIN_ID);
+            movie.setCountries(infoValue, MEDIAINFO_PLUGIN_ID);
         }
 
         if (OverrideTools.checkOverwriteReleaseDate(movie, MEDIAINFO_PLUGIN_ID)) {

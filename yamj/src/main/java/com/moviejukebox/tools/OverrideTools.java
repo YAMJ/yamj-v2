@@ -497,7 +497,8 @@ public final class OverrideTools {
         if (skipCheck(movie, OverrideFlag.COUNTRY, source)) {
             // skip the check
             return Boolean.FALSE;
-        } else if (StringTools.isNotValidString(movie.getCountry())) {
+        } else if (movie.getCountries() == null || movie.getCountries().isEmpty()) {
+            // no countries set until now
             return Boolean.TRUE;
         }
         return checkOverwrite(movie, OverrideFlag.COUNTRY, source);

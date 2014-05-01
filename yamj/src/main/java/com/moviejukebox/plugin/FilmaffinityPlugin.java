@@ -136,7 +136,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             if (OverrideTools.checkOverwriteCountry(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
                 Matcher countryMatcher = countryPattern.matcher(xml);
                 if (countryMatcher.find()) {
-                    movie.setCountry(countryMatcher.group(1), FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
+                    movie.setCountries(countryMatcher.group(1), FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
                 }
             }
 

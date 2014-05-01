@@ -465,13 +465,21 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
                 // Country
                 if (OverrideTools.checkOverwriteCountry(movie, KINOPOISK_PLUGIN_ID)) {
-                    Collection<String> country = HTMLTools.extractTags(item, ">страна<", "</tr>", "a href=\"/lists/m_act%5Bcountry%5D/", "</a>");
-                    if (country != null && country.size() > 0) {
-                        String strCountry = countryAll ? StringUtils.join(country, Movie.SPACE_SLASH_SPACE) : new ArrayList<String>(country).get(0);
-                        if (translitCountry) {
-                            strCountry = FileTools.makeSafeFilename(strCountry);
-                        }
-                        movie.setCountry(strCountry, KINOPOISK_PLUGIN_ID);
+                    Collection<String> scraped = HTMLTools.extractTags(item, ">страна<", "</tr>", "a href=\"/lists/m_act%5Bcountry%5D/", "</a>");
+                    if (scraped != null && scraped.size() > 0) {
+                        List<String> countries = new ArrayList<String>();
+                        for (String country : scraped) {
+                            if (translitCountry) {
+                                country = FileTools.makeSafeFilename(country);
+                            }
+                            countries.add(country);
+                            
+                            if (!countryAll) {
+                                // just first country, so break here
+                                break;
+                            }
+                        }                       
+                        movie.setCountries(countries, KINOPOISK_PLUGIN_ID);
                         countryFounded = true;
                     }
                 }

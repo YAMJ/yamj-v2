@@ -25,19 +25,13 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.DateTimeTools;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.SearchEngineTools;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.*;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,12 +178,8 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (OverrideTools.checkOverwriteCountry(movie, FILMWEB_PLUGIN_ID)) {
-                String country = StringUtils.join(HTMLTools.extractTags(xml, "produkcja:", "</tr", "<a ", "</a>"), ", ");
-                if (country.endsWith(", ")) {
-                    movie.setCountry(country.substring(0, country.length() - 2), FILMWEB_PLUGIN_ID);
-                } else {
-                    movie.setCountry(country, FILMWEB_PLUGIN_ID);
-                }
+                List<String> countries = HTMLTools.extractTags(xml, "produkcja:", "</tr", "<a ", "</a>");
+                movie.setCountries(countries, FILMWEB_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteGenres(movie, FILMWEB_PLUGIN_ID)) {

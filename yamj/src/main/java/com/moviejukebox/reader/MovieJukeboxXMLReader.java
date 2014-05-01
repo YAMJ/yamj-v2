@@ -1055,7 +1055,7 @@ public class MovieJukeboxXMLReader {
 
     private void parseOverridableCountry(Movie movie, Element element) {
         OverridableValue ov = new OverridableValue(element, "country");
-        movie.setCountry(ov.getValue(), ov.getSource());
+        movie.setCountries(ov.getValue(), ov.getSource());
     }
 
     private void parseOverridableFramesPerSecond(Movie movie, Element element) {

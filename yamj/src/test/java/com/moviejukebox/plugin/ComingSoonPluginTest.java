@@ -105,7 +105,7 @@ public class ComingSoonPluginTest {
             assertTrue("No Plot", StringTools.isValidString(movie.getPlot()));
             assertTrue("No year", StringTools.isValidString(movie.getYear()));
             assertTrue("No runtime", StringTools.isValidString(movie.getRuntime()));
-            assertTrue("No country", StringTools.isValidString(movie.getCountry()));
+            assertTrue("No country", movie.getCountries().size() > 0);
             assertTrue("No rating", movie.getRating() > -1);
         }
     }

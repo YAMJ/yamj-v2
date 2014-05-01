@@ -128,7 +128,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             }
 
             if (OverrideTools.checkOverwriteCountry(movie, FILMUPIT_PLUGIN_ID)) {
-                movie.setCountry(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "Nazione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
+                movie.setCountries(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "Nazione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
                         "</font></td></tr>")), FILMUPIT_PLUGIN_ID);
             }
 

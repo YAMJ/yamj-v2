@@ -25,42 +25,16 @@ package com.moviejukebox.model;
 import com.moviejukebox.model.enumerations.CodecSource;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
-import com.moviejukebox.tools.BooleanYesNoAdapter;
-import com.moviejukebox.tools.DateTimeTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.UrlCodecAdapter;
+import com.moviejukebox.tools.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.TreeSet;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
 import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -132,12 +106,12 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String outline = UNKNOWN;
     private String quote = UNKNOWN;
     private String tagline = UNKNOWN;
-    private String country = UNKNOWN;
     private String company = UNKNOWN;
     private String runtime = UNKNOWN;
     private String language = UNKNOWN;
     private String videoType = UNKNOWN;
     private String subtitles = UNKNOWN;
+    private Set<String> countries = new LinkedHashSet<String>();
     private Set<String> directors = new LinkedHashSet<String>();
     private Map<String, Integer> sets = new HashMap<String, Integer>();
     private Collection<String> genres = new TreeSet<String>();
@@ -599,8 +573,15 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return container;
     }
 
-    public String getCountry() {
-        return country;
+    public Collection<String> getCountries() {
+        return countries;
+    }
+
+    public String getCountriesAsString() {
+        if (countries.isEmpty()) {
+            return UNKNOWN;
+        }
+        return StringUtils.join(this.countries.iterator(), SPACE_SLASH_SPACE);
     }
 
     public Collection<MovieFile> getFiles() {
@@ -1251,7 +1232,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    public void setCountry(final String country, String source) {
+    public void addCountry(final String country, String source) {
         if (StringTools.isValidString(country)) {
             String tmpCountry;
             // Shorten country to USA
@@ -1261,14 +1242,32 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 tmpCountry = country;
             }
 
-            if (!tmpCountry.equalsIgnoreCase(this.country)) {
+            if (this.countries.add(tmpCountry)) {
+                // country added
                 setDirty(DirtyFlag.INFO);
-                this.country = tmpCountry;
             }
             setOverrideSource(OverrideFlag.COUNTRY, source);
         }
     }
+    
+    public void setCountries(final Collection<String> countries, String source) {
+        if (countries != null && !countries.isEmpty()) {
+            this.countries.clear();
+            for (String country : countries) {
+                addCountry(country, source);
+            }
+        }
+    }
 
+    public void setCountries(final String countries, String source) {
+        if (StringTools.isValidString(countries)) {
+            this.countries.clear();
+            for (String country : countries.split("/")) {
+                addCountry(country.trim(), source);
+            }            
+        } 
+    }
+    
     /**
      * Get just one director from the collection
      *
@@ -1928,7 +1927,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         sb.append("[plot=").append(plot).append("]");
         sb.append("[outline=").append(outline).append("]");
         sb.append("[director=").append(directors.toString()).append("]");
-        sb.append("[country=").append(country).append("]");
+        sb.append("[country=").append(this.getCountriesAsString()).append("]");
         sb.append("[company=").append(company).append("]");
         sb.append("[runtime=").append(runtime).append("]");
         sb.append("[season=").append(getSeason()).append("]");
@@ -2852,7 +2851,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.outline = aMovie.outline;
         newMovie.quote = aMovie.quote;
         newMovie.tagline = aMovie.tagline;
-        newMovie.country = aMovie.country;
         newMovie.company = aMovie.company;
         newMovie.runtime = aMovie.runtime;
         newMovie.language = aMovie.language;
@@ -2909,6 +2907,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.setSize = aMovie.setSize;
 
         newMovie.idMap = new HashMap<String, String>(aMovie.idMap);
+        newMovie.countries = new LinkedHashSet<String>(aMovie.countries);
         newMovie.ratings = new HashMap<String, Integer>(aMovie.ratings);
         newMovie.directors = new LinkedHashSet<String>(aMovie.directors);
         newMovie.sets = new HashMap<String, Integer>(aMovie.sets);
