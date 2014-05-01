@@ -146,9 +146,9 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             if (OverrideTools.checkOverwriteOriginalTitle(movie, FILMWEB_PLUGIN_ID)) {
-                String metaTitle = HTMLTools.extractTag(xml, "og:title", "\">");
+                String metaTitle = HTMLTools.extractTag(xml, "og:title", ">");
                 if (metaTitle.contains("/")) {
-                    String originalTitle = HTMLTools.extractTag(metaTitle, "/", 0, "()><");
+                    String originalTitle = HTMLTools.extractTag(metaTitle, "/", 0, "()><\"");
                     if (originalTitle.endsWith(", The")) {
                         originalTitle = "The " + originalTitle.substring(0, originalTitle.length() - 5);
                     }
@@ -190,8 +190,14 @@ public class FilmwebPlugin extends ImdbPlugin {
                 movie.setGenres(newGenres, FILMWEB_PLUGIN_ID);
             }
 
-            String plot = HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "v:summary\">", "</span>"));
+            String plot = HTMLTools.extractTag(xml, "v:summary\">", "</p>");
             if (StringTools.isValidString(plot)) {
+                int buttonIndex = plot.indexOf("<button");
+                if (buttonIndex > 0) {
+                    plot = plot.substring(0, buttonIndex);
+                }
+                plot = HTMLTools.removeHtmlTags(plot);
+                
                 if (OverrideTools.checkOverwritePlot(movie, FILMWEB_PLUGIN_ID)) {
                     movie.setPlot(plot, FILMWEB_PLUGIN_ID);
                 }

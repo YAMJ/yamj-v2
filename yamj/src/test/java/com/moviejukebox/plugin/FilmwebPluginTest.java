@@ -22,6 +22,8 @@
  */
 package com.moviejukebox.plugin;
 
+import static org.junit.Assert.assertEquals;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -32,8 +34,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -152,13 +152,23 @@ public class FilmwebPluginTest {
     }
 
     @Test
-    public void testUpdateMediaInfoTitle() {
+    public void testUpdateMediaInfoTitle01() {
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Seksmisja");
         filmwebPlugin.setRequestResult("<title>Seksmisja (1984)  - Film - FILMWEB.pl</title>");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
         assertEquals("Seksmisja", movie.getTitle());
         assertEquals("Seksmisja", movie.getOriginalTitle());
+    }
+
+    @Test
+    public void testUpdateMediaInfoTitle02() {
+        Movie movie = new Movie();
+        movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
+        filmwebPlugin.setRequestResult("<title>John Rambo (2008) - Filmweb</title><meta property=\"og:title\" content=\"John Rambo / Rambo\">");
+        filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
+        assertEquals("John Rambo", movie.getTitle());
+        assertEquals("Rambo", movie.getOriginalTitle());
     }
 
     @Test
@@ -175,9 +185,10 @@ public class FilmwebPluginTest {
     public void testUpdateMediaInfoRating() {
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Ojciec.Chrzestny");
-        filmwebPlugin.setRequestResult("<span class=\"average\">            8,7      </span>");
+        filmwebPlugin.setRequestResult("<span class=\"filmRate\"><strong rel=\"v:rating\" property=\"v:average\"> 8,7</strong>/10</span>");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
-        assertTrue(movie.getRating(FilmwebPlugin.FILMWEB_PLUGIN_ID) > 0);
+        System.err.println(movie.getRating(FilmwebPlugin.FILMWEB_PLUGIN_ID));
+        assertEquals(87, movie.getRating(FilmwebPlugin.FILMWEB_PLUGIN_ID));
     }
 
     @Test
@@ -240,7 +251,7 @@ public class FilmwebPluginTest {
     }
 
     @Test
-    public void testUpdateMediaInfoPlot() {
+    public void testUpdateMediaInfoPlot01() {
         Movie movie = new Movie();
         int plotLength = PropertiesUtil.getIntProperty("movie.plot.maxLength", 500);
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Waleczne.Serce");
@@ -253,6 +264,21 @@ public class FilmwebPluginTest {
                         plotLength), movie.getPlot());
     }
 
+    @Test
+    public void testUpdateMediaInfoPlot02() {
+        Movie movie = new Movie();
+        int plotLength = PropertiesUtil.getIntProperty("movie.plot.maxLength", 500);
+        movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/film/Agenci-2013-612342");
+        filmwebPlugin.setRequestResult("<div class=\"filmDescription comBox\">\n  \t<h2>\n  \t\t<a href=\"/Waleczne.Serce/descs\" class=\"hdrBig icoBig icoBigArticles\">\n  \t\t\t opisy filmu   \t\t</a>\t\t\n\t\t\t\t\t<span class=\"hdrAddInfo\">(10)</span>\n\t\t\t\t\n  \t\t  \t\t<a href=\"\t\t\t/Waleczne.Serce/contribute/descriptions\t\" class=\"add-button\" title=\"dodaj  opis filmu \" rel=\"nofollow\">  \t\t\t<span>dodaj  opis filmu </span>\n\n  \t\t</a>\n\t\t<span class=\"imgRepInNag\">Braveheart - Waleczne Serce</span>\n  \t</h2>\n\t\n\t\t\t\t\t   \t   \t\t<p class=\"cl\"><span class=\"filmDescrBg\" property=\"v:summary\">Pod koniec XIII wieku Szkocja dostaje się pod panowanie angielskiego króla, Edwarda I. Przejęcie władzy odbywa się w wyjątkowo krwawych okolicznościach. Jednym ze świadków gwałtów i morderstw jest kilkunastoletni chłopak, William Wallace. Po latach spędzonych pod opieką wuja dorosły William wraca do rodzinnej wioski. Jedną z pierwszych osób, które spotyka, jest Murron - przyjaciółka z lat dzieciństwa. Dawne uczucie przeradza się w wielką i szczerą miłość. Niestety wkrótce dziewczyna ginie z rąk<span> angielskich żołnierzy. Wydarzenie to staje się to momentem przełomowym w życiu młodego Szkota. William decyduje się bowiem na straceńczą walkę z okupantem i po brawurowym ataku zdobywa warownię wroga. Dzięki ogromnej odwadze zostaje wykreowany na przywódcę powstania przeciw angielskiej tyranii...</span> <a href=\"#\" class=\"see-more\">więcej </a></span></p>\n   \t\t  </div>");
+        filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
+
+        assertEquals(
+                StringTools.trimToLength(
+                        "Agent wydziału do walki z przemytem narkotyków i oficer wywiadu marynarki są w sytuacji bez wyjścia. Kradną pieniądze gangsterów i zamierzają je przekazać na dobre cele. Okazuje się jednak, że w rzeczywistości ukradli pieniądze CIA, a zleceniodawcami są mafiosi.",
+                        plotLength), movie.getPlot());
+    }
+
+    
     @Test
     public void testUpdateMediaInfoYear() {
         Movie movie = new Movie();
@@ -277,7 +303,7 @@ public class FilmwebPluginTest {
     }
 
     @Test
-    public void testUpdateMediaInfoCast() {
+    public void testUpdateMediaInfoCast01() {
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Avatar");
         filmwebPlugin.setRequestResult(null); // no offline test
@@ -287,6 +313,21 @@ public class FilmwebPluginTest {
         // These need to be in the same order as the web page
         testCast.add("Sam Worthington");
         testCast.add("Zoe Saldana");
+
+        assertEquals(Arrays.asList(testCast.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getCast().toArray(), 2)).toString());
+    }
+
+    @Test
+    public void testUpdateMediaInfoCast02() {
+        Movie movie = new Movie();
+        movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/film/Agenci-2013-612342");
+        filmwebPlugin.setRequestResult(null); // no offline test
+        filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
+
+        LinkedHashSet<String> testCast = new LinkedHashSet<String>();
+        // These need to be in the same order as the web page
+        testCast.add("Denzel Washington");
+        testCast.add("Mark Wahlberg");
 
         assertEquals(Arrays.asList(testCast.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getCast().toArray(), 2)).toString());
     }
