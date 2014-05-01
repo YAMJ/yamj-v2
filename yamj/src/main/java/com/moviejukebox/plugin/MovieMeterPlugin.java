@@ -177,7 +177,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             if (OverrideTools.checkOverwriteCountry(movie, MOVIEMETER_PLUGIN_ID)) {
                 if (filmInfo.get("countries_text") != null) {
                     movie.setCountries(filmInfo.get("countries_text").toString(), MOVIEMETER_PLUGIN_ID);
-                    LOG.debug(LOG_MESSAGE + "Fetched country: " + movie.getCountriesAsString());
+                    LOG.debug(LOG_MESSAGE + "Fetched countries: " + movie.getCountries());
                 }
             }
 

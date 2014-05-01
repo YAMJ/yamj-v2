@@ -59,5 +59,7 @@ public class MovieMeterPluginTest {
         assertEquals("Avatar", movie.getTitle());
         assertEquals("Avatar", movie.getOriginalTitle());
         assertEquals("2009", movie.getYear());
+        assertEquals(2, movie.getCountries().size());
+        assertEquals("Verenigde Staten / Verenigd Koninkrijk", movie.getCountriesAsString());
     }
 }

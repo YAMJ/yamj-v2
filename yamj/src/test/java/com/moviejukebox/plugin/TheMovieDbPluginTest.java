@@ -22,6 +22,11 @@
  */
 package com.moviejukebox.plugin;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.model.Person;
@@ -32,16 +37,8 @@ import com.omertron.themoviedbapi.model.CollectionInfo;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import org.junit.*;
 
 /**
  *
@@ -98,6 +95,7 @@ public class TheMovieDbPluginTest {
 
     private static MovieFileNameDTO scan(String filename) {
         File file = new File(filename) {
+            private static final long serialVersionUID = 6412361041205608408L;
             @Override
             public boolean isFile() {
                 return true;
