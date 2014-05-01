@@ -31,7 +31,8 @@ MovieJukebox 2.10-SNAPSHOT
  - Fixed defect #2724 Fixed ComingSoon Plugin after site change
  - Fixed defect #2726 Fixed genre scraping in ComingSoon Plugin
  - Fixed defect #2727 Corrected scraping of writers from NFO
- - Fixed defect #2753 Use UTF-8 encoding for coming soon instead ISO-8859-1
+ - Fixed defect #2733 Slight changes in filmweb plugin
+ - Fixed defect #2735 Use UTF-8 encoding for coming soon instead ISO-8859-1
 
 MovieJukebox 2.9
 ----------------
