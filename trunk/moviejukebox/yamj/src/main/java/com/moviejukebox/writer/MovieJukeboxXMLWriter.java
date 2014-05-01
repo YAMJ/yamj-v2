@@ -1097,16 +1097,16 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "tagline", movie.getTagline(), SOURCE, movie.getOverrideSource(OverrideFlag.TAGLINE));
 
         childAttributes.clear();
-        String countryIndex = createIndexAttribute(library, Library.INDEX_COUNTRY, movie.getCountry());
+        String countryIndex = createIndexAttribute(library, Library.INDEX_COUNTRY, movie.getCountriesAsString());
         if (countryIndex != null) {
             childAttributes.put(INDEX, countryIndex);
         }
         childAttributes.put(SOURCE, movie.getOverrideSource(OverrideFlag.COUNTRY));
-        DOMHelper.appendChild(doc, eMovie, COUNTRY, movie.getCountry(), childAttributes);
+        DOMHelper.appendChild(doc, eMovie, COUNTRY, movie.getCountriesAsString(), childAttributes);
         if (XML_COMPATIBLE) {
             Element eCountry = doc.createElement("countries");
             int cnt = 0;
-            for (String country : movie.getCountry().split(Movie.SPACE_SLASH_SPACE)) {
+            for (String country : movie.getCountries()) {
                 writeIndexedElement(doc, eCountry, "land", country, createIndexAttribute(library, Library.INDEX_COUNTRY, country));
                 cnt++;
             }

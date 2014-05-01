@@ -409,19 +409,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // COUNTRY
         if (OverrideTools.checkOverwriteCountry(movie, IMDB_PLUGIN_ID)) {
-            boolean first = true;
-            StringBuilder countries = new StringBuilder();
+            List<String> countries = new ArrayList<String>();
             for (String country : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCountry() + HTML_H5_END, HTML_DIV_END)) {
-                if (StringTools.isValidString(country)) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        countries.append(Movie.SPACE_SLASH_SPACE);
-                    }
-                    countries.append(country);
-                }
+                countries.add(HTMLTools.removeHtmlTags(country));
             }
-            movie.setCountry(HTMLTools.removeHtmlTags(countries.toString()), IMDB_PLUGIN_ID);
+            movie.setCountries(countries, IMDB_PLUGIN_ID);
         }
 
         // COMPANY
@@ -636,13 +628,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // COUNTRY
         if (OverrideTools.checkOverwriteCountry(movie, IMDB_PLUGIN_ID)) {
+            List<String> countries = new ArrayList<String>();
             for (String country : HTMLTools.extractTags(xml, siteDef.getCountry() + HTML_H4_END, HTML_DIV_END, "<a href=\"", HTML_A_END)) {
-                if (country != null) {
-                    // TODO Save more than one country
-                    movie.setCountry(HTMLTools.removeHtmlTags(country), IMDB_PLUGIN_ID);
-                    break;
-                }
+                countries.add(HTMLTools.removeHtmlTags(country));
             }
+            movie.setCountries(countries, IMDB_PLUGIN_ID);
         }
 
         // COMPANY

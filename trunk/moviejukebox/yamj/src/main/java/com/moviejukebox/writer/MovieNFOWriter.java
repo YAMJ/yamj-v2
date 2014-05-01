@@ -208,8 +208,8 @@ public final class MovieNFOWriter {
                 DOMHelper.appendChild(docNFO, eRoot, COMPANY, movie.getCompany());
             }
 
-            if (StringTools.isValidString(movie.getCountry())) {
-                DOMHelper.appendChild(docNFO, eRoot, COUNTRY, movie.getCountry());
+            if (movie.getCountries().size() > 0) {
+                DOMHelper.appendChild(docNFO, eRoot, COUNTRY, movie.getCountriesAsString());
             }
 
             /*

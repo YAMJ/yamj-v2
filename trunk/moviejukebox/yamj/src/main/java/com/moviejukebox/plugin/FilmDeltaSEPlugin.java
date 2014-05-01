@@ -388,8 +388,8 @@ public class FilmDeltaSEPlugin extends ImdbPlugin {
     private void getFilmdeltaCountry(Movie movie, String fdeltaHtml) {
         if (OverrideTools.checkOverwriteCountry(movie, FILMDELTA_PLUGIN_ID)) {
             String country = HTMLTools.extractTag(fdeltaHtml, "Land, &aring;r, l&auml;ngd", 3);
-            movie.setCountry(country, FILMDELTA_PLUGIN_ID);
-            LOG.debug(LOG_MESSAGE + "scraped country: " + movie.getCountry());
+            movie.setCountries(country, FILMDELTA_PLUGIN_ID);
+            LOG.debug(LOG_MESSAGE + "scraped country: " + movie.getCountriesAsString());
         }
     }
 

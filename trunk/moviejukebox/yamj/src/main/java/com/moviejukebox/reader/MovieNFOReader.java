@@ -421,7 +421,7 @@ public final class MovieNFOReader {
                 }
 
                 if (OverrideTools.checkOverwriteCountry(movie, NFO_PLUGIN_ID)) {
-                    movie.setCountry(DOMHelper.getValueFromElement(eCommon, "country"), NFO_PLUGIN_ID);
+                    movie.setCountries(DOMHelper.getValueFromElement(eCommon, "country"), NFO_PLUGIN_ID);
                 }
 
                 if (OverrideTools.checkOverwriteTop250(movie, NFO_PLUGIN_ID)) {

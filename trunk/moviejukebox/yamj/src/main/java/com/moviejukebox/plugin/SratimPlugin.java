@@ -649,7 +649,7 @@ public class SratimPlugin extends ImdbPlugin {
             }
 
             if (OverrideTools.checkOverwriteCountry(movie, SRATIM_PLUGIN_ID)) {
-                movie.setCountry(logicalToVisual(HTMLTools.getTextAfterElem(xml, "מדינה:")), SRATIM_PLUGIN_ID);
+                movie.setCountries(logicalToVisual(HTMLTools.getTextAfterElem(xml, "מדינה:")), SRATIM_PLUGIN_ID);
             }
 
             // only add if no genres set until now

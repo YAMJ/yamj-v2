@@ -140,7 +140,7 @@ public class TVRagePlugin extends ImdbPlugin {
             }
 
             if (OverrideTools.checkOverwriteCountry(movie, TVRAGE_PLUGIN_ID)) {
-                movie.setCountry(showInfo.getCountry(), TVRAGE_PLUGIN_ID);
+                movie.setCountries(showInfo.getCountry(), TVRAGE_PLUGIN_ID);
             }
 
             if (OverrideTools.checkOverwriteRuntime(movie, TVRAGE_PLUGIN_ID)) {

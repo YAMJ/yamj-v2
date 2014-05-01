@@ -528,10 +528,11 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
         // Country
         if (OverrideTools.checkOverwriteCountry(movie, TMDB_PLUGIN_ID)) {
-            List<ProductionCountry> countries = moviedb.getProductionCountries();
-            if (!countries.isEmpty()) {
-                movie.setCountry(countries.get(0).getName(), TMDB_PLUGIN_ID);
+            List<String> countries = new ArrayList<String>();
+            for (ProductionCountry country : moviedb.getProductionCountries()) {
+                countries.add(country.getName());
             }
+            movie.setCountries(countries, TMDB_PLUGIN_ID);
         }
 
         // Company
@@ -955,6 +956,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
         LOG.debug(LOG_MESSAGE + "Getting " + artworkType + " for collection ID " + collectionId + ", language '" + languageCode + "'");
 
+        @SuppressWarnings("unchecked")
         List<Artwork> results = (ArrayList<Artwork>) CacheMemory.getFromCache(cacheKey);
 
         if (results == null) {

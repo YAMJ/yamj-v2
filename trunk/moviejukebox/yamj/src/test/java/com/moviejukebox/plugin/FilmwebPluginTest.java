@@ -213,7 +213,7 @@ public class FilmwebPluginTest {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
         filmwebPlugin.setRequestResult("<tr><th>produkcja:</th><td><a href=\"/search/film?countryIds=38\">Niemcy</a>, <a href=\"/search/film?countryIds=53\">USA</a></td></tr>");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
-        assertEquals("Niemcy, USA", movie.getCountry());
+        assertEquals("Niemcy / USA", movie.getCountriesAsString());
     }
 
     @Test

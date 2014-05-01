@@ -1201,8 +1201,10 @@ public class Library implements Map<String, Movie> {
         Index index = new Index(true);
         for (Movie movie : list) {
             if (!movie.isExtra()) {
-                index.addMovie(movie.getCountry(), movie);
-                movie.addIndex(INDEX_COUNTRY, movie.getCountry());
+                for (String country : movie.getCountries()) {
+                    index.addMovie(country, movie);
+                    movie.addIndex(INDEX_COUNTRY, country);
+                }
             }
         }
 

@@ -483,7 +483,7 @@ public class AnimatorPlugin extends ImdbPlugin {
 //              } else if (Country.equals("СССР")) {
 //                  country = "USSR";
 //              }
-                movie.setCountry(country, ANIMATOR_PLUGIN_ID);
+                movie.setCountries(country, ANIMATOR_PLUGIN_ID);
             }
 
             // Company

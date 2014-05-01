@@ -148,7 +148,7 @@ public class ImdbPluginTest {
         assertEquals("Incorrect year", "2009", movie.getYear());
         assertNotEquals("Incorrect Plot", Movie.UNKNOWN, movie.getPlot());
         assertTrue("Incorrect Rating", movie.getRating(ImdbPlugin.IMDB_PLUGIN_ID) > 0);
-        assertEquals("Incorrect Country", "USA", movie.getCountry());
+        assertEquals("Incorrect Country", "USA / UK", movie.getCountriesAsString());
         assertEquals("Incorrect Company", "Twentieth Century Fox Film Corporation", movie.getCompany());
         assertTrue("Incorrect Tagline", StringTools.isValidString(movie.getTagline()));
         assertEquals("Incorrect number of cast", 10, movie.getCast().size());
@@ -173,7 +173,7 @@ public class ImdbPluginTest {
         assertEquals("Incorrect year", "1999", movie.getYear());
         assertNotEquals("Incorrect Plot", Movie.UNKNOWN, movie.getPlot());
         assertTrue("Incorrect Rating", movie.getRating(ImdbPlugin.IMDB_PLUGIN_ID) > 0);
-        assertEquals("Incorrect Country", "USA / Australia", movie.getCountry());
+        assertEquals("Incorrect Country", "USA / Australia", movie.getCountriesAsString());
         assertEquals("Incorrect Company", "Warner Bros.", movie.getCompany());
         assertEquals("Incorrect Tagline", "Free your mind", movie.getTagline());
         assertEquals("Incorrect number of cast", 10, movie.getCast().size());

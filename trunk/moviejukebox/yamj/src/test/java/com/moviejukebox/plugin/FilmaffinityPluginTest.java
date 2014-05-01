@@ -102,7 +102,7 @@ public class FilmaffinityPluginTest {
         movie.setId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID, "730391");
         movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0356317");
         assertEquals(true, faPlugin.scan(movie));
-        assertEquals("Bélgica", movie.getCountry());
+        assertEquals("Bélgica", movie.getCountriesAsString());
     }
 
     @Test
@@ -110,6 +110,6 @@ public class FilmaffinityPluginTest {
         Movie movie = new Movie();
         movie.setTitle("Matrix Revolutions", Movie.UNKNOWN);
         assertEquals(true, faPlugin.scan(movie));
-        assertEquals("Estados Unidos", movie.getCountry());
+        assertEquals("Estados Unidos", movie.getCountriesAsString());
     }
 }
