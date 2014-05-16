@@ -36,15 +36,16 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
+import org.apache.commons.lang.StringUtils;
 import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WatchedScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(WatchedScanner.class);
     private static final String LOG_MESSAGE = "Watched Scanner: ";
-    private static final Collection<String> EXTENSIONS = Arrays.asList(PropertiesUtil.getProperty("mjb.watchedExtensions", "watched").split(",;\\|"));
+    private static final Collection<String> EXTENSIONS = Arrays.asList(PropertiesUtil.getProperty("mjb.watchedExtensions", "watched").toLowerCase().split(",;\\|"));
     private static final WatchedWithLocation LOCATION = WatchedWithLocation.fromString(PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo"));
     private static final WatchedWithExtension WITH_EXTENSION = WatchedWithExtension.fromString(PropertiesUtil.getProperty("mjb.watched.withExtension", TRUE));
     private static boolean warned = Boolean.FALSE;
@@ -54,7 +55,8 @@ public class WatchedScanner {
     }
 
     /**
-     * Calculate the watched state of a movie based on the files <filename>.watched & <filename>.unwatched
+     * Calculate the watched state of a movie based on the files
+     * <filename>.watched & <filename>.unwatched
      *
      * Always assumes that the file is unwatched if nothing is found.
      *
@@ -116,7 +118,8 @@ public class WatchedScanner {
 
                 if (foundFile != null) {
                     fileWatchedCount++;
-                    if (foundFile.getName().toLowerCase().endsWith(".watched")) {
+
+                    if (StringUtils.endsWithAny(foundFile.getName().toLowerCase(), EXTENSIONS.toArray(new String[0]))) {
                         fileWatched = Boolean.TRUE;
                         mf.setWatchedDate(new DateTime().toMillis());
                     } else {
