@@ -365,16 +365,23 @@ public class WebBrowser {
                             // if domain isn't set take current host
                             cookieDomain = cnx.getURL().getHost();
                         }
-                        Map<String, String> domainCookies = cookies.get(cookieDomain);
-                        if (domainCookies == null) {
-                            domainCookies = new HashMap<String, String>();
-                            cookies.put(cookieDomain, domainCookies);
-                        }
-                        // add or replace cookie
-                        domainCookies.put(cookieName, cookieValue);
+                        putCookie(cookieDomain, cookieName, cookieValue);
                     }
                 }
             }
+        }
+    }
+
+
+    public void putCookie(String cookieDomain, String cookieName, String cookieValue) {
+        if (cookieDomain != null) {
+            Map<String, String> domainCookies = cookies.get(cookieDomain);
+            if (domainCookies == null) {
+                domainCookies = new HashMap<String, String>();
+                cookies.put(cookieDomain, domainCookies);
+            }
+            // add or replace cookie
+            domainCookies.put(cookieName, cookieValue);
         }
     }
 
