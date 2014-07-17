@@ -288,10 +288,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             for (MovieFile mf : this.movieFiles) {
                 if (mf.compareTo(movieFile) == 0) {
                     movieFile.setFile(mf.getFile());
+                    movieFile.setFilename(mf.getFilename());
                     movieFile.setInfo(mf.getInfo());
                 }
             }
-            //logger.debug("Movie addMovieFile: " + movieFile.getFilename());
+            //LOG.debug("Movie addMovieFile: " + movieFile.getFilename());
             this.movieFiles.remove(movieFile);
             this.movieFiles.add(movieFile);
         }
