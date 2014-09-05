@@ -551,16 +551,16 @@ public class MediaInfoScanner {
             duration = duration + getMultiPartDuration(infosMultiPart);
 
             if (duration > 0) {
-                if (duration > 900000) {
+//                if (duration > 900000) {
                     // 15 minutes in milliseconds
                     duration = duration / 1000;
-                } else if (duration > 900) {
+  /*              } else if (duration > 900) {
                     // 15 minutes in seconds
                     // No change required
                 } else {
                     // probably in minutes
                     duration = duration * 60;
-                }
+                }*/
                 // Duration is returned in minutes, convert it to seconds
                 movie.setRuntime(DateTimeTools.formatDuration(duration), MEDIAINFO_PLUGIN_ID);
             }
