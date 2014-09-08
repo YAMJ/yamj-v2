@@ -107,6 +107,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
      * @param movie
      * @return output string properly formatted for CSV output
      */
+    @SuppressWarnings("deprecation")
     protected String toCSV(String sItemType, Movie movie) {
         Collection<ExtraFile> extras = movie.getExtraFiles();
         Collection<MovieFile> movieFiles = movie.getMovieFiles();

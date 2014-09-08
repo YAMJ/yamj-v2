@@ -128,6 +128,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * @param movie
      * @return output string properly formatted for CSV output
      */
+    @SuppressWarnings("deprecation")
     private String toCSV(String sItemType, Movie movie) {
         Collection<ExtraFile> extras = movie.getExtraFiles();
         Collection<MovieFile> movieFiles = movie.getMovieFiles();

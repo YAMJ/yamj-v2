@@ -62,6 +62,7 @@ public class MovieListingPluginSql extends MovieListingPluginBase implements Mov
     private static final String DB_NAME = PropertiesUtil.getProperty("mjb.sql.dbname", "listing.db");
     private Connection mjbConn = null;
 
+    @SuppressWarnings("deprecation")
     @Override
     public void generate(Jukebox jukebox, Library library) {
         MjbSqlDb mjbSqlDb;

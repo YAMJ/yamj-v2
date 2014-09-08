@@ -572,6 +572,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      * @param beforeMainOverlay
      * @return The new image with the added logos
      */
+    @SuppressWarnings("deprecation")
     protected BufferedImage drawLogos(Movie movie, BufferedImage bi, String imageType, boolean beforeMainOverlay) {
         BufferedImage newBi = bi;
 
