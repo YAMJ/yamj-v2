@@ -22,18 +22,20 @@
  */
 package com.moviejukebox.plugin;
 
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+
 import com.moviejukebox.allocine.*;
-import com.moviejukebox.allocine.jaxb.Episode;
-import com.moviejukebox.allocine.jaxb.Tvseries;
+import com.moviejukebox.allocine.model.Episode;
+import com.moviejukebox.allocine.model.TvSeries;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.*;
-import com.moviejukebox.tools.WebBrowser;
-
-import static com.moviejukebox.tools.StringTools.*;
 import com.moviejukebox.tools.cache.CacheMemory;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.xml.bind.JAXBException;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -50,7 +52,7 @@ public class AllocinePlugin extends ImdbPlugin {
     private static final String CACHE_SERIES = "AllocineSeries";
     private static final String API_KEY_PARTNER = PropertiesUtil.getProperty("API_KEY_Allocine_Partner");
     private static final String API_KEY_SECRET = PropertiesUtil.getProperty("API_KEY_Allocine_Secret");
-    private AllocineAPIHelper allocineAPI;
+    private AllocineApi allocineApi;
     private SearchEngineTools searchEngines;
     private boolean includeVideoImages;
     private TheTvDBPlugin tvdb = null;
@@ -58,14 +60,8 @@ public class AllocinePlugin extends ImdbPlugin {
     public AllocinePlugin() {
         super();
 
-        // set up the Allocine API for XML or JSON
-        String format = PropertiesUtil.getProperty("allocine.api.format", "json");
-        if ("xml".equalsIgnoreCase(format)) {
-            allocineAPI = new XMLAllocineAPIHelper(API_KEY_PARTNER, API_KEY_SECRET);
-        } else {
-            allocineAPI = new JSONAllocineAPIHelper(API_KEY_PARTNER, API_KEY_SECRET);
-        }
-        allocineAPI.setProxy(WebBrowser.getMjbProxy(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
+        allocineApi = new AllocineApi(API_KEY_PARTNER, API_KEY_SECRET);
+        allocineApi.setProxy(WebBrowser.getMjbProxy(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
 
         searchEngines = new SearchEngineTools("fr");
 
@@ -109,79 +105,85 @@ public class AllocinePlugin extends ImdbPlugin {
 
     private String getAllocineSerieId(String title, String year) throws Exception {
         String cacheKey = CacheMemory.generateCacheKey(CACHE_SEARCH_SERIES, title);
-        Search searchInfos = (Search) CacheMemory.getFromCache(cacheKey);
-        if (searchInfos == null) {
-            searchInfos = allocineAPI.searchTvseriesInfos(title);
+        Search search = (Search) CacheMemory.getFromCache(cacheKey);
+        if (search == null) {
+            search = allocineApi.searchTvSeries(title);
             // Add to the cache
-            CacheMemory.addToCache(cacheKey, searchInfos);
+            CacheMemory.addToCache(cacheKey, search);
         }
-        if (searchInfos.isValid() && searchInfos.getTotalResults() > 0) {
-            int totalResults = searchInfos.getTotalResults();
-            // If we have a valid year try to find the first serie that match
-            if (totalResults > 1 && isValidString(year)) {
-                int yearSerie = NumberUtils.toInt(year, -1);
-                for (Tvseries serie : searchInfos.getTvseries()) {
-                    if (serie != null) {
-                        int serieStart = NumberUtils.toInt(serie.getYearStart(), -1);
-                        if (serieStart == -1) {
-                            continue;
-                        }
-                        int serieEnd = NumberUtils.toInt(serie.getYearEnd(), -1);
-                        if (serieEnd == -1) {
-                            serieEnd = serieStart;
-                        }
-                        if (yearSerie >= serieStart && yearSerie <= serieEnd) {
-                            return String.valueOf(serie.getCode());
-                        }
+        
+        if (!search.isValid()) {
+            return Movie.UNKNOWN;
+        }
+        
+        // If we have a valid year try to find the first serie that match
+        if (search.getTotalResults() > 1 && isValidString(year)) {
+            int yearSerie = NumberUtils.toInt(year, -1);
+            for (TvSeries serie : search.getTvSeries()) {
+                if (serie != null) {
+                    int serieStart = serie.getYearStart();
+                    if (serieStart <= 0) {
+                        continue;
+                    }
+                    int serieEnd = serie.getYearEnd();
+                    if (serieEnd <= 0) {
+                        serieEnd = serieStart;
+                    }
+                    if (yearSerie >= serieStart && yearSerie <= serieEnd) {
+                        return String.valueOf(serie.getCode());
                     }
                 }
             }
-            // We don't find a serie or there only one result, return the first
-            List<Tvseries> serieList = searchInfos.getTvseries();
-            if (!serieList.isEmpty()) {
-                Tvseries serie = serieList.get(0);
-                if (serie != null) {
-                    return String.valueOf(serie.getCode());
-                }
+        }
+        
+        // We don't find a serie or there only one result, return the first
+        List<TvSeries> serieList = search.getTvSeries();
+        if (!serieList.isEmpty()) {
+            TvSeries serie = serieList.get(0);
+            if (serie != null) {
+                return String.valueOf(serie.getCode());
             }
         }
+        
         return Movie.UNKNOWN;
     }
 
     private String getAllocineMovieId(String title, String year) throws Exception {
         String cacheKey = CacheMemory.generateCacheKey(CACHE_SEARCH_MOVIE, title);
-        Search searchInfos = (Search) CacheMemory.getFromCache(cacheKey);
-        if (searchInfos == null) {
-            searchInfos = allocineAPI.searchMovieInfos(title);
+        Search search = (Search) CacheMemory.getFromCache(cacheKey);
+        if (search == null) {
+            search = allocineApi.searchMovies(title);
             // Add to the cache
-            CacheMemory.addToCache(cacheKey, searchInfos);
+            CacheMemory.addToCache(cacheKey, search);
         }
-        if (searchInfos.isValid() && searchInfos.getTotalResults() > 0) {
-            int totalResults = searchInfos.getTotalResults();
-            // If we have a valid year try to find the first movie that match
-            if (totalResults > 1 && isValidString(year)) {
-                int yearMovie = NumberUtils.toInt(year, -1);
-                for (com.moviejukebox.allocine.jaxb.Movie movie : searchInfos.getMovie()) {
-                    if (movie != null) {
-                        int movieProductionYear = NumberUtils.toInt(movie.getProductionYear(), -1);
-                        if (movieProductionYear == -1) {
-                            continue;
-                        }
-                        if (movieProductionYear == yearMovie) {
-                            return String.valueOf(movie.getCode());
-                        }
+        
+        if (!search.isValid()) {
+            return Movie.UNKNOWN;
+        }
+
+        // If we have a valid year try to find the first movie that match
+        if (search.getTotalResults() > 1 && isValidString(year)) {
+            int yearMovie = NumberUtils.toInt(year, -1);
+            for (com.moviejukebox.allocine.model.Movie movie : search.getMovies()) {
+                if (movie != null) {
+                    int movieProductionYear = movie.getProductionYear();
+                    if (movieProductionYear <= 0) {
+                        continue;
+                    }
+                    if (movieProductionYear == yearMovie) {
+                        return String.valueOf(movie.getCode());
                     }
                 }
             }
-            // We don't find a movie or there only one result, return the first
-            List<com.moviejukebox.allocine.jaxb.Movie> movieList = searchInfos.getMovie();
-            if (!movieList.isEmpty()) {
-                com.moviejukebox.allocine.jaxb.Movie movie = movieList.get(0);
-                if (movie != null) {
-                    return String.valueOf(movie.getCode());
-                }
+        }
+        // We don't find a movie or there only one result, return the first
+        if (!search.getMovies().isEmpty()) {
+            com.moviejukebox.allocine.model.Movie movie = search.getMovies().get(0);
+            if (movie != null) {
+                return String.valueOf(movie.getCode());
             }
         }
+
         return Movie.UNKNOWN;
     }
 
@@ -247,7 +249,7 @@ public class AllocinePlugin extends ImdbPlugin {
 
         // Check Rating
         if (movie.getRating() == -1) {
-            int rating = movieInfos.getRating();
+            int rating = movieInfos.getUserRating();
             if (rating >= 0) {
                 movie.addRating(ALLOCINE_PLUGIN_ID, rating);
             }
@@ -255,22 +257,31 @@ public class AllocinePlugin extends ImdbPlugin {
 
         // Check Year
         if (OverrideTools.checkOverwriteYear(movie, ALLOCINE_PLUGIN_ID)) {
-            movie.setYear(movieInfos.getProductionYear(), ALLOCINE_PLUGIN_ID);
+            if (movieInfos.getProductionYear() > 0) {
+                movie.setYear(String.valueOf(movieInfos.getProductionYear()), ALLOCINE_PLUGIN_ID);
+            }
         }
 
         // Check Plot
-        if (OverrideTools.checkOverwritePlot(movie, ALLOCINE_PLUGIN_ID)) {
-            movie.setPlot(movieInfos.getSynopsis(), ALLOCINE_PLUGIN_ID);
+        if (StringTools.isValidString(movieInfos.getSynopsis()) && OverrideTools.checkOverwritePlot(movie, ALLOCINE_PLUGIN_ID)) {
+            String plot = HTMLTools.replaceHtmlTags(movieInfos.getSynopsis(), " ");
+            movie.setPlot(plot, ALLOCINE_PLUGIN_ID);
         }
 
-        // Check ReleaseDate and Company
-        if (movieInfos.getRelease() != null) {
-            if (OverrideTools.checkOverwriteReleaseDate(movie, ALLOCINE_PLUGIN_ID)) {
-                movie.setReleaseDate(movieInfos.getRelease().getReleaseDate(), ALLOCINE_PLUGIN_ID);
-            }
-            if (OverrideTools.checkOverwriteCompany(movie, ALLOCINE_PLUGIN_ID) && (movieInfos.getRelease().getDistributor() != null)) {
-                movie.setCompany(movieInfos.getRelease().getDistributor().getName(), ALLOCINE_PLUGIN_ID);
-            }
+        // Check Outline
+        if (StringTools.isValidString(movieInfos.getSynopsisShort()) && OverrideTools.checkOverwriteOutline(movie, ALLOCINE_PLUGIN_ID)) {
+            String outline = HTMLTools.replaceHtmlTags(movieInfos.getSynopsisShort(), " ");
+            movie.setOutline(outline, ALLOCINE_PLUGIN_ID);
+        }
+
+        // Check ReleaseDate
+        if (OverrideTools.checkOverwriteReleaseDate(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setReleaseDate(movieInfos.getReleaseDate(), ALLOCINE_PLUGIN_ID);
+        }
+        
+        // Check Company
+        if (OverrideTools.checkOverwriteCompany(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setCompany(movieInfos.getDistributor(), ALLOCINE_PLUGIN_ID);
         }
 
         // Check Runtime
@@ -282,13 +293,13 @@ public class AllocinePlugin extends ImdbPlugin {
         }
 
         // Check country
-        if (OverrideTools.checkOverwriteCountry(movie, ALLOCINE_PLUGIN_ID) && !movieInfos.getNationalityList().isEmpty()) {
-            movie.setCountries(movieInfos.getNationalityList(), ALLOCINE_PLUGIN_ID);
+        if (OverrideTools.checkOverwriteCountry(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setCountries(movieInfos.getNationalities(), ALLOCINE_PLUGIN_ID);
         }
 
         // Check Genres
         if (OverrideTools.checkOverwriteGenres(movie, ALLOCINE_PLUGIN_ID)) {
-            movie.setGenres(movieInfos.getGenreList(), ALLOCINE_PLUGIN_ID);
+            movie.setGenres(movieInfos.getGenres(), ALLOCINE_PLUGIN_ID);
         }
 
         // Check certification
@@ -297,21 +308,33 @@ public class AllocinePlugin extends ImdbPlugin {
         }
 
         // Directors
-        if (OverrideTools.checkOverwriteDirectors(movie, ALLOCINE_PLUGIN_ID)) {
-            movie.setDirectors(movieInfos.getDirectors(), ALLOCINE_PLUGIN_ID);
+        if (!movieInfos.getDirectors().isEmpty()) {
+            Set<String> directors = new HashSet<String>();
+            for (MoviePerson person : movieInfos.getDirectors()) {
+                directors.add(person.getName());
+            }
+            if (OverrideTools.checkOverwriteDirectors(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setDirectors(directors, ALLOCINE_PLUGIN_ID);
+            }
+            if (OverrideTools.checkOverwritePeopleDirectors(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setPeopleDirectors(directors, ALLOCINE_PLUGIN_ID);
+            }
         }
-        if (OverrideTools.checkOverwritePeopleDirectors(movie, ALLOCINE_PLUGIN_ID)) {
-            movie.setPeopleDirectors(movieInfos.getDirectors(), ALLOCINE_PLUGIN_ID);
-        }
-
+            
         // Writers
-        if (OverrideTools.checkOverwriteWriters(movie, ALLOCINE_PLUGIN_ID)) {
-            movie.setWriters(movieInfos.getWriters(), ALLOCINE_PLUGIN_ID);
+        if (!movieInfos.getWriters().isEmpty()) {
+            Set<String> writers = new HashSet<String>();
+            for (MoviePerson person : movieInfos.getWriters()) {
+                writers.add(person.getName());
+            }
+            if (OverrideTools.checkOverwriteWriters(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setWriters(writers, ALLOCINE_PLUGIN_ID);
+            }
+            if (OverrideTools.checkOverwritePeopleWriters(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setPeopleWriters(writers, ALLOCINE_PLUGIN_ID);
+            }
         }
-        if (OverrideTools.checkOverwritePeopleWriters(movie, ALLOCINE_PLUGIN_ID)) {
-            movie.setPeopleWriters(movieInfos.getWriters(), ALLOCINE_PLUGIN_ID);
-        }
-
+        
         // Actors
         if (!movieInfos.getActors().isEmpty()) {
             if (OverrideTools.checkOverwriteActors(movie, ALLOCINE_PLUGIN_ID)) {
@@ -358,7 +381,7 @@ public class AllocinePlugin extends ImdbPlugin {
             String cacheKey = CacheMemory.generateCacheKey(CACHE_SERIES, allocineId);
             TvSeriesInfos tvSeriesInfos = (TvSeriesInfos) CacheMemory.getFromCache(cacheKey);
             if (tvSeriesInfos == null) {
-                tvSeriesInfos = allocineAPI.getTvSeriesInfos(allocineId);
+                tvSeriesInfos = allocineApi.getTvSeriesInfos(allocineId);
                 // Add to the cache
                 CacheMemory.addToCache(cacheKey, tvSeriesInfos);
             }
@@ -380,63 +403,102 @@ public class AllocinePlugin extends ImdbPlugin {
 
             // Check Rating
             if (movie.getRating() == -1) {
-                int rating = tvSeriesInfos.getRating();
+                int rating = tvSeriesInfos.getUserRating();
                 if (rating >= 0) {
                     movie.addRating(ALLOCINE_PLUGIN_ID, rating);
                 }
             }
 
             // Check Year Start and End
-            if (isValidString(tvSeriesInfos.getYearStart()) && OverrideTools.checkOverwriteYear(movie, ALLOCINE_PLUGIN_ID)) {
-                if (isValidString(tvSeriesInfos.getYearEnd())) {
+            if (tvSeriesInfos.getYearStart() > 0 && OverrideTools.checkOverwriteYear(movie, ALLOCINE_PLUGIN_ID)) {
+                if (tvSeriesInfos.getYearEnd() > 0) {
                     movie.setYear(tvSeriesInfos.getYearStart() + "-" + tvSeriesInfos.getYearEnd(), ALLOCINE_PLUGIN_ID);
                 } else {
-                    movie.setYear(tvSeriesInfos.getYearStart(), ALLOCINE_PLUGIN_ID);
+                    movie.setYear(String.valueOf(tvSeriesInfos.getYearStart()), ALLOCINE_PLUGIN_ID);
                 }
             }
 
             // Check Plot
-            if (OverrideTools.checkOverwritePlot(movie, ALLOCINE_PLUGIN_ID)) {
-                movie.setPlot(tvSeriesInfos.getSynopsis(), ALLOCINE_PLUGIN_ID);
+            if (StringTools.isValidString(tvSeriesInfos.getSynopsis()) && OverrideTools.checkOverwritePlot(movie, ALLOCINE_PLUGIN_ID)) {
+                String plot = HTMLTools.replaceHtmlTags(tvSeriesInfos.getSynopsis(), " ");
+                movie.setPlot(plot, ALLOCINE_PLUGIN_ID);
             }
 
-            // Check ReleaseDate and Company
-            if (tvSeriesInfos.getRelease() != null && OverrideTools.checkOverwriteReleaseDate(movie, ALLOCINE_PLUGIN_ID)) {
-                movie.setReleaseDate(tvSeriesInfos.getRelease().getReleaseDate(), ALLOCINE_PLUGIN_ID);
+            // Check Outline
+            if (StringTools.isValidString(tvSeriesInfos.getSynopsisShort()) && OverrideTools.checkOverwriteOutline(movie, ALLOCINE_PLUGIN_ID)) {
+                String outline = HTMLTools.replaceHtmlTags(tvSeriesInfos.getSynopsisShort(), " ");
+                movie.setOutline(outline, ALLOCINE_PLUGIN_ID);
             }
 
+            // Check ReleaseDate
+            if (OverrideTools.checkOverwriteReleaseDate(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setReleaseDate(tvSeriesInfos.getReleaseDate(), ALLOCINE_PLUGIN_ID);
+            }
+
+            // Check Company
             if (OverrideTools.checkOverwriteCompany(movie, ALLOCINE_PLUGIN_ID)) {
                 movie.setCompany(tvSeriesInfos.getOriginalChannel(), ALLOCINE_PLUGIN_ID);
             }
 
             // Check country
-            if (OverrideTools.checkOverwriteCountry(movie, ALLOCINE_PLUGIN_ID) && !tvSeriesInfos.getNationalityList().isEmpty()) {
-                movie.setCountries(tvSeriesInfos.getNationalityList(), ALLOCINE_PLUGIN_ID);
+            if (OverrideTools.checkOverwriteCountry(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setCountries(tvSeriesInfos.getNationalities(), ALLOCINE_PLUGIN_ID);
             }
 
             // Check Genres
             if (OverrideTools.checkOverwriteGenres(movie, ALLOCINE_PLUGIN_ID)) {
-                movie.setGenres(tvSeriesInfos.getGenreList(), ALLOCINE_PLUGIN_ID);
+                movie.setGenres(tvSeriesInfos.getGenres(), ALLOCINE_PLUGIN_ID);
             }
 
-            // Check Casting
-            if (OverrideTools.checkOverwriteDirectors(movie, ALLOCINE_PLUGIN_ID)) {
-                movie.setDirectors(tvSeriesInfos.getDirectors(), ALLOCINE_PLUGIN_ID);
+            // Directors
+            if (!tvSeriesInfos.getDirectors().isEmpty()) {
+                Set<String> directors = new HashSet<String>();
+                for (MoviePerson person : tvSeriesInfos.getDirectors()) {
+                    directors.add(person.getName());
+                }
+                if (OverrideTools.checkOverwriteDirectors(movie, ALLOCINE_PLUGIN_ID)) {
+                    movie.setDirectors(directors, ALLOCINE_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwritePeopleDirectors(movie, ALLOCINE_PLUGIN_ID)) {
+                    movie.setPeopleDirectors(directors, ALLOCINE_PLUGIN_ID);
+                }
             }
-            if (OverrideTools.checkOverwritePeopleDirectors(movie, ALLOCINE_PLUGIN_ID)) {
-                movie.setPeopleDirectors(tvSeriesInfos.getDirectors(), ALLOCINE_PLUGIN_ID);
+
+            // Writers
+            if (!tvSeriesInfos.getWriters().isEmpty()) {
+                Set<String> writers = new HashSet<String>();
+                for (MoviePerson person : tvSeriesInfos.getWriters()) {
+                    writers.add(person.getName());
+                }
+                if (OverrideTools.checkOverwriteWriters(movie, ALLOCINE_PLUGIN_ID)) {
+                    movie.setWriters(writers, ALLOCINE_PLUGIN_ID);
+                }
+                if (OverrideTools.checkOverwritePeopleWriters(movie, ALLOCINE_PLUGIN_ID)) {
+                    movie.setPeopleWriters(writers, ALLOCINE_PLUGIN_ID);
+                }
             }
-            if (OverrideTools.checkOverwriteActors(movie, ALLOCINE_PLUGIN_ID)) {
-                movie.setCast(tvSeriesInfos.getActors(), ALLOCINE_PLUGIN_ID);
-            }
-            if (OverrideTools.checkOverwritePeopleActors(movie, ALLOCINE_PLUGIN_ID)) {
-                movie.setPeopleCast(tvSeriesInfos.getActors(), ALLOCINE_PLUGIN_ID);
-            }
-            if (OverrideTools.checkOverwriteWriters(movie, ALLOCINE_PLUGIN_ID)) {
-                movie.setWriters(tvSeriesInfos.getWriters(), ALLOCINE_PLUGIN_ID);
-            }
-            if (OverrideTools.checkOverwritePeopleWriters(movie, ALLOCINE_PLUGIN_ID)) {
-                movie.setPeopleWriters(tvSeriesInfos.getWriters(), ALLOCINE_PLUGIN_ID);
+
+            // Actors
+            if (!tvSeriesInfos.getActors().isEmpty()) {
+                if (OverrideTools.checkOverwriteActors(movie, ALLOCINE_PLUGIN_ID)) {
+                    movie.clearCast();
+                    for (MoviePerson person : tvSeriesInfos.getActors()) {
+                        movie.addActor(person.getName(), ALLOCINE_PLUGIN_ID);
+                    }
+                }
+
+                if (OverrideTools.checkOverwritePeopleActors(movie, ALLOCINE_PLUGIN_ID)) {
+                    movie.clearPeopleCast();
+                    int count = 0;
+                    for (MoviePerson person : tvSeriesInfos.getActors()) {
+                        if (movie.addActor(Movie.UNKNOWN, person.getName(), person.getRole(), Movie.UNKNOWN, Movie.UNKNOWN, ALLOCINE_PLUGIN_ID)) {
+                            count++;
+                        }
+                        if (count == actorMax) {
+                            break;
+                        }
+                    }
+                }
             }
 
             int currentSeason = movie.getSeason();
@@ -445,7 +507,7 @@ public class AllocinePlugin extends ImdbPlugin {
                     throw new Exception("Invalid season " + movie.getSeason());
                 }
 
-                TvSeasonInfos tvSeasonInfos = allocineAPI.getTvSeasonInfos(tvSeriesInfos.getSeasonCode(currentSeason));
+                TvSeasonInfos tvSeasonInfos = allocineApi.getTvSeasonInfos(tvSeriesInfos.getSeasonCode(currentSeason));
                 if (tvSeasonInfos.isValid()) {
                     for (MovieFile file : movie.getFiles()) {
 
@@ -506,7 +568,7 @@ public class AllocinePlugin extends ImdbPlugin {
         movieInfos = (MovieInfos) CacheMemory.getFromCache(cacheKey);
         if (movieInfos == null) {
             try {
-                movieInfos = allocineAPI.getMovieInfos(allocineId);
+                movieInfos = allocineApi.getMovieInfos(allocineId);
             } catch (JAXBException error) {
                 LOG.error(LOG_MESSAGE + "Failed retrieving Allocine infos for movie "
                         + allocineId + ". Perhaps the Allocine XML API has changed ...");
@@ -515,8 +577,10 @@ public class AllocinePlugin extends ImdbPlugin {
                 LOG.error(LOG_MESSAGE + "Failed retrieving Allocine infos for movie : " + allocineId);
                 LOG.error(SystemTools.getStackTrace(error));
             }
-            // Add to the cache
-            CacheMemory.addToCache(cacheKey, movieInfos);
+            if (movieInfos != null && movieInfos.isValid()) {
+                // Add to the cache
+                CacheMemory.addToCache(cacheKey, movieInfos);
+            }
         }
 
         return movieInfos;
