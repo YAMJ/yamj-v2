@@ -32,6 +32,7 @@ public class AllocinePosterPluginTestCase {
 
     @BeforeClass
     public static void configure() {
+        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "allocine");
     }
 
@@ -42,6 +43,6 @@ public class AllocinePosterPluginTestCase {
         assertEquals("61282", idFromMovieInfo);
 
         String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
-        assertEquals("http://images.allocine.fr/r_760_x/medias/nmedia/18/64/43/65/19211318.jpg", posterUrl);
+        assertEquals("http://fr.web.img1.acsta.net/medias/nmedia/18/78/95/70/19485155.jpg", posterUrl);
     }
 }
