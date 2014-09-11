@@ -263,15 +263,13 @@ public class AllocinePlugin extends ImdbPlugin {
         }
 
         // Check Plot
-        if (StringTools.isValidString(movieInfos.getSynopsis()) && OverrideTools.checkOverwritePlot(movie, ALLOCINE_PLUGIN_ID)) {
-            String plot = HTMLTools.replaceHtmlTags(movieInfos.getSynopsis(), " ");
-            movie.setPlot(plot, ALLOCINE_PLUGIN_ID);
+        if (OverrideTools.checkOverwritePlot(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setPlot(movieInfos.getSynopsis(), ALLOCINE_PLUGIN_ID);
         }
 
         // Check Outline
-        if (StringTools.isValidString(movieInfos.getSynopsisShort()) && OverrideTools.checkOverwriteOutline(movie, ALLOCINE_PLUGIN_ID)) {
-            String outline = HTMLTools.replaceHtmlTags(movieInfos.getSynopsisShort(), " ");
-            movie.setOutline(outline, ALLOCINE_PLUGIN_ID);
+        if (OverrideTools.checkOverwriteOutline(movie, ALLOCINE_PLUGIN_ID)) {
+            movie.setOutline(movieInfos.getSynopsisShort(), ALLOCINE_PLUGIN_ID);
         }
 
         // Check ReleaseDate
@@ -419,15 +417,13 @@ public class AllocinePlugin extends ImdbPlugin {
             }
 
             // Check Plot
-            if (StringTools.isValidString(tvSeriesInfos.getSynopsis()) && OverrideTools.checkOverwritePlot(movie, ALLOCINE_PLUGIN_ID)) {
-                String plot = HTMLTools.replaceHtmlTags(tvSeriesInfos.getSynopsis(), " ");
-                movie.setPlot(plot, ALLOCINE_PLUGIN_ID);
+            if (OverrideTools.checkOverwritePlot(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setPlot(tvSeriesInfos.getSynopsis(), ALLOCINE_PLUGIN_ID);
             }
 
             // Check Outline
-            if (StringTools.isValidString(tvSeriesInfos.getSynopsisShort()) && OverrideTools.checkOverwriteOutline(movie, ALLOCINE_PLUGIN_ID)) {
-                String outline = HTMLTools.replaceHtmlTags(tvSeriesInfos.getSynopsisShort(), " ");
-                movie.setOutline(outline, ALLOCINE_PLUGIN_ID);
+            if (OverrideTools.checkOverwriteOutline(movie, ALLOCINE_PLUGIN_ID)) {
+                movie.setOutline(tvSeriesInfos.getSynopsisShort(), ALLOCINE_PLUGIN_ID);
             }
 
             // Check ReleaseDate
@@ -520,7 +516,7 @@ public class AllocinePlugin extends ImdbPlugin {
                                 }
 
                                 if (StringTools.isValidString(episode.getSynopsis()) && OverrideTools.checkOverwriteEpisodePlot(file, numEpisode, ALLOCINE_PLUGIN_ID)) {
-                                    String episodePlot = HTMLTools.replaceHtmlTags(episode.getSynopsis(), " ");
+                                    String episodePlot = HTMLTools.removeHtmlTags(episode.getSynopsis());
                                     file.setPlot(numEpisode, episodePlot, ALLOCINE_PLUGIN_ID);
                                 }
                             }
