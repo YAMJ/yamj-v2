@@ -516,8 +516,7 @@ public class AllocinePlugin extends ImdbPlugin {
                                 }
 
                                 if (StringTools.isValidString(episode.getSynopsis()) && OverrideTools.checkOverwriteEpisodePlot(file, numEpisode, ALLOCINE_PLUGIN_ID)) {
-                                    String episodePlot = HTMLTools.removeHtmlTags(episode.getSynopsis());
-                                    file.setPlot(numEpisode, episodePlot, ALLOCINE_PLUGIN_ID);
+                                    file.setPlot(numEpisode, episode.getSynopsis(), ALLOCINE_PLUGIN_ID);
                                 }
                             }
                         }
