@@ -158,7 +158,7 @@ public final class Downloader implements RBCWrapperDelegate {
         try {
             HttpURLConnection.setFollowRedirects(false);
 
-            connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection(WebBrowser.PROXY);
             connection.setRequestMethod("HEAD");
             contentLength = connection.getContentLength();
             connection.disconnect();

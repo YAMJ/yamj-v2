@@ -25,31 +25,13 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SubtitleTools;
-import com.moviejukebox.tools.SystemTools;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import com.moviejukebox.tools.*;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -57,7 +39,6 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.MongeElkan;
 
@@ -1206,7 +1187,7 @@ public class SratimPlugin extends ImdbPlugin {
 
         try {
             URL url = new URL(subDownloadLink);
-            connection = (HttpURLConnection) (url.openConnection());
+            connection = (HttpURLConnection) (url.openConnection(WebBrowser.PROXY));
             inputStream = connection.getInputStream();
 
             String contentType = connection.getContentType();

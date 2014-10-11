@@ -22,6 +22,8 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.tools.WebBrowser;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.OverrideTools;
@@ -170,7 +172,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             // Get ID from allmults.org
             if (multsDiscovery) {
                 URL url = new URL("http://allmults.org/search.php");
-                URLConnection conn = url.openConnection();
+                URLConnection conn = url.openConnection(WebBrowser.PROXY);
                 conn.setDoOutput(true);
 
                 OutputStreamWriter osWriter = null;
