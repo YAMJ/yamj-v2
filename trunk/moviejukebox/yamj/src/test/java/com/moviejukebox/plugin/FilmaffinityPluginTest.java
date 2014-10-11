@@ -44,6 +44,7 @@ public class FilmaffinityPluginTest {
     public static void setUpClass() {
         OverrideTools.putMoviePriorities(OverrideFlag.COUNTRY, "filmaffinity,imdb");
         OverrideTools.putMoviePriorities(OverrideFlag.RUNTIME, "filmaffinity,imdb");
+        OverrideTools.putMoviePriorities(OverrideFlag.PLOT, "filmaffinity,imdb");
     }
 
     @AfterClass

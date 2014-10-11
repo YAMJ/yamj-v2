@@ -99,7 +99,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
         }
 
         try {
-            String xml = webBrowser.request("http://www.filmaffinity.com/es/" + filmAffinityId, Charset.forName("ISO-8859-1"));
+            String xml = webBrowser.request("http://www.filmaffinity.com/es/" + filmAffinityId, Charset.forName("UTF-8"));
 
             if (xml.contains("Serie de TV")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
