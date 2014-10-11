@@ -22,6 +22,8 @@
  */
 package com.moviejukebox.plugin.trailer;
 
+import com.moviejukebox.tools.WebBrowser;
+
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -308,7 +310,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
     private String getTrailerRealUrl(String trailerUrl) {
         try {
             URL url = new URL(trailerUrl);
-            HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
+            HttpURLConnection connection = (HttpURLConnection) (url.openConnection(WebBrowser.PROXY));
             InputStream inputStream = connection.getInputStream();
 
             byte buf[] = new byte[1024];

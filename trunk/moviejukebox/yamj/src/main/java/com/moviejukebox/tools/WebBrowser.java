@@ -47,7 +47,7 @@ public class WebBrowser {
     private static final String LOG_MESSAGE = "WebBrowser: ";
     private final Map<String, String> browserProperties;
     private final Map<String, Map<String, String>> cookies;
-    private static Proxy PROXY;
+    public static final Proxy PROXY;
     private static final String PROXY_HOST = PropertiesUtil.getProperty("mjb.ProxyHost", "");
     private static final int PROXY_PORT = PropertiesUtil.getIntProperty("mjb.ProxyPort", 0);
     private static final String PROXY_USERNAME = PropertiesUtil.getProperty("mjb.ProxyUsername", "");

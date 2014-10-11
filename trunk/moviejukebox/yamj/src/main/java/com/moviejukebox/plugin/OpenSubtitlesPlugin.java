@@ -25,16 +25,8 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SubtitleTools;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import com.moviejukebox.tools.*;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -304,7 +296,7 @@ public class OpenSubtitlesPlugin {
             LOG.debug(LOG_MESSAGE + "Download subtitle for " + movie.getBaseName());
 
             URL url = new URL(subDownloadLink);
-            HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
+            HttpURLConnection connection = (HttpURLConnection) (url.openConnection(WebBrowser.PROXY));
             connection.setRequestProperty("Connection", "Close");
             InputStream inputStream = connection.getInputStream();
 
