@@ -59,6 +59,22 @@ public class ComingSoonPluginTest {
     }
 
     @Test
+    public void testScan() {
+        LOG.info("testScan");
+        Movie movie = new Movie();
+        movie.setId(ComingSoonPlugin.COMINGSOON_PLUGIN_ID, "48891");
+        
+        assertTrue("Failed to scan", csPlugin.scan(movie));
+        assertEquals("Wrong title", "A Proposito Di Davis", movie.getTitle());
+        assertEquals("Wrong original title", "Inside Llewyn Davis", movie.getOriginalTitle());
+        assertEquals("Wrong year", "2013", movie.getYear());
+        assertTrue("No Directors", movie.getDirectors().size() > 0);
+        assertTrue("No Writers", movie.getWriters().size() > 0);
+        assertTrue("No Cast", movie.getCast().size() > 0);
+        assertTrue("No plot", movie.getPlot().length() > 0);
+    }
+
+    @Test
     public void testScanNoYear() {
         LOG.info("testScanNoYear");
         Movie movie = new Movie();
