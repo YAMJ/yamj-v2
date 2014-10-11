@@ -335,13 +335,13 @@ public class FilmwebPluginTest {
     @Test
     public void testUpdateMediaInfoWriters() {
         Movie movie = new Movie();
-        movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Avatar");
+        movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/film/Stra%C5%BCnicy+Galaktyki-2014-594357");
         filmwebPlugin.setRequestResult(null); // no offline test
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
 
         LinkedHashSet<String> testWriters = new LinkedHashSet<String>();
         // These need to be in the same order as the web page
-        testWriters.add("James Cameron");
+        testWriters.add("James Gunn");
 
         assertEquals(Arrays.asList(testWriters.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getWriters().toArray(), 1)).toString());
     }

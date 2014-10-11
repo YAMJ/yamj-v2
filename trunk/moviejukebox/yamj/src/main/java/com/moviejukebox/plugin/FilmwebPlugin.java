@@ -215,7 +215,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             }
 
             // scan cast/director/writers
-            if (!scanPersonInformations(movie)) {
+            if (!scanPersonInformations(movie, xml)) {
                 returnValue = Boolean.FALSE;
             }
 
@@ -240,20 +240,21 @@ public class FilmwebPlugin extends ImdbPlugin {
         return returnValue;
     }
 
-    private boolean scanPersonInformations(Movie movie) {
+    private boolean scanPersonInformations(Movie movie, String xml) {
         try {
-            String xml = webBrowser.request(movie.getId(FILMWEB_PLUGIN_ID) + "/cast");
-
             boolean overrideNormal = OverrideTools.checkOverwriteDirectors(movie, FILMWEB_PLUGIN_ID);
             boolean overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, FILMWEB_PLUGIN_ID);
             if (overrideNormal || overridePeople) {
                 List<String> directors = new ArrayList<String>();
 
-                List<String> tags = HTMLTools.extractHtmlTags(xml, "<dt id=role-director>", "</dd>", "<li>", "</li>");
+                List<String> tags = HTMLTools.extractHtmlTags(xml, "<th>reżyseria:</th>", "</ul>", "<li>", "</li>");
                 for (String tag : tags) {
-                    directors.add(HTMLTools.getTextAfterElem(tag, "<span class=personName>"));
+                    String director = HTMLTools.removeHtmlTags(tag);
+                    if (StringTools.isValidString(director)) {
+                        directors.add(director);
+                    }
                 }
-
+                
                 if (overrideNormal) {
                     movie.setDirectors(directors, FILMWEB_PLUGIN_ID);
                 }
@@ -267,9 +268,12 @@ public class FilmwebPlugin extends ImdbPlugin {
             if (overrideNormal || overridePeople) {
                 List<String> writers = new ArrayList<String>();
 
-                List<String> tags = HTMLTools.extractHtmlTags(xml, "<dt id=role-screenwriter", "</dd>", "<li>", "</li>");
+                List<String> tags = HTMLTools.extractHtmlTags(xml, "<th>scenariusz:</th>", "</ul>", "<li>", "</li>");
                 for (String tag : tags) {
-                    writers.add(HTMLTools.getTextAfterElem(tag, "<span class=personName>"));
+                    String writer = HTMLTools.removeHtmlTags(tag);
+                    if (StringTools.isValidString(writer)) {
+                        writers.add(writer);
+                    }
                 }
 
                 if (overrideNormal) {
@@ -284,10 +288,16 @@ public class FilmwebPlugin extends ImdbPlugin {
             overridePeople = OverrideTools.checkOverwritePeopleActors(movie, FILMWEB_PLUGIN_ID);
             if (overrideNormal || overridePeople) {
                 List<String> actors = new ArrayList<String>();
+                
+                // actors are on a separate page
+                String actorsXml = webBrowser.request(movie.getId(FILMWEB_PLUGIN_ID) + "/cast");
 
-                List<String> tags = HTMLTools.extractHtmlTags(xml, "<dt id=role-actors", "</dd>", "<li>", "</li>");
+                List<String> tags = HTMLTools.extractHtmlTags(actorsXml, "<ul class=\"sep-hr filmCast\">", "</ul>", "<li data-role", "</li>");
                 for (String tag : tags) {
-                    actors.add(HTMLTools.getTextAfterElem(tag, "<span class=personName>"));
+                    String actor = HTMLTools.getTextAfterElem(tag, "<span class=personName>");
+                    if (StringTools.isValidString(actor)) {
+                        actors.add(actor);
+                    }
                 }
 
                 if (overrideNormal) {
