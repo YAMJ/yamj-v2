@@ -412,7 +412,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         // TITLE
         if (OverrideTools.checkOverwriteTitle(movie, COMINGSOON_PLUGIN_ID)) {
-            String title = HTMLTools.extractTag(xml, "<h1>", "</h1>").trim();
+            String title = HTMLTools.extractTag(xml, "<h1 itemprop='name'>", "</h1>").trim();
             if (StringTools.isNotValidString(title)) {
                 LOG.error(LOG_MESSAGE + "No title found at ComingSoon page. HTML layout has changed?");
                 return false;
