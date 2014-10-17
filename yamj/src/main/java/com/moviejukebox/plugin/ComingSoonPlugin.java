@@ -24,11 +24,7 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.*;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -39,8 +35,8 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.text.WordUtils;
-import org.slf4j.Logger;
 import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -54,7 +50,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     public static final String COMINGSOON_PLUGIN_ID = "comingsoon";
     public static final String COMINGSOON_NOT_PRESENT = "na";
     public static final String COMINGSOON_BASE_URL = "http://www.comingsoon.it/";
-    public static final String COMINGSOON_SEARCH_URL = "Cinema/CercaFilm/?";
+    public static final String COMINGSOON_SEARCH_URL = "cinema/cercaFilm/?";
     private static final String COMINGSOON_FILM_URL = "Film/Scheda/?";
     public static final String COMINGSOON_SEARCH_PARAMS = "&genere=&nat=&regia=&attore=&orderby=&orderdir=asc&page=";
     public static final String CS_TITLE_PARAM = "titolo=";
@@ -64,9 +60,11 @@ public class ComingSoonPlugin extends ImdbPlugin {
     private static final int COMINGSOON_MAX_SEARCH_PAGES = 5;
     private final String scanImdb;
     private final String searchId;
-
+    private final SearchEngineTools searchEngineTools;
+    
     public ComingSoonPlugin() {
         super();
+        searchEngineTools = new SearchEngineTools("it");
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Italy");
         searchId = PropertiesUtil.getProperty("comingsoon.id.search", "comingsoon,yahoo");
         scanImdb = PropertiesUtil.getProperty("comingsoon.imdb.scan", "always");
@@ -162,9 +160,11 @@ public class ComingSoonPlugin extends ImdbPlugin {
         if (searchIdPreference.equalsIgnoreCase("comingsoon")) {
             return getComingSoonIdFromComingSoon(movieName, year);
         } else if (searchIdPreference.equalsIgnoreCase("yahoo")) {
-            return getComingSoonIdFromSearch("http://search.yahoo.com/search?vc=&p=", movieName, year);
+            String url = searchEngineTools.searchUrlOnYahoo(movieName, year, "www.comingsoon.it/film", null);
+            return getComingSoonIdFromURL(url);
         } else if (searchIdPreference.equalsIgnoreCase("google")) {
-            return getComingSoonIdFromSearch("http://www.google.com/search?hl=it&q=", movieName, year);
+            String url = searchEngineTools.searchUrlOnGoogle(movieName, year, "www.comingsoon.it/film", null);
+            return getComingSoonIdFromURL(url);
         } else if (searchIdPreference.contains(",")) {
             StringTokenizer st = new StringTokenizer(searchIdPreference, ",");
             while (st.hasMoreTokens()) {
@@ -175,32 +175,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
         }
         return Movie.UNKNOWN;
-    }
-
-    protected String getComingSoonIdFromSearch(String searchUrl, String movieName, String year) {
-        try {
-            String comingSoonId = Movie.UNKNOWN;
-
-            StringBuilder sb = new StringBuilder(searchUrl);
-            sb.append("\"").append(URLEncoder.encode(movieName, "UTF-8")).append("\"");
-
-            sb.append("+site%3Acomingsoon.it");
-
-            LOG.debug(LOG_MESSAGE + "Fetching ComingSoon search URL: " + sb.toString());
-            String xml = webBrowser.request(sb.toString());
-
-            int beginIndex = xml.indexOf(COMINGSOON_BASE_URL + COMINGSOON_SEARCH_URL);
-            if (beginIndex > 0) {
-                comingSoonId = getComingSoonIdFromURL(xml.substring(beginIndex, xml.indexOf('"', beginIndex)));
-                LOG.debug(LOG_MESSAGE + "Found ComingSoon ID: " + comingSoonId);
-            }
-            return comingSoonId;
-
-        } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving ComingSoon Id for movie : " + movieName);
-            LOG.error(LOG_MESSAGE + SystemTools.getStackTrace(error));
-            return Movie.UNKNOWN;
-        }
     }
 
     protected String getComingSoonIdFromComingSoon(String movieName, String year) {
@@ -275,7 +249,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             }
 
             if (StringTools.isValidString(comingSoonId)) {
-                LOG.debug(LOG_MESSAGE + "Found ComingSoon ID: " + comingSoonId);
+                LOG.debug(LOG_MESSAGE + "Found valid ComingSoon ID: " + comingSoonId);
             }
 
             return comingSoonId;
@@ -327,12 +301,13 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 }
 
                 String search = xml.substring(beginIndex, nextIndex);
-
+                
                 // Look for the ID of the movie
-                int urlIndex = search.indexOf("/Film/Scheda/");
+                int urlIndex = search.indexOf("/film");
+                
                 String comingSoonId = search.substring(urlIndex, search.indexOf('\'', urlIndex));
                 comingSoonId = getComingSoonIdFromURL(comingSoonId);
-                LOG.debug(LOG_MESSAGE + "Found Coming Soon ID: " + comingSoonId);
+                LOG.debug(LOG_MESSAGE + "Found ComingSoon ID: " + comingSoonId);
 
                 String title = HTMLTools.extractTag(search, "<h3>", 0, "><", false).trim();
                 String originalTitle = HTMLTools.extractTag(search, "<h4>", 0, "><", false).trim();
@@ -363,11 +338,15 @@ public class ComingSoonPlugin extends ImdbPlugin {
     }
 
     private String getComingSoonIdFromURL(String url) {
-        int beginIndex = url.indexOf(COMINGSOON_KEY_PARAM);
-        StringTokenizer st = new StringTokenizer(url.substring(beginIndex + COMINGSOON_KEY_PARAM.length()), "&/\"");
-        String comingSoonId = st.nextToken();
-
-        return comingSoonId;
+        int index = url.indexOf("/scheda");
+        if (index > -1) {
+            String stripped = url.substring(0, index);
+            index = StringUtils.lastIndexOf(stripped, '/');
+            if (index > -1) {
+                return stripped.substring(index+1);
+            }
+        }
+        return Movie.UNKNOWN;
     }
 
     /**

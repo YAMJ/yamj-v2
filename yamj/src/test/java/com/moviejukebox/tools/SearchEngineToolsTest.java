@@ -61,29 +61,22 @@ public class SearchEngineToolsTest {
     public void roundTripOFDB() {
         LOG.info("roundTripOFDB");
         SearchEngineTools search = new SearchEngineTools("de");
+        search.setSearchSites("google");
 
         // movie
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            if (engine.equalsIgnoreCase("bing") || engine.equalsIgnoreCase("yahoo")) {
-                LOG.warn("Skipping '" + engine + "' does not work in Germany");
-            } else {
-                LOG.info("Testing " + engine);
-                String url = search.searchMovieURL("Avatar", "2009", "www.ofdb.de/film");
-                assertEquals("Search engine '" + engine + "' failed", "http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora", url);
-            }
+            LOG.info("Testing " + engine);
+            String url = search.searchMovieURL("Avatar", "2009", "www.ofdb.de/film");
+            assertEquals("Search engine '" + engine + "' failed", "http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora", url);
         }
 
         // TV show
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            if (engine.equalsIgnoreCase("bing") || engine.equalsIgnoreCase("yahoo")) {
-                LOG.warn("Skipping '" + engine + "' does not work in Germany");
-            } else {
-                LOG.info("Testing " + engine);
-                String url = search.searchMovieURL("Two and a Half Men", "2003", "www.ofdb.de/film");
-                assertEquals("Search engine '" + engine + "' failed", "http://www.ofdb.de/film/66192,Mein-cooler-Onkel-Charlie", url);
-            }
+            LOG.info("Testing " + engine);
+            String url = search.searchMovieURL("Two and a Half Men", "2003", "www.ofdb.de/film");
+            assertEquals("Search engine '" + engine + "' failed", "http://www.ofdb.de/film/66192,Mein-cooler-Onkel-Charlie", url);
         }
     }
 
@@ -119,12 +112,8 @@ public class SearchEngineToolsTest {
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
             LOG.info("Testing " + engine);
-            if (engine.equalsIgnoreCase("bing")) {
-                LOG.warn("Bing does not work in Netherlands");
-            } else {
-                String url = search.searchMovieURL("Avatar", "2009", "www.moviemeter.nl/film");
-                assertEquals("Search engine '" + engine + "' failed", "http://www.moviemeter.nl/film/17552", url);
-            }
+            String url = search.searchMovieURL("Avatar", "2009", "www.moviemeter.nl/film");
+            assertEquals("Search engine '" + engine + "' failed", "http://www.moviemeter.nl/film/17552", url);
         }
         // TV shows not supported
     }
@@ -146,46 +135,38 @@ public class SearchEngineToolsTest {
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
             LOG.info("Testing " + engine);
-            if (engine.equalsIgnoreCase("bing")) {
-                LOG.warn("Bing does not work in Poland");
-            } else {
-                String url = search.searchMovieURL("The 4400", null, "www.filmweb.pl/serial", "sezon 3");
-                assertTrue("Search engine '" + engine + "' failed: " + url, url.startsWith("http://www.filmweb.pl/serial/4400-2004-122684"));
-            }
+            String url = search.searchMovieURL("The 4400", null, "www.filmweb.pl/serial", "sezon 3");
+            assertTrue("Search engine '" + engine + "' failed: " + url, url.startsWith("http://www.filmweb.pl/serial/4400-2004-122684"));
         }
     }
 
     @Test
-    public void fixRoundTripMovieSratim() {
+    public void roundTripMovieSratim() {
         LOG.info("fixRoundTripMovieSratim");
         SearchEngineTools search = new SearchEngineTools("il");
         search.setSearchSuffix("/view.php");
-
-        search.setSearchSites("google,yahoo");
+        search.setSearchSites("google");
+        
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
             LOG.info("Testing " + engine);
-            if (!"yahoo".equals(engine)) {
-                // YAHOO does not know the movie
-                String url = search.searchMovieURL("Avatar", "2009", "www.sratim.co.il");
-                assertTrue("Search engine '" + engine + "' failed: " + url, url.startsWith("http://www.sratim.co.il/view.php"));
-                assertTrue("Search engine '" + engine + "' failed: " + url, url.contains("id=143628"));
-            }
+            String url = search.searchMovieURL("Avatar", "2009", "www.sratim.co.il");
+            assertTrue("Search engine '" + engine + "' failed: " + url, url.startsWith("http://www.sratim.co.il/view.php"));
+            assertTrue("Search engine '" + engine + "' failed: " + url, url.contains("id=143628"));
         }
     }
 
     @Test
-    public void fixRoundTripMovieComingSoon() {
+    public void roundTripMovieComingSoon() {
         LOG.info("fixRoundTripMovieComingSoon");
         SearchEngineTools search = new SearchEngineTools("it");
-        search.setSearchSites("google,yahoo");
 
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
             LOG.info("Testing " + engine);
-            String url = search.searchMovieURL("Avatar", "2009", "www.comingsoon.it/Film/Scheda/Trama");
-            assertTrue("Search engine '" + engine + "' failed:" + url, url.startsWith("http://www.comingsoon.it/Film/Scheda/Trama/"));
-            assertTrue("Search engine '" + engine + "' failed:" + url, url.contains("key=846"));
+            String url = search.searchMovieURL("Avatar", "2009", "www.comingsoon.it/film");
+            assertTrue("Search engine '" + engine + "' failed:" + url, url.startsWith("http://www.comingsoon.it/film/"));
+            assertTrue("Search engine '" + engine + "' failed:" + url, url.contains("846"));
         }
     }
 }
