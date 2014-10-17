@@ -22,7 +22,7 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import com.moviejukebox.allocine.MovieInfos;
+import com.moviejukebox.allocine.model.MovieInfos;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;

@@ -25,9 +25,8 @@ package com.moviejukebox.plugin;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 
-import com.moviejukebox.allocine.*;
-import com.moviejukebox.allocine.model.Episode;
-import com.moviejukebox.allocine.model.TvSeries;
+import com.moviejukebox.allocine.AllocineApi;
+import com.moviejukebox.allocine.model.*;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.FanartScanner;
@@ -36,7 +35,6 @@ import com.moviejukebox.tools.cache.CacheMemory;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.xml.bind.JAXBException;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -540,10 +538,6 @@ public class AllocinePlugin extends ImdbPlugin {
                     tvdb.scanTVShowTitles(movie);
                 }
             }
-        } catch (JAXBException error) {
-            LOG.error(LOG_MESSAGE + "Failed retrieving Allocine infos for TvShow "
-                    + allocineId + ". Perhaps the Allocine XML API has changed ...");
-            LOG.error(SystemTools.getStackTrace(error));
         } catch (Exception error) {
             LOG.error(LOG_MESSAGE + "Failed retrieving Allocine infos for TvShow : " + allocineId);
             LOG.error(SystemTools.getStackTrace(error));
@@ -564,10 +558,6 @@ public class AllocinePlugin extends ImdbPlugin {
         if (movieInfos == null) {
             try {
                 movieInfos = allocineApi.getMovieInfos(allocineId);
-            } catch (JAXBException error) {
-                LOG.error(LOG_MESSAGE + "Failed retrieving Allocine infos for movie "
-                        + allocineId + ". Perhaps the Allocine XML API has changed ...");
-                LOG.error(SystemTools.getStackTrace(error));
             } catch (Exception error) {
                 LOG.error(LOG_MESSAGE + "Failed retrieving Allocine infos for movie : " + allocineId);
                 LOG.error(SystemTools.getStackTrace(error));
