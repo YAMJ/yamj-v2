@@ -84,29 +84,6 @@ public class SearchEngineToolsTest {
     }
 
     @Test
-    public void roundTripMovieFilmDelta() {
-        LOG.info("roundTripMovieFilmDelta");
-        SearchEngineTools search = new SearchEngineTools("se");
-        search.setSearchSites("google,blekko,lycos");
-
-        // movie
-        for (int i = 0; i < search.countSearchSites(); i++) {
-            String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
-            String url = search.searchMovieURL("Avatar", "2009", "www.filmdelta.se/filmer");
-            assertEquals("Search engine '" + engine + "' failed", "http://www.filmdelta.se/filmer/144938/avatar/", url);
-        }
-
-        // TV show, must search for season
-        for (int i = 0; i < search.countSearchSites(); i++) {
-            String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
-            String url = search.searchMovieURL("Two and a Half Men", "2003", "www.filmdelta.se/filmer", "sasong_3");
-            assertEquals("Search engine '" + engine + "' failed", "http://www.filmdelta.se/filmer/148233/two_and_a_half_men-sasong_3/", url);
-        }
-    }
-
-    @Test
     public void roundTripAllocine() {
         LOG.info("roundTripAllocine");
         SearchEngineTools search = new SearchEngineTools("fr");
