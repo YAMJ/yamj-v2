@@ -231,17 +231,19 @@ public class SearchEngineTools {
             sb.append(site);
 
             String xml = webBrowser.request(sb.toString());
-
-            int beginIndex = xml.indexOf("//" + site + searchSuffix);
+            
+            String link = HTMLTools.extractTag(xml, "<span class=\"url\"", "</span>");
+            link = HTMLTools.removeHtmlTags(link);
+            int beginIndex = link.indexOf(site + searchSuffix);
             if (beginIndex != -1) {
-                String link = xml.substring(beginIndex, xml.indexOf("\"", beginIndex));
+                link = link.substring(beginIndex);
                 if (StringTools.isValidString(link)) {
                     // Remove "/info/xxx" from the end of the URL
                     beginIndex = link.indexOf("/info");
                     if (beginIndex > -1) {
                         link = link.substring(0, beginIndex);
                     }
-                    return "http:" + link;
+                    return "http://" + link;
                 }
             }
         } catch (IOException error) {

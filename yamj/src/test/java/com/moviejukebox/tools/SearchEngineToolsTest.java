@@ -22,9 +22,11 @@
  */
 package com.moviejukebox.tools;
 
-import org.apache.log4j.Logger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.junit.Test;
 
 public class SearchEngineToolsTest {
@@ -41,7 +43,8 @@ public class SearchEngineToolsTest {
             String engine = search.getCurrentSearchEngine();
             LOG.info("Testing " + engine);
             String url = search.searchMovieURL("Avatar", "2009", "www.imdb.com/title");
-            assertEquals("Search engine '" + engine + "' failed", "http://www.imdb.com/title/tt0499549/", url);
+            url = StringUtils.removeEnd(url, "/");
+            assertEquals("Search engine '" + engine + "' failed", "http://www.imdb.com/title/tt0499549", url);
         }
 
         // TV show, must leave out the year and search for TV series
@@ -49,7 +52,8 @@ public class SearchEngineToolsTest {
             String engine = search.getCurrentSearchEngine();
             LOG.info("Testing " + engine);
             String url = search.searchMovieURL("Two and a Half Men", null, "www.imdb.com/title", "TV series");
-            assertEquals("Search engine '" + engine + "' failed", "http://www.imdb.com/title/tt0369179/", url);
+            url = StringUtils.removeEnd(url, "/");
+            assertEquals("Search engine '" + engine + "' failed", "http://www.imdb.com/title/tt0369179", url);
         }
     }
 
