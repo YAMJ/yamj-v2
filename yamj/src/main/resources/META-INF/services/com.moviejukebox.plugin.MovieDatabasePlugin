@@ -2,7 +2,6 @@ com.moviejukebox.plugin.AllocinePlugin
 com.moviejukebox.plugin.AnimatorPlugin
 com.moviejukebox.plugin.ComingSoonPlugin
 com.moviejukebox.plugin.FilmaffinityPlugin
-com.moviejukebox.plugin.FilmDeltaSEPlugin
 com.moviejukebox.plugin.FilmKatalogusPlugin
 com.moviejukebox.plugin.FilmUpITPlugin
 com.moviejukebox.plugin.FilmwebPlugin

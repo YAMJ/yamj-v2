@@ -89,7 +89,6 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         headerLine.append(prepOutput("Library Description"));
         headerLine.append(prepOutput("Library Path"));
         headerLine.append(prepOutput("Allocine ID"));
-        headerLine.append(prepOutput("FilmDelta ID"));
         headerLine.append(prepOutput("FilmUpIT ID"));
         headerLine.append(prepOutput("FilmWeb ID"));
         headerLine.append(prepOutput("Kinopoisk ID"));
@@ -152,7 +151,6 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         headerLine.append(prepOutput(movie.getLibraryDescription()));
         headerLine.append(prepOutput(movie.getLibraryPath()));
         headerLine.append(prepOutput(movie.getId(AllocinePlugin.ALLOCINE_PLUGIN_ID)));
-        headerLine.append(prepOutput(movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID)));
         headerLine.append(prepOutput(movie.getId(FilmUpITPlugin.FILMUPIT_PLUGIN_ID)));
         headerLine.append(prepOutput(movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID)));
         headerLine.append(prepOutput(movie.getId(KinopoiskPlugin.KINOPOISK_PLUGIN_ID)));

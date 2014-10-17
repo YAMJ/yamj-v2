@@ -222,8 +222,6 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                 sb.append(prep(movie.getLibraryPath()));
             } else if (checkHeaderField(header, "Allocine ID")) {
                 sb.append(prep(movie.getId(AllocinePlugin.ALLOCINE_PLUGIN_ID)));
-            } else if (checkHeaderField(header, "FilmDelta ID")) {
-                sb.append(prep(movie.getId(FilmDeltaSEPlugin.FILMDELTA_PLUGIN_ID)));
             } else if (checkHeaderField(header, "FilmUpIT ID")) {
                 sb.append(prep(movie.getId(FilmUpITPlugin.FILMUPIT_PLUGIN_ID)));
             } else if (checkHeaderField(header, "FilmWeb ID")) {
@@ -457,7 +455,6 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         df.append("Library Description").append(",");
         df.append("Library Path").append(",");
         df.append("Allocine ID").append(",");
-        df.append("FilmDelta ID").append(",");
         df.append("FilmUpIT ID").append(",");
         df.append("FilmWeb ID").append(",");
         df.append("Kinopoisk ID").append(",");

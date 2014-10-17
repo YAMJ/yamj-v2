@@ -111,7 +111,8 @@ MovieJukebox 2.9
  - Fixed defect #2662 videoimageToken property is ignored
  - Fixed defect #2670 Kinopoisk plugin (does not receive a lot of data)
  - Fixed defect #2673 Kinopoisk plugin get wrong movie certification
-
+ - Fixed defect #2780 FilmDelta.se not existent anymore
+ 
 MovieJukebox 2.8 (2012-12-17)
 -----------------------------
  - Enhancement  #1461 Skipped subtitles will not be added
