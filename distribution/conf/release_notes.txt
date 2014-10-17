@@ -38,7 +38,8 @@ MovieJukebox 2.10-SNAPSHOT
  - Fixed defect #2741 Short-film duration truncated by MediaInfo scanner
  - Fixed defect #2746 Filmweb.pl layout changed for cast and crew
  - Fixed defect #2747 Use UTF-8 encoding for filmaffinity instead ISO-8859-1
-
+ - Fixed defect #2750 FilmDelta.se not existent anymore
+ 
 MovieJukebox 2.9
 ----------------
  - Fixed defect #1721 Get last certification for country from IMDB instead first one found
@@ -111,7 +112,6 @@ MovieJukebox 2.9
  - Fixed defect #2662 videoimageToken property is ignored
  - Fixed defect #2670 Kinopoisk plugin (does not receive a lot of data)
  - Fixed defect #2673 Kinopoisk plugin get wrong movie certification
- - Fixed defect #2780 FilmDelta.se not existent anymore
  
 MovieJukebox 2.8 (2012-12-17)
 -----------------------------
