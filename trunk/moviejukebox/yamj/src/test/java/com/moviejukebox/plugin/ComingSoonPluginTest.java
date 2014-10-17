@@ -52,10 +52,31 @@ public class ComingSoonPluginTest {
 
     @Before
     public void setUp() {
-        PropertiesUtil.setProperty("comingsoon.imdb.scan", "nevwe");
+        PropertiesUtil.setProperty("comingsoon.imdb.scan", "never");
         PropertiesUtil.setProperty("priority.title", "comingsoon,imdb");
         PropertiesUtil.setProperty("priority.originaltitle", "comingsoon,imdb");
         csPlugin = new ComingSoonPlugin();
+    }
+
+    @Test
+    public void testGetIdFromComingSoon() {
+        LOG.info("testGetIdFromComingSoon");
+        String id = csPlugin.getComingSoonId("Avatar", "2009", "comingsoon");
+        assertEquals("Wrong ID", "846", id);
+    }
+
+    @Test
+    public void testGetIdFromGoogle() {
+        LOG.info("testGetIdFromGoogle");
+        String id = csPlugin.getComingSoonId("Avatar", "2009", "google");
+        assertEquals("Wrong ID", "846", id);
+    }
+
+    @Test
+    public void testGetIdFromYahoo() {
+        LOG.info("testGetIdFromYahoo");
+        String id = csPlugin.getComingSoonId("Avatar", "2009", "yahoo");
+        assertEquals("Wrong ID", "846", id);
     }
 
     @Test
