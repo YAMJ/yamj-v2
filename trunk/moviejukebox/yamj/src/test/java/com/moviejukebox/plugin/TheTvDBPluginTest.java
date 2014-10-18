@@ -22,6 +22,11 @@
  */
 package com.moviejukebox.plugin;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -29,13 +34,6 @@ import com.moviejukebox.tools.StringTools;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Series;
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -61,18 +59,7 @@ public class TheTvDBPluginTest {
     public static void setUpClass() {
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
         PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
+        PropertiesUtil.setProperty("API_KEY_TheTVDb", "2805AD2873519EC5");
     }
 
     /**

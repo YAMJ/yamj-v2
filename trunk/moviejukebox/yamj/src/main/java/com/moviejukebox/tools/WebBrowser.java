@@ -468,14 +468,14 @@ public class WebBrowser {
     }
 
     public static void showStatus() {
-        if (PROXY_HOST != null) {
+        if (StringUtils.isNotBlank(PROXY_HOST)) {
             LOG.debug(LOG_MESSAGE + "Proxy Host: " + PROXY_HOST);
             LOG.debug(LOG_MESSAGE + "Proxy Port: " + PROXY_PORT);
         } else {
             LOG.debug(LOG_MESSAGE + "No proxy set");
         }
 
-        if (PROXY_USERNAME != null) {
+        if (StringUtils.isNotBlank(PROXY_USERNAME)) {
             LOG.debug(LOG_MESSAGE + "Proxy username: " + PROXY_USERNAME);
             if (PROXY_PASSWORD != null) {
                 LOG.debug(LOG_MESSAGE + "Proxy password: IS SET");
