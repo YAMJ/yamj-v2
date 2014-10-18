@@ -22,13 +22,10 @@
  */
 package com.moviejukebox.tools;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Date;
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.pojava.datetime.DateTime;
 
@@ -39,25 +36,6 @@ import org.pojava.datetime.DateTime;
 public class DateTimeToolsTest {
 
     private static final Logger LOG = Logger.getLogger(DateTimeToolsTest.class);
-
-    public DateTimeToolsTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
 
     /**
      * Test of convertDateToString method, of class DateTimeTools.
