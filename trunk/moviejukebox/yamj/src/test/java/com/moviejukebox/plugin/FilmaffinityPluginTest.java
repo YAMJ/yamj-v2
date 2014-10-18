@@ -22,15 +22,14 @@
  */
 package com.moviejukebox.plugin;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.OverrideTools;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  *
@@ -47,18 +46,6 @@ public class FilmaffinityPluginTest {
         OverrideTools.putMoviePriorities(OverrideFlag.PLOT, "filmaffinity,imdb");
     }
 
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
-
     /**
      * Test of scan method, of class FilmaffinityPlugin.
      */
@@ -70,7 +57,8 @@ public class FilmaffinityPluginTest {
 
         assertEquals(true, faPlugin.scan(movie));
         assertEquals("film358476.html", movie.getId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID));
-        assertEquals("112m", movie.getRuntime());
+        assertEquals("112 m", movie.getRuntime());
+        assertEquals("Estados Unidos", movie.getCountriesAsString());
         assertTrue(movie.getDirectors().size() > 0);
         assertTrue(movie.getWriters().size() > 0);
         assertTrue(movie.getCast().size() > 0);

@@ -47,13 +47,13 @@ public class FilmaffinityPlugin extends ImdbPlugin {
     /*
      * Literals of web of each movie info
      */
-    private static final String FA_ORIGINAL_TITLE = "<dt>T&iacute;tulo original</dt>";
+    private static final String FA_ORIGINAL_TITLE = "<dt>Título original</dt>";
     private static final String FA_YEAR = "<dt>A&ntilde;o</dt>";
-    private static final String FA_RUNTIME = "<dt>Duraci&oacute;n</dt>";
+    private static final String FA_RUNTIME = "<dt>Duración</dt>";
     private static final String FA_DIRECTOR = "<dt>Director</dt>";
-    private static final String FA_WRITER = "<dt>Gui&oacute;n</dt>";
+    private static final String FA_WRITER = "<dt>Guión</dt>";
     private static final String FA_CAST = "<dt>Reparto</dt>";
-    private static final String FA_GENRE = "<dt>G&eacute;nero</dt>";
+    private static final String FA_GENRE = "<dt>Género</dt>";
     private static final String FA_COMPANY = "<dt>Productora</dt>";
     private static final String FA_PLOT = "<dt>Sinopsis</dt>";
     private FilmAffinityInfo filmAffinityInfo;
