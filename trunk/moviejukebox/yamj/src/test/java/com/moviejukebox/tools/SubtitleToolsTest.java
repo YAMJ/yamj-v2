@@ -22,25 +22,21 @@
  */
 package com.moviejukebox.tools;
 
+import static org.junit.Assert.assertEquals;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class SubtitleToolsTest {
 
     @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
+    public static void configure() {
+        PropertiesUtil.setProperty("mjb.subtitle.skip", "nor,it");
     }
 
     @Before
@@ -52,14 +48,6 @@ public class SubtitleToolsTest {
         MovieFilenameScanner.addLanguage("French", "FRA FR FRENCH VF fra fr french vf Fra", "FRA FR FRENCH");
         MovieFilenameScanner.addLanguage("Italian", "ITA IT ITALIAN ita it italian Ita", "ITA IT ITALIAN");
         MovieFilenameScanner.addLanguage("Norwegian", "NOR NORWEGIAN nor norwegian Norwegian", "NOR NORWEGIAN");
-
-        // set property for subtitle restriction
-        PropertiesUtil.setProperty("mjb.subtitle.skip", "nor,it");
-        PropertiesUtil.setProperty("mjb.subtitle.delimiter", " / ");
-    }
-
-    @After
-    public void tearDown() {
     }
 
     @Test
