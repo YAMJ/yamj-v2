@@ -42,19 +42,20 @@ import org.junit.Test;
 public class ComingSoonPluginTest {
 
     private static final Logger LOG = Logger.getLogger(ComingSoonPluginTest.class);
+
     private ComingSoonPlugin csPlugin;
 
     @BeforeClass
-    public static void setUpClass() {
+    public static void configure() {
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
         PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
-    }
-
-    @Before
-    public void setUp() {
         PropertiesUtil.setProperty("comingsoon.imdb.scan", "never");
         PropertiesUtil.setProperty("priority.title", "comingsoon,imdb");
         PropertiesUtil.setProperty("priority.originaltitle", "comingsoon,imdb");
+    }
+
+    @Before
+    public void setup() {
         csPlugin = new ComingSoonPlugin();
     }
 

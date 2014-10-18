@@ -44,7 +44,7 @@ public class FilmwebPluginTest {
     private boolean offline;
 
     @BeforeClass
-    public static void setUpClass() {
+    public static void configure() {
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
         PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
         PropertiesUtil.setProperty("priority.movie.directors", "imdb,filmweb");
@@ -53,7 +53,7 @@ public class FilmwebPluginTest {
     }
 
     @Before
-    public void setUp() {
+    public void setup() {
         // uncomment the line below to check if tests are still up to date
         offline = false;
         filmwebPlugin = new FilmwebPluginMock(offline);

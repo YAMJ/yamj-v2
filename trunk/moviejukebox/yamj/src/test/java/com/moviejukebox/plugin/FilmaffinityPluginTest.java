@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.OverrideTools;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -37,13 +38,18 @@ import org.junit.Test;
  */
 public class FilmaffinityPluginTest {
 
-    private final FilmaffinityPlugin faPlugin = new FilmaffinityPlugin();
+    private FilmaffinityPlugin faPlugin = new FilmaffinityPlugin();
 
     @BeforeClass
-    public static void setUpClass() {
+    public static void configure() {
         OverrideTools.putMoviePriorities(OverrideFlag.COUNTRY, "filmaffinity,imdb");
         OverrideTools.putMoviePriorities(OverrideFlag.RUNTIME, "filmaffinity,imdb");
         OverrideTools.putMoviePriorities(OverrideFlag.PLOT, "filmaffinity,imdb");
+    }
+
+    @Before
+    public void setup() {
+        faPlugin = new FilmaffinityPlugin();
     }
 
     /**

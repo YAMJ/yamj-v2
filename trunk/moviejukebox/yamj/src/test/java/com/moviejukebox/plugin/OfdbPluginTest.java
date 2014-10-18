@@ -40,12 +40,12 @@ public class OfdbPluginTest {
     private OfdbPlugin ofdbPlugin;
 
     @BeforeClass
-    public static void setUpClass() {
+    public static void configure() {
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.OfdbPlugin");
     }
 
     @Before
-    public void setUp() {
+    public void setup() {
         ofdbPlugin = new OfdbPlugin();
     }
 

@@ -27,6 +27,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Before;
+
+import org.junit.BeforeClass;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -34,7 +37,6 @@ import com.moviejukebox.tools.StringTools;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Series;
 import org.apache.log4j.Logger;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -48,18 +50,17 @@ public class TheTvDBPluginTest {
 
     private static final int ID_BABYLON_5 = 70726;
 
-    public TheTvDBPluginTest() {
-        PropertiesUtil.setProperty("mjb.includeVideoImages", true);
-        PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
-
-        TVDB = new TheTvDBPlugin();
-    }
-
     @BeforeClass
-    public static void setUpClass() {
+    public static void configure() {
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
         PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
-        PropertiesUtil.setProperty("API_KEY_TheTVDb", "2805AD2873519EC5");
+        PropertiesUtil.setProperty("mjb.includeVideoImages", true);
+        PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
+    }
+    
+    @Before
+    public void setup() {
+        TVDB = new TheTvDBPlugin();
     }
 
     /**
