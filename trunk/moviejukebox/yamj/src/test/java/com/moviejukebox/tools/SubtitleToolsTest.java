@@ -100,7 +100,7 @@ public class SubtitleToolsTest {
     }
 
     @Test
-    public void testStu() {
+    public void testAddMovieSubtitles8() {
         String subs = SubtitleTools.addMovieSubtitle("", "en");
         subs = SubtitleTools.addMovieSubtitle(subs, "german");
         subs = SubtitleTools.addMovieSubtitle(subs, "de");
