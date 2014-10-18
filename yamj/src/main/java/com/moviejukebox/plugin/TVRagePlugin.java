@@ -51,14 +51,16 @@ public class TVRagePlugin extends ImdbPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(TVRagePlugin.class);
     private static final String LOG_MESSAGE = "TVRagePlugin: ";
     public static final String TVRAGE_PLUGIN_ID = "tvrage";
-    private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TVRage");
     private static final String WEBHOST = "tvrage.com";
     private final TVRageApi tvRage;
     private final boolean includeVideoImages;
 
     public TVRagePlugin() {
         super();
+
+        String API_KEY = PropertiesUtil.getProperty("API_KEY_TVRage");
         tvRage = new TVRageApi(API_KEY);
+        
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
     }
 
