@@ -22,12 +22,9 @@
  */
 package com.moviejukebox.reader;
 
-import com.moviejukebox.model.Movie;
-import org.junit.After;
-import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.BeforeClass;
+
+import com.moviejukebox.model.Movie;
 import org.junit.Test;
 import org.pojava.datetime.DateTime;
 
@@ -37,28 +34,9 @@ import org.pojava.datetime.DateTime;
  */
 public class MovieNFOReaderTest {
 
-    public MovieNFOReaderTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
-
     @Test
     public void testMovieDate() {
-        System.out.println("parseRuntime");
+        System.out.println("testMovieDate");
         String dateTest = "20/10/2005";
 
         DateTime dateTime = DateTime.parse(dateTest);
