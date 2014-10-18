@@ -22,21 +22,17 @@
  */
 package com.moviejukebox.plugin;
 
-import java.util.Set;
-import static org.junit.Assert.*;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
 import com.moviejukebox.tools.PropertiesUtil;
+import java.util.Set;
 import org.apache.log4j.Logger;
-import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class ImdbInfoTest {
 
     private static final Logger LOG = Logger.getLogger(ImdbInfoTest.class);
-
-    @BeforeClass
-    public static void setUpClass() {
-
-    }
 
 //    @Test
     public void testImdbPersonId() {

@@ -27,6 +27,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.model.Person;
@@ -49,26 +52,15 @@ public class TheMovieDbPluginTest {
     private static final Logger LOG = Logger.getLogger(TheMovieDbPluginTest.class);
     private static TheMovieDbPlugin TMDb;
 
-    public TheMovieDbPluginTest() {
+    @BeforeClass
+    public static void configure() {
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
         PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
-        TMDb = new TheMovieDbPlugin();
     }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
+    
     @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
+    public void setup() {
+        TMDb = new TheMovieDbPlugin();
     }
 
     @Test

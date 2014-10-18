@@ -37,13 +37,13 @@ public class SratimPluginTest {
     private SratimPlugin sratimPlugin;
 
     @BeforeClass
-    public static void setUpClass() {
+    public static void configure() {
         PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.SratimPlugin");
     }
 
     @Before
-    public void setUp() {
+    public void setup() {
         sratimPlugin = new SratimPlugin();
     }
 
