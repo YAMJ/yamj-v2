@@ -72,7 +72,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public static final String TMDB_PLUGIN_ID = "themoviedb";
     public static final String IMDB_PLUGIN_ID = "imdb";
     private static final String WEBHOST = "themoviedb.org";
-    private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
     private TheMovieDbApi TMDb;
     private String languageCode;
     private String countryCode;
@@ -100,6 +99,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
     public TheMovieDbPlugin() {
         try {
+            String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
             TMDb = new TheMovieDbApi(API_KEY);
         } catch (MovieDbException ex) {
             LOG.warn(LOG_MESSAGE + "Failed to initialise TheMovieDB API: " + ex.getMessage());

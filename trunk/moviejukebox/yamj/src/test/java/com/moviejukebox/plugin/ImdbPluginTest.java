@@ -83,17 +83,17 @@ public class ImdbPluginTest {
         movie.addMovieFile(mf1);
         MovieFile mf2 = new MovieFile();
         mf2.setSeason(8);
-        mf2.setFirstPart(14);
-        mf2.setLastPart(14);
+        mf2.setFirstPart(16);
+        mf2.setLastPart(16);
         movie.addMovieFile(mf2);
 
         assertTrue(imdbPlugin.scan(movie));
         assertEquals("Chocolate Diddlers or My Puppy's Dead", mf1.getTitle(12));
         assertTrue(StringUtils.startsWith(mf1.getPlot(12), "When Charlie and Courtney break up"));
-        assertEquals("2010-12-13", mf1.getFirstAired(12));
-        assertEquals("Lookin' for Japanese Subs", mf2.getTitle(14));
-        assertTrue(StringUtils.startsWith(mf2.getPlot(14), "Charlie continues to obsess over Rose"));
-        assertEquals("2011", mf2.getFirstAired(14));
+        assertEquals("2011-11-15", mf1.getFirstAired(12));
+        assertEquals("That Darn Priest", mf2.getTitle(16));
+        assertTrue(StringUtils.startsWith(mf2.getPlot(16), "Rose becomes wise to Alan's Ponzi scheme"));
+        assertEquals("2011-12-13", mf2.getFirstAired(16));
     }
 
     @Test

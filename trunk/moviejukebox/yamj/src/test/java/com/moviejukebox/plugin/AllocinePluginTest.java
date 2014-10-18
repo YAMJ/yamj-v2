@@ -24,6 +24,7 @@ package com.moviejukebox.plugin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull    ;
 import static org.junit.Assert.assertTrue;
 
 import com.moviejukebox.model.Movie;
@@ -47,7 +48,9 @@ public class AllocinePluginTest {
         PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.AllocinePlugin");
         PropertiesUtil.setProperty("mjb.internet.tv.plugin", "com.moviejukebox.plugin.AllocinePlugin");
-        PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
+        PropertiesUtil.setProperty("mjb.includeEpisodePlots", Boolean.TRUE);
+        PropertiesUtil.setProperty("mjb.includeVideoImages", Boolean.FALSE);
+        PropertiesUtil.setProperty("fanart.tv.download", Boolean.FALSE);
     }
 
     @Before
@@ -72,12 +75,12 @@ public class AllocinePluginTest {
     public void testTvSeries() {
         LOG.info("testTvSeries");
         // Change the override priorities for allocine
-        OverrideTools.putTvPriorities(OverrideFlag.TITLE, "allocine,imdb");
-        OverrideTools.putTvPriorities(OverrideFlag.ORIGINALTITLE, "allocine,imdb");
-        OverrideTools.putTvPriorities(OverrideFlag.PLOT, "allocine,imdb");
-        OverrideTools.putTvPriorities(OverrideFlag.OUTLINE, "allocine,imdb");
-        OverrideTools.putTvPriorities(OverrideFlag.EPISODE_TITLE, "allocine,imdb");
-        OverrideTools.putTvPriorities(OverrideFlag.EPISODE_PLOT, "allocine,imdb");
+        OverrideTools.putTvPriorities(OverrideFlag.TITLE, "allocine,thetvdb");
+        OverrideTools.putTvPriorities(OverrideFlag.ORIGINALTITLE, "allocine,thetvdb");
+        OverrideTools.putTvPriorities(OverrideFlag.PLOT, "allocine,thetvdb");
+        OverrideTools.putTvPriorities(OverrideFlag.OUTLINE, "allocine,thetvdb");
+        OverrideTools.putTvPriorities(OverrideFlag.EPISODE_TITLE, "allocine,thetvdb");
+        OverrideTools.putTvPriorities(OverrideFlag.EPISODE_PLOT, "allocine,thetvdb");
 
         Movie movie = new Movie();
         movie.setMovieType(Movie.TYPE_TVSHOW);
@@ -96,6 +99,8 @@ public class AllocinePluginTest {
         mf = movie.getFirstFile();
         assertTrue(StringUtils.isNotBlank(mf.getPlot(1)));
         String plotStart = "Chaque année depuis quarante-quatre ans, le jour de son anniversaire, le président d'un ";
+        assertNotNull(mf.getPlot(0));
+        assertTrue("Invalid plot length: " + mf.getPlot(1), mf.getPlot(1).length() >= plotStart.length());
         assertEquals(plotStart, mf.getPlot(1).substring(0, plotStart.length()));
     }
 }

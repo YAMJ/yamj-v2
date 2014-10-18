@@ -1586,7 +1586,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     if (beginIndex == -1) {
                         continue;
                     }
-                    int endIndex = xml.indexOf("<div class=\"popoverContainer\"", beginIndex);
+                    int endIndex = xml.indexOf("<div class=\"clear\"", beginIndex);
                     String episodeXml = xml.substring(beginIndex, endIndex);
 
                     if (OverrideTools.checkOverwriteEpisodeTitle(file, episode, IMDB_PLUGIN_ID)) {

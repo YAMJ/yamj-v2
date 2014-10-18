@@ -56,12 +56,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(TheTvDBPlugin.class);
     private static final String LOG_MESSAGE = TheTvDBPlugin.class.getSimpleName();
     public static final String THETVDB_PLUGIN_ID = "thetvdb";
-    private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
     private static final String WEBHOST = "thetvdb.com";
     private static final String LANGUAGE_DEFAULT = "en";
     public static final String CACHE_SERIES = "Series";
     public static final String CACHE_BANNERS = "Banners";
-    private static final TheTVDBApi TVDB = new TheTVDBApi(API_KEY);
+    private static final TheTVDBApi TVDB;
     private static final String LANGUAGE_PRIMARY = PropertiesUtil.getProperty("thetvdb.language", LANGUAGE_DEFAULT).trim();
     private static final String LANGUAGE_SECONDARY = initLanguage2();
     private final boolean forceBannerOverwrite;
@@ -73,6 +72,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
     private final boolean textBanners;
     private boolean dvdEpisodes = Boolean.FALSE;
 
+    static {
+        String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
+        TVDB = new TheTVDBApi(API_KEY);
+    }
+    
     public TheTvDBPlugin() {
         super();
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
