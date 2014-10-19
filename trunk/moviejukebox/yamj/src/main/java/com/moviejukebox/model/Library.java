@@ -386,7 +386,7 @@ public class Library implements Map<String, Movie> {
                         oldEpisodesFirstNumber = movieFile.getFirstPart();
                     }
                 }
-                // If the new episode was < than old ( episode 1 < episode 2)
+                // If the new episode is < than old ( episode 1 < episode 2)
                 if (newEpisodeNumber < oldEpisodesFirstNumber) {
                     // The New episode have to be the 'main'
                     for (MovieFile movieFile : espisodesFiles) {
@@ -402,12 +402,15 @@ public class Library implements Map<String, Movie> {
                 }
                 // Issue 2089:  cumulate filesize for a TV Show season.
                 existingMovie.setFileSize(movie.getFileSize());
+                // Set max file date (by calling this method)
+                existingMovie.getLastModifiedTimestamp();
             } else {
                 existingMovie.addMovieFile(firstMovieFile);
                 // Update these counters
                 existingMovie.setFileSize(movie.getFileSize());
+                // Set file date
+                existingMovie.addFileDate(movie.getFileDate());
             }
-            existingMovie.addFileDate(movie.getFileDate());
         }
     }
 
