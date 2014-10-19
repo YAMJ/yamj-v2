@@ -114,6 +114,25 @@ public class MediaInfoScannerTest {
         }
     }
 
+    @Test
+    public void testMultipleAudioCodes() {
+        getMediaInfoTestFile("DTS_AC3_DTS_AC3.txt");
+        Movie movie = new Movie();
+        Codec codec;
+        int counter = 1;
+        
+        for (Map<String, String> codecInfo : infosAudio) {
+            codec = MI_TEST.getCodecInfo(CodecType.AUDIO, codecInfo);
+            movie.addCodec(codec);
+            LOG.debug("{} = {}", counter++, codec.toString());
+            assertTrue("No channels found!", codec.getCodecChannels() > 0);
+        }
+
+        for (Codec audio : movie.getCodecs()) {
+            LOG.debug("AudioCodec: {}", audio.toString());
+        }
+    }
+
     /**
      * Output the infos
      *
