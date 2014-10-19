@@ -298,10 +298,11 @@ public class Codec {
         }
 
         // Are both languages the same? or is either one "UNKNOWN" which we will treat as a match
-        if (!StringUtils.equalsIgnoreCase(this.codecLanguage, other.codecLanguage)
+        if (!(StringUtils.equalsIgnoreCase(this.codecLanguage, other.codecLanguage)
                 && StringTools.isValidString(this.codecLanguage)
-                && StringTools.isValidString(other.codecLanguage)) {
-            return true;
+                && StringTools.isValidString(other.codecLanguage))) 
+        {
+            return false;
         }
 
         return this.codecChannels == other.codecChannels;
