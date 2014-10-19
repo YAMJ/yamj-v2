@@ -197,7 +197,7 @@ public class FilmwebPluginTest {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Ojciec.Chrzestny");
         filmwebPlugin.setRequestResult("<span class=worldRanking>2. <a href=\"/rankings/film/world#Ojciec chrzestny\">w rankingu światowym</a></span>");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
-        assertEquals(2, movie.getTop250());
+        assertEquals(3, movie.getTop250());
     }
 
     @Test
