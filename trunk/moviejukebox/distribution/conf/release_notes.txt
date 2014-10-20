@@ -36,6 +36,7 @@ MovieJukebox 2.10-SNAPSHOT
  - Fixed defect #2735 Use UTF-8 encoding for coming soon instead ISO-8859-1
  - Fixed defect #2738 Title tag changed on coming soon side
  - Fixed defect #2741 Short-film duration truncated by MediaInfo scanner
+ - Fixed defect #2743 XMLcompatible doesn't work for extracting multiple subtitles
  - Fixed defect #2746 Filmweb.pl layout changed for cast and crew
  - Fixed defect #2747 Use UTF-8 encoding for filmaffinity instead ISO-8859-1
  - Fixed defect #2748 Multiple codes with different language not correctly detected

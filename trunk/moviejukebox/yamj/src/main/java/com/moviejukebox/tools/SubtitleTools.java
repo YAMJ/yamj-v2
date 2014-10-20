@@ -31,30 +31,16 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public final class SubtitleTools {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubtitleTools.class);
     private static final String LOG_MESSAGE = "SubtitleTools: ";
-    public static final String SPACE_SLASH_SPACE = " / ";
+    private static final String SPACE_SLASH_SPACE = " / ";
     private static final String SPLIT_PATTERN = "\\||,|/";
     private static final String YES = "YES";
     private static final String NO = "NO";
-    private static final String SUBTITLE_DELIM;
     private static final boolean SUBTITLE_UNIQUE = PropertiesUtil.getBooleanProperty("mjb.subtitle.unique", Boolean.TRUE);
     private static final List<String> SUBTITLE_SKIPPED = populateSkippedSubtitles();
-
-    static {
-        // Check for the delimiter in the properties file
-        String tmpDelim = PropertiesUtil.getProperty("mjb.subtitle.delimiter");
-        if (StringTools.isValidString(tmpDelim)) {
-            SUBTITLE_DELIM = tmpDelim;
-        } else {
-            // If there is no delimiter use the default " / ".
-            // Do it this way so the property is not trimmed by the properties functions.
-            SUBTITLE_DELIM = SPACE_SLASH_SPACE;
-        }
-    }
 
     private SubtitleTools() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
@@ -109,7 +95,7 @@ public final class SubtitleTools {
         String newSubtitles = addMovieSubtitle(movie.getSubtitles(), subtitle);
         movie.setSubtitles(newSubtitles);
     }
-
+    
     /**
      * Adds a new subtitle to the actual list of subtitles.
      *
@@ -131,14 +117,12 @@ public final class SubtitleTools {
             } else if (YES.equalsIgnoreCase(newSubtitle)) {
                 LOG.trace(LOG_MESSAGE + "Subtitles already exist");
                 // Nothing to change, cause there are already valid subtitle languages present
-                // TODO Inspect if UNKNOWN should be added add the end of the subtitles list
             } else if (YES.equalsIgnoreCase(actualSubtitles)) {
                 // override with subtitle language
                 newMovieSubtitles = infoLanguage;
-                // TODO Inspect if UNKNOWN should be added add the end of the subtitles list
             } else if (!SUBTITLE_UNIQUE || !actualSubtitles.contains(infoLanguage)) {
                 // Add subtitle to subtitles list
-                newMovieSubtitles = actualSubtitles + SUBTITLE_DELIM + infoLanguage;
+                newMovieSubtitles = actualSubtitles + SPACE_SLASH_SPACE + infoLanguage;
             }
         }
 

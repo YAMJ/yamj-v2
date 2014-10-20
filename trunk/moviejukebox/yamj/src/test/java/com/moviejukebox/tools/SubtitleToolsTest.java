@@ -197,4 +197,18 @@ public class SubtitleToolsTest {
         SubtitleTools.setMovieSubtitles(movie, subtitles);
         assertEquals("English / German", movie.getSubtitles());
     }
+
+    @Test
+    public void tesGetMovieSubtitles() {
+        List<String> subtitles = new ArrayList<String>();
+        subtitles.add("en");
+        subtitles.add("it");
+        subtitles.add("de");
+        subtitles.add("nor");
+        subtitles.add("ger");
+
+        Movie movie = new Movie();
+        SubtitleTools.setMovieSubtitles(movie, subtitles);
+        assertEquals(2, SubtitleTools.getSubtitles(movie).size());
+    }
 }

@@ -22,63 +22,28 @@
  */
 package com.moviejukebox.writer;
 
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+
+import com.moviejukebox.model.*;
 import com.moviejukebox.model.Attachment.Attachment;
-import com.moviejukebox.model.Award;
-import com.moviejukebox.model.AwardEvent;
-import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.CodecType;
 import com.moviejukebox.model.Comparator.CertificationComparator;
 import com.moviejukebox.model.Comparator.IndexComparator;
 import com.moviejukebox.model.Comparator.SortIgnorePrefixesComparator;
-import com.moviejukebox.model.DirtyFlag;
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Filmography;
-import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.Index;
-import com.moviejukebox.model.IndexInfo;
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.JukeboxStatistic;
-import com.moviejukebox.model.JukeboxStatistics;
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.model.TitleSortType;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.tools.DOMHelper;
-import com.moviejukebox.tools.DateTimeTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.*;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import org.apache.commons.lang3.StringUtils;
+import org.pojava.datetime.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.pojava.datetime.DateTime;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -1146,7 +1111,7 @@ public class MovieJukeboxXMLWriter {
         if (XML_COMPATIBLE) {
             Element eSubtitle = doc.createElement("subs");
             int cnt = 0;
-            for (String subtitle : movie.getSubtitles().split(Movie.SPACE_SLASH_SPACE)) {
+            for (String subtitle : SubtitleTools.getSubtitles(movie)) {
                 DOMHelper.appendChild(doc, eSubtitle, "subtitle", subtitle);
                 cnt++;
             }
