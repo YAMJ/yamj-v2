@@ -28,34 +28,13 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.enumerations.CodecSource;
 import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.tools.AspectRatioTools;
-import com.moviejukebox.tools.DateTimeTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SubtitleTools;
-import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.*;
 import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
 import com.mucommander.file.FileFactory;
 import com.mucommander.file.impl.iso.IsoArchiveFile;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
@@ -326,28 +305,24 @@ public class MediaInfoScanner {
             }
         }
 
-        InputStream is = null;
+        MediaInfoStream stream = null;
         try {
-            is = createInputStream(movieFilePath);
+            stream = createStream(movieFilePath);
 
             Map<String, String> infosGeneral = new HashMap<String, String>();
             List<Map<String, String>> infosVideo = new ArrayList<Map<String, String>>();
             List<Map<String, String>> infosAudio = new ArrayList<Map<String, String>>();
             List<Map<String, String>> infosText = new ArrayList<Map<String, String>>();
 
-            parseMediaInfo(is, infosGeneral, infosVideo, infosAudio, infosText);
+            parseMediaInfo(stream, infosGeneral, infosVideo, infosAudio, infosText);
 
             updateMovieInfo(currentMovie, infosGeneral, infosVideo, infosAudio, infosText, infosMultiPart);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             LOG.warn(LOG_MESSAGE + "Failed reading mediainfo output for " + movieFilePath);
             LOG.error(SystemTools.getStackTrace(ex));
         } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException ignore) {
-                    // ignore this error
-                }
+            if (stream != null) {
+                stream.close();
             }
         }
     }
@@ -368,16 +343,16 @@ public class MediaInfoScanner {
     }
 
     private void scanMultiParts(String movieFilePath, Map<String, String> infosMultiPart) {
-        InputStream is = null;
+        MediaInfoStream stream = null;
         try {
-            is = createInputStream(movieFilePath);
+            stream = createStream(movieFilePath);
 
             Map<String, String> infosGeneral = new HashMap<String, String>();
             List<Map<String, String>> infosVideo = new ArrayList<Map<String, String>>();
             List<Map<String, String>> infosAudio = new ArrayList<Map<String, String>>();
             List<Map<String, String>> infosText = new ArrayList<Map<String, String>>();
 
-            parseMediaInfo(is, infosGeneral, infosVideo, infosAudio, infosText);
+            parseMediaInfo(stream, infosGeneral, infosVideo, infosAudio, infosText);
 
             // resolve duration
             int duration = getDuration(infosGeneral, infosVideo);
@@ -386,21 +361,17 @@ public class MediaInfoScanner {
             if (duration > 0) {
                 infosMultiPart.put("MultiPart_Duration", String.valueOf(duration));
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             LOG.warn(LOG_MESSAGE + "Failed reading mediainfo output for " + movieFilePath);
             LOG.error(SystemTools.getStackTrace(ex));
         } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException ignore) {
-                    // ignore this error
-                }
+            if (stream != null) {
+                stream.close();
             }
         }
     }
 
-    private InputStream createInputStream(String movieFilePath) throws IOException {
+    protected MediaInfoStream createStream(String movieFilePath) throws IOException {
         if (MI_READ_FROM_FILE) {
             // check file
             String filename = FilenameUtils.removeExtension(movieFilePath) + ".mediainfo";
@@ -408,7 +379,7 @@ public class MediaInfoScanner {
             if (files != null && files.size() > 0) {
                 // create new input stream for reading
                 LOG.debug(LOG_MESSAGE + "Reading from file " + filename);
-                return new FileInputStream(files.iterator().next());
+                return new MediaInfoStream(new FileInputStream(files.iterator().next()));
             }
         }
 
@@ -417,12 +388,9 @@ public class MediaInfoScanner {
         commandMedia.add(movieFilePath);
 
         ProcessBuilder pb = new ProcessBuilder(commandMedia);
-
         // set up the working directory.
         pb.directory(MI_PATH);
-
-        Process p = pb.start();
-        return p.getInputStream();
+        return new MediaInfoStream(pb.start());
     }
 
     /**
@@ -440,17 +408,17 @@ public class MediaInfoScanner {
         return line;
     }
 
-    protected void parseMediaInfo(InputStream in,
+    protected void parseMediaInfo(MediaInfoStream stream,
             Map<String, String> infosGeneral,
             List<Map<String, String>> infosVideo,
             List<Map<String, String>> infosAudio,
-            List<Map<String, String>> infosText) throws IOException {
+            List<Map<String, String>> infosText) throws Exception {
 
         InputStreamReader isr = null;
         BufferedReader bufReader = null;
 
         try {
-            isr = new InputStreamReader(in);
+            isr = new InputStreamReader(stream.getInputStream());
             bufReader = new BufferedReader(isr);
 
             // Improvement, less code line, each cat have same code, so use the same for all.

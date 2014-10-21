@@ -22,21 +22,22 @@
  */
 package com.moviejukebox.scanner;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import com.moviejukebox.model.Codec;
 import com.moviejukebox.model.CodecType;
 import com.moviejukebox.model.Movie;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +52,15 @@ public class MediaInfoScannerTest {
     List<Map<String, String>> infosAudio = new ArrayList<Map<String, String>>();
     List<Map<String, String>> infosText = new ArrayList<Map<String, String>>();
 
+    @Ignore
+    public void testMediaInfoScan() {
+        getMediaInfoTestFile("test.mkv", false);
+        printTextInfos("Video", this.infosVideo);
+        printTextInfos("Audio", this.infosAudio);
+    }
     @Test
     public void testStaticFile() {
-        getMediaInfoTestFile("mediainfo-1.txt");
+        getMediaInfoTestFile("mediainfo-1.txt", true);
 
         Movie movie = new Movie();
         MI_TEST.updateMovieInfo(movie, infosGeneral, infosVideo, infosAudio, infosText, infosGeneral);
@@ -64,14 +71,14 @@ public class MediaInfoScannerTest {
 
     @Test
     public void testAudioStreamFile() {
-        getMediaInfoTestFile("mediainfo-2.txt");
+        getMediaInfoTestFile("mediainfo-2.txt", true);
         assertEquals(7, infosAudio.size());
         assertEquals(1, infosVideo.size());
     }
 
     @Test
     public void testAvi() {
-        getMediaInfoTestFile("AVI_DTS_ES_6.1.AVI.txt");
+        getMediaInfoTestFile("AVI_DTS_ES_6.1.AVI.txt", true);
 
         Codec codec;
         int counter = 1;
@@ -86,7 +93,7 @@ public class MediaInfoScannerTest {
             System.out.println(counter++ + " = " + codec.toString());
         }
 
-        getMediaInfoTestFile("AVI_DTS_MA_7.1.AVI.txt");
+        getMediaInfoTestFile("AVI_DTS_MA_7.1.AVI.txt", true);
 
         counter = 1;
         for (Map<String, String> codecInfo : infosVideo) {
@@ -103,7 +110,7 @@ public class MediaInfoScannerTest {
 
     @Test
     public void testChannels() {
-        getMediaInfoTestFile("mediainfo-channels.txt");
+        getMediaInfoTestFile("mediainfo-channels.txt", true);
 
         Codec codec;
         int counter = 1;
@@ -116,7 +123,7 @@ public class MediaInfoScannerTest {
 
     @Test
     public void testMultipleAudioCodes() {
-        getMediaInfoTestFile("DTS_AC3_DTS_AC3.txt");
+        getMediaInfoTestFile("DTS_AC3_DTS_AC3.txt", true);
         Movie movie = new Movie();
         Codec codec;
         int counter = 1;
@@ -151,7 +158,7 @@ public class MediaInfoScannerTest {
         LOG.info("***** {}", title);
         for (Map<String, String> info : infos) {
             for (Map.Entry<String, String> entry : info.entrySet()) {
-                LOG.info("{}-{}", entry.getKey(), entry.getValue());
+                LOG.info("{} -> {}", entry.getKey(), entry.getValue());
             }
         }
     }
@@ -161,25 +168,34 @@ public class MediaInfoScannerTest {
      *
      * @param filename
      */
-    private void getMediaInfoTestFile(String filename) {
+    private void getMediaInfoTestFile(String filename, boolean isText) {
         File file = FileUtils.getFile(testDir, filename);
         LOG.info("File: {} Length: {} Exists: {}", file.getAbsolutePath(), file.length(), file.exists());
 
+        MediaInfoStream stream = null;
         try {
-            FileInputStream fis = new FileInputStream(file);
+            if (isText) {
+                stream = new MediaInfoStream(new FileInputStream(file));
+            } else {
+                stream = MI_TEST.createStream(file.getAbsolutePath());
+            }
 
             infosGeneral.clear();
             infosVideo.clear();
             infosAudio.clear();
             infosText.clear();
 
-            MI_TEST.parseMediaInfo(fis, infosGeneral, infosVideo, infosAudio, infosText);
+            MI_TEST.parseMediaInfo(stream, infosGeneral, infosVideo, infosAudio, infosText);
         } catch (FileNotFoundException error) {
             LOG.warn("File not found.", error);
             assertFalse("No exception expected : " + error.getMessage(), true);
-        } catch (IOException error) {
+        } catch (Exception error) {
             LOG.warn("IOException.", error);
             assertFalse("No exception expected : " + error.getMessage(), true);
+        } finally {
+            if (stream != null)  {
+                stream.close();
+            }
         }
     }
 }
