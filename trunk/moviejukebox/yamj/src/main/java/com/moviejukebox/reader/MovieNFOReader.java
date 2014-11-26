@@ -22,25 +22,42 @@
  */
 package com.moviejukebox.reader;
 
-import static com.moviejukebox.tools.StringTools.isValidString;
-
-import com.moviejukebox.model.*;
+import com.moviejukebox.model.Codec;
+import com.moviejukebox.model.CodecType;
+import com.moviejukebox.model.DirtyFlag;
+import com.moviejukebox.model.EpisodeDetail;
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.CodecSource;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.scanner.MovieFilenameScanner;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.AspectRatioTools;
+import com.moviejukebox.tools.DOMHelper;
+import com.moviejukebox.tools.DateTimeTools;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import static com.moviejukebox.tools.StringTools.isValidString;
+import com.moviejukebox.tools.SubtitleTools;
+import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.*;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.pojava.datetime.DateTime;
-import org.pojava.datetime.DateTimeConfigBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -106,7 +123,8 @@ public final class MovieNFOReader {
     /**
      * Try and read a NFO file for information
      *
-     * First try as XML format file, then check to see if it contains XML and text and split it to read each part
+     * First try as XML format file, then check to see if it contains XML and
+     * text and split it to read each part
      *
      * @param nfoFile
      * @param movie
@@ -197,7 +215,8 @@ public final class MovieNFOReader {
     /**
      * Used to parse out the XML NFO data from a file.
      *
-     * This is generic for movie and TV show files as they are both nearly identical.
+     * This is generic for movie and TV show files as they are both nearly
+     * identical.
      *
      * @param nfoFile
      * @param movie
@@ -445,7 +464,7 @@ public final class MovieNFOReader {
                 // Director and Writers
                 if (!SKIP_NFO_CREW) {
                     parseDirectors(eCommon.getElementsByTagName("director"), movie);
-                    
+
                     List<Node> writerNodes = new ArrayList<Node>();
                     // get writers list
                     NodeList nlWriters = eCommon.getElementsByTagName("writer");
@@ -705,30 +724,47 @@ public final class MovieNFOReader {
      *
      * @param movie
      * @param dateString
-     * @param parseDate
      */
     public static void movieDate(Movie movie, final String dateString) {
-        DateTimeConfigBuilder.newInstance().setDmyOrder(false);
-
         String parseDate = StringUtils.normalizeSpace(dateString);
+
+        if(StringTools.isNotValidString(parseDate)) {
+            // No date, so return
+            return;
+        }
+
+        Date parsedDate = null;
+        boolean failedToParse = false;
+
+        try {
+            parsedDate = DateTimeTools.parseStringToDate(parseDate);
+        } catch (IllegalArgumentException ex) {
+            LOG.warn(LOG_MESSAGE + SystemTools.getStackTrace(ex));
+            failedToParse = true;
+        } catch (ParseException ex) {
+            LOG.warn(LOG_MESSAGE + SystemTools.getStackTrace(ex));
+            failedToParse = true;
+        }
+
+        if (failedToParse) {
+            LOG.warn(LOG_MESSAGE + "Failed parsing NFO file for movie: " + movie.getBaseFilename() + ". Please fix or remove it.");
+            LOG.warn(LOG_MESSAGE + "premiered or releasedate does not contain a valid date: " + parseDate);
+
+            if (OverrideTools.checkOverwriteReleaseDate(movie, NFO_PLUGIN_ID)) {
+                movie.setReleaseDate(parseDate, NFO_PLUGIN_ID);
+            }
+
+            return;
+        }
+
         if (StringTools.isValidString(parseDate)) {
             try {
-                DateTime dateTime;
-                if (parseDate.length() == 4 && StringUtils.isNumeric(parseDate)) {
-                    // Warn the user
-                    LOG.debug(LOG_MESSAGE + "Partial date detected in premiered field of NFO for " + movie.getBaseFilename());
-                    // Assume just the year an append "-01-01" to the end
-                    dateTime = new DateTime(parseDate + "-01-01");
-                } else {
-                    dateTime = new DateTime(parseDate);
-                }
-
                 if (OverrideTools.checkOverwriteReleaseDate(movie, NFO_PLUGIN_ID)) {
-                    movie.setReleaseDate(DateTimeTools.convertDateToString(dateTime), NFO_PLUGIN_ID);
+                    movie.setReleaseDate(DateTimeTools.convertDateToString(parsedDate, "yyyy-MM-dd"), NFO_PLUGIN_ID);
                 }
 
                 if (OverrideTools.checkOverwriteYear(movie, NFO_PLUGIN_ID)) {
-                    movie.setYear(dateTime.toString("yyyy"), NFO_PLUGIN_ID);
+                    movie.setYear(DateTimeTools.convertDateToString(parsedDate, "yyyy"), NFO_PLUGIN_ID);
                 }
             } catch (Exception ex) {
                 LOG.warn(LOG_MESSAGE + "Failed parsing NFO file for movie: " + movie.getBaseFilename() + ". Please fix or remove it.");
@@ -898,7 +934,7 @@ public final class MovieNFOReader {
 
         Set<String> newWriters = new LinkedHashSet<String>();
         for (Node nWriter : nlWriters) {
-            NodeList nlChilds = ((Element)nWriter).getChildNodes();
+            NodeList nlChilds = ((Element) nWriter).getChildNodes();
             Node nChilds;
             for (int looper = 0; looper < nlChilds.getLength(); looper++) {
                 nChilds = nlChilds.item(looper);

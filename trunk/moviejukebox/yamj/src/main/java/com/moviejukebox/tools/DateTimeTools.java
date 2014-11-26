@@ -32,10 +32,11 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.pojava.datetime.DateTime;
+import org.pojava.datetime.DateTimeConfig;
+import org.pojava.datetime.DateTimeConfigBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.pojava.datetime.DateTime;
 
 public final class DateTimeTools {
 
@@ -46,6 +47,9 @@ public final class DateTimeTools {
     private static final String[] FORMATS = new String[5];
     private static final Pattern DATE_COUNTRY = Pattern.compile("(.*)(\\s*?\\(\\w*\\))");
     private static final Pattern YEAR_PATTERN = Pattern.compile("(?:.*?)(\\d{4})(?:.*?)");
+    // DateTime Config
+    private static final DateTimeConfigBuilder DTC_BUILDER;
+    private static boolean dtcDmy;
 
     static {
         FORMATS[0] = "yyyy-MM-dd";
@@ -53,6 +57,12 @@ public final class DateTimeTools {
         FORMATS[2] = "yyyy/MM/dd";
         FORMATS[3] = "dd/MM/yyyy";
         FORMATS[4] = "dd MMMM yyyy";
+
+        // Create the builder and assign a default DMY order
+        DTC_BUILDER = DateTimeConfigBuilder.newInstance();
+        DTC_BUILDER.setDmyOrder(Boolean.FALSE);
+        dtcDmy = Boolean.FALSE;
+        DateTimeConfig.setGlobalDefaultFromBuilder(DTC_BUILDER);
     }
 
     private DateTimeTools() {
@@ -144,7 +154,8 @@ public final class DateTimeTools {
     }
 
     /**
-     * Take a string runtime in various formats and try to output this in minutes
+     * Take a string runtime in various formats and try to output this in
+     * minutes
      *
      * @param runtime
      * @return
@@ -154,7 +165,8 @@ public final class DateTimeTools {
     }
 
     /**
-     * Take a string runtime in various formats and try to output this in minutes
+     * Take a string runtime in various formats and try to output this in
+     * minutes
      *
      * @param runtime
      * @param defaultValue
@@ -208,10 +220,37 @@ public final class DateTimeTools {
      * @param targetFormat
      * @return
      */
-    public static String parseDateTo(String dateToParse, String targetFormat) {
+    public static String parseDateTo(final String dateToParse, final String targetFormat) {
         String parsedDateString = "";
+        Date parsedDate;
+        try {
+            parsedDate = parseStringToDate(dateToParse);
+        } catch (ParseException ex) {
+            LOG.debug(LOG_MESSAGE + "Failed to parse date '" + dateToParse + "', error: " + ex.getMessage(), ex);
+            return parsedDateString;
+        }
 
-        if (StringTools.isValidString(dateToParse) || StringTools.isValidString(targetFormat)) {
+        if (StringTools.isValidString(targetFormat)) {
+            parsedDateString = convertDateToString(parsedDate, targetFormat);
+        } else {
+            LOG.debug(LOG_MESSAGE + "Invalid date '" + dateToParse + "' or target format '" + targetFormat + "' passed");
+        }
+
+        return parsedDateString;
+    }
+
+    /**
+     * Convert a string date into a Date object.
+     *
+     * @param dateToParse
+     * @return the date converted
+     * @throws ParseException
+     */
+    public static Date parseStringToDate(final String dateToParse) throws IllegalArgumentException, ParseException {
+        Date parsedDate = null;
+        String parsedDateString;
+
+        if (StringTools.isValidString(dateToParse)) {
             if (dateToParse.length() <= 4) {
                 LOG.trace(LOG_MESSAGE + "Adding '-01-01' to short date");
                 parsedDateString = dateToParse + "-01-01";
@@ -226,18 +265,12 @@ public final class DateTimeTools {
                 }
             }
 
-            try {
-                Date parsedDate = DateUtils.parseDate(parsedDateString.trim(), FORMATS);
-                parsedDateString = convertDateToString(parsedDate, targetFormat);
-            } catch (ParseException ex) {
-                LOG.debug(LOG_MESSAGE + "Failed to parse date '" + dateToParse + "', error: " + ex.getMessage(), ex);
-                parsedDateString = "";
-            }
+            parsedDate = DateUtils.parseDate(parsedDateString.trim(), FORMATS);
         } else {
-            LOG.debug(LOG_MESSAGE + "Invalid date '" + dateToParse + "' or target format '" + targetFormat + "' passed");
+            throw new IllegalArgumentException("Invalid date '" + dateToParse + "' passed");
         }
 
-        return parsedDateString;
+        return parsedDate;
     }
 
     /**
@@ -250,11 +283,29 @@ public final class DateTimeTools {
         int year = 0;
         Matcher m = YEAR_PATTERN.matcher(date);
         if (m.find()) {
-            year = Integer.valueOf(m.group(1)).intValue();
+            year = Integer.valueOf(m.group(1));
         }
 
         // Give up and return 0
         return year;
+    }
+
+    /**
+     * Is the parsing using DMY format?
+     *
+     * @return
+     */
+    public static boolean isDtcDmy() {
+        return dtcDmy;
+    }
+
+    /**
+     * Set the DMY parsing to DMY (true) or MDY (false)
+     *
+     * @param dtcDmy
+     */
+    public static void setDtcDmy(boolean dtcDmy) {
+        DateTimeTools.dtcDmy = dtcDmy;
     }
 
 }
