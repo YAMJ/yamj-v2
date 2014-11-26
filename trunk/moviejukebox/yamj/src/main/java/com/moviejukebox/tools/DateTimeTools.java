@@ -31,7 +31,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.pojava.datetime.DateTime;
 import org.pojava.datetime.DateTimeConfig;
 import org.pojava.datetime.DateTimeConfigBuilder;
@@ -44,7 +43,6 @@ public final class DateTimeTools {
     private static final String LOG_MESSAGE = "DateTimeTools: ";
     private static final String DATE_FORMAT_STRING = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
     private static final String DATE_FORMAT_LONG_STRING = DATE_FORMAT_STRING + " HH:mm:ss";
-    private static final String[] FORMATS = new String[5];
     private static final Pattern DATE_COUNTRY = Pattern.compile("(.*)(\\s*?\\(\\w*\\))");
     private static final Pattern YEAR_PATTERN = Pattern.compile("(?:.*?)(\\d{4})(?:.*?)");
     // DateTime Config
@@ -52,16 +50,20 @@ public final class DateTimeTools {
     private static boolean dtcDmy;
 
     static {
-        FORMATS[0] = "yyyy-MM-dd";
-        FORMATS[1] = "dd-MM-yyyy";
-        FORMATS[2] = "yyyy/MM/dd";
-        FORMATS[3] = "dd/MM/yyyy";
-        FORMATS[4] = "dd MMMM yyyy";
-
         // Create the builder and assign a default DMY order
         DTC_BUILDER = DateTimeConfigBuilder.newInstance();
-        DTC_BUILDER.setDmyOrder(Boolean.FALSE);
-        dtcDmy = Boolean.FALSE;
+        setDmyOrder(Boolean.FALSE);
+    }
+
+    /**
+     * Set the DMY parsing to DMY (true) or MDY (false)
+     *
+     * @param order
+     */
+    private static void setDmyOrder(boolean order) {
+        LOG.debug("Setting date order to {}.", order ? "DMY" : "MDY");
+        dtcDmy = order;
+        DTC_BUILDER.setDmyOrder(dtcDmy);
         DateTimeConfig.setGlobalDefaultFromBuilder(DTC_BUILDER);
     }
 
@@ -154,8 +156,7 @@ public final class DateTimeTools {
     }
 
     /**
-     * Take a string runtime in various formats and try to output this in
-     * minutes
+     * Take a string runtime in various formats and try to output this in minutes
      *
      * @param runtime
      * @return
@@ -165,8 +166,7 @@ public final class DateTimeTools {
     }
 
     /**
-     * Take a string runtime in various formats and try to output this in
-     * minutes
+     * Take a string runtime in various formats and try to output this in minutes
      *
      * @param runtime
      * @param defaultValue
@@ -265,11 +265,42 @@ public final class DateTimeTools {
                 }
             }
 
-            parsedDate = DateUtils.parseDate(parsedDateString.trim(), FORMATS);
+            parsedDate = parseDateTime(dateToParse);
+
         } else {
             throw new IllegalArgumentException("Invalid date '" + dateToParse + "' passed");
         }
 
+        return parsedDate;
+    }
+
+    private static Date parseDateTime(String convertDate) {
+        Date parsedDate = convertStringDate(convertDate);
+
+        if (parsedDate == null) {
+            // Switch the date order and try again
+            setDmyOrder(!dtcDmy);
+            parsedDate = convertStringDate(convertDate);
+        }
+
+        return parsedDate;
+    }
+
+    /**
+     * Convert the string date using DateTools parsing
+     *
+     * @param convertDate
+     * @return
+     */
+    private static Date convertStringDate(String convertDate) {
+        Date parsedDate;
+        try {
+            parsedDate = DateTime.parse(convertDate).toDate();
+            LOG.trace("Converted date '{}' using {} order", convertDate, dtcDmy ? "DMY" : "MDY");
+        } catch (IllegalArgumentException ex) {
+            LOG.debug("Failed to convert date '{}' using {} order", convertDate, dtcDmy ? "DMY" : "MDY");
+            parsedDate = null;
+        }
         return parsedDate;
     }
 
@@ -288,24 +319,6 @@ public final class DateTimeTools {
 
         // Give up and return 0
         return year;
-    }
-
-    /**
-     * Is the parsing using DMY format?
-     *
-     * @return
-     */
-    public static boolean isDtcDmy() {
-        return dtcDmy;
-    }
-
-    /**
-     * Set the DMY parsing to DMY (true) or MDY (false)
-     *
-     * @param dtcDmy
-     */
-    public static void setDtcDmy(boolean dtcDmy) {
-        DateTimeTools.dtcDmy = dtcDmy;
     }
 
 }

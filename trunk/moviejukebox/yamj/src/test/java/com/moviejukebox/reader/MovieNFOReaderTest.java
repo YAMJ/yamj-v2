@@ -26,7 +26,6 @@ import static org.junit.Assert.assertEquals;
 
 import com.moviejukebox.model.Movie;
 import org.junit.Test;
-import org.pojava.datetime.DateTime;
 
 /**
  *
@@ -39,14 +38,18 @@ public class MovieNFOReaderTest {
         System.out.println("testMovieDate");
         String dateTest = "20/10/2005";
 
-        DateTime dateTime = DateTime.parse(dateTest);
-        System.out.println(dateTime);
-
         Movie m = new Movie();
         MovieNFOReader.movieDate(m, dateTest);
 
         assertEquals("Wrong release year", "2005", m.getYear());
         assertEquals("Wrong release date", "2005-10-20", m.getReleaseDate());
+
+        dateTest = "10/20/2005";
+        MovieNFOReader.movieDate(m, dateTest);
+
+        assertEquals("Wrong release year", "2005", m.getYear());
+        assertEquals("Wrong release date", "2005-10-20", m.getReleaseDate());
+
     }
 
     @Test
