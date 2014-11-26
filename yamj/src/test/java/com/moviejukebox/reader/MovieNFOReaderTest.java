@@ -51,7 +51,7 @@ public class MovieNFOReaderTest {
 
     @Test
     public void testParsCrew() {
-        StringBuffer nfo = new StringBuffer();
+        StringBuilder nfo = new StringBuilder();
         nfo.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
         nfo.append("<movie>");
         nfo.append("<id>-1</id>");
@@ -65,7 +65,7 @@ public class MovieNFOReaderTest {
         nfo.append("<credits>Hans Dampf</credits>");
         nfo.append("<director>David Slade</director>");
         nfo.append("</movie>");
-        
+
         Movie movie = new Movie();
         MovieNFOReader.readXmlNfo(nfo.toString(), movie, "test.nfo");
         assertEquals(1, movie.getDirectors().size());
