@@ -22,14 +22,6 @@
  */
 package com.moviejukebox.plugin;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Before;
-
-import org.junit.BeforeClass;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -37,6 +29,12 @@ import com.moviejukebox.tools.StringTools;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Series;
 import org.apache.log4j.Logger;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -57,7 +55,7 @@ public class TheTvDBPluginTest {
         PropertiesUtil.setProperty("mjb.includeVideoImages", true);
         PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
     }
-    
+
     @Before
     public void setup() {
         TVDB = new TheTvDBPlugin();
@@ -186,7 +184,7 @@ public class TheTvDBPluginTest {
         Banners result = TheTvDBPlugin.getBanners(String.valueOf(ID_BABYLON_5));
 
         assertNotNull("Null result", result);
-        assertEquals("Invalid ID", 383471, result.getSeriesId());
+        assertEquals("Invalid Series ID", ID_BABYLON_5, result.getSeriesId());
         assertFalse("No Fanart", result.getFanartList().isEmpty());
         assertFalse("No Posters", result.getPosterList().isEmpty());
         assertFalse("No Seasons", result.getSeasonList().isEmpty());
