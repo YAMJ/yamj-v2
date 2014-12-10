@@ -25,13 +25,19 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.DateTimeTools;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.SearchEngineTools;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,12 +45,18 @@ public class FilmwebPlugin extends ImdbPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(FilmwebPlugin.class);
     private static final String LOG_MESSAGE = "FilmwebPlugin: ";
+    private static final String LOG_ERROR = "{}Error: {}";
     public static final String FILMWEB_PLUGIN_ID = "filmweb";
     private static final Pattern NFO_PATTERN = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
     private SearchEngineTools searchEngineTools;
+    // TOP 250 pattern  match
+    private static final Pattern P_TOP250 = Pattern.compile(".*?#(\\d*).*?");
+    private static final Pattern P_RUNTIME = Pattern.compile("duration:.(\\d*)");
+    private static final Pattern P_YEAR = Pattern.compile("year:.*?(\\d*)");
 
     public FilmwebPlugin() {
-        super(); // use IMDB if filmweb doesn't know movie
+        // use IMDB if filmweb doesn't know movie
+        super();
         init();
     }
 
@@ -60,7 +72,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             // first request to filmweb site to skip welcome screen with ad banner
             webBrowser.request("http://www.filmweb.pl");
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            LOG.error(LOG_ERROR, LOG_MESSAGE, error.getMessage(), error);
         }
     }
 
@@ -102,7 +114,7 @@ public class FilmwebPlugin extends ImdbPlugin {
                 }
             }
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed retrieving Filmweb url for title : " + title);
+            LOG.error("{}Failed retrieving Filmweb url for title : {}", LOG_MESSAGE, title);
             LOG.error(SystemTools.getStackTrace(error));
         }
         return Movie.UNKNOWN;
@@ -123,6 +135,23 @@ public class FilmwebPlugin extends ImdbPlugin {
     }
 
     /**
+     * Get a page from FilmWeb or return blank if failed
+     *
+     * @param filmwebUrl
+     * @return
+     */
+    private String getPage(String filmwebUrl) {
+        String xmlPage = "";
+        try {
+            xmlPage = webBrowser.request(filmwebUrl);
+        } catch (IOException error) {
+            LOG.error("{}Failed retreiving filmweb informations for URL: {}", LOG_MESSAGE, filmwebUrl);
+            LOG.error(SystemTools.getStackTrace(error));
+        }
+        return xmlPage;
+    }
+
+    /**
      * Scan web page for the specified movie
      *
      * @param movie
@@ -133,187 +162,206 @@ public class FilmwebPlugin extends ImdbPlugin {
 
         boolean returnValue = Boolean.TRUE;
 
-        try {
-            String xml = webBrowser.request(filmwebUrl);
+        String xml = getPage(filmwebUrl);
+        if (StringUtils.isBlank(xml)) {
+            return Boolean.FALSE;
+        }
 
-            if (HTMLTools.extractTag(xml, "<title>").contains("Serial") && !movie.isTVShow()) {
-                movie.setMovieType(Movie.TYPE_TVSHOW);
-                return Boolean.FALSE;
-            }
+        if (HTMLTools.extractTag(xml, "<title>").contains("Serial") && !movie.isTVShow()) {
+            movie.setMovieType(Movie.TYPE_TVSHOW);
+            return Boolean.FALSE;
+        }
 
-            if (OverrideTools.checkOverwriteTitle(movie, FILMWEB_PLUGIN_ID)) {
-                movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()></"), FILMWEB_PLUGIN_ID);
-            }
+        if (OverrideTools.checkOverwriteTitle(movie, FILMWEB_PLUGIN_ID)) {
+            movie.setTitle(HTMLTools.extractTag(xml, "<title>", 0, "()></"), FILMWEB_PLUGIN_ID);
+        }
 
-            if (OverrideTools.checkOverwriteOriginalTitle(movie, FILMWEB_PLUGIN_ID)) {
-                String metaTitle = HTMLTools.extractTag(xml, "og:title", ">");
-                if (metaTitle.contains("/")) {
-                    String originalTitle = HTMLTools.extractTag(metaTitle, "/", 0, "()><\"");
-                    if (originalTitle.endsWith(", The")) {
-                        originalTitle = "The " + originalTitle.substring(0, originalTitle.length() - 5);
-                    }
-                    movie.setOriginalTitle(originalTitle, FILMWEB_PLUGIN_ID);
+        if (OverrideTools.checkOverwriteOriginalTitle(movie, FILMWEB_PLUGIN_ID)) {
+            String metaTitle = HTMLTools.extractTag(xml, "og:title", ">");
+            if (metaTitle.contains("/")) {
+                String originalTitle = HTMLTools.extractTag(metaTitle, "/", 0, "()><\"");
+                if (originalTitle.endsWith(", The")) {
+                    originalTitle = "The " + originalTitle.substring(0, originalTitle.length() - 5);
                 }
+                movie.setOriginalTitle(originalTitle, FILMWEB_PLUGIN_ID);
             }
+        }
 
-            if (movie.getRating() == -1) {
-                movie.addRating(FILMWEB_PLUGIN_ID, StringTools.parseRating(HTMLTools.getTextAfterElem(xml, "average")));
+        if (movie.getRating() == -1) {
+            movie.addRating(FILMWEB_PLUGIN_ID, StringTools.parseRating(HTMLTools.getTextAfterElem(xml, "average")));
+        }
+
+        // TOP250
+        if (OverrideTools.checkOverwriteTop250(movie, FILMWEB_PLUGIN_ID)) {
+            String top250 = HTMLTools.getTextAfterElem(xml, "<a class=worldRanking");
+            Matcher m = P_TOP250.matcher(top250);
+            if (m.find()) {
+                movie.setTop250(m.group(1), FILMWEB_PLUGIN_ID);
             }
+        }
 
-            // TOP250
-            if (OverrideTools.checkOverwriteTop250(movie, FILMWEB_PLUGIN_ID)) {
-                movie.setTop250(HTMLTools.extractTag(xml, "worldRanking", 0, ">."), FILMWEB_PLUGIN_ID);
-            }
+        if (OverrideTools.checkOverwriteReleaseDate(movie, FILMWEB_PLUGIN_ID)) {
+            movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "filmPremiereWorld"), FILMWEB_PLUGIN_ID);
+        }
 
-            if (OverrideTools.checkOverwriteReleaseDate(movie, FILMWEB_PLUGIN_ID)) {
-                movie.setReleaseDate(HTMLTools.getTextAfterElem(xml, "filmPremiereWorld"), FILMWEB_PLUGIN_ID);
-            }
-
-            if (OverrideTools.checkOverwriteRuntime(movie, FILMWEB_PLUGIN_ID)) {
-                String runtime = HTMLTools.getTextAfterElem(xml, "<div class=filmTime>");
-                int intRuntime = DateTimeTools.processRuntime(runtime);
+        if (OverrideTools.checkOverwriteRuntime(movie, FILMWEB_PLUGIN_ID)) {
+            Matcher m = P_RUNTIME.matcher(xml);
+            if (m.find()) {
+                int intRuntime = DateTimeTools.processRuntime(m.group(1));
                 if (intRuntime > 0) {
                     movie.setRuntime(String.valueOf(intRuntime), FILMWEB_PLUGIN_ID);
                 }
             }
+        }
 
-            if (OverrideTools.checkOverwriteCountry(movie, FILMWEB_PLUGIN_ID)) {
-                List<String> countries = HTMLTools.extractTags(xml, "produkcja:", "</tr", "<a ", "</a>");
-                movie.setCountries(countries, FILMWEB_PLUGIN_ID);
+        if (OverrideTools.checkOverwriteCountry(movie, FILMWEB_PLUGIN_ID)) {
+            List<String> countries = HTMLTools.extractTags(xml, "produkcja:", "</tr", "<a ", "</a>");
+            movie.setCountries(countries, FILMWEB_PLUGIN_ID);
+        }
+
+        if (OverrideTools.checkOverwriteGenres(movie, FILMWEB_PLUGIN_ID)) {
+            List<String> newGenres = new ArrayList<String>();
+            for (String genre : HTMLTools.extractTags(xml, "gatunek:", "produkcja:", "<a ", "</a>")) {
+                newGenres.add(Library.getIndexingGenre(genre));
             }
+            movie.setGenres(newGenres, FILMWEB_PLUGIN_ID);
+        }
 
-            if (OverrideTools.checkOverwriteGenres(movie, FILMWEB_PLUGIN_ID)) {
-                List<String> newGenres = new ArrayList<String>();
-                for (String genre : HTMLTools.extractTags(xml, "gatunek:", "produkcja:", "<a ", "</a>")) {
-                    newGenres.add(Library.getIndexingGenre(genre));
-                }
-                movie.setGenres(newGenres, FILMWEB_PLUGIN_ID);
+        String plot = HTMLTools.extractTag(xml, "v:summary\">", "</p>");
+        if (StringTools.isValidString(plot)) {
+            int buttonIndex = plot.indexOf("<button");
+            if (buttonIndex > 0) {
+                plot = plot.substring(0, buttonIndex);
             }
+            plot = HTMLTools.removeHtmlTags(plot);
 
-            String plot = HTMLTools.extractTag(xml, "v:summary\">", "</p>");
-            if (StringTools.isValidString(plot)) {
-                int buttonIndex = plot.indexOf("<button");
-                if (buttonIndex > 0) {
-                    plot = plot.substring(0, buttonIndex);
-                }
-                plot = HTMLTools.removeHtmlTags(plot);
-                
-                if (OverrideTools.checkOverwritePlot(movie, FILMWEB_PLUGIN_ID)) {
-                    movie.setPlot(plot, FILMWEB_PLUGIN_ID);
-                }
-                if (OverrideTools.checkOverwriteOutline(movie, FILMWEB_PLUGIN_ID)) {
-                    movie.setOutline(plot, FILMWEB_PLUGIN_ID);
-                }
+            if (OverrideTools.checkOverwritePlot(movie, FILMWEB_PLUGIN_ID)) {
+                movie.setPlot(plot, FILMWEB_PLUGIN_ID);
             }
-
-            if (OverrideTools.checkOverwriteYear(movie, FILMWEB_PLUGIN_ID)) {
-                String year = HTMLTools.getTextAfterElem(xml, "filmYear");
-                if (!Movie.UNKNOWN.equals(year)) {
-                    year = year.replaceAll("[^0-9]", "");
-                }
-                movie.setYear(year, FILMWEB_PLUGIN_ID);
+            if (OverrideTools.checkOverwriteOutline(movie, FILMWEB_PLUGIN_ID)) {
+                movie.setOutline(plot, FILMWEB_PLUGIN_ID);
             }
+        }
 
-            // scan cast/director/writers
-            if (!scanPersonInformations(movie, xml)) {
-                returnValue = Boolean.FALSE;
+        if (OverrideTools.checkOverwriteYear(movie, FILMWEB_PLUGIN_ID)) {
+            Matcher m = P_YEAR.matcher(xml);
+            if (m.find()) {
+                movie.setYear(m.group(1), FILMWEB_PLUGIN_ID);
             }
+        }
 
-            // scan TV show titles
-            if (movie.isTVShow()) {
-                scanTVShowTitles(movie);
-            }
-
-            if (downloadFanart && StringTools.isNotValidString(movie.getFanartURL())) {
-                movie.setFanartURL(getFanartURL(movie));
-                if (StringTools.isValidString(movie.getFanartURL())) {
-                    movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
-                }
-            }
-
-        } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving filmweb informations for movie : " + movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
-            LOG.error(SystemTools.getStackTrace(error));
+        // Scan cast
+        xml = getPage(filmwebUrl + "/cast/actors");
+        if (StringUtils.isNotBlank(xml) && !scanCastInformation(movie, xml)) {
             returnValue = Boolean.FALSE;
+        }
+
+        // Scan crew
+        xml = getPage(filmwebUrl + "/cast/crew");
+        if (StringUtils.isNotBlank(xml) && !scanCrewInformation(movie, xml)) {
+            returnValue = Boolean.FALSE;
+        }
+
+        // scan TV show titles
+        if (movie.isTVShow()) {
+            scanTVShowTitles(movie);
+        }
+
+        if (downloadFanart
+                && StringTools.isNotValidString(movie.getFanartURL())) {
+            movie.setFanartURL(getFanartURL(movie));
+            if (StringTools.isValidString(movie.getFanartURL())) {
+                movie.setFanartFilename(movie.getBaseName() + fanartToken + ".jpg");
+            }
         }
 
         return returnValue;
     }
 
-    private boolean scanPersonInformations(Movie movie, String xml) {
-        try {
-            boolean overrideNormal = OverrideTools.checkOverwriteDirectors(movie, FILMWEB_PLUGIN_ID);
-            boolean overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, FILMWEB_PLUGIN_ID);
-            if (overrideNormal || overridePeople) {
-                List<String> directors = new ArrayList<String>();
+    /**
+     * Get the actor information from the /cast/actors page
+     *
+     * @param movie
+     * @param xml
+     * @return
+     */
+    private boolean scanCastInformation(Movie movie, String xmlCast) {
+        boolean overrideNormal = OverrideTools.checkOverwriteActors(movie, FILMWEB_PLUGIN_ID);
+        boolean overridePeople = OverrideTools.checkOverwritePeopleActors(movie, FILMWEB_PLUGIN_ID);
 
-                List<String> tags = HTMLTools.extractHtmlTags(xml, "<th>reżyseria:</th>", "</ul>", "<li>", "</li>");
-                for (String tag : tags) {
-                    String director = HTMLTools.removeHtmlTags(tag);
-                    if (StringTools.isValidString(director)) {
-                        directors.add(director);
-                    }
-                }
-                
-                if (overrideNormal) {
-                    movie.setDirectors(directors, FILMWEB_PLUGIN_ID);
-                }
-                if (overridePeople) {
-                    movie.setPeopleDirectors(directors, FILMWEB_PLUGIN_ID);
+        if (overrideNormal || overridePeople) {
+            List<String> actors = new ArrayList<String>();
+
+            List<String> tags = HTMLTools.extractHtmlTags(xmlCast, "<table class=filmCast>", "</table>", "<tr id=", "</tr>");
+            for (String tag : tags) {
+                String actor = HTMLTools.getTextAfterElem(tag, "<a href=\"/person/");
+                if (StringTools.isValidString(actor)) {
+                    actors.add(actor);
                 }
             }
 
-            overrideNormal = OverrideTools.checkOverwriteWriters(movie, FILMWEB_PLUGIN_ID);
-            overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, FILMWEB_PLUGIN_ID);
-            if (overrideNormal || overridePeople) {
-                List<String> writers = new ArrayList<String>();
-
-                List<String> tags = HTMLTools.extractHtmlTags(xml, "<th>scenariusz:</th>", "</ul>", "<li>", "</li>");
-                for (String tag : tags) {
-                    String writer = HTMLTools.removeHtmlTags(tag);
-                    if (StringTools.isValidString(writer)) {
-                        writers.add(writer);
-                    }
-                }
-
-                if (overrideNormal) {
-                    movie.setWriters(writers, FILMWEB_PLUGIN_ID);
-                }
-                if (overridePeople) {
-                    movie.setWriters(writers, FILMWEB_PLUGIN_ID);
-                }
+            if (overrideNormal) {
+                movie.setCast(actors, FILMWEB_PLUGIN_ID);
             }
-
-            overrideNormal = OverrideTools.checkOverwriteActors(movie, FILMWEB_PLUGIN_ID);
-            overridePeople = OverrideTools.checkOverwritePeopleActors(movie, FILMWEB_PLUGIN_ID);
-            if (overrideNormal || overridePeople) {
-                List<String> actors = new ArrayList<String>();
-                
-                // actors are on a separate page
-                String actorsXml = webBrowser.request(movie.getId(FILMWEB_PLUGIN_ID) + "/cast");
-
-                List<String> tags = HTMLTools.extractHtmlTags(actorsXml, "<ul class=\"sep-hr filmCast\">", "</ul>", "<li data-role", "</li>");
-                for (String tag : tags) {
-                    String actor = HTMLTools.getTextAfterElem(tag, "<span class=personName>");
-                    if (StringTools.isValidString(actor)) {
-                        actors.add(actor);
-                    }
-                }
-
-                if (overrideNormal) {
-                    movie.setCast(actors, FILMWEB_PLUGIN_ID);
-                }
-                if (overridePeople) {
-                    movie.setPeopleCast(actors, FILMWEB_PLUGIN_ID);
-                }
+            if (overridePeople) {
+                movie.setPeopleCast(actors, FILMWEB_PLUGIN_ID);
             }
-
-            return Boolean.TRUE;
-        } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving person informations for movie : " + movie.getTitle());
-            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
-            return Boolean.FALSE;
         }
+
+        return Boolean.TRUE;
+    }
+
+    /**
+     * Get the crew information from the /cast/crew page
+     *
+     * @param movie
+     * @param xml
+     * @return
+     */
+    private boolean scanCrewInformation(Movie movie, String xmlCrew) {
+        boolean overrideNormal = OverrideTools.checkOverwriteDirectors(movie, FILMWEB_PLUGIN_ID);
+        boolean overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, FILMWEB_PLUGIN_ID);
+        if (overrideNormal || overridePeople) {
+            List<String> directors = new ArrayList<String>();
+
+            List<String> tags = HTMLTools.extractHtmlTags(xmlCrew, "<h2 class=\"hdr hdr-big\">reżyser", "</table>", "<tr id=", "</tr>");
+            for (String tag : tags) {
+                String director = HTMLTools.getTextAfterElem(tag, "<a href=\"/person/");
+                if (StringTools.isValidString(director)) {
+                    directors.add(director);
+                }
+            }
+
+            if (overrideNormal) {
+                movie.setDirectors(directors, FILMWEB_PLUGIN_ID);
+            }
+            if (overridePeople) {
+                movie.setPeopleDirectors(directors, FILMWEB_PLUGIN_ID);
+            }
+        }
+
+        overrideNormal = OverrideTools.checkOverwriteWriters(movie, FILMWEB_PLUGIN_ID);
+        overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, FILMWEB_PLUGIN_ID);
+        if (overrideNormal || overridePeople) {
+            List<String> writers = new ArrayList<String>();
+
+            List<String> tags = HTMLTools.extractHtmlTags(xmlCrew, "<h2 class=\"hdr hdr-big\">scenariusz", "</table>", "<tr id=", "</tr>");
+            for (String tag : tags) {
+                String writer = HTMLTools.getTextAfterElem(tag, "<a href=\"/person/");
+                if (StringTools.isValidString(writer)) {
+                    writers.add(writer);
+                }
+            }
+
+            if (overrideNormal) {
+                movie.setWriters(writers, FILMWEB_PLUGIN_ID);
+            }
+            if (overridePeople) {
+                movie.setWriters(writers, FILMWEB_PLUGIN_ID);
+            }
+        }
+
+        return Boolean.TRUE;
     }
 
     private String updateImdbId(Movie movie) {
@@ -365,8 +413,8 @@ public class FilmwebPlugin extends ImdbPlugin {
                 super.scanTVShowTitles(movie);
             }
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving episodes titles for movie : " + movie.getTitle());
-            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            LOG.error("{}Failed retreiving episodes titles for movie : {}", LOG_MESSAGE, movie.getTitle());
+            LOG.error(LOG_ERROR, LOG_MESSAGE, error.getMessage(), error);
         }
     }
 
@@ -380,18 +428,19 @@ public class FilmwebPlugin extends ImdbPlugin {
             return Boolean.TRUE;
         }
 
-        LOG.debug(LOG_MESSAGE + "Scanning NFO for filmweb url");
+        LOG.debug("{}Scanning NFO for filmweb url", LOG_MESSAGE);
         Matcher m = NFO_PATTERN.matcher(nfo);
         while (m.find()) {
             String url = m.group();
-            if (!url.endsWith(".jpg") && !url.endsWith(".jpeg") && !url.endsWith(".gif") && !url.endsWith(".png") && !url.endsWith(".bmp")) {
+            // Check to see that the URL isn't a picture
+            if (!StringUtils.endsWithAny(url, new String[]{".jpg", ".jpeg", ".gif", ".png", ".bmp"})) {
                 movie.setId(FILMWEB_PLUGIN_ID, url);
-                LOG.debug(LOG_MESSAGE + "Filmweb url found in NFO = " + url);
+                LOG.debug("{}Filmweb url found in NFO = {}", LOG_MESSAGE, url);
                 return Boolean.TRUE;
             }
         }
 
-        LOG.debug(LOG_MESSAGE + "No filmweb url found in NFO");
+        LOG.debug("{}No filmweb url found in NFO", LOG_MESSAGE);
         return Boolean.FALSE;
     }
 }

@@ -22,8 +22,6 @@
  */
 package com.moviejukebox.plugin;
 
-import static org.junit.Assert.assertEquals;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -34,8 +32,10 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class FilmwebPluginTest {
@@ -161,7 +161,7 @@ public class FilmwebPluginTest {
         assertEquals("Seksmisja", movie.getOriginalTitle());
     }
 
-    @Test
+    //@Test
     public void testUpdateMediaInfoTitle02() {
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
@@ -278,7 +278,6 @@ public class FilmwebPluginTest {
                         plotLength), movie.getPlot());
     }
 
-    
     @Test
     public void testUpdateMediaInfoYear() {
         Movie movie = new Movie();
