@@ -306,9 +306,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             if (OverrideTools.checkOverwriteOriginalTitle(movie, IMDB_PLUGIN_ID)) {
                 String originalTitle = title;
-                if (xml.indexOf("<span class=\"title-extra\">") > -1) {
+                if (xml.contains("<span class=\"title-extra\">")) {
                     originalTitle = HTMLTools.extractTag(xml, "<span class=\"title-extra\">", "</span>");
-                    if (originalTitle.indexOf("(original title)") > -1) {
+                    if (originalTitle.contains("(original title)")) {
                         originalTitle = originalTitle.replace(" <i>(original title)</i>", "");
                     } else {
                         originalTitle = title;
@@ -890,7 +890,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             String foundValue = null;
             for (Map.Entry<String, String> aka : akas.entrySet()) {
-                if (aka.getKey().indexOf(siteDef.getOriginalTitle()) != -1) {
+                if (aka.getKey().contains(siteDef.getOriginalTitle())) {
                     foundValue = aka.getValue().trim();
                     break;
                 }
@@ -1044,7 +1044,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         for (String actorBlock : HTMLTools.extractTags(fullcreditsXML, "<table class=\"cast_list\">", HTML_TABLE_END, "<td class=\"primary_photo\"", "</tr>")) {
             // skip faceless persons ("loadlate hidden" is present for actors with photos)
-            if (skipFaceless && actorBlock.indexOf("loadlate hidden") == -1) {
+            if (skipFaceless && !actorBlock.contains("loadlate hidden")) {
                 continue;
             }
 
@@ -1104,7 +1104,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         for (String actorBlock : peopleList) {
 
             // skip faceless persons
-            if (skipFaceless && actorBlock.indexOf("nopicture") > -1) {
+            if (skipFaceless && actorBlock.contains("nopicture")) {
                 continue;
             }
 
@@ -1166,7 +1166,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         boolean found = Boolean.FALSE;
 
         for (String directorMatch : siteDef.getDirector().split(HTML_SLASH_PIPE)) {
-            if (fullcreditsXML.indexOf(HTML_GT + directorMatch + "&nbsp;</h4>") >= 0) {
+            if (fullcreditsXML.contains(HTML_GT + directorMatch + "&nbsp;</h4>")) {
                 for (String member : HTMLTools.extractTags(fullcreditsXML, HTML_GT + directorMatch + "&nbsp;</h4>", HTML_TABLE_END, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
                     int beginIndex = member.indexOf("href=\"/name/");
                     if (beginIndex > -1) {
@@ -1281,7 +1281,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     if (beginIndex > -1) {
                         String personID = member.substring(beginIndex + 12, member.indexOf("/", beginIndex + 12));
                         String name = StringUtils.trimToEmpty(member.substring(member.indexOf(HTML_GT, beginIndex) + 1));
-                        if (name.indexOf("more credit") == -1) {
+                        if (!name.contains("more credit")) {
 
                             if (overrideNormal) {
                                 // clear writers if not already done
@@ -1387,7 +1387,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             site = HTML_SITE_FULL;
         }
         String awardXML = webBrowser.request(site + HTML_TITLE + imdbId + "/awards");
-        if (awardXML.indexOf("<h1 class=\"header\">Awards</h1>") > -1) {
+        if (awardXML.contains("<h1 class=\"header\">Awards</h1>")) {
 
             List<String> awardHtmlList = HTMLTools.extractTags(awardXML, "<h1 class=\"header\">Awards</h1>", "<div class=\"article\"", "<h3>", "</table>", false);
 
@@ -1538,7 +1538,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         Collection<String> people = new LinkedHashSet<String>();
 
         for (String category : categoryList) {
-            if (sourceXml.indexOf(category + ":") >= 0) {
+            if (sourceXml.contains(category + ":")) {
                 people = HTMLTools.extractTags(sourceXml, category, HTML_DIV_END, HTML_A_START, HTML_A_END);
             }
         }
@@ -1640,13 +1640,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String xml = webBrowser.request(siteDefinition.getSite() + HTML_TITLE + movie.getId(IMDB_PLUGIN_ID) + "/plotsummary", siteDefinition.getCharset());
 
             String result = HTMLTools.extractTag(xml, "<p class=\"plotpar\">", "</p>");
-            if (isValidString(result) && result.indexOf("This plot synopsis is empty") < 0) {
+            if (isValidString(result) && !result.contains("This plot synopsis is empty")) {
                 plot = HTMLTools.stripTags(result);
             }
 
             // Second parsing other site (fr/ es / etc ...)
             result = HTMLTools.extractTag(xml, "<div id=\"swiki.2.1\">", HTML_DIV_END);
-            if (isValidString(result) && result.indexOf("This plot synopsis is empty") < 0) {
+            if (isValidString(result) && !result.contains("This plot synopsis is empty")) {
                 plot = HTMLTools.stripTags(result);
             }
         } catch (IOException error) {
@@ -1890,7 +1890,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private boolean updateInfoNew(Person person, String xml) throws IOException {
         person.setUrl(getImdbUrl(person));
 
-        if (xml.indexOf("Alternate Names:") > -1) {
+        if (xml.contains("Alternate Names:")) {
             String name = HTMLTools.extractTag(xml, "Alternate Names:</h4>", HTML_DIV_END);
             if (isValidString(name)) {
                 for (String item : name.split("<span>\\|</span>")) {
@@ -1899,11 +1899,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        if (xml.indexOf("id=\"img_primary\"") > -1) {
+        if (xml.contains("id=\"img_primary\"")) {
             LOG.debug("Looking for image on webpage for " + person.getName());
             String photoURL = HTMLTools.extractTag(xml, "id=\"img_primary\"", HTML_TD_END);
 
-            if (photoURL.indexOf("http://ia.media-imdb.com/images") > -1) {
+            if (photoURL.contains("http://ia.media-imdb.com/images")) {
                 photoURL = "http://ia.media-imdb.com/images" + HTMLTools.extractTag(photoURL, "src=\"http://ia.media-imdb.com/images", "\"");
                 if (isValidString(photoURL)) {
                     person.setPhotoURL(photoURL);
@@ -2007,7 +2007,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        if (xmlInfo.indexOf(">Mini Bio (1)</h4>") > -1) {
+        if (xmlInfo.contains(">Mini Bio (1)</h4>")) {
             String biography = HTMLTools.extractTag(xmlInfo, ">Mini Bio (1)</h4>", "<em>- IMDb Mini Biography By");
 
             if (isValidString(biography)) {
@@ -2019,7 +2019,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // get known movies
         xmlInfo = webBrowser.request(getImdbUrl(person) + "filmoyear", siteDefinition.getCharset());
-        if (xmlInfo.indexOf("<div id=\"tn15content\">") > -1) {
+        if (xmlInfo.contains("<div id=\"tn15content\">")) {
             int count = HTMLTools.extractTags(xmlInfo, "<div id=\"tn15content\">", HTML_DIV_END, "<li>", "</li>").size();
             person.setKnownMovies(count);
         }
@@ -2043,7 +2043,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         int beginIndex, endIndex;
 
         String xmlInfo = webBrowser.request(getImdbUrl(person) + "filmorate", siteDefinition.getCharset());
-        if (xmlInfo.indexOf("<div class=\"filmo\">") > -1) {
+        if (xmlInfo.contains("<span class=\"lister-current-first-item\">")) {
             String fg = HTMLTools.extractTag(sourceXml, "<div id=\"filmography\">", "<div class=\"article\" >");
             Map<Float, Filmography> filmography = new TreeMap<Float, Filmography>();
             Pattern tvPattern = Pattern.compile("( \\(#\\d+\\.\\d+\\))|(: Episode #\\d+\\.\\d+)");
@@ -2110,7 +2110,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         }
                     }
 
-                    float key = 101 - (rating + Float.valueOf("0." + id.substring(2)).floatValue());
+                    float key = 101 - (rating + Float.parseFloat("0." + id.substring(2)));
 
                     if (filmography.get(key) == null) {
                         Filmography film = new Filmography();
