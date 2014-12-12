@@ -34,6 +34,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import static org.junit.Assert.assertFalse;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -90,10 +91,10 @@ public class ImdbPluginTest {
         assertTrue(imdbPlugin.scan(movie));
         assertEquals("Chocolate Diddlers or My Puppy's Dead", mf1.getTitle(12));
         assertTrue(StringUtils.startsWith(mf1.getPlot(12), "When Charlie and Courtney break up"));
-        assertEquals("2011-11-15", mf1.getFirstAired(12));
+        assertEquals("2010-12-13", mf1.getFirstAired(12));
         assertEquals("That Darn Priest", mf2.getTitle(16));
         assertTrue(StringUtils.startsWith(mf2.getPlot(16), "Rose becomes wise to Alan's Ponzi scheme"));
-        assertEquals("2011-12-13", mf2.getFirstAired(16));
+        assertEquals("2011-03-28", mf2.getFirstAired(16));
     }
 
     @Test
@@ -105,7 +106,6 @@ public class ImdbPluginTest {
 
         Person person = new Person();
         person.setName("Gérard Depardieu");
-//        person.setName("Charles Chaplin");
 
         assertTrue("Scan failed", imdbPlugin.scan(person));
 
@@ -113,7 +113,7 @@ public class ImdbPluginTest {
         assertNotEquals("No bio", Movie.UNKNOWN, person.getBiography());
         assertEquals("Wrong birth name", "Gérard Xavier Marcel Depardieu", person.getBirthName());
         assertEquals("Wrong birth place", "Châteauroux, Indre, France", person.getBirthPlace());
-        assertTrue("No Filmography", person.getFilmography().size() > 0);
+        assertFalse("No Filmography", person.getFilmography().isEmpty());
         assertEquals("Wrong birthday", "27-12-1948", person.getYear());
         assertTrue("No character", StringTools.isValidString(person.getFilmography().get(0).getCharacter()));
     }
