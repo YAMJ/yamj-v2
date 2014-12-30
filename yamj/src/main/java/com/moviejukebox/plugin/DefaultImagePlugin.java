@@ -1,5 +1,5 @@
 /*
- *      Copyright (c) 2004-2014 YAMJ Members
+ *      Copyright (c) 2004-2015 YAMJ Members
  *      http://code.google.com/p/moviejukebox/people/list
  *
  *      This file is part of the Yet Another Movie Jukebox (YAMJ).
@@ -1686,7 +1686,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     }
 
     protected boolean cmpOverlayValue(final String name, final String condition, final String value) {
-        boolean result = ((name.equalsIgnoreCase(KEYWORDS) && value.indexOf(condition.toLowerCase()) > -1)
+        boolean result = ((name.equalsIgnoreCase(KEYWORDS) && value.contains(condition.toLowerCase()))
                 || condition.equalsIgnoreCase(value)
                 || condition.equalsIgnoreCase(DEFAULT));
         if (!result) {
@@ -1726,11 +1726,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             }
             List<String> arr = data.get(condition);
             if (arr != null) {
-                for (int loop = 0; loop < arr.size(); loop++) {
+                for (String arr1 : arr) {
                     if (name.equalsIgnoreCase(KEYWORDS)) {
-                        result = value.indexOf(arr.get(loop).toLowerCase()) > -1;
+                        result = value.contains(arr1.toLowerCase());
                     } else {
-                        result = arr.get(loop).equalsIgnoreCase(value);
+                        result = arr1.equalsIgnoreCase(value);
                     }
                     if (result) {
                         break;
