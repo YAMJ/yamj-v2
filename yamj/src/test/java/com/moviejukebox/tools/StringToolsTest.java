@@ -22,15 +22,16 @@
  */
 package com.moviejukebox.tools;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Set of utility functions for strings
@@ -39,7 +40,7 @@ import org.junit.Test;
  */
 public class StringToolsTest {
 
-    private static final Logger LOG = Logger.getLogger(StringToolsTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StringToolsTest.class);
 
     /**
      * Test of characterMapReplacement method, of class StringTools.
@@ -75,12 +76,29 @@ public class StringToolsTest {
     @Test
     public void testAppendToPath() {
         LOG.info("appendToPath");
-        String basePath = "base/";
-        String additionalPath = "/additional/";
 
-        String expResult = "base" + File.separator + "additional" + File.separator;
-        String result = StringTools.appendToPath(basePath, additionalPath);
-        assertEquals(expResult, result);
+        List<String[]> tests = new ArrayList<>();
+        // base path, additional path, expected result
+        tests.add(new String[]{"base", "additional", "base/additional"});
+        tests.add(new String[]{"\\base", "additional", "/base/additional"});
+        tests.add(new String[]{"/base", "additional", "/base/additional"});
+        tests.add(new String[]{"base", "\\additional", "base/additional"});
+        tests.add(new String[]{"base", "/additional", "base/additional"});
+        tests.add(new String[]{"../base", "additional", "../base/additional"});
+
+        String base, additional, actual, expected;
+        int count = 1;
+        // Process the test cases
+        for (String[] test : tests) {
+            base = test[0];
+            additional = test[1];
+            expected = test[2];
+            LOG.info("Test #{}: '{}' + '{}'", count, base, additional);
+            actual = StringTools.appendToPath(base, additional);
+            LOG.info("Test #{}: '{}'", count, actual);
+            assertEquals("Failed appendToPath, test #" + count, expected, actual);
+            count++;
+        }
     }
 
     /**

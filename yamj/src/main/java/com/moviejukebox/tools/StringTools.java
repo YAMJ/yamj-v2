@@ -41,7 +41,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * String related tools for the jukebox
+ *
+ * @author Stuart.Boston
+ */
 public final class StringTools {
 
     private static final Logger LOG = LoggerFactory.getLogger(StringTools.class);
@@ -59,6 +63,7 @@ public final class StringTools {
     private static final Pattern QUOTE_PATTERN = Pattern.compile(generateQuoteList());
     // Literals
     private static final String MPPA_RATED = "Rated";
+    private static final int PREPEND_DOTS_LENGTH = 2;
 
     private StringTools() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
@@ -66,9 +71,7 @@ public final class StringTools {
 
     static {
         // Populate the charReplacementMap
-        String temp = PropertiesUtil.getProperty("indexing.character.replacement", "");
-        //String temp = PropertiesUtil.getProperty("mjb.charset.filename.translate", "");
-        StringTokenizer tokenizer = new StringTokenizer(temp, ",");
+        StringTokenizer tokenizer = new StringTokenizer(PropertiesUtil.getProperty("indexing.character.replacement", ""), ",");
         while (tokenizer.hasMoreTokens()) {
             String token = tokenizer.nextToken();
             int idx = token.indexOf('-');
@@ -76,7 +79,7 @@ public final class StringTools {
                 String key = token.substring(0, idx).trim();
                 String value = token.substring(idx + 1).trim();
                 if (key.length() == 1 && value.length() == 1) {
-                    CHAR_REPLACEMENT_MAP.put(Character.valueOf(key.charAt(0)), Character.valueOf(value.charAt(0)));
+                    CHAR_REPLACEMENT_MAP.put(key.charAt(0), value.charAt(0));
                 }
             }
         }
@@ -155,26 +158,32 @@ public final class StringTools {
     }
 
     /**
-     * Append a string to the end of a path ensuring that there are the correct number of File.separators
+     * Append a string to the end of a path ensuring that there are the correct
+     * number of File.separators
      *
      * @param basePath
      * @param additionalPath
      * @return
      */
     public static String appendToPath(final String basePath, final String additionalPath) {
-        String tmpAdditionalPath;
-        if (additionalPath.startsWith("\\") || additionalPath.startsWith("/")) {
-            // Remove any path characters from the additional path as this interferes with the conncat
-            tmpAdditionalPath = additionalPath.substring(1);
-        } else {
-            tmpAdditionalPath = additionalPath;
-        }
+        String tmpBasePath = basePath;
+        String tmpAdditionalPath = additionalPath;
+        String prepend = "";
 
-        return FilenameUtils.concat(basePath, tmpAdditionalPath);
+        if (additionalPath.startsWith("\\") || additionalPath.startsWith("/")) {
+            // Remove any path characters from the additional path as this interferes with the concat
+            tmpAdditionalPath = additionalPath.substring(1);
+        } else if (basePath.startsWith("..")) {
+            // Remove any prefix dots
+            tmpBasePath = basePath.substring(PREPEND_DOTS_LENGTH);
+            prepend = basePath.substring(0, PREPEND_DOTS_LENGTH);
+        }
+        return prepend + FilenameUtils.separatorsToUnix(FilenameUtils.concat(tmpBasePath, tmpAdditionalPath));
     }
 
     /**
-     * Strip all non-alphanumeric characters from a string replacing with a space
+     * Strip all non-alphanumeric characters from a string replacing with a
+     * space
      *
      * @param sourceString
      * @return
@@ -229,7 +238,8 @@ public final class StringTools {
     }
 
     /**
-     * Check the string passed to see if it is invalid. Invalid strings are "UNKNOWN", null or blank
+     * Check the string passed to see if it is invalid. Invalid strings are
+     * "UNKNOWN", null or blank
      *
      * @param testString The string to test
      * @return True if the string is invalid, Boolean.FALSE otherwise
@@ -258,7 +268,8 @@ public final class StringTools {
     }
 
     /**
-     * Check that the passed string is not longer than the required length and trim it if necessary.
+     * Check that the passed string is not longer than the required length and
+     * trim it if necessary.
      *
      * @param sourceString
      * @param requiredLength
@@ -269,12 +280,15 @@ public final class StringTools {
     }
 
     /**
-     * Check that the passed string is not longer than the required length and trim it if necessary
+     * Check that the passed string is not longer than the required length and
+     * trim it if necessary
      *
      * @param sourceString The string to check
      * @param requiredLength The required length (Maximum)
-     * @param trimToWord Trim the source string to the last space to avoid partial words
-     * @param endingSuffix The ending to append if the string is longer than the required length
+     * @param trimToWord Trim the source string to the last space to avoid
+     * partial words
+     * @param endingSuffix The ending to append if the string is longer than the
+     * required length
      * @return
      */
     public static String trimToLength(String sourceString, int requiredLength, boolean trimToWord, String endingSuffix) {
@@ -302,7 +316,8 @@ public final class StringTools {
     /**
      * Cast a generic list to a specific class
      *
-     * See: http://stackoverflow.com/questions/367626/how-do-i-fix-the-expression-of-type-list-needs-unchecked-conversion
+     * See:
+     * http://stackoverflow.com/questions/367626/how-do-i-fix-the-expression-of-type-list-needs-unchecked-conversion
      *
      * @param <T>
      * @param objClass
