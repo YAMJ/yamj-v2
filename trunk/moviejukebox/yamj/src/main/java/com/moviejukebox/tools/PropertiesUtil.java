@@ -40,13 +40,15 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
+ * Properties processing class for YAMJ
  *
  * @author altman.matthew
  */
@@ -89,8 +91,8 @@ public final class PropertiesUtil {
      * @param warnFatal
      * @return
      */
-    public static boolean setPropertiesStreamName(String streamName, boolean warnFatal) {
-        LOG.info("Using properties file " + streamName);
+    public static boolean setPropertiesStreamName(final String streamName, boolean warnFatal) {
+        LOG.info("Using properties file '{}'", FilenameUtils.normalize(streamName));
         InputStream propertiesStream = ClassLoader.getSystemResourceAsStream(streamName);
         Reader reader = null;
 
@@ -104,9 +106,9 @@ public final class PropertiesUtil {
         } catch (IOException error) {
             // Output a warning if required.
             if (warnFatal) {
-                LOG.error("Failed loading file " + streamName + ": Please check your configuration. The properties file should be in the classpath.", error);
+                LOG.error("Failed loading file {}: Please check your configuration. The properties file should be in the classpath.", streamName, error);
             } else {
-                LOG.debug("Warning (non-fatal): User properties file '" + streamName + "', not found.");
+                LOG.debug("Warning (non-fatal): User properties file '{}', not found.", streamName);
             }
             return Boolean.FALSE;
         } finally {
@@ -158,7 +160,7 @@ public final class PropertiesUtil {
      * @return
      */
     public static boolean getBooleanProperty(String key, boolean defaultValue) {
-        return convertBooleanProperty(key, PROPS.getProperty(key), defaultValue);
+        return convertBooleanProperty(PROPS.getProperty(key), defaultValue);
     }
 
     /**
@@ -169,7 +171,7 @@ public final class PropertiesUtil {
      * @return
      */
     public static int getIntProperty(String key, int defaultValue) {
-        return convertIntegerProperty(key, PROPS.getProperty(key), defaultValue);
+        return convertIntegerProperty(PROPS.getProperty(key), defaultValue);
     }
 
     /**
@@ -180,7 +182,7 @@ public final class PropertiesUtil {
      * @return
      */
     public static long getLongProperty(String key, long defaultValue) {
-        return convertLongProperty(key, PROPS.getProperty(key), defaultValue);
+        return convertLongProperty(PROPS.getProperty(key), defaultValue);
     }
 
     /**
@@ -191,7 +193,7 @@ public final class PropertiesUtil {
      * @return
      */
     public static float getFloatProperty(String key, float defaultValue) {
-        return convertFloatProperty(key, PROPS.getProperty(key), defaultValue);
+        return convertFloatProperty(PROPS.getProperty(key), defaultValue);
     }
 
     /**
@@ -220,7 +222,7 @@ public final class PropertiesUtil {
      */
     public static boolean getReplacedBooleanProperty(String newKey, String oldKey, boolean defaultValue) {
         String property = getReplacedKeyValue(newKey, oldKey);
-        return convertBooleanProperty(newKey, property, defaultValue);
+        return convertBooleanProperty(property, defaultValue);
     }
 
     /**
@@ -235,7 +237,7 @@ public final class PropertiesUtil {
      */
     public static int getReplacedIntProperty(String newKey, String oldKey, int defaultValue) {
         String property = getReplacedKeyValue(newKey, oldKey);
-        return convertIntegerProperty(newKey, property, defaultValue);
+        return convertIntegerProperty(property, defaultValue);
     }
 
     /**
@@ -250,7 +252,7 @@ public final class PropertiesUtil {
      */
     public static long getReplacedLongProperty(String newKey, String oldKey, long defaultValue) {
         String property = getReplacedKeyValue(newKey, oldKey);
-        return convertLongProperty(oldKey, property, defaultValue);
+        return convertLongProperty(property, defaultValue);
     }
 
     /**
@@ -265,7 +267,7 @@ public final class PropertiesUtil {
      */
     public static float getReplacedFloatProperty(String newKey, String oldKey, float defaultValue) {
         String property = getReplacedKeyValue(newKey, oldKey);
-        return convertFloatProperty(newKey, property, defaultValue);
+        return convertFloatProperty(property, defaultValue);
     }
 
     /**
@@ -282,11 +284,11 @@ public final class PropertiesUtil {
 
         if (newProperty == null && oldProperty != null) {
             // We found the old property, but not the new
-            LOG.warn("Property '" + oldKey + "' has been deprecated and will be removed; please use '" + newKey + "' instead.");
+            LOG.warn("Property '{}' has been deprecated and will be removed; please use '{}' instead.", oldKey, newKey);
             returnValue = oldProperty;
         } else if (newProperty != null && oldProperty != null) {
             // We found both properties, so warn about the old one
-            LOG.warn("Property '" + oldKey + "' is no longer used, but was found in your configuration files, please remove it.");
+            LOG.warn("Property '{}' is no longer used, but was found in your configuration files, please remove it.", oldKey);
             returnValue = newProperty;
         } else {
             returnValue = newProperty;
@@ -298,73 +300,37 @@ public final class PropertiesUtil {
     /**
      * Convert the value to a Float
      *
-     * Outputs warning if there was an exception during the conversion
-     *
      * @param key
      * @param valueToConvert
      * @param defaultValue
      * @return
      */
-    private static float convertFloatProperty(String key, String valueToConvert, float defaultValue) {
-        float value = defaultValue;
-
-        if (StringUtils.isNotBlank(valueToConvert)) {
-            try {
-                value = Float.parseFloat(StringUtils.trimToEmpty(valueToConvert));
-            } catch (NumberFormatException ex) {
-                LOG.warn("Failed to convert property '" + key + "', value '" + valueToConvert + "' to a float number.");
-            }
-        }
-
-        return value;
+    private static float convertFloatProperty(String valueToConvert, float defaultValue) {
+        return NumberUtils.toFloat(StringUtils.trimToEmpty(valueToConvert), defaultValue);
     }
 
     /**
      * Convert the value to a Long
      *
-     * Outputs warning if there was an exception during the conversion
-     *
      * @param key
      * @param valueToConvert
      * @param defaultValue
      * @return
      */
-    private static long convertLongProperty(String key, String valueToConvert, long defaultValue) {
-        long value = defaultValue;
-
-        if (StringUtils.isNotBlank(valueToConvert)) {
-            try {
-                value = Long.parseLong(StringUtils.trimToEmpty(valueToConvert));
-            } catch (NumberFormatException ex) {
-                LOG.warn("Failed to convert property '" + key + "', value '" + valueToConvert + "' to a long number.");
-            }
-        }
-
-        return value;
+    private static long convertLongProperty(String valueToConvert, long defaultValue) {
+        return NumberUtils.toLong(StringUtils.trimToEmpty(valueToConvert), defaultValue);
     }
 
     /**
      * Convert the value to a Integer
      *
-     * Outputs warning if there was an exception during the conversion
-     *
      * @param key
      * @param valueToConvert
      * @param defaultValue
      * @return
      */
-    private static int convertIntegerProperty(String key, String valueToConvert, int defaultValue) {
-        int value = defaultValue;
-
-        if (StringUtils.isNotBlank(valueToConvert)) {
-            try {
-                value = Integer.parseInt(StringUtils.trimToEmpty(valueToConvert));
-            } catch (NumberFormatException ex) {
-                LOG.warn("Failed to convert property '" + key + "', value '" + valueToConvert + "' to an integer number.");
-            }
-        }
-
-        return value;
+    private static int convertIntegerProperty(String valueToConvert, int defaultValue) {
+        return NumberUtils.toInt(StringUtils.trimToEmpty(valueToConvert), defaultValue);
     }
 
     /**
@@ -375,7 +341,7 @@ public final class PropertiesUtil {
      * @param defaultValue
      * @return
      */
-    private static boolean convertBooleanProperty(String key, String valueToConvert, boolean defaultValue) {
+    private static boolean convertBooleanProperty(String valueToConvert, boolean defaultValue) {
         boolean value = defaultValue;
         if (StringUtils.isNotBlank(valueToConvert)) {
             value = Boolean.parseBoolean(StringUtils.trimToEmpty(valueToConvert));
@@ -455,7 +421,8 @@ public final class PropertiesUtil {
 
     /**
      * Collect keywords list and appropriate keyword values. <br>
-     * Example: my.languages = EN,FR my.languages.EN = English my.languages.FR = French
+     * Example: my.languages = EN,FR my.languages.EN = English my.languages.FR =
+     * French
      *
      * @param prefix Key for keywords list and prefix for value searching.
      * @param defaultValue
@@ -499,7 +466,7 @@ public final class PropertiesUtil {
         Collections.sort(propertiesList);
 
         try {
-            LOG.debug(LOG_MESSAGE + "Writing skin preferences file to " + getPropertiesFilename(Boolean.TRUE));
+            LOG.debug("{}Writing skin preferences file to {}", LOG_MESSAGE, getPropertiesFilename(Boolean.TRUE));
 
             fos = new FileOutputStream(getPropertiesFilename(Boolean.TRUE));
             osw = new OutputStreamWriter(fos, "UTF-8");
@@ -522,7 +489,7 @@ public final class PropertiesUtil {
             out.flush();
         } catch (IOException error) {
             // Can't write to file
-            LOG.error(LOG_MESSAGE + "Can't write to file");
+            LOG.error("{}Can't write to file", LOG_MESSAGE);
             LOG.error(SystemTools.getStackTrace(error));
         } finally {
             if (out != null) {

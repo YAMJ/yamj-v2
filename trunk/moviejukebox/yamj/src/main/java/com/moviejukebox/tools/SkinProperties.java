@@ -31,7 +31,6 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Process the skin information file for the details about the skin
  *
@@ -69,9 +68,9 @@ public final class SkinProperties {
         File xmlFile = new File(skinVersionPath);
 
         if (xmlFile.exists()) {
-            LOG.debug(LOG_MESSAGE + "Scanning file " + xmlFile.getAbsolutePath());
+            LOG.debug("{}Scanning file '{}'", LOG_MESSAGE, xmlFile.getAbsolutePath());
         } else {
-            LOG.debug(LOG_MESSAGE + xmlFile.getAbsolutePath() + " does not exist, skipping");
+            LOG.debug("{}{} does not exist, skipping", LOG_MESSAGE, xmlFile.getAbsolutePath());
             return;
         }
 
@@ -83,10 +82,7 @@ public final class SkinProperties {
             setSkinMessage(StringTools.castList(String.class, xmlConfig.getList("message")));
             setFileDate(xmlFile.lastModified());
         } catch (ConfigurationException error) {
-            LOG.error(LOG_MESSAGE + "Failed reading version information file (" + SKIN_VERSION_FILENAME + ")");
-            LOG.warn(SystemTools.getStackTrace(error));
-        } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed processing version information file (" + SKIN_VERSION_FILENAME + ")");
+            LOG.error("{}Failed reading version information file '{}'", LOG_MESSAGE, SKIN_VERSION_FILENAME);
             LOG.warn(SystemTools.getStackTrace(error));
         }
     }
@@ -97,19 +93,19 @@ public final class SkinProperties {
     public static void printSkinVersion() {
         if (StringTools.isValidString(getSkinName())) {
             LOG.info("");
-            LOG.info("Skin Name   : " + getSkinName());
+            LOG.info("Skin Name   : {}", getSkinName());
 
             if (StringTools.isValidString(getSkinDate())) {
-                LOG.info("Skin Version: " + getSkinVersion() + " (" + getSkinDate() + ")");
+                LOG.info("Skin Version: {} ({})", getSkinVersion(), getSkinDate());
             } else {
-                LOG.info("Skin Version: " + getSkinVersion());
+                LOG.info("Skin Version: {}", getSkinVersion());
             }
             for (String message : getSkinMessage()) {
                 LOG.info(message);
             }
             LOG.info("");
         } else {
-            LOG.debug(LOG_MESSAGE + "No version information available for the skin");
+            LOG.debug("{}No version information available for the skin", LOG_MESSAGE);
         }
     }
 
