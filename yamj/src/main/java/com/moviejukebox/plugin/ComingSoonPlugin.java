@@ -24,7 +24,12 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.SearchEngineTools;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -32,7 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.pojava.datetime.DateTime;
@@ -61,7 +66,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     private final String scanImdb;
     private final String searchId;
     private final SearchEngineTools searchEngineTools;
-    
+
     public ComingSoonPlugin() {
         super();
         searchEngineTools = new SearchEngineTools("it");
@@ -301,10 +306,10 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 }
 
                 String search = xml.substring(beginIndex, nextIndex);
-                
+
                 // Look for the ID of the movie
                 int urlIndex = search.indexOf("/film");
-                
+
                 String comingSoonId = search.substring(urlIndex, search.indexOf('\'', urlIndex));
                 comingSoonId = getComingSoonIdFromURL(comingSoonId);
                 LOG.debug(LOG_MESSAGE + "Found ComingSoon ID: " + comingSoonId);
@@ -457,7 +462,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 movie.setYear(year, COMINGSOON_PLUGIN_ID);
             }
         }
-        
+
         // COMPANY
         if (OverrideTools.checkOverwriteCompany(movie, COMINGSOON_PLUGIN_ID)) {
             // TODO: Add more than one company when available in Movie model
