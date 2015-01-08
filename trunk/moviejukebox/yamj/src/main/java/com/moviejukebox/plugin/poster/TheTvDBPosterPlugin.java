@@ -38,10 +38,10 @@ import com.omertron.thetvdbapi.model.BannerType;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Series;
 import java.util.List;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {

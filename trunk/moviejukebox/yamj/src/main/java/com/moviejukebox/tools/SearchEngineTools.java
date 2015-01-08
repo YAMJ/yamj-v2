@@ -28,7 +28,7 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.LinkedList;
 import javax.xml.ws.WebServiceException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -231,7 +231,7 @@ public class SearchEngineTools {
             sb.append(site);
 
             String xml = webBrowser.request(sb.toString());
-            
+
             String link = HTMLTools.extractTag(xml, "<span class=\"url\"", "</span>");
             link = HTMLTools.removeHtmlTags(link);
             int beginIndex = link.indexOf(site + searchSuffix);
