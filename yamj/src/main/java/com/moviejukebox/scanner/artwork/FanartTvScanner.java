@@ -29,7 +29,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.FanartTvPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.omertron.fanarttvapi.model.FTArtworkType;
+import com.omertron.fanarttvapi.enumeration.FTArtworkType;
 import org.apache.commons.lang3.StringUtils;
 
 /**

@@ -43,7 +43,7 @@ import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.omertron.fanarttvapi.model.FTArtworkType;
+import com.omertron.fanarttvapi.enumeration.FTArtworkType;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -153,7 +153,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private String frameColorSD;
     private String overlaySource;
     // Issue 1937: Overlay configuration XML
-    private final List<LogoOverlay> overlayLayers = new ArrayList<LogoOverlay>();
+    private final List<LogoOverlay> overlayLayers = new ArrayList<>();
     private boolean xmlOverlay;
     private boolean addRating;
     private boolean realRating;
@@ -186,22 +186,22 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private boolean blockClones;
     private boolean addEpisode;
     private boolean blockEpisode;
-    private final Map<String, ArrayList<String>> keywordsRating = new HashMap<String, ArrayList<String>>();
-    private final Map<String, ArrayList<String>> keywordsVideoSource = new HashMap<String, ArrayList<String>>();
-    private final Map<String, ArrayList<String>> keywordsVideoOut = new HashMap<String, ArrayList<String>>();
-    private final Map<String, ArrayList<String>> keywordsVideoCodec = new HashMap<String, ArrayList<String>>();
-    private final Map<String, ArrayList<String>> keywordsAudioCodec = new HashMap<String, ArrayList<String>>();
-    private final Map<String, ArrayList<String>> keywordsAudioChannels = new HashMap<String, ArrayList<String>>();
-    private final Map<String, ArrayList<String>> keywordsAudioLang = new HashMap<String, ArrayList<String>>();
-    private final Map<String, ArrayList<String>> keywordsContainer = new HashMap<String, ArrayList<String>>();
-    private final Map<String, ArrayList<String>> keywordsAspectRatio = new HashMap<String, ArrayList<String>>();
-    private final Map<String, ArrayList<String>> keywordsFPS = new HashMap<String, ArrayList<String>>();
-    private final Map<String, ArrayList<String>> keywordsCertification = new HashMap<String, ArrayList<String>>();
-    private final Map<String, ArrayList<String>> keywordsKeywords = new HashMap<String, ArrayList<String>>();
-    private final Map<String, ArrayList<String>> keywordsCountry = new HashMap<String, ArrayList<String>>();
-    private final Map<String, ArrayList<String>> keywordsCompany = new HashMap<String, ArrayList<String>>();
-    private final Map<String, ArrayList<String>> keywordsAward = new HashMap<String, ArrayList<String>>();
-    private final Map<String, LogosBlock> overlayBlocks = new HashMap<String, LogosBlock>();
+    private final Map<String, ArrayList<String>> keywordsRating = new HashMap<>();
+    private final Map<String, ArrayList<String>> keywordsVideoSource = new HashMap<>();
+    private final Map<String, ArrayList<String>> keywordsVideoOut = new HashMap<>();
+    private final Map<String, ArrayList<String>> keywordsVideoCodec = new HashMap<>();
+    private final Map<String, ArrayList<String>> keywordsAudioCodec = new HashMap<>();
+    private final Map<String, ArrayList<String>> keywordsAudioChannels = new HashMap<>();
+    private final Map<String, ArrayList<String>> keywordsAudioLang = new HashMap<>();
+    private final Map<String, ArrayList<String>> keywordsContainer = new HashMap<>();
+    private final Map<String, ArrayList<String>> keywordsAspectRatio = new HashMap<>();
+    private final Map<String, ArrayList<String>> keywordsFPS = new HashMap<>();
+    private final Map<String, ArrayList<String>> keywordsCertification = new HashMap<>();
+    private final Map<String, ArrayList<String>> keywordsKeywords = new HashMap<>();
+    private final Map<String, ArrayList<String>> keywordsCountry = new HashMap<>();
+    private final Map<String, ArrayList<String>> keywordsCompany = new HashMap<>();
+    private final Map<String, ArrayList<String>> keywordsAward = new HashMap<>();
+    private final Map<String, LogosBlock> overlayBlocks = new HashMap<>();
     private int viIndex;
 
     public DefaultImagePlugin() {
@@ -584,7 +584,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
 
                 boolean flag = false;
-                List<StateOverlay> states = new ArrayList<StateOverlay>();
+                List<StateOverlay> states = new ArrayList<>();
                 for (String name : layer.getNames()) {
                     String value = Movie.UNKNOWN;
                     if (checkLogoEnabled(name)) {
@@ -722,7 +722,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         } else if (name.equalsIgnoreCase(AWARD)) {
                             value = "";
                             int awardCount = 0;
-                            Map<String, Integer> awards = new HashMap<String, Integer>();
+                            Map<String, Integer> awards = new HashMap<>();
                             if (!movie.isSetMaster()) {
                                 for (AwardEvent awardEvent : movie.getAwards()) {
                                     for (Award award : awardEvent.getAwards()) {
@@ -745,7 +745,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
                             if (blockAward) {
                                 ValueComparator bvc = new ValueComparator(awards);
-                                Map<String, Integer> sortedAwards = new TreeMap<String, Integer>(bvc);
+                                Map<String, Integer> sortedAwards = new TreeMap<>(bvc);
                                 sortedAwards.putAll(awards);
 
                                 StringBuilder sbAwards = new StringBuilder();
@@ -1226,7 +1226,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             try {
                 Graphics2D g2d = bi.createGraphics();
                 BufferedImage biSet = GraphicTools.loadJPEGImage(overlayResources + filenames[currentFilenameNumber]);
-                List<String> uniqueFiles = new ArrayList<String>();
+                List<String> uniqueFiles = new ArrayList<>();
                 uniqueFiles.add(filenames[0]);
                 int lWidth = width.matches(D_PLUS) ? Integer.parseInt(width) : biSet.getWidth();
                 int lHeight = height.matches(D_PLUS) ? Integer.parseInt(height) : biSet.getHeight();
@@ -1679,7 +1679,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             for (String keyword : keywordList.split(" ; ")) {
                 String[] keywordValues = keyword.split(Movie.SPACE_SLASH_SPACE);
                 if (keywordValues.length > 1) {
-                    data.put(keywordValues[0], new ArrayList<String>(Arrays.asList(keywordValues)));
+                    data.put(keywordValues[0], new ArrayList<>(Arrays.asList(keywordValues)));
                 }
             }
         }
