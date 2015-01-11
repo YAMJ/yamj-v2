@@ -27,13 +27,14 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.Logger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -41,7 +42,7 @@ import org.junit.Test;
  */
 public class ComingSoonPluginTest {
 
-    private static final Logger LOG = Logger.getLogger(ComingSoonPluginTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ComingSoonPluginTest.class);
 
     private ComingSoonPlugin csPlugin;
 
@@ -85,7 +86,7 @@ public class ComingSoonPluginTest {
         LOG.info("testScan");
         Movie movie = new Movie();
         movie.setId(ComingSoonPlugin.COMINGSOON_PLUGIN_ID, "48891");
-        
+
         assertTrue("Failed to scan", csPlugin.scan(movie));
         assertEquals("Wrong title", "A Proposito Di Davis", movie.getTitle());
         assertEquals("Wrong original title", "Inside Llewyn Davis", movie.getOriginalTitle());

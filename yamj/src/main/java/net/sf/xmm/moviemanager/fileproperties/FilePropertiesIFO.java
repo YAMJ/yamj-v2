@@ -27,11 +27,12 @@
 package net.sf.xmm.moviemanager.fileproperties;
 
 import java.io.RandomAccessFile;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class FilePropertiesIFO extends FileProperties {
 
-    private static final Logger LOG = Logger.getLogger(FilePropertiesIFO.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FilePropertiesIFO.class);
     private static final int DVDVIDEO_VTS = 0x535456; // 'VTS'
     private static final int SIZE = 100000;
 

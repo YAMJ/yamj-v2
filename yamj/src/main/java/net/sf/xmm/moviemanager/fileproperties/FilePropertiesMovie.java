@@ -21,14 +21,15 @@ package net.sf.xmm.moviemanager.fileproperties;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Bro3@sf.net
  */
 public class FilePropertiesMovie {
 
-    static final Logger LOG = Logger.getLogger(FilePropertiesMovie.class);
+    static final Logger LOG = LoggerFactory.getLogger(FilePropertiesMovie.class);
     /**
      * The filesize.
      */

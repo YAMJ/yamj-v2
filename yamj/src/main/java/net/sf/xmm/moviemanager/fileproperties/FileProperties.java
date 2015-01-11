@@ -12,7 +12,8 @@
  * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Boston, MA 02111.
  *
- * Contact: mediterranean@users.sourceforge.net ----------------------------------------------------- gaelead modifications : -
+ * Contact: mediterranean@users.sourceforge.net
+ * ----------------------------------------------------- gaelead modifications : -
  * org.apache.log4j.Logger switched to org.apache.log4j.Logger - removed all unused code
  *
  */
@@ -23,11 +24,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 abstract class FileProperties {
 
-    private static final Logger LOG = Logger.getLogger(FileProperties.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileProperties.class);
     protected boolean supported = false;
     protected boolean errorOccured = false;
     /**
