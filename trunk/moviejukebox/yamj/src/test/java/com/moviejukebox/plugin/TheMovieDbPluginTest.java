@@ -40,8 +40,9 @@ import com.omertron.themoviedbapi.model.CollectionInfo;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.log4j.Logger;
 import org.junit.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -49,7 +50,7 @@ import org.junit.*;
  */
 public class TheMovieDbPluginTest {
 
-    private static final Logger LOG = Logger.getLogger(TheMovieDbPluginTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TheMovieDbPluginTest.class);
     private static TheMovieDbPlugin TMDb;
 
     @BeforeClass
@@ -57,7 +58,7 @@ public class TheMovieDbPluginTest {
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
         PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
     }
-    
+
     @Before
     public void setup() {
         TMDb = new TheMovieDbPlugin();

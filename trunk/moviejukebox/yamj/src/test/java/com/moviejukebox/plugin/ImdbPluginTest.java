@@ -33,14 +33,15 @@ import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import static org.junit.Assert.assertFalse;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ImdbPluginTest {
 
-    private static final Logger LOG = Logger.getLogger(ImdbPluginTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ImdbPluginTest.class);
 
     @BeforeClass
     public static void configure() {

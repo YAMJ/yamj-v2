@@ -28,7 +28,6 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Series;
-import org.apache.log4j.Logger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -36,6 +35,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -43,7 +44,7 @@ import org.junit.Test;
  */
 public class TheTvDBPluginTest {
 
-    private static final Logger LOG = Logger.getLogger(TheTvDBPluginTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TheTvDBPluginTest.class);
     private static TheTvDBPlugin TVDB;
 
     private static final int ID_BABYLON_5 = 70726;

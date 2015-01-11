@@ -33,15 +33,16 @@ import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AllocinePluginTest {
 
     private AllocinePlugin allocinePlugin;
-    private static final Logger LOG = Logger.getLogger(AllocinePluginTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AllocinePluginTest.class);
 
     @BeforeClass
     public static void configure() {

@@ -24,14 +24,15 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.tools.PropertiesUtil;
 import java.util.Set;
-import org.apache.log4j.Logger;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ImdbInfoTest {
 
-    private static final Logger LOG = Logger.getLogger(ImdbInfoTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ImdbInfoTest.class);
 
 //    @Test
     public void testImdbPersonId() {

@@ -24,14 +24,14 @@ package com.moviejukebox.tools;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SearchEngineToolsTest {
 
-    private static final Logger LOG = Logger.getLogger(SearchEngineToolsTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SearchEngineToolsTest.class);
 
     @Test
     public void roundTripIMDB() {
@@ -146,7 +146,7 @@ public class SearchEngineToolsTest {
         SearchEngineTools search = new SearchEngineTools("il");
         search.setSearchSuffix("/view.php");
         search.setSearchSites("google");
-        
+
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
             LOG.info("Testing " + engine);
