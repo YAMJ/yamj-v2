@@ -23,10 +23,11 @@
 package com.moviejukebox.model.Attachment;
 
 import java.io.File;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * File attachment;
@@ -99,15 +100,11 @@ public class Attachment {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("Id=");
-        sb.append(this.getAttachmentId());
-        sb.append(", Content=");
-        sb.append(this.getContentType());
-        sb.append(", Part=");
-        sb.append(this.getPart());
-        sb.append(", MimeType=");
-        sb.append(this.getMimeType());
-        return sb.toString();
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append(attachmentId)
+                .append(contentType)
+                .append(part)
+                .append(mimeType)
+                .toString();
     }
 }

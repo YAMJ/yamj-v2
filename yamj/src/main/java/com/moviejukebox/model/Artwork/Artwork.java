@@ -26,6 +26,11 @@ import com.moviejukebox.model.Movie;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
+import org.apache.commons.lang3.builder.CompareToBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * A class to store all the artwork associated with a movie object
@@ -38,7 +43,7 @@ public class Artwork {
     private ArtworkType type;       // The type of the artwork.
     private String sourceSite; // Where the artwork originated from
     private String url;        // The original URL of the artwork (may be used as key)
-    private Map<ArtworkSize, ArtworkFile> sizes; // The hash should be the size that is passed as part of the ArtworkSize
+    private final Map<ArtworkSize, ArtworkFile> sizes; // The hash should be the size that is passed as part of the ArtworkSize
 
     /**
      * Create an Artwork object with a set of sizes
@@ -150,57 +155,44 @@ public class Artwork {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 79 * hash + (this.type != null ? this.type.hashCode() : 0);
-        hash = 79 * hash + (this.sourceSite != null ? this.sourceSite.hashCode() : 0);
-        hash = 79 * hash + (this.url != null ? this.url.hashCode() : 0);
-        return hash;
+        return new HashCodeBuilder()
+                .append(this.type)
+                .append(this.sourceSite)
+                .append(this.url)
+                .toHashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
-            return Boolean.FALSE;
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
         }
 
-        if (getClass() != obj.getClass()) {
-            return Boolean.FALSE;
-        }
-
-        final Artwork other = (Artwork) obj;
-        if (this.type != other.type) {
-            return Boolean.FALSE;
-        }
-
-        if ((this.sourceSite == null) ? (other.sourceSite != null) : !this.sourceSite.equals(other.sourceSite)) {
-            return Boolean.FALSE;
-        }
-
-        if ((this.url == null) ? (other.url != null) : !this.url.equals(other.url)) {
-            return Boolean.FALSE;
-        }
-
-        return Boolean.TRUE;
+        Artwork other = (Artwork) obj;
+        return new EqualsBuilder()
+                .appendSuper(super.equals(obj))
+                .append(type, other.type)
+                .append(sourceSite, other.sourceSite)
+                .append(url, other.url)
+                .isEquals();
     }
 
-    public int compareTo(Artwork anotherArtwork) {
-        if (this.sourceSite.equals(anotherArtwork.getSourceSite())
-                && this.type.equals(anotherArtwork.getType())
-                && this.url.equals(anotherArtwork.getUrl())) {
-            return 0;
-        } else {
-            return 1;
-        }
+    public int compareTo(Artwork other) {
+        return new CompareToBuilder()
+                .append(this.sourceSite, other.sourceSite)
+                .append(this.type, other.type)
+                .append(this.url, other.url)
+                .toComparison();
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("[Artwork=");
-        sb.append("[type=").append(type);
-        sb.append("][sourceSite=").append(sourceSite);
-        sb.append("][url=").append(url);
-        sb.append("][sizes=").append(sizes);
-        sb.append("]]");
-        return sb.toString();
-}
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
 }

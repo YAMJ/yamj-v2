@@ -22,6 +22,9 @@
  */
 package com.moviejukebox.model;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 public class Image implements IImage {
 
     public static final IImage UNKNOWN = new Image();
@@ -62,9 +65,9 @@ public class Image implements IImage {
 
     @Override
     public String toString() {
-        return "Image{"
-                + "url='" + url + '\''
-                + ", subimage='" + subimage + '\''
-                + '}';
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append(url)
+                .append(subimage)
+                .toString();
     }
 }

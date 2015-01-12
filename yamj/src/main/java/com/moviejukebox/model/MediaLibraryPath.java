@@ -25,12 +25,14 @@ package com.moviejukebox.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class MediaLibraryPath {
 
     private String path;
     private String playerRootPath;
-    private Collection<String> excludes = Collections.synchronizedCollection(new ArrayList<String>());
+    private final Collection<String> excludes = Collections.synchronizedCollection(new ArrayList<String>());
     private String description;
     private boolean scrapeLibrary = true;
     private long prebuf = -1;
@@ -75,16 +77,7 @@ public class MediaLibraryPath {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("[MediaLibraryPath");
-        sb.append("[path=").append(path).append("]");
-        sb.append("[playerRootPath=").append(playerRootPath).append("]");
-        sb.append("[scrape=").append(scrapeLibrary).append("]");
-        sb.append("[description=").append(description).append("]");
-        for (String excluded : excludes) {
-            sb.append("[excludes=").append(excluded).append("]");
-        }
-        sb.append("]");
-        return sb.toString();
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
     public long getPrebuf() {
