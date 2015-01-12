@@ -30,7 +30,7 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
-
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,12 +73,11 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
             String tmpPosterURL = HTMLTools.extractTag(xml, "\"../loc/", "\"");
             if (StringTools.isValidString(tmpPosterURL)) {
                 posterURL = "http://filmup.leonardo.it/posters/loc/" + tmpPosterURL;
-                LOG.debug(LOG_MESSAGE + "Movie PosterURL : " + posterPageUrl);
+                LOG.debug("{}Movie PosterURL: {}", LOG_MESSAGE, posterPageUrl);
             }
-
-        } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving poster : " + id);
-            LOG.error(SystemTools.getStackTrace(error));
+        } catch (IOException ex) {
+            LOG.error("{}Failed retreiving poster: {}", LOG_MESSAGE, id);
+            LOG.error(SystemTools.getStackTrace(ex));
         }
 
         if (StringTools.isValidString(posterURL)) {

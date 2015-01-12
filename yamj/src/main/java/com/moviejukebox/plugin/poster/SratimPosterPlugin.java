@@ -30,6 +30,7 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,8 +72,8 @@ public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITv
                 posterURL = "http://sratim.co.il/photos/titles/normal/" + posterURL;
                 return new Image(posterURL);
             }
-        } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving poster for movie : " + id);
+        } catch (IOException error) {
+            LOG.error("{}Failed retreiving poster for movie: {}", LOG_MESSAGE, id);
             LOG.error(SystemTools.getStackTrace(error));
         }
         return Image.UNKNOWN;
@@ -83,14 +84,17 @@ public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITv
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
+    @Override
     public String getIdFromMovieInfo(String title, String year, int tvSeason) {
         return getIdFromMovieInfo(title, year);
     }
 
+    @Override
     public IImage getPosterUrl(String title, String year, int tvSeason) {
         return getPosterUrl(title, year);
     }
 
+    @Override
     public IImage getPosterUrl(String id, int season) {
         return getPosterUrl(id);
     }

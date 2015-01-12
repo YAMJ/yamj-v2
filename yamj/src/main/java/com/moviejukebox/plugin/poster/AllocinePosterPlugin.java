@@ -67,7 +67,7 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
                 }
             }
         }
-        LOG.debug(LOG_MESSAGE + "No poster found at allocine for movie id " + id);
+        LOG.debug("{}No poster found at allocine for movie id '{}'", LOG_MESSAGE, id);
         return Image.UNKNOWN;
     }
 

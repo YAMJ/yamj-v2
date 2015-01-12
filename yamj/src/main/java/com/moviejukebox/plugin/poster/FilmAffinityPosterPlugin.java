@@ -25,10 +25,11 @@ package com.moviejukebox.plugin.poster;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.FilmAffinityInfo;
 import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,9 +74,9 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
                 String xml = webBrowser.request(sb.toString());
                 posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
 
-            } catch (Exception e) {
-                LOG.error(LOG_MESSAGE + "Failed retreiving FilmAffinity poster url for movie : " + id);
-                LOG.error(LOG_MESSAGE + "Error : " + e.getMessage());
+            } catch (Exception ex) {
+                LOG.error("{}Failed retreiving FilmAffinity poster url for movie: {}", LOG_MESSAGE, id);
+                LOG.error(SystemTools.getStackTrace(ex));
             }
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {

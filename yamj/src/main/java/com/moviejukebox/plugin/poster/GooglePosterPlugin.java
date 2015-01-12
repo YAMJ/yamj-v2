@@ -26,7 +26,9 @@ import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.artwork.PosterScanner;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.StringTokenizer;
 import org.slf4j.Logger;
@@ -80,14 +82,9 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
                     posterImage.setUrl(Movie.UNKNOWN);
                 }
             }
-            // } else {
-            // // Stop try no more result.
-            // tryLeft = 0;
-            // }
-            // }
-        } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving poster URL from google images : " + title);
-            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
+        } catch (IOException ex) {
+            LOG.error( "{}Failed retreiving poster URL from google images: {}" ,LOG_MESSAGE, title);
+            LOG.error(SystemTools.getStackTrace(ex));
         }
         return posterImage;
     }

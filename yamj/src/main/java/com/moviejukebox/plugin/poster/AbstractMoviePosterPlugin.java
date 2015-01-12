@@ -53,19 +53,19 @@ public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
             id = getIdFromMovieInfo(movieInformation.getOriginalTitle(), movieInformation.getYear());
             // ID found
             if (StringTools.isValidString(id)) {
-                LOG.debug(this.getName() + " posterPlugin: ID found setting it to '" + id + "'");
+                LOG.debug("{} posterPlugin: ID found setting it to '{}'", this.getName(), id);
                 ident.setId(getName(), id);
             } else if (!movieInformation.getOriginalTitle().equalsIgnoreCase(movieInformation.getTitle())) {
                 // Didn't find the movie with the original title, try the normal title if it's different
                 id = getIdFromMovieInfo(movieInformation.getTitle(), movieInformation.getYear());
                 // ID found
                 if (StringTools.isValidString(id)) {
-                    LOG.debug(this.getName() + " posterPlugin: ID found setting it to '" + id + "'");
+                    LOG.debug("{} posterPlugin: ID found setting it to '{}'", this.getName(), id);
                     ident.setId(getName(), id);
                 }
             }
         } else {
-            LOG.debug(this.getName() + " posterPlugin: ID already in movie using it, skipping ID search: '" + id + "'");
+            LOG.debug("{} posterPlugin: ID already in movie using it, skipping ID search: '{}'", this.getName(), id);
         }
 
         if (!(StringTools.isNotValidString(id) || "-1".equals(id) || "0".equals(id))) {

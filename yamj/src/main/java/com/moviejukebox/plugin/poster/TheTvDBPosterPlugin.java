@@ -167,7 +167,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
 
             if (StringTools.isValidString(posterURL)) {
-                LOG.debug(LOG_MESSAGE + "Used poster " + posterURL);
+                LOG.debug("{}Used poster: {}", LOG_MESSAGE, posterURL);
                 return new Image(posterURL);
             }
         } finally {
@@ -235,7 +235,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 
         // Log a message to indicate that this is a non-language banner
         if (backupUrl != null) {
-            LOG.info(LOG_MESSAGE + "No poster found for " + languageId + ", using poster with no language: " + backupUrl);
+            LOG.info("{}No poster found for {}, using poster with no language: {}", LOG_MESSAGE, languageId, backupUrl);
         }
 
         return backupUrl;
