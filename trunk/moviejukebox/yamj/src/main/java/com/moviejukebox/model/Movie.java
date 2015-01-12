@@ -25,13 +25,41 @@ package com.moviejukebox.model;
 import com.moviejukebox.model.enumerations.CodecSource;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.BooleanYesNoAdapter;
+import com.moviejukebox.tools.DateTimeTools;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.UrlCodecAdapter;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import javax.xml.bind.annotation.*;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.pojava.datetime.DateTime;
 import org.slf4j.Logger;
@@ -275,7 +303,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public void addSet(String set, Integer order) {
         if (StringTools.isValidString(set)) {
             setDirty(DirtyFlag.INFO);
-            LOG.debug("Set added: " + set + (order == null ? ", unordered" : ", order: " + order));
+            LOG.debug("Set added: {}, {}", set, order == null ? ", unordered" : ", order: " + order);
             sets.put(set, order);
         }
     }
@@ -428,7 +456,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * Add a new extra file to the movie without marking the movie as dirty.
      *
      * @param extraFile
-     * @param isNewFile Use carefully as this will not cause the movie to be marked as dirty and may not be written out
+     * @param isNewFile Use carefully as this will not cause the movie to be
+     * marked as dirty and may not be written out
      */
     public void addExtraFile(ExtraFile extraFile, boolean isNewFile) {
         // Only add extraFile if it doesn't already exists
@@ -913,7 +942,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Clear ALL the dirty flags, and just set DirtyFlag.INFO to the passed value
+     * Clear ALL the dirty flags, and just set DirtyFlag.INFO to the passed
+     * value
      *
      * @param dirty
      */
@@ -923,8 +953,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Returns true if ANY of the dirty flags are set. Use with caution, it's better to test individual flags as you need them,
-     * rather than this generic flag
+     * Returns true if ANY of the dirty flags are set. Use with caution, it's
+     * better to test individual flags as you need them, rather than this
+     * generic flag
      *
      * @return
      */
@@ -997,7 +1028,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     @XmlTransient
     public boolean is3D() {
-        return (getVideoSource().indexOf("3D") > -1);
+        return (getVideoSource().contains("3D"));
     }
 
     public void setBaseName(String baseName) {
@@ -1249,7 +1280,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             setOverrideSource(OverrideFlag.COUNTRY, source);
         }
     }
-    
+
     public void setCountries(final Collection<String> countries, String source) {
         if (countries != null && !countries.isEmpty()) {
             this.countries.clear();
@@ -1264,10 +1295,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             this.countries.clear();
             for (String country : countries.split("/")) {
                 addCountry(country.trim(), source);
-            }            
-        } 
+            }
+        }
     }
-    
+
     /**
      * Get just one director from the collection
      *
@@ -1853,7 +1884,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Validate the testString to ensure it is correct before setting the Dirty INFO flag if it is different
+     * Validate the testString to ensure it is correct before setting the Dirty
+     * INFO flag if it is different
      *
      * @param testString
      * @param currentString
@@ -1910,46 +1942,44 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("[Movie ");
-        for (Map.Entry<String, String> e : idMap.entrySet()) {
-            sb.append("[id_").append(e.getKey()).append("=").append(e.getValue()).append("]");
-        }
-        sb.append("[title=").append(title).append("]");
-        sb.append("[titleSort=").append(titleSort).append("]");
-        sb.append("[year=").append(year).append("]");
-        sb.append("[releaseDate=").append(releaseDate).append("]");
-        sb.append("[ratings=").append(ratings).append("]");
-        sb.append("[top250=").append(top250).append("]");
-        sb.append("[posterURL=").append(posterURL).append("]");
-        sb.append("[bannerURL=").append(bannerURL).append("]");
-        sb.append("[fanartURL=").append(fanartURL).append("]");
-        sb.append("[plot=").append(plot).append("]");
-        sb.append("[outline=").append(outline).append("]");
-        sb.append("[director=").append(directors.toString()).append("]");
-        sb.append("[country=").append(this.getCountriesAsString()).append("]");
-        sb.append("[company=").append(company).append("]");
-        sb.append("[runtime=").append(runtime).append("]");
-        sb.append("[season=").append(getSeason()).append("]");
-        sb.append("[language=").append(language).append("]");
-        sb.append("[subtitles=").append(subtitles).append("]");
-        sb.append("[container=").append(container).append("]"); // AVI, MKV, TS, etc.
-        sb.append("[codecs=").append(codecs.toString()).append("]");
-        sb.append("[resolution=").append(resolution).append("]"); // 1280x528
-        sb.append("[videoSource=").append(videoSource).append("]");
-        sb.append("[videoOutput=").append(videoOutput).append("]");
-        sb.append("[fps=").append(fps).append("]");
-        sb.append("[certification=").append(certification).append("]");
-        sb.append("[cast=").append(cast).append("]");
-        sb.append("[writers=").append(writers).append("]");
-        sb.append("[genres=").append(genres).append("]");
-        sb.append("[libraryDescription=").append(libraryDescription).append("]");
-        sb.append("[prebuf=").append(prebuf).append("]");
-        sb.append("]");
-        return sb.toString();
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append(idMap)
+                .append(title)
+                .append(titleSort)
+                .append(year)
+                .append(releaseDate)
+                .append(ratings)
+                .append(top250)
+                .append(posterURL)
+                .append(bannerURL)
+                .append(fanartURL)
+                .append(plot)
+                .append(outline)
+                .append(directors)
+                .append(countries)
+                .append(company)
+                .append(runtime)
+                .append(getSeason())
+                .append(language)
+                .append(subtitles)
+                .append(container)
+                .append(codecs)
+                .append(resolution)
+                .append(videoSource)
+                .append(videoOutput)
+                .append(fps)
+                .append(certification)
+                .append(cast)
+                .append(writers)
+                .append(genres)
+                .append(libraryDescription)
+                .append(prebuf)
+                .toString();
     }
 
     /**
-     * Sets the "extra" flag to mark this file as an extra. Will trigger the "dirty" setting too
+     * Sets the "extra" flag to mark this file as an extra. Will trigger the
+     * "dirty" setting too
      *
      * @param extra Boolean flag, true=extra file, false=normal file
      */
@@ -1994,7 +2024,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 setTrailerLastScan(0);
             }
         } catch (IllegalArgumentException ex) {
-            LOG.debug("Unable to parse TrailerLastScan date from '" + lastScan + "', Error: " + ex.getMessage());
+            LOG.debug("Unable to parse TrailerLastScan date from '{}', Error: {}", lastScan, ex.getMessage());
             setTrailerLastScan(0);
         }
     }
@@ -2002,7 +2032,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     /**
      * Set the date of the last trailers scan
      *
-     * @param lastScan date of the last trailers scan (milliseconds offset from the Epoch)
+     * @param lastScan date of the last trailers scan (milliseconds offset from
+     * the Epoch)
      */
     public void setTrailerLastScan(long lastScan) {
         if (lastScan != this.trailerLastScan) {
@@ -2014,7 +2045,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     /**
      * Get the date of the last trailers scan
      *
-     * @return the date of the last trailers scan (milliseconds offset from the Epoch)
+     * @return the date of the last trailers scan (milliseconds offset from the
+     * Epoch)
      */
     public long getTrailerLastScan() {
         return trailerLastScan;
@@ -2305,7 +2337,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Store the latest filedate for a set of movie files. Synchronized so that the comparisons don't overlap
+     * Store the latest filedate for a set of movie files. Synchronized so that
+     * the comparisons don't overlap
      *
      * @param fileDate
      */
@@ -2368,7 +2401,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Should be called only from ArtworkScanner. Avoid calling this inside MoviePlugin Also called from MovieNFOScanner
+     * Should be called only from ArtworkScanner. Avoid calling this inside
+     * MoviePlugin Also called from MovieNFOScanner
      *
      * @param posterURL
      */
@@ -2794,7 +2828,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     /**
-     * Look at the associated movie files and return the latest date a file was watched
+     * Look at the associated movie files and return the latest date a file was
+     * watched
      *
      * @return
      */

@@ -23,9 +23,12 @@
 package com.moviejukebox.model;
 
 import java.io.File;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * Holds information about the jukebox and the various directories associated with it
+ * Holds information about the jukebox and the various directories associated
+ * with it
  *
  * @author Stuart
  */
@@ -165,13 +168,12 @@ public final class Jukebox {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("[Jukebox=");
-        sb.append("[detailsDirName=").append(detailsDirName);
-        sb.append("][jukeboxRootLocation=").append(jukeboxRootLocation);
-        sb.append("][jukeboxRootLocationDetails=").append(jukeboxRootLocationDetails);
-        sb.append("][jukeboxTempLocation=").append(jukeboxTempLocation);
-        sb.append("][jukeboxTempLocationDetails").append(jukeboxTempLocationDetails);
-        sb.append("]]");
-        return sb.toString();
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append(detailsDirName)
+                .append(jukeboxRootLocation)
+                .append(jukeboxRootLocationDetails)
+                .append(jukeboxTempLocation)
+                .append(jukeboxTempLocationDetails)
+                .toString();
     }
 }

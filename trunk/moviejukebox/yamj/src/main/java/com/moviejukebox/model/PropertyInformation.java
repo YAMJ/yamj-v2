@@ -24,6 +24,8 @@ package com.moviejukebox.model;
 
 import java.util.EnumSet;
 import java.util.Set;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * Class to define the property name and the impact on each of the overwrite flags. If the
@@ -72,9 +74,6 @@ public class PropertyInformation {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Name: ").append(getPropertyName());
-        sb.append(" Overwrites: ").append(getOverwrites().toString());
-        return sb.toString();
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }

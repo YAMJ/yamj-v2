@@ -24,6 +24,8 @@ package com.moviejukebox.model.Artwork;
 
 import com.moviejukebox.model.Movie;
 import java.awt.Dimension;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class ArtworkFile {
 
@@ -96,7 +98,8 @@ public class ArtworkFile {
     }
 
     /**
-     * @param dimension the dimension to set using width, height format
+     * @param width The width to set
+     * @param height The height to set
      */
     public void setDimension(int width, int height) {
         this.dimension = new Dimension(width, height);
@@ -118,13 +121,6 @@ public class ArtworkFile {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("[ArtworkFile=");
-        sb.append("[size=").append(size);
-        sb.append("][dimension=").append(dimension);
-        sb.append("][filename=").append(filename);
-        sb.append("][downloaded=").append(downloaded);
-        sb.append("]]");
-
-        return sb.toString();
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }

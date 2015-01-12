@@ -25,6 +25,8 @@ package com.moviejukebox.model;
 import com.moviejukebox.reader.MovieNFOReader;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.StringTools;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * Class to hold the episode information scraped from the XBMC style TV Episode
@@ -235,17 +237,6 @@ public class EpisodeDetail {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("[EpisodeDetail=");
-        sb.append("[title=").append(title);
-        sb.append("], [season=").append(season);
-        sb.append("], [episode=").append(episode);
-        sb.append("], [plot=").append(plot);
-        sb.append("], [firstAired=").append(firstAired);
-        sb.append("], [airsAfterSeason=").append(airsAfterSeason);
-        sb.append("], [airsBeforeSeason=").append(airsBeforeSeason);
-        sb.append("], [airsBeforeEpisode=").append(airsBeforeEpisode);
-        sb.append("], [rating=").append(rating);
-        sb.append("]]");
-        return sb.toString();
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }

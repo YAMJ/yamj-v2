@@ -32,6 +32,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * Container of parsed data from movie file name.
@@ -60,7 +62,7 @@ public class MovieFileNameDTO {
     private int fps = -1;
     private String hdResolution = null;
     private String videoSource = null;
-    private Map<String, String> idMap = new HashMap<String, String>(2);
+    private final Map<String, String> idMap = new HashMap<>(2);
 
     @XmlType
     public static class SetDTO {
@@ -260,23 +262,6 @@ public class MovieFileNameDTO {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[Title=").append(title);
-        sb.append("],[Year=").append(year);
-        sb.append("],[PartTitle=").append(partTitle);
-        sb.append("],[EpisodeTitle=").append(episodeTitle);
-        sb.append("],[Season=").append(season);
-        sb.append("],[EpisodeCount=").append(episodes.size());
-        sb.append("],[Part=").append(part);
-        sb.append("],[Extra=").append(extra);
-        sb.append("],[AudioCodec=").append(audioCodec);
-        sb.append("],[VideoCodec=").append(videoCodec);
-        sb.append("],[Container=").append(container);
-        sb.append("],[Extension=").append(extension);
-        sb.append("],[Fps=").append(fps);
-        sb.append("],[hdResolution=").append(hdResolution);
-        sb.append("],[VideoSource=").append(videoSource);
-        sb.append("]");
-        return sb.toString();
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }
