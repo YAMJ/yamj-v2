@@ -27,7 +27,9 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbInfo;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.io.IOException;
 import java.util.StringTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +63,7 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
                 response = imdbId;
             }
         } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Imdb Error: " + error.getMessage());
+            LOG.error("{}Imdb Error: {}", LOG_MESSAGE, error.getMessage());
             return Movie.UNKNOWN;
         }
         return response;
@@ -107,12 +109,13 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
                     } else {
                         posterURL = Movie.UNKNOWN;
                     }
-                    LOG.debug(LOG_MESSAGE + "Imdb found poster @: " + posterURL);
+                    LOG.debug("{}Imdb found poster @: {}", LOG_MESSAGE, posterURL);
                 }
 
             }
-        } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Imdb Error: " + error.getMessage());
+        } catch (IOException ex) {
+            LOG.error("Imdb Error: {}", LOG_MESSAGE, ex.getMessage());
+            LOG.error(SystemTools.getStackTrace(ex));
             return Image.UNKNOWN;
         }
 

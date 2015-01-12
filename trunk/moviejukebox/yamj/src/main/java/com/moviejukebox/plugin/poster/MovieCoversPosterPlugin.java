@@ -27,7 +27,9 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.Normalizer;
 import org.slf4j.Logger;
@@ -65,7 +67,7 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                 sb.append(URLEncoder.encode(Integer.toString(Integer.parseInt(year) + 1), "iso-8859-1"));
             }
             sb.append("&slow=0&tri=Titre&listes=1");
-            LOG.debug(LOG_MESSAGE + "Searching for: " + sb.toString());
+            LOG.debug("{}Searching for: {}", LOG_MESSAGE, sb.toString());
 
             String content = webBrowser.request(sb.toString());
 
@@ -131,12 +133,12 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                     }
                 }
             }
-        } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving Moviecovers poster URL: " + title);
-            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
+        } catch (NumberFormatException | IOException ex) {
+            LOG.error("{}Failed retreiving Moviecovers poster URL: {}", LOG_MESSAGE, title);
+            LOG.error(SystemTools.getStackTrace(ex));
             return Movie.UNKNOWN;
         }
-        LOG.debug(LOG_MESSAGE + "retreiving Moviecovers poster URL: " + returnString);
+        LOG.debug("{}Retreiving Moviecovers poster URL: {}", LOG_MESSAGE, returnString);
         return returnString;
     }
 
@@ -148,15 +150,12 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
     @Override
     public IImage getPosterUrl(String id) {
         String posterURL = Movie.UNKNOWN;
-        try {
-            if (id != null && !Movie.UNKNOWN.equalsIgnoreCase(id)) {
-                LOG.debug("MovieCoversPosterPlugin : Movie found on moviecovers.com" + id);
-                posterURL = "http://www.moviecovers.com/getjpg.html/" + id.replace("+", "%20");
-            } else {
-                LOG.debug(LOG_MESSAGE + "Unable to find posters for " + id);
-            }
-        } catch (Exception error) {
-            LOG.debug(LOG_MESSAGE + "MovieCovers.com API Error: " + error.getMessage());
+
+        if (id != null && !Movie.UNKNOWN.equalsIgnoreCase(id)) {
+            LOG.debug("{}Movie found on moviecovers.com: {}", LOG_MESSAGE, id);
+            posterURL = "http://www.moviecovers.com/getjpg.html/" + id.replace("+", "%20");
+        } else {
+            LOG.debug("{}Unable to find posters for {}", LOG_MESSAGE, id);
         }
 
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {

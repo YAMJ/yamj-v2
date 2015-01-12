@@ -22,7 +22,11 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import com.moviejukebox.model.*;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.IMovieBasicInformation;
+import com.moviejukebox.model.Identifiable;
+import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
@@ -53,7 +57,9 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         return (SEARCH_PRIORITY_MOVIE + "," + SEARCH_PRIORITY_TV).contains(this.getName());
     }
 
-    /* Implements getName for IPosterPlugin
+    /**
+     * Implements getName for IPosterPlugin
+     *
      * @return String posterPluginName
      * @see com.moviejukebox.plugin.poster.IPosterPlugin#getName()
      */
@@ -62,10 +68,18 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         return "cdon";
     }
 
-    /* Implements getIdFromMovieInfo for ITvShowPosterPlugin
+    /**
+     * Implements getIdFromMovieInfo for ITvShowPosterPlugin
+     *
      * Returns an url for the Cdon movie information page
+     *
+     * @param title
+     * @param year
+     * @param tvSeason
      * @return String id
-     * @see com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getIdFromMovieInfo(java.lang.String, java.lang.String, int)
+     * @see
+     * com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getIdFromMovieInfo(java.lang.String,
+     * java.lang.String, int)
      */
     @Override
     public String getIdFromMovieInfo(String title, String year, int tvSeason) {
@@ -97,10 +111,10 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             stringQuery.append("&category=2");
             //get the result page from the search
             xml = webBrowser.request(stringQuery.toString());
-        } catch (Exception error) {
+        } catch (Exception ex) {
             //there was an error getting the web page, catch the exception
-            LOG.error(LOG_MESSAGE + "An exception happened while retreiving CDON id for movie : " + newTitle);
-            LOG.error(LOG_MESSAGE + "the exception was caused by: " + error.getCause());
+            LOG.error("{}An exception happened while retreiving CDON id for movie: {}", LOG_MESSAGE, newTitle);
+            LOG.error(SystemTools.getStackTrace(ex));
         }
 
         //check that the result page contains some movie info
@@ -111,13 +125,14 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             //else there was no results matching, return Movie.UNKNOWN
         } else {
             response = Movie.UNKNOWN;
-            LOG.debug(LOG_MESSAGE + "could not find movie: " + newTitle);
+            LOG.debug("{}Could not find movie: {}", LOG_MESSAGE, newTitle);
         }
         return response;
     }
 
-    /* function that takes the search result page from cdon and loops
-     * through the products in that page searching for a match
+    /**
+     * Function that takes the search result page from cdon and loops through
+     * the products in that page searching for a match
      */
     private String findMovieFromProductList(String xml, String title, String year) {
         //remove unused parts of resulting web page
@@ -178,7 +193,9 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         }
     }
 
-    //function to extract the url of a movie detail page from the td it is in
+    /**
+     * Function to extract the url of a movie detail page from the td it is in
+     */
     private String extractMovieDetailUrl(String title, String response) {
         String newResponse = response;
         // Split string to extract the url
@@ -186,30 +203,43 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             String[] splitMovieURL = newResponse.split("\\s");
             //movieDetailPage is in splitMovieURL[13]
             newResponse = splitMovieURL[13].replaceAll("href|=|\"", "");
-            LOG.debug(LOG_MESSAGE + "Found cdon movie url = " + newResponse);
+            LOG.debug("{}Found cdon movie url = {}", LOG_MESSAGE, newResponse);
         } else {
             //something went wrong and we do not have an url in the result
             //set response to Movie.UNKNOWN and write to the log
             newResponse = Movie.UNKNOWN;
-            LOG.debug(LOG_MESSAGE + "Error extracting movie url for: " + title);
+            LOG.debug("Error extracting movie url for: {}", LOG_MESSAGE, title);
         }
         return newResponse;
     }
 
-    /*
+    /**
      * Implements getIdFromMovieInfo for IMoviePosterPlugin.
-     * Just adds an empty value for year and calls the method getIdFromMovieInfo(string, string, int);
-     * @see com.moviejukebox.plugin.poster.IMoviePosterPlugin#getIdFromMovieInfo(java.lang.String, java.lang.String)
+     *
+     * Just adds an empty value for year and calls the method
+     * getIdFromMovieInfo(string, string, int);
+     *
+     * @param title
+     * @param year
+     * @return
+     * @see
+     * com.moviejukebox.plugin.poster.IMoviePosterPlugin#getIdFromMovieInfo(java.lang.String,
+     * java.lang.String)
      */
     @Override
     public String getIdFromMovieInfo(String title, String year) {
         return getIdFromMovieInfo(title, year, -1);
     }
 
-    /* Implements getPosterUrl for IMoviePosterPlugin
+    /**
+     * Implements getPosterUrl for IMoviePosterPlugin
+     *
      * The url of the Cdon movie information page is passed as id
+     *
+     * @param id
      * @return IImage posterUrl
-     * @see com.moviejukebox.plugin.poster.IMoviePosterPlugin#getPosterUrl(java.lang.String)
+     * @see
+     * com.moviejukebox.plugin.poster.IMoviePosterPlugin#getPosterUrl(java.lang.String)
      */
     @Override
     public IImage getPosterUrl(String id) {
@@ -225,47 +255,80 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             String xml = getCdonMovieDetailsPage(newId);
             // extract poster url and return it
             posterURL = extractCdonPosterUrl(xml, newId);
-        } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving Cdon poster for movie : " + newId);
-            LOG.error(SystemTools.getStackTrace(error));
+        } catch (Exception ex) {
+            LOG.error("{}Failed retreiving Cdon poster for movie : {}", LOG_MESSAGE, newId);
+            LOG.error(SystemTools.getStackTrace(ex));
         }
 
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {
             return new Image(posterURL);
         }
 
-        LOG.debug(LOG_MESSAGE + "No poster found for movie: " + newId);
+        LOG.debug("No poster found for movie: {}", LOG_MESSAGE, newId);
         return Image.UNKNOWN;
     }
 
-    /* Implements getPosterUrl for IMoviePosterPlugin. Uses getIdFromMovieInfo
-     * to find an id and then calls getPosterUrl(String id, String year).
-     * @see com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getPosterUrl(java.lang.String, java.lang.String, int)
+    /**
+     * Implements getPosterUrl for IMoviePosterPlugin.
+     *
+     * Uses getIdFromMovieInfo to find an id and then calls getPosterUrl(String
+     * id, String year).
+     *
+     * @param title
+     * @param year
+     * @return
+     * @see
+     * com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getPosterUrl(java.lang.String,
+     * java.lang.String, int)
      */
     @Override
     public IImage getPosterUrl(String title, String year) {
         return getPosterUrl(getIdFromMovieInfo(title, year));
     }
 
-    /* Implements getPosterUrl for ITVShowPosterPlugin. Uses getIdFromMovieInfo
-     * to find an id and then calls getPosterUrl(String id).
-     * @see com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getPosterUrl(java.lang.String, java.lang.String, int)
+    /**
+     * Implements getPosterUrl for ITVShowPosterPlugin.
+     *
+     * Uses getIdFromMovieInfo to find an id and then calls getPosterUrl(String
+     * id).
+     *
+     * @param title
+     * @param year
+     * @param tvSeason
+     * @return
+     * @see
+     * com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getPosterUrl(java.lang.String,
+     * java.lang.String, int)
      */
     @Override
     public IImage getPosterUrl(String title, String year, int tvSeason) {
         return getPosterUrl(getIdFromMovieInfo(title, year, tvSeason));
     }
 
-    /* Implements getPosterUrl for ITVShowPosterPlugin.
-     * @see com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getPosterUrl(java.lang.String, java.lang.String, int)
+    /**
+     * Implements getPosterUrl for ITVShowPosterPlugin.
+     *
+     * @param title
+     * @param season
+     * @return
+     * @see
+     * com.moviejukebox.plugin.poster.ITvShowPosterPlugin#getPosterUrl(java.lang.String,
+     * java.lang.String, int)
      */
     @Override
     public IImage getPosterUrl(String title, int season) {
         return getPosterUrl(getIdFromMovieInfo(title, null, season));
     }
 
-    /* Implements getPosterUrl for IPosterPlugin
-     * @see com.moviejukebox.plugin.poster.IPosterPlugin#getPosterUrl(com.moviejukebox.model.Identifiable, com.moviejukebox.model.IMovieBasicInformation)
+    /**
+     * Implements getPosterUrl for IPosterPlugin
+     *
+     * @param ident
+     * @param movieInformation
+     * @return
+     * @see
+     * com.moviejukebox.plugin.poster.IPosterPlugin#getPosterUrl(com.moviejukebox.model.Identifiable,
+     * com.moviejukebox.model.IMovieBasicInformation)
      */
     @Override
     public IImage getPosterUrl(Identifiable ident, IMovieBasicInformation movieInformation) {
@@ -294,14 +357,11 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
     }
 
     protected String getCdonMovieDetailsPage(String movieURL) {
-        String cdonMoviePage;
         try {
             // sanity check on result before trying to load details page from url
             if (!movieURL.isEmpty() && movieURL.contains("http")) {
                 // fetch movie page from cdon
-                StringBuilder buf = new StringBuilder(movieURL);
-                cdonMoviePage = webBrowser.request(buf.toString());
-                return cdonMoviePage;
+                return webBrowser.request(movieURL);
             } else {
                 // search didn't even find an url to the movie
                 LOG.debug(LOG_MESSAGE + "Error in fetching movie detail page from CDON for movie: " + movieURL);

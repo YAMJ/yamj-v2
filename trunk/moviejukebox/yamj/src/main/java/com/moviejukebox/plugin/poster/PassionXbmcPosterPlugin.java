@@ -70,7 +70,7 @@ public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
                     posterURL = baseUrl + posterImg;
                 }
             } catch (IOException ex) {
-                LOG.error(LOG_MESSAGE + "Failed retrieving poster for movie : " + id);
+                LOG.error("{}Failed retrieving poster for movie: {}", LOG_MESSAGE, id);
                 LOG.error(SystemTools.getStackTrace(ex));
             }
         }

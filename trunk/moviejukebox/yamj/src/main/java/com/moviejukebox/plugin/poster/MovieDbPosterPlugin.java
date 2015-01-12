@@ -30,6 +30,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
@@ -64,12 +65,13 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         if (languageCode.length() > 2) {
             languageCode = languageCode.substring(0, 2).toLowerCase();
         }
-        LOG.debug(LOG_MESSAGE + "Using `" + languageCode + "` as the language code");
+        LOG.debug("{}Using '{}' as the language code", LOG_MESSAGE, languageCode);
 
         try {
             tmdb = new TheMovieDbApi(apiKey);
         } catch (MovieDbException ex) {
-            LOG.warn(LOG_MESSAGE + "Failed to initialise TheMovieDB API.");
+            LOG.warn("{}Failed to initialise TheMovieDB API.", LOG_MESSAGE);
+            LOG.warn(SystemTools.getStackTrace(ex));
             return;
         }
 
@@ -92,7 +94,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
             TmdbResultsList<MovieDb> result = tmdb.searchMovie(title, movieYear, languageCode, INCLUDE_ADULT, 0);
             movieList = result.getResults();
         } catch (MovieDbException ex) {
-            LOG.warn(LOG_MESSAGE + "Failed to get TMDB ID for " + title + "(" + searchYear + ")");
+            LOG.warn("{}Failed to get TMDB ID for {} ({}) - {}", LOG_MESSAGE, title, searchYear, ex.getMessage());
             return Movie.UNKNOWN;
         }
 
@@ -125,11 +127,11 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         if (StringUtils.isNumeric(id)) {
             try {
                 MovieDb moviedb = tmdb.getMovieInfo(Integer.parseInt(id), languageCode);
-                LOG.debug(LOG_MESSAGE + "Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/" + id);
+                LOG.debug("{}Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/{}", LOG_MESSAGE, id);
                 posterURL = tmdb.createImageUrl(moviedb.getPosterPath(), DEFAULT_POSTER_SIZE);
                 return new Image(posterURL.toString());
             } catch (MovieDbException ex) {
-                LOG.warn(LOG_MESSAGE + "Failed to get the poster URL for TMDB ID " + id + " " + ex.getMessage());
+                LOG.warn("{}Failed to get the poster URL for TMDB ID {} {}", LOG_MESSAGE, id, ex.getMessage());
                 return Image.UNKNOWN;
             }
         } else {
@@ -176,7 +178,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                 try {
                     moviedb = tmdb.getMovieInfoImdb(imdbID, languageCode);
                 } catch (MovieDbException ex) {
-                    LOG.warn(LOG_MESSAGE + "Failed to get TMDB ID for " + imdbID + " - " + ex.getMessage());
+                    LOG.warn("{}Failed to get TMDB ID for {} - {}", LOG_MESSAGE, imdbID, ex.getMessage());
                     return response;
                 }
                 if (moviedb != null) {
@@ -184,7 +186,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                     if (StringUtils.isNumeric(tmdbID)) {
                         response = tmdbID;
                     } else {
-                        LOG.info(LOG_MESSAGE + "No TMDb ID found for movie!");
+                        LOG.info("{}No TMDb ID found for movie!", LOG_MESSAGE);
                     }
                 }
             }

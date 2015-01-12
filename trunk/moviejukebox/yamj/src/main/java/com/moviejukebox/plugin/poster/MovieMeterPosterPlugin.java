@@ -28,12 +28,15 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.MovieMeterPluginSession;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.StringTokenizer;
-import org.slf4j.Logger;
+import org.apache.commons.lang.StringUtils;
 import org.apache.xmlrpc.XmlRpcException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
@@ -58,8 +61,7 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
         try {
             session = new MovieMeterPluginSession();
         } catch (XmlRpcException error) {
-            LOG.debug(LOG_MESSAGE + "MovieMeterPosterPlugin: Failed to create session");
-//            logger.error(SystemTools.getStackTrace(error));
+            LOG.debug("{}MovieMeterPosterPlugin: Failed to create session - {}", LOG_MESSAGE, error.getMessage());
         }
     }
 
@@ -79,25 +81,16 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
             StringTokenizer st = new StringTokenizer(xml.substring(beginIndex + 23), "/\"");
             String moviemeterId = st.nextToken();
 
-            if (isInteger(moviemeterId)) {
+            if (StringUtils.isNumeric(moviemeterId)) {
                 return moviemeterId;
             } else {
                 return Movie.UNKNOWN;
             }
 
-        } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving moviemeter Id from Google for movie : " + movieName);
-            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
+        } catch (IOException error) {
+            LOG.error("{}Failed retreiving moviemeter Id from Google for movie: {}", LOG_MESSAGE, movieName);
+            LOG.error(SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
-        }
-    }
-
-    private boolean isInteger(String input) {
-        try {
-            Integer.parseInt(input);
-            return true;
-        } catch (Exception error) {
-            return false;
         }
     }
 
@@ -106,24 +99,24 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
     public String getIdFromMovieInfo(String title, String year) {
         String response = Movie.UNKNOWN;
         try {
-            LOG.debug(LOG_MESSAGE + "Preferred search engine for moviemeter id: " + preferredSearchEngine);
+            LOG.debug("{}Preferred search engine for moviemeter id: {}", LOG_MESSAGE, preferredSearchEngine);
             if ("google".equalsIgnoreCase(preferredSearchEngine)) {
                 // Get moviemeter website from google
-                LOG.debug(LOG_MESSAGE + "Searching google.nl to get moviemeter.nl id");
+                LOG.debug("{}Searching google.nl to get moviemeter.nl id", LOG_MESSAGE);
                 response = getMovieMeterIdFromGoogle(title, year);
-                LOG.debug(LOG_MESSAGE + "Returned id: " + response);
+                LOG.debug("{}Returned id: {}", LOG_MESSAGE, response);
             } else if ("none".equalsIgnoreCase(preferredSearchEngine)) {
                 response = Movie.UNKNOWN;
             } else {
-                LOG.debug(LOG_MESSAGE + "Searching moviemeter.nl for title: " + title);
+                LOG.debug("{}Searching moviemeter.nl for title: {}", LOG_MESSAGE, title);
 
                 Map filmInfo = session.getMovieDetailsByTitleAndYear(title, year);
                 response = filmInfo.get("filmId").toString();
             }
 
-        } catch (Exception e) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving CaratulasdecinePoster Id for movie : " + title);
-            LOG.error(LOG_MESSAGE + "Error : " + e.getMessage());
+        } catch (Exception ex) {
+            LOG.error("{}Failed retreiving CaratulasdecinePoster Id for movie : {}", LOG_MESSAGE, title);
+            LOG.error(SystemTools.getStackTrace(ex));
         }
         return response;
     }
@@ -138,9 +131,9 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
                 Map filmInfo = session.getMovieDetailsById(Integer.valueOf(id));
                 posterURL = filmInfo.get("thumbnail").toString().replaceAll("thumbs/", "");
 
-            } catch (Exception e) {
-                LOG.error(LOG_MESSAGE + "Failed retreiving CaratulasdecinePoster url for movie : " + id);
-                LOG.error(LOG_MESSAGE + "Error : " + e.getMessage());
+            } catch (Exception ex) {
+                LOG.error("{}Failed retreiving CaratulasdecinePoster url for movie : {}", LOG_MESSAGE, id);
+                LOG.error(SystemTools.getStackTrace(ex));
             }
         }
 

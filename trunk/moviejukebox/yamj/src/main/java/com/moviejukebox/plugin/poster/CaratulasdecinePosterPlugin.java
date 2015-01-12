@@ -27,6 +27,7 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -57,7 +58,8 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     /**
-     * Look for the movie URL in the XML. If there is no title, or the title is not found, return the first movie URL
+     * Look for the movie URL in the XML. If there is no title, or the title is
+     * not found, return the first movie URL
      *
      * @param xml
      * @param title
@@ -128,9 +130,9 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                     }
                 }
             }
-        } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving CaratulasdecinePoster Id for movie: " + title);
-            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
+        } catch (Exception ex) {
+            LOG.error("{}Failed retreiving CaratulasdecinePoster Id for movie '{}'", LOG_MESSAGE, title);
+            LOG.error(SystemTools.getStackTrace(ex));
         }
 
         return response;
@@ -152,9 +154,9 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                             + xml.substring(beginIndex + searchString.length(), xml.indexOf(" ", beginIndex + searchString.length()) - 1);
                 }
 
-            } catch (Exception error) {
-                LOG.error(LOG_MESSAGE + "Failed retreiving CaratulasdecinePoster url for movie : " + id);
-                LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            } catch (Exception ex) {
+                LOG.error("{}Failed retreiving CaratulasdecinePoster url for movie '{}'", LOG_MESSAGE, id);
+                LOG.error(SystemTools.getStackTrace(ex));
             }
         }
 
