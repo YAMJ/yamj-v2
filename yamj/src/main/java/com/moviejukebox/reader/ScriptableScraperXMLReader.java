@@ -22,25 +22,18 @@
  */
 package com.moviejukebox.reader;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.ScriptableScraper;
-import com.moviejukebox.MovieJukebox;
+import com.moviejukebox.model.scriptablescraper.ScriptableScraper;
+import com.moviejukebox.model.scriptablescraper.SectionSS;
 import com.moviejukebox.tools.DOMHelper;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.SystemTools;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -88,6 +81,7 @@ public class ScriptableScraperXMLReader {
      * Parse ScriptableScraper XML file
      *
      * @param xmlFile
+     * @param ssData
      * @return
      */
     public boolean parseXML(File xmlFile, ScriptableScraper ssData) {
@@ -103,11 +97,7 @@ public class ScriptableScraperXMLReader {
             LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for ScriptableScraper. Please fix it.");
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
-        } catch (ParserConfigurationException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for ScriptableScraper. Please fix it.");
-            LOG.error(SystemTools.getStackTrace(error));
-            return Boolean.FALSE;
-        } catch (SAXException error) {
+        } catch (ParserConfigurationException | SAXException error) {
             LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for ScriptableScraper. Please fix it.");
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
@@ -173,12 +163,12 @@ public class ScriptableScraperXMLReader {
         return value.replaceAll("(\\\\[AbBEGQzZ])", "\\\\$1");
     }
 
-    private void fillSection(ScriptableScraper ssData, ScriptableScraper.ssSection parentSection, Node eSection, String name) {
+    private void fillSection(ScriptableScraper ssData, SectionSS parentSection, Node eSection, String name) {
         Node nElement;
         int looper;
         String eName;
 
-        ScriptableScraper.ssSection resSection = ssData.addSection(name, parentSection);
+        SectionSS resSection = ssData.addSection(name, parentSection);
 
         NamedNodeMap mapElement = eSection.getAttributes();
         for (looper = 0; looper < mapElement.getLength(); looper++) {

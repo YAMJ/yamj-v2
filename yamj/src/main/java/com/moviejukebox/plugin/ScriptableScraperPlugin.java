@@ -23,7 +23,13 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.ScriptableScraper;
+import com.moviejukebox.model.scriptablescraper.ItemSS;
+import com.moviejukebox.model.scriptablescraper.MathSS;
+import com.moviejukebox.model.scriptablescraper.ParseSS;
+import com.moviejukebox.model.scriptablescraper.RetrieveSS;
+import com.moviejukebox.model.scriptablescraper.ScriptableScraper;
+import com.moviejukebox.model.scriptablescraper.SectionContentSS;
+import com.moviejukebox.model.scriptablescraper.SectionSS;
 import com.moviejukebox.reader.ScriptableScraperXMLReader;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -153,9 +159,9 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
         ssData.getSection().setVariable("search.title", movieName);
         ssData.getSection().setVariable("search.year", StringTools.isValidString(year) ? year : "0");
 
-        Collection<ScriptableScraper.ssSectionContent> dataSections = ssData.getSections("action", "search");
+        Collection<SectionContentSS> dataSections = ssData.getSections("action", "search");
         runSections(dataSections, "search");
-        for (ScriptableScraper.ssSectionContent section : dataSections) {
+        for (SectionContentSS section : dataSections) {
             movieId = section.getVariable("movie[0].site_id");
             if (StringTools.isValidString(movieId)) {
                 ssData.getSection().setVariable("movie.site_id", movieId);
@@ -171,11 +177,11 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
     }
 
     private boolean updateMediaInfo(Movie movie, String movieId) {
-        Collection<ScriptableScraper.ssSectionContent> sections = ssData.getSections("action", "get_details");
-        if(!sections.isEmpty()) {
+        Collection<SectionContentSS> sections = ssData.getSections("action", "get_details");
+        if (!sections.isEmpty()) {
             runSections(sections, "get_details");
 
-            ScriptableScraper.ssSectionContent section = sections.iterator().next();
+            SectionContentSS section = sections.iterator().next();
 
             // Title
             String value = section.getVariable("movie.title");
@@ -292,12 +298,18 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
         int count = 0;
         if (StringTools.isValidString(value)) {
             for (String person : Arrays.asList(value.split("\\|"))) {
-                if ("directors".equals(mode)) {
-                    movie.addDirector(person, SCRIPTABLESCRAPER_PLUGIN_ID);
-                } else if ("writers".equals(mode)) {
-                    movie.addWriter(person, SCRIPTABLESCRAPER_PLUGIN_ID);
-                } else if ("actors".equals(mode)) {
-                    movie.addActor(person, SCRIPTABLESCRAPER_PLUGIN_ID);
+                if (null != mode) {
+                    switch (mode) {
+                        case "directors":
+                            movie.addDirector(person, SCRIPTABLESCRAPER_PLUGIN_ID);
+                            break;
+                        case "writers":
+                            movie.addWriter(person, SCRIPTABLESCRAPER_PLUGIN_ID);
+                            break;
+                        case "actors":
+                            movie.addActor(person, SCRIPTABLESCRAPER_PLUGIN_ID);
+                            break;
+                    }
                 }
                 count++;
                 if (personMax == count) {
@@ -308,24 +320,24 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
         return count;
     }
 
-    private void runSections(Collection<ScriptableScraper.ssSectionContent> sections, String sectionName) {
+    private void runSections(Collection<SectionContentSS> sections, String sectionName) {
         try {
             if (debug) {
                 LOG.debug("{}runSections: {}", LOG_MESSAGE, sectionName);
             }
             String value;
-//            Collection<ScriptableScraper.ssSectionContent> result = null;
-            for (ScriptableScraper.ssSectionContent content : sections) {
-                ScriptableScraper.ssSection cSection = (ScriptableScraper.ssSection) content;
+//            Collection<ScriptableScraper.SectionContentSS> result = null;
+            for (SectionContentSS content : sections) {
+                SectionSS cSection = (SectionSS) content;
                 for (int looperItem = 0; looperItem < cSection.getItems().size(); looperItem++) {
-                    ScriptableScraper.ssItem item = cSection.getItem(looperItem);
+                    ItemSS item = cSection.getItem(looperItem);
                     String type = item.getType();
                     String key = item.getKey();
                     if (debug) {
                         LOG.debug("{}item: {} : {}", LOG_MESSAGE, type, key);
                     }
                     if ("retrieve".equals(type)) {
-                        ScriptableScraper.ssRetrieve retrieve = cSection.getRetrieve(key);
+                        RetrieveSS retrieve = cSection.getRetrieve(key);
                         if (retrieve != null) {
                             String url = cSection.compileValue(retrieve.getURL());
                             if (StringUtils.isNotBlank(retrieve.getCookies())) {
@@ -363,33 +375,41 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
                         value = cSection.compileValue(value);
                         cSection.setGlobalVariable(key, value);
                     } else if ("parse".equals(type)) {
-                        ScriptableScraper.ssParse parse = cSection.getParse(key);
+                        ParseSS parse = cSection.getParse(key);
                         if (parse != null) {
                             key = cSection.compileValue(key);
                             value = cSection.parseInput(cSection.compileValue(parse.getInput()), cSection.compileValue(parse.getRegex()));
                             cSection.setGlobalVariable(key, value);
                         }
                     } else if ("math".equals(type)) {
-                        ScriptableScraper.ssMath math = cSection.getMath(key);
+                        MathSS math = cSection.getMath(key);
                         if (math != null) {
                             float res = -0.000001f;
                             float value1 = Float.parseFloat(cSection.compileValue(math.getValue1()));
                             float value2 = Float.parseFloat(cSection.compileValue(math.getValue2()));
                             String typeName = math.getType();
-                            if ("add".equals(typeName)) {
-                                res = value1 + value2;
-                            } else if ("subtract".equals(typeName)) {
-                                res = value1 - value2;
-                            } else if ("multiply".equals(typeName)) {
-                                res = value1 * value2;
-                            } else if ("divide".equals(typeName)) {
-                                if (value2 > 0) {
-                                    res = value1 / value2;
-                                } else {
-                                    res = 0;
+                            if (null != typeName) {
+                                switch (typeName) {
+                                    case "add":
+                                        res = value1 + value2;
+                                        break;
+                                    case "subtract":
+                                        res = value1 - value2;
+                                        break;
+                                    case "multiply":
+                                        res = value1 * value2;
+                                        break;
+                                    case "divide":
+                                        if (value2 > 0) {
+                                            res = value1 / value2;
+                                        } else {
+                                            res = 0;
+                                        }
+                                        break;
+                                    default:
+                                        LOG.error("{}Unknown math type: {}", LOG_MESSAGE, typeName);
+                                        break;
                                 }
-                            } else {
-                                LOG.error("{}Unknown math type: {}", LOG_MESSAGE, typeName);
                             }
 
                             if (res != -0.000001f) {
@@ -402,7 +422,7 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
                             }
                         }
                     } else if ("content".equals(type)) {
-                        ScriptableScraper.ssSection section = (ScriptableScraper.ssSection) cSection.getContent(Integer.parseInt(key));
+                        SectionSS section = (SectionSS) cSection.getContent(Integer.parseInt(key));
                         String name = section.getName();
                         if (debug) {
                             LOG.debug("{}subsection: {}", LOG_MESSAGE, name);
