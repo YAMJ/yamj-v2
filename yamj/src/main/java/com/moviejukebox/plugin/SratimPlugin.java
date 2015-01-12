@@ -55,11 +55,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.MongeElkan;
 
 public class SratimPlugin extends ImdbPlugin {
 
@@ -67,7 +66,6 @@ public class SratimPlugin extends ImdbPlugin {
     private static final String LOG_MESSAGE = "Sratim Plugin: ";
     public static final String SRATIM_PLUGIN_ID = "sratim";
     public static final String SRATIM_PLUGIN_SUBTITLE_ID = "sratim_subtitle";
-    private static final AbstractStringMetric METRIC = new MongeElkan();
     private static final Pattern NFO_PATTERN = Pattern.compile("http://[^\"/?&]*sratim.co.il[^\\s<>`\"\\[\\]]*");
     private static final String[] GENRE_STRING_ENGLISH = {"Action", "Adult", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama",
         "Family", "Fantasy", "Film-Noir", "Game-Show", "History", "Horror", "Music", "Musical", "Mystery", "News", "Reality-TV", "Romance",
@@ -532,9 +530,8 @@ public class SratimPlugin extends ImdbPlugin {
     private static List<String> logicalToVisual(List<String> text) {
         List<String> ret = new ArrayList<String>();
 
-        for (int i = 0; i < text.size(); i++) {
-            ret.add(logicalToVisual(text.get(i)));
-
+        for (String text1 : text) {
+            ret.add(logicalToVisual(text1));
         }
 
         return ret;
@@ -602,11 +599,11 @@ public class SratimPlugin extends ImdbPlugin {
         return ret.toString();
     }
 
-    protected List<String> removeHtmlTags(List<String> src) {
+    protected List<String> removeHtmlTags(List<String> source) {
         List<String> output = new ArrayList<String>();
 
-        for (int i = 0; i < src.size(); i++) {
-            output.add(HTMLTools.removeHtmlTags(src.get(i)));
+        for (String text : source) {
+            output.add(HTMLTools.removeHtmlTags(text));
         }
         return output;
     }
@@ -819,6 +816,10 @@ public class SratimPlugin extends ImdbPlugin {
             }
         }
 
+        if (seasonXML == null) {
+            return;
+        }
+
         for (MovieFile file : movie.getMovieFiles()) {
             if (!file.isNewFile()) {
                 // don't scan episode if file is not new
@@ -832,7 +833,7 @@ public class SratimPlugin extends ImdbPlugin {
 
                 // Go over the page and sacn for episode links
                 while (true) {
-                    index = seasonXML == null ? -1 : seasonXML.indexOf("<td style=\"padding-right:6px;font-size:15px;\"><a href=\"", index);
+                    index = seasonXML.indexOf("<td style=\"padding-right:6px;font-size:15px;\"><a href=\"", index);
                     if (index == -1) {
                         return;
                     }
@@ -987,8 +988,8 @@ public class SratimPlugin extends ImdbPlugin {
             return;
         }
 
-        float maxMatch = 0.0f;
-        float matchThreshold = Float.parseFloat(PropertiesUtil.getProperty("sratim.textMatchSimilarity", "0.8"));
+        double maxMatch = 0.0;
+        double matchThreshold = PropertiesUtil.getFloatProperty("sratim.textMatchSimilarity", 0.8f);
 
         while (index < endHebrewSubsIndex) {
 
@@ -1097,7 +1098,7 @@ public class SratimPlugin extends ImdbPlugin {
             String scanCount = mainXML.substring(index, endIndex);
 
             // Check for best text similarity
-            float result = METRIC.getSimilarity(basename, scanFileName);
+            double result = StringUtils.getJaroWinklerDistance(basename, scanFileName);
             if (result > maxMatch) {
                 maxMatch = result;
                 bestSimilar = scanID;
@@ -1125,8 +1126,8 @@ public class SratimPlugin extends ImdbPlugin {
                 LOG.debug(LOG_MESSAGE + "FPS: " + movie.getFps() + " scanFPS: " + scanFPSFloat);
 
                 if (bluRay
-                        && ((scanFileName.indexOf("BRRIP") != -1) || (scanFileName.indexOf("BDRIP") != -1) || (scanFileName.indexOf("BLURAY") != -1)
-                        || (scanFileName.indexOf("BLU-RAY") != -1) || (scanFileName.indexOf("HDDVD") != -1))) {
+                        && ((scanFileName.contains("BRRIP")) || (scanFileName.contains("BDRIP")) || (scanFileName.contains("BLURAY"))
+                        || (scanFileName.contains("BLU-RAY")) || (scanFileName.contains("HDDVD")))) {
 
                     if ((scanFPSFloat == 0) && (scanCountInt > bestBlurayCount)) {
                         bestBlurayCount = scanCountInt;
