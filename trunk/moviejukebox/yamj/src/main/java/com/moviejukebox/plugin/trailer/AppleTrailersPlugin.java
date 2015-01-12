@@ -22,13 +22,12 @@
  */
 package com.moviejukebox.plugin.trailer;
 
-import com.moviejukebox.tools.WebBrowser;
-
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.WebBrowser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -46,12 +45,12 @@ import org.slf4j.LoggerFactory;
 public class AppleTrailersPlugin extends TrailerPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(AppleTrailersPlugin.class);
-    private static String configResolution = PropertiesUtil.getProperty("appletrailers.resolution", "");
-    private static boolean configDownload = PropertiesUtil.getBooleanProperty("appletrailers.download", Boolean.FALSE);
-    private static String configTrailerTypes = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec,640w");
-    private static int configMax = PropertiesUtil.getIntProperty("appletrailers.max", 0);
-    private static boolean configTypesInclude = PropertiesUtil.getBooleanProperty("appletrailers.typesinclude", Boolean.TRUE);
-    private static String configReplaceUrl = PropertiesUtil.getProperty("appletrailers.replaceurl", "www.apple.com");
+    private static final String CONFIG_RESOLUTION = PropertiesUtil.getProperty("appletrailers.resolution", "");
+    private static final boolean CONFIG_DOWNLOAD = PropertiesUtil.getBooleanProperty("appletrailers.download", Boolean.FALSE);
+    private static final String CONFIG_TYPES = PropertiesUtil.getProperty("appletrailers.trailertypes", "tlr,clip,tsr,30sec,640w");
+    private static final int CONFIG_MAX = PropertiesUtil.getIntProperty("appletrailers.max", 0);
+    private static final boolean CONFIG_TYPES_INCLUDE = PropertiesUtil.getBooleanProperty("appletrailers.typesinclude", Boolean.TRUE);
+    private static final String CONFIG_REPLACE_URL = PropertiesUtil.getProperty("appletrailers.replaceurl", "www.apple.com");
     private static final String EXTENSIONS = "mov|m4v";
     private static final String SUBDOMAINS = "movies|images|trailers";
     private static final Pattern TRAILER_URL_PATTERN = Pattern.compile("http://(" + SUBDOMAINS + ").apple.com/movies/[^\\\"]+\\.(" + EXTENSIONS + ")");
@@ -66,7 +65,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
     @Override
     public final boolean generate(Movie movie) {
         // Check if trailer resolution was selected
-        if (configResolution.equals("")) {
+        if (CONFIG_RESOLUTION.equals("")) {
             return false;
         }
 
@@ -77,7 +76,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         movie.setTrailerLastScan(new Date().getTime()); // Set the last scan to now
 
         if (Movie.UNKNOWN.equalsIgnoreCase(trailerPageUrl)) {
-            LOG.debug(logMessage + "Trailer not found for " + movie.getBaseName());
+            LOG.debug("{}Trailer not found for {}", logMessage, movie.getBaseName());
             return false;
         }
 
@@ -91,7 +90,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         int trailerDownloadCnt = 0;
 
         if (bestTrailersUrl.isEmpty()) {
-            LOG.debug(logMessage + "No trailers found for " + movie.getBaseName());
+            LOG.debug("{}No trailers found for {}", logMessage, movie.getBaseName());
             return false;
         }
 
@@ -99,8 +98,8 @@ public class AppleTrailersPlugin extends TrailerPlugin {
 
         for (String trailerRealUrl : bestTrailersUrl) {
 
-            if (trailerDownloadCnt >= configMax) {
-                LOG.debug(logMessage + "Downloaded maximum of " + configMax + (configMax == 1 ? " trailer" : " trailers"));
+            if (trailerDownloadCnt >= CONFIG_MAX) {
+                LOG.debug("{}Downloaded maximum of {} trailer", logMessage, CONFIG_MAX, CONFIG_MAX == 1 ? "" : "s");
                 break;
             }
 
@@ -110,21 +109,21 @@ public class AppleTrailersPlugin extends TrailerPlugin {
 
             // Is the found trailer one of the types to download/link to?
             if (!isValidTrailer(getFilenameFromUrl(trailerRealUrl))) {
-                LOG.debug(logMessage + "Trailer skipped: " + getFilenameFromUrl(trailerRealUrl));
+                LOG.debug("{}Trailer skipped: {}", logMessage, getFilenameFromUrl(trailerRealUrl));
                 continue; // Quit the rest of the trailer loop.
             }
 
             // Issue with the naming of URL for trailer download
             // See: http://www.hd-trailers.net/blog/how-to-download-hd-trailers-from-apple/
-            trailerRealUrl = trailerRealUrl.replace("www.apple.com", configReplaceUrl);
-            trailerRealUrl = trailerRealUrl.replace("images.apple.com", configReplaceUrl);
-            trailerRealUrl = trailerRealUrl.replace("movies.apple.com", configReplaceUrl);
+            trailerRealUrl = trailerRealUrl.replace("www.apple.com", CONFIG_REPLACE_URL);
+            trailerRealUrl = trailerRealUrl.replace("images.apple.com", CONFIG_REPLACE_URL);
+            trailerRealUrl = trailerRealUrl.replace("movies.apple.com", CONFIG_REPLACE_URL);
 
-            LOG.debug(logMessage + "Trailer found for " + movie.getBaseName() + " (" + getFilenameFromUrl(trailerRealUrl) + ")");
+            LOG.debug("{}Trailer found for {} ({})", logMessage, movie.getBaseName(), getFilenameFromUrl(trailerRealUrl));
             trailerDownloadCnt++;
 
             // Check if we need to download the trailer, or just link to it
-            if (configDownload) {
+            if (CONFIG_DOWNLOAD) {
                 String trailerAppleName = getFilenameFromUrl(trailerRealUrl);
                 trailerAppleName = trailerAppleName.substring(0, trailerAppleName.lastIndexOf('.'));
                 isExchangeOk = downloadTrailer(movie, trailerRealUrl, trailerAppleName, extra);
@@ -211,7 +210,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             }
 
         } catch (IOException error) {
-            LOG.error(logMessage + "Failed retreiving trailer for movie : " + movieName);
+            LOG.error("{}Failed retreiving trailer for movie : {}", logMessage, movieName);
             LOG.error(SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
         }
@@ -249,10 +248,10 @@ public class AppleTrailersPlugin extends TrailerPlugin {
                 // Try to find the movie link on the WebInc HD page
                 getTrailerMovieUrl(xmlHDWebInc, trailersUrl);
             } else {
-                LOG.debug(logMessage + "No valid HD URL found for " + trailerPageUrl);
+                LOG.debug("{}No valid HD URL found for {}", logMessage, trailerPageUrl);
             }
         } catch (IOException ex) {
-            LOG.error(logMessage + "Error : " + ex.getMessage());
+            LOG.error("{}Error : {}", logMessage, ex.getMessage());
             LOG.error(SystemTools.getStackTrace(ex));
         }
     }
@@ -284,13 +283,13 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         boolean startSearch = false;
 
         for (String resolution : RESOLUTION_ARRAY) {
-            if (configResolution.equals(resolution)) {
+            if (CONFIG_RESOLUTION.equals(resolution)) {
                 startSearch = true;
             }
             if (startSearch) {
                 for (String curURL : trailersUrl) {
                     // Search for a specific resolution
-                    if (curURL.indexOf(resolution) != -1) {
+                    if (curURL.contains(resolution)) {
                         addTailerRealUrl(bestTrailersUrl, curURL);
                     }
                 }
@@ -338,7 +337,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             return absRealURL;
 
         } catch (IOException ex) {
-            LOG.error(logMessage + "Error : " + ex.getMessage());
+            LOG.error("{}Error : {}", logMessage, ex.getMessage());
             LOG.error(SystemTools.getStackTrace(ex));
             return Movie.UNKNOWN;
         }
@@ -424,21 +423,22 @@ public class AppleTrailersPlugin extends TrailerPlugin {
     }
 
     /**
-     * Check the trailer filename against the valid trailer types from appletrailers.trailertypes
+     * Check the trailer filename against the valid trailer types from
+     * appletrailers.trailertypes
      *
      * @param trailerFilename
      * @return
      */
     private boolean isValidTrailer(String trailerFilename) {
         // Set the default response for the validTrailer
-        boolean validTrailer = !configTypesInclude;
+        boolean validTrailer = !CONFIG_TYPES_INCLUDE;
 
-        for (String ttype : configTrailerTypes.split(",")) {
+        for (String ttype : CONFIG_TYPES.split(",")) {
             if (trailerFilename.lastIndexOf(ttype) > 0) {
                 /*
                  If the type is found, and configTypesInclude, then this is a valid trailer, otherwise it's invalid and should be excluded
                  */
-                validTrailer = configTypesInclude;
+                validTrailer = CONFIG_TYPES_INCLUDE;
             }
         }
 
