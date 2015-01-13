@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.tools;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,12 +80,11 @@ public class StringToolsTest {
 
         List<String[]> tests = new ArrayList<>();
         // base path, additional path, expected result
-        tests.add(new String[]{"base", "additional", "base/additional"});
-        tests.add(new String[]{"\\base", "additional", "/base/additional"});
-        tests.add(new String[]{"/base", "additional", "/base/additional"});
-        tests.add(new String[]{"base", "\\additional", "base/additional"});
-        tests.add(new String[]{"base", "/additional", "base/additional"});
-        tests.add(new String[]{"../base", "additional", "../base/additional"});
+        tests.add(new String[]{"base", "additional", "base" + File.separator + "additional"});
+        tests.add(new String[]{"\\base", "additional", "" + File.separator + "base" + File.separator + "additional"});
+        tests.add(new String[]{"/base", "additional", "" + File.separator + "base" + File.separator + "additional"});
+        tests.add(new String[]{"base", "\\additional", "base" + File.separator + "additional"});
+        tests.add(new String[]{"base", "/additional", "base" + File.separator + "additional"});
 
         String base, additional, actual, expected;
         int count = 1;
