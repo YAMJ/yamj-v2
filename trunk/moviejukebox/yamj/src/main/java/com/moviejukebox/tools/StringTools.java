@@ -57,13 +57,12 @@ public final class StringTools {
     private static final DecimalFormat FILESIZE_FORMAT_0 = new DecimalFormat("0");
     private static final DecimalFormat FILESIZE_FORMAT_1 = new DecimalFormat("0.#");
     private static final DecimalFormat FILESIZE_FORMAT_2 = new DecimalFormat("0.##");
-    private static final Map<Character, Character> CHAR_REPLACEMENT_MAP = new HashMap<Character, Character>();
+    private static final Map<Character, Character> CHAR_REPLACEMENT_MAP = new HashMap<>();
     // Quote replacements
     private static final String QUOTE_SINGLE = "\'";
     private static final Pattern QUOTE_PATTERN = Pattern.compile(generateQuoteList());
     // Literals
     private static final String MPPA_RATED = "Rated";
-    private static final int PREPEND_DOTS_LENGTH = 2;
 
     private StringTools() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
@@ -91,7 +90,7 @@ public final class StringTools {
      * @return
      */
     private static String generateQuoteList() {
-        Set<String> quotes = new HashSet<String>();
+        Set<String> quotes = new HashSet<>();
         // Double quote - "
         quotes.add("\"");
         // Single left quote - ‘
@@ -166,19 +165,17 @@ public final class StringTools {
      * @return
      */
     public static String appendToPath(final String basePath, final String additionalPath) {
-        String tmpBasePath = basePath;
-        String tmpAdditionalPath = additionalPath;
-        String prepend = "";
-
+        String tmpAdditionalPath;
         if (additionalPath.startsWith("\\") || additionalPath.startsWith("/")) {
-            // Remove any path characters from the additional path as this interferes with the concat
+            // Remove any path characters from the additional path as this interferes with the conncat
             tmpAdditionalPath = additionalPath.substring(1);
-        } else if (basePath.startsWith("..")) {
-            // Remove any prefix dots
-            tmpBasePath = basePath.substring(PREPEND_DOTS_LENGTH);
-            prepend = basePath.substring(0, PREPEND_DOTS_LENGTH);
+        } else {
+            tmpAdditionalPath = additionalPath;
         }
-        return prepend + FilenameUtils.separatorsToUnix(FilenameUtils.concat(tmpBasePath, tmpAdditionalPath));
+
+
+
+        return FilenameUtils.concat(basePath, tmpAdditionalPath);
     }
 
     /**
@@ -325,7 +322,7 @@ public final class StringTools {
      * @return
      */
     public static <T> List<T> castList(Class<? extends T> objClass, Collection<?> c) {
-        List<T> r = new ArrayList<T>(c.size());
+        List<T> r = new ArrayList<>(c.size());
         for (Object o : c) {
             r.add(objClass.cast(o));
         }
@@ -340,7 +337,7 @@ public final class StringTools {
      * @return
      */
     public static List<String> splitList(String stringToSplit, String regexDelim) {
-        List<String> finalValues = new ArrayList<String>();
+        List<String> finalValues = new ArrayList<>();
 
         for (String output : stringToSplit.split(regexDelim)) {
             finalValues.add(output.trim());
@@ -351,7 +348,7 @@ public final class StringTools {
 
     public static String[] tokenizeToArray(String sourceString, String delimiter) {
         StringTokenizer st = new StringTokenizer(sourceString, delimiter);
-        Collection<String> keywords = new ArrayList<String>();
+        Collection<String> keywords = new ArrayList<>();
         while (st.hasMoreTokens()) {
             keywords.add(st.nextToken());
         }
