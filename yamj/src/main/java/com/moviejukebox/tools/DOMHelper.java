@@ -43,7 +43,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -56,7 +55,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * Generic set of routines to process the DOM model data Used for read XML files.
+ * Generic set of routines to process the DOM model data Used for read XML
+ * files.
  *
  * @author Stuart.Boston
  *
@@ -64,7 +64,6 @@ import org.xml.sax.SAXParseException;
 public final class DOMHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(DOMHelper.class);
-    private static final String LOG_MESSAGE = "DOMHelper: ";
     private static final String DEFAULT_RETURN = "";
     private static final String YES = "yes";
     private static final String TYPE_ROOT = "xml";
@@ -109,7 +108,8 @@ public final class DOMHelper {
     }
 
     /**
-     * Append a child element to a parent element with a single attribute/value pair
+     * Append a child element to a parent element with a single attribute/value
+     * pair
      *
      * @param doc
      * @param parentElement
@@ -255,10 +255,10 @@ public final class DOMHelper {
                     }
                 }
             } catch (DOMException ex) {
-                LOG.trace(LOG_MESSAGE + "DOM processing exception, error: " + ex.getMessage());
+                LOG.trace("DOM processing exception, error: {}", ex.getMessage());
             } catch (NullPointerException ex) {
                 // Shouldn't really catch null pointer exceptions, but there you go.
-                LOG.trace(LOG_MESSAGE + "Null pointer exception, error: " + ex.getMessage());
+                LOG.trace("Null pointer exception, error: {}", ex.getMessage());
             }
         }
 
@@ -313,23 +313,16 @@ public final class DOMHelper {
 
             trans.transform(new DOMSource(doc), new StreamResult(localFile));
             return true;
-        } catch (IllegalArgumentException error) {
-            LOG.error(LOG_MESSAGE + "Error writing the document to " + localFile);
-            LOG.error(LOG_MESSAGE + "Message: " + error.getMessage());
-            return false;
-        } catch (DOMException error) {
-            LOG.error(LOG_MESSAGE + "Error writing the document to " + localFile);
-            LOG.error(LOG_MESSAGE + "Message: " + error.getMessage());
-            return false;
-        } catch (TransformerException error) {
-            LOG.error(LOG_MESSAGE + "Error writing the document to " + localFile);
-            LOG.error(LOG_MESSAGE + "Message: " + error.getMessage());
+        } catch (IllegalArgumentException | DOMException | TransformerException error) {
+            LOG.error("Error writing the document to {}", localFile);
+            LOG.error("Message: {}", error.getMessage());
             return false;
         }
     }
 
     /**
-     * Override the standard Sax ErrorHandler with this one, to minimise noise about failed parsing errors
+     * Override the standard Sax ErrorHandler with this one, to minimise noise
+     * about failed parsing errors
      */
     public static class SaxErrorHandler implements ErrorHandler {
 

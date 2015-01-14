@@ -23,8 +23,22 @@
 package com.moviejukebox.tools;
 
 import com.moviejukebox.model.Movie;
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
@@ -37,14 +51,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Web browser with simple cookies support
  */
 public class WebBrowser {
 
     private static final Logger LOG = LoggerFactory.getLogger(WebBrowser.class);
-    private static final String LOG_MESSAGE = "WebBrowser: ";
     private final Map<String, String> browserProperties;
     private final Map<String, Map<String, String>> cookies;
     public static final Proxy PROXY;
@@ -66,16 +78,16 @@ public class WebBrowser {
             PROXY = new Proxy(Proxy.Type.HTTP, socketAddress);
         }
     }
-    
+
     public WebBrowser() {
-        browserProperties = new HashMap<String, String>();
+        browserProperties = new HashMap<>();
         browserProperties.put("User-Agent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)");
         String browserLanguage = PropertiesUtil.getProperty("mjb.Accept-Language", null);
         if (StringUtils.isNotBlank(browserLanguage)) {
             browserProperties.put("Accept-Language", browserLanguage.trim());
         }
 
-        cookies = new HashMap<String, Map<String, String>>();
+        cookies = new HashMap<>();
 
         imageRetryCount = PropertiesUtil.getIntProperty("mjb.imageRetryCount", 3);
         if (imageRetryCount < 1) {
@@ -125,7 +137,7 @@ public class WebBrowser {
     }
 
     public String request(URL url, Charset charset) throws IOException {
-        LOG.debug(LOG_MESSAGE + "Requesting " + url.toString());
+        LOG.debug("Requesting {}", url.toString());
 
         // get the download limit for the host
         ThreadExecutor.enterIO(url);
@@ -143,10 +155,10 @@ public class WebBrowser {
                 InputStream inputStream = null;
                 InputStreamReader inputStreamReader = null;
                 BufferedReader bufferedReader = null;
-                
+
                 try {
                     inputStream = cnx.getInputStream();
-                    
+
                     // If we fail to get the URL information we need to exit gracefully
                     if (charset == null) {
                         inputStreamReader = new InputStreamReader(inputStream, getCharset(cnx));
@@ -154,40 +166,43 @@ public class WebBrowser {
                         inputStreamReader = new InputStreamReader(inputStream, charset);
                     }
                     bufferedReader = new BufferedReader(inputStreamReader);
-                    
+
                     String line;
                     while ((line = bufferedReader.readLine()) != null) {
                         content.write(line);
                     }
-                    
+
                     // Attempt to force close connection
                     // We have HTTP connections, so these are always valid
                     content.flush();
-                    
+
                 } catch (FileNotFoundException ex) {
-                    LOG.error(LOG_MESSAGE + "URL not found: " + url.toString());
+                    LOG.error("URL not found: {}", url.toString());
                 } catch (IOException ex) {
-                    LOG.error(LOG_MESSAGE + "Error getting URL " + url.toString() + ", " + ex.getMessage());
+                    LOG.error("Error getting URL {}, {}", url.toString(), ex.getMessage());
                 } finally {
                     // Close resources
                     if (bufferedReader != null) {
                         try {
                             bufferedReader.close();
-                        } catch (Exception ex) {}
+                        } catch (Exception ex) {
+                        }
                     }
                     if (inputStreamReader != null) {
                         try {
                             inputStreamReader.close();
-                        } catch (Exception ex) {}
+                        } catch (Exception ex) {
+                        }
                     }
                     if (inputStream != null) {
                         try {
                             inputStream.close();
-                        } catch (Exception ex) {}
+                        } catch (Exception ex) {
+                        }
                     }
                 }
             } catch (SocketTimeoutException ex) {
-                LOG.error(LOG_MESSAGE + "Timeout Error with " + url.toString());
+                LOG.error("Timeout Error with {}", url.toString());
             } finally {
                 if (cnx != null) {
                     if (cnx instanceof HttpURLConnection) {
@@ -221,7 +236,7 @@ public class WebBrowser {
 
         URL url = new URL(fixedImageURL);
 
-        LOG.debug(LOG_MESSAGE + "Attempting to download '" + fixedImageURL + "'");
+        LOG.debug("Attempting to download '{}'", fixedImageURL);
 
         ThreadExecutor.enterIO(url);
         boolean success = Boolean.FALSE;
@@ -245,7 +260,7 @@ public class WebBrowser {
                     success = Boolean.TRUE;
                 } else {
                     retryCount--;
-                    LOG.debug(LOG_MESSAGE + "Image download attempt failed, bytes expected: " + reportedLength + ", bytes received: " + inputStreamLength);
+                    LOG.debug("Image download attempt failed, bytes expected: {}, bytes received: {}", reportedLength, inputStreamLength);
                 }
             }
         } finally {
@@ -270,15 +285,16 @@ public class WebBrowser {
         }
 
         if (success) {
-            LOG.debug(LOG_MESSAGE + "Successfully downloaded '" + imageURL + "' to '" + imageFile.getAbsolutePath() + "', Size: " + reportedLength);
+            LOG.debug("Successfully downloaded '{}' to '{}', Size: {}", imageURL, imageFile.getAbsolutePath(), reportedLength);
         } else {
-            LOG.debug(LOG_MESSAGE + "Failed " + imageRetryCount + " times to download image, aborting. URL: " + imageURL);
+            LOG.debug("Failed {} times to download image, aborting. URL: {}", imageRetryCount, imageURL);
         }
         return success;
     }
 
     /**
-     * Check the URL to see if it's one of the special cases that needs to be worked around
+     * Check the URL to see if it's one of the special cases that needs to be
+     * worked around
      *
      * @param URL The URL to check
      * @param cnx The connection that has been opened
@@ -306,16 +322,16 @@ public class WebBrowser {
             cnx.setRequestProperty(browserProperty.getKey(), browserProperty.getValue());
 
             if (LOG.isTraceEnabled()) {
-                LOG.trace(LOG_MESSAGE + "setRequestProperty:" + browserProperty.getKey() + "='" + browserProperty.getValue() + "'");
+                LOG.trace("setRequestProperty:{}='{}'", browserProperty.getKey(), browserProperty.getValue());
             }
         }
 
         // send cookies
         String cookieHeader = createCookieHeader(cnx);
         if (!cookieHeader.isEmpty()) {
-            cnx.setRequestProperty(LOG_MESSAGE + "Cookie", cookieHeader);
+            cnx.setRequestProperty("Cookie", cookieHeader);
             if (LOG.isTraceEnabled()) {
-                LOG.trace(LOG_MESSAGE + "Cookie:" + cookieHeader);
+                LOG.trace("Cookie:{}", cookieHeader);
             }
         }
 
@@ -372,12 +388,11 @@ public class WebBrowser {
         }
     }
 
-
     public void putCookie(String cookieDomain, String cookieName, String cookieValue) {
         if (cookieDomain != null) {
             Map<String, String> domainCookies = cookies.get(cookieDomain);
             if (domainCookies == null) {
-                domainCookies = new HashMap<String, String>();
+                domainCookies = new HashMap<>();
                 cookies.put(cookieDomain, domainCookies);
             }
             // add or replace cookie
@@ -405,7 +420,6 @@ public class WebBrowser {
             charset = Charset.defaultCharset();
         }
 
-        // logger.debug("Detected charset " + charset);
         return charset;
     }
 
@@ -420,7 +434,7 @@ public class WebBrowser {
         try {
             url = new URL(urlString);
         } catch (MalformedURLException ex) {
-            LOG.warn(LOG_MESSAGE + "Unable to convert URL: " + urlString + " - Error: " + ex.getMessage());
+            LOG.warn("Unable to convert URL: {} - Error: {}", urlString, ex.getMessage());
             return Movie.UNKNOWN;
         }
 
@@ -432,17 +446,17 @@ public class WebBrowser {
             readHeader(cnx);
             return cnx.getURL().toString();
         } catch (IOException ex) {
-            LOG.warn(LOG_MESSAGE + "Unable to retrieve URL: " + urlString + " - Error: " + ex.getMessage());
+            LOG.warn("Unable to retrieve URL: {} - Error: {}", urlString, ex.getMessage());
             return Movie.UNKNOWN;
         } finally {
             ThreadExecutor.leaveIO();
         }
     }
-    
+
     public static Proxy getMjbProxy() {
         return PROXY;
     }
-    
+
     public static String getMjbProxyHost() {
         return PROXY_HOST;
     }
@@ -469,22 +483,22 @@ public class WebBrowser {
 
     public static void showStatus() {
         if (StringUtils.isNotBlank(PROXY_HOST)) {
-            LOG.debug(LOG_MESSAGE + "Proxy Host: " + PROXY_HOST);
-            LOG.debug(LOG_MESSAGE + "Proxy Port: " + PROXY_PORT);
+            LOG.debug("Proxy Host: {}", PROXY_HOST);
+            LOG.debug("Proxy Port: {}", PROXY_PORT);
         } else {
-            LOG.debug(LOG_MESSAGE + "No proxy set");
+            LOG.debug("No proxy set");
         }
 
         if (StringUtils.isNotBlank(PROXY_USERNAME)) {
-            LOG.debug(LOG_MESSAGE + "Proxy username: " + PROXY_USERNAME);
+            LOG.debug("Proxy username: {}", PROXY_USERNAME);
             if (PROXY_PASSWORD != null) {
-                LOG.debug(LOG_MESSAGE + "Proxy password: IS SET");
+                LOG.debug("Proxy password: IS SET");
             }
         } else {
-            LOG.debug(LOG_MESSAGE + "No proxy username");
+            LOG.debug("No proxy username");
         }
 
-        LOG.debug(LOG_MESSAGE + "Connect Timeout: " + TIMEOUT_CONNECT);
-        LOG.debug(LOG_MESSAGE + "Read Timeout   : " + TIMEOUT_READ);
+        LOG.debug("Connect Timeout: {}", TIMEOUT_CONNECT);
+        LOG.debug("Read Timeout   : {}", TIMEOUT_READ);
     }
 }

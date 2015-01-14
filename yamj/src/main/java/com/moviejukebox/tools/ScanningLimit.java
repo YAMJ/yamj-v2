@@ -15,19 +15,18 @@ package com.moviejukebox.tools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This class is used to limit the movies updated for each run of YAMJ.
  *
- * getToken must be called before checking a movie. On return true, the movie can be checked. If movie is not updated, the token
- * must be released with releaseToken.
+ * getToken must be called before checking a movie. On return true, the movie
+ * can be checked. If movie is not updated, the token must be released with
+ * releaseToken.
  *
  * @author iuk
  */
 public final class ScanningLimit {
 
     private static final Logger LOG = LoggerFactory.getLogger(ScanningLimit.class);
-    private static final String LOG_MESSAGE = "ScanningLimit: ";
     private static final int CHECK_MAX = PropertiesUtil.getIntProperty("mjb.check.Max", 0);
     private static int tokensUsed = 0;
     private static boolean limitReached = Boolean.FALSE;
@@ -49,9 +48,9 @@ public final class ScanningLimit {
 
         if (tokensUsed < CHECK_MAX) {
             tokensUsed++;
-            LOG.trace(LOG_MESSAGE + "Got token (" + (CHECK_MAX - tokensUsed) + " left)");
+            LOG.trace("Got token ({} left)", CHECK_MAX - tokensUsed);
         } else {
-            LOG.debug(LOG_MESSAGE + "Maximum scan limit of " + CHECK_MAX + " reached");
+            LOG.debug("Maximum scan limit of {} reached", CHECK_MAX);
             limitReached = Boolean.TRUE;
         }
         // Return value: Was the token assigned
@@ -73,7 +72,7 @@ public final class ScanningLimit {
     public static synchronized void releaseToken() {
         if (CHECK_MAX > 0) {
             tokensUsed--;
-            LOG.trace(LOG_MESSAGE + "Released token (" + (CHECK_MAX - tokensUsed) + " left)");
+            LOG.trace("Released token ({} left)", CHECK_MAX);
         }
     }
 

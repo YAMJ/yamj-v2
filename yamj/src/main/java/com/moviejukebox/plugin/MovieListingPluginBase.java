@@ -33,14 +33,12 @@ import java.util.StringTokenizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * User: JDGJr Date: Feb 15, 2009
  */
 public class MovieListingPluginBase implements MovieListingPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieListingPluginBase.class);
-    private static final String LOG_MESSAGE = "MovieListingPluginBase: ";
     private static final String UNDEFINED = "UNDEFINED";
     private boolean groupByType = Boolean.TRUE;
     private boolean blankUNKNOWN = Boolean.TRUE;
@@ -81,7 +79,7 @@ public class MovieListingPluginBase implements MovieListingPlugin {
      * @return ArrayList of selected movie types, possibly from .properties file
      */
     protected List<String> getSelectedTypes() {
-        List<String> alResult = new ArrayList<String>();
+        List<String> alResult = new ArrayList<>();
 
         String types = PropertiesUtil.getProperty("mjb.listing.types", TYPE_ALL).trim();
         if (TYPE_ALL.equalsIgnoreCase(types)) {
@@ -110,7 +108,7 @@ public class MovieListingPluginBase implements MovieListingPlugin {
     protected void copyListingFile(File file, String filename) {
         // move to configured (default) location
         String dest = destination + File.separator + filename;
-        LOG.info(LOG_MESSAGE + "Copying to: " + dest);
+        LOG.info("Copying to: {}", dest);
         FileTools.copyFile(file, new File(dest));
     } // copyListingFile()
 
@@ -120,6 +118,6 @@ public class MovieListingPluginBase implements MovieListingPlugin {
      */
     @Override
     public void generate(Jukebox jukebox, Library library) {
-        LOG.info(LOG_MESSAGE + "Not generating listing file.");
+        LOG.info("Not generating listing file.");
     } // generate()
 } // class MovieListingPluginBase

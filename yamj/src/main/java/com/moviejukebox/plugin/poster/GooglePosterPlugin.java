@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(GooglePosterPlugin.class);
-    private static final String LOG_MESSAGE = "GooglePosterPlugin: ";
     private WebBrowser webBrowser;
 
     // private int nbRetry;
@@ -83,7 +82,7 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
                 }
             }
         } catch (IOException ex) {
-            LOG.error( "{}Failed retreiving poster URL from google images: {}" ,LOG_MESSAGE, title);
+            LOG.error("Failed retreiving poster URL from google images: {}", title);
             LOG.error(SystemTools.getStackTrace(ex));
         }
         return posterImage;

@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(SratimPosterPlugin.class);
-    private static final String LOG_MESSAGE = "SratimPosterPlugin: ";
 
     private WebBrowser webBrowser;
     private SratimPlugin sratimPlugin;
@@ -73,7 +72,7 @@ public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITv
                 return new Image(posterURL);
             }
         } catch (IOException error) {
-            LOG.error("{}Failed retreiving poster for movie: {}", LOG_MESSAGE, id);
+            LOG.error("Failed retreiving poster for movie: {}", id);
             LOG.error(SystemTools.getStackTrace(error));
         }
         return Image.UNKNOWN;

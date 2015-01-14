@@ -39,12 +39,10 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class ScopeDkPlugin extends ImdbPlugin {
 
     public static final String SCOPEDK_PLUGIN_ID = "scopedk";
     private static final Logger LOG = LoggerFactory.getLogger(ScopeDkPlugin.class);
-    private static final String LOG_MESSAGE = "ScopeDkPlugin: ";
     private static final Pattern PATTERN_ID = Pattern.compile("^(.*)(http://www.scope.dk/film/)([0-9]+)(.*)");
     private static final Pattern PATTERN_ID_MOVIEDB = Pattern.compile("^(.*)(<id moviedb=\"scopedk\")>([0-9]+)(</id>.*)");
 
@@ -93,15 +91,15 @@ public class ScopeDkPlugin extends ImdbPlugin {
                         return tmp.get(i).substring(startIndex + strRef.length(), endIndex);
                     }
                 } else {
-                    LOG.warn(LOG_MESSAGE + "Not matching data for search film result : " + tmp.get(i));
+                    LOG.warn("No matching data for search film result : {}", tmp.get(i));
                 }
                 i++; // Step of 2
             }
 
-            LOG.debug(LOG_MESSAGE + "No Scope.dk id found with request : " + sb.toString());
+            LOG.debug("No Scope.dk id found with request : {}", sb.toString());
 
         } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed retrieving Scope.dk id for title : " + title);
+            LOG.error("Failed retrieving Scope.dk id for title : {}", title);
             LOG.error(SystemTools.getStackTrace(error));
         }
         return Movie.UNKNOWN;
@@ -118,11 +116,11 @@ public class ScopeDkPlugin extends ImdbPlugin {
         }
 
         if (StringTools.isValidString(scopeDkId)) {
-            LOG.debug(LOG_MESSAGE + "Scope.dk id available (" + scopeDkId + "), updating media info");
+            LOG.debug("Scope.dk id available ({}) updating media info", scopeDkId);
             return updateMediaInfo(movie, scopeDkId);
         }
 
-        LOG.debug(LOG_MESSAGE + "Scope.dk id not available : " + movie.getTitle() + "; fall back to IMDb");
+        LOG.debug("Scope.dk id not available : {}; fall back to IMDb", movie.getTitle());
         return super.scan(movie);
     }
 
@@ -147,7 +145,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
             }
 
             if (OverrideTools.checkOverwriteGenres(movie, SCOPEDK_PLUGIN_ID)) {
-                List<String> newGenres = new ArrayList<String>();
+                List<String> newGenres = new ArrayList<>();
                 for (String tmpGenre : extractTag(xml, "<th>Genre</th>", "</td>").split(",")) {
                     newGenres.add(removeHtmlTags(tmpGenre));
                 }
@@ -155,7 +153,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
             }
 
             if (OverrideTools.checkOverwriteActors(movie, SCOPEDK_PLUGIN_ID)) {
-                List<String> newActors = new ArrayList<String>();
+                List<String> newActors = new ArrayList<>();
                 for (String actor : extractTag(xml, "<th>Medvirkende</th>", "</td>").split(",")) {
                     newActors.add(removeHtmlTags(actor).trim());
                 }
@@ -164,7 +162,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
 
             return Boolean.TRUE;
         } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed retrieving media info : " + scopeDkId);
+            LOG.error("Failed retrieving media info : {}", scopeDkId);
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         }
@@ -180,7 +178,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
             return Boolean.TRUE;
         }
 
-        LOG.debug(LOG_MESSAGE + "Scanning NFO for Scope.dk id");
+        LOG.debug("Scanning NFO for Scope.dk id");
 
         // If we use Scope.dk plugIn look for
         // http://www.scope.dk/...=XXXXX.html
@@ -190,12 +188,12 @@ public class ScopeDkPlugin extends ImdbPlugin {
         }
         if (idMatcher.matches()) {
             String idMovie = idMatcher.group(3);
-            LOG.debug(LOG_MESSAGE + "Scope.dk id found in NFO = " + idMovie);
+            LOG.debug("Scope.dk id found in NFO = {}", idMovie);
             movie.setId(SCOPEDK_PLUGIN_ID, idMovie);
             return Boolean.TRUE;
         }
 
-        LOG.debug(LOG_MESSAGE + "No Scope.dk id found in NFO : " + movie.getTitle());
+        LOG.debug("No Scope.dk id found in NFO : {}", movie.getTitle());
         return Boolean.FALSE;
     }
 }

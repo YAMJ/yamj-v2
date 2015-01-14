@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 public class FanartTvPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(FanartTvPlugin.class);
-    private static final String LOG_MESSAGE = "FanartTvPlugin: ";
     public static final String FANARTTV_PLUGIN_ID = "fanarttv";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_FanartTv");
     private FanartTvApi ft;
@@ -73,16 +72,16 @@ public class FanartTvPlugin {
 
             if (PropertiesUtil.getBooleanProperty(artworkPropertyName.toString(), Boolean.FALSE)) {
                 ARTWORK_TYPES.put(artworkType, 1);
-                LOG.info("{}{} required", LOG_MESSAGE, artworkPropertyName);
+                LOG.debug("{} required", artworkPropertyName);
             } else {
-                LOG.info("{}{} not required", LOG_MESSAGE, artworkPropertyName);
+                LOG.debug("{} not required", artworkPropertyName);
             }
         }
 
         if (ARTWORK_TYPES.size() > 0) {
-            LOG.debug("{}Looking for {} Fanart.TV Types", LOG_MESSAGE, ARTWORK_TYPES.toString());
+            LOG.debug("Looking for {} Fanart.TV Types", ARTWORK_TYPES.toString());
         } else {
-            LOG.debug("{}No Fanart.TV artwork required.", LOG_MESSAGE);
+            LOG.debug("No Fanart.TV artwork required.");
         }
     }
 
@@ -90,7 +89,7 @@ public class FanartTvPlugin {
         try {
             this.ft = new FanartTvApi(API_KEY);
         } catch (FanartTvException ex) {
-            LOG.warn("{}Failed to initialise FanartTV API: {}", LOG_MESSAGE, ex.getMessage(), ex);
+            LOG.warn("Failed to initialise FanartTV API: {}", ex.getMessage(), ex);
             return;
         }
         // We need to set the proxy parameters if set.
@@ -107,7 +106,7 @@ public class FanartTvPlugin {
                 } else if (key.getSourceType() == FTSourceType.TV) {
                     totalRequiredTv += ARTWORK_TYPES.get(key);
                 } else {
-                    LOG.trace("{}Skipped artwork type '{}' as its source type is '{}' and not required", LOG_MESSAGE, key, key.getSourceType());
+                    LOG.trace("Skipped artwork type '{}' as its source type is '{}' and not required", key, key.getSourceType());
                 }
             }
         }
@@ -132,7 +131,7 @@ public class FanartTvPlugin {
      */
     public boolean scan(Movie movie, FTArtworkType artworkType) {
         if (artworkType != null && !ARTWORK_TYPES.containsKey(artworkType)) {
-            LOG.debug(LOG_MESSAGE + artworkType.toString().toLowerCase() + " not required");
+            LOG.debug("{} not required", artworkType.toString().toLowerCase());
             return true;
         }
 
@@ -170,16 +169,16 @@ public class FanartTvPlugin {
         }
 
         if (ftArtwork.hasArtwork()) {
-            LOG.debug("{}Found {} artwork items", LOG_MESSAGE, ftArtwork.getArtwork().size());
+            LOG.debug("Found {} artwork items", ftArtwork.getArtwork().size());
 
             FTArtworkType ftType;
 
             for (Map.Entry<FTArtworkType, List<FTArtwork>> entry : ftArtwork.getArtwork().entrySet()) {
-                LOG.trace("{}Found '{}' with {} items", LOG_MESSAGE, entry.getKey(), entry.getValue().size());
+                LOG.trace("Found '{}' with {} items", entry.getKey(), entry.getValue().size());
                 ftType = entry.getKey();
 
                 if (requiredArtworkTypes.containsKey(ftType) && requiredArtworkTypes.get(ftType) > 0) {
-                    LOG.trace("{}Processing '{}' artwork, {} are requried", LOG_MESSAGE, entry.getKey(), requiredArtworkTypes.get(ftType));
+                    LOG.trace("Processing '{}' artwork, {} are requried", entry.getKey(), requiredArtworkTypes.get(ftType));
                     int left = processArtworkToMovie(movie, ftType, requiredLanguage, requiredArtworkTypes.get(ftType), entry.getValue());
                     // Update the required artwork counter
                     requiredArtworkTypes.put(ftType, left);
@@ -194,14 +193,14 @@ public class FanartTvPlugin {
             }
 
             if (requiredQuantity > 0) {
-                LOG.debug("{}Not all required artwork was found for '{}' - {}", LOG_MESSAGE, movie.getBaseName(), requiredArtworkTypes.toString());
+                LOG.debug("Not all required artwork was found for '{}' - {}", movie.getBaseName(), requiredArtworkTypes.toString());
                 return false;
             } else {
-                LOG.debug("{}All required artwork was found for '{}'", LOG_MESSAGE, movie.getBaseName());
+                LOG.debug("All required artwork was found for '{}'", movie.getBaseName());
                 return true;
             }
         } else {
-            LOG.debug("{}No artwork found for {}", LOG_MESSAGE, movie.getBaseName());
+            LOG.debug("No artwork found for {}", movie.getBaseName());
             return false;
         }
     }
@@ -216,20 +215,20 @@ public class FanartTvPlugin {
      * @return artwork remaining to be found
      */
     private int processArtworkToMovie(Movie movie, FTArtworkType ftType, final String reqLanguage, int reqAmount, final List<FTArtwork> artworkList) {
-        LOG.trace("{}Getting {} of '{}' artwork, there are {} available, looking for '{}' language", LOG_MESSAGE, reqAmount, ftType, artworkList.size(), reqLanguage);
+        LOG.trace("Getting {} of '{}' artwork, there are {} available, looking for '{}' language", reqAmount, ftType, artworkList.size(), reqLanguage);
 
         int remaining = reqAmount;
 
         for (FTArtwork artwork : artworkList) {
-            LOG.trace("{}Artwork: {}", LOG_MESSAGE, artwork);
+            LOG.trace("Artwork: {}", artwork);
             if (reqLanguage.equalsIgnoreCase(artwork.getLanguage())) {
                 // send to function to add to movie
                 if (addArtworkToMovie(movie, ftType, artwork)) {
                     remaining--;
                     if (remaining > 0) {
-                        LOG.trace("{}{} has {} remaining", LOG_MESSAGE, ftType, remaining);
+                        LOG.trace("{} has {} remaining", ftType, remaining);
                     } else {
-                        LOG.trace("{}All artwork for {} found.", LOG_MESSAGE, ftType);
+                        LOG.trace("All artwork for {} found.", ftType);
                         break;
                     }
                 }
@@ -249,7 +248,7 @@ public class FanartTvPlugin {
      */
     private boolean addArtworkToMovie(Movie movie, FTArtworkType ftType, FTArtwork artwork) {
         boolean success;
-        LOG.debug("{}Adding {} to movie '{}' with URL {}", LOG_MESSAGE, ftType, movie.getBaseName(), artwork.getUrl());
+        LOG.debug("Adding {} to movie '{}' with URL {}", ftType, movie.getBaseName(), artwork.getUrl());
 
         switch (ftType) {
             case CLEARART:
@@ -286,7 +285,7 @@ public class FanartTvPlugin {
                 success = true;
                 break;
             default:
-                LOG.trace("{}Unrecognised artwork type '{}', ignoring.", LOG_MESSAGE, ftType.toString().toLowerCase());
+                LOG.trace("Unrecognised artwork type '{}', ignoring.", ftType.toString().toLowerCase());
                 success = false;
         }
 
@@ -316,7 +315,7 @@ public class FanartTvPlugin {
 
                 return ftArtwork;
             } catch (FanartTvException ex) {
-                LOG.warn("{}Failed to get fanart information for TVDB ID: {}. Error: {}", LOG_MESSAGE, tvdbId, ex.getMessage(), ex);
+                LOG.warn("Failed to get fanart information for TVDB ID: {}. Error: {}", tvdbId, ex.getMessage(), ex);
                 return new FTSeries();
             } finally {
                 ThreadExecutor.leaveIO();
@@ -363,7 +362,7 @@ public class FanartTvPlugin {
 
                 return ftArtwork;
             } catch (FanartTvException ex) {
-                LOG.warn("{}Failed to get fanart information for IMDB ID: {} / TMDB ID: {}. Error: {}", LOG_MESSAGE, imdbId, tmdbId, ex.getMessage(), ex);
+                LOG.warn("Failed to get fanart information for IMDB ID: {} / TMDB ID: {}. Error: {}", imdbId, tmdbId, ex.getMessage(), ex);
                 return new FTMovie();
             } finally {
                 ThreadExecutor.leaveIO();
@@ -384,7 +383,7 @@ public class FanartTvPlugin {
             return ARTWORK_TYPES.get(requiredType) > 0;
         } else {
             // Not found, so not required
-            LOG.warn("{}{} is not a valid Fanart.TV type", LOG_MESSAGE, requiredType);
+            LOG.warn("{} is not a valid Fanart.TV type", requiredType);
             return false;
         }
     }
@@ -400,7 +399,7 @@ public class FanartTvPlugin {
         try {
             requiredType = FTArtworkType.fromString(artworkType);
         } catch (IllegalArgumentException ex) {
-            LOG.warn("{}{} is not a valid Fanart.TV type", LOG_MESSAGE, artworkType);
+            LOG.warn("{} is not a valid Fanart.TV type", artworkType);
             return false;
         }
 

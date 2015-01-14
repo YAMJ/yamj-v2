@@ -80,7 +80,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -92,7 +91,7 @@ import org.xml.sax.SAXException;
 public class MovieJukeboxXMLReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieJukeboxXMLReader.class);
-    private static final String LOG_MESSAGE = "XMLReader: ";
+    private static final String ERROR_FIXIT = "Failed parsing XML ({}) for {}. Please fix it or remove it.";
     private static final AspectRatioTools ASPECT_TOOLS = new AspectRatioTools();
     // Should we scrape the trivia information
     private static final boolean ENABLE_TRIVIA = PropertiesUtil.getBooleanProperty("mjb.scrapeTrivia", Boolean.FALSE);
@@ -111,19 +110,15 @@ public class MovieJukeboxXMLReader {
         try {
             xmlDoc = DOMHelper.getDocFromFile(xmlFile);
         } catch (MalformedURLException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
+            LOG.error(ERROR_FIXIT, xmlFile.getName());
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
+            LOG.error(ERROR_FIXIT, xmlFile.getName());
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
-        } catch (ParserConfigurationException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
-            LOG.error(SystemTools.getStackTrace(error));
-            return Boolean.FALSE;
-        } catch (SAXException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for movie. Please fix it or remove it.");
+        } catch (ParserConfigurationException | SAXException error) {
+            LOG.error(ERROR_FIXIT, xmlFile.getName());
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         }
@@ -303,7 +298,7 @@ public class MovieJukeboxXMLReader {
                 if (nlElements.getLength() > 0) {
                     Element tagElement = (Element) nlElements.item(0);
                     nlElements = tagElement.getChildNodes();
-                    List<String> genres = new ArrayList<String>();
+                    List<String> genres = new ArrayList<>();
                     for (int looper = 0; looper < nlElements.getLength(); looper++) {
                         nElements = nlElements.item(looper);
                         if (nElements.getNodeType() == Node.ELEMENT_NODE) {
@@ -424,7 +419,7 @@ public class MovieJukeboxXMLReader {
                     movie.setLibraryDescription(tempLibraryDescription);
                 } else if (!movie.getLibraryDescription().equals(tempLibraryDescription)) {
                     // The current description is different to the one in the XML
-                    LOG.debug(LOG_MESSAGE + "Different library description! Setting dirty INFO");
+                    LOG.debug("Different library description! Setting dirty INFO");
                     forceDirtyFlag = Boolean.TRUE;
                 }
 
@@ -602,12 +597,12 @@ public class MovieJukeboxXMLReader {
                                     movieFile.setFile(mfFile);
                                 } else {
                                     // We can't find this file anymore, so skip it.
-                                    LOG.debug(LOG_MESSAGE + "Missing video file in the XML file (" + mfFile.getName() + "), it may have been moved or no longer exist.");
+                                    LOG.debug("Missing video file in the XML file ({}), it may have been moved or no longer exist.", mfFile.getName());
                                     continue;
                                 }
                             } catch (Exception ignore) {
                                 // If there is an error creating the file then don't save anything
-                                LOG.debug(LOG_MESSAGE + "Failed parsing file " + xmlFile.getName());
+                                LOG.debug("Failed parsing file {}" + xmlFile.getName());
                                 continue;
                             }
 
@@ -818,26 +813,22 @@ public class MovieJukeboxXMLReader {
         try {
             xmlDoc = DOMHelper.getDocFromFile(xmlSetFile);
         } catch (MalformedURLException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlSetFile.getName() + ") for movie. Please fix it or remove it.");
+            LOG.error(ERROR_FIXIT, xmlSetFile.getName(), "movie");
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlSetFile.getName() + ") for movie. Please fix it or remove it.");
+            LOG.error(ERROR_FIXIT, xmlSetFile.getName(), "movie");
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
-        } catch (ParserConfigurationException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlSetFile.getName() + ") for movie. Please fix it or remove it.");
-            LOG.error(SystemTools.getStackTrace(error));
-            return Boolean.FALSE;
-        } catch (SAXException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlSetFile.getName() + ") for movie. Please fix it or remove it.");
+        } catch (ParserConfigurationException | SAXException error) {
+            LOG.error(ERROR_FIXIT, xmlSetFile.getName(), "movie");
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         }
 
         Node nFilename;
         NodeList nlFilenames = xmlDoc.getElementsByTagName("baseFilename");
-        Collection<String> xmlSetMovieNames = new ArrayList<String>();
+        Collection<String> xmlSetMovieNames = new ArrayList<>();
         for (int loopMovie = 0; loopMovie < nlFilenames.getLength(); loopMovie++) {
             nFilename = nlFilenames.item(loopMovie);
             if (nFilename.getNodeType() == Node.ELEMENT_NODE) {
@@ -885,19 +876,15 @@ public class MovieJukeboxXMLReader {
         try {
             xmlDoc = DOMHelper.getDocFromFile(xmlFile);
         } catch (MalformedURLException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for person. Please fix it or remove it.");
+            LOG.error(ERROR_FIXIT, xmlFile.getName(), "person");
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for person. Please fix it or remove it.");
+            LOG.error(ERROR_FIXIT, xmlFile.getName(), "person");
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
-        } catch (ParserConfigurationException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for person. Please fix it or remove it.");
-            LOG.error(SystemTools.getStackTrace(error));
-            return Boolean.FALSE;
-        } catch (SAXException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for person. Please fix it or remove it.");
+        } catch (ParserConfigurationException | SAXException error) {
+            LOG.error(ERROR_FIXIT, xmlFile.getName(), "person");
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         }
@@ -1060,12 +1047,8 @@ public class MovieJukeboxXMLReader {
 
     private void parseOverridableFramesPerSecond(Movie movie, Element element) {
         OverridableValue ov = new OverridableValue(element, "fps");
-        try {
-            float fps = Float.parseFloat(ov.getValue());
-            movie.setFps(fps, ov.getSource());
-        } catch (NumberFormatException ex) {
-            LOG.trace(LOG_MESSAGE + "Failed to transform '" + ov.getValue() + "' to a float number: " + ex.getMessage(), ex);
-        }
+        float fps = NumberUtils.toFloat(ov.getValue(), 0.0f);
+        movie.setFps(fps, ov.getSource());
     }
 
     private void parseOverridableLanguage(Movie movie, Element element) {
@@ -1159,7 +1142,7 @@ public class MovieJukeboxXMLReader {
                         source = tagElement.getAttribute(SOURCE);
                     } catch (DOMException ex) {
                         // Log the error but otherwise ignore it
-                        LOG.trace(LOG_MESSAGE + "Failed getting '" + tagName + "': " + ex.getMessage(), ex);
+                        LOG.trace("Failed getting '{}': {}", tagName, ex.getMessage(), ex);
                     }
                 }
             }

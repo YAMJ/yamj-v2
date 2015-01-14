@@ -47,7 +47,7 @@ public final class DatabasePluginController {
     private static final Logger LOG = LoggerFactory.getLogger(DatabasePluginController.class);
     public static final String TYPE_ALTERNATE = "ALTERNATE";
     private static boolean autoDetect = false;
-    private static List<String> autoDetectList = new ArrayList<String>();
+    private static List<String> autoDetectList = new ArrayList<>();
 
     private DatabasePluginController() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
@@ -58,7 +58,7 @@ public final class DatabasePluginController {
     private static final ThreadLocal<Map<String, MovieDatabasePlugin>> PLUGIN_MAP = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
         @Override
         protected Map<String, MovieDatabasePlugin> initialValue() {
-            Map<String, MovieDatabasePlugin> movieDatabasePlugin = new HashMap<String, MovieDatabasePlugin>(2);
+            Map<String, MovieDatabasePlugin> movieDatabasePlugin = new HashMap<>(2);
 
             movieDatabasePlugin.put(Movie.TYPE_MOVIE, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.plugin", "com.moviejukebox.plugin.ImdbPlugin").trim()));
             movieDatabasePlugin.put(Movie.TYPE_TVSHOW, getMovieDatabasePlugin(PropertiesUtil.getProperty("mjb.internet.tv.plugin", "com.moviejukebox.plugin.TheTvDBPlugin").trim()));
@@ -167,10 +167,10 @@ public final class DatabasePluginController {
         try {
             Class<? extends MovieDatabasePlugin> pluginClass = Class.forName(className).asSubclass(MovieDatabasePlugin.class);
             return pluginClass.newInstance();
-        } catch (Exception error) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
             LOG.error("Failed instantiating MovieDatabasePlugin: " + className);
             LOG.error("Default IMDb plugin will be used instead.");
-            LOG.error(SystemTools.getStackTrace(error));
+            LOG.error(SystemTools.getStackTrace(ex));
             return new ImdbPlugin();
         }
     }

@@ -32,11 +32,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class SearchEngineTools {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchEngineTools.class);
-    private static final String LOG_MESSAGE = "SearchEngingTools: ";
     private WebBrowser webBrowser;
     private LinkedList<String> searchSites;
     private String searchSuffix = "";
@@ -56,7 +54,7 @@ public class SearchEngineTools {
         webBrowser.addBrowserProperty("User-Agent", "Mozilla/6.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1");
 
         // sites to search for URLs
-        searchSites = new LinkedList<String>();
+        searchSites = new LinkedList<>();
         searchSites.addAll(Arrays.asList(PropertiesUtil.getProperty("searchengine.sites", "google,yahoo,bing").split(",")));
 
         // country specific presets
@@ -124,7 +122,7 @@ public class SearchEngineTools {
 
         String engine = getNextSearchEngine();
 
-        LOG.trace("Searching on " + engine + " for Title: '" + title + "', Year: '" + year + "'");
+        LOG.trace("Searching on {} for Title: '{}', Year: '{}'", engine, title, year);
 
         if ("yahoo".equalsIgnoreCase(engine)) {
             url = searchUrlOnYahoo(title, year, site, additional);
@@ -197,14 +195,14 @@ public class SearchEngineTools {
                 }
             }
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed retrieving link url by google search: " + title);
+            LOG.error("Failed retrieving link url by google search: {}", title);
             LOG.error(SystemTools.getStackTrace(error));
         }
         return returnedXml;
     }
 
     public String searchUrlOnYahoo(String title, String year, String site, String additional) {
-        LOG.debug(LOG_MESSAGE + "Searching '" + title + "' on yahoo; site=" + site);
+        LOG.debug("Searching '{}' on yahoo; site={}", title, site);
 
         try {
             StringBuilder sb = new StringBuilder("http://");
@@ -247,14 +245,14 @@ public class SearchEngineTools {
                 }
             }
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed retrieving link URL by yahoo search: " + title);
+            LOG.error("Failed retrieving link URL by yahoo search: {}", title);
             LOG.error(SystemTools.getStackTrace(error));
         }
         return Movie.UNKNOWN;
     }
 
     public String searchUrlOnBing(String title, String year, String site, String additional) {
-        LOG.debug(LOG_MESSAGE + "Searching '" + title + "' on bing; site=" + site);
+        LOG.debug("Searching '{}' on bing; site={}", title, site);
 
         try {
             StringBuilder sb = new StringBuilder("http://");
@@ -285,7 +283,7 @@ public class SearchEngineTools {
                 return xml.substring(beginIndex, xml.indexOf("\"", beginIndex));
             }
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed retrieving link url by bing search: " + title);
+            LOG.error("Failed retrieving link url by bing search: {}", title);
             LOG.error(SystemTools.getStackTrace(error));
         }
         return Movie.UNKNOWN;

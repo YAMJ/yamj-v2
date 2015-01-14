@@ -22,14 +22,13 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.tools.WebBrowser;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.WebBrowser;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -44,11 +43,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Plugin to retrieve movie data from Russian animation database www.animator.ru and www.allmults.org
+ * Plugin to retrieve movie data from Russian animation database www.animator.ru
+ * and www.allmults.org
  *
  * Written by Ilgizar Mubassarov (based on KinopoiskPlugin.java)
  *
@@ -59,7 +60,6 @@ import org.slf4j.LoggerFactory;
 public class AnimatorPlugin extends ImdbPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnimatorPlugin.class);
-    private static final String LOG_MESSAGE = "AnimatorPlugin: ";
     public static final String ANIMATOR_PLUGIN_ID = "animator";
     private final String preferredSites = PropertiesUtil.getProperty("animator.sites", "all");
     private final String[] listSites = preferredSites.split(",");
@@ -93,7 +93,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             try {
                 retval = updateAnimatorMediaInfo(mediaFile, animatorId);
             } catch (IOException ex) {
-                LOG.warn("{}Failed to update media info for '{}'", LOG_MESSAGE, animatorId, ex);
+                LOG.warn("Failed to update media info for '{}'", animatorId, ex);
             }
         }
         return retval;
@@ -102,15 +102,15 @@ public class AnimatorPlugin extends ImdbPlugin {
     @Override
     public boolean scanNFO(String nfo, Movie movie) {
         boolean result = false;
-        LOG.debug(LOG_MESSAGE + "Scanning NFO for Animator Id");
+        LOG.debug("Scanning NFO for Animator Id");
         int beginIndex = nfo.indexOf("animator.ru/db/");
         if (beginIndex != -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 33), "");
             movie.setId(AnimatorPlugin.ANIMATOR_PLUGIN_ID, st.nextToken());
-            LOG.debug(LOG_MESSAGE + "Animator Id found in nfo = " + movie.getId(AnimatorPlugin.ANIMATOR_PLUGIN_ID));
+            LOG.debug("Animator Id found in nfo = {}", movie.getId(AnimatorPlugin.ANIMATOR_PLUGIN_ID));
             result = true;
         } else {
-            LOG.debug(LOG_MESSAGE + "No Animator Id found in nfo !");
+            LOG.debug("No Animator Id found in nfo !");
         }
         super.scanNFO(nfo, movie);
         return result;
@@ -145,12 +145,12 @@ public class AnimatorPlugin extends ImdbPlugin {
                 }
                 String xml = webBrowser.request(uri);
                 // Checking for zero results
-                if (xml.indexOf("[соответствие фразы]") != -1) {
+                if (xml.contains("[соответствие фразы]")) {
                     // It's search results page, searching a link to the movie page
                     int beginIndex;
-                    if (xml.indexOf("Найдено ") != -1) {
+                    if (-1 != xml.indexOf("Найдено ")) {
                         for (String tmp : HTMLTools.extractTags(xml, "Найдено ", "</td>", "<a href=", "<br><br>")) {
-                            if (tmp.indexOf("[соответствие фразы]") >= 0) {
+                            if (0 < tmp.indexOf("[соответствие фразы]")) {
                                 beginIndex = tmp.indexOf(" г.)");
                                 if (beginIndex >= 0) {
                                     String year2 = tmp.substring(beginIndex - 4, beginIndex);
@@ -232,8 +232,8 @@ public class AnimatorPlugin extends ImdbPlugin {
 
             return (animatorId.equals(Movie.UNKNOWN) && allmultsId.equals(Movie.UNKNOWN)) ? Movie.UNKNOWN : animatorId + ":" + allmultsId;
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving Animator Id for movie : " + movieName);
-            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            LOG.error("Failed retreiving Animator Id for movie : {}", movieName);
+            LOG.error("Error : {}", error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -332,12 +332,12 @@ public class AnimatorPlugin extends ImdbPlugin {
             // Genre + Run time (animator.ru)
             // String MultType = "";
             String time = Movie.UNKNOWN;
-            List<String> newGenres = new LinkedList<String>();
+            List<String> newGenres = new LinkedList<>();
             newGenres.add(0, "мультфильм");
             for (String tmp : HTMLTools.extractTags(xml, "class=\"FilmType\"><i", "</td>", "", "</i>")) {
                 for (String temp : tmp.split(",")) {
                     if (!temp.equals("")) {
-                        if (temp.indexOf(" мин.") > -1) {
+                        if (temp.contains(" мин.")) {
                             time = temp.substring(0, temp.indexOf(" мин.") + 4);
                             break;
                         }
@@ -371,9 +371,9 @@ public class AnimatorPlugin extends ImdbPlugin {
                 movie.setRuntime(time, ANIMATOR_PLUGIN_ID);
             }
 
-            Collection<String> newDirectors = new ArrayList<String>();
-            Collection<String> newWriters = new ArrayList<String>();
-            Collection<String> newCast = new ArrayList<String>();
+            Collection<String> newDirectors = new ArrayList<>();
+            Collection<String> newWriters = new ArrayList<>();
+            Collection<String> newCast = new ArrayList<>();
             // Director, Writers, Cast (animator.ru)
             for (String item : HTMLTools.extractTags(xml, "<table cellpadding=0 cellspacing=0 width=380", "</table>", "<tr>", "</tr>")) {
                 item = "<td>" + item + "</tr>";
@@ -409,7 +409,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 for (String actor : HTMLTools.extractTags(item, ">роли озвучивали", "</tr>", "<span class=\"MiddleLinks\"", "</span>")) {
                     boolean flag = true;
                     for (String tmp : newCast) {
-                        if (tmp.indexOf(actor) != -1) {
+                        if (tmp.contains(actor)) {
                             flag = false;
                             break;
                         }
@@ -452,7 +452,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             String year2 = Movie.UNKNOWN;
             // Year + Country (animator.ru)
             for (String year : HTMLTools.extractTags(xml, "p=films&year=", " г.</span>")) {
-                country = (Integer.parseInt(year) > 1990) ? "Россия" : "СССР";
+                country = NumberUtils.toInt(year, 0) > 1990 ? "Россия" : "СССР";
                 year2 = year;
                 break;
             }
@@ -503,7 +503,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 int tmp = xml.indexOf("<img src=\"../film_img/");
                 if (tmp != -1) {
                     posterURL = "http://www.animator.ru/film_img/" + xml.substring(tmp + 22, xml.indexOf("\" ", tmp));
-                } else if (xml.indexOf("<img id=SlideShow ") != -1) {
+                } else if (xml.contains("<img id=SlideShow ")) {
                     posterURL = "http://www.animator.ru/film_img/variants/film_" + newAnimatorId + "_00.jpg";
                     String fanURL = "http://www.animator.ru/film_img/variants/film_" + newAnimatorId + "_01.jpg";
                     if (StringTools.isValidString(fanURL)) {
@@ -522,10 +522,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 movie.setPosterFilename(movie.getBaseName() + ".jpg");
             }
         } catch (IOException error) {
-            LOG.error("Failed retreiving movie data from Animator : " + animatorId);
-            LOG.error(SystemTools.getStackTrace(error));
-        } catch (NumberFormatException error) {
-            LOG.error("Failed retreiving movie data from Animator : " + animatorId);
+            LOG.error("Failed retreiving movie data from Animator : {}", animatorId);
             LOG.error(SystemTools.getStackTrace(error));
         }
         return true;

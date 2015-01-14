@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 public class TrailerPlugin implements ITrailerPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(TrailerPlugin.class);
-    protected String logMessage = "TrailerPlugin: ";
     protected WebBrowser webBrowser;
     protected String trailersPluginName = "Abstract";
     private static final String SCANNER_PATH = PropertiesUtil.getProperty("trailers.path.scaner", "");
@@ -150,16 +149,16 @@ public class TrailerPlugin implements ITrailerPlugin {
         String trailerPlayFileName = playPath + "/" + HTMLTools.encodeUrl(trailerBasename);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("{}Found trailer: {}", logMessage, trailerUrl);
-            LOG.debug("{}Download path: {}", logMessage, trailerFileName);
-            LOG.debug("{}     Play URL: {}", logMessage, trailerPlayFileName);
+            LOG.debug("Found trailer: {}", trailerUrl);
+            LOG.debug("Download path: {}", trailerFileName);
+            LOG.debug("     Play URL: {}", trailerPlayFileName);
         }
 
         File trailerFile = new File(trailerFileName);
 
         // Check if the file already exists - after jukebox directory was deleted for example
         if (trailerFile.exists()) {
-            LOG.debug("{}Trailer file ({}) already exists for {}", logMessage, trailerPlayFileName, movie.getBaseName());
+            LOG.debug("Trailer file ({}) already exists for {}", trailerPlayFileName, movie.getBaseName());
             extra.setFilename(trailerPlayFileName);
             movie.addExtraFile(extra);
             isExchangeOk = Boolean.TRUE;
@@ -200,12 +199,12 @@ public class TrailerPlugin implements ITrailerPlugin {
     public boolean trailerDownload(final IMovieBasicInformation movie, String trailerUrlString, File trailerFile) {
         ThreadExecutor.enterIO(trailerUrlString);
         try {
-            LOG.debug("{}{} - Attempting to download URL '{}', saving to {}", logMessage, movie.getTitle(), trailerUrlString, trailerFile.getAbsolutePath());
+            LOG.debug("{} - Attempting to download URL '{}', saving to {}", movie.getTitle(), trailerUrlString, trailerFile.getAbsolutePath());
 
             Downloader dl = new Downloader(trailerFile.getAbsolutePath(), trailerUrlString, SHOW_PROGRESS);
 
             if (dl.isDownloadOk()) {
-                LOG.info("{}Trailer downloaded in {}", logMessage, dl.getDownloadTime());
+                LOG.info("Trailer downloaded in {}", dl.getDownloadTime());
                 return Boolean.TRUE;
             }
             return Boolean.FALSE;

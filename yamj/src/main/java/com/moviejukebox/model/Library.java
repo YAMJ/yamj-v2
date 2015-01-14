@@ -67,7 +67,6 @@ import org.slf4j.LoggerFactory;
 public class Library implements Map<String, Movie> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Library.class);
-    private static final String LOG_MESSAGE = "Library: ";
     // Constants
     public static final String TV_SERIES = "TVSeries";
     public static final String SET = "Set";
@@ -76,19 +75,19 @@ public class Library implements Map<String, Movie> {
     private static boolean filterGenres;
     private static final boolean FILTER_CERTIFICAION;
     private static boolean singleSeriesPage;
-    private static final List<String> CERTIFICATION_ORDERING = new ArrayList<String>();
-    private static final List<String> LIBRARY_ORDERING = new ArrayList<String>();
-    private static final Map<String, String> GENRES_MAP = new HashMap<String, String>();
-    private static final Map<String, String> CERTIFICATIONS_MAP = new HashMap<String, String>();
+    private static final List<String> CERTIFICATION_ORDERING = new ArrayList<>();
+    private static final List<String> LIBRARY_ORDERING = new ArrayList<>();
+    private static final Map<String, String> GENRES_MAP = new HashMap<>();
+    private static final Map<String, String> CERTIFICATIONS_MAP = new HashMap<>();
     private static String defaultCertification = null;
-    private static final Map<String, String> CATEGORIES_MAP = new LinkedHashMap<String, String>(); // This is a LinkedHashMap to ensure that the order that the items are inserted into the Map is retained
+    private static final Map<String, String> CATEGORIES_MAP = new LinkedHashMap<>(); // This is a LinkedHashMap to ensure that the order that the items are inserted into the Map is retained
     private static boolean charGroupEnglish = false;
-    private final Map<Movie, String> keys = new HashMap<Movie, String>();
-    private final Map<String, Movie> library = new TreeMap<String, Movie>();
-    private final Map<String, Movie> extras = new TreeMap<String, Movie>();
-    private List<Movie> moviesList = new ArrayList<Movie>();
+    private final Map<Movie, String> keys = new HashMap<>();
+    private final Map<String, Movie> library = new TreeMap<>();
+    private final Map<String, Movie> extras = new TreeMap<>();
+    private List<Movie> moviesList = new ArrayList<>();
     private final Map<String, Index> indexes;
-    private Map<String, Index> unCompressedIndexes = new LinkedHashMap<String, Index>();
+    private Map<String, Index> unCompressedIndexes = new LinkedHashMap<>();
     private static final DecimalFormat PADDED_FORMAT = new DecimalFormat("000"); // Issue 190
     private static int categoryMinCountMaster = 3;
     private static int categoryMaxCountMaster = 0;
@@ -116,7 +115,7 @@ public class Library implements Map<String, Movie> {
     private static boolean processExtras = true;
     private static boolean hideWatched = true;
     private static final boolean ENABLE_WATCH_SCANNER;
-    private static final List<String> DIRTY_LIBRARIES = new ArrayList<String>();
+    private static final List<String> DIRTY_LIBRARIES = new ArrayList<>();
     // Issue 1897: Cast enhancement
     private final Map<String, Person> people;
     private boolean isDirty = false;
@@ -128,9 +127,9 @@ public class Library implements Map<String, Movie> {
     private static final int FINAL_YEAR = CURRENT_YEAR - 2;
     private static final int CURRENT_DECADE = (FINAL_YEAR / 10) * 10;
     // Sorting params
-    private static final Map<String, String> SORT_KEYS = new HashMap<String, String>();
-    private static final Map<String, Boolean> SORT_ASC = new HashMap<String, Boolean>();
-    private static final List<String> SORT_COMP = new ArrayList<String>();
+    private static final Map<String, String> SORT_KEYS = new HashMap<>();
+    private static final Map<String, Boolean> SORT_ASC = new HashMap<>();
+    private static final List<String> SORT_COMP = new ArrayList<>();
     // Index Names
     public static final String INDEX_3D = "3D";
     public static final String INDEX_ACTOR = "Actor";
@@ -236,7 +235,7 @@ public class Library implements Map<String, Movie> {
             SORT_COMP.add(INDEX_YEAR.toLowerCase());
         }
 
-        LOG.debug("{}Valid sort types are: {}", LOG_MESSAGE, SORT_COMP.toString());
+        LOG.debug("Valid sort types are: {}", SORT_COMP.toString());
 
         if (SORT_KEYS.isEmpty()) {
             setSortProperty(INDEX_PERSON, INDEX_TITLE, Boolean.TRUE);
@@ -271,9 +270,9 @@ public class Library implements Map<String, Movie> {
         }
 
         StringBuilder msg;
-        LOG.debug("{}Library sorting:", LOG_MESSAGE);
+        LOG.debug("Library sorting:");
         for (Entry<String, String> sk : SORT_KEYS.entrySet()) {
-            LOG.debug("{}  Category='{}', OrderBy='{}' {}", LOG_MESSAGE,
+            LOG.debug("  Category='{}', OrderBy='{}' {}",
                     sk.getKey(),
                     sk.getValue(),
                     SORT_ASC.get(sk.getKey()) ? " (Ascending)" : " (Descending)");
@@ -300,7 +299,7 @@ public class Library implements Map<String, Movie> {
         String sortType = PropertiesUtil.getProperty("indexing.sort." + spIndexKey, defaultSort).toLowerCase();
 
         if (StringTools.isNotValidString(sortType) || !SORT_COMP.contains(sortType)) {
-            LOG.warn("{}Invalid sort type '{}' for category '{}' using default of {}", LOG_MESSAGE, sortType, spIndexKey, defaultSort);
+            LOG.warn("Invalid sort type '{}' for category '{}' using default of {}", sortType, spIndexKey, defaultSort);
             sortType = defaultSort.toLowerCase();
         }
 
@@ -354,8 +353,8 @@ public class Library implements Map<String, Movie> {
     }
 
     public Library() {
-        this.people = new TreeMap<String, Person>();
-        this.indexes = new LinkedHashMap<String, Index>();
+        this.people = new TreeMap<>();
+        this.indexes = new LinkedHashMap<>();
     }
 
     // synchronized because scanning can be multi-threaded
@@ -434,7 +433,7 @@ public class Library implements Map<String, Movie> {
     }
 
     protected static Map<String, Movie> buildIndexMasters(String prefix, Index index, List<Movie> indexMovies) {
-        Map<String, Movie> masters = new HashMap<String, Movie>();
+        Map<String, Movie> masters = new HashMap<>();
         boolean dirtyInfo = Boolean.FALSE;
 
         for (Map.Entry<String, List<Movie>> indexEntry : index.entrySet()) {
@@ -485,7 +484,7 @@ public class Library implements Map<String, Movie> {
 
             // We Can't use a TreeSet because MF.compareTo just compares part #
             // so it fails when we combine multiple seasons into one collection
-            Collection<MovieFile> masterMovieFileCollection = new LinkedList<MovieFile>();
+            Collection<MovieFile> masterMovieFileCollection = new LinkedList<>();
             for (Movie movie : indexMovieList) {
                 if (movie.isTVShow()) {
                     countTV++;
@@ -532,7 +531,7 @@ public class Library implements Map<String, Movie> {
             indexMaster.setTop250(top250, top250source);
 
             if (setsRating.equalsIgnoreCase("max") || (setsRating.equalsIgnoreCase("average") && (indexMovieList.size() > 0))) {
-                Map<String, Integer> ratings = new HashMap<String, Integer>();
+                Map<String, Integer> ratings = new HashMap<>();
                 ratings.put("setrating", setsRating.equalsIgnoreCase("max") ? maxRating : (sumRating / indexMovieList.size()));
                 indexMaster.setRatings(ratings);
             }
@@ -595,11 +594,11 @@ public class Library implements Map<String, Movie> {
         indexes.clear();
 
         tasks.restart();
-        final List<Movie> indexMovies = new ArrayList<Movie>(library.values());
+        final List<Movie> indexMovies = new ArrayList<>(library.values());
         moviesList.addAll(library.values());
 
         if (indexMovies.size() > 0) {
-            Map<String, Index> dynamicIndexes = new LinkedHashMap<String, Index>();
+            Map<String, Index> dynamicIndexes = new LinkedHashMap<>();
             // Add the sets FIRST! That allows users to put series inside sets
             dynamicIndexes.put(SET, indexBySets(indexMovies));
 
@@ -662,7 +661,7 @@ public class Library implements Map<String, Movie> {
             // Make a "copy" of uncompressed index
             this.keepUncompressedIndexes();
 
-            Map<String, Map<String, Movie>> dynamicIndexMasters = new HashMap<String, Map<String, Movie>>();
+            Map<String, Map<String, Movie>> dynamicIndexMasters = new HashMap<>();
             for (Map.Entry<String, Index> dynamicEntry : dynamicIndexes.entrySet()) {
                 Map<String, Movie> indexMasters = buildIndexMasters(dynamicEntry.getKey(), dynamicEntry.getValue(), indexMovies);
                 dynamicIndexMasters.put(dynamicEntry.getKey(), indexMasters);
@@ -723,7 +722,7 @@ public class Library implements Map<String, Movie> {
             // Merge the two categories into the Master "New" category
             if (CATEGORIES_MAP.get(INDEX_NEW) != null) {
                 Index otherIndexes = indexes.get(INDEX_OTHER);
-                List<Movie> newList = new ArrayList<Movie>();
+                List<Movie> newList = new ArrayList<>();
                 int newMovies = 0;
                 int newTVShows = 0;
 
@@ -778,7 +777,7 @@ public class Library implements Map<String, Movie> {
         }
 
         tasks.restart();
-        final List<Person> indexPersons = new ArrayList<Person>(people.values());
+        final List<Person> indexPersons = new ArrayList<>(people.values());
 
         if (indexPersons.size() > 0) {
             for (final String indexStr : INDEX_LIST.split(",")) {
@@ -833,7 +832,7 @@ public class Library implements Map<String, Movie> {
     }
 
     private void keepUncompressedIndexes() {
-        this.unCompressedIndexes = new HashMap<String, Index>(indexes.size());
+        this.unCompressedIndexes = new HashMap<>(indexes.size());
         Set<String> indexeskeySet = this.indexes.keySet();
         for (String key : indexeskeySet) {
             LOG.debug("Copying {} indexes", key);
@@ -843,7 +842,7 @@ public class Library implements Map<String, Movie> {
             unCompressedIndexes.put(key, indexTmp);
             for (Map.Entry<String, List<Movie>> keyCategory : index.entrySet()) {
                 List<Movie> listMovie = keyCategory.getValue();
-                List<Movie> listMovieTmp = new ArrayList<Movie>(listMovie.size());
+                List<Movie> listMovieTmp = new ArrayList<>(listMovie.size());
                 indexTmp.put(keyCategory.getKey(), listMovieTmp);
 
                 for (Movie movie : listMovie) {
@@ -854,7 +853,7 @@ public class Library implements Map<String, Movie> {
     }
 
     private static void setMovieListNavigation(List<Movie> moviesList) {
-        List<Movie> extraList = new ArrayList<Movie>();
+        List<Movie> extraList = new ArrayList<>();
 
         IMovieBasicInformation first = null;
         IMovieBasicInformation last = null;
@@ -1500,7 +1499,7 @@ public class Library implements Map<String, Movie> {
 
     @Override
     public List<Movie> values() {
-        return new ArrayList<Movie>(library.values());
+        return new ArrayList<>(library.values());
     }
 
     public List<Movie> getMoviesList() {
@@ -1519,7 +1518,7 @@ public class Library implements Map<String, Movie> {
             }
         }
 
-        return new ArrayList<Movie>();
+        return new ArrayList<>();
     }
 
     public Map<String, Index> getIndexes() {
@@ -1822,7 +1821,7 @@ public class Library implements Map<String, Movie> {
     }
 
     public List<Movie> getMatchingMoviesList(String indexName, List<Movie> boxedSetMovies, String categorie) {
-        List<Movie> response = new ArrayList<Movie>();
+        List<Movie> response = new ArrayList<>();
         List<Movie> list = this.unCompressedIndexes.get(indexName).get(categorie);
 
         if (list == null) {

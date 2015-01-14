@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 public class SectionContentSS extends AbstractScriptableScraper {
 
     private final Logger LOG = LoggerFactory.getLogger(SectionContentSS.class);
-    private final String LOG_MESSAGE = "ScriptableScraper.ssSectionContent: ";
 
     private String name;
     private final Map<String, String> attributes = new HashMap<>(2);
@@ -103,7 +102,7 @@ public class SectionContentSS extends AbstractScriptableScraper {
                 subName = subName.substring(0, subName.indexOf(':'));
             }
             if (isDebug()) {
-                LOG.debug(LOG_MESSAGE + "prepareVariable: subName: " + subName);
+                LOG.debug("prepareVariable: subName: {}", subName);
             }
             if (subName.indexOf('.') == -1) {
                 Pattern pattern = Pattern.compile("\\[(\\d+)\\](\\[(\\d+)\\])?");
@@ -113,7 +112,7 @@ public class SectionContentSS extends AbstractScriptableScraper {
                     variable.index1 = matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : -1;
                     subName = subName.substring(0, subName.indexOf('['));
                     if (isDebug()) {
-                        LOG.debug(LOG_MESSAGE + "prepareVariable: subName: " + subName + " index0: " + Integer.toString(variable.index0) + " index1: " + Integer.toString(variable.index1));
+                        LOG.debug("prepareVariable: subName: {} index0: {} index1: {}", subName, variable.index0, variable.index1);
                     }
                     if (this.variables.containsKey(subName)) {
                         variable.value = this.variables.get(subName);
@@ -124,7 +123,7 @@ public class SectionContentSS extends AbstractScriptableScraper {
             if (this.variables.containsKey(subName)) {
                 variable.value = this.variables.get(subName);
                 if (isDebug()) {
-                    LOG.debug(LOG_MESSAGE + "prepareVariable: subName: " + subName + " value: " + variable.value);
+                    LOG.debug("prepareVariable: subName: {} value: {}", subName, variable.value);
                 }
             }
         }
@@ -142,7 +141,7 @@ public class SectionContentSS extends AbstractScriptableScraper {
             if (StringUtils.isNotBlank(name)) {
                 preparedVariable variable = prepareVariable(name);
                 if (isDebug()) {
-                    LOG.debug(LOG_MESSAGE + "getVariable: " + name + " value: " + variable.value + " index0: " + Integer.toString(variable.index0) + " index1: " + Integer.toString(variable.index1));
+                    LOG.debug("getVariable: {} value: {} index0: {} index1: {}" + name, variable.value, variable.index0, variable.index1);
                 }
                 if (variable.value == null) {
                     return "";
@@ -183,7 +182,7 @@ public class SectionContentSS extends AbstractScriptableScraper {
                     name = name.substring(name.indexOf(":safe(") + 6);
                     name = name.substring(0, name.indexOf(")"));
                     if (isDebug()) {
-                        LOG.debug(LOG_MESSAGE + "encode result to '" + name + "'");
+                        LOG.debug("encode result to ''{}'", name);
                     }
                     result = URLEncoder.encode(result, name);
                 }
@@ -196,12 +195,12 @@ public class SectionContentSS extends AbstractScriptableScraper {
             }
 
             if (isDebug()) {
-                LOG.debug(LOG_MESSAGE + "getVariable: result: '" + result + "'");
+                LOG.debug("getVariable: result: '{}'", result);
             }
             return result;
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed get variable : " + name);
-            LOG.error(LOG_MESSAGE + "Error : " + error.getMessage());
+            LOG.error("Failed get variable : {}", name);
+            LOG.error("Error : {}", error.getMessage());
             return "";
         }
     }
@@ -214,7 +213,7 @@ public class SectionContentSS extends AbstractScriptableScraper {
         if (StringUtils.isNotBlank(name)) {
             preparedVariable variable = prepareVariable(name);
             if (isDebug()) {
-                LOG.debug(LOG_MESSAGE + "hasVariable: " + name + " value: " + variable.value + " index0: " + Integer.toString(variable.index0) + " index1: " + Integer.toString(variable.index1));
+                LOG.debug("hasVariable: {} value: {} index0: {} index1: {}", name, variable.value, variable.index0, variable.index1);
             }
             if (variable.value == null) {
                 return Boolean.FALSE;
@@ -251,7 +250,7 @@ public class SectionContentSS extends AbstractScriptableScraper {
         if (StringUtils.isNotBlank(name)) {
             this.variables.put(name, value);
             if (isDebug()) {
-                LOG.debug(LOG_MESSAGE + "setVariable to " + this.name + ": name: " + name + " value: " + value);
+                LOG.debug("setVariable to {}: name: {} value: {}", this.name, name, value);
             }
         }
     }
@@ -278,7 +277,7 @@ public class SectionContentSS extends AbstractScriptableScraper {
             }
             this.sets.put(name, value);
             if (isDebug()) {
-                LOG.debug(LOG_MESSAGE + "setSet to " + this.name + ": name: " + name + " value: " + value);
+                LOG.debug("setSet to {}: name: {} value: {}", this.name, name, value);
             }
         }
     }

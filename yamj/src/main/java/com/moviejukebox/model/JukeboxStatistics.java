@@ -50,12 +50,11 @@ public final class JukeboxStatistics {
 
     // Logger
     private static final Logger LOG = LoggerFactory.getLogger(JukeboxStatistics.class);
-    private static final String LOG_MESSAGE = "JukeboxStatistics: ";
     // Filename
     private static final String XML_FILENAME = "jukebox_statistics.xml";
     // Properties
-    private static final Map<JukeboxStatistic, Integer> STATISTICS = new EnumMap<JukeboxStatistic, Integer>(JukeboxStatistic.class);
-    private static final Map<JukeboxTimes, Long> TIMES = new EnumMap<JukeboxTimes, Long>(JukeboxTimes.class);
+    private static final Map<JukeboxStatistic, Integer> STATISTICS = new EnumMap<>(JukeboxStatistic.class);
+    private static final Map<JukeboxTimes, Long> TIMES = new EnumMap<>(JukeboxTimes.class);
     // Literals
     private static final String DEFAULT_FORMAT = "HH:mm:ss.S";
     private static final String DEFAULT_TZ = "GMT";
@@ -282,13 +281,13 @@ public final class JukeboxStatistics {
         Element eRoot, eStats, eTimes;
 
         try {
-            LOG.debug("{}Creating JukeboxStatistics file: {}", LOG_MESSAGE, jbStats.getAbsolutePath());
+            LOG.debug("Creating JukeboxStatistics file: {}", jbStats.getAbsolutePath());
             if (jbStats.exists() && !jbStats.delete()) {
-                LOG.error("{}Failed to delete {}. Please make sure it's not read only", LOG_MESSAGE, jbStats.getName());
+                LOG.error("Failed to delete {}. Please make sure it's not read only", jbStats.getName());
                 return;
             }
         } catch (Exception ex) {
-            LOG.error("{}Failed to create/delete {}. Please make sure it's not read only", LOG_MESSAGE, jbStats.getName());
+            LOG.error("Failed to create/delete {}. Please make sure it's not read only", jbStats.getName());
             return;
         }
 
@@ -326,7 +325,7 @@ public final class JukeboxStatistics {
 
             DOMHelper.writeDocumentToFile(docJbStats, jbStats.getAbsolutePath());
         } catch (ParserConfigurationException | DOMException ex) {
-            LOG.error("{}Error creating {} file: {}", LOG_MESSAGE, jbStats.getName(), ex.getMessage());
+            LOG.error("Error creating {} file: {}", jbStats.getName(), ex.getMessage());
             LOG.error(SystemTools.getStackTrace(ex));
         }
 

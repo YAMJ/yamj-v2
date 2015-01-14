@@ -173,8 +173,6 @@ public final class StringTools {
             tmpAdditionalPath = additionalPath;
         }
 
-
-
         return FilenameUtils.concat(basePath, tmpAdditionalPath);
     }
 
@@ -439,12 +437,12 @@ public final class StringTools {
         String returnSentance = sentanceToTrim;
         // count the number of spaces in the original string
         int numSpaces = StringUtils.countMatches(sentanceToTrim, " ");
-        LOG.trace("Found " + numSpaces + " space(s) in '" + sentanceToTrim + "', want " + numOfWords + " word(s).");
+        LOG.trace("Found {} space(s) in '{}', want {} word(s).", numSpaces, sentanceToTrim, numOfWords);
 
         if (numSpaces > 0 && numSpaces >= numOfWords) {
             // ensure that the number of spaces is no larger than the count
             if (numSpaces > numOfWords) {
-                LOG.trace("Number of spaces limited to " + numOfWords);
+                LOG.trace("Number of spaces limited to {}", numOfWords);
                 numSpaces = numOfWords;
             }
 
@@ -454,7 +452,7 @@ public final class StringTools {
             }
 
             returnSentance = sentanceToTrim.substring(0, pos);
-            LOG.trace("Final: '" + returnSentance + "'");
+            LOG.trace("Final: '{}'", returnSentance);
         }
 
         return returnSentance;

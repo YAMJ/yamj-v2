@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(ScopeDkPosterPlugin.class);
-    private static final String LOG_MESSAGE = "ScopeDkPosterPlugin: ";
 
     private WebBrowser webBrowser;
 
@@ -83,12 +82,12 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
                         break;
                     }
                 } else {
-                    LOG.warn("{}No matching data for search film result: {}", LOG_MESSAGE, tmp.get(i));
+                    LOG.warn("No matching data for search film result: {}", tmp.get(i));
                 }
                 i++; // Step of 2
             }
         } catch (Exception error) {
-            LOG.error("{}Failed to retrieve Scope ID for movie: {}", LOG_MESSAGE, title);
+            LOG.error("Failed to retrieve Scope ID for movie: {}", title);
         }
         return response;
     }
@@ -111,7 +110,7 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
                 }
 
             } catch (Exception ex) {
-                LOG.error("{}Failed retreiving ScopeDk url for movie : {}", LOG_MESSAGE, id);
+                LOG.error("Failed retreiving ScopeDk url for movie : {}", id);
                 LOG.error(SystemTools.getStackTrace(ex));
             }
         }

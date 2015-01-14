@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 public final class DateTimeTools {
 
     private static final Logger LOG = LoggerFactory.getLogger(DateTimeTools.class);
-    private static final String LOG_MESSAGE = "DateTimeTools: ";
     private static final String DATE_FORMAT_STRING = PropertiesUtil.getProperty("mjb.dateFormat", "yyyy-MM-dd");
     private static final String DATE_FORMAT_LONG_STRING = DATE_FORMAT_STRING + " HH:mm:ss";
     private static final Pattern DATE_COUNTRY = Pattern.compile("(.*)(\\s*?\\(\\w*\\))");
@@ -156,7 +155,8 @@ public final class DateTimeTools {
     }
 
     /**
-     * Take a string runtime in various formats and try to output this in minutes
+     * Take a string runtime in various formats and try to output this in
+     * minutes
      *
      * @param runtime
      * @return
@@ -166,7 +166,8 @@ public final class DateTimeTools {
     }
 
     /**
-     * Take a string runtime in various formats and try to output this in minutes
+     * Take a string runtime in various formats and try to output this in
+     * minutes
      *
      * @param runtime
      * @param defaultValue
@@ -226,14 +227,14 @@ public final class DateTimeTools {
         try {
             parsedDate = parseStringToDate(dateToParse);
         } catch (ParseException ex) {
-            LOG.debug(LOG_MESSAGE + "Failed to parse date '" + dateToParse + "', error: " + ex.getMessage(), ex);
+            LOG.debug("Failed to parse date '{}', error: {}", dateToParse, ex.getMessage(), ex);
             return parsedDateString;
         }
 
         if (StringTools.isValidString(targetFormat)) {
             parsedDateString = convertDateToString(parsedDate, targetFormat);
         } else {
-            LOG.debug(LOG_MESSAGE + "Invalid date '" + dateToParse + "' or target format '" + targetFormat + "' passed");
+            LOG.debug("Invalid date '{}' or target format '{}' passed", dateToParse, targetFormat);
         }
 
         return parsedDateString;
@@ -252,13 +253,13 @@ public final class DateTimeTools {
 
         if (StringTools.isValidString(dateToParse)) {
             if (dateToParse.length() <= 4) {
-                LOG.trace(LOG_MESSAGE + "Adding '-01-01' to short date");
+                LOG.trace("Adding '-01-01' to short date");
                 parsedDateString = dateToParse + "-01-01";
             } else {
                 // look for the date as "dd MMMM yyyy (Country)" and remove the country
                 Matcher m = DATE_COUNTRY.matcher(dateToParse);
                 if (m.find()) {
-                    LOG.trace(LOG_MESSAGE + "Removed '" + m.group(2) + "' from date '" + dateToParse + "'");
+                    LOG.trace("Removed '{}' from date '{}'", m.group(2), dateToParse);
                     parsedDateString = m.group(1);
                 } else {
                     parsedDateString = dateToParse;

@@ -57,7 +57,6 @@ import java.util.EnumSet;
 import javax.xml.parsers.ParserConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -66,8 +65,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Save a pre-defined list of attributes of the jukebox and properties for use in subsequent processing runs to determine if an
- * attribute has changed and force a rescan of the appropriate data
+ * Save a pre-defined list of attributes of the jukebox and properties for use
+ * in subsequent processing runs to determine if an attribute has changed and
+ * force a rescan of the appropriate data
  *
  * @author stuart.boston
  *
@@ -76,12 +76,11 @@ public final class JukeboxProperties {
 
     // Logger
     private static final Logger LOG = LoggerFactory.getLogger(JukeboxProperties.class);
-    private static final String LOG_MESSAGE = "JukeboxProperties: ";
     // Filename
     private static final String XML_FILENAME = "jukebox_details.xml";
     // Properties
     private static final boolean MONITOR = PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", Boolean.FALSE);
-    private static final Collection<PropertyInformation> PROPINFO = new ArrayList<PropertyInformation>();
+    private static final Collection<PropertyInformation> PROPINFO = new ArrayList<>();
     private static boolean scanningLimitReached = Boolean.FALSE;   // Were videos skipped during processing?
     // Literals
     private static final String JUKEBOX = "jukebox";
@@ -244,9 +243,10 @@ public final class JukeboxProperties {
     }
 
     /**
-     * Check to see if the file needs to be processed (if it exists) or just created Note: This *MIGHT* cause issues with some
-     * programs that assume all XML files in the jukebox folder are videos or indexes. However, they should just deal with this
-     * themselves :-)
+     * Check to see if the file needs to be processed (if it exists) or just
+     * created Note: This *MIGHT* cause issues with some programs that assume
+     * all XML files in the jukebox folder are videos or indexes. However, they
+     * should just deal with this themselves :-)
      *
      * @param jukebox
      * @param mediaLibraryPaths
@@ -261,17 +261,17 @@ public final class JukeboxProperties {
                 PropertyInformation pi = processFile(mjbDetails, mediaLibraryPaths);
 
                 if (pi.getOverwrites().size() > 0) {
-                    LOG.debug(LOG_MESSAGE + "Found " + pi.getOverwrites().size() + " overwites to set.");
+                    LOG.debug("Found {} overwites to set.", pi.getOverwrites().size());
                     for (PropertyOverwrites po : pi.getOverwrites()) {
-                        LOG.debug(LOG_MESSAGE + "Setting 'force" + po.toString() + "Overwrite = true' due to property file changes");
+                        LOG.debug("Setting 'force{}Overwrite = true' due to property file changes", po.toString());
                         PropertiesUtil.setProperty("mjb.force" + po.toString() + "Overwrite", Boolean.TRUE);
                     }
                 } else {
-                    LOG.debug(LOG_MESSAGE + "Properties haven't changed, no updates necessary");
+                    LOG.debug("Properties haven't changed, no updates necessary");
                 }
             }
         } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed creating " + mjbDetails.getName() + " file!");
+            LOG.error("Failed creating {} file!", mjbDetails.getName());
             LOG.error(SystemTools.getStackTrace(error));
         }
     }
@@ -291,13 +291,13 @@ public final class JukeboxProperties {
         Element eRoot, eJukebox, eProperties;
 
         try {
-            LOG.debug(LOG_MESSAGE + "Creating JukeboxProperties file: " + mjbDetails.getAbsolutePath());
+            LOG.debug("Creating JukeboxProperties file: {}", mjbDetails.getAbsolutePath());
             if (mjbDetails.exists() && !mjbDetails.delete()) {
-                LOG.error(LOG_MESSAGE + "Failed to delete " + mjbDetails.getName() + ". Please make sure it's not read only");
+                LOG.error("Failed to delete {}. Please make sure it's not read only", mjbDetails.getName());
                 return;
             }
         } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed to create/delete " + mjbDetails.getName() + ". Please make sure it's not read only");
+            LOG.error("Failed to create/delete {}. Please make sure it's not read only", mjbDetails.getName());
             return;
         }
 
@@ -377,11 +377,8 @@ public final class JukeboxProperties {
             }
 
             DOMHelper.writeDocumentToFile(docMjbDetails, mjbDetails.getAbsolutePath());
-        } catch (ParserConfigurationException error) {
-            LOG.error(LOG_MESSAGE + "Error creating " + mjbDetails.getName() + " file");
-            LOG.error(SystemTools.getStackTrace(error));
-        } catch (DOMException error) {
-            LOG.error(LOG_MESSAGE + "Error creating " + mjbDetails.getName() + " file");
+        } catch (ParserConfigurationException | DOMException error) {
+            LOG.error("Error creating {} file", mjbDetails.getName());
             LOG.error(SystemTools.getStackTrace(error));
         }
     }
@@ -430,7 +427,8 @@ public final class JukeboxProperties {
     }
 
     /**
-     * Determine the file date from the passed filename, if the filename is invalid return UNKNOWN
+     * Determine the file date from the passed filename, if the filename is
+     * invalid return UNKNOWN
      *
      * @param tempFilename
      * @return
@@ -450,7 +448,8 @@ public final class JukeboxProperties {
     }
 
     /**
-     * Read the attributes from the file and compare and set any force overwrites needed
+     * Read the attributes from the file and compare and set any force
+     * overwrites needed
      *
      * @param mjbDetails
      * @param mediaLibraryPaths
@@ -463,16 +462,8 @@ public final class JukeboxProperties {
         // Try to open and read the document file
         try {
             docMjbDetails = DOMHelper.getDocFromFile(mjbDetails);
-        } catch (ParserConfigurationException error) {
-            LOG.warn(LOG_MESSAGE + "Failed creating the file, no checks performed");
-            LOG.warn(SystemTools.getStackTrace(error));
-            return piReturn;
-        } catch (SAXException error) {
-            LOG.warn(LOG_MESSAGE + "Failed creating the file, no checks performed");
-            LOG.warn(SystemTools.getStackTrace(error));
-            return piReturn;
-        } catch (IOException error) {
-            LOG.warn(LOG_MESSAGE + "Failed creating the file, no checks performed");
+        } catch (ParserConfigurationException | SAXException | IOException error) {
+            LOG.warn("Failed creating the '{}' file, no checks performed", mjbDetails.getAbsolutePath());
             LOG.warn(SystemTools.getStackTrace(error));
             return piReturn;
         }
@@ -485,9 +476,6 @@ public final class JukeboxProperties {
 
         if (nDetails.getNodeType() == Node.ELEMENT_NODE) {
             Element eJukebox = (Element) nDetails;
-            // logger.fine("DetailsDirName : " + DOMHelper.getValueFromElement(eJukebox, "DetailsDirName"));
-            // logger.fine("JukeboxLocation: " + DOMHelper.getValueFromElement(eJukebox, "JukeboxLocation"));
-
             // Check the library file
             String mlp = DOMHelper.getValueFromElement(eJukebox, "LibraryPath");
             if (!mediaLibraryPaths.toString().equalsIgnoreCase(mlp)) {
@@ -499,21 +487,21 @@ public final class JukeboxProperties {
             if (!validXmlFileDetails("mjb.xmlCategoryFile", CATEGORY, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation(CATEGORY, EnumSet.of(INDEX)));
-                LOG.debug(LOG_MESSAGE + "Categories has changed, so need to update");
+                LOG.debug("Categories has changed, so need to update");
             }
 
             // Check the Genres file
             if (!validXmlFileDetails("mjb.xmlGenreFile", GENRE, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation(GENRE, EnumSet.of(INDEX)));
-                LOG.debug(LOG_MESSAGE + "Genres has changed, so need to update");
+                LOG.debug("Genres has changed, so need to update");
             }
 
             // Check the Certifications file
             if (!validXmlFileDetails("mjb.xmlCertificationFile", CERTIFICATION, eJukebox)) {
                 // Details are wrong, so overwrite
                 piReturn.mergePropertyInformation(new PropertyInformation("Certifications", EnumSet.of(INDEX)));
-                LOG.debug(LOG_MESSAGE + "Certifications has changed, so need to update");
+                LOG.debug("Certifications has changed, so need to update");
             }
         }
 
@@ -541,14 +529,15 @@ public final class JukeboxProperties {
             }
         }
 
-        LOG.debug(LOG_MESSAGE + "Returning: " + piReturn.toString());
+        LOG.debug("Returning: {}", piReturn.toString());
         return piReturn;
     }
 
     /**
      * Compare the current XML file details with the stored ones.
      *
-     * Any errors with this check will return TRUE to ensure no properties are overwritten
+     * Any errors with this check will return TRUE to ensure no properties are
+     * overwritten
      *
      * @param eJukebox
      * @return
@@ -570,7 +559,7 @@ public final class JukeboxProperties {
                 return Boolean.FALSE;
             }
         } catch (Exception ex) {
-            LOG.warn(LOG_MESSAGE + "Error validating " + jukeboxPropertyCategory);
+            LOG.warn("Error validating {}", jukeboxPropertyCategory);
             return Boolean.TRUE;
         }
 

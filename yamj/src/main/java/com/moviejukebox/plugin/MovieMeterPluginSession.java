@@ -22,34 +22,40 @@
  */
 package com.moviejukebox.plugin;
 
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
-
 import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * The MovieMeterPluginSession communicates with XML-RPC webservice of www.moviemeter.nl.
+ * The MovieMeterPluginSession communicates with XML-RPC webservice of
+ * www.moviemeter.nl.
  *
- * The session is stored in a file, since the webservice accepts a maximum of 100 sessions per IP-address and 50
- * requests per session. So when you rerun the applications, it tries to reuse the session.
+ * The session is stored in a file, since the webservice accepts a maximum of
+ * 100 sessions per IP-address and 50 requests per session. So when you rerun
+ * the applications, it tries to reuse the session.
  *
- * Version 0.1 : Initial release Version 0.2 : Rewrote some log lines Version 0.3 (18-06-2009) : New API key needed for
- * MovieMeter.nl Version 0.4 : Moved API key to properties file
+ * Version 0.1 : Initial release Version 0.2 : Rewrote some log lines Version
+ * 0.3 (18-06-2009) : New API key needed for MovieMeter.nl Version 0.4 : Moved
+ * API key to properties file
  *
  * @author RdeTuinman
  *
@@ -59,7 +65,6 @@ public final class MovieMeterPluginSession {
     private static final String SESSION_FILENAME = "./temp/moviemeter.session";
     private static final String MOVIEMETER_API_KEY = PropertiesUtil.getProperty("API_KEY_MovieMeter");
     private static final Logger LOG = LoggerFactory.getLogger(MovieMeterPluginSession.class);
-    private static final String LOG_MESSAGE = "MovieMeterPluginSession: ";
     private String key;
     private Integer timestamp;
     private Integer counter;
@@ -87,16 +92,16 @@ public final class MovieMeterPluginSession {
         }
     }
 
-
     /**
-     * Creates a new session to www.moviemeter.nl or if a session exists on disk, it is checked and resumed if valid.
+     * Creates a new session to www.moviemeter.nl or if a session exists on
+     * disk, it is checked and resumed if valid.
      *
      * @throws XmlRpcException
      */
     public MovieMeterPluginSession() throws XmlRpcException {
         init();
 
-        LOG.debug(LOG_MESSAGE + "Getting stored session");
+        LOG.debug("Getting stored session");
         // Read previous session
         FileReader fileRead = null;
         BufferedReader bufRead = null;
@@ -117,7 +122,7 @@ public final class MovieMeterPluginSession {
                 }
             }
         } catch (IOException ex) {
-            LOG.debug(LOG_MESSAGE + "Error creating session: " + ex.getMessage());
+            LOG.debug("Error creating session: {}", ex.getMessage());
         } finally {
             if (fileRead != null) {
                 try {
@@ -136,7 +141,7 @@ public final class MovieMeterPluginSession {
             }
         }
 
-        LOG.debug(LOG_MESSAGE + "Stored session: " + getKey());
+        LOG.debug("Stored session: {}", getKey());
 
         if (!isValid()) {
             createNewSession(MOVIEMETER_API_KEY);
@@ -157,12 +162,12 @@ public final class MovieMeterPluginSession {
         try {
             session = (HashMap) client.execute("api.startSession", params);
         } catch (Exception error) {
-            LOG.warn(LOG_MESSAGE + "Unable to contact website");
+            LOG.warn("Unable to contact website");
         }
 
         if (session != null) {
             if (session.size() > 0) {
-                LOG.debug(LOG_MESSAGE + "Created new session with moviemeter.nl");
+                LOG.debug("Created new session with moviemeter.nl");
                 setKey((String) session.get("session_key"));
                 setTimestamp((Integer) session.get("valid_till"));
                 setCounter(0);
@@ -194,9 +199,9 @@ public final class MovieMeterPluginSession {
             films = (Object[]) client.execute("film.search", params);
             increaseCounter();
             if (films != null && films.length > 0) {
-                LOG.debug(LOG_MESSAGE + "MovieMeterPlugin: Search for " + movieName + " returned " + films.length + " results");
+                LOG.debug("Search for {} returned {} results", movieName, films.length);
                 for (int i = 0; i < films.length; i++) {
-                    LOG.info("Film " + i + ": " + films[i]);
+                    LOG.info("Film {}: {}", i, films[i]);
                 }
                 // Choose first result
                 result = (HashMap) films[0];
@@ -209,8 +214,8 @@ public final class MovieMeterPluginSession {
     }
 
     /**
-     * Searches www.moviemeter.nl for the movieName and matches the year. If there is no match on year, the first result
-     * is returned
+     * Searches www.moviemeter.nl for the movieName and matches the year. If
+     * there is no match on year, the first result is returned
      *
      * @param movieName
      * @param year The year of the movie. If no year is known, specify null
@@ -229,7 +234,7 @@ public final class MovieMeterPluginSession {
             films = (Object[]) client.execute("film.search", params);
             increaseCounter();
             if (films != null && films.length > 0) {
-                LOG.debug(LOG_MESSAGE + "Searching for " + movieName + " returned " + films.length + " results");
+                LOG.debug("Searching for {} returned {} results", movieName, films.length);
 
                 if (StringTools.isValidString(year)) {
                     for (Object film1 : films) {
@@ -251,8 +256,8 @@ public final class MovieMeterPluginSession {
     }
 
     /**
-     * Searches www.moviemeter.nl for the movieName and matches the year. If there is no match on year, the first result
-     * is returned
+     * Searches www.moviemeter.nl for the movieName and matches the year. If
+     * there is no match on year, the first result is returned
      *
      * @param movieName
      * @param year
@@ -272,7 +277,8 @@ public final class MovieMeterPluginSession {
     }
 
     /**
-     * Given the moviemeterId this returns the detailed result of www.moviemeter.nl
+     * Given the moviemeterId this returns the detailed result of
+     * www.moviemeter.nl
      *
      * @param moviemeterId
      * @return the detailed result as a HashMap
@@ -321,7 +327,7 @@ public final class MovieMeterPluginSession {
 
             return true;
         } catch (XmlRpcException error) {
-            LOG.debug(LOG_MESSAGE + "" + error.getMessage());
+            LOG.debug("}{}", error.getMessage());
             return false;
         } catch (MalformedURLException error) {
             LOG.error(SystemTools.getStackTrace(error));
@@ -345,8 +351,8 @@ public final class MovieMeterPluginSession {
             fout = new FileOutputStream(SESSION_FILENAME);
             ps = new PrintStream(fout);
             ps.println(getKey() + "," + getTimestamp() + "," + getCounter());
-        } catch (FileNotFoundException ignore) {
-            LOG.debug(LOG_MESSAGE + "" + ignore.getMessage());
+        } catch (FileNotFoundException error) {
+            LOG.debug("}{}", error.getMessage());
         } finally {
             if (ps != null) {
                 ps.close();

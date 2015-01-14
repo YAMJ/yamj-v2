@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 public final class SubtitleTools {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubtitleTools.class);
-    private static final String LOG_MESSAGE = "SubtitleTools: ";
     private static final String SPACE_SLASH_SPACE = " / ";
     private static final String SPLIT_PATTERN = "\\||,|/";
     private static final String YES = "YES";
@@ -52,7 +51,7 @@ public final class SubtitleTools {
      * @return
      */
     private static List<String> populateSkippedSubtitles() {
-        List<String> skipped = new ArrayList<String>();
+        List<String> skipped = new ArrayList<>();
         for (String type : PropertiesUtil.getProperty("mjb.subtitle.skip", "").split(",")) {
             String determined = MovieFilenameScanner.determineLanguage(type.trim());
             if (StringTools.isValidString(determined)) {
@@ -63,10 +62,11 @@ public final class SubtitleTools {
     }
 
     /**
-     * Set subtitles in the movie. Note: overrides the actual subtitles in movie.
+     * Set subtitles in the movie. Note: overrides the actual subtitles in
+     * movie.
      *
      * @param movie
-     * @param parsedSubtitles
+     * @param subtitles
      */
     public static void setMovieSubtitles(Movie movie, Collection<String> subtitles) {
         if (!subtitles.isEmpty()) {
@@ -95,7 +95,7 @@ public final class SubtitleTools {
         String newSubtitles = addMovieSubtitle(movie.getSubtitles(), subtitle);
         movie.setSubtitles(newSubtitles);
     }
-    
+
     /**
      * Adds a new subtitle to the actual list of subtitles.
      *
@@ -115,7 +115,7 @@ public final class SubtitleTools {
                 // Overwrite existing sub titles
                 newMovieSubtitles = infoLanguage;
             } else if (YES.equalsIgnoreCase(newSubtitle)) {
-                LOG.trace(LOG_MESSAGE + "Subtitles already exist");
+                LOG.trace("Subtitles already exist");
                 // Nothing to change, cause there are already valid subtitle languages present
             } else if (YES.equalsIgnoreCase(actualSubtitles)) {
                 // override with subtitle language
@@ -137,7 +137,7 @@ public final class SubtitleTools {
 
         boolean skipped = SUBTITLE_SKIPPED.contains(language.toUpperCase());
         if (skipped) {
-            LOG.debug(LOG_MESSAGE + "Skipping subtitle '" + language + "'");
+            LOG.debug("Skipping subtitle '{}'", language);
         }
         return skipped;
     }

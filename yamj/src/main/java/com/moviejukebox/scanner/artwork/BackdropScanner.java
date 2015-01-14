@@ -36,8 +36,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.slf4j.Logger;
 import org.apache.sanselan.ImageReadException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -49,8 +49,7 @@ import org.slf4j.LoggerFactory;
 public final class BackdropScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(BackdropScanner.class);
-    private static final String LOG_MESSAGE = "BackdropScanner: ";
-    protected static final List<String> EXT = new ArrayList<String>();
+    protected static final List<String> EXT = new ArrayList<>();
     protected static final boolean BACKDROP_OVERWRITE = PropertiesUtil.getBooleanProperty("mjb.forceBackdropOverwrite", Boolean.FALSE);
     protected static List<String> backdropImageName;
     protected static String skinHome = SkinProperties.getSkinHome();
@@ -94,7 +93,7 @@ public final class BackdropScanner {
         boolean foundLocalBackdrop = false;
 
         // Try searching the fileCache for the filename.
-        File localBackdropFile = FileTools.findFilenameInCache(localBackdropBaseFilename + BACKDROP_TOKEN, EXT, jukebox, LOG_MESSAGE, Boolean.TRUE);
+        File localBackdropFile = FileTools.findFilenameInCache(localBackdropBaseFilename + BACKDROP_TOKEN, EXT, jukebox, Boolean.TRUE);
         if (localBackdropFile != null) {
             foundLocalBackdrop = true;
             person.setBackdropFilename();
@@ -105,7 +104,8 @@ public final class BackdropScanner {
     }
 
     /**
-     * Download the backdrop from the URL. Initially this is populated from TheTVDB plugin
+     * Download the backdrop from the URL. Initially this is populated from
+     * TheTVDB plugin
      *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
@@ -128,7 +128,7 @@ public final class BackdropScanner {
             // Do not overwrite existing backdrop unless ForceBackdropOverwrite = true
             if (BACKDROP_OVERWRITE || person.isDirtyBackdrop() || (!backdropFile.exists() && !tmpDestFile.exists())) {
                 try {
-                    LOG.debug(LOG_MESSAGE + "Downloading backdrop for " + person.getName() + " to " + tmpDestFileName + " [calling plugin]");
+                    LOG.debug("Downloading backdrop for {} to {} [calling plugin]", person.getName(), tmpDestFileName);
 
                     // Download the backdrop using the proxy save downloadImage
                     FileTools.downloadImage(tmpDestFile, person.getBackdropURL());
@@ -136,20 +136,20 @@ public final class BackdropScanner {
 
                     if (backdropImage != null) {
                         GraphicTools.saveImageToDisk(backdropImage, tmpDestFileName);
-                        LOG.debug(LOG_MESSAGE + "Downloaded backdrop for " + person.getBackdropURL());
+                        LOG.debug("Downloaded backdrop for {}", person.getBackdropURL());
                     } else {
                         person.setBackdropFilename(Movie.UNKNOWN);
                         person.setBackdropURL(Movie.UNKNOWN);
                     }
                 } catch (IOException ex) {
-                    LOG.debug(LOG_MESSAGE + "Failed to download/process backdrop: " + person.getBackdropURL() + ", error: " + ex.getMessage());
+                    LOG.debug("Failed to download/process backdrop: {}, error: {}", person.getBackdropURL(), ex.getMessage());
                     person.setBackdropURL(Movie.UNKNOWN);
                 } catch (ImageReadException ex) {
-                    LOG.debug(LOG_MESSAGE + "Failed to process backdrop: " + person.getBackdropURL() + ", error: " + ex.getMessage());
+                    LOG.debug("Failed to process backdrop: {}, error: {}", person.getBackdropURL(), ex.getMessage());
                     person.setBackdropURL(Movie.UNKNOWN);
                 }
             } else {
-                LOG.debug(LOG_MESSAGE + "Backdrop exists for " + person.getName());
+                LOG.debug("Backdrop exists for {}", person.getName());
             }
         } else if ((BACKDROP_OVERWRITE || (!backdropFile.exists() && !tmpDestFile.exists()))) {
             person.clearBackdropFilename();

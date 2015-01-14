@@ -38,7 +38,6 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IT
     private WebBrowser webBrowser;
     private FilmwebPlugin filmwebPlugin;
     private static final Logger LOG = LoggerFactory.getLogger(FilmwebPosterPlugin.class);
-    private static final String LOG_MESSAGE = "FilmwebPosterPlugin:";
 
     public FilmwebPosterPlugin() {
         super();
@@ -54,7 +53,7 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IT
             // first request to filmweb site to skip welcome screen with ad banner
             webBrowser.request("http://www.filmweb.pl");
         } catch (IOException ex) {
-            LOG.error("{}Error: {}", LOG_MESSAGE, ex.getMessage());
+            LOG.error("Error: {}", ex.getMessage());
             LOG.error(SystemTools.getStackTrace(ex));
         }
     }
@@ -72,7 +71,7 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IT
             xml = webBrowser.request(id);
             posterURL = HTMLTools.extractTag(xml, "posterLightbox", 3, "\"");
         } catch (Exception ex) {
-            LOG.error("{}Failed retreiving filmweb poster for movie: {}", LOG_MESSAGE, id);
+            LOG.error("Failed retreiving filmweb poster for movie: {}", id);
             LOG.error(SystemTools.getStackTrace(ex));
         }
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {

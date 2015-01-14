@@ -58,26 +58,26 @@ public class MovieDirectoryScanner {
     private static final Logger LOG = LoggerFactory.getLogger(MovieDirectoryScanner.class);
     private static int dirCount = 1;
     private static int fileCount = 0;
-    private static Pattern patternRarPart = Pattern.compile("\\.part(\\d+)\\.rar");
+    private static final Pattern PATTERN_RAR_PART = Pattern.compile("\\.part(\\d+)\\.rar");
 
     private int mediaLibraryRootPathIndex; // always includes path delimiter
-    private final Set<String> supportedExtensions = new HashSet<String>();
-    private String thumbnailsFormat;
-    private String postersFormat;
-    private String posterToken;
-    private String thumbnailToken;
-    private String bannersFormat;
-    private String bannerToken;
-    private String wideBannerToken;
-    private String opensubtitles;
-    private int hashpathdepth;
-    private Boolean excludeFilesWithoutExternalSubtitles;
-    private Boolean excludeMultiPartBluRay;
-    private Boolean playFullBluRayDisk;
-    private Boolean nmjCompliant;
+    private final Set<String> supportedExtensions = new HashSet<>();
+    private final String thumbnailsFormat;
+    private final String postersFormat;
+    private final String posterToken;
+    private final String thumbnailToken;
+    private final String bannersFormat;
+    private final String bannerToken;
+    private final String wideBannerToken;
+    private final String opensubtitles;
+    private final int hashpathdepth;
+    private final Boolean excludeFilesWithoutExternalSubtitles;
+    private final Boolean excludeMultiPartBluRay;
+    private final Boolean playFullBluRayDisk;
+    private final Boolean nmjCompliant;
 
     // BD rip infos Scanner
-    private BDRipScanner localBDRipScanner;
+    private final BDRipScanner localBDRipScanner;
 
     // Archived virtual directories (f.ex. rar, zip, tar.gz etc.)
     private IArchiveScanner archiveScanners[];
@@ -249,7 +249,7 @@ public class MovieDirectoryScanner {
 
                 excluded = excluded.replace("/", File.separator);
                 excluded = excluded.replace("\\", File.separator);
-                if (relativeFileNameLower.indexOf(excluded.toLowerCase()) >= 0) {
+                if (relativeFileNameLower.contains(excluded.toLowerCase())) {
                     // Don't print a message for the exclusion of Jukebox files
                     if (!relativeFileNameLower.contains(jukeboxName)) {
                         LOG.debug((isDirectory ? "Directory '" : "File '") + relativeFilename + "' excluded.");
@@ -261,7 +261,7 @@ public class MovieDirectoryScanner {
 
         // Handle special case of RARs. If ".rar", and it is ".partXXX.rar"
         // exclude all NON-"part001.rar" files.
-        Matcher m = patternRarPart.matcher(relativeFileNameLower);
+        Matcher m = PATTERN_RAR_PART.matcher(relativeFileNameLower);
 
         if (m.find() && (m.groupCount() == 1)) {
             if (Integer.parseInt(m.group(1)) != 1) {

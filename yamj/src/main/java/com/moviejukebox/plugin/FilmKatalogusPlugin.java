@@ -37,6 +37,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -51,7 +52,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Film Katalogus Plugin for Hungarian language
  *
- * Contains code for an alternate plugin for fetching information on movies in Hungarian
+ * Contains code for an alternate plugin for fetching information on movies in
+ * Hungarian
  *
  * @author pbando12@gmail.com
  *
@@ -59,11 +61,10 @@ import org.slf4j.LoggerFactory;
 public class FilmKatalogusPlugin extends ImdbPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(FilmKatalogusPlugin.class);
-    private static final String LOG_MESSAGE = "FilmKatalogusPlugin: ";
     public static final String FILMKAT_PLUGIN_ID = "filmkatalogus";
-    private TheTvDBPlugin tvdb;
-    private static String mjbProxyHost = PropertiesUtil.getProperty("mjb.ProxyHost");
-    private static String mjbProxyPort = PropertiesUtil.getProperty("mjb.ProxyPort");
+    private final TheTvDBPlugin tvdb;
+    private static final String mjbProxyHost = PropertiesUtil.getProperty("mjb.ProxyHost");
+    private static final String mjbProxyPort = PropertiesUtil.getProperty("mjb.ProxyPort");
 
     public FilmKatalogusPlugin() {
         super(); // use IMDB as basis
@@ -86,7 +87,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
 
         // check if title or plot should be retrieved
         if (OverrideTools.checkOneOverwrite(mediaFile, FILMKAT_PLUGIN_ID, OverrideFlag.TITLE, OverrideFlag.PLOT)) {
-            LOG.info(LOG_MESSAGE + "Id found in nfo = " + mediaFile.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
+            LOG.info("Id found in nfo = {}", mediaFile.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
             getHunPlot(mediaFile);
         }
 
@@ -100,7 +101,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
 
             if (StringTools.isNotValidString(movie.getId(FILMKAT_PLUGIN_ID))) {
 
-                LOG.debug(LOG_MESSAGE + "Movie title for filmkatalogus search = " + movie.getTitle());
+                LOG.debug("Movie title for filmkatalogus search = {}", movie.getTitle());
                 HttpClient httpClient = new DefaultHttpClient();
                 //httpClient.getParams().setBooleanParameter("http.protocol.expect-continue", false);
                 httpClient.getParams().setParameter("http.useragent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)"); //User-Agent header should be overwrittem with somehting Apache is not accepted by filmkatalogus.hu
@@ -112,7 +113,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
 
                 HttpPost httppost = new HttpPost("http://www.filmkatalogus.hu/kereses");
 
-                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                List<NameValuePair> nameValuePairs = new ArrayList<>();
                 nameValuePairs.add(new BasicNameValuePair("gyorskeres", "0"));
                 nameValuePairs.add(new BasicNameValuePair("keres0", "1"));
                 nameValuePairs.add(new BasicNameValuePair("szo0", movie.getTitle()));
@@ -135,7 +136,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                     switch (response.getStatusLine().getStatusCode()) {
                         case 302:
                             filmKatURL = filmKatURL.concat(response.getHeaders("location")[0].getValue());
-                            LOG.debug(LOG_MESSAGE + "FilmkatalogusURL = " + filmKatURL);
+                            LOG.debug("FilmkatalogusURL = {}", filmKatURL);
                             break;
 
                         case 200:
@@ -152,7 +153,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                                 int endIndex = xml.indexOf("TITLE", beginIndex);
                                 filmKatURL = "http://filmkatalogus.hu";
                                 filmKatURL = filmKatURL.concat(xml.substring((beginIndex + 6), endIndex - 2));
-                                LOG.debug(LOG_MESSAGE + "FilmkatalogusURL = " + filmKatURL);
+                                LOG.debug("FilmkatalogusURL = {}", filmKatURL);
                             } else {
                                 return;
                             }
@@ -175,7 +176,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             } else {
                 filmKatURL = "http://filmkatalogus.hu/f";
                 filmKatURL = filmKatURL.concat(movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
-                LOG.debug(LOG_MESSAGE + "FilmkatalogusURL = " + filmKatURL);
+                LOG.debug("FilmkatalogusURL = {}", filmKatURL);
             }
 
             String xml = webBrowser.request(filmKatURL);
@@ -186,7 +187,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 if (OverrideTools.checkOverwriteTitle(movie, FILMKAT_PLUGIN_ID)) {
                     int endIndex = xml.indexOf("</H1>", beginIndex);
                     movie.setTitle(xml.substring((beginIndex + 4), endIndex), FILMKAT_PLUGIN_ID);
-                    LOG.trace(LOG_MESSAGE + movie.getTitle());
+                    LOG.trace("Title: {}", movie.getTitle());
                 }
 
                 // PLOT
@@ -196,12 +197,12 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                         int endIndex = xml.indexOf("</DIV>", beginIndex);
                         String plot = xml.substring((beginIndex + 19), endIndex);
                         movie.setPlot(plot, FILMKAT_PLUGIN_ID);
-                        LOG.trace(LOG_MESSAGE + movie.getPlot());
+                        LOG.trace("Plot: {}", movie.getPlot());
                     }
                 }
             }
-        } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving information for " + movie.getTitle());
+        } catch (NumberFormatException | ParseException | IOException error) {
+            LOG.error("Failed retreiving information for {}", movie.getTitle());
             LOG.error(SystemTools.getStackTrace(error));
         }
     }
@@ -217,7 +218,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             if (beginIndex != -1) {
                 StringTokenizer filmKatID = new StringTokenizer(nfo.substring(beginIndex + 3), "/ \n,:!&é\"'(--è_çà)=$<>");
                 movie.setId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID, filmKatID.nextToken());
-                LOG.debug(LOG_MESSAGE + "ID found in NFO = " + movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
+                LOG.debug("ID found in NFO = {}", movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
                 result = true;
             }
         }

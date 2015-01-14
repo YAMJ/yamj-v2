@@ -75,7 +75,6 @@ import org.xml.sax.SAXParseException;
 public final class MovieNFOReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieNFOReader.class);
-    private static final String LOG_MESSAGE = "MovieNFOReader: ";
     /**
      * Node Type: Movie
      */
@@ -95,8 +94,7 @@ public final class MovieNFOReader {
     // Other properties
     private static final String XML_START = "<";
     private static final String XML_END = "</";
-    private static final String TEXT_FAILED = "Failed parsing NFO file: ";
-    private static final String TEXT_FIXIT = ". Does not seem to be an XML format. Error: ";
+    private static final String ERROR_FIXIT = "Failed parsing NFO file: {}. Does not seem to be an XML format. Error: {}";
     private static final boolean SKIP_NFO_URL = PropertiesUtil.getBooleanProperty("filename.nfo.skipUrl", Boolean.TRUE);
     private static final boolean SKIP_NFO_TRAILER = PropertiesUtil.getBooleanProperty("filename.nfo.skipTrailer", Boolean.FALSE);
     private static final boolean SKIP_NFO_CAST = PropertiesUtil.getBooleanProperty("filename.nfo.skipCast", Boolean.FALSE);
@@ -175,13 +173,13 @@ public final class MovieNFOReader {
 
         // If the XML wasn't found or parsed correctly, then fall back to the old method
         if (parsedNfo) {
-            LOG.debug(LOG_MESSAGE + "Successfully scanned " + nfoFile.getName() + " as XML format");
+            LOG.debug("Successfully scanned {} as XML format", nfoFile.getName());
         } else {
             parsedNfo = MovieNFOReader.readTextNfo(nfoText, movie);
             if (parsedNfo) {
-                LOG.debug(LOG_MESSAGE + "Successfully scanned " + nfoFile.getName() + " as text format");
+                LOG.debug("Successfully scanned {} as text format", nfoFile.getName());
             } else {
-                LOG.debug(LOG_MESSAGE + "Failed to find any information in " + nfoFile.getName());
+                LOG.debug("Failed to find any information in {}", nfoFile.getName());
             }
         }
 
@@ -236,7 +234,7 @@ public final class MovieNFOReader {
     public static boolean readTextNfo(String nfo, Movie movie) {
         boolean foundInfo = DatabasePluginController.scanNFO(nfo, movie);
 
-        LOG.debug(LOG_MESSAGE + "Scanning NFO for Poster URL");
+        LOG.debug("Scanning NFO for Poster URL");
         int urlStartIndex = 0;
         while (urlStartIndex >= 0 && urlStartIndex < nfo.length()) {
             int currentUrlStartIndex = nfo.indexOf("http://", urlStartIndex);
@@ -262,14 +260,14 @@ public final class MovieNFOReader {
                         if (foundUrl.contains(" ") || foundUrl.contains("*")) {
                             urlStartIndex = currentUrlStartIndex + 3;
                         } else {
-                            LOG.debug(LOG_MESSAGE + "Poster URL found in nfo = " + foundUrl);
+                            LOG.debug("Poster URL found in nfo = {}", foundUrl);
                             movie.setPosterURL(nfo.substring(currentUrlStartIndex, currentUrlEndIndex + 3));
                             urlStartIndex = -1;
                             movie.setDirty(DirtyFlag.POSTER, Boolean.TRUE);
                             foundInfo = Boolean.TRUE;
                         }
                     } else {
-                        LOG.debug(LOG_MESSAGE + "Poster URL ignored in NFO because it's a fanart URL");
+                        LOG.debug("Poster URL ignored in NFO because it's a fanart URL");
                         // Search for the URL again
                         urlStartIndex = currentUrlStartIndex + 3;
                     }
@@ -310,19 +308,16 @@ public final class MovieNFOReader {
                 xmlDoc = DOMHelper.getDocFromFile(nfoFile);
             }
         } catch (SAXParseException ex) {
-            LOG.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
+            LOG.debug(ERROR_FIXIT, filename, ex.getMessage());
             return Boolean.FALSE;
         } catch (MalformedURLException ex) {
-            LOG.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
+            LOG.debug(ERROR_FIXIT, filename, ex.getMessage());
             return Boolean.FALSE;
         } catch (IOException ex) {
-            LOG.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
+            LOG.debug(ERROR_FIXIT, filename, ex.getMessage());
             return Boolean.FALSE;
-        } catch (ParserConfigurationException ex) {
-            LOG.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
-            return Boolean.FALSE;
-        } catch (SAXException ex) {
-            LOG.debug(LOG_MESSAGE + TEXT_FAILED + filename + TEXT_FIXIT + ex.getMessage());
+        } catch (ParserConfigurationException | SAXException ex) {
+            LOG.debug(ERROR_FIXIT, filename, ex.getMessage());
             return Boolean.FALSE;
         }
 
@@ -364,7 +359,7 @@ public final class MovieNFOReader {
                 if (OverrideTools.checkOverwriteYear(movie, NFO_PLUGIN_ID)) {
                     String tempYear = DOMHelper.getValueFromElement(eCommon, "year");
                     if (!parseYear(tempYear, movie)) {
-                        LOG.warn(LOG_MESSAGE + "Invalid year: '" + tempYear + "' in " + nfoFilename);
+                        LOG.warn("Invalid year: '{}' in {}", tempYear, nfoFilename);
                     }
                 }
 
@@ -417,7 +412,7 @@ public final class MovieNFOReader {
                 }
 
                 if (OverrideTools.checkOverwriteGenres(movie, NFO_PLUGIN_ID)) {
-                    List<String> newGenres = new ArrayList<String>();
+                    List<String> newGenres = new ArrayList<>();
                     parseGenres(eCommon.getElementsByTagName("genre"), newGenres);
                     movie.setGenres(newGenres, NFO_PLUGIN_ID);
                 }
@@ -465,7 +460,7 @@ public final class MovieNFOReader {
                 if (!SKIP_NFO_CREW) {
                     parseDirectors(eCommon.getElementsByTagName("director"), movie);
 
-                    List<Node> writerNodes = new ArrayList<Node>();
+                    List<Node> writerNodes = new ArrayList<>();
                     // get writers list
                     NodeList nlWriters = eCommon.getElementsByTagName("writer");
                     if (nlWriters != null && nlWriters.getLength() > 0) {
@@ -611,7 +606,7 @@ public final class MovieNFOReader {
 
         // Update the language
         if (OverrideTools.checkOverwriteLanguage(movie, NFO_PLUGIN_ID)) {
-            Set<String> langs = new HashSet<String>();
+            Set<String> langs = new HashSet<>();
             // Process the languages and remove any duplicates
             for (Codec codec : movie.getCodecs()) {
                 if (codec.getCodecType() == CodecType.AUDIO) {
@@ -639,7 +634,7 @@ public final class MovieNFOReader {
         }
 
         // Subtitles
-        List<String> subtitles = new ArrayList<String>();
+        List<String> subtitles = new ArrayList<>();
         nlStreams = eStreamDetails.getElementsByTagName("subtitle");
         for (int looper = 0; looper < nlStreams.getLength(); looper++) {
             nStreams = nlStreams.item(looper);
@@ -728,7 +723,7 @@ public final class MovieNFOReader {
     public static void movieDate(Movie movie, final String dateString) {
         String parseDate = StringUtils.normalizeSpace(dateString);
 
-        if(StringTools.isNotValidString(parseDate)) {
+        if (StringTools.isNotValidString(parseDate)) {
             // No date, so return
             return;
         }
@@ -738,17 +733,14 @@ public final class MovieNFOReader {
 
         try {
             parsedDate = DateTimeTools.parseStringToDate(parseDate);
-        } catch (IllegalArgumentException ex) {
-            LOG.warn(LOG_MESSAGE + SystemTools.getStackTrace(ex));
-            failedToParse = true;
-        } catch (ParseException ex) {
-            LOG.warn(LOG_MESSAGE + SystemTools.getStackTrace(ex));
+        } catch (IllegalArgumentException | ParseException ex) {
+            LOG.warn(SystemTools.getStackTrace(ex));
             failedToParse = true;
         }
 
         if (failedToParse) {
-            LOG.warn(LOG_MESSAGE + "Failed parsing NFO file for movie: " + movie.getBaseFilename() + ". Please fix or remove it.");
-            LOG.warn(LOG_MESSAGE + "premiered or releasedate does not contain a valid date: " + parseDate);
+            LOG.warn("Failed parsing NFO file for movie: {}. Please fix or remove it.", movie.getBaseFilename());
+            LOG.warn("premiered or releasedate does not contain a valid date: {}", parseDate);
 
             if (OverrideTools.checkOverwriteReleaseDate(movie, NFO_PLUGIN_ID)) {
                 movie.setReleaseDate(parseDate, NFO_PLUGIN_ID);
@@ -767,9 +759,9 @@ public final class MovieNFOReader {
                     movie.setYear(DateTimeTools.convertDateToString(parsedDate, "yyyy"), NFO_PLUGIN_ID);
                 }
             } catch (Exception ex) {
-                LOG.warn(LOG_MESSAGE + "Failed parsing NFO file for movie: " + movie.getBaseFilename() + ". Please fix or remove it.");
-                LOG.warn(LOG_MESSAGE + "premiered or releasedate does not contain a valid date: " + parseDate);
-                LOG.warn(LOG_MESSAGE + SystemTools.getStackTrace(ex));
+                LOG.warn("Failed parsing NFO file for movie: {}. Please fix or remove it.", movie.getBaseFilename());
+                LOG.warn("premiered or releasedate does not contain a valid date: {}", parseDate);
+                LOG.warn(SystemTools.getStackTrace(ex));
 
                 if (OverrideTools.checkOverwriteReleaseDate(movie, NFO_PLUGIN_ID)) {
                     movie.setReleaseDate(parseDate, NFO_PLUGIN_ID);
@@ -932,7 +924,7 @@ public final class MovieNFOReader {
             return;
         }
 
-        Set<String> newWriters = new LinkedHashSet<String>();
+        Set<String> newWriters = new LinkedHashSet<>();
         for (Node nWriter : nlWriters) {
             NodeList nlChilds = ((Element) nWriter).getChildNodes();
             Node nChilds;
@@ -972,7 +964,7 @@ public final class MovieNFOReader {
             return;
         }
 
-        List<String> newDirectors = new ArrayList<String>();
+        List<String> newDirectors = new ArrayList<>();
         Node nElements;
         for (int looper = 0; looper < nlElements.getLength(); looper++) {
             nElements = nlElements.item(looper);
@@ -1137,21 +1129,16 @@ public final class MovieNFOReader {
             // Rating isn't valid, so skip it
             return -1;
         } else {
-            try {
-                float rating = Float.parseFloat(ratingString);
-                if (rating > 0.0f) {
-                    if (rating <= 10.0f) {
-                        return Math.round(rating * 10f);
-                    } else {
-                        return Math.round(rating * 1f);
-                    }
+            float rating = NumberUtils.toFloat(ratingString, 0.0f);
+            if (rating > 0.0f) {
+                if (rating <= 10.0f) {
+                    return Math.round(rating * 10f);
                 } else {
-                    // Negative or zero, so return zero
-                    return 0;
+                    return Math.round(rating * 1f);
                 }
-            } catch (NumberFormatException ex) {
-                LOG.trace(LOG_MESSAGE + "Failed to transform rating " + ratingString);
-                return -1;
+            } else {
+                // Negative or zero, so return zero
+                return 0;
             }
         }
     }
@@ -1180,12 +1167,12 @@ public final class MovieNFOReader {
                     }
                 }
                 movie.setId(movieDb, eId.getTextContent());
-                LOG.debug(LOG_MESSAGE + "Found " + movieDb + " ID: " + eId.getTextContent());
+                LOG.debug("Found {} ID: {}", movieDb, eId.getTextContent());
 
                 // Process the TMDB id
                 movieDb = eId.getAttribute("TMDB");
                 if (StringTools.isValidString(movieDb)) {
-                    LOG.debug(LOG_MESSAGE + "Found TheMovieDb ID: " + movieDb);
+                    LOG.debug("Found TheMovieDb ID: {}", movieDb);
                     movie.setId(TheMovieDbPlugin.TMDB_PLUGIN_ID, movieDb);
                 }
             }

@@ -44,8 +44,7 @@ import org.slf4j.LoggerFactory;
 public class FilmwebPlugin extends ImdbPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(FilmwebPlugin.class);
-    private static final String LOG_MESSAGE = "FilmwebPlugin: ";
-    private static final String LOG_ERROR = "{}Error: {}";
+    private static final String LOG_ERROR = "Error: {}";
     public static final String FILMWEB_PLUGIN_ID = "filmweb";
     private static final Pattern NFO_PATTERN = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
     private SearchEngineTools searchEngineTools;
@@ -72,7 +71,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             // first request to filmweb site to skip welcome screen with ad banner
             webBrowser.request("http://www.filmweb.pl");
         } catch (IOException error) {
-            LOG.error(LOG_ERROR, LOG_MESSAGE, error.getMessage(), error);
+            LOG.error(LOG_ERROR, error.getMessage(), error);
         }
     }
 
@@ -114,7 +113,7 @@ public class FilmwebPlugin extends ImdbPlugin {
                 }
             }
         } catch (IOException error) {
-            LOG.error("{}Failed retrieving Filmweb url for title : {}", LOG_MESSAGE, title);
+            LOG.error("Failed retrieving Filmweb url for title : {}", title);
             LOG.error(SystemTools.getStackTrace(error));
         }
         return Movie.UNKNOWN;
@@ -145,7 +144,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         try {
             xmlPage = webBrowser.request(filmwebUrl);
         } catch (IOException error) {
-            LOG.error("{}Failed retreiving filmweb informations for URL: {}", LOG_MESSAGE, filmwebUrl);
+            LOG.error("Failed retreiving filmweb informations for URL: {}", filmwebUrl);
             LOG.error(SystemTools.getStackTrace(error));
         }
         return xmlPage;
@@ -220,7 +219,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         }
 
         if (OverrideTools.checkOverwriteGenres(movie, FILMWEB_PLUGIN_ID)) {
-            List<String> newGenres = new ArrayList<String>();
+            List<String> newGenres = new ArrayList<>();
             for (String genre : HTMLTools.extractTags(xml, "gatunek:", "produkcja:", "<a ", "</a>")) {
                 newGenres.add(Library.getIndexingGenre(genre));
             }
@@ -290,7 +289,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         boolean overridePeople = OverrideTools.checkOverwritePeopleActors(movie, FILMWEB_PLUGIN_ID);
 
         if (overrideNormal || overridePeople) {
-            List<String> actors = new ArrayList<String>();
+            List<String> actors = new ArrayList<>();
 
             List<String> tags = HTMLTools.extractHtmlTags(xmlCast, "<table class=filmCast>", "</table>", "<tr id=", "</tr>");
             for (String tag : tags) {
@@ -322,7 +321,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         boolean overrideNormal = OverrideTools.checkOverwriteDirectors(movie, FILMWEB_PLUGIN_ID);
         boolean overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, FILMWEB_PLUGIN_ID);
         if (overrideNormal || overridePeople) {
-            List<String> directors = new ArrayList<String>();
+            List<String> directors = new ArrayList<>();
 
             List<String> tags = HTMLTools.extractHtmlTags(xmlCrew, "<h2 class=\"hdr hdr-big\">reżyser", "</table>", "<tr id=", "</tr>");
             for (String tag : tags) {
@@ -343,7 +342,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         overrideNormal = OverrideTools.checkOverwriteWriters(movie, FILMWEB_PLUGIN_ID);
         overridePeople = OverrideTools.checkOverwritePeopleWriters(movie, FILMWEB_PLUGIN_ID);
         if (overrideNormal || overridePeople) {
-            List<String> writers = new ArrayList<String>();
+            List<String> writers = new ArrayList<>();
 
             List<String> tags = HTMLTools.extractHtmlTags(xmlCrew, "<h2 class=\"hdr hdr-big\">scenariusz", "</table>", "<tr id=", "</tr>");
             for (String tag : tags) {
@@ -413,8 +412,8 @@ public class FilmwebPlugin extends ImdbPlugin {
                 super.scanTVShowTitles(movie);
             }
         } catch (IOException error) {
-            LOG.error("{}Failed retreiving episodes titles for movie : {}", LOG_MESSAGE, movie.getTitle());
-            LOG.error(LOG_ERROR, LOG_MESSAGE, error.getMessage(), error);
+            LOG.error("Failed retreiving episodes titles for movie : {}", movie.getTitle());
+            LOG.error(LOG_ERROR, error.getMessage(), error);
         }
     }
 
@@ -428,19 +427,19 @@ public class FilmwebPlugin extends ImdbPlugin {
             return Boolean.TRUE;
         }
 
-        LOG.debug("{}Scanning NFO for filmweb url", LOG_MESSAGE);
+        LOG.debug("Scanning NFO for filmweb url");
         Matcher m = NFO_PATTERN.matcher(nfo);
         while (m.find()) {
             String url = m.group();
             // Check to see that the URL isn't a picture
             if (!StringUtils.endsWithAny(url, new String[]{".jpg", ".jpeg", ".gif", ".png", ".bmp"})) {
                 movie.setId(FILMWEB_PLUGIN_ID, url);
-                LOG.debug("{}Filmweb url found in NFO = {}", LOG_MESSAGE, url);
+                LOG.debug("Filmweb url found in NFO = {}", url);
                 return Boolean.TRUE;
             }
         }
 
-        LOG.debug("{}No filmweb url found in NFO", LOG_MESSAGE);
+        LOG.debug("No filmweb url found in NFO");
         return Boolean.FALSE;
     }
 }

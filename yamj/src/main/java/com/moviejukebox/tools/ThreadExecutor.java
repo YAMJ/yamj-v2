@@ -45,18 +45,17 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class ThreadExecutor<T> implements ThreadFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(ThreadExecutor.class);
-    private final Collection<Future<T>> values = new ArrayList<Future<T>>(100);
+    private final Collection<Future<T>> values = new ArrayList<>(100);
     private ThreadPoolExecutor pool = null;
     private BlockingQueue<Runnable> queue = null;
     private final int threadsRun, threadsIo, threadsTotal;
     private final boolean ignoreErrors = true;
     private Semaphore runningThreads, ioThreads;
-    private static final Map<String, String> HOST_GROUP = new HashMap<String, String>();
-    private static final Map<String, Semaphore> GROUP_LIMITS = new HashMap<String, Semaphore>();
+    private static final Map<String, String> HOST_GROUP = new HashMap<>();
+    private static final Map<String, Semaphore> GROUP_LIMITS = new HashMap<>();
 
     /**
      * Handle IO slots allocation to avoid throttling / ban on source sites
@@ -72,7 +71,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
         // Default, can be overridden
         GROUP_LIMITS.put(".*", new Semaphore(1));
         String limitsProperty = PropertiesUtil.getProperty("mjb.MaxDownloadSlots", ".*=1");
-        LOG.debug("Using download limits: " + limitsProperty);
+        LOG.debug("Using download limits: {}", limitsProperty);
 
         Pattern semaphorePattern = Pattern.compile(",?\\s*([^=]+)=(\\d+)");
         Matcher semaphoreMatcher = semaphorePattern.matcher(limitsProperty);
@@ -80,19 +79,22 @@ public class ThreadExecutor<T> implements ThreadFactory {
             String group = semaphoreMatcher.group(1);
             try {
                 Pattern.compile(group);
-                LOG.debug(group + "=" + semaphoreMatcher.group(2));
+                LOG.debug("{}={}", group, semaphoreMatcher.group(2));
                 GROUP_LIMITS.put(group, new Semaphore(Integer.parseInt(semaphoreMatcher.group(2))));
             } catch (NumberFormatException error) {
-                LOG.debug("Rule \"" + group + "\" is not valid regexp, ignored");
+                LOG.debug("Rule '{}' is not valid regexp, ignored", group);
             }
         }
     }
 
     /**
-     * Helper class Encapsulates a fixed thread pool ExecutorService Saves futures, used just to catch inner exceptions Usage
-     * patter: - create with thread count and io slots - submit tasks (Callable) - call waitFor; this logs
+     * Helper class Encapsulates a fixed thread pool ExecutorService Saves
+     * futures, used just to catch inner exceptions Usage patter: - create with
+     * thread count and io slots - submit tasks (Callable) - call waitFor; this
+     * logs
      *
-     * - in addition processing threads should call pairs EnterIO, LeaveIO to switch from running to io state
+     * - in addition processing threads should call pairs EnterIO, LeaveIO to
+     * switch from running to io state
      *
      * @author Gabriel Corneanu
      * @param threadsRun
@@ -112,7 +114,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
 
         private final Semaphore sRun, sIo;
         private Semaphore sIotarget;
-        private final Stack<String> hosts = new Stack<String>();
+        private final Stack<String> hosts = new Stack<>();
 
         private ScheduledThread(Runnable r, Semaphore sRun, Semaphore sIo) {
             super(r);
@@ -136,7 +138,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
             if (!hosts.empty()) {
                 //going to the same host is ok
                 if (!host.equals(hosts.peek())) {
-                    LOG.debug("ThreadExecutor: Nested EnterIO(" + host + "); previous(" + hosts.peek() + "); ignored");
+                    LOG.debug("ThreadExecutor: Nested EnterIO({}); previous({}); ignored", host, hosts.peek());
                 }
                 hosts.push(host);
                 return;
@@ -154,7 +156,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
                             }
                         }
                     }
-                    LOG.debug(String.format("IO download host: %s; rule: %s", host, semaphoreGroup));
+                    LOG.debug("IO download host: {}; rule: {}", host, semaphoreGroup);
                     HOST_GROUP.put(host, semaphoreGroup);
                 }
             }
@@ -180,7 +182,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
             String host = hosts.pop();
             if (!hosts.empty()) {
                 if (!host.equals(hosts.peek())) {
-                    LOG.debug("Nested LeaveIO(" + host + "); previous(" + hosts.peek() + "); ignored");
+                    LOG.debug("Nested LeaveIO({}); previous({}); ignored", host, hosts.peek());
                 }
                 return;
             }
@@ -242,7 +244,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
         //refined: use a fixed queue with some extra space; in relation with submit
         //the size is just an approximation; it has no real connection to thread count
         //make it reasonable sized to avoid waiting in submit
-        queue = new ArrayBlockingQueue<Runnable>(100);
+        queue = new ArrayBlockingQueue<>(100);
 //        queue = new LinkedBlockingQueue<Runnable>();
         //allow more threads, they are managed by semaphores
         pool = new ThreadPoolExecutor(threadsRun, 2 * threadsTotal,
@@ -268,15 +270,15 @@ public class ThreadExecutor<T> implements ThreadFactory {
 
     public List<T> waitForValues() throws Throwable {
         pool.shutdown();
-        List<T> v = new ArrayList<T>(values.size());
+        List<T> v = new ArrayList<>(values.size());
         for (Future<T> f : values) {
             try {
                 v.add(f.get());
-            } catch (ExecutionException e) {
+            } catch (ExecutionException ex) {
                 if (ignoreErrors) {
-                    LOG.info(SystemTools.getStackTrace(e.getCause()));
+                    LOG.info(SystemTools.getStackTrace(ex));
                 } else {
-                    throw e.getCause();
+                    throw ex.getCause();
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -290,7 +292,7 @@ public class ThreadExecutor<T> implements ThreadFactory {
         waitForValues();
         int dif = threadsIo - ioThreads.availablePermits();
         if (dif != 0) {
-            LOG.error("ThreadExecutor: Unfinished downloading threads detected: " + dif);
+            LOG.error("ThreadExecutor: Unfinished downloading threads detected: {}", dif);
         }
     }
 }

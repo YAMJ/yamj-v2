@@ -51,7 +51,6 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
     public ComingSoonTrailersPlugin() {
         super();
         trailersPluginName = "ComingSoonTrailers";
-        logMessage = "ComingSoonTrailersPlugin: ";
 
         trailerMaxResolution = PropertiesUtil.getProperty("comingsoontrailers.maxResolution", RESOLUTION_1080P);
         trailerPreferredFormat = PropertiesUtil.getProperty("comingsoontrailers.preferredFormat", "wmv,mov");
@@ -69,11 +68,11 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
         String trailerUrl = getTrailerUrl(movie);
 
         if (StringTools.isNotValidString(trailerUrl)) {
-            LOG.debug("{}No trailer found", logMessage);
+            LOG.debug("No trailer found");
             return false;
         }
 
-        LOG.debug("{}Found trailer at URL {}", logMessage, trailerUrl);
+        LOG.debug("Found trailer at URL {}", trailerUrl);
 
         ExtraFile extra = new ExtraFile();
         extra.setTitle("TRAILER-" + trailerLabel);
@@ -104,11 +103,11 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
 
         try {
             String searchUrl = ComingSoonPlugin.COMINGSOON_BASE_URL + VIDEO_URL + ComingSoonPlugin.COMINGSOON_KEY_PARAM + comingSoonId;
-            LOG.debug("{}Searching for trailer at URL {}", logMessage, searchUrl);
+            LOG.debug("Searching for trailer at URL {}", searchUrl);
             String xml = webBrowser.request(searchUrl);
             if (!xml.contains(ComingSoonPlugin.COMINGSOON_SEARCH_URL + ComingSoonPlugin.COMINGSOON_KEY_PARAM + comingSoonId)) {
                 // No link to movie page found. We have been redirected to the general video page
-                LOG.debug("{}No video found for movie {}", logMessage, movie.getTitle());
+                LOG.debug("No video found for movie {}", movie.getTitle());
                 return Movie.UNKNOWN;
             }
 
@@ -127,7 +126,7 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
             }
 
             if (StringTools.isNotValidString(xmlUrl)) {
-                LOG.debug("{}No downloadable trailer found for movie: {}", logMessage, movie.getTitle());
+                LOG.debug("No downloadable trailer found for movie: {}", movie.getTitle());
                 return Movie.UNKNOWN;
             }
 
@@ -136,11 +135,11 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
             if (beginUrl >= 0) {
                 trailerUrl = trailerXml.substring(beginUrl, trailerXml.indexOf('\"', beginUrl));
             } else {
-                LOG.error("{}Cannot find trailer URL in XML. Layout changed?");
+                LOG.error("Cannot find trailer URL in XML. Layout changed?");
             }
 
         } catch (Exception error) {
-            LOG.error("{}Failed retreiving trailer for movie: {}", logMessage, movie.getTitle());
+            LOG.error("Failed retreiving trailer for movie: {}", movie.getTitle());
             LOG.error(SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
         }
@@ -159,7 +158,7 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
         } else if (format.equalsIgnoreCase("wmv")) {
             extension = "wvx";
         } else {
-            LOG.info("{}Unknown trailer format {}", logMessage, format);
+            LOG.info("Unknown trailer format {}", format);
             return Movie.UNKNOWN;
         }
 
@@ -178,7 +177,7 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
         if (indexOfTrailer >= 0) {
             int beginUrl = xml.substring(0, indexOfTrailer).lastIndexOf("http://");
             trailerUrl = xml.substring(beginUrl, xml.indexOf("\"", beginUrl));
-            LOG.debug("{}Found trailer XML URL {}", logMessage, trailerUrl);
+            LOG.debug("Found trailer XML URL {}", trailerUrl);
         }
 
         return trailerUrl;

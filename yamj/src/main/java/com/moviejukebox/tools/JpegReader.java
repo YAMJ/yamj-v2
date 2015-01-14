@@ -38,27 +38,26 @@ import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
 import org.apache.sanselan.common.byteSources.ByteSource;
 import org.apache.sanselan.common.byteSources.ByteSourceFile;
 import org.apache.sanselan.formats.jpeg.JpegImageParser;
 import org.apache.sanselan.formats.jpeg.segments.UnknownSegment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Custom reader to detect the various forms of the JPEG file.
  *
- * Taken from http://stackoverflow.com/questions/3123574/how-to-convert-from-cmyk-to-rgb-in-java-correctly/12132630#12132630
+ * Taken from
+ * http://stackoverflow.com/questions/3123574/how-to-convert-from-cmyk-to-rgb-in-java-correctly/12132630#12132630
  *
  * @author stuart.boston
  */
 public class JpegReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(JpegReader.class);
-    private static final String LOG_MESSAGE = "JpegReader: ";
     public static final int COLOR_TYPE_RGB = 1;
     public static final int COLOR_TYPE_CMYK = 2;
     public static final int COLOR_TYPE_YCCK = 3;
@@ -66,7 +65,8 @@ public class JpegReader {
     private boolean hasAdobeMarker = Boolean.FALSE;
 
     /**
-     * Used to read a JPEG image to a BufferedImage and able to cope with a CYMK colour space image
+     * Used to read a JPEG image to a BufferedImage and able to cope with a CYMK
+     * colour space image
      *
      * @param file
      * @return
@@ -77,13 +77,13 @@ public class JpegReader {
         hasAdobeMarker = Boolean.FALSE;
 
         if (!file.exists()) {
-            LOG.debug(LOG_MESSAGE + "Error reading file, does not exist: " + file.getName());
+            LOG.debug("Error reading file, does not exist: {}", file.getName());
             return null;
         }
 
         ImageInputStream stream = ImageIO.createImageInputStream(file);
         if (stream == null) {
-            LOG.debug(LOG_MESSAGE + "Error reading stream, does not exist: " + file.getName());
+            LOG.debug("Error reading stream, does not exist: {}", file.getName());
             return null;
         }
         Iterator<ImageReader> iter = ImageIO.getImageReaders(stream);
@@ -95,9 +95,7 @@ public class JpegReader {
 
             try {
                 image = reader.read(0);
-            } catch (CMMException ex) {
-                image = readImageCmyk(file, reader);
-            } catch (IIOException ex) {
+            } catch (CMMException | IIOException ex) {
                 image = readImageCmyk(file, reader);
             } finally {
                 reader.dispose();
@@ -137,14 +135,8 @@ public class JpegReader {
             }
 
             image = convertCmykToRgb(raster, profile);
-        } catch (IOException ex) {
-            LOG.warn(LOG_MESSAGE + "Failed to transform image: " + file.getAbsolutePath() + ", error: " + ex.getMessage());
-            image = null;
-        } catch (ImageReadException ex) {
-            LOG.warn(LOG_MESSAGE + "Failed to transform image: " + file.getAbsolutePath() + ", error: " + ex.getMessage());
-            image = null;
-        } catch (CMMException ex) {
-            LOG.warn(LOG_MESSAGE + "Failed to transform image: " + file.getAbsolutePath() + ", error: " + ex.getMessage());
+        } catch (IOException | ImageReadException | CMMException ex) {
+            LOG.warn("Failed to transform image: {}, error: {}", file.getAbsolutePath(), ex.getMessage());
             image = null;
         }
         return image;

@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieCoversPosterPlugin.class);
-    private static final String LOG_MESSAGE = "MovieCoversPosterPlugin: ";
     private WebBrowser webBrowser;
 
     public MovieCoversPosterPlugin() {
@@ -67,7 +66,7 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                 sb.append(URLEncoder.encode(Integer.toString(Integer.parseInt(year) + 1), "iso-8859-1"));
             }
             sb.append("&slow=0&tri=Titre&listes=1");
-            LOG.debug("{}Searching for: {}", LOG_MESSAGE, sb.toString());
+            LOG.debug("Searching for: {}", sb.toString());
 
             String content = webBrowser.request(sb.toString());
 
@@ -134,11 +133,11 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                 }
             }
         } catch (NumberFormatException | IOException ex) {
-            LOG.error("{}Failed retreiving Moviecovers poster URL: {}", LOG_MESSAGE, title);
+            LOG.error("Failed retreiving Moviecovers poster URL: {}", title);
             LOG.error(SystemTools.getStackTrace(ex));
             return Movie.UNKNOWN;
         }
-        LOG.debug("{}Retreiving Moviecovers poster URL: {}", LOG_MESSAGE, returnString);
+        LOG.debug("Retreiving Moviecovers poster URL: {}", returnString);
         return returnString;
     }
 
@@ -152,10 +151,10 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
         String posterURL = Movie.UNKNOWN;
 
         if (id != null && !Movie.UNKNOWN.equalsIgnoreCase(id)) {
-            LOG.debug("{}Movie found on moviecovers.com: {}", LOG_MESSAGE, id);
+            LOG.debug("Movie found on moviecovers.com: {}", id);
             posterURL = "http://www.moviecovers.com/getjpg.html/" + id.replace("+", "%20");
         } else {
-            LOG.debug("{}Unable to find posters for {}", LOG_MESSAGE, id);
+            LOG.debug("Unable to find posters for {}", id);
         }
 
         if (!Movie.UNKNOWN.equalsIgnoreCase(posterURL)) {

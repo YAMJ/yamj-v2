@@ -41,7 +41,6 @@ public final class SkinProperties {
 
     // Logger
     private static final Logger LOG = LoggerFactory.getLogger(SkinProperties.class);
-    private static final String LOG_MESSAGE = "SkinProperties: ";
     // Skin location
     private static final String SKIN_HOME = PropertiesUtil.getProperty("mjb.skin.dir", "./skins/default");
     // Skin version file
@@ -51,7 +50,7 @@ public final class SkinProperties {
     private static String skinVersion = Movie.UNKNOWN;
     private static String skinDate = Movie.UNKNOWN;
     private static long fileDate = -1;
-    private static List<String> skinMessage = new ArrayList<String>();
+    private static List<String> skinMessage = new ArrayList<>();
 
     /**
      * This is a utility class
@@ -68,9 +67,9 @@ public final class SkinProperties {
         File xmlFile = new File(skinVersionPath);
 
         if (xmlFile.exists()) {
-            LOG.debug("{}Scanning file '{}'", LOG_MESSAGE, xmlFile.getAbsolutePath());
+            LOG.debug("Scanning file '{}'", xmlFile.getAbsolutePath());
         } else {
-            LOG.debug("{}{} does not exist, skipping", LOG_MESSAGE, xmlFile.getAbsolutePath());
+            LOG.debug("{} does not exist, skipping", xmlFile.getAbsolutePath());
             return;
         }
 
@@ -82,7 +81,7 @@ public final class SkinProperties {
             setSkinMessage(StringTools.castList(String.class, xmlConfig.getList("message")));
             setFileDate(xmlFile.lastModified());
         } catch (ConfigurationException error) {
-            LOG.error("{}Failed reading version information file '{}'", LOG_MESSAGE, SKIN_VERSION_FILENAME);
+            LOG.error("Failed reading version information file '{}'", SKIN_VERSION_FILENAME);
             LOG.warn(SystemTools.getStackTrace(error));
         }
     }
@@ -105,7 +104,7 @@ public final class SkinProperties {
             }
             LOG.info("");
         } else {
-            LOG.debug("{}No version information available for the skin", LOG_MESSAGE);
+            LOG.debug("No version information available for the skin");
         }
     }
 
@@ -193,7 +192,7 @@ public final class SkinProperties {
         if (skinMessage != null && !skinMessage.isEmpty()) {
             SkinProperties.skinMessage = skinMessage;
         } else {
-            SkinProperties.skinMessage = new ArrayList<String>();
+            SkinProperties.skinMessage = new ArrayList<>();
         }
     }
 

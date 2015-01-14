@@ -40,7 +40,6 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
     private FilmUpITPlugin filmupitPlugin;
 
     private static final Logger LOG = LoggerFactory.getLogger(FilmUpItPosterPlugin.class);
-    private static final String LOG_MESSAGE = "FilmUpItPosterPlugin: ";
 
     public FilmUpItPosterPlugin() {
         super();
@@ -73,10 +72,10 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
             String tmpPosterURL = HTMLTools.extractTag(xml, "\"../loc/", "\"");
             if (StringTools.isValidString(tmpPosterURL)) {
                 posterURL = "http://filmup.leonardo.it/posters/loc/" + tmpPosterURL;
-                LOG.debug("{}Movie PosterURL: {}", LOG_MESSAGE, posterPageUrl);
+                LOG.debug("Movie PosterURL: {}", posterPageUrl);
             }
         } catch (IOException ex) {
-            LOG.error("{}Failed retreiving poster: {}", LOG_MESSAGE, id);
+            LOG.error("Failed retreiving poster: {}", id);
             LOG.error(SystemTools.getStackTrace(ex));
         }
 

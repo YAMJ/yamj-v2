@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 public class WatchedScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(WatchedScanner.class);
-    private static final String LOG_MESSAGE = "Watched Scanner: ";
     private static final Collection<String> EXTENSIONS = Arrays.asList(PropertiesUtil.getProperty("mjb.watchedExtensions", "watched").toLowerCase().split(",;\\|"));
     private static final WatchedWithLocation LOCATION = WatchedWithLocation.fromString(PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo"));
     private static final WatchedWithExtension WITH_EXTENSION = WatchedWithExtension.fromString(PropertiesUtil.getProperty("mjb.watched.withExtension", TRUE));
@@ -56,7 +55,7 @@ public class WatchedScanner {
 
     /**
      * Calculate the watched state of a movie based on the files
-     * <filename>.watched & <filename>.unwatched
+     * {filename}.watched & {filename}.unwatched
      *
      * Always assumes that the file is unwatched if nothing is found.
      *
@@ -72,7 +71,7 @@ public class WatchedScanner {
         boolean returnStatus = Boolean.FALSE;           // Assume no changes
 
         if (!warned && (LOCATION == WatchedWithLocation.CUSTOM)) {
-            LOG.warn(LOG_MESSAGE + "Custom file location not supported for watched scanner");
+            LOG.warn("Custom file location not supported for watched scanner");
             warned = Boolean.TRUE;
         }
 
@@ -99,9 +98,9 @@ public class WatchedScanner {
 
                 if (WITH_EXTENSION == WatchedWithExtension.EXTENSION || WITH_EXTENSION == WatchedWithExtension.BOTH || movie.isBluray()) {
                     if (LOCATION == WatchedWithLocation.WITHJUKEBOX) {
-                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, LOG_MESSAGE, Boolean.TRUE);
+                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, Boolean.TRUE);
                     } else {
-                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, LOG_MESSAGE, Boolean.FALSE);
+                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, Boolean.FALSE);
                     }
                 }
 
@@ -110,9 +109,9 @@ public class WatchedScanner {
                     filename = FilenameUtils.removeExtension(filename);
                     // Check again without the extension
                     if (LOCATION == WatchedWithLocation.WITHJUKEBOX) {
-                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, LOG_MESSAGE, Boolean.TRUE);
+                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, Boolean.TRUE);
                     } else {
-                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, LOG_MESSAGE, Boolean.FALSE);
+                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, Boolean.FALSE);
                     }
                 }
 
@@ -170,7 +169,7 @@ public class WatchedScanner {
 
         returnStatus |= movieFileWatchChanged;
         if (returnStatus) {
-            LOG.debug(LOG_MESSAGE + "The video has one or more files that have changed status.");
+            LOG.debug("The video has one or more files that have changed status.");
         }
 
         return returnStatus;

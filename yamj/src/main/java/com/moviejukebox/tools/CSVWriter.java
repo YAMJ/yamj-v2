@@ -28,14 +28,12 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * User: JDGJr Date: Feb 14, 2009
  */
 public class CSVWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(CSVWriter.class);
-    private static final String LOG_MESSAGE = "CSVWriter: ";
     private static final String S_EOL = System.getProperty("line.separator");
     private FileWriter writer;
 
@@ -48,7 +46,7 @@ public class CSVWriter {
         try {
             writer = new FileWriter(csvFile);
         } catch (IOException ex) {
-            LOG.error(LOG_MESSAGE + "Error creating CSV file: " + csvFile + ",error: " + ex.getMessage());
+            LOG.error("Error creating CSV file: {},error: {}", csvFile, ex.getMessage());
         }
     }
 
@@ -69,7 +67,7 @@ public class CSVWriter {
         try {
             writer.flush();
         } catch (IOException ex) {
-            LOG.trace(LOG_MESSAGE + "Failed to flush CSVWriter: " + ex.getMessage());
+            LOG.trace("Failed to flush CSVWriter: {}", ex.getMessage());
         }
 
     }
@@ -81,7 +79,7 @@ public class CSVWriter {
         try {
             writer.close();
         } catch (IOException ex) {
-            LOG.trace(LOG_MESSAGE + "Failed to close CSVWriter: " + ex.getMessage());
+            LOG.trace("Failed to close CSVWriter: {}", ex.getMessage());
         }
     }
 }

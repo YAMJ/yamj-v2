@@ -39,7 +39,6 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
     private WebBrowser webBrowser;
     private FilmAffinityInfo filmAffinityInfo;
     private static final Logger LOG = LoggerFactory.getLogger(FilmAffinityPosterPlugin.class);
-    private static final String LOG_MESSAGE = "FilmAffinityPosterPlugin:";
 
     public FilmAffinityPosterPlugin() {
         super();
@@ -75,7 +74,7 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
                 posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
 
             } catch (Exception ex) {
-                LOG.error("{}Failed retreiving FilmAffinity poster url for movie: {}", LOG_MESSAGE, id);
+                LOG.error("Failed retreiving FilmAffinity poster url for movie: {}", id);
                 LOG.error(SystemTools.getStackTrace(ex));
             }
         }

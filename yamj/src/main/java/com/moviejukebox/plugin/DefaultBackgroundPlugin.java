@@ -246,9 +246,9 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
 
             return returnBI;
         } catch (ImageReadException ex) {
-            LOG.warn("Failed to read " + overlayFilename + ", please ensure it is valid");
+            LOG.warn("Failed to read {}, please ensure it is valid", overlayFilename);
         } catch (IOException ex) {
-            LOG.warn("Failed drawing overlay to " + movie.getBaseName() + ". Please check that overlay_fanart_" + source + ".png is in the resources directory.");
+            LOG.warn("Failed drawing overlay to {}. Please check that overlay_fanart_{}.png is in the resources directory.", movie.getBaseName(), source);
         }
 
         return bi;
