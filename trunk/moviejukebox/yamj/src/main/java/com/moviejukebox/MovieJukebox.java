@@ -226,8 +226,6 @@ public class MovieJukebox {
         LOG.info(" Java Version: {}", java.lang.System.getProperties().getProperty("java.version"));
         LOG.info("");
 
-        SystemTools.logException("Test");
-
         if (!SystemTools.validateInstallation()) {
             LOG.info("ABORTING.");
             return;
