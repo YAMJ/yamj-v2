@@ -29,11 +29,15 @@ import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.plugin.DatabasePluginController;
 import static com.moviejukebox.plugin.DatabasePluginController.TYPE_ALTERNATE;
 import com.moviejukebox.plugin.ImdbPlugin;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Holds some override tools.
@@ -43,9 +47,8 @@ import org.slf4j.LoggerFactory;
 public final class OverrideTools {
 
     private static final Logger LOG = LoggerFactory.getLogger(OverrideTools.class);
-    private static final String LOG_MESSAGE = "OverrideTools: ";
-    private static final Map<OverrideFlag, List<String>> MOVIE_PRIORITIES_MAP = new EnumMap<OverrideFlag, List<String>>(OverrideFlag.class);
-    private static final Map<OverrideFlag, List<String>> TV_PRIORITIES_MAP = new EnumMap<OverrideFlag, List<String>>(OverrideFlag.class);
+    private static final Map<OverrideFlag, List<String>> MOVIE_PRIORITIES_MAP = new EnumMap<>(OverrideFlag.class);
+    private static final Map<OverrideFlag, List<String>> TV_PRIORITIES_MAP = new EnumMap<>(OverrideFlag.class);
     // check skip if not in priority list
     private static final boolean SKIP_NOT_IN_LIST = PropertiesUtil.getBooleanProperty("priority.checks.skipNotInList", Boolean.FALSE);
     // hold max counts for people
@@ -188,7 +191,6 @@ public final class OverrideTools {
         putTvPriorities(OverrideFlag.YEAR, sources);
 
         // EXTRA properties for people scraping (filmography)
-
         // actors
         sources = PropertiesUtil.getProperty("priority.movie.people.actors", "nfo,PLUGIN,ALTERNATE");
         putMoviePersonPriorities(OverrideFlag.PEOPLE_ACTORS, sources);
@@ -206,7 +208,6 @@ public final class OverrideTools {
         putTvPersonPriorities(OverrideFlag.PEOPLE_WRITERS, sources);
 
         // EXTRA properties for episodes
-
         // episode first aired
         sources = PropertiesUtil.getProperty("priority.tv.episode.firstaired", "nfo,PLUGIN,ALTERNATE");
         putTvPriorities(OverrideFlag.EPISODE_FIRST_AIRED, sources);
@@ -270,7 +271,8 @@ public final class OverrideTools {
      *
      * @param priorityMap The map to update
      * @param pluginName The name of the plugin to replace
-     * @param videoType The type of the video: TV/Movie - used for the log message
+     * @param videoType The type of the video: TV/Movie - used for the log
+     * message
      * @param overrideFlag The flag to override
      * @param sources The list of sources
      */
@@ -295,16 +297,11 @@ public final class OverrideTools {
                 }
             }
 
-            priorities = new ArrayList<String>(Arrays.asList(newSources.split(",")));
+            priorities = new ArrayList<>(Arrays.asList(newSources.split(",")));
             priorities.remove(TYPE_PLUGIN);
             priorities.remove(TYPE_ALTERNATE);
 
-            if (LOG.isDebugEnabled()) {
-                StringBuilder sb = new StringBuilder(LOG_MESSAGE);
-                sb.append(overrideFlag.name()).append(" (").append(videoType).append(") ");
-                sb.append("priorities ").append(priorities.toString().toLowerCase());
-                LOG.debug(sb.toString());
-            }
+            LOG.debug("{} ({}) priorities {}", overrideFlag.name(), videoType, priorities.toString().toLowerCase());
         }
         priorityMap.put(overrideFlag, priorities);
 
@@ -356,7 +353,8 @@ public final class OverrideTools {
      * @param property the property to test
      * @param actualSource the actual source
      * @param newSource the new source
-     * @return true, if new source has higher property than actual source, else false
+     * @return true, if new source has higher property than actual source, else
+     * false
      */
     private static boolean hasHigherPriority(final OverrideFlag overrideFlag, final String actualSource, final String newSource, boolean isTV) {
         // check sources

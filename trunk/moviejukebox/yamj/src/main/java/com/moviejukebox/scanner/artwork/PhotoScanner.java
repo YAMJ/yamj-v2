@@ -38,8 +38,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.slf4j.Logger;
 import org.apache.sanselan.ImageReadException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
 public final class PhotoScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(PhotoScanner.class);
-    private static final String LOG_MESSAGE = "PhotoScanner: ";
     private static final Collection<String> EXTENSIONS = setPhotoExtensions(PropertiesUtil.getProperty("photo.scanner.photoExtensions", "jpg,jpeg,gif,bmp,png"));
     private static final boolean OVERWRITE = PropertiesUtil.getBooleanProperty("mjb.forcePhotoOverwrite", Boolean.FALSE);
     private static final String SKIN_HOME = SkinProperties.getSkinHome();
@@ -68,7 +67,7 @@ public final class PhotoScanner {
      * @return
      */
     private static List<String> setPhotoExtensions(String propertyExtensions) {
-        List<String> extensions = new ArrayList<String>();
+        List<String> extensions = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(propertyExtensions, ",;| ");
 
         while (st.hasMoreTokens()) {
@@ -108,7 +107,7 @@ public final class PhotoScanner {
         boolean foundLocalPhoto = false;
 
         // Try searching the fileCache for the filename.
-        localPhotoFile = FileTools.findFilenameInCache(localPhotoBaseFilename, EXTENSIONS, jukebox, LOG_MESSAGE, Boolean.TRUE);
+        localPhotoFile = FileTools.findFilenameInCache(localPhotoBaseFilename, EXTENSIONS, jukebox, Boolean.TRUE);
         if (localPhotoFile != null) {
             foundLocalPhoto = true;
         }
@@ -120,7 +119,8 @@ public final class PhotoScanner {
     }
 
     /**
-     * Download the photo from the URL. Initially this is populated from TheTVDB plugin
+     * Download the photo from the URL. Initially this is populated from TheTVDB
+     * plugin
      *
      * @param imagePlugin
      * @param jukeboxDetailsRoot
@@ -146,7 +146,7 @@ public final class PhotoScanner {
             // Do not overwrite existing photo unless ForcePhotoOverwrite = true
             if (OVERWRITE || person.isDirtyPhoto() || (!photoFile.exists() && !tmpDestFile.exists())) {
                 try {
-                    LOG.debug(LOG_MESSAGE + "Downloading photo for " + person.getName() + " to " + tmpDestFileName + " [calling plugin]");
+                    LOG.debug("Downloading photo for {} to {} [calling plugin]", person.getName(), tmpDestFileName);
 
                     // Download the photo using the proxy save downloadImage
                     FileTools.downloadImage(tmpDestFile, person.getPhotoURL());
@@ -155,24 +155,21 @@ public final class PhotoScanner {
                     if (photoImage != null) {
 //                        photoImage = imagePlugin.generate(person, photoImage, "photos", null);
                         GraphicTools.saveImageToDisk(photoImage, tmpDestFileName);
-                        LOG.debug(LOG_MESSAGE + "Downloaded photo for " + person.getPhotoURL());
+                        LOG.debug("Downloaded photo for {}", person.getPhotoURL());
                     } else {
                         person.setPhotoFilename(Movie.UNKNOWN);
                         person.setPhotoURL(Movie.UNKNOWN);
                     }
-                } catch (IOException ex) {
-                    LOG.debug(LOG_MESSAGE + "Failed to download photo: " + person.getPhotoURL() + ", error: " + ex.getMessage());
-                    person.setPhotoURL(Movie.UNKNOWN);
-                } catch (ImageReadException ex) {
-                    LOG.debug(LOG_MESSAGE + "Failed to process photo: " + person.getPhotoURL() + ", error: " + ex.getMessage());
+                } catch (IOException | ImageReadException ex) {
+                    LOG.debug("Failed to download/process photo: {}, error: {}", person.getPhotoURL(), ex.getMessage());
                     person.setPhotoURL(Movie.UNKNOWN);
                 }
             } else {
-                LOG.debug(LOG_MESSAGE + "Photo exists for " + person.getName());
+                LOG.debug("Photo exists for {}", person.getName());
             }
         } else if ((OVERWRITE || (!photoFile.exists() && !tmpDestFile.exists()))) {
             if (dummyFile.exists()) {
-                LOG.debug("Dummy image used for " + person.getName());
+                LOG.debug("Dummy image used for {}", person.getName());
                 FileTools.copyFile(dummyFile, tmpDestFile);
             } else {
                 person.clearPhotoFilename();

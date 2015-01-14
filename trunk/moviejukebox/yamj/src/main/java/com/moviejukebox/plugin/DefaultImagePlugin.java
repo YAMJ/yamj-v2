@@ -123,8 +123,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
     private static final String AUTO = "auto";
     private static final String TOP = "top";
     private static final String D_PLUS = "\\d+";
-    private static final String MSG_VALID = ", please ensure it is valid";
-    private static final String MSG_RESOURCES = " is in the resources directory.";
     //stretch images
     private boolean addHDLogo;
     private boolean addTVLogo;
@@ -249,7 +247,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         } else if (!VALID_IMAGE_TYPES.contains(imageType)) {
             // This is an error with the calling function
             LOG.error("YAMJ Error with calling function in DefaultImagePlugin.java");
-            LOG.error("The image type '" + imageType + "' cannot be found");
+            LOG.error("The image type '{}' cannot be found", imageType);
             return imageGraphic;
         }
 
@@ -885,11 +883,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                 state.getWidth().matches(D_PLUS) ? Integer.parseInt(state.getWidth()) : biSet.getWidth(), state.getHeight().matches(D_PLUS) ? Integer.parseInt(state.getHeight()) : biSet.getHeight(), null);
                         g2d.dispose();
                     } catch (FileNotFoundException ex) {
-                        LOG.warn("Failed to load " + overlayResources + filename + MSG_VALID);
+                        LOG.warn("Failed to load {}{}, please ensure it is valid", overlayResources, filename);
                     } catch (ImageReadException ex) {
-                        LOG.warn("Failed to read " + overlayResources + filename + MSG_VALID);
+                        LOG.warn("Failed to read {}{}, please ensure it is valid", overlayResources, filename);
                     } catch (IOException ex) {
-                        LOG.warn("Failed drawing overlay to image file: Please check that " + filename + MSG_RESOURCES);
+                        LOG.warn("Failed drawing overlay to image file: Please check that {} is in the resources directory.", filename);
                     }
 
                     if (name.equalsIgnoreCase("set")) {
@@ -919,7 +917,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 // Draw the set logo if requested.
                 if (addSetLogo) {
                     newBi = drawSet(movie, newBi);
-                    LOG.debug("Drew set logo on " + movie.getTitle());
+                    LOG.debug("Drew set logo on {}", movie.getTitle());
                 }
                 newBi = drawSetSize(movie, newBi);
             }
@@ -944,7 +942,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         File logoFile = new File(getResourcesPath() + FILENAME_SUBTITLE);
 
         if (!logoFile.exists()) {
-            LOG.debug("Missing SubTitle logo (" + FILENAME_SUBTITLE + ") unable to draw logo");
+            LOG.debug("Missing SubTitle logo ({}) unable to draw logo", FILENAME_SUBTITLE);
             return bi;
         }
 
@@ -954,11 +952,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             g2d.drawImage(biSubTitle, bi.getWidth() - biSubTitle.getWidth() - 5, 5, null);
             g2d.dispose();
         } catch (FileNotFoundException ex) {
-            LOG.warn("Failed to load " + logoFile + MSG_VALID);
+            LOG.warn("Failed to load {}, please ensure it is valid", logoFile);
         } catch (ImageReadException ex) {
-            LOG.warn("Failed to read " + FILENAME_SUBTITLE + MSG_VALID);
-        } catch (IOException error) {
-            LOG.warn("Failed drawing SubTitle logo to thumbnail file: Please check that " + FILENAME_SUBTITLE + MSG_RESOURCES);
+            LOG.warn("Failed to read {}, please ensure it is valid", FILENAME_SUBTITLE);
+        } catch (IOException ex) {
+            LOG.warn("Failed drawing SubTitle logo to thumbnail file: Please check that {} is in the resources directory.", FILENAME_SUBTITLE);
         }
 
         return bi;
@@ -997,7 +995,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
         logoFile = new File(getResourcesPath() + logoFilename);
         if (!logoFile.exists()) {
-            LOG.debug("Missing HD logo (" + logoFilename + ") using default " + FILENAME_HD);
+            LOG.debug("Missing HD logo ({}) using default {}", logoFilename, FILENAME_HD);
             logoFilename = FILENAME_HD;
         }
 
@@ -1017,11 +1015,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
             g2d.dispose();
         } catch (FileNotFoundException ex) {
-            LOG.warn("Failed to load " + overlayResources + logoFilename + MSG_VALID);
+            LOG.warn("Failed to load {}{}, please ensure it is valid", overlayResources, logoFilename);
         } catch (ImageReadException ex) {
-            LOG.warn("Failed to read " + logoFilename + MSG_VALID);
+            LOG.warn("Failed to read {}, please ensure it is valid", logoFilename);
         } catch (IOException ex) {
-            LOG.warn("Failed drawing HD logo to thumbnail file: Please check that " + logoFilename + MSG_RESOURCES);
+            LOG.warn("Failed drawing HD logo to thumbnail file. Please check that {} is in the resources directory.", logoFilename);
         }
 
         return bi;
@@ -1053,11 +1051,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
                 g2d.dispose();
             } catch (FileNotFoundException ex) {
-                LOG.warn("Failed to load " + FILENAME_TV + MSG_VALID);
+                LOG.warn("Failed to load {}, please ensure it is valid", FILENAME_TV);
             } catch (ImageReadException ex) {
-                LOG.warn("Failed to read " + FILENAME_TV + MSG_VALID);
+                LOG.warn("Failed to read {}, please ensure it is valid", FILENAME_TV);
             } catch (IOException error) {
-                LOG.warn("Failed drawing TV logo to thumbnail file: Please check that " + FILENAME_TV + MSG_RESOURCES);
+                LOG.warn("Failed drawing TV logo to thumbnail file: Please check that {} is in the resources directory.", FILENAME_TV);
                 LOG.error(SystemTools.getStackTrace(error));
             }
         }
@@ -1114,11 +1112,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
             return returnBI;
         } catch (FileNotFoundException ex) {
-            LOG.warn("Failed to load " + overlayFilename + MSG_VALID);
+            LOG.warn("Failed to load {}, please ensure it is valid", overlayFilename);
         } catch (ImageReadException ex) {
-            LOG.warn("Failed to read " + overlayFilename + MSG_VALID);
+            LOG.warn("Failed to read {}, please ensure it is valid", overlayFilename);
         } catch (IOException ex) {
-            LOG.warn("Failed drawing overlay to " + movie.getBaseName() + ". Please check that " + overlayFilename + MSG_RESOURCES);
+            LOG.warn("Failed drawing overlay to {}. Please check that {} is in the resources directory.", movie.getBaseName(), overlayFilename);
         }
 
         return bi;
@@ -1163,10 +1161,10 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     g2d.drawImage(biLang, 1, 1, null);
                 } else {
                     if (languages.length == 1) {
-                        LOG.warn("Failed drawing Language logo to thumbnail file: " + movie.getBaseName());
-                        LOG.warn("Please check that language specific graphic (" + fullLanguage + ".png) is in the resources/languages directory.");
+                        LOG.warn("Failed drawing Language logo to thumbnail file: {}", movie.getBaseName());
+                        LOG.warn("Please check that language specific graphic ({}.png) is in the resources/languages directory.", fullLanguage);
                     } else {
-                        LOG.debug("Unable to find multiple language image (" + fullLanguage + ".png) in the resources/languages directory, generating it from single one.");
+                        LOG.debug("Unable to find multiple language image ({}.png) in the resources/languages directory, generating it from single one.", fullLanguage);
                         int width = -1;
                         int height = -1;
                         int nbCols = (int) Math.sqrt(languages.length);
@@ -1190,8 +1188,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                     height = biLang.getHeight() / nbRows;
                                 }
                             } else {
-                                LOG.warn("Failed drawing Language logo to thumbnail file: " + movie.getBaseName());
-                                LOG.warn("Please check that language specific graphic (" + languageFilename + ") is in the resources/languages directory.");
+                                LOG.warn("Failed drawing Language logo to thumbnail file: {}", movie.getBaseName());
+                                LOG.warn("Please check that language specific graphic ({}) is in the resources/languages directory.", languageFilename);
                             }
                         }
 
@@ -1205,12 +1203,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
                 g2d.dispose();
             } catch (FileNotFoundException ex) {
-                LOG.warn("Failed to load " + languageFilename + MSG_VALID);
+                LOG.warn("Failed to load {}, please ensure it is valid", languageFilename);
             } catch (ImageReadException ex) {
-                LOG.warn("Failed to read " + languageFilename + MSG_VALID);
+                LOG.warn("Failed to read {}, please ensure it is valid", languageFilename);
             } catch (IOException ex) {
-                LOG.warn("Exception drawing Language logo to thumbnail file '" + movie.getBaseName() + "': " + ex.getMessage());
-                LOG.warn("Please check that language specific graphic (" + languageFilename + ") is in the resources/languages directory.");
+                LOG.warn("Exception drawing Language logo to thumbnail file '{}': {}", movie.getBaseName(), ex.getMessage());
+                LOG.warn("Please check that language specific graphic ({}) is in the resources/languages directory.", languageFilename);
             }
         }
 
@@ -1319,11 +1317,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 }
                 g2d.dispose();
             } catch (FileNotFoundException ex) {
-                LOG.warn("Failed to load " + overlayResources + filenames[currentFilenameNumber] + MSG_VALID);
+                LOG.warn("Failed to load {}{}, please ensure it is valid", overlayResources, filenames[currentFilenameNumber]);
             } catch (ImageReadException ex) {
-                LOG.warn("Failed to read " + filenames[currentFilenameNumber] + MSG_VALID);
-            } catch (IOException e) {
-                LOG.warn("Failed drawing overlay block logo (" + filenames[currentFilenameNumber] + ") to thumbnail file: " + movie.getBaseName());
+                LOG.warn("Failed to read {}, please ensure it is valid", filenames[currentFilenameNumber]);
+            } catch (IOException ex) {
+                LOG.warn("Failed drawing overlay block logo ({}) to thumbnail file: {}", filenames[currentFilenameNumber], movie.getBaseName());
             }
         }
         return bi;
@@ -1344,12 +1342,12 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             g2d.drawImage(biSet, bi.getWidth() - biSet.getWidth() - 5, 1, null);
             g2d.dispose();
         } catch (FileNotFoundException ex) {
-            LOG.warn("Failed to load " + FILENAME_SET + MSG_VALID);
+            LOG.warn("Failed to load {}, please ensure it is valid", FILENAME_SET);
         } catch (ImageReadException ex) {
-            LOG.warn("Failed to read " + FILENAME_SET + MSG_VALID);
+            LOG.warn("Failed to read {}, please ensure it is valid", FILENAME_SET);
         } catch (IOException error) {
-            LOG.warn("Failed drawing set logo to thumbnail for " + movie.getBaseFilename());
-            LOG.warn("Please check that set graphic (" + FILENAME_SET + ") is in the resources directory. " + error.getMessage());
+            LOG.warn("Failed drawing set logo to thumbnail for {}", movie.getBaseFilename());
+            LOG.warn("Please check that set graphic ({}) is in the resources directory. ", FILENAME_SET, error.getMessage());
         }
 
         return bi;
@@ -1366,7 +1364,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             } else {
                 text = Integer.toString(size);
             }
-            LOG.debug("Size (" + movie.getSetSize() + ") of set [" + movie.getTitle() + "] was drawn");
+            LOG.debug("Size ({}) of set [{}] was drawn", movie.getSetSize(), movie.getTitle());
             return drawText(bi, text, false);
         }
 
@@ -1594,11 +1592,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             cols, rows, hmargin, vmargin, StringTools.isNotValidString(clones) ? blockClones : (clones.equalsIgnoreCase(TRUE) ? true : (clones.equalsIgnoreCase(FALSE) ? false : blockClones))));
                 }
             } catch (ConfigurationException ex) {
-                LOG.error("Failed parsing moviejukebox overlay configuration file: " + xmlOverlayFile.getName());
+                LOG.error("Failed parsing moviejukebox overlay configuration file: {}", xmlOverlayFile.getName());
                 LOG.error(SystemTools.getStackTrace(ex));
             }
         } else {
-            LOG.error("The moviejukebox overlay configuration file you specified is invalid: " + xmlOverlayFile.getAbsolutePath());
+            LOG.error("The moviejukebox overlay configuration file you specified is invalid: {}", xmlOverlayFile.getAbsolutePath());
         }
     }
 

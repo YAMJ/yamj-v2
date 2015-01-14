@@ -41,16 +41,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-/*
+/**
  * base on MovieJukeboxXMLReader
  *
  * @author ilgizar
  */
-
 public class ScriptableScraperXMLReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(ScriptableScraperXMLReader.class);
-    private static final String LOG_MESSAGE = "ScriptableScraperXMLReader: ";
     private static final List<String> subsections = Arrays.asList("if", "loop");
 
     public Element getElementByName(Element inData, String name) {
@@ -90,15 +88,15 @@ public class ScriptableScraperXMLReader {
         try {
             xmlDoc = DOMHelper.getDocFromFile(xmlFile);
         } catch (MalformedURLException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for ScriptableScraper. Please fix it.");
+            LOG.error("Failed parsing XML ({}) for ScriptableScraper. Please fix it.", xmlFile.getName());
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for ScriptableScraper. Please fix it.");
+            LOG.error("Failed parsing XML ({}) for ScriptableScraper. Please fix it.", xmlFile.getName());
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         } catch (ParserConfigurationException | SAXException error) {
-            LOG.error(LOG_MESSAGE + "Failed parsing XML (" + xmlFile.getName() + ") for ScriptableScraper. Please fix it.");
+            LOG.error("Failed parsing XML ({}) for ScriptableScraper. Please fix it.", xmlFile.getName());
             LOG.error(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         }
@@ -182,44 +180,44 @@ public class ScriptableScraperXMLReader {
             eName = nElement.getNodeName();
             if (eName.equals("set")) {
                 resSection.setSet(
-                    getAttribute(nElement, "name"),
-                    hasAttribute(nElement, "value")?getAttribute(nElement, "value"):nElement.getTextContent().trim().replaceAll("^\\s+", "")
+                        getAttribute(nElement, "name"),
+                        hasAttribute(nElement, "value") ? getAttribute(nElement, "value") : nElement.getTextContent().trim().replaceAll("^\\s+", "")
                 );
             } else if (eName.equals("retrieve")) {
                 resSection.setRetrieve(
-                    getAttribute(nElement, "name"),
-                    getAttribute(nElement, "url"),
-                    hasAttribute(nElement, "encoding")?getAttribute(nElement, "encoding"):"",
-                    hasAttribute(nElement, "retries")?Integer.parseInt(getAttribute(nElement, "retries")):-1,
-                    hasAttribute(nElement, "timeout_increment")?Integer.parseInt(getAttribute(nElement, "timeout_increment")):-1,
-                    hasAttribute(nElement, "cookies")?getAttribute(nElement, "cookies"):""
+                        getAttribute(nElement, "name"),
+                        getAttribute(nElement, "url"),
+                        hasAttribute(nElement, "encoding") ? getAttribute(nElement, "encoding") : "",
+                        hasAttribute(nElement, "retries") ? Integer.parseInt(getAttribute(nElement, "retries")) : -1,
+                        hasAttribute(nElement, "timeout_increment") ? Integer.parseInt(getAttribute(nElement, "timeout_increment")) : -1,
+                        hasAttribute(nElement, "cookies") ? getAttribute(nElement, "cookies") : ""
                 );
             } else if (eName.equals("parse")) {
                 resSection.setParse(
-                    getAttribute(nElement, "name"),
-                    getAttribute(nElement, "input"),
-                    hasAttribute(nElement, "regex")?escapeRegex(getAttribute(nElement, "regex")):""
+                        getAttribute(nElement, "name"),
+                        getAttribute(nElement, "input"),
+                        hasAttribute(nElement, "regex") ? escapeRegex(getAttribute(nElement, "regex")) : ""
                 );
             } else if (eName.equals("replace")) {
                 resSection.setReplace(
-                    getAttribute(nElement, "name"),
-                    getAttribute(nElement, "input"),
-                    getAttribute(nElement, "pattern"),
-                    getAttribute(nElement, "with")
+                        getAttribute(nElement, "name"),
+                        getAttribute(nElement, "input"),
+                        getAttribute(nElement, "pattern"),
+                        getAttribute(nElement, "with")
                 );
             } else if (eName.equals("add") || eName.equals("subtract") || eName.equals("multiply") || eName.equals("divide")) {
                 resSection.setMath(
-                    getAttribute(nElement, "name"),
-                    eName,
-                    getAttribute(nElement, "value1"),
-                    getAttribute(nElement, "value2"),
-                    getAttribute(nElement, "result_type")
+                        getAttribute(nElement, "name"),
+                        eName,
+                        getAttribute(nElement, "value1"),
+                        getAttribute(nElement, "value2"),
+                        getAttribute(nElement, "result_type")
                 );
             } else if (subsections.contains(eName)) {
                 fillSection(ssData, resSection, nElement, eName);
             } else if (eName.equals("#text") || eName.equals("#comment")) {
             } else {
-                LOG.error(LOG_MESSAGE + "Unknown section: " + eName);
+                LOG.error("Unknown section: {}", eName);
             }
         }
     }

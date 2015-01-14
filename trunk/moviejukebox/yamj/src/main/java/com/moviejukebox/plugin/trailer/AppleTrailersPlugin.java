@@ -59,7 +59,6 @@ public class AppleTrailersPlugin extends TrailerPlugin {
     public AppleTrailersPlugin() {
         super();
         trailersPluginName = "AppleTrailers";
-        logMessage = "AppleTrailersPlugin: ";
     }
 
     @Override
@@ -76,12 +75,12 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         movie.setTrailerLastScan(new Date().getTime()); // Set the last scan to now
 
         if (Movie.UNKNOWN.equalsIgnoreCase(trailerPageUrl)) {
-            LOG.debug("{}Trailer not found for {}", logMessage, movie.getBaseName());
+            LOG.debug("Trailer not found for {}", movie.getBaseName());
             return false;
         }
 
-        Set<String> trailersUrl = new LinkedHashSet<String>();
-        Set<String> bestTrailersUrl = new LinkedHashSet<String>();
+        Set<String> trailersUrl = new LinkedHashSet<>();
+        Set<String> bestTrailersUrl = new LinkedHashSet<>();
 
         getTrailerSubUrl(trailerPageUrl, trailersUrl);
 
@@ -90,7 +89,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         int trailerDownloadCnt = 0;
 
         if (bestTrailersUrl.isEmpty()) {
-            LOG.debug("{}No trailers found for {}", logMessage, movie.getBaseName());
+            LOG.debug("No trailers found for {}", movie.getBaseName());
             return false;
         }
 
@@ -99,7 +98,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         for (String trailerRealUrl : bestTrailersUrl) {
 
             if (trailerDownloadCnt >= CONFIG_MAX) {
-                LOG.debug("{}Downloaded maximum of {} trailer", logMessage, CONFIG_MAX, CONFIG_MAX == 1 ? "" : "s");
+                LOG.debug("Downloaded maximum of {} trailer", CONFIG_MAX, CONFIG_MAX == 1 ? "" : "s");
                 break;
             }
 
@@ -109,7 +108,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
 
             // Is the found trailer one of the types to download/link to?
             if (!isValidTrailer(getFilenameFromUrl(trailerRealUrl))) {
-                LOG.debug("{}Trailer skipped: {}", logMessage, getFilenameFromUrl(trailerRealUrl));
+                LOG.debug("Trailer skipped: {}", getFilenameFromUrl(trailerRealUrl));
                 continue; // Quit the rest of the trailer loop.
             }
 
@@ -119,7 +118,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             trailerRealUrl = trailerRealUrl.replace("images.apple.com", CONFIG_REPLACE_URL);
             trailerRealUrl = trailerRealUrl.replace("movies.apple.com", CONFIG_REPLACE_URL);
 
-            LOG.debug("{}Trailer found for {} ({})", logMessage, movie.getBaseName(), getFilenameFromUrl(trailerRealUrl));
+            LOG.debug("Trailer found for {} ({})", movie.getBaseName(), getFilenameFromUrl(trailerRealUrl));
             trailerDownloadCnt++;
 
             // Check if we need to download the trailer, or just link to it
@@ -210,7 +209,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             }
 
         } catch (IOException error) {
-            LOG.error("{}Failed retreiving trailer for movie : {}", logMessage, movieName);
+            LOG.error("Failed retreiving trailer for movie : {}", movieName);
             LOG.error(SystemTools.getStackTrace(error));
             return Movie.UNKNOWN;
         }
@@ -248,10 +247,10 @@ public class AppleTrailersPlugin extends TrailerPlugin {
                 // Try to find the movie link on the WebInc HD page
                 getTrailerMovieUrl(xmlHDWebInc, trailersUrl);
             } else {
-                LOG.debug("{}No valid HD URL found for {}", logMessage, trailerPageUrl);
+                LOG.debug("No valid HD URL found for {}", trailerPageUrl);
             }
         } catch (IOException ex) {
-            LOG.error("{}Error : {}", logMessage, ex.getMessage());
+            LOG.error("Error : {}", ex.getMessage());
             LOG.error(SystemTools.getStackTrace(ex));
         }
     }
@@ -337,7 +336,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             return absRealURL;
 
         } catch (IOException ex) {
-            LOG.error("{}Error : {}", logMessage, ex.getMessage());
+            LOG.error("Error : {}", ex.getMessage());
             LOG.error(SystemTools.getStackTrace(ex));
             return Movie.UNKNOWN;
         }

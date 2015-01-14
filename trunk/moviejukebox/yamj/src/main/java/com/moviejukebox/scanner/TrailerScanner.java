@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
 public class TrailerScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(TrailerScanner.class);
-    private static final String LOG_MESSAGE = "TrailerScanner: ";
     private static final long MILLIS_IN_DAY = 1000 * 60 * 60 * 24; // Milliseconds * Seconds * Minutes * Hours
     // Convert trailers.rescan.days from DAYS to MILLISECONDS for comparison purposes
     private static final long RESCAN_DAYS_MILLIS = PropertiesUtil.getLongProperty("trailers.rescan.days", 15) * MILLIS_IN_DAY;
@@ -68,7 +67,8 @@ public class TrailerScanner {
     }
 
     /**
-     * This function will check movie trailers and return true if trailers needs to be re-scanned.
+     * This function will check movie trailers and return true if trailers needs
+     * to be re-scanned.
      *
      * @param movie
      * @return
@@ -80,7 +80,7 @@ public class TrailerScanner {
         }
 
         if (!TRAILERS_PLUGIN.isScanForTrailer(movie)) {
-            LOG.debug(LOG_MESSAGE + "Scanning skipped because " + movie.getBaseName() + " is not HD");
+            LOG.debug("Scanning skipped because {} is not HD", movie.getBaseName());
             return Boolean.FALSE;
         }
 
@@ -91,7 +91,7 @@ public class TrailerScanner {
 
         // Check if this movie was already checked for trailers
         if (movie.isTrailerExchange()) {
-            LOG.debug(LOG_MESSAGE + "Movie " + movie.getTitle() + " has previously been checked for trailers, skipping.");
+            LOG.debug("Movie {} has previously been checked for trailers, skipping.", movie.getBaseName());
             return Boolean.FALSE;
         }
 
@@ -118,7 +118,7 @@ public class TrailerScanner {
             trailersSearchToken = st.nextToken();
             ITrailerPlugin trailerPlugin = trailerPlugins.get(trailersSearchToken);
             if (trailerPlugin == null) {
-                LOG.error(LOG_MESSAGE + "'" + trailersSearchToken + "' plugin doesn't exist, please check your moviejukebox properties. Valid plugins are : " + trailerPluginList);
+                LOG.error("'{}' plugin doesn't exist, please check your moviejukebox properties. Valid plugins are : {}", trailersSearchToken, trailerPluginList);
             } else {
                 result |= trailerPlugin.generate(movie);
             }

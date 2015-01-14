@@ -30,7 +30,7 @@ import java.util.List;
 
 public class AspectRatioTools {
 
-    private static List<AspectRatio> aspectList = new ArrayList<AspectRatio>();
+    private static List<AspectRatio> aspectList = new ArrayList<>();
     private static int aspectRationPrecision = PropertiesUtil.getIntProperty("mjb.aspectRatioPrecision", 3);
     private static DecimalFormatSymbols symbols = new DecimalFormatSymbols();
 
@@ -130,8 +130,8 @@ public class AspectRatioTools {
         AspectRatio aspectRatioFind = null;
         boolean found = false;
 
-        for (int looper = 0; looper < aspectList.size(); looper++) {
-            aspectRatioFind = aspectList.get(looper);
+        for (AspectRatio aspectList1 : aspectList) {
+            aspectRatioFind = aspectList1;
             if (aspectRatioFind.testAspectRatio(ratioValue)) {
                 found = true;
                 break;
@@ -155,7 +155,8 @@ public class AspectRatioTools {
     }
 
     /**
-     * Populate the aspect list with the values These are static values because calculated values give slight wrong figures
+     * Populate the aspect list with the values These are static values because
+     * calculated values give slight wrong figures
      *
      * @param aspectList
      */

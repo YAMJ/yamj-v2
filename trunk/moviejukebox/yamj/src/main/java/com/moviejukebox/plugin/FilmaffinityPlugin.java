@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
 public class FilmaffinityPlugin extends ImdbPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(FilmaffinityPlugin.class);
-    private static final String LOG_MESSAGE = "FilmAffinity: ";
     /*
      * Literals of web of each movie info
      */
@@ -56,7 +55,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
     private static final String FA_GENRE = "<dt>Género</dt>";
     private static final String FA_COMPANY = "<dt>Productora</dt>";
     private static final String FA_PLOT = "<dt>Sinopsis</dt>";
-    private FilmAffinityInfo filmAffinityInfo;
+    private final FilmAffinityInfo filmAffinityInfo;
 
     public FilmaffinityPlugin() {
         super();  // use IMDB if FilmAffinity doesn't know movie
@@ -94,7 +93,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
         String filmAffinityId = movie.getId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
 
         if (StringTools.isNotValidString(filmAffinityId)) {
-            LOG.debug(LOG_MESSAGE + "No valid FilmAffinity ID for movie " + movie.getBaseName());
+            LOG.debug("No valid FilmAffinity ID for movie {}", movie.getBaseName());
             return false;
         }
 
@@ -103,7 +102,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
 
             if (xml.contains("Serie de TV")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
-                    LOG.debug(LOG_MESSAGE + movie.getTitle() + " is a TV Show, skipping.");
+                    LOG.debug("{} is a TV Show, skipping.", movie.getTitle());
                     movie.setMovieType(Movie.TYPE_TVSHOW);
                     return false;
                 }
@@ -169,7 +168,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
             }
 
             if (OverrideTools.checkOverwriteGenres(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
-                List<String> newGenres = new ArrayList<String>();
+                List<String> newGenres = new ArrayList<>();
                 for (String genre : HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, FA_GENRE, "</dd>")).split("\\.|\\|")) {
                     newGenres.add(Library.getIndexingGenre(cleanStringEnding(genre.trim())));
                 }
@@ -206,7 +205,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
                 movie.setTitle(title, titleSource);
             }
         } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Failed retreiving movie info: " + filmAffinityId);
+            LOG.error("Failed retreiving movie info: {}", filmAffinityId);
             LOG.error(SystemTools.getStackTrace(error));
             returnStatus = false;
         }

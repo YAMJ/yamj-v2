@@ -32,11 +32,9 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public final class FileLocationChange {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileLocationChange.class);
-    private static final String LOG_MESSAGE = "FileLocationChange: ";
 
     private FileLocationChange() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
@@ -53,7 +51,7 @@ public final class FileLocationChange {
      */
     public static void process(Movie movie, Library library, boolean jukeboxPreserve, Collection<MovieFile> scannedFiles, Collection<MediaLibraryPath> mediaLibraryPaths) {
         // Set up some arrays to store the directory scanner files and the XML files
-        Collection<MovieFile> xmlFiles = new ArrayList<MovieFile>(movie.getMovieFiles());
+        Collection<MovieFile> xmlFiles = new ArrayList<>(movie.getMovieFiles());
 
         // Now compare the before and after files
         Iterator<MovieFile> scanLoop = scannedFiles.iterator();
@@ -83,7 +81,7 @@ public final class FileLocationChange {
 
             // VIDEO_TS.IFO check added for Issue 1851
             if ((!matchFilename && !matchVideoTs && !matchArchive) || !matchPathLoc) {
-                LOG.debug(LOG_MESSAGE + "Detected change of file location for >" + xmlLoop.getFilename() + "< to: >" + scannedFilename + "<");
+                LOG.debug("Detected change of file location for >{}< to: >{}<", xmlLoop.getFilename(), scannedFilename);
                 xmlLoop.setFilename(scannedFilename);
                 xmlLoop.setNewFile(true);
                 movie.addMovieFile(xmlLoop);
@@ -96,11 +94,11 @@ public final class FileLocationChange {
                             boolean flag = Boolean.TRUE;
                             // Check to see if the filename should be excluded
                             for (String exclude : mlp.getExcludes()) {
-                                flag &= (scannedFilename.toUpperCase().indexOf(exclude.toUpperCase()) == -1);
+                                flag &= (!scannedFilename.toUpperCase().contains(exclude.toUpperCase()));
                             }
 
                             if (flag) {
-                                LOG.debug(LOG_MESSAGE + "Changing libray description for video '" + movie.getTitle() + "' from '" + movie.getLibraryDescription() + "' to '" + mlp.getDescription() + "'");
+                                LOG.debug("Changing libray description for video '{}' from '{}' to '{}'", movie.getTitle(), movie.getLibraryDescription(), mlp.getDescription());
                                 library.addDirtyLibrary(movie.getLibraryDescription());
                                 movie.setLibraryDescription(mlp.getDescription());
                                 break;

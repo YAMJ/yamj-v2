@@ -62,20 +62,17 @@ import static org.apache.commons.lang3.StringUtils.trimToNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public final class FileTools {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileTools.class);
-    private static final String LOG_MESSAGE = "FileTools: ";
     private static final int BUFF_SIZE = 16 * 1024;
-    private static final Collection<String> SUBTITLE_EXTENSIONS = new ArrayList<String>();
-    private static final Collection<ReplaceEntry> UNSAFE_CHARS = new ArrayList<ReplaceEntry>();
+    private static final Collection<String> SUBTITLE_EXTENSIONS = new ArrayList<>();
+    private static final Collection<ReplaceEntry> UNSAFE_CHARS = new ArrayList<>();
     private static final Collection<String> GENERATED_FILENAMES = Collections.synchronizedCollection(new ArrayList<String>());
     private static boolean videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
     private static int footerImageEnabled = PropertiesUtil.getIntProperty("mjb.footer.count", 0);
     private static String indexFilesPrefix = getProperty("mjb.indexFilesPrefix", "");
     // Literals
-    private static final String TO = "' to '";
     private static final String BDMV_STREAM = File.separator + "BDMV" + File.separator + "STREAM";
     // File Cache
     public static ScannedFilesCache fileCache = new ScannedFilesCache();
@@ -230,7 +227,7 @@ public final class FileTools {
         boolean returnValue = Boolean.FALSE;
 
         if (!src.exists()) {
-            LOG.error(LOG_MESSAGE + "The file '" + src + "' does not exist!");
+            LOG.error("The file '{}' does not exist!", src);
             return returnValue;
         }
 
@@ -255,7 +252,7 @@ public final class FileTools {
                 }
                 return Boolean.TRUE;
             } catch (IOException error) {
-                LOG.error(LOG_MESSAGE + "Failed copying file '" + src + TO + dst + "'");
+                LOG.error("Failed copying file '{}' to '{}'", src, dst);
                 LOG.error(SystemTools.getStackTrace(error));
                 returnValue = Boolean.FALSE;
             } finally {
@@ -333,7 +330,7 @@ public final class FileTools {
         try {
             File srcDir = new File(srcPathName);
             if (!srcDir.exists()) {
-                LOG.error(LOG_MESSAGE + "Source directory " + srcPathName + " does not exist!");
+                LOG.error("Source directory {} does not exist!", srcPathName);
                 return;
             }
 
@@ -341,7 +338,7 @@ public final class FileTools {
             makeDirs(dstDir);
 
             if (!dstDir.exists()) {
-                LOG.error(LOG_MESSAGE + "Target directory " + dstPathName + " does not exist!");
+                LOG.error("Target directory {} does not exist!", dstPathName);
                 return;
             }
 
@@ -373,7 +370,7 @@ public final class FileTools {
                                 if (updateDisplay) {
                                     System.out.print("\r    Copying directory " + displayPath + " (" + currentFile + "/" + totalSize + ")");
                                     if (LOG.isTraceEnabled()) {
-                                        LOG.trace(LOG_MESSAGE + "Copying: " + file.getName());
+                                        LOG.trace("Copying: {}", file.getName());
                                     }
                                 }
                                 copyFile(file, dstDir);
@@ -385,11 +382,11 @@ public final class FileTools {
                         System.out.print("\n");
                     }
 
-                    LOG.debug(LOG_MESSAGE + "Copied " + totalSize + " files from " + srcDir.getCanonicalPath());
+                    LOG.debug("Copied {} files from {}", totalSize, srcDir.getCanonicalPath());
                 }
             }
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed to copy '" + srcPathName + TO + dstPathName + "'");
+            LOG.error("Failed to copy '{}' to '{}'", srcPathName, dstPathName);
             LOG.error(SystemTools.getStackTrace(error));
         }
     }
@@ -414,12 +411,12 @@ public final class FileTools {
     public static String readFileToString(File file, String encoding) {
         String data = "";
         if (file == null) {
-            LOG.error(LOG_MESSAGE + "Failed reading file, file is null");
+            LOG.error("Failed reading file, file is null");
         } else {
             try {
                 data = FileUtils.readFileToString(file, encoding);
             } catch (IOException ex) {
-                LOG.error(LOG_MESSAGE + "Failed reading file " + file.getName() + " - Error: " + ex.getMessage());
+                LOG.error("Failed reading file {} - Error: {}", file.getName(), ex.getMessage());
             }
         }
         return data;
@@ -434,10 +431,10 @@ public final class FileTools {
     public static void writeStringToFile(String filename, String outputString) {
         File outFile = new File(filename);
         try {
-            LOG.debug(LOG_MESSAGE + "Writing string to '" + outFile.getAbsolutePath() + "'");
+            LOG.debug("Writing string to '{}'", outFile.getAbsolutePath());
             FileUtils.writeStringToFile(outFile, outputString);
         } catch (IOException ex) {
-            LOG.warn(LOG_MESSAGE + "Failed to write to file '" + outFile.getAbsolutePath() + "': " + ex.getMessage(), ex);
+            LOG.warn("Failed to write to file '{}': {}", outFile.getAbsolutePath(), ex.getMessage(), ex);
         }
     }
 
@@ -517,7 +514,7 @@ public final class FileTools {
         }
 
         if (!newFilename.equals(filename)) {
-            LOG.debug(LOG_MESSAGE + "Encoded filename string '" + filename + TO + newFilename + "'");
+            LOG.debug("Encoded filename string '{}' to '{}'", filename, newFilename);
         }
 
         return newFilename;
@@ -526,8 +523,9 @@ public final class FileTools {
     /**
      * Returns the given path in canonical form
      *
-     * i.e. no duplicated separators, no ".", ".."..., and ending without trailing separator the only exception is a root! the
-     * canonical form for a root INCLUDES the separator
+     * i.e. no duplicated separators, no ".", ".."..., and ending without
+     * trailing separator the only exception is a root! the canonical form for a
+     * root INCLUDES the separator
      *
      * @param path
      * @return
@@ -541,7 +539,8 @@ public final class FileTools {
     }
 
     /**
-     * when concatenating paths and the source MIGHT be a root, use this function to safely add the separator
+     * when concatenating paths and the source MIGHT be a root, use this
+     * function to safely add the separator
      *
      * @param path
      * @return
@@ -578,7 +577,8 @@ public final class FileTools {
      *
      * Pass in the filename and a list of extensions.
      *
-     * This function will scan for the filename plus extensions and return the File
+     * This function will scan for the filename plus extensions and return the
+     * File
      *
      * @param fullBaseFilename
      * @param fileExtensions
@@ -591,7 +591,7 @@ public final class FileTools {
             localFile = fileCache.getFile(fullBaseFilename + "." + extension);
             if (localFile.exists()) {
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace(LOG_MESSAGE + "Found " + localFile + " in the file cache");
+                    LOG.trace("Found {} in the file cache", localFile);
                 }
                 return localFile;
             }
@@ -601,44 +601,44 @@ public final class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the extensions
+     * Search for the filename in the cache and look for each with the
+     * extensions
      *
      * @param searchFilename
      * @param fileExtensions
      * @param jukebox
-     * @param logPrefix
      * @return
      */
-    public static File findFilenameInCache(String searchFilename, Collection<String> fileExtensions, Jukebox jukebox, String logPrefix) {
-        return findFilenameInCache(searchFilename, fileExtensions, jukebox, logPrefix, Boolean.FALSE, Movie.UNKNOWN);
+    public static File findFilenameInCache(String searchFilename, Collection<String> fileExtensions, Jukebox jukebox) {
+        return findFilenameInCache(searchFilename, fileExtensions, jukebox, Boolean.FALSE, Movie.UNKNOWN);
     }
 
     /**
-     * Search for the filename in the cache and look for each with the extensions
+     * Search for the filename in the cache and look for each with the
+     * extensions
      *
      * @param searchFilename
      * @param fileExtensions
      * @param jukebox
-     * @param logPrefix
      * @param includeJukebox
      * @return
      */
-    public static File findFilenameInCache(String searchFilename, Collection<String> fileExtensions, Jukebox jukebox, String logPrefix, boolean includeJukebox) {
-        return findFilenameInCache(searchFilename, fileExtensions, jukebox, logPrefix, includeJukebox, Movie.UNKNOWN);
+    public static File findFilenameInCache(String searchFilename, Collection<String> fileExtensions, Jukebox jukebox, boolean includeJukebox) {
+        return findFilenameInCache(searchFilename, fileExtensions, jukebox, includeJukebox, Movie.UNKNOWN);
     }
 
     /**
-     * Search for the filename in the cache and look for each with the extensions
+     * Search for the filename in the cache and look for each with the
+     * extensions
      *
      * @param searchFilename
      * @param fileExtensions
      * @param jukebox
-     * @param logPrefix
      * @param includeJukebox
      * @param subFolder
      * @return
      */
-    public static File findFilenameInCache(String searchFilename, Collection<String> fileExtensions, Jukebox jukebox, String logPrefix, boolean includeJukebox, String subFolder) {
+    public static File findFilenameInCache(String searchFilename, Collection<String> fileExtensions, Jukebox jukebox, boolean includeJukebox, String subFolder) {
         File searchFile = null;
         String safeFilename = makeSafeFilename(searchFilename);
 
@@ -653,7 +653,7 @@ public final class FileTools {
 
         if (files.size() > 0) {
             // Copy the synchronized list to avoid ConcurrentModificationException
-            Iterator<File> iter = new ArrayList<File>(FileTools.fileCache.searchFilename(safeFilename, Boolean.TRUE)).iterator();
+            Iterator<File> iter = new ArrayList<>(FileTools.fileCache.searchFilename(safeFilename, Boolean.TRUE)).iterator();
 
             while (iter.hasNext() && (searchFile == null)) {
                 File file = iter.next();
@@ -677,20 +677,21 @@ public final class FileTools {
             }
 
             if (searchFile != null) {
-                LOG.debug(logPrefix + "Using first one found: " + searchFile.getAbsolutePath());
+                LOG.debug("Using first one found: {}", searchFile.getAbsolutePath());
             } else {
-                LOG.debug(logPrefix + "No matching files found for " + safeFilename);
+                LOG.debug("No matching files found for {}", safeFilename);
             }
         } else {
-            LOG.debug(logPrefix + "No scanned files found for " + searchFilename);
+            LOG.debug("No scanned files found for {}", searchFilename);
         }
 
         return searchFile;
     }
 
     /**
-     * Download the image for the specified URL into the specified file. Utilises the WebBrowser downloadImage function to allow for
-     * proxy connections.
+     * Download the image for the specified URL into the specified file.
+     * Utilises the WebBrowser downloadImage function to allow for proxy
+     * connections.
      *
      * @param imageFile
      * @param imageURL
@@ -777,13 +778,14 @@ public final class FileTools {
             GENERATED_FILENAMES.add(filename);
 
             if (LOG.isTraceEnabled()) {
-                LOG.trace(LOG_MESSAGE + "Adding " + filename + " to safe jukebox files");
+                LOG.trace("Adding {} to safe jukebox files", filename);
             }
         }
     }
 
     /**
-     * Process the movie and add all the files to the jukebox cleaning exclusion list
+     * Process the movie and add all the files to the jukebox cleaning exclusion
+     * list
      *
      * @param movie
      */
@@ -819,7 +821,8 @@ public final class FileTools {
     }
 
     /**
-     * Special File with "cached" attributes used to minimize file system access which slows down everything
+     * Special File with "cached" attributes used to minimize file system access
+     * which slows down everything
      *
      * @author Gabriel Corneanu
      */
@@ -952,8 +955,8 @@ public final class FileTools {
                     return null;
                 }
 
-                List<String> mutableNames = new ArrayList<String>(Arrays.asList(nameStrings));
-                List<File> files = new ArrayList<File>();
+                List<String> mutableNames = new ArrayList<>(Arrays.asList(nameStrings));
+                List<File> files = new ArrayList<>();
                 if (archiveScanners != null) {
                     for (IArchiveScanner as : archiveScanners) {
                         files.addAll(as.getArchiveFiles(this, mutableNames));
@@ -983,7 +986,7 @@ public final class FileTools {
                 return Arrays.copyOf(src, src.length);
             }
 
-            List<File> l = new ArrayList<File>();
+            List<File> l = new ArrayList<>();
             for (File f : src) {
                 if (filter.accept(this, f.getName())) {
                     l.add(f);
@@ -994,14 +997,15 @@ public final class FileTools {
     }
 
     /**
-     * cached File instances the key is always absolute path in upper-case, so it will NOT work for case only differences
+     * cached File instances the key is always absolute path in upper-case, so
+     * it will NOT work for case only differences
      *
      * @author Gabriel Corneanu
      */
     public static class ScannedFilesCache {
         //cache for ALL files found during initial scan
 
-        private final Map<String, File> cachedFiles = new ConcurrentHashMap<String, File>(1000);
+        private final Map<String, File> cachedFiles = new ConcurrentHashMap<>(1000);
 
         /**
          * Check whether the file exists
@@ -1035,13 +1039,16 @@ public final class FileTools {
         /**
          * Retrieve a file from cache
          *
-         * If it is NOT found, construct one instance and mark it as non-existing.
+         * If it is NOT found, construct one instance and mark it as
+         * non-existing.
          *
-         * The exist() test is used very often throughout the library to search for specific files.
+         * The exist() test is used very often throughout the library to search
+         * for specific files.
          *
          * The path MUST be canonical (i.e. carefully constructed)
          *
-         * We do NOT want here to make it canonical because it goes to the file system and it's slow.
+         * We do NOT want here to make it canonical because it goes to the file
+         * system and it's slow.
          *
          * @param path
          * @return
@@ -1083,7 +1090,7 @@ public final class FileTools {
             if (files.length == 0) {
                 return;
             }
-            Map<String, File> map = new HashMap<String, File>(files.length);
+            Map<String, File> map = new HashMap<>(files.length);
             for (File f : files) {
                 map.put(f.getAbsolutePath().toUpperCase(), f);
             }
@@ -1095,7 +1102,7 @@ public final class FileTools {
         }
 
         public Collection<File> searchFilename(String searchName, boolean findAll) {
-            ArrayList<File> files = new ArrayList<File>();
+            ArrayList<File> files = new ArrayList<>();
 
             String upperName = searchName.toUpperCase();
 
@@ -1172,7 +1179,8 @@ public final class FileTools {
     /**
      * Create all directories up to the level of the file passed
      *
-     * @param file Source directory or file to create the directories directories
+     * @param file Source directory or file to create the directories
+     * directories
      * @return
      */
     public static Boolean makeDirsForFile(final File file) {
@@ -1195,7 +1203,7 @@ public final class FileTools {
             return Boolean.TRUE;
         }
 
-        LOG.trace(LOG_MESSAGE + "Creating directories for " + sourceDirectory.getAbsolutePath());
+        LOG.trace("Creating directories for {}", sourceDirectory.getAbsolutePath());
 
         fsLock.lock();
         try {
@@ -1205,7 +1213,7 @@ public final class FileTools {
                 status = sourceDirectory.mkdirs();
             }
             if (status && looper > 10) {
-                LOG.error("Failed creating the directory (" + sourceDirectory.getAbsolutePath() + "). Ensure this directory is read/write!");
+                LOG.error("Failed creating the directory ({}). Ensure this directory is read/write!", sourceDirectory.getAbsolutePath());
                 return Boolean.FALSE;
             }
             return Boolean.TRUE;

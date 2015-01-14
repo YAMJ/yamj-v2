@@ -38,7 +38,6 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
     // The AbstractMoviePosterPlugin already implements IMoviePosterPlugin
 
     private static final Logger LOG = LoggerFactory.getLogger(CdonPosterPlugin.class);
-    private static final String LOG_MESSAGE = "CdonPosterPlugin: ";
     private WebBrowser webBrowser;
 
     public CdonPosterPlugin() {
@@ -113,7 +112,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             xml = webBrowser.request(stringQuery.toString());
         } catch (Exception ex) {
             //there was an error getting the web page, catch the exception
-            LOG.error("{}An exception happened while retreiving CDON id for movie: {}", LOG_MESSAGE, newTitle);
+            LOG.error("An exception happened while retreiving CDON id for movie: {}", newTitle);
             LOG.error(SystemTools.getStackTrace(ex));
         }
 
@@ -125,7 +124,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             //else there was no results matching, return Movie.UNKNOWN
         } else {
             response = Movie.UNKNOWN;
-            LOG.debug("{}Could not find movie: {}", LOG_MESSAGE, newTitle);
+            LOG.debug("Could not find movie: {}", newTitle);
         }
         return response;
     }
@@ -203,12 +202,12 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             String[] splitMovieURL = newResponse.split("\\s");
             //movieDetailPage is in splitMovieURL[13]
             newResponse = splitMovieURL[13].replaceAll("href|=|\"", "");
-            LOG.debug("{}Found cdon movie url = {}", LOG_MESSAGE, newResponse);
+            LOG.debug("Found cdon movie url = {}", newResponse);
         } else {
             //something went wrong and we do not have an url in the result
             //set response to Movie.UNKNOWN and write to the log
             newResponse = Movie.UNKNOWN;
-            LOG.debug("Error extracting movie url for: {}", LOG_MESSAGE, title);
+            LOG.debug("Error extracting movie url for: {}", title);
         }
         return newResponse;
     }
@@ -256,7 +255,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             // extract poster url and return it
             posterURL = extractCdonPosterUrl(xml, newId);
         } catch (Exception ex) {
-            LOG.error("{}Failed retreiving Cdon poster for movie : {}", LOG_MESSAGE, newId);
+            LOG.error("Failed retreiving Cdon poster for movie : {}", newId);
             LOG.error(SystemTools.getStackTrace(ex));
         }
 
@@ -264,7 +263,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             return new Image(posterURL);
         }
 
-        LOG.debug("No poster found for movie: {}", LOG_MESSAGE, newId);
+        LOG.debug("No poster found for movie: {}", newId);
         return Image.UNKNOWN;
     }
 
@@ -364,11 +363,11 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
                 return webBrowser.request(movieURL);
             } else {
                 // search didn't even find an url to the movie
-                LOG.debug(LOG_MESSAGE + "Error in fetching movie detail page from CDON for movie: " + movieURL);
+                LOG.debug("Error in fetching movie detail page from CDON for movie: {}", movieURL);
                 return Movie.UNKNOWN;
             }
         } catch (Exception error) {
-            LOG.error(LOG_MESSAGE + "Error while retreiving CDON image for movie : " + movieURL);
+            LOG.error("Error while retreiving CDON image for movie : {}", movieURL);
             // logger.error("Error : " + e.getMessage());
             return Movie.UNKNOWN;
         }
@@ -387,7 +386,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             // if not found look for a small cover
             cdonPosterURL = findUrlString("/media-dynamic/images/product/", htmlArray);
         } else {
-            LOG.debug(LOG_MESSAGE + "No CDON cover was found for video: " + id);
+            LOG.debug("No CDON cover was found for video: {}", id);
         }
         return cdonPosterURL;
     }
@@ -409,10 +408,10 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         // sanity check again (the found url should point to a jpg)
         if (posterURL != null && posterURL.length > 2 && posterURL[2].contains(".jpg")) {
             result = "http://cdon.se" + posterURL[2];
-            LOG.debug(LOG_MESSAGE + " found cdon cover: " + result);
+            LOG.debug("Found cdon cover: {}", result);
             return result;
         } else {
-            LOG.info(LOG_MESSAGE + "error in finding poster url.");
+            LOG.info("Error finding poster url.");
             return Movie.UNKNOWN;
         }
     }

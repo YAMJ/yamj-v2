@@ -71,7 +71,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     public static final String IMDB_PLUGIN_ID = "imdb";
     private static final Logger LOG = LoggerFactory.getLogger(ImdbPlugin.class);
-    private static final String LOG_MESSAGE = "ImdbPlugin: ";
     protected String preferredCountry;
     private final String imdbPlot;
     protected WebBrowser webBrowser;
@@ -329,7 +328,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     siteDef = imdbInfo.getSiteDef(imdbInfo.getImdbSite() + "2");
                     if (siteDef == null) {
                         // c2 siteDef doesn't exist, so use labs to atleast return something
-                        LOG.error(LOG_MESSAGE + "No new format definition found for language '" + imdbInfo.getImdbSite() + "' using default language instead.");
+                        LOG.error("No new format definition found for language '{}' using default language instead.", imdbInfo.getImdbSite());
                         siteDef = imdbInfo.getSiteDef(DEFAULT_SITE_DEF);
                     }
                 }
@@ -370,7 +369,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             returnStatus = Boolean.TRUE;
 
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed retrieving IMDb data for movie : " + movie.getId(IMDB_PLUGIN_ID));
+            LOG.error("Failed retrieving IMDb data for movie : {}", movie.getId(IMDB_PLUGIN_ID));
             LOG.error(SystemTools.getStackTrace(error));
         }
 
@@ -409,7 +408,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // COUNTRY
         if (OverrideTools.checkOverwriteCountry(movie, IMDB_PLUGIN_ID)) {
-            List<String> countries = new ArrayList<String>();
+            List<String> countries = new ArrayList<>();
             for (String country : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getCountry() + HTML_H5_END, HTML_DIV_END)) {
                 countries.add(HTMLTools.removeHtmlTags(country));
             }
@@ -429,7 +428,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // GENRES
         if (OverrideTools.checkOverwriteGenres(movie, IMDB_PLUGIN_ID)) {
-            List<String> newGenres = new ArrayList<String>();
+            List<String> newGenres = new ArrayList<>();
             for (String genre : HTMLTools.extractTags(xml, HTML_H5_START + siteDef.getGenre() + HTML_H5_END, HTML_DIV_END)) {
                 genre = HTMLTools.removeHtmlTags(genre);
                 newGenres.add(Library.getIndexingGenre(cleanStringEnding(genre)));
@@ -591,7 +590,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @throws IOException
      */
     private void updateInfoNew(Movie movie, String xml, ImdbSiteDataDefinition siteDef) throws IOException {
-        LOG.debug(LOG_MESSAGE + "Detected new IMDb format for '" + movie.getBaseName() + "'");
+        LOG.debug("Detected new IMDb format for '{}'", movie.getBaseName());
 
         // RATING
         if (movie.getRating(IMDB_PLUGIN_ID) == -1) {
@@ -628,7 +627,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // COUNTRY
         if (OverrideTools.checkOverwriteCountry(movie, IMDB_PLUGIN_ID)) {
-            List<String> countries = new ArrayList<String>();
+            List<String> countries = new ArrayList<>();
             for (String country : HTMLTools.extractTags(xml, siteDef.getCountry() + HTML_H4_END, HTML_DIV_END, "<a href=\"", HTML_A_END)) {
                 countries.add(HTMLTools.removeHtmlTags(country));
             }
@@ -648,7 +647,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // GENRES
         if (OverrideTools.checkOverwriteGenres(movie, IMDB_PLUGIN_ID)) {
-            List<String> newGenres = new ArrayList<String>();
+            List<String> newGenres = new ArrayList<>();
             for (String genre : HTMLTools.extractTags(xml, siteDef.getGenre() + HTML_H4_END, HTML_DIV_END)) {
                 // Check normally for the genre
                 String iGenre = HTMLTools.getTextAfterElem(genre, "<a");
@@ -867,7 +866,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 try {
                     movie.setReleaseDate(DateTime.parse(releaseDate).toString("yyyy-MM-dd"), IMDB_PLUGIN_ID);
                 } catch (IllegalArgumentException ex) {
-                    LOG.trace(LOG_MESSAGE + "Failed to convert release date: " + releaseDate, ex);
+                    LOG.trace("Failed to convert release date: {}", releaseDate, ex);
                     movie.setReleaseDate(Movie.UNKNOWN, IMDB_PLUGIN_ID);
                 }
             }
@@ -1123,7 +1122,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     character = Movie.UNKNOWN;
                 }
 
-                LOG.debug(LOG_MESSAGE + "Found Person ID: " + personID + ", name: " + name + ", Character ID: " + charID + ", name: " + character);
+                LOG.debug("Found Person ID: {}, name: {}, Character ID: {}, name: {}", personID, name, charID, character);
 
                 if (overrideNormal) {
                     // clear cast if not already done
@@ -1194,7 +1193,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                                 found = Boolean.TRUE;
                                 count++;
                             } else {
-                                LOG.debug(LOG_MESSAGE + "Invalid director name found: '" + director + "'");
+                                LOG.debug("Invalid director name found: '{}'", director);
                             }
                         }
 
@@ -1391,7 +1390,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             List<String> awardHtmlList = HTMLTools.extractTags(awardXML, "<h1 class=\"header\">Awards</h1>", "<div class=\"article\"", "<h3>", "</table>", false);
 
-            Collection<AwardEvent> awardList = new ArrayList<AwardEvent>();
+            Collection<AwardEvent> awardList = new ArrayList<>();
             for (String awardBlock : awardHtmlList) {
                 String awardEvent = awardBlock.substring(0, awardBlock.indexOf('<')).trim();
 
@@ -1428,7 +1427,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
 
                 if (!scrapeWonAwards || (aAward.getWon() > 0)) {
-                    LOG.debug(LOG_MESSAGE + movie.getBaseName() + " - Adding award: " + aAward.toString());
+                    LOG.debug("{} - Adding award: {}", movie.getBaseName(), aAward.toString());
                     aEvent.addAward(aAward);
                 }
 
@@ -1441,7 +1440,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 movie.setAwards(awardList);
             }
         } else {
-            LOG.debug(LOG_MESSAGE + "No awards found for " + movie.getBaseName());
+            LOG.debug("No awards found for {}", movie.getBaseName());
         }
         return Boolean.TRUE;
     }
@@ -1535,7 +1534,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      */
     @SuppressWarnings("unused")
     private Collection<String> parseNewPeople(String sourceXml, String[] categoryList) {
-        Collection<String> people = new LinkedHashSet<String>();
+        Collection<String> people = new LinkedHashSet<>();
 
         for (String category : categoryList) {
             if (sourceXml.contains(category + ":")) {
@@ -1611,8 +1610,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed retrieving episodes titles for: " + movie.getTitle());
-            LOG.error(LOG_MESSAGE + "Error: " + error.getMessage());
+            LOG.error("Failed retrieving episodes titles for: {}", movie.getTitle());
+            LOG.error("Error: {}", error.getMessage());
         }
     }
 
@@ -1628,7 +1627,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * Retrieves the long plot description from IMDB if it exists, else "UNKNOWN"
+     * Retrieves the long plot description from IMDB if it exists, else
+     * "UNKNOWN"
      *
      * @param movie
      * @return long plot
@@ -1650,7 +1650,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 plot = HTMLTools.stripTags(result);
             }
         } catch (IOException error) {
-            LOG.warn("Failed to get plot summary: " + error.getMessage());
+            LOG.warn("Failed to get plot summary: {}", error.getMessage());
             plot = Movie.UNKNOWN;
         }
 
@@ -1666,25 +1666,25 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             return result;
         }
 
-        LOG.debug(LOG_MESSAGE + LOG_MESSAGE + "Scanning NFO for Imdb Id");
+        LOG.debug("Scanning NFO for Imdb Id");
         String id = searchIMDB(nfo, movie);
         if (isValidString(id)) {
             movie.setId(IMDB_PLUGIN_ID, id);
-            LOG.debug(LOG_MESSAGE + "IMDb Id found in nfo: " + movie.getId(IMDB_PLUGIN_ID));
+            LOG.debug("IMDb Id found in nfo: {}", movie.getId(IMDB_PLUGIN_ID));
         } else {
             int beginIndex = nfo.indexOf("/tt");
             if (beginIndex != -1) {
                 StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1), "/ \n,:!&Ã©\"'(--Ã¨_Ã§Ã )=$");
                 movie.setId(IMDB_PLUGIN_ID, st.nextToken());
-                LOG.debug(LOG_MESSAGE + "IMDb Id found in nfo: " + movie.getId(IMDB_PLUGIN_ID));
+                LOG.debug("IMDb Id found in nfo: {}", movie.getId(IMDB_PLUGIN_ID));
             } else {
                 beginIndex = nfo.indexOf("/Title?");
                 if (beginIndex != -1 && beginIndex + 7 < nfo.length()) {
                     StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&Ã©\"'(--Ã¨_Ã§Ã )=$");
                     movie.setId(IMDB_PLUGIN_ID, "tt" + st.nextToken());
-                    LOG.debug(LOG_MESSAGE + "IMDb Id found in nfo: " + movie.getId(IMDB_PLUGIN_ID));
+                    LOG.debug("IMDb Id found in nfo: {}", movie.getId(IMDB_PLUGIN_ID));
                 } else {
-                    LOG.debug(LOG_MESSAGE + "No IMDb Id found in nfo !");
+                    LOG.debug("No IMDb Id found in nfo !");
                     result = Boolean.FALSE;
                 }
             }
@@ -1738,7 +1738,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
         } catch (Exception error) {
-            LOG.error("ImdbPlugin: Error locating the IMDb ID in the nfo file for " + movie.getBaseFilename());
+            LOG.error("Error locating the IMDb ID in the nfo file for {}", movie.getBaseFilename());
             LOG.error(error.getMessage());
         }
 
@@ -1819,7 +1819,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     public boolean scan(Person person) {
         String imdbId = person.getId(IMDB_PLUGIN_ID);
         if (isNotValidString(imdbId)) {
-            LOG.debug("Looking for IMDB ID for " + person.getName());
+            LOG.debug("Looking for IMDB ID for {}", person.getName());
             String movieId = Movie.UNKNOWN;
             for (Movie movie : person.getMovies()) {
                 movieId = movie.getId(IMDB_PLUGIN_ID);
@@ -1835,7 +1835,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (isValidString(imdbId)) {
             retval = updateImdbPersonInfo(person);
         } else {
-            LOG.debug("IMDB ID not found for " + person.getName());
+            LOG.debug("IMDB ID not found for {}", person.getName());
         }
         return retval;
     }
@@ -1853,7 +1853,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             person.setId(IMDB_PLUGIN_ID, "nm" + imdbID);
         }
 
-        LOG.info("Getting information for " + person.getName() + " (" + imdbID + ")");
+        LOG.info("Getting information for {} ({})", person.getName(), imdbID);
 
         try {
             String xml = getImdbUrl(person);
@@ -1873,7 +1873,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             returnStatus = updateInfoNew(person, xml);
         } catch (IOException error) {
-            LOG.error("Failed retrieving IMDb data for person : " + imdbID);
+            LOG.error("Failed retrieving IMDb data for person : {}", imdbID);
             LOG.error(SystemTools.getStackTrace(error));
         }
         return returnStatus;
@@ -1900,7 +1900,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         if (xml.contains("id=\"img_primary\"")) {
-            LOG.debug("Looking for image on webpage for " + person.getName());
+            LOG.debug("Looking for image on webpage for {}", person.getName());
             String photoURL = HTMLTools.extractTag(xml, "id=\"img_primary\"", HTML_TD_END);
 
             if (photoURL.contains("http://ia.media-imdb.com/images")) {
@@ -1911,7 +1911,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
             }
         } else {
-            LOG.debug(LOG_MESSAGE + "No image found on webpage for " + person.getName());
+            LOG.debug("No image found on webpage for {}", person.getName());
         }
 
         // get personal information
@@ -2045,7 +2045,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         String xmlInfo = webBrowser.request(getImdbUrl(person) + "filmorate", siteDefinition.getCharset());
         if (xmlInfo.contains("<span class=\"lister-current-first-item\">")) {
             String fg = HTMLTools.extractTag(sourceXml, "<div id=\"filmography\">", "<div class=\"article\" >");
-            Map<Float, Filmography> filmography = new TreeMap<Float, Filmography>();
+            Map<Float, Filmography> filmography = new TreeMap<>();
             Pattern tvPattern = Pattern.compile("( \\(#\\d+\\.\\d+\\))|(: Episode #\\d+\\.\\d+)");
             for (String department : HTMLTools.extractTags(xmlInfo, "<div id=\"tn15content\">", "<style>", "<div class=\"filmo\"", HTML_DIV_END)) {
                 String job = HTMLTools.removeHtmlTags(HTMLTools.extractTag(department, HTML_H5_START, "</h5>"));
@@ -2165,7 +2165,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @return
      */
     private static Map<String, String> buildAkaMap(List<String> list) {
-        Map<String, String> map = new LinkedHashMap<String, String>();
+        Map<String, String> map = new LinkedHashMap<>();
         int i = 0;
         do {
             try {

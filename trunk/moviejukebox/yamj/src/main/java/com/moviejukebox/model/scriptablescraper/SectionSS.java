@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 public class SectionSS extends SectionContentSS {
 
     private final Logger LOG = LoggerFactory.getLogger(SectionSS.class);
-    private final String LOG_MESSAGE = "ScriptableScraper.ssSection: ";
 
     private final Collection<SectionContentSS> content = new ArrayList<>();
     private final SectionContentSS parent;
@@ -54,7 +53,7 @@ public class SectionSS extends SectionContentSS {
         if (content != null) {
             addItem("content", Integer.toString(this.content.size()));
             if (isDebug()) {
-                LOG.debug("{}addContent(content): to {} add {} with index {} parent: {}", LOG_MESSAGE,
+                LOG.debug("addContent(content): to {} add {} with index {} parent: {}",
                         getName(),
                         content.getName(),
                         this.content.size(),
@@ -68,7 +67,7 @@ public class SectionSS extends SectionContentSS {
         SectionContentSS newContent = new SectionContentSS(name);
         addItem("content", Integer.toString(this.content.size()));
         if (isDebug()) {
-            LOG.debug("{}addContent(name): {} index: {}, parent: {}", LOG_MESSAGE, getName(), this.content.size(), getName());
+            LOG.debug("addContent(name): {} index: {}, parent: {}", getName(), this.content.size(), getName());
         }
         this.content.add(newContent);
         return newContent;
@@ -144,7 +143,7 @@ public class SectionSS extends SectionContentSS {
     @Override
     public boolean hasGlobalVariable(String name) {
         if (isDebug()) {
-            LOG.debug("{}hasGlobalVariable: {}", LOG_MESSAGE, name);
+            LOG.debug("hasGlobalVariable: {}", name);
         }
         if (StringUtils.isNotBlank(name)) {
             if (parent != null) {
@@ -186,11 +185,11 @@ public class SectionSS extends SectionContentSS {
 
     public String compileValue(String value) {
         if (isDebug()) {
-            LOG.debug(LOG_MESSAGE + "compileValue: '" + value + "'");
+            LOG.debug("compileValue: '{}'", value);
         }
         value = escapeForRegex(value);
         if (isDebug()) {
-            LOG.debug(LOG_MESSAGE + "compileValue: escaped: '" + value + "'");
+            LOG.debug("compileValue: escaped: '{}", value);
         }
         String result = value;
 
@@ -204,13 +203,13 @@ public class SectionSS extends SectionContentSS {
                 for (int looper = 0; looper < matcher.groupCount(); looper++) {
                     variable = matcher.group(looper + 1);
                     if (isDebug()) {
-                        LOG.debug("{}compileValue: matcher: '{}'", LOG_MESSAGE, variable);
+                        LOG.debug("compileValue: matcher: '{}'", variable);
                     }
                     if (hasGlobalVariable(variable) || hasVariable(variable)) {
                         start = result.indexOf("__DOLLAR_SIGN__{" + variable);
                         end = result.indexOf("}", start);
                         if (isDebug()) {
-                            LOG.debug("{}compileValue: start: {} end: {}", LOG_MESSAGE, start, end);
+                            LOG.debug("compileValue: start: {} end: {}", start, end);
                         }
                         variable = hasGlobalVariable(variable) ? getGlobalVariable(variable) : getVariable(variable);
                         if (variable == null || variable.equals("null")) {
@@ -240,7 +239,7 @@ public class SectionSS extends SectionContentSS {
             }
         }
         if (isDebug()) {
-            LOG.debug("{}compileValue: compiled: '{}'", LOG_MESSAGE, result);
+            LOG.debug("compileValue: compiled: '{}'", result);
         }
         return result;
     }
@@ -254,12 +253,12 @@ public class SectionSS extends SectionContentSS {
             condition = matcher.group(2);
             right = matcher.group(3);
             if (isDebug()) {
-                LOG.debug("{}testCondition: data: {} left: '{}' condition: '{}' right: '{}'", LOG_MESSAGE, data, left, condition, right);
+                LOG.debug("testCondition: data: {} left: '{}' condition: '{}' right: '{}'", data, left, condition, right);
             }
             left = compileValue(left);
             right = compileValue(right);
             if (isDebug()) {
-                LOG.debug("{}testCondition: compilled left: '{}' compilled right: '{}'", LOG_MESSAGE, left, right);
+                LOG.debug("testCondition: compilled left: '{}' compilled right: '{}'", left, right);
             }
             switch (condition) {
                 case "!=":
@@ -271,7 +270,7 @@ public class SectionSS extends SectionContentSS {
                 case ">":
                     return Float.parseFloat(left) > Float.parseFloat(right);
                 default:
-                    LOG.error("{}testCondition : Unsupported condition: '{}'", LOG_MESSAGE, condition);
+                    LOG.error("testCondition : Unsupported condition: '{}'", condition);
                     break;
             }
         }
@@ -281,8 +280,8 @@ public class SectionSS extends SectionContentSS {
 
     public String parseInput(String data, String regex) {
         if (isDebug()) {
-            LOG.debug(LOG_MESSAGE + "parseInput: data: '" + data + "'");
-            LOG.debug(LOG_MESSAGE + "parseInput: regex: '" + regex + "'");
+            LOG.debug("parseInput: data: '{}'", data);
+            LOG.debug("parseInput: regex: '{}'", regex);
         }
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(data);
@@ -296,7 +295,7 @@ public class SectionSS extends SectionContentSS {
         }
 
         if (isDebug()) {
-            LOG.debug(LOG_MESSAGE + "parseInput: result: '" + result + "'");
+            LOG.debug("parseInput: result: '{}'", result);
         }
         return result;
     }

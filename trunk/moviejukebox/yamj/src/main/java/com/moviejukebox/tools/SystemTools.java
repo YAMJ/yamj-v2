@@ -38,7 +38,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public final class SystemTools {
 
     private static final Logger LOG = LoggerFactory.getLogger(SystemTools.class);
@@ -50,7 +49,8 @@ public final class SystemTools {
     }
 
     /**
-     * Show the memory available to the program and optionally try to force a garbage collection
+     * Show the memory available to the program and optionally try to force a
+     * garbage collection
      *
      * @param showAll
      */
@@ -66,23 +66,20 @@ public final class SystemTools {
 
         if (SHOW_MEMORY) {
             if (showAll) {
-                /*
-                 * Maximum amount of memory the JVM will attempt to use
-                 */
-                LOG.info("  Maximum memory: " + (memoryMaximum == Long.MAX_VALUE ? "no limit" : formatFileSize(memoryMaximum)));
+                // Maximum amount of memory the JVM will attempt to use
+                LOG.info("  Maximum memory: {}", (memoryMaximum == Long.MAX_VALUE ? "no limit" : formatFileSize(memoryMaximum)));
 
-                /*
-                 * Total memory currently in use by the JVM
-                 */
-                LOG.info("Allocated memory: " + formatFileSize(memoryAllocated));
+                // Total memory currently in use by the JVM
+                LOG.info("Allocated memory: {}", formatFileSize(memoryAllocated));
 
-                /*
-                 * Total amount of free memory available to the JVM
-                 */
-                LOG.info("     Free memory: " + formatFileSize(memoryFree) + " (" + (int) memoryPercentage + "%)");
+                // Total amount of free memory available to the JVM
+                LOG.info("     Free memory: {} ({}%)", formatFileSize(memoryFree), (int) memoryPercentage);
             } else {
-                LOG.info("Memory - Maximum: " + formatFileSize(memoryMaximum) + ", Allocated: " + formatFileSize(memoryAllocated) + ", Free: "
-                        + formatFileSize(memoryFree) + " (" + (int) memoryPercentage + "%)");
+                LOG.info("Memory - Maximum: {}, Allocated: {}, Free: {} ({}%)",
+                        formatFileSize(memoryMaximum),
+                        formatFileSize(memoryAllocated),
+                        formatFileSize(memoryFree),
+                        (int) memoryPercentage);
             }
         }
 
@@ -96,7 +93,8 @@ public final class SystemTools {
     }
 
     /**
-     * Show the memory available to the program and optionally try to force a garbage collection
+     * Show the memory available to the program and optionally try to force a
+     * garbage collection
      */
     public static void showMemory() {
         showMemory(false);
@@ -143,7 +141,8 @@ public final class SystemTools {
     }
 
     /**
-     * Check the 'lib' directory to see if any of the common API jars have duplicates and warn if they do
+     * Check the 'lib' directory to see if any of the common API jars have
+     * duplicates and warn if they do
      *
      * @return
      */
@@ -155,7 +154,7 @@ public final class SystemTools {
         }
 
         // List of the jars to check for duplicates
-        Map<String, List<String>> jarsToCheck = new HashMap<String, List<String>>();
+        Map<String, List<String>> jarsToCheck = new HashMap<>();
         jarsToCheck.put("allocine-api", new ArrayList<String>());
         jarsToCheck.put("fanarttvapi", new ArrayList<String>());
         jarsToCheck.put("mjbsqldb", new ArrayList<String>());
@@ -196,9 +195,9 @@ public final class SystemTools {
 
             for (Map.Entry<String, List<String>> entry : jarsToCheck.entrySet()) {
                 if (entry.getValue().size() > 1) {
-                    LOG.error(entry.getKey() + ":");
+                    LOG.error("{}:", entry.getKey());
                     for (String dupJar : entry.getValue()) {
-                        LOG.error("    - " + dupJar);
+                        LOG.error("    - {}", dupJar);
                     }
                 }
             }

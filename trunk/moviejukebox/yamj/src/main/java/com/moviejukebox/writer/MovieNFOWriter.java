@@ -22,15 +22,24 @@
  */
 package com.moviejukebox.writer;
 
-import com.moviejukebox.model.*;
+import com.moviejukebox.model.Codec;
+import com.moviejukebox.model.CodecType;
+import com.moviejukebox.model.Filmography;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.reader.MovieNFOReader;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.DOMHelper;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SubtitleTools;
+import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -41,7 +50,6 @@ import org.w3c.dom.Element;
 public final class MovieNFOWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieNFOWriter.class);
-    private static final String LOG_MESSAGE = "MovieNFOWriter: ";
     private static final boolean WRITE_SIMPLE_NFO = PropertiesUtil.getBooleanProperty("filename.nfo.writeSimpleFiles", Boolean.FALSE);
     private static final boolean GET_CERT_FROM_MPAA = PropertiesUtil.getBooleanProperty("imdb.getCertificationFromMPAA", Boolean.TRUE);
     private static final boolean ENABLE_PEOPLE = PropertiesUtil.getBooleanProperty("mjb.people", Boolean.FALSE);
@@ -113,7 +121,7 @@ public final class MovieNFOWriter {
         try {
             docNFO = DOMHelper.createDocument();
         } catch (ParserConfigurationException error) {
-            LOG.warn(LOG_MESSAGE + "Failed to create NFO file for " + movie.getBaseFilename());
+            LOG.warn("Failed to create NFO file for {}", movie.getBaseFilename());
             LOG.error(SystemTools.getStackTrace(error));
             return;
         }
@@ -122,7 +130,7 @@ public final class MovieNFOWriter {
         FileTools.makeDirs(new File(nfoFolder));
         File tempNfoFile = new File(StringTools.appendToPath(nfoFolder, movie.getBaseName() + ".nfo"));
 
-        LOG.debug(LOG_MESSAGE + "Writing " + (WRITE_SIMPLE_NFO ? "simple " : "") + "NFO file for " + movie.getBaseName() + ".nfo");
+        LOG.debug("Writing {}NFO file for {}.nfo", (WRITE_SIMPLE_NFO ? "simple " : ""), movie.getBaseName());
         FileTools.addJukeboxFile(tempNfoFile.getName());
 
         // Define the root element
@@ -387,8 +395,8 @@ public final class MovieNFOWriter {
     }
 
     /**
-     * Create an episode detail node for the NFO file This may actually create more than one node dependent on the number of parts
-     * in the file
+     * Create an episode detail node for the NFO file This may actually create
+     * more than one node dependent on the number of parts in the file
      *
      * @param episode
      * @param docNFO

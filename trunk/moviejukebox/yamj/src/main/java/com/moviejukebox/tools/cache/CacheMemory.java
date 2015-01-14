@@ -31,18 +31,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * Utility class to provide a caching mechanism for data across threads Initially this will be stored in memory, but ideally should
- * be cached to a database Many sites provide a "last modified" date/time attribute, so we should consider also caching that in the
- * database
+ * Utility class to provide a caching mechanism for data across threads
+ * Initially this will be stored in memory, but ideally should be cached to a
+ * database Many sites provide a "last modified" date/time attribute, so we
+ * should consider also caching that in the database
  *
  * @author Stuart.Boston
  *
  */
 public final class CacheMemory {
 
-    private static final Map<String, Object> CACHE = new ConcurrentHashMap<String, Object>();
+    private static final Map<String, Object> CACHE = new ConcurrentHashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(CacheMemory.class);
     private static boolean cacheEnabled = initCacheState();
 
@@ -51,7 +51,8 @@ public final class CacheMemory {
     }
 
     /**
-     * Add an item to the cache. If the item currently exists in the cache it will be removed before being added.
+     * Add an item to the cache. If the item currently exists in the cache it
+     * will be removed before being added.
      *
      * @param key
      * @param value
@@ -62,10 +63,10 @@ public final class CacheMemory {
         }
 
         if (CACHE.containsKey(key)) {
-            LOG.debug("Cache (Add): Already contains object (" + value.getClass().getSimpleName() + ") with key " + key + " overwriting...");
+            LOG.debug("Cache (Add): Already contains object ({}) with key '{}' overwriting...", value.getClass().getSimpleName(), key);
             CACHE.remove(key);
         } else {
-            LOG.debug("Cache (Add): Adding object (" + value.getClass().getSimpleName() + ") for key " + key);
+            LOG.debug("Cache (Add): Adding object ({}) for key '{}'", value.getClass().getSimpleName(), key);
         }
         CACHE.put(key, value);
     }
@@ -84,13 +85,13 @@ public final class CacheMemory {
         if (CACHE.containsKey(key)) {
             Object value = CACHE.get(key);
             if (value == null) {
-                LOG.debug("Cache (Get): No object found for " + key);
+                LOG.debug("Cache (Get): No object found for {}", key);
             } else {
-                LOG.debug("Cache (Get): Got object (" + value.getClass().getSimpleName() + ") for " + key);
+                LOG.debug("Cache (Get): Got object ({}) for ", value.getClass().getSimpleName(), key);
                 return value;
             }
         } else {
-            LOG.debug("Cache (Get): No object found for " + key);
+            LOG.debug("Cache (Get): No object found for {}", key);
         }
 
         return null;
@@ -120,7 +121,7 @@ public final class CacheMemory {
     }
 
     public static String generateCacheKey(String stringOne, String stringTwo, String stringThree, String stringFour) {
-        List<String> cacheKeys = new ArrayList<String>();
+        List<String> cacheKeys = new ArrayList<>();
         if (StringTools.isValidString(stringOne)) {
             cacheKeys.add(stringOne);
         }
@@ -176,7 +177,8 @@ public final class CacheMemory {
     }
 
     /**
-     * Called when running low on memory, clear the cache and turn off the caching routine Also print out a message to warn the user
+     * Called when running low on memory, clear the cache and turn off the
+     * caching routine Also print out a message to warn the user
      */
     public static void purgeCache() {
         if (cacheEnabled) {

@@ -209,7 +209,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
                 sb.append(prep(movie.getFanartFilename()));
             } else if (checkHeaderField(header, "Rating #")) {
                 if (mRatingFactor != null) {
-                    double fr = mRatingFactor.doubleValue() * movie.getRating();
+                    double fr = mRatingFactor * movie.getRating();
                     sb.append(prep(mRatingFormatter.format(fr)));
                 } else {
                     sb.append(prep(Integer.toString(movie.getRating())));
@@ -283,7 +283,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
             } else if (checkHeaderField(header, "Watched")) {
                 sb.append(prep(String.valueOf(movie.isWatched())));
             } else {
-                LOG.debug("Unknown field: '" + header + "'");
+                LOG.debug("Unknown field: '{}'",header);
 
             }
         }
@@ -360,7 +360,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         List<String> alTypes = getSelectedTypes();
         try {
             CSVWriter writer = new CSVWriter(csvFile);
-            LOG.debug("  Writing CSV to: " + csvFile.getAbsolutePath());
+            LOG.debug("  Writing CSV to: {}" , csvFile.getAbsolutePath());
 
             // write header line
             writer.line(headerLine());

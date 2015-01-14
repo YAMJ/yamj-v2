@@ -37,7 +37,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * User: JDGJr Date: Feb 15, 2009
  */
@@ -228,7 +227,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
         List<String> alTypes = getSelectedTypes();
         CSVWriter writer = new CSVWriter(csvFile);
         try {
-            LOG.debug("  Writing CSV to: " + csvFile.getAbsolutePath());
+            LOG.debug("  Writing CSV to: {}", csvFile.getAbsolutePath());
 
             // write header line
             writer.line(headerLine());
@@ -269,7 +268,7 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
                 }
             }
         } catch (IOException ex) {
-            LOG.error("Failed writing to CSV file, error: " + ex.getMessage());
+            LOG.error("Failed writing to CSV file, error: {}", ex.getMessage());
             LOG.error(SystemTools.getStackTrace(ex));
         } finally {
             writer.flush();

@@ -36,21 +36,24 @@ import org.slf4j.LoggerFactory;
  *
  * Copyright (2003) Mediterranean
  *
- * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public
- * License as published by the Free Software Foundation; either version 2, or any later version.
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2, or any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free
- * Software Foundation, Inc., 59 Temple Place, Boston, MA 02111.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place, Boston, MA 02111.
  *
  * Contact: mediterranean@users.sourceforge.net
  */
 public class DVDRipScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(DVDRipScanner.class);
-    private static final String LOG_MESSAGE = "DVDRipScanner: ";
 
     public DVDRipScanner() {
     }
@@ -82,7 +85,7 @@ public class DVDRipScanner {
             /* Get the ifo files */
             list = selectedFile.listFiles();
 
-            List<File> ifoList = new ArrayList<File>(4);
+            List<File> ifoList = new ArrayList<>(4);
             for (File list1 : list) {
                 if (list1.getName().regionMatches(true, list1.getName().lastIndexOf("."), ".ifo", 0, 4) && !"VIDEO_TS.IFO".equalsIgnoreCase(list1.getName())) {
                     //$NON-NLS-1$ //$NON-NLS-2$
@@ -93,7 +96,7 @@ public class DVDRipScanner {
             File[] ifo = (File[]) ifoList.toArray(new File[ifoList.size()]);
 
             if (ifo == null || ifo.length == 0) {
-                LOG.info(LOG_MESSAGE + "No Ifo Found with disk format.");
+                LOG.info("No Ifo Found with disk format.");
             } else {
 
                 int longestDuration = 0;
@@ -111,12 +114,12 @@ public class DVDRipScanner {
                         }
 
                     } catch (Exception error) {
-                        LOG.debug(LOG_MESSAGE + "Error when parsing file:" + ifo[i]);
+                        LOG.debug("Error when parsing file: {}", ifo[i]);
                     }
                 }
 
                 if (longestDurationIndex == -1) {
-                    LOG.info(LOG_MESSAGE + "Error retrieving file durations for IFO file, processing skipped.");
+                    LOG.info("Error retrieving file durations for IFO file, processing skipped.");
                     return null;
                 } else {
                     return fileProperties[longestDurationIndex];

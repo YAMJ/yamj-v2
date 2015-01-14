@@ -53,7 +53,6 @@ import org.slf4j.LoggerFactory;
 public final class MovieNFOScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieNFOScanner.class);
-    private static final String LOG_MESSAGE = "MovieNFOScanner: ";
     // Other properties
     private static final String XBMC_TV_NFO_NAME = "tvshow";
     // For now, this is deprecated and we should see if there are issues before looking at a solution as the DOM Parser seems a lot more stable
@@ -67,7 +66,7 @@ public final class MovieNFOScanner {
 
     static {
         if (ACCEPT_ALL_NFO) {
-            LOG.info(LOG_MESSAGE + "Accepting all NFO files in the directory");
+            LOG.info("Accepting all NFO files in the directory");
         }
 
         // Construct regex for filtering NFO files
@@ -99,7 +98,8 @@ public final class MovieNFOScanner {
     /**
      * Process the NFO file.
      *
-     * Will either process the file as an XML NFO file or just pick out the poster and fanart URLs
+     * Will either process the file as an XML NFO file or just pick out the
+     * poster and fanart URLs
      *
      * Scanning for site specific URLs should be done by each plugin
      *
@@ -108,7 +108,7 @@ public final class MovieNFOScanner {
      */
     public static void scan(Movie movie, List<File> nfoFiles) {
         for (File nfoFile : nfoFiles) {
-            LOG.debug(LOG_MESSAGE + "Scanning NFO file for information: " + nfoFile.getName());
+            LOG.debug("Scanning NFO file for information: {}", nfoFile.getName());
             // Set the NFO as dirty so that the information will be re-scanned at the appropriate points.
             movie.setDirty(DirtyFlag.NFO);
             MovieNFOReader.readNfoFile(nfoFile, movie);
@@ -122,7 +122,7 @@ public final class MovieNFOScanner {
      * @return A List structure of all the relevant NFO files
      */
     public static List<File> locateNFOs(Movie movie) {
-        List<File> nfoFiles = new ArrayList<File>();
+        List<File> nfoFiles = new ArrayList<>();
         GenericFileFilter fFilter;
 
         File currentDir = movie.getFirstFile().getFile();
@@ -223,7 +223,7 @@ public final class MovieNFOScanner {
             // Also check the directory above, for the case where movies are in a multi-part named directory (CD/PART/DISK/Etc.)
             Matcher allNfoMatch = PART_PATTERN.matcher(currentDir.getAbsolutePath());
             if (allNfoMatch.find()) {
-                LOG.debug(LOG_MESSAGE + "Found multi-part directory, checking parent directory for NFOs");
+                LOG.debug("Found multi-part directory, checking parent directory for NFOs");
                 checkRNFO(nfoFiles, currentDir.getParentFile().getParentFile(), fFilter);
             }
         } else {
@@ -231,11 +231,9 @@ public final class MovieNFOScanner {
             // E.G. C:\TV\Chuck\Season 1\Season 1.nfo
             // We search up through all containing directories up to the library root
 
-            if (currentDir != null) {
-                // Check the current directory for the video filename
-                fFilter = new GenericFileFilter("(?i)" + movie.getBaseFilename() + NFO_EXT_REGEX);
-                checkRNFO(nfoFiles, currentDir, fFilter);
-            }
+            // Check the current directory for the video filename
+            fFilter = new GenericFileFilter("(?i)" + movie.getBaseFilename() + NFO_EXT_REGEX);
+            checkRNFO(nfoFiles, currentDir, fFilter);
         }
 
         // Recurse through the directories to the library root looking for NFO files
@@ -271,7 +269,7 @@ public final class MovieNFOScanner {
         File[] fFiles = currentDir.listFiles(fFilter);
         if (fFiles != null && fFiles.length > 0) {
             for (File foundFile : fFiles) {
-                LOG.debug(LOG_MESSAGE + "Found " + foundFile.getName());
+                LOG.debug("Found {}", foundFile.getName());
                 nfoFiles.add(foundFile);
             }
         }
@@ -289,7 +287,7 @@ public final class MovieNFOScanner {
         for (String ext : NFO_EXTENSIONS) {
             nfoFile = FileTools.fileCache.getFile(checkNFOfilename + "." + ext);
             if (nfoFile.exists()) {
-                LOG.debug(LOG_MESSAGE + "Found " + nfoFile.getAbsolutePath());
+                LOG.debug("Found {}", nfoFile.getAbsolutePath());
                 nfoFiles.add(nfoFile);
             }
         }

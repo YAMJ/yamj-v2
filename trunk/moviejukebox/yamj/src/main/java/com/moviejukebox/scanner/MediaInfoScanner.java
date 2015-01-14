@@ -71,14 +71,13 @@ import org.slf4j.LoggerFactory;
 public class MediaInfoScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaInfoScanner.class);
-    private static final String LOG_MESSAGE = "MediaInfoScanner: ";
     private static final String MEDIAINFO_PLUGIN_ID = "mediainfo";
     private static final String SPLIT_GENRE = "(?<!-)/|,|\\|";  // Caters for the case where "-/" is not wanted as part of the split
     private static final Pattern PATTERN_CHANNELS = Pattern.compile(".*(\\d{1,2}).*");
     // mediaInfo repository
     private static final File MI_PATH = new File(PropertiesUtil.getProperty("mediainfo.home", "./mediaInfo/"));
     // mediaInfo command line, depend on OS
-    private static final List<String> MI_EXE = new ArrayList<String>();
+    private static final List<String> MI_EXE = new ArrayList<>();
     private static final String MI_FILENAME_WINDOWS = "MediaInfo.exe";
     private static final String MI_RAR_FILENAME_WINDOWS = "MediaInfo-rar.exe";
     private static final String MI_FILENAME_LINUX = "mediainfo";
@@ -97,7 +96,7 @@ public class MediaInfoScanner {
     private static final AspectRatioTools ASPECT_TOOLS = new AspectRatioTools();
     private static final String LANG_DELIM = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     private static final String AUDIO_LANG_UNKNOWN = PropertiesUtil.getProperty("mjb.language.audio.unknown");
-    private static final List<String> MI_DISK_IMAGES = new ArrayList<String>();
+    private static final List<String> MI_DISK_IMAGES = new ArrayList<>();
     // DVD rip infos Scanner
     private final DVDRipScanner localDVDRipScanner;
 
@@ -113,9 +112,9 @@ public class MediaInfoScanner {
             LOG.debug("MediaInfo file          : " + checkMediainfo.getAbsolutePath());
 
             if (isMediaInfoRar) {
-                LOG.info(LOG_MESSAGE + "MediaInfo-rar tool found, additional scanning functions enabled.");
+                LOG.info("MediaInfo-rar tool found, additional scanning functions enabled.");
             } else {
-                LOG.info(LOG_MESSAGE + "MediaInfo tool will be used to extract video data. But not RAR and ISO formats");
+                LOG.info("MediaInfo tool will be used to extract video data. But not RAR and ISO formats");
             }
 
             if (MI_EXE.isEmpty()) {
@@ -136,8 +135,8 @@ public class MediaInfoScanner {
                 MI_DISK_IMAGES.add(ext.toLowerCase());
             }
         } else {
-            LOG.info(LOG_MESSAGE + "Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
-            LOG.info(LOG_MESSAGE + "File: " + checkMediainfo.getAbsolutePath());
+            LOG.info("Couldn't find CLI mediaInfo executable tool: Video file data won't be extracted");
+            LOG.info("File: {}", checkMediainfo.getAbsolutePath());
             IS_ACTIVATED = Boolean.FALSE;
         }
 
@@ -211,7 +210,7 @@ public class MediaInfoScanner {
         }
 
         if (mainFileIsNew) {
-            LOG.debug(LOG_MESSAGE + "Main movie file has changed; rescan media info");
+            LOG.debug("Main movie file has changed; rescan media info");
             this.scan(currentMovie);
         }
     }
@@ -244,7 +243,7 @@ public class MediaInfoScanner {
             try {
                 abstractIsoFile = FileFactory.getFile(currentMovie.getFile().getAbsolutePath());
             } catch (Exception error) {
-                LOG.debug(LOG_MESSAGE + "Error reading disk Image. Please re-rip and try again");
+                LOG.debug("Error reading disk Image. Please re-rip and try again");
                 LOG.info(error.getMessage());
                 return;
             }
@@ -258,7 +257,7 @@ public class MediaInfoScanner {
                 @SuppressWarnings("unchecked")
 //                Vector<ArchiveEntry> allEntries = scannedIsoFile.getEntries();
                 // Convert the returned vector to a List
-                List<ArchiveEntry> allEntries = new ArrayList<ArchiveEntry>(scannedIsoFile.getEntries());
+                List<ArchiveEntry> allEntries = new ArrayList<>(scannedIsoFile.getEntries());
                 Iterator<ArchiveEntry> parcoursEntries = allEntries.iterator();
                 while (parcoursEntries.hasNext()) {
                     ArchiveEntry currentArchiveEntry = (ArchiveEntry) parcoursEntries.next();
@@ -270,9 +269,7 @@ public class MediaInfoScanner {
                         fosCurrentIFO.write(ifoFileContent);
                     }
                 }
-            } catch (IOException error) {
-                LOG.info(error.getMessage());
-            } catch (NumberFormatException error) {
+            } catch (IOException | NumberFormatException error) {
                 LOG.info(error.getMessage());
             } finally {
                 if (fosCurrentIFO != null) {
@@ -302,7 +299,7 @@ public class MediaInfoScanner {
             FileTools.deleteDir(randomDirName);
         } else if (IS_ACTIVATED) {
             if (isMediaInfoRar && MI_DISK_IMAGES.contains(FilenameUtils.getExtension(currentMovie.getFile().getName()))) {
-                LOG.debug(LOG_MESSAGE + "Using MediaInfo-rar to scan " + currentMovie.getFile().getName());
+                LOG.debug("Using MediaInfo-rar to scan {}", currentMovie.getFile().getName());
             }
             scan(currentMovie, currentMovie.getFile().getAbsolutePath(), Boolean.TRUE);
         }
@@ -311,7 +308,7 @@ public class MediaInfoScanner {
 
     private void scan(Movie currentMovie, String movieFilePath, boolean processMultiPart) {
         // retrieve values usable for multipart values
-        Map<String, String> infosMultiPart = new HashMap<String, String>();
+        Map<String, String> infosMultiPart = new HashMap<>();
         if (isMultiPartsScannable(currentMovie, processMultiPart)) {
             for (MovieFile movieFile : currentMovie.getMovieFiles()) {
                 if (movieFile.getFile() == null) {
@@ -329,16 +326,16 @@ public class MediaInfoScanner {
         try {
             stream = createStream(movieFilePath);
 
-            Map<String, String> infosGeneral = new HashMap<String, String>();
-            List<Map<String, String>> infosVideo = new ArrayList<Map<String, String>>();
-            List<Map<String, String>> infosAudio = new ArrayList<Map<String, String>>();
-            List<Map<String, String>> infosText = new ArrayList<Map<String, String>>();
+            Map<String, String> infosGeneral = new HashMap<>();
+            List<Map<String, String>> infosVideo = new ArrayList<>();
+            List<Map<String, String>> infosAudio = new ArrayList<>();
+            List<Map<String, String>> infosText = new ArrayList<>();
 
             parseMediaInfo(stream, infosGeneral, infosVideo, infosAudio, infosText);
 
             updateMovieInfo(currentMovie, infosGeneral, infosVideo, infosAudio, infosText, infosMultiPart);
         } catch (Exception ex) {
-            LOG.warn(LOG_MESSAGE + "Failed reading mediainfo output for " + movieFilePath);
+            LOG.warn("Failed reading mediainfo output for {}", movieFilePath);
             LOG.error(SystemTools.getStackTrace(ex));
         } finally {
             if (stream != null) {
@@ -367,10 +364,10 @@ public class MediaInfoScanner {
         try {
             stream = createStream(movieFilePath);
 
-            Map<String, String> infosGeneral = new HashMap<String, String>();
-            List<Map<String, String>> infosVideo = new ArrayList<Map<String, String>>();
-            List<Map<String, String>> infosAudio = new ArrayList<Map<String, String>>();
-            List<Map<String, String>> infosText = new ArrayList<Map<String, String>>();
+            Map<String, String> infosGeneral = new HashMap<>();
+            List<Map<String, String>> infosVideo = new ArrayList<>();
+            List<Map<String, String>> infosAudio = new ArrayList<>();
+            List<Map<String, String>> infosText = new ArrayList<>();
 
             parseMediaInfo(stream, infosGeneral, infosVideo, infosAudio, infosText);
 
@@ -382,7 +379,7 @@ public class MediaInfoScanner {
                 infosMultiPart.put("MultiPart_Duration", String.valueOf(duration));
             }
         } catch (Exception ex) {
-            LOG.warn(LOG_MESSAGE + "Failed reading mediainfo output for " + movieFilePath);
+            LOG.warn("Failed reading mediainfo output for {}", movieFilePath);
             LOG.error(SystemTools.getStackTrace(ex));
         } finally {
             if (stream != null) {
@@ -398,13 +395,13 @@ public class MediaInfoScanner {
             Collection<File> files = FileTools.fileCache.searchFilename(filename, Boolean.FALSE);
             if (files != null && files.size() > 0) {
                 // create new input stream for reading
-                LOG.debug(LOG_MESSAGE + "Reading from file " + filename);
+                LOG.debug("Reading from file {}", filename);
                 return new MediaInfoStream(new FileInputStream(files.iterator().next()));
             }
         }
 
         // Create the command line
-        List<String> commandMedia = new ArrayList<String>(MI_EXE);
+        List<String> commandMedia = new ArrayList<>(MI_EXE);
         commandMedia.add(movieFilePath);
 
         ProcessBuilder pb = new ProcessBuilder(commandMedia);
@@ -442,7 +439,7 @@ public class MediaInfoScanner {
             bufReader = new BufferedReader(isr);
 
             // Improvement, less code line, each cat have same code, so use the same for all.
-            Map<String, List<Map<String, String>>> matches = new HashMap<String, List<Map<String, String>>>();
+            Map<String, List<Map<String, String>>> matches = new HashMap<>();
 
             // Create a fake one for General, we got only one, but to use the same algo we must create this one.
             String generalKey[] = {"General", "Géneral", "* Général"};
@@ -467,7 +464,7 @@ public class MediaInfoScanner {
                 List<Map<String, String>> currentCat = matches.get(line);
 
                 if (currentCat != null) {
-                    Map<String, String> currentData = new HashMap<String, String>();
+                    Map<String, String> currentData = new HashMap<>();
                     int indexSeparator = -1;
                     while (((line = localInputReadLine(bufReader)) != null) && ((indexSeparator = line.indexOf(" : ")) != -1)) {
                         label = line.substring(0, indexSeparator).trim();
@@ -540,15 +537,15 @@ public class MediaInfoScanner {
 
             if (duration > 0) {
 //                if (duration > 900000) {
-                    // 15 minutes in milliseconds
-                    duration = duration / 1000;
-  /*              } else if (duration > 900) {
-                    // 15 minutes in seconds
-                    // No change required
-                } else {
-                    // probably in minutes
-                    duration = duration * 60;
-                }*/
+                // 15 minutes in milliseconds
+                duration = duration / 1000;
+                /*              } else if (duration > 900) {
+                 // 15 minutes in seconds
+                 // No change required
+                 } else {
+                 // probably in minutes
+                 duration = duration * 60;
+                 }*/
                 // Duration is returned in minutes, convert it to seconds
                 movie.setRuntime(DateTimeTools.formatDuration(duration), MEDIAINFO_PLUGIN_ID);
             }
@@ -670,11 +667,9 @@ public class MediaInfoScanner {
         // Cycle through Audio Streams
         // boolean previousAudioCodec = !movie.getAudioCodec().equals(Movie.UNKNOWN); // Do we have AudioCodec already?
         // boolean previousAudioChannels = !movie.getAudioChannels().equals(Movie.UNKNOWN); // Do we have AudioChannels already?
-        Set<String> foundLanguages = new HashSet<String>();
+        Set<String> foundLanguages = new HashSet<>();
 
-        for (int numAudio = 0; numAudio < infosAudio.size(); numAudio++) {
-            Map<String, String> infosCurAudio = infosAudio.get(numAudio);
-
+        for (Map<String, String> infosCurAudio : infosAudio) {
             infoValue = infosCurAudio.get("Language");
             if (infoValue != null) {
                 // Issue 1227 - Make some clean up in mediainfo datas.
@@ -709,9 +704,7 @@ public class MediaInfoScanner {
         }
 
         // Cycle through Text Streams
-        for (int numText = 0; numText < infosText.size(); numText++) {
-            Map<String, String> infosCurText = infosText.get(numText);
-
+        for (Map<String, String> infosCurText : infosText) {
             String infoLanguage = "";
             infoValue = infosCurText.get("Language");
 
@@ -752,7 +745,7 @@ public class MediaInfoScanner {
                         || infoFormat.equalsIgnoreCase("VobSub")) {
                     SubtitleTools.addMovieSubtitle(movie, infoLanguage);
                 } else {
-                    LOG.debug(LOG_MESSAGE + "Subtitle format skipped: " + infoFormat);
+                    LOG.debug("Subtitle format skipped: {}", infoFormat);
                 }
             }
         }
@@ -899,7 +892,7 @@ public class MediaInfoScanner {
         for (String key : Arrays.asList(keyBitrates)) {
             String infoValue = codecInfos.get(key);
             if (StringUtils.isNotBlank(infoValue)) {
-                if (infoValue.indexOf(Movie.SPACE_SLASH_SPACE) > -1) {
+                if (infoValue.contains(Movie.SPACE_SLASH_SPACE)) {
                     infoValue = infoValue.substring(0, infoValue.indexOf(Movie.SPACE_SLASH_SPACE));
                 }
 
@@ -942,11 +935,11 @@ public class MediaInfoScanner {
             return null;
         }
 
-        LOG.debug(LOG_MESSAGE + "mini-scan on " + movieFilePath);
+        LOG.debug("Mini-scan on {}", movieFilePath);
 
         try {
             // Create the command line
-            List<String> commandMedia = new ArrayList<String>(MI_EXE);
+            List<String> commandMedia = new ArrayList<>(MI_EXE);
             // Technically, mediaInfoExe has "-f" in it from above, but "-s" will override it anyway.
             // "-s" will dump just "$size $path" inside RAR/ISO.
             commandMedia.add("-s");
@@ -975,7 +968,7 @@ public class MediaInfoScanner {
             }
             input.close();
 
-            LOG.debug(LOG_MESSAGE + "Returning with archivename " + mediaArchive);
+            LOG.debug("Returning with archivename {}", mediaArchive);
 
             return mediaArchive;
 

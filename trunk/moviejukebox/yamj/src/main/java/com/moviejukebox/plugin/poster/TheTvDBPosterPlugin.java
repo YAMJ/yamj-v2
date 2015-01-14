@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(TheTvDBPosterPlugin.class);
-    private static final String LOG_MESSAGE = "TheTvDBPosterPlugin: ";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
     private static final String DEFAULT_LANGUAGE = "en";
     private String language;
@@ -167,7 +166,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             }
 
             if (StringTools.isValidString(posterURL)) {
-                LOG.debug("{}Used poster: {}", LOG_MESSAGE, posterURL);
+                LOG.debug("Used poster: {}", posterURL);
                 return new Image(posterURL);
             }
         } finally {
@@ -235,7 +234,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 
         // Log a message to indicate that this is a non-language banner
         if (backupUrl != null) {
-            LOG.info("{}No poster found for {}, using poster with no language: {}", LOG_MESSAGE, languageId, backupUrl);
+            LOG.info("No poster found for {}, using poster with no language: {}", languageId, backupUrl);
         }
 
         return backupUrl;

@@ -38,7 +38,6 @@ public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
     private WebBrowser webBrowser;
     private AllocinePlugin allocinePlugin;
     private static final Logger LOG = LoggerFactory.getLogger(PassionXbmcPosterPlugin.class);
-    private static final String LOG_MESSAGE = "PassionXbmcPlugin: ";
 
     public PassionXbmcPosterPlugin() {
         super();
@@ -70,7 +69,7 @@ public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
                     posterURL = baseUrl + posterImg;
                 }
             } catch (IOException ex) {
-                LOG.error("{}Failed retrieving poster for movie: {}", LOG_MESSAGE, id);
+                LOG.error("Failed retrieving poster for movie: {}", id);
                 LOG.error(SystemTools.getStackTrace(ex));
             }
         }

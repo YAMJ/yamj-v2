@@ -40,7 +40,6 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
 
     private final WebBrowser webBrowser = new WebBrowser();
     private static final Logger LOG = LoggerFactory.getLogger(CaratulasdecinePosterPlugin.class);
-    private static final String LOG_MESSAGE = "CaratulasdecinePosterPlugin:";
 
     private static final String SEARCH_START = "La Web";
     private static final String SEARCH_END = "Sugerencias de búsqueda";
@@ -131,7 +130,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                 }
             }
         } catch (Exception ex) {
-            LOG.error("{}Failed retreiving CaratulasdecinePoster Id for movie '{}'", LOG_MESSAGE, title);
+            LOG.error("Failed retreiving CaratulasdecinePoster Id for movie '{}'", title);
             LOG.error(SystemTools.getStackTrace(ex));
         }
 
@@ -155,7 +154,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                 }
 
             } catch (Exception ex) {
-                LOG.error("{}Failed retreiving CaratulasdecinePoster url for movie '{}'", LOG_MESSAGE, id);
+                LOG.error("Failed retreiving CaratulasdecinePoster url for movie '{}'", id);
                 LOG.error(SystemTools.getStackTrace(ex));
             }
         }

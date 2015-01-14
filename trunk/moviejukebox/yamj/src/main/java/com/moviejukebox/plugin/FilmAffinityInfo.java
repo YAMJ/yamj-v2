@@ -24,6 +24,7 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -34,8 +35,8 @@ import org.slf4j.LoggerFactory;
 
 public class FilmAffinityInfo {
 
-    private Logger logger = LoggerFactory.getLogger(FilmAffinityInfo.class);
-    private WebBrowser webBrowser;
+    private static final Logger LOG = LoggerFactory.getLogger(FilmAffinityInfo.class);
+    private final WebBrowser webBrowser;
 
     /*
      * In filmAffinity there is several possible titles in the search results:
@@ -45,15 +46,15 @@ public class FilmAffinityInfo {
      *
      * It extracts one or both titles to find an exact match.
      */
-    private Pattern titlePattern = Pattern.compile("([^\\(]+)(  \\((.+)\\))?", Pattern.CASE_INSENSITIVE);
+    private final Pattern titlePattern = Pattern.compile("([^\\(]+)(  \\((.+)\\))?", Pattern.CASE_INSENSITIVE);
     /*
      * To test the URL and to determine if we got a redirect due to unique result
      */
-    private Pattern idPattern = Pattern.compile(".+\\/es\\/(film[0-9]{6}\\.html).*");
+    private final Pattern idPattern = Pattern.compile(".+\\/es\\/(film[0-9]{6}\\.html).*");
     /*
      * To isolate every title (with id) from search results
      */
-    private Pattern linkPattern = Pattern.compile("<div class=\"mc-title\"><a href=\"/es/(film[0-9]{6}\\.html)\">([^<]+)</a>");
+    private final Pattern linkPattern = Pattern.compile("<div class=\"mc-title\"><a href=\"/es/(film[0-9]{6}\\.html)\">([^<]+)</a>");
     public static final String FILMAFFINITY_PLUGIN_ID = "filmaffinity";
 
     public FilmAffinityInfo() {
@@ -122,9 +123,9 @@ public class FilmAffinityInfo {
                 }
             }
 
-        } catch (Exception error) {
-            logger.error("FilmAffinity: Failed retrieving Id for movie : " + title);
-            logger.error("FilmAffinity: Error : " + error.getMessage());
+        } catch (Exception ex) {
+            LOG.error("Failed retrieving Id for movie: {}", title);
+            LOG.error(SystemTools.getStackTrace(ex));
         }
         return response;
     }

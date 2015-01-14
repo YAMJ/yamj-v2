@@ -41,15 +41,13 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
+import org.apache.sanselan.ImageReadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.sanselan.ImageReadException;
 
 public final class GraphicTools {
 
     private static final Logger LOG = LoggerFactory.getLogger(GraphicTools.class);
-    private static final String LOG_MESSAGE = "GraphicsTools: ";
     private static float quality;
     private static int jpegQuality;
 
@@ -82,7 +80,7 @@ public final class GraphicTools {
             JpegReader jr = new JpegReader();
             return jr.readImage(fileImage);
         } else {
-            throw new FileNotFoundException(LOG_MESSAGE + "Image file '" + fileImage.getAbsolutePath() + "' does not exist");
+            throw new FileNotFoundException("Image file '" + fileImage.getAbsolutePath() + "' does not exist");
         }
     }
 
@@ -96,7 +94,7 @@ public final class GraphicTools {
         try {
             return ImageIO.read(url);
         } catch (IOException ex) {
-            LOG.error(LOG_MESSAGE + "Error reading image file. Possibly corrupt image, please try another image. " + ex.getMessage());
+            LOG.error("Error reading image file, {}. Possibly corrupt image, please try another image. {}", url, ex.getMessage());
             return null;
         }
     }
@@ -135,7 +133,7 @@ public final class GraphicTools {
             IIOImage image = new IIOImage(bufImage, null, null);
             writer.write(null, image, iwp);
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed Saving thumbnail file: " + filename);
+            LOG.error("Failed Saving thumbnail file: {}", filename);
             LOG.error(SystemTools.getStackTrace(error));
         } finally {
             if (writer != null) {
@@ -145,7 +143,7 @@ public final class GraphicTools {
                 try {
                     output.close();
                 } catch (IOException ex) {
-                    LOG.trace(LOG_MESSAGE + "Failed to close output file for " + filename);
+                    LOG.trace("Failed to close output file for {}", filename);
                 }
             }
         }
@@ -167,7 +165,7 @@ public final class GraphicTools {
             FileTools.makeDirsForFile(outputFile);
             ImageIO.write(bi, "png", outputFile);
         } catch (IOException error) {
-            LOG.error(LOG_MESSAGE + "Failed Saving thumbnail file: " + filename);
+            LOG.error("Failed Saving thumbnail file: {}", filename);
             LOG.error(SystemTools.getStackTrace(error));
         }
     }
@@ -306,8 +304,9 @@ public final class GraphicTools {
     /**
      * Creates the reflection effect
      *
-     * graphicType should be "posters", "thumbnails" or "videoimage" and is used to determine the settings that are extracted from
-     * the skin.properties file.
+     * graphicType should be "posters", "thumbnails" or "videoimage" and is used
+     * to determine the settings that are extracted from the skin.properties
+     * file.
      *
      * @param avatar
      * @param graphicType
@@ -397,8 +396,9 @@ public final class GraphicTools {
     /**
      * Creates the 3D effect
      *
-     * graphicType should be "posters", "thumbnails" or "videoimage" and is used to determine the settings that are extracted from
-     * the skin.properties file.
+     * graphicType should be "posters", "thumbnails" or "videoimage" and is used
+     * to determine the settings that are extracted from the skin.properties
+     * file.
      *
      * @param bi
      * @param graphicType
@@ -408,20 +408,11 @@ public final class GraphicTools {
     public static BufferedImage create3DPicture(BufferedImage bi, String graphicType, String perspectiveDirection) {
         int w = bi.getWidth();
         int h = bi.getHeight();
-        float perspectiveTop = 3f;
-        float perspectiveBottom = 3f;
+        float perspectiveTop;
+        float perspectiveBottom;
 
-        try {
-            perspectiveTop = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveTop", "3"));
-        } catch (NumberFormatException nfe) {
-            LOG.error(LOG_MESSAGE + "NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveTop");
-        }
-
-        try {
-            perspectiveBottom = Float.valueOf(PropertiesUtil.getProperty(graphicType + ".perspectiveBottom", "3"));
-        } catch (NumberFormatException nfe) {
-            LOG.error(LOG_MESSAGE + "NumberFormatException " + nfe.getMessage() + " in property " + graphicType + ".perspectiveBottom");
-        }
+        perspectiveTop = PropertiesUtil.getFloatProperty(graphicType + ".perspectiveTop", 3f);
+        perspectiveBottom = PropertiesUtil.getFloatProperty(graphicType + ".perspectiveBottom", 3f);
 
         int top3d = (int) (h * perspectiveTop / 100);
         int bot3d = (int) (h * perspectiveBottom / 100);

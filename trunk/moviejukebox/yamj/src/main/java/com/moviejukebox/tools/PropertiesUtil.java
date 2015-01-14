@@ -55,7 +55,6 @@ import org.slf4j.LoggerFactory;
 public final class PropertiesUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(PropertiesUtil.class);
-    private static final String LOG_MESSAGE = "PropertiesUtil: ";
     private static final String PROPERTIES_CHARSET = "UTF-8";
     private static final String PREFERENCES_FILENAME = "preferences.xsl";
 
@@ -358,7 +357,7 @@ public final class PropertiesUtil {
     public static Set<Entry<Object, Object>> getEntrySet() {
         // Issue 728
         // Shamelessly adapted from: http://stackoverflow.com/questions/54295/how-to-write-java-util-properties-to-xml-with-sorted-keys
-        return new TreeMap<Object, Object>(PROPS).entrySet();
+        return new TreeMap<>(PROPS).entrySet();
     }
 
     /**
@@ -407,7 +406,7 @@ public final class PropertiesUtil {
     public static class KeywordMap extends HashMap<String, String> {
 
         private static final long serialVersionUID = 1L;
-        private final transient List<String> keywords = new ArrayList<String>();
+        private final transient List<String> keywords = new ArrayList<>();
 
         /**
          * Get the list of keywords
@@ -458,7 +457,7 @@ public final class PropertiesUtil {
         Writer out = null;
 
         // Save the properties in order
-        List<String> propertiesList = new ArrayList<String>();
+        List<String> propertiesList = new ArrayList<>();
         for (Object propertyObject : PROPS.keySet()) {
             propertiesList.add((String) propertyObject);
         }
@@ -466,7 +465,7 @@ public final class PropertiesUtil {
         Collections.sort(propertiesList);
 
         try {
-            LOG.debug("{}Writing skin preferences file to {}", LOG_MESSAGE, getPropertiesFilename(Boolean.TRUE));
+            LOG.debug("Writing skin preferences file to {}", getPropertiesFilename(Boolean.TRUE));
 
             fos = new FileOutputStream(getPropertiesFilename(Boolean.TRUE));
             osw = new OutputStreamWriter(fos, "UTF-8");
@@ -489,7 +488,7 @@ public final class PropertiesUtil {
             out.flush();
         } catch (IOException error) {
             // Can't write to file
-            LOG.error("{}Can't write to file", LOG_MESSAGE);
+            LOG.error("Can't write to file");
             LOG.error(SystemTools.getStackTrace(error));
         } finally {
             if (out != null) {

@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImdbPosterPlugin.class);
-    private static final String LOG_MESSAGE = "PosterScanner: ";
     private WebBrowser webBrowser;
     private ImdbInfo imdbInfo;
 
@@ -63,7 +62,7 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
                 response = imdbId;
             }
         } catch (Exception error) {
-            LOG.error("{}Imdb Error: {}", LOG_MESSAGE, error.getMessage());
+            LOG.error("Imdb Error: {}", error.getMessage());
             return Movie.UNKNOWN;
         }
         return response;
@@ -109,12 +108,12 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
                     } else {
                         posterURL = Movie.UNKNOWN;
                     }
-                    LOG.debug("{}Imdb found poster @: {}", LOG_MESSAGE, posterURL);
+                    LOG.debug("Imdb found poster @: {}", posterURL);
                 }
 
             }
         } catch (IOException ex) {
-            LOG.error("Imdb Error: {}", LOG_MESSAGE, ex.getMessage());
+            LOG.error("Imdb Error: {}", ex.getMessage());
             LOG.error(SystemTools.getStackTrace(ex));
             return Image.UNKNOWN;
         }

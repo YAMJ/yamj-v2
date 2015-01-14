@@ -28,7 +28,12 @@ import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
@@ -40,14 +45,15 @@ import org.slf4j.LoggerFactory;
 /**
  * Simple movie filename scanner.
  *
- * Scans a movie filename for keywords commonly used in scene released video files.
+ * Scans a movie filename for keywords commonly used in scene released video
+ * files.
  *
  * Main pattern for file scanner is the following:
  *
- * <MovieTitle>[Keyword*].<container>
+ * {MovieTitle}[Keyword*].{container}
  *
- * The movie title is in the first position of the filename. It is followed by zero or more keywords. The file extension match the
- * container name.
+ * The movie title is in the first position of the filename. It is followed by
+ * zero or more keywords. The file extension match the container name.
  *
  * @author jjulien
  * @author quickfinga
@@ -56,17 +62,16 @@ import org.slf4j.LoggerFactory;
 public final class MovieFilenameScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieFilenameScanner.class);
-    private static final String LOG_MESSAGE = "MovieFilenameScanner: ";
     private static final boolean skipEpisodeTitle;
     private static boolean useParentRegex;
     private static final boolean archiveScanRar;
     private static String[] skipKeywords;
     private static String[] skipRegexKeywords;
-    private static final List<Pattern> SKIP_PATTERNS = new ArrayList<Pattern>();
+    private static final List<Pattern> SKIP_PATTERNS = new ArrayList<>();
     private static boolean languageDetection = Boolean.TRUE;
     //All symbols within brackets [] if there is an EXTRA keyword
     private static String[] extrasKeywords;
-    private static final List<Pattern> EXTRAS_PATTERNS = new ArrayList<Pattern>();
+    private static final List<Pattern> EXTRAS_PATTERNS = new ArrayList<>();
     private static final Pattern USE_PARENT_PATTERN;
     private static final Pattern RAR_EXT_PATTERN = Pattern.compile("(rar|001)$");
 
@@ -75,18 +80,18 @@ public final class MovieFilenameScanner {
         skipEpisodeTitle = PropertiesUtil.getBooleanProperty("filename.scanner.skip.episodeTitle", Boolean.FALSE);
         useParentRegex = PropertiesUtil.getBooleanProperty("filename.scanner.useParentRegex", Boolean.FALSE);
         String patternString = PropertiesUtil.getProperty("filename.scanner.parentRegex", "");
-        LOG.debug(LOG_MESSAGE + "useParentPattern >>" + patternString + "<<");
+        LOG.debug("useParentPattern >>{}<<", patternString);
         if (StringTools.isValidString(patternString)) {
             USE_PARENT_PATTERN = ipatt(patternString);
         } else {
-            LOG.debug(LOG_MESSAGE + "Invalid parentPattern, ignoring");
+            LOG.debug("Invalid parentPattern, ignoring");
             USE_PARENT_PATTERN = null;
             useParentRegex = Boolean.FALSE;
         }
         archiveScanRar = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", Boolean.FALSE);
     }
     private static String[] movieVersionKeywords;
-    private static final List<Pattern> MOVIE_VERSION_PATTERNS = new ArrayList<Pattern>();
+    private static final List<Pattern> MOVIE_VERSION_PATTERNS = new ArrayList<>();
     // Allow the use of [IMDB tt123456] to define the IMDB reference
     private static final Pattern ID_PATTERN = patt("\\[ID ([^\\[\\]]*)\\]");
     private static final Pattern IMDB_PATTERN = patt("(?i)(tt\\d{6,7})\\b");    // Search for tt followed by 6 or 7 digits and then a word boundary
@@ -125,7 +130,8 @@ public final class MovieFilenameScanner {
         }
     };
     /**
-     * Detect if the file/folder name is incomplete and additional info must be taken from parent folder.
+     * Detect if the file/folder name is incomplete and additional info must be
+     * taken from parent folder.
      *
      * CAUTION: Grouping is used for part number detection/parsing.
      */
@@ -151,7 +157,7 @@ public final class MovieFilenameScanner {
          * @param tokensStr Tokens list divided by comma or space.
          */
         protected void put(String key, String tokensStr) {
-            List<String> tokens = new ArrayList<String>();
+            List<String> tokens = new ArrayList<>();
             for (String token : tokensStr.split("[ ,]+")) {
                 token = StringUtils.trimToNull(token);
                 if (token != null) {
@@ -183,15 +189,18 @@ public final class MovieFilenameScanner {
     /**
      * Mapping exact tokens to language.
      *
-     * Strict mapping is case sensitive and must be obvious, it must avoid confusing movie name words and language markers.
+     * Strict mapping is case sensitive and must be obvious, it must avoid
+     * confusing movie name words and language markers.
      *
-     * For example the English word "it" and Italian language marker "it", or "French" as part of the title and "french" as language
-     * marker.
+     * For example the English word "it" and Italian language marker "it", or
+     * "French" as part of the title and "french" as language marker.
      *
-     * However, described above is important only by file naming with token delimiters (see tokens description constants
-     * TOKEN_DELIMITERS*). Language detection in non-token separated titles will be skipped automatically.
+     * However, described above is important only by file naming with token
+     * delimiters (see tokens description constants TOKEN_DELIMITERS*). Language
+     * detection in non-token separated titles will be skipped automatically.
      *
-     * Language markers, found with this pattern are counted as token delimiters (they will cut movie title)
+     * Language markers, found with this pattern are counted as token delimiters
+     * (they will cut movie title)
      */
     private static final TokensPatternMap STRICT_LANGUAGE_MAP = new TokensPatternMap() {
         private static final long serialVersionUID = 3630995345545037071L;
@@ -215,8 +224,9 @@ public final class MovieFilenameScanner {
     /**
      * Mapping loose language markers.
      *
-     * The second pass of language detection is being started after movie title detection. Language markers will be scanned with
-     * loose pattern in order to find out more languages without chance to confuse with movie title.
+     * The second pass of language detection is being started after movie title
+     * detection. Language markers will be scanned with loose pattern in order
+     * to find out more languages without chance to confuse with movie title.
      *
      * Markers in this map are case insensitive.
      */
@@ -391,14 +401,14 @@ public final class MovieFilenameScanner {
                 this.file = file.getParentFile();
             }
 
-            LOG.debug(LOG_MESSAGE + "UseParentPattern matched for " + file.getName() + " - Using parent folder name: " + this.file.getName());
+            LOG.debug("UseParentPattern matched for {} - Using parent folder name: {}", file.getName(), this.file.getName());
         } else {
             this.file = file;
         }
 
         this.filename = this.file.getName();
         rest = filename;
-        LOG.trace(LOG_MESSAGE + "Processing filename: '" + rest + "'");
+        LOG.trace("Processing filename: '{}'", rest);
 
         // EXTENSION AND CONTAINER
         if (this.file.isFile()) {
@@ -419,7 +429,7 @@ public final class MovieFilenameScanner {
         }
 
         rest = cleanUp(rest);
-        LOG.trace(LOG_MESSAGE + "After Extension: '" + rest + "'");
+        LOG.trace("After Extension: '{}'", rest);
 
         // Detect incomplete filenames and add parent folder name to parser
         for (Pattern pattern : PARENT_FOLDER_PART_PATTERNS) {
@@ -433,13 +443,13 @@ public final class MovieFilenameScanner {
                 break;
             }
         }
-        LOG.trace(LOG_MESSAGE + "After incomplete filename: '" + rest + "'");
+        LOG.trace("After incomplete filename: '{}'", rest);
 
         // Remove version info
         for (Pattern pattern : MOVIE_VERSION_PATTERNS) {
             rest = pattern.matcher(rest).replaceAll("./.");
         }
-        LOG.trace(LOG_MESSAGE + "After version info: '" + rest + "'");
+        LOG.trace("After version info: '{}'", rest);
 
         // EXTRAS (Including Trailers)
         {
@@ -453,7 +463,7 @@ public final class MovieFilenameScanner {
                 }
             }
         }
-        LOG.trace(LOG_MESSAGE + "After Extras: '" + rest + "'");
+        LOG.trace("After Extras: '{}'", rest);
 
         dto.setFps(seekPatternAndUpdateRest(FPS_MAP, dto.getFps()));
         dto.setAudioCodec(seekPatternAndUpdateRest(AUDIO_CODEC_MAP, dto.getAudioCodec()));
@@ -466,7 +476,7 @@ public final class MovieFilenameScanner {
             final Matcher matcher = TV_PATTERN.matcher(rest);
             if (matcher.find()) {
                 if (matcher.group(1).equals("720") || matcher.group(1).equals("1080")) {
-                    LOG.trace(LOG_MESSAGE + "Skipping pattern detection of '" + matcher.group(0) + "' because it looks like a resolution");
+                    LOG.trace("Skipping pattern detection of '{}' because it looks like a resolution", matcher.group(0));
                 } else {
                     // logger.finest("It's a TV Show: " + group0);
                     rest = cutMatch(rest, matcher, "./TVSHOW/.");
@@ -483,7 +493,7 @@ public final class MovieFilenameScanner {
                 }
             }
         }
-        LOG.trace(LOG_MESSAGE + "After season & episode: '" + rest + "'");
+        LOG.trace("After season & episode: '{}'", rest);
 
         // PART
         {
@@ -496,7 +506,7 @@ public final class MovieFilenameScanner {
                 }
             }
         }
-        LOG.trace(LOG_MESSAGE + "After Part: '" + rest + "'");
+        LOG.trace("After Part: '{}'", rest);
 
         // SETS
         {
@@ -519,7 +529,7 @@ public final class MovieFilenameScanner {
                 set.setTitle(n.trim());
             }
         }
-        LOG.trace(LOG_MESSAGE + "After Sets: '" + rest + "'");
+        LOG.trace("After Sets: '{}'", rest);
 
         // Movie ID detection
         {
@@ -531,7 +541,7 @@ public final class MovieFilenameScanner {
                 if (idString.length == 2) {
                     dto.setId(idString[0].toLowerCase(), idString[1]);
                 } else {
-                    LOG.debug(LOG_MESSAGE + "Error decoding ID from filename: " + matcher.group(1));
+                    LOG.debug("Error decoding ID from filename: {}", matcher.group(1));
                 }
             } else {
                 matcher = IMDB_PATTERN.matcher(rest);
@@ -541,7 +551,7 @@ public final class MovieFilenameScanner {
                 }
             }
         }
-        LOG.trace(LOG_MESSAGE + "After Movie ID: '" + rest + "'");
+        LOG.trace("After Movie ID: '{}'", rest);
 
         // LANGUAGES
         if (languageDetection) {
@@ -553,7 +563,7 @@ public final class MovieFilenameScanner {
                 dto.getLanguages().add(language);
             }
         }
-        LOG.trace(LOG_MESSAGE + "After languages: '" + rest + "'");
+        LOG.trace("After languages: '{}'", rest);
 
         // TITLE
         {
@@ -658,7 +668,7 @@ public final class MovieFilenameScanner {
                 }
             }
         }
-        LOG.trace(LOG_MESSAGE + "Final: " + dto.toString());
+        LOG.trace("Final: {}", dto.toString());
 
     }
 
@@ -706,7 +716,8 @@ public final class MovieFilenameScanner {
     }
 
     /**
-     * Replace all dividers with spaces and trim trailing spaces and redundant braces/minuses at the end.
+     * Replace all dividers with spaces and trim trailing spaces and redundant
+     * braces/minuses at the end.
      *
      * @param token String to clean up.
      * @return Prepared title.

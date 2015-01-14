@@ -38,12 +38,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public final class HTMLTools {
 
-    private static final Map<Character, String> AGGRESSIVE_HTML_ENCODE_MAP = new HashMap<Character, String>();
-    private static final Map<Character, String> DEFENSIVE_HTML_ENCODE_MAP = new HashMap<Character, String>();
-    private static final Map<String, Character> HTML_DECODE_MAP = new HashMap<String, Character>();
+    private static final Map<Character, String> AGGRESSIVE_HTML_ENCODE_MAP = new HashMap<>();
+    private static final Map<Character, String> DEFENSIVE_HTML_ENCODE_MAP = new HashMap<>();
+    private static final Map<String, Character> HTML_DECODE_MAP = new HashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(HTMLTools.class);
 
     static {
@@ -367,7 +366,7 @@ public final class HTMLTools {
                             radix = 16;
                         }
                         try {
-                            Character c = Character.valueOf((char) Integer.parseInt(entity.substring(start, entity.length() - 1), radix));
+                            Character c = (char) Integer.parseInt(entity.substring(start, entity.length() - 1), radix);
                             result.append(c);
                         } // when the number of the entity can't be parsed, add the entity as-is
                         catch (NumberFormatException error) {
@@ -405,7 +404,7 @@ public final class HTMLTools {
             try {
                 return URLDecoder.decode(url, "UTF-8");
             } catch (UnsupportedEncodingException ignored) {
-                LOG.info("Could not decode URL string: " + url + ", will proceed with undecoded string.");
+                LOG.info("Could not decode URL string: {}, will proceed with undecoded string.", url);
             }
         }
         return url;
@@ -417,9 +416,10 @@ public final class HTMLTools {
         if (url != null && url.length() != 0) {
             try {
                 returnUrl = URLEncoder.encode(url, "UTF-8");
-                returnUrl = returnUrl.replace((CharSequence) "+", (CharSequence) "%20"); // why does URLEncoder do that??!!
+                // why does URLEncoder do this??!!
+                returnUrl = returnUrl.replace((CharSequence) "+", (CharSequence) "%20");
             } catch (UnsupportedEncodingException ignored) {
-                LOG.info("Could not decode URL string: " + returnUrl + ", will proceed with undecoded string.");
+                LOG.info("Could not decode URL string: {}, will proceed with undecoded string.", returnUrl);
             }
         }
         return returnUrl;
@@ -438,7 +438,7 @@ public final class HTMLTools {
     }
 
     public static List<String> extractHtmlTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag) {
-        List<String> tags = new ArrayList<String>();
+        List<String> tags = new ArrayList<>();
         int index = src.indexOf(sectionStart);
         if (index == -1) {
             return tags;
@@ -503,7 +503,7 @@ public final class HTMLTools {
 
             value = HTMLTools.decodeHtml(st.nextToken().trim());
 
-            if (checkDirty && value.indexOf("uiv=\"content-ty") != -1 || value.indexOf("cast") != -1 || value.indexOf("title") != -1 || value.indexOf('<') != -1) {
+            if (checkDirty && value.contains("uiv=\"content-ty") || value.contains("cast") || value.contains("title") || value.indexOf('<') != -1) {
                 value = Movie.UNKNOWN;
             }
         }
@@ -544,7 +544,7 @@ public final class HTMLTools {
     }
 
     public static List<String> extractTags(String src, String sectionStart, String sectionEnd, String startTag, String endTag, boolean forceCloseTag) {
-        List<String> tags = new ArrayList<String>();
+        List<String> tags = new ArrayList<>();
         int startIndex = StringUtils.indexOfIgnoreCase(src, sectionStart);
         if (startIndex == -1) {
             return tags;
@@ -604,7 +604,8 @@ public final class HTMLTools {
     }
 
     /**
-     * Example: src = "<a id="specialID"><br/> <img src="a.gif"/>my text</a> findStr = "specialID" result = "my text"
+     * Example: src = "<a id="specialID"><br/> <img src="a.gif"/>my text</a>
+     * findStr = "specialID" result = "my text"
      *
      * @param src html text
      * @param findStr string to find in src

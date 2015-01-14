@@ -22,21 +22,56 @@
  */
 package com.moviejukebox.writer;
 
-import static com.moviejukebox.tools.PropertiesUtil.FALSE;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
-
-import com.moviejukebox.model.*;
 import com.moviejukebox.model.Attachment.Attachment;
+import com.moviejukebox.model.Award;
+import com.moviejukebox.model.AwardEvent;
+import com.moviejukebox.model.Codec;
+import com.moviejukebox.model.CodecType;
 import com.moviejukebox.model.Comparator.CertificationComparator;
 import com.moviejukebox.model.Comparator.IndexComparator;
 import com.moviejukebox.model.Comparator.SortIgnorePrefixesComparator;
+import com.moviejukebox.model.DirtyFlag;
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Filmography;
+import com.moviejukebox.model.Identifiable;
+import com.moviejukebox.model.Index;
+import com.moviejukebox.model.IndexInfo;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.JukeboxStatistic;
+import com.moviejukebox.model.JukeboxStatistics;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Person;
+import com.moviejukebox.model.TitleSortType;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.DOMHelper;
+import com.moviejukebox.tools.DateTimeTools;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import static com.moviejukebox.tools.PropertiesUtil.FALSE;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SubtitleTools;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.ThreadExecutor;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
@@ -57,7 +92,6 @@ import org.w3c.dom.Element;
 public class MovieJukeboxXMLWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieJukeboxXMLWriter.class);
-    private static final String LOG_MESSAGE = "XMLWriter: ";
     // Literals
     public static final String EXT_XML = ".xml";
     public static final String EXT_HTML = ".html";
@@ -230,7 +264,7 @@ public class MovieJukeboxXMLWriter {
         int libraryCount = 0;
 
         // Issue 1148, generate category in the order specified in properties
-        LOG.info("  Indexing " + filename + "...");
+        LOG.info("  Indexing {}...", filename);
         for (String categoryName : CATEGORIES_DISPLAY_LIST) {
             int categoryMinCount = Library.calcMinCategoryCount(categoryName);
             int categoryCount = 0;
@@ -245,7 +279,7 @@ public class MovieJukeboxXMLWriter {
 
                     if ("Other".equalsIgnoreCase(categoryName)) {
                         // Process the other category using the order listed in the category.xml file
-                        Map<String, String> cm = new LinkedHashMap<String, String>(library.getCategoriesMap());
+                        Map<String, String> cm = new LinkedHashMap<>(library.getCategoriesMap());
 
                         // Tidy up the new categories if needed
                         String newAll = cm.get(Library.INDEX_NEW);
@@ -283,7 +317,7 @@ public class MovieJukeboxXMLWriter {
 
                         // Sort the certification according to certification.ordering
                         if (Library.INDEX_CERTIFICATION.equalsIgnoreCase(categoryName)) {
-                            List<String> certificationOrdering = new ArrayList<String>();
+                            List<String> certificationOrdering = new ArrayList<>();
                             String certificationOrder = PropertiesUtil.getProperty("certification.ordering");
                             if (StringUtils.isNotBlank(certificationOrder)) {
                                 for (String cert : certificationOrder.split(",")) {
@@ -292,13 +326,13 @@ public class MovieJukeboxXMLWriter {
                             }
 
                             // Process the certification in order of the certification.ordering property
-                            sortedMap = new TreeMap<String, List<Movie>>(new CertificationComparator(certificationOrdering));
+                            sortedMap = new TreeMap<>(new CertificationComparator(certificationOrdering));
                         } else if (!SORT_LIBRARY && Library.INDEX_LIBRARY.equalsIgnoreCase(categoryName)) {
                             // Issue 2359, disable sorting the list of libraries so that the entries in categories.xml are written in the same order as the list of libraries in library.xml
-                            sortedMap = new TreeMap<String, List<Movie>>(new CertificationComparator(Library.getLibraryOrdering()));
+                            sortedMap = new TreeMap<>(new CertificationComparator(Library.getLibraryOrdering()));
                         } else {
                             // Sort the remaining categories
-                            sortedMap = new TreeMap<String, List<Movie>>(new SortIgnorePrefixesComparator());
+                            sortedMap = new TreeMap<>(new SortIgnorePrefixesComparator());
                         }
                         sortedMap.putAll(category.getValue());
 
@@ -367,32 +401,15 @@ public class MovieJukeboxXMLWriter {
         int countMovieCat = library.getMovieCountForIndex(categoryKey, indexName);
         boolean skipSet = categoryKey.equalsIgnoreCase("Set") && countMovieCat <= 1;
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("Index: ");
-        sb.append(categoryKey);
-        sb.append(", Category: ");
-        sb.append(indexName);
-        sb.append(", count: ");
-        sb.append(indexMovies.size());
-        LOG.debug(sb.toString());
+        LOG.debug("Index: {}, Category: {}, count: {}", categoryKey, indexName, indexMovies.size());
 
         JukeboxStatistic js = JukeboxStatistic.fromString("index_" + categoryKey);
         JukeboxStatistics.setStatistic(js, indexMovies.size());
 
         // Display a message about the category we're indexing
         if (countMovieCat < categoryMinCount && (skipSet || !INDEXES_FOR_CATEGORIES_XML.contains(categoryKey))) {
-            sb = new StringBuilder();
-            sb.append("Category '");
-            sb.append(categoryKey);
-            sb.append("' Index '");
-            sb.append(indexName);
-            sb.append("' does not contain enough videos (");
-            sb.append(countMovieCat);
-            sb.append("/");
-            sb.append(categoryMinCount);
-            sb.append("), not adding to categories.xml.");
-
-            LOG.debug(sb.toString());
+            LOG.debug("Category '{}' Index '{}' does not contain enough videos ({}/{}), not adding to categories.xml.",
+                    categoryKey, indexName, countMovieCat, categoryMinCount);
             return null;
         }
 
@@ -452,7 +469,7 @@ public class MovieJukeboxXMLWriter {
             loggerString.append(toLimitCategory && categoryMaxCount > 0 && index.size() > categoryMaxCount ? (" (limit to " + categoryMaxCount + ")") : "");
             LOG.info(loggerString.toString());
 
-            List<Map.Entry<String, List<Movie>>> groupArray = new ArrayList<Map.Entry<String, List<Movie>>>(index.entrySet());
+            List<Map.Entry<String, List<Movie>>> groupArray = new ArrayList<>(index.entrySet());
             Collections.sort(groupArray, new IndexComparator(library, categoryName));
             Iterator<Map.Entry<String, List<Movie>>> itr = groupArray.iterator();
 
@@ -552,10 +569,10 @@ public class MovieJukeboxXMLWriter {
                                         && (!keepTVExplodeSet || !movie.isTVShow())) {
                                     List<Movie> boxedSetMovies = library.getIndexes().get(Library.INDEX_SET).get(movie.getTitle());
                                     boxedSetMovies = library.getMatchingMoviesList(categoryName, boxedSetMovies, key);
-                                    LOG.debug("Exploding set for " + categoryPath + "[" + movie.getTitle() + "] " + boxedSetMovies.size());
+                                    LOG.debug("Exploding set for {}[{}] {}", categoryPath, movie.getTitle(), boxedSetMovies.size());
                                     // delay new instance
                                     if (tmpMovieList == movies) {
-                                        tmpMovieList = new ArrayList<Movie>(movies);
+                                        tmpMovieList = new ArrayList<>(movies);
                                     }
 
                                     // do we want to keep the set?
@@ -571,7 +588,7 @@ public class MovieJukeboxXMLWriter {
                         }
 
                         if (toLimitCategory && movieMaxCount > 0 && tmpMovieList.size() > movieMaxCount) {
-                            LOG.debug("Limiting category " + categoryName + " " + key + " " + tmpMovieList.size() + " -> " + movieMaxCount);
+                            LOG.debug("Limiting category {} {} {} -> {}", categoryName, key, tmpMovieList.size(), movieMaxCount);
                             while (tmpMovieList.size() > movieMaxCount) {
                                 tmpMovieList.remove(tmpMovieList.size() - 1);
                             }
@@ -585,9 +602,7 @@ public class MovieJukeboxXMLWriter {
 
                         // Don't skip the indexing for sets as this overwrites the set files
                         if (Library.INDEX_SET.equalsIgnoreCase(categoryName) && setReindex) {
-                            if (LOG.isTraceEnabled()) {
-                                LOG.trace(LOG_MESSAGE + "Forcing generation of set index.");
-                            }
+                            LOG.trace("Forcing generation of set index.");
                             skipIndex = false;
                         }
 
@@ -613,12 +628,8 @@ public class MovieJukeboxXMLWriter {
                             }
                         }
 
-                        StringBuilder logOutput = new StringBuilder("Category '");
-                        logOutput.append(categoryPath);
-
                         if (skipIndex) {
-                            logOutput.append("' - no change detected, skipping XML generation.");
-                            LOG.debug(logOutput.toString());
+                            LOG.debug("Category '{}' - no change detected, skipping XML generation.", categoryPath);
 
                             // Add the existing file to the cache so they aren't deleted
                             for (int current = 1; current <= last; current++) {
@@ -626,11 +637,7 @@ public class MovieJukeboxXMLWriter {
                                 FileTools.addJukeboxFile(name);
                             }
                         } else {
-                            logOutput.append("' - generating ");
-                            logOutput.append(last);
-                            logOutput.append(" XML file");
-                            logOutput.append(last == 1 ? "." : "s.");
-                            LOG.debug(logOutput.toString());
+                            LOG.debug("Category '{}' - generating {} XML file{}", categoryPath, last, last == 1 ? "." : "s.");
 
                             int next;
                             for (int current = 1; current <= last; current++) {
@@ -678,7 +685,7 @@ public class MovieJukeboxXMLWriter {
         try {
             xmlDoc = DOMHelper.createDocument();
         } catch (ParserConfigurationException error) {
-            LOG.error(LOG_MESSAGE + "Failed writing index page: " + xmlFile.getName());
+            LOG.error("Failed writing index page: {}", xmlFile.getName());
             LOG.error(SystemTools.getStackTrace(error));
             return;
         }
@@ -712,7 +719,7 @@ public class MovieJukeboxXMLWriter {
             int indexSize;
             if ("other".equalsIgnoreCase(categoryKey)) {
                 // Process the other category using the order listed in the category.xml file
-                Map<String, String> cm = new LinkedHashMap<String, String>(library.getCategoriesMap());
+                Map<String, String> cm = new LinkedHashMap<>(library.getCategoriesMap());
 
                 // Tidy up the new categories if needed
                 String newAll = cm.get(Library.INDEX_NEW);
@@ -768,7 +775,7 @@ public class MovieJukeboxXMLWriter {
             }
         }
 
-        if (ENABLE_PEOPLE && ADD_PEOPLE_INFO && (Library.INDEX_PERSON + Library.INDEX_CAST + Library.INDEX_DIRECTOR + Library.INDEX_WRITER).indexOf(idx.categoryName) > -1) {
+        if (ENABLE_PEOPLE && ADD_PEOPLE_INFO && (Library.INDEX_PERSON + Library.INDEX_CAST + Library.INDEX_DIRECTOR + Library.INDEX_WRITER).contains(idx.categoryName)) {
             for (Person person : library.getPeople()) {
                 if (!person.getName().equalsIgnoreCase(idx.key) && !person.getTitle().equalsIgnoreCase(idx.key)) {
                     boolean found = false;
@@ -930,7 +937,8 @@ public class MovieJukeboxXMLWriter {
     /**
      * Write the element with the indexed attribute.
      *
-     * If there is a non-null value in the indexValue, this will be appended to the element.
+     * If there is a non-null value in the indexValue, this will be appended to
+     * the element.
      *
      * @param doc
      * @param parentElement
@@ -985,7 +993,7 @@ public class MovieJukeboxXMLWriter {
         Element eMovie = doc.createElement(MOVIE);
 
         // holds the child attributes for reuse
-        Map<String, String> childAttributes = new LinkedHashMap<String, String>();
+        Map<String, String> childAttributes = new LinkedHashMap<>();
 
         eMovie.setAttribute("isExtra", Boolean.toString(movie.isExtra()));
         eMovie.setAttribute("isSet", Boolean.toString(movie.isSetMaster()));
@@ -1359,7 +1367,7 @@ public class MovieJukeboxXMLWriter {
                     eFileItem.setAttribute("size", Long.toString(mf.getSize()));
                 }
             } catch (DOMException error) {
-                LOG.debug(LOG_MESSAGE + "File length error for file " + mf.getFilename());
+                LOG.debug("File length error for file {}", mf.getFilename());
                 eFileItem.setAttribute("size", "0");
             }
 
@@ -1384,7 +1392,7 @@ public class MovieJukeboxXMLWriter {
             // If attribute was set, save it back out.
             String archiveName = mf.getArchiveName();
             if (StringTools.isValidString(archiveName)) {
-                LOG.debug(LOG_MESSAGE + "getArchivename is '" + archiveName + "' for " + mf.getFilename() + " length " + archiveName.length());
+                LOG.debug("getArchivename is '{}' for {} length {}", archiveName, mf.getFilename(), archiveName.length());
             }
 
             if (StringTools.isValidString(archiveName)) {
@@ -1497,7 +1505,7 @@ public class MovieJukeboxXMLWriter {
         int countAudio = 0;
         int countVideo = 0;
 
-        Map<String, String> codecAttribs = new HashMap<String, String>();
+        Map<String, String> codecAttribs = new HashMap<>();
 
         for (Codec codec : movieCodecs) {
             codecAttribs.clear();
@@ -1531,8 +1539,9 @@ public class MovieJukeboxXMLWriter {
     /**
      * Persist a movie into an XML file.
      *
-     * Doesn't overwrite an already existing XML file for the specified movie unless, movie's data has changed (INFO, RECHECK,
-     * WATCHED) or forceXMLOverwrite is true.
+     * Doesn't overwrite an already existing XML file for the specified movie
+     * unless, movie's data has changed (INFO, RECHECK, WATCHED) or
+     * forceXMLOverwrite is true.
      *
      * @param jukebox
      * @param movie
@@ -1545,13 +1554,13 @@ public class MovieJukeboxXMLWriter {
 
         FileTools.addJukeboxFile(finalXmlFile.getName());
 
-        LOG.debug(LOG_MESSAGE + "DirtyFlags for " + movie.getBaseName() + " are:" + movie.showDirty());
+        LOG.debug("DirtyFlags for {} are: {}", movie.getBaseName(), movie.showDirty());
         if (!finalXmlFile.exists() || FORCE_XML_OVERWRITE || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.RECHECK) || movie.isDirty(DirtyFlag.WATCHED)) {
             Document xmlDoc;
             try {
                 xmlDoc = DOMHelper.createDocument();
             } catch (ParserConfigurationException error) {
-                LOG.error(LOG_MESSAGE + "Failed writing " + tempXmlFile.getAbsolutePath());
+                LOG.error("Failed writing {}", tempXmlFile.getAbsolutePath());
                 LOG.error(SystemTools.getStackTrace(error));
                 return;
             }
@@ -1683,7 +1692,7 @@ public class MovieJukeboxXMLWriter {
                 personDoc.appendChild(eDetails);
                 DOMHelper.writeDocumentToFile(personDoc, tempXmlFile);
             } catch (ParserConfigurationException error) {
-                LOG.error(LOG_MESSAGE + "Failed writing person XML for " + tempXmlFile.getName());
+                LOG.error("Failed writing person XML for {}", tempXmlFile.getName());
                 LOG.error(SystemTools.getStackTrace(error));
             }
         }

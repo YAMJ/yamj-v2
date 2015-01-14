@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(YahooPosterPlugin.class);
-    private static final String LOG_MESSAGE = "YahooPosterPlugin: ";
     private WebBrowser webBrowser;
 
     public YahooPosterPlugin() {
@@ -73,7 +72,7 @@ public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
                 posterURL = URLDecoder.decode(xml.substring(beginIndex + 7, endIndex), "UTF-8");
             }
         } catch (IOException ex) {
-            LOG.error("{}Failed retreiving poster URL from yahoo images: {}", LOG_MESSAGE, title);
+            LOG.error("Failed retreiving poster URL from yahoo images: {}", title);
             LOG.error(SystemTools.getStackTrace(ex));
         }
 

@@ -35,7 +35,6 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
 
     private AllocinePlugin allocinePlugin;
     private static final Logger LOG = LoggerFactory.getLogger(AllocinePosterPlugin.class);
-    private static final String LOG_MESSAGE = "AllocinePosterPlugin: ";
 
     public AllocinePosterPlugin() {
         super();
@@ -67,7 +66,7 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
                 }
             }
         }
-        LOG.debug("{}No poster found at allocine for movie id '{}'", LOG_MESSAGE, id);
+        LOG.debug("No poster found at allocine for movie id '{}'", id);
         return Image.UNKNOWN;
     }
 

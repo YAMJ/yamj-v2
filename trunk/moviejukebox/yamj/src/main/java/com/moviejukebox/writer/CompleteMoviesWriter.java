@@ -42,7 +42,6 @@ import javax.xml.transform.stream.StreamSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  *
  * @author stuart.boston
@@ -50,7 +49,6 @@ import org.slf4j.LoggerFactory;
 public class CompleteMoviesWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(CompleteMoviesWriter.class);
-    private static final String LOG_MESSAGE = "CompleteMovies: ";
     private static final String COMPLETE_MOVIES_XML = "CompleteMovies.xml";
     private static final String RSS_XML_FILENAME = "rss.xml";
     private static final String RSS_XSL_FILENAME = "rss.xsl";
@@ -70,10 +68,10 @@ public class CompleteMoviesWriter {
         JAXBContext context;
 
         try {
-            LOG.info(LOG_MESSAGE + "Generating " + COMPLETE_MOVIES_XML);
+            LOG.info("Generating {}", COMPLETE_MOVIES_XML);
             context = JAXBContext.newInstance(MovieJukebox.JukeboxXml.class);
         } catch (JAXBException error) {
-            LOG.warn(LOG_MESSAGE + "RSS is not generated (Context creation error).");
+            LOG.warn("RSS is not generated (Context creation error).");
             LOG.warn(SystemTools.getStackTrace(error));
             return Boolean.FALSE;
         }
@@ -90,11 +88,11 @@ public class CompleteMoviesWriter {
                 marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
                 context.createMarshaller().marshal(jukeboxXml, marStream);
             } catch (JAXBException ex) {
-                LOG.warn(LOG_MESSAGE + "RSS is not generated (JAXB error): " + ex.getMessage());
+                LOG.warn("RSS is not generated (JAXB error): {}", ex.getMessage());
                 LOG.warn(SystemTools.getStackTrace(ex));
                 return Boolean.FALSE;
             } catch (FileNotFoundException ex) {
-                LOG.warn(LOG_MESSAGE + "RSS is not generated (Jukebox error): " + ex.getMessage());
+                LOG.warn("RSS is not generated (Jukebox error): {}", ex.getMessage());
                 LOG.warn(SystemTools.getStackTrace(ex));
                 return Boolean.FALSE;
             } finally {
@@ -103,7 +101,7 @@ public class CompleteMoviesWriter {
                         marStream.flush();
                         marStream.close();
                     } catch (IOException ex) {
-                        LOG.trace(LOG_MESSAGE + "Failed to close marshal file: " + ex.getMessage());
+                        LOG.trace("Failed to close marshal file: {}", ex.getMessage());
                     }
                 }
             }
@@ -114,9 +112,9 @@ public class CompleteMoviesWriter {
                 Result xmlResult = new StreamResult(new File(jukebox.getJukeboxTempLocationDetails(), RSS_XML_FILENAME));
                 transformer.transform(new StreamSource(totalMoviesXmlFile), xmlResult);
 
-                LOG.debug(LOG_MESSAGE + "RSS has been generated.");
+                LOG.debug("RSS has been generated.");
             } catch (TransformerException ex) {
-                LOG.warn(LOG_MESSAGE + "RSS is not generated (Transformer error): " + ex.getMessage());
+                LOG.warn("RSS is not generated (Transformer error): {}", ex.getMessage());
                 LOG.warn(SystemTools.getStackTrace(ex));
                 return Boolean.FALSE;
             }
