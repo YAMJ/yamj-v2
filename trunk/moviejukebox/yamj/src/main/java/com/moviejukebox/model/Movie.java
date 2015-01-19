@@ -23,7 +23,10 @@
 package com.moviejukebox.model;
 
 import com.moviejukebox.model.enumerations.CodecSource;
+import com.moviejukebox.model.enumerations.CodecType;
+import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.model.enumerations.TitleSortType;
 import com.moviejukebox.plugin.MovieDatabasePlugin;
 import com.moviejukebox.tools.BooleanYesNoAdapter;
 import com.moviejukebox.tools.DateTimeTools;
@@ -100,13 +103,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * --------------------------------------------------------------------------------
      * Properties that control the object
      */
-    private static final List<String> SORT_IGNORE_PREFIXES = new ArrayList<String>();
+    private static final List<String> SORT_IGNORE_PREFIXES = new ArrayList<>();
     private final int highdef720 = PropertiesUtil.getIntProperty("highdef.720.width", 1280);    // Get the minimum width for a high-definition movies
     private final int highdef1080 = PropertiesUtil.getIntProperty("highdef.1080.width", 1920);  // Get the minimum width for a high-definition movies
     private final String[] ratingSource = PropertiesUtil.getProperty("mjb.rating.source", "average").split(",");
     private final String tmpRatingIgnore = PropertiesUtil.getProperty("mjb.rating.ignore", "");
     private final List<String> ratingIgnore = StringTools.isValidString(tmpRatingIgnore) ? Arrays.asList(tmpRatingIgnore.split(",")) : new ArrayList<String>();
-    private static final Set<String> GENRE_SKIP_LIST = new HashSet<String>();   // List of genres to ignore
+    private static final Set<String> GENRE_SKIP_LIST = new HashSet<>();   // List of genres to ignore
     private static final TitleSortType TITLE_SORT_TYPE = TitleSortType.fromString(PropertiesUtil.getProperty("mjb.sortTitle", "title"));
     // TODO: This will be removed in the future, once hashing has been completed
     private static final Boolean DIR_HASH = PropertiesUtil.getBooleanProperty("mjb.dirHash", Boolean.FALSE);
@@ -122,14 +125,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      */
     private String baseName;        // Safe name for generated files
     private String baseFilename;    // Base name for finding posters, nfos, banners, etc.
-    private Map<String, String> idMap = new HashMap<String, String>(2);
+    private Map<String, String> idMap = new HashMap<>(2);
     private String title = UNKNOWN;
     private String titleSort = UNKNOWN;
     private String strippedTitleSort = UNKNOWN; // Not saved, used to speedup the sort
     private String originalTitle = UNKNOWN;
     private String year = UNKNOWN;
     private String releaseDate = UNKNOWN;
-    private Map<String, Integer> ratings = new HashMap<String, Integer>();
+    private Map<String, Integer> ratings = new HashMap<>();
     private String plot = UNKNOWN;
     private String outline = UNKNOWN;
     private String quote = UNKNOWN;
@@ -139,14 +142,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String language = UNKNOWN;
     private String videoType = UNKNOWN;
     private String subtitles = UNKNOWN;
-    private Set<String> countries = new LinkedHashSet<String>();
-    private Set<String> directors = new LinkedHashSet<String>();
-    private Map<String, Integer> sets = new HashMap<String, Integer>();
-    private Collection<String> genres = new TreeSet<String>();
-    private Set<String> cast = new LinkedHashSet<String>();
-    private Set<String> writers = new LinkedHashSet<String>();
+    private Set<String> countries = new LinkedHashSet<>();
+    private Set<String> directors = new LinkedHashSet<>();
+    private Map<String, Integer> sets = new HashMap<>();
+    private Collection<String> genres = new TreeSet<>();
+    private Set<String> cast = new LinkedHashSet<>();
+    private Set<String> writers = new LinkedHashSet<>();
     private String container = UNKNOWN; // AVI, MKV, TS, etc.
-    private Set<Codec> codecs = new LinkedHashSet<Codec>();
+    private Set<Codec> codecs = new LinkedHashSet<>();
     private String resolution = UNKNOWN; // 1280x528
     private String aspect = UNKNOWN;
     private String videoSource = UNKNOWN;
@@ -158,13 +161,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private boolean extra = Boolean.FALSE;  // TODO Move extra flag to movie file
     private boolean trailerExchange = Boolean.FALSE;    // Trailers
     private long trailerLastScan = 0;           // Trailers
-    private Collection<AwardEvent> awards = new ArrayList<AwardEvent>();    // Issue 1901: Awards
-    private Collection<Filmography> people = new ArrayList<Filmography>();  // Issue 1897: Cast enhancement
+    private Collection<AwardEvent> awards = new ArrayList<>();    // Issue 1901: Awards
+    private Collection<Filmography> people = new ArrayList<>();  // Issue 1897: Cast enhancement
     private String budget = UNKNOWN;                                        // Issue 2012: Financial information about movie
-    private Map<String, String> openweek = new HashMap<String, String>();
-    private Map<String, String> gross = new HashMap<String, String>();
-    private Map<OverrideFlag, String> overrideSources = new EnumMap<OverrideFlag, String>(OverrideFlag.class);
-    private List<String> didYouKnow = new ArrayList<String>();        // Issue 2013: Add trivia
+    private Map<String, String> openweek = new HashMap<>();
+    private Map<String, String> gross = new HashMap<>();
+    private Map<OverrideFlag, String> overrideSources = new EnumMap<>(OverrideFlag.class);
+    private List<String> didYouKnow = new ArrayList<>();        // Issue 2013: Add trivia
     private String libraryPath = UNKNOWN;
     private String movieType = TYPE_MOVIE;
     private String formatType = TYPE_FILE;
@@ -176,7 +179,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String posterFilename = UNKNOWN; // The poster filename
     private String detailPosterFilename = UNKNOWN; // The resized poster for skins
     private String thumbnailFilename = UNKNOWN; // The thumbnail version of the poster for skins
-    private List<String> footerFilename = new ArrayList<String>(); // The footer image for skins
+    private List<String> footerFilename = new ArrayList<>(); // The footer image for skins
     private String fanartURL = UNKNOWN; // The fanart URL
     private String fanartFilename = UNKNOWN; // The resized fanart file
     private String bannerURL = UNKNOWN; // The TV Show banner URL
@@ -202,10 +205,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     private String previous = UNKNOWN;
     private String next = UNKNOWN;
     private String last = UNKNOWN;
-    private Map<String, String> indexes = new HashMap<String, String>();
+    private Map<String, String> indexes = new HashMap<>();
     // Media file properties
-    private Collection<MovieFile> movieFiles = new TreeSet<MovieFile>();
-    private Collection<ExtraFile> extraFiles = new TreeSet<ExtraFile>();
+    private Collection<MovieFile> movieFiles = new TreeSet<>();
+    private Collection<ExtraFile> extraFiles = new TreeSet<>();
     private Set<DirtyFlag> dirtyFlags = EnumSet.noneOf(DirtyFlag.class);    // List of the dirty flags associated with the Movie
     private File file;
     private File containerFile;
@@ -636,7 +639,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public Collection<String> getPerson(String department) {
-        Collection<String> pList = new ArrayList<String>();
+        Collection<String> pList = new ArrayList<>();
         for (Filmography p : people) {
             if (p.getDepartment().equals(department)) {
                 pList.add(p.getTitle());
@@ -759,7 +762,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     @XmlElement(name = "id")
     public List<MovieId> getMovieIds() {
-        List<MovieId> list = new ArrayList<MovieId>();
+        List<MovieId> list = new ArrayList<>();
         for (Entry<String, String> e : idMap.entrySet()) {
             MovieId id = new MovieId();
             id.movieDatabase = e.getKey();
@@ -1141,7 +1144,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void clearPeopleCast() {
         if (people.size() > 0) {
-            Collection<Filmography> pList = new ArrayList<Filmography>();
+            Collection<Filmography> pList = new ArrayList<>();
             for (Filmography p : people) {
                 if (p.getDepartment().equals(Filmography.DEPT_ACTORS)) {
                     pList.add(p);
@@ -1231,7 +1234,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void clearPeopleWriters() {
         if (people.size() > 0) {
-            Collection<Filmography> pList = new ArrayList<Filmography>();
+            Collection<Filmography> pList = new ArrayList<>();
             for (Filmography p : people) {
                 if (p.getDepartment().equals(Filmography.DEPT_WRITING)) {
                     pList.add(p);
@@ -1356,7 +1359,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void clearPeopleDirectors() {
         if (people.size() > 0) {
-            Collection<Filmography> pList = new ArrayList<Filmography>();
+            Collection<Filmography> pList = new ArrayList<>();
             for (Filmography p : people) {
                 if (p.getDepartment().equals(Filmography.DEPT_DIRECTING)) {
                     pList.add(p);
@@ -2772,7 +2775,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setIndexes(Map<String, String> indexes) {
-        this.indexes = new HashMap<String, String>(indexes);
+        this.indexes = new HashMap<>(indexes);
     }
 
     public String getTagline() {
@@ -2940,23 +2943,23 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         newMovie.setMaster = aMovie.setMaster;
         newMovie.setSize = aMovie.setSize;
 
-        newMovie.idMap = new HashMap<String, String>(aMovie.idMap);
-        newMovie.countries = new LinkedHashSet<String>(aMovie.countries);
-        newMovie.ratings = new HashMap<String, Integer>(aMovie.ratings);
-        newMovie.directors = new LinkedHashSet<String>(aMovie.directors);
-        newMovie.sets = new HashMap<String, Integer>(aMovie.sets);
-        newMovie.genres = new TreeSet<String>(aMovie.genres);
-        newMovie.cast = new LinkedHashSet<String>(aMovie.cast);
-        newMovie.writers = new LinkedHashSet<String>(aMovie.writers);
-        newMovie.awards = new ArrayList<AwardEvent>(aMovie.awards);
-        newMovie.people = new ArrayList<Filmography>(aMovie.people);
-        newMovie.indexes = new HashMap<String, String>(aMovie.indexes);
-        newMovie.movieFiles = new TreeSet<MovieFile>(aMovie.movieFiles);
-        newMovie.extraFiles = new TreeSet<ExtraFile>(aMovie.extraFiles);
+        newMovie.idMap = new HashMap<>(aMovie.idMap);
+        newMovie.countries = new LinkedHashSet<>(aMovie.countries);
+        newMovie.ratings = new HashMap<>(aMovie.ratings);
+        newMovie.directors = new LinkedHashSet<>(aMovie.directors);
+        newMovie.sets = new HashMap<>(aMovie.sets);
+        newMovie.genres = new TreeSet<>(aMovie.genres);
+        newMovie.cast = new LinkedHashSet<>(aMovie.cast);
+        newMovie.writers = new LinkedHashSet<>(aMovie.writers);
+        newMovie.awards = new ArrayList<>(aMovie.awards);
+        newMovie.people = new ArrayList<>(aMovie.people);
+        newMovie.indexes = new HashMap<>(aMovie.indexes);
+        newMovie.movieFiles = new TreeSet<>(aMovie.movieFiles);
+        newMovie.extraFiles = new TreeSet<>(aMovie.extraFiles);
         newMovie.dirtyFlags = EnumSet.copyOf(aMovie.dirtyFlags);
-        newMovie.codecs = new LinkedHashSet<Codec>(aMovie.codecs);
-        newMovie.footerFilename = new ArrayList<String>(aMovie.footerFilename);
-        newMovie.overrideSources = new EnumMap<OverrideFlag, String>(aMovie.overrideSources);
+        newMovie.codecs = new LinkedHashSet<>(aMovie.codecs);
+        newMovie.footerFilename = new ArrayList<>(aMovie.footerFilename);
+        newMovie.overrideSources = new EnumMap<>(aMovie.overrideSources);
 
         return newMovie;
     }
@@ -2979,7 +2982,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         // Check to see if the codec already exists
         boolean alreadyExists = Boolean.FALSE;
         // Store the codecs to delete in an array to prevent a concurent modification exception
-        List<Codec> codecsToDelete = new ArrayList<Codec>();
+        List<Codec> codecsToDelete = new ArrayList<>();
 
         for (Codec existingCodec : codecs) {
             if (existingCodec.getCodecType() != newCodec.getCodecType()) {

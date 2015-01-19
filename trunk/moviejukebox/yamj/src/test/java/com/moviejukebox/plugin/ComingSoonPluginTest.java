@@ -116,7 +116,7 @@ public class ComingSoonPluginTest {
     @Test
     public void testScanList() {
         LOG.info("testScanList");
-        List<String> titleList = new ArrayList<String>();
+        List<String> titleList = new ArrayList<>();
         titleList.add("Matrix");
         titleList.add("Gli Aristogatti");
         titleList.add("Inception");

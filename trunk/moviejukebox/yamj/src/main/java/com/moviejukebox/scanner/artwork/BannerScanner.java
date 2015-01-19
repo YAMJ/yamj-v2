@@ -22,9 +22,9 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.scanner.AttachmentScanner;

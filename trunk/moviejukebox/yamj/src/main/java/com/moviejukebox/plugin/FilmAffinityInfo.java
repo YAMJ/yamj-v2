@@ -129,15 +129,19 @@ public class FilmAffinityInfo {
         }
         return response;
     }
-    /*
-     * Normalize the FilmAffinity ID.
-     * This permits use several types of ID:
-     * film[0-9]{6}.html (this the complete and it returns this)
-     * film[0-9]{6}
-     * [0-9]{6}.html
-     * [0-9]{6}
-     */
 
+    /**
+     * Normalize the FilmAffinity ID.
+     *
+     * This permits use several types of ID:<br/>
+     * film[0-9]{6}.html (this the complete and it returns this)<br/>
+     * film[0-9]{6}<br/>
+     * [0-9]{6}.html<br/>
+     * [0-9]{6}<br/>
+     *
+     * @param id
+     * @return
+     */
     public String arrangeId(String id) {
         Matcher matcher = Pattern.compile("(film[0-9]{6}\\.html)|(film[0-9]{6})|([0-9]{6}\\.html)|([0-9]{6})").matcher(id);
 

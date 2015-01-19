@@ -84,7 +84,7 @@ public class OfdbPluginTest {
         assertTrue(movie.getGenres().contains("Action"));
         assertTrue(movie.getGenres().contains("Science-Fiction"));
 
-        LinkedHashSet<String> testList = new LinkedHashSet<String>();
+        LinkedHashSet<String> testList = new LinkedHashSet<>();
         testList.add("James Cameron");
         assertEquals(Arrays.asList(testList.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getDirectors().toArray(), 1)).toString());
 

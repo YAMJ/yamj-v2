@@ -52,7 +52,7 @@ public class MovieFileNameDTO {
     private String partTitle = null;
     private String episodeTitle = null;
     private int season = -1;
-    private final List<Integer> episodes = new ArrayList<Integer>();
+    private final List<Integer> episodes = new ArrayList<>();
     private int part = -1;
     private boolean extra = false;
     private String audioCodec = null;
@@ -88,8 +88,8 @@ public class MovieFileNameDTO {
             this.index = index;
         }
     }
-    private final List<SetDTO> sets = new ArrayList<SetDTO>();
-    private final List<String> languages = new ArrayList<String>();
+    private final List<SetDTO> sets = new ArrayList<>();
+    private final List<String> languages = new ArrayList<>();
 
     public String getTitle() {
         return title;
@@ -243,7 +243,7 @@ public class MovieFileNameDTO {
     }
 
     public List<MovieId> getMovieIds() {
-        List<MovieId> list = new ArrayList<MovieId>();
+        List<MovieId> list = new ArrayList<>();
         for (Entry<String, String> e : idMap.entrySet()) {
             MovieId id = new MovieId();
             id.movieDatabase = e.getKey();

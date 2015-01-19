@@ -133,7 +133,7 @@ public class ScriptableScraper {
     }
 
     public Collection<SectionContentSS> getSections(String title, String name) {
-        Collection<SectionContentSS> result = new ArrayList<SectionContentSS>();
+        Collection<SectionContentSS> result = new ArrayList<>();
         for (SectionContentSS newSection : this.section.getContent()) {
             if (newSection.getName().equals(title)) {
                 if (StringUtils.isBlank(name) || newSection.getAttribute("name").equals(name)) {

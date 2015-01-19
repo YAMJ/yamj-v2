@@ -23,6 +23,7 @@
 package com.moviejukebox.model;
 
 import com.moviejukebox.model.enumerations.CodecSource;
+import com.moviejukebox.model.enumerations.CodecType;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -61,7 +62,7 @@ public class Codec {
     public static final String MI_CODEC_FORMAT_VERSION = "Format Version";
     public static final String MI_CODEC_FORMAT_PROFILE = "Format profile";
     public static final String MI_CODEC_LANGUAGE = "Language";
-    public static final List<String> MI_CODEC_CHANNELS = new ArrayList<String>();
+    public static final List<String> MI_CODEC_CHANNELS = new ArrayList<>();
     public static final String MI_CODEC_BITRATE = "Bit rate";
     public static final String MI_CODEC_NOMINAL_BITRATE = "Nominal bit rate";
     public static final String MI_CODEC_OVERALL_BITRATE = "Overall bit rate";
@@ -300,7 +301,7 @@ public class Codec {
         // Are both languages the same? or is either one "UNKNOWN" which we will treat as a match
         if (!(StringUtils.equalsIgnoreCase(this.codecLanguage, other.codecLanguage)
                 && StringTools.isValidString(this.codecLanguage)
-                && StringTools.isValidString(other.codecLanguage))) 
+                && StringTools.isValidString(other.codecLanguage)))
         {
             return false;
         }

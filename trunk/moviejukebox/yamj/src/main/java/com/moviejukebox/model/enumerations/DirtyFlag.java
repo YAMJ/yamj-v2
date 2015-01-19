@@ -20,7 +20,7 @@
  *      Web: http://code.google.com/p/moviejukebox/
  *
  */
-package com.moviejukebox.model;
+package com.moviejukebox.model.enumerations;
 
 import org.apache.commons.lang3.StringUtils;
 

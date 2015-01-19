@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.model;
 
+import com.moviejukebox.model.enumerations.PropertyOverwrites;
 import java.util.EnumSet;
 import java.util.Set;
 import org.apache.commons.lang3.builder.ToStringBuilder;

@@ -57,11 +57,11 @@ public class Person extends Filmography {
     private String backdropFilename = UNKNOWN;
     private String backdropURL = UNKNOWN;
     private boolean isDirtyBackdrop = false;
-    private List<Filmography> filmography = new ArrayList<Filmography>();
-    private final List<String> aka = new ArrayList<String>();
-    private final List<String> departments = new ArrayList<String>();
-    private final List<Movie> movies = new ArrayList<Movie>();
-    private Map<String, String> indexes = new HashMap<String, String>();
+    private List<Filmography> filmography = new ArrayList<>();
+    private final List<String> aka = new ArrayList<>();
+    private final List<String> departments = new ArrayList<>();
+    private final List<Movie> movies = new ArrayList<>();
+    private Map<String, String> indexes = new HashMap<>();
     // Properties
     private final String backdropToken = PropertiesUtil.getProperty("mjb.scanner.backdropToken", ".backdrop");
     private final boolean sortFilmographyAsc = PropertiesUtil.getBooleanProperty("plugin.filmography.sort.asc", false);
@@ -310,7 +310,7 @@ public class Person extends Filmography {
     }
 
     public final void setIndexes(Map<String, String> indexes) {
-        this.indexes = new HashMap<String, String>(indexes);
+        this.indexes = new HashMap<>(indexes);
     }
 
     public String getBackdropURL() {

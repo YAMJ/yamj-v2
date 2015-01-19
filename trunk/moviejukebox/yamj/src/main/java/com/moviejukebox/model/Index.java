@@ -66,7 +66,7 @@ public class Index extends TreeMap<String, List<Movie>> {
             if (maxCategories > 0 && size() >= maxCategories) {
                 return;
             }
-            list = new ArrayList<Movie>();
+            list = new ArrayList<>();
             put(category, list);
         }
 

@@ -61,20 +61,20 @@ public class MovieFile implements Comparable<MovieFile> {
     private int lastPart = 1;
     private boolean newFile = Boolean.TRUE;     // is new file or already exists in XML data
     private boolean subtitlesExchange = false;  // Are the subtitles for this file already downloaded/uploaded to the server
-    private Map<String, String> playLink = new HashMap<String, String>();
-    private final Map<Integer, String> titles = new LinkedHashMap<Integer, String>();
-    private final Map<Integer, String> plots = new LinkedHashMap<Integer, String>();
-    private final Map<Integer, String> videoImageURL = new LinkedHashMap<Integer, String>();
-    private final Map<Integer, String> videoImageFilename = new LinkedHashMap<Integer, String>();
-    private final Map<Integer, String> airsAfterSeason = new LinkedHashMap<Integer, String>();
-    private final Map<Integer, String> airsBeforeSeason = new LinkedHashMap<Integer, String>();
-    private final Map<Integer, String> airsBeforeEpisode = new LinkedHashMap<Integer, String>();
-    private final Map<Integer, String> firstAired = new LinkedHashMap<Integer, String>();
-    private final Map<Integer, String> ratings = new LinkedHashMap<Integer, String>();
-    private final Map<OverrideFlag, String> overrideSources = new EnumMap<OverrideFlag, String>(OverrideFlag.class);
+    private Map<String, String> playLink = new HashMap<>();
+    private final Map<Integer, String> titles = new LinkedHashMap<>();
+    private final Map<Integer, String> plots = new LinkedHashMap<>();
+    private final Map<Integer, String> videoImageURL = new LinkedHashMap<>();
+    private final Map<Integer, String> videoImageFilename = new LinkedHashMap<>();
+    private final Map<Integer, String> airsAfterSeason = new LinkedHashMap<>();
+    private final Map<Integer, String> airsBeforeSeason = new LinkedHashMap<>();
+    private final Map<Integer, String> airsBeforeEpisode = new LinkedHashMap<>();
+    private final Map<Integer, String> firstAired = new LinkedHashMap<>();
+    private final Map<Integer, String> ratings = new LinkedHashMap<>();
+    private final Map<OverrideFlag, String> overrideSources = new EnumMap<>(OverrideFlag.class);
     private File file;
     private MovieFileNameDTO info;
-    private final List<Attachment> attachments = new ArrayList<Attachment>();
+    private final List<Attachment> attachments = new ArrayList<>();
     private boolean attachmentsScanned = false;
     private boolean watched = false;
     private long watchedDate = 0;
@@ -466,7 +466,7 @@ public class MovieFile implements Comparable<MovieFile> {
      * Calculate the playlink additional information for the file
      */
     private synchronized Map<String, String> calculatePlayLink() {
-        Map<String, String> playLinkMap = new HashMap<String, String>();
+        Map<String, String> playLinkMap = new HashMap<>();
         File filePlayLink = this.getFile();
 
         // Check that the file isn't null before continuing

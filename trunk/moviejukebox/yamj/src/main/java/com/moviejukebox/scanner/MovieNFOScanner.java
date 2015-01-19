@@ -22,9 +22,9 @@
  */
 package com.moviejukebox.scanner;
 
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.reader.MovieNFOReader;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.GenericFileFilter;

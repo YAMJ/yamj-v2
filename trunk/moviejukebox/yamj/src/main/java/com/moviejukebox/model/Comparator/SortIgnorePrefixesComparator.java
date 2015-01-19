@@ -32,7 +32,7 @@ import java.util.StringTokenizer;
 public class SortIgnorePrefixesComparator implements Comparator<Object>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private final List<String> sortIgnorePrefixes = new ArrayList<String>();
+    private final List<String> sortIgnorePrefixes = new ArrayList<>();
     private boolean inited = false;
 
     @Override

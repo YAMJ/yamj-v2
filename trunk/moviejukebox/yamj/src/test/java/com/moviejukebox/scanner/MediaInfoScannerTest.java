@@ -22,13 +22,9 @@
  */
 package com.moviejukebox.scanner;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.CodecType;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.enumerations.CodecType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -37,6 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -47,10 +46,10 @@ public class MediaInfoScannerTest {
     private static final Logger LOG = LoggerFactory.getLogger(MediaInfoScannerTest.class);
     private static final MediaInfoScanner MI_TEST = new MediaInfoScanner();
     private static final String testDir = "src/test/java/TestFiles/MediaInfo/";
-    Map<String, String> infosGeneral = new HashMap<String, String>();
-    List<Map<String, String>> infosVideo = new ArrayList<Map<String, String>>();
-    List<Map<String, String>> infosAudio = new ArrayList<Map<String, String>>();
-    List<Map<String, String>> infosText = new ArrayList<Map<String, String>>();
+    Map<String, String> infosGeneral = new HashMap<>();
+    List<Map<String, String>> infosVideo = new ArrayList<>();
+    List<Map<String, String>> infosAudio = new ArrayList<>();
+    List<Map<String, String>> infosText = new ArrayList<>();
 
     @Ignore
     public void testMediaInfoScan() {
@@ -127,7 +126,7 @@ public class MediaInfoScannerTest {
         Movie movie = new Movie();
         Codec codec;
         int counter = 1;
-        
+
         for (Map<String, String> codecInfo : infosAudio) {
             codec = MI_TEST.getCodecInfo(CodecType.AUDIO, codecInfo);
             movie.addCodec(codec);

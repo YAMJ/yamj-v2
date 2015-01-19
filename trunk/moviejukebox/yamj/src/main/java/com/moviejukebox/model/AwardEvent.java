@@ -33,7 +33,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 public class AwardEvent {
 
     private String event = Movie.UNKNOWN;
-    private Collection<Award> awards = new ArrayList<Award>();
+    private Collection<Award> awards = new ArrayList<>();
 
     public String getName() {
         return event;

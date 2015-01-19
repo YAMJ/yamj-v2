@@ -23,12 +23,12 @@
 package com.moviejukebox.reader;
 
 import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.CodecType;
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.EpisodeDetail;
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.CodecSource;
+import com.moviejukebox.model.enumerations.CodecType;
+import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.plugin.DatabasePluginController;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.TheMovieDbPlugin;

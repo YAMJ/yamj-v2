@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.model;
 
+import com.moviejukebox.model.enumerations.JukeboxStatistic;
 import com.moviejukebox.tools.DOMHelper;
 import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.FileTools;

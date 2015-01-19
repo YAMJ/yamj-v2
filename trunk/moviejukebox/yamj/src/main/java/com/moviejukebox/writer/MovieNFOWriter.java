@@ -23,11 +23,11 @@
 package com.moviejukebox.writer;
 
 import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.CodecType;
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.enumerations.CodecType;
 import com.moviejukebox.reader.MovieNFOReader;
 import com.moviejukebox.tools.DOMHelper;
 import com.moviejukebox.tools.FileTools;

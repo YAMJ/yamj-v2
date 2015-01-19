@@ -109,7 +109,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testSetMovieSubtitles1() {
-        List<String> subtitles = new ArrayList<String>();
+        List<String> subtitles = new ArrayList<>();
         subtitles.add("");
         subtitles.add("en");
         subtitles.add("de");
@@ -123,7 +123,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testSetMovieSubtitles2() {
-        List<String> subtitles = new ArrayList<String>();
+        List<String> subtitles = new ArrayList<>();
         subtitles.add("");
         subtitles.add("en");
         subtitles.add("de");
@@ -138,7 +138,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testSetMovieSubtitles3() {
-        List<String> subtitles = new ArrayList<String>();
+        List<String> subtitles = new ArrayList<>();
         subtitles.add("en");
         subtitles.add("de");
 
@@ -150,7 +150,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testSetMovieSubtitles4() {
-        List<String> subtitles = new ArrayList<String>();
+        List<String> subtitles = new ArrayList<>();
         subtitles.add("en");
         subtitles.add("de");
 
@@ -162,7 +162,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testSetMovieSubtitlesOverride1() {
-        List<String> subtitles = new ArrayList<String>();
+        List<String> subtitles = new ArrayList<>();
         subtitles.add("en");
 
         Movie movie = new Movie();
@@ -173,7 +173,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testSetMovieSubtitlesOverride2() {
-        List<String> subtitles = new ArrayList<String>();
+        List<String> subtitles = new ArrayList<>();
         subtitles.add(Movie.UNKNOWN);
         subtitles.add("");
         subtitles.add("    ");
@@ -186,7 +186,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testSkippedMovieSubtitles() {
-        List<String> subtitles = new ArrayList<String>();
+        List<String> subtitles = new ArrayList<>();
         subtitles.add("en");
         subtitles.add("it");
         subtitles.add("de");
@@ -200,7 +200,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void tesGetMovieSubtitles() {
-        List<String> subtitles = new ArrayList<String>();
+        List<String> subtitles = new ArrayList<>();
         subtitles.add("en");
         subtitles.add("it");
         subtitles.add("de");

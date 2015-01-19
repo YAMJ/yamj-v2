@@ -29,6 +29,7 @@ import com.moviejukebox.model.Comparator.MovieReleaseComparator;
 import com.moviejukebox.model.Comparator.MovieSetComparator;
 import com.moviejukebox.model.Comparator.MovieTitleComparator;
 import com.moviejukebox.model.Comparator.MovieTop250Comparator;
+import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import static com.moviejukebox.tools.FileTools.createCategoryKey;
 import static com.moviejukebox.tools.FileTools.createPrefix;
