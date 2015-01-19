@@ -36,8 +36,8 @@ public class Award {
     private int won = 0;
     private int nominated = 0;
     private int year = -1;
-    private Collection<String> wons = new ArrayList<String>();
-    private Collection<String> nominations = new ArrayList<String>();
+    private Collection<String> wons = new ArrayList<>();
+    private Collection<String> nominations = new ArrayList<>();
 
     public String getName() {
         return name;

@@ -22,11 +22,11 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.poster.IMoviePosterPlugin;
 import com.moviejukebox.plugin.poster.IPosterPlugin;

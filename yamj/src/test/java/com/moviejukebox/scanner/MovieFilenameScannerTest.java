@@ -157,6 +157,8 @@ public class MovieFilenameScannerTest {
 
     @Test
     public void testScan() {
+        int iResult;
+
         MovieFileNameDTO d = scan("Desperate Housewives S04E01E02E03E06.iso");
         assertEquals("Desperate Housewives", d.getTitle());
         assertEquals("iso", d.getExtension());
@@ -216,14 +218,18 @@ public class MovieFilenameScannerTest {
         assertEquals("Stargate SG1", d.getTitle());
         assertEquals(4, d.getSeason());
         assertEquals(1, d.getEpisodes().size());
-        assertEquals(16, d.getEpisodes().get(0).intValue());
+
+        iResult = d.getEpisodes().get(0);
+        assertEquals(16, iResult);
         assertEquals("2010", d.getEpisodeTitle());
 
         d = scan("The Sopranos - S03E01 DVDrip.XviD-SMB.avi");
         assertEquals("The Sopranos", d.getTitle());
         assertEquals(3, d.getSeason());
         assertEquals(1, d.getEpisodes().size());
-        assertEquals(1, d.getEpisodes().get(0).intValue());
+
+        iResult = d.getEpisodes().get(0);
+        assertEquals(1, iResult);
         assertEquals(null, d.getEpisodeTitle());
 
         d = scan("final_fantasy_VII_Advent_Children_1080p_RUS_ENG.mkv");
@@ -305,6 +311,7 @@ public class MovieFilenameScannerTest {
 
     @Test
     public void testScanLanguages() {
+        int iResult;
         MovieFileNameDTO d = scan("Time masters (Laloux Moebius) (1982) Eng.Hun.Fra.De.Ru.mkv");
         assertEquals(1982, d.getYear());
         assertEquals("Time masters (Laloux Moebius)", d.getTitle());
@@ -319,7 +326,8 @@ public class MovieFilenameScannerTest {
         assertEquals("The IT Crowd", d.getTitle());
         assertEquals(2, d.getSeason());
         assertEquals(1, d.getEpisodes().size());
-        assertEquals(3, d.getEpisodes().get(0).intValue());
+        iResult = d.getEpisodes().get(0);
+        assertEquals(3, iResult);
         assertEquals(1, d.getLanguages().size());
         assertEquals("Russian", d.getLanguages().get(0));
         assertEquals("Moss and the German", d.getEpisodeTitle());
@@ -338,23 +346,29 @@ public class MovieFilenameScannerTest {
 
     @Test
     public void testScanSeries() {
+        int iResult;
         MovieFileNameDTO d = scan("Formula.1.S2008E1.avi");
         assertEquals("Formula 1", d.getTitle());
         assertEquals(2008, d.getSeason());
         assertEquals(1, d.getEpisodes().size());
-        assertEquals(1, d.getEpisodes().get(0).intValue());
+        iResult = d.getEpisodes().get(0);
+        assertEquals(1, iResult);
         d = scan("Horizon.S2009E03.avi");
         assertEquals(2009, d.getSeason());
         assertEquals(1, d.getEpisodes().size());
-        assertEquals(3, d.getEpisodes().get(0).intValue());
+        iResult = d.getEpisodes().get(0);
+        assertEquals(3, iResult);
 
         d = scan("World.Series.Of.Poker.S2008E11E12E13.avi.avi");
         assertEquals("World Series Of Poker", d.getTitle());
         assertEquals(2008, d.getSeason());
         assertEquals(3, d.getEpisodes().size());
-        assertEquals(11, d.getEpisodes().get(0).intValue());
-        assertEquals(12, d.getEpisodes().get(1).intValue());
-        assertEquals(13, d.getEpisodes().get(2).intValue());
+        iResult = d.getEpisodes().get(0);
+        assertEquals(11, iResult);
+        iResult = d.getEpisodes().get(0);
+        assertEquals(12, iResult);
+        iResult = d.getEpisodes().get(0);
+        assertEquals(13, iResult);
 
         d = scan("House.S03E14.HDTV.XviD-XOR.avi");
         assertEquals("House", d.getTitle());
@@ -446,6 +460,7 @@ public class MovieFilenameScannerTest {
 
     @Test
     public void testIssue1946() {
+        int iResult;
         // This requires a full path.
         // The issue was caused by the scanner thinking that the parent directory was the show title.
         MovieFileNameDTO d = scan("y:" + File.separator + "test" + File.separator + "South Park - S14E05 - 200 (1).avi");
@@ -453,7 +468,8 @@ public class MovieFilenameScannerTest {
         assertEquals(14, d.getSeason());
         assertEquals(-1, d.getYear());
         assertEquals(1, d.getEpisodes().size());
-        assertEquals(5, d.getEpisodes().get(0).intValue());
+        iResult = d.getEpisodes().get(0);
+        assertEquals(5, iResult);
         assertEquals("South Park", d.getTitle());
     }
 

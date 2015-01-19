@@ -33,9 +33,9 @@ import java.util.List;
 public class LogoOverlay extends PositionOverlay {
 
     private boolean before = Boolean.TRUE;
-    private List<String> names = new ArrayList<String>();
-    private List<ImageOverlay> images = new ArrayList<ImageOverlay>();
-    private List<ConditionOverlay> positions = new ArrayList<ConditionOverlay>();
+    private List<String> names = new ArrayList<>();
+    private List<ImageOverlay> images = new ArrayList<>();
+    private List<ConditionOverlay> positions = new ArrayList<>();
 
     public boolean isBefore() {
         return before;

@@ -22,9 +22,9 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;

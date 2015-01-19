@@ -33,7 +33,7 @@ import org.junit.*;
 public class LibraryTest {
 
     Library lib;
-    final List<Movie> movies = new ArrayList<Movie>();
+    final List<Movie> movies = new ArrayList<>();
 
     @BeforeClass
     public static void setUpClass() {

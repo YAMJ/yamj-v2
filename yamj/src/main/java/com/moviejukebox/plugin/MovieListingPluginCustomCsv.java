@@ -72,7 +72,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      */
     private int initFields(String aFields) {
         // Clear the current list (if there is one)
-        mFields = new ArrayList<String>();
+        mFields = new ArrayList<>();
 
         for (StringTokenizer t = new StringTokenizer(aFields, ","); t.hasMoreTokens();) {
             String st = StringUtils.trimToNull(t.nextToken());

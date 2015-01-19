@@ -22,13 +22,13 @@
  */
 package com.moviejukebox.writer;
 
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.IndexInfo;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
+import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.tools.DOMHelper;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
@@ -397,18 +397,17 @@ public class MovieJukeboxHTMLWriter {
         if (!finalPlaylistFile.exists() || forceHTMLOverwrite || movie.isDirty(DirtyFlag.INFO)) {
             FileTools.makeDirsForFile(tempPlaylistFile);
 
-            PrintWriter writer = new PrintWriter(tempPlaylistFile, "UTF-8");
-
             // Issue 237 - Add in the IP address of the MyiHome server so the playlist will work.
             // Issue 237 - It is perfectly valid for "mjb.myiHome.IP" to be blank, in fact this is
             // the normal method for stand alone YAMJ
-            for (int i = 0; i < movieFiles.length; i++) {
-                MovieFile part = movieFiles[(i + offset) % movieFiles.length];
-                // write one line each in the format "name|0|0|IP/path" replacing an | that may exist in the title
-                writer.println(movie.getTitle().replace('|', ' ') + " " + part.getFirstPart() + "|0|0|" + MYIHOME_IP + part.getFilename() + "|");
+            try (PrintWriter writer = new PrintWriter(tempPlaylistFile, "UTF-8")) {
+                for (int i = 0; i < movieFiles.length; i++) {
+                    MovieFile part = movieFiles[(i + offset) % movieFiles.length];
+                    // write one line each in the format "name|0|0|IP/path" replacing an | that may exist in the title
+                    writer.println(movie.getTitle().replace('|', ' ') + " " + part.getFirstPart() + "|0|0|" + MYIHOME_IP + part.getFilename() + "|");
+                }
+                writer.flush();
             }
-            writer.flush();
-            writer.close();
         }
         return baseName + fileSuffix;
     }

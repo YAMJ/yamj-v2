@@ -213,13 +213,10 @@ public final class DOMHelper {
         }
 
         if (doc == null) {
-            // try wrapping the file in a root
-            StringReader sr = new StringReader(wrapInXml(FileTools.readFileToString(xmlFile)));
-
-            try {
+            try (
+                    // try wrapping the file in a root
+                    StringReader sr = new StringReader(wrapInXml(FileTools.readFileToString(xmlFile)))) {
                 doc = db.parse(new InputSource(sr));
-            } finally {
-                sr.close();
             }
         }
 

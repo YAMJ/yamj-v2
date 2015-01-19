@@ -22,8 +22,8 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;

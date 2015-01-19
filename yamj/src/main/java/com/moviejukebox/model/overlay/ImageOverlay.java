@@ -34,7 +34,7 @@ public class ImageOverlay {
 
     private String name;
     private String value;
-    private List<String> values = new ArrayList<String>();
+    private List<String> values = new ArrayList<>();
     private String filename;
 
     public ImageOverlay(String name, String value, String filename, List<String> values) {

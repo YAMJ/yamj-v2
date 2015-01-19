@@ -23,10 +23,10 @@
 package com.moviejukebox.scanner;
 
 import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.CodecType;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.enumerations.CodecSource;
+import com.moviejukebox.model.enumerations.CodecType;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.AspectRatioTools;
 import com.moviejukebox.tools.DateTimeTools;
@@ -952,21 +952,21 @@ public class MediaInfoScanner {
 
             Process p = pb.start();
 
-            BufferedReader input = new BufferedReader(
+            String mediaArchive;
+            try (BufferedReader input = new BufferedReader(
                     new InputStreamReader(
-                            p.getInputStream()));
-            String line;
-            String mediaArchive = null;
-
-            while ((line = localInputReadLine(input)) != null) {
-                Pattern patternArchive
-                        = Pattern.compile("^\\s*\\d+\\s(.*)$");
-                Matcher m = patternArchive.matcher(line);
-                if (m.find() && (m.groupCount() == 1)) {
-                    mediaArchive = m.group(1);
+                            p.getInputStream()))) {
+                String line;
+                mediaArchive = null;
+                while ((line = localInputReadLine(input)) != null) {
+                    Pattern patternArchive
+                            = Pattern.compile("^\\s*\\d+\\s(.*)$");
+                    Matcher m = patternArchive.matcher(line);
+                    if (m.find() && (m.groupCount() == 1)) {
+                        mediaArchive = m.group(1);
+                    }
                 }
             }
-            input.close();
 
             LOG.debug("Returning with archivename {}", mediaArchive);
 

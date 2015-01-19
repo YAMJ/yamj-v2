@@ -202,15 +202,14 @@ public class BDRipScanner {
         BDPlaylistInfo ret = new BDPlaylistInfo();
         ret.duration = 0;
 
-        /* The input stream... */
-        RandomAccessFile fileReader = new RandomAccessFile(filePath, "r");
-
+        byte[] data;
         /* Some ported code from the bdinfo free project */
-        byte[] data = new byte[(int) fileReader.length()];
-        int dataLength = fileReader.read(data, 0, data.length);
-        LOG.trace("Read data length: {}", dataLength);
-
-        fileReader.close();
+        try ( /* The input stream... */RandomAccessFile fileReader = new RandomAccessFile(filePath, "r")) {
+            /* Some ported code from the bdinfo free project */
+            data = new byte[(int) fileReader.length()];
+            int dataLength = fileReader.read(data, 0, data.length);
+            LOG.trace("Read data length: {}", dataLength);
+        }
 
         byte[] fileType = new byte[8];
         System.arraycopy(data, 0, fileType, 0, fileType.length);

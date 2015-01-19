@@ -23,9 +23,9 @@
 package com.moviejukebox.scanner.artwork;
 
 import com.moviejukebox.model.Artwork.ArtworkType;
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.plugin.FanartTvPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;

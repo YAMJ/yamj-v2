@@ -32,8 +32,8 @@ import java.util.List;
  */
 public class ConditionOverlay {
 
-    private List<String> values = new ArrayList<String>();
-    private List<PositionOverlay> positions = new ArrayList<PositionOverlay>();
+    private List<String> values = new ArrayList<>();
+    private List<PositionOverlay> positions = new ArrayList<>();
 
     public List<String> getValues() {
         return values;

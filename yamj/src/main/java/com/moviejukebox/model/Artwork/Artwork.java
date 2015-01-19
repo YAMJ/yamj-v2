@@ -58,7 +58,7 @@ public class Artwork {
         this.sourceSite = sourceSite;
         this.url = url;
 
-        this.sizes = new EnumMap<ArtworkSize, ArtworkFile>(ArtworkSize.class);
+        this.sizes = new EnumMap<>(ArtworkSize.class);
         for (ArtworkFile artworkFile : sizes) {
             this.addSize(artworkFile);
         }
@@ -76,7 +76,7 @@ public class Artwork {
         this.type = type;
         this.sourceSite = sourceSite;
         this.url = url;
-        this.sizes = new EnumMap<ArtworkSize, ArtworkFile>(ArtworkSize.class);
+        this.sizes = new EnumMap<>(ArtworkSize.class);
         this.addSize(size);
     }
 
@@ -87,7 +87,7 @@ public class Artwork {
         this.sourceSite = Movie.UNKNOWN;
         this.type = null;
         this.url = Movie.UNKNOWN;
-        this.sizes = new EnumMap<ArtworkSize, ArtworkFile>(ArtworkSize.class);
+        this.sizes = new EnumMap<>(ArtworkSize.class);
     }
 
     /**

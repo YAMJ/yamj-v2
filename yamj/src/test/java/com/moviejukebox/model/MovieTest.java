@@ -86,7 +86,7 @@ public class MovieTest {
     }
 
     private List<String> createList(String title, int count) {
-        List<String> testList = new ArrayList<String>(count);
+        List<String> testList = new ArrayList<>(count);
 
         for (int i = 1; i <= count + 2; i++) {
             testList.add(String.format("%s %d", title, i));

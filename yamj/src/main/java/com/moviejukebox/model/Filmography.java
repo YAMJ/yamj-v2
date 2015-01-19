@@ -66,7 +66,7 @@ public class Filmography {
     public static final String DEPT_EDITING = "Editing";
     public static final String DEPT_SOUND = "Sound";
     public static final String DEPT_CAMERA = "Camera";
-    private Map<String, String> idMap = new HashMap<String, String>(2);
+    private Map<String, String> idMap = new HashMap<>(2);
     private String name = UNKNOWN;
     private String title = UNKNOWN;
     private String originalTitle = UNKNOWN;

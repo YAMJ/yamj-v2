@@ -24,10 +24,10 @@ package com.moviejukebox.scanner.artwork;
 
 import com.moviejukebox.model.Artwork.ArtworkPriority;
 import com.moviejukebox.model.Artwork.ArtworkType;
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultImagePlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;

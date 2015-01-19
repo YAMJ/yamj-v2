@@ -150,7 +150,7 @@ public final class DateTimeTools {
             returnString.append(nbMinutes).append("m");
         }
 
-        LOG.trace("Formatted duration " + duration + " to " + returnString.toString());
+        LOG.trace("Formatted duration {} to {}", duration, returnString);
         return returnString.toString();
     }
 

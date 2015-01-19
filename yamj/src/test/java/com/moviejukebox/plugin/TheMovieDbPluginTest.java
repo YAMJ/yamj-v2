@@ -68,7 +68,7 @@ public class TheMovieDbPluginTest {
     public void testMovieNames() {
         LOG.info("Test Movie Names");
 
-        Map<String, Integer> filenames = new HashMap<String, Integer>();
+        Map<String, Integer> filenames = new HashMap<>();
         filenames.put("Escape from LA (1996).avi", 10061);
         filenames.put("AI Artificial Intelligence.mkv", 644);
         filenames.put("Unknown (2006).mkv", 9828);

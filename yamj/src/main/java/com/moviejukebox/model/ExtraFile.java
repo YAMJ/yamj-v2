@@ -52,7 +52,7 @@ public class ExtraFile extends MovieFile {
         if (this.getFile() != null) {
             result = super.getPlayLink();
         } else {
-            result = new HashMap<String, String>();
+            result = new HashMap<>();
             result.put("URL", this.getFilename());
         }
         return result;

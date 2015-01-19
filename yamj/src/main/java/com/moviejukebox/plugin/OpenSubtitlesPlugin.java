@@ -22,9 +22,9 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
@@ -684,34 +684,30 @@ public class OpenSubtitlesPlugin {
     }
 
     private static String getHash(File f) throws IOException {
-        // Open the file and then get a channel from the stream
-        FileInputStream fis = new FileInputStream(f);
-        FileChannel fc = fis.getChannel();
-        long sz = fc.size();
-
-        if (sz < 65536) {
-            fc.close();
-            fis.close();
-            return "NoHash";
+        String s;
+        try ( // Open the file and then get a channel from the stream
+                FileInputStream fis = new FileInputStream(f);
+                FileChannel fc = fis.getChannel()) {
+            long sz = fc.size();
+            if (sz < 65536) {
+                fc.close();
+                fis.close();
+                return "NoHash";
+            }
+            MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, 65536);
+            long sum = sz;
+            bb.order(ByteOrder.LITTLE_ENDIAN);
+            for (int i = 0; i < 65536 / 8; i++) {
+                sum += bb.getLong();// sum(bb);
+            }
+            bb = fc.map(FileChannel.MapMode.READ_ONLY, sz - 65536, 65536);
+            bb.order(ByteOrder.LITTLE_ENDIAN);
+            for (int i = 0; i < 65536 / 8; i++) {
+                sum += bb.getLong();// sum(bb);
+            }
+            sum = sum & 0xffffffffffffffffL;
+            s = String.format("%016x", sum);
         }
-
-        MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, 65536);
-        long sum = sz;
-
-        bb.order(ByteOrder.LITTLE_ENDIAN);
-        for (int i = 0; i < 65536 / 8; i++) {
-            sum += bb.getLong();// sum(bb);
-        }
-        bb = fc.map(FileChannel.MapMode.READ_ONLY, sz - 65536, 65536);
-        bb.order(ByteOrder.LITTLE_ENDIAN);
-        for (int i = 0; i < 65536 / 8; i++) {
-            sum += bb.getLong();// sum(bb);
-        }
-        sum = sum & 0xffffffffffffffffL;
-
-        String s = String.format("%016x", sum);
-        fc.close();
-        fis.close();
         return s;
     }
 }

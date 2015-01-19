@@ -81,32 +81,31 @@ public class JpegReader {
             return null;
         }
 
-        ImageInputStream stream = ImageIO.createImageInputStream(file);
-        if (stream == null) {
-            LOG.debug("Error reading stream, does not exist: {}", file.getName());
-            return null;
-        }
-        Iterator<ImageReader> iter = ImageIO.getImageReaders(stream);
-        BufferedImage image = null;
-
-        while (iter.hasNext()) {
-            ImageReader reader = iter.next();
-            reader.setInput(stream);
-
-            try {
-                image = reader.read(0);
-            } catch (CMMException | IIOException ex) {
-                image = readImageCmyk(file, reader);
-            } finally {
-                reader.dispose();
+        BufferedImage image;
+        try (ImageInputStream stream = ImageIO.createImageInputStream(file)) {
+            if (stream == null) {
+                LOG.debug("Error reading stream, does not exist: {}", file.getName());
+                return null;
             }
+            Iterator<ImageReader> iter = ImageIO.getImageReaders(stream);
+            image = null;
+            while (iter.hasNext()) {
+                ImageReader reader = iter.next();
+                reader.setInput(stream);
 
-            if (image != null) {
-                break;
+                try {
+                    image = reader.read(0);
+                } catch (CMMException | IIOException ex) {
+                    image = readImageCmyk(file, reader);
+                } finally {
+                    reader.dispose();
+                }
+
+                if (image != null) {
+                    break;
+                }
             }
         }
-
-        stream.close();
 
         return image;
     }

@@ -233,7 +233,7 @@ public class StringToolsTest {
         assertEquals("12", result);
 
         // Test the standard certification Strings
-        Map<String, String> certs = new HashMap<String, String>();
+        Map<String, String> certs = new HashMap<>();
         certs.put("Rated PG-13 for some violent images and brief nudity", "PG-13");
         certs.put("Rated R for some violence (Redux version)", "R");
 

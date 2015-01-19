@@ -23,10 +23,10 @@
 package com.moviejukebox.scanner;
 
 import com.moviejukebox.MovieJukebox;
-import com.moviejukebox.model.DirtyFlag;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.model.enumerations.WatchedWithExtension;
 import com.moviejukebox.model.enumerations.WatchedWithLocation;
 import com.moviejukebox.tools.FileTools;
