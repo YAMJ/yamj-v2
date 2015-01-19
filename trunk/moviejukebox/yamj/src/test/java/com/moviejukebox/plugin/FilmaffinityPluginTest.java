@@ -74,10 +74,10 @@ public class FilmaffinityPluginTest {
     @Test
     public void testScanNoYear() {
         Movie movie = new Movie();
-        movie.setTitle("Avatar", Movie.UNKNOWN);
+        movie.setTitle("Cloverfield", Movie.UNKNOWN);
 
         assertEquals(true, faPlugin.scan(movie));
-        assertEquals("2009", movie.getYear());
+        assertEquals("2008", movie.getYear());
     }
 
     @Test

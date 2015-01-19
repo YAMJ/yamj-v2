@@ -361,14 +361,14 @@ public class MovieFilenameScannerTest {
 
         d = scan("World.Series.Of.Poker.S2008E11E12E13.avi.avi");
         assertEquals("World Series Of Poker", d.getTitle());
-        assertEquals(2008, d.getSeason());
-        assertEquals(3, d.getEpisodes().size());
+        assertEquals("Invalid season", 2008, d.getSeason());
+        assertEquals("Incorrect size", 3, d.getEpisodes().size());
         iResult = d.getEpisodes().get(0);
-        assertEquals(11, iResult);
-        iResult = d.getEpisodes().get(0);
-        assertEquals(12, iResult);
-        iResult = d.getEpisodes().get(0);
-        assertEquals(13, iResult);
+        assertEquals("Incorrect first episode", 11, iResult);
+        iResult = d.getEpisodes().get(1);
+        assertEquals("Incorrect second episode", 12, iResult);
+        iResult = d.getEpisodes().get(2);
+        assertEquals("Incorrect third episode", 13, iResult);
 
         d = scan("House.S03E14.HDTV.XviD-XOR.avi");
         assertEquals("House", d.getTitle());
