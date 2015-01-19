@@ -35,7 +35,6 @@ import java.util.LinkedHashSet;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class FilmwebPluginTest {
@@ -294,7 +293,7 @@ public class FilmwebPluginTest {
         filmwebPlugin.setRequestResult(null); // no offline test
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
 
-        LinkedHashSet<String> testDirectors = new LinkedHashSet<String>();
+        LinkedHashSet<String> testDirectors = new LinkedHashSet<>();
         // These need to be in the same order as the web page
         testDirectors.add("James Cameron");
 
@@ -308,7 +307,7 @@ public class FilmwebPluginTest {
         filmwebPlugin.setRequestResult(null); // no offline test
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
 
-        LinkedHashSet<String> testCast = new LinkedHashSet<String>();
+        LinkedHashSet<String> testCast = new LinkedHashSet<>();
         // These need to be in the same order as the web page
         testCast.add("Sam Worthington");
         testCast.add("Zoe Saldana");
@@ -323,7 +322,7 @@ public class FilmwebPluginTest {
         filmwebPlugin.setRequestResult(null); // no offline test
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
 
-        LinkedHashSet<String> testCast = new LinkedHashSet<String>();
+        LinkedHashSet<String> testCast = new LinkedHashSet<>();
         // These need to be in the same order as the web page
         testCast.add("Denzel Washington");
         testCast.add("Mark Wahlberg");
@@ -334,11 +333,11 @@ public class FilmwebPluginTest {
     @Test
     public void testUpdateMediaInfoWriters() {
         Movie movie = new Movie();
-        movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/film/Stra%C5%BCnicy+Galaktyki-2015-594357");
+        movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/film/Stra%C5%BCnicy+Galaktyki-2014-594357");
         filmwebPlugin.setRequestResult(null); // no offline test
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
 
-        LinkedHashSet<String> testWriters = new LinkedHashSet<String>();
+        LinkedHashSet<String> testWriters = new LinkedHashSet<>();
         // These need to be in the same order as the web page
         testWriters.add("James Gunn");
 
