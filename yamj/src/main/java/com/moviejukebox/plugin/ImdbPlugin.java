@@ -1993,7 +1993,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         beginIndex = xmlInfo.indexOf(">Nickname</td>");
         if (beginIndex > -1) {
-            String name = xmlInfo.substring(beginIndex + 17, xmlInfo.indexOf(HTML_TD_END, beginIndex));
+            String name = xmlInfo.substring(beginIndex + 17, xmlInfo.indexOf(HTML_TD_END, beginIndex + 17));
             if (isValidString(name)) {
                 person.addAka(name);
             }
