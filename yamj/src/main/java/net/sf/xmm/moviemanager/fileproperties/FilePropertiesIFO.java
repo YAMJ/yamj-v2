@@ -63,7 +63,7 @@ class FilePropertiesIFO extends FileProperties {
 
             //log.finest("Processing IFO file done.");
         } else {
-            LOG.debug("IFO type (" + Integer.toString(streamType) + ") not supported. Expecting (" + Integer.toString(DVDVIDEO_VTS) + ")");
+            LOG.debug("IFO type ({}) not supported. Expecting ({})", streamType, DVDVIDEO_VTS);
         }
     }
 
@@ -93,7 +93,6 @@ class FilePropertiesIFO extends FileProperties {
         runtime = new int[numberOfTitles];
 
         // int startByteVTS_PGCI = offsetVTS_PGCI;
-
         int pointer = offsetVTS_PGCI;
         int startcode = changeEndianness(readUnsignedInt32(ifoFile,
                 offsetVTS_PGCI + 12));
@@ -107,9 +106,11 @@ class FilePropertiesIFO extends FileProperties {
             runtime[i] += encode(ifoFile[pointer + startcode + 4]) * 60 * 60; /*
              * Hours
              */
+
             runtime[i] += encode(ifoFile[pointer + startcode + 5]) * 60; /*
              * Minutes
              */
+
             runtime[i] += encode(ifoFile[pointer + startcode + 6]); /*
              * Seconds
              */

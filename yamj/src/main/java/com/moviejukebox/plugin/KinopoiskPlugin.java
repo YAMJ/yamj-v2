@@ -319,8 +319,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
         } catch (IOException error) {
-            LOG.error("Failed retreiving Kinopoisk Id for movie : {}" + movieName);
-            LOG.error("Error : {}" + error.getMessage());
+            LOG.error("Failed retreiving Kinopoisk Id for movie : {}", movieName);
+            LOG.error("Error : {}", error.getMessage());
             return Movie.UNKNOWN;
         }
     }
@@ -390,7 +390,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
                 } else {
                     if (etalonFlag) {
-                        LOG.error(SITE_DESIGN,"movie title");
+                        LOG.error(SITE_DESIGN, "movie title");
                     }
                     newTitle = originalTitle;
                 }
@@ -411,7 +411,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 movie.setPlot(plot.toString(), KINOPOISK_PLUGIN_ID);
 
                 if (etalonFlag && (plot.length() == 0)) {
-                    LOG.error(SITE_DESIGN,"plot");
+                    LOG.error(SITE_DESIGN, "plot");
                 }
             }
 
@@ -539,25 +539,25 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             if (etalonFlag) {
                 if (!genresFounded) {
-                    LOG.error(SITE_DESIGN,"genres");
+                    LOG.error(SITE_DESIGN, "genres");
                 }
                 if (!certificationFounded) {
-                    LOG.error(SITE_DESIGN,"certification");
+                    LOG.error(SITE_DESIGN, "certification");
                 }
                 if (!countryFounded) {
-                    LOG.error(SITE_DESIGN,"country");
+                    LOG.error(SITE_DESIGN, "country");
                 }
                 if (!yearFounded) {
-                    LOG.error(SITE_DESIGN,"year");
+                    LOG.error(SITE_DESIGN, "year");
                 }
                 if (!runtimeFounded) {
-                    LOG.error(SITE_DESIGN,"runtime");
+                    LOG.error(SITE_DESIGN, "runtime");
                 }
                 if (!taglineFounded) {
-                    LOG.error(SITE_DESIGN,"tagline");
+                    LOG.error(SITE_DESIGN, "tagline");
                 }
                 if (!releaseFounded) {
-                    LOG.error(SITE_DESIGN,"release");
+                    LOG.error(SITE_DESIGN, "release");
                 }
             }
 
@@ -571,7 +571,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     break;
                 }
                 if (!valueFounded && etalonFlag) {
-                    LOG.error(SITE_DESIGN,"rating");
+                    LOG.error(SITE_DESIGN, "rating");
                 }
 
                 int imdbRating = movie.getRating(IMDB_PLUGIN_ID);
@@ -585,7 +585,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         valueFounded = true;
                     }
                     if (!valueFounded && etalonFlag) {
-                        LOG.error(SITE_DESIGN,"IMDB rating");
+                        LOG.error(SITE_DESIGN, "IMDB rating");
                     }
                 }
 
@@ -608,7 +608,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     break;
                 }
                 if (!valueFounded && etalonFlag) {
-                    LOG.error(SITE_DESIGN,"Critics rating");
+                    LOG.error(SITE_DESIGN, "Critics rating");
                 }
             }
 
@@ -655,7 +655,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     // movie.setPosterURL(locatePosterURL(movie, ""));
                 }
                 if (!valueFounded && etalonFlag) {
-                    LOG.error(SITE_DESIGN,"poster");
+                    LOG.error(SITE_DESIGN, "poster");
                 }
             }
 
@@ -744,7 +744,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
                 }
                 if (!valueFounded && etalonFlag) {
-                    LOG.error(SITE_DESIGN,"company");
+                    LOG.error(SITE_DESIGN, "company");
                 }
             }
 
@@ -811,7 +811,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 if (awards.size() > 0) {
                     movie.setAwards(awards);
                 } else if (etalonFlag) {
-                    LOG.error(SITE_DESIGN,"award");
+                    LOG.error(SITE_DESIGN, "award");
                 }
             }
 
@@ -829,19 +829,19 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     if (overrideDirectors || overridePeopleDirectors || etalonFlag) {
                         int count = scanMoviePerson(movie, xml, "director", directorMax, overrideDirectors, overridePeopleDirectors);
                         if (etalonFlag && count == 0) {
-                            LOG.error(SITE_DESIGN,"directors");
+                            LOG.error(SITE_DESIGN, "directors");
                         }
                     }
                     if (overrideWriters || overridePeopleWriters || etalonFlag) {
                         int count = scanMoviePerson(movie, xml, "writer", writerMax, overrideWriters, overridePeopleWriters);
                         if (etalonFlag && count == 0) {
-                            LOG.error(SITE_DESIGN,"writers");
+                            LOG.error(SITE_DESIGN, "writers");
                         }
                     }
                     if (overrideCast || overridePeopleCast || etalonFlag) {
                         int count = scanMoviePerson(movie, xml, "actor", actorMax, overrideCast, overridePeopleCast);
                         if (etalonFlag && count == 0) {
-                            LOG.error(SITE_DESIGN,"cast");
+                            LOG.error(SITE_DESIGN, "cast");
                         }
                     }
 
@@ -873,7 +873,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
                     if (!valueFounded && etalonFlag) {
-                        LOG.error(SITE_DESIGN,"business: summary");
+                        LOG.error(SITE_DESIGN, "business: summary");
                     }
                     valueFounded = false;
                     for (String tmp : HTMLTools.extractTags(xml, ">Первый уик-энд (США)<", "</table>",
@@ -888,7 +888,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
                     if (!valueFounded && etalonFlag) {
-                        LOG.error(SITE_DESIGN,"business: first weekend");
+                        LOG.error(SITE_DESIGN, "business: first weekend");
                     }
                     valueFounded = false;
                     for (String tmp : HTMLTools.extractTags(xml, ">Кассовые сборы<", "</table>", "<tr><td colspan=2", "</h3>")) {
@@ -905,10 +905,10 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
                     if (!valueFounded && etalonFlag) {
-                        LOG.error(SITE_DESIGN,"business: gross");
+                        LOG.error(SITE_DESIGN, "business: gross");
                     }
                 } else if (etalonFlag) {
-                    LOG.error(SITE_DESIGN,"business");
+                    LOG.error(SITE_DESIGN, "business");
                 }
             }
 
@@ -936,7 +936,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     }
                 }
                 if (!valueFounded && etalonFlag) {
-                    LOG.error(SITE_DESIGN,"trivia");
+                    LOG.error(SITE_DESIGN, "trivia");
                 }
             }
 

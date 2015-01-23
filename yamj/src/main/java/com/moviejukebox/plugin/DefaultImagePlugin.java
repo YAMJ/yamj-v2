@@ -67,8 +67,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
 import org.apache.sanselan.ImageReadException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DefaultImagePlugin implements MovieImagePlugin {
@@ -1006,11 +1006,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             if (addOtherLogo && (movie.isTVShow())) {
                 // Both logos are required, so put the HD logo on the LEFT
                 g2d.drawImage(biHd, 5, bi.getHeight() - biHd.getHeight() - 5, null);
-                LOG.debug("Drew HD logo (" + logoFilename + ") on the left");
+                LOG.debug("Drew HD logo ({}) on the left",logoFilename);
             } else {
                 // Only the HD logo is required so set it in the centre
                 g2d.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);
-                LOG.debug("Drew HD logo (" + logoFilename + ") in the middle");
+                LOG.debug("Drew HD logo ({}) in the middle",logoFilename);
             }
 
             g2d.dispose();

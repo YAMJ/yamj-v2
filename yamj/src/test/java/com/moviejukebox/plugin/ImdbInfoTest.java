@@ -39,7 +39,7 @@ public class ImdbInfoTest {
         LOG.info("testImdbPersonId");
         Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
         for (String site : keySet) {
-            LOG.info("Testing site '" + site + "'");
+            LOG.info("Testing site '{}'", site);
             PropertiesUtil.setProperty("imdb.site", site);
 
             ImdbInfo imdbInfo = new ImdbInfo();
@@ -54,7 +54,7 @@ public class ImdbInfoTest {
         LOG.info("testImdbMovieId_VariableOff");
         Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
         for (String site : keySet) {
-            LOG.info("Testing site '" + site + "'");
+            LOG.info("Testing site '{}'", site);
             PropertiesUtil.setProperty("imdb.site", site);
             PropertiesUtil.setProperty("imdb.id.search.match", "first");
             PropertiesUtil.setProperty("imdb.id.search.variable", false);
@@ -70,7 +70,7 @@ public class ImdbInfoTest {
         LOG.info("testImdbMovieId_VariableOn");
         Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
         for (String site : keySet) {
-            LOG.info("Testing site '" + site + "'");
+            LOG.info("Testing site '{}'", site);
             PropertiesUtil.setProperty("imdb.site", site);
             PropertiesUtil.setProperty("imdb.id.search.match", "first");
             PropertiesUtil.setProperty("imdb.id.search.variable", true);
@@ -86,7 +86,7 @@ public class ImdbInfoTest {
         LOG.info("testImdbMovieIdFirstMatch");
         Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
         for (String site : keySet) {
-            LOG.info("Testing site '" + site + "'");
+            LOG.info("Testing site '{}'", site);
             PropertiesUtil.setProperty("imdb.site", site);
             PropertiesUtil.setProperty("imdb.id.search.match", "first");
             PropertiesUtil.setProperty("imdb.id.search.variable", false);
@@ -102,7 +102,7 @@ public class ImdbInfoTest {
         LOG.info("testImdbMovieIdRegularMatch");
         Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
         for (String site : keySet) {
-            LOG.info("Testing site '" + site + "'");
+            LOG.info("Testing site '{}'", site);
             PropertiesUtil.setProperty("imdb.site", site);
             PropertiesUtil.setProperty("imdb.id.search.match", "regular");
             PropertiesUtil.setProperty("imdb.id.search.variable", false);
@@ -118,7 +118,7 @@ public class ImdbInfoTest {
         LOG.info("testImdbMovieIdExactMatch");
         Set<String> keySet = ImdbInfo.MATCHES_DATA_PER_SITE.keySet();
         for (String site : keySet) {
-            LOG.info("Testing site '" + site + "'");
+            LOG.info("Testing site '{}'", site);
             PropertiesUtil.setProperty("imdb.site", site);
             PropertiesUtil.setProperty("imdb.id.search.match", "exact");
             PropertiesUtil.setProperty("imdb.id.search.variable", true);

@@ -112,7 +112,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
         // we also get IMDb id for extra informations
         if (StringTools.isNotValidString(movie.getId(IMDB_PLUGIN_ID))) {
             movie.setId(IMDB_PLUGIN_ID, imdbInfo.getImdbId(movie.getTitle(), movie.getYear(), movie.isTVShow()));
-            LOG.debug("Found imdbId = " + movie.getId(IMDB_PLUGIN_ID));
+            LOG.debug("Found imdbId = {}", movie.getId(IMDB_PLUGIN_ID));
         }
 
         if (StringTools.isValidString(scopeDkId)) {

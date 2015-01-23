@@ -98,7 +98,7 @@ public class FilePropertiesMovie {
             dataStream.close();
 
         } catch (Exception error) {
-            LOG.info("Error processing - " + filePath + " : " + error.getMessage());
+            LOG.info("Error processing - {}: {}" ,filePath, error.getMessage());
 
             /*
              * The file is corrupted, tries to save the info that may have been

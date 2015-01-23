@@ -602,7 +602,7 @@ public class MovieJukeboxXMLReader {
                                 }
                             } catch (Exception ignore) {
                                 // If there is an error creating the file then don't save anything
-                                LOG.debug("Failed parsing file {}" + xmlFile.getName());
+                                LOG.debug("Failed parsing file {}", xmlFile.getName());
                                 continue;
                             }
 

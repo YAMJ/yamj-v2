@@ -124,7 +124,7 @@ public class ComingSoonPluginTest {
         titleList.add("Lettere Da Iwo Jima");
 
         for (String title : titleList) {
-            LOG.info("Testing " + title);
+            LOG.info("Testing {}", title);
             Movie movie = new Movie();
             movie.setTitle(title, csPlugin.getPluginID());
             assertTrue("Scan failed for " + movie.getTitle(), csPlugin.scan(movie));

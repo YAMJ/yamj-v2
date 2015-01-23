@@ -421,7 +421,7 @@ public final class PosterScanner {
         urlAspect = (float) urlWidth / (float) urlHeight;
 
         if (checkAspect && urlAspect > 1.0) {
-            LOG.debug(posterImage + " rejected: URL is landscape format");
+            LOG.debug("{} rejected: URL is landscape format", posterImage);
             return Boolean.FALSE;
         }
 

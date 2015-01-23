@@ -1884,7 +1884,7 @@ public class MovieJukebox {
             }
         }
 
-        LOG.info(Integer.toString(cleanList.length) + " files in the jukebox directory");
+        LOG.info("{} files in the jukebox directory", cleanList.length);
         if (cleanDeletedTotal > 0) {
             if (jukeboxClean) {
                 LOG.info("Deleted {} unused file{} from the jukebox directory", cleanDeletedTotal, cleanDeletedTotal == 1 ? "" : "s");
