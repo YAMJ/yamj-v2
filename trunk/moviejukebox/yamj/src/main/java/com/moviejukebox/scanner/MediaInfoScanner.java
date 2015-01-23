@@ -106,10 +106,10 @@ public class MediaInfoScanner {
         if (checkMediainfo.canExecute()) {
             IS_ACTIVATED = Boolean.TRUE;
 
-            LOG.debug("Operating System Name   : " + OS_NAME);
-            LOG.debug("Operating System Version: " + OS_VERSION);
-            LOG.debug("Operating System Type   : " + OS_ARCH);
-            LOG.debug("MediaInfo file          : " + checkMediainfo.getAbsolutePath());
+            LOG.debug("Operating System Name   : {}", OS_NAME);
+            LOG.debug("Operating System Version: {}", OS_VERSION);
+            LOG.debug("Operating System Type   : {}", OS_ARCH);
+            LOG.debug("MediaInfo file          : {}", checkMediainfo.getAbsolutePath());
 
             if (isMediaInfoRar) {
                 LOG.info("MediaInfo-rar tool found, additional scanning functions enabled.");
@@ -856,7 +856,7 @@ public class MediaInfoScanner {
             runtime = DateTimeTools.processRuntime(runtimeValue);
         }
 
-        LOG.trace("Found runtime: '" + runtime + "'");
+        LOG.trace("Found runtime: '{}'", runtime);
         return runtime;
     }
 
@@ -956,21 +956,21 @@ public class MediaInfoScanner {
             try (BufferedReader input = new BufferedReader(
                     new InputStreamReader(
                             p.getInputStream()))) {
-                String line;
-                mediaArchive = null;
-                while ((line = localInputReadLine(input)) != null) {
-                    Pattern patternArchive
-                            = Pattern.compile("^\\s*\\d+\\s(.*)$");
-                    Matcher m = patternArchive.matcher(line);
-                    if (m.find() && (m.groupCount() == 1)) {
-                        mediaArchive = m.group(1);
+                        String line;
+                        mediaArchive = null;
+                        while ((line = localInputReadLine(input)) != null) {
+                            Pattern patternArchive
+                                    = Pattern.compile("^\\s*\\d+\\s(.*)$");
+                            Matcher m = patternArchive.matcher(line);
+                            if (m.find() && (m.groupCount() == 1)) {
+                                mediaArchive = m.group(1);
+                            }
+                        }
                     }
-                }
-            }
 
-            LOG.debug("Returning with archivename {}", mediaArchive);
+                    LOG.debug("Returning with archivename {}", mediaArchive);
 
-            return mediaArchive;
+                    return mediaArchive;
 
         } catch (IOException error) {
             LOG.error(SystemTools.getStackTrace(error));

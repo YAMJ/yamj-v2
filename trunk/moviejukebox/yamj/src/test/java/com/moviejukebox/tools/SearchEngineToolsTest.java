@@ -22,9 +22,9 @@
  */
 package com.moviejukebox.tools;
 
+import org.apache.commons.lang3.StringUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class SearchEngineToolsTest {
         // movie
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
+            LOG.info("Testing {}", engine);
             String url = search.searchMovieURL("Avatar", "2009", "www.imdb.com/title");
             url = StringUtils.removeEnd(url, "/");
             assertEquals("Search engine '" + engine + "' failed", "http://www.imdb.com/title/tt0499549", url);
@@ -50,7 +50,7 @@ public class SearchEngineToolsTest {
         // TV show, must leave out the year and search for TV series
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
+            LOG.info("Testing {}", engine);
             String url = search.searchMovieURL("Two and a Half Men", null, "www.imdb.com/title", "TV series");
             url = StringUtils.removeEnd(url, "/");
             assertEquals("Search engine '" + engine + "' failed", "http://www.imdb.com/title/tt0369179", url);
@@ -66,7 +66,7 @@ public class SearchEngineToolsTest {
         // movie
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
+            LOG.info("Testing {}", engine);
             String url = search.searchMovieURL("Avatar", "2009", "www.ofdb.de/film");
             assertEquals("Search engine '" + engine + "' failed", "http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora", url);
         }
@@ -74,7 +74,7 @@ public class SearchEngineToolsTest {
         // TV show
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
+            LOG.info("Testing {}", engine);
             String url = search.searchMovieURL("Two and a Half Men", "2003", "www.ofdb.de/film");
             assertEquals("Search engine '" + engine + "' failed", "http://www.ofdb.de/film/66192,Mein-cooler-Onkel-Charlie", url);
         }
@@ -89,7 +89,7 @@ public class SearchEngineToolsTest {
         search.setSearchSuffix("/fichefilm_gen_cfilm");
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
+            LOG.info("Testing {}", engine);
             String url = search.searchMovieURL("Avatar", "2009", "www.allocine.fr/film");
             assertEquals("Search engine '" + engine + "' failed", "http://www.allocine.fr/film/fichefilm_gen_cfilm=61282.html", url);
         }
@@ -97,7 +97,7 @@ public class SearchEngineToolsTest {
         search.setSearchSuffix("/ficheserie_gen_cserie");
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
+            LOG.info("Testing {}", engine);
             String url = search.searchMovieURL("Two and a Half Men", "2003", "www.allocine.fr/series");
             assertTrue("Search engine '" + engine + "' failed: " + url, url.startsWith("http://www.allocine.fr/series/ficheserie_gen_cserie=132.html"));
         }
@@ -111,7 +111,7 @@ public class SearchEngineToolsTest {
         // movie
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
+            LOG.info("Testing {}", engine);
             String url = search.searchMovieURL("Avatar", "2009", "www.moviemeter.nl/film");
             assertEquals("Search engine '" + engine + "' failed", "http://www.moviemeter.nl/film/17552", url);
         }
@@ -126,7 +126,7 @@ public class SearchEngineToolsTest {
         // movie
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
+            LOG.info("Testing {}", engine);
             String url = search.searchMovieURL("Avatar", "2009", "www.filmweb.pl");
             assertEquals("Search engine '" + engine + "' failed", "http://www.filmweb.pl/Avatar", url);
         }
@@ -134,7 +134,7 @@ public class SearchEngineToolsTest {
         // TV show
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
+            LOG.info("Testing {}", engine);
             String url = search.searchMovieURL("The 4400", null, "www.filmweb.pl/serial", "sezon 3");
             assertTrue("Search engine '" + engine + "' failed: " + url, url.startsWith("http://www.filmweb.pl/serial/4400-2004-122684"));
         }
@@ -149,7 +149,7 @@ public class SearchEngineToolsTest {
 
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
+            LOG.info("Testing {}", engine);
             String url = search.searchMovieURL("Avatar", "2009", "www.sratim.co.il");
             assertTrue("Search engine '" + engine + "' failed: " + url, url.startsWith("http://www.sratim.co.il/view.php"));
             assertTrue("Search engine '" + engine + "' failed: " + url, url.contains("id=143628"));
@@ -163,7 +163,7 @@ public class SearchEngineToolsTest {
 
         for (int i = 0; i < search.countSearchSites(); i++) {
             String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing " + engine);
+            LOG.info("Testing {}", engine);
             String url = search.searchMovieURL("Avatar", "2009", "www.comingsoon.it/film");
             assertTrue("Search engine '" + engine + "' failed:" + url, url.startsWith("http://www.comingsoon.it/film/"));
             assertTrue("Search engine '" + engine + "' failed:" + url, url.contains("846"));

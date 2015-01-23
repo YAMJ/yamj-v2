@@ -238,7 +238,7 @@ public class StringToolsTest {
         certs.put("Rated R for some violence (Redux version)", "R");
 
         for (Map.Entry<String, String> entry : certs.entrySet()) {
-            LOG.info("Checking '" + entry.getKey() + "'");
+            LOG.info("Checking '{}'", entry.getKey());
             result = StringTools.processMpaaCertification(entry.getKey());
             assertEquals("Failed to get correct certification", entry.getValue(), result);
         }

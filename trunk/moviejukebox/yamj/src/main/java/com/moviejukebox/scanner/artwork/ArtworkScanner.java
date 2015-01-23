@@ -718,10 +718,10 @@ public abstract class ArtworkScanner implements IArtworkScanner {
             } else {
                 if (StringTools.isValidString(artworkDummy)) {
                     try {
-                        LOG.debug("Saving {}", artworkType + " for {}", movie.getBaseName() + " to {}", tmpDestFile.getName());
+                        LOG.debug("Saving {} for {} to {}", artworkType, movie.getBaseName(), tmpDestFile.getName());
                         FileTools.downloadImage(tmpDestFile, artworkUrl);
                     } catch (IOException ex) {
-                        LOG.debug("Failed downloading {}", artworkType + ": {}", artworkUrl + " - {}", ex.getMessage());
+                        LOG.debug("Failed downloading {}: {} - {}", artworkType, artworkUrl, ex.getMessage());
                         FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + artworkDummy), tmpDestFile);
                     }
                 } else {

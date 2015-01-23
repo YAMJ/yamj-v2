@@ -141,7 +141,7 @@ public class SectionContentSS extends AbstractScriptableScraper {
             if (StringUtils.isNotBlank(name)) {
                 preparedVariable variable = prepareVariable(name);
                 if (isDebug()) {
-                    LOG.debug("getVariable: {} value: {} index0: {} index1: {}" + name, variable.value, variable.index0, variable.index1);
+                    LOG.debug("getVariable: {} value: {} index0: {} index1: {}", name, variable.value, variable.index0, variable.index1);
                 }
                 if (variable.value == null) {
                     return "";

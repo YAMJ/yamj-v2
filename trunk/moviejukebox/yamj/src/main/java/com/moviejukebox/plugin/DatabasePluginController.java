@@ -53,7 +53,8 @@ public final class DatabasePluginController {
         throw new UnsupportedOperationException("Class cannot be instantiated");
     }
     /**
-     * @author Gabriel Corneanu: Store the map in a thread local field to make it thread safe
+     * @author Gabriel Corneanu: Store the map in a thread local field to make
+     * it thread safe
      */
     private static final ThreadLocal<Map<String, MovieDatabasePlugin>> PLUGIN_MAP = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
         @Override
@@ -104,7 +105,7 @@ public final class DatabasePluginController {
         }
 
         if (ignore) {
-            LOG.debug("Skipping internet search for " + movie.getBaseFilename());
+            LOG.debug("Skipping internet search for {}", movie.getBaseFilename());
         } else {
             // store off the original type because if it wasn't scanned we need to compare to see if we need to rescan
             String origType = movie.getMovieType();
@@ -127,7 +128,7 @@ public final class DatabasePluginController {
                         }
                     }
                     if (!isScanned) {
-                        LOG.warn("Video '" + movie.getBaseName() + "' was not able to be scanned using the current plugins");
+                        LOG.warn("Video '{}' was not able to be scanned using the current plugins", movie.getBaseName());
                     }
                 }
             }
@@ -136,11 +137,11 @@ public final class DatabasePluginController {
 
     public static void scan(Person person) {
         if (!person.isScrapeLibrary()) {
-            LOG.debug("Skipping internet search for " + person.getName());
+            LOG.debug("Skipping internet search for {}", person.getName());
             return;
         }
         if (!PLUGIN_MAP.get().get(Movie.TYPE_PERSON).scan(person)) {
-            LOG.warn("Person '" + person.getName() + "' was not able to be scanned using the current plugins");
+            LOG.warn("Person '{}' was not able to be scanned using the current plugins", person.getName());
         }
     }
 
@@ -168,7 +169,7 @@ public final class DatabasePluginController {
             Class<? extends MovieDatabasePlugin> pluginClass = Class.forName(className).asSubclass(MovieDatabasePlugin.class);
             return pluginClass.newInstance();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-            LOG.error("Failed instantiating MovieDatabasePlugin: " + className);
+            LOG.error("Failed instantiating MovieDatabasePlugin: {}", className);
             LOG.error("Default IMDb plugin will be used instead.");
             LOG.error(SystemTools.getStackTrace(ex));
             return new ImdbPlugin();

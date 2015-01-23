@@ -781,7 +781,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 } else {
                     LOG.trace("Checking {} against {}", name, person.getName());
                     int lhDistance = StringUtils.getLevenshteinDistance(name, person.getName());
-                    LOG.trace("{}: Current closest match is {}, this match is {}" + name, closestMatch, lhDistance);
+                    LOG.trace("{}: Current closest match is {}, this match is {}", name, closestMatch, lhDistance);
                     if (lhDistance < closestMatch) {
                         LOG.trace("{}: TMDB ID {} is a better match", name, person.getId());
                         closestMatch = lhDistance;

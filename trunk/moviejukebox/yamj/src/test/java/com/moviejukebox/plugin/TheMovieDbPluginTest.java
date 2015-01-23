@@ -22,14 +22,6 @@
  */
 package com.moviejukebox.plugin;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.model.Person;
@@ -40,7 +32,14 @@ import com.omertron.themoviedbapi.model.CollectionInfo;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +75,7 @@ public class TheMovieDbPluginTest {
         filenames.put("In the Line of Duty 4 (1989).ts", 39854);
 
         for (Map.Entry<String, Integer> entry : filenames.entrySet()) {
-            LOG.info("Testing: '" + entry.getKey() + "'");
+            LOG.info("Testing: '{}'", entry.getKey());
             MovieFileNameDTO x = scan(entry.getKey());
             Movie movie = new Movie();
             movie.mergeFileNameDTO(x);
@@ -89,6 +88,7 @@ public class TheMovieDbPluginTest {
     private static MovieFileNameDTO scan(String filename) {
         File file = new File(filename) {
             private static final long serialVersionUID = 6412361041205608408L;
+
             @Override
             public boolean isFile() {
                 return true;
@@ -211,7 +211,7 @@ public class TheMovieDbPluginTest {
         int collectionId = 119;
         String languageCode = "en";
         String result = TMDb.getCollectionPoster(collectionId, languageCode);
-        LOG.info("result: " + result);
+        LOG.info("result: {}", result);
         assertTrue("No/Invalid poster returned", StringTools.isValidString(result));
     }
 
@@ -224,7 +224,7 @@ public class TheMovieDbPluginTest {
         int collectionId = 119;
         String languageCode = "en";
         String result = TMDb.getCollectionFanart(collectionId, languageCode);
-        LOG.info("result: " + result);
+        LOG.info("result: {}", result);
         assertTrue("No/Invalid fanart returned", StringTools.isValidString(result));
     }
 

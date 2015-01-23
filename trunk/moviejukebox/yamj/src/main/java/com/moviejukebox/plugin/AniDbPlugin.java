@@ -404,20 +404,20 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             }
 
             // XXX: DEBUG
-            LOG.info("getAnimeId         : " + anime.getAnimeId());
-            LOG.info("getEnglishName     : " + anime.getEnglishName());
-            // logger.info("getPicname         : " + anime.getPicname());
-            LOG.info("getType            : " + anime.getType());
-            LOG.info("getYear            : " + anime.getYear());
-            LOG.info("getAirDate         : " + anime.getAirDate());
-            LOG.info("Date               : " + new DateTime(anime.getAirDate()).toString("dd-MM-yyyy"));
-            // logger.info("getAwardList       : " + anime.getAwardList());
-            // logger.info("getCategoryList    : " + anime.getCategoryList());
-            // logger.info("getCharacterIdList : " + anime.getCharacterIdList());
-            LOG.info("getEndDate         : " + anime.getEndDate());
-            LOG.info("getEpisodes        : " + anime.getEpisodeCount());
-            // logger.info("getProducerNameList: " + anime.getProducerNameList());
-            LOG.info("getRating          : " + anime.getRating());
+            LOG.info("getAnimeId         : {}", anime.getAnimeId());
+            LOG.info("getEnglishName     : {}", anime.getEnglishName());
+            // logger.info("getPicname         : {}", anime.getPicname());
+            LOG.info("getType            : {}", anime.getType());
+            LOG.info("getYear            : {}", anime.getYear());
+            LOG.info("getAirDate         : {}", anime.getAirDate());
+            LOG.info("Date               : {}", new DateTime(anime.getAirDate()).toString("dd-MM-yyyy"));
+            // logger.info("getAwardList       : {}", anime.getAwardList());
+            // logger.info("getCategoryList    : {}", anime.getCategoryList());
+            // logger.info("getCharacterIdList : {}", anime.getCharacterIdList());
+            LOG.info("getEndDate         : {}", anime.getEndDate());
+            LOG.info("getEpisodes        : {}", anime.getEpisodeCount());
+            // logger.info("getProducerNameList: {}", anime.getProducerNameList());
+            LOG.info("getRating          : {}", anime.getRating());
             // XXX: DEBUG END
 
             movie.setId(ANIDB_PLUGIN_ID, String.valueOf(anime.getAnimeId()));

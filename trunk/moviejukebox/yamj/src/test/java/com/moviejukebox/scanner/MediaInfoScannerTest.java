@@ -57,6 +57,7 @@ public class MediaInfoScannerTest {
         printTextInfos("Video", this.infosVideo);
         printTextInfos("Audio", this.infosAudio);
     }
+
     @Test
     public void testStaticFile() {
         getMediaInfoTestFile("mediainfo-1.txt", true);
@@ -64,7 +65,7 @@ public class MediaInfoScannerTest {
         Movie movie = new Movie();
         MI_TEST.updateMovieInfo(movie, infosGeneral, infosVideo, infosAudio, infosText, infosGeneral);
 
-        LOG.info("Runtime: " + movie.getRuntime());
+        LOG.info("Runtime: {}", movie.getRuntime());
         assertEquals("Wrong runtime", "1h 56m", movie.getRuntime());
     }
 
@@ -192,7 +193,7 @@ public class MediaInfoScannerTest {
             LOG.warn("IOException.", error);
             assertFalse("No exception expected : " + error.getMessage(), true);
         } finally {
-            if (stream != null)  {
+            if (stream != null) {
                 stream.close();
             }
         }

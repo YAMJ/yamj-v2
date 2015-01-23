@@ -252,7 +252,7 @@ public class TVRagePlugin extends ImdbPlugin {
         if (beginIndex > -1) {
             StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + text.length()), "/ \n,:!&\"'=$");
             movie.setId(TVRAGE_PLUGIN_ID, st.nextToken());
-            LOG.debug("TVRage Vanity Id found in nfo = {}" + movie.getId(TVRAGE_PLUGIN_ID));
+            LOG.debug("TVRage Vanity Id found in nfo = {}", movie.getId(TVRAGE_PLUGIN_ID));
             return Boolean.TRUE;
         }
 
