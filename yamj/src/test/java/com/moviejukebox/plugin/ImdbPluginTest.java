@@ -22,18 +22,17 @@
  */
 package com.moviejukebox.plugin;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import org.apache.commons.lang3.StringUtils;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -42,6 +41,7 @@ import org.slf4j.LoggerFactory;
 public class ImdbPluginTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImdbPluginTest.class);
+    private static final String testDir = "src/test/java/TestFiles/ImdbPlugin/";
 
     @BeforeClass
     public static void configure() {
@@ -110,18 +110,19 @@ public class ImdbPluginTest {
 
         assertTrue("Scan failed", imdbPlugin.scan(person));
 
+        assertEquals("Wrong person matched", "nm0000367", person.getId(ImdbPlugin.IMDB_PLUGIN_ID));
         assertNotNull("Null bio", person.getBiography());
         assertNotEquals("No bio", Movie.UNKNOWN, person.getBiography());
         assertEquals("Wrong birth name", "Gérard Xavier Marcel Depardieu", person.getBirthName());
         assertEquals("Wrong birth place", "Châteauroux, Indre, France", person.getBirthPlace());
         assertFalse("No Filmography", person.getFilmography().isEmpty());
         assertEquals("Wrong birthday", "27-12-1948", person.getYear());
-        assertTrue("No character", StringTools.isValidString(person.getFilmography().get(0).getCharacter()));
+        assertTrue("No job", StringTools.isValidString(person.getFilmography().get(0).getJob()));
     }
 
     @Test
-    public void testImdb_NewLayout() {
-        LOG.info("testImdb_NewLayout");
+    public void testImdb_Short() {
+        LOG.info("testImdb_Short");
         PropertiesUtil.setProperty("imdb.site", "us");
         PropertiesUtil.setProperty("imdb.full.info", "false");
         PropertiesUtil.setProperty("mjb.scrapeAwards", "true");
@@ -141,8 +142,8 @@ public class ImdbPluginTest {
         assertEquals("Incorrect number of cast", 10, movie.getCast().size());
         assertEquals("Incorrect Directors", 1, movie.getDirectors().size());
         assertEquals("Incorrect Writers", 1, movie.getWriters().size());
-        assertTrue("No awards scraped", movie.getAwards().size() > 1);
         assertEquals("Wrong release date", "2009-12-16", movie.getReleaseDate());
+        assertTrue("No awards scraped", movie.getAwards().size() > 1);
     }
 
     @Test

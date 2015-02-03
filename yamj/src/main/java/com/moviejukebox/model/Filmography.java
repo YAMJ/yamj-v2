@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.model;
 
+import static com.moviejukebox.model.Movie.UNKNOWN;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.FileTools;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
@@ -39,9 +40,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author ilgizar Initial code copied from com.moviejukebox.themoviedb.model.Filmography
  *
  */
-public class Filmography {
+public class Filmography implements Identifiable {
 
-    private static final String UNKNOWN = Movie.UNKNOWN;
     // Define the list of jobs
     public static final String JOB_ACTOR = "actor";
     public static final String JOB_ACTRESS = "actress";
@@ -91,6 +91,7 @@ public class Filmography {
         return getId(ImdbPlugin.IMDB_PLUGIN_ID);
     }
 
+    @Override
     public String getId(String key) {
         String result = idMap.get(key);
         if (result != null) {
@@ -255,6 +256,7 @@ public class Filmography {
         setDirty();
     }
 
+    @Override
     public void setId(String key, String id) {
         if (isValidString(key) && isValidString(id) && !id.equalsIgnoreCase(this.getId(key))) {
             this.idMap.put(key, id);
