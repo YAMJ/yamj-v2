@@ -84,11 +84,11 @@ public class ImdbInfo {
 
         // Use this as a workaround for English speakers abroad who get localised versions of imdb.com
         MATCHES_DATA_PER_SITE.put("labs", new ImdbSiteDataDefinition("http://akas.imdb.com/", UTF_8, "Directed by|Director|Directors", "Cast", "Release Date", "Runtime", "Aspect Ratio", "Country",
-                "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writer|Writers|Writing credits", "Taglines", "original title"));
+                "Company", "Genres", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writer|Writers|Writing credits", "Tagline", "original title"));
 
         // TODO: Leaving this as labs.imdb.com for the time being, but will be updated to www.imdb.com
         MATCHES_DATA_PER_SITE.put("us2", new ImdbSiteDataDefinition("http://labs.imdb.com/", UTF_8, "Directed by|Director|Directors", "Cast", "Release Date", "Runtime", "Aspect Ratio", "Country",
-                "Production Co", "Genres", "Quotes", "Storyline", "Rated", "Certification", "Original Air Date", "Writing credits|Writer", "Taglines", "original title"));
+                "Company", "Genres", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writing credits|Writer", "Tagline", "original title"));
 
         // Not 100% sure these are correct
         MATCHES_DATA_PER_SITE.put("fr2", new ImdbSiteDataDefinition("http://www.imdb.fr/", UTF_8, "R&#xE9;alis&#xE9; par|R&#xE9;alisateur", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Aspect Ratio", "Pays",

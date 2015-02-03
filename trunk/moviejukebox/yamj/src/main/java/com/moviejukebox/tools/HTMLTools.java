@@ -23,6 +23,7 @@
 package com.moviejukebox.tools;
 
 import com.moviejukebox.model.Movie;
+import static com.moviejukebox.model.Movie.UNKNOWN;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -522,7 +523,7 @@ public final class HTMLTools {
             String subString = src.substring(beginIndex + startStr.length());
             int endIndex = subString.indexOf(endStr);
             if (endIndex < 0) {
-                return Movie.UNKNOWN;
+                return UNKNOWN;
             }
             subString = subString.substring(0, endIndex);
             return HTMLTools.decodeHtml(subString.trim());
@@ -642,18 +643,35 @@ public final class HTMLTools {
         return src.replaceAll("\\<.*?>", replacement);
     }
 
-    public static String stripTags(String s) {
+    /**
+     * Remove matched tags from a string
+     *
+     * @param original The string to change
+     * @return clean string
+     */
+    public static String stripTags(final String original) {
         Pattern stripTagsRegex = Pattern.compile("([^\\<]*)(?:\\<[^\\>]*\\>)?");
-        Matcher m = stripTagsRegex.matcher(s);
+        Matcher m = stripTagsRegex.matcher(original);
 
-        StringBuilder res = new StringBuilder();
+        StringBuilder result = new StringBuilder();
         while (m.find()) {
-            res.append(m.group(1));
+            result.append(m.group(1));
         }
 
         // Replace escaped spaces
-        String finalRes = res.toString().replaceAll("&nbsp;", " ");
+        String finalRes = result.toString().replaceAll("&nbsp;", " ");
 
         return finalRes.trim();
+    }
+
+    /**
+     * Remove all HTML tags from the original string
+     *
+     * @param original The string to process
+     * @param withSpaces Should spaces be added where the tags are replaced?
+     * @return
+     */
+    public static String stripTags(final String original, boolean withSpaces) {
+        return original.replaceAll("<[^>]*>", withSpaces ? " " : "").replaceAll("&nbsp;", " ").replaceAll("\\s+", " ").trim();
     }
 }
