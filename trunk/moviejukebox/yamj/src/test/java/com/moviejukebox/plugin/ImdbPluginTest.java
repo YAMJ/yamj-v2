@@ -111,13 +111,28 @@ public class ImdbPluginTest {
         assertTrue("Scan failed", imdbPlugin.scan(person));
 
         assertEquals("Wrong person matched", "nm0000367", person.getId(ImdbPlugin.IMDB_PLUGIN_ID));
-        assertNotNull("Null bio", person.getBiography());
-        assertNotEquals("No bio", Movie.UNKNOWN, person.getBiography());
+        assertTrue("No bio", StringTools.isValidString(person.getBiography()));
         assertEquals("Wrong birth name", "Gérard Xavier Marcel Depardieu", person.getBirthName());
         assertEquals("Wrong birth place", "Châteauroux, Indre, France", person.getBirthPlace());
         assertFalse("No Filmography", person.getFilmography().isEmpty());
         assertEquals("Wrong birthday", "27-12-1948", person.getYear());
         assertTrue("No job", StringTools.isValidString(person.getFilmography().get(0).getJob()));
+    }
+
+    /**
+     * This uses a slightly different format for the bio
+     */
+    @Test
+    public void testImdbBio() {
+        LOG.info("testImdbBio");
+        PropertiesUtil.setProperty("imdb.site", "us");
+        PropertiesUtil.setProperty("plugin.filmography.max", 2);
+        ImdbPlugin imdbPlugin = new ImdbPlugin();
+
+        Person person = new Person();
+        person.setName("Adrian Edmondson");
+        assertTrue("Scan failed", imdbPlugin.scan(person));
+        assertTrue("No bio", StringTools.isValidString(person.getBiography()));
     }
 
     @Test
