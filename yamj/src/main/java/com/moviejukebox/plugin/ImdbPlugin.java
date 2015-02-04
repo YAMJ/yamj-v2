@@ -134,6 +134,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     // Patterns for the name searching
     private static final Pattern PATTERN_PERSON_NAME = Pattern.compile("(?:.*?)/name/(nm\\d+)/(?:.*?)'name'>(.*?)</a>(?:.*?)", Pattern.CASE_INSENSITIVE);
     private static final Pattern PATTERN_PERSON_CHAR = Pattern.compile("(?:.*?)/character/(ch\\d+)/(?:.*?)>(.*?)</a>(?:.*)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern PATTERN_BIO = Pattern.compile("<h\\d.*?>Mini Bio.*?</h\\d>.*?<p>(.*?)</p>");
 
     // Patterns for filmography
     // 1: Section title (job), 2: Number of credits
@@ -588,8 +589,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         Pattern pTagline = Pattern.compile("(" + siteDef.getTaglines() + ".{0,3}?:</h\\d>)", Pattern.CASE_INSENSITIVE);
         Matcher m = pTagline.matcher(xml);
 
-        if(m.find()) {
-            int beginIndex=m.start();
+        if (m.find()) {
+            int beginIndex = m.start();
             // We need to work out which of the two formats to use, this is dependent on which comes first "<span" or "</div"
             String endMarker;
             if (StringUtils.indexOf(xml, "<span", beginIndex) < StringUtils.indexOf(xml, HTML_DIV_END, beginIndex)) {
@@ -1585,13 +1586,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
         }
 
-        if (xmlInfo.contains(">Mini Bio (1)</h4>")) {
-            String biography = HTMLTools.extractTag(xmlInfo, ">Mini Bio (1)</h4>", "<em>- IMDb Mini Biography By");
-
-            if (isValidString(biography)) {
-                biography = HTMLTools.removeHtmlTags(biography);
-                biography = trimToLength(biography, preferredBiographyLength);
-                person.setBiography(biography);
+        Matcher m = PATTERN_BIO.matcher(xmlInfo);
+        if (m.find()) {
+            String bio = HTMLTools.stripTags(m.group(1), true);
+            if(isValidString(bio)){
+            bio = trimToLength(bio, preferredBiographyLength);
+            person.setBiography(bio);
             }
         }
 
