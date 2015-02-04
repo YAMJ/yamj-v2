@@ -33,6 +33,7 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.AspectRatioTools;
+import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.OverrideTools;
@@ -1258,11 +1259,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
                 if (OverrideTools.checkOverwriteEpisodeFirstAired(file, episode, IMDB_PLUGIN_ID)) {
                     String firstAired = HTMLTools.extractTag(episodeXml, "<div class=\"airdate\">", "</div>");
-                    try {
-                        // use same format as TheTvDB
-                        firstAired = DateTime.parse(firstAired).toString("yyyy-MM-dd");
-                    } catch (Exception ignore) {
-                    }
+                    firstAired = DateTimeTools.parseDateTo(firstAired, "yyyy-MM-dd");
                     file.setFirstAired(episode, firstAired, IMDB_PLUGIN_ID);
                 }
             }
@@ -1589,9 +1586,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         Matcher m = PATTERN_BIO.matcher(xmlInfo);
         if (m.find()) {
             String bio = HTMLTools.stripTags(m.group(1), true);
-            if(isValidString(bio)){
-            bio = trimToLength(bio, preferredBiographyLength);
-            person.setBiography(bio);
+            if (isValidString(bio)) {
+                bio = trimToLength(bio, preferredBiographyLength);
+                person.setBiography(bio);
             }
         }
 
