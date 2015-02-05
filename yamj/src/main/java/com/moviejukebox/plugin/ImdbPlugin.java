@@ -1780,9 +1780,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     if (endIndex > -1) {
                         character = character.substring(0, endIndex);
                     }
-
-                    // Remove duplicate spaces and trim
-                    character = StringUtils.normalizeSpace(character);
                 }
 
                 if (isValidString(character)) {
@@ -1873,8 +1870,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param jobItem The source XML to process
      */
     private void processActorItem(Filmography film, final String jobItem) {
-        String character = getCharacter(jobItem);
-        film.setCharacter(character);
+        film.setCharacter(getCharacter(jobItem));
         film.setJob(Filmography.JOB_ACTOR);
     }
 

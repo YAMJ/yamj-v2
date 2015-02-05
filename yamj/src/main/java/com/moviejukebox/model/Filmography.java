@@ -37,7 +37,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 /**
  * This is the new bean for the Person
  *
- * @author ilgizar Initial code copied from com.moviejukebox.themoviedb.model.Filmography
+ * @author ilgizar Initial code copied from
+ * com.moviejukebox.themoviedb.model.Filmography
  *
  */
 public class Filmography implements Identifiable {
@@ -217,9 +218,12 @@ public class Filmography implements Identifiable {
         }
     }
 
-    public void setCharacter(String character) {
-        if (isValidString(character) && !this.character.equalsIgnoreCase(character)) {
-            this.character = character;
+    public void setCharacter(final String character) {
+        // Remove duplicate spaces and trim
+        String newCharacter = StringUtils.normalizeSpace(character);
+
+        if (isValidString(newCharacter) && !this.character.equalsIgnoreCase(newCharacter)) {
+            this.character = newCharacter;
             setDirty();
         }
     }

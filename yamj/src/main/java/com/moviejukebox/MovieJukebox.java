@@ -2078,7 +2078,11 @@ public class MovieJukebox {
             if (isValidString(person.getPhotoFilename())) {
                 continue;
             }
+
             if (FileTools.findFilenameInCache(person.getName(), PHOTO_EXTENSIONS, jukebox, Boolean.TRUE, peopleFolder) != null) {
+                if (StringTools.isNotValidString(person.getFilename())) {
+                    person.setFilename();
+                }
                 person.setPhotoFilename();
                 photoFound = Boolean.TRUE;
             }
