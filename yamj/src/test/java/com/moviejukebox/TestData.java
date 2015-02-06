@@ -20,29 +20,22 @@
  *      Web: http://code.google.com/p/moviejukebox/
  *
  */
-package com.moviejukebox.plugin.poster;
+package com.moviejukebox;
 
-import com.moviejukebox.tools.PropertiesUtil;
+/**
+ * Simple class to store test data
+ *
+ * @author Stuart
+ */
+public class TestData {
 
-import static org.junit.Assert.*;
-import org.junit.BeforeClass;
-import org.junit.Test;
+    public String title;
+    public String year;
+    public String id;
 
-public class MovieMeterPosterPluginTestCase {
-
-    @BeforeClass
-    public static void configure() {
-        PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "movieposter");
-        PropertiesUtil.setProperty("API_KEY_MovieMeter", "tyk0awf19uqm65mjfsqw9z9rx6t706pe");
-    }
-
-    @Test
-    public void testGetId() {
-        MovieMeterPosterPlugin posterPlugin = new MovieMeterPosterPlugin();
-        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo("Avatar", null);
-        assertEquals("17552", idFromMovieInfo);
-
-        String posterUrl = posterPlugin.getPosterUrl(idFromMovieInfo).getUrl();
-        assertEquals("http://www.moviemeter.nl/images/covers/17000/17552.jpg", posterUrl);
+    public TestData(String title, String year, String id) {
+        this.title = title;
+        this.year = year;
+        this.id = id;
     }
 }

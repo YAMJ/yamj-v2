@@ -22,6 +22,9 @@
  */
 package com.moviejukebox.model.enumerations;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * The list of override flags
  *
@@ -64,6 +67,8 @@ public enum OverrideFlag {
     EPISODE_RATING,
     EPISODE_TITLE;
 
+    private static final Logger LOG = LoggerFactory.getLogger(OverrideFlag.class);
+
     /**
      * Convert a string into an Enum type
      *
@@ -71,9 +76,13 @@ public enum OverrideFlag {
      * @return the Enum, may be UNKNOWN if given string could not be parsed
      */
     public static OverrideFlag fromString(String overrideFlag) {
+        OverrideFlag flag;
         try {
-            return OverrideFlag.valueOf(overrideFlag.trim().toUpperCase());
-        } catch (Exception ignore) {}
-            return UNKNOWN;
+            flag = OverrideFlag.valueOf(overrideFlag.trim().toUpperCase());
+        } catch (Exception ex) {
+            flag = UNKNOWN;
+            LOG.trace("Failed to determine override flag from '{}', using {}", overrideFlag, flag);
     }
+        return flag;
+}
 }

@@ -449,6 +449,18 @@ public final class PropertiesUtil {
     }
 
     /**
+     * Output a warning message about the property being no longer used
+     *
+     * @param prop Property to warn about
+     */
+    public static void warnDeprecatedProperty(final String prop) {
+        String value = StringUtils.trimToNull(PROPS.getProperty(prop));
+        if (StringTools.isValidString(value)) {
+            LOG.warn("Property '{}' is no longer used, but was found in your configuration files, please remove it.", prop);
+        }
+    }
+
+    /**
      * Write the properties out to a file
      */
     public static void writeProperties() {
