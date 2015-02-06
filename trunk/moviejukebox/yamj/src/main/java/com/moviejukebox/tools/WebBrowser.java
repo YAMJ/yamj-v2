@@ -48,8 +48,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yamj.api.common.http.SimpleHttpClientBuilder;
 
 /**
  * Web browser with simple cookies support
@@ -293,8 +295,7 @@ public class WebBrowser {
     }
 
     /**
-     * Check the URL to see if it's one of the special cases that needs to be
-     * worked around
+     * Check the URL to see if it's one of the special cases that needs to be worked around
      *
      * @param URL The URL to check
      * @param cnx The connection that has been opened
@@ -500,5 +501,28 @@ public class WebBrowser {
 
         LOG.debug("Connect Timeout: {}", TIMEOUT_CONNECT);
         LOG.debug("Read Timeout   : {}", TIMEOUT_READ);
+    }
+
+    /**
+     * Generate a new CloseableHttpClient from the standard properties
+     *
+     * @return A CloseableHttpClient
+     */
+    public static CloseableHttpClient getCloseableHttpClient() {
+        SimpleHttpClientBuilder cb = new SimpleHttpClientBuilder();
+        cb.setConnectTimeout(TIMEOUT_CONNECT);
+        cb.setConnectionRequestTimeout(TIMEOUT_READ);
+
+        if (StringUtils.isNotBlank(PROXY_HOST)) {
+            cb.setProxyHost(PROXY_HOST);
+            cb.setProxyPort(PROXY_PORT);
+}
+
+        if (StringUtils.isNotBlank(PROXY_USERNAME)) {
+            cb.setProxyUsername(PROXY_USERNAME);
+            cb.setProxyPassword(PROXY_PASSWORD);
+        }
+
+        return cb.build();
     }
 }

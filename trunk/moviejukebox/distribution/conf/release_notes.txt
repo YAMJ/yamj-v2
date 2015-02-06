@@ -43,6 +43,7 @@ MovieJukebox 2.10-SNAPSHOT
  - Fixed defect #2750 FilmDelta.se not existent anymore
  - Fixed defect #2751 Filmweb not working
  - Fixed defect #2753 IMDB People scraping broken
+ - Fixed defect #2756 Update MovieMeter to use new API
 
 MovieJukebox 2.9
 ----------------

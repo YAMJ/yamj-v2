@@ -61,6 +61,11 @@
             <artifactId>traileraddictapi</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.omertron</groupId>
+            <artifactId>api-moviemeter</artifactId>
+        </dependency>
+
         <!-- Removed for the time being until I can fix the search
         <dependency>
             <groupId>com.omertron</groupId>
