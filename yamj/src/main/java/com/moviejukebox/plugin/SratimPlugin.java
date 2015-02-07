@@ -1125,19 +1125,19 @@ public class SratimPlugin extends ImdbPlugin {
                     && ((scanFileName.contains("BRRIP")) || (scanFileName.contains("BDRIP")) || (scanFileName.contains("BLURAY"))
                     || (scanFileName.contains("BLU-RAY")) || (scanFileName.contains("HDDVD")))) {
 
-                if ((scanFPSFloat == 0) && (scanCountInt > bestBlurayCount)) {
+                if ((Float.compare(scanFPSFloat, 0F) == 0) && (scanCountInt > bestBlurayCount)) {
                     bestBlurayCount = scanCountInt;
                     bestBlurayID = scanID;
                 }
 
-                if ((movie.getFps() == scanFPSFloat) && (scanCountInt > bestBlurayFPSCount)) {
+                if ((Float.compare(movie.getFps(), scanFPSFloat) == 0) && (scanCountInt > bestBlurayFPSCount)) {
                     bestBlurayFPSCount = scanCountInt;
                     bestBlurayFPSID = scanID;
                 }
 
             }
 
-            if ((movie.getFps() == scanFPSFloat) && (scanCountInt > bestFPSCount)) {
+            if ((Float.compare(movie.getFps(), scanFPSFloat) == 0) && (scanCountInt > bestFPSCount)) {
                 bestFPSCount = scanCountInt;
                 bestFPSID = scanID;
             }
