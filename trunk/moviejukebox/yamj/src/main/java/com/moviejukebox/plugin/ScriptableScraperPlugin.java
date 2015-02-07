@@ -383,6 +383,7 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
                     } else if ("math".equals(type)) {
                         MathSS math = cSection.getMath(key);
                         if (math != null) {
+                            boolean found = false;
                             float res = -0.000001f;
                             float value1 = Float.parseFloat(cSection.compileValue(math.getValue1()));
                             float value2 = Float.parseFloat(cSection.compileValue(math.getValue2()));
@@ -391,19 +392,23 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
                                 switch (typeName) {
                                     case "add":
                                         res = value1 + value2;
+                                        found = true;
                                         break;
                                     case "subtract":
                                         res = value1 - value2;
+                                        found = true;
                                         break;
                                     case "multiply":
                                         res = value1 * value2;
+                                        found = true;
                                         break;
                                     case "divide":
-                                        if (value2 > 0) {
+                                        if (value2 > 0f) {
                                             res = value1 / value2;
                                         } else {
-                                            res = 0;
+                                            res = 0f;
                                         }
+                                        found = true;
                                         break;
                                     default:
                                         LOG.error("Unknown math type: {}", typeName);
@@ -411,7 +416,7 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
                                 }
                             }
 
-                            if (res != -0.000001f) {
+                            if (found) {
                                 if ("float".equals(math.getResultType())) {
                                     value = Float.toString(res);
                                 } else {

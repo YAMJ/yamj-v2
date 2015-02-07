@@ -271,8 +271,7 @@ public final class OverrideTools {
      *
      * @param priorityMap The map to update
      * @param pluginName The name of the plugin to replace
-     * @param videoType The type of the video: TV/Movie - used for the log
-     * message
+     * @param videoType The type of the video: TV/Movie - used for the log message
      * @param overrideFlag The flag to override
      * @param sources The list of sources
      */
@@ -353,8 +352,7 @@ public final class OverrideTools {
      * @param property the property to test
      * @param actualSource the actual source
      * @param newSource the new source
-     * @return true, if new source has higher property than actual source, else
-     * false
+     * @return true, if new source has higher property than actual source, else false
      */
     private static boolean hasHigherPriority(final OverrideFlag overrideFlag, final String actualSource, final String newSource, boolean isTV) {
         // check sources
@@ -531,7 +529,7 @@ public final class OverrideTools {
         if (skipCheck(movie, OverrideFlag.FPS, source)) {
             // skip the check
             return Boolean.FALSE;
-        } else if (movie.getFps() == 60f) {
+        } else if (Float.compare(movie.getFps(), 60f) == 0) {
             // assume 60 as default value
             return Boolean.TRUE;
         }
