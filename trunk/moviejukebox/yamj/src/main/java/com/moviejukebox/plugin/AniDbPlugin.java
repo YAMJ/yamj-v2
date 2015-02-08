@@ -138,6 +138,9 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private int maxGenres;
     private static TheTVDBApi tvdb;
     private static Boolean loadedTvdbMappings = false;
+    // Lock objects
+    private static final Object lock = new Object();
+    private static final Object tvlock = new Object();
 
     static {
         MAIN_SERIES_MOVIES = new HashMap<>();
@@ -195,7 +198,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
         setupDatabase();
         try {
-            synchronized (loadedTvdbMappings) {
+            synchronized (lock) {
                 if (!loadedTvdbMappings) {
                     loadAnidbTvdbMappings();
                     loadedTvdbMappings = true;
@@ -576,13 +579,13 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 
     protected Series getSeriesFromTvdb(final long tvdbId) {
-        synchronized (tvdb) {
+        synchronized (tvlock) {
             return tvdb.getSeries(Long.toString(tvdbId), "en");
         }
     }
 
     protected Series getSeriesFromTvdb(final String title) {
-        synchronized (tvdb) {
+        synchronized (tvlock) {
             final List<Series> series = tvdb.searchSeries(title, "en");
             if (series.size() > 0) {
                 return series.get(0);
@@ -592,7 +595,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 
     protected com.omertron.thetvdbapi.model.Episode getEpisodeFromTvdb(final String seriesId, final int season, final int episodeNumber) {
-        synchronized (tvdb) {
+        synchronized (tvlock) {
             return tvdb.getEpisode(seriesId, season, episodeNumber, "en");
         }
     }
