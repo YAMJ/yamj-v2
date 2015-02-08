@@ -155,8 +155,7 @@ public final class DateTimeTools {
     }
 
     /**
-     * Take a string runtime in various formats and try to output this in
-     * minutes
+     * Take a string runtime in various formats and try to output this in minutes
      *
      * @param runtime
      * @return
@@ -166,8 +165,7 @@ public final class DateTimeTools {
     }
 
     /**
-     * Take a string runtime in various formats and try to output this in
-     * minutes
+     * Take a string runtime in various formats and try to output this in minutes
      *
      * @param runtime
      * @param defaultValue
@@ -248,31 +246,27 @@ public final class DateTimeTools {
      * @throws ParseException
      */
     public static Date parseStringToDate(final String dateToParse) throws IllegalArgumentException, ParseException {
-        Date parsedDate = null;
         String parsedDateString;
 
-        if (StringTools.isValidString(dateToParse)) {
-            if (dateToParse.length() <= 4) {
-                LOG.trace("Adding '-01-01' to short date");
-                parsedDateString = dateToParse + "-01-01";
-            } else {
-                // look for the date as "dd MMMM yyyy (Country)" and remove the country
-                Matcher m = DATE_COUNTRY.matcher(dateToParse);
-                if (m.find()) {
-                    LOG.trace("Removed '{}' from date '{}'", m.group(2), dateToParse);
-                    parsedDateString = m.group(1);
-                } else {
-                    parsedDateString = dateToParse;
-                }
-            }
-
-            parsedDate = parseDateTime(dateToParse);
-
-        } else {
+        if (StringTools.isNotValidString(dateToParse)) {
             throw new IllegalArgumentException("Invalid date '" + dateToParse + "' passed");
         }
 
-        return parsedDate;
+        if (dateToParse.length() <= 4) {
+            LOG.trace("Adding '-01-01' to short date");
+            parsedDateString = dateToParse + "-01-01";
+        } else {
+            // look for the date as "dd MMMM yyyy (Country)" and remove the country
+            Matcher m = DATE_COUNTRY.matcher(dateToParse);
+            if (m.find()) {
+                LOG.trace("Removed '{}' from date '{}'", m.group(2), dateToParse);
+                parsedDateString = m.group(1);
+            } else {
+                parsedDateString = dateToParse;
+            }
+        }
+
+        return parseDateTime(parsedDateString);
     }
 
     private static Date parseDateTime(String convertDate) {
