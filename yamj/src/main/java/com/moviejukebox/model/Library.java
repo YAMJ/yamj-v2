@@ -531,7 +531,7 @@ public class Library implements Map<String, Movie> {
             indexMaster.setWatchedFile(watched);
             indexMaster.setTop250(top250, top250source);
 
-            if (setsRating.equalsIgnoreCase("max") || (setsRating.equalsIgnoreCase("average") && (indexMovieList.size() > 0))) {
+            if (setsRating.equalsIgnoreCase("max") || (setsRating.equalsIgnoreCase("average") && (!indexMovieList.isEmpty()))) {
                 Map<String, Integer> ratings = new HashMap<>();
                 ratings.put("setrating", setsRating.equalsIgnoreCase("max") ? maxRating : (sumRating / indexMovieList.size()));
                 indexMaster.setRatings(ratings);
@@ -598,7 +598,7 @@ public class Library implements Map<String, Movie> {
         final List<Movie> indexMovies = new ArrayList<>(library.values());
         moviesList.addAll(library.values());
 
-        if (indexMovies.size() > 0) {
+        if (!indexMovies.isEmpty()) {
             Map<String, Index> dynamicIndexes = new LinkedHashMap<>();
             // Add the sets FIRST! That allows users to put series inside sets
             dynamicIndexes.put(SET, indexBySets(indexMovies));
@@ -780,7 +780,7 @@ public class Library implements Map<String, Movie> {
         tasks.restart();
         final List<Person> indexPersons = new ArrayList<>(people.values());
 
-        if (indexPersons.size() > 0) {
+        if (!indexPersons.isEmpty()) {
             for (final String indexStr : INDEX_LIST.split(",")) {
                 if (!(INDEX_CAST + INDEX_DIRECTOR + INDEX_WRITER + INDEX_PERSON).contains(indexStr)) {
                     continue;
@@ -1098,7 +1098,7 @@ public class Library implements Map<String, Movie> {
                     }
                 }
 
-                if (!movie.isTVShow() && (movie.getSetsKeys().size() > 0) && CATEGORIES_MAP.get(INDEX_SETS) != null) {
+                if (!movie.isTVShow() && (!movie.getSetsKeys().isEmpty()) && CATEGORIES_MAP.get(INDEX_SETS) != null) {
                     index.addMovie(CATEGORIES_MAP.get(INDEX_SETS), movie);
                     movie.addIndex(INDEX_SETS, CATEGORIES_MAP.get(INDEX_SETS));
                 }
@@ -1621,7 +1621,7 @@ public class Library implements Map<String, Movie> {
     public String getDefaultCategory() {
         for (Index index : indexes.values()) {
             for (String cat : CATEGORIES_MAP.values()) {
-                if (index.containsKey(cat) && index.get(cat).size() > 0) {
+                if (index.containsKey(cat) && !index.get(cat).isEmpty()) {
                     return cat;
                 }
             }

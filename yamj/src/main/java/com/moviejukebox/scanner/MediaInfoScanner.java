@@ -393,7 +393,7 @@ public class MediaInfoScanner {
             // check file
             String filename = FilenameUtils.removeExtension(movieFilePath) + ".mediainfo";
             Collection<File> files = FileTools.fileCache.searchFilename(filename, Boolean.FALSE);
-            if (files != null && files.size() > 0) {
+            if (files != null && !files.isEmpty()) {
                 // create new input stream for reading
                 LOG.debug("Reading from file {}", filename);
                 return new MediaInfoStream(new FileInputStream(files.iterator().next()));
@@ -482,9 +482,9 @@ public class MediaInfoScanner {
             try {
                 for (String singleKey : generalKey) {
                     List<Map<String, String>> arrayList = matches.get(singleKey);
-                    if (arrayList.size() > 0) {
+                    if (!arrayList.isEmpty()) {
                         Map<String, String> datas = arrayList.get(0);
-                        if (datas.size() > 0) {
+                        if (!datas.isEmpty()) {
                             infosGeneral.putAll(datas);
                             break;
                         }
@@ -553,7 +553,7 @@ public class MediaInfoScanner {
 
         // get Info from first Video Stream
         // - can evolve to get info from longest Video Stream
-        if (infosVideo.size() > 0) {
+        if (!infosVideo.isEmpty()) {
             // At this point there is only a codec pulled from the filename, so we can clear that now
             movie.getCodecs().clear();
 
@@ -844,7 +844,7 @@ public class MediaInfoScanner {
         runtimeValue = infosGeneral.get("PlayTime");
         runtime = DateTimeTools.processRuntime(runtimeValue);
 
-        if (runtime <= 0 && (infosVideo.size() > 0)) {
+        if (runtime <= 0 && (!infosVideo.isEmpty())) {
             // Get the main video information
             Map<String, String> infosMainVideo = infosVideo.get(0);
             runtimeValue = infosMainVideo.get("Duration");

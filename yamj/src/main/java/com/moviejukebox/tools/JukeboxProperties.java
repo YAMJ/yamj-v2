@@ -260,7 +260,7 @@ public final class JukeboxProperties {
             if (MONITOR && mjbDetails.exists()) {
                 PropertyInformation pi = processFile(mjbDetails, mediaLibraryPaths);
 
-                if (pi.getOverwrites().size() > 0) {
+                if (!pi.getOverwrites().isEmpty()) {
                     LOG.debug("Found {} overwites to set.", pi.getOverwrites().size());
                     for (PropertyOverwrites po : pi.getOverwrites()) {
                         LOG.debug("Setting 'force{}Overwrite = true' due to property file changes", po.toString());

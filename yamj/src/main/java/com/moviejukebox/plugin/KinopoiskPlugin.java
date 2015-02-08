@@ -131,7 +131,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             nfoRating = mediaFile.getRating() > -1;
             nfoFanart = StringTools.isValidString(mediaFile.getFanartURL());
             nfoPoster = StringTools.isValidString(mediaFile.getPosterURL());
-            nfoAwards = mediaFile.getAwards().size() > 0;
+            nfoAwards = !mediaFile.getAwards().isEmpty();
         }
 
         if (StringTools.isNotValidString(kinopoiskId)) {
@@ -468,7 +468,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 // Country
                 if (OverrideTools.checkOverwriteCountry(movie, KINOPOISK_PLUGIN_ID)) {
                     Collection<String> scraped = HTMLTools.extractTags(item, ">страна<", "</tr>", "a href=\"/lists/m_act%5Bcountry%5D/", "</a>");
-                    if (scraped != null && scraped.size() > 0) {
+                    if (scraped != null && !scraped.isEmpty()) {
                         List<String> countries = new ArrayList<>();
                         for (String country : scraped) {
                             if (translitCountry) {
@@ -738,7 +738,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             studio.add(HTMLTools.removeHtmlTags(tmp));
                         }
                     }
-                    if (studio.size() > 0) {
+                    if (!studio.isEmpty()) {
                         movie.setCompany(companyAll ? StringUtils.join(studio, Movie.SPACE_SLASH_SPACE) : new ArrayList<>(studio).get(0), KINOPOISK_PLUGIN_ID);
                         valueFounded = true;
                     }
@@ -808,7 +808,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
                 }
-                if (awards.size() > 0) {
+                if (!awards.isEmpty()) {
                     movie.setAwards(awards);
                 } else if (etalonFlag) {
                     LOG.error(SITE_DESIGN, "award");
@@ -1238,8 +1238,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         }
                     }
 
-                    if (newFilmography.size() > 0) {
-                        if ((person.getFilmography().size() > 0) && (preferredRating.equals("combine") || preferredRating.equals("average"))) {
+                    if (!newFilmography.isEmpty()) {
+                        if ((!person.getFilmography().isEmpty()) && ("combine".equals(preferredRating) || "average".equals(preferredRating))) {
                             for (Filmography film : person.getFilmography()) {
                                 @SuppressWarnings("unused")
                                 String name = film.getName().replace("ё", "е").replace("Ё", "Е").trim();

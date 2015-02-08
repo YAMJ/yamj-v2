@@ -390,7 +390,7 @@ public class MovieJukebox {
                 "remastered,directors cut,extended cut,final cut"), ",;|"));
         MovieFilenameScanner.setLanguageDetection(PropertiesUtil.getBooleanProperty("filename.scanner.language.detection", Boolean.TRUE));
         final KeywordMap languages = PropertiesUtil.getKeywordMap("filename.scanner.language.keywords", null);
-        if (languages.size() > 0) {
+        if (!languages.isEmpty()) {
             MovieFilenameScanner.clearLanguages();
             for (String lang : languages.getKeywords()) {
                 String values = languages.get(lang);
@@ -968,7 +968,7 @@ public class MovieJukebox {
         JukeboxStatistics.setStatistic(JukeboxStatistic.VIDEOS, library.size());
 
         tasks.restart();
-        if (library.size() > 0) {
+        if (!library.isEmpty()) {
             // Issue 1882: Separate index files for each category
             boolean separateCategories = PropertiesUtil.getBooleanProperty("mjb.separateCategories", Boolean.FALSE);
 

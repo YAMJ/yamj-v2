@@ -817,7 +817,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                     continue;
                 }
 
-                if (layer.getPositions().size() > 0) {
+                if (!layer.getPositions().isEmpty()) {
                     for (ConditionOverlay cond : layer.getPositions()) {
                         flag = true;
                         for (int i = 0; i < layer.getNames().size(); i++) {

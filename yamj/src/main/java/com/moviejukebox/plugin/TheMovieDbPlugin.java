@@ -276,14 +276,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             }
 
             // Set the release information
-            if (movieReleaseInfo.size() > 0 && OverrideTools.checkOverwriteCertification(movie, TMDB_PLUGIN_ID)) {
+            if (!movieReleaseInfo.isEmpty() && OverrideTools.checkOverwriteCertification(movie, TMDB_PLUGIN_ID)) {
                 LOG.trace("Found release information: {}", movieReleaseInfo.get(0).toString());
                 movie.setCertification(movieReleaseInfo.get(0).getCertification(), TMDB_PLUGIN_ID);
             }
 
             // Add the cast information
             // TODO: Add the people to the cast/crew
-            if (moviePeople.size() > 0) {
+            if (!moviePeople.isEmpty()) {
                 List<String> newActors = new ArrayList<>();
                 List<String> newDirectors = new ArrayList<>();
                 List<String> newWriters = new ArrayList<>();
@@ -501,7 +501,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         }
 
         // Language
-        if (moviedb.getSpokenLanguages().size() > 0 && OverrideTools.checkOverwriteLanguage(movie, TMDB_PLUGIN_ID)) {
+        if (!moviedb.getSpokenLanguages().isEmpty() && OverrideTools.checkOverwriteLanguage(movie, TMDB_PLUGIN_ID)) {
             StringBuilder movieLanguage = new StringBuilder();
 
             String isoCode = moviedb.getSpokenLanguages().get(0).getIsoCode();

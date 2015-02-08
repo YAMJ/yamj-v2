@@ -146,7 +146,7 @@ public class JpegReader {
         ByteSource byteSource = new ByteSourceFile(file);
         @SuppressWarnings("rawtypes")
         List segments = parser.readSegments(byteSource, new int[]{0xffee}, true);
-        if (segments != null && segments.size() >= 1) {
+        if (segments != null && !segments.isEmpty()) {
             UnknownSegment app14Segment = (UnknownSegment) segments.get(0);
             byte[] data = app14Segment.bytes;
             if (data.length >= 12 && data[0] == 'A' && data[1] == 'd' && data[2] == 'o' && data[3] == 'b' && data[4] == 'e') {

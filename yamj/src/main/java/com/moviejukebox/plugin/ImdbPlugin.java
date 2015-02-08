@@ -1114,12 +1114,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                     aEvent.addAward(aAward);
                 }
 
-                if (aEvent.getAwards().size() > 0) {
+                if (!aEvent.getAwards().isEmpty()) {
                     awardList.add(aEvent);
                 }
             }
 
-            if (awardList.size() > 0) {
+            if (!awardList.isEmpty()) {
                 movie.setAwards(awardList);
             }
         } else {
