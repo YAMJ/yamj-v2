@@ -264,7 +264,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     @XmlElement
     public String getMjbRevision() {
         // If YAMJ is self compiled then the revision information may not exist.
-        if (!(StringUtils.isBlank(mjbRevision) || (mjbRevision.equalsIgnoreCase("${env.SVN_REVISION}")))) {
+        if (!(StringUtils.isBlank(mjbRevision) || ("${env.SVN_REVISION}".equalsIgnoreCase(mjbRevision)))) {
             return mjbRevision;
         } else {
             return Movie.UNKNOWN;
@@ -1269,7 +1269,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringTools.isValidString(country)) {
             String tmpCountry;
             // Shorten country to USA
-            if (country.equalsIgnoreCase("United States of America")) {
+            if ("United States of America".equalsIgnoreCase(country)) {
                 tmpCountry = "USA";
             } else {
                 tmpCountry = country;

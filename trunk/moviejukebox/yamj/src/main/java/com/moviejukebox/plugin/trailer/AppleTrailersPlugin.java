@@ -39,6 +39,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
     @Override
     public final boolean generate(Movie movie) {
         // Check if trailer resolution was selected
-        if (CONFIG_RESOLUTION.equals("")) {
+        if (StringUtils.isBlank(CONFIG_RESOLUTION)) {
             return false;
         }
 

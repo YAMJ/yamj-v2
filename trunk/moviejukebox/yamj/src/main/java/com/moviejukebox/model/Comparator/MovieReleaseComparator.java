@@ -180,7 +180,7 @@ public class MovieReleaseComparator extends MovieYearComparator {
     }
 
     private String correctShortMonth(String month) {
-        if (dateLocale.equals("ru_RU") && month.equals("мая")) {
+        if ("ru_RU".equals(dateLocale) && "мая".equals(month)) {
             return "май";
         }
         return month;

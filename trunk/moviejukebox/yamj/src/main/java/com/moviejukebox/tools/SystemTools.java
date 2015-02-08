@@ -215,7 +215,7 @@ public final class SystemTools {
         // Jukebox revision
         String currentRevision = MovieJukebox.class.getPackage().getImplementationVersion();
         // If YAMJ is self compiled then the revision information may not exist.
-        if (StringUtils.isBlank(currentRevision) || (currentRevision.equalsIgnoreCase("${env.SVN_REVISION}"))) {
+        if (StringUtils.isBlank(currentRevision) || ("${env.SVN_REVISION}".equalsIgnoreCase(currentRevision))) {
             currentRevision = "0000";
         }
         return currentRevision;

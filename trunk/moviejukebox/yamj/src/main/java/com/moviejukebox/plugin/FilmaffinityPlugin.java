@@ -127,7 +127,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
 
             if (OverrideTools.checkOverwriteRuntime(movie, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID)) {
                 String runTime = HTMLTools.getTextAfterElem(xml, FA_RUNTIME).replace("min.", "m");
-                if (!runTime.equals("min.")) {
+                if (!"min.".equals(runTime)) {
                     movie.setRuntime(runTime, FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID);
                 }
             }

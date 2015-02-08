@@ -33,6 +33,7 @@ import java.util.List;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +108,7 @@ public class MovieJukeboxLibraryReader {
                 if (medialibfile.exists()) {
                     MediaLibraryPath medlib = new MediaLibraryPath();
                     medlib.setPath(medialibfile.getCanonicalPath());
-                    if (playerpath == null || playerpath.equals("")) {
+                    if (playerpath == null || StringUtils.isBlank(playerpath)) {
                         medlib.setPlayerRootPath(nmtpath);
                     } else {
                         medlib.setPlayerRootPath(playerpath);

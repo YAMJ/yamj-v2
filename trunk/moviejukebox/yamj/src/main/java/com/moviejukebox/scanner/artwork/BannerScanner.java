@@ -240,7 +240,7 @@ public final class BannerScanner {
      */
     private static void downloadBanner(MovieImagePlugin imagePlugin, Jukebox jukebox, Movie movie) {
         String id = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID); // This is the default ID
-        if (!movie.isScrapeLibrary() || id.equals("0") || id.equals("-1")) {
+        if (!movie.isScrapeLibrary() || "0".equals(id) || "-1".equals(id)) {
             LOG.debug("Skipping online banner search for {}", movie.getBaseFilename());
             return;
         }

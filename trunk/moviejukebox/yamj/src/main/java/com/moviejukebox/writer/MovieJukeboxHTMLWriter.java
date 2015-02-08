@@ -125,7 +125,7 @@ public class MovieJukeboxHTMLWriter {
             String indexList = PropertiesUtil.getProperty("mjb.view.detailList", "detail.xsl");
             for (final String indexStr : indexList.split(",")) {
                 String suffix = "";
-                if (!indexStr.equals("detail.xsl")) {
+                if (!"detail.xsl".equals(indexStr)) {
                     suffix = indexStr.replace("detail", "").replace(EXT_XSL, "");
                 }
 
@@ -185,7 +185,7 @@ public class MovieJukeboxHTMLWriter {
             String indexList = PropertiesUtil.getProperty("mjb.view.personList", "people.xsl");
             for (final String indexStr : indexList.split(",")) {
                 String suffix = "";
-                if (!indexStr.equals("people.xsl")) {
+                if (!"people.xsl".equals(indexStr)) {
                     suffix = indexStr.replace("people", "").replace(EXT_XSL, "");
                 }
 
@@ -670,7 +670,7 @@ public class MovieJukeboxHTMLWriter {
 
             for (final String indexStr : indexList.split(",")) {
                 String suffix = "";
-                if (!indexStr.equals("index.xsl")) {
+                if (!"index.xsl".equals(indexStr)) {
                     suffix = indexStr.replace("index", "").replace(EXT_XSL, "");
                 }
 
