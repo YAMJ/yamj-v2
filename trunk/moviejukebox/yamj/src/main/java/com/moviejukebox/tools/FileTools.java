@@ -81,11 +81,6 @@ public final class FileTools {
     private static final String DEFAULT_CHARSET = "UTF-8";
     private static final int MAX_TRIES = 5;
 
-    public static void initSubtitleExtensions() {
-        if (SUBTITLE_EXTENSIONS.isEmpty()) {
-            SUBTITLE_EXTENSIONS.addAll(Arrays.asList(PropertiesUtil.getProperty("filename.scanner.subtitle", "SRT,SUB,SSA,SMI,PGS").split(",")));
-        }
-    }
     /**
      * Gabriel Corneanu: One buffer for each thread to allow threaded copies
      */
@@ -93,10 +88,18 @@ public final class FileTools {
         @Override
         protected byte[] initialValue() {
             return new byte[BUFF_SIZE];
-        }
-    ;
-
+        };
     };
+
+    private FileTools() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
+    public static void initSubtitleExtensions() {
+        if (SUBTITLE_EXTENSIONS.isEmpty()) {
+            SUBTITLE_EXTENSIONS.addAll(Arrays.asList(PropertiesUtil.getProperty("filename.scanner.subtitle", "SRT,SUB,SSA,SMI,PGS").split(",")));
+        }
+    }
 
     private static class ReplaceEntry {
 
@@ -165,10 +168,6 @@ public final class FileTools {
             UNSAFE_CHARS.add(new ReplaceEntry(character.toUpperCase(), translation.toUpperCase()));
             UNSAFE_CHARS.add(new ReplaceEntry(character.toLowerCase(), translation.toLowerCase()));
         }
-    }
-
-    private FileTools() {
-        throw new UnsupportedOperationException("Class cannot be instantiated");
     }
 
     public static int copy(InputStream is, OutputStream os) throws IOException {
@@ -523,9 +522,8 @@ public final class FileTools {
     /**
      * Returns the given path in canonical form
      *
-     * i.e. no duplicated separators, no ".", ".."..., and ending without
-     * trailing separator the only exception is a root! the canonical form for a
-     * root INCLUDES the separator
+     * i.e. no duplicated separators, no ".", ".."..., and ending without trailing separator the only exception is a root! the
+     * canonical form for a root INCLUDES the separator
      *
      * @param path
      * @return
@@ -539,8 +537,7 @@ public final class FileTools {
     }
 
     /**
-     * when concatenating paths and the source MIGHT be a root, use this
-     * function to safely add the separator
+     * when concatenating paths and the source MIGHT be a root, use this function to safely add the separator
      *
      * @param path
      * @return
@@ -577,8 +574,7 @@ public final class FileTools {
      *
      * Pass in the filename and a list of extensions.
      *
-     * This function will scan for the filename plus extensions and return the
-     * File
+     * This function will scan for the filename plus extensions and return the File
      *
      * @param fullBaseFilename
      * @param fileExtensions
@@ -601,8 +597,7 @@ public final class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the
-     * extensions
+     * Search for the filename in the cache and look for each with the extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -614,8 +609,7 @@ public final class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the
-     * extensions
+     * Search for the filename in the cache and look for each with the extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -628,8 +622,7 @@ public final class FileTools {
     }
 
     /**
-     * Search for the filename in the cache and look for each with the
-     * extensions
+     * Search for the filename in the cache and look for each with the extensions
      *
      * @param searchFilename
      * @param fileExtensions
@@ -689,9 +682,8 @@ public final class FileTools {
     }
 
     /**
-     * Download the image for the specified URL into the specified file.
-     * Utilises the WebBrowser downloadImage function to allow for proxy
-     * connections.
+     * Download the image for the specified URL into the specified file. Utilises the WebBrowser downloadImage function to allow for
+     * proxy connections.
      *
      * @param imageFile
      * @param imageURL
@@ -784,8 +776,7 @@ public final class FileTools {
     }
 
     /**
-     * Process the movie and add all the files to the jukebox cleaning exclusion
-     * list
+     * Process the movie and add all the files to the jukebox cleaning exclusion list
      *
      * @param movie
      */
@@ -821,8 +812,7 @@ public final class FileTools {
     }
 
     /**
-     * Special File with "cached" attributes used to minimize file system access
-     * which slows down everything
+     * Special File with "cached" attributes used to minimize file system access which slows down everything
      *
      * @author Gabriel Corneanu
      */
@@ -997,8 +987,7 @@ public final class FileTools {
     }
 
     /**
-     * cached File instances the key is always absolute path in upper-case, so
-     * it will NOT work for case only differences
+     * cached File instances the key is always absolute path in upper-case, so it will NOT work for case only differences
      *
      * @author Gabriel Corneanu
      */
@@ -1039,16 +1028,13 @@ public final class FileTools {
         /**
          * Retrieve a file from cache
          *
-         * If it is NOT found, construct one instance and mark it as
-         * non-existing.
+         * If it is NOT found, construct one instance and mark it as non-existing.
          *
-         * The exist() test is used very often throughout the library to search
-         * for specific files.
+         * The exist() test is used very often throughout the library to search for specific files.
          *
          * The path MUST be canonical (i.e. carefully constructed)
          *
-         * We do NOT want here to make it canonical because it goes to the file
-         * system and it's slow.
+         * We do NOT want here to make it canonical because it goes to the file system and it's slow.
          *
          * @param path
          * @return
@@ -1179,8 +1165,7 @@ public final class FileTools {
     /**
      * Create all directories up to the level of the file passed
      *
-     * @param file Source directory or file to create the directories
-     * directories
+     * @param file Source directory or file to create the directories directories
      * @return
      */
     public static Boolean makeDirsForFile(final File file) {

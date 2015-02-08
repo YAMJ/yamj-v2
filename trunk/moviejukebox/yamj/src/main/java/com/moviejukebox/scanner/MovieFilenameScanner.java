@@ -45,15 +45,14 @@ import org.slf4j.LoggerFactory;
 /**
  * Simple movie filename scanner.
  *
- * Scans a movie filename for keywords commonly used in scene released video
- * files.
+ * Scans a movie filename for keywords commonly used in scene released video files.
  *
  * Main pattern for file scanner is the following:
  *
  * {MovieTitle}[Keyword*].{container}
  *
- * The movie title is in the first position of the filename. It is followed by
- * zero or more keywords. The file extension match the container name.
+ * The movie title is in the first position of the filename. It is followed by zero or more keywords. The file extension match the
+ * container name.
  *
  * @author jjulien
  * @author quickfinga
@@ -130,8 +129,7 @@ public final class MovieFilenameScanner {
         }
     };
     /**
-     * Detect if the file/folder name is incomplete and additional info must be
-     * taken from parent folder.
+     * Detect if the file/folder name is incomplete and additional info must be taken from parent folder.
      *
      * CAUTION: Grouping is used for part number detection/parsing.
      */
@@ -189,18 +187,15 @@ public final class MovieFilenameScanner {
     /**
      * Mapping exact tokens to language.
      *
-     * Strict mapping is case sensitive and must be obvious, it must avoid
-     * confusing movie name words and language markers.
+     * Strict mapping is case sensitive and must be obvious, it must avoid confusing movie name words and language markers.
      *
-     * For example the English word "it" and Italian language marker "it", or
-     * "French" as part of the title and "french" as language marker.
+     * For example the English word "it" and Italian language marker "it", or "French" as part of the title and "french" as language
+     * marker.
      *
-     * However, described above is important only by file naming with token
-     * delimiters (see tokens description constants TOKEN_DELIMITERS*). Language
-     * detection in non-token separated titles will be skipped automatically.
+     * However, described above is important only by file naming with token delimiters (see tokens description constants
+     * TOKEN_DELIMITERS*). Language detection in non-token separated titles will be skipped automatically.
      *
-     * Language markers, found with this pattern are counted as token delimiters
-     * (they will cut movie title)
+     * Language markers, found with this pattern are counted as token delimiters (they will cut movie title)
      */
     private static final TokensPatternMap STRICT_LANGUAGE_MAP = new TokensPatternMap() {
         private static final long serialVersionUID = 3630995345545037071L;
@@ -224,9 +219,8 @@ public final class MovieFilenameScanner {
     /**
      * Mapping loose language markers.
      *
-     * The second pass of language detection is being started after movie title
-     * detection. Language markers will be scanned with loose pattern in order
-     * to find out more languages without chance to confuse with movie title.
+     * The second pass of language detection is being started after movie title detection. Language markers will be scanned with
+     * loose pattern in order to find out more languages without chance to confuse with movie title.
      *
      * Markers in this map are case insensitive.
      */
@@ -317,70 +311,6 @@ public final class MovieFilenameScanner {
     private final File file;
     private final String filename;
     private String rest;
-
-    /**
-     * Used for testing
-     *
-     * @return
-     */
-    public static Pattern getTokenDelimitersMatchPattern() {
-        return TOKEN_DELIMITERS_MATCH_PATTERN;
-    }
-
-    /**
-     * Compile the pattern
-     *
-     * @param regex
-     * @return Exact pattern
-     */
-    private static Pattern patt(String regex) {
-        return Pattern.compile(regex);
-    }
-
-    /**
-     * @param regex
-     * @return Case insensitive pattern
-     */
-    private static Pattern ipatt(String regex) {
-        return Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-    }
-
-    /**
-     * @param regex
-     * @return Case insensitive pattern matched somewhere in square brackets
-     */
-    private static Pattern pattInSBrackets(String regex) {
-        return ipatt("\\[([^\\[\\]]*" + regex + "[^\\[]*)\\]");
-    }
-
-    /**
-     * @param regex
-     * @return Case insensitive pattern with word delimiters around
-     */
-    public static Pattern iwpatt(String regex) {
-        return Pattern.compile("(?<=" + WORD_DELIMITERS_MATCH_PATTERN
-                + ")(?:" + regex + ")(?="
-                + WORD_DELIMITERS_MATCH_PATTERN + ")", Pattern.CASE_INSENSITIVE);
-    }
-
-    /**
-     * @param regex
-     * @return Case sensitive pattern with word delimiters around
-     */
-    public static Pattern wpatt(String regex) {
-        return Pattern.compile("(?<=" + WORD_DELIMITERS_MATCH_PATTERN
-                + ")(?:" + regex + ")(?="
-                + WORD_DELIMITERS_MATCH_PATTERN + ")");
-    }
-
-    /**
-     * @param regex
-     * @return Case sensitive pattern with token delimiters around
-     */
-    private static Pattern tpatt(String regex) {
-        return Pattern.compile(TOKEN_DELIMITERS_MATCH_PATTERN + "(?:" + NOTOKEN_DELIMITERS_MATCH_PATTERN + "*)" + "(?:" + regex + ")" + "(?:"
-                + NOTOKEN_DELIMITERS_MATCH_PATTERN + "*)" + TOKEN_DELIMITERS_MATCH_PATTERN);
-    }
 
     private MovieFilenameScanner(File file) {
         // CHECK FOR USE_PARENT_PATTERN matches
@@ -672,6 +602,70 @@ public final class MovieFilenameScanner {
 
     }
 
+    /**
+     * Used for testing
+     *
+     * @return
+     */
+    public static Pattern getTokenDelimitersMatchPattern() {
+        return TOKEN_DELIMITERS_MATCH_PATTERN;
+    }
+
+    /**
+     * Compile the pattern
+     *
+     * @param regex
+     * @return Exact pattern
+     */
+    private static Pattern patt(String regex) {
+        return Pattern.compile(regex);
+    }
+
+    /**
+     * @param regex
+     * @return Case insensitive pattern
+     */
+    private static Pattern ipatt(String regex) {
+        return Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+    }
+
+    /**
+     * @param regex
+     * @return Case insensitive pattern matched somewhere in square brackets
+     */
+    private static Pattern pattInSBrackets(String regex) {
+        return ipatt("\\[([^\\[\\]]*" + regex + "[^\\[]*)\\]");
+    }
+
+    /**
+     * @param regex
+     * @return Case insensitive pattern with word delimiters around
+     */
+    public static Pattern iwpatt(String regex) {
+        return Pattern.compile("(?<=" + WORD_DELIMITERS_MATCH_PATTERN
+                + ")(?:" + regex + ")(?="
+                + WORD_DELIMITERS_MATCH_PATTERN + ")", Pattern.CASE_INSENSITIVE);
+    }
+
+    /**
+     * @param regex
+     * @return Case sensitive pattern with word delimiters around
+     */
+    public static Pattern wpatt(String regex) {
+        return Pattern.compile("(?<=" + WORD_DELIMITERS_MATCH_PATTERN
+                + ")(?:" + regex + ")(?="
+                + WORD_DELIMITERS_MATCH_PATTERN + ")");
+    }
+
+    /**
+     * @param regex
+     * @return Case sensitive pattern with token delimiters around
+     */
+    private static Pattern tpatt(String regex) {
+        return Pattern.compile(TOKEN_DELIMITERS_MATCH_PATTERN + "(?:" + NOTOKEN_DELIMITERS_MATCH_PATTERN + "*)" + "(?:" + regex + ")" + "(?:"
+                + NOTOKEN_DELIMITERS_MATCH_PATTERN + "*)" + TOKEN_DELIMITERS_MATCH_PATTERN);
+    }
+
     private String cleanUp(String filename) {
         // SKIP
         String rFilename = filename; // We can't modify the parameter, so copy it
@@ -716,8 +710,7 @@ public final class MovieFilenameScanner {
     }
 
     /**
-     * Replace all dividers with spaces and trim trailing spaces and redundant
-     * braces/minuses at the end.
+     * Replace all dividers with spaces and trim trailing spaces and redundant braces/minuses at the end.
      *
      * @param token String to clean up.
      * @return Prepared title.

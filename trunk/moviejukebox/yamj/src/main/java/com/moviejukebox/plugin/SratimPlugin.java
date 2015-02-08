@@ -79,6 +79,14 @@ public class SratimPlugin extends ImdbPlugin {
     private final int plotLineMax;
     private final TheTvDBPlugin tvdb;
     private static String lineBreak;
+    // Porting from my old code in c++
+    public static final int BCT_L = 0;
+    public static final int BCT_R = 1;
+    public static final int BCT_N = 2;
+    public static final int BCT_EN = 3;
+    public static final int BCT_ES = 4;
+    public static final int BCT_ET = 5;
+    public static final int BCT_CS = 6;
 
     public SratimPlugin() {
         super(); // use IMDB if sratim doesn't know movie
@@ -224,15 +232,6 @@ public class SratimPlugin extends ImdbPlugin {
         // Set translated IMDB genres
         movie.setGenres(genresHeb, SRATIM_PLUGIN_ID);
     }
-
-    // Porting from my old code in c++
-    public static final int BCT_L = 0;
-    public static final int BCT_R = 1;
-    public static final int BCT_N = 2;
-    public static final int BCT_EN = 3;
-    public static final int BCT_ES = 4;
-    public static final int BCT_ET = 5;
-    public static final int BCT_CS = 6;
 
     // Return the type of a specific character
     private static int getCharType(char charToCheck) {

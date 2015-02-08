@@ -223,6 +223,11 @@ public class Library implements Map<String, Movie> {
         getNewCategoryProperties();
     }
 
+    public Library() {
+        this.people = new TreeMap<>();
+        this.indexes = new LinkedHashMap<>();
+    }
+
     /**
      * Create the sort order for the indexes
      */
@@ -351,11 +356,6 @@ public class Library implements Map<String, Movie> {
 
     public static List<String> getLibraryOrdering() {
         return LIBRARY_ORDERING;
-    }
-
-    public Library() {
-        this.people = new TreeMap<>();
-        this.indexes = new LinkedHashMap<>();
     }
 
     // synchronized because scanning can be multi-threaded
@@ -803,8 +803,7 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Trim the new category to the required length, add the trimmed video list
-     * to the NEW category
+     * Trim the new category to the required length, add the trimmed video list to the NEW category
      *
      * @param catName The name of the category: "New-TV" or "New-Movie"
      * @param catCount The maximum size of the category
@@ -998,8 +997,8 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Index the videos by the property values This is slightly different from
-     * the other indexes as there may be multiple entries for each of the videos
+     * Index the videos by the property values This is slightly different from the other indexes as there may be multiple entries
+     * for each of the videos
      *
      * @param moviesList
      * @return
@@ -1198,8 +1197,7 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Calculate the minimum/maximum count for a category/movie based on it's
-     * property value.
+     * Calculate the minimum/maximum count for a category/movie based on it's property value.
      *
      * @param categoryName
      * @param getMinimum
@@ -1387,8 +1385,7 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Checks if there is a master (will be shown in the index) genre for the
-     * specified one.
+     * Checks if there is a master (will be shown in the index) genre for the specified one.
      *
      * @param genre Genre to find the master for
      * @return Genre itself or master if available.
@@ -1407,8 +1404,7 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Checks if there is a master (will be shown in the index) Certification
-     * for the specified one.
+     * Checks if there is a master (will be shown in the index) Certification for the specified one.
      *
      * @param certification Certification to find the master for
      * @return Certification itself or master if available.
@@ -1613,8 +1609,7 @@ public class Library implements Map<String, Movie> {
     }
 
     /**
-     * Find the first category in the first index that has any movies in it For
-     * Issue 436
+     * Find the first category in the first index that has any movies in it For Issue 436
      *
      * @return
      */
@@ -1781,8 +1776,7 @@ public class Library implements Map<String, Movie> {
     /**
      * Determine the year banding for the category.
      *
-     * If the year is this year or last year, return those, otherwise return the
-     * decade the year resides in
+     * If the year is this year or last year, return those, otherwise return the decade the year resides in
      *
      * @param filmYear The year to check
      * @return "This Year", "Last Year" or the decade range (1990-1999)
