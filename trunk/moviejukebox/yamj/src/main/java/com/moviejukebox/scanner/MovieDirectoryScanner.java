@@ -80,7 +80,7 @@ public class MovieDirectoryScanner {
     private final BDRipScanner localBDRipScanner;
 
     // Archived virtual directories (f.ex. rar, zip, tar.gz etc.)
-    private IArchiveScanner archiveScanners[];
+    private IArchiveScanner[] archiveScanners;
 
     public MovieDirectoryScanner() {
         supportedExtensions.addAll(Arrays.asList(PropertiesUtil.getProperty("mjb.extensions", "AVI DIVX MKV WMV M2TS TS RM QT ISO VOB MPG MOV").toUpperCase().split(" ")));
@@ -295,7 +295,7 @@ public class MovieDirectoryScanner {
      * @param library
      */
     private void scanFile(MediaLibraryPath srcPath, File file, Library library) {
-        File contentFiles[];
+        File[] contentFiles;
         int bdDuration = 0;
         boolean isBluRay = false;
 

@@ -489,7 +489,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
         if (!movie.isHD()) {
             String[] colorSD = frameColorSD.split("/");
-            int lengthSD[] = new int[colorSD.length];
+            int[] lengthSD = new int[colorSD.length];
             for (int i = 0; i < colorSD.length; i++) {
                 lengthSD[i] = Integer.parseInt(colorSD[i]);
             }
@@ -498,7 +498,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             if (movie.isHD()) {
                 // Otherwise use the 720p
                 String[] color720 = frameColor720.split("/");
-                int length720[] = new int[color720.length];
+                int[] length720 = new int[color720.length];
                 for (int i = 0; i < color720.length; i++) {
                     length720[i] = Integer.parseInt(color720[i]);
                 }
@@ -507,7 +507,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
             if (movie.isHD1080()) {
                 String[] color1080 = frameColor1080.split("/");
-                int length1080[] = new int[color1080.length];
+                int[] length1080 = new int[color1080.length];
                 for (int i = 0; i < color1080.length; i++) {
                     length1080[i] = Integer.parseInt(color1080[i]);
                 }
@@ -516,7 +516,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         } else {
             // We don't care, so use the default HD logo.
             String[] colorHD = frameColorHD.split("/");
-            int lengthHD[] = new int[colorHD.length];
+            int[] lengthHD = new int[colorHD.length];
             for (int i = 0; i < colorHD.length; i++) {
                 lengthHD[i] = Integer.parseInt(colorHD[i]);
             }

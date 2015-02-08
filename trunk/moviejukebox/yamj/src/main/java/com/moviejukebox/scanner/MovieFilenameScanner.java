@@ -537,7 +537,7 @@ public final class MovieFilenameScanner {
             if (matcher.find()) {
                 rest = cutMatch(rest, matcher, " /ID/ ");
 
-                String idString[] = matcher.group(1).split("[-\\s+]");
+                String[] idString = matcher.group(1).split("[-\\s+]");
                 if (idString.length == 2) {
                     dto.setId(idString[0].toLowerCase(), idString[1]);
                 } else {
