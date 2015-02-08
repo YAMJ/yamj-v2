@@ -1251,7 +1251,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                     String title2 = f.getTitle().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
                                     String originalTitle2 = f.getOriginalTitle().replace("ё", "е").replace("Ё", "Е").replace(": Часть 1 ", ": Часть I").replace(": Часть 2 ", ": Часть II").replace(": Часть 3 ", ": Часть III").replace(": Часть 4 ", ": Часть IV").replace(": Часть 5 ", ": Часть V").replace(": Часть 6 ", ": Часть VI").replace(": Часть 7 ", ": Часть VII").replace(": Часть 8 ", ": Часть VIII").replace(": Часть 9 ", ": Часть IX").replace(": Часть 10 ", ": Часть X").trim();
 
-                                    if (name2.equalsIgnoreCase(name2) || name2.equalsIgnoreCase(title) || name2.equalsIgnoreCase(originalTitle)
+                                    if (name.equalsIgnoreCase(name2) || name2.equalsIgnoreCase(title) || name2.equalsIgnoreCase(originalTitle)
                                             || title2.equalsIgnoreCase(name2) || title2.equalsIgnoreCase(title) || title2.equalsIgnoreCase(originalTitle)
                                             || originalTitle2.equalsIgnoreCase(name2) || originalTitle2.equalsIgnoreCase(title) || originalTitle2.equalsIgnoreCase(originalTitle)) {
                                         String id = f.getId(KINOPOISK_PLUGIN_ID);
