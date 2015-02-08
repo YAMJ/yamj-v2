@@ -378,7 +378,7 @@ public final class FileTools {
                         }
                     }
 
-                    if (updateDisplay && files.size() > 0) {
+                    if (updateDisplay && !files.isEmpty()) {
                         System.out.print("\n");
                     }
 
@@ -651,7 +651,7 @@ public final class FileTools {
 
         Collection<File> files = FileTools.fileCache.searchFilename(safeFilename, Boolean.TRUE);
 
-        if (files.size() > 0) {
+        if (!files.isEmpty()) {
             // Copy the synchronized list to avoid ConcurrentModificationException
             Iterator<File> iter = new ArrayList<>(FileTools.fileCache.searchFilename(safeFilename, Boolean.TRUE)).iterator();
 

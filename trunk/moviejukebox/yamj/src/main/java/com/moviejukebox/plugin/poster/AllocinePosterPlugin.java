@@ -59,7 +59,7 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
 
             MovieInfos movieInfos = allocinePlugin.getMovieInfos(id);
 
-            if (movieInfos.isValid() && movieInfos.getPosterUrls().size() > 0) {
+            if (movieInfos.isValid() && !movieInfos.getPosterUrls().isEmpty()) {
                 String posterURL = movieInfos.getPosterUrls().iterator().next();
                 if (StringTools.isValidString(posterURL)) {
                     return new Image(posterURL);

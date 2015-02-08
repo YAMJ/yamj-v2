@@ -415,7 +415,7 @@ public class MovieFile implements Comparable<MovieFile> {
             setTitle(dto.getPartTitle(), Movie.SOURCE_FILENAME);
         }
 
-        if (dto.getEpisodes().size() > 0) {
+        if (!dto.getEpisodes().isEmpty()) {
             lastPart = 0;
             firstPart = Integer.MAX_VALUE;
             for (int e : dto.getEpisodes()) {

@@ -53,8 +53,8 @@ public class FanartTvPlugin {
     private FanartTvApi ft;
     private static final String WEBHOST = "fanart.tv";
     private static final Map<FTArtworkType, Integer> ARTWORK_TYPES = new EnumMap<>(FTArtworkType.class);
-    private static int totalRequiredTv = 0;
-    private static int totalRequireMovie = 0;
+    private int totalRequiredTv = 0;
+    private int totalRequireMovie = 0;
     private static final String DEFAULT_LANGUAGE = "en";
     private static final String LANG_MOVIE = getMovieLanguage();
     private static final String LANG_TV = getTvLanguage();
@@ -78,10 +78,10 @@ public class FanartTvPlugin {
             }
         }
 
-        if (ARTWORK_TYPES.size() > 0) {
-            LOG.debug("Looking for {} Fanart.TV Types", ARTWORK_TYPES.toString());
-        } else {
+        if (ARTWORK_TYPES.isEmpty()) {
             LOG.debug("No Fanart.TV artwork required.");
+        } else {
+            LOG.debug("Looking for {} Fanart.TV Types", ARTWORK_TYPES.toString());
         }
     }
 
@@ -129,7 +129,7 @@ public class FanartTvPlugin {
      * @param artworkType Artwork type required (null is all)
      * @return
      */
-    public boolean scan(Movie movie, FTArtworkType artworkType) {
+    public boolean scan(Movie movie, final FTArtworkType artworkType) {
         if (artworkType != null && !ARTWORK_TYPES.containsKey(artworkType)) {
             LOG.debug("{} not required", artworkType.toString().toLowerCase());
             return true;
@@ -184,7 +184,6 @@ public class FanartTvPlugin {
                     requiredArtworkTypes.put(ftType, left);
                     // remove the count from the requiredQuantity
                 }
-
             }
 
             int requiredQuantity = 0;
@@ -221,16 +220,14 @@ public class FanartTvPlugin {
 
         for (FTArtwork artwork : artworkList) {
             LOG.trace("Artwork: {}", artwork);
-            if (reqLanguage.equalsIgnoreCase(artwork.getLanguage())) {
-                // send to function to add to movie
-                if (addArtworkToMovie(movie, ftType, artwork)) {
-                    remaining--;
-                    if (remaining > 0) {
-                        LOG.trace("{} has {} remaining", ftType, remaining);
-                    } else {
-                        LOG.trace("All artwork for {} found.", ftType);
-                        break;
-                    }
+            // send to function to add to movie
+            if (reqLanguage.equalsIgnoreCase(artwork.getLanguage()) && addArtworkToMovie(movie, ftType, artwork)) {
+                remaining--;
+                if (remaining > 0) {
+                    LOG.trace("{} has {} remaining", ftType, remaining);
+                } else {
+                    LOG.trace("All artwork for {} found.", ftType);
+                    break;
                 }
             }
         }
@@ -260,13 +257,7 @@ public class FanartTvPlugin {
                 success = true;
                 break;
             case SEASONTHUMB:
-                // Check this is the right season
-                if (NumberUtils.toInt(artwork.getSeason(), -1) == movie.getSeason()) {
-                    movie.setSeasonThumbURL(artwork.getUrl());
-                    success = true;
-                } else {
-                    success = false;
-                }
+                success = checkSeason(artwork, movie);
                 break;
             case TVTHUMB:
                 movie.setTvThumbURL(artwork.getUrl());
@@ -289,6 +280,25 @@ public class FanartTvPlugin {
                 success = false;
         }
 
+        return success;
+    }
+
+    /**
+     * Check the artwork is for the correct season and update it if necessary
+     *
+     * @param artwork
+     * @param movie
+     * @return
+     */
+    private boolean checkSeason(FTArtwork artwork, Movie movie) {
+        boolean success;
+        // Check this is the right season
+        if (NumberUtils.toInt(artwork.getSeason(), -1) == movie.getSeason()) {
+            movie.setSeasonThumbURL(artwork.getUrl());
+            success = true;
+        } else {
+            success = false;
+        }
         return success;
     }
 

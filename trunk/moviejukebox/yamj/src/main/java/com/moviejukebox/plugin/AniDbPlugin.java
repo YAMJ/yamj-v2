@@ -543,11 +543,11 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 // This should hopefully not be necessary once the new artwork scanner is done?
                 Banners b = tvdb.getBanners(s.getId());
                 //m.setFanartURL(s.getFanart());
-                if (b.getFanartList().size() > 0) {
+                if (!b.getFanartList().isEmpty()) {
                     movie.setFanartURL(b.getFanartList().get(0).getUrl());
                 }
                 movie.setBannerURL(s.getBanner());
-                if (b.getPosterList().size() > 0) {
+                if (!b.getPosterList().isEmpty()) {
                     movie.setPosterURL(s.getPoster());
                 }
             }
@@ -587,7 +587,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     protected Series getSeriesFromTvdb(final String title) {
         synchronized (tvlock) {
             final List<Series> series = tvdb.searchSeries(title, "en");
-            if (series.size() > 0) {
+            if (!series.isEmpty()) {
                 return series.get(0);
             }
         }
@@ -984,7 +984,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             qb.where().eq(AnidbLocalFile.ED2K_COLUMN_NAME, file.getAbsolutePath()).and().eq(AnidbLocalFile.SIZE_COLUMN_NAME, file.length());
             PreparedQuery<AnidbLocalFile> pq = qb.prepare();
             List<AnidbLocalFile> res = localFileDao.query(pq);
-            if (res.size() > 0) {
+            if (!res.isEmpty()) {
                 return res.get(0);
             }
             localFile = new AnidbLocalFile();
@@ -1112,7 +1112,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         qb.where().eq(AnidbAnime.ROMAJI_NAME_COLUMN, name).or().eq(AnidbAnime.ENGLISH_NAME_COLUMN, name);
         PreparedQuery<AnidbAnime> pq = qb.prepare();
         List<AnidbAnime> res = animeDao.query(pq);
-        if (res.size() > 0) {
+        if (!res.isEmpty()) {
             anime = res.get(0);
             addAnimeToCache(anime);
             return anime;

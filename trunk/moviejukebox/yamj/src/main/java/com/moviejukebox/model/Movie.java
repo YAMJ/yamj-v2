@@ -847,7 +847,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
          * This could be changed later to allow multi season movie objects. Do
          * not return a value for the set master.
          */
-        if (movieFiles.size() > 0 && !setMaster) {
+        if (!movieFiles.isEmpty() && !setMaster) {
             return getFirstFile().getSeason();
         } else {
             // Strictly speaking this isn't "-1" its a non-existent season.
@@ -1135,14 +1135,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void clearCast() {
-        if (cast.size() > 0) {
+        if (!cast.isEmpty()) {
             setDirty(DirtyFlag.INFO);
             cast.clear();
         }
     }
 
     public void clearPeopleCast() {
-        if (people.size() > 0) {
+        if (!people.isEmpty()) {
             Collection<Filmography> pList = new ArrayList<>();
             for (Filmography p : people) {
                 if (p.getDepartment().equals(Filmography.DEPT_ACTORS)) {
@@ -1225,14 +1225,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void clearWriters() {
-        if (writers.size() > 0) {
+        if (!writers.isEmpty()) {
             setDirty(DirtyFlag.INFO);
             writers.clear();
         }
     }
 
     public void clearPeopleWriters() {
-        if (people.size() > 0) {
+        if (!people.isEmpty()) {
             Collection<Filmography> pList = new ArrayList<>();
             for (Filmography p : people) {
                 if (p.getDepartment().equals(Filmography.DEPT_WRITING)) {
@@ -1350,14 +1350,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void clearDirectors() {
-        if (directors.size() > 0) {
+        if (!directors.isEmpty()) {
             setDirty(DirtyFlag.INFO);
             directors.clear();
         }
     }
 
     public void clearPeopleDirectors() {
-        if (people.size() > 0) {
+        if (!people.isEmpty()) {
             Collection<Filmography> pList = new ArrayList<>();
             for (Filmography p : people) {
                 if (p.getDepartment().equals(Filmography.DEPT_DIRECTING)) {
@@ -1430,7 +1430,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setGenres(Collection<String> genres, String source) {
-        if (!extra && (genres != null) && (genres.size() > 0)) {
+        if (!extra && (genres != null) && (!genres.isEmpty())) {
             this.genres.clear();
             for (String genre : genres) {
                 if (StringTools.isValidString(genre) && !GENRE_SKIP_LIST.contains(genre.toLowerCase())) {
@@ -1644,7 +1644,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 int count = 0;
 
                 for (String ratingSite : ratings.keySet()) {
-                    if (ratingIgnore.size() > 0) {
+                    if (!ratingIgnore.isEmpty()) {
                         if (ratingIgnore.contains(ratingSite)) {
                             continue;
                         } else {
@@ -2226,7 +2226,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             setYear(dto.getYear() > 0 ? String.valueOf(dto.getYear()) : null, SOURCE_FILENAME);
         }
 
-        if ((dto.getLanguages().size() > 0) && OverrideTools.checkOverwriteLanguage(this, SOURCE_FILENAME)) {
+        if (!dto.getLanguages().isEmpty() && OverrideTools.checkOverwriteLanguage(this, SOURCE_FILENAME)) {
             // TODO more languages?
             setLanguage(dto.getLanguages().get(0), SOURCE_FILENAME);
         }

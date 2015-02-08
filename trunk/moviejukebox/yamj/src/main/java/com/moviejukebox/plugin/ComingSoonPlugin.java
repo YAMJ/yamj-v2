@@ -221,7 +221,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
                 List<String[]> movieList = parseComingSoonSearchResults(xml);
 
-                if (movieList.size() > 0) {
+                if (!movieList.isEmpty()) {
 
                     for (int i = 0; i < movieList.size() && currentScore > 0; i++) {
                         String lId = (String) movieList.get(i)[0];

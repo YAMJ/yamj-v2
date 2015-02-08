@@ -82,7 +82,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
         }
 
         // If we didn't find the title, try just getting the first returned one
-        if (StringTools.isNotValidString(movieId) && foundTitles.size() > 0) {
+        if (StringTools.isNotValidString(movieId) && !foundTitles.isEmpty()) {
             movieId = findIdInXml(xml, foundTitles.get(0));
         }
 

@@ -569,7 +569,7 @@ public class AttachmentScanner {
 
     private static boolean isMovieWithAttachments(Movie movie) {
         for (MovieFile movieFile : movie.getMovieFiles()) {
-            if (movieFile.getAttachments().size() > 0) {
+            if (!movieFile.getAttachments().isEmpty()) {
                 return Boolean.TRUE;
             }
         }

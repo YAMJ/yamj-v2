@@ -215,7 +215,7 @@ public final class MovieNFOWriter {
                 DOMHelper.appendChild(docNFO, eRoot, COMPANY, movie.getCompany());
             }
 
-            if (movie.getCountries().size() > 0) {
+            if (!movie.getCountries().isEmpty()) {
                 DOMHelper.appendChild(docNFO, eRoot, COUNTRY, movie.getCountriesAsString());
             }
 
@@ -380,7 +380,7 @@ public final class MovieNFOWriter {
      * @return
      */
     private static void createSets(Document docNFO, Movie movie, Element eRoot) {
-        if (movie.getSets() != null && movie.getSets().size() > 0) {
+        if (movie.getSets() != null && !movie.getSets().isEmpty()) {
             Element eSets = docNFO.createElement(SETS);
             for (Entry<String, Integer> entry : movie.getSets().entrySet()) {
                 Integer order = entry.getValue();
