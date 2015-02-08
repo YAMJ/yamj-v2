@@ -58,7 +58,7 @@ public class BDRipScanner {
 
     public class BDPlaylistInfo {
 
-        public String streamList[];
+        public String[] streamList;
         public int duration;
 
         public BDPlaylistInfo() {
@@ -70,7 +70,7 @@ public class BDRipScanner {
 
     public class BDFilePropertiesMovie {
 
-        public File fileList[];
+        public File[] fileList;
         public int duration;
 
         public BDFilePropertiesMovie() {
@@ -127,7 +127,7 @@ public class BDRipScanner {
             BDPlaylistInfo playlistInfo;
 
             int longestDuration = 0;
-            String longestFiles[] = null;
+            String[] longestFiles = null;
 
             for (File list1 : list) {
                 if (list1.getName().regionMatches(true, list1.getName().lastIndexOf("."), ".mpls", 0, 4)) {

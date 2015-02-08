@@ -312,7 +312,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             HttpURLConnection connection = (HttpURLConnection) (url.openConnection(WebBrowser.PROXY));
             InputStream inputStream = connection.getInputStream();
 
-            byte buf[] = new byte[1024];
+            byte[] buf = new byte[1024];
             int len;
             len = inputStream.read(buf);
 

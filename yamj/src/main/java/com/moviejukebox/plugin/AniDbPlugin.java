@@ -946,8 +946,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
 
         @Override
-        public void characters(char ch[], int start, int length) {
-            char ch2[] = ch.clone();
+        public void characters(char[] ch, int start, int length) {
+            char[] ch2 = ch.clone();
             if (name) {
                 nameString.append(ch2, start, length);
             } else if (mapping) {

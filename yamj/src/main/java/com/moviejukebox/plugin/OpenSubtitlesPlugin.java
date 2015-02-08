@@ -99,7 +99,7 @@ public class OpenSubtitlesPlugin {
     private static void logIn() {
         try {
             if (StringUtils.isBlank(loginToken)) {
-                String parm[] = {osUsername, osPassword, "", OS_USER_AGENT};
+                String[] parm = {osUsername, osPassword, "", OS_USER_AGENT};
                 String xml = generateXMLRPC("LogIn", parm);
                 String ret = sendRPC(xml);
                 getValue("status", ret);
@@ -123,7 +123,7 @@ public class OpenSubtitlesPlugin {
         // Check if plugin is enabled, subtitle language was selected and that the login was successful
         if (IS_ENABLED && StringUtils.isNotBlank(SUB_LANGUAGE_ID) && StringUtils.isNotBlank(loginToken)) {
             try {
-                String p1[] = {loginToken};
+                String[] p1 = {loginToken};
                 String xml = generateXMLRPC("LogOut", p1);
                 sendRPC(xml);
             } catch (Exception error) {
@@ -216,8 +216,8 @@ public class OpenSubtitlesPlugin {
                         }
                     } else {
                         if (!mf.isSubtitlesExchange()) {
-                            File movieFileArray[] = new File[1];
-                            File subtitleFileArray[] = new File[1];
+                            File[] movieFileArray = new File[1];
+                            File[] subtitleFileArray = new File[1];
 
                             movieFileArray[0] = mf.getFile();
                             subtitleFileArray[0] = subtitleFile;
@@ -231,8 +231,8 @@ public class OpenSubtitlesPlugin {
                 }
             } else {
                 // Upload all movie files as a group
-                File movieFileArray[] = new File[movie.getMovieFiles().size()];
-                File subtitleFileArray[] = new File[movie.getMovieFiles().size()];
+                File[] movieFileArray = new File[movie.getMovieFiles().size()];
+                File[] subtitleFileArray = new File[movie.getMovieFiles().size()];
                 int i = 0;
 
                 // Go over all the movie files
@@ -333,7 +333,7 @@ public class OpenSubtitlesPlugin {
 
     }
 
-    private boolean subtitleUpload(Movie movie, File movieFile[], File subtitleFile[]) {
+    private boolean subtitleUpload(Movie movie, File[] movieFile, File[] subtitleFile) {
         ByteArrayOutputStream baos = null;
         DeflaterOutputStream deflaterOS = null;
         FileInputStream fisSubtitleFile = null;
@@ -346,16 +346,16 @@ public class OpenSubtitlesPlugin {
             if (StringUtils.isNotBlank(idmovieimdb) && idmovieimdb.length() >= 6) {
                 idmovieimdb = String.valueOf(NumberUtils.toInt(idmovieimdb.substring(2)));
             }
-            String subfilename[] = new String[movieFile.length];
-            String subhash[] = new String[movieFile.length];
-            String subcontent[] = new String[movieFile.length];
+            String[] subfilename = new String[movieFile.length];
+            String[] subhash = new String[movieFile.length];
+            String[] subcontent = new String[movieFile.length];
 
-            String moviehash[] = new String[movieFile.length];
-            String moviebytesize[] = new String[movieFile.length];
-            String movietimems[] = new String[movieFile.length];
-            String movieframes[] = new String[movieFile.length];
-            String moviefps[] = new String[movieFile.length];
-            String moviefilename[] = new String[movieFile.length];
+            String[] moviehash = new String[movieFile.length];
+            String[] moviebytesize = new String[movieFile.length];
+            String[] movietimems = new String[movieFile.length];
+            String[] movieframes = new String[movieFile.length];
+            String[] moviefps = new String[movieFile.length];
+            String[] moviefilename = new String[movieFile.length];
 
             for (int i = 0; i < movieFile.length; i++) {
 
@@ -372,7 +372,7 @@ public class OpenSubtitlesPlugin {
 
                 fisSubtitleFile = new FileInputStream(subtitleFile[i]);
                 MessageDigest md = MessageDigest.getInstance("MD5");
-                byte s[] = new byte[fisSubtitleFile.available()];
+                byte[] s = new byte[fisSubtitleFile.available()];
                 fisSubtitleFile.read(s);
                 fisSubtitleFile.close();
 
@@ -474,8 +474,8 @@ public class OpenSubtitlesPlugin {
         return sb.toString();
     }
 
-    private static String generateXMLRPCUS(String idmovieimdb, String subhash[], String subcontent[], String subfilename[], String moviehash[],
-            String moviebytesize[], String movietimems[], String movieframes[], String moviefps[], String moviefilename[]) {
+    private static String generateXMLRPCUS(String idmovieimdb, String[] subhash, String[] subcontent, String[] subfilename, String[] moviehash,
+            String[] moviebytesize, String[] movietimems, String[] movieframes, String[] moviefps, String[] moviefilename) {
         StringBuilder sb = new StringBuilder(OS_METHOD_START);
         sb.append("UploadSubtitles");
         sb.append(OS_METHOD_END);
@@ -513,8 +513,8 @@ public class OpenSubtitlesPlugin {
         return sb.toString();
     }
 
-    private static String generateXMLRPCTUS(String subhash[], String subfilename[], String moviehash[], String moviebytesize[], String movietimems[],
-            String movieframes[], String moviefps[], String moviefilename[]) {
+    private static String generateXMLRPCTUS(String[] subhash, String[] subfilename, String[] moviehash, String[] moviebytesize, String[] movietimems,
+            String[] movieframes, String[] moviefps, String[] moviefilename) {
         StringBuilder sb = new StringBuilder(OS_METHOD_START);
         sb.append("TryUploadSubtitles");
         sb.append(OS_METHOD_END);
@@ -622,7 +622,7 @@ public class OpenSubtitlesPlugin {
         return sb.toString();
     }
 
-    private static String generateXMLRPC(String procname, String s[]) {
+    private static String generateXMLRPC(String procname, String[] s) {
         StringBuilder str = new StringBuilder();
         str.append(OS_METHOD_START);
         str.append(procname).append("</methodName><params>");
@@ -643,15 +643,15 @@ public class OpenSubtitlesPlugin {
         return cleanString;
     }
 
-    private static String tuBase64(byte s[]) {
+    private static String tuBase64(byte[] s) {
         // You may use this for lower applet size
         // return new sun.misc.BASE64Encoder().encode(s);
 
         // char tx;
         // long mili = Calendar.getInstance().getTimeInMillis();
         String t = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-        char t2[] = t.toCharArray();
-        char wynik[] = new char[(s.length / 3 + 1) * 4];
+        char[] t2 = t.toCharArray();
+        char[] wynik = new char[(s.length / 3 + 1) * 4];
 
         int tri;
         for (int i = 0; i < (s.length / 3 + 1); i++) {

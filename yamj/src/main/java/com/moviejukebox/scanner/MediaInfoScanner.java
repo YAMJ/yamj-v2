@@ -442,7 +442,7 @@ public class MediaInfoScanner {
             Map<String, List<Map<String, String>>> matches = new HashMap<>();
 
             // Create a fake one for General, we got only one, but to use the same algo we must create this one.
-            String generalKey[] = {"General", "Géneral", "* Général"};
+            String[] generalKey = {"General", "Géneral", "* Général"};
             matches.put(generalKey[0], new ArrayList<Map<String, String>>());
             matches.put(generalKey[1], matches.get(generalKey[0])); // Issue 1311 - Create a "link" between General and Général
             matches.put(generalKey[2], matches.get(generalKey[0])); // Issue 1311 - Create a "link" between General and * Général
