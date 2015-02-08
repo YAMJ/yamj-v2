@@ -153,24 +153,24 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
         int indexOfTrailer = -1;
         String extension;
 
-        if (format.equalsIgnoreCase("mov")) {
+        if ("mov".equalsIgnoreCase(format)) {
             extension = "qtl";
-        } else if (format.equalsIgnoreCase("wmv")) {
+        } else if ("wmv".equalsIgnoreCase(format)) {
             extension = "wvx";
         } else {
             LOG.info("Unknown trailer format {}", format);
             return Movie.UNKNOWN;
         }
 
-        if (trailerMaxResolution.equalsIgnoreCase(RESOLUTION_1080P)) {
+        if (RESOLUTION_1080P.equalsIgnoreCase(trailerMaxResolution)) {
             indexOfTrailer = xml.indexOf("1080P." + extension);
         }
 
-        if (indexOfTrailer < 0 && (trailerMaxResolution.equalsIgnoreCase(RESOLUTION_720P) || trailerMaxResolution.equalsIgnoreCase(RESOLUTION_1080P))) {
+        if (indexOfTrailer < 0 && (RESOLUTION_720P.equalsIgnoreCase(trailerMaxResolution) || RESOLUTION_1080P.equalsIgnoreCase(trailerMaxResolution))) {
             indexOfTrailer = xml.indexOf("720P." + extension);
         }
 
-        if (indexOfTrailer < 0 && (trailerMaxResolution.equalsIgnoreCase("480p") || trailerMaxResolution.equalsIgnoreCase(RESOLUTION_720P) || trailerMaxResolution.equalsIgnoreCase(RESOLUTION_1080P))) {
+        if (indexOfTrailer < 0 && ("480p".equalsIgnoreCase(trailerMaxResolution) || RESOLUTION_720P.equalsIgnoreCase(trailerMaxResolution) || RESOLUTION_1080P.equalsIgnoreCase(trailerMaxResolution))) {
             indexOfTrailer = xml.indexOf("480P." + extension);
         }
 

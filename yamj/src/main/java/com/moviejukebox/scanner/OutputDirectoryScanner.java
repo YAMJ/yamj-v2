@@ -62,10 +62,10 @@ public class OutputDirectoryScanner {
 
                     String filename = file.getName();
 
-                    if (filename.length() > 4 && FilenameUtils.getExtension(filename).equalsIgnoreCase("xml")) {
+                    if (filename.length() > 4 && "xml".equalsIgnoreCase(FilenameUtils.getExtension(filename))) {
                         FileTools.fileCache.fileAdd(file);
                         String filenameUpper = filename.toUpperCase();
-                        boolean skip = filenameUpper.equals("CATEGORIES.XML");
+                        boolean skip = "CATEGORIES.XML".equals(filenameUpper);
                         if (!skip) {
                             for (String prefix : Library.getPrefixes()) {
                                 if (filenameUpper.startsWith(prefix + "_")) {

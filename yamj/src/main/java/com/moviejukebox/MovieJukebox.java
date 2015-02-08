@@ -131,6 +131,7 @@ public class MovieJukebox {
     private static final String DUMMY_JPG = "dummy.jpg";
     private static final String RIGHT = "right";
     private static final String LEFT = "left";
+    private static final String BOTH = "both";
     private static final String THUMBNAILS = "thumbnails";
     private static final String POSTERS = "posters";
     private final String movieLibraryRoot;
@@ -215,7 +216,7 @@ public class MovieJukebox {
         LOG.info("");
 
         // Print the revision information if it was populated
-        if (MJB_REVISION.equals("0000")) {
+        if ("0000".equals(MJB_REVISION)) {
             LOG.info("     Revision: *Custom Build*");
         } else {
             LOG.info("     Revision: r{}", MJB_REVISION);
@@ -2395,7 +2396,7 @@ public class MovieJukebox {
             String perspectiveDirection = getProperty("thumbnails.perspectiveDirection", RIGHT);
 
             // Generate and save both images
-            if (perspectiveDirection.equalsIgnoreCase("both")) {
+            if (BOTH.equalsIgnoreCase(perspectiveDirection)) {
                 // Calculate mirror thumbnail name.
                 String dstMirror = tmpThumbnailFile.substring(0, tmpThumbnailFile.lastIndexOf('.')) + "_mirror" + tmpThumbnailFile.substring(tmpThumbnailFile.lastIndexOf('.'));
 
@@ -2411,7 +2412,7 @@ public class MovieJukebox {
             }
 
             // Only generate the right image
-            if (perspectiveDirection.equalsIgnoreCase(RIGHT)) {
+            if (RIGHT.equalsIgnoreCase(perspectiveDirection)) {
                 bi = imagePlugin.generate(movie, bi, THUMBNAILS, RIGHT);
 
                 // Save the right perspective image.
@@ -2420,7 +2421,7 @@ public class MovieJukebox {
             }
 
             // Only generate the left image
-            if (perspectiveDirection.equalsIgnoreCase(LEFT)) {
+            if (LEFT.equalsIgnoreCase(perspectiveDirection)) {
                 bi = imagePlugin.generate(movie, bi, THUMBNAILS, LEFT);
 
                 // Save the right perspective image.
@@ -2496,7 +2497,7 @@ public class MovieJukebox {
             String perspectiveDirection = getProperty("posters.perspectiveDirection", RIGHT);
 
             // Generate and save both images
-            if (perspectiveDirection.equalsIgnoreCase("both")) {
+            if (BOTH.equalsIgnoreCase(perspectiveDirection)) {
                 // Calculate mirror poster name.
                 String dstMirror = FilenameUtils.removeExtension(tmpThumbnailFile) + "_mirror." + FilenameUtils.getExtension(tmpThumbnailFile);
 
@@ -2512,7 +2513,7 @@ public class MovieJukebox {
             }
 
             // Only generate the right image
-            if (perspectiveDirection.equalsIgnoreCase(RIGHT)) {
+            if (RIGHT.equalsIgnoreCase(perspectiveDirection)) {
                 bi = posterManager.generate(movie, bi, POSTERS, RIGHT);
 
                 // Save the right perspective image.
@@ -2521,7 +2522,7 @@ public class MovieJukebox {
             }
 
             // Only generate the left image
-            if (perspectiveDirection.equalsIgnoreCase(LEFT)) {
+            if (LEFT.equalsIgnoreCase(perspectiveDirection)) {
                 bi = posterManager.generate(movie, bi, POSTERS, LEFT);
 
                 // Save the right perspective image.

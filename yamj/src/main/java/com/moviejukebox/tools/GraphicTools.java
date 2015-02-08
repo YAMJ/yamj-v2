@@ -420,7 +420,7 @@ public final class GraphicTools {
         PerspectiveFilter perspectiveFilter = new PerspectiveFilter();
         // Top Left (x/y), Top Right (x/y), Bottom Right (x/y), Bottom Left (x/y)
 
-        if (perspectiveDirection.equalsIgnoreCase("right")) {
+        if ("right".equalsIgnoreCase(perspectiveDirection)) {
             perspectiveFilter.setCorners(0, 0, w, top3d, w, h - bot3d, 0, h);
         } else {
             perspectiveFilter.setCorners(0, top3d, w, 0, w, h, 0, h - bot3d);

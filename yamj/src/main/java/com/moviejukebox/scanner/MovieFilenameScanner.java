@@ -475,7 +475,7 @@ public final class MovieFilenameScanner {
         {
             final Matcher matcher = TV_PATTERN.matcher(rest);
             if (matcher.find()) {
-                if (matcher.group(1).equals("720") || matcher.group(1).equals("1080")) {
+                if ("720".equals(matcher.group(1)) || "1080".equals(matcher.group(1))) {
                     LOG.trace("Skipping pattern detection of '{}' because it looks like a resolution", matcher.group(0));
                 } else {
                     // logger.finest("It's a TV Show: " + group0);

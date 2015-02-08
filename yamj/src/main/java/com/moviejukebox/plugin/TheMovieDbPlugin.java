@@ -540,7 +540,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * @return True if valid to overwrite
      */
     private boolean overwriteCheck(String sourceString, String targetString) {
-        return StringTools.isValidString(sourceString) && (StringTools.isNotValidString(targetString) || targetString.equals("-1"));
+        return StringTools.isValidString(sourceString) && (StringTools.isNotValidString(targetString) || "-1".equals(targetString));
     }
 
     @Override

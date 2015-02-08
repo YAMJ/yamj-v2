@@ -399,7 +399,7 @@ public class MovieJukeboxXMLWriter {
             int categoryMinCount, Library library) {
         List<Movie> allMovies = library.getMoviesList();
         int countMovieCat = library.getMovieCountForIndex(categoryKey, indexName);
-        boolean skipSet = categoryKey.equalsIgnoreCase("Set") && countMovieCat <= 1;
+        boolean skipSet = "Set".equalsIgnoreCase(categoryKey) && countMovieCat <= 1;
 
         LOG.debug("Index: {}, Category: {}, count: {}", categoryKey, indexName, indexMovies.size());
 

@@ -463,7 +463,7 @@ public final class PosterScanner {
 
         if (imageDimension.equals(new Dimension(0, 0))) {
             LOG.info("Looks like an invalid image, trying a different reader for URL: {}", imageUrl);
-            if (imageExtension.equals("png")) {
+            if ("png".equals(imageExtension)) {
                 imageExtension = "jpeg";
             } else {
                 imageExtension = "png";
@@ -554,7 +554,7 @@ public final class PosterScanner {
     public static void scan(Movie movie) {
         // check the default ID for a 0 or -1 and skip poster processing
         String id = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID);
-        if (!movie.isScrapeLibrary() || id.equals("0") || id.equals("-1")) {
+        if (!movie.isScrapeLibrary() || "0".equals(id) || "-1".equals(id)) {
             LOG.debug("Skipping online poster search for {}", movie.getBaseFilename());
             return;
         }

@@ -98,7 +98,7 @@ public final class DatabasePluginController {
         // if the movie id was set to 0 or -1 then do not continue with database scanning.
         // the user has disabled scanning for this movie
         for (String id : movie.getIdMap().values()) {
-            if (id.equals("0") || id.equals("-1")) {
+            if ("0".equals(id) || "-1".equals(id)) {
                 ignore = true;
                 break;
             }

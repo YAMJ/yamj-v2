@@ -159,7 +159,7 @@ public class SectionSS extends SectionContentSS {
     @Override
     public void setGlobalVariable(String name, String value) {
         if (StringUtils.isNotBlank(name)) {
-            if (parent != null && !getName().equals("action")) {
+            if (parent != null && !"action".equals(getName())) {
                 parent.setGlobalVariable(name, value);
             } else {
                 setVariable(name, value);
@@ -212,7 +212,7 @@ public class SectionSS extends SectionContentSS {
                             LOG.debug("compileValue: start: {} end: {}", start, end);
                         }
                         variable = hasGlobalVariable(variable) ? getGlobalVariable(variable) : getVariable(variable);
-                        if (variable == null || variable.equals("null")) {
+                        if (variable == null || "null".equals(variable)) {
                             variable = "";
                         }
                         result = result.substring(0, start) + variable + result.substring(end + 1);

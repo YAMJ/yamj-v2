@@ -134,7 +134,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         ThreadExecutor.enterIO(WEB_HOST);
 
         try {
-            if (!(id.equals(Movie.UNKNOWN) || (id.equals("-1"))) || (id.equals("0"))) {
+            if (!(id.equals(Movie.UNKNOWN) || ("-1".equals(id))) || ("0".equals(id))) {
                 String urlNormal = null;
 
                 Banners banners = TheTvDBPlugin.getBanners(id);

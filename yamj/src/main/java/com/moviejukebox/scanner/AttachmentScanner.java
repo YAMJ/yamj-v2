@@ -381,7 +381,7 @@ public class AttachmentScanner {
         String line = null;
         try {
             line = input.readLine();
-            while ((line != null) && (line.equals(""))) {
+            while ((line != null) && StringUtils.isBlank(line)) {
                 line = input.readLine();
             }
         } catch (IOException ignore) {
