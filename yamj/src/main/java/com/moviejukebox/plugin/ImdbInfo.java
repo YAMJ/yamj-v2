@@ -108,10 +108,6 @@ public class ImdbInfo {
                 "Roteirista|Cr&#xE9;ditos como roteirista", "Taglines", "original title"));
     }
 
-    public void setPreferredSearchEngine(String preferredSearchEngine) {
-        this.preferredSearchEngine = preferredSearchEngine;
-    }
-
     public ImdbInfo() {
         this(PropertiesUtil.getProperty("imdb.site", DEFAULT_SITE));
     }
@@ -129,9 +125,12 @@ public class ImdbInfo {
         }
     }
 
+    public void setPreferredSearchEngine(String preferredSearchEngine) {
+        this.preferredSearchEngine = preferredSearchEngine;
+    }
+
     /**
-     * Retrieve the IMDb matching the specified movie name and year. This
-     * routine is based on a IMDb request.
+     * Retrieve the IMDb matching the specified movie name and year. This routine is based on a IMDb request.
      *
      * @param movieName the name of the movie
      * @param year the year
@@ -142,8 +141,7 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb matching the specified movie name and year. This
-     * routine is based on a IMDb request.
+     * Retrieve the IMDb matching the specified movie name and year. This routine is based on a IMDb request.
      *
      * @param movieName the name of the movie
      * @param year the year
@@ -155,8 +153,7 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb matching the specified movie name and year. This
-     * routine is based on a IMDb request.
+     * Retrieve the IMDb matching the specified movie name and year. This routine is based on a IMDb request.
      *
      * @param movieName the name of the movie
      * @param year the year
@@ -233,8 +230,7 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb Id matching the specified movie name and year. This
-     * routine is base on a yahoo request.
+     * Retrieve the IMDb Id matching the specified movie name and year. This routine is base on a yahoo request.
      *
      * @param movieName The name of the Movie to search for
      * @param year The year of the movie
@@ -263,8 +259,7 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb matching the specified movie name and year. This
-     * routine is base on a Google request.
+     * Retrieve the IMDb matching the specified movie name and year. This routine is base on a Google request.
      *
      * @param movieName The name of the Movie to search for
      * @param year The year of the movie
@@ -319,8 +314,7 @@ public class ImdbInfo {
     }
 
     /**
-     * Retrieve the IMDb matching the specified movie name and year. This
-     * routine is base on a IMDb request.
+     * Retrieve the IMDb matching the specified movie name and year. This routine is base on a IMDb request.
      */
     private String getImdbIdFromImdb(String movieName, String year, String objectType, String categoryType) {
         /*

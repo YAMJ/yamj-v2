@@ -49,12 +49,8 @@ public final class DatabasePluginController {
     private static boolean autoDetect = false;
     private static List<String> autoDetectList = new ArrayList<>();
 
-    private DatabasePluginController() {
-        throw new UnsupportedOperationException("Class cannot be instantiated");
-    }
     /**
-     * @author Gabriel Corneanu: Store the map in a thread local field to make
-     * it thread safe
+     * @author Gabriel Corneanu: Store the map in a thread local field to make it thread safe
      */
     private static final ThreadLocal<Map<String, MovieDatabasePlugin>> PLUGIN_MAP = new ThreadLocal<Map<String, MovieDatabasePlugin>>() {
         @Override
@@ -87,6 +83,10 @@ public final class DatabasePluginController {
             return movieDatabasePlugin;
         }
     };
+
+    private DatabasePluginController() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
 
     public static void scan(Movie movie) {
         boolean ignore = false;

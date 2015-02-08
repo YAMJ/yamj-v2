@@ -1212,8 +1212,6 @@ class AnidbLocalFile {
     public static final String SIZE_COLUMN_NAME = "size";
     public static final String LAST_SEEN_COLUMN_NAME = "lastseen";
 
-    public AnidbLocalFile() {
-    }
     @DatabaseField(generatedId = true, columnName = ID_COLUMN_NAME)
     private int id;
     // We need to store filenames as bytes in order to allow special characters such as '
@@ -1225,6 +1223,9 @@ class AnidbLocalFile {
     private long size;
     @DatabaseField(index = true, columnName = LAST_SEEN_COLUMN_NAME)
     private Date lastSeen; // Date this file was last seen, to allow periodic cleanup of stale records
+
+    public AnidbLocalFile() {
+    }
 
     public int getId() {
         return id;

@@ -54,6 +54,10 @@ public final class DateTimeTools {
         setDmyOrder(Boolean.FALSE);
     }
 
+    private DateTimeTools() {
+        throw new UnsupportedOperationException("Class cannot be instantiated");
+    }
+
     /**
      * Set the DMY parsing to DMY (true) or MDY (false)
      *
@@ -64,10 +68,6 @@ public final class DateTimeTools {
         dtcDmy = order;
         DTC_BUILDER.setDmyOrder(dtcDmy);
         DateTimeConfig.setGlobalDefaultFromBuilder(DTC_BUILDER);
-    }
-
-    private DateTimeTools() {
-        throw new UnsupportedOperationException("Class cannot be instantiated");
     }
 
     public static String getDateFormatString() {
