@@ -31,11 +31,14 @@ import com.moviejukebox.tools.StringTools;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import com.moviejukebox.tools.ThreadExecutor;
+import com.moviejukebox.tools.WebBrowser;
 import com.omertron.tvrageapi.TVRageApi;
+import com.omertron.tvrageapi.TVRageException;
 import com.omertron.tvrageapi.model.CountryDetail;
 import com.omertron.tvrageapi.model.Episode;
 import com.omertron.tvrageapi.model.EpisodeList;
 import com.omertron.tvrageapi.model.ShowInfo;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -57,7 +60,7 @@ public class TVRagePlugin extends ImdbPlugin {
         super();
 
         String API_KEY = PropertiesUtil.getProperty("API_KEY_TVRage");
-        tvRage = new TVRageApi(API_KEY);
+        tvRage = new TVRageApi(API_KEY, WebBrowser.getCloseableHttpClient());
 
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
     }
@@ -65,6 +68,30 @@ public class TVRagePlugin extends ImdbPlugin {
     @Override
     public String getPluginID() {
         return TVRAGE_PLUGIN_ID;
+    }
+
+    private ShowInfo getShowInfo(int tvrageID) {
+        ThreadExecutor.enterIO(WEBHOST);
+        try {
+            return tvRage.getShowInfo(tvrageID);
+        } catch (TVRageException ex) {
+            LOG.info("Failed to get TVRage information for '{}' - error: {}", tvrageID, ex.getMessage(), ex);
+        } finally {
+            ThreadExecutor.leaveIO();
+        }
+        return new ShowInfo();
+    }
+
+    private List<ShowInfo> getShowList(String query) {
+        ThreadExecutor.enterIO(WEBHOST);
+        try {
+            tvRage.searchShow(query);
+        } catch (TVRageException ex) {
+            LOG.info("Failed to get TVRage information for '{}' - error: {}", query, ex.getMessage(), ex);
+        } finally {
+            ThreadExecutor.leaveIO();
+        }
+        return Collections.emptyList();
     }
 
     @Override
@@ -76,47 +103,48 @@ public class TVRagePlugin extends ImdbPlugin {
         String id = movie.getId(TVRAGE_PLUGIN_ID);
         int tvrageID = NumberUtils.toInt(id, 0);
 
-        ThreadExecutor.enterIO(WEBHOST);
-        try {
-            // Try and search using the ID
-            if (tvrageID > 0) {
-                LOG.debug("Searching using TVRage ID '{}'", tvrageID);
-                showInfo = tvRage.getShowInfo(tvrageID);
-            }
+        // Try and search using the ID
+        if (tvrageID > 0) {
+            LOG.debug("Searching using TVRage ID '{}'", tvrageID);
+            showInfo = getShowInfo(tvrageID);
+        }
 
-            // Try using the vanity ID
-            if (!showInfo.isValid() && (tvrageID == 0 && isValidString(id))) {
-                LOG.debug("Searching using Vanity URL '{}'", id);
-                showList = tvRage.searchShow(id);
-            }
+        // Try using the vanity ID
+        if (!showInfo.isValid() && (tvrageID == 0 && isValidString(id))) {
+            LOG.debug("Searching using Vanity URL '{}'", id);
+            showList = getShowList(id);
+        }
 
-            // Try using the title
-            if ((showList == null || showList.isEmpty()) && (isValidString(movie.getTitle()))) {
-                LOG.debug("Searching using title '{}'", movie.getTitle());
-                showList = tvRage.searchShow(movie.getTitle());
-            }
+        // Try using the title
+        if ((showList == null || showList.isEmpty()) && (isValidString(movie.getTitle()))) {
+            LOG.debug("Searching using title '{}'", movie.getTitle());
+            showList = getShowList(movie.getTitle());
+        }
 
-            // If we have some shows, try to find the one that matches our show title
-            if (showList != null && !showList.isEmpty()) {
-                for (ShowInfo si : showList) {
-                    if (movie.getTitle().equalsIgnoreCase(si.getShowName())) {
-                        showInfo = si;
-                        break;
-                    }
+        // If we have some shows, try to find the one that matches our show title
+        if (showList != null && !showList.isEmpty()) {
+            for (ShowInfo si : showList) {
+                if (movie.getTitle().equalsIgnoreCase(si.getShowName())) {
+                    showInfo = si;
+                    break;
                 }
             }
-        } finally {
-            ThreadExecutor.leaveIO();
         }
 
         // Update the show specific information
         if (!showInfo.isValid() || showInfo.getShowID() == 0) {
-            LOG.debug("Show '{}' not found", movie.getTitle());
+            LOG.debug("Show '{}' not found", movie.getBaseName());
             return false;
         } else {
             id = String.valueOf(showInfo.getShowID());
             movie.setId(TVRAGE_PLUGIN_ID, id);
-            showInfo = tvRage.getShowInfo(id);
+
+            try {
+                showInfo = tvRage.getShowInfo(id);
+            } catch (TVRageException ex) {
+                LOG.info("Failed to get TVRage information for '{}' - error: {}", movie.getBaseName(), ex.getMessage(), ex);
+                return false;
+            }
 
             if (OverrideTools.checkOverwritePlot(movie, TVRAGE_PLUGIN_ID)) {
                 movie.setPlot(showInfo.getSummary(), TVRAGE_PLUGIN_ID);
@@ -174,7 +202,8 @@ public class TVRagePlugin extends ImdbPlugin {
             if (showInfo != null && showInfo.getShowID() > 0) {
                 episodeList = tvRage.getEpisodeList(Integer.toString(showInfo.getShowID()));
             }
-
+        } catch (TVRageException ex) {
+            LOG.info("Failed to get TVRage information for '{}' - error: {}", movie.getBaseName(), ex.getMessage(), ex);
         } finally {
             ThreadExecutor.leaveIO();
         }

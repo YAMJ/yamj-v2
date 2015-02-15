@@ -54,7 +54,7 @@
         <distribution.format>zip</distribution.format>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <version.slf4j>1.7.9</version.slf4j>
+        <version.slf4j>1.7.10</version.slf4j>
     </properties>
 
     <profiles>
@@ -155,67 +155,67 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>allocine-api</artifactId>
-                <version>1.4</version>
+                <version>1.5-SNAPSHOT</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>com.omertron</groupId>
                 <artifactId>themoviedbapi</artifactId>
-                <version>3.11</version>
+                <version>3.12-SNAPSHOT</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>com.omertron</groupId>
                 <artifactId>thetvdbapi</artifactId>
-                <version>1.7</version>
+                <version>1.8-SNAPSHOT</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>com.omertron</groupId>
                 <artifactId>tvrageapi</artifactId>
-                <version>1.5</version>
+                <version>1.6-SNAPSHOT</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>com.omertron</groupId>
                 <artifactId>rottentomatoesapi</artifactId>
-                <version>1.5</version>
+                <version>1.6-SNAPSHOT</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>com.omertron</groupId>
                 <artifactId>traileraddictapi</artifactId>
-                <version>1.5</version>
+                <version>1.6-SNAPSHOT</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>com.omertron</groupId>
                 <artifactId>imdbapi</artifactId>
-                <version>1.3</version>
+                <version>1.4-SNAPSHOT</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>com.omertron</groupId>
                 <artifactId>subbabaapi</artifactId>
-                <version>1.2</version>
+                <version>1.3-SNAPSHOT</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>com.omertron</groupId>
                 <artifactId>fanarttvapi</artifactId>
-                <version>3.1.1</version>
+                <version>3.2-SNAPSHOT</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>com.omertron</groupId>
                 <artifactId>api-moviemeter</artifactId>
-                <version>1.0.2</version>
+                <version>1.1-SNAPSHOT</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>org.yamj</groupId>
                 <artifactId>api-common</artifactId>
-                <version>1.3</version>
+                <version>1.4</version>
                 <type>jar</type>
             </dependency>
             <!-- TESTING -->

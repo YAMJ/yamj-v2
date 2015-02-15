@@ -217,7 +217,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
                     LOG.debug("Found trailer page URL {}", trailerPageUrl);
                     trailerList.add(tr);
                 } else {
-                    LOG.trace("discarding page URL {}", trailerPageUrl);
+                    LOG.trace("Discarding page URL {}", trailerPageUrl);
                 }
 
                 nextIndex = xml.indexOf(TL_BASE_URL + TL_TRAILER_URL, endIndex + 1);
@@ -227,21 +227,21 @@ public class TrailersLandPlugin extends TrailerPlugin {
         }
 
         Collections.sort(trailerList);
+        LOG.debug("Found {} trailers, maximum required is {}", trailerList.size(), trailerMaxCount);
 
         int remaining = trailerMaxCount;
 
         for (int i = trailerList.size() - 1; i >= 0; i--) {
-
             if (remaining == 0) {
+                LOG.trace("Discarding trailer: {}", trailerList.get(i));
                 trailerList.remove(i);
             } else {
-
                 TrailersLandTrailer tr = trailerList.get(i);
 
                 String trailerXml;
                 String trailerPageUrl = tr.getPageUrl();
 
-                LOG.trace("evaluating page {}", trailerPageUrl);
+                LOG.trace("Evaluating page {}", trailerPageUrl);
                 try {
                     trailerXml = webBrowser.request(trailerPageUrl);
                 } catch (IOException error) {
@@ -262,7 +262,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
                         int endIndex = trailerXml.indexOf('"', nextIndex);
                         String url = trailerXml.substring(nextIndex, endIndex);
 
-                        LOG.trace("evaluating url {}", url);
+                        LOG.trace("Evaluating url {}", url);
                         if (tr.candidateUrl(url) && !found) {
                             found = true;
                             remaining--;

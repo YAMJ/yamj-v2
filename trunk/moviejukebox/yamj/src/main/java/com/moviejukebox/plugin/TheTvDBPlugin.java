@@ -35,13 +35,13 @@ import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.thetvdbapi.TheTVDBApi;
+import com.omertron.thetvdbapi.TvDbException;
 import com.omertron.thetvdbapi.model.Banner;
 import com.omertron.thetvdbapi.model.BannerType;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Episode;
 import com.omertron.thetvdbapi.model.Series;
 import java.util.List;
-import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.pojava.datetime.DateTime;
@@ -73,7 +73,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     static {
         String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
-        TVDB = new TheTVDBApi(API_KEY);
+        TVDB = new TheTVDBApi(API_KEY, WebBrowser.getCloseableHttpClient());
     }
 
     public TheTvDBPlugin() {
@@ -88,27 +88,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
         forceFanartOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFanartOverwrite", Boolean.FALSE);
         forceBannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", Boolean.FALSE);
         textBanners = PropertiesUtil.getBooleanProperty("banners.addText.season", Boolean.FALSE);
-
-        boolean isError = Boolean.FALSE;
-        try {
-            // We need to set the proxy parameters if set.
-            TVDB.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
-        } catch (WebServiceException ex) {
-            LOG.debug("Failed to set proxy info: {}", ex.getMessage());
-            isError = Boolean.TRUE;
-        }
-
-        try {
-            // Set the timeout values
-            TVDB.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
-        } catch (WebServiceException ex) {
-            LOG.debug("Failed to set timeout info: {}", ex.getMessage());
-            isError = Boolean.TRUE;
-        }
-
-        if (isError) {
-            WebBrowser.showStatus();
-        }
     }
 
     private static String initLanguage2() {
@@ -147,9 +126,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
                     ThreadExecutor.enterIO(WEBHOST);
                     try {
-                        year = TVDB.getSeasonYear(id, movie.getSeason(), LANGUAGE_PRIMARY);
+                        year = getYear(id, movie.getSeason(), LANGUAGE_PRIMARY);
                         if (StringTools.isNotValidString(year) && StringTools.isValidString(LANGUAGE_SECONDARY)) {
-                            year = TVDB.getSeasonYear(id, movie.getSeason(), LANGUAGE_SECONDARY);
+                            year = getYear(id, movie.getSeason(), LANGUAGE_SECONDARY);
                         }
                     } finally {
                         ThreadExecutor.leaveIO();
@@ -219,6 +198,17 @@ public class TheTvDBPlugin extends ImdbPlugin {
         }
 
         return Boolean.TRUE;
+    }
+
+    private String getYear(String id, int season, String language) {
+        String year;
+        try {
+            year = TVDB.getSeasonYear(id, season, language);
+        } catch (TvDbException ex) {
+            LOG.warn("Failed to get year for ID {}, Season {}, lanugage '{}' - error: {}", id, season, language, ex.getMessage(), ex);
+            year = "";
+        }
+        return year;
     }
 
     /**

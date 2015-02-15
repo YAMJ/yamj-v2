@@ -29,6 +29,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
 import com.omertron.subbabaapi.SubBabaApi;
+import com.omertron.subbabaapi.SubBabaException;
 import com.omertron.subbabaapi.enumerations.SearchType;
 import com.omertron.subbabaapi.model.SubBabaContent;
 import com.omertron.subbabaapi.model.SubBabaMovie;
@@ -42,6 +43,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
     private static final Logger LOG = LoggerFactory.getLogger(SubBabaPosterPlugin.class);
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_SubBaba");
     private SubBabaApi subBaba;
+    private static final String WEBHOST = "sub-baba.com";
 
     public SubBabaPosterPlugin() {
         super();
@@ -51,13 +53,11 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
             return;
         }
 
-        subBaba = new SubBabaApi(API_KEY);
-
-        // We need to set the proxy parameters if set.
-        subBaba.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
-
-        // Set the timeout values
-        subBaba.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+        try {
+            subBaba = new SubBabaApi(API_KEY, WebBrowser.getCloseableHttpClient());
+        } catch (SubBabaException ex) {
+            LOG.error("Failed to get SubBaba API: {}", ex.getMessage(), ex);
+        }
     }
 
     /**
@@ -78,17 +78,21 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
         } else {
             LOG.debug("Searching for title '{}' with year '{}'", title, year);
         }
-        // Use the ALL search type because we don't care what type there is
-        List<SubBabaMovie> sbMovies = subBaba.searchByEnglishName(title, SearchType.ALL);
 
-        if (sbMovies != null && !sbMovies.isEmpty()) {
-            LOG.debug("Found {} movies", sbMovies.size());
-            for (SubBabaMovie sbm : sbMovies) {
-                for (SubBabaContent m : sbm.getContent()) {
-                    LOG.debug("SubBaba ID: {}", m.getId());
-                    return String.valueOf(m.getId());
+        try {
+            // Use the ALL search type because we don't care what type there is
+            List<SubBabaMovie> sbMovies = subBaba.searchByEnglishName(title, SearchType.ALL);
+            if (sbMovies != null && !sbMovies.isEmpty()) {
+                LOG.debug("Found {} movies", sbMovies.size());
+                for (SubBabaMovie sbm : sbMovies) {
+                    for (SubBabaContent sbContent : sbm.getContent()) {
+                        LOG.debug("SubBaba ID: {}", sbContent.getId());
+                        return String.valueOf(sbContent.getId());
+                    }
                 }
             }
+        } catch (SubBabaException ex) {
+            LOG.info("No information forund for {} ({}) - error: {}", title, year, ex.getMessage(), ex);
         }
         return Movie.UNKNOWN;
     }
@@ -133,7 +137,13 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
      * @return
      */
     private IImage getFirstContent(String imdbId, SearchType searchType) {
-        SubBabaMovie sbm = subBaba.searchByImdbId(imdbId, searchType);
+        SubBabaMovie sbm = null;
+        try {
+            sbm = subBaba.searchByImdbId(imdbId, searchType);
+        } catch (SubBabaException ex) {
+            LOG.warn("Failed to get information for ID: {} - Error: {}", imdbId, ex.getMessage(), ex);
+        }
+
         if (sbm == null) {
             // Nothing returned for the movie
             LOG.debug("No information found for movie ID {}", imdbId);

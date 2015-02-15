@@ -1,27 +1,60 @@
 ==============================
 
-Saxon-HE 9.6 is the latest major release of the open-source edition of Saxon. 
+Saxon-HE 9.6 is the latest major release of the open-source edition of Saxon.
 It is available for the Java platform (.NET platform coming shortly).
 
-The current maintenance release is Saxon-HE 9.6.0.3.
+The current maintenance release is Saxon-HE 9.6.0.4.
 
 The documentation for Saxon is at http://www.saxonica.com/documentation/
 and includes a detailed list of changes for each release.
 
-For the Java platform, download file SaxonHE9-9-0-3J.zip. Installation instructions are at:
+For the Java platform, download file SaxonHE9-9-0-4J.zip. Installation instructions are at:
 
 http://www.saxonica.com/documentation/index.html#!about/installationjava
 
-The file saxon-resources9-6.zip contains documentation, sample files, test drivers and other miscellaneous resources. 
+The file saxon-resources9-6.zip contains documentation, sample files, test drivers and other miscellaneous resources.
 It is common to both platforms, and is not normally updated when new maintenance releases appear.
 
-The file saxon9-6-0-3source.zip contains source code for both platforms; a new version is produced with each 
+The file saxon9-6-0-4source.zip contains source code for both platforms; a new version is produced with each
 maintenance release. Source code with the latest patches can also be obtained from a Subversion repository
 maintained at https://dev.saxonica.com/repos/archive/opensource. The Subversion repository on the SourceForge site is no longer maintained.
+
+The following bugs are cleared in 9.6.0.4, issued 2015-01-14 (this includes bugs that appear only in the commercial
+versions of the product). Bugs are listed under the number used on the new Saxonica Community site at
+https://saxonica.plan.io/projects/saxon/issues. :
+
+
+	2246	The doc file should be named saxon9he-api.xml, otherwise Visual Studio ignores it.
+	2210	Concurrent Schema Import
+	2219	xsl:next-match; patterns using match="$var" syntax
+	2247	Whitespace normalization in union types
+	2248	Can no longer pass null value to declareGlobalVariable
+	2249	StylesheetPackager missing in SaxonEE9-6-0-3N-setup.exe?
+	2250	The output file cannot be deleted after executing an XSLT transformation
+	2251	NullReferenceException when transforming to TextWriterDestination [Saxon-HE 9.6.0.3]
+	2253	Saxon HE 9.6.0.2 with -xmlversion:1.1 reports Unrecognized version 1.1: treated as 1.0
+	2255	xsl:assert no longer producing message in Saxon-PE 9.6.0.3J
+	2257	XSLT3.0 support on xsl:* elements
+	2258	QName.ToString() returns incorrect lexical form
+	2260	Saxon.Api documentation: missing class descriptions
+	2261	With bytecode on, apply-imports fails to set current component
+	2271	AIOOBE with large xml file
+	2272	XdmNode.BaseUri throws exception when NodeInfo.getBaseURI() returns null
+	2273	collection() does not use built-in copies of W3C DTDs
+	2274	Links to command line documentation
+	2275	Controller.inUse is never set to true
+	2277	match="x/descendant::y[1]" gives spurious matches
+	2278	Pattern descendant::text()[1] gives a spurious warning, and no matches
+	2279	Redistributing Saxon-HE .NET with 3rd party notice files
+	2282	IdentityTransformer with empty DOMSource
+	2283	s9api s9api transformation pipeline not working under .NET
+	2286    saxon9-icu jar missing from Saxon-EE 9.6.0.3 release
+
 
 The following bugs are cleared in 9.6.0.3, issued 2014-12-02 (this includes bugs that appear only in the commercial
 versions of the product). Bugs are listed under the number used on the new Saxonica Community site at
 https://saxonica.plan.io/projects/saxon/issues. :
+
 
 	2238	Configuration.unravel() tests for "same Configuration" not "compatible Configuration"
 	2232	Invalid XQuery variable reference throws NPE, or evaluates without error message
@@ -43,7 +76,6 @@ https://saxonica.plan.io/projects/saxon/issues. :
 	2243 	NullPointerException in MessageEmitter.endDocument()
 	2244 	No location information available when xsl:import fails
 	2245 	Base URI not preserved after deleting xml:base attribute
- 
 
 
 
@@ -59,6 +91,7 @@ https://saxonica.plan.io/projects/saxon/issues. :
 	2216	SystemId information not available to TraceListener
 	2215	ErrorListener registered with the JAXP TransformerFactory is ignored
 	2214	With JAXP transform() method, result.getSystemId() should act as base output URI
+	2213    Comparing QName to untypedAtomic crashes
 	2212	function-available('exslt:node-set') returns false
 	2211	strip-type-annotations not working with XSLT30 applyTemplate
 	2209	Namespace Fixup doesn't work for default namespace when input is TinyTree…
@@ -102,7 +135,7 @@ https://saxonica.plan.io/projects/saxon/issues. :
 
 
 
-The first release in this series, 9.6.0.1, was issued on 2 October 2014. 
+The first release in this series, 9.6.0.1, was issued on 2 October 2014.
 
 Bugs can be reported, and known bugs inspected, on the Saxon community site at https://saxonica.plan.io/projects/saxon
 The sourceforge bug tracker is no longer maintained.
