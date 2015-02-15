@@ -63,25 +63,32 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
         }
 
         PropertiesUtil.warnDeprecatedProperty("moviemeter.id.search");
-            }
+    }
 
     @Override
     public String getIdFromMovieInfo(String title, String year) {
         return MovieMeterPlugin.getMovieId(api, title, year);
-            }
+    }
 
     @Override
     public IImage getPosterUrl(String id) {
+        if (!StringUtils.isNumeric(id)) {
+            return Image.UNKNOWN;
+        }
+
         String posterURL = Movie.UNKNOWN;
         FilmInfo filmInfo;
-        if (StringUtils.isNumeric(id)) {
-            try {
-                filmInfo = api.getFilm(NumberUtils.toInt(id));
+
+        try {
+            filmInfo = api.getFilm(NumberUtils.toInt(id));
+            if (filmInfo.getPosters() == null || filmInfo.getPosters().getLarge() == null) {
+                LOG.debug("No MovieMeter Poster URL for movie: {}", id);
+            } else {
                 posterURL = filmInfo.getPosters().getLarge();
-            } catch (Exception ex) {
-                LOG.error("Failed retreiving MovieMeter Poster URL for movie: {}", id);
-                LOG.error(SystemTools.getStackTrace(ex));
             }
+        } catch (MovieMeterException ex) {
+            LOG.error("Failed retreiving MovieMeter Poster URL for movie: {}", id);
+            LOG.error(SystemTools.getStackTrace(ex));
         }
 
         if (StringTools.isValidString(posterURL)) {

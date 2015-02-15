@@ -66,18 +66,6 @@ public class MovieMeterPluginTest {
     public void tearDown() throws Exception {
     }
 
-    @Ignore
-    public void testSca2222n() {
-        Movie movie = new Movie();
-        movie.setId(MovieMeterPlugin.MOVIEMETER_PLUGIN_ID, "17552");
-        plugin.scan(movie);
-        assertEquals("Avatar", movie.getTitle());
-        assertEquals("Avatar", movie.getOriginalTitle());
-        assertEquals("2009", movie.getYear());
-        assertEquals(2, movie.getCountries().size());
-        assertEquals("Verenigde Staten / Verenigd Koninkrijk", movie.getCountriesAsString());
-    }
-
     /**
      * Test of scan method, of class MovieMeterPlugin.
      */
@@ -103,8 +91,7 @@ public class MovieMeterPluginTest {
                 assertTrue("No genres", movie.getGenres().size() > 0);
                 assertTrue("No actors", movie.getCast().size() > 0);
                 assertTrue("No directors", movie.getDirectors().size() > 0);
-}
-
+            }
         }
     }
 
