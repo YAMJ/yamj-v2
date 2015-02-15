@@ -64,6 +64,7 @@ public class MovieMeterPosterPluginTest {
         LOG.info("getIdFromMovieInfo");
 
         for (TestData td : testData) {
+            LOG.info("Testing {} ({})", td.title, td.year);
             String result = plugin.getIdFromMovieInfo(td.title, td.year);
             assertEquals("Wrong ID found for " + td.title, td.id, result);
         }
