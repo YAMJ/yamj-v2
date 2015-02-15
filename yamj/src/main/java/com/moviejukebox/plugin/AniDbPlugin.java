@@ -47,6 +47,7 @@ import static com.moviejukebox.tools.StringTools.isValidString;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.thetvdbapi.TheTVDBApi;
+import com.omertron.thetvdbapi.TvDbException;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Series;
 import java.io.File;
@@ -539,16 +540,21 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 //ep = getEpisodeFromTvdb(s.getId(), 1, epNo);
 //                }
             }
+
             if (s != null) {
-                // This should hopefully not be necessary once the new artwork scanner is done?
-                Banners b = tvdb.getBanners(s.getId());
-                //m.setFanartURL(s.getFanart());
-                if (!b.getFanartList().isEmpty()) {
-                    movie.setFanartURL(b.getFanartList().get(0).getUrl());
-                }
-                movie.setBannerURL(s.getBanner());
-                if (!b.getPosterList().isEmpty()) {
-                    movie.setPosterURL(s.getPoster());
+                try {
+                    // This should hopefully not be necessary once the new artwork scanner is done?
+                    Banners b = tvdb.getBanners(s.getId());
+                    //m.setFanartURL(s.getFanart());
+                    if (!b.getFanartList().isEmpty()) {
+                        movie.setFanartURL(b.getFanartList().get(0).getUrl());
+                    }
+                    movie.setBannerURL(s.getBanner());
+                    if (!b.getPosterList().isEmpty()) {
+                        movie.setPosterURL(s.getPoster());
+                    }
+                } catch (TvDbException ex) {
+                    LOG.warn("Failed to get benner information for {} ({}) - error: {}", s.getSeriesName(), s.getId(), ex.getMessage(), ex);
                 }
             }
         }
@@ -580,15 +586,24 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     protected Series getSeriesFromTvdb(final long tvdbId) {
         synchronized (tvlock) {
-            return tvdb.getSeries(Long.toString(tvdbId), "en");
+            try {
+                return tvdb.getSeries(Long.toString(tvdbId), "en");
+            } catch (TvDbException ex) {
+                LOG.warn("Failed to get TVDB information for {} - error: {}", tvdbId, ex.getMessage(), ex);
+                return null;
+            }
         }
     }
 
     protected Series getSeriesFromTvdb(final String title) {
         synchronized (tvlock) {
-            final List<Series> series = tvdb.searchSeries(title, "en");
-            if (!series.isEmpty()) {
-                return series.get(0);
+            try {
+                final List<Series> series = tvdb.searchSeries(title, "en");
+                if (!series.isEmpty()) {
+                    return series.get(0);
+                }
+            } catch (TvDbException ex) {
+                LOG.warn("Failed to get TVDB series information for {} - error: {}", title, ex.getMessage(), ex);
             }
         }
         return null;
@@ -596,7 +611,12 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
     protected com.omertron.thetvdbapi.model.Episode getEpisodeFromTvdb(final String seriesId, final int season, final int episodeNumber) {
         synchronized (tvlock) {
-            return tvdb.getEpisode(seriesId, season, episodeNumber, "en");
+            try {
+                return tvdb.getEpisode(seriesId, season, episodeNumber, "en");
+            } catch (TvDbException ex) {
+                LOG.warn("Failed to get TVDB episode information for {}, season {}, episode {} - error: {}", seriesId, season, episodeNumber, ex.getMessage(), ex);
+            }
+            return null;
         }
     }
 

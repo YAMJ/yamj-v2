@@ -87,16 +87,11 @@ public class FanartTvPlugin {
 
     public FanartTvPlugin() {
         try {
-            this.ft = new FanartTvApi(API_KEY);
+            this.ft = new FanartTvApi(API_KEY, null,WebBrowser.getCloseableHttpClient());
         } catch (FanartTvException ex) {
             LOG.warn("Failed to initialise FanartTV API: {}", ex.getMessage(), ex);
             return;
         }
-        // We need to set the proxy parameters if set.
-        ft.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
-
-        // Set the timeout values
-        ft.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
 
         // Calculate the required number of artworks (Only do it once though)
         if (totalRequireMovie + totalRequiredTv == 0) {

@@ -98,18 +98,11 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public TheMovieDbPlugin() {
         try {
             String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
-            TMDb = new TheMovieDbApi(API_KEY);
+            TMDb = new TheMovieDbApi(API_KEY, WebBrowser.getCloseableHttpClient());
         } catch (MovieDbException ex) {
             LOG.warn("Failed to initialise TheMovieDB API: {}", ex.getMessage());
             return;
         }
-
-        // Set the proxy
-        TMDb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
-
-        // Set the timeouts
-        TMDb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
-
         decodeLanguage();
     }
 
@@ -369,8 +362,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     /**
      * Search for a movie title.
      *
-     * Use a title that may be different to the actual title of the movie, but
-     * match against the full title.
+     * Use a title that may be different to the actual title of the movie, but match against the full title.
      *
      * @param fullTitle
      * @param year
@@ -532,8 +524,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * Checks to see if the source string is null or "UNKNOWN" and that target
-     * string ISN'T null or "UNKNOWN"
+     * Checks to see if the source string is null or "UNKNOWN" and that target string ISN'T null or "UNKNOWN"
      *
      * @param sourceString The source string to check
      * @param targetString The destination string to check
@@ -593,8 +584,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     }
 
     /**
-     * Locate the FanartURL for the movie. This should probably be skipped as
-     * this uses TheMovieDb.org anyway
+     * Locate the FanartURL for the movie. This should probably be skipped as this uses TheMovieDb.org anyway
      *
      * @param movie Movie bean for the movie to locate
      * @return The URL of the fanart

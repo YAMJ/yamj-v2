@@ -54,17 +54,10 @@ public class RottenTomatoesPlugin {
 
     public RottenTomatoesPlugin() {
         try {
-            rt = new RottenTomatoesApi(API_KEY);
+            rt = new RottenTomatoesApi(API_KEY, WebBrowser.getCloseableHttpClient());
         } catch (RottenTomatoesException ex) {
-            LOG.error("Failed to get RottenTomatoes API: {}", ex.getMessage());
-            return;
+            LOG.error("Failed to get RottenTomatoes API: {}", ex.getMessage(), ex);
         }
-
-        // We need to set the proxy parameters if set.
-        rt.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
-
-        // Set the timeout values
-        rt.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
     }
 
     public boolean scan(Movie movie) {

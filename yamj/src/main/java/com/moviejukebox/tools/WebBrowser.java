@@ -70,6 +70,7 @@ public class WebBrowser {
     private static final int TIMEOUT_CONNECT = PropertiesUtil.getIntProperty("mjb.Timeout.Connect", 25000);
     private static final int TIMEOUT_READ = PropertiesUtil.getIntProperty("mjb.Timeout.Read", 90000);
     private int imageRetryCount;
+    private static CloseableHttpClient httpClient = null;
 
     static {
         // create the proxy object
@@ -509,20 +510,22 @@ public class WebBrowser {
      * @return A CloseableHttpClient
      */
     public static CloseableHttpClient getCloseableHttpClient() {
-        SimpleHttpClientBuilder cb = new SimpleHttpClientBuilder();
-        cb.setConnectTimeout(TIMEOUT_CONNECT);
-        cb.setConnectionRequestTimeout(TIMEOUT_READ);
+        if (httpClient == null) {
+            SimpleHttpClientBuilder cb = new SimpleHttpClientBuilder();
+            cb.setConnectTimeout(TIMEOUT_CONNECT);
+            cb.setConnectionRequestTimeout(TIMEOUT_READ);
 
-        if (StringUtils.isNotBlank(PROXY_HOST)) {
-            cb.setProxyHost(PROXY_HOST);
-            cb.setProxyPort(PROXY_PORT);
-}
+            if (StringUtils.isNotBlank(PROXY_HOST)) {
+                cb.setProxyHost(PROXY_HOST);
+                cb.setProxyPort(PROXY_PORT);
+            }
 
-        if (StringUtils.isNotBlank(PROXY_USERNAME)) {
-            cb.setProxyUsername(PROXY_USERNAME);
-            cb.setProxyPassword(PROXY_PASSWORD);
+            if (StringUtils.isNotBlank(PROXY_USERNAME)) {
+                cb.setProxyUsername(PROXY_USERNAME);
+                cb.setProxyPassword(PROXY_PASSWORD);
+            }
+            httpClient = cb.build();
         }
-
-        return cb.build();
+        return httpClient;
     }
 }

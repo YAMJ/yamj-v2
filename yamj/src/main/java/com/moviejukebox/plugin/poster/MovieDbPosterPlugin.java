@@ -67,18 +67,11 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         LOG.debug("Using '{}' as the language code", languageCode);
 
         try {
-            tmdb = new TheMovieDbApi(apiKey);
+            tmdb = new TheMovieDbApi(apiKey, WebBrowser.getCloseableHttpClient());
         } catch (MovieDbException ex) {
             LOG.warn("Failed to initialise TheMovieDB API.");
             LOG.warn(SystemTools.getStackTrace(ex));
-            return;
         }
-
-        // Set the proxy
-        tmdb.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
-
-        // Set the timeouts
-        tmdb.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
     }
 
     @Override

@@ -33,10 +33,12 @@ import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 import com.omertron.thetvdbapi.TheTVDBApi;
+import com.omertron.thetvdbapi.TvDbException;
 import com.omertron.thetvdbapi.model.Banner;
 import com.omertron.thetvdbapi.model.BannerType;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Series;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -52,7 +54,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private String language;
     private String language2nd;
     private TheTVDBApi tvDB;
-    private static final String WEB_HOST = "thetvdb.com";
+    private static final String WEBHOST = "thetvdb.com";
 
     public TheTvDBPosterPlugin() {
         super();
@@ -62,13 +64,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             return;
         }
 
-        tvDB = new TheTVDBApi(API_KEY);
-
-        // We need to set the proxy parameters if set.
-        tvDB.setProxy(WebBrowser.getMjbProxyHost(), WebBrowser.getMjbProxyPort(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
-
-        // Set the timeout values
-        tvDB.setTimeout(WebBrowser.getMjbTimeoutConnect(), WebBrowser.getMjbTimeoutRead());
+        tvDB = new TheTVDBApi(API_KEY, WebBrowser.getCloseableHttpClient());
 
         language = PropertiesUtil.getProperty("thetvdb.language", DEFAULT_LANGUAGE);
         language2nd = PropertiesUtil.getProperty("thetvdb.language.secondary", DEFAULT_LANGUAGE);
@@ -84,15 +80,10 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         List<Series> seriesList = null;
 
         if (StringTools.isValidString(title)) {
-            ThreadExecutor.enterIO(WEB_HOST);
-            try {
-                seriesList = tvDB.searchSeries(title, language);
-                // Try Alternative Language
-                if ((seriesList == null || seriesList.isEmpty()) && StringTools.isValidString(language2nd)) {
-                    seriesList = tvDB.searchSeries(title, language2nd);
-                }
-            } finally {
-                ThreadExecutor.leaveIO();
+            seriesList = getSeriesList(title, language);
+            // Try Alternative Language
+            if ((seriesList == null || seriesList.isEmpty()) && StringTools.isValidString(language2nd)) {
+                seriesList = getSeriesList(title, language2nd);
             }
         }
 
@@ -127,52 +118,64 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         return response;
     }
 
+    /**
+     * Search for matching series on the title and language
+     *
+     * @param title
+     * @param language
+     * @return
+     */
+    private List<Series> getSeriesList(String title, String language) {
+        ThreadExecutor.enterIO(WEBHOST);
+        try {
+            return tvDB.searchSeries(title, language);
+        } catch (TvDbException ex) {
+            LOG.warn("Failed to get series information for '{}' ({}) - error: {}", title, language, ex.getMessage(), ex);
+        } finally {
+            ThreadExecutor.leaveIO();
+        }
+        return Collections.emptyList();
+    }
+
     @Override
     public IImage getPosterUrl(String id, int season) {
         String posterURL = Movie.UNKNOWN;
 
-        ThreadExecutor.enterIO(WEB_HOST);
+        if (!(id.equals(Movie.UNKNOWN) || ("-1".equals(id))) || ("0".equals(id))) {
+            String urlNormal = null;
 
-        try {
-            if (!(id.equals(Movie.UNKNOWN) || ("-1".equals(id))) || ("0".equals(id))) {
-                String urlNormal = null;
+            Banners banners = TheTvDBPlugin.getBanners(id);
 
-                Banners banners = TheTvDBPlugin.getBanners(id);
-
-                if (!banners.getSeasonList().isEmpty()) {
-                    // Trying to grab localized banners at first...
-                    urlNormal = findPosterURL(banners, season, language);
-                    if (StringTools.isNotValidString(urlNormal) && !language2nd.isEmpty()) {
-                        // In a case of failure - trying to grab banner in alternative language.
-                        urlNormal = findPosterURL(banners, season, language2nd);
-                    }
-                }
-
-                if (StringTools.isNotValidString(urlNormal) && !banners.getPosterList().isEmpty()) {
-                    urlNormal = banners.getPosterList().get(0).getUrl();
-                }
-
-                if (urlNormal == null) {
-                    Series series = TheTvDBPlugin.getSeries(id);
-
-                    if (series != null && StringTools.isValidString(series.getPoster())) {
-                        urlNormal = series.getPoster();
-                    }
-                }
-
-                if (urlNormal != null) {
-                    posterURL = urlNormal;
+            if (!banners.getSeasonList().isEmpty()) {
+                // Trying to grab localized banners at first...
+                urlNormal = findPosterURL(banners, season, language);
+                if (StringTools.isNotValidString(urlNormal) && !language2nd.isEmpty()) {
+                    // In a case of failure - trying to grab banner in alternative language.
+                    urlNormal = findPosterURL(banners, season, language2nd);
                 }
             }
 
-            if (StringTools.isValidString(posterURL)) {
-                LOG.debug("Used poster: {}", posterURL);
-                return new Image(posterURL);
+            if (StringTools.isNotValidString(urlNormal) && !banners.getPosterList().isEmpty()) {
+                urlNormal = banners.getPosterList().get(0).getUrl();
             }
-        } finally {
-            ThreadExecutor.leaveIO();
+
+            if (urlNormal == null) {
+                Series series = TheTvDBPlugin.getSeries(id);
+
+                if (series != null && StringTools.isValidString(series.getPoster())) {
+                    urlNormal = series.getPoster();
+                }
+            }
+
+            if (urlNormal != null) {
+                posterURL = urlNormal;
+            }
         }
 
+        if (StringTools.isValidString(posterURL)) {
+            LOG.debug("Used poster: {}", posterURL);
+            return new Image(posterURL);
+        }
         return Image.UNKNOWN;
     }
 

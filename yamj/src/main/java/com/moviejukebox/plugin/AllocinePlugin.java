@@ -23,6 +23,7 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.allocine.AllocineApi;
+import com.moviejukebox.allocine.AllocineException;
 import com.moviejukebox.allocine.model.Episode;
 import com.moviejukebox.allocine.model.MovieInfos;
 import com.moviejukebox.allocine.model.MoviePerson;
@@ -61,22 +62,23 @@ public class AllocinePlugin extends ImdbPlugin {
     private static final String CACHE_SERIES = "AllocineSeries";
     private static final String API_KEY_PARTNER = PropertiesUtil.getProperty("API_KEY_Allocine_Partner");
     private static final String API_KEY_SECRET = PropertiesUtil.getProperty("API_KEY_Allocine_Secret");
-    private final AllocineApi allocineApi;
-    private final SearchEngineTools searchEngines;
-    private final boolean includeVideoImages;
+    private AllocineApi allocineApi;
+    private SearchEngineTools searchEngines;
+    private boolean includeVideoImages;
     private TheTvDBPlugin tvdb = null;
 
     public AllocinePlugin() {
         super();
+        try {
+            allocineApi = new AllocineApi(API_KEY_PARTNER, API_KEY_SECRET, WebBrowser.getCloseableHttpClient());
+            searchEngines = new SearchEngineTools("fr");
 
-        allocineApi = new AllocineApi(API_KEY_PARTNER, API_KEY_SECRET);
-        allocineApi.setProxy(WebBrowser.getMjbProxy(), WebBrowser.getMjbProxyUsername(), WebBrowser.getMjbProxyPassword());
-
-        searchEngines = new SearchEngineTools("fr");
-
-        preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
-        includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
-        downloadFanart = PropertiesUtil.getBooleanProperty("fanart.tv.download", Boolean.FALSE);
+            preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");
+            includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
+            downloadFanart = PropertiesUtil.getBooleanProperty("fanart.tv.download", Boolean.FALSE);
+        } catch (AllocineException ex) {
+            LOG.error("Failed to get Allocine API: {}", ex.getMessage(), ex);
+        }
     }
 
     @Override
