@@ -89,58 +89,58 @@ public class MovieMeterPlugin extends ImdbPlugin {
         } catch (MovieMeterException ex) {
             LOG.warn("Failed to get MovieMeter information for ID '{}', error: {}", moviemeterId, ex.getMessage(), ex);
             return false;
-            }
+        }
 
         movie.setId(IMDB_PLUGIN_ID, filmInfo.getImdbId());
 
-                if (OverrideTools.checkOverwriteTitle(movie, MOVIEMETER_PLUGIN_ID)) {
+        if (OverrideTools.checkOverwriteTitle(movie, MOVIEMETER_PLUGIN_ID)) {
             movie.setTitle(filmInfo.getDisplayTitle(), MOVIEMETER_PLUGIN_ID);
-                }
+        }
 
-                if (OverrideTools.checkOverwriteOriginalTitle(movie, MOVIEMETER_PLUGIN_ID)) {
+        if (OverrideTools.checkOverwriteOriginalTitle(movie, MOVIEMETER_PLUGIN_ID)) {
             movie.setOriginalTitle(filmInfo.getAlternativeTitle(), MOVIEMETER_PLUGIN_ID);
-                }
+        }
 
         if (OverrideTools.checkOverwriteYear(movie, MOVIEMETER_PLUGIN_ID)) {
             movie.setYear(Integer.toString(filmInfo.getYear()), MOVIEMETER_PLUGIN_ID);
-            }
+        }
 
         if (OverrideTools.checkOverwritePlot(movie, MOVIEMETER_PLUGIN_ID)) {
             movie.setPlot(filmInfo.getPlot(), MOVIEMETER_PLUGIN_ID);
-                }
+        }
 
         if (OverrideTools.checkOverwriteOutline(movie, MOVIEMETER_PLUGIN_ID)) {
             movie.setOutline(filmInfo.getPlot(), MOVIEMETER_PLUGIN_ID);
-                }
+        }
 
-            if (OverrideTools.checkOverwriteRuntime(movie, MOVIEMETER_PLUGIN_ID)) {
+        if (OverrideTools.checkOverwriteRuntime(movie, MOVIEMETER_PLUGIN_ID)) {
             movie.setRuntime(Integer.toString(filmInfo.getDuration()), MOVIEMETER_PLUGIN_ID);
-                    }
+        }
 
         movie.addRating(MOVIEMETER_PLUGIN_ID, (int) (filmInfo.getAverage() * 10f));
 
-            if (OverrideTools.checkOverwriteCountry(movie, MOVIEMETER_PLUGIN_ID)) {
+        if (OverrideTools.checkOverwriteCountry(movie, MOVIEMETER_PLUGIN_ID)) {
             movie.setCountries(filmInfo.getCountries(), MOVIEMETER_PLUGIN_ID);
-                }
+        }
 
-            if (OverrideTools.checkOverwriteGenres(movie, MOVIEMETER_PLUGIN_ID)) {
+        if (OverrideTools.checkOverwriteGenres(movie, MOVIEMETER_PLUGIN_ID)) {
             movie.setGenres(filmInfo.getGenres(), MOVIEMETER_PLUGIN_ID);
-                    }
+        }
 
         if (OverrideTools.checkOverwriteActors(movie, MOVIEMETER_PLUGIN_ID)) {
             for (Actor a : filmInfo.getActors()) {
                 movie.addActor(a.getName(), MOVIEMETER_PLUGIN_ID);
-                }
             }
+        }
 
         if (OverrideTools.checkOverwriteDirectors(movie, MOVIEMETER_PLUGIN_ID)) {
             for (String d : filmInfo.getDirectors()) {
                 movie.addDirector(d, MOVIEMETER_PLUGIN_ID);
-                }
             }
+        }
 
         return true;
-                }
+    }
 
     /**
      * Get the ID for the movie
@@ -153,7 +153,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
         String id = movie.getId(MOVIEMETER_PLUGIN_ID);
         if (isValidString(id) && StringUtils.isNumeric(id)) {
             return id;
-            }
+        }
 
         // Try to get the MovieMeter ID using the IMDB ID
         id = movie.getId(IMDB_PLUGIN_ID);
@@ -166,8 +166,8 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 return id;
             } catch (MovieMeterException ex) {
                 LOG.warn("Failed to get MovieMeter ID for {}: {}", movie.getBaseName(), ex.getMessage(), ex);
-                        }
-                    }
+            }
+        }
 
         // Try to get the MovieMeter ID using the title/year
         if (isNotValidString(id)) {
@@ -176,11 +176,11 @@ public class MovieMeterPlugin extends ImdbPlugin {
             // Try the original title next
             if (isNotValidString(id)) {
                 id = getMovieId(movie.getOriginalTitle(), movie.getYear());
-                }
             }
+        }
 
         return id;
-                }
+    }
 
     /**
      * Get the ID for the movie
@@ -190,18 +190,6 @@ public class MovieMeterPlugin extends ImdbPlugin {
      * @return The ID, or empty if no idea found
      */
     public String getMovieId(final String title, final String year) {
-        return MovieMeterPlugin.getMovieId(api, title, year);
-            }
-
-    /**
-     * Get the ID for the movie
-     *
-     * @param api The pre-constructed API instance to use
-     * @param title Movie title to get the ID for
-     * @param year Movie year to get the ID for
-     * @return The ID, or empty if no idea found
-     */
-    public static String getMovieId(MovieMeterApi api, final String title, final String year) {
         String id = UNKNOWN;
 
         LOG.debug("Looking for MovieMeter ID for {} ({})", title, year);
@@ -211,11 +199,11 @@ public class MovieMeterPlugin extends ImdbPlugin {
         } catch (MovieMeterException ex) {
             LOG.warn("Failed to get Movie Meter search results for {} ({}): {}", title, year, ex.getMessage(), ex);
             return id;
-                }
+        }
 
         if (results.isEmpty()) {
             return id;
-            }
+        }
 
         int fYear = NumberUtils.toInt(year, 0);
         double maxMatch = 0.0;
@@ -224,7 +212,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
             // if we have a year, check that first
             if (fYear > 0 && sr.getYear() != fYear) {
                 continue;
-        }
+            }
 
             // Check for best text similarity
             double result = StringUtils.getJaroWinklerDistance(title, sr.getTitle());
@@ -233,7 +221,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
                 maxMatch = result;
                 // Update the best result
                 id = Integer.toString(sr.getId());
-    }
+            }
         }
 
         if (isValidString(id)) {

@@ -22,6 +22,9 @@
  */
 package com.moviejukebox.tools;
 
+import org.apache.commons.lang3.StringUtils;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -40,7 +43,8 @@ public class WebBrowserTest {
         String url = "http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora";
         WebBrowser browser = new WebBrowser();
         String result = browser.request(url);
-        System.err.println(result);
+        assertNotNull("No response", result);
+        assertTrue("No text in response", StringUtils.isNotBlank(result));
     }
 
     @Test
@@ -51,6 +55,7 @@ public class WebBrowserTest {
         String url = "http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora";
         WebBrowser browser = new WebBrowser();
         String result = browser.request(url);
-        System.err.println(result);
+        assertNotNull("No response", result);
+        assertTrue("No text in response", StringUtils.isNotBlank(result));
     }
 }

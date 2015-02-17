@@ -312,7 +312,6 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
                 String comingSoonId = search.substring(urlIndex, search.indexOf('\'', urlIndex));
                 comingSoonId = getComingSoonIdFromURL(comingSoonId);
-                LOG.debug("Found ComingSoon ID: {}", comingSoonId);
 
                 String title = HTMLTools.extractTag(search, "<h3>", 0, "><", false).trim();
                 String originalTitle = HTMLTools.extractTag(search, "<h4>", 0, "><", false).trim();
@@ -370,7 +369,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             return COMINGSOON_MAX_DIFF;
         }
 
-        LOG.debug("Comparing {} and {}", searchedTitle, returnedTitle);
+        LOG.trace("Comparing {} and {}", searchedTitle, returnedTitle);
 
         String title1 = searchedTitle.toLowerCase().replaceAll("[,.\\!\\?\"']", "");
         String title2 = returnedTitle.toLowerCase().replaceAll("[,.\\!\\?\"']", "");
