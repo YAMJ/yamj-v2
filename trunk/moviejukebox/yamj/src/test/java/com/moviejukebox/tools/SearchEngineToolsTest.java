@@ -104,21 +104,6 @@ public class SearchEngineToolsTest {
     }
 
     @Test
-    public void roundTripMoviemeter() {
-        LOG.info("roundTripMoviemeter");
-        SearchEngineTools search = new SearchEngineTools("nl");
-
-        // movie
-        for (int i = 0; i < search.countSearchSites(); i++) {
-            String engine = search.getCurrentSearchEngine();
-            LOG.info("Testing {}", engine);
-            String url = search.searchMovieURL("Avatar", "2009", "www.moviemeter.nl/film");
-            assertEquals("Search engine '" + engine + "' failed", "http://www.moviemeter.nl/film/17552", url);
-        }
-        // TV shows not supported
-    }
-
-    @Test
     public void roundTripFilmweb() {
         LOG.info("roundTripFilmweb");
         SearchEngineTools search = new SearchEngineTools("pl");
