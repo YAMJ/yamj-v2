@@ -48,6 +48,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -509,7 +510,7 @@ public class WebBrowser {
      *
      * @return A CloseableHttpClient
      */
-    public static CloseableHttpClient getCloseableHttpClient() {
+    public static HttpClient getHttpClient() {
         if (httpClient == null) {
             SimpleHttpClientBuilder cb = new SimpleHttpClientBuilder();
             cb.setConnectTimeout(TIMEOUT_CONNECT);

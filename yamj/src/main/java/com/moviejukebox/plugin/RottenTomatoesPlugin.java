@@ -54,7 +54,7 @@ public class RottenTomatoesPlugin {
 
     public RottenTomatoesPlugin() {
         try {
-            rt = new RottenTomatoesApi(API_KEY, WebBrowser.getCloseableHttpClient());
+            rt = new RottenTomatoesApi(API_KEY, WebBrowser.getHttpClient());
         } catch (RottenTomatoesException ex) {
             LOG.error("Failed to get RottenTomatoes API: {}", ex.getMessage(), ex);
         }

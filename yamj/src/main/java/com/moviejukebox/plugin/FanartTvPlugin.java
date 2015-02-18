@@ -87,7 +87,7 @@ public class FanartTvPlugin {
 
     public FanartTvPlugin() {
         try {
-            this.ft = new FanartTvApi(API_KEY, null,WebBrowser.getCloseableHttpClient());
+            this.ft = new FanartTvApi(API_KEY, null,WebBrowser.getHttpClient());
         } catch (FanartTvException ex) {
             LOG.warn("Failed to initialise FanartTV API: {}", ex.getMessage(), ex);
             return;

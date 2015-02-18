@@ -58,7 +58,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
         super();
 
         try {
-            api = new MovieMeterApi(API_KEY, WebBrowser.getCloseableHttpClient());
+            api = new MovieMeterApi(API_KEY, WebBrowser.getHttpClient());
         } catch (MovieMeterException ex) {
             LOG.warn("Failed to initialise MovieMeter API: {}", ex.getMessage(), ex);
         }

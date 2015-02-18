@@ -67,7 +67,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         LOG.debug("Using '{}' as the language code", languageCode);
 
         try {
-            tmdb = new TheMovieDbApi(apiKey, WebBrowser.getCloseableHttpClient());
+            tmdb = new TheMovieDbApi(apiKey, WebBrowser.getHttpClient());
         } catch (MovieDbException ex) {
             LOG.warn("Failed to initialise TheMovieDB API.");
             LOG.warn(SystemTools.getStackTrace(ex));

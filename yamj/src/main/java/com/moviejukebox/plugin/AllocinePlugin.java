@@ -70,7 +70,7 @@ public class AllocinePlugin extends ImdbPlugin {
     public AllocinePlugin() {
         super();
         try {
-            allocineApi = new AllocineApi(API_KEY_PARTNER, API_KEY_SECRET, WebBrowser.getCloseableHttpClient());
+            allocineApi = new AllocineApi(API_KEY_PARTNER, API_KEY_SECRET, WebBrowser.getHttpClient());
             searchEngines = new SearchEngineTools("fr");
 
             preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");

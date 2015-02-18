@@ -38,7 +38,6 @@ import com.omertron.moviemeter.model.SearchResult;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +45,6 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieMeterPosterPlugin.class);
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_MovieMeter");
-    private static CloseableHttpClient httpClient;
     private static MovieMeterApi api;
 
     public MovieMeterPosterPlugin() {
@@ -58,8 +56,7 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
         }
 
         try {
-            httpClient = WebBrowser.getCloseableHttpClient();
-            api = new MovieMeterApi(API_KEY, httpClient);
+            api = new MovieMeterApi(API_KEY, WebBrowser.getHttpClient());
         } catch (MovieMeterException ex) {
             LOG.warn("Failed to initialise MovieMeter API: {}", ex.getMessage(), ex);
             return;
