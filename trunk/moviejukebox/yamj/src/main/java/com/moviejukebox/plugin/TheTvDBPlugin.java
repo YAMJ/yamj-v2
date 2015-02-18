@@ -73,7 +73,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     static {
         String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
-        TVDB = new TheTVDBApi(API_KEY, WebBrowser.getCloseableHttpClient());
+        TVDB = new TheTVDBApi(API_KEY, WebBrowser.getHttpClient());
     }
 
     public TheTvDBPlugin() {

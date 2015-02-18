@@ -64,7 +64,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             return;
         }
 
-        tvDB = new TheTVDBApi(API_KEY, WebBrowser.getCloseableHttpClient());
+        tvDB = new TheTVDBApi(API_KEY, WebBrowser.getHttpClient());
 
         language = PropertiesUtil.getProperty("thetvdb.language", DEFAULT_LANGUAGE);
         language2nd = PropertiesUtil.getProperty("thetvdb.language.secondary", DEFAULT_LANGUAGE);

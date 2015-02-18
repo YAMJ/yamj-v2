@@ -60,7 +60,7 @@ public class TVRagePlugin extends ImdbPlugin {
         super();
 
         String API_KEY = PropertiesUtil.getProperty("API_KEY_TVRage");
-        tvRage = new TVRageApi(API_KEY, WebBrowser.getCloseableHttpClient());
+        tvRage = new TVRageApi(API_KEY, WebBrowser.getHttpClient());
 
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
     }

@@ -98,7 +98,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public TheMovieDbPlugin() {
         try {
             String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
-            TMDb = new TheMovieDbApi(API_KEY, WebBrowser.getCloseableHttpClient());
+            TMDb = new TheMovieDbApi(API_KEY, WebBrowser.getHttpClient());
         } catch (MovieDbException ex) {
             LOG.warn("Failed to initialise TheMovieDB API: {}", ex.getMessage());
             return;

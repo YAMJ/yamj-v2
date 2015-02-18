@@ -54,7 +54,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
         }
 
         try {
-            subBaba = new SubBabaApi(API_KEY, WebBrowser.getCloseableHttpClient());
+            subBaba = new SubBabaApi(API_KEY, WebBrowser.getHttpClient());
         } catch (SubBabaException ex) {
             LOG.error("Failed to get SubBaba API: {}", ex.getMessage(), ex);
         }
