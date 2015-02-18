@@ -7,15 +7,6 @@
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
-    <!-- add jar dependencies -->
-    <fileSet>
-      <directory>${project.build.directory}/dependencies</directory>
-      <outputDirectory>lib</outputDirectory>
-      <excludes>
-        <exclude>jaxb-xjc-*</exclude>
-      </excludes>
-    </fileSet>
-
     <!-- add configuration files -->
     <fileSet>
       <directory>${basedir}/conf</directory>
@@ -33,7 +24,7 @@
         <include>version.txt</include>
       </includes>
     </fileSet>
- 
+
     <!-- add skins files -->
     <fileSet>
       <directory>${basedir}/skins</directory>
@@ -42,7 +33,7 @@
         <include>**/*</include>
       </includes>
     </fileSet>
-    
+
     <!-- add notices files -->
     <fileSet>
       <directory>${basedir}/notices</directory>
@@ -55,10 +46,10 @@
 
   <moduleSets>
     <moduleSet>
-  
+
       <!-- Enable access to all projects in the current multimodule build! -->
       <useAllReactorProjects>true</useAllReactorProjects>
-      
+
       <binaries>
         <!-- useStrictFiltering>true</useStrictFiltering -->
         <includeDependencies>true</includeDependencies>
