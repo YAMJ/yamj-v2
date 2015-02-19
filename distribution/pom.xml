@@ -75,6 +75,7 @@
                         <configuration>
                             <includeScope>compile</includeScope>
                             <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+                            <useBaseVersion>false</useBaseVersion>
                         </configuration>
                     </execution>
                 </executions>
