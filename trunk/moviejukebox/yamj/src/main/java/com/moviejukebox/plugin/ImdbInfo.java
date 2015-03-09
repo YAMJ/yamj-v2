@@ -306,7 +306,7 @@ public class ImdbInfo {
         }
 
         if (imdbId.startsWith(objectType.equals(OBJECT_MOVIE) ? "tt" : "nm")) {
-            LOG.debug("{]Found IMDb ID: {}", imdbId);
+            LOG.debug("Found IMDb ID: {}", imdbId);
             return imdbId;
         } else {
             return Movie.UNKNOWN;

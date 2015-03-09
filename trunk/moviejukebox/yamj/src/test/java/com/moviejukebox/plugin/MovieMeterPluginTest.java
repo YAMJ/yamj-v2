@@ -51,6 +51,7 @@ public class MovieMeterPluginTest {
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
         PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
         plugin = new MovieMeterPlugin();
+        testData.add(new TestData("Avatar", "2009", "17552"));
     }
 
     @AfterClass
@@ -59,7 +60,6 @@ public class MovieMeterPluginTest {
 
     @Before
     public void setup() {
-        testData.add(new TestData("Avatar", "2009", "17552"));
     }
 
     @After
@@ -80,7 +80,7 @@ public class MovieMeterPluginTest {
             assertTrue("Failed to scan " + td.title, plugin.scan(movie));
             if (td.id.equals("17552")) {
                 // Do the checks on Avatar
-                LOG.info("Validating {}: {} ({}) ", td.id, td.title, td.year);
+                LOG.info("Testing: {}", td.toString());
 
                 assertEquals("Wrong title", td.title, movie.getTitle());
                 assertEquals("Wrong original title", td.title, movie.getOriginalTitle());

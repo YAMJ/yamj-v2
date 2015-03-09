@@ -22,32 +22,29 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import com.moviejukebox.TestData;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import org.junit.After;
 import org.junit.AfterClass;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class SubBabaPosterPluginTest {
 
-    private SubBabaPosterPlugin posterPlugin;
-    private static final int SBID_AVATAR = 6415;
-    private static final int SBID_PRISON_BREAK = 1800;
-    private static final int SBID_GLADIATOR = 488;
-    private static final String IMDBID_AVATAR = "tt0499549";
-    private static final String IMDBID_GLADIATOR = "tt0172495";
-    private static final String TITLE_AVATAR = "Avatar";
-    private static final String TITLE_PRISON_BREAK = "Prison Break";
+    private static SubBabaPosterPlugin posterPlugin;
+    private static final TestData AVATAR = new TestData("Avatar", "2009", "6415", "tt0499549");
+    private static final TestData GLADIATOR = new TestData("Gladiator", "", "488", "tt0172495");
+    private static final TestData PRISON_BREAK = new TestData("Prison Break ", "", "1800", "");
 
     @BeforeClass
     public static void setUpClass() {
         PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "subbaba");
+        posterPlugin = new SubBabaPosterPlugin();
     }
 
     @AfterClass
@@ -56,7 +53,6 @@ public class SubBabaPosterPluginTest {
 
     @Before
     public void setUp() {
-        posterPlugin = new SubBabaPosterPlugin();
     }
 
     @After
@@ -65,19 +61,19 @@ public class SubBabaPosterPluginTest {
 
     @Test
     public void testGetIdFromMovieInfo() {
-        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo(TITLE_AVATAR, null);
-        assertEquals(String.valueOf(SBID_AVATAR), idFromMovieInfo);
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo(AVATAR.title, null);
+        assertEquals(String.valueOf(AVATAR.id), idFromMovieInfo);
     }
 
     @Test
     public void testGetIdFromMovieInfoTV() {
-        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo(TITLE_PRISON_BREAK, null, 1);
-        assertEquals(String.valueOf(SBID_PRISON_BREAK), idFromMovieInfo);
+        String idFromMovieInfo = posterPlugin.getIdFromMovieInfo(PRISON_BREAK.title, null, 1);
+        assertEquals(String.valueOf(PRISON_BREAK.id), idFromMovieInfo);
     }
 
     @Test
     public void testGetPosterUrl() {
-        IImage posterImage = posterPlugin.getPosterUrl(IMDBID_AVATAR);
+        IImage posterImage = posterPlugin.getPosterUrl(AVATAR.imdbId);
         assertEquals("http://www.sub-baba.com/site/posters/6415_avatar_mgvgzr3.jpg", posterImage.getUrl());
         assertEquals(Movie.UNKNOWN, posterImage.getSubimage());
     }
@@ -85,7 +81,7 @@ public class SubBabaPosterPluginTest {
     @Test
     public void testGetPosterUrlWithSubimage() {
         // front-back poster needs to be cut
-        IImage posterImage = posterPlugin.getPosterUrl(IMDBID_GLADIATOR);
+        IImage posterImage = posterPlugin.getPosterUrl(GLADIATOR.imdbId);
         assertEquals("http://www.sub-baba.com/site/covers/488_gladiator_dund9h7.jpg", posterImage.getUrl());
         assertEquals("0, 0, 47, 100", posterImage.getSubimage());
     }

@@ -1,7 +1,24 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *      Copyright (c) 2004-2015 YAMJ Members
+ *      http://code.google.com/p/moviejukebox/people/list
+ *
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *
+ *      The YAMJ is free software: you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation, either version 3 of the License, or
+ *      any later version.
+ *
+ *      YAMJ is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *      Web: http://code.google.com/p/moviejukebox/
+ *
  */
 package com.moviejukebox.plugin.poster;
 
@@ -75,7 +92,7 @@ public class MovieMeterPosterPluginTest {
      */
     @Test
     public void testGetPosterUrl_String() {
-        LOG.info("getPosterUrl");
+        LOG.info("getPosterUrl (ID)");
 
         for (TestData td : testData) {
             IImage result = plugin.getPosterUrl(td.id);
@@ -88,7 +105,7 @@ public class MovieMeterPosterPluginTest {
      */
     @Ignore
     public void testGetPosterUrl_String_String() {
-        LOG.info("getPosterUrl");
+        LOG.info("getPosterUrl (Title/Year)s");
 
         for (TestData td : testData) {
             IImage result = plugin.getPosterUrl(td.title, td.year);
