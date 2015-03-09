@@ -35,15 +35,17 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractMoviePosterPlugin.class);
-    protected static final String SEARCH_PRIORITY_MOVIE = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie", "").toLowerCase();
-    protected static final String SEARCH_PRIORITY_TV = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "").toLowerCase();
+    protected static String searchPriorityMovie;
+    protected static String searchPriorityTv;
 
     public AbstractMoviePosterPlugin() {
+        searchPriorityMovie = PropertiesUtil.getProperty("poster.scanner.SearchPriority.movie", "").toLowerCase();
+        searchPriorityTv = PropertiesUtil.getProperty("poster.scanner.SearchPriority.tv", "").toLowerCase();
     }
 
     @Override
     public boolean isNeeded() {
-        return SEARCH_PRIORITY_MOVIE.contains(this.getName());
+        return searchPriorityMovie.contains(this.getName());
     }
 
     @Override

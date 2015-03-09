@@ -22,6 +22,9 @@
  */
 package com.moviejukebox;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 /**
  * Simple class to store test data
  *
@@ -32,10 +35,24 @@ public class TestData {
     public String title;
     public String year;
     public String id;
+    public String imdbId;
 
     public TestData(String title, String year, String id) {
         this.title = title;
         this.year = year;
         this.id = id;
     }
+
+    public TestData(String title, String year, String id, String imdbId) {
+        this.title = title;
+        this.year = year;
+        this.id = id;
+        this.imdbId = imdbId;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+
 }
