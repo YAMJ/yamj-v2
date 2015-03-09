@@ -376,6 +376,9 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             file.setPlot(part, episode.getOverview(), THETVDB_PLUGIN_ID);
                         }
 
+                        // Add the episode ID to the file
+                        file.setId(part, THETVDB_PLUGIN_ID, episode.getId());
+
                         if (includeVideoImages) {
                             file.setVideoImageURL(part, episode.getFilename());
                         } else {
