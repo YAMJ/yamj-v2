@@ -72,6 +72,7 @@ public class MovieFile implements Comparable<MovieFile> {
     private final Map<Integer, String> firstAired = new LinkedHashMap<>();
     private final Map<Integer, String> ratings = new LinkedHashMap<>();
     private final Map<OverrideFlag, String> overrideSources = new EnumMap<>(OverrideFlag.class);
+    private final Map<Integer, Map<String, String>> idMap = new HashMap<>();
     private File file;
     private MovieFileNameDTO info;
     private final List<Attachment> attachments = new ArrayList<>();
@@ -206,6 +207,30 @@ public class MovieFile implements Comparable<MovieFile> {
         } else if (includeEpisodeRating) {
             ratings.put(part, rating);
             setOverrideSource(OverrideFlag.EPISODE_RATING, source);
+        }
+    }
+
+    public Map<String, String> getIds(int part) {
+        return idMap.get(part);
+    }
+
+    public String getId(int part, String source) {
+        Map<String, String> ids = idMap.get(part);
+        if (ids != null && !ids.isEmpty()) {
+            String id = ids.get(source);
+            return id == null ? Movie.UNKNOWN : id;
+        }
+        return Movie.UNKNOWN;
+    }
+
+    public void setId(int part, String source, String value) {
+        if (StringTools.isValidString(source) && StringTools.isValidString(value)) {
+            Map<String, String> ids = idMap.get(part);
+            if (ids == null) {
+                ids = new HashMap<>();
+            }
+            ids.put(source.toUpperCase(), value);
+            idMap.put(part, ids);
         }
     }
 

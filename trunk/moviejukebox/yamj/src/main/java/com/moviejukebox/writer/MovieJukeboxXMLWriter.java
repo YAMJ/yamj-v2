@@ -1366,8 +1366,8 @@ public class MovieJukeboxXMLWriter {
                 } else {
                     eFileItem.setAttribute("size", Long.toString(mf.getSize()));
                 }
-            } catch (DOMException error) {
-                LOG.debug("File length error for file {}", mf.getFilename());
+            } catch (DOMException ex) {
+                LOG.debug("File length error for file {}", mf.getFilename(), ex);
                 eFileItem.setAttribute("size", "0");
             }
 
@@ -1449,6 +1449,16 @@ public class MovieJukeboxXMLWriter {
                 if (includeVideoImages) {
                     DOMHelper.appendChild(doc, eFileItem, "fileImageURL", HTMLTools.encodeUrl(mf.getVideoImageURL(part)), PART, String.valueOf(part));
                     DOMHelper.appendChild(doc, eFileItem, "fileImageFile", HTMLTools.encodeUrl(mf.getVideoImageFilename(part)), PART, String.valueOf(part));
+                }
+
+                // Episode IDs
+                if (mf.getIds(part) != null && !mf.getIds(part).isEmpty()) {
+                    for (Entry<String, String> entry : mf.getIds(part).entrySet()) {
+                        childAttributes.clear();
+                        childAttributes.put(PART, Integer.toString(part));
+                        childAttributes.put(SOURCE, entry.getKey());
+                        DOMHelper.appendChild(doc, eFileItem, "fileId", entry.getValue(), childAttributes);
+                    }
                 }
             }
 

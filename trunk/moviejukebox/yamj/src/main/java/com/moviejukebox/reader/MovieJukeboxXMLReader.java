@@ -714,6 +714,20 @@ public class MovieJukeboxXMLReader {
                                 }
                             }
 
+                            // get the file IDs
+                            nlFileParts = eFile.getElementsByTagName("fileId");
+                            if (nlFileParts.getLength() > 0) {
+                                for (int looperFile = 0; looperFile < nlFileParts.getLength(); looperFile++) {
+                                    Node nFileParts = nlFileParts.item(looperFile);
+                                    if (nFileParts.getNodeType() == Node.ELEMENT_NODE) {
+                                        Element eFileParts = (Element) nFileParts;
+                                        int part = NumberUtils.toInt(eFileParts.getAttribute(PART), 1);
+                                        String source = eFileParts.getAttribute(SOURCE);
+                                        movieFile.setId(part, source, eFileParts.getTextContent());
+                                    }
+                                }
+                            }
+
                             NodeList nlAttachments = eMovie.getElementsByTagName("attachments");
                             if (nlAttachments.getLength() > 0) {
                                 nlAttachments = nlAttachments.item(0).getChildNodes();
