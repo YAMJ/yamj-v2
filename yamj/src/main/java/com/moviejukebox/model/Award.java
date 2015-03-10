@@ -48,7 +48,7 @@ public class Award {
     }
 
     public int getWon() {
-        return (wons != null && wons.isEmpty()) ? won : wons.size();
+        return (wons == null || wons.isEmpty()) ? won : wons.size();
     }
 
     public void setWon(int won) {
@@ -56,7 +56,7 @@ public class Award {
     }
 
     public int getNominated() {
-        return (nominations != null && nominations.isEmpty()) ? nominated : nominations.size();
+        return (nominations == null || nominations.isEmpty()) ? nominated : nominations.size();
     }
 
     public void setNominated(int nominated) {
