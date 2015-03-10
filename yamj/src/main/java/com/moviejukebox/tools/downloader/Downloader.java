@@ -48,8 +48,8 @@ import org.slf4j.LoggerFactory;
 public final class Downloader implements RBCWrapperDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(Downloader.class);
-    private static final String FORMAT_PERCENTAGE = "Download progress %,d Kb received, %.02f%%";
-    private static final String FORMAT_NOPER = "Download progress %,d Kb received";
+    private static final String FORMAT_PERCENTAGE = "\rDownload progress %,d Kb received, %.02f%%";
+    private static final String FORMAT_NOPER = "\rDownload progress %,d Kb received";
     private boolean showProgress = Boolean.TRUE;
     private boolean downloadOk;
     private long downloadTime;
@@ -88,7 +88,6 @@ public final class Downloader implements RBCWrapperDelegate {
             }
 
             rbc = new RBCWrapper(Channels.newChannel(connection.getInputStream()), contentLength, this);
-//            rbc = new RBCWrapper(Channels.newChannel(url.openStream()), contentLength, this);
             fos = new FileOutputStream(localPath);
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 
@@ -136,9 +135,9 @@ public final class Downloader implements RBCWrapperDelegate {
     public void rbcProgressCallback(RBCWrapper rbc, double progress) {
         if (showProgress) {
             if (progress > 0) {
-                System.out.println(String.format(FORMAT_PERCENTAGE, rbc.getKbReadSoFar(), progress));
+                System.out.print(String.format(FORMAT_PERCENTAGE, rbc.getKbReadSoFar(), progress));
             } else {
-                System.out.println(String.format(FORMAT_NOPER, rbc.getKbReadSoFar()));
+                System.out.print(String.format(FORMAT_NOPER, rbc.getKbReadSoFar()));
             }
         }
     }
