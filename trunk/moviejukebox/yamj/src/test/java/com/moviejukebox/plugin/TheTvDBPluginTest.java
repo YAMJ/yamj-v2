@@ -55,11 +55,11 @@ public class TheTvDBPluginTest {
         PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
         PropertiesUtil.setProperty("mjb.includeVideoImages", true);
         PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
+        TVDB = new TheTvDBPlugin();
     }
 
     @Before
     public void setup() {
-        TVDB = new TheTvDBPlugin();
     }
 
     /**

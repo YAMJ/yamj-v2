@@ -202,46 +202,52 @@ public class SearchEngineTools {
     }
 
     public String searchUrlOnYahoo(String title, String year, String site, String additional) {
-        LOG.debug("Searching '{}' on yahoo; site={}", title, site);
+        LOG.debug("Searching for Title: '{}', year '{}', on yahoo; site={}", title, year, site);
+        String siteSearch = site.replaceAll("/", "%2f");
 
         try {
-            StringBuilder sb = new StringBuilder("http://");
-            sb.append(yahooHost);
-            sb.append("/search?vc=");
+            StringBuilder urlSearch = new StringBuilder("http://");
+            urlSearch.append(yahooHost);
+            urlSearch.append("/search?vc=");
             if (StringUtils.isNotBlank(country)) {
-                sb.append(country);
-                sb.append("&rd=r2");
+                urlSearch.append(country);
+                urlSearch.append("&rd=r2");
             }
-            sb.append("&ei=UTF-8&p=");
-            sb.append(URLEncoder.encode(title, "UTF-8"));
+            urlSearch.append("&ei=UTF-8&p=");
+            urlSearch.append(URLEncoder.encode(title, "UTF-8"));
             if (StringTools.isValidString(year)) {
-                sb.append("+%28");
-                sb.append(year);
-                sb.append("%29");
+                urlSearch.append("+%28");
+                urlSearch.append(year);
+                urlSearch.append("%29");
             }
 
             if (StringUtils.isNotBlank(additional)) {
-                sb.append("+");
-                sb.append(URLEncoder.encode(additional, "UTF-8"));
+                urlSearch.append("+");
+                urlSearch.append(URLEncoder.encode(additional, "UTF-8"));
             }
 
-            sb.append("+site%3A");
-            sb.append(site);
+            urlSearch.append("+site%3A").append(siteSearch);
 
-            String xml = webBrowser.request(sb.toString());
+            String xml = webBrowser.request(urlSearch.toString());
 
-            String link = HTMLTools.extractTag(xml, "<span class=\"url\"", "</span>");
+            String link = HTMLTools.extractTag(xml, "<a id=\"link-", "</a>");
+
             link = HTMLTools.removeHtmlTags(link);
-            int beginIndex = link.indexOf(site + searchSuffix);
+            int beginIndex = link.indexOf(siteSearch + searchSuffix);
             if (beginIndex != -1) {
                 link = link.substring(beginIndex);
                 if (StringTools.isValidString(link)) {
-                    // Remove "/info/xxx" from the end of the URL
-                    beginIndex = link.indexOf("/info");
+                    // Remove the remainder of the text from the link
+                    beginIndex = link.indexOf("/RK=");
                     if (beginIndex > -1) {
                         link = link.substring(0, beginIndex);
                     }
-                    return "http://" + link;
+
+                    // Replace the encoded url "/"
+                    link = "http://" + link.replaceAll("%2f", "/");
+
+                    LOG.debug("Found link: {}", link);
+                    return link;
                 }
             }
         } catch (IOException error) {

@@ -43,8 +43,7 @@ import org.slf4j.LoggerFactory;
 public class ComingSoonPluginTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ComingSoonPluginTest.class);
-
-    private ComingSoonPlugin csPlugin;
+    private static ComingSoonPlugin csPlugin;
 
     @BeforeClass
     public static void configure() {
@@ -53,11 +52,11 @@ public class ComingSoonPluginTest {
         PropertiesUtil.setProperty("comingsoon.imdb.scan", "never");
         PropertiesUtil.setProperty("priority.title", "comingsoon,imdb");
         PropertiesUtil.setProperty("priority.originaltitle", "comingsoon,imdb");
+        csPlugin = new ComingSoonPlugin();
     }
 
     @Before
     public void setup() {
-        csPlugin = new ComingSoonPlugin();
     }
 
     @Test
