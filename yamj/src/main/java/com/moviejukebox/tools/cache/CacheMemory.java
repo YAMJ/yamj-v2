@@ -87,7 +87,7 @@ public final class CacheMemory {
             if (value == null) {
                 LOG.debug("Cache (Get): No object found for {}", key);
             } else {
-                LOG.debug("Cache (Get): Got object ({}) for ", value.getClass().getSimpleName(), key);
+                LOG.debug("Cache (Get): Got object ({}) for {}", value.getClass().getSimpleName(), key);
                 return value;
             }
         } else {

@@ -54,7 +54,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
     public static final String COMINGSOON_PLUGIN_ID = "comingsoon";
     public static final String COMINGSOON_NOT_PRESENT = "na";
     public static final String COMINGSOON_BASE_URL = "http://www.comingsoon.it/";
-    public static final String COMINGSOON_SEARCH_URL = "cinema/cercaFilm/?";
+    public static final String COMINGSOON_SEARCH_URL = "film/?";
     private static final String COMINGSOON_FILM_URL = "Film/Scheda/?";
     public static final String COMINGSOON_SEARCH_PARAMS = "&genere=&nat=&regia=&attore=&orderby=&orderdir=asc&page=";
     public static final String CS_TITLE_PARAM = "titolo=";
@@ -196,28 +196,28 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
             String comingSoonId = Movie.UNKNOWN;
 
-            StringBuilder sb = new StringBuilder(COMINGSOON_BASE_URL);
-            sb.append(COMINGSOON_SEARCH_URL);
-            sb.append(CS_TITLE_PARAM);
-            sb.append(URLEncoder.encode(movieName.toLowerCase(), "UTF-8"));
+            StringBuilder urlBase = new StringBuilder(COMINGSOON_BASE_URL);
+            urlBase.append(COMINGSOON_SEARCH_URL);
+            urlBase.append(CS_TITLE_PARAM);
+            urlBase.append(URLEncoder.encode(movieName.toLowerCase(), "UTF-8"));
 
-            sb.append("&").append(CS_YEAR_PARAM);
+            urlBase.append("&").append(CS_YEAR_PARAM);
             if (StringTools.isValidString(year)) {
-                sb.append(year);
+                urlBase.append(year);
             }
-            sb.append(COMINGSOON_SEARCH_PARAMS);
+            urlBase.append(COMINGSOON_SEARCH_PARAMS);
 
             int searchPage = 0;
 
             while (searchPage++ < COMINGSOON_MAX_SEARCH_PAGES) {
 
-                StringBuilder sbPage = new StringBuilder(sb);
+                StringBuilder urlPage = new StringBuilder(urlBase);
                 if (searchPage > 1) {
-                    sbPage.append("&p=").append(searchPage);
+                    urlPage.append("&p=").append(searchPage);
                 }
 
-                LOG.debug("Fetching ComingSoon search URL: {}", sbPage.toString());
-                String xml = webBrowser.request(sbPage.toString(), Charset.forName("UTF-8"));
+                LOG.debug("Fetching ComingSoon search page {}/{} - URL: {}", searchPage, COMINGSOON_MAX_SEARCH_PAGES, urlPage.toString());
+                String xml = webBrowser.request(urlPage.toString(), Charset.forName("UTF-8"));
 
                 List<String[]> movieList = parseComingSoonSearchResults(xml);
 
@@ -236,7 +236,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                                 LOG.debug("Found perfect match for: {}, {}", lTitle, lOrig);
                                 searchPage = COMINGSOON_MAX_SEARCH_PAGES; //End loop
                             } else {
-                                LOG.debug("Found a match for: {}, {], difference {}", lTitle, lOrig, difference);
+                                LOG.debug("Found a match for: {}, {}, difference {}", lTitle, lOrig, difference);
                             }
                             comingSoonId = lId;
                             currentScore = difference;
@@ -266,12 +266,18 @@ public class ComingSoonPlugin extends ImdbPlugin {
         }
     }
 
+    /**
+     * Parse the search results
+     *
+     * Search results end with "Trovati NNN Film" (found NNN movies).
+     *
+     * After this string, more movie URL are found, so we have to set a boundary
+     *
+     * @param xml
+     * @return
+     */
     private List<String[]> parseComingSoonSearchResults(String xml) {
 
-        /*
-         * Search results end with "Trovati NNN Film" (found NNN movies). After
-         * this string, more movie URL are found, so we have to set a boundary
-         */
         List<String[]> listaFilm = new ArrayList<>();
         int beginIndex = StringUtils.indexOfIgnoreCase(xml, "Trovati");
         int moviesFound = -1;
@@ -396,7 +402,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         // TITLE
         if (OverrideTools.checkOverwriteTitle(movie, COMINGSOON_PLUGIN_ID)) {
-            String title = HTMLTools.extractTag(xml, "<h1 itemprop='name'>", "</h1>").trim();
+            String title = HTMLTools.extractTag(xml, "<h1 itemprop=\"name\">", "</h1>").trim();
             if (StringTools.isNotValidString(title)) {
                 LOG.error("No title found at ComingSoon page. HTML layout has changed?");
                 return false;
@@ -406,7 +412,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         // ORIGINAL TITLE
         if (OverrideTools.checkOverwriteOriginalTitle(movie, COMINGSOON_PLUGIN_ID)) {
-            String originalTitle = HTMLTools.extractTag(xml, "<h2><em>", "</em></h2>").trim();
+            String originalTitle = HTMLTools.extractTag(xml, "<h2> Titolo originale: <em>", "</em>").trim();
             if (originalTitle.startsWith("(")) {
                 originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
             }

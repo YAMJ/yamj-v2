@@ -44,6 +44,7 @@ MovieJukebox 2.10-SNAPSHOT
  - Fixed defect #2751 Filmweb not working
  - Fixed defect #2753 IMDB People scraping broken
  - Fixed defect #2756 Update MovieMeter to use new API
+ - Fixed defect #2757 No title found at ComingSoon page
  - Enhancement  #2759 Save THETVDB episode id to XML
 
 MovieJukebox 2.9
