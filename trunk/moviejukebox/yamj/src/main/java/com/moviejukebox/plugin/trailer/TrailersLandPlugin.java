@@ -214,10 +214,14 @@ public class TrailersLandPlugin extends TrailerPlugin {
                 tr.setFoundOrder(nextIndex);
 
                 if (tr.validateLang() && tr.validateType()) {
-                    LOG.debug("Found trailer page URL {}", trailerPageUrl);
-                    trailerList.add(tr);
+                    if (trailerList.contains(tr)) {
+                        LOG.debug("Duplicate trailer page (Ignoring) - URL {}", trailerPageUrl);
+                    } else {
+                        LOG.debug("Found trailer page - URL {}", trailerPageUrl);
+                        trailerList.add(tr);
+                    }
                 } else {
-                    LOG.trace("Discarding page URL {}", trailerPageUrl);
+                    LOG.trace("Discarding page - URL {}", trailerPageUrl);
                 }
 
                 nextIndex = xml.indexOf(TL_BASE_URL + TL_TRAILER_URL, endIndex + 1);
@@ -233,7 +237,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
 
         for (int i = trailerList.size() - 1; i >= 0; i--) {
             if (remaining == 0) {
-                LOG.trace("Discarding trailer: {}", trailerList.get(i));
+                LOG.trace("Discarding trailer (not required): {}", trailerList.get(i));
                 trailerList.remove(i);
             } else {
                 TrailersLandTrailer tr = trailerList.get(i);

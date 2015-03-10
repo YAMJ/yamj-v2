@@ -28,6 +28,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -35,21 +37,22 @@ import org.junit.Test;
  */
 public class TrailersLandPluginTest {
 
-    private TrailersLandPlugin tlPlugin;
+    private static final Logger LOG = LoggerFactory.getLogger(TrailersLandPluginTest.class);
+    private static TrailersLandPlugin tlPlugin;
 
     @BeforeClass
     public static void configure() {
         PropertiesUtil.setProperty("trailers.download", false);
+        tlPlugin = new TrailersLandPlugin();
     }
 
     @Before
     public void setup() {
-        tlPlugin = new TrailersLandPlugin();
     }
 
-    @Test
-    public void testGenerate1() {
-
+//    @Test
+    public void testGenerateTitleOriginalTitle() {
+        LOG.info("testGenerateTitleOriginalTitle");
         Movie movie = new Movie();
         movie.setTitle("Paradiso Amaro", Movie.UNKNOWN);
         movie.setOriginalTitle("The Descendants", Movie.UNKNOWN);
@@ -58,10 +61,10 @@ public class TrailersLandPluginTest {
     }
 
     @Test
-    public void testGenerate2() {
-
+    public void testTitle() {
+        LOG.info("testTitle");
         Movie movie = new Movie();
-        movie.setTitle("Bar Sport", Movie.UNKNOWN);
+        movie.setTitle("Operazione U.N.C.L.E.", Movie.UNKNOWN);
 
         assertTrue(tlPlugin.generate(movie));
     }
