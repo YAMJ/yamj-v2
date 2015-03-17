@@ -174,9 +174,9 @@
     </dependencies>
 
     <scm>
-        <connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox/yamj</connection>
-        <developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox/yamj</developerConnection>
-        <url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox/yamj</url>
+        <connection>scm:git:git@github.com:YAMJ/yamj-v2/tree/master/yamj.git</connection>
+        <developerConnection>scm:git:git@github.com:YAMJ/yamj-v2/tree/master/yamj.git</developerConnection>
+        <url>scm:git:git@github.com:YAMJ/yamj-v2/tree/master/yamj.git</url>
     </scm>
 
     <build>

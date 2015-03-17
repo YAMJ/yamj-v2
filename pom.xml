@@ -21,10 +21,10 @@
         <maven>3.0.3</maven>
     </prerequisites>
 
-    <url>http://code.google.com/p/moviejukebox/</url>
+    <url>https://github.com/YAMJ/yamj-v2/</url>
     <issueManagement>
-        <system>Google Code</system>
-        <url>http://code.google.com/p/moviejukebox/issues/list</url>
+        <system>GitHub</system>
+        <url>https://github.com/YAMJ/yamj-v2/issues</url>
     </issueManagement>
     <ciManagement>
         <system>Jenkins CI</system>
@@ -41,9 +41,9 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:svn:http://moviejukebox.googlecode.com/svn/trunk/moviejukebox</connection>
-        <developerConnection>scm:svn:https://moviejukebox.googlecode.com/svn/trunk/moviejukebox</developerConnection>
-        <url>http://code.google.com/p/moviejukebox/source/browse/trunk/moviejukebox</url>
+        <connection>scm:git:git@github.com:YAMJ/yamj-v2.git</connection>
+        <developerConnection>scm:git:git@github.com:YAMJ/yamj-v2.git</developerConnection>
+        <url>scm:git:git@github.com:YAMJ/yamj-v2.git</url>
     </scm>
     <modules>
         <module>yamj</module>
