@@ -32,10 +32,12 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import com.omertron.themoviedbapi.Compare;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
-import com.omertron.themoviedbapi.model.MovieDb;
-import com.omertron.themoviedbapi.results.TmdbResultsList;
+import com.omertron.themoviedbapi.enumeration.SearchType;
+import com.omertron.themoviedbapi.model.movie.MovieInfo;
+import com.omertron.themoviedbapi.results.ResultList;
 import java.net.URL;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -76,14 +78,14 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
 
     @Override
     public String getIdFromMovieInfo(String title, String searchYear) {
-        List<MovieDb> movieList;
+        List<MovieInfo> movieList;
         try {
             int movieYear = 0;
             if (StringTools.isValidString(searchYear) && StringUtils.isNumeric(searchYear)) {
                 movieYear = Integer.parseInt(searchYear);
             }
 
-            TmdbResultsList<MovieDb> result = tmdb.searchMovie(title, movieYear, languageCode, INCLUDE_ADULT, 0);
+            ResultList<MovieInfo> result = tmdb.searchMovie(title, 0, languageCode, INCLUDE_ADULT, movieYear, 0, SearchType.PHRASE);
             movieList = result.getResults();
         } catch (MovieDbException ex) {
             LOG.warn("Failed to get TMDB ID for {} ({}) - {}", title, searchYear, ex.getMessage());
@@ -98,8 +100,8 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                 return String.valueOf(movieList.get(0).getId());
             }
 
-            for (MovieDb moviedb : movieList) {
-                if (TheMovieDbApi.compareMovies(moviedb, title, searchYear, TheMovieDbPlugin.SEARCH_MATCH)) {
+            for (MovieInfo moviedb : movieList) {
+                if (Compare.movies(moviedb, title, searchYear, TheMovieDbPlugin.SEARCH_MATCH)) {
                     return String.valueOf(moviedb.getId());
                 }
             }
@@ -118,7 +120,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
 
         if (StringUtils.isNumeric(id)) {
             try {
-                MovieDb moviedb = tmdb.getMovieInfo(Integer.parseInt(id), languageCode);
+                MovieInfo moviedb = tmdb.getMovieInfo(Integer.parseInt(id), languageCode);
                 LOG.debug("Movie found on TheMovieDB.org: http://www.themoviedb.org/movie/{}", id);
                 posterURL = tmdb.createImageUrl(moviedb.getPosterPath(), DEFAULT_POSTER_SIZE);
                 return new Image(posterURL.toString());
@@ -166,7 +168,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                 response = tmdbID;
             } else if (StringTools.isValidString(imdbID)) {
                 // Search based on IMDb ID
-                MovieDb moviedb;
+                MovieInfo moviedb;
                 try {
                     moviedb = tmdb.getMovieInfoImdb(imdbID, languageCode);
                 } catch (MovieDbException ex) {

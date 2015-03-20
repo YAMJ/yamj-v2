@@ -38,8 +38,9 @@ import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
-import com.omertron.themoviedbapi.model.MovieDb;
-import com.omertron.themoviedbapi.results.TmdbResultsList;
+import com.omertron.themoviedbapi.enumeration.SearchType;
+import com.omertron.themoviedbapi.model.movie.MovieInfo;
+import com.omertron.themoviedbapi.results.ResultList;
 import com.omertron.thetvdbapi.model.Banner;
 import com.omertron.thetvdbapi.model.BannerType;
 import com.omertron.thetvdbapi.model.Banners;
@@ -304,7 +305,7 @@ public final class FanartScanner {
         }
 
         String language = PropertiesUtil.getProperty("themoviedb.language", "en-US");
-        MovieDb moviedb = null;
+        MovieInfo moviedb = null;
 
         String imdbID = movie.getId(ImdbPlugin.IMDB_PLUGIN_ID);
         String tmdbIDstring = movie.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID);
@@ -342,10 +343,10 @@ public final class FanartScanner {
                     movieYear = Integer.parseInt(movie.getYear());
                 }
 
-                TmdbResultsList<MovieDb> result = TMDB.searchMovie(movie.getOriginalTitle(), movieYear, language, TheMovieDbPlugin.INCLUDE_ADULT, 0);
-                List<MovieDb> movieList = result.getResults();
+                ResultList<MovieInfo> result = TMDB.searchMovie(movie.getOriginalTitle(), 0, language, TheMovieDbPlugin.INCLUDE_ADULT, 0, 0, SearchType.PHRASE);
+                List<MovieInfo> movieList = result.getResults();
 
-                for (MovieDb m : movieList) {
+                for (MovieInfo m : movieList) {
                     if (m.getTitle().equals(movie.getTitle())
                             || m.getTitle().equalsIgnoreCase(movie.getOriginalTitle())
                             || m.getOriginalTitle().equalsIgnoreCase(movie.getTitle())

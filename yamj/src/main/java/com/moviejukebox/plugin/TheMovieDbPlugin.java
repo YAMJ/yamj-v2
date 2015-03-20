@@ -25,6 +25,7 @@ package com.moviejukebox.plugin;
 import com.moviejukebox.model.Comparator.FilmographyDateComparator;
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Person;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.OverrideTools;
@@ -33,21 +34,28 @@ import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.cache.CacheMemory;
+import com.omertron.themoviedbapi.Compare;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
-import com.omertron.themoviedbapi.model.Artwork;
-import com.omertron.themoviedbapi.model.Collection;
-import com.omertron.themoviedbapi.model.CollectionInfo;
+import com.omertron.themoviedbapi.enumeration.ArtworkType;
+import com.omertron.themoviedbapi.enumeration.SearchType;
 import com.omertron.themoviedbapi.model.Genre;
 import com.omertron.themoviedbapi.model.Language;
-import com.omertron.themoviedbapi.model.MovieDb;
-import com.omertron.themoviedbapi.model.Person;
-import com.omertron.themoviedbapi.model.PersonCredit;
-import com.omertron.themoviedbapi.model.PersonType;
-import com.omertron.themoviedbapi.model.ProductionCompany;
-import com.omertron.themoviedbapi.model.ProductionCountry;
-import com.omertron.themoviedbapi.model.ReleaseInfo;
-import com.omertron.themoviedbapi.results.TmdbResultsList;
+import com.omertron.themoviedbapi.model.artwork.Artwork;
+import com.omertron.themoviedbapi.model.collection.Collection;
+import com.omertron.themoviedbapi.model.collection.CollectionInfo;
+import com.omertron.themoviedbapi.model.credits.CreditMovieBasic;
+import com.omertron.themoviedbapi.model.credits.MediaCreditCast;
+import com.omertron.themoviedbapi.model.credits.MediaCreditCrew;
+import com.omertron.themoviedbapi.model.media.MediaCreditList;
+import com.omertron.themoviedbapi.model.movie.MovieInfo;
+import com.omertron.themoviedbapi.model.movie.ProductionCompany;
+import com.omertron.themoviedbapi.model.movie.ProductionCountry;
+import com.omertron.themoviedbapi.model.movie.ReleaseInfo;
+import com.omertron.themoviedbapi.model.person.PersonCreditList;
+import com.omertron.themoviedbapi.model.person.PersonFind;
+import com.omertron.themoviedbapi.model.person.PersonInfo;
+import com.omertron.themoviedbapi.results.ResultList;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,7 +85,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private static final String FANART_TOKEN = PropertiesUtil.getProperty("mjb.scanner.fanartToken", ".fanart");
     private final String fanartExtension = PropertiesUtil.getProperty("fanart.format", "jpg");
     public static final boolean INCLUDE_ADULT = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", Boolean.FALSE);
-    public static final int SEARCH_MATCH = PropertiesUtil.getIntProperty("themoviedb.searchMatch", 3);
+    public static final int SEARCH_MATCH = PropertiesUtil.getIntProperty("themoviedb.searchMatch", 5);
     private static final String LANGUAGE_DELIMITER = PropertiesUtil.getProperty("mjb.language.delimiter", Movie.SPACE_SLASH_SPACE);
     private static final boolean AUTO_COLLECTION = PropertiesUtil.getBooleanProperty("themoviedb.collection", Boolean.FALSE);
     public static final String CACHE_COLLECTION = "Collection";
@@ -97,8 +105,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
     public TheMovieDbPlugin() {
         try {
-            String API_KEY = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
-            TMDb = new TheMovieDbApi(API_KEY, WebBrowser.getHttpClient());
+            String apiKey = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
+            TMDb = new TheMovieDbApi(apiKey, WebBrowser.getHttpClient());
         } catch (MovieDbException ex) {
             LOG.warn("Failed to initialise TheMovieDB API: {}", ex.getMessage());
             return;
@@ -151,8 +159,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         String imdbID = movie.getId(IMDB_PLUGIN_ID);
         String tmdbID = movie.getId(TMDB_PLUGIN_ID);
         List<ReleaseInfo> movieReleaseInfo = new ArrayList<>();
-        List<Person> moviePeople = new ArrayList<>();
-        MovieDb moviedb = null;
+        MediaCreditList moviePeople = null;
+        MovieInfo moviedb = null;
         boolean retval = false;
 
         ThreadExecutor.enterIO(WEBHOST);
@@ -249,7 +257,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
             try {
                 // Get the cast information
-                moviePeople = TMDb.getMovieCasts(moviedb.getId()).getResults();
+                moviePeople = TMDb.getMovieCredits(moviedb.getId());
             } catch (MovieDbException ex) {
                 LOG.debug("Failed to get cast information: {}", ex.getMessage(), ex);
             }
@@ -270,35 +278,43 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
             // Set the release information
             if (!movieReleaseInfo.isEmpty() && OverrideTools.checkOverwriteCertification(movie, TMDB_PLUGIN_ID)) {
-                LOG.trace("Found release information: {}", movieReleaseInfo.get(0).toString());
-                movie.setCertification(movieReleaseInfo.get(0).getCertification(), TMDB_PLUGIN_ID);
+                // Default to the first one
+                ReleaseInfo ri = movieReleaseInfo.get(0);
+                for (ReleaseInfo release : movieReleaseInfo) {
+                    if (release.isPrimary()) {
+                        ri = release;
+                        break;
+                    }
+                }
+
+                LOG.trace("Using release information: {}", ri.toString());
+                movie.setCertification(ri.getCertification(), TMDB_PLUGIN_ID);
             }
 
             // Add the cast information
             // TODO: Add the people to the cast/crew
-            if (!moviePeople.isEmpty()) {
+            if (moviePeople != null) {
                 List<String> newActors = new ArrayList<>();
                 List<String> newDirectors = new ArrayList<>();
                 List<String> newWriters = new ArrayList<>();
 
-                LOG.debug("Adding {} people to the cast list", moviePeople.size());
-                for (Person person : moviePeople) {
-                    if (person.getPersonType() == PersonType.CAST) {
-                        LOG.trace("Adding cast member {}", person.toString());
-                        newActors.add(person.getName());
-                    } else if (person.getPersonType() == PersonType.CREW) {
-                        LOG.trace("Adding crew member {}", person.toString());
-                        if ("Directing".equalsIgnoreCase(person.getDepartment())) {
-                            LOG.trace("{} is a Director", person.getName());
-                            newDirectors.add(person.getName());
-                        } else if ("Writing".equalsIgnoreCase(person.getDepartment())) {
-                            LOG.trace("{} is a Writer", person.getName());
-                            newWriters.add(person.getName());
-                        } else {
-                            LOG.trace("Unknown job {} for {}", person.getJob(), person.toString());
-                        }
+                LOG.debug("Adding {} people to the cast list", Math.min(moviePeople.getCast().size(), actorMax));
+                for (MediaCreditCast person : moviePeople.getCast()) {
+                    LOG.trace("Adding cast member {}", person.toString());
+                    newActors.add(person.getName());
+                }
+
+                LOG.debug("Adding {} people to the crew list", Math.min(moviePeople.getCrew().size(),2));
+                for (MediaCreditCrew person : moviePeople.getCrew()) {
+                    LOG.trace("Adding crew member {}", person.toString());
+                    if ("Directing".equalsIgnoreCase(person.getDepartment())) {
+                        LOG.trace("{} is a Director", person.getName());
+                        newDirectors.add(person.getName());
+                    } else if ("Writing".equalsIgnoreCase(person.getDepartment())) {
+                        LOG.trace("{} is a Writer", person.getName());
+                        newWriters.add(person.getName());
                     } else {
-                        LOG.trace("Unknown person type {} for {}", person.getPersonType(), person.toString());
+                        LOG.trace("Unknown job {} for {}", person.getJob(), person.toString());
                     }
                 }
 
@@ -368,36 +384,37 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * @param year
      * @param searchTitle
      */
-    private MovieDb searchMovieTitle(Movie movie, int movieYear, final String searchTitle) {
+    private MovieInfo searchMovieTitle(Movie movie, int movieYear, final String searchTitle) {
         LOG.debug("{}: Using '{}' & '{}' to locate movie information", movie.getBaseName(), searchTitle, movieYear);
-        MovieDb movieDb = null;
-        TmdbResultsList<MovieDb> result;
+        MovieInfo movieDb = null;
+        ResultList<MovieInfo> result;
         try {
-            result = TMDb.searchMovie(searchTitle, movieYear, languageCode, INCLUDE_ADULT, 0);
+            result = TMDb.searchMovie(searchTitle, 0, languageCode, INCLUDE_ADULT, movieYear, null, SearchType.PHRASE);
         } catch (MovieDbException ex) {
             LOG.warn("Error scanning movie '{}': {}", movie.getTitle(), ex.getMessage(), ex);
             return movieDb;
         }
         LOG.debug("{}: Found {} potential matches", movie.getBaseName(), result.getResults().size());
 
-        List<MovieDb> movieList = result.getResults();
+        List<MovieInfo> movieList = result.getResults();
         // Are the title and original title the same (used for performance)
         boolean sameTitle = StringUtils.equalsIgnoreCase(movie.getTitle(), movie.getOriginalTitle());
 
         // Iterate over the list until we find a match
-        for (MovieDb m : movieList) {
-            String year = StringUtils.isBlank(m.getReleaseDate()) ? "UNKNOWN" : m.getReleaseDate().substring(0, 4);
-            LOG.debug("Checking {} ({})", m.getTitle(), year);
-            if (TheMovieDbApi.compareMovies(m, movie.getTitle(), String.valueOf(movieYear), SEARCH_MATCH, false)) {
+        for (MovieInfo movieInfo : movieList) {
+            String movieInfoYear = StringUtils.isBlank(movieInfo.getReleaseDate()) ? "UNKNOWN" : movieInfo.getReleaseDate().substring(0, 4);
+            LOG.debug("Checking {} ({})", movieInfo.getTitle(), movieInfoYear);
+
+            if (Compare.movies(movieInfo, movie.getTitle(), movieYear > 0 ? String.valueOf(movieYear) : "", SEARCH_MATCH, false)) {
                 LOG.debug("Matched to '{}'", movie.getTitle());
-                movieDb = m;
+                movieDb = movieInfo;
                 break;
             }
 
             // See if the original title is different and then compare it too
-            if (!sameTitle && TheMovieDbApi.compareMovies(m, movie.getOriginalTitle(), String.valueOf(movieYear), SEARCH_MATCH, false)) {
+            if (!sameTitle && Compare.movies(movieInfo, movie.getOriginalTitle(), String.valueOf(movieYear), SEARCH_MATCH, false)) {
                 LOG.debug("Matched to '{}'", movie.getOriginalTitle());
-                movieDb = m;
+                movieDb = movieInfo;
                 break;
             }
         }
@@ -411,7 +428,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * @param movie The YAMJ target
      * @return The altered movie bean
      */
-    private void copyMovieInfo(MovieDb moviedb, Movie movie) {
+    private void copyMovieInfo(MovieInfo moviedb, Movie movie) {
 
         // TMDb ID
         movie.setId(TMDB_PLUGIN_ID, moviedb.getId());
@@ -600,13 +617,13 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * @return
      */
     @Override
-    public boolean scan(com.moviejukebox.model.Person person) {
+    public boolean scan(Person person) {
         String id = getPersonId(person);
 
         if (StringTools.isValidString(id)) {
             int tmdbId = Integer.parseInt(id);
             try {
-                com.omertron.themoviedbapi.model.Person tmdbPerson = TMDb.getPersonInfo(tmdbId);
+                PersonInfo tmdbPerson = TMDb.getPersonInfo(tmdbId);
 
                 LOG.info(tmdbPerson.toString());
                 if (skipFaceless && StringUtils.isBlank(tmdbPerson.getProfilePath())) {
@@ -620,13 +637,13 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 person.setId(IMDB_PLUGIN_ID, tmdbPerson.getImdbId());
                 person.setUrl("http://www.themoviedb.org/person/" + tmdbId);
 
-                List<String> akas = tmdbPerson.getAka();
+                List<String> akas = tmdbPerson.getAlsoKnownAs();
                 if (akas != null && !akas.isEmpty()) {
                     // Set the birthname to be the first aka
                     person.setBirthName(akas.get(0));
 
                     // Add the akas
-                    for (String aka : tmdbPerson.getAka()) {
+                    for (String aka : tmdbPerson.getAlsoKnownAs()) {
                         person.addAka(aka);
                     }
                 }
@@ -640,15 +657,15 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     }
                 }
 
-                person.setBirthPlace(tmdbPerson.getBirthplace());
+                person.setBirthPlace(tmdbPerson.getPlaceOfBirth());
 
                 URL url = TMDb.createImageUrl(tmdbPerson.getProfilePath(), "original");
                 person.setPhotoURL(url.toString());
                 person.setPhotoFilename();
 
                 // Filmography
-                TmdbResultsList<PersonCredit> results = TMDb.getPersonCredits(tmdbId);
-                person.setKnownMovies(results.getTotalResults());
+                PersonCreditList<CreditMovieBasic> results = TMDb.getPersonMovieCredits(tmdbId, languageCode);
+                person.setKnownMovies(results.getCast().size() + results.getCrew().size());
 
                 int actorCount = 0;
                 int directorCount = 0;
@@ -656,46 +673,35 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
                 // Process the credits into a filmography list
                 List<Filmography> filmList = new ArrayList<>();
-                // TODO: Need to sort this list
-//                List<PersonCredit> creditList = results.getResults();
-                for (PersonCredit credit : results.getResults()) {
-                    LOG.debug("Credit job: {} = '{}' - {} ({})", credit.getPersonType(), credit.getJob(), credit.getMovieTitle(), credit.getReleaseDate());
 
-                    if (credit.getPersonType() == PersonType.CAST
-                            && jobsInclude.contains("Actor")
-                            && (++actorCount > actorMax)) {
-                        // Skip this record as no more are needed
-                        LOG.debug("Skipping ACTOR '{}' (max reached)", person.getName());
-                        continue;
+                // Process the cast
+                if (jobsInclude.contains("Actor")) {
+                    for (CreditMovieBasic credit : results.getCast()) {
+                        if (++actorCount > actorMax) {
+                            // Over the limit, so stop
+                            break;
+                        }
+                        LOG.debug("Credit job: {} = '{}' - {} ({})", credit.getCreditType(), credit.getJob(), credit.getTitle(), credit.getReleaseDate());
+                        filmList.add(convertMovieCredit(credit));
                     }
+                }
 
-                    if (credit.getPersonType() == PersonType.CREW
-                            && jobsInclude.contains("Director")
-                            && (++directorCount > directorMax)) {
+                // Process the crew
+                for (CreditMovieBasic credit : results.getCrew()) {
+                    if (jobsInclude.contains("Director") && (++directorCount > directorMax)) {
                         // Skip this record as no more are needed
                         LOG.debug("Skipping DIRECTOR '{}' (max reached)", person.getName());
                         continue;
                     }
 
-                    if (credit.getPersonType() == PersonType.CREW
-                            && jobsInclude.contains("Writer")
-                            && (++writerCount > writerMax)) {
+                    if (jobsInclude.contains("Writer") && (++writerCount > writerMax)) {
                         // Skip this record as no more are needed
                         LOG.debug("Skipping WRITER '{}' (max reached)", person.getName());
                         continue;
                     }
 
-                    Filmography film = new Filmography();
-                    film.setId(TMDB_PLUGIN_ID, Integer.toString(credit.getMovieId()));
-                    film.setName(credit.getMovieTitle());
-                    film.setOriginalTitle(credit.getMovieOriginalTitle());
-                    film.setYear(credit.getReleaseDate());
-                    film.setJob(credit.getJob());
-                    film.setCharacter(credit.getCharacter());
-                    film.setDepartment(credit.getDepartment());
-                    film.setUrl("www.themoviedb.org/movie/" + tmdbId);
-
-                    filmList.add(film);
+                    LOG.debug("Credit job: {} = '{}' - {} ({})", credit.getCreditType(), credit.getJob(), credit.getTitle(), credit.getReleaseDate());
+                    filmList.add(convertMovieCredit(credit));
                 }
 
                 LOG.debug("Actors found   : {}, max: {}", actorCount, actorMax);
@@ -724,6 +730,19 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         } else {
             return Boolean.FALSE;
         }
+    }
+
+    private Filmography convertMovieCredit(CreditMovieBasic credit) {
+        Filmography film = new Filmography();
+        film.setId(TMDB_PLUGIN_ID, Integer.toString(credit.getId()));
+        film.setName(credit.getTitle());
+        film.setOriginalTitle(credit.getOriginalTitle());
+        film.setYear(credit.getReleaseDate());
+        film.setJob(credit.getJob());
+        film.setCharacter(credit.getCharacter());
+        film.setDepartment(credit.getDepartment());
+        film.setUrl("www.themoviedb.org/movie/" + credit.getId());
+        return film;
     }
 
     /**
@@ -755,15 +774,15 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      */
     public String getPersonId(String name) {
         String tmdbId = "";
-        com.omertron.themoviedbapi.model.Person closestPerson = null;
+        PersonFind closestPerson = null;
         int closestMatch = Integer.MAX_VALUE;
         boolean foundPerson = Boolean.FALSE;
         boolean includeAdult = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", Boolean.FALSE);
 
         try {
-            TmdbResultsList<com.omertron.themoviedbapi.model.Person> results = TMDb.searchPeople(name, includeAdult, 0);
+            ResultList<PersonFind> results = TMDb.searchPeople(name, 0, includeAdult, SearchType.PHRASE);
             LOG.info("Found {} person results for {}", results.getResults().size(), name);
-            for (com.omertron.themoviedbapi.model.Person person : results.getResults()) {
+            for (PersonFind person : results.getResults()) {
                 if (name.equalsIgnoreCase(person.getName())) {
                     tmdbId = String.valueOf(person.getId());
                     foundPerson = Boolean.TRUE;
@@ -866,7 +885,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * @return
      */
     public String getCollectionPoster(int collectionId, String languageCode) {
-        return getCollectionImage(collectionId, com.omertron.themoviedbapi.model.ArtworkType.POSTER, languageCode);
+        return getCollectionImage(collectionId, ArtworkType.POSTER, languageCode);
     }
 
     /**
@@ -887,7 +906,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * @return
      */
     public String getCollectionFanart(int collectionId, String languageCode) {
-        return getCollectionImage(collectionId, com.omertron.themoviedbapi.model.ArtworkType.BACKDROP, languageCode);
+        return getCollectionImage(collectionId, ArtworkType.BACKDROP, languageCode);
     }
 
     /**
@@ -898,7 +917,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * @param languageCode
      * @return
      */
-    private String getCollectionImage(int collectionId, com.omertron.themoviedbapi.model.ArtworkType artworkType, String languageCode) {
+    private String getCollectionImage(int collectionId, ArtworkType artworkType, String languageCode) {
         String returnUrl = Movie.UNKNOWN;
         String cacheKey = getCollectionImagesCacheKey(collectionId, languageCode);
 
@@ -911,7 +930,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             ThreadExecutor.enterIO(WEBHOST);
             try {
                 // Pass the language as null so that we get all images returned, even those without a language.
-                TmdbResultsList<Artwork> collResults = TMDb.getCollectionImages(collectionId, null);
+                ResultList<Artwork> collResults = TMDb.getCollectionImages(collectionId, null);
 
                 if (collResults != null && collResults.getResults() != null && !collResults.getResults().isEmpty()) {
                     results = new ArrayList<>(collResults.getResults());
