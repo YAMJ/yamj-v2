@@ -23,15 +23,17 @@
 
     <description>Distribution module for YAMJ</description>
     <url>http://code.google.com/p/moviejukebox/</url>
-    <issueManagement>
-    </issueManagement>
-    <ciManagement>
-    </ciManagement>
     <scm>
         <connection>scm:git:git@github.com:YAMJ/yamj-v2/tree/master/distribution.git</connection>
         <developerConnection>scm:git:git@github.com:YAMJ/yamj-v2/tree/master/distribution.git</developerConnection>
         <url>scm:git:git@github.com:YAMJ/yamj-v2/tree/master/distribution.git</url>
     </scm>
+
+    <properties>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyy-MM-dd-HHmm</maven.build.timestamp.format>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -43,16 +45,18 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <target>
-                                <property name="version_file" value="${project.build.directory}/version.txt" />
-                                <property name="header_line" value="Yet Another Movie Jukebox${line.separator}" />
-                                <property name="build_date_line" value="Build Date: ${timestamp}${line.separator}" />
-                                <property name="version_line" value="Version: ${project.version}${line.separator}" />
-                                <property name="revision_line" value="Git SHA-1: r${buildNumber}${line.separator}" />
+                                <property name="version_file"    value="${project.build.directory}/version.txt" />
+                                <property name="header_line"     value="Yet Another Movie Jukebox${line.separator}" />
+                                <property name="version_line"    value="Version      : ${project.version}${line.separator}" />
+                                <property name="revision_line"   value="Revision SHA : ${git.commit.id}${line.separator}" />
+                                <property name="rev_date_line"   value="Revision Date: ${git.commit.time}${line.separator}" />
+                                <property name="build_date_line" value="Build Date   : ${git.build.time}${line.separator}" />
                                 <echo>Writing version file: ${version_file}</echo>
                                 <echo file="${version_file}" append="false">${header_line}</echo>
-                                <echo file="${version_file}" append="true">${build_date_line}</echo>
                                 <echo file="${version_file}" append="true">${version_line}</echo>
                                 <echo file="${version_file}" append="true">${revision_line}</echo>
+                                <echo file="${version_file}" append="true">${rev_date_line}</echo>
+                                <echo file="${version_file}" append="true">${build_date_line}</echo>
                             </target>
                         </configuration>
                         <goals>
@@ -101,6 +105,6 @@
             </plugin>
 
         </plugins>
-        <finalName>yamj-${project.version}-r${buildNumber}</finalName>
+        <finalName>yamj-${project.version}-${timestamp}-${git.commit.id.abbrev}</finalName>
     </build>
 </project>

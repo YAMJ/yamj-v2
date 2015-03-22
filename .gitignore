@@ -13,3 +13,4 @@ hs_err_pid*
 
 /yamj/target/
 /distribution/target/
+yamj/src/main/resources/git.properties
