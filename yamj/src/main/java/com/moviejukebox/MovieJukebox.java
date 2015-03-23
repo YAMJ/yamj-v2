@@ -68,6 +68,7 @@ import com.moviejukebox.scanner.artwork.VideoImageScanner;
 import com.moviejukebox.tools.FileLocationChange;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.FilteringLayout;
+import com.moviejukebox.tools.GitRepositoryState;
 import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.JukeboxProperties;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -186,8 +187,7 @@ public class MovieJukebox {
     private static final Collection<String> PHOTO_EXTENSIONS = new ArrayList<>();
     // These are pulled from the Manifest.MF file that is created by the build script
     private static final String MJB_VERSION = SystemTools.getVersion();
-    private static final String MJB_REVISION = SystemTools.getRevision();
-    private static final String MJB_BUILD_DATE = SystemTools.getBuildDate();
+    private static GitRepositoryState GIT;
     private static boolean trailersScannerEnable;
     private static int maxThreadsProcess = 1;
     private static int maxThreadsDownload = 1;
@@ -206,22 +206,25 @@ public class MovieJukebox {
         System.setProperty("file.name", LOG_FILENAME);
         PropertyConfigurator.configure("properties/log4j.properties");
 
+        GIT = new GitRepositoryState();
+
         LOG.info("Yet Another Movie Jukebox {}", MJB_VERSION);
         LOG.info("~~~ ~~~~~~~ ~~~~~ ~~~~~~~ {}", StringUtils.repeat("~", MJB_VERSION.length()));
-        LOG.info("http://code.google.com/p/moviejukebox/");
+        LOG.info("https://github.com/YAMJ/yamj-v2");
         LOG.info("Copyright (c) 2004-2015 YAMJ Members");
         LOG.info("");
         LOG.info("This software is licensed under the GNU General Public License v3+");
-        LOG.info("See this page: http://code.google.com/p/moviejukebox/wiki/License");
+        LOG.info("See this page: https://github.com/YAMJ/yamj-v2/wiki/License");
         LOG.info("");
 
         // Print the revision information if it was populated
-        if ("0000".equals(MJB_REVISION)) {
+        if ("0000".equals(GIT.getCommitId())) {
             LOG.info("     Revision: *Custom Build*");
         } else {
-            LOG.info("     Revision: r{}", MJB_REVISION);
+            LOG.info(" Revision SHA: {}", GIT.getCommitId());
         }
-        LOG.info("   Build Date: {}", MJB_BUILD_DATE);
+        LOG.info("  Commit Date: {}", GIT.getCommitTime());
+        LOG.info("   Build Date: {}", GIT.getBuildTime());
         LOG.info("");
 
         LOG.info(" Java Version: {}", java.lang.System.getProperties().getProperty("java.version"));

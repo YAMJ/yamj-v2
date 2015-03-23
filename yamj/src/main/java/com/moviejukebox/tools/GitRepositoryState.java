@@ -22,8 +22,13 @@
  */
 package com.moviejukebox.tools;
 
+import static com.moviejukebox.model.Movie.UNKNOWN;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -34,21 +39,21 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  */
 public class GitRepositoryState {
 
-    private final String branch;                  // =${git.branch}
-    private final String dirty;                   // =${git.dirty}
-    private final String tags;                    // =${git.tags} // comma separated tag names
-    private final String describe;                // =${git.commit.id.describe}
-    private final String describeShort;           // =${git.commit.id.describe-short}
-    private final String commitId;                // =${git.commit.id}
-    private final String commitIdAbbrev;          // =${git.commit.id.abbrev}
-    private final String buildUserName;           // =${git.build.user.name}
-    private final String buildUserEmail;          // =${git.build.user.email}
-    private final String buildTime;               // =${git.build.time}
-    private final String commitUserName;          // =${git.commit.user.name}
-    private final String commitUserEmail;         // =${git.commit.user.email}
-    private final String commitMessageFull;       // =${git.commit.message.full}
-    private final String commitMessageShort;      // =${git.commit.message.short}
-    private final String commitTime;              // =${git.commit.time}
+    private String branch = UNKNOWN;                  // =${git.branch}
+    private Boolean dirty = null;                     // =${git.dirty}
+    private List<String> tags = null;                 // =${git.tags} // comma separated tag names
+    private String describe = UNKNOWN;                // =${git.commit.id.describe}
+    private String describeShort = UNKNOWN;           // =${git.commit.id.describe-short}
+    private String commitId = UNKNOWN;                // =${git.commit.id}
+    private String commitIdAbbrev = UNKNOWN;          // =${git.commit.id.abbrev}
+    private String buildUserName = UNKNOWN;           // =${git.build.user.name}
+    private String buildUserEmail = UNKNOWN;          // =${git.build.user.email}
+    private String buildTime = UNKNOWN;               // =${git.build.time}
+    private String commitUserName = UNKNOWN;          // =${git.commit.user.name}
+    private String commitUserEmail = UNKNOWN;         // =${git.commit.user.email}
+    private String commitMessageFull = UNKNOWN;       // =${git.commit.message.full}
+    private String commitMessageShort = UNKNOWN;      // =${git.commit.message.short}
+    private String commitTime = UNKNOWN;              // =${git.commit.time}
 
     /**
      * Git Repository State
@@ -60,8 +65,8 @@ public class GitRepositoryState {
         properties.load(getClass().getClassLoader().getResourceAsStream("git.properties"));
 
         this.branch = properties.get("git.branch").toString();
-        this.dirty = properties.get("git.dirty").toString();
-        this.tags = properties.get("git.tags").toString();
+        this.dirty = asBoolean(properties.get("git.dirty").toString());
+        this.tags = asList(properties.get("git.tags").toString());
         this.describe = properties.get("git.commit.id.describe").toString();
         this.describeShort = properties.get("git.commit.id.describe-short").toString();
         this.commitId = properties.get("git.commit.id").toString();
@@ -74,6 +79,21 @@ public class GitRepositoryState {
         this.commitMessageShort = properties.get("git.commit.message.short").toString();
         this.commitMessageFull = properties.get("git.commit.message.full").toString();
         this.commitTime = properties.get("git.commit.time").toString();
+    }
+
+    private Boolean asBoolean(final String valueToConvert) {
+        if (StringUtils.isNotBlank(valueToConvert)) {
+            return Boolean.parseBoolean(StringUtils.trimToEmpty(valueToConvert));
+        }
+        return null;
+    }
+
+    private List<String> asList(final String valueToConvert) {
+        if (StringUtils.isNotBlank(valueToConvert)) {
+            return new ArrayList<>(Arrays.asList(valueToConvert.split(",")));
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     /**
@@ -90,7 +110,7 @@ public class GitRepositoryState {
      *
      * @return
      */
-    public String getDirty() {
+    public Boolean getDirty() {
         return dirty;
     }
 
@@ -99,7 +119,7 @@ public class GitRepositoryState {
      *
      * @return
      */
-    public String getTags() {
+    public List<String> getTags() {
         return tags;
     }
 

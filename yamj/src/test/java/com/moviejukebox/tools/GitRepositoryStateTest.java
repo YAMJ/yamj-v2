@@ -22,14 +22,15 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.model.Movie;
 import java.io.IOException;
-import org.apache.commons.lang3.StringUtils;
+import java.util.List;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -72,7 +73,7 @@ public class GitRepositoryStateTest {
     public void testGetBranch() throws IOException {
         System.out.println("getBranch");
         String result = instance.getBranch();
-        assertTrue(StringUtils.isNotBlank(result));
+        assertNotEquals(Movie.UNKNOWN, result);
     }
 
     /**
@@ -83,8 +84,8 @@ public class GitRepositoryStateTest {
     @Test
     public void testGetDirty() throws IOException {
         System.out.println("getDirty");
-        String result = instance.getDirty();
-        assertTrue(StringUtils.isNotBlank(result));
+        Boolean result = instance.getDirty();
+        assertNotNull(result);
     }
 
     /**
@@ -95,8 +96,8 @@ public class GitRepositoryStateTest {
     @Test
     public void testGetTags() throws IOException {
         System.out.println("getTags");
-        String result = instance.getTags();
-        assertNotNull(result);
+        List<String> result = instance.getTags();
+        assertNotEquals(Movie.UNKNOWN, result);
     }
 
     /**
@@ -108,7 +109,7 @@ public class GitRepositoryStateTest {
     public void testGetDescribe() throws IOException {
         System.out.println("getDescribe");
         String result = instance.getDescribe();
-        assertTrue(StringUtils.isNotBlank(result));
+        assertNotEquals(Movie.UNKNOWN, result);
     }
 
     /**
@@ -120,7 +121,7 @@ public class GitRepositoryStateTest {
     public void testGetDescribeShort() throws IOException {
         System.out.println("getDescribeShort");
         String result = instance.getDescribeShort();
-        assertTrue(StringUtils.isNotBlank(result));
+        assertNotEquals(Movie.UNKNOWN, result);
     }
 
     /**
@@ -132,7 +133,7 @@ public class GitRepositoryStateTest {
     public void testGetCommitId() throws IOException {
         System.out.println("getCommitId");
         String result = instance.getCommitId();
-        assertTrue(StringUtils.isNotBlank(result));
+        assertNotEquals(Movie.UNKNOWN, result);
     }
 
     /**
@@ -144,7 +145,7 @@ public class GitRepositoryStateTest {
     public void testGetCommitIdAbbrev() throws IOException {
         System.out.println("getCommitIdAbbrev");
         String result = instance.getCommitIdAbbrev();
-        assertTrue(StringUtils.isNotBlank(result));
+        assertNotEquals(Movie.UNKNOWN, result);
     }
 
     /**
@@ -156,7 +157,7 @@ public class GitRepositoryStateTest {
     public void testGetBuildUserName() throws IOException {
         System.out.println("getBuildUserName");
         String result = instance.getBuildUserName();
-        assertTrue(StringUtils.isNotBlank(result));
+        assertNotEquals(Movie.UNKNOWN, result);
     }
 
     /**
@@ -168,7 +169,7 @@ public class GitRepositoryStateTest {
     public void testGetBuildUserEmail() throws IOException {
         System.out.println("getBuildUserEmail");
         String result = instance.getBuildUserEmail();
-        assertTrue(StringUtils.isNotBlank(result));
+        assertNotEquals(Movie.UNKNOWN, result);
     }
 
     /**
@@ -180,7 +181,7 @@ public class GitRepositoryStateTest {
     public void testGetBuildTime() throws IOException {
         System.out.println("getBuildTime");
         String result = instance.getBuildTime();
-        assertTrue(StringUtils.isNotBlank(result));
+        assertNotEquals(Movie.UNKNOWN, result);
     }
 
     /**
@@ -192,7 +193,7 @@ public class GitRepositoryStateTest {
     public void testGetCommitUserName() throws IOException {
         System.out.println("getCommitUserName");
         String result = instance.getCommitUserName();
-        assertTrue(StringUtils.isNotBlank(result));
+        assertNotEquals(Movie.UNKNOWN, result);
     }
 
     /**
@@ -204,7 +205,7 @@ public class GitRepositoryStateTest {
     public void testGetCommitUserEmail() throws IOException {
         System.out.println("getCommitUserEmail");
         String result = instance.getCommitUserEmail();
-        assertTrue(StringUtils.isNotBlank(result));
+        assertNotEquals(Movie.UNKNOWN, result);
     }
 
     /**
@@ -216,7 +217,7 @@ public class GitRepositoryStateTest {
     public void testGetCommitMessageFull() throws IOException {
         System.out.println("getCommitMessageFull");
         String result = instance.getCommitMessageFull();
-        assertTrue(StringUtils.isNotBlank(result));
+        assertNotEquals(Movie.UNKNOWN, result);
     }
 
     /**
@@ -228,7 +229,7 @@ public class GitRepositoryStateTest {
     public void testGetCommitMessageShort() throws IOException {
         System.out.println("getCommitMessageShort");
         String result = instance.getCommitMessageShort();
-        assertTrue(StringUtils.isNotBlank(result));
+        assertNotEquals(Movie.UNKNOWN, result);
     }
 
     /**
@@ -240,7 +241,7 @@ public class GitRepositoryStateTest {
     public void testGetCommitTime() throws IOException {
         System.out.println("getCommitTime");
         String result = instance.getCommitTime();
-        assertTrue(StringUtils.isNotBlank(result));
+        assertNotEquals(Movie.UNKNOWN, result);
     }
 
 }
