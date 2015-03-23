@@ -51,18 +51,25 @@ public class MyClass {
 }
 
 ----- License Code (Put at the top of each file -----
-/*
- *      Copyright (c) 2004-2012 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list
+/*     Copyright (c) 2004-2015 YAMJ Members
+ *     https://github.com/orgs/YAMJ/people
  *
- *      Web: http://code.google.com/p/moviejukebox/
+ *     This file is part of the Yet Another Media Jukebox (YAMJ).
  *
- *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
+ *     The YAMJ is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     any later version.
  *
- *      For any reuse or distribution, you must make clear to others the
- *      license terms of this work.
- */
+ *     YAMJ is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */    Web: https://github.com/YAMJ/yamj-v2
 
 ----- Eclipse Integration -----
 Use the m2eclipse plugin to manage the project under eclipse.
