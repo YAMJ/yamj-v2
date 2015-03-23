@@ -1,6 +1,6 @@
 /*
  *      Copyright (c) 2004-2015 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list
+ *      https://github.com/orgs/YAMJ/people
  *
  *      This file is part of the Yet Another Movie Jukebox (YAMJ).
  *
@@ -17,7 +17,7 @@
  *      You should have received a copy of the GNU General Public License
  *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
- *      Web: http://code.google.com/p/moviejukebox/
+ *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
 package com.moviejukebox.plugin;
@@ -97,7 +97,7 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  */
 public class AniDbPlugin implements MovieDatabasePlugin {
-    // Issue 258: http://code.google.com/p/moviejukebox/issues/detail?id=258
+    // Issue 258: https://github.com/YAMJ/yamj-v2issues/detail?id=258
     // API Documentation: http://grizzlyxp.bplaced.net/projects/javaanidbapi/index.html
     // AniDb Documentation: http://wiki.anidb.info/w/UDP_API_Definition
 

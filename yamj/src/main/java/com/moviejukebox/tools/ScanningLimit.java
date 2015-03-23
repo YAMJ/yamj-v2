@@ -1,11 +1,11 @@
 /*
  *      Copyright (c) 2004-2015 YAMJ Members
- *      http://code.google.com/p/moviejukebox/people/list
+ *      https://github.com/orgs/YAMJ/people
  *
- *      Web: http://code.google.com/p/moviejukebox/
+ *      Web: https://github.com/YAMJ/yamj-v2
  *
  *      This software is licensed under a Creative Commons License
- *      See this page: http://code.google.com/p/moviejukebox/wiki/License
+ *      See this page: https://github.com/YAMJ/yamj-v2wiki/License
  *
  *      For any reuse or distribution, you must make clear to others the
  *      license terms of this work.
