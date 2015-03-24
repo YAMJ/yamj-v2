@@ -52,7 +52,7 @@
                                 <property name="revision_line"   value="Revision SHA : ${git.commit.id}${line.separator}" />
                                 <property name="rev_date_line"   value="Revision Date: ${git.commit.time}${line.separator}" />
                                 <property name="build_date_line" value="Build Date   : ${git.build.time}${line.separator}" />
-                                <property name="artifact_line"   value="Artifact Name: yamj-${project.version}-${timestamp}-${git.commit.id.abbrev}.zip${line.separator}" />
+                                <property name="artifact_line"   value="Artifact Name: yamj-${project.version}-${timestamp}-${git.commit.id.abbrev}-bin.zip${line.separator}" />
                                 <echo>Writing version file: ${version_file}</echo>
                                 <echo file="${version_file}" append="false">${header_line}</echo>
                                 <echo file="${version_file}" append="true">${version_line}</echo>
