@@ -309,7 +309,7 @@
                 <artifactId>git-commit-id-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>validate</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>revision</goal>
                         </goals>

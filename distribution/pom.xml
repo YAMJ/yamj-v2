@@ -36,6 +36,7 @@
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -51,12 +52,14 @@
                                 <property name="revision_line"   value="Revision SHA : ${git.commit.id}${line.separator}" />
                                 <property name="rev_date_line"   value="Revision Date: ${git.commit.time}${line.separator}" />
                                 <property name="build_date_line" value="Build Date   : ${git.build.time}${line.separator}" />
+                                <property name="artifact_line"   value="Artifact Name: yamj-${project.version}-${timestamp}-${git.commit.id.abbrev}.zip${line.separator}" />
                                 <echo>Writing version file: ${version_file}</echo>
                                 <echo file="${version_file}" append="false">${header_line}</echo>
                                 <echo file="${version_file}" append="true">${version_line}</echo>
                                 <echo file="${version_file}" append="true">${revision_line}</echo>
                                 <echo file="${version_file}" append="true">${rev_date_line}</echo>
                                 <echo file="${version_file}" append="true">${build_date_line}</echo>
+                                <echo file="${version_file}" append="true">${artifact_line}</echo>
                             </target>
                         </configuration>
                         <goals>
