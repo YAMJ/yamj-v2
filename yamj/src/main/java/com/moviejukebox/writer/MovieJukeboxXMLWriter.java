@@ -49,6 +49,7 @@ import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.DOMHelper;
 import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.GitRepositoryState;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
@@ -92,10 +93,12 @@ import org.w3c.dom.Element;
 public class MovieJukeboxXMLWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieJukeboxXMLWriter.class);
+    private static final GitRepositoryState GIT = new GitRepositoryState();
     // Literals
     public static final String EXT_XML = ".xml";
     public static final String EXT_HTML = ".html";
-    public static final String EV_FILE_SUFFIX = "_small";   // String to append to the eversion categories file if needed
+    // String to append to the eversion categories file if needed
+    public static final String EV_FILE_SUFFIX = "_small";
     public static final String WON = "won";
     public static final String MOVIE = "movie";
     public static final String MOVIEDB = "moviedb";
@@ -937,8 +940,7 @@ public class MovieJukeboxXMLWriter {
     /**
      * Write the element with the indexed attribute.
      *
-     * If there is a non-null value in the indexValue, this will be appended to
-     * the element.
+     * If there is a non-null value in the indexValue, this will be appended to the element.
      *
      * @param doc
      * @param parentElement
@@ -1007,7 +1009,9 @@ public class MovieJukeboxXMLWriter {
         }
 
         DOMHelper.appendChild(doc, eMovie, "mjbVersion", SystemTools.getVersion());
-        DOMHelper.appendChild(doc, eMovie, "mjbRevision", SystemTools.getRevision());
+        // Force the old revision to be populated for Eversion
+        DOMHelper.appendChild(doc, eMovie, "mjbRevision", "9999", "obsolete", "Used for Eversion");
+        DOMHelper.appendChild(doc, eMovie, "mjbGitSHA", GIT.getCommitId());
         DOMHelper.appendChild(doc, eMovie, "xmlGenerationDate", DateTimeTools.convertDateToString(new Date(), DateTimeTools.getDateFormatLongString()));
         DOMHelper.appendChild(doc, eMovie, "baseFilenameBase", movie.getBaseFilename());
         DOMHelper.appendChild(doc, eMovie, BASE_FILENAME, movie.getBaseName());
@@ -1549,9 +1553,8 @@ public class MovieJukeboxXMLWriter {
     /**
      * Persist a movie into an XML file.
      *
-     * Doesn't overwrite an already existing XML file for the specified movie
-     * unless, movie's data has changed (INFO, RECHECK, WATCHED) or
-     * forceXMLOverwrite is true.
+     * Doesn't overwrite an already existing XML file for the specified movie unless, movie's data has changed (INFO, RECHECK,
+     * WATCHED) or forceXMLOverwrite is true.
      *
      * @param jukebox
      * @param movie

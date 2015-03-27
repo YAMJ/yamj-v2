@@ -187,7 +187,7 @@ public class MovieJukebox {
     private static final Collection<String> PHOTO_EXTENSIONS = new ArrayList<>();
     // These are pulled from the Manifest.MF file that is created by the build script
     private static final String MJB_VERSION = SystemTools.getVersion();
-    private static GitRepositoryState GIT;
+    private static final GitRepositoryState GIT = new GitRepositoryState();
     private static boolean trailersScannerEnable;
     private static int maxThreadsProcess = 1;
     private static int maxThreadsDownload = 1;
@@ -205,8 +205,6 @@ public class MovieJukebox {
         // Create the log file name here, so we can change it later (because it's locked
         System.setProperty("file.name", LOG_FILENAME);
         PropertyConfigurator.configure("properties/log4j.properties");
-
-        GIT = new GitRepositoryState();
 
         LOG.info("Yet Another Movie Jukebox {}", MJB_VERSION);
         LOG.info("~~~ ~~~~~~~ ~~~~~ ~~~~~~~ {}", StringUtils.repeat("~", MJB_VERSION.length()));

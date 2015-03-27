@@ -31,6 +31,8 @@ import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Get the Git Repository State information from the maven-git-commit-id plugin
@@ -38,6 +40,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Stuart
  */
 public class GitRepositoryState {
+
+    private static final Logger LOG = LoggerFactory.getLogger(GitRepositoryState.class);
 
     private String branch = UNKNOWN;                  // =${git.branch}
     private Boolean dirty = null;                     // =${git.dirty}
@@ -58,27 +62,30 @@ public class GitRepositoryState {
     /**
      * Git Repository State
      *
-     * @throws IOException
      */
-    public GitRepositoryState() throws IOException {
+    public GitRepositoryState() {
         Properties properties = new Properties();
-        properties.load(getClass().getClassLoader().getResourceAsStream("git.properties"));
+        try {
+            properties.load(getClass().getClassLoader().getResourceAsStream("git.properties"));
 
-        this.branch = properties.get("git.branch").toString();
-        this.dirty = asBoolean(properties.get("git.dirty").toString());
-        this.tags = asList(properties.get("git.tags").toString());
-        this.describe = properties.get("git.commit.id.describe").toString();
-        this.describeShort = properties.get("git.commit.id.describe-short").toString();
-        this.commitId = properties.get("git.commit.id").toString();
-        this.commitIdAbbrev = properties.get("git.commit.id.abbrev").toString();
-        this.buildUserName = properties.get("git.build.user.name").toString();
-        this.buildUserEmail = properties.get("git.build.user.email").toString();
-        this.buildTime = properties.get("git.build.time").toString();
-        this.commitUserName = properties.get("git.commit.user.name").toString();
-        this.commitUserEmail = properties.get("git.commit.user.email").toString();
-        this.commitMessageShort = properties.get("git.commit.message.short").toString();
-        this.commitMessageFull = properties.get("git.commit.message.full").toString();
-        this.commitTime = properties.get("git.commit.time").toString();
+            this.branch = properties.get("git.branch").toString();
+            this.dirty = asBoolean(properties.get("git.dirty").toString());
+            this.tags = asList(properties.get("git.tags").toString());
+            this.describe = properties.get("git.commit.id.describe").toString();
+            this.describeShort = properties.get("git.commit.id.describe-short").toString();
+            this.commitId = properties.get("git.commit.id").toString();
+            this.commitIdAbbrev = properties.get("git.commit.id.abbrev").toString();
+            this.buildUserName = properties.get("git.build.user.name").toString();
+            this.buildUserEmail = properties.get("git.build.user.email").toString();
+            this.buildTime = properties.get("git.build.time").toString();
+            this.commitUserName = properties.get("git.commit.user.name").toString();
+            this.commitUserEmail = properties.get("git.commit.user.email").toString();
+            this.commitMessageShort = properties.get("git.commit.message.short").toString();
+            this.commitMessageFull = properties.get("git.commit.message.full").toString();
+            this.commitTime = properties.get("git.commit.time").toString();
+        } catch (IOException ex) {
+            LOG.warn("Failed to get build properties from git.properties file", ex);
+        }
     }
 
     private Boolean asBoolean(final String valueToConvert) {

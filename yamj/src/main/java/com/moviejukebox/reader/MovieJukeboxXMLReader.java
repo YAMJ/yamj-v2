@@ -156,6 +156,9 @@ public class MovieJukeboxXMLReader {
                 // Get the Revision the XML was written with
                 movie.setMjbRevision(DOMHelper.getValueFromElement(eMovie, "mjbRevision"));
 
+                // Get the Git SHA the XML was written with
+                movie.setMjbGitSHA(DOMHelper.getValueFromElement(eMovie, "mjbGitSHA"));
+
                 // Get the date/time the XML was written
                 movie.setMjbGenerationDateString(DOMHelper.getValueFromElement(eMovie, "xmlGenerationDate"));
 

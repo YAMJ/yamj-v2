@@ -43,15 +43,12 @@ import org.slf4j.LoggerFactory;
 public final class RecheckScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(RecheckScanner.class);
-    /*
-     * Recheck variables
-     */
+    // Recheck variables
     private static final int RECHECK_MAX = PropertiesUtil.getIntProperty("mjb.recheck.Max", 50);
     private static final boolean RECHECK_XML = PropertiesUtil.getBooleanProperty("mjb.recheck.XML", Boolean.TRUE);
     private static final boolean RECHECK_VERSION = PropertiesUtil.getBooleanProperty("mjb.recheck.Version", Boolean.TRUE);
     private static final int RECHECK_DAYS = PropertiesUtil.getIntProperty("mjb.recheck.Days", 30);
     private static final int RECHECK_MIN_DAYS = PropertiesUtil.getIntProperty("mjb.recheck.minDays", 7);
-    private static final int RECHECK_REVISION = PropertiesUtil.getIntProperty("mjb.recheck.Revision", 25);
     private static final boolean RECHECK_UNKNOWN = PropertiesUtil.getBooleanProperty("mjb.recheck.Unknown", Boolean.TRUE);
     private static final boolean RECHECK_EPISODE_PLOTS = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", Boolean.FALSE);
     // How many rechecks have been performed
@@ -59,9 +56,7 @@ public final class RecheckScanner {
     private static final String ERROR_IS_MISSING = "{} is missing {}, will rescan";
     private static final String ERROR_TV_MISSING = "{} - Part {} XML is missing {}, will rescan";
 
-    /*
-     * Property values
-     */
+    // Property values
     private static final boolean FANART_MOVIE_DOWNLOAD = PropertiesUtil.getBooleanProperty("fanart.movie.download", Boolean.FALSE);
     private static final boolean FANART_TV_DOWNLOAD = PropertiesUtil.getBooleanProperty("fanart.tv.download", Boolean.FALSE);
     private static final boolean VIDEOIMAGE_DOWNLOAD = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
@@ -79,6 +74,8 @@ public final class RecheckScanner {
         if (!RECHECK_XML || movie.isExtra()) {
             return false;
         }
+
+        PropertiesUtil.warnDeprecatedProperty("mjb.recheck.Revision");
 
         LOG.debug("Checking {}", movie.getBaseName());
 
@@ -110,19 +107,6 @@ public final class RecheckScanner {
             LOG.debug("{} XML is {} days old, will rescan", movie.getBaseName(), dateDiff);
             recheckCount++;
             return true;
-        }
-
-        // If we don't recheck the version, we don't want to recheck the revision either
-        if (RECHECK_VERSION) {
-            // Check the revision of YAMJ that wrote the XML file vs the current revisions
-            String currentRevision = SystemTools.getRevision();
-            String movieMjbRevision = movie.getMjbRevision();
-            int revDiff = Integer.parseInt(isNotValidString(currentRevision) ? "0" : currentRevision) - Integer.parseInt(isNotValidString(movieMjbRevision) ? "0" : movieMjbRevision);
-            if (revDiff > RECHECK_REVISION) {
-                LOG.debug("{} XML is {} revisions old ({} maximum), will rescan", movie.getBaseName(), dateDiff, RECHECK_REVISION);
-                recheckCount++;
-                return true;
-            }
         }
 
         // Check for "UNKNOWN" values in the XML
