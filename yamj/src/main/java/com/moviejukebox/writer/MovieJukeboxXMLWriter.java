@@ -940,7 +940,8 @@ public class MovieJukeboxXMLWriter {
     /**
      * Write the element with the indexed attribute.
      *
-     * If there is a non-null value in the indexValue, this will be appended to the element.
+     * If there is a non-null value in the indexValue, this will be appended to
+     * the element.
      *
      * @param doc
      * @param parentElement
@@ -1553,8 +1554,9 @@ public class MovieJukeboxXMLWriter {
     /**
      * Persist a movie into an XML file.
      *
-     * Doesn't overwrite an already existing XML file for the specified movie unless, movie's data has changed (INFO, RECHECK,
-     * WATCHED) or forceXMLOverwrite is true.
+     * Doesn't overwrite an already existing XML file for the specified movie
+     * unless, movie's data has changed (INFO, RECHECK, WATCHED) or
+     * forceXMLOverwrite is true.
      *
      * @param jukebox
      * @param movie
@@ -1613,7 +1615,9 @@ public class MovieJukeboxXMLWriter {
         // Add the version information to the output
         if (includeVersion) {
             DOMHelper.appendChild(doc, ePerson, "mjbVersion", SystemTools.getVersion());
-            DOMHelper.appendChild(doc, ePerson, "mjbRevision", SystemTools.getRevision());
+            // Force the old revision to be populated for Eversion
+            DOMHelper.appendChild(doc, ePerson, "mjbRevision", "9999", "obsolete", "Used for Eversion");
+            DOMHelper.appendChild(doc, ePerson, "mjbGitSHA", GIT.getCommitId());
             DOMHelper.appendChild(doc, ePerson, "xmlGenerationDate", DateTimeTools.convertDateToString(new Date(), DateTimeTools.getDateFormatLongString()));
         }
         DOMHelper.appendChild(doc, ePerson, NAME, person.getName());
