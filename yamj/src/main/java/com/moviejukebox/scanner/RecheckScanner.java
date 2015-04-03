@@ -26,9 +26,9 @@ import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.ArtworkScanner;
+import com.moviejukebox.tools.GitRepositoryState;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
-import com.moviejukebox.tools.SystemTools;
 import java.util.Date;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -195,7 +195,7 @@ public final class RecheckScanner {
      */
     private static boolean recheckAlways(Movie movie) {
         // Check for the version of YAMJ that wrote the XML file vs the current version
-        if (RECHECK_VERSION && !movie.getMjbVersion().equalsIgnoreCase(SystemTools.getVersion())) {
+        if (RECHECK_VERSION && !movie.getMjbVersion().equalsIgnoreCase(GitRepositoryState.getVersion())) {
             LOG.debug("{} XML is from a previous version, will rescan", movie.getBaseName());
             return true;
         }

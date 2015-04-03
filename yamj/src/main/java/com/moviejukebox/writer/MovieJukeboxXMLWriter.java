@@ -1009,9 +1009,7 @@ public class MovieJukeboxXMLWriter {
             DOMHelper.appendChild(doc, eMovie, "id", e.getValue(), MOVIEDB, e.getKey());
         }
 
-        DOMHelper.appendChild(doc, eMovie, "mjbVersion", SystemTools.getVersion());
-        // Force the old revision to be populated for Eversion
-        DOMHelper.appendChild(doc, eMovie, "mjbRevision", "9999", "obsolete", "Used for Eversion");
+        DOMHelper.appendChild(doc, eMovie, "mjbVersion", GitRepositoryState.getVersion());
         DOMHelper.appendChild(doc, eMovie, "mjbGitSHA", GIT.getCommitId());
         DOMHelper.appendChild(doc, eMovie, "xmlGenerationDate", DateTimeTools.convertDateToString(new Date(), DateTimeTools.getDateFormatLongString()));
         DOMHelper.appendChild(doc, eMovie, "baseFilenameBase", movie.getBaseFilename());
@@ -1614,9 +1612,7 @@ public class MovieJukeboxXMLWriter {
 
         // Add the version information to the output
         if (includeVersion) {
-            DOMHelper.appendChild(doc, ePerson, "mjbVersion", SystemTools.getVersion());
-            // Force the old revision to be populated for Eversion
-            DOMHelper.appendChild(doc, ePerson, "mjbRevision", "9999", "obsolete", "Used for Eversion");
+            DOMHelper.appendChild(doc, ePerson, "mjbVersion", GitRepositoryState.getVersion());
             DOMHelper.appendChild(doc, ePerson, "mjbGitSHA", GIT.getCommitId());
             DOMHelper.appendChild(doc, ePerson, "xmlGenerationDate", DateTimeTools.convertDateToString(new Date(), DateTimeTools.getDateFormatLongString()));
         }

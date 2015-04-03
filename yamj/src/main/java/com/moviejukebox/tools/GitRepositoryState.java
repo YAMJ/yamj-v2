@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.MovieJukebox;
 import static com.moviejukebox.model.Movie.UNKNOWN;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ public class GitRepositoryState {
 
     private static final Logger LOG = LoggerFactory.getLogger(GitRepositoryState.class);
 
+    // git properties
     private String branch = UNKNOWN;                  // =${git.branch}
     private Boolean dirty = null;                     // =${git.dirty}
     private List<String> tags = null;                 // =${git.tags} // comma separated tag names
@@ -236,6 +238,25 @@ public class GitRepositoryState {
      */
     public String getCommitTime() {
         return commitTime;
+    }
+
+    /**
+     * Get the currently running YAMJ version
+     *
+     * @return
+     */
+    public static String getVersion() {
+        // Populated by the manifest file
+        return StringUtils.trimToEmpty(MovieJukebox.class.getPackage().getSpecificationVersion());
+    }
+
+    /**
+     * Get the version of Java
+     *
+     * @return
+     */
+    public static String getJavaVersion() {
+        return StringUtils.trimToEmpty(java.lang.System.getProperties().getProperty("java.version"));
     }
 
     @Override

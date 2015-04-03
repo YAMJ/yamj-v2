@@ -186,7 +186,6 @@ public class MovieJukebox {
     private static String peopleFolder = "";
     private static final Collection<String> PHOTO_EXTENSIONS = new ArrayList<>();
     // These are pulled from the Manifest.MF file that is created by the build script
-    private static final String MJB_VERSION = SystemTools.getVersion();
     private static final GitRepositoryState GIT = new GitRepositoryState();
     private static boolean trailersScannerEnable;
     private static int maxThreadsProcess = 1;
@@ -206,26 +205,19 @@ public class MovieJukebox {
         System.setProperty("file.name", LOG_FILENAME);
         PropertyConfigurator.configure("properties/log4j.properties");
 
-        LOG.info("Yet Another Movie Jukebox {}", MJB_VERSION);
-        LOG.info("~~~ ~~~~~~~ ~~~~~ ~~~~~~~ {}", StringUtils.repeat("~", MJB_VERSION.length()));
+        LOG.info("Yet Another Movie Jukebox {}", GitRepositoryState.getVersion());
+        LOG.info("~~~ ~~~~~~~ ~~~~~ ~~~~~~~ {}", StringUtils.repeat("~", GitRepositoryState.getVersion().length()));
         LOG.info("https://github.com/YAMJ/yamj-v2");
         LOG.info("Copyright (c) 2004-2015 YAMJ Members");
         LOG.info("");
         LOG.info("This software is licensed under the GNU General Public License v3+");
         LOG.info("See this page: https://github.com/YAMJ/yamj-v2/wiki/License");
         LOG.info("");
-
-        // Print the revision information if it was populated
-        if ("0000".equals(GIT.getCommitId())) {
-            LOG.info("     Revision: *Custom Build*");
-        } else {
-            LOG.info(" Revision SHA: {}", GIT.getCommitId());
-        }
+        LOG.info(" Revision SHA: {} {}", GIT.getCommitId(), GIT.getDirty() ? "(Custom Build)" : "");
         LOG.info("  Commit Date: {}", GIT.getCommitTime());
         LOG.info("   Build Date: {}", GIT.getBuildTime());
         LOG.info("");
-
-        LOG.info(" Java Version: {}", java.lang.System.getProperties().getProperty("java.version"));
+        LOG.info(" Java Version: {}", GitRepositoryState.getJavaVersion());
         LOG.info("");
 
         if (!SystemTools.validateInstallation()) {

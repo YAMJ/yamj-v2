@@ -31,10 +31,10 @@ import com.moviejukebox.plugin.MovieDatabasePlugin;
 import com.moviejukebox.tools.BooleanYesNoAdapter;
 import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.GitRepositoryState;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.UrlCodecAdapter;
 import java.io.File;
 import java.util.ArrayList;
@@ -97,7 +97,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public static final String TYPE_PERSON = "PERSON";
     public static final String SPACE_SLASH_SPACE = " / ";
     private String mjbVersion = UNKNOWN;
-    private String mjbRevision = UNKNOWN;
     private String mjbGitSHA = UNKNOWN;
     private DateTime mjbGenerationDate = null;
     /*
@@ -243,7 +242,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public void setMjbVersion(String mjbVersion) {
         if (StringTools.isNotValidString(mjbVersion)) {
-            this.mjbVersion = SystemTools.getVersion();
+            this.mjbVersion = GitRepositoryState.getVersion();
         } else {
             this.mjbVersion = mjbVersion;
         }
@@ -252,24 +251,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     @XmlElement
     public String getMjbVersion() {
         return mjbVersion;
-    }
-
-    public void setMjbRevision(String mjbRevision) {
-        if (StringTools.isNotValidString(mjbRevision)) {
-            this.mjbRevision = "0000";
-        } else {
-            this.mjbRevision = mjbRevision;
-        }
-    }
-
-    @XmlElement
-    public String getMjbRevision() {
-        // If YAMJ is self compiled then the revision information may not exist.
-        if (!StringUtils.isBlank(mjbRevision)) {
-            return mjbRevision;
-        } else {
-            return Movie.UNKNOWN;
-        }
     }
 
     @XmlElement

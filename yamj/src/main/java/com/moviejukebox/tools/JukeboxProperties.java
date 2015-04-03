@@ -65,9 +65,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Save a pre-defined list of attributes of the jukebox and properties for use
- * in subsequent processing runs to determine if an attribute has changed and
- * force a rescan of the appropriate data
+ * Save a pre-defined list of attributes of the jukebox and properties for use in subsequent processing runs to determine if an
+ * attribute has changed and force a rescan of the appropriate data
  *
  * @author stuart.boston
  *
@@ -79,6 +78,7 @@ public final class JukeboxProperties {
     // Filename
     private static final String XML_FILENAME = "jukebox_details.xml";
     // Properties
+    private static final GitRepositoryState GIT = new GitRepositoryState();
     private static final boolean MONITOR = PropertiesUtil.getBooleanProperty("mjb.monitorJukeboxProperties", Boolean.FALSE);
     private static final Collection<PropertyInformation> PROPINFO = new ArrayList<>();
     private static boolean scanningLimitReached = Boolean.FALSE;   // Were videos skipped during processing?
@@ -243,10 +243,9 @@ public final class JukeboxProperties {
     }
 
     /**
-     * Check to see if the file needs to be processed (if it exists) or just
-     * created Note: This *MIGHT* cause issues with some programs that assume
-     * all XML files in the jukebox folder are videos or indexes. However, they
-     * should just deal with this themselves :-)
+     * Check to see if the file needs to be processed (if it exists) or just created Note: This *MIGHT* cause issues with some
+     * programs that assume all XML files in the jukebox folder are videos or indexes. However, they should just deal with this
+     * themselves :-)
      *
      * @param jukebox
      * @param mediaLibraryPaths
@@ -315,9 +314,14 @@ public final class JukeboxProperties {
             eJukebox = docMjbDetails.createElement(JUKEBOX);
             eRoot.appendChild(eJukebox);
 
-            DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxVersion", SystemTools.getVersion());
+            DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxVersion", GitRepositoryState.getVersion(), "custom", GIT.getDirty().toString());
+            DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxSHA", GIT.getCommitId());
 
-            DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxRevision", SystemTools.getRevision());
+            // Force the old revision to be populated for Eversion
+            DOMHelper.appendChild(docMjbDetails, eJukebox, "JukeboxRevision", "9999", "obsolete", "Used for Eversion");
+
+            // Save the java version
+            DOMHelper.appendChild(docMjbDetails, eJukebox, "JavaVersiob", GitRepositoryState.getJavaVersion());
 
             // Save the run date
             DOMHelper.appendChild(docMjbDetails, eJukebox, "RunTime", df.format(System.currentTimeMillis()));
@@ -427,8 +431,7 @@ public final class JukeboxProperties {
     }
 
     /**
-     * Determine the file date from the passed filename, if the filename is
-     * invalid return UNKNOWN
+     * Determine the file date from the passed filename, if the filename is invalid return UNKNOWN
      *
      * @param tempFilename
      * @return
@@ -448,8 +451,7 @@ public final class JukeboxProperties {
     }
 
     /**
-     * Read the attributes from the file and compare and set any force
-     * overwrites needed
+     * Read the attributes from the file and compare and set any force overwrites needed
      *
      * @param mjbDetails
      * @param mediaLibraryPaths
@@ -536,8 +538,7 @@ public final class JukeboxProperties {
     /**
      * Compare the current XML file details with the stored ones.
      *
-     * Any errors with this check will return TRUE to ensure no properties are
-     * overwritten
+     * Any errors with this check will return TRUE to ensure no properties are overwritten
      *
      * @param eJukebox
      * @return

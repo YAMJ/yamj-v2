@@ -22,7 +22,6 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.MovieJukebox;
 import static com.moviejukebox.tools.StringTools.formatFileSize;
 import com.moviejukebox.tools.cache.CacheMemory;
 import java.io.IOException;
@@ -34,7 +33,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -206,41 +204,4 @@ public final class SystemTools {
         return installationIsValid;
     }
 
-    /**
-     * Get the currently running YAMJ revision
-     *
-     * @return
-     */
-    public static String getRevision() {
-        // Jukebox revision
-        String currentRevision = MovieJukebox.class.getPackage().getImplementationVersion();
-        // If YAMJ is self compiled then the revision information may not exist.
-        if (StringUtils.isBlank(currentRevision) || ("${env.SVN_REVISION}".equalsIgnoreCase(currentRevision))) {
-            currentRevision = "0000";
-        }
-        return currentRevision;
-    }
-
-    /**
-     * Get the currently running YAMJ version
-     *
-     * @return
-     */
-    public static String getVersion() {
-        String mjbVersion = MovieJukebox.class.getPackage().getSpecificationVersion();
-        if (StringUtils.isBlank(mjbVersion)) {
-            return "";
-        } else {
-            return mjbVersion;
-        }
-    }
-
-    /**
-     * Get the build date of YAMJ
-     *
-     * @return
-     */
-    public static String getBuildDate() {
-        return MovieJukebox.class.getPackage().getImplementationTitle();
-    }
 }
