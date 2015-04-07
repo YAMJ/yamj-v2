@@ -26,13 +26,12 @@ The online Wiki has more information than is contained here. It can be found at:
 How does it work?
 -----------------
 
-    - Install Java Runtime Environment (JRE) 1.6
+    - Install Java Runtime Environment (JRE) - Minimum supported version is 1.7
 
     - Unpack the MovieJukebox archive
 
     - Install MediaInfo CLI (not full version, only command line version)
       right into the movieJukebox directory (moviejukebox/mediaInfo)
-          * Tested with MediaInfo version 0.7.7.0
           * You can download at: http://sourceforge.net/project/showfiles.php?group_id=86862&package_id=90612
 
     - Edit the file moviejukebox.properties and setup according to your needs
