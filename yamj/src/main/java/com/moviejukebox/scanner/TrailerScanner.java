@@ -2,9 +2,9 @@
  *      Copyright (c) 2004-2015 YAMJ Members
  *      https://github.com/orgs/YAMJ/people
  *
- *      This file is part of the Yet Another Movie Jukebox (YAMJ).
+ *      This file is part of the Yet Another Movie Jukebox (YAMJ) project.
  *
- *      The YAMJ is free software: you can redistribute it and/or modify
+ *      YAMJ is free software: you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
  *      the Free Software Foundation, either version 3 of the License, or
  *      any later version.
@@ -15,7 +15,7 @@
  *      GNU General Public License for more details.
  *
  *      You should have received a copy of the GNU General Public License
- *      along with the YAMJ.  If not, see <http://www.gnu.org/licenses/>.
+ *      along with YAMJ.  If not, see <http://www.gnu.org/licenses/>.
  *
  *      Web: https://github.com/YAMJ/yamj-v2
  *
