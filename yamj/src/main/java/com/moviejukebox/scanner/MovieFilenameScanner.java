@@ -294,6 +294,7 @@ public final class MovieFilenameScanner {
             put("BluRay", "BDRIP,BLURAYRIP,BLU-RAY,BD-RIP");
             put("DVDRip", "DVDR");
             put("HDTV", "");
+            put("WEB-DL", "");
             put("DVD", "DVD5 DVD9");
         }
 
