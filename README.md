@@ -8,7 +8,8 @@ YAMJ supports many different sources of data, such as TheMovieDB, TheTVDB, Alloc
 
 There is a massive community supporting user created skins that allow for the complete customization of the jukebox.
 
-[![Project Stats](https://www.openhub.net/p/21573/widgets/project_partner_badge.gif)](https://www.openhub.net/p/21573)
+[![Project Stats](https://www.openhub.net/p/21573/widgets/project_partner_badge.gif)](https://www.openhub.net/p/21573)     
+[![Build Status](http://jenkins.omertron.com/job/YAMJ/badge/icon)](http://jenkins.omertron.com/job/YAMJ)
 
 YourKit is kindly supporting open source projects with its full-featured Java Profiler.
 YourKit, LLC is the creator of innovative and intelligent tools for profiling
