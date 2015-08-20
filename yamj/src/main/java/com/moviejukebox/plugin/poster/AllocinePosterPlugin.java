@@ -22,6 +22,8 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import org.apache.commons.collections.MapUtils;
+
 import com.moviejukebox.allocine.model.MovieInfos;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
@@ -59,8 +61,8 @@ public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
 
             MovieInfos movieInfos = allocinePlugin.getMovieInfos(id);
 
-            if (movieInfos.isValid() && !movieInfos.getPosterUrls().isEmpty()) {
-                String posterURL = movieInfos.getPosterUrls().iterator().next();
+            if (movieInfos.isValid() && MapUtils.isNotEmpty(movieInfos.getPosters())) {
+                String posterURL = movieInfos.getPosters().keySet().iterator().next();
                 if (StringTools.isValidString(posterURL)) {
                     return new Image(posterURL);
                 }

@@ -514,7 +514,7 @@ public class AllocinePlugin extends ImdbPlugin {
                     throw new Exception("Invalid season " + movie.getSeason());
                 }
 
-                TvSeasonInfos tvSeasonInfos = allocineApi.getTvSeasonInfos(tvSeriesInfos.getSeasonCode(currentSeason));
+                TvSeasonInfos tvSeasonInfos = allocineApi.getTvSeasonInfos(String.valueOf(tvSeriesInfos.getSeasonCode(currentSeason)));
                 if (tvSeasonInfos.isValid()) {
                     for (MovieFile file : movie.getFiles()) {
 
