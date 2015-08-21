@@ -246,7 +246,7 @@ public class MovieDirectoryScanner {
                         return true;
                     }
                 } catch (Exception error) {
-                    LOG.info("MovieDirectoryScanner: Error processing exclusion pattern: {}", excluded);
+                    LOG.info("Error processing exclusion pattern: {}, {}", excluded, error.getMessage());
                 }
 
                 excluded = excluded.replace("/", File.separator);
@@ -267,7 +267,7 @@ public class MovieDirectoryScanner {
 
         if (m.find() && (m.groupCount() == 1)) {
             if (Integer.parseInt(m.group(1)) != 1) {
-                LOG.debug("MovieDirectoryScanner: Excluding file '{}' as it is a non-first part RAR archive ({})", relativeFilename, m.group(1));
+                LOG.debug("Excluding file '{}' as it is a non-first part RAR archive ({})", relativeFilename, m.group(1));
                 return true;
             }
         }
