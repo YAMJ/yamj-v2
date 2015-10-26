@@ -22,8 +22,48 @@
  */
 package com.moviejukebox;
 
-import com.moviejukebox.model.Artwork.ArtworkType;
-import com.moviejukebox.model.Comparator.PersonComparator;
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+import static com.moviejukebox.tools.PropertiesUtil.getBooleanProperty;
+import static com.moviejukebox.tools.PropertiesUtil.getProperty;
+import static com.moviejukebox.tools.PropertiesUtil.setPropertiesStreamName;
+import static com.moviejukebox.tools.PropertiesUtil.setProperty;
+import static com.moviejukebox.tools.StringTools.appendToPath;
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+import static com.moviejukebox.tools.StringTools.tokenizeToArray;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+import java.util.concurrent.Callable;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.stream.XMLStreamException;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.PropertyConfigurator;
+import org.apache.sanselan.ImageReadException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.IndexInfo;
 import com.moviejukebox.model.Jukebox;
@@ -33,6 +73,8 @@ import com.moviejukebox.model.MediaLibraryPath;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
+import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.model.Comparator.PersonComparator;
 import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.model.enumerations.JukeboxStatistic;
 import com.moviejukebox.model.enumerations.OverrideFlag;
@@ -73,53 +115,15 @@ import com.moviejukebox.tools.GraphicTools;
 import com.moviejukebox.tools.JukeboxProperties;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
-import static com.moviejukebox.tools.PropertiesUtil.getBooleanProperty;
-import static com.moviejukebox.tools.PropertiesUtil.getProperty;
-import static com.moviejukebox.tools.PropertiesUtil.setPropertiesStreamName;
-import static com.moviejukebox.tools.PropertiesUtil.setProperty;
 import com.moviejukebox.tools.ScanningLimit;
 import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.StringTools;
-import static com.moviejukebox.tools.StringTools.appendToPath;
-import static com.moviejukebox.tools.StringTools.isNotValidString;
-import static com.moviejukebox.tools.StringTools.isValidString;
-import static com.moviejukebox.tools.StringTools.tokenizeToArray;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.moviejukebox.writer.CompleteMoviesWriter;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
-import java.util.concurrent.Callable;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.stream.XMLStreamException;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.sanselan.ImageReadException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MovieJukebox {
 
@@ -231,7 +235,7 @@ public class MovieJukebox {
 
         try {
             for (int i = 0; i < args.length; i++) {
-                String arg = (String) args[i];
+                String arg = args[i];
                 if ("-v".equalsIgnoreCase(arg)) {
                     // We've printed the version, so quit now
                     return;
@@ -312,11 +316,10 @@ public class MovieJukebox {
         // Load the apikeys.properties file
         if (!setPropertiesStreamName("./properties/apikeys.properties", Boolean.TRUE)) {
             return;
-        } else {
-            // This is needed to update the static reference for the API Keys in the pattern formatter
-            // because the formatter is initialised before the properties files are read
-            FilteringLayout.addApiKeys();
         }
+        // This is needed to update the static reference for the API Keys in the pattern formatter
+        // because the formatter is initialised before the properties files are read
+        FilteringLayout.addApiKeys();
 
         // Load the rest of the command-line properties
         for (Map.Entry<String, String> propEntry : cmdLineProps.entrySet()) {
@@ -626,6 +629,7 @@ public class MovieJukebox {
         }
     }
 
+    @SuppressWarnings("static-method")
     private void makeDumpStructure() {
         LOG.debug("Dumping library directory structure for debug");
 
@@ -932,9 +936,7 @@ public class MovieJukebox {
                     System.out.print("\n");
                     return null;
                 }
-            ;
-        }
-        );
+            });
         }
         tasks.waitFor();
 
@@ -1106,9 +1108,7 @@ public class MovieJukebox {
 
                         return null;
                     }
-                ;
-            }
-            );
+                });
             }
             tasks.waitFor();
 
@@ -1470,9 +1470,7 @@ public class MovieJukebox {
 
                         return null;
                     }
-                ;
-            }
-            );
+                });
             }
             tasks.waitFor();
 
@@ -1601,9 +1599,7 @@ public class MovieJukebox {
 
                         return null;
                     }
-                ;
-            }
-            );
+                });
             }
             tasks.waitFor();
             System.out.print("\n");
@@ -1636,9 +1632,7 @@ public class MovieJukebox {
 
                             return null;
                         }
-                    ;
-                }
-                );
+                    });
                 }
                 tasks.waitFor();
                 System.out.print("\n");
@@ -1794,7 +1788,7 @@ public class MovieJukebox {
         LOG.info("Processing took {}", JukeboxStatistics.getProcessingTime());
     }
 
-    private boolean comparePersonId(Filmography aPerson, Filmography bPerson) {
+    private static boolean comparePersonId(Filmography aPerson, Filmography bPerson) {
         String aValue, bValue;
         for (Map.Entry<String, String> e : aPerson.getIdMap().entrySet()) {
             aValue = e.getValue();
@@ -1814,16 +1808,15 @@ public class MovieJukebox {
      *
      * If the jukeboxClean parameter is not set, just report on the files that would be cleaned.
      */
-    private void cleanJukeboxFolder() {
+    private static void cleanJukeboxFolder() {
         boolean cleanReport = PropertiesUtil.getBooleanProperty("mjb.jukeboxCleanReport", Boolean.FALSE);
 
         if (jukeboxClean) {
             if (ScanningLimit.isLimitReached()) {
                 LOG.info("Jukebox cleaning skipped as movie limit was reached");
                 return;
-            } else {
-                LOG.info("Cleaning up the jukebox directory...");
             }
+            LOG.info("Cleaning up the jukebox directory...");
         } else if (cleanReport) {
             LOG.info("Jukebox cleaning skipped, the following files are orphaned (not used anymore):");
         } else {

@@ -22,38 +22,21 @@
  */
 package com.moviejukebox.model;
 
-import com.moviejukebox.plugin.ImdbPlugin;
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
+
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.BeforeClass;
+
+import com.moviejukebox.plugin.ImdbPlugin;
 
 public class MovieTest {
 
     private static final int ACTOR_MAX = 10;
     private static final int DIRECTOR_MAX = 2;
     private static final int WRITER_MAX = 3;
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
 
     @Test
     public void testSetPeopleCast() {
@@ -85,7 +68,7 @@ public class MovieTest {
         assertEquals("Wrong number of writers returned", WRITER_MAX, people.size());
     }
 
-    private List<String> createList(String title, int count) {
+    private static List<String> createList(String title, int count) {
         List<String> testList = new ArrayList<>(count);
 
         for (int i = 1; i <= count + 2; i++) {

@@ -22,12 +22,6 @@
  */
 package com.moviejukebox.plugin.trailer;
 
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -39,9 +33,17 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.WebBrowser;
 
 public class AppleTrailersPlugin extends TrailerPlugin {
 
@@ -270,7 +272,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         }
     }
 
-    private void getTrailerMovieUrl(String xml, Set<String> trailersUrl) {
+    private static void getTrailerMovieUrl(String xml, Set<String> trailersUrl) {
         Matcher m = TRAILER_URL_PATTERN.matcher(xml);
         while (m.find()) {
             String movieUrl = m.group();
@@ -278,7 +280,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         }
     }
 
-    private void selectBestTrailer(Set<String> trailersUrl, Set<String> bestTrailersUrl) {
+    private static void selectBestTrailer(Set<String> trailersUrl, Set<String> bestTrailersUrl) {
 
         boolean startSearch = false;
 
@@ -301,12 +303,12 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         }
     }
 
-    private void addTailerRealUrl(Set<String> bestTrailersUrl, String trailerUrl) {
+    private static void addTailerRealUrl(Set<String> bestTrailersUrl, String trailerUrl) {
         String trailerRealUrl = getTrailerRealUrl(trailerUrl);
         bestTrailersUrl.add(trailerRealUrl);
     }
 
-    private String getTrailerRealUrl(String trailerUrl) {
+    private static String getTrailerRealUrl(String trailerUrl) {
         try {
             URL url = new URL(trailerUrl);
             HttpURLConnection connection = (HttpURLConnection) (url.openConnection(WebBrowser.PROXY));
@@ -343,7 +345,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         }
     }
 
-    private String getTrailerTitle(String url) {
+    private static String getTrailerTitle(String url) {
         int start = url.lastIndexOf('/');
         int end = url.indexOf(".mov", start);
 
@@ -368,7 +370,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         return title.toString();
     }
 
-    private String getAbsUrl(String baseUrl, String relativeUrl) {
+    private static String getAbsUrl(String baseUrl, String relativeUrl) {
         try {
             URL baseURL = new URL(baseUrl);
             URL absURL = new URL(baseURL, relativeUrl);
@@ -378,7 +380,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         }
     }
 
-    private String decodeEscapeICU(String str) {
+    private static String decodeEscapeICU(String str) {
         StringBuilder newString = new StringBuilder();
 
         int loop = 0;
@@ -417,7 +419,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
      * @param fullUrl
      * @return
      */
-    private String getFilenameFromUrl(String fullUrl) {
+    private static String getFilenameFromUrl(String fullUrl) {
         int nameStart = fullUrl.lastIndexOf('/') + 1;
         return fullUrl.substring(nameStart);
     }
@@ -429,7 +431,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
      * @param trailerFilename
      * @return
      */
-    private boolean isValidTrailer(String trailerFilename) {
+    private static boolean isValidTrailer(String trailerFilename) {
         // Set the default response for the validTrailer
         boolean validTrailer = !CONFIG_TYPES_INCLUDE;
 

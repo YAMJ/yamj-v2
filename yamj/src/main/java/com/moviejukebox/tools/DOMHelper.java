@@ -22,7 +22,6 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.reader.MovieNFOReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +29,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.Map;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -39,6 +39,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -53,6 +54,8 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import com.moviejukebox.reader.MovieNFOReader;
 
 /**
  * Generic set of routines to process the DOM model data Used for read XML
@@ -190,7 +193,6 @@ public final class DOMHelper {
      */
     public static Document getDocFromFile(File xmlFile) throws ParserConfigurationException, SAXException, IOException {
         URL url = xmlFile.toURI().toURL();
-        InputStream in = url.openStream();
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc;
@@ -198,24 +200,20 @@ public final class DOMHelper {
         // Custom error handler
         db.setErrorHandler(new SaxErrorHandler());
 
-        try {
+        try (InputStream in = url.openStream()) {
             doc = db.parse(in);
         } catch (SAXParseException ex) {
             if (FilenameUtils.isExtension(xmlFile.getName().toLowerCase(), "xml")) {
                 throw new SAXParseException("Failed to process file as XML", null, ex);
-            } else {
-                // Try processing the file a different way
-                doc = null;
             }
-        } finally {
-            // close the stream
-            in.close();
+            // Try processing the file a different way
+            doc = null;
         }
 
         if (doc == null) {
             try (
-                    // try wrapping the file in a root
-                    StringReader sr = new StringReader(wrapInXml(FileTools.readFileToString(xmlFile)))) {
+                // try wrapping the file in a root
+                StringReader sr = new StringReader(wrapInXml(FileTools.readFileToString(xmlFile)))) {
                 doc = db.parse(new InputSource(sr));
             }
         }
@@ -223,6 +221,7 @@ public final class DOMHelper {
         if (doc != null) {
             doc.getDocumentElement().normalize();
         }
+        
         return doc;
     }
 
@@ -247,7 +246,7 @@ public final class DOMHelper {
                     if (tagElement != null) {
                         tagNodeList = tagElement.getChildNodes();
                         if (tagNodeList != null && tagNodeList.getLength() > 0) {
-                            returnValue = ((Node) tagNodeList.item(0)).getNodeValue();
+                            returnValue = tagNodeList.item(0).getNodeValue();
                         }
                     }
                 }

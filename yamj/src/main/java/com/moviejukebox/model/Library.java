@@ -22,24 +22,12 @@
  */
 package com.moviejukebox.model;
 
-import com.moviejukebox.model.Comparator.CertificationComparator;
-import com.moviejukebox.model.Comparator.LastModifiedComparator;
-import com.moviejukebox.model.Comparator.MovieRatingComparator;
-import com.moviejukebox.model.Comparator.MovieReleaseComparator;
-import com.moviejukebox.model.Comparator.MovieSetComparator;
-import com.moviejukebox.model.Comparator.MovieTitleComparator;
-import com.moviejukebox.model.Comparator.MovieTop250Comparator;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.model.enumerations.OverrideFlag;
 import static com.moviejukebox.tools.FileTools.createCategoryKey;
 import static com.moviejukebox.tools.FileTools.createPrefix;
 import static com.moviejukebox.tools.FileTools.makeSafeFilename;
-import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.ThreadExecutor;
+
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -57,6 +45,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -64,6 +53,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Comparator.CertificationComparator;
+import com.moviejukebox.model.Comparator.LastModifiedComparator;
+import com.moviejukebox.model.Comparator.MovieRatingComparator;
+import com.moviejukebox.model.Comparator.MovieReleaseComparator;
+import com.moviejukebox.model.Comparator.MovieSetComparator;
+import com.moviejukebox.model.Comparator.MovieTitleComparator;
+import com.moviejukebox.model.Comparator.MovieTop250Comparator;
+import com.moviejukebox.model.enumerations.DirtyFlag;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.ThreadExecutor;
 
 public class Library implements Map<String, Movie> {
 
@@ -275,7 +278,6 @@ public class Library implements Map<String, Movie> {
             setSortProperty(INDEX_NEW_TV, INDEX_NEW, Boolean.FALSE);
         }
 
-        StringBuilder msg;
         LOG.debug("Library sorting:");
         for (Entry<String, String> sk : SORT_KEYS.entrySet()) {
             LOG.debug("  Category='{}', OrderBy='{}' {}",
@@ -650,6 +652,8 @@ public class Library implements Map<String, Movie> {
                                 break;
                             case INDEX_RATINGS:
                                 syncindexes.put(INDEX_RATINGS, indexByRatings(indexMovies));
+                                break;
+                            default:
                                 break;
                         }
                         return null;
@@ -1373,15 +1377,13 @@ public class Library implements Map<String, Movie> {
 
         if (index == null) {
             return -1;
-        } else {
-            List<Movie> categoryList = index.get(category);
-
-            if (categoryList != null) {
-                return categoryList.size();
-            } else {
-                return -1;
-            }
         }
+    
+        List<Movie> categoryList = index.get(category);
+        if (categoryList != null) {
+            return categoryList.size();
+        }
+        return -1;
     }
 
     /**
@@ -1398,9 +1400,8 @@ public class Library implements Map<String, Movie> {
         String masterGenre = GENRES_MAP.get(genre);
         if (masterGenre != null) {
             return masterGenre;
-        } else {
-            return genre;
         }
+        return genre;
     }
 
     /**
@@ -1721,9 +1722,8 @@ public class Library implements Map<String, Movie> {
         // Check to see if we should return the original category that was passed
         if (returnCategory) {
             return newCategory;
-        } else {
-            return Movie.UNKNOWN;
         }
+        return Movie.UNKNOWN;
     }
 
     /**

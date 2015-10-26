@@ -22,11 +22,11 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.scanner.IArchiveScanner;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
+import static org.apache.commons.lang3.StringUtils.substringAfter;
+import static org.apache.commons.lang3.StringUtils.substringBefore;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -54,13 +54,16 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import static org.apache.commons.lang3.StringUtils.substringAfter;
-import static org.apache.commons.lang3.StringUtils.substringBefore;
-import static org.apache.commons.lang3.StringUtils.trimToNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.scanner.IArchiveScanner;
 
 public final class FileTools {
 
@@ -88,7 +91,7 @@ public final class FileTools {
         @Override
         protected byte[] initialValue() {
             return new byte[BUFF_SIZE];
-        };
+        }
     };
 
     private FileTools() {
@@ -121,7 +124,7 @@ public final class FileTools {
             }
             return newFilename;
         }
-    };
+    }
 
     public static void initUnsafeChars() {
         if (!UNSAFE_CHARS.isEmpty()) {
@@ -178,9 +181,8 @@ public final class FileTools {
                 int amountRead = is.read(buffer);
                 if (amountRead == -1) {
                     break;
-                } else {
-                    bytesCopied += amountRead;
                 }
+                bytesCopied += amountRead;
                 os.write(buffer, 0, amountRead);
             }
         } finally {
@@ -234,16 +236,12 @@ public final class FileTools {
             makeDirs(dst);
             returnValue = copyFile(src, new File(dst + File.separator + src.getName()));
         } else {
-            FileInputStream inSource = null;
-            FileOutputStream outSource = null;
-            FileChannel inChannel = null;
-            FileChannel outChannel = null;
-            try {
-                // gc: copy using file channels, potentially much faster
-                inSource = new FileInputStream(src);
-                outSource = new FileOutputStream(dst);
-                inChannel = inSource.getChannel();
-                outChannel = outSource.getChannel();
+
+            try (FileInputStream inSource = new FileInputStream(src);
+                 FileOutputStream outSource = new FileOutputStream(dst);
+                 FileChannel inChannel = inSource.getChannel();
+                 FileChannel outChannel = outSource.getChannel())
+             {
 
                 long p = 0, s = inChannel.size();
                 while (p < s) {
@@ -254,36 +252,6 @@ public final class FileTools {
                 LOG.error("Failed copying file '{}' to '{}'", src, dst);
                 LOG.error(SystemTools.getStackTrace(error));
                 returnValue = Boolean.FALSE;
-            } finally {
-                if (inChannel != null) {
-                    try {
-                        inChannel.close();
-                    } catch (IOException ex) {
-                        // Ignore
-                    }
-                }
-                if (inSource != null) {
-                    try {
-                        inSource.close();
-                    } catch (IOException ex) {
-                        // Ignore
-                    }
-                }
-
-                if (outChannel != null) {
-                    try {
-                        outChannel.close();
-                    } catch (IOException ex) {
-                        // Ignore
-                    }
-                }
-                if (outSource != null) {
-                    try {
-                        outSource.close();
-                    } catch (IOException ex) {
-                        // Ignore
-                    }
-                }
             }
         }
 
@@ -463,10 +431,9 @@ public final class FileTools {
         if (file1.lastModified() <= file2.lastModified()) {
             // file1 is older than the file2.
             return Boolean.FALSE;
-        } else {
-            // file1 is newer than file2
-            return Boolean.TRUE;
         }
+        // file1 is newer than file2
+        return Boolean.TRUE;
     }
 
     public static String createCategoryKey(String key2) {
@@ -850,18 +817,16 @@ public final class FileTools {
             super(pathname);
             if (archiveScanners == null) {
                 this.archiveScanners = null;
-            } else {
-                this.archiveScanners = (IArchiveScanner[]) archiveScanners.clone();
             }
+            this.archiveScanners = archiveScanners.clone();
         }
 
         public FileEx(File parent, String child, IArchiveScanner[] archiveScanners) {
             this(parent, child);
             if (archiveScanners == null) {
                 this.archiveScanners = null;
-            } else {
-                this.archiveScanners = (IArchiveScanner[]) archiveScanners.clone();
             }
+            this.archiveScanners = archiveScanners.clone();
         }
 
         @Override
@@ -959,7 +924,7 @@ public final class FileTools {
                     files.add(fe);
                 }
 
-                listFiles = (File[]) files.toArray(new File[files.size()]);
+                listFiles = files.toArray(new File[files.size()]);
             }
             return listFiles;
         }
@@ -982,7 +947,7 @@ public final class FileTools {
                     l.add(f);
                 }
             }
-            return (File[]) l.toArray(new File[l.size()]);
+            return l.toArray(new File[l.size()]);
         }
     }
 
@@ -1106,15 +1071,14 @@ public final class FileTools {
         }
 
         public void saveFileList(String filename) throws FileNotFoundException, UnsupportedEncodingException {
-            PrintWriter p = new PrintWriter(new OutputStreamWriter(new FileOutputStream(filename, Boolean.TRUE), DEFAULT_CHARSET));
-
-            Set<String> names = cachedFiles.keySet();
-            String[] sortednames = names.toArray(new String[names.size()]);
-            Arrays.sort(sortednames);
-            for (String f : sortednames) {
-                p.println(f);
+            try (PrintWriter p = new PrintWriter(new OutputStreamWriter(new FileOutputStream(filename, Boolean.TRUE), DEFAULT_CHARSET))) {
+                Set<String> names = cachedFiles.keySet();
+                String[] sortednames = names.toArray(new String[names.size()]);
+                Arrays.sort(sortednames);
+                for (String f : sortednames) {
+                    p.println(f);
+                }
             }
-            p.close();
         }
     }
 
@@ -1172,9 +1136,8 @@ public final class FileTools {
         if (file.isDirectory()) {
             // no need to alter the file
             return makeDirs(file);
-        } else {
-            return makeDirs(file.getParentFile());
         }
+        return makeDirs(file.getParentFile());
     }
 
     /**

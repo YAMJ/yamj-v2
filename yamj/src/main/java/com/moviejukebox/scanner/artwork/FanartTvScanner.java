@@ -22,15 +22,16 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import com.moviejukebox.model.Artwork.ArtworkType;
+import org.apache.commons.lang3.StringUtils;
+
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.plugin.FanartTvPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.omertron.fanarttvapi.enumeration.FTArtworkType;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Scanner for FANART.TV artwork. Must be instantiated with the correct
@@ -57,9 +58,8 @@ public class FanartTvScanner extends ArtworkScanner {
     public String scanLocalArtwork(Jukebox jukebox, Movie movie) {
         if (isSearchLocal()) {
             return super.scanLocalArtwork(jukebox, movie, artworkImagePlugin);
-        } else {
-            return Movie.UNKNOWN;
         }
+        return Movie.UNKNOWN;
     }
 
     @Override

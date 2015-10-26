@@ -22,17 +22,6 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SubtitleTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -55,10 +44,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SubtitleTools;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.WebBrowser;
 
 public class SratimPlugin extends ImdbPlugin {
 
@@ -1191,19 +1193,15 @@ public class SratimPlugin extends ImdbPlugin {
 
     public boolean downloadSubtitleZip(Movie movie, String subDownloadLink, File subtitleFile, boolean bluray) {
 
-        boolean found = false;
-        ZipInputStream zipInputStream = null;
+        @SuppressWarnings("resource")
         OutputStream fileOutputStream = null;
         HttpURLConnection connection = null;
-        InputStream inputStream = null;
+        boolean found = false;
 
         try {
             URL url = new URL(subDownloadLink);
             connection = (HttpURLConnection) (url.openConnection(WebBrowser.PROXY));
-            inputStream = connection.getInputStream();
-
             String contentType = connection.getContentType();
-
             LOG.debug("contentType: {}", contentType);
 
             // Check that the content is zip and that the site did not blocked the download
@@ -1218,78 +1216,62 @@ public class SratimPlugin extends ImdbPlugin {
             Iterator<MovieFile> partsIter = parts.iterator();
 
             byte[] buf = new byte[1024];
-            ZipEntry zipentry;
-            zipInputStream = new ZipInputStream(inputStream);
-
-            zipentry = zipInputStream.getNextEntry();
-            while (zipentry != null) {
-                // for each entry to be extracted
-                String entryName = zipentry.getName();
-
-                LOG.debug("ZIP entryname: {}", entryName);
-
-                // Check if this is a subtitle file
-                if (entryName.toUpperCase().endsWith(".SRT") || entryName.toUpperCase().endsWith(".SUB")) {
-
-                    int n;
-
-                    String entryExt = entryName.substring(entryName.lastIndexOf('.'));
-
-                    if (movie.isTVShow()) {
-                        // for tv show, use the subtitleFile parameter because tv show is
-                        // handled by downloading subtitle from the episode page (each episode for its own)
-                        fileOutputStream = FileTools.createFileOutputStream(subtitleFile + entryExt);
-                    } else {
-                        // for movie, we need to save all subtitles entries
-                        // from inside the zip file, and name them according to
-                        // the movie file parts.
-                        if (partsIter.hasNext()) {
-                            MovieFile moviePart = partsIter.next();
-                            String partName = moviePart.getFile().getAbsolutePath();
-                            if (bluray) { // This is a BDRip, should be saved as index.EXT under BDMV dir to match PCH requirments
-                                partName = partName.substring(0, partName.lastIndexOf("BDMV")) + "BDMV\\index";
-                            } else {
-                                partName = partName.substring(0, partName.lastIndexOf('.'));
-                            }
-                            fileOutputStream = FileTools.createFileOutputStream(partName + entryExt);
-                        } else {
-                            // in case of some mismatch, use the old code
+            try (InputStream inputStream = connection.getInputStream();
+                ZipInputStream zipInputStream = new ZipInputStream(inputStream))
+            {
+    
+                ZipEntry zipentry = zipInputStream.getNextEntry();
+                while (zipentry != null) {
+                    // for each entry to be extracted
+                    String entryName = zipentry.getName();
+    
+                    LOG.debug("ZIP entryname: {}", entryName);
+    
+                    // Check if this is a subtitle file
+                    if (entryName.toUpperCase().endsWith(".SRT") || entryName.toUpperCase().endsWith(".SUB")) {
+    
+                        int n;
+    
+                        String entryExt = entryName.substring(entryName.lastIndexOf('.'));
+    
+                        if (movie.isTVShow()) {
+                            // for tv show, use the subtitleFile parameter because tv show is
+                            // handled by downloading subtitle from the episode page (each episode for its own)
                             fileOutputStream = FileTools.createFileOutputStream(subtitleFile + entryExt);
+                        } else {
+                            // for movie, we need to save all subtitles entries
+                            // from inside the zip file, and name them according to
+                            // the movie file parts.
+                            if (partsIter.hasNext()) {
+                                MovieFile moviePart = partsIter.next();
+                                String partName = moviePart.getFile().getAbsolutePath();
+                                if (bluray) { // This is a BDRip, should be saved as index.EXT under BDMV dir to match PCH requirments
+                                    partName = partName.substring(0, partName.lastIndexOf("BDMV")) + "BDMV\\index";
+                                } else {
+                                    partName = partName.substring(0, partName.lastIndexOf('.'));
+                                }
+                                fileOutputStream = FileTools.createFileOutputStream(partName + entryExt);
+                            } else {
+                                // in case of some mismatch, use the old code
+                                fileOutputStream = FileTools.createFileOutputStream(subtitleFile + entryExt);
+                            }
                         }
+    
+                        while ((n = zipInputStream.read(buf, 0, 1024)) > -1) {
+                            fileOutputStream.write(buf, 0, n);
+                        }
+    
+                        found = true;
                     }
-
-                    while ((n = zipInputStream.read(buf, 0, 1024)) > -1) {
-                        fileOutputStream.write(buf, 0, n);
-                    }
-
-                    found = true;
+    
+                    zipInputStream.closeEntry();
+                    zipentry = zipInputStream.getNextEntry();
                 }
-
-                zipInputStream.closeEntry();
-                zipentry = zipInputStream.getNextEntry();
-
             }
-
         } catch (IOException error) {
             LOG.error("Error - {}", error.getMessage());
             return false;
         } finally {
-            try {
-                if (zipInputStream != null) {
-                    zipInputStream.close();
-                }
-            } catch (IOException e) {
-                // Ignore
-            }
-
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-            } catch (IOException e) {
-                // Ignore
-            }
-
             try {
                 if (fileOutputStream != null) {
                     fileOutputStream.close();
@@ -1310,16 +1292,16 @@ public class SratimPlugin extends ImdbPlugin {
     protected StringWriter getContent(URLConnection connection) {
         StringWriter content = new StringWriter(10 * 1024);
         InputStreamReader inputStream = null;
-        BufferedReader in = null;
 
         try {
             inputStream = new InputStreamReader(connection.getInputStream(), Charset.defaultCharset());
-            in = new BufferedReader(inputStream);
-            String line;
-            while ((line = in.readLine()) != null) {
-                content.write(line);
+            try (BufferedReader in = new BufferedReader(inputStream)) {
+                String line;
+                while ((line = in.readLine()) != null) {
+                    content.write(line);
+                }
+                content.flush();
             }
-            content.flush();
             return content;
         } catch (IOException ex) {
             return content;
@@ -1330,14 +1312,6 @@ public class SratimPlugin extends ImdbPlugin {
                 content.close();
             } catch (IOException ex) {
                 LOG.debug("Failed to close StringWriter: {}", ex.getMessage());
-            }
-
-            try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (IOException ex) {
-                LOG.debug("Failed to close BufferedReader: {}", ex.getMessage());
             }
 
             try {
@@ -1383,7 +1357,7 @@ public class SratimPlugin extends ImdbPlugin {
         return found;
     }
 
-    private int findEndOfHebrewSubtitlesSection(String mainXML) {
+    private static int findEndOfHebrewSubtitlesSection(String mainXML) {
         int result = mainXML.length();
         boolean onlyHeb = PropertiesUtil.getBooleanProperty("sratim.downloadOnlyHebrew", Boolean.FALSE);
         if (onlyHeb) {

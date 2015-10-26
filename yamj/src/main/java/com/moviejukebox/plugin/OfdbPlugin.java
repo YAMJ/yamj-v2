@@ -22,6 +22,15 @@
  */
 package com.moviejukebox.plugin;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.model.enumerations.OverrideFlag;
@@ -31,13 +40,6 @@ import com.moviejukebox.tools.SearchEngineTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Durin
@@ -334,7 +336,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
         return returnValue;
     }
 
-    private String extractName(String tag) {
+    private static String extractName(String tag) {
         String name = HTMLTools.extractTag(tag, "class=\"Daten\">", "</font>");
         int akaIndex = name.indexOf("als <i>");
         if (akaIndex > 0) {

@@ -22,19 +22,21 @@
  */
 package com.moviejukebox.plugin.trailer;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.KinopoiskPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Plugin to retrieve movie data from Russian movie database www.kinopoisk.ru
@@ -70,10 +72,10 @@ public class KinopoiskTrailersPlugin extends TrailerPlugin {
             if (fileExists) {
                 LOG.debug("Movie has trailers, skipping");
                 return false;
-            } else {
-                Collection<ExtraFile> files = new ArrayList<>();
-                movie.setExtraFiles(files);
             }
+
+            Collection<ExtraFile> files = new ArrayList<>();
+            movie.setExtraFiles(files);
         }
 
         String trailerUrl = getTrailerUrl(movie);

@@ -22,18 +22,21 @@
  */
 package com.moviejukebox.model;
 
-import com.moviejukebox.model.Movie.MovieId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
+import com.moviejukebox.model.Movie.MovieId;
 
 /**
  * Container of parsed data from movie file name.
@@ -231,11 +234,7 @@ public class MovieFileNameDTO {
 
     public String getId(String key) {
         String result = idMap.get(key);
-        if (result != null) {
-            return result;
-        } else {
-            return Movie.UNKNOWN;
-        }
+        return (result == null ? Movie.UNKNOWN : result);
     }
 
     public Map<String, String> getIdMap() {

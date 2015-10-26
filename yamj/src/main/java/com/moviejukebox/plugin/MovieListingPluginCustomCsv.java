@@ -22,15 +22,6 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.CSVWriter;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -45,9 +36,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.CSVWriter;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 
 public class MovieListingPluginCustomCsv extends MovieListingPluginBase implements MovieListingPlugin {
@@ -104,7 +106,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * @param knownType The type to match
      * @return true if we got a match
      */
-    private boolean checkHeaderField(String field, String knownType) {
+    private static boolean checkHeaderField(String field, String knownType) {
         // See if we want all the header fields or not
         if (field == null || knownType == null) {
             return false; // no need to compare
@@ -115,7 +117,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
         }
 
         // Last try - Remove all spaces, and any trailing ? or #
-        String type = knownType.replace((CharSequence) " ", (CharSequence) "");
+        String type = knownType.replace(" ", "");
         if (type.endsWith("?") || type.endsWith("#")) {
             type = type.substring(0, type.length() - 1).trim();
         }
@@ -294,13 +296,12 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase implemen
      * @param i
      * @return empty string if input = -1
      */
-    private String blankNegatives(int i) {
+    private static String blankNegatives(int i) {
         if (0 <= i) {
             return String.valueOf(i);
-        } else {
-            return "";
         }
-    } // blankNegatives()
+        return StringUtils.EMPTY;
+    }
 
     /**
      * @param str

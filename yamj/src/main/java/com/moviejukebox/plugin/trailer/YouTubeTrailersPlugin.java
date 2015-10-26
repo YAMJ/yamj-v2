@@ -22,11 +22,6 @@
  */
 package com.moviejukebox.plugin.trailer;
 
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.DOMHelper;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.SystemTools;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -34,7 +29,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
@@ -44,6 +41,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.DOMHelper;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.SystemTools;
 
 public class YouTubeTrailersPlugin extends TrailerPlugin {
 
@@ -84,10 +87,9 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
         if (ytTrailers.isEmpty()) {
             LOG.debug("No trailers found for {}", movie.getBaseName());
             return Boolean.FALSE;
-        } else {
-            LOG.debug("Found {} trailers for {} saving upto {} to the movie.", ytTrailers.size(), movie.getBaseName(), maxTrailers);
         }
-
+        
+        LOG.debug("Found {} trailers for {} saving upto {} to the movie.", ytTrailers.size(), movie.getBaseName(), maxTrailers);
         for (YouTubeTrailer ytTrailer : ytTrailers) {
             LOG.debug("Saving {} URL: {} to {}", ytTrailer.title, ytTrailer.url, movie.getBaseName());
             addTrailer(movie, ytTrailer);

@@ -22,6 +22,13 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import java.net.URL;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
@@ -38,11 +45,6 @@ import com.omertron.themoviedbapi.TheMovieDbApi;
 import com.omertron.themoviedbapi.enumeration.SearchType;
 import com.omertron.themoviedbapi.model.movie.MovieInfo;
 import com.omertron.themoviedbapi.results.ResultList;
-import java.net.URL;
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
 
@@ -94,18 +96,19 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
 
         if (movieList.isEmpty()) {
             return Movie.UNKNOWN;
-        } else {
-            if (movieList.size() == 1) {
-                // Only one movie so return that id
-                return String.valueOf(movieList.get(0).getId());
-            }
+        }
+        
+        if (movieList.size() == 1) {
+            // Only one movie so return that id
+            return String.valueOf(movieList.get(0).getId());
+        }
 
-            for (MovieInfo moviedb : movieList) {
-                if (Compare.movies(moviedb, title, searchYear, TheMovieDbPlugin.SEARCH_MATCH)) {
-                    return String.valueOf(moviedb.getId());
-                }
+        for (MovieInfo moviedb : movieList) {
+            if (Compare.movies(moviedb, title, searchYear, TheMovieDbPlugin.SEARCH_MATCH)) {
+                return String.valueOf(moviedb.getId());
             }
         }
+
         return Movie.UNKNOWN;
     }
 
@@ -126,11 +129,9 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
                 return new Image(posterURL.toString());
             } catch (MovieDbException ex) {
                 LOG.warn("Failed to get the poster URL for TMDB ID {} {}", id, ex.getMessage());
-                return Image.UNKNOWN;
             }
-        } else {
-            return Image.UNKNOWN;
         }
+        return Image.UNKNOWN;
     }
 
     @Override

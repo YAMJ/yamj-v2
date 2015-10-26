@@ -22,11 +22,13 @@
  */
 package com.moviejukebox.model;
 
-import com.moviejukebox.model.enumerations.PropertyOverwrites;
 import java.util.EnumSet;
 import java.util.Set;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
+import com.moviejukebox.model.enumerations.PropertyOverwrites;
 
 /**
  * Class to define the property name and the impact on each of the overwrite flags. If the
@@ -57,11 +59,7 @@ public class PropertyInformation {
     }
 
     public boolean isOverwrite(PropertyOverwrites overwrite) {
-        if (propertyOverwrites.contains(overwrite)) {
-            return Boolean.TRUE;
-        } else {
-            return Boolean.FALSE;
-        }
+        return propertyOverwrites.contains(overwrite);
     }
 
     /**

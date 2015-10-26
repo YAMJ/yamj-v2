@@ -22,42 +22,9 @@
  */
 package com.moviejukebox.writer;
 
-import com.moviejukebox.model.Attachment.Attachment;
-import com.moviejukebox.model.Award;
-import com.moviejukebox.model.AwardEvent;
-import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.Comparator.CertificationComparator;
-import com.moviejukebox.model.Comparator.IndexComparator;
-import com.moviejukebox.model.Comparator.SortIgnorePrefixesComparator;
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Filmography;
-import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.Index;
-import com.moviejukebox.model.IndexInfo;
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.JukeboxStatistics;
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.model.enumerations.CodecType;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.model.enumerations.JukeboxStatistic;
-import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.model.enumerations.TitleSortType;
-import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.tools.DOMHelper;
-import com.moviejukebox.tools.DateTimeTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.GitRepositoryState;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SubtitleTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.ThreadExecutor;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -74,8 +41,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.pojava.datetime.DateTime;
 import org.slf4j.Logger;
@@ -83,6 +52,41 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import com.moviejukebox.model.Award;
+import com.moviejukebox.model.AwardEvent;
+import com.moviejukebox.model.Codec;
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Filmography;
+import com.moviejukebox.model.Identifiable;
+import com.moviejukebox.model.Index;
+import com.moviejukebox.model.IndexInfo;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.JukeboxStatistics;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Person;
+import com.moviejukebox.model.Attachment.Attachment;
+import com.moviejukebox.model.Comparator.CertificationComparator;
+import com.moviejukebox.model.Comparator.IndexComparator;
+import com.moviejukebox.model.Comparator.SortIgnorePrefixesComparator;
+import com.moviejukebox.model.enumerations.CodecType;
+import com.moviejukebox.model.enumerations.DirtyFlag;
+import com.moviejukebox.model.enumerations.JukeboxStatistic;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.model.enumerations.TitleSortType;
+import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.tools.DOMHelper;
+import com.moviejukebox.tools.DateTimeTools;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.GitRepositoryState;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SubtitleTools;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.ThreadExecutor;
 
 /**
  * Parse/Write XML files for movie details and library indexes
@@ -880,7 +884,7 @@ public class MovieJukeboxXMLWriter {
      * @param movie
      * @return
      */
-    private Element writeMovieForIndex(Document doc, Movie movie) {
+    private static Element writeMovieForIndex(Document doc, Movie movie) {
         Element eMovie = doc.createElement(MOVIE);
 
         eMovie.setAttribute("isExtra", Boolean.toString(movie.isExtra()));
@@ -922,7 +926,7 @@ public class MovieJukeboxXMLWriter {
      * @param cat
      * @return
      */
-    private Element generateElementSet(Document doc, String set, String element, Collection<String> items, Library library, String cat, String source) {
+    private static Element generateElementSet(Document doc, String set, String element, Collection<String> items, Library library, String cat, String source) {
 
         if (!items.isEmpty()) {
             Element eSet = doc.createElement(set);
@@ -932,9 +936,8 @@ public class MovieJukeboxXMLWriter {
                 writeIndexedElement(doc, eSet, element, item, createIndexAttribute(library, cat, item));
             }
             return eSet;
-        } else {
-            return null;
         }
+        return null;
     }
 
     /**
@@ -949,7 +952,7 @@ public class MovieJukeboxXMLWriter {
      * @param attributeValue
      * @param indexValue
      */
-    private void writeIndexedElement(Document doc, Element parentElement, String attributeName, String attributeValue, String indexValue) {
+    private static void writeIndexedElement(Document doc, Element parentElement, String attributeName, String attributeValue, String indexValue) {
         if (indexValue == null) {
             DOMHelper.appendChild(doc, parentElement, attributeName, attributeValue);
         } else {
@@ -967,7 +970,7 @@ public class MovieJukeboxXMLWriter {
      * @param value
      * @return
      */
-    private String createIndexAttribute(Library library, String categoryName, String value) {
+    private static String createIndexAttribute(Library library, String categoryName, String value) {
         if (StringTools.isNotValidString(value)) {
             return null;
         }
@@ -1511,7 +1514,7 @@ public class MovieJukeboxXMLWriter {
      * @param movieCodecs
      * @return
      */
-    private Element createCodecsElement(Document doc, Set<Codec> movieCodecs) {
+    private static Element createCodecsElement(Document doc, Set<Codec> movieCodecs) {
         Element eCodecs = doc.createElement("codecs");
         Element eCodecAudio = doc.createElement("audio");
         Element eCodecVideo = doc.createElement("video");
@@ -1603,7 +1606,7 @@ public class MovieJukeboxXMLWriter {
      * @param includeVersion
      * @return
      */
-    private Element writePerson(Document doc, Person person, boolean includeVersion) {
+    private static Element writePerson(Document doc, Person person, boolean includeVersion) {
         Element ePerson = doc.createElement("person");
 
         for (Map.Entry<String, String> e : person.getIdMap().entrySet()) {

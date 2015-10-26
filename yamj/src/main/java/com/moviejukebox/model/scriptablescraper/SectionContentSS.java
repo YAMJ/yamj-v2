@@ -24,7 +24,7 @@ package com.moviejukebox.model.scriptablescraper;
 
 import static com.moviejukebox.model.scriptablescraper.ScriptableScraper.ARRAY_GROUP_DIVIDER;
 import static com.moviejukebox.model.scriptablescraper.ScriptableScraper.ARRAY_ITEM_DIVIDER;
-import com.moviejukebox.tools.HTMLTools;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.Normalizer;
@@ -36,9 +36,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.tools.HTMLTools;
 
 /**
  * ScriptableScraper class
@@ -131,7 +134,7 @@ public class SectionContentSS extends AbstractScriptableScraper {
         return variable;
     }
 
-    public String getVariable(String name) {
+    public String getVariable(final String name) {
         try {
             String result = "";
             boolean safe = false;
@@ -179,12 +182,12 @@ public class SectionContentSS extends AbstractScriptableScraper {
             if (safe) {
                 result = Normalizer.normalize(result, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "").replace(" ", "+");
                 if (name.contains(":safe(")) {
-                    name = name.substring(name.indexOf(":safe(") + 6);
-                    name = name.substring(0, name.indexOf(")"));
+                    String encodeName = name.substring(name.indexOf(":safe(") + 6);
+                    encodeName = name.substring(0, name.indexOf(")"));
                     if (isDebug()) {
-                        LOG.debug("encode result to ''{}'", name);
+                        LOG.debug("encode result to ''{}'", encodeName);
                     }
-                    result = URLEncoder.encode(result, name);
+                    result = URLEncoder.encode(result, encodeName);
                 }
             }
             if (striptags) {
@@ -226,9 +229,8 @@ public class SectionContentSS extends AbstractScriptableScraper {
                         if (variable.index1 > -1) {
                             values = Arrays.asList(variable.value.split(ARRAY_ITEM_DIVIDER));
                             return values.size() > variable.index1;
-                        } else {
-                            return Boolean.TRUE;
                         }
+                        return Boolean.TRUE;
                     }
                 } else if (variable.index1 == -1) {
                     List<String> values = Arrays.asList(variable.value.split(ARRAY_ITEM_DIVIDER));

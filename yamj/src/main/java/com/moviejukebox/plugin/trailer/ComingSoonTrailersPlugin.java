@@ -22,16 +22,18 @@
  */
 package com.moviejukebox.plugin.trailer;
 
+import java.util.Date;
+import java.util.StringTokenizer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ComingSoonPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import java.util.Date;
-import java.util.StringTokenizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * base on ComingSoonPlugin
@@ -79,11 +81,11 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
 
         if (isDownload()) {
             return downloadTrailer(movie, trailerUrl, trailerLabel, extra);
-        } else {
-            extra.setFilename(trailerUrl);
-            movie.addExtraFile(extra);
-            return true;
         }
+        
+        extra.setFilename(trailerUrl);
+        movie.addExtraFile(extra);
+        return true;
     }
 
     @Override

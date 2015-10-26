@@ -23,6 +23,7 @@
 package com.moviejukebox.model;
 
 import java.io.File;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -161,9 +162,8 @@ public final class Jukebox {
         if (rootDirectory.endsWith(File.separator)) {
             // To deal with the jukebox directory in the root of a drive and already having a "/" or "\" at the end
             return (rootDirectory + this.detailsDirName);
-        } else {
-            return (rootDirectory + File.separator + this.detailsDirName);
         }
+        return (rootDirectory + File.separator + this.detailsDirName);
     }
 
     @Override

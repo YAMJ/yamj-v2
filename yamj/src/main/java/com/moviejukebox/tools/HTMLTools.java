@@ -22,8 +22,8 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.model.Movie;
 import static com.moviejukebox.model.Movie.UNKNOWN;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -35,9 +35,12 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
 
 public final class HTMLTools {
 
@@ -418,7 +421,7 @@ public final class HTMLTools {
             try {
                 returnUrl = URLEncoder.encode(url, "UTF-8");
                 // why does URLEncoder do this??!!
-                returnUrl = returnUrl.replace((CharSequence) "+", (CharSequence) "%20");
+                returnUrl = returnUrl.replace("+", "%20");
             } catch (UnsupportedEncodingException ignored) {
                 LOG.info("Could not decode URL string: {}, will proceed with undecoded string.", returnUrl);
             }
@@ -627,9 +630,8 @@ public final class HTMLTools {
                 String[] elems = elem.split(">");
                 if (elems.length > 1) {
                     return HTMLTools.decodeHtml(elems[1].trim());
-                } else {
-                    return HTMLTools.decodeHtml(elems[0].trim());
                 }
+                return HTMLTools.decodeHtml(elems[0].trim());
             }
         }
         return Movie.UNKNOWN;

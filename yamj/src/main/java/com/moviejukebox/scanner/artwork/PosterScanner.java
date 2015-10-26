@@ -22,19 +22,6 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.Image;
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.plugin.poster.IMoviePosterPlugin;
-import com.moviejukebox.plugin.poster.IPosterPlugin;
-import com.moviejukebox.plugin.poster.ITvShowPosterPlugin;
-import com.moviejukebox.scanner.AttachmentScanner;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
 import java.awt.Dimension;
 import java.awt.color.CMMException;
 import java.io.File;
@@ -49,13 +36,29 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.StringTokenizer;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.enumerations.DirtyFlag;
+import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.plugin.poster.IMoviePosterPlugin;
+import com.moviejukebox.plugin.poster.IPosterPlugin;
+import com.moviejukebox.plugin.poster.ITvShowPosterPlugin;
+import com.moviejukebox.scanner.AttachmentScanner;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * Scanner for poster files in local directory and from the Internet
@@ -292,10 +295,10 @@ public final class PosterScanner {
             movie.setPosterURL(posterURI);
 
             return posterURI;
-        } else {
-            LOG.debug("No local poster found for {}", movie.getBaseFilename());
-            return Movie.UNKNOWN;
         }
+        
+        LOG.debug("No local poster found for {}", movie.getBaseFilename());
+        return Movie.UNKNOWN;
     }
 
     private static String getPluginsCode() {
@@ -491,36 +494,19 @@ public final class PosterScanner {
         if (readers.hasNext()) {
             ImageReader reader = (ImageReader) readers.next();
 
-            InputStream in = null;
-            ImageInputStream iis = null;
-
             try {
                 URL url = new URL(imageUrl);
-                in = url.openStream();
-                iis = ImageIO.createImageInputStream(in);
-                reader.setInput(iis, Boolean.TRUE);
-
+                try (InputStream in = url.openStream();
+                     ImageInputStream iis = ImageIO.createImageInputStream(in))
+                {
+                    reader.setInput(iis, Boolean.TRUE);
+                }
+                
                 imageDimension.setSize(reader.getWidth(0), reader.getHeight(0));
             } catch (IOException ex) {
                 LOG.debug("getUrlDimensions error: {}: can't open url: {}", ex.getMessage(), imageUrl);
             } finally {
                 reader.dispose();
-
-                try {
-                    if (in != null) {
-                        in.close();
-                    }
-                } catch (IOException e) {
-                    // Ignore the error, it's already closed
-                }
-
-                try {
-                    if (iis != null) {
-                        iis.close();
-                    }
-                } catch (IOException e) {
-                    // Ignore the error, it's already closed
-                }
             }
         }
 
@@ -575,11 +561,9 @@ public final class PosterScanner {
     public static Dimension getFileImageSize(File imageFile) {
         Dimension imageSize = new Dimension(0, 0);
 
-        ImageInputStream in = null;
         ImageReader reader = null;
 
-        try {
-            in = ImageIO.createImageInputStream(imageFile);
+        try (ImageInputStream in = ImageIO.createImageInputStream(imageFile)) {
             @SuppressWarnings("rawtypes")
             Iterator readers = ImageIO.getImageReaders(in);
             if (readers.hasNext()) {
@@ -596,14 +580,6 @@ public final class PosterScanner {
         } finally {
             if (reader != null) {
                 reader.dispose();
-            }
-
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    // Ignore
-                }
             }
         }
 

@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,9 +91,8 @@ public class SectionSS extends SectionContentSS {
         if (StringUtils.isNotBlank(name)) {
             if (super.hasVariable(name)) {
                 return super.getVariable(name);
-            } else {
-                return getVariable(name, parent);
-            }
+            } 
+            return getVariable(name, parent);
         }
 
         return "";
@@ -111,9 +111,8 @@ public class SectionSS extends SectionContentSS {
         if (StringUtils.isNotBlank(name)) {
             if (parent != null) {
                 return parent.getGlobalVariable(name);
-            } else {
-                return getVariable(name);
             }
+            return getVariable(name);
         }
 
         return "";
@@ -124,9 +123,8 @@ public class SectionSS extends SectionContentSS {
         if (StringUtils.isNotBlank(name)) {
             if (super.hasVariable(name)) {
                 return true;
-            } else {
-                return hasVariable(name, parent);
             }
+            return hasVariable(name, parent);
         }
 
         return Boolean.FALSE;
@@ -148,9 +146,8 @@ public class SectionSS extends SectionContentSS {
         if (StringUtils.isNotBlank(name)) {
             if (parent != null) {
                 return parent.hasGlobalVariable(name);
-            } else {
-                return hasVariable(name);
             }
+            return hasVariable(name);
         }
 
         return Boolean.FALSE;
@@ -167,7 +164,7 @@ public class SectionSS extends SectionContentSS {
         }
     }
 
-    private String escapeForRegex(String text) {
+    private static String escapeForRegex(final String text) {
         if (text.contains("$")) {
             StringBuilder sb = new StringBuilder();
             for (char c : text.toCharArray()) {
@@ -177,9 +174,8 @@ public class SectionSS extends SectionContentSS {
                     sb.append(c);
                 }
             }
-            text = sb.toString();
+            return sb.toString();
         }
-
         return text;
     }
 

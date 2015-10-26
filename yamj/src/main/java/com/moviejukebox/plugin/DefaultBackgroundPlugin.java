@@ -22,12 +22,6 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.SkinProperties;
-import com.moviejukebox.tools.StringTools;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -36,9 +30,17 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import org.slf4j.Logger;
+
 import org.apache.sanselan.ImageReadException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.SkinProperties;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * @author altman.matthew
@@ -131,7 +133,7 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
             // Don't resize if the factor is the same
             if (rcqFactor > 1.00f) {
                 //roundCorner quality resizing
-                bi = GraphicTools.scaleToSizeStretch((int) backgroundWidth, (int) backgroundHeight, bi);
+                bi = GraphicTools.scaleToSizeStretch(backgroundWidth, backgroundHeight, bi);
             }
         }
 

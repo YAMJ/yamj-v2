@@ -22,6 +22,17 @@
  */
 package com.moviejukebox.plugin;
 
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.enumerations.DirtyFlag;
@@ -29,8 +40,6 @@ import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import static com.moviejukebox.tools.StringTools.isNotValidString;
-import static com.moviejukebox.tools.StringTools.isValidString;
 import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.WebBrowser;
 import com.moviejukebox.tools.cache.CacheMemory;
@@ -41,12 +50,6 @@ import com.omertron.thetvdbapi.model.BannerType;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Episode;
 import com.omertron.thetvdbapi.model.Series;
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.pojava.datetime.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author styles
@@ -200,7 +203,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         return Boolean.TRUE;
     }
 
-    private String getYear(String id, int season, String language) {
+    private static String getYear(String id, int season, String language) {
         String year;
         try {
             year = TVDB.getSeasonYear(id, season, language);
@@ -398,7 +401,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
      * @param episodeNumber
      * @return
      */
-    private Episode findEpisode(List<Episode> episodeList, int seasonNumber, int episodeNumber) {
+    private static Episode findEpisode(List<Episode> episodeList, int seasonNumber, int episodeNumber) {
         if (episodeList == null || episodeList.isEmpty()) {
             return null;
         }
@@ -419,7 +422,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
      * @param episodeNumber
      * @return
      */
-    private Episode findDvdEpisode(List<Episode> episodeList, int seasonNumber, int episodeNumber) {
+    private static Episode findDvdEpisode(List<Episode> episodeList, int seasonNumber, int episodeNumber) {
         if (episodeList == null || episodeList.isEmpty()) {
             return null;
         }
@@ -477,7 +480,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
         return result;
     }
 
-    private String findBannerURL(final Banners bannerList, final BannerType bannerType, final String languageId, final int season) {
+    private static String findBannerURL(final Banners bannerList, final BannerType bannerType, final String languageId, final int season) {
         if (StringTools.isNotValidString(languageId)) {
             return null;
         }
@@ -509,10 +512,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
                     if (++counter == season || !cycleSeriesBanners) {
                         urlBanner = banner.getUrl();
                         break;
-                    } else {
-                        // Save the URL in case this is the last one we find
-                        savedUrl = banner.getUrl();
                     }
+                    
+                    // Save the URL in case this is the last one we find
+                    savedUrl = banner.getUrl();
                 }
             }
         }
@@ -599,41 +602,41 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
             if (seriesList == null || seriesList.isEmpty()) {
                 return Movie.UNKNOWN;
-            } else {
-                Series series = null;
-                for (Series s : seriesList) {
-                    if (StringTools.isValidString(s.getFirstAired())) {
-                        if (StringTools.isValidString(movie.getYear())) {
-                            DateTime firstAired = DateTime.parse(s.getFirstAired());
-                            if (NumberUtils.toInt(firstAired.toString("yyyy")) == NumberUtils.toInt(movie.getYear())) {
-                                series = s;
-                                break;
-                            }
-                        } else {
+            }
+
+            Series series = null;
+            for (Series s : seriesList) {
+                if (StringTools.isValidString(s.getFirstAired())) {
+                    if (StringTools.isValidString(movie.getYear())) {
+                        DateTime firstAired = DateTime.parse(s.getFirstAired());
+                        if (NumberUtils.toInt(firstAired.toString("yyyy")) == NumberUtils.toInt(movie.getYear())) {
                             series = s;
                             break;
                         }
+                    } else {
+                        series = s;
+                        break;
                     }
                 }
+            }
 
-                // If we can't find an exact match, select the first one
-                if (series == null) {
-                    series = seriesList.get(0);
-                    LOG.debug("No exact match for {} found, using {}", movie.getTitle(), series.getSeriesName());
-                }
+            // If we can't find an exact match, select the first one
+            if (series == null) {
+                series = seriesList.get(0);
+                LOG.debug("No exact match for {} found, using {}", movie.getTitle(), series.getSeriesName());
+            }
 
-                id = String.valueOf(series.getId());
+            id = String.valueOf(series.getId());
 
-                series = getSeries(id);
+            series = getSeries(id);
 
-                // Add the series to the cache (no need to get it again
-                CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, LANGUAGE_PRIMARY), series);
+            // Add the series to the cache (no need to get it again
+            CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_SERIES, id, LANGUAGE_PRIMARY), series);
 
-                movie.setId(THETVDB_PLUGIN_ID, id);
+            movie.setId(THETVDB_PLUGIN_ID, id);
 
-                if (StringTools.isValidString(series.getImdbId())) {
-                    movie.setId(IMDB_PLUGIN_ID, series.getImdbId());
-                }
+            if (StringTools.isValidString(series.getImdbId())) {
+                movie.setId(IMDB_PLUGIN_ID, series.getImdbId());
             }
         }
 

@@ -87,6 +87,13 @@
         <dependency>
             <groupId>org.apache.xmlrpc</groupId>
             <artifactId>xmlrpc-client</artifactId>
+            <exclusions>
+				<exclusion>
+	            	<groupId>xml-apis</groupId>
+    	        	<artifactId>xml-apis</artifactId>
+        	    	<version>1.0.b2</version>
+				</exclusion>
+			</exclusions>             
         </dependency>
 
         <dependency>

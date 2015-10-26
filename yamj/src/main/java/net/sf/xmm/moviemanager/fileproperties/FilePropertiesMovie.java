@@ -21,6 +21,7 @@ package net.sf.xmm.moviemanager.fileproperties;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,16 +101,10 @@ public class FilePropertiesMovie {
         } catch (Exception error) {
             LOG.info("Error processing - {}: {}" ,filePath, error.getMessage());
 
-            /*
-             * The file is corrupted, tries to save the info that may have been
-             * found
-             */
-            if (fileProperties != null) {
-                _duration = fileProperties.getDuration();
-                _location = filePath;
-
-                fileName = new File(filePath).getName();
-            }
+            // The file is corrupted, tries to save the info that may have been found
+            _duration = fileProperties.getDuration();
+            _location = filePath;
+            fileName = new File(filePath).getName();
             throw new Exception("File could be corrupted. Some info may have been saved.");
         }
     }

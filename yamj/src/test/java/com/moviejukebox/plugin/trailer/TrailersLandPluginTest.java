@@ -22,14 +22,15 @@
  */
 package com.moviejukebox.plugin.trailer;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.PropertiesUtil;
 import static org.junit.Assert.assertTrue;
-import org.junit.Before;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  *
@@ -44,10 +45,6 @@ public class TrailersLandPluginTest {
     public static void configure() {
         PropertiesUtil.setProperty("trailers.download", false);
         tlPlugin = new TrailersLandPlugin();
-    }
-
-    @Before
-    public void setup() {
     }
 
 //    @Test

@@ -71,9 +71,8 @@ public final class MathSS {
     public String getValue(int index) {
         if (index == 0) {
             return value1;
-        } else {
-            return value2;
         }
+        return value2;
     }
 
     public String getValue1() {

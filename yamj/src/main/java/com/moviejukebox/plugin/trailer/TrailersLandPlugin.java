@@ -22,11 +22,6 @@
  */
 package com.moviejukebox.plugin.trailer;
 
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -35,10 +30,17 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * @author iuk
@@ -186,9 +188,8 @@ public class TrailersLandPlugin extends TrailerPlugin {
             if (StringTools.isNotValidString(trailersLandId)) {
                 LOG.debug("No ID found for movie {}", movie.getBaseName());
                 return trailerList;
-            } else {
-                movie.setId(getName(), trailersLandId);
             }
+            movie.setId(getName(), trailersLandId);
         }
 
         String xml;
@@ -440,37 +441,36 @@ public class TrailersLandPlugin extends TrailerPlugin {
                 if (!isResValid(resolution)) {
                     LOG.trace("Discarding '{}' due to resolution.", fileUrl);
                     return false;
-                } else {
-                    if (!this.isResBetter(resolution)) {
-                        LOG.trace("Discarding '{}' as it's not better than actual resolution.", fileUrl);
-                        return false;
-                    }
+                }
+                if (!this.isResBetter(resolution)) {
+                    LOG.trace("Discarding '{}' as it's not better than actual resolution.", fileUrl);
+                    return false;
                 }
 
                 setUrl(fileUrl);
                 setRes(resolution);
 
                 return true;
-            } else {
-                LOG.error("Couldn't find trailer url. Layout changed?");
-                return false;
             }
+            
+            LOG.error("Couldn't find trailer url. Layout changed?");
+            return false;
         }
 
         private int evaluateAgainstList(String what, String list) {
             if (list.indexOf(',') < 0) {
                 return what.equalsIgnoreCase(list) ? 1 : -1;
-            } else {
-                StringTokenizer st = new StringTokenizer(list, ",");
-                int w = 1;
-                while (st.hasMoreTokens()) {
-                    if (what.equalsIgnoreCase(st.nextToken())) {
-                        return w;
-                    }
-                    w++;
-                }
-                return -1;
             }
+
+            StringTokenizer st = new StringTokenizer(list, ",");
+            int w = 1;
+            while (st.hasMoreTokens()) {
+                if (what.equalsIgnoreCase(st.nextToken())) {
+                    return w;
+                }
+                w++;
+            }
+            return -1;
         }
 
         public boolean validateLang() {
@@ -490,9 +490,8 @@ public class TrailersLandPlugin extends TrailerPlugin {
                         .append(type, other.type)
                         .append(lang, other.lang)
                         .isEquals();
-            } else {
-                return false;
             }
+            return false;
         }
 
         @Override

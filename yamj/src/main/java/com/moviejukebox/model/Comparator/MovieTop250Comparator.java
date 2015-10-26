@@ -22,9 +22,10 @@
  */
 package com.moviejukebox.model.Comparator;
 
-import com.moviejukebox.model.Movie;
 import java.io.Serializable;
 import java.util.Comparator;
+
+import com.moviejukebox.model.Movie;
 
 /**
  * @author altman.matthew
@@ -46,8 +47,7 @@ public class MovieTop250Comparator implements Comparator<Movie>, Serializable {
     public int compare(Movie movie1, Movie movie2) {
         if (ascending) {
             return movie1.getTop250() - movie2.getTop250();
-        } else {
-            return movie2.getTop250() - movie1.getTop250();
         }
+        return movie2.getTop250() - movie1.getTop250();
     }
 }

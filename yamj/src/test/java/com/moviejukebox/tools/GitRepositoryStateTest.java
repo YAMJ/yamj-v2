@@ -22,46 +22,30 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.model.Movie;
-import java.io.IOException;
-import java.util.List;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import org.junit.After;
-import org.junit.AfterClass;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import org.junit.Before;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.moviejukebox.model.Movie;
+
 /**
- *
  * @author Stuart
  */
 public class GitRepositoryStateTest {
 
     private static GitRepositoryState instance;
 
-    public GitRepositoryStateTest() throws IOException {
-    }
-
     @BeforeClass
     public static void setUpClass() throws IOException {
         instance = new GitRepositoryState();
         System.out.println(ToStringBuilder.reflectionToString(instance, ToStringStyle.MULTI_LINE_STYLE));
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws IOException {
-    }
-
-    @Before
-    public void setUp() throws IOException {
-    }
-
-    @After
-    public void tearDown() throws IOException {
     }
 
     /**

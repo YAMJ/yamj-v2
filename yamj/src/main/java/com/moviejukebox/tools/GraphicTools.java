@@ -22,7 +22,6 @@
  */
 package com.moviejukebox.tools;
 
-import com.jhlabs.image.PerspectiveFilter;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.GradientPaint;
@@ -36,14 +35,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
+
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
+
 import org.apache.sanselan.ImageReadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.jhlabs.image.PerspectiveFilter;
 
 public final class GraphicTools {
 
@@ -79,9 +82,8 @@ public final class GraphicTools {
         if (fileImage.exists()) {
             JpegReader jr = new JpegReader();
             return jr.readImage(fileImage);
-        } else {
-            throw new FileNotFoundException("Image file '" + fileImage.getAbsolutePath() + "' does not exist");
         }
+        throw new FileNotFoundException("Image file '" + fileImage.getAbsolutePath() + "' does not exist");
     }
 
     /**
@@ -108,7 +110,6 @@ public final class GraphicTools {
         quality = (float) jpegQuality / 100;
         // save image as JPEG
         ImageWriter writer = null;
-        FileImageOutputStream output = null;
         try {
             BufferedImage bufImage = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
             bufImage.createGraphics().drawImage(bi, 0, 0, null, null);
@@ -128,23 +129,17 @@ public final class GraphicTools {
             // Create the output directories if needed
             FileTools.makeDirsForFile(outputFile);
 
-            output = new FileImageOutputStream(outputFile);
-            writer.setOutput(output);
-            IIOImage image = new IIOImage(bufImage, null, null);
-            writer.write(null, image, iwp);
+            try (FileImageOutputStream output = new FileImageOutputStream(outputFile)) {
+                writer.setOutput(output);
+                IIOImage image = new IIOImage(bufImage, null, null);
+                writer.write(null, image, iwp);
+            }
         } catch (IOException error) {
             LOG.error("Failed Saving thumbnail file: {}", filename);
             LOG.error(SystemTools.getStackTrace(error));
         } finally {
             if (writer != null) {
                 writer.dispose();
-            }
-            if (output != null) {
-                try {
-                    output.close();
-                } catch (IOException ex) {
-                    LOG.trace("Failed to close output file for {}", filename);
-                }
             }
         }
     }
@@ -204,7 +199,7 @@ public final class GraphicTools {
         int y = 0;
 
         tempWidth = nMaxWidth;
-        tempHeight = (int) (((double) imageHeight * (double) nMaxWidth) / (double) imageWidth);
+        tempHeight = (int) (((double) imageHeight * (double) nMaxWidth) / imageWidth);
 
         if (nMaxHeight > tempHeight) {
             y = nMaxHeight - tempHeight;
@@ -241,7 +236,7 @@ public final class GraphicTools {
         int tempHeight;
 
         tempWidth = nMaxWidth;
-        tempHeight = (int) (((double) imageHeight * (double) nMaxWidth) / (double) imageWidth);
+        tempHeight = (int) (((double) imageHeight * (double) nMaxWidth) / imageWidth);
 
         Image temp1 = imgSrc.getScaledInstance(tempWidth, tempHeight, Image.SCALE_SMOOTH);
         BufferedImage bi = new BufferedImage(tempWidth, tempHeight, BufferedImage.TYPE_INT_ARGB);
@@ -262,9 +257,9 @@ public final class GraphicTools {
 
         if (imageRatio > thumbnailRatio) {
             tempWidth = nMaxWidth;
-            tempHeight = (int) (((double) imageHeight * (double) nMaxWidth) / (double) imageWidth);
+            tempHeight = (int) (((double) imageHeight * (double) nMaxWidth) / imageWidth);
         } else {
-            tempWidth = (int) (((double) imageWidth * (double) nMaxHeight) / (double) imageHeight);
+            tempWidth = (int) (((double) imageWidth * (double) nMaxHeight) / imageHeight);
             tempHeight = nMaxHeight;
         }
 

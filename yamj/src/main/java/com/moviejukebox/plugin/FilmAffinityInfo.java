@@ -22,16 +22,18 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.WebBrowser;
 
 public class FilmAffinityInfo {
 
@@ -155,9 +157,7 @@ public class FilmAffinityInfo {
             } else {
                 return "film" + matcher.group(4) + ".html";
             }
-        } else {
-            return Movie.UNKNOWN;
         }
-
+        return Movie.UNKNOWN;
     }
 }

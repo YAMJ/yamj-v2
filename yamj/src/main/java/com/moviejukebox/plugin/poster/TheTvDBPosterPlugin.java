@@ -22,6 +22,15 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
@@ -38,13 +47,6 @@ import com.omertron.thetvdbapi.model.Banner;
 import com.omertron.thetvdbapi.model.BannerType;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Series;
-import java.util.Collections;
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.pojava.datetime.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
 
@@ -223,7 +225,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
         return response;
     }
 
-    private String findPosterURL(final Banners bannerList, final int season, final String languageId) {
+    private static String findPosterURL(final Banners bannerList, final int season, final String languageId) {
         String backupUrl = null;
         for (Banner banner : bannerList.getSeasonList()) {
             if ((banner.getSeason() == season) && (banner.getBannerType2() == BannerType.SEASON)) {

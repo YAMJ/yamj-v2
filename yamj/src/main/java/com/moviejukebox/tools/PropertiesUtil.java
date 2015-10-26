@@ -22,6 +22,8 @@
  */
 package com.moviejukebox.tools;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -40,9 +42,9 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,15 +95,15 @@ public final class PropertiesUtil {
     public static boolean setPropertiesStreamName(final String streamName, boolean warnFatal) {
         LOG.info("Using properties file '{}'", FilenameUtils.normalize(streamName));
         InputStream propertiesStream = ClassLoader.getSystemResourceAsStream(streamName);
-        Reader reader = null;
 
         try {
             if (propertiesStream == null) {
                 propertiesStream = new FileInputStream(streamName);
             }
 
-            reader = new InputStreamReader(propertiesStream, PROPERTIES_CHARSET);
-            PROPS.load(reader);
+            try (Reader reader = new InputStreamReader(propertiesStream, PROPERTIES_CHARSET)) {
+                PROPS.load(reader);
+            }
         } catch (IOException error) {
             // Output a warning if required.
             if (warnFatal) {
@@ -114,14 +116,6 @@ public final class PropertiesUtil {
             try {
                 if (propertiesStream != null) {
                     propertiesStream.close();
-                }
-            } catch (IOException e) {
-                // Ignore
-            }
-
-            try {
-                if (reader != null) {
-                    reader.close();
                 }
             } catch (IOException e) {
                 // Ignore
@@ -541,8 +535,7 @@ public final class PropertiesUtil {
     public static String getPropertiesFilename(boolean fullPath) {
         if (fullPath) {
             return StringTools.appendToPath(getProperty("mjb.skin.dir", "./skins/default"), PREFERENCES_FILENAME);
-        } else {
-            return PREFERENCES_FILENAME;
         }
+        return PREFERENCES_FILENAME;
     }
 }

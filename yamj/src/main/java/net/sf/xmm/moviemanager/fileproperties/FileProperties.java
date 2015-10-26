@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.util.StringTokenizer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +66,7 @@ abstract class FileProperties {
      * Processes a file from the given DataInputStream.
      */
     protected void process(RandomAccessFile dataStream) throws Exception {
+        // nothing to do
     }
 
     /**
@@ -169,9 +171,8 @@ abstract class FileProperties {
         if (n > 0 && n < 10000 && len > n) {
             readUnsignedBytes(dataStream, n);
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**

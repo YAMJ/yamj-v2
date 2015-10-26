@@ -22,7 +22,6 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.model.Movie;
 import java.text.BreakIterator;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -35,11 +34,14 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
 
 /**
  * String related tools for the jukebox
@@ -130,9 +132,8 @@ public final class StringTools {
         Character tempC = CHAR_REPLACEMENT_MAP.get(charToReplace);
         if (tempC == null) {
             return charToReplace.toString();
-        } else {
-            return tempC.toString();
         }
+        return tempC.toString();
     }
 
     /**
@@ -226,7 +227,7 @@ public final class StringTools {
             }
 
             // build string
-            returnSize = df.format((float) ((float) fileSize / (float) divider)) + appendText;
+            returnSize = df.format(((float) fileSize / (float) divider)) + appendText;
         }
 
         return returnSize;
@@ -293,18 +294,19 @@ public final class StringTools {
             if (changedString.length() <= requiredLength) {
                 // No need to do anything
                 return changedString;
-            } else {
-                if (trimToWord) {
-                    BreakIterator bi = BreakIterator.getWordInstance();
-                    bi.setText(changedString);
-                    int biLength = bi.preceding(requiredLength - endingSuffix.length() + 1);
-                    return changedString.substring(0, biLength).trim() + endingSuffix;
-                } else {
-                    // We know that the source string is longer that the required length, so trim it to size
-                    return changedString.substring(0, requiredLength - endingSuffix.length()).trim() + endingSuffix;
-                }
             }
+
+            if (trimToWord) {
+                BreakIterator bi = BreakIterator.getWordInstance();
+                bi.setText(changedString);
+                int biLength = bi.preceding(requiredLength - endingSuffix.length() + 1);
+                return changedString.substring(0, biLength).trim() + endingSuffix;
+            }
+            
+            // We know that the source string is longer that the required length, so trim it to size
+            return changedString.substring(0, requiredLength - endingSuffix.length()).trim() + endingSuffix;
         }
+        
         return changedString;
     }
 
@@ -376,9 +378,8 @@ public final class StringTools {
         Matcher m = mpaaPattern.matcher(mpaaCertification);
         if (m.find()) {
             return m.group(1).trim();
-        } else {
-            return mpaaCertification.trim();
         }
+        return mpaaCertification.trim();
     }
 
     /**

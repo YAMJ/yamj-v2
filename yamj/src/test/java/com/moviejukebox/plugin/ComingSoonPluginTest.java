@@ -22,19 +22,21 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import java.util.ArrayList;
-import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import org.junit.Before;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  *
@@ -53,10 +55,6 @@ public class ComingSoonPluginTest {
         PropertiesUtil.setProperty("priority.title", "comingsoon,imdb");
         PropertiesUtil.setProperty("priority.originaltitle", "comingsoon,imdb");
         csPlugin = new ComingSoonPlugin();
-    }
-
-    @Before
-    public void setup() {
     }
 
     @Test

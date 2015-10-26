@@ -22,30 +22,13 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Award;
-import com.moviejukebox.model.AwardEvent;
-import com.moviejukebox.model.Filmography;
-import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.ImdbSiteDataDefinition;
-import com.moviejukebox.model.Movie;
 import static com.moviejukebox.model.Movie.UNKNOWN;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.scanner.artwork.FanartScanner;
-import com.moviejukebox.tools.AspectRatioTools;
-import com.moviejukebox.tools.DateTimeTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
-import com.moviejukebox.tools.StringTools;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import static com.moviejukebox.tools.StringTools.trimToLength;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
+
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -61,11 +44,31 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.pojava.datetime.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Award;
+import com.moviejukebox.model.AwardEvent;
+import com.moviejukebox.model.Filmography;
+import com.moviejukebox.model.Identifiable;
+import com.moviejukebox.model.ImdbSiteDataDefinition;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Person;
+import com.moviejukebox.scanner.artwork.FanartScanner;
+import com.moviejukebox.tools.AspectRatioTools;
+import com.moviejukebox.tools.DateTimeTools;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.WebBrowser;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 
@@ -124,8 +127,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private static final String HTML_A_END = "</a>";
     private static final String HTML_A_START = "<a ";
     private static final String HTML_SLASH_PIPE = "\\|";
-    private static final String HTML_SLASH_QUOTE = "/\"";
-    private static final String HTML_QUOTE_GT = "\">";
     private static final String HTML_TABLE_END = "</table>";
     private static final String HTML_TD_END = "</td>";
     private static final String HTML_H4_END = ":</h4>";
@@ -133,8 +134,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private static final String HTML_SPAN_END = "</span>";
     private static final String HTML_GT = ">";
     // Patterns for the name searching
-    private static final Pattern PATTERN_PERSON_NAME = Pattern.compile("(?:.*?)/name/(nm\\d+)/(?:.*?)'name'>(.*?)</a>(?:.*?)", Pattern.CASE_INSENSITIVE);
-    private static final Pattern PATTERN_PERSON_CHAR = Pattern.compile("(?:.*?)/character/(ch\\d+)/(?:.*?)>(.*?)</a>(?:.*)", Pattern.CASE_INSENSITIVE);
     private static final Pattern PATTERN_BIO = Pattern.compile("<h\\d.*?>Mini Bio.*?</h\\d>.*?<p>(.*?)</p>");
 
     // Patterns for filmography
@@ -583,7 +582,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param xml The source XML
      * @return The tagline found (or UNKNOWN)
      */
-    private String extractTagline(ImdbSiteDataDefinition siteDef, String xml) {
+    private static String extractTagline(ImdbSiteDataDefinition siteDef, String xml) {
         String tagline = UNKNOWN;
 
         // Look for the tagline with upto 3 characters after the sitedef to ensure we get any plurals on the end
@@ -757,11 +756,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             // The AKAs are stored in the format "title", "country"
             // therefore we need to look for the preferredCountry and then work backwards
-            if (akas == null) {
-                // Just extract the AKA section from the page
-                List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "<a id=\"akas\" name=\"akas\">", HTML_TABLE_END, "<td>", HTML_TD_END, Boolean.FALSE);
-                akas = buildAkaMap(akaList);
-            }
+            List<String> akaList = HTMLTools.extractTags(releaseInfoXML, "<a id=\"akas\" name=\"akas\">", HTML_TABLE_END, "<td>", HTML_TD_END, Boolean.FALSE);
+            akas = buildAkaMap(akaList);
 
             String foundValue = null;
             for (Map.Entry<String, String> aka : akas.entrySet()) {
@@ -1207,7 +1203,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param rating
      * @return
      */
-    private int parseRating(String rating) {
+    private static int parseRating(String rating) {
         StringTokenizer st = new StringTokenizer(rating, "/ ()");
         return StringTools.parseRating(st.nextToken());
     }
@@ -1319,7 +1315,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param movie
      * @return
      */
-    private String searchIMDB(String nfo, Movie movie) {
+    private static String searchIMDB(String nfo, Movie movie) {
         final int flags = Pattern.CASE_INSENSITIVE | Pattern.DOTALL;
         String imdbPattern = ")[\\W].*?(tt\\d{7})";
         // Issue 1912 escape special regex characters in title
@@ -1826,7 +1822,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param item
      * @return
      */
-    private String getCharacter(final String item) {
+    private static String getCharacter(final String item) {
         String character = UNKNOWN;
         int beginIndex, endIndex;
 
@@ -1869,7 +1865,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param film The Filmography to add the information to
      * @param jobItem The source XML to process
      */
-    private void processActorItem(Filmography film, final String jobItem) {
+    private static void processActorItem(Filmography film, final String jobItem) {
         film.setCharacter(getCharacter(jobItem));
         film.setJob(Filmography.JOB_ACTOR);
     }

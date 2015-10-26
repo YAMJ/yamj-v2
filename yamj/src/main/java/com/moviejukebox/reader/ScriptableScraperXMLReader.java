@@ -22,16 +22,14 @@
  */
 package com.moviejukebox.reader;
 
-import com.moviejukebox.model.scriptablescraper.ScriptableScraper;
-import com.moviejukebox.model.scriptablescraper.SectionSS;
-import com.moviejukebox.tools.DOMHelper;
-import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -40,6 +38,11 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import com.moviejukebox.model.scriptablescraper.ScriptableScraper;
+import com.moviejukebox.model.scriptablescraper.SectionSS;
+import com.moviejukebox.tools.DOMHelper;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * base on MovieJukeboxXMLReader
@@ -129,7 +132,7 @@ public class ScriptableScraperXMLReader {
         return Boolean.TRUE;
     }
 
-    private String getAttribute(Node eSection, String name) {
+    private static String getAttribute(Node eSection, String name) {
         int looper;
         Node nElement;
         NamedNodeMap mapElement = eSection.getAttributes();
@@ -143,7 +146,7 @@ public class ScriptableScraperXMLReader {
         return "";
     }
 
-    private boolean hasAttribute(Node eSection, String name) {
+    private static boolean hasAttribute(Node eSection, String name) {
         int looper;
         Node nElement;
         NamedNodeMap mapElement = eSection.getAttributes();
@@ -157,7 +160,7 @@ public class ScriptableScraperXMLReader {
         return Boolean.FALSE;
     }
 
-    private String escapeRegex(String value) {
+    private static String escapeRegex(String value) {
         return value.replaceAll("(\\\\[AbBEGQzZ])", "\\\\$1");
     }
 
@@ -176,7 +179,7 @@ public class ScriptableScraperXMLReader {
 
         NodeList nlElements = eSection.getChildNodes();
         for (looper = 0; looper < nlElements.getLength(); looper++) {
-            nElement = (Node) nlElements.item(looper);
+            nElement = nlElements.item(looper);
             eName = nElement.getNodeName();
             if (eName.equals("set")) {
                 resSection.setSet(
@@ -216,6 +219,7 @@ public class ScriptableScraperXMLReader {
             } else if (subsections.contains(eName)) {
                 fillSection(ssData, resSection, nElement, eName);
             } else if (eName.equals("#text") || eName.equals("#comment")) {
+                // nothing to do
             } else {
                 LOG.error("Unknown section: {}", eName);
             }

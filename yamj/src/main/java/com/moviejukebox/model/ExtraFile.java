@@ -47,7 +47,7 @@ public class ExtraFile extends MovieFile {
     }
 
     @Override
-    public Map<String, String> getPlayLink() {
+    public synchronized Map<String, String> getPlayLink() {
         Map<String, String> result;
         if (this.getFile() != null) {
             result = super.getPlayLink();

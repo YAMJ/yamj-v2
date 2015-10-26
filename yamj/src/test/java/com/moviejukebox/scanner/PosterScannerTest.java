@@ -22,12 +22,15 @@
  */
 package com.moviejukebox.scanner;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.plugin.ImdbInfo;
 import java.io.UnsupportedEncodingException;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.plugin.ImdbInfo;
+
+@SuppressWarnings("unused")
 public class PosterScannerTest {
 
     private Movie movieTest;

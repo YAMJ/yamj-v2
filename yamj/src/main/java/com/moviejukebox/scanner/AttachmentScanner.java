@@ -22,18 +22,6 @@
  */
 package com.moviejukebox.scanner;
 
-import com.moviejukebox.model.Attachment.Attachment;
-import com.moviejukebox.model.Attachment.AttachmentContent;
-import com.moviejukebox.model.Attachment.AttachmentType;
-import com.moviejukebox.model.Attachment.ContentType;
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -46,10 +34,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Attachment.Attachment;
+import com.moviejukebox.model.Attachment.AttachmentContent;
+import com.moviejukebox.model.Attachment.AttachmentType;
+import com.moviejukebox.model.Attachment.ContentType;
+import com.moviejukebox.model.enumerations.DirtyFlag;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * Scans and extracts attachments within a file i.e. matroska files.
@@ -384,8 +386,7 @@ public class AttachmentScanner {
             while ((line != null) && StringUtils.isBlank(line)) {
                 line = input.readLine();
             }
-        } catch (IOException ignore) {
-        }
+        } catch (IOException ignore) { /* ignore */ }
         return line;
     }
 
@@ -499,29 +500,26 @@ public class AttachmentScanner {
                     if (isSetImage) {
                         // fileName = <any>.<posterToken>.set.<extension>
                         return new AttachmentContent(ContentType.SET_POSTER);
-                    } else {
-                        // fileName = <any>.<posterToken>.<extension>
-                        return new AttachmentContent(ContentType.POSTER);
                     }
+                    // fileName = <any>.<posterToken>.<extension>
+                    return new AttachmentContent(ContentType.POSTER);
                 }
             }
             if (check.endsWith(FANART_TOKEN) || check.equals(FANART_TOKEN.substring(1))) {
                 if (isSetImage) {
                     // fileName = <any>.<fanartToken>.set.<extension>
                     return new AttachmentContent(ContentType.SET_FANART);
-                } else {
-                    // fileName = <any>.<fanartToken>.<extension>
-                    return new AttachmentContent(ContentType.FANART);
                 }
+                // fileName = <any>.<fanartToken>.<extension>
+                return new AttachmentContent(ContentType.FANART);
             }
             if (check.endsWith(BANNER_TOKEN) || check.equals(BANNER_TOKEN.substring(1))) {
                 if (isSetImage) {
                     // fileName = <any>.<bannerToken>.set.<extension>
                     return new AttachmentContent(ContentType.SET_BANNER);
-                } else {
-                    // fileName = <any>.<bannerToken>.<extension>
-                    return new AttachmentContent(ContentType.BANNER);
                 }
+                // fileName = <any>.<bannerToken>.<extension>
+                return new AttachmentContent(ContentType.BANNER);
             }
             // determination of exactly video image part
             for (int part = firstPart; part <= lastPart; part++) {
@@ -747,13 +745,13 @@ public class AttachmentScanner {
                     // use first movie file
                     searchMovieFiles.add(it.next());
                     break;
-                } else {
-                    MovieFile mv = it.next();
-                    if ((mv.getFirstPart() <= part) && (part <= mv.getLastPart())) {
-                        // just use movie file with matches requested part
-                        searchMovieFiles.add(mv);
-                        break;
-                    }
+                }
+                    
+                MovieFile mv = it.next();
+                if ((mv.getFirstPart() <= part) && (part <= mv.getLastPart())) {
+                    // just use movie file with matches requested part
+                    searchMovieFiles.add(mv);
+                    break;
                 }
             }
         }

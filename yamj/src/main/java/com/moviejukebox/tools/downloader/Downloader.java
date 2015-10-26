@@ -22,7 +22,6 @@
  */
 package com.moviejukebox.tools.downloader;
 
-import com.moviejukebox.tools.WebBrowser;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -33,8 +32,11 @@ import java.nio.channels.ReadableByteChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.tools.WebBrowser;
 
 /**
  * This is the downloader class.
@@ -63,12 +65,8 @@ public final class Downloader implements RBCWrapperDelegate {
         // The time the download started
         long startTime = System.currentTimeMillis();
 
-        FileOutputStream fos = null;
-        ReadableByteChannel rbc = null;
-        URL url;
-
         try {
-            url = new URL(remoteURL);
+            URL url = new URL(remoteURL);
             int contentLength = contentLength(url);
 
             if (contentLength < 0) {
@@ -87,31 +85,16 @@ public final class Downloader implements RBCWrapperDelegate {
                 connection.setRequestProperty("User-Agent", USER_AGENT_NORMAL);
             }
 
-            rbc = new RBCWrapper(Channels.newChannel(connection.getInputStream()), contentLength, this);
-            fos = new FileOutputStream(localPath);
-            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-
-            fos.flush();
+            try (ReadableByteChannel rbc = new RBCWrapper(Channels.newChannel(connection.getInputStream()), contentLength, this);
+                 FileOutputStream fos = new FileOutputStream(localPath))
+            {
+                fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+                fos.flush();
+            }
         } catch (MalformedURLException ex) {
             LOG.debug("Failed to transform URL: {}", ex.getMessage());
         } catch (IOException ex) {
             LOG.debug("Output error: {}", ex.getMessage());
-        } finally {
-            try {
-                if (fos != null) {
-                    fos.close();
-                }
-            } catch (IOException ex) {
-                LOG.trace("Failed to close output stream: {}", ex.getMessage());
-            }
-
-            try {
-                if (rbc != null) {
-                    rbc.close();
-                }
-            } catch (IOException ex) {
-                LOG.trace("Failed to close ReadableByteChannel: {}", ex.getMessage());
-            }
         }
 
         downloadOk = Boolean.TRUE;
@@ -148,7 +131,7 @@ public final class Downloader implements RBCWrapperDelegate {
      * @param url
      * @return
      */
-    private int contentLength(URL url) {
+    private static int contentLength(URL url) {
         HttpURLConnection connection;
         int contentLength = -1;
 

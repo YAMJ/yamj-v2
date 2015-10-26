@@ -22,13 +22,16 @@
  */
 package com.moviejukebox.scanner;
 
-import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * @author Grael by using GPL Source from Mediterranean :
@@ -93,7 +96,7 @@ public class DVDRipScanner {
                 }
             }
 
-            File[] ifo = (File[]) ifoList.toArray(new File[ifoList.size()]);
+            File[] ifo = ifoList.toArray(new File[ifoList.size()]);
 
             if (ifo == null || ifo.length == 0) {
                 LOG.info("No Ifo Found with disk format.");
@@ -121,9 +124,8 @@ public class DVDRipScanner {
                 if (longestDurationIndex == -1) {
                     LOG.info("Error retrieving file durations for IFO file, processing skipped.");
                     return null;
-                } else {
-                    return fileProperties[longestDurationIndex];
                 }
+                return fileProperties[longestDurationIndex];
             }
         } catch (Exception error) {
             LOG.error(SystemTools.getStackTrace(error));

@@ -22,6 +22,28 @@
  */
 package com.moviejukebox.scanner.artwork;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.sanselan.ImageReadException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
@@ -45,25 +67,6 @@ import com.omertron.thetvdbapi.model.Banner;
 import com.omertron.thetvdbapi.model.BannerType;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Series;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.sanselan.ImageReadException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Scanner for fanart files in local directory
@@ -136,10 +139,8 @@ public final class FanartScanner {
     public static String getFanartURL(Movie movie) {
         if (movie.isTVShow()) {
             return getTvFanartURL(movie);
-        } else {
-            return getMovieFanartURL(movie);
         }
-
+        return getMovieFanartURL(movie);
     }
 
     public static boolean scan(MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie) {
@@ -322,7 +323,6 @@ public final class FanartScanner {
                 moviedb = TMDB.getMovieInfo(tmdbID, language);
             } catch (MovieDbException ex) {
                 LOG.debug("Failed to get fanart using TMDB ID: {} - {}", tmdbID, ex.getMessage());
-                moviedb = null;
             }
         }
 
@@ -332,17 +332,11 @@ public final class FanartScanner {
                 moviedb = TMDB.getMovieInfoImdb(imdbID, language);
             } catch (MovieDbException ex) {
                 LOG.debug("Failed to get fanart using IMDB ID: {} - {}", imdbID, ex.getMessage());
-                moviedb = null;
             }
         }
 
         if (moviedb == null) {
             try {
-                int movieYear = 0;
-                if (StringTools.isValidString(movie.getYear()) && StringUtils.isNumeric(movie.getYear())) {
-                    movieYear = Integer.parseInt(movie.getYear());
-                }
-
                 ResultList<MovieInfo> result = TMDB.searchMovie(movie.getOriginalTitle(), 0, language, TheMovieDbPlugin.INCLUDE_ADULT, 0, 0, SearchType.PHRASE);
                 List<MovieInfo> movieList = result.getResults();
 
@@ -364,7 +358,6 @@ public final class FanartScanner {
                 }
             } catch (MovieDbException ex) {
                 LOG.debug("Failed to get fanart using IMDB ID: {} - {}", imdbID, ex.getMessage());
-                moviedb = null;
             }
         }
 
@@ -378,9 +371,8 @@ public final class FanartScanner {
             URL fanart = TMDB.createImageUrl(moviedb.getBackdropPath(), "original");
             if (fanart == null) {
                 return Movie.UNKNOWN;
-            } else {
-                return fanart.toString();
             }
+            return fanart.toString();
         } catch (MovieDbException ex) {
             LOG.debug("Error getting fanart from TheMovieDB.org for {}", movie.getBaseFilename());
             return Movie.UNKNOWN;
@@ -474,18 +466,13 @@ public final class FanartScanner {
 
         try {
             URL url = new URL(artworkImage.getUrl());
-            InputStream in = url.openStream();
-            ImageInputStream iis = ImageIO.createImageInputStream(in);
-            reader.setInput(iis, true);
-            urlWidth = reader.getWidth(0);
-            urlHeight = reader.getHeight(0);
-
-            if (in != null) {
-                in.close();
-            }
-
-            if (iis != null) {
-                iis.close();
+            
+            try (InputStream in = url.openStream();
+                 ImageInputStream iis = ImageIO.createImageInputStream(in))
+            {
+                reader.setInput(iis, true);
+                urlWidth = reader.getWidth(0);
+                urlHeight = reader.getHeight(0);
             }
         } catch (IOException error) {
             LOG.debug("ValidateFanart error: {}: can't open url", error.getMessage());

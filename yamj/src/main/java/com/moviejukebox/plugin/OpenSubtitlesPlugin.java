@@ -22,14 +22,6 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SubtitleTools;
-import com.moviejukebox.tools.WebBrowser;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,10 +39,20 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.enumerations.DirtyFlag;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SubtitleTools;
+import com.moviejukebox.tools.WebBrowser;
 
 /**
  * Based on some code from the opensubtitles.org subtitle upload java applet
@@ -264,7 +266,7 @@ public class OpenSubtitlesPlugin {
         }
     }
 
-    private boolean subtitleDownload(Movie movie, File movieFile, File subtitleFile) {
+    private static boolean subtitleDownload(Movie movie, File movieFile, File subtitleFile) {
         try {
             String ret;
             String xml;
@@ -333,11 +335,7 @@ public class OpenSubtitlesPlugin {
 
     }
 
-    private boolean subtitleUpload(Movie movie, File[] movieFile, File[] subtitleFile) {
-        ByteArrayOutputStream baos = null;
-        DeflaterOutputStream deflaterOS = null;
-        FileInputStream fisSubtitleFile = null;
-
+    private static boolean subtitleUpload(Movie movie, File[] movieFile, File[] subtitleFile) {
         try {
             String ret;
             String xml;
@@ -370,20 +368,23 @@ public class OpenSubtitlesPlugin {
                 moviefps[i] = String.valueOf(movie.getFps());
                 moviefilename[i] = movieFile[i].getName();
 
-                fisSubtitleFile = new FileInputStream(subtitleFile[i]);
-                MessageDigest md = MessageDigest.getInstance("MD5");
-                byte[] s = new byte[fisSubtitleFile.available()];
-                fisSubtitleFile.read(s);
-                fisSubtitleFile.close();
+                byte[] s;
+                try (FileInputStream fisSubtitleFile = new FileInputStream(subtitleFile[i])) {
+                    s = new byte[fisSubtitleFile.available()];
+                    fisSubtitleFile.read(s);
+                }
 
+                MessageDigest md = MessageDigest.getInstance("MD5");
                 md.update(s);
                 subhash[i] = hashstring(md.digest());
-                baos = new ByteArrayOutputStream();
-                deflaterOS = new DeflaterOutputStream(baos);
-                deflaterOS.write(s);
-                deflaterOS.finish();
-
-                subcontent[i] = tuBase64(baos.toByteArray());
+                
+                try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                     DeflaterOutputStream deflaterOS = new DeflaterOutputStream(baos))
+                {
+                    deflaterOS.write(s);
+                    deflaterOS.finish();
+                    subcontent[i] = tuBase64(baos.toByteArray());
+                }
             }
 
             // Check if upload of this subtitle is required
@@ -410,30 +411,6 @@ public class OpenSubtitlesPlugin {
         } catch (NumberFormatException | IOException | NoSuchAlgorithmException ex) {
             LOG.error("Upload Failed: {}", ex.getMessage());
             return Boolean.FALSE;
-        } finally {
-            try {
-                if (fisSubtitleFile != null) {
-                    fisSubtitleFile.close();
-                }
-            } catch (IOException ex) {
-                // Ignore
-            }
-
-            try {
-                if (deflaterOS != null) {
-                    deflaterOS.close();
-                }
-            } catch (IOException ex) {
-                // Ignore
-            }
-
-            try {
-                if (baos != null) {
-                    baos.close();
-                }
-            } catch (IOException ex) {
-                // Ignore
-            }
         }
     }
 
@@ -557,14 +534,12 @@ public class OpenSubtitlesPlugin {
 
         connection.getOutputStream().write(logowanie.getBytes("UTF-8"));
 
-        Scanner in;
-        in = new Scanner(connection.getInputStream());
-
-        while (in.hasNextLine()) {
-            str.append(in.nextLine());
+        try (Scanner in = new Scanner(connection.getInputStream())) {
+            while (in.hasNextLine()) {
+                str.append(in.nextLine());
+            }
         }
-
-        in.close();
+        
         ((HttpURLConnection) connection).disconnect();
 
         return str.toString();

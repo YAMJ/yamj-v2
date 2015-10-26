@@ -22,13 +22,6 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -42,10 +35,19 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.WebBrowser;
 
 /**
  * Plugin to retrieve movie data from Russian animation database www.animator.ru
@@ -176,8 +178,6 @@ public class AnimatorPlugin extends ImdbPlugin {
                 conn.setDoOutput(true);
 
                 OutputStreamWriter osWriter = null;
-                InputStreamReader inReader = null;
-                BufferedReader bReader = null;
                 StringBuilder xmlLines = new StringBuilder();
 
                 try {
@@ -185,27 +185,19 @@ public class AnimatorPlugin extends ImdbPlugin {
                     osWriter.write(sb);
                     osWriter.flush();
 
-                    inReader = new InputStreamReader(conn.getInputStream(), "cp1251");
-                    bReader = new BufferedReader(inReader);
-
-                    String line;
-
-                    while ((line = bReader.readLine()) != null) {
-                        xmlLines.append(line);
+                    try (InputStreamReader inReader = new InputStreamReader(conn.getInputStream(), "cp1251");
+                         BufferedReader bReader = new BufferedReader(inReader))
+                    {
+                        String line;
+                        while ((line = bReader.readLine()) != null) {
+                            xmlLines.append(line);
+                        }
                     }
 
                     osWriter.flush();
                 } finally {
                     if (osWriter != null) {
                         osWriter.close();
-                    }
-
-                    if (bReader != null) {
-                        bReader.close();
-                    }
-
-                    if (inReader != null) {
-                        inReader.close();
                     }
                 }
 
@@ -261,10 +253,10 @@ public class AnimatorPlugin extends ImdbPlugin {
             }
 
             // Work-around for issue #649
-            xml = xml.replace((CharSequence) "&#133;", (CharSequence) "&hellip;");
-            xml = xml.replace((CharSequence) "&#151;", (CharSequence) "&mdash;");
-            xml2 = xml2.replace((CharSequence) "&#133;", (CharSequence) "&hellip;");
-            xml2 = xml2.replace((CharSequence) "&#151;", (CharSequence) "&mdash;");
+            xml = xml.replace("&#133;", "&hellip;");
+            xml = xml.replace("&#151;", "&mdash;");
+            xml2 = xml2.replace("&#133;", "&hellip;");
+            xml2 = xml2.replace("&#151;", "&mdash;");
 
             if (OverrideTools.checkOverwriteTitle(movie, ANIMATOR_PLUGIN_ID)) {
                 String title = Movie.UNKNOWN;

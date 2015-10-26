@@ -22,6 +22,13 @@
  */
 package com.moviejukebox.plugin.trailer;
 
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbPlugin;
@@ -31,11 +38,6 @@ import com.moviejukebox.tools.StringTools;
 import com.omertron.traileraddictapi.TrailerAddictApi;
 import com.omertron.traileraddictapi.TrailerAddictException;
 import com.omertron.traileraddictapi.model.Trailer;
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author iuk
@@ -122,10 +124,8 @@ public class TrailerAddictPlugin extends TrailerPlugin {
         int startPos = downloadPage.indexOf("fileurl=");
         if (startPos > -1) {
             return downloadPage.substring(startPos + 8, downloadPage.indexOf('%', startPos));
-        } else {
-            LOG.debug("Download URL not found for {}", trailer.getCombinedTitle());
         }
-
+        LOG.debug("Download URL not found for {}", trailer.getCombinedTitle());
         return Movie.UNKNOWN;
     }
 }

@@ -22,13 +22,6 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.ImdbSiteDataDefinition;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -37,8 +30,17 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.ImdbSiteDataDefinition;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.WebBrowser;
 
 public class ImdbInfo {
 
@@ -308,9 +310,8 @@ public class ImdbInfo {
         if (imdbId.startsWith(objectType.equals(OBJECT_MOVIE) ? "tt" : "nm")) {
             LOG.debug("Found IMDb ID: {}", imdbId);
             return imdbId;
-        } else {
-            return Movie.UNKNOWN;
         }
+        return Movie.UNKNOWN;
     }
 
     /**
@@ -443,12 +444,12 @@ public class ImdbInfo {
             if (foundMatch) {
                 // logger.debug("Title match  : '" + searchResult + "'");
                 return HTMLTools.extractTag(searchResult, "<a href=\"" + (objectType.equals(OBJECT_MOVIE) ? "/title/" : "/name/"), "/");
-            } else {
-                for (String otherResult : HTMLTools.extractTags(searchResult, "</';\">", "</p>", "<p class=\"find-aka\">", "</em>", false)) {
-                    if (otherResult.toLowerCase().contains("\"" + searchName + "\"")) {
-                        // logger.debug("Other title match: '" + otherResult + "'");
-                        return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals(OBJECT_MOVIE) ? "/title/" : "/name/"), "/';\">");
-                    }
+            }
+
+            for (String otherResult : HTMLTools.extractTags(searchResult, "</';\">", "</p>", "<p class=\"find-aka\">", "</em>", false)) {
+                if (otherResult.toLowerCase().contains("\"" + searchName + "\"")) {
+                    // logger.debug("Other title match: '" + otherResult + "'");
+                    return HTMLTools.extractTag(searchResult, "/images/b.gif?link=" + (objectType.equals(OBJECT_MOVIE) ? "/title/" : "/name/"), "/';\">");
                 }
             }
         }

@@ -24,20 +24,21 @@ package com.moviejukebox.plugin;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull    ;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
 
 public class AllocinePluginTest {
 
@@ -65,7 +66,7 @@ public class AllocinePluginTest {
         Movie movie = new Movie();
         movie.setMovieType(Movie.TYPE_MOVIE);
         movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, "45322");
-        movie.setId(AllocinePlugin.IMDB_PLUGIN_ID, "tt0320691");
+        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0320691");
 
         allocinePlugin.scan(movie);
         assertEquals("Underworld", movie.getTitle());
@@ -86,7 +87,7 @@ public class AllocinePluginTest {
         Movie movie = new Movie();
         movie.setMovieType(Movie.TYPE_TVSHOW);
         movie.setId(AllocinePlugin.ALLOCINE_PLUGIN_ID, "5676");
-        movie.setId(AllocinePlugin.IMDB_PLUGIN_ID, "tt1634549");
+        movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt1634549");
         MovieFile mf = new MovieFile();
         mf.setSeason(1);
         mf.setFirstPart(1);

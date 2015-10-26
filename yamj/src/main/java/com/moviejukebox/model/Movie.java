@@ -22,20 +22,6 @@
  */
 package com.moviejukebox.model;
 
-import com.moviejukebox.model.enumerations.CodecSource;
-import com.moviejukebox.model.enumerations.CodecType;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.model.enumerations.TitleSortType;
-import com.moviejukebox.plugin.MovieDatabasePlugin;
-import com.moviejukebox.tools.BooleanYesNoAdapter;
-import com.moviejukebox.tools.DateTimeTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.GitRepositoryState;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.UrlCodecAdapter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,6 +39,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -60,6 +47,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -67,6 +55,21 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.pojava.datetime.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.enumerations.CodecSource;
+import com.moviejukebox.model.enumerations.CodecType;
+import com.moviejukebox.model.enumerations.DirtyFlag;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.model.enumerations.TitleSortType;
+import com.moviejukebox.plugin.MovieDatabasePlugin;
+import com.moviejukebox.tools.BooleanYesNoAdapter;
+import com.moviejukebox.tools.DateTimeTools;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.GitRepositoryState;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.UrlCodecAdapter;
 
 /**
  * Movie bean
@@ -500,7 +503,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      * @param title
      * @return
      */
-    private String getStrippedTitle(String title) {
+    private static String getStrippedTitle(String title) {
         String lowerTitle = title.toLowerCase();
 
         for (String prefix : SORT_IGNORE_PREFIXES) {
@@ -551,9 +554,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
         if (sb.length() > 0) {
             return sb.toString();
-        } else {
-            return UNKNOWN;
         }
+        return UNKNOWN;
     }
 
     /*
@@ -662,9 +664,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         Iterator<MovieFile> i = movieFiles.iterator();
         if (i.hasNext()) {
             return i.next();
-        } else {
-            return null;
         }
+        return null;
     }
 
     public float getFps() {
@@ -685,19 +686,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return sets.get(set);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.moviejukebox.model.Identifiable#getId(java.lang.String)
-     */
     @Override
     public String getId(String key) {
         String result = idMap.get(key);
-        if (result != null) {
-            return result;
-        } else {
-            return UNKNOWN;
-        }
+        return (result == null ? UNKNOWN : result);
     }
 
     public Map<String, String> getIdMap() {
@@ -706,11 +698,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public String getGross(String country) {
         String result = gross.get(country);
-        if (result != null) {
-            return result;
-        } else {
-            return UNKNOWN;
-        }
+        return (result == null ? UNKNOWN : result);
     }
 
     public Map<String, String> getGross() {
@@ -719,11 +707,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public String getOpenWeek(String country) {
         String result = openweek.get(country);
-        if (result != null) {
-            return result;
-        } else {
-            return UNKNOWN;
-        }
+        return (result == null ? UNKNOWN : result);
     }
 
     public Map<String, String> getOpenWeek() {
@@ -839,10 +823,9 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
          */
         if (!movieFiles.isEmpty() && !setMaster) {
             return getFirstFile().getSeason();
-        } else {
-            // Strictly speaking this isn't "-1" its a non-existent season.
-            return -1;
         }
+        // Strictly speaking this isn't "-1" its a non-existent season.
+        return -1;
     }
 
     /*
@@ -951,19 +934,14 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
      */
     @XmlTransient
     public boolean isDirty() {
-        if (dirtyFlags.isEmpty()) {
-            return Boolean.FALSE;
-        } else {
-            return Boolean.TRUE;
-        }
+        return !dirtyFlags.isEmpty();
     }
 
     public String showDirty() {
         if (dirtyFlags.isEmpty()) {
             return "NOT DIRTY";
-        } else {
-            return dirtyFlags.toString();
         }
+        return dirtyFlags.toString();
     }
 
     public Set<DirtyFlag> getDirty() {
@@ -1297,9 +1275,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public String getDirector() {
         if (directors != null && !directors.isEmpty()) {
             return directors.iterator().next();
-        } else {
-            return UNKNOWN;
         }
+        return UNKNOWN;
     }
 
     public Collection<String> getDirectors() {
@@ -1635,17 +1612,17 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                     if (!ratingIgnore.isEmpty()) {
                         if (ratingIgnore.contains(ratingSite)) {
                             continue;
-                        } else {
-                            boolean found = Boolean.FALSE;
-                            for (String ignoreName : ratingIgnore) {
-                                if (ratingSite.indexOf(ignoreName) == 0) {
-                                    found = Boolean.TRUE;
-                                    break;
-                                }
+                        }
+                         
+                        boolean found = Boolean.FALSE;
+                        for (String ignoreName : ratingIgnore) {
+                            if (ratingSite.indexOf(ignoreName) == 0) {
+                                found = Boolean.TRUE;
+                                break;
                             }
-                            if (found) {
-                                continue;
-                            }
+                        }
+                        if (found) {
+                            continue;
                         }
                     }
                     rating += ratings.get(ratingSite);
@@ -1667,9 +1644,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public int getRating(String site) {
         if (ratings.containsKey(site)) {
             return ratings.get(site);
-        } else {
-            return -1;
         }
+        return -1;
     }
 
     public Map<String, Integer> getRatings() {
@@ -1923,10 +1899,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
                 addFileDate(new Date(lastModifiedTimeStamp));
                 return lastModifiedTimeStamp;
             }
-        } else {
-            // Sets don't hold the time/date of their files, so just return the time of the file
-            return getFileDate().getTime();
         }
+
+        // Sets don't hold the time/date of their files, so just return the time of the file
+        return getFileDate().getTime();
     }
 
     @Override
@@ -1987,9 +1963,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     public boolean canHaveTrailers() {
         if (isExtra() || getMovieType().equals(Movie.TYPE_TVSHOW)) {
             return Boolean.FALSE;
-        } else {
-            return Boolean.TRUE;
         }
+        return Boolean.TRUE;
     }
 
     public void setTrailerExchange(Boolean trailerExchange) {
@@ -2806,9 +2781,8 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
         if (returnDate == 0) {
             return Movie.UNKNOWN;
-        } else {
-            return new DateTime(returnDate).toString(DateTimeTools.getDateFormatLongString());
         }
+        return new DateTime(returnDate).toString(DateTimeTools.getDateFormatLongString());
     }
 
     /**

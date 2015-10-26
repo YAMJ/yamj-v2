@@ -22,18 +22,15 @@
  */
 package com.moviejukebox.model;
 
-import com.moviejukebox.model.enumerations.JukeboxStatistic;
-import com.moviejukebox.tools.DOMHelper;
-import com.moviejukebox.tools.DateTimeTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.TimeZone;
+
 import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.pojava.datetime.DateTime;
 import org.slf4j.Logger;
@@ -41,6 +38,13 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import com.moviejukebox.model.enumerations.JukeboxStatistic;
+import com.moviejukebox.tools.DOMHelper;
+import com.moviejukebox.tools.DateTimeTools;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * Class to store any statistics about the jukebox
@@ -190,9 +194,8 @@ public final class JukeboxStatistics {
         if (TIMES.containsKey(timeStart) && TIMES.containsKey(timeEnd)) {
             DateTime processTime = new DateTime(TIMES.get(JukeboxTimes.END) - TIMES.get(JukeboxTimes.START));
             return processTime.toString(DEFAULT_FORMAT, TimeZone.getTimeZone(DEFAULT_TZ));
-        } else {
-            return "";
         }
+        return StringUtils.EMPTY;
     }
 
     /**
@@ -234,9 +237,8 @@ public final class JukeboxStatistics {
     public static long getTime(JukeboxTimes timeType) {
         if (TIMES.containsKey(timeType)) {
             return TIMES.get(timeType);
-        } else {
-            return 0;
         }
+        return 0;
     }
 
     /**

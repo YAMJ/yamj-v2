@@ -22,16 +22,19 @@
  */
 package com.moviejukebox.model.Comparator;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.StringTools.isValidString;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
 
 /**
  * @author ilgizar
@@ -70,8 +73,7 @@ public class MovieReleaseComparator extends MovieYearComparator {
             if (isValidString(date1) && isValidString(date2)) {
                 try {
                     return ascending ? Integer.parseInt(date1) - Integer.parseInt(date2) : Integer.parseInt(date2) - Integer.parseInt(date1);
-                } catch (NumberFormatException e) {
-                }
+                } catch (NumberFormatException e) { /* ignore */ }
             }
             return isValidString(date1) ? ascending ? 1 : - 1 : isValidString(date2) ? ascending ? -1 : 1 : 0;
         }
@@ -89,13 +91,11 @@ public class MovieReleaseComparator extends MovieYearComparator {
             SimpleDateFormat srcDate = new SimpleDateFormat("dd MMM yyyy", locale);
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(0)));
-            } catch (ParseException ex) {
-            }
+            } catch (ParseException ex) { /* ignore */ }
 
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(1) + " " + correctShortMonth(dateMatch.group(2).substring(0, 3)) + " " + dateMatch.group(3)));
-            } catch (ParseException ex) {
-            }
+            } catch (ParseException ex) { /* ignore */ }
 
             srcDate = new SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH);
             try {
@@ -105,31 +105,29 @@ public class MovieReleaseComparator extends MovieYearComparator {
             }
 
             return Movie.UNKNOWN;
-        } else {
-            // pattern for date: December 1993
-            dateRegex = Pattern.compile("(\\S+) (\\d{4})");
-            dateMatch = dateRegex.matcher(date);
-            if (dateMatch.find()) {
-                SimpleDateFormat srcDate = new SimpleDateFormat("MMM yyyy", locale);
-                try {
-                    return dstDate.format(srcDate.parse(dateMatch.group(0)));
-                } catch (ParseException ex) {
-                }
+        }
+        
+        // pattern for date: December 1993
+        dateRegex = Pattern.compile("(\\S+) (\\d{4})");
+        dateMatch = dateRegex.matcher(date);
+        if (dateMatch.find()) {
+            SimpleDateFormat srcDate = new SimpleDateFormat("MMM yyyy", locale);
+            try {
+                return dstDate.format(srcDate.parse(dateMatch.group(0)));
+            } catch (ParseException ex) { /* ignore */ }
 
-                try {
-                    return dstDate.format(srcDate.parse(correctShortMonth(dateMatch.group(1).substring(0, 3)) + " " + dateMatch.group(2)));
-                } catch (ParseException ex) {
-                }
+            try {
+                return dstDate.format(srcDate.parse(correctShortMonth(dateMatch.group(1).substring(0, 3)) + " " + dateMatch.group(2)));
+            } catch (ParseException ex) { /* ignore */ }
 
-                srcDate = new SimpleDateFormat("MMM yyyy", Locale.ENGLISH);
-                try {
-                    return dstDate.format(srcDate.parse(dateMatch.group(0)));
-                } catch (ParseException ex) {
-                    LOG.debug("Unparseable date: {} ({})", dateMatch.group(0), dateLocale);
-                }
-
-                return Movie.UNKNOWN;
+            srcDate = new SimpleDateFormat("MMM yyyy", Locale.ENGLISH);
+            try {
+                return dstDate.format(srcDate.parse(dateMatch.group(0)));
+            } catch (ParseException ex) {
+                LOG.debug("Unparseable date: {} ({})", dateMatch.group(0), dateLocale);
             }
+
+            return Movie.UNKNOWN;
         }
 
         // pattern for date: 1993-12-05
@@ -139,8 +137,7 @@ public class MovieReleaseComparator extends MovieYearComparator {
             SimpleDateFormat srcDate = new SimpleDateFormat("yyyy-MM-dd", locale);
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(0)));
-            } catch (ParseException e) {
-            }
+            } catch (ParseException e) { /* ignore */ }
         }
 
         // pattern for date: 05.12.1993
@@ -150,8 +147,7 @@ public class MovieReleaseComparator extends MovieYearComparator {
             SimpleDateFormat srcDate = new SimpleDateFormat("dd.MM.yyyy", locale);
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(0)));
-            } catch (ParseException e) {
-            }
+            } catch (ParseException e) { /* ignore */ }
         }
 
         // pattern for date: 05.12.93
@@ -161,8 +157,7 @@ public class MovieReleaseComparator extends MovieYearComparator {
             SimpleDateFormat srcDate = new SimpleDateFormat("dd.MM.yy", locale);
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(0)));
-            } catch (ParseException e) {
-            }
+            } catch (ParseException e) { /* ignore */ }
         }
 
         // pattern for date: 05/12/1993
@@ -172,8 +167,7 @@ public class MovieReleaseComparator extends MovieYearComparator {
             SimpleDateFormat srcDate = new SimpleDateFormat("dd/MM/yyyy", locale);
             try {
                 return dstDate.format(srcDate.parse(dateMatch.group(0)));
-            } catch (ParseException e) {
-            }
+            } catch (ParseException e) { /* ignore */ }
         }
 
         return Movie.UNKNOWN;

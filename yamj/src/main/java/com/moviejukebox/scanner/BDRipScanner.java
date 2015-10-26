@@ -22,14 +22,16 @@
  */
 package com.moviejukebox.scanner;
 
-import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * @author Grael by using GPL Source from Mediterranean :
@@ -221,17 +223,17 @@ public class BDRipScanner {
         }
 
         int playlistIndex
-                = (((int) data[8] & 0xFF) << 24)
-                + (((int) data[9] & 0xFF) << 16)
-                + (((int) data[10] & 0xFF) << 8)
-                + ((int) data[11]);
+                = ((data[8] & 0xFF) << 24)
+                + ((data[9] & 0xFF) << 16)
+                + ((data[10] & 0xFF) << 8)
+                + (data[11]);
 
         int playlistLength = data.length - playlistIndex - 4;
         int playlistLengthCorrect
-                = (((int) data[playlistIndex] & 0xFF) << 24)
-                + (((int) data[playlistIndex + 1] & 0xFF) << 16)
-                + (((int) data[playlistIndex + 2] & 0xFF) << 8)
-                + (((int) data[playlistIndex + 3] & 0xFF));
+                = ((data[playlistIndex] & 0xFF) << 24)
+                + ((data[playlistIndex + 1] & 0xFF) << 16)
+                + ((data[playlistIndex + 2] & 0xFF) << 8)
+                + ((data[playlistIndex + 3] & 0xFF));
         LOG.trace("Playlist Length Correct: {}", playlistLengthCorrect);
 
         byte[] playlistData = new byte[playlistLength];
@@ -239,7 +241,7 @@ public class BDRipScanner {
                 playlistData, 0, playlistData.length);
 
         int streamFileCount
-                = ((((int) playlistData[2] & 0xFF) << 8) + ((int) playlistData[3] & 0xFF));
+                = (((playlistData[2] & 0xFF) << 8) + ((int) playlistData[3] & 0xFF));
 
         ret.streamList = new String[streamFileCount];
 
@@ -274,8 +276,8 @@ public class BDRipScanner {
             ret.streamList[streamFileIndex] = streamFile;
 
             streamFileOffset += 2
-                    + (((int) playlistData[streamFileOffset] & 0xFF) << 8)
-                    + (((int) playlistData[streamFileOffset + 1] & 0xFF));
+                    + ((playlistData[streamFileOffset] & 0xFF) << 8)
+                    + ((playlistData[streamFileOffset + 1] & 0xFF));
         }
 
         return ret;

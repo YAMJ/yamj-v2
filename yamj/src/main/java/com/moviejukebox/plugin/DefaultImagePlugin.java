@@ -22,28 +22,9 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Award;
-import com.moviejukebox.model.AwardEvent;
-import com.moviejukebox.model.Comparator.ValueComparator;
-import com.moviejukebox.model.IMovieBasicInformation;
-import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.enumerations.MyColor;
-import com.moviejukebox.model.overlay.ConditionOverlay;
-import com.moviejukebox.model.overlay.ImageOverlay;
-import com.moviejukebox.model.overlay.LogoOverlay;
-import com.moviejukebox.model.overlay.LogosBlock;
-import com.moviejukebox.model.overlay.PositionOverlay;
-import com.moviejukebox.model.overlay.StateOverlay;
-import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
-import com.moviejukebox.tools.SkinProperties;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.omertron.fanarttvapi.enumeration.FTArtworkType;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -62,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -70,6 +52,27 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.sanselan.ImageReadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Award;
+import com.moviejukebox.model.AwardEvent;
+import com.moviejukebox.model.IMovieBasicInformation;
+import com.moviejukebox.model.Identifiable;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Comparator.ValueComparator;
+import com.moviejukebox.model.enumerations.MyColor;
+import com.moviejukebox.model.overlay.ConditionOverlay;
+import com.moviejukebox.model.overlay.ImageOverlay;
+import com.moviejukebox.model.overlay.LogoOverlay;
+import com.moviejukebox.model.overlay.LogosBlock;
+import com.moviejukebox.model.overlay.PositionOverlay;
+import com.moviejukebox.model.overlay.StateOverlay;
+import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.SkinProperties;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
+import com.omertron.fanarttvapi.enumeration.FTArtworkType;
 
 public class DefaultImagePlugin implements MovieImagePlugin {
 
@@ -1235,15 +1238,15 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 if (filenames.length > 1) {
                     if (cols == 0 && rows == 0) {
                         cols = (int) Math.sqrt(filenames.length);
-                        rows = (int) (filenames.length / cols);
+                        rows = (filenames.length / cols);
                     } else if (cols == 0) {
-                        cols = (int) (filenames.length / rows);
+                        cols = (filenames.length / rows);
                     } else if (rows == 0) {
-                        rows = (int) (filenames.length / cols);
+                        rows = (filenames.length / cols);
                     }
                     if (block.isSize()) {
-                        lWidth = (int) (lWidth / cols);
-                        lHeight = (int) (lHeight / rows);
+                        lWidth = (lWidth / cols);
+                        lHeight = (lHeight / rows);
                     }
                 }
                 int maxWidth = lWidth;
@@ -1258,9 +1261,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                         if (!clones) {
                             if (uniqueFiles.contains(filenames[i])) {
                                 continue;
-                            } else {
-                                uniqueFiles.add(filenames[i]);
                             }
+                            uniqueFiles.add(filenames[i]);
                         }
                         if (block.isDir()) {
                             col++;
@@ -1653,21 +1655,21 @@ public class DefaultImagePlugin implements MovieImagePlugin {
 
     protected int getOverlayX(int fieldWidth, int itemWidth, Integer left, String align) {
         if (LEFT.equalsIgnoreCase(align)) {
-            return (int) (left >= 0 ? left : fieldWidth + left);
+            return (left >= 0 ? left : fieldWidth + left);
         } else if (RIGHT.equalsIgnoreCase(align)) {
-            return (int) (left >= 0 ? fieldWidth - left - itemWidth : -left - itemWidth);
+            return (left >= 0 ? fieldWidth - left - itemWidth : -left - itemWidth);
         } else {
-            return (int) (left == 0 ? ((fieldWidth - itemWidth) / 2) : left > 0 ? (fieldWidth / 2 + left) : (fieldWidth / 2 + left - itemWidth));
+            return (left == 0 ? ((fieldWidth - itemWidth) / 2) : left > 0 ? (fieldWidth / 2 + left) : (fieldWidth / 2 + left - itemWidth));
         }
     }
 
     protected int getOverlayY(int fieldHeight, int itemHeight, Integer top, String align) {
         if (TOP.equalsIgnoreCase(align)) {
-            return (int) (top >= 0 ? top : fieldHeight + top);
+            return (top >= 0 ? top : fieldHeight + top);
         } else if (BOTTOM.equalsIgnoreCase(align)) {
-            return (int) (top >= 0 ? fieldHeight - top - itemHeight : -top - itemHeight);
+            return (top >= 0 ? fieldHeight - top - itemHeight : -top - itemHeight);
         } else {
-            return (int) (top == 0 ? ((fieldHeight - itemHeight) / 2) : top > 0 ? (fieldHeight / 2 + top) : (fieldHeight / 2 + top - itemHeight));
+            return (top == 0 ? ((fieldHeight - itemHeight) / 2) : top > 0 ? (fieldHeight / 2 + top) : (fieldHeight / 2 + top - itemHeight));
         }
     }
 

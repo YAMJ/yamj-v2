@@ -22,20 +22,9 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Award;
-import com.moviejukebox.model.AwardEvent;
-import com.moviejukebox.model.Filmography;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.Normalizer;
@@ -47,10 +36,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Award;
+import com.moviejukebox.model.AwardEvent;
+import com.moviejukebox.model.Filmography;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Person;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * Plugin to retrieve movie data from Russian movie database www.kinopoisk.ru
@@ -315,17 +318,15 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             if (StringTools.isValidString(kinopoiskId) && StringUtils.isNumeric(kinopoiskId)) {
                 return kinopoiskId;
-            } else {
-                return Movie.UNKNOWN;
             }
         } catch (IOException error) {
             LOG.error("Failed retreiving Kinopoisk Id for movie : {}", movieName);
             LOG.error("Error : {}", error.getMessage());
-            return Movie.UNKNOWN;
         }
+        return Movie.UNKNOWN;
     }
 
-    private boolean getCertification(Movie movie, String xml, String open, String close, String begin, String end, String key) {
+    private static boolean getCertification(Movie movie, String xml, String open, String close, String begin, String end, String key) {
         boolean certificationFounded = false;
 
         for (String mpaaTag : HTMLTools.extractTags(xml, open, close, begin, end)) {
@@ -355,8 +356,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
             String xml = webBrowser.request(FILM_URL + kinopoiskId);
             boolean etalonFlag = kinopoiskId.equals(etalonId);
             // Work-around for issue #649
-            xml = xml.replace((CharSequence) "&#133;", (CharSequence) "&hellip;");
-            xml = xml.replace((CharSequence) "&#151;", (CharSequence) "&mdash;");
+            xml = xml.replace("&#133;", "&hellip;");
+            xml = xml.replace("&#151;", "&mdash;");
 
             // Title
             boolean overrideTitle = OverrideTools.checkOverwriteTitle(movie, KINOPOISK_PLUGIN_ID);
@@ -1004,6 +1005,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                             case "writer":
                                 movie.addWriter(KINOPOISK_PLUGIN_ID + ":" + personID, origName + ":" + name, NAME_URL + personID + "/", KINOPOISK_PLUGIN_ID);
                                 break;
+                            default:
+                                break;
                         }
                     }
                 }
@@ -1030,6 +1033,8 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                 clearList = Boolean.FALSE;
                             }
                             movie.addWriter(translateName ? name : origName, KINOPOISK_PLUGIN_ID);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -1241,7 +1246,6 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     if (!newFilmography.isEmpty()) {
                         if ((!person.getFilmography().isEmpty()) && ("combine".equals(preferredRating) || "average".equals(preferredRating))) {
                             for (Filmography film : person.getFilmography()) {
-                                @SuppressWarnings("unused")
                                 String name = film.getName().replace("ё", "е").replace("Ё", "Е").trim();
                                 String title = film.getTitle().replace("ё", "е").replace("Ё", "Е").trim();
                                 String originalTitle = film.getOriginalTitle().replace("ё", "е").replace("Ё", "Е").trim();

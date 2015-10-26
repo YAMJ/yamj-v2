@@ -22,10 +22,23 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Comparator.FilmographyDateComparator;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
+import com.moviejukebox.model.Comparator.FilmographyDateComparator;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.OverrideTools;
@@ -56,17 +69,6 @@ import com.omertron.themoviedbapi.model.person.PersonCreditList;
 import com.omertron.themoviedbapi.model.person.PersonFind;
 import com.omertron.themoviedbapi.model.person.PersonInfo;
 import com.omertron.themoviedbapi.results.ResultList;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.StringTokenizer;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.pojava.datetime.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Stuart.Boston
@@ -154,6 +156,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         return TMDB_PLUGIN_ID;
     }
 
+    @SuppressWarnings("null")
     @Override
     public boolean scan(Movie movie) {
         String imdbID = movie.getId(IMDB_PLUGIN_ID);
@@ -173,7 +176,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     moviedb = TMDb.getMovieInfo(NumberUtils.toInt(tmdbID), languageCode);
                 } catch (MovieDbException ex) {
                     LOG.debug("{}: Failed to get movie info using TMDB ID: {} - {}", movie.getBaseName(), tmdbID, ex.getMessage());
-                    moviedb = null;
                 }
             }
 
@@ -188,7 +190,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     }
                 } catch (MovieDbException ex) {
                     LOG.debug("{}: Failed to get movie info using IMDB ID: {} - {}", movie.getBaseName(), imdbID, ex.getMessage());
-                    moviedb = null;
                 }
             }
 
@@ -238,15 +239,15 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 LOG.debug("Movie {} not found!", movie.getBaseName());
                 LOG.debug("Try using a NFO file to specify the movie");
                 return false;
-            } else {
-                try {
-                    // Get the full information on the film
-                    moviedb = TMDb.getMovieInfo(moviedb.getId(), languageCode);
-                } catch (MovieDbException ex) {
-                    LOG.debug("Failed to download remaining information for {}", movie.getBaseName());
-                }
-                LOG.debug("Found id ({}) for {}", moviedb.getId(), moviedb.getTitle());
             }
+            
+            try {
+                // Get the full information on the film
+                moviedb = TMDb.getMovieInfo(moviedb.getId(), languageCode);
+            } catch (MovieDbException ex) {
+                LOG.debug("Failed to download remaining information for {}", movie.getBaseName());
+            }
+            LOG.debug("Found id ({}) for {}", moviedb.getId(), moviedb.getTitle());
 
             try {
                 // Get the release information
@@ -428,7 +429,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * @param movie The YAMJ target
      * @return The altered movie bean
      */
-    private void copyMovieInfo(MovieInfo moviedb, Movie movie) {
+    private static void copyMovieInfo(MovieInfo moviedb, Movie movie) {
 
         // TMDb ID
         movie.setId(TMDB_PLUGIN_ID, moviedb.getId());
@@ -547,7 +548,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * @param targetString The destination string to check
      * @return True if valid to overwrite
      */
-    private boolean overwriteCheck(String sourceString, String targetString) {
+    private static boolean overwriteCheck(String sourceString, String targetString) {
         return StringTools.isValidString(sourceString) && (StringTools.isNotValidString(targetString) || "-1".equals(targetString));
     }
 
@@ -727,12 +728,11 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 LOG.warn("Failed to get information on {} ({}), error: {}", person.getName(), tmdbId, ex.getMessage(), ex);
                 return Boolean.FALSE;
             }
-        } else {
-            return Boolean.FALSE;
         }
+        return Boolean.FALSE;
     }
 
-    private Filmography convertMovieCredit(CreditMovieBasic credit) {
+    private static Filmography convertMovieCredit(CreditMovieBasic credit) {
         Filmography film = new Filmography();
         film.setId(TMDB_PLUGIN_ID, Integer.toString(credit.getId()));
         film.setName(credit.getTitle());
@@ -787,15 +787,15 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     tmdbId = String.valueOf(person.getId());
                     foundPerson = Boolean.TRUE;
                     break;
-                } else {
-                    LOG.trace("Checking {} against {}", name, person.getName());
-                    int lhDistance = StringUtils.getLevenshteinDistance(name, person.getName());
-                    LOG.trace("{}: Current closest match is {}, this match is {}", name, closestMatch, lhDistance);
-                    if (lhDistance < closestMatch) {
-                        LOG.trace("{}: TMDB ID {} is a better match", name, person.getId());
-                        closestMatch = lhDistance;
-                        closestPerson = person;
-                    }
+                }
+                
+                LOG.trace("Checking {} against {}", name, person.getName());
+                int lhDistance = StringUtils.getLevenshteinDistance(name, person.getName());
+                LOG.trace("{}: Current closest match is {}, this match is {}", name, closestMatch, lhDistance);
+                if (lhDistance < closestMatch) {
+                    LOG.trace("{}: TMDB ID {} is a better match", name, person.getId());
+                    closestMatch = lhDistance;
+                    closestPerson = person;
                 }
             }
 

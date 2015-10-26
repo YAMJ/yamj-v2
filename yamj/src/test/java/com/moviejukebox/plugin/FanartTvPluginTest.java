@@ -22,29 +22,25 @@
  */
 package com.moviejukebox.plugin;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.omertron.fanarttvapi.model.FTMovie;
 import com.omertron.fanarttvapi.model.FTSeries;
-import org.junit.After;
-import org.junit.AfterClass;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class FanartTvPluginTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(FanartTvPluginTest.class);
     private static FanartTvPlugin ft;
-
-    public FanartTvPluginTest() {
-    }
 
     @BeforeClass
     public static void setUpClass() {
@@ -59,18 +55,6 @@ public class FanartTvPluginTest {
         PropertiesUtil.setProperty("movielogo.movie.download", true);
 
         ft = new FanartTvPlugin();
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
     }
 
     /**

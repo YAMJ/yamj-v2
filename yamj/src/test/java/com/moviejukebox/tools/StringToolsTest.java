@@ -22,13 +22,15 @@
  */
 package com.moviejukebox.tools;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -198,27 +200,6 @@ public class StringToolsTest {
         String expResult = "abcdefg???";
         String result = StringTools.trimToLength(sourceString, requiredLength, trimToWord, endingSuffix);
         assertEquals(expResult, result);
-    }
-
-    /**
-     * Test of castList method, of class StringTools.
-     */
-    @Ignore("Not tested")
-    public void testCastList() {
-    }
-
-    /**
-     * Test of splitList method, of class StringTools.
-     */
-    @Ignore("Not tested")
-    public void testSplitList() {
-    }
-
-    /**
-     * Test of tokenizeToArray method, of class StringTools.
-     */
-    @Ignore("Not tested")
-    public void testTokenizeToArray() {
     }
 
     /**

@@ -22,6 +22,16 @@
  */
 package com.moviejukebox.plugin;
 
+import java.io.File;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
@@ -29,13 +39,6 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.CSVWriter;
 import com.moviejukebox.tools.SystemTools;
-import java.io.File;
-import java.io.IOException;
-import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * User: JDGJr Date: Feb 15, 2009
@@ -169,9 +172,8 @@ public class MovieListingPluginCsv extends MovieListingPluginBase implements Mov
     protected String blankNegatives(int i) {
         if (0 <= i) {
             return String.valueOf(i);
-        } else {
-            return "";
         }
+        return StringUtils.EMPTY;
     }
 
     /**

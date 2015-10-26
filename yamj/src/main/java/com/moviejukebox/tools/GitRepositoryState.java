@@ -22,18 +22,21 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.MovieJukebox;
 import static com.moviejukebox.model.Movie.UNKNOWN;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.MovieJukebox;
 
 /**
  * Get the Git Repository State information from the maven-git-commit-id plugin
@@ -90,19 +93,18 @@ public class GitRepositoryState {
         }
     }
 
-    private Boolean asBoolean(final String valueToConvert) {
+    private static Boolean asBoolean(final String valueToConvert) {
         if (StringUtils.isNotBlank(valueToConvert)) {
             return Boolean.parseBoolean(StringUtils.trimToEmpty(valueToConvert));
         }
         return null;
     }
 
-    private List<String> asList(final String valueToConvert) {
+    private static List<String> asList(final String valueToConvert) {
         if (StringUtils.isNotBlank(valueToConvert)) {
             return new ArrayList<>(Arrays.asList(valueToConvert.split(",")));
-        } else {
-            return new ArrayList<>();
         }
+        return new ArrayList<>();
     }
 
     /**

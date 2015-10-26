@@ -23,16 +23,20 @@
 package com.moviejukebox.model;
 
 import static com.moviejukebox.model.Movie.UNKNOWN;
-import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.tools.FileTools;
 import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.xml.bind.annotation.XmlTransient;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
+import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.tools.FileTools;
 
 /**
  * This is the new bean for the Person
@@ -97,9 +101,8 @@ public class Filmography implements Identifiable {
         String result = idMap.get(key);
         if (result != null) {
             return result;
-        } else {
-            return UNKNOWN;
         }
+        return UNKNOWN;
     }
 
     public Map<String, String> getIdMap() {

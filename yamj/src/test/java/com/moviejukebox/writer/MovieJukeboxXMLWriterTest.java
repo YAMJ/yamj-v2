@@ -22,19 +22,22 @@
  */
 package com.moviejukebox.writer;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+
+import org.junit.Ignore;
+import org.junit.Test;
+
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.reader.MovieJukeboxXMLReader;
-import java.io.File;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import org.junit.Ignore;
-import org.junit.Test;
 
 /**
  *
@@ -124,7 +127,7 @@ public class MovieJukeboxXMLWriterTest {
         }
     }
 
-    private File getTestFile(String filename) {
+    private static File getTestFile(String filename) {
         File file = new File(testDir + filename);
         System.out.print("File:" + file.getAbsolutePath());
         System.out.print(" Length:" + file.length());

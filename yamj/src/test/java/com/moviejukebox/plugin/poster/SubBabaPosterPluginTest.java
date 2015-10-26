@@ -22,16 +22,15 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import static org.junit.Assert.assertEquals;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import com.moviejukebox.TestData;
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
-import org.junit.After;
-import org.junit.AfterClass;
-import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 public class SubBabaPosterPluginTest {
 
@@ -45,18 +44,6 @@ public class SubBabaPosterPluginTest {
         PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
         PropertiesUtil.setProperty("poster.scanner.SearchPriority.movie", "subbaba");
         posterPlugin = new SubBabaPosterPlugin();
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
     }
 
     @Test

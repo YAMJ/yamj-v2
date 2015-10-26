@@ -22,6 +22,20 @@
  */
 package com.moviejukebox.plugin;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.scriptablescraper.ItemSS;
 import com.moviejukebox.model.scriptablescraper.MathSS;
@@ -33,18 +47,6 @@ import com.moviejukebox.model.scriptablescraper.SectionSS;
 import com.moviejukebox.reader.ScriptableScraperXMLReader;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Plugin to retrieve movie data based on ScriptableScraper XML file
@@ -170,9 +172,8 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
 
         if (StringTools.isValidString(movieId)) {
             return movieId;
-        } else {
-            return Movie.UNKNOWN;
         }
+        return Movie.UNKNOWN;
     }
 
     private boolean updateMediaInfo(Movie movie, String movieId) {
@@ -293,7 +294,7 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
         return false;
     }
 
-    private int updatePersonInfo(Movie movie, String mode, String value, int personMax) {
+    private static int updatePersonInfo(Movie movie, String mode, String value, int personMax) {
         int count = 0;
         if (StringTools.isValidString(value)) {
             for (String person : Arrays.asList(value.split("\\|"))) {
@@ -307,6 +308,8 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
                             break;
                         case "actors":
                             movie.addActor(person, SCRIPTABLESCRAPER_PLUGIN_ID);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -325,7 +328,6 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
                 LOG.debug("runSections: {}", sectionName);
             }
             String value;
-//            Collection<ScriptableScraper.SectionContentSS> result = null;
             for (SectionContentSS content : sections) {
                 SectionSS cSection = (SectionSS) content;
                 for (int looperItem = 0; looperItem < cSection.getItems().size(); looperItem++) {

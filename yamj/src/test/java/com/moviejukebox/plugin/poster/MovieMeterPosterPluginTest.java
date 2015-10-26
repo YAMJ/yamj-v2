@@ -22,22 +22,23 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import com.moviejukebox.TestData;
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.TestData;
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  *
@@ -49,9 +50,6 @@ public class MovieMeterPosterPluginTest {
     private static MovieMeterPosterPlugin plugin;
     private static final List<TestData> testData = new ArrayList<>();
 
-    public MovieMeterPosterPluginTest() {
-    }
-
     @BeforeClass
     public static void setUpClass() {
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
@@ -60,17 +58,9 @@ public class MovieMeterPosterPluginTest {
         plugin = new MovieMeterPosterPlugin();
     }
 
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
     @Before
     public void setUp() {
         testData.add(new TestData("Avatar", "2009", "17552"));
-    }
-
-    @After
-    public void tearDown() {
     }
 
     /**
@@ -112,12 +102,4 @@ public class MovieMeterPosterPluginTest {
             assertTrue("No image returned", StringTools.isValidString(result.getUrl()));
         }
     }
-
-    /**
-     * Test of getName method, of class MovieMeterPosterPlugin.
-     */
-    @Ignore("No need to test")
-    public void testGetName() {
-    }
-
 }

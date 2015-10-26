@@ -22,6 +22,49 @@
  */
 package com.moviejukebox.plugin;
 
+import static com.moviejukebox.tools.StringTools.cleanString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import net.anidb.Anime;
+import net.anidb.Episode;
+import net.anidb.checksum.Ed2kChecksum;
+import net.anidb.udp.AniDbException;
+import net.anidb.udp.UdpConnection;
+import net.anidb.udp.UdpConnectionException;
+import net.anidb.udp.UdpConnectionFactory;
+import net.anidb.udp.UdpReturnCodes;
+import net.anidb.udp.mask.AnimeFileMask;
+import net.anidb.udp.mask.AnimeMask;
+import net.anidb.udp.mask.FileMask;
+
+import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.helpers.DefaultHandler;
+
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.dao.ForeignCollection;
@@ -42,51 +85,12 @@ import com.moviejukebox.model.Person;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import static com.moviejukebox.tools.StringTools.cleanString;
-import static com.moviejukebox.tools.StringTools.isValidString;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.thetvdbapi.TheTVDBApi;
 import com.omertron.thetvdbapi.TvDbException;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Series;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import net.anidb.Anime;
-import net.anidb.Episode;
-import net.anidb.checksum.Ed2kChecksum;
-import net.anidb.udp.AniDbException;
-import net.anidb.udp.UdpConnection;
-import net.anidb.udp.UdpConnectionException;
-import net.anidb.udp.UdpConnectionFactory;
-import net.anidb.udp.UdpReturnCodes;
-import net.anidb.udp.mask.AnimeFileMask;
-import net.anidb.udp.mask.AnimeMask;
-import net.anidb.udp.mask.FileMask;
-import org.apache.commons.io.IOUtils;
-import org.pojava.datetime.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * AniDB Plugin
@@ -305,7 +309,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         anidbScan(movie);
     }
 
-    private String generateHashmapKey(Movie m) {
+    private static String generateHashmapKey(Movie m) {
         return m.getId(ANIDB_PLUGIN_ID) + "|" + m.getSeason();
     }
 
@@ -389,9 +393,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             processUdpError(error);
         } catch (AniDbException error) {
             // We should use the return code here, but it doesn't seem to work
-            if (error.getReturnCode() == UdpReturnCodes.NO_SUCH_ANIME || "NO SUCH ANIME".equals(error.getReturnString())) {
-                anime = null;
-            } else {
+            if (error.getReturnCode() != UdpReturnCodes.NO_SUCH_ANIME && !"NO SUCH ANIME".equals(error.getReturnString())) {
                 LOG.info("Unknown AniDb Exception error");
                 LOG.error(SystemTools.getStackTrace(error));
             }
@@ -505,9 +507,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                 main.getMovieFiles().add(mf);
                 movie.setMovieType(Movie.REMOVE);
                 return false;
-            } else {
-                MAIN_SERIES_MOVIES.put(generateHashmapKey(movie), movie);
             }
+            MAIN_SERIES_MOVIES.put(generateHashmapKey(movie), movie);
         }
 
         Series s;
@@ -655,10 +656,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
     }
 
-    private String getEd2kChecksum(File file) {
-        FileInputStream fi = null;
-        try {
-            fi = new FileInputStream(file);
+    private static String getEd2kChecksum(File file) {
+        try (FileInputStream fi = new FileInputStream(file)) {
             Ed2kChecksum ed2kChecksum = new Ed2kChecksum();
             byte[] buffer = new byte[ED2K_CHUNK_SIZE];
             int k;
@@ -672,10 +671,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         } catch (IOException error) {
             LOG.error("Encountered an IO-error while reading file {}", file.getAbsolutePath());
             LOG.error(SystemTools.getStackTrace(error));
-        } finally {
-            if (fi != null) {
-                IOUtils.closeQuietly(fi);
-            }
         }
         return "";
     }
@@ -731,30 +726,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
      *
      * @param error
      */
-    private void processUdpError(UdpConnectionException error) {
+    private static void processUdpError(UdpConnectionException error) {
         LOG.info("Error: {}", error.getMessage());
-    }
-
-    /**
-     * Output a nice message for the AniDb Exception
-     *
-     * @param error
-     */
-    @SuppressWarnings("unused")
-    private void processAnidbError(AniDbException error) {
-        // We should use the return code here, but it doesn't seem to work
-        LOG.info("Error: {}", error.getReturnString());
-
-        int rc = error.getReturnCode();
-        String rs = error.getReturnString();
-        // Refactor to switch when the getReturnCode() works
-        if (rc == UdpReturnCodes.NO_SUCH_ANIME || "NO SUCH ANIME".equals(rs)) {
-            LOG.info("Anime not found");
-        } else if (rc == UdpReturnCodes.NO_SUCH_ANIME_DESCRIPTION || "NO SUCH ANIME DESCRIPTION".equals(rs)) {
-            LOG.info("Anime description not found");
-        } else {
-            LOG.info("Unknown error occured: {} - {}", rc, rs);
-        }
     }
 
     @Override
@@ -1185,7 +1158,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
     }
 
-    private AnidbAnime getAnimeFromCache(String name) {
+    private static AnidbAnime getAnimeFromCache(String name) {
         AnidbAnime anime;
 
         if ((anime = (AnidbAnime) CacheMemory.getFromCache(CacheMemory.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeNameEnglish", name))) != null) {
@@ -1199,7 +1172,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         return null;
     }
 
-    private AnidbAnime getAnimeFromCache(long aid) {
+    private static AnidbAnime getAnimeFromCache(long aid) {
         AnidbAnime anime;
 
         if ((anime = (AnidbAnime) CacheMemory.getFromCache(CacheMemory.generateCacheKey(AniDbPlugin.ANIDB_PLUGIN_ID, "AnimeId", Long.toString(aid)))) != null) {

@@ -22,10 +22,11 @@
  */
 package com.moviejukebox.model.Comparator;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.PropertiesUtil;
 import java.io.Serializable;
 import java.util.Comparator;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
 
 public class MovieSetComparator implements Comparator<Movie>, Serializable {
 
@@ -69,13 +70,13 @@ public class MovieSetComparator implements Comparator<Movie>, Serializable {
         if (m1.isTVShow() && m2.isTVShow()) {
             // Sort the season list by season number
             return (m1.getSeason() - m2.getSeason());
-        } else {
-            // Either the order is the same, or neither have an order, so fall back to releaseDate, then titleSort
-            int c = m1.getYear().compareTo(m2.getYear());
-            if (c == 0) {
-                c = m1.getTitleSort().compareTo(m2.getTitleSort());
-            }
-            return c;
         }
+
+        // Either the order is the same, or neither have an order, so fall back to releaseDate, then titleSort
+        int c = m1.getYear().compareTo(m2.getYear());
+        if (c == 0) {
+            c = m1.getTitleSort().compareTo(m2.getTitleSort());
+        }
+        return c;
     }
 }

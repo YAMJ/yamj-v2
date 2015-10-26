@@ -22,11 +22,8 @@
  */
 package com.moviejukebox.scanner;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFileNameDTO;
-import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,11 +33,17 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFileNameDTO;
+import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 /**
  * Simple movie filename scanner.
@@ -531,8 +534,7 @@ public final class MovieFilenameScanner {
                                 if (year >= 1800 && year <= 3000) {
                                     dto.setYear(year);
                                 }
-                            } catch (NumberFormatException error) {
-                            }
+                            } catch (NumberFormatException error) { /* ignore */ }
                         }
                         first = Boolean.FALSE;
                     }
@@ -667,7 +669,7 @@ public final class MovieFilenameScanner {
                 + NOTOKEN_DELIMITERS_MATCH_PATTERN + "*)" + TOKEN_DELIMITERS_MATCH_PATTERN);
     }
 
-    private String cleanUp(String filename) {
+    private static String cleanUp(String filename) {
         // SKIP
         String rFilename = filename; // We can't modify the parameter, so copy it
         for (Pattern p : SKIP_PATTERNS) {
@@ -705,9 +707,8 @@ public final class MovieFilenameScanner {
         if (LOOSE_LANGUAGE_MAP.containsKey(language)) {
             Pattern langPatt = LOOSE_LANGUAGE_MAP.get(language);
             return langPatt.toString().toLowerCase();
-        } else {
-            return "";
         }
+        return "";
     }
 
     /**
@@ -716,7 +717,7 @@ public final class MovieFilenameScanner {
      * @param token String to clean up.
      * @return Prepared title.
      */
-    private String cleanUpTitle(String token) {
+    private static String cleanUpTitle(String token) {
         String title = TITLE_CLEANUP_DIV_PATTERN.matcher(token).replaceAll(" ").trim();
         return TITLE_CLEANUP_CUT_PATTERN.matcher(title).replaceAll("").trim();
     }

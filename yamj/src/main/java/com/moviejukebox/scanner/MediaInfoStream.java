@@ -47,13 +47,13 @@ public class MediaInfoStream {
         if (process != null) {
             try {
                 process.waitFor();
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) { /* ignore */ }
         }
             
         if (inputStream != null) {
             try {
                 inputStream.close();
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) { /* ignore */ }
         }
         
         if (process != null) {
@@ -61,15 +61,15 @@ public class MediaInfoStream {
                 if (process.getErrorStream() != null) {
                     process.getErrorStream().close();  
                 }
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) { /* ignore */ }
             try {
                 if (process.getOutputStream() != null) {
                     process.getOutputStream().close();
                 }
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) { /* ignore */ }
             try {
                 process.destroy();
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) { /* ignore */ }
         }
     }
 }

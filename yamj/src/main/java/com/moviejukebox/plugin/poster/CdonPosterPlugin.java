@@ -22,6 +22,11 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import java.net.URLEncoder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
@@ -30,9 +35,6 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
-import java.net.URLEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
     // The AbstractMoviePosterPlugin already implements IMoviePosterPlugin
@@ -133,7 +135,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
      * Function that takes the search result page from cdon and loops through
      * the products in that page searching for a match
      */
-    private String findMovieFromProductList(String xml, String title, String year) {
+    private static String findMovieFromProductList(String xml, String title, String year) {
         //remove unused parts of resulting web page
         int beginIndex = xml.indexOf("class=\"product-list\"") + 53;
         int endIndex = xml.indexOf("</table>");
@@ -177,6 +179,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
                 } //end for found title
             } //end isMovie
         }
+        
         //if we found a match return it without further ado
         if (foundAtIndex > 0 || firstTitleFind > 0) {
             //if no match with year use the first title find
@@ -185,17 +188,17 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             }
             //find the movie detail page that is in the td before the year
             return extractMovieDetailUrl(title, productList[foundAtIndex]);
-        } else {
-            //we got a productList but the matching of titles did not result in a match
-            //take a chance and return the first product in the list
-            return extractMovieDetailUrl(title, productList[1]);
         }
+
+        //we got a productList but the matching of titles did not result in a match
+        //take a chance and return the first product in the list
+        return extractMovieDetailUrl(title, productList[1]);
     }
 
     /**
      * Function to extract the url of a movie detail page from the td it is in
      */
-    private String extractMovieDetailUrl(String title, String response) {
+    private static String extractMovieDetailUrl(String title, String response) {
         String newResponse = response;
         // Split string to extract the url
         if (newResponse.contains("http")) {
@@ -347,9 +350,8 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
         if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
             if (movieInformation.isTVShow()) {
                 return getPosterUrl(id, movieInformation.getSeason());
-            } else {
-                return getPosterUrl(id);
             }
+            return getPosterUrl(id);
 
         }
         return Image.UNKNOWN;
@@ -361,16 +363,13 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             if (!movieURL.isEmpty() && movieURL.contains("http")) {
                 // fetch movie page from cdon
                 return webBrowser.request(movieURL);
-            } else {
-                // search didn't even find an url to the movie
-                LOG.debug("Error in fetching movie detail page from CDON for movie: {}", movieURL);
-                return Movie.UNKNOWN;
             }
+            // search didn't even find an url to the movie
+            LOG.debug("Error in fetching movie detail page from CDON for movie: {}", movieURL);
         } catch (Exception error) {
             LOG.error("Error while retreiving CDON image for movie : {}", movieURL);
-            // logger.error("Error : " + e.getMessage());
-            return Movie.UNKNOWN;
         }
+        return Movie.UNKNOWN;
     }
 
     protected String extractCdonPosterUrl(String cdonMoviePage, String id) {
@@ -410,10 +409,9 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             result = "http://cdon.se" + posterURL[2];
             LOG.debug("Found cdon cover: {}", result);
             return result;
-        } else {
-            LOG.info("Error finding poster url.");
-            return Movie.UNKNOWN;
         }
+        LOG.info("Error finding poster url.");
+        return Movie.UNKNOWN;
     }
 
     private String getId(Identifiable ident) {

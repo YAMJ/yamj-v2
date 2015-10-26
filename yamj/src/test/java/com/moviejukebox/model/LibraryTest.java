@@ -25,10 +25,14 @@ package com.moviejukebox.model;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.moviejukebox.tools.PropertiesUtil;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.*;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.moviejukebox.tools.PropertiesUtil;
 
 public class LibraryTest {
 
@@ -38,10 +42,6 @@ public class LibraryTest {
     @BeforeClass
     public static void setUpClass() {
         PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
     }
 
     @Before
@@ -65,10 +65,6 @@ public class LibraryTest {
         for (Movie movie : movies) {
             lib.addMovie(movie);
         }
-    }
-
-    @After
-    public void tearDown() {
     }
 
     @Test
@@ -95,7 +91,7 @@ public class LibraryTest {
         assertEquals(4, index.get("The Sopranos").size());
     }
 
-    private void addMovies(Index index, int number) {
+    private static void addMovies(Index index, int number) {
         for (int i = 0; i < number; i++) {
             index.addMovie("i" + i, new Movie());
         }

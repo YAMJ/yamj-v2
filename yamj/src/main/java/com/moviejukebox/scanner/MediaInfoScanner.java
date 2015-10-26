@@ -22,6 +22,33 @@
  */
 package com.moviejukebox.scanner;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.Codec;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -40,30 +67,6 @@ import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
 import com.mucommander.file.FileFactory;
 import com.mucommander.file.impl.iso.IsoArchiveFile;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Grael
@@ -252,33 +255,23 @@ public class MediaInfoScanner {
             File tempRep = new File(randomDirName + "/VIDEO_TS");
             FileTools.makeDirs(tempRep);
 
-            OutputStream fosCurrentIFO = null;
             try {
-                @SuppressWarnings("unchecked")
-//                Vector<ArchiveEntry> allEntries = scannedIsoFile.getEntries();
                 // Convert the returned vector to a List
                 List<ArchiveEntry> allEntries = new ArrayList<>(scannedIsoFile.getEntries());
                 Iterator<ArchiveEntry> parcoursEntries = allEntries.iterator();
                 while (parcoursEntries.hasNext()) {
-                    ArchiveEntry currentArchiveEntry = (ArchiveEntry) parcoursEntries.next();
+                    ArchiveEntry currentArchiveEntry = parcoursEntries.next();
                     if (currentArchiveEntry.getName().toLowerCase().endsWith(".ifo")) {
                         File currentIFO = new File(randomDirName + "/VIDEO_TS" + File.separator + currentArchiveEntry.getName());
-                        fosCurrentIFO = FileTools.createFileOutputStream(currentIFO);
-                        byte[] ifoFileContent = new byte[Integer.parseInt(Long.toString(currentArchiveEntry.getSize()))];
-                        scannedIsoFile.getEntryInputStream(currentArchiveEntry).read(ifoFileContent);
-                        fosCurrentIFO.write(ifoFileContent);
+                        try (OutputStream fosCurrentIFO = FileTools.createFileOutputStream(currentIFO)) {
+                            byte[] ifoFileContent = new byte[Integer.parseInt(Long.toString(currentArchiveEntry.getSize()))];
+                            scannedIsoFile.getEntryInputStream(currentArchiveEntry).read(ifoFileContent);
+                            fosCurrentIFO.write(ifoFileContent);
+                        }
                     }
                 }
             } catch (IOException | NumberFormatException error) {
                 LOG.info(error.getMessage());
-            } finally {
-                if (fosCurrentIFO != null) {
-                    try {
-                        fosCurrentIFO.close();
-                    } catch (IOException ex) {
-                        // ignore
-                    }
-                }
             }
 
             // Scan IFO files
@@ -344,7 +337,7 @@ public class MediaInfoScanner {
         }
     }
 
-    private boolean isMultiPartsScannable(Movie movie, boolean processMultiPart) {
+    private static boolean isMultiPartsScannable(Movie movie, boolean processMultiPart) {
         if (!ENABLE_MULTIPART) {
             return Boolean.FALSE;
         } else if (!processMultiPart) {
@@ -417,7 +410,7 @@ public class MediaInfoScanner {
      * @return
      * @throws IOException
      */
-    private String localInputReadLine(BufferedReader input) throws IOException {
+    private static String localInputReadLine(BufferedReader input) throws IOException {
         String line = input.readLine();
         while ((line != null) && (line.equals(""))) {
             line = input.readLine();
@@ -432,6 +425,7 @@ public class MediaInfoScanner {
             List<Map<String, String>> infosText) throws Exception {
 
         InputStreamReader isr = null;
+        @SuppressWarnings("resource")
         BufferedReader bufReader = null;
 
         try {
@@ -757,7 +751,7 @@ public class MediaInfoScanner {
      * @param movie
      * @param infosGeneral
      */
-    private void processMetaData(Movie movie, Map<String, String> infosGeneral) {
+    private static void processMetaData(Movie movie, Map<String, String> infosGeneral) {
 
         String infoValue;
 
@@ -837,7 +831,7 @@ public class MediaInfoScanner {
         }
     }
 
-    private int getDuration(Map<String, String> infosGeneral, List<Map<String, String>> infosVideo) {
+    private static int getDuration(Map<String, String> infosGeneral, List<Map<String, String>> infosVideo) {
         String runtimeValue;
         int runtime;
 
@@ -860,7 +854,7 @@ public class MediaInfoScanner {
         return runtime;
     }
 
-    private int getMultiPartDuration(Map<String, String> infosMultiPart) {
+    private static int getMultiPartDuration(Map<String, String> infosMultiPart) {
         if (infosMultiPart.isEmpty()) {
             return 0;
         }

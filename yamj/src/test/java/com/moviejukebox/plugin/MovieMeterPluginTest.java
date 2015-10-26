@@ -22,23 +22,23 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.TestData;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Before;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.TestData;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 public class MovieMeterPluginTest {
 
@@ -52,18 +52,6 @@ public class MovieMeterPluginTest {
         PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
         plugin = new MovieMeterPlugin();
         testData.add(new TestData("Avatar", "2009", "17552"));
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @Before
-    public void setup() {
-    }
-
-    @After
-    public void tearDown() throws Exception {
     }
 
     /**
@@ -93,13 +81,6 @@ public class MovieMeterPluginTest {
                 assertTrue("No directors", movie.getDirectors().size() > 0);
             }
         }
-    }
-
-    /**
-     * Test of getPluginID method, of class MovieMeterPlugin.
-     */
-    @Ignore("No need to test this")
-    public void testGetPluginID() {
     }
 
     /**
@@ -133,13 +114,6 @@ public class MovieMeterPluginTest {
             String result = plugin.getMovieId(td.title, td.year);
             assertEquals("Failed to get the correct ID for " + td.title, td.id, result);
         }
-    }
-
-    /**
-     * Test of getMovieId method, of class MovieMeterPlugin.
-     */
-    @Ignore("No need to test this as it's done with other tests")
-    public void testGetMovieId_3args() {
     }
 
     /**

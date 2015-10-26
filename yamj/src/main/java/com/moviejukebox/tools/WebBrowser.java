@@ -22,7 +22,6 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.model.Movie;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpClient;
@@ -53,6 +53,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.common.http.SimpleHttpClientBuilder;
+
+import com.moviejukebox.model.Movie;
 
 /**
  * Web browser with simple cookies support
@@ -110,9 +112,8 @@ public class WebBrowser {
     private static String encodePassword() {
         if (PROXY_USERNAME != null) {
             return ("Basic " + new String(Base64.encodeBase64((PROXY_USERNAME + ":" + PROXY_PASSWORD).getBytes())));
-        } else {
-            return "";
         }
+        return StringUtils.EMPTY;
     }
 
     public String request(String url) throws IOException {
@@ -140,6 +141,7 @@ public class WebBrowser {
         return request(url, null);
     }
 
+    @SuppressWarnings("resource")
     public String request(URL url, Charset charset) throws IOException {
         LOG.debug("Requesting {}", url.toString());
 
@@ -156,12 +158,10 @@ public class WebBrowser {
                 sendHeader(cnx);
                 readHeader(cnx);
 
-                InputStream inputStream = null;
                 InputStreamReader inputStreamReader = null;
                 BufferedReader bufferedReader = null;
 
-                try {
-                    inputStream = cnx.getInputStream();
+                try (InputStream inputStream = cnx.getInputStream()) {
 
                     // If we fail to get the URL information we need to exit gracefully
                     if (charset == null) {
@@ -189,20 +189,12 @@ public class WebBrowser {
                     if (bufferedReader != null) {
                         try {
                             bufferedReader.close();
-                        } catch (Exception ex) {
-                        }
+                        } catch (Exception ex) { /* ignore */ }
                     }
                     if (inputStreamReader != null) {
                         try {
                             inputStreamReader.close();
-                        } catch (Exception ex) {
-                        }
-                    }
-                    if (inputStream != null) {
-                        try {
-                            inputStream.close();
-                        } catch (Exception ex) {
-                        }
+                        } catch (Exception ex) { /* ignore */ }
                     }
                 }
             } catch (SocketTimeoutException ex) {
@@ -229,6 +221,7 @@ public class WebBrowser {
      * @return
      * @throws IOException
      */
+    @SuppressWarnings("resource")
     public boolean downloadImage(File imageFile, String imageURL) throws IOException {
 
         String fixedImageURL;
@@ -245,8 +238,10 @@ public class WebBrowser {
         ThreadExecutor.enterIO(url);
         boolean success = Boolean.FALSE;
         int retryCount = imageRetryCount;
+        
         InputStream inputStream = null;
         FileOutputStream outputStream = null;
+        
         int reportedLength = 0;
         try {
             while (!success && retryCount > 0) {
@@ -302,7 +297,7 @@ public class WebBrowser {
      * @param URL The URL to check
      * @param cnx The connection that has been opened
      */
-    private void checkRequest(URLConnection checkCnx) {
+    private static void checkRequest(URLConnection checkCnx) {
         String checkUrl = checkCnx.getURL().getHost().toLowerCase();
 
         // TODO: Move these workarounds into a property file so they can be overridden at runtime
@@ -403,7 +398,7 @@ public class WebBrowser {
         }
     }
 
-    private Charset getCharset(URLConnection cnx) {
+    private static Charset getCharset(URLConnection cnx) {
         Charset charset = null;
         // content type will be string like "text/html; charset=UTF-8" or "text/html"
         String contentType = cnx.getContentType();

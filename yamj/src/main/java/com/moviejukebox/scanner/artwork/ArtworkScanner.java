@@ -22,22 +22,6 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import com.moviejukebox.model.Artwork.ArtworkPriority;
-import com.moviejukebox.model.Artwork.ArtworkType;
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.plugin.DefaultBackgroundPlugin;
-import com.moviejukebox.plugin.DefaultImagePlugin;
-import com.moviejukebox.plugin.MovieImagePlugin;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.SkinProperties;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -51,13 +35,32 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
+
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sanselan.ImageReadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Artwork.ArtworkPriority;
+import com.moviejukebox.model.Artwork.ArtworkType;
+import com.moviejukebox.model.enumerations.DirtyFlag;
+import com.moviejukebox.plugin.DefaultBackgroundPlugin;
+import com.moviejukebox.plugin.DefaultImagePlugin;
+import com.moviejukebox.plugin.MovieImagePlugin;
+import com.moviejukebox.tools.FileTools;
+import com.moviejukebox.tools.GraphicTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.SkinProperties;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.WebBrowser;
 
 /**
  * Scanner for artwork
@@ -214,13 +217,13 @@ public abstract class ArtworkScanner implements IArtworkScanner {
                     setOriginalFilename(movie, makeSafeOriginalFilename(movie, Boolean.TRUE));
                 }
                 return getArtworkUrl(movie);
-            } else {
-                // Not a valid URL, check to see if the artwork is dirty or the movie is dirty
-                if (!(isDirtyArtwork(movie) || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.RECHECK))) {
-                    // Artwork and movie is not dirty, so don't process
-                    LOG.debug("URL update not required (not overwrite, dirty or recheck)");
-                    return getArtworkUrl(movie);
-                }
+            }
+            
+            // Not a valid URL, check to see if the artwork is dirty or the movie is dirty
+            if (!(isDirtyArtwork(movie) || movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.RECHECK))) {
+                // Artwork and movie is not dirty, so don't process
+                LOG.debug("URL update not required (not overwrite, dirty or recheck)");
+                return getArtworkUrl(movie);
             }
         }
 
@@ -853,10 +856,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
                 setDirtyArtwork(movie, Boolean.TRUE);
                 LOG.trace("{}: Local artwork is newer, overwritting existing jukebox artwork", movie.getBaseName());
                 return Boolean.TRUE;
-            } else {
-                LOG.trace("{}: Local artwork is older, not copying", movie.getBaseName());
-                return Boolean.FALSE;
             }
+            LOG.trace("{}: Local artwork is older, not copying", movie.getBaseName());
+            return Boolean.FALSE;
         } else {
             LOG.trace("{}: No jukebox file found, file will be copied", movie.getBaseName());
             return Boolean.TRUE;

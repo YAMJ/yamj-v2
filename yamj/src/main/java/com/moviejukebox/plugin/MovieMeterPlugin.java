@@ -22,25 +22,28 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Movie;
 import static com.moviejukebox.model.Movie.UNKNOWN;
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+
+import java.util.List;
+import java.util.StringTokenizer;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import static com.moviejukebox.tools.StringTools.isNotValidString;
-import static com.moviejukebox.tools.StringTools.isValidString;
 import com.moviejukebox.tools.WebBrowser;
 import com.omertron.moviemeter.MovieMeterApi;
 import com.omertron.moviemeter.MovieMeterException;
 import com.omertron.moviemeter.model.Actor;
 import com.omertron.moviemeter.model.FilmInfo;
 import com.omertron.moviemeter.model.SearchResult;
-import java.util.List;
-import java.util.StringTokenizer;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * MovieMeter.nl plugin using new API interface
@@ -82,7 +85,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
         return updateMediaInfo(movie, moviemeterId);
     }
 
-    private boolean updateMediaInfo(Movie movie, String moviemeterId) {
+    private static boolean updateMediaInfo(Movie movie, String moviemeterId) {
         FilmInfo filmInfo;
         try {
             filmInfo = api.getFilm(NumberUtils.toInt(moviemeterId));

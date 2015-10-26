@@ -22,20 +22,22 @@
  */
 package com.moviejukebox.reader;
 
-import com.moviejukebox.model.MediaLibraryPath;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.MediaLibraryPath;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  *
@@ -73,8 +75,7 @@ public class MovieJukeboxLibraryReader {
                 if (StringTools.isValidString(scrapeLibraryString)) {
                     try {
                         scrapeLibrary = sub.getBoolean("scrapeLibrary");
-                    } catch (Exception ignore) {
-                    }
+                    } catch (Exception ignore) { /* ignore */ }
                 }
 
                 long prebuf = -1;
@@ -82,8 +83,7 @@ public class MovieJukeboxLibraryReader {
                 if (prebufString != null && !prebufString.isEmpty()) {
                     try {
                         prebuf = Long.parseLong(prebufString);
-                    } catch (NumberFormatException ignore) {
-                    }
+                    } catch (NumberFormatException ignore) { /* ignore */ }
                 }
 
                 // Note that the nmtpath should no longer be used in the library file and instead "playerpath" should be used.

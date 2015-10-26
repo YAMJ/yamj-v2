@@ -22,9 +22,10 @@
  */
 package com.moviejukebox.model.Comparator;
 
-import com.moviejukebox.model.Movie;
 import java.io.Serializable;
 import java.util.Comparator;
+
+import com.moviejukebox.model.Movie;
 
 public class MovieTitleComparator implements Comparator<Movie>, Serializable {
 
@@ -43,8 +44,7 @@ public class MovieTitleComparator implements Comparator<Movie>, Serializable {
     public int compare(Movie movie1, Movie movie2) {
         if (ascending) {
             return movie1.getStrippedTitleSort().compareTo(movie2.getStrippedTitleSort());
-        } else {
-            return movie2.getStrippedTitleSort().compareTo(movie1.getStrippedTitleSort());
         }
+        return movie2.getStrippedTitleSort().compareTo(movie1.getStrippedTitleSort());
     }
 }

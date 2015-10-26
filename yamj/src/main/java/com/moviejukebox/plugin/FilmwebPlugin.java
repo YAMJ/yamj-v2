@@ -22,6 +22,17 @@
  */
 package com.moviejukebox.plugin;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
@@ -31,15 +42,6 @@ import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.SearchEngineTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class FilmwebPlugin extends ImdbPlugin {
 
@@ -284,7 +286,7 @@ public class FilmwebPlugin extends ImdbPlugin {
      * @param xml
      * @return
      */
-    private boolean scanCastInformation(Movie movie, String xmlCast) {
+    private static boolean scanCastInformation(Movie movie, String xmlCast) {
         boolean overrideNormal = OverrideTools.checkOverwriteActors(movie, FILMWEB_PLUGIN_ID);
         boolean overridePeople = OverrideTools.checkOverwritePeopleActors(movie, FILMWEB_PLUGIN_ID);
 
@@ -317,7 +319,7 @@ public class FilmwebPlugin extends ImdbPlugin {
      * @param xml
      * @return
      */
-    private boolean scanCrewInformation(Movie movie, String xmlCrew) {
+    private static boolean scanCrewInformation(Movie movie, String xmlCrew) {
         boolean overrideNormal = OverrideTools.checkOverwriteDirectors(movie, FILMWEB_PLUGIN_ID);
         boolean overridePeople = OverrideTools.checkOverwritePeopleDirectors(movie, FILMWEB_PLUGIN_ID);
         if (overrideNormal || overridePeople) {

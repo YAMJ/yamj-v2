@@ -22,6 +22,39 @@
  */
 package com.moviejukebox.writer;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import com.moviejukebox.model.IndexInfo;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
@@ -37,36 +70,6 @@ import com.moviejukebox.tools.SkinProperties;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.ThreadExecutor;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * Generate HTML pages from XML movies and indexes
@@ -114,6 +117,7 @@ public class MovieJukeboxHTMLWriter {
      * @param jukebox
      * @param movie
      */
+    @SuppressWarnings("null")
     public void generateMovieDetailsHTML(Jukebox jukebox, Movie movie) {
         try {
             String baseName = movie.getBaseName();
@@ -173,6 +177,7 @@ public class MovieJukeboxHTMLWriter {
      * @param jukebox
      * @param person
      */
+    @SuppressWarnings("null")
     public void generatePersonDetailsHTML(Jukebox jukebox, Person person) {
         try {
             String baseName = person.getFilename();
@@ -322,15 +327,12 @@ public class MovieJukeboxHTMLWriter {
      *
      * @param filename
      */
-    private void removeBlankLines(String filename) {
-        BufferedReader reader = null;
+    private static void removeBlankLines(String filename) {
         StringBuilder sb = new StringBuilder();
-        FileWriter outFile = null;
-        FileReader inFile = null;
 
-        try {
-            inFile = new FileReader(filename);
-            reader = new BufferedReader(inFile);
+        try (FileReader inFile = new FileReader(filename);
+             BufferedReader reader = new BufferedReader(inFile))
+        {
             String br;
 
             while ((br = reader.readLine()) != null) {
@@ -340,36 +342,14 @@ public class MovieJukeboxHTMLWriter {
             }
             reader.close();
 
-            outFile = new FileWriter(filename);
-            outFile.write(sb.toString());
-            outFile.flush();
+            try (FileWriter outFile = new FileWriter(filename)) {
+                outFile.write(sb.toString());
+                outFile.flush();
+            }
 
         } catch (IOException error) {
             LOG.debug("Failed deleting blank lines from {}", filename);
             LOG.error(SystemTools.getStackTrace(error));
-        } finally {
-            try {
-                if (inFile != null) {
-                    inFile.close();
-                }
-            } catch (IOException e) {
-                // Ignore
-            }
-            try {
-                if (outFile != null) {
-                    outFile.close();
-                }
-            } catch (IOException e) {
-                // Ignore
-            }
-
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                // Ignore
-            }
         }
     }
 
@@ -473,7 +453,7 @@ public class MovieJukeboxHTMLWriter {
      * @param jukebox
      * @param library
      */
-    private void generateTransformedIndexHTML(Jukebox jukebox, Library library) {
+    private static void generateTransformedIndexHTML(Jukebox jukebox, Library library) {
         LOG.debug("Generating Index file from jukebox-index.xsl");
 
         String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
@@ -524,18 +504,18 @@ public class MovieJukeboxHTMLWriter {
      * @param jukebox
      * @param library
      */
-    private void generateDefaultIndexHTML(Jukebox jukebox, Library library) {
-        OutputStream fos = null;
+    private static void generateDefaultIndexHTML(Jukebox jukebox, Library library) {
         XMLStreamWriter writer = null;
 
         try {
             File htmlFile = new File(jukebox.getJukeboxTempLocation(), PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
             FileTools.makeDirsForFile(htmlFile);
 
-            fos = FileTools.createFileOutputStream(htmlFile);
-            XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-            writer = outputFactory.createXMLStreamWriter(fos, "UTF-8");
-
+            try (OutputStream fos = FileTools.createFileOutputStream(htmlFile)) { 
+                XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+                writer = outputFactory.createXMLStreamWriter(fos, "UTF-8");
+            }
+            
             String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
             if (homePage.length() == 0) {
                 String defCat = library.getDefaultCategory();
@@ -568,7 +548,7 @@ public class MovieJukeboxHTMLWriter {
 
             writer.writeEndElement();
             writer.writeEndElement();
-        } catch (XMLStreamException | FileNotFoundException ex) {
+        } catch (XMLStreamException | IOException ex) {
             LOG.error("Failed generating HTML library index: {}", ex.getMessage());
             LOG.error(SystemTools.getStackTrace(ex));
         } finally {
@@ -577,14 +557,6 @@ public class MovieJukeboxHTMLWriter {
                     writer.close();
                 } catch (XMLStreamException ex) {
                     LOG.trace("Failed to close XMLStreamWriter");
-                }
-            }
-
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException ex) {
-                    LOG.trace("Failed to close FileOutputStream");
                 }
             }
         }
@@ -656,7 +628,7 @@ public class MovieJukeboxHTMLWriter {
         tasks.waitFor();
     }
 
-    private void writeSingleIndexPage(Jukebox jukebox, IndexInfo idx, int page) {
+    private static void writeSingleIndexPage(Jukebox jukebox, IndexInfo idx, int page) {
         try {
             File detailsDir = jukebox.getJukeboxTempLocationDetailsFile();
             FileTools.makeDirs(detailsDir);
@@ -712,6 +684,7 @@ public class MovieJukeboxHTMLWriter {
      * @param styleSheetTargetRootPath
      * @return
      */
+    @SuppressWarnings("null")
     public static Transformer getTransformer(File xslFile, String styleSheetTargetRootPath) {
         /*
          * Removed caching of transformer, as saxon keeps all parsed documents in memory, causing memory leaks.
@@ -756,7 +729,7 @@ public class MovieJukeboxHTMLWriter {
      * @param message Message to print if there is an error
      * @throws Exception
      */
-    private void doTransform(Transformer transformer, Source xmlSource, Result xmlResult, String message) throws RuntimeException {
+    private static void doTransform(Transformer transformer, Source xmlSource, Result xmlResult, String message) throws RuntimeException {
         int retryCount = 0;
 
         do {
@@ -769,15 +742,15 @@ public class MovieJukeboxHTMLWriter {
                 if (retryTimes == 0) {
                     // We've exceeded the maximum number of retries, so throw the exception and quit
                     throw new RuntimeException("Failed generating HTML, retries exceeded: " + ex.getMessage(), ex);
-                } else {
-                    LOG.debug("Failed generating HTML, will retry {} more time{}. {}", retryTimes, (retryTimes == 1 ? "" : "s"), message);
-                    try {
-                        Thread.sleep(500);  // Sleep for 1/2 second to hopefully let the issue go away
-                    } catch (InterruptedException ex1) {
-                        // We don't care if we're interrupted
-                    }
                 }
-            }   // Catch
+                
+                LOG.debug("Failed generating HTML, will retry {} more time{}. {}", retryTimes, (retryTimes == 1 ? "" : "s"), message);
+                try {
+                    Thread.sleep(500);  // Sleep for 1/2 second to hopefully let the issue go away
+                } catch (InterruptedException ex1) {
+                    // We don't care if we're interrupted
+                }
+            }
         } while (retryCount <= MAX_RETRY_COUNT);
     }
 }

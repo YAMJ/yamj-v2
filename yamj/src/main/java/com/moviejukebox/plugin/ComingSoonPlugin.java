@@ -22,6 +22,21 @@
  */
 package com.moviejukebox.plugin;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.text.WordUtils;
+import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.HTMLTools;
@@ -30,19 +45,6 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.SearchEngineTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.StringTokenizer;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.lang3.text.WordUtils;
-import org.pojava.datetime.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author iuk
@@ -224,9 +226,9 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 if (!movieList.isEmpty()) {
 
                     for (int i = 0; i < movieList.size() && currentScore > 0; i++) {
-                        String lId = (String) movieList.get(i)[0];
-                        String lTitle = (String) movieList.get(i)[1];
-                        String lOrig = (String) movieList.get(i)[2];
+                        String lId = movieList.get(i)[0];
+                        String lTitle = movieList.get(i)[1];
+                        String lOrig = movieList.get(i)[2];
                         //String lYear = (String) movieList.get(i)[3];
                         int difference = compareTitles(movieName, lTitle);
                         int differenceOrig = compareTitles(movieName, lOrig);
@@ -276,7 +278,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
      * @param xml
      * @return
      */
-    private List<String[]> parseComingSoonSearchResults(String xml) {
+    private static List<String[]> parseComingSoonSearchResults(String xml) {
 
         List<String[]> listaFilm = new ArrayList<>();
         int beginIndex = StringUtils.indexOfIgnoreCase(xml, "Trovati");
@@ -295,9 +297,9 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 LOG.error("couldn't find 'Trovati NNN film in archivio' string. Search page layout probably changed");
             }
             return listaFilm;
-        } else {
-            LOG.debug("search found {} movies", moviesFound);
         }
+
+        LOG.debug("search found {} movies", moviesFound);
 
         beginIndex = xml.indexOf("<section class=\"cs-components__section-contentsbox cinema\">");
 
@@ -347,7 +349,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
     }
 
-    private String getComingSoonIdFromURL(String url) {
+    private static String getComingSoonIdFromURL(String url) {
         int index = url.indexOf("/scheda");
         if (index > -1) {
             String stripped = url.substring(0, index);
@@ -370,7 +372,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
      * @param returnedTitle
      * @return
      */
-    private int compareTitles(String searchedTitle, String returnedTitle) {
+    private static int compareTitles(String searchedTitle, String returnedTitle) {
         if (StringTools.isNotValidString(returnedTitle)) {
             return COMINGSOON_MAX_DIFF;
         }

@@ -22,6 +22,14 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
@@ -29,12 +37,6 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
 
@@ -65,7 +67,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
      * @return
      * @throws IOException
      */
-    private String getMovieId(String xml, String title) throws IOException {
+    private static String getMovieId(String xml, String title) throws IOException {
         String movieId = Movie.UNKNOWN;
 
         List<String> foundTitles = HTMLTools.extractTags(xml, SEARCH_START, SEARCH_END, TITLE_START, TITLE_END, false);
@@ -89,7 +91,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
         return movieId;
     }
 
-    private String findIdInXml(String xml, String searchTitle) {
+    private static String findIdInXml(String xml, String searchTitle) {
         String movieId = Movie.UNKNOWN;
         int beginIndex = xml.indexOf(SEARCH_ID_START, xml.indexOf(TITLE_START + searchTitle + TITLE_END));
         if (beginIndex > -1) {

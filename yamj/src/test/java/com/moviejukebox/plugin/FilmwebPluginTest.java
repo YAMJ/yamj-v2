@@ -22,20 +22,23 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.WebBrowser;
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.WebBrowser;
 
 public class FilmwebPluginTest {
 
@@ -382,9 +385,8 @@ public class FilmwebPluginTest {
                 public String request(URL url) throws IOException {
                     if (offline && (getRequestResult(url) != null)) {
                         return getRequestResult(url);
-                    } else {
-                        return super.request(url);
                     }
+                    return super.request(url);
                 }
             };
         }

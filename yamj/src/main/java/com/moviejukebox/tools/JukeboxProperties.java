@@ -22,14 +22,6 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.JukeboxStatistics;
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.MediaLibraryPath;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.PropertyInformation;
-import com.moviejukebox.model.enumerations.JukeboxStatistic;
-import com.moviejukebox.model.enumerations.PropertyOverwrites;
 import static com.moviejukebox.model.enumerations.PropertyOverwrites.BANNERS;
 import static com.moviejukebox.model.enumerations.PropertyOverwrites.CLEARART;
 import static com.moviejukebox.model.enumerations.PropertyOverwrites.CLEARLOGO;
@@ -48,13 +40,16 @@ import static com.moviejukebox.model.enumerations.PropertyOverwrites.TVTHUMB;
 import static com.moviejukebox.model.enumerations.PropertyOverwrites.VIDEOIMAGES;
 import static com.moviejukebox.model.enumerations.PropertyOverwrites.XML;
 import static com.moviejukebox.tools.PropertiesUtil.getProperty;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
@@ -63,6 +58,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.JukeboxStatistics;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.MediaLibraryPath;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.PropertyInformation;
+import com.moviejukebox.model.enumerations.JukeboxStatistic;
+import com.moviejukebox.model.enumerations.PropertyOverwrites;
 
 /**
  * Save a pre-defined list of attributes of the jukebox and properties for use in subsequent processing runs to determine if an
@@ -442,12 +446,9 @@ public final class JukeboxProperties {
                 File tempFile = new File(tempFilename);
                 DateFormat df = DateTimeTools.getDateFormatLong();
                 return df.format(tempFile.lastModified());
-            } catch (Exception ignore) {
-                return Movie.UNKNOWN;
-            }
-        } else {
-            return Movie.UNKNOWN;
+            } catch (Exception ignore) { /* ignore */ }
         }
+        return Movie.UNKNOWN;
     }
 
     /**

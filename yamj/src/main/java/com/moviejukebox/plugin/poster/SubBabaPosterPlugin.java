@@ -22,6 +22,12 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
@@ -33,17 +39,12 @@ import com.omertron.subbabaapi.SubBabaException;
 import com.omertron.subbabaapi.enumerations.SearchType;
 import com.omertron.subbabaapi.model.SubBabaContent;
 import com.omertron.subbabaapi.model.SubBabaMovie;
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubBabaPosterPlugin.class);
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_SubBaba");
     private SubBabaApi subBaba;
-    private static final String WEBHOST = "sub-baba.com";
 
     public SubBabaPosterPlugin() {
         super();

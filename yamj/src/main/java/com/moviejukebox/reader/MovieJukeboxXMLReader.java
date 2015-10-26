@@ -22,29 +22,6 @@
  */
 package com.moviejukebox.reader;
 
-import com.moviejukebox.MovieJukebox;
-import com.moviejukebox.model.Attachment.Attachment;
-import com.moviejukebox.model.Attachment.AttachmentType;
-import com.moviejukebox.model.Attachment.ContentType;
-import com.moviejukebox.model.Award;
-import com.moviejukebox.model.AwardEvent;
-import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Filmography;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.model.enumerations.CodecSource;
-import com.moviejukebox.model.enumerations.CodecType;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.tools.AspectRatioTools;
-import com.moviejukebox.tools.DOMHelper;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 import static com.moviejukebox.writer.MovieJukeboxXMLWriter.BASE_FILENAME;
 import static com.moviejukebox.writer.MovieJukeboxXMLWriter.CHARACTER;
 import static com.moviejukebox.writer.MovieJukeboxXMLWriter.COUNTRY;
@@ -68,6 +45,7 @@ import static com.moviejukebox.writer.MovieJukeboxXMLWriter.URL;
 import static com.moviejukebox.writer.MovieJukeboxXMLWriter.WON;
 import static com.moviejukebox.writer.MovieJukeboxXMLWriter.YEAR;
 import static com.moviejukebox.writer.MovieJukeboxXMLWriter.YES;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -75,7 +53,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -87,6 +67,30 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import com.moviejukebox.MovieJukebox;
+import com.moviejukebox.model.Award;
+import com.moviejukebox.model.AwardEvent;
+import com.moviejukebox.model.Codec;
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Filmography;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Person;
+import com.moviejukebox.model.Attachment.Attachment;
+import com.moviejukebox.model.Attachment.AttachmentType;
+import com.moviejukebox.model.Attachment.ContentType;
+import com.moviejukebox.model.enumerations.CodecSource;
+import com.moviejukebox.model.enumerations.CodecType;
+import com.moviejukebox.model.enumerations.DirtyFlag;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.plugin.ImdbPlugin;
+import com.moviejukebox.tools.AspectRatioTools;
+import com.moviejukebox.tools.DOMHelper;
+import com.moviejukebox.tools.HTMLTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 public class MovieJukeboxXMLReader {
 
@@ -1151,7 +1155,7 @@ public class MovieJukeboxXMLReader {
                 // Get the value if it exists
                 if (tagElement.getChildNodes() != null && tagElement.getChildNodes().getLength() > 0) {
                     try {
-                        value = ((Node) tagElement.getChildNodes().item(0)).getNodeValue();
+                        value = (tagElement.getChildNodes().item(0)).getNodeValue();
                         // Get the source
                         source = tagElement.getAttribute(SOURCE);
                     } catch (DOMException ex) {

@@ -22,6 +22,33 @@
  */
 package com.moviejukebox.reader;
 
+import static com.moviejukebox.tools.StringTools.isValidString;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+
 import com.moviejukebox.model.Codec;
 import com.moviejukebox.model.EpisodeDetail;
 import com.moviejukebox.model.ExtraFile;
@@ -41,31 +68,8 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import static com.moviejukebox.tools.StringTools.isValidString;
 import com.moviejukebox.tools.SubtitleTools;
 import com.moviejukebox.tools.SystemTools;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import javax.xml.parsers.ParserConfigurationException;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.pojava.datetime.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 /**
  * Class to read the NFO files
@@ -1128,19 +1132,17 @@ public final class MovieNFOReader {
         if (StringTools.isNotValidString(ratingString)) {
             // Rating isn't valid, so skip it
             return -1;
-        } else {
-            float rating = NumberUtils.toFloat(ratingString, 0.0f);
-            if (rating > 0.0f) {
-                if (rating <= 10.0f) {
-                    return Math.round(rating * 10f);
-                } else {
-                    return Math.round(rating * 1f);
-                }
-            } else {
-                // Negative or zero, so return zero
-                return 0;
-            }
         }
+
+        float rating = NumberUtils.toFloat(ratingString, 0.0f);
+        if (rating > 0.0f) {
+            if (rating <= 10.0f) {
+                return Math.round(rating * 10f);
+            }
+            return Math.round(rating * 1f);
+        }
+        // negative or zero, so return zero
+        return 0;
     }
 
     /**
@@ -1223,13 +1225,11 @@ public final class MovieNFOReader {
                 movie.setYear(tempYear, NFO_PLUGIN_ID);
             }
             return Boolean.TRUE;
-        } else {
-            if (StringUtils.isBlank(tempYear)) {
-                // The year is blank, so skip it.
-                return Boolean.TRUE;
-            } else {
-                return Boolean.FALSE;
-            }
         }
+        if (StringUtils.isBlank(tempYear)) {
+            // The year is blank, so skip it.
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
     }
 }

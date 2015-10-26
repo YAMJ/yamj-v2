@@ -22,6 +22,14 @@
  */
 package com.moviejukebox.plugin;
 
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.tools.PropertiesUtil;
@@ -30,12 +38,6 @@ import com.moviejukebox.tools.WebBrowser;
 import com.omertron.rottentomatoesapi.RottenTomatoesApi;
 import com.omertron.rottentomatoesapi.RottenTomatoesException;
 import com.omertron.rottentomatoesapi.model.RTMovie;
-import java.util.List;
-import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * API for getting the ratings from RottenTomatoes.com
@@ -143,9 +145,8 @@ public class RottenTomatoesPlugin {
             }
 
             return Boolean.TRUE;
-        } else {
-            LOG.debug("No RottenTomatoes information found for {}", movie.getBaseName());
-            return Boolean.FALSE;
         }
+        LOG.debug("No RottenTomatoes information found for {}", movie.getBaseName());
+        return Boolean.FALSE;
     }
 }
