@@ -27,6 +27,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.yamj</groupId>
+            <artifactId>api-common</artifactId>
+        </dependency>
+            
+        <dependency>
             <groupId>com.moviejukebox</groupId>
             <artifactId>allocine-api</artifactId>
         </dependency>

@@ -16,3 +16,4 @@ nb-configuration.xml
 /yamj/target/
 /distribution/target/
 yamj/src/main/resources/git.properties
+/bin/
