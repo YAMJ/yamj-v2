@@ -220,12 +220,6 @@
                 <version>1.1-SNAPSHOT</version>
                 <type>jar</type>
             </dependency>
-            <dependency>
-                <groupId>org.yamj</groupId>
-                <artifactId>api-common</artifactId>
-                <version>1.4</version>
-                <type>jar</type>
-            </dependency>
             <!-- TESTING -->
             <dependency>
                 <groupId>junit</groupId>
