@@ -817,16 +817,18 @@ public final class FileTools {
             super(pathname);
             if (archiveScanners == null) {
                 this.archiveScanners = null;
+            } else {
+                this.archiveScanners = archiveScanners.clone();
             }
-            this.archiveScanners = archiveScanners.clone();
         }
 
         public FileEx(File parent, String child, IArchiveScanner[] archiveScanners) {
             this(parent, child);
             if (archiveScanners == null) {
                 this.archiveScanners = null;
+            } else {
+                this.archiveScanners = archiveScanners.clone();
             }
-            this.archiveScanners = archiveScanners.clone();
         }
 
         @Override
