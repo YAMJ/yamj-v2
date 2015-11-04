@@ -22,21 +22,23 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import org.apache.commons.lang3.StringUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import org.apache.commons.lang3.StringUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.Person;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
 
 public class ImdbPluginTest {
 
@@ -92,10 +94,10 @@ public class ImdbPluginTest {
         assertTrue(imdbPlugin.scan(movie));
         assertEquals("Chocolate Diddlers or My Puppy's Dead", mf1.getTitle(12));
         assertTrue(StringUtils.startsWith(mf1.getPlot(12), "When Charlie and Courtney break up"));
-        assertEquals("2010-12-13", mf1.getFirstAired(12));
+        assertEquals("2011-11-15", mf1.getFirstAired(12));
         assertEquals("That Darn Priest", mf2.getTitle(16));
         assertTrue(StringUtils.startsWith(mf2.getPlot(16), "Rose becomes wise to Alan's Ponzi scheme"));
-        assertEquals("2011-03-28", mf2.getFirstAired(16));
+        assertEquals("2011-12-13", mf2.getFirstAired(16));
     }
 
     @Test
