@@ -35,8 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.fanarttvapi.FanartTvApi;
 import com.omertron.fanarttvapi.FanartTvException;
@@ -53,7 +52,6 @@ public class FanartTvPlugin {
     public static final String FANARTTV_PLUGIN_ID = "fanarttv";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_FanartTv");
     private FanartTvApi ft;
-    private static final String WEBHOST = "fanart.tv";
     private static final Map<FTArtworkType, Integer> ARTWORK_TYPES = new EnumMap<>(FTArtworkType.class);
     private int totalRequiredTv = 0;
     private int totalRequireMovie = 0;
@@ -89,7 +87,7 @@ public class FanartTvPlugin {
 
     public FanartTvPlugin() {
         try {
-            this.ft = new FanartTvApi(API_KEY, null,WebBrowser.getHttpClient());
+            this.ft = new FanartTvApi(API_KEY, null, YamjHttpClientBuilder.getHttpClient());
         } catch (FanartTvException ex) {
             LOG.warn("Failed to initialise FanartTV API: {}", ex.getMessage(), ex);
             return;
@@ -308,7 +306,6 @@ public class FanartTvPlugin {
 
         FTSeries ftArtwork = (FTSeries) CacheMemory.getFromCache(key);
         if (ftArtwork == null || ftArtwork.hasArtwork()) {
-            ThreadExecutor.enterIO(WEBHOST);
             try {
                 ftArtwork = ft.getTvArtwork(Integer.toString(tvdbId));
 
@@ -320,8 +317,6 @@ public class FanartTvPlugin {
             } catch (FanartTvException ex) {
                 LOG.warn("Failed to get fanart information for TVDB ID: {}. Error: {}", tvdbId, ex.getMessage(), ex);
                 return new FTSeries();
-            } finally {
-                ThreadExecutor.leaveIO();
             }
         }
         return ftArtwork;
@@ -350,7 +345,6 @@ public class FanartTvPlugin {
 
         // If we get nothing back from the cache or it's empty, check for artwork
         if (ftArtwork == null || !ftArtwork.hasArtwork()) {
-            ThreadExecutor.enterIO(WEBHOST);
             try {
                 if (StringTools.isValidString(imdbId)) {
                     ftArtwork = ft.getMovieArtwork(imdbId);
@@ -366,8 +360,6 @@ public class FanartTvPlugin {
             } catch (FanartTvException ex) {
                 LOG.warn("Failed to get fanart information for IMDB ID: {} / TMDB ID: {}. Error: {}", imdbId, tmdbId, ex.getMessage(), ex);
                 return new FTMovie();
-            } finally {
-                ThreadExecutor.leaveIO();
             }
         }
         return ftArtwork;

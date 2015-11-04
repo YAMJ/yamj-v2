@@ -115,7 +115,7 @@ public class TrailerAddictPlugin extends TrailerPlugin {
     private String getDownloadUrl(Trailer trailer) {
         String downloadPage;
         try {
-            downloadPage = webBrowser.request(trailer.getTrailerDownloadUrl());
+            downloadPage = httpClient.request(trailer.getTrailerDownloadUrl());
         } catch (IOException ex) {
             LOG.warn("Failed to get webpage: {}", ex.getMessage());
             return Movie.UNKNOWN;

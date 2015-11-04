@@ -22,6 +22,9 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
@@ -29,8 +32,6 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractMoviePosterPlugin implements IMoviePosterPlugin {
 

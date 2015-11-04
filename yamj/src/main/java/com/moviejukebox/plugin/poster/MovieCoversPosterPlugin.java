@@ -22,23 +22,28 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.text.Normalizer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.text.Normalizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieCoversPosterPlugin.class);
-    private WebBrowser webBrowser;
+    private static final String CHARSET = "ISO-8859-1";
+    
+    private YamjHttpClient httpClient;
 
     public MovieCoversPosterPlugin() {
         super();
@@ -48,7 +53,7 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
             return;
         }
 
-        webBrowser = new WebBrowser();
+        httpClient = YamjHttpClientBuilder.getHttpClient();
     }
 
     @Override
@@ -57,18 +62,18 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
 
         try {
             StringBuilder sb = new StringBuilder("http://www.moviecovers.com/multicrit.html?titre=");
-            sb.append(URLEncoder.encode(title.replace("\u0153", "oe"), "iso-8859-1"));
+            sb.append(URLEncoder.encode(title.replace("\u0153", "oe"), "ISO-8859-1"));
 
             if (StringTools.isValidString(year)) {
                 sb.append("&anneemin=");
-                sb.append(URLEncoder.encode(Integer.toString(Integer.parseInt(year) - 1), "iso-8859-1"));
+                sb.append(URLEncoder.encode(Integer.toString(Integer.parseInt(year) - 1), CHARSET));
                 sb.append("&anneemax=");
-                sb.append(URLEncoder.encode(Integer.toString(Integer.parseInt(year) + 1), "iso-8859-1"));
+                sb.append(URLEncoder.encode(Integer.toString(Integer.parseInt(year) + 1), CHARSET));
             }
             sb.append("&slow=0&tri=Titre&listes=1");
             LOG.debug("Searching for: {}", sb.toString());
 
-            String content = webBrowser.request(sb.toString());
+            String content = httpClient.request(sb.toString());
 
             if (content != null) {
                 String formattedTitle = Normalizer.normalize(title.replace("\u0153", "oe").toUpperCase(), Normalizer.Form.NFD).replaceAll("[\u0300-\u036F]", "");
@@ -97,15 +102,15 @@ public class MovieCoversPosterPlugin extends AbstractMoviePosterPlugin {
                 // Search the forum if no answer
                 if (returnString.equalsIgnoreCase(Movie.UNKNOWN)) {
                     sb = new StringBuilder("http://www.moviecovers.com/forum/search-mysql.html?forum=MovieCovers&query=");
-                    sb.append(URLEncoder.encode(formattedTitle, "iso-8859-1"));
+                    sb.append(URLEncoder.encode(formattedTitle, CHARSET));
                     // logger.debug(LOG_MESSAGE+"We have to explore the forums: " + sb);
-                    content = webBrowser.request(sb.toString());
+                    content = httpClient.request(sb.toString());
                     if (content != null) {
                         // Loop through the search results
                         for (String filmURL : HTMLTools.extractTags(content, "<TABLE border=\"0\" cellpadding=\"0\" cellspacing=\"0\">", "<FORM action=\"search-mysql.html\">", "<TD><A href=\"fil.html?query=", "</A></TD>", false)) {
                             // logger.debug(LOG_MESSAGE+"examining: " + filmURL);
                             if ((filmURL.endsWith(formattedTitleNormalized)) || (filmURL.endsWith(formattedTitle))) {
-                                content = webBrowser.request("http://www.moviecovers.com/forum/fil.html?query=" + filmURL.substring(0, filmURL.length() - formattedTitle.length() - 2));
+                                content = httpClient.request("http://www.moviecovers.com/forum/fil.html?query=" + filmURL.substring(0, filmURL.length() - formattedTitle.length() - 2));
                                 if (content != null) {
                                     int sizePoster;
                                     int oldSizePoster = 0;

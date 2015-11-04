@@ -33,7 +33,7 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 import com.omertron.subbabaapi.SubBabaApi;
 import com.omertron.subbabaapi.SubBabaException;
 import com.omertron.subbabaapi.enumerations.SearchType;
@@ -55,7 +55,7 @@ public class SubBabaPosterPlugin extends AbstractMoviePosterPlugin implements IT
         }
 
         try {
-            subBaba = new SubBabaApi(API_KEY, WebBrowser.getHttpClient());
+            subBaba = new SubBabaApi(API_KEY, YamjHttpClientBuilder.getHttpClient());
         } catch (SubBabaException ex) {
             LOG.error("Failed to get SubBaba API: {}", ex.getMessage(), ex);
         }

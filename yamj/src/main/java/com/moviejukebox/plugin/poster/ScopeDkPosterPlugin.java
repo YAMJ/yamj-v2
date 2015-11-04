@@ -22,24 +22,28 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(ScopeDkPosterPlugin.class);
-
-    private WebBrowser webBrowser;
+    private static final String CHARSET = "ISO-8859-1";
+    
+    private YamjHttpClient httpClient;
 
     public ScopeDkPosterPlugin() {
         super();
@@ -49,7 +53,7 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
             return;
         }
 
-        webBrowser = new WebBrowser();
+        httpClient = YamjHttpClientBuilder.getHttpClient();
     }
 
     @Override
@@ -57,9 +61,9 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
         String response = Movie.UNKNOWN;
         try {
             StringBuilder sb = new StringBuilder("http://www.scope.dk/sogning.php?sog=");// 9&type=film");
-            sb.append(URLEncoder.encode(title.replace(' ', '+'), "iso-8859-1"));
+            sb.append(URLEncoder.encode(title.replace(' ', '+'), CHARSET));
             sb.append("&type=film");
-            String xml = webBrowser.request(sb.toString(), Charset.forName("ISO-8859-1"));
+            String xml = httpClient.request(sb.toString(), Charset.forName(CHARSET));
 
             List<String> tmp = HTMLTools.extractTags(xml, "<table class=\"table-list\">", "</table>", "<td>", "</td>", false);
 
@@ -101,7 +105,7 @@ public class ScopeDkPosterPlugin extends AbstractMoviePosterPlugin {
                 StringBuilder sb = new StringBuilder("http://www.scope.dk/film/");
                 sb.append(id);
 
-                String xml = webBrowser.request(sb.toString(), Charset.forName("ISO-8859-1"));
+                String xml = httpClient.request(sb.toString(), Charset.forName(CHARSET));
                 String posterPageUrl = HTMLTools.extractTag(xml, "<div id=\"film-top-left\">", "</div>");
                 posterPageUrl = HTMLTools.extractTag(posterPageUrl, "<a href=\"#\"", "</a>");
                 posterPageUrl = posterPageUrl.substring(posterPageUrl.indexOf("src=\"") + 5, posterPageUrl.indexOf("height") - 2);

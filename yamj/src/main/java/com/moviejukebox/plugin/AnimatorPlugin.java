@@ -47,7 +47,7 @@ import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 /**
  * Plugin to retrieve movie data from Russian animation database www.animator.ru
@@ -145,7 +145,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                     uri = uri + "&year0=" + year;
                     uri = uri + "&year1=" + year;
                 }
-                String xml = webBrowser.request(uri);
+                String xml = httpClient.request(uri);
                 // Checking for zero results
                 if (xml.contains("[соответствие фразы]")) {
                     // It's search results page, searching a link to the movie page
@@ -174,7 +174,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             // Get ID from allmults.org
             if (multsDiscovery) {
                 URL url = new URL("http://allmults.org/search.php");
-                URLConnection conn = url.openConnection(WebBrowser.PROXY);
+                URLConnection conn = url.openConnection(YamjHttpClientBuilder.getProxy());
                 conn.setDoOutput(true);
 
                 OutputStreamWriter osWriter = null;
@@ -244,12 +244,12 @@ public class AnimatorPlugin extends ImdbPlugin {
             if (!newAnimatorId.equals(Movie.UNKNOWN)) {
                 xml = "http://www.animator.ru/db/?p=show_film&fid=" + newAnimatorId;
                 //logger.log(Level.SEVERE, "ANIMATOR URL: " + xml);
-                xml = webBrowser.request(xml);
+                xml = httpClient.request(xml);
             }
             if (!allmultsId.equals(Movie.UNKNOWN)) {
                 xml2 = "http://allmults.org/multik.php?id=" + allmultsId;
                 //logger.log(Level.SEVERE, "ALLMULTS URL: " + xml2);
-                xml2 = webBrowser.request(xml2);
+                xml2 = httpClient.request(xml2);
             }
 
             // Work-around for issue #649

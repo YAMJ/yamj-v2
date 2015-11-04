@@ -22,20 +22,26 @@
  */
 package com.moviejukebox.tools;
 
-import com.moviejukebox.model.Movie;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.LinkedList;
+
 import javax.xml.ws.WebServiceException;
+
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.protocol.HTTP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
 
 public class SearchEngineTools {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchEngineTools.class);
-    private WebBrowser webBrowser;
+    private static final String UTF8 = "UTF-8";
+    private YamjHttpClient httpClient;
     private LinkedList<String> searchSites;
     private String searchSuffix = "";
     private final String country;
@@ -49,9 +55,7 @@ public class SearchEngineTools {
     }
 
     public SearchEngineTools(String country) {
-        webBrowser = new WebBrowser();
-        // user agent should be an actual FireFox
-        webBrowser.addBrowserProperty("User-Agent", "Mozilla/6.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1");
+        httpClient = YamjHttpClientBuilder.getHttpClient();
 
         // sites to search for URLs
         searchSites = new LinkedList<>();
@@ -162,7 +166,7 @@ public class SearchEngineTools {
                 sb.append("&");
             }
             sb.append("as_q=");
-            sb.append(URLEncoder.encode(title, "UTF-8"));
+            sb.append(URLEncoder.encode(title, UTF8));
             if (StringTools.isValidString(year)) {
                 sb.append("+(");
                 sb.append(year);
@@ -171,12 +175,12 @@ public class SearchEngineTools {
 
             if (StringUtils.isNotBlank(additional)) {
                 sb.append("+");
-                sb.append(URLEncoder.encode(additional, "UTF-8"));
+                sb.append(URLEncoder.encode(additional, UTF8));
             }
             sb.append("&as_sitesearch=");
             sb.append(site);
 
-            String xml = webBrowser.request(sb.toString());
+            String xml = requestContent(sb.toString());
 
             int beginIndex = xml.indexOf("http://" + site + searchSuffix);
             if (beginIndex != -1) {
@@ -184,7 +188,7 @@ public class SearchEngineTools {
 
                 // Remove extra characters from the end of the film URL
                 if ("pl".equals(country) && !returnedXml.contains("/serial/")) {
-                    // Strip out anythign after the first sub-URL
+                    // Strip out anything after the first sub-URL
                     int pos = returnedXml.indexOf(site);
                     if (pos > -1) {
                         pos = returnedXml.indexOf('/', pos + site.length() + 1);
@@ -214,7 +218,7 @@ public class SearchEngineTools {
                 urlSearch.append("&rd=r2");
             }
             urlSearch.append("&ei=UTF-8&p=");
-            urlSearch.append(URLEncoder.encode(title, "UTF-8"));
+            urlSearch.append(URLEncoder.encode(title, UTF8));
             if (StringTools.isValidString(year)) {
                 urlSearch.append("+%28");
                 urlSearch.append(year);
@@ -223,12 +227,12 @@ public class SearchEngineTools {
 
             if (StringUtils.isNotBlank(additional)) {
                 urlSearch.append("+");
-                urlSearch.append(URLEncoder.encode(additional, "UTF-8"));
+                urlSearch.append(URLEncoder.encode(additional, UTF8));
             }
 
             urlSearch.append("+site%3A").append(siteSearch);
 
-            String xml = webBrowser.request(urlSearch.toString());
+            String xml = requestContent(urlSearch.toString());
 
             String link = HTMLTools.extractTag(xml, "<a id=\"link-", "</a>");
 
@@ -264,7 +268,7 @@ public class SearchEngineTools {
             StringBuilder sb = new StringBuilder("http://");
             sb.append(bingHost);
             sb.append("/search?q=");
-            sb.append(URLEncoder.encode(title, "UTF-8"));
+            sb.append(URLEncoder.encode(title, UTF8));
             if (StringTools.isValidString(year)) {
                 sb.append("+%28");
                 sb.append(year);
@@ -272,7 +276,7 @@ public class SearchEngineTools {
             }
             if (StringUtils.isNotBlank(additional)) {
                 sb.append("+");
-                sb.append(URLEncoder.encode(additional, "UTF-8"));
+                sb.append(URLEncoder.encode(additional, UTF8));
             }
             sb.append("+site%3A");
             sb.append(site);
@@ -282,7 +286,7 @@ public class SearchEngineTools {
                 sb.append("&filt=rf");
             }
 
-            String xml = webBrowser.request(sb.toString());
+            String xml = requestContent(sb.toString());
 
             int beginIndex = xml.indexOf("http://" + site + searchSuffix);
             if (beginIndex != -1) {
@@ -293,5 +297,11 @@ public class SearchEngineTools {
             LOG.error(SystemTools.getStackTrace(error));
         }
         return Movie.UNKNOWN;
+    }
+    
+    private String requestContent(CharSequence cs) throws IOException {
+        HttpGet httpGet = new HttpGet(cs.toString());
+        httpGet.setHeader(HTTP.USER_AGENT, "Mozilla/6.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1");
+        return httpClient.request(httpGet);
     }
 }

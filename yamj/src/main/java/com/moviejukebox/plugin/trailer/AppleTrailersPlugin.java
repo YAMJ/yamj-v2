@@ -43,7 +43,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class AppleTrailersPlugin extends TrailerPlugin {
 
@@ -159,7 +159,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             String searchURL = "http://trailers.apple.com/trailers/home/scripts/quickfind.php?callback=searchCallback&q="
                     + URLEncoder.encode(movieName, "UTF-8");
 
-            String xml = webBrowser.request(searchURL);
+            String xml = httpClient.request(searchURL);
 
             int index = 0;
             int endIndex;
@@ -223,7 +223,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
     private void getTrailerSubUrl(String trailerPageUrl, Set<String> trailersUrl) {
         try {
 
-            String xml = webBrowser.request(trailerPageUrl);
+            String xml = httpClient.request(trailerPageUrl);
 
             // Try to find the movie link on the main page
             getTrailerMovieUrl(xml, trailersUrl);
@@ -266,9 +266,9 @@ public class AppleTrailersPlugin extends TrailerPlugin {
      */
     private String getSubPage(String url) {
         try {
-            return webBrowser.request(url);
+            return httpClient.request(url);
         } catch (IOException ex) {
-            return "";
+            return StringUtils.EMPTY;
         }
     }
 
@@ -311,7 +311,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
     private static String getTrailerRealUrl(String trailerUrl) {
         try {
             URL url = new URL(trailerUrl);
-            HttpURLConnection connection = (HttpURLConnection) (url.openConnection(WebBrowser.PROXY));
+            HttpURLConnection connection = (HttpURLConnection) (url.openConnection(YamjHttpClientBuilder.getProxy()));
             InputStream inputStream = connection.getInputStream();
 
             byte[] buf = new byte[1024];

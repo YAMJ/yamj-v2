@@ -23,6 +23,8 @@
 package com.moviejukebox.plugin.poster;
 
 import org.apache.commons.collections.MapUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.moviejukebox.allocine.model.MovieInfos;
 import com.moviejukebox.model.IImage;
@@ -30,13 +32,12 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.AllocinePlugin;
 import com.moviejukebox.tools.StringTools;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AllocinePosterPlugin extends AbstractMoviePosterPlugin {
 
-    private AllocinePlugin allocinePlugin;
     private static final Logger LOG = LoggerFactory.getLogger(AllocinePosterPlugin.class);
+
+    private AllocinePlugin allocinePlugin;
 
     public AllocinePosterPlugin() {
         super();

@@ -22,22 +22,25 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbInfo;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
-import java.io.IOException;
-import java.util.StringTokenizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImdbPosterPlugin.class);
-    private WebBrowser webBrowser;
+    private YamjHttpClient httpClient;
     private ImdbInfo imdbInfo;
 
     public ImdbPosterPlugin() {
@@ -48,7 +51,7 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
             return;
         }
 
-        webBrowser = new WebBrowser();
+        httpClient = YamjHttpClientBuilder.getHttpClient();
         imdbInfo = new ImdbInfo();
     }
 
@@ -80,7 +83,7 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
 
         try {
             if (StringTools.isValidString(id)) {
-                imdbXML = webBrowser.request(imdbInfo.getSiteDef().getSite() + "title/" + id + "/", imdbInfo.getSiteDef().getCharset());
+                imdbXML = httpClient.request(imdbInfo.getSiteDef().getSite() + "title/" + id + "/", imdbInfo.getSiteDef().getCharset());
 
                 StringTokenizer st;
 

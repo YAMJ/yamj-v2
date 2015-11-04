@@ -129,7 +129,7 @@ public class KinopoiskTrailersPlugin extends TrailerPlugin {
             String siteSuffix = "/level/16/film/";
             String searchUrl = siteName + siteSuffix + kinopoiskId;
             LOG.debug("Searching for trailer at URL {}", searchUrl);
-            String xml = webBrowser.request(searchUrl);
+            String xml = httpClient.request(searchUrl);
 
             int beginIndex = xml.indexOf(siteSuffix + kinopoiskId + "/t/");
             if (beginIndex < 0) {
@@ -144,7 +144,7 @@ public class KinopoiskTrailersPlugin extends TrailerPlugin {
                 return Movie.UNKNOWN;
             }
 
-            String trailerXml = webBrowser.request(xmlUrl);
+            String trailerXml = httpClient.request(xmlUrl);
             int beginUrl = trailerXml.indexOf("<a href=\"/getlink.php");
             if (beginUrl >= 0) {
                 while (true) {

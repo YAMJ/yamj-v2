@@ -22,6 +22,16 @@
  */
 package com.moviejukebox.plugin;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.Library;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.OverrideFlag;
@@ -29,16 +39,6 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class FilmaffinityPlugin extends ImdbPlugin {
 
@@ -60,7 +60,6 @@ public class FilmaffinityPlugin extends ImdbPlugin {
     public FilmaffinityPlugin() {
         super();  // use IMDB if FilmAffinity doesn't know movie
         filmAffinityInfo = new FilmAffinityInfo();
-        webBrowser = new WebBrowser();
     }
 
     @Override
@@ -98,7 +97,7 @@ public class FilmaffinityPlugin extends ImdbPlugin {
         }
 
         try {
-            String xml = webBrowser.request("http://www.filmaffinity.com/es/" + filmAffinityId, Charset.forName("UTF-8"));
+            String xml = httpClient.request("http://www.filmaffinity.com/es/" + filmAffinityId);
 
             if (xml.contains("Serie de TV")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {

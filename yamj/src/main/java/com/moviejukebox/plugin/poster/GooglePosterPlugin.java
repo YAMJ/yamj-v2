@@ -22,22 +22,25 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.StringTokenizer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.scanner.artwork.PosterScanner;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.StringTokenizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(GooglePosterPlugin.class);
-    private WebBrowser webBrowser;
+    private YamjHttpClient httpClient;
 
     // private int nbRetry;
     public GooglePosterPlugin() {
@@ -48,7 +51,7 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
             return;
         }
 
-        webBrowser = new WebBrowser();
+        httpClient = YamjHttpClientBuilder.getHttpClient();
     }
 
     @Override
@@ -65,7 +68,7 @@ public class GooglePosterPlugin extends AbstractMoviePosterPlugin {
             sb.append(URLEncoder.encode(title, "UTF-8"));
             sb.append("&gbv=2");
 
-            String xml = webBrowser.request(sb.toString());
+            String xml = httpClient.request(sb.toString());
             // int tryLeft = nbRetry;
             int startSearch = 0;
             // while (tryLeft-- > 0 && Movie.UNKNOWN.equalsIgnoreCase(posterImage.getUrl())) {

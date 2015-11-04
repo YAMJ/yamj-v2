@@ -33,8 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 import com.omertron.rottentomatoesapi.RottenTomatoesApi;
 import com.omertron.rottentomatoesapi.RottenTomatoesException;
 import com.omertron.rottentomatoesapi.model.RTMovie;
@@ -50,13 +49,12 @@ public class RottenTomatoesPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(RottenTomatoesPlugin.class);
     public static final String ROTTENTOMATOES_PLUGIN_ID = "rottentomatoes";
     private static final String API_KEY = PropertiesUtil.getProperty("API_KEY_RottenTomatoes");
-    private static final String WEBHOST = "rottentomatoes.com";
     private static final String[] PRIORITY_LIST = PropertiesUtil.getProperty("mjb.rottentomatoes.priority", "critics_score,audience_score,critics_rating,audience_rating").split(",");
     private RottenTomatoesApi rt = null;
 
     public RottenTomatoesPlugin() {
         try {
-            rt = new RottenTomatoesApi(API_KEY, WebBrowser.getHttpClient());
+            rt = new RottenTomatoesApi(API_KEY, YamjHttpClientBuilder.getHttpClient());
         } catch (RottenTomatoesException ex) {
             LOG.error("Failed to get RottenTomatoes API: {}", ex.getMessage(), ex);
         }
@@ -84,12 +82,7 @@ public class RottenTomatoesPlugin {
         }
 
         // We seem to have a valid movie, so let's scan
-        ThreadExecutor.enterIO(WEBHOST);
-        try {
-            return doScan(movie);
-        } finally {
-            ThreadExecutor.leaveIO();
-        }
+        return doScan(movie);
     }
 
     /**

@@ -22,17 +22,12 @@
  */
 package com.moviejukebox.plugin;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,7 +55,7 @@ import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SubtitleTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class SratimPlugin extends ImdbPlugin {
 
@@ -151,7 +146,7 @@ public class SratimPlugin extends ImdbPlugin {
                 return Movie.UNKNOWN;
             }
 
-            String xml = webBrowser.request("http://www.sratim.co.il/browse.php?q=imdb%3A" + imdbId, Charset.forName("UTF-8"));
+            String xml = httpClient.request("http://www.sratim.co.il/browse.php?q=imdb%3A" + imdbId);
 
             Boolean missingFromSratimDB = xml.contains("לא נמצאו תוצאות העונות לבקשתך");
             if (missingFromSratimDB) {
@@ -615,7 +610,7 @@ public class SratimPlugin extends ImdbPlugin {
 
             String sratimUrl = "http://www.sratim.co.il/view.php?id=" + movie.getId(SRATIM_PLUGIN_ID);
 
-            String xml = webBrowser.request(sratimUrl, Charset.forName("UTF-8"));
+            String xml = httpClient.request(sratimUrl);
 
             if (xml.contains("צפייה בפרופיל סדרה")) {
                 if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW)) {
@@ -736,7 +731,7 @@ public class SratimPlugin extends ImdbPlugin {
         try {
             if (newMainXML == null) {
                 String sratimId = movie.getId(SRATIM_PLUGIN_ID);
-                newMainXML = webBrowser.request("http://www.sratim.co.il/view.php?id=" + sratimId, Charset.forName("UTF-8"));
+                newMainXML = httpClient.request("http://www.sratim.co.il/view.php?id=" + sratimId);
             }
 
             int season = movie.getSeason();
@@ -804,7 +799,7 @@ public class SratimPlugin extends ImdbPlugin {
                 movie.setYear(seasonYear, SRATIM_PLUGIN_ID);
             }
 
-            seasonXML = webBrowser.request(seasonUrl, Charset.forName("UTF-8"));
+            seasonXML = httpClient.request(seasonUrl);
 
         } catch (IOException error) {
             LOG.error("Failed retreiving information for movie : {}", movie.getId(SratimPlugin.SRATIM_PLUGIN_ID));
@@ -885,7 +880,7 @@ public class SratimPlugin extends ImdbPlugin {
                             String episodeUrl = "http://www.sratim.co.il/" + HTMLTools.decodeHtml(scanUrl);
 
                             // Get the episode page url
-                            String xml = webBrowser.request(episodeUrl, Charset.forName("UTF-8"));
+                            String xml = httpClient.request(episodeUrl);
 
                             // Update Plot
                             if (OverrideTools.checkOverwriteEpisodePlot(file, part, SRATIM_PLUGIN_ID)) {
@@ -968,7 +963,7 @@ public class SratimPlugin extends ImdbPlugin {
 
         // retrieve subtitles page
         String subID = movie.getId(SRATIM_PLUGIN_SUBTITLE_ID);
-        String mainXML = webBrowser.request("http://www.sratim.co.il/subtitles.php?mid=" + subID, Charset.forName("UTF-8"));
+        String mainXML = httpClient.request("http://www.sratim.co.il/subtitles.php?mid=" + subID);
 
         int index = 0;
         int endIndex;
@@ -1200,7 +1195,7 @@ public class SratimPlugin extends ImdbPlugin {
 
         try {
             URL url = new URL(subDownloadLink);
-            connection = (HttpURLConnection) (url.openConnection(WebBrowser.PROXY));
+            connection = (HttpURLConnection) (url.openConnection(YamjHttpClientBuilder.getProxy()));
             String contentType = connection.getContentType();
             LOG.debug("contentType: {}", contentType);
 
@@ -1287,51 +1282,6 @@ public class SratimPlugin extends ImdbPlugin {
         }
 
         return found;
-    }
-
-    protected StringWriter getContent(URLConnection connection) {
-        StringWriter content = new StringWriter(10 * 1024);
-        InputStreamReader inputStream = null;
-
-        try {
-            inputStream = new InputStreamReader(connection.getInputStream(), Charset.defaultCharset());
-            try (BufferedReader in = new BufferedReader(inputStream)) {
-                String line;
-                while ((line = in.readLine()) != null) {
-                    content.write(line);
-                }
-                content.flush();
-            }
-            return content;
-        } catch (IOException ex) {
-            return content;
-        } finally {
-
-            try {
-                content.flush();
-                content.close();
-            } catch (IOException ex) {
-                LOG.debug("Failed to close StringWriter: {}", ex.getMessage());
-            }
-
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-            } catch (IOException ex) {
-                LOG.debug("Failed to close InputStreamReader: {}", ex.getMessage());
-            }
-        }
-    }
-
-    public static String removeChar(String str, char c) {
-        StringBuilder r = new StringBuilder();
-        for (int loop = 0; loop < str.length(); loop++) {
-            if (str.charAt(loop) != c) {
-                r.append(str.charAt(loop));
-            }
-        }
-        return r.toString();
     }
 
     @Override

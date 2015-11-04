@@ -68,7 +68,8 @@ import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 
@@ -76,7 +77,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private static final Logger LOG = LoggerFactory.getLogger(ImdbPlugin.class);
     protected String preferredCountry;
     private final String imdbPlot;
-    protected WebBrowser webBrowser;
+    protected YamjHttpClient httpClient;
     protected boolean downloadFanart;
     private final boolean extractCertificationFromMPAA;
     private final boolean fullInfo;
@@ -159,7 +160,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         siteDefinition = imdbInfo.getSiteDef();
         aspectTools = new AspectRatioTools();
 
-        webBrowser = new WebBrowser();
+        httpClient = YamjHttpClientBuilder.getHttpClient();
 
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "USA");
         imdbPlot = PropertiesUtil.getProperty("imdb.plot", "short");
@@ -1900,7 +1901,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         String data;
 
         try {
-            data = webBrowser.request(url, siteDef.getCharset());
+            data = httpClient.request(url, siteDef.getCharset());
         } catch (IOException ex) {
             LOG.warn("Failed to get web page ({}) from IMDB: {}", url, ex.getMessage(), ex);
             data = null;

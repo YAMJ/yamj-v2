@@ -135,7 +135,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
 
         String xml;
         try {
-            xml = webBrowser.request(searchUrl);
+            xml = httpClient.request(searchUrl);
         } catch (IOException error) {
             LOG.error("Failed retreiving TrailersLand Id for movie: {}", title);
             LOG.error(SystemTools.getStackTrace(error));
@@ -194,7 +194,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
 
         String xml;
         try {
-            xml = webBrowser.request(TL_BASE_URL + TL_MOVIE_URL + trailersLandId);
+            xml = httpClient.request(TL_BASE_URL + TL_MOVIE_URL + trailersLandId);
         } catch (IOException error) {
             LOG.error("Failed retreiving movie details for movie: {}", movie.getTitle());
             LOG.error(SystemTools.getStackTrace(error));
@@ -248,7 +248,7 @@ public class TrailersLandPlugin extends TrailerPlugin {
 
                 LOG.trace("Evaluating page {}", trailerPageUrl);
                 try {
-                    trailerXml = webBrowser.request(trailerPageUrl);
+                    trailerXml = httpClient.request(trailerPageUrl);
                 } catch (IOException error) {
                     LOG.error("Failed retreiving trailer details for movie: {}", movie.getTitle());
                     LOG.error(SystemTools.getStackTrace(error));

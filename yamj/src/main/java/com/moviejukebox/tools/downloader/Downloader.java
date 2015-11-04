@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 /**
  * This is the downloader class.
@@ -132,18 +133,20 @@ public final class Downloader implements RBCWrapperDelegate {
      * @return
      */
     private static int contentLength(URL url) {
-        HttpURLConnection connection;
+        HttpURLConnection connection = null;
         int contentLength = -1;
 
         try {
             HttpURLConnection.setFollowRedirects(false);
-
-            connection = (HttpURLConnection) url.openConnection(WebBrowser.PROXY);
+            connection = (HttpURLConnection) url.openConnection(YamjHttpClientBuilder.getProxy());
             connection.setRequestMethod("HEAD");
             contentLength = connection.getContentLength();
-            connection.disconnect();
         } catch (IOException ex) {
             LOG.trace("Failed to get length from header: {}", ex.getMessage());
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
 
         return contentLength;

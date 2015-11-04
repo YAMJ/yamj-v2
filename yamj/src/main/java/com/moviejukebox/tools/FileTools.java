@@ -658,8 +658,7 @@ public final class FileTools {
      * @throws IOException
      */
     public static boolean downloadImage(File imageFile, String imageURL) throws IOException {
-        WebBrowser webBrowser = new WebBrowser();
-        return webBrowser.downloadImage(imageFile, imageURL);
+        return YamjHttpClientBuilder.getHttpClient().downloadImage(imageFile, imageURL);
     }
 
     /**

@@ -22,6 +22,9 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Identifiable;
@@ -30,15 +33,15 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.FilmAffinityInfo;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
 
-    private WebBrowser webBrowser;
-    private FilmAffinityInfo filmAffinityInfo;
     private static final Logger LOG = LoggerFactory.getLogger(FilmAffinityPosterPlugin.class);
+
+    private YamjHttpClient httpClient;  
+    private FilmAffinityInfo filmAffinityInfo;
 
     public FilmAffinityPosterPlugin() {
         super();
@@ -48,7 +51,7 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
             return;
         }
 
-        webBrowser = new WebBrowser();
+        httpClient = YamjHttpClientBuilder.getHttpClient();
         filmAffinityInfo = new FilmAffinityInfo();
     }
 
@@ -70,7 +73,7 @@ public class FilmAffinityPosterPlugin extends AbstractMoviePosterPlugin implemen
                 StringBuilder sb = new StringBuilder("http://www.filmaffinity.com/es/");
                 sb.append(id);
 
-                String xml = webBrowser.request(sb.toString());
+                String xml = httpClient.request(sb.toString());
                 posterURL = HTMLTools.extractTag(xml, "<a class=\"lightbox\" href=\"", "\"");
 
             } catch (Exception ex) {

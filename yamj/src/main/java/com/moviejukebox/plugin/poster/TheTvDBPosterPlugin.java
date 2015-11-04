@@ -39,8 +39,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.TheTvDBPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 import com.omertron.thetvdbapi.TheTVDBApi;
 import com.omertron.thetvdbapi.TvDbException;
 import com.omertron.thetvdbapi.model.Banner;
@@ -56,7 +55,6 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
     private String language;
     private String language2nd;
     private TheTVDBApi tvDB;
-    private static final String WEBHOST = "thetvdb.com";
 
     public TheTvDBPosterPlugin() {
         super();
@@ -66,7 +64,7 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
             return;
         }
 
-        tvDB = new TheTVDBApi(API_KEY, WebBrowser.getHttpClient());
+        tvDB = new TheTVDBApi(API_KEY, YamjHttpClientBuilder.getHttpClient());
 
         language = PropertiesUtil.getProperty("thetvdb.language", DEFAULT_LANGUAGE);
         language2nd = PropertiesUtil.getProperty("thetvdb.language.secondary", DEFAULT_LANGUAGE);
@@ -128,13 +126,10 @@ public class TheTvDBPosterPlugin implements ITvShowPosterPlugin {
      * @return
      */
     private List<Series> getSeriesList(String title, String language) {
-        ThreadExecutor.enterIO(WEBHOST);
         try {
             return tvDB.searchSeries(title, language);
         } catch (TvDbException ex) {
             LOG.warn("Failed to get series information for '{}' ({}) - error: {}", title, language, ex.getMessage(), ex);
-        } finally {
-            ThreadExecutor.leaveIO();
         }
         return Collections.emptyList();
     }

@@ -22,22 +22,25 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
-import java.io.IOException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(YahooPosterPlugin.class);
-    private WebBrowser webBrowser;
+    private YamjHttpClient httpClient;
 
     public YahooPosterPlugin() {
         super();
@@ -47,7 +50,7 @@ public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
             return;
         }
 
-        webBrowser = new WebBrowser();
+        httpClient = YamjHttpClientBuilder.getHttpClient();
     }
 
     @Override
@@ -64,7 +67,7 @@ public class YahooPosterPlugin extends AbstractMoviePosterPlugin {
             sb.append(URLEncoder.encode(title, "UTF-8"));
             sb.append("+poster&fr=&ei=utf-8&js=1&x=wrt");
 
-            String xml = webBrowser.request(sb.toString());
+            String xml = httpClient.request(sb.toString());
             int beginIndex = xml.indexOf("imgurl=");
             int endIndex = xml.indexOf("%26", beginIndex);
 

@@ -128,7 +128,7 @@ public class YouTubeTrailersPlugin extends TrailerPlugin {
 
         String webPage;
         try {
-            webPage = webBrowser.request(searchUrl);
+            webPage = httpClient.request(searchUrl);
         } catch (IOException ex) {
             LOG.warn("Failed to retrieve webpage. Error: {}", ex.getMessage());
             return trailers;

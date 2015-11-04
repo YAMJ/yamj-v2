@@ -34,11 +34,13 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class FilmAffinityInfo {
 
     private static final Logger LOG = LoggerFactory.getLogger(FilmAffinityInfo.class);
-    private final WebBrowser webBrowser;
+    private final YamjHttpClient httpClient;
 
     /*
      * In filmAffinity there is several possible titles in the search results:
@@ -60,7 +62,7 @@ public class FilmAffinityInfo {
     public static final String FILMAFFINITY_PLUGIN_ID = "filmaffinity";
 
     public FilmAffinityInfo() {
-        webBrowser = new WebBrowser();
+        httpClient = YamjHttpClientBuilder.getHttpClient();
     }
 
     public String getIdFromMovieInfo(String title, String year) {
@@ -92,14 +94,14 @@ public class FilmAffinityInfo {
                 sb.append("fromyear=&toyear=");
             }
 
-            String url = webBrowser.getUrl(sb.toString());
+            String url = new WebBrowser().getUrl(sb.toString());
 
             idMatcher = idPattern.matcher(url);
             if (idMatcher.matches()) {
                 // we got a redirect due to unique result
                 response = idMatcher.group(1);
             } else {
-                String xml = webBrowser.request(sb.toString(), Charset.forName("ISO-8859-1"));
+                String xml = httpClient.request(sb.toString(), Charset.forName("ISO-8859-1"));
 
                 linkMatcher = linkPattern.matcher(xml);
 

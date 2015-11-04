@@ -39,7 +39,8 @@ import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.SearchEngineTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 /**
  * @author Durin
@@ -50,12 +51,12 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     private static final Logger LOG = LoggerFactory.getLogger(OfdbPlugin.class);
 
     private final ImdbPlugin imdbp;
-    private final WebBrowser webBrowser;
+    private final YamjHttpClient httpClient;
     private final SearchEngineTools searchEngineTools;
 
     public OfdbPlugin() {
-        imdbp = new com.moviejukebox.plugin.ImdbPlugin();
-        webBrowser = new WebBrowser();
+        imdbp = new ImdbPlugin();
+        httpClient = YamjHttpClientBuilder.getHttpClient();
         searchEngineTools = new SearchEngineTools("de");
     }
 
@@ -98,7 +99,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
     private String getOfdbIdByImdbId(String imdbId) {
         try {
-            String xml = webBrowser.request("http://www.ofdb.de/view.php?page=suchergebnis&SText=" + imdbId + "&Kat=IMDb");
+            String xml = httpClient.request("http://www.ofdb.de/view.php?page=suchergebnis&SText=" + imdbId + "&Kat=IMDb");
 
             int beginIndex = xml.indexOf("Ergebnis der Suchanfrage");
             if (beginIndex < 0) {
@@ -134,7 +135,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             sb.append(year);
             sb.append("&Wo=-&Land=-&Freigabe=-&Cut=A&Indiziert=A&Submit2=Suche+ausf%C3%BChren");
 
-            String xml = webBrowser.request(sb.toString());
+            String xml = httpClient.request(sb.toString());
 
             int beginIndex = xml.indexOf("Liste der gefundenen Fassungen");
             if (beginIndex < 0) {
@@ -177,7 +178,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     private boolean updateMediaInfo(Movie movie, String ofdbUrl) {
         boolean returnValue = Boolean.TRUE;
         try {
-            String xml = webBrowser.request(ofdbUrl);
+            String xml = httpClient.request(ofdbUrl);
 
             String title = HTMLTools.extractTag(xml, "<title>OFDb -", "</title>");
             // check for movie type change
@@ -207,7 +208,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             String plotMarker = HTMLTools.extractTag(xml, "<a href=\"plot/", 0, "\"");
             if (StringTools.isValidString(plotMarker) && OverrideTools.checkOneOverwrite(movie, OFDB_PLUGIN_ID, OverrideFlag.PLOT, OverrideFlag.OUTLINE)) {
                 try {
-                    String plotXml = webBrowser.request("http://www.ofdb.de/plot/" + plotMarker);
+                    String plotXml = httpClient.request("http://www.ofdb.de/plot/" + plotMarker);
 
                     int firstindex = plotXml.indexOf("gelesen</b></b><br><br>") + 23;
                     int lastindex = plotXml.indexOf("</font>", firstindex);
@@ -232,7 +233,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             int beginIndex = xml.indexOf("view.php?page=film_detail");
             if (beginIndex != -1) {
                 String detailUrl = "http://www.ofdb.de/" + xml.substring(beginIndex, xml.indexOf('\"', beginIndex));
-                String detailXml = webBrowser.request(detailUrl);
+                String detailXml = httpClient.request(detailUrl);
 
                 // resolve for additional informations
                 List<String> tags = HTMLTools.extractHtmlTags(detailXml, "<!-- Rechte Spalte -->", "</table>", "<tr", "</tr>");

@@ -40,8 +40,7 @@ import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.thetvdbapi.TheTVDBApi;
 import com.omertron.thetvdbapi.TvDbException;
@@ -58,7 +57,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(TheTvDBPlugin.class);
     public static final String THETVDB_PLUGIN_ID = "thetvdb";
-    private static final String WEBHOST = "thetvdb.com";
     private static final String LANGUAGE_DEFAULT = "en";
     public static final String CACHE_SERIES = "Series";
     public static final String CACHE_BANNERS = "Banners";
@@ -76,7 +74,7 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
     static {
         String API_KEY = PropertiesUtil.getProperty("API_KEY_TheTVDb");
-        TVDB = new TheTVDBApi(API_KEY, WebBrowser.getHttpClient());
+        TVDB = new TheTVDBApi(API_KEY, YamjHttpClientBuilder.getHttpClient());
     }
 
     public TheTvDBPlugin() {
@@ -125,18 +123,10 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
 
                 if (OverrideTools.checkOverwriteYear(movie, THETVDB_PLUGIN_ID)) {
-                    String year = Movie.UNKNOWN;
-
-                    ThreadExecutor.enterIO(WEBHOST);
-                    try {
-                        year = getYear(id, movie.getSeason(), LANGUAGE_PRIMARY);
-                        if (StringTools.isNotValidString(year) && StringTools.isValidString(LANGUAGE_SECONDARY)) {
-                            year = getYear(id, movie.getSeason(), LANGUAGE_SECONDARY);
-                        }
-                    } finally {
-                        ThreadExecutor.leaveIO();
+                    String year = getYear(id, movie.getSeason(), LANGUAGE_PRIMARY);
+                    if (StringTools.isNotValidString(year) && StringTools.isValidString(LANGUAGE_SECONDARY)) {
+                        year = getYear(id, movie.getSeason(), LANGUAGE_SECONDARY);
                     }
-
                     movie.setYear(year, THETVDB_PLUGIN_ID);
                 }
 
@@ -287,7 +277,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
         List<Episode> episodeList = null;
         List<Episode> episodeList2ndLanguage = null;
 
-        ThreadExecutor.enterIO(WEBHOST);
         try {
             episodeList = TVDB.getSeasonEpisodes(id, (dvdEpisodes ? -1 : movie.getSeason()), LANGUAGE_PRIMARY);
 
@@ -297,8 +286,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
         } catch (Exception error) {
             LOG.warn("Error getting episode information: {}", error.getMessage());
             return;
-        } finally {
-            ThreadExecutor.leaveIO();
         }
 
         boolean setDirectors = OverrideTools.checkOverwriteDirectors(movie, THETVDB_PLUGIN_ID);
@@ -538,7 +525,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
 
         if (series == null) {
             // Not found in cache, so look online
-            ThreadExecutor.enterIO(WEBHOST);
             try {
                 series = TVDB.getSeries(id, LANGUAGE_PRIMARY);
                 if (series != null) {
@@ -559,8 +545,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
             } catch (Exception error) {
                 LOG.warn("Error getting Series: {}", error.getMessage());
-            } finally {
-                ThreadExecutor.leaveIO();
             }
         }
 
@@ -579,7 +563,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
         if (StringTools.isNotValidString(id)) {
             List<Series> seriesList = null;
 
-            ThreadExecutor.enterIO(WEBHOST);
             try {
                 if (!movie.getTitle().equals(Movie.UNKNOWN)) {
                     seriesList = TVDB.searchSeries(movie.getTitle(), LANGUAGE_PRIMARY);
@@ -596,8 +579,6 @@ public class TheTvDBPlugin extends ImdbPlugin {
                 }
             } catch (Exception error) {
                 LOG.warn("Error getting ID: {}", error.getMessage());
-            } finally {
-                ThreadExecutor.leaveIO();
             }
 
             if (seriesList == null || seriesList.isEmpty()) {
@@ -653,14 +634,11 @@ public class TheTvDBPlugin extends ImdbPlugin {
         Banners banners = (Banners) CacheMemory.getFromCache(CacheMemory.generateCacheKey(CACHE_BANNERS, id, LANGUAGE_PRIMARY));
 
         if (banners == null) {
-            ThreadExecutor.enterIO(WEBHOST);
             try {
                 banners = TVDB.getBanners(id);
                 CacheMemory.addToCache(CacheMemory.generateCacheKey(CACHE_BANNERS, id, LANGUAGE_PRIMARY), banners);
             } catch (Exception error) {
                 LOG.warn("Error getting Banners: {}", error.getMessage());
-            } finally {
-                ThreadExecutor.leaveIO();
             }
         }
 

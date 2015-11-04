@@ -44,8 +44,7 @@ import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.themoviedbapi.Compare;
 import com.omertron.themoviedbapi.MovieDbException;
@@ -79,7 +78,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private static final Logger LOG = LoggerFactory.getLogger(TheMovieDbPlugin.class);
     public static final String TMDB_PLUGIN_ID = "themoviedb";
     public static final String IMDB_PLUGIN_ID = "imdb";
-    private static final String WEBHOST = "themoviedb.org";
     private TheMovieDbApi TMDb = null;
     private String languageCode;
     private String countryCode;
@@ -108,7 +106,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     public TheMovieDbPlugin() {
         try {
             String apiKey = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
-            TMDb = new TheMovieDbApi(apiKey, WebBrowser.getHttpClient());
+            TMDb = new TheMovieDbApi(apiKey, YamjHttpClientBuilder.getHttpClient());
         } catch (MovieDbException ex) {
             LOG.warn("Failed to initialise TheMovieDB API: {}", ex.getMessage());
             return;
@@ -166,53 +164,62 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         MovieInfo moviedb = null;
         boolean retval = false;
 
-        ThreadExecutor.enterIO(WEBHOST);
-        try {
-            // First look to see if we have a TMDb ID as this will make looking the film up easier
-            if (StringTools.isValidString(tmdbID)) {
-                // Search based on TMdb ID
-                LOG.debug("{}: Using TMDb ID ({}) for {}", movie.getBaseName(), tmdbID, movie.getBaseName());
-                try {
-                    moviedb = TMDb.getMovieInfo(NumberUtils.toInt(tmdbID), languageCode);
-                } catch (MovieDbException ex) {
-                    LOG.debug("{}: Failed to get movie info using TMDB ID: {} - {}", movie.getBaseName(), tmdbID, ex.getMessage());
-                }
+        // First look to see if we have a TMDb ID as this will make looking the film up easier
+        if (StringTools.isValidString(tmdbID)) {
+            // Search based on TMdb ID
+            LOG.debug("{}: Using TMDb ID ({}) for {}", movie.getBaseName(), tmdbID, movie.getBaseName());
+            try {
+                moviedb = TMDb.getMovieInfo(NumberUtils.toInt(tmdbID), languageCode);
+            } catch (MovieDbException ex) {
+                LOG.debug("{}: Failed to get movie info using TMDB ID: {} - {}", movie.getBaseName(), tmdbID, ex.getMessage());
             }
+        }
 
-            if (moviedb == null && StringTools.isValidString(imdbID)) {
-                // Search based on IMDb ID
-                LOG.debug("{}: Using IMDb ID ({}) for {}", movie.getBaseName(), imdbID, movie.getBaseName());
-                try {
-                    moviedb = TMDb.getMovieInfoImdb(imdbID, languageCode);
-                    tmdbID = String.valueOf(moviedb.getId());
-                    if (StringTools.isNotValidString(tmdbID)) {
-                        LOG.debug("{}: No TMDb ID found for movie!", movie.getBaseName());
-                    }
-                } catch (MovieDbException ex) {
-                    LOG.debug("{}: Failed to get movie info using IMDB ID: {} - {}", movie.getBaseName(), imdbID, ex.getMessage());
+        if (moviedb == null && StringTools.isValidString(imdbID)) {
+            // Search based on IMDb ID
+            LOG.debug("{}: Using IMDb ID ({}) for {}", movie.getBaseName(), imdbID, movie.getBaseName());
+            try {
+                moviedb = TMDb.getMovieInfoImdb(imdbID, languageCode);
+                tmdbID = String.valueOf(moviedb.getId());
+                if (StringTools.isNotValidString(tmdbID)) {
+                    LOG.debug("{}: No TMDb ID found for movie!", movie.getBaseName());
                 }
+            } catch (MovieDbException ex) {
+                LOG.debug("{}: Failed to get movie info using IMDB ID: {} - {}", movie.getBaseName(), imdbID, ex.getMessage());
             }
+        }
+
+        if (moviedb == null) {
+            LOG.debug("{}: No IDs provided for movie, search using title & year", movie.getBaseName());
+
+            // Search using movie name
+            int movieYear = NumberUtils.toInt(movie.getYear(), 0);
+
+            // Check with the title
+            LOG.debug("{}: Using '{}' & '{}' to locate movie information", movie.getBaseName(), movie.getTitle(), movieYear);
+            moviedb = searchMovieTitle(movie, movieYear, movie.getTitle());
 
             if (moviedb == null) {
-                LOG.debug("{}: No IDs provided for movie, search using title & year", movie.getBaseName());
+                // Check with the original title
+                LOG.debug("{}: Using '{}' & '{}' to locate movie information", movie.getBaseName(), movie.getOriginalTitle(), movieYear);
+                moviedb = searchMovieTitle(movie, movieYear, movie.getOriginalTitle());
+            }
 
-                // Search using movie name
-                int movieYear = NumberUtils.toInt(movie.getYear(), 0);
-
-                // Check with the title
-                LOG.debug("{}: Using '{}' & '{}' to locate movie information", movie.getBaseName(), movie.getTitle(), movieYear);
-                moviedb = searchMovieTitle(movie, movieYear, movie.getTitle());
-
-                if (moviedb == null) {
-                    // Check with the original title
-                    LOG.debug("{}: Using '{}' & '{}' to locate movie information", movie.getBaseName(), movie.getOriginalTitle(), movieYear);
-                    moviedb = searchMovieTitle(movie, movieYear, movie.getOriginalTitle());
+            // If still no matches try with a shorter title
+            if (moviedb == null) {
+                for (int words = 3; words > 0; words--) {
+                    String shortTitle = StringTools.getWords(movie.getTitle(), words);
+                    LOG.debug("{}: Using shorter title '{}'", movie.getBaseName(), shortTitle);
+                    moviedb = searchMovieTitle(movie, movieYear, shortTitle);
+                    if (moviedb != null) {
+                        LOG.debug("{}: Movie found", movie.getBaseName());
+                        break;
+                    }
                 }
 
-                // If still no matches try with a shorter title
                 if (moviedb == null) {
                     for (int words = 3; words > 0; words--) {
-                        String shortTitle = StringTools.getWords(movie.getTitle(), words);
+                        String shortTitle = StringTools.getWords(movie.getOriginalTitle(), words);
                         LOG.debug("{}: Using shorter title '{}'", movie.getBaseName(), shortTitle);
                         moviedb = searchMovieTitle(movie, movieYear, shortTitle);
                         if (moviedb != null) {
@@ -220,51 +227,36 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                             break;
                         }
                     }
-
-                    if (moviedb == null) {
-                        for (int words = 3; words > 0; words--) {
-                            String shortTitle = StringTools.getWords(movie.getOriginalTitle(), words);
-                            LOG.debug("{}: Using shorter title '{}'", movie.getBaseName(), shortTitle);
-                            moviedb = searchMovieTitle(movie, movieYear, shortTitle);
-                            if (moviedb != null) {
-                                LOG.debug("{}: Movie found", movie.getBaseName());
-                                break;
-                            }
-                        }
-                    }
                 }
             }
+        }
 
-            if (moviedb == null) {
-                LOG.debug("Movie {} not found!", movie.getBaseName());
-                LOG.debug("Try using a NFO file to specify the movie");
-                return false;
-            }
-            
-            try {
-                // Get the full information on the film
-                moviedb = TMDb.getMovieInfo(moviedb.getId(), languageCode);
-            } catch (MovieDbException ex) {
-                LOG.debug("Failed to download remaining information for {}", movie.getBaseName());
-            }
-            LOG.debug("Found id ({}) for {}", moviedb.getId(), moviedb.getTitle());
+        if (moviedb == null) {
+            LOG.debug("Movie {} not found!", movie.getBaseName());
+            LOG.debug("Try using a NFO file to specify the movie");
+            return false;
+        }
+        
+        try {
+            // Get the full information on the film
+            moviedb = TMDb.getMovieInfo(moviedb.getId(), languageCode);
+        } catch (MovieDbException ex) {
+            LOG.debug("Failed to download remaining information for {}", movie.getBaseName());
+        }
+        LOG.debug("Found id ({}) for {}", moviedb.getId(), moviedb.getTitle());
 
-            try {
-                // Get the release information
-                movieReleaseInfo = TMDb.getMovieReleaseInfo(moviedb.getId(), countryCode).getResults();
-            } catch (MovieDbException ex) {
-                LOG.debug("Failed to get release information: {}", ex.getMessage(), ex);
-            }
+        try {
+            // Get the release information
+            movieReleaseInfo = TMDb.getMovieReleaseInfo(moviedb.getId(), countryCode).getResults();
+        } catch (MovieDbException ex) {
+            LOG.debug("Failed to get release information: {}", ex.getMessage(), ex);
+        }
 
-            try {
-                // Get the cast information
-                moviePeople = TMDb.getMovieCredits(moviedb.getId());
-            } catch (MovieDbException ex) {
-                LOG.debug("Failed to get cast information: {}", ex.getMessage(), ex);
-            }
-        } finally {
-            // the rest is not web search anymore
-            ThreadExecutor.leaveIO();
+        try {
+            // Get the cast information
+            moviePeople = TMDb.getMovieCredits(moviedb.getId());
+        } catch (MovieDbException ex) {
+            LOG.debug("Failed to get cast information: {}", ex.getMessage(), ex);
         }
 
         if (moviedb != null) {
@@ -836,7 +828,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
         if (collInfo == null) {
             // Not found in cache, so look online
-            ThreadExecutor.enterIO(WEBHOST);
             try {
                 collInfo = TMDb.getCollectionInfo(collectionId, languageCode);
                 if (collInfo != null) {
@@ -859,8 +850,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 }
             } catch (MovieDbException error) {
                 LOG.warn("Error getting CollectionInfo: {}", error.getMessage());
-            } finally {
-                ThreadExecutor.leaveIO();
             }
         }
 
@@ -927,7 +916,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         List<Artwork> results = (ArrayList<Artwork>) CacheMemory.getFromCache(cacheKey);
 
         if (results == null) {
-            ThreadExecutor.enterIO(WEBHOST);
             try {
                 // Pass the language as null so that we get all images returned, even those without a language.
                 ResultList<Artwork> collResults = TMDb.getCollectionImages(collectionId, null);
@@ -941,8 +929,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 }
             } catch (MovieDbException error) {
                 LOG.warn("Error getting CollectionImages: {}", error.getMessage());
-            } finally {
-                ThreadExecutor.leaveIO();
             }
         }
 

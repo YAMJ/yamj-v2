@@ -22,6 +22,13 @@
  */
 package com.moviejukebox.plugin.trailer;
 
+import java.io.File;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.ExtraFile;
 import com.moviejukebox.model.IMovieBasicInformation;
 import com.moviejukebox.model.Movie;
@@ -31,18 +38,14 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 import com.moviejukebox.tools.downloader.Downloader;
-import java.io.File;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TrailerPlugin implements ITrailerPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(TrailerPlugin.class);
-    protected WebBrowser webBrowser;
+    protected YamjHttpClient httpClient;
     protected String trailersPluginName = "Abstract";
     private static final String SCANNER_PATH = PropertiesUtil.getProperty("trailers.path.scaner", "");
     private static final String PLAYER_PATH = PropertiesUtil.getProperty("trailers.path.player", "");
@@ -57,7 +60,7 @@ public class TrailerPlugin implements ITrailerPlugin {
     protected static final String RESOLUTION_SD = "sd";
 
     public TrailerPlugin() {
-        webBrowser = new WebBrowser();
+        httpClient = YamjHttpClientBuilder.getHttpClient();
     }
 
     @Override

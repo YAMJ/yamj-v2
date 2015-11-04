@@ -22,20 +22,22 @@
  */
 package com.moviejukebox.plugin;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import org.apache.commons.lang.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class FilmUpITPlugin extends ImdbPlugin {
 
@@ -66,7 +68,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
             StringBuilder sb = new StringBuilder("http://filmup.leonardo.it/cgi-bin/search.cgi?ps=10&fmt=long&q=");
             sb.append(URLEncoder.encode(title.replace(' ', '+'), "iso-8859-1"));
             sb.append("&ul=%25%2Fsc_%25&x=0&y=0&m=any&wf=0020&wm=wrd&sy=0");
-            String xml = webBrowser.request(sb.toString());
+            String xml = httpClient.request(sb.toString());
 
             for (String searchResult : HTMLTools.extractTags(xml, "<DT>1.", "<DD>", "sc_", ".htm")) {
                 // return first search result
@@ -101,7 +103,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
     private boolean updateMediaInfo(Movie movie, String filmUpITId) {
         String xml;
         try {
-            xml = webBrowser.request("http://filmup.leonardo.it/sc_" + filmUpITId + ".htm");
+            xml = httpClient.request("http://filmup.leonardo.it/sc_" + filmUpITId + ".htm");
         } catch (IOException ex) {
             LOG.error("Failed retrieving media info : {}", filmUpITId);
             LOG.error(SystemTools.getStackTrace(ex));
@@ -183,7 +185,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
     private void updateRating(Movie movie, int opinionsPageID) {
         String baseUrl = "http://filmup.leonardo.it/opinioni/op.php?uid=";
         try {
-            String xml = webBrowser.request(baseUrl + opinionsPageID);
+            String xml = httpClient.request(baseUrl + opinionsPageID);
             float rating = NumberUtils.toFloat(HTMLTools.extractTag(xml, "Media Voto:&nbsp;&nbsp;&nbsp;</td><td align=\"left\"><b>", "</b>"), 0.0f) * 10;
             movie.addRating(FILMUPIT_PLUGIN_ID, (int) rating);
         } catch (IOException ex) {

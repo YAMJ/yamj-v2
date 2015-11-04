@@ -40,7 +40,8 @@ import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class ImdbInfo {
 
@@ -59,7 +60,7 @@ public class ImdbInfo {
     private static final String UTF_8 = "UTF-8";
     private final String searchMatch = PropertiesUtil.getProperty("imdb.id.search.match", "regular");
     private final boolean searchVariable = PropertiesUtil.getBooleanProperty("imdb.id.search.variable", Boolean.TRUE);
-    private WebBrowser webBrowser;
+    private YamjHttpClient httpClient;
     private String imdbSite;
     private String preferredSearchEngine;
     private ImdbSiteDataDefinition siteDef;
@@ -116,7 +117,7 @@ public class ImdbInfo {
 
     public ImdbInfo(final String imdbSite) {
         this.imdbSite = imdbSite;
-        this.webBrowser = new WebBrowser();
+        this.httpClient = YamjHttpClientBuilder.getHttpClient();
 
         preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
         siteDef = MATCHES_DATA_PER_SITE.get(this.imdbSite);
@@ -189,7 +190,7 @@ public class ImdbInfo {
                 sb.append(URLEncoder.encode(personName, siteDef.getCharset().displayName())).append("&role=").append(movieId);
 
                 LOG.debug("Querying IMDB for {}", sb.toString());
-                String xml = webBrowser.request(sb.toString());
+                String xml = httpClient.request(sb.toString());
 
                 // Check if this is an exact match (we got a person page instead of a results list)
                 Matcher titlematch = siteDef.getPersonRegex().matcher(xml);
@@ -292,7 +293,7 @@ public class ImdbInfo {
     }
 
     private String getImdbIdFromSearchEngine(String requestString, String objectType) throws Exception {
-        String xml = webBrowser.request(requestString);
+        String xml = httpClient.request(requestString);
         String imdbId = Movie.UNKNOWN;
 
         int beginIndex = xml.indexOf(objectType.equals(OBJECT_MOVIE) ? "/title/tt" : "/name/nm");
@@ -364,7 +365,7 @@ public class ImdbInfo {
         LOG.debug("Querying IMDB for {}", sb.toString());
         String xml;
         try {
-            xml = webBrowser.request(sb.toString());
+            xml = httpClient.request(sb.toString());
         } catch (IOException ex) {
             LOG.error("Failed retreiving IMDb Id for movie : {}", movieName);
             LOG.error("Error : {}", ex.getMessage());

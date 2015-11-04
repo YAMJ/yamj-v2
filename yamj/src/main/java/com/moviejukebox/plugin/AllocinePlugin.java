@@ -22,6 +22,17 @@
  */
 package com.moviejukebox.plugin;
 
+import static com.moviejukebox.tools.StringTools.isNotValidString;
+import static com.moviejukebox.tools.StringTools.isValidString;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.allocine.AllocineApi;
 import com.moviejukebox.allocine.AllocineException;
 import com.moviejukebox.allocine.model.Episode;
@@ -40,17 +51,9 @@ import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.SearchEngineTools;
 import com.moviejukebox.tools.StringTools;
-import static com.moviejukebox.tools.StringTools.isNotValidString;
-import static com.moviejukebox.tools.StringTools.isValidString;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 import com.moviejukebox.tools.cache.CacheMemory;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AllocinePlugin extends ImdbPlugin {
 
@@ -70,7 +73,7 @@ public class AllocinePlugin extends ImdbPlugin {
     public AllocinePlugin() {
         super();
         try {
-            allocineApi = new AllocineApi(API_KEY_PARTNER, API_KEY_SECRET, WebBrowser.getHttpClient());
+            allocineApi = new AllocineApi(API_KEY_PARTNER, API_KEY_SECRET, YamjHttpClientBuilder.getHttpClient());
             searchEngines = new SearchEngineTools("fr");
 
             preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "France");

@@ -36,26 +36,29 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
 
-    private final WebBrowser webBrowser = new WebBrowser();
     private static final Logger LOG = LoggerFactory.getLogger(CaratulasdecinePosterPlugin.class);
-
     private static final String SEARCH_START = "La Web";
     private static final String SEARCH_END = "Sugerencias de búsqueda";
     private static final String TITLE_START = "Carátula de la película: ";
     private static final String TITLE_END = "</a>";
     private static final String SEARCH_ID_START = "caratula.php?pel=";
 
+    private YamjHttpClient httpClient;
+
     public CaratulasdecinePosterPlugin() {
         super();
 
         // Check to see if we are needed
-//        if (!isNeeded()) {
-//            return;
-//        }
+        if (!isNeeded()) {
+            return;
+        }
+
+        httpClient = YamjHttpClientBuilder.getHttpClient();
     }
 
     /**
@@ -107,7 +110,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
         try {
             StringBuilder sb = new StringBuilder("http://www.google.es/custom?hl=es&domains=caratulasdecine.com&sa=Search&sitesearch=caratulasdecine.com&client=pub-8773978869337108&forid=1&q=");
             sb.append(URLEncoder.encode(title, "ISO-8859-1"));
-            String xml = webBrowser.request(sb.toString());
+            String xml = httpClient.request(sb.toString());
             response = getMovieId(xml, title);
 
             if (StringTools.isNotValidString(response)) {
@@ -118,7 +121,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                     String url = xml.substring(beginIndex, xml.indexOf("\"", beginIndex + searchString.length()));
                     // Need to find a better way to do this
                     url = url.replaceAll("&amp;", "&");
-                    xml = webBrowser.request(url, Charset.forName("ISO-8859-1"));
+                    xml = httpClient.request(url, Charset.forName("ISO-8859-1"));
                     String sectionStart = " <a class='pag' href='listado.php?";
                     String sectionEnd = "</p>";
                     String extractTag = HTMLTools.extractTag(xml, sectionStart, sectionEnd);// , startTag, endTag);
@@ -147,7 +150,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
                 StringBuilder sb = new StringBuilder("http://www.caratulasdecine.com/caratula.php?pel=");
                 sb.append(id);
 
-                String xml = webBrowser.request(sb.toString());
+                String xml = httpClient.request(sb.toString());
                 String searchString = "<td><img src=\"";
                 int beginIndex = xml.indexOf(searchString);
                 if (beginIndex > -1) {

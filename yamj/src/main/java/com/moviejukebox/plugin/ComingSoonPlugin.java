@@ -24,7 +24,6 @@ package com.moviejukebox.plugin;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -219,7 +218,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                 }
 
                 LOG.debug("Fetching ComingSoon search page {}/{} - URL: {}", searchPage, COMINGSOON_MAX_SEARCH_PAGES, urlPage.toString());
-                String xml = webBrowser.request(urlPage.toString(), Charset.forName("UTF-8"));
+                String xml = httpClient.request(urlPage.toString());
 
                 List<String[]> movieList = parseComingSoonSearchResults(xml);
 
@@ -395,7 +394,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         try {
             String movieURL = COMINGSOON_BASE_URL + COMINGSOON_FILM_URL + COMINGSOON_KEY_PARAM + movie.getId(COMINGSOON_PLUGIN_ID);
             LOG.debug("Querying ComingSoon for {}", movieURL);
-            xml = webBrowser.request(movieURL, Charset.forName("UTF-8"));
+            xml = httpClient.request(movieURL);
         } catch (IOException ex) {
             LOG.error("Failed retreiving ComingSoon data for movie : {}", movie.getId(COMINGSOON_PLUGIN_ID));
             LOG.error(SystemTools.getStackTrace(ex));

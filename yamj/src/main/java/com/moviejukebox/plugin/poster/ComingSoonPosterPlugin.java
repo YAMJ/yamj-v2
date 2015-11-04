@@ -34,11 +34,6 @@ public class ComingSoonPosterPlugin extends AbstractMoviePosterPlugin {
 
     public ComingSoonPosterPlugin() {
         super();
-
-        // Check to see if we are needed
-        if (!isNeeded()) {
-            return;
-        }
     }
 
     @Override

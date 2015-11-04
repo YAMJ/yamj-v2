@@ -23,18 +23,13 @@
 package com.moviejukebox.tools;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.Proxy;
-import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -48,11 +43,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yamj.api.common.http.SimpleHttpClientBuilder;
 
 import com.moviejukebox.model.Movie;
 
@@ -62,28 +54,14 @@ import com.moviejukebox.model.Movie;
 public class WebBrowser {
 
     private static final Logger LOG = LoggerFactory.getLogger(WebBrowser.class);
-    private final Map<String, String> browserProperties;
-    private final Map<String, Map<String, String>> cookies;
-    public static final Proxy PROXY;
-    private static final String PROXY_HOST = PropertiesUtil.getProperty("mjb.ProxyHost", "");
-    private static final int PROXY_PORT = PropertiesUtil.getIntProperty("mjb.ProxyPort", 0);
     private static final String PROXY_USERNAME = PropertiesUtil.getProperty("mjb.ProxyUsername", "");
     private static final String PROXY_PASSWORD = PropertiesUtil.getProperty("mjb.ProxyPassword", "");
     private static final String ENCODED_PASSWORD = encodePassword();
     private static final int TIMEOUT_CONNECT = PropertiesUtil.getIntProperty("mjb.Timeout.Connect", 25000);
     private static final int TIMEOUT_READ = PropertiesUtil.getIntProperty("mjb.Timeout.Read", 90000);
-    private int imageRetryCount;
-    private static CloseableHttpClient httpClient = null;
 
-    static {
-        // create the proxy object
-        if (StringUtils.isBlank(PROXY_HOST)) {
-            PROXY = Proxy.NO_PROXY;
-        } else {
-            SocketAddress socketAddress = new InetSocketAddress(PROXY_HOST, PROXY_PORT);
-            PROXY = new Proxy(Proxy.Type.HTTP, socketAddress);
-        }
-    }
+    private final Map<String, String> browserProperties;
+    private final Map<String, Map<String, String>> cookies;
 
     public WebBrowser() {
         browserProperties = new HashMap<>();
@@ -94,19 +72,6 @@ public class WebBrowser {
         }
 
         cookies = new HashMap<>();
-
-        imageRetryCount = PropertiesUtil.getIntProperty("mjb.imageRetryCount", 3);
-        if (imageRetryCount < 1) {
-            imageRetryCount = 1;
-        }
-
-        if (LOG.isTraceEnabled()) {
-            showStatus();
-        }
-    }
-
-    public void addBrowserProperty(String key, String value) {
-        this.browserProperties.put(key, value);
     }
 
     private static String encodePassword() {
@@ -116,16 +81,12 @@ public class WebBrowser {
         return StringUtils.EMPTY;
     }
 
-    public String request(String url) throws IOException {
-        return request(new URL(url));
-    }
-
     public String request(String url, Charset charset) throws IOException {
         return request(new URL(url), charset);
     }
 
     public URLConnection openProxiedConnection(URL url) throws IOException {
-        URLConnection cnx = url.openConnection(PROXY);
+        URLConnection cnx = url.openConnection(YamjHttpClientBuilder.getProxy());
 
         if (PROXY_USERNAME != null) {
             cnx.setRequestProperty("Proxy-Authorization", ENCODED_PASSWORD);
@@ -135,10 +96,6 @@ public class WebBrowser {
         cnx.setReadTimeout(TIMEOUT_READ);
 
         return cnx;
-    }
-
-    public String request(URL url) throws IOException {
-        return request(url, null);
     }
 
     @SuppressWarnings("resource")
@@ -212,85 +169,7 @@ public class WebBrowser {
             ThreadExecutor.leaveIO();
         }
     }
-
-    /**
-     * Download the image for the specified URL into the specified file.
-     *
-     * @param imageFile
-     * @param imageURL
-     * @return
-     * @throws IOException
-     */
-    @SuppressWarnings("resource")
-    public boolean downloadImage(File imageFile, String imageURL) throws IOException {
-
-        String fixedImageURL;
-        if (imageURL.contains(" ")) {
-            fixedImageURL = imageURL.replaceAll(" ", "%20");
-        } else {
-            fixedImageURL = imageURL;
-        }
-
-        URL url = new URL(fixedImageURL);
-
-        LOG.debug("Attempting to download '{}'", fixedImageURL);
-
-        ThreadExecutor.enterIO(url);
-        boolean success = Boolean.FALSE;
-        int retryCount = imageRetryCount;
-        
-        InputStream inputStream = null;
-        FileOutputStream outputStream = null;
-        
-        int reportedLength = 0;
-        try {
-            while (!success && retryCount > 0) {
-                URLConnection cnx = openProxiedConnection(url);
-
-                sendHeader(cnx);
-                readHeader(cnx);
-
-                reportedLength = cnx.getContentLength();
-                inputStream = cnx.getInputStream();
-                outputStream = new FileOutputStream(imageFile);
-                int inputStreamLength = FileTools.copy(inputStream, outputStream);
-
-                if (reportedLength < 0 || reportedLength == inputStreamLength) {
-                    success = Boolean.TRUE;
-                } else {
-                    retryCount--;
-                    LOG.debug("Image download attempt failed, bytes expected: {}, bytes received: {}", reportedLength, inputStreamLength);
-                }
-            }
-        } finally {
-            ThreadExecutor.leaveIO();
-
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException ex) {
-                    // ignore
-                }
-            }
-
-            if (outputStream != null) {
-                try {
-                    outputStream.flush();
-                    outputStream.close();
-                } catch (IOException ex) {
-                    // ignore
-                }
-            }
-        }
-
-        if (success) {
-            LOG.debug("Successfully downloaded '{}' to '{}', Size: {}", imageURL, imageFile.getAbsolutePath(), reportedLength);
-        } else {
-            LOG.debug("Failed {} times to download image, aborting. URL: {}", imageRetryCount, imageURL);
-        }
-        return success;
-    }
-
+    
     /**
      * Check the URL to see if it's one of the special cases that needs to be worked around
      *
@@ -449,79 +328,5 @@ public class WebBrowser {
         } finally {
             ThreadExecutor.leaveIO();
         }
-    }
-
-    public static Proxy getMjbProxy() {
-        return PROXY;
-    }
-
-    public static String getMjbProxyHost() {
-        return PROXY_HOST;
-    }
-
-    public static int getMjbProxyPort() {
-        return PROXY_PORT;
-    }
-
-    public static String getMjbProxyUsername() {
-        return PROXY_USERNAME;
-    }
-
-    public static String getMjbProxyPassword() {
-        return PROXY_PASSWORD;
-    }
-
-    public static int getMjbTimeoutConnect() {
-        return TIMEOUT_CONNECT;
-    }
-
-    public static int getMjbTimeoutRead() {
-        return TIMEOUT_READ;
-    }
-
-    public static void showStatus() {
-        if (StringUtils.isNotBlank(PROXY_HOST)) {
-            LOG.debug("Proxy Host: {}", PROXY_HOST);
-            LOG.debug("Proxy Port: {}", PROXY_PORT);
-        } else {
-            LOG.debug("No proxy set");
-        }
-
-        if (StringUtils.isNotBlank(PROXY_USERNAME)) {
-            LOG.debug("Proxy username: {}", PROXY_USERNAME);
-            if (PROXY_PASSWORD != null) {
-                LOG.debug("Proxy password: IS SET");
-            }
-        } else {
-            LOG.debug("No proxy username");
-        }
-
-        LOG.debug("Connect Timeout: {}", TIMEOUT_CONNECT);
-        LOG.debug("Read Timeout   : {}", TIMEOUT_READ);
-    }
-
-    /**
-     * Generate a new CloseableHttpClient from the standard properties
-     *
-     * @return A CloseableHttpClient
-     */
-    public static HttpClient getHttpClient() {
-        if (httpClient == null) {
-            SimpleHttpClientBuilder cb = new SimpleHttpClientBuilder();
-            cb.setConnectTimeout(TIMEOUT_CONNECT);
-            cb.setConnectionRequestTimeout(TIMEOUT_READ);
-
-            if (StringUtils.isNotBlank(PROXY_HOST)) {
-                cb.setProxyHost(PROXY_HOST);
-                cb.setProxyPort(PROXY_PORT);
-            }
-
-            if (StringUtils.isNotBlank(PROXY_USERNAME)) {
-                cb.setProxyUsername(PROXY_USERNAME);
-                cb.setProxyPassword(PROXY_PASSWORD);
-            }
-            httpClient = cb.build();
-        }
-        return httpClient;
     }
 }

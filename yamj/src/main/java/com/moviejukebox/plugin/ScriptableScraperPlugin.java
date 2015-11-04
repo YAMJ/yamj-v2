@@ -47,6 +47,7 @@ import com.moviejukebox.model.scriptablescraper.SectionSS;
 import com.moviejukebox.reader.ScriptableScraperXMLReader;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.WebBrowser;
 
 /**
  * Plugin to retrieve movie data based on ScriptableScraper XML file
@@ -57,7 +58,7 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
     public static final String SCRIPTABLESCRAPER_PLUGIN_ID = "scriptablescraper";
     private final boolean debug = PropertiesUtil.getBooleanProperty(SCRIPTABLESCRAPER_PLUGIN_ID + ".debug", Boolean.FALSE);
     private final boolean info = PropertiesUtil.getBooleanProperty(SCRIPTABLESCRAPER_PLUGIN_ID + ".info", Boolean.TRUE);
-//    private final TheTvDBPlugin tvdb;
+    private WebBrowser webBrowser;
     private ScriptableScraper ssData;
     private final int maxGenres;
     private final int maxDirectors;
@@ -72,6 +73,7 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
     public ScriptableScraperPlugin() {
         super();
 
+        webBrowser = new WebBrowser();
         maxGenres = PropertiesUtil.getIntProperty("genres.max", DEFAULT_GENRES);
         maxDirectors = PropertiesUtil.getReplacedIntProperty("movie.director.maxCount", "plugin.people.maxCount.director", DEFAULT_DIRECTORS);
         maxWriters = PropertiesUtil.getReplacedIntProperty("movie.writer.maxCount", "plugin.people.maxCount.writer", DEFAULT_WRITERS);
@@ -322,6 +324,7 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
         return count;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void runSections(Collection<SectionContentSS> sections, String sectionName) {
         try {
             if (debug) {

@@ -22,22 +22,25 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Movie;
 import static com.moviejukebox.tools.HTMLTools.extractTag;
 import static com.moviejukebox.tools.HTMLTools.extractTags;
 import static com.moviejukebox.tools.HTMLTools.removeHtmlTags;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
+
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 public class ScopeDkPlugin extends ImdbPlugin {
 
@@ -70,7 +73,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
             StringBuilder sb = new StringBuilder("http://www.scope.dk/sogning.php?sog=");
             sb.append(URLEncoder.encode(title.replace(' ', '+'), "iso-8859-1"));
             sb.append("&type=film");
-            String xml = webBrowser.request(sb.toString());
+            String xml = httpClient.request(sb.toString(), Charset.forName("ISO-8859-1"));
 
             List<String> tmp = extractTags(xml, "<table class=\"table-list\">", "</table>", "<td>", "</td>");
 
@@ -126,7 +129,7 @@ public class ScopeDkPlugin extends ImdbPlugin {
 
     private boolean updateMediaInfo(Movie movie, String scopeDkId) {
         try {
-            String xml = webBrowser.request("http://www.scope.dk/film/" + scopeDkId, Charset.forName("ISO-8859-1"));
+            String xml = httpClient.request("http://www.scope.dk/film/" + scopeDkId, Charset.forName("ISO-8859-1"));
 
             if (OverrideTools.checkOverwriteTitle(movie, SCOPEDK_PLUGIN_ID)) {
                 movie.setTitle(removeHtmlTags(extractTag(xml, "<div class=\"full-box-header\">", "</div>")).replaceAll("\t", ""), SCOPEDK_PLUGIN_ID);

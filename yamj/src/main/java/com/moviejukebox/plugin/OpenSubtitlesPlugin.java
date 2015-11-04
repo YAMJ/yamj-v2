@@ -52,7 +52,7 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SubtitleTools;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 /**
  * Based on some code from the opensubtitles.org subtitle upload java applet
@@ -306,7 +306,7 @@ public class OpenSubtitlesPlugin {
             LOG.debug("Download subtitle for {}", movie.getBaseName());
 
             URL url = new URL(subDownloadLink);
-            HttpURLConnection connection = (HttpURLConnection) (url.openConnection(WebBrowser.PROXY));
+            HttpURLConnection connection = (HttpURLConnection) (url.openConnection(YamjHttpClientBuilder.getProxy()));
             connection.setRequestProperty("Connection", "Close");
             InputStream inputStream = connection.getInputStream();
 

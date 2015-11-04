@@ -38,7 +38,7 @@ import com.moviejukebox.plugin.TheMovieDbPlugin;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 import com.omertron.themoviedbapi.Compare;
 import com.omertron.themoviedbapi.MovieDbException;
 import com.omertron.themoviedbapi.TheMovieDbApi;
@@ -71,7 +71,7 @@ public class MovieDbPosterPlugin extends AbstractMoviePosterPlugin {
         LOG.debug("Using '{}' as the language code", languageCode);
 
         try {
-            tmdb = new TheMovieDbApi(apiKey, WebBrowser.getHttpClient());
+            tmdb = new TheMovieDbApi(apiKey, YamjHttpClientBuilder.getHttpClient());
         } catch (MovieDbException ex) {
             LOG.warn("Failed to initialise TheMovieDB API.");
             LOG.warn(SystemTools.getStackTrace(ex));

@@ -38,7 +38,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 import com.omertron.moviemeter.MovieMeterApi;
 import com.omertron.moviemeter.MovieMeterException;
 import com.omertron.moviemeter.model.Actor;
@@ -61,7 +61,7 @@ public class MovieMeterPlugin extends ImdbPlugin {
         super();
 
         try {
-            api = new MovieMeterApi(API_KEY, WebBrowser.getHttpClient());
+            api = new MovieMeterApi(API_KEY, YamjHttpClientBuilder.getHttpClient());
         } catch (MovieMeterException ex) {
             LOG.warn("Failed to initialise MovieMeter API: {}", ex.getMessage(), ex);
         }

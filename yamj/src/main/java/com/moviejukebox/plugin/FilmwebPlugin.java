@@ -71,7 +71,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
         try {
             // first request to filmweb site to skip welcome screen with ad banner
-            webBrowser.request("http://www.filmweb.pl");
+            httpClient.request("http://www.filmweb.pl");
         } catch (IOException error) {
             LOG.error(LOG_ERROR, error.getMessage(), error);
         }
@@ -103,7 +103,7 @@ public class FilmwebPlugin extends ImdbPlugin {
             if (StringTools.isValidString(year)) {
                 sb.append("&startYear=").append(year).append("&endYear=").append(year);
             }
-            String xml = webBrowser.request(sb.toString());
+            String xml = httpClient.request(sb.toString());
 
             List<String> tags = HTMLTools.extractTags(xml, "<ul class=\"sep-hr resultsList\">", "</ul>", "<li>", "</li>");
             for (String tag : tags) {
@@ -144,7 +144,7 @@ public class FilmwebPlugin extends ImdbPlugin {
     private String getPage(String filmwebUrl) {
         String xmlPage = "";
         try {
-            xmlPage = webBrowser.request(filmwebUrl);
+            xmlPage = httpClient.request(filmwebUrl);
         } catch (IOException error) {
             LOG.error("Failed retreiving filmweb informations for URL: {}", filmwebUrl);
             LOG.error(SystemTools.getStackTrace(error));
@@ -388,7 +388,7 @@ public class FilmwebPlugin extends ImdbPlugin {
         }
 
         try {
-            String xml = webBrowser.request(filmwebUrl + "/episodes");
+            String xml = httpClient.request(filmwebUrl + "/episodes");
             boolean found = Boolean.FALSE;
             boolean wasSeraching = Boolean.FALSE;
             for (MovieFile file : movie.getMovieFiles()) {

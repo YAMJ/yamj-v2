@@ -22,22 +22,26 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.AllocinePlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
-import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
 
-    private WebBrowser webBrowser;
-    private AllocinePlugin allocinePlugin;
     private static final Logger LOG = LoggerFactory.getLogger(PassionXbmcPosterPlugin.class);
+
+    private YamjHttpClient httpClient;
+    private AllocinePlugin allocinePlugin;
 
     public PassionXbmcPosterPlugin() {
         super();
@@ -47,7 +51,7 @@ public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
             return;
         }
 
-        webBrowser = new WebBrowser();
+        httpClient = YamjHttpClientBuilder.getHttpClient();
         allocinePlugin = new AllocinePlugin();
     }
 
@@ -61,7 +65,7 @@ public class PassionXbmcPosterPlugin extends AbstractMoviePosterPlugin {
         String posterURL = Movie.UNKNOWN;
         if (!Movie.UNKNOWN.equalsIgnoreCase(id)) {
             try {
-                String xml = webBrowser.request("http://passion-xbmc.org/scraper/index2.php?Page=ViewMovie&ID=" + id);
+                String xml = httpClient.request("http://passion-xbmc.org/scraper/index2.php?Page=ViewMovie&ID=" + id);
                 String baseUrl = "http://passion-xbmc.org/scraper/Gallery/main/";
                 String posterImg = HTMLTools.extractTag(xml, "href=\"" + baseUrl, "\"");
                 if (!Movie.UNKNOWN.equalsIgnoreCase(posterImg)) {

@@ -22,20 +22,23 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.FilmwebPlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
-import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
 
-    private WebBrowser webBrowser;
+    private YamjHttpClient httpClient;
     private FilmwebPlugin filmwebPlugin;
     private static final Logger LOG = LoggerFactory.getLogger(FilmwebPosterPlugin.class);
 
@@ -48,10 +51,10 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IT
         }
 
         try {
-            webBrowser = new WebBrowser();
+            httpClient = YamjHttpClientBuilder.getHttpClient();
             filmwebPlugin = new FilmwebPlugin();
             // first request to filmweb site to skip welcome screen with ad banner
-            webBrowser.request("http://www.filmweb.pl");
+            httpClient.request("http://www.filmweb.pl");
         } catch (IOException ex) {
             LOG.error("Error: {}", ex.getMessage());
             LOG.error(SystemTools.getStackTrace(ex));
@@ -68,7 +71,7 @@ public class FilmwebPosterPlugin extends AbstractMoviePosterPlugin implements IT
         String posterURL = Movie.UNKNOWN;
         String xml;
         try {
-            xml = webBrowser.request(id);
+            xml = httpClient.request(id);
             posterURL = HTMLTools.extractTag(xml, "posterLightbox", 3, "\"");
         } catch (Exception ex) {
             LOG.error("Failed retreiving filmweb poster for movie: {}", id);

@@ -34,13 +34,14 @@ import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
-    // The AbstractMoviePosterPlugin already implements IMoviePosterPlugin
 
     private static final Logger LOG = LoggerFactory.getLogger(CdonPosterPlugin.class);
-    private WebBrowser webBrowser;
+    
+    private YamjHttpClient httpClient;
 
     public CdonPosterPlugin() {
         super();
@@ -50,7 +51,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             return;
         }
 
-        webBrowser = new WebBrowser();
+        httpClient = YamjHttpClientBuilder.getHttpClient();
     }
 
     @Override
@@ -111,7 +112,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             stringQuery.append(searchTitle);
             stringQuery.append("&category=2");
             //get the result page from the search
-            xml = webBrowser.request(stringQuery.toString());
+            xml = httpClient.request(stringQuery.toString());
         } catch (Exception ex) {
             //there was an error getting the web page, catch the exception
             LOG.error("An exception happened while retreiving CDON id for movie: {}", newTitle);
@@ -362,7 +363,7 @@ public class CdonPosterPlugin extends AbstractMoviePosterPlugin implements ITvSh
             // sanity check on result before trying to load details page from url
             if (!movieURL.isEmpty() && movieURL.contains("http")) {
                 // fetch movie page from cdon
-                return webBrowser.request(movieURL);
+                return httpClient.request(movieURL);
             }
             // search didn't even find an url to the movie
             LOG.debug("Error in fetching movie detail page from CDON for movie: {}", movieURL);

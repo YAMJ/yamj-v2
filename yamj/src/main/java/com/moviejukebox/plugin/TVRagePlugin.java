@@ -39,8 +39,7 @@ import com.moviejukebox.tools.DateTimeTools;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.ThreadExecutor;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 import com.omertron.tvrageapi.TVRageApi;
 import com.omertron.tvrageapi.TVRageException;
 import com.omertron.tvrageapi.model.CountryDetail;
@@ -55,7 +54,6 @@ public class TVRagePlugin extends ImdbPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(TVRagePlugin.class);
     public static final String TVRAGE_PLUGIN_ID = "tvrage";
-    private static final String WEBHOST = "tvrage.com";
     private final TVRageApi tvRage;
     private final boolean includeVideoImages;
 
@@ -63,7 +61,7 @@ public class TVRagePlugin extends ImdbPlugin {
         super();
 
         String API_KEY = PropertiesUtil.getProperty("API_KEY_TVRage");
-        tvRage = new TVRageApi(API_KEY, WebBrowser.getHttpClient());
+        tvRage = new TVRageApi(API_KEY, YamjHttpClientBuilder.getHttpClient());
 
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
     }
@@ -74,25 +72,19 @@ public class TVRagePlugin extends ImdbPlugin {
     }
 
     private ShowInfo getShowInfo(int tvrageID) {
-        ThreadExecutor.enterIO(WEBHOST);
         try {
             return tvRage.getShowInfo(tvrageID);
         } catch (TVRageException ex) {
             LOG.info("Failed to get TVRage information for '{}' - error: {}", tvrageID, ex.getMessage(), ex);
-        } finally {
-            ThreadExecutor.leaveIO();
         }
         return new ShowInfo();
     }
 
     private List<ShowInfo> getShowList(String query) {
-        ThreadExecutor.enterIO(WEBHOST);
         try {
             tvRage.searchShow(query);
         } catch (TVRageException ex) {
             LOG.info("Failed to get TVRage information for '{}' - error: {}", query, ex.getMessage(), ex);
-        } finally {
-            ThreadExecutor.leaveIO();
         }
         return Collections.emptyList();
     }
@@ -199,7 +191,6 @@ public class TVRagePlugin extends ImdbPlugin {
         EpisodeList episodeList = null;
 
         try {
-            ThreadExecutor.enterIO(WEBHOST);
             showInfo = tvRage.getShowInfo(id);
 
             if (showInfo != null && showInfo.getShowID() > 0) {
@@ -207,8 +198,6 @@ public class TVRagePlugin extends ImdbPlugin {
             }
         } catch (TVRageException ex) {
             LOG.info("Failed to get TVRage information for '{}' - error: {}", movie.getBaseName(), ex.getMessage(), ex);
-        } finally {
-            ThreadExecutor.leaveIO();
         }
 
         if (episodeList == null) {

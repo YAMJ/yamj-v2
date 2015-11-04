@@ -22,6 +22,11 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
@@ -29,17 +34,15 @@ import com.moviejukebox.plugin.FilmUpITPlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
-import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
 
-    private WebBrowser webBrowser;
-    private FilmUpITPlugin filmupitPlugin;
-
     private static final Logger LOG = LoggerFactory.getLogger(FilmUpItPosterPlugin.class);
+
+    private YamjHttpClient httpClient;
+    private FilmUpITPlugin filmupitPlugin;
 
     public FilmUpItPosterPlugin() {
         super();
@@ -49,7 +52,7 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
             return;
         }
 
-        webBrowser = new WebBrowser();
+        httpClient = YamjHttpClientBuilder.getHttpClient();
         filmupitPlugin = new FilmUpITPlugin();
     }
 
@@ -64,11 +67,11 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
         String xml;
 
         try {
-            xml = webBrowser.request("http://filmup.leonardo.it/sc_" + id + ".htm");
+            xml = httpClient.request("http://filmup.leonardo.it/sc_" + id + ".htm");
             String posterPageUrl = HTMLTools.extractTag(xml, "href=\"posters/locp/", "\"");
 
             String baseUrl = "http://filmup.leonardo.it/posters/locp/";
-            xml = webBrowser.request(baseUrl + posterPageUrl);
+            xml = httpClient.request(baseUrl + posterPageUrl);
             String tmpPosterURL = HTMLTools.extractTag(xml, "\"../loc/", "\"");
             if (StringTools.isValidString(tmpPosterURL)) {
                 posterURL = "http://filmup.leonardo.it/posters/loc/" + tmpPosterURL;

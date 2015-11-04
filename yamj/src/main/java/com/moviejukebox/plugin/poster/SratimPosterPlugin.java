@@ -22,6 +22,11 @@
  */
 package com.moviejukebox.plugin.poster;
 
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
@@ -29,16 +34,14 @@ import com.moviejukebox.plugin.SratimPlugin;
 import com.moviejukebox.tools.HTMLTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
-import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.moviejukebox.tools.YamjHttpClient;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITvShowPosterPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(SratimPosterPlugin.class);
 
-    private WebBrowser webBrowser;
+    private YamjHttpClient httpClient;
     private SratimPlugin sratimPlugin;
 
     public SratimPosterPlugin() {
@@ -49,7 +52,7 @@ public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITv
             return;
         }
 
-        webBrowser = new WebBrowser();
+        httpClient = YamjHttpClientBuilder.getHttpClient();
         sratimPlugin = new SratimPlugin();
     }
 
@@ -64,7 +67,7 @@ public class SratimPosterPlugin extends AbstractMoviePosterPlugin implements ITv
     @Override
     public IImage getPosterUrl(String id) {
         try {
-            String xml = webBrowser.request("http://sratim.co.il/view.php?id=" + id);
+            String xml = httpClient.request("http://sratim.co.il/view.php?id=" + id);
             String posterURL = HTMLTools.extractTag(xml, "<a href=\"photos/titles/normal/", 0, "\"");
 
             if (StringTools.isValidString(posterURL)) {

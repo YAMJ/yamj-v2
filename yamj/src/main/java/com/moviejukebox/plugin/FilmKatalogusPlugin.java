@@ -22,32 +22,29 @@
  */
 package com.moviejukebox.plugin;
 
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
 
 /**
  * Film Katalogus Plugin for Hungarian language
@@ -63,8 +60,6 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(FilmKatalogusPlugin.class);
     public static final String FILMKAT_PLUGIN_ID = "filmkatalogus";
     private final TheTvDBPlugin tvdb;
-    private static final String mjbProxyHost = PropertiesUtil.getProperty("mjb.ProxyHost");
-    private static final String mjbProxyPort = PropertiesUtil.getProperty("mjb.ProxyPort");
 
     public FilmKatalogusPlugin() {
         super(); // use IMDB as basis
@@ -102,27 +97,18 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             if (StringTools.isNotValidString(movie.getId(FILMKAT_PLUGIN_ID))) {
 
                 LOG.debug("Movie title for filmkatalogus search = {}", movie.getTitle());
-                HttpClient httpClient = new DefaultHttpClient();
-                //httpClient.getParams().setBooleanParameter("http.protocol.expect-continue", false);
-                httpClient.getParams().setParameter("http.useragent", "Mozilla/5.25 Netscape/5.0 (Windows; I; Win95)"); //User-Agent header should be overwrittem with somehting Apache is not accepted by filmkatalogus.hu
-
-                if (mjbProxyHost != null) {
-                    HttpHost proxy = new HttpHost(mjbProxyHost, Integer.parseInt(mjbProxyPort));
-                    httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-                }
-
-                HttpPost httppost = new HttpPost("http://www.filmkatalogus.hu/kereses");
-
+                
+                HttpPost httpPost = new HttpPost("http://www.filmkatalogus.hu/kereses");
+                httpPost.setHeader("Content-type", "application/x-www-form-urlencoded");
+                httpPost.setHeader("Accept", "text/plain");
+                
                 List<NameValuePair> nameValuePairs = new ArrayList<>();
                 nameValuePairs.add(new BasicNameValuePair("gyorskeres", "0"));
                 nameValuePairs.add(new BasicNameValuePair("keres0", "1"));
                 nameValuePairs.add(new BasicNameValuePair("szo0", movie.getTitle()));
 
-                httppost.addHeader("Content-type", "application/x-www-form-urlencoded");
-                httppost.addHeader("Accept", "text/plain");
-
                 try {
-                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "ISO-8859-2"));
+                    httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "ISO-8859-2"));
                 } catch (UnsupportedEncodingException ex) {
                     // writing error to Log
                     LOG.error(SystemTools.getStackTrace(ex));
@@ -131,7 +117,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 }
 
                 try {
-                    HttpResponse response = httpClient.execute(httppost);
+                    HttpResponse response = httpClient.execute(httpPost);
 
                     switch (response.getStatusLine().getStatusCode()) {
                         case 302:
@@ -179,7 +165,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                 LOG.debug("FilmkatalogusURL = {}", filmKatURL);
             }
 
-            String xml = webBrowser.request(filmKatURL);
+            String xml = httpClient.request(filmKatURL);
 
             // name
             int beginIndex = xml.indexOf("<H1>");

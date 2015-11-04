@@ -283,7 +283,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             sb = "http://kinopoisk.ru/index.php?level=7&from=forma&result=adv&m_act[from]=forma&m_act[what]=content" + sb;
-            String xml = webBrowser.request(sb);
+            String xml = httpClient.request(sb);
 
             // Checking for zero results
             if (!xml.contains("class=\"search_results\"")) {
@@ -353,7 +353,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
         try {
             String originalTitle = movie.getTitle();
             String newTitle = originalTitle;
-            String xml = webBrowser.request(FILM_URL + kinopoiskId);
+            String xml = httpClient.request(FILM_URL + kinopoiskId);
             boolean etalonFlag = kinopoiskId.equals(etalonId);
             // Work-around for issue #649
             xml = xml.replace("&#133;", "&hellip;");
@@ -627,7 +627,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     posterURL = Movie.UNKNOWN;
 
                     // Load page with all poster
-                    String wholeArts = webBrowser.request(FILM_URL + kinopoiskId + "/posters/");
+                    String wholeArts = httpClient.request(FILM_URL + kinopoiskId + "/posters/");
                     if (StringTools.isValidString(wholeArts)) {
                         if (wholeArts.contains("<table class=\"fotos")) {
                             String picture = HTMLTools.extractTag(wholeArts, "src=\"http://st.kinopoisk.ru/images/poster/sm_", 0, "\"");
@@ -669,7 +669,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     fanURL = Movie.UNKNOWN;
 
                     // Load page with all wallpaper
-                    String wholeArts = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/wall/");
+                    String wholeArts = httpClient.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/wall/");
                     if (StringTools.isValidString(wholeArts)) {
                         if (wholeArts.contains("<table class=\"fotos")) {
                             String picture = HTMLTools.extractTag(wholeArts, "src=\"http://st.kinopoisk.ru/images/wallpaper/sm_", 0, ".jpg");
@@ -678,7 +678,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                                     picture = picture.substring(0, picture.indexOf('_'));
                                 }
                                 String size = HTMLTools.extractTag(wholeArts, "<u><a href=\"/picture/" + picture + "/w_size/", 0, "/");
-                                wholeArts = webBrowser.request("http://www.kinopoisk.ru/picture/" + picture + "/w_size/" + size);
+                                wholeArts = httpClient.request("http://www.kinopoisk.ru/picture/" + picture + "/w_size/" + size);
                                 if (StringTools.isValidString(wholeArts)) {
                                     picture = HTMLTools.extractTag(wholeArts, "src=\"http://st-im.kinopoisk.r/im/wallpaper/", 0, "\"");
                                     if (StringTools.isValidString(picture)) {
@@ -692,7 +692,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
                     if (kadr && (StringTools.isNotValidString(fanURL) || fanURL.contains("originalnull"))) {
                         // Load page with all videoimage
-                        wholeArts = webBrowser.request(FILM_URL + kinopoiskId + "/stills/");
+                        wholeArts = httpClient.request(FILM_URL + kinopoiskId + "/stills/");
                         if (StringTools.isValidString(wholeArts)) {
                             // Looking for photos table
                             int photosInd = wholeArts.indexOf("<table class=\"fotos");
@@ -722,7 +722,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Studio/Company
             if (OverrideTools.checkOverwriteCompany(movie, KINOPOISK_PLUGIN_ID)) {
-                xml = webBrowser.request(FILM_URL + kinopoiskId + "/studio/");
+                xml = httpClient.request(FILM_URL + kinopoiskId + "/studio/");
                 valueFounded = false;
                 if (StringTools.isValidString(xml)) {
                     Collection<String> studio = new ArrayList<>();
@@ -754,7 +754,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 if (clearAward) {
                     movie.clearAwards();
                 }
-                xml = webBrowser.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/awards/");
+                xml = httpClient.request("http://www.kinopoisk.ru/film/" + kinopoiskId + "/awards/");
                 Collection<AwardEvent> awards = new ArrayList<>();
                 if (StringTools.isValidString(xml)) {
                     int beginIndex = xml.indexOf("<b><a href=\"/awards/");
@@ -825,7 +825,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             boolean overridePeopleWriters = OverrideTools.checkOverwritePeopleWriters(movie, KINOPOISK_PLUGIN_ID);
 
             if (overrideCast || overridePeopleCast || overrideDirectors || overridePeopleDirectors || overrideWriters || overridePeopleWriters || etalonFlag) {
-                xml = webBrowser.request(FILM_URL + kinopoiskId + "/cast");
+                xml = httpClient.request(FILM_URL + kinopoiskId + "/cast");
                 if (StringTools.isValidString(xml)) {
                     if (overrideDirectors || overridePeopleDirectors || etalonFlag) {
                         int count = scanMoviePerson(movie, xml, "director", directorMax, overrideDirectors, overridePeopleDirectors);
@@ -860,7 +860,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
 
             // Business
             if (scrapeBusiness || etalonFlag) {
-                xml = webBrowser.request(FILM_URL + kinopoiskId + "/box/");
+                xml = httpClient.request(FILM_URL + kinopoiskId + "/box/");
                 if (StringTools.isValidString(xml)) {
                     valueFounded = false;
                     for (String tmp : HTMLTools.extractTags(xml, ">Итого:<", "</table>", "<font color=\"#ff6600\"", "</h3>")) {
@@ -922,7 +922,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                     triviaMax = 1;
                 }
                 if (triviaMax != 0) {
-                    xml = webBrowser.request(FILM_URL + kinopoiskId + "/view_info/ok/#trivia");
+                    xml = httpClient.request(FILM_URL + kinopoiskId + "/view_info/ok/#trivia");
                     if (StringTools.isValidString(xml)) {
                         int i = 0;
                         for (String tmp : HTMLTools.extractTags(xml, ">Знаете ли вы, что...<", "</ul>", "<li class=\"trivia", "</li>")) {
@@ -1067,7 +1067,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
         boolean returnStatus = false;
 
         try {
-            String xml = webBrowser.request(NAME_URL + kinopoiskId + "/view_info/ok/");
+            String xml = httpClient.request(NAME_URL + kinopoiskId + "/view_info/ok/");
             if (StringTools.isValidString(xml)) {
                 if (StringTools.isNotValidString(person.getName())) {
                     person.setName(HTMLTools.extractTag(xml, "<span style=\"font-size:13px;color:#666\">", "</span>"));
@@ -1131,7 +1131,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                 }
 
                 if (xml.contains("/film/" + kinopoiskId + "/cast/") && StringTools.isNotValidString(person.getBackdropURL())) {
-                    xml = webBrowser.request(FILM_URL + kinopoiskId + "/cast/");
+                    xml = httpClient.request(FILM_URL + kinopoiskId + "/cast/");
                     if (StringTools.isValidString(xml)) {
                         String size = Movie.UNKNOWN;
                         if (xml.contains("/w_size/1600/")) {
@@ -1144,7 +1144,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         if (StringTools.isValidString(size)) {
                             String id = xml.substring(xml.indexOf("/w_size/" + size + "/") - 25, xml.indexOf("/w_size/" + size + "/"));
                             id = id.substring(id.indexOf("/picture/") + 9);
-                            xml = webBrowser.request("http://www.kinopoisk.ru/picture/" + id + "/w_size/" + size + "/");
+                            xml = httpClient.request("http://www.kinopoisk.ru/picture/" + id + "/w_size/" + size + "/");
                             if (StringTools.isValidString(xml)) {
                                 int beginInx = xml.indexOf("http://st.kinopoisk.ru/im/wallpaper");
                                 if (beginInx > -1) {
@@ -1157,7 +1157,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             }
 
             if (!preferredRating.equals("imdb")) {
-                xml = webBrowser.request(NAME_URL + kinopoiskId + "/sort/rating/");
+                xml = httpClient.request(NAME_URL + kinopoiskId + "/sort/rating/");
                 if (StringTools.isValidString(xml)) {
                     Map<Float, Filmography> newFilmography = new TreeMap<>();
                     for (String block : HTMLTools.extractTags(xml, "<center><div style='position: relative' ></div></center>", "<tr><td><br /><br /><br /><br /><br /><br /></td></tr>", "<tr><td colspan=3 height=4><spacer type=block height=4></td></tr>", "</div>        </td></tr>")) {
@@ -1297,7 +1297,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
             sb = "&m_act[find]=" + URLEncoder.encode(sb, "UTF-8").replace(" ", "+");
 
             for (int step = 0; step < 3 && StringTools.isNotValidString(personId); step++) {
-                String xml = webBrowser.request("http://www.kinopoisk.ru/index.php?level=7&from=forma&result=adv&m_act[from]=forma" + (step < 2 ? ("&m_act[what]=actor") : "") + sb + (step == 0 ? ("&m_act[work]=" + mode) : ""));
+                String xml = httpClient.request("http://www.kinopoisk.ru/index.php?level=7&from=forma&result=adv&m_act[from]=forma" + (step < 2 ? ("&m_act[what]=actor") : "") + sb + (step == 0 ? ("&m_act[work]=" + mode) : ""));
 
                 // Checking for zero results
                 int beginIndex = xml.indexOf("class=\"search_results\"");

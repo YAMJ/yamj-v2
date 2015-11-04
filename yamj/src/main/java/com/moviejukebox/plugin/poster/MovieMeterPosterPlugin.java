@@ -22,24 +22,27 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.Image;
-import com.moviejukebox.model.Movie;
 import static com.moviejukebox.model.Movie.UNKNOWN;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
 import static com.moviejukebox.tools.StringTools.isValidString;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
-import com.omertron.moviemeter.MovieMeterApi;
-import com.omertron.moviemeter.MovieMeterException;
-import com.omertron.moviemeter.model.FilmInfo;
-import com.omertron.moviemeter.model.SearchResult;
+
 import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Image;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
+import com.omertron.moviemeter.MovieMeterApi;
+import com.omertron.moviemeter.MovieMeterException;
+import com.omertron.moviemeter.model.FilmInfo;
+import com.omertron.moviemeter.model.SearchResult;
 
 public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
 
@@ -56,7 +59,7 @@ public class MovieMeterPosterPlugin extends AbstractMoviePosterPlugin {
         }
 
         try {
-            api = new MovieMeterApi(API_KEY, WebBrowser.getHttpClient());
+            api = new MovieMeterApi(API_KEY, YamjHttpClientBuilder.getHttpClient());
         } catch (MovieMeterException ex) {
             LOG.warn("Failed to initialise MovieMeter API: {}", ex.getMessage(), ex);
             return;

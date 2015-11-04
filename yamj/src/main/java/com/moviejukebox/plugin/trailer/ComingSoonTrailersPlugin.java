@@ -106,7 +106,7 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
         try {
             String searchUrl = ComingSoonPlugin.COMINGSOON_BASE_URL + VIDEO_URL + ComingSoonPlugin.COMINGSOON_KEY_PARAM + comingSoonId;
             LOG.debug("Searching for trailer at URL {}", searchUrl);
-            String xml = webBrowser.request(searchUrl);
+            String xml = httpClient.request(searchUrl);
             if (!xml.contains(ComingSoonPlugin.COMINGSOON_SEARCH_URL + ComingSoonPlugin.COMINGSOON_KEY_PARAM + comingSoonId)) {
                 // No link to movie page found. We have been redirected to the general video page
                 LOG.debug("No video found for movie {}", movie.getTitle());
@@ -132,7 +132,7 @@ public class ComingSoonTrailersPlugin extends TrailerPlugin {
                 return Movie.UNKNOWN;
             }
 
-            String trailerXml = webBrowser.request(xmlUrl);
+            String trailerXml = httpClient.request(xmlUrl);
             int beginUrl = trailerXml.indexOf("http://");
             if (beginUrl >= 0) {
                 trailerUrl = trailerXml.substring(beginUrl, trailerXml.indexOf('\"', beginUrl));
