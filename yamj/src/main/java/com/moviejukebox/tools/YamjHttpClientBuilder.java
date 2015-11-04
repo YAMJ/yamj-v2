@@ -159,7 +159,7 @@ public class YamjHttpClientBuilder {
                         .setConnectionRequestTimeout(TIMEOUT_READ)
                         .setConnectTimeout(TIMEOUT_CONNECT)
                         .setSocketTimeout(TIMEOUT_SOCKET)
-                        .setCookieSpec(CookieSpecs.DEFAULT)
+                        .setCookieSpec(CookieSpecs.IGNORE_COOKIES)
                         .setProxy(proxy)
                         .build());
 
