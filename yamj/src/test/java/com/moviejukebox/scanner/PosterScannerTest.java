@@ -22,13 +22,14 @@
  */
 package com.moviejukebox.scanner;
 
-import java.io.UnsupportedEncodingException;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbInfo;
+import com.moviejukebox.scanner.artwork.PosterScanner;
+import java.awt.Dimension;
+import java.io.UnsupportedEncodingException;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 @SuppressWarnings("unused")
 public class PosterScannerTest {
@@ -85,5 +86,12 @@ public class PosterScannerTest {
          * movieTest.setTitle("Looking for Eric"); movieTest.setYear("2009"); expectedURL = baseURL + "LOOKING%20FOR%20ERIC.jpg"; returnURL =
          * PosterScanner.getPosterURLFromMovieCovers(movieTest); assertEquals(expectedURL, returnURL);
          */
+    }
+    
+    @Test
+    public void testGetUrlDimensions() {
+        Dimension dimension = PosterScanner.getUrlDimensions("http://image.tmdb.org/t/p/original/ax2uAmXFw9Myj1hiakJ4n2s4Tbg.jpg");
+        Assert.assertEquals(1400, dimension.getWidth(), 10);
+        Assert.assertEquals(2100, dimension.getHeight(), 10);
     }
 }

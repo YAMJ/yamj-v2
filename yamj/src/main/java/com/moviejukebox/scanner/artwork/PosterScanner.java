@@ -494,14 +494,10 @@ public final class PosterScanner {
         if (readers.hasNext()) {
             ImageReader reader = (ImageReader) readers.next();
 
-            try {
-                URL url = new URL(imageUrl);
-                try (InputStream in = url.openStream();
-                     ImageInputStream iis = ImageIO.createImageInputStream(in))
-                {
-                    reader.setInput(iis, Boolean.TRUE);
-                }
-                
+            try (InputStream in = new URL(imageUrl).openStream();
+                 ImageInputStream iis = ImageIO.createImageInputStream(in))
+            {
+                reader.setInput(iis, Boolean.TRUE);
                 imageDimension.setSize(reader.getWidth(0), reader.getHeight(0));
             } catch (IOException ex) {
                 LOG.debug("getUrlDimensions error: {}: can't open url: {}", ex.getMessage(), imageUrl);
