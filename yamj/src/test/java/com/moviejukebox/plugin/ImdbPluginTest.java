@@ -48,7 +48,6 @@ public class ImdbPluginTest {
     @Test
     public void testImdbMoviePlotLong() {
         LOG.info("testImdbMoviePlotLong");
-        PropertiesUtil.setProperty("imdb.site", "us");
         PropertiesUtil.setProperty("imdb.plot", "long");
         PropertiesUtil.setProperty("imdb.full.info", true);
         ImdbPlugin imdbPlugin = new ImdbPlugin();
@@ -65,7 +64,6 @@ public class ImdbPluginTest {
     @Test
     public void testImdbTvShow() {
         LOG.info("testImdbTvShow");
-        PropertiesUtil.setProperty("imdb.site", "us");
         PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
         PropertiesUtil.setProperty("imdb.full.info", true);
         ImdbPlugin imdbPlugin = new ImdbPlugin();
@@ -97,7 +95,6 @@ public class ImdbPluginTest {
     @Test
     public void testImdbPerson() {
         LOG.info("testImdbPerson");
-        PropertiesUtil.setProperty("imdb.site", "us");
         PropertiesUtil.setProperty("plugin.filmography.max", 2);
         ImdbPlugin imdbPlugin = new ImdbPlugin();
 
@@ -121,7 +118,6 @@ public class ImdbPluginTest {
     @Test
     public void testImdbBio() {
         LOG.info("testImdbBio");
-        PropertiesUtil.setProperty("imdb.site", "us");
         PropertiesUtil.setProperty("plugin.filmography.max", 2);
         ImdbPlugin imdbPlugin = new ImdbPlugin();
 
@@ -134,7 +130,6 @@ public class ImdbPluginTest {
     @Test
     public void testImdb_Short() {
         LOG.info("testImdb_Short");
-        PropertiesUtil.setProperty("imdb.site", "us");
         PropertiesUtil.setProperty("imdb.full.info", "false");
         PropertiesUtil.setProperty("mjb.scrapeAwards", "true");
         ImdbPlugin imdbPlugin = new ImdbPlugin();
@@ -160,7 +155,6 @@ public class ImdbPluginTest {
     @Test
     public void testImdb_Combined() {
         LOG.info("testImdb_Combined");
-        PropertiesUtil.setProperty("imdb.site", "us");
         PropertiesUtil.setProperty("imdb.full.info", "true");
         ImdbPlugin imdbPlugin = new ImdbPlugin();
 

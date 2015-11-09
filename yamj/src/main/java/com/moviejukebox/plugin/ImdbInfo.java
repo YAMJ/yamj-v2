@@ -22,31 +22,21 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.charset.Charset;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.ImdbSiteDataDefinition;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.YamjHttpClient;
-import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class ImdbInfo {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImdbInfo.class);
-    private static final String DEFAULT_SITE = "us";
     private static final String OBJECT_MOVIE = "movie";
     private static final String OBJECT_PERSON = "person";
     private static final String CATEGORY_ALL = "all";
@@ -56,80 +46,29 @@ public class ImdbInfo {
     private static final String SEARCH_EXACT = "exact";
     private static final String PAREN_LEFT = "("; // Use for searches - was %28
     private static final String PAREN_RIGHT = ")"; // Use for searches - was %29
-    protected static final Map<String, ImdbSiteDataDefinition> MATCHES_DATA_PER_SITE = new HashMap<>();
     private static final String UTF_8 = "UTF-8";
+    private static final String REGEX_START = "<link rel=\"canonical\" href=\"";
+    private static final String REGEX_TITLE = "title/(tt\\d+)/\"";
+    private static final String REGEX_NAME = "name/(nm\\d+)/\"";
+    private static final String IMDB_SITE = "http://www.imdb.com/";
+    
     private final String searchMatch = PropertiesUtil.getProperty("imdb.id.search.match", "regular");
     private final boolean searchVariable = PropertiesUtil.getBooleanProperty("imdb.id.search.variable", Boolean.TRUE);
-    private YamjHttpClient httpClient;
-    private String imdbSite;
-    private String preferredSearchEngine;
-    private ImdbSiteDataDefinition siteDef;
+    private final String preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
+    private final YamjHttpClient httpClient;
+    private final Pattern personRegex;
+    private final Pattern titleRegex;
+    private Charset charset;
 
     static {
-        MATCHES_DATA_PER_SITE.put("us", new ImdbSiteDataDefinition("http://www.imdb.com/", UTF_8, "Directed by|Director", "Cast", "Release Date", "Runtime", "Aspect Ratio", "Country",
-                "Company", "Genre", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writing credits|Writer", "Tagline", "original title"));
-
-        MATCHES_DATA_PER_SITE.put("fr", new ImdbSiteDataDefinition("http://www.imdb.fr/", UTF_8, "R&#xE9;alis&#xE9; par|R&#xE9;alisateur", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Aspect Ratio", "Pays",
-                "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes|Sc&#xE9;naristes", "Taglines", "original title"));
-
-        MATCHES_DATA_PER_SITE.put("es", new ImdbSiteDataDefinition("http://www.imdb.es/", UTF_8, "Dirigida por|Director", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Relaci&#xF3;n de Aspecto", "Pa&#xED;s",
-                "Compa&#xF1;&#xED;a", "G&#xE9;nero", "Quotes", "Trama", "Rated", "Clasificaci&#xF3;n", "Fecha de Estreno", "Escritores|Cr&#xE9;ditos del gui&#xF3;n", "Taglines", "original title"));
-
-        MATCHES_DATA_PER_SITE.put("de", new ImdbSiteDataDefinition("http://www.imdb.de/", UTF_8, "Regisseur|Regie", "Besetzung", "Premierendatum", "L&#xE4;nge", "Seitenverh&#xE4;ltnis", "Land",
-                "Firma", "Genre", "Quotes", "Handlung", "Rated", "Altersfreigabe", "Premierendatum", "Guionista|Buch", "Taglines", "Originaltitle"));
-
-        MATCHES_DATA_PER_SITE.put("it", new ImdbSiteDataDefinition("http://www.imdb.it/", UTF_8, "Regia di|Regista|Registi", "Cast", "Data di uscita", "Durata", "Aspect Ratio",
-                "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Divieti", "Data di uscita", "Sceneggiatore|Scritto da", "Taglines", "original title"));
-
-        MATCHES_DATA_PER_SITE.put("pt", new ImdbSiteDataDefinition("http://www.imdb.pt/", UTF_8, "Dirigido por|Diretor", "Elenco", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o", "Aspect Ratio",
-                "Pa&#xED;s", "Companhia", "G&#xEA;nero", "Quotes", "Argumento", "Rated", "Certifica&#xE7;&#xE3;o", "Data de Lan&#xE7;amento",
-                "Roteirista|Cr&#xE9;ditos como roteirista", "Taglines", "original title"));
-
-        // Use this as a workaround for English speakers abroad who get localised versions of imdb.com
-        MATCHES_DATA_PER_SITE.put("labs", new ImdbSiteDataDefinition("http://akas.imdb.com/", UTF_8, "Directed by|Director|Directors", "Cast", "Release Date", "Runtime", "Aspect Ratio", "Country",
-                "Company", "Genres", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writer|Writers|Writing credits", "Tagline", "original title"));
-
-        // TODO: Leaving this as labs.imdb.com for the time being, but will be updated to www.imdb.com
-        MATCHES_DATA_PER_SITE.put("us2", new ImdbSiteDataDefinition("http://labs.imdb.com/", UTF_8, "Directed by|Director|Directors", "Cast", "Release Date", "Runtime", "Aspect Ratio", "Country",
-                "Company", "Genres", "Quotes", "Plot", "Rated", "Certification", "Original Air Date", "Writing credits|Writer", "Tagline", "original title"));
-
-        // Not 100% sure these are correct
-        MATCHES_DATA_PER_SITE.put("fr2", new ImdbSiteDataDefinition("http://www.imdb.fr/", UTF_8, "R&#xE9;alis&#xE9; par|R&#xE9;alisateur", "Ensemble", "Date de sortie", "Dur&#xE9;e", "Aspect Ratio", "Pays",
-                "Soci&#xE9;t&#xE9;", "Genre", "Citation", "Intrigue", "Rated", "Classification", "Date de sortie", "Sc&#xE9;naristes|Sc&#xE9;naristes", "Taglines", "original title"));
-
-        MATCHES_DATA_PER_SITE.put("es2", new ImdbSiteDataDefinition("http://www.imdb.es/", UTF_8, "Dirigida por|Director", "Reparto", "Fecha de Estreno", "Duraci&#xF3;n", "Relaci&#xF3;n de Aspecto", "Pa&#xED;s",
-                "Compa&#xF1;&#xED;a", "G&#xE9;nero", "Citas", "Trama", "Rated", "Clasificaci&#xF3;n", "Fecha de Estreno", "Escritores|Cr&#xE9;ditos del gui&#xF3;n", "Taglines", "original title"));
-
-        MATCHES_DATA_PER_SITE.put("de2", new ImdbSiteDataDefinition("http://www.imdb.de/", UTF_8, "Regisseur|Regie", "Besetzung", "Premierendatum", "L&#xE4;nge", "Seitenverh&#xE4;ltnis", "Land",
-                "Firma", "Genre", "Nutzerkommentare", "Handlung", "Rated", "Altersfreigabe", "Premierendatum", "Drehbuchautor", "Unterhaltsames", "Originaltitle"));
-
-        MATCHES_DATA_PER_SITE.put("it2", new ImdbSiteDataDefinition("http://www.imdb.it/", UTF_8, "Regia di|Regista|Registi", "Attori", "Data di uscita", "Durata", "Aspect Ratio",
-                "Nazionalit&#xE0;", "Compagnia", "Genere", "Quotes", "Trama", "Rated", "Divieti", "Data di uscita", "Sceneggiatore|Scritto da", "Taglines", "original title"));
-
-        MATCHES_DATA_PER_SITE.put("pt2", new ImdbSiteDataDefinition("http://www.imdb.pt/", UTF_8, "Dirigido por|Diretor", "Elenco", "Data de Lan&#xE7;amento", "Dura&#xE7;&#xE3;o", "Aspect Ratio",
-                "Pa&#xED;s", "Companhia", "G&#xEA;nero", "Quotes", "Argumento", "Rated", "Certifica&#xE7;&#xE3;o", "Data de Lan&#xE7;amento",
-                "Roteirista|Cr&#xE9;ditos como roteirista", "Taglines", "original title"));
+        PropertiesUtil.warnDeprecatedProperty("imdb.site");
     }
-
+    
     public ImdbInfo() {
-        this(PropertiesUtil.getProperty("imdb.site", DEFAULT_SITE));
-    }
-
-    public ImdbInfo(final String imdbSite) {
-        this.imdbSite = imdbSite;
         this.httpClient = YamjHttpClientBuilder.getHttpClient();
-
-        preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
-        siteDef = MATCHES_DATA_PER_SITE.get(this.imdbSite);
-        if (siteDef == null) {
-            LOG.warn("No site definition for {} using the default instead {}", this.imdbSite, DEFAULT_SITE);
-            this.imdbSite = DEFAULT_SITE;
-            siteDef = MATCHES_DATA_PER_SITE.get(this.imdbSite);
-        }
-    }
-
-    public void setPreferredSearchEngine(String preferredSearchEngine) {
-        this.preferredSearchEngine = preferredSearchEngine;
+        this.personRegex = Pattern.compile(Pattern.quote(REGEX_START + IMDB_SITE + REGEX_NAME));
+        this.titleRegex = Pattern.compile(Pattern.quote(REGEX_START + IMDB_SITE + REGEX_TITLE));
+        this.charset = Charset.forName(UTF_8);
     }
 
     /**
@@ -185,15 +124,15 @@ public class ImdbInfo {
     public String getImdbPersonId(String personName, String movieId) {
         try {
             if (StringTools.isValidString(movieId)) {
-                StringBuilder sb = new StringBuilder(siteDef.getSite());
+                StringBuilder sb = new StringBuilder(IMDB_SITE);
                 sb.append("search/name?name=");
-                sb.append(URLEncoder.encode(personName, siteDef.getCharset().displayName())).append("&role=").append(movieId);
+                sb.append(URLEncoder.encode(personName, UTF_8)).append("&role=").append(movieId);
 
                 LOG.debug("Querying IMDB for {}", sb.toString());
                 String xml = httpClient.request(sb.toString());
 
                 // Check if this is an exact match (we got a person page instead of a results list)
-                Matcher titlematch = siteDef.getPersonRegex().matcher(xml);
+                Matcher titlematch = this.personRegex.matcher(xml);
                 if (titlematch.find()) {
                     LOG.debug("IMDb returned one match {}", titlematch.group(1));
                     return titlematch.group(1);
@@ -334,10 +273,10 @@ public class ImdbInfo {
          * Note: That even with exact matches there can be more than 1 hit, for example "Star Trek"
          */
 
-        StringBuilder sb = new StringBuilder(siteDef.getSite());
+        StringBuilder sb = new StringBuilder(IMDB_SITE);
         sb.append("find?q=");
         try {
-            sb.append(URLEncoder.encode(movieName, siteDef.getCharset().displayName()));
+            sb.append(URLEncoder.encode(movieName, UTF_8));
         } catch (UnsupportedEncodingException ex) {
             // Failed to encode the movie name for some reason!
             LOG.debug("Failed to encode movie name: {}", movieName);
@@ -373,9 +312,9 @@ public class ImdbInfo {
         }
 
         // Check if this is an exact match (we got a movie page instead of a results list)
-        Pattern titleRegex = siteDef.getPersonRegex();
+        Pattern titleRegex = this.personRegex;
         if (objectType.equals(OBJECT_MOVIE)) {
-            titleRegex = siteDef.getTitleRegex();
+            titleRegex = this.titleRegex;
         }
 
         Matcher titleMatch = titleRegex.matcher(xml);
@@ -408,7 +347,7 @@ public class ImdbInfo {
         } else {
             sb = new StringBuilder();
             try {
-                sb.append(URLEncoder.encode(movieName, siteDef.getCharset().displayName()).replace("+", " "));
+                sb.append(URLEncoder.encode(movieName, UTF_8).replace("+", " "));
             } catch (UnsupportedEncodingException ex) {
                 LOG.debug("Failed to encode movie name: {}", movieName);
                 sb.append(movieName);
@@ -479,39 +418,20 @@ public class ImdbInfo {
     }
 
     /**
-     * Get the current site definition
-     *
-     * @return
-     */
-    public ImdbSiteDataDefinition getSiteDef() {
-        return siteDef;
-    }
-
-    /**
-     * Get a specific site definition from the list
-     *
-     * @param requiredSiteDef
-     * @return The Site definition if found, null otherwise
-     */
-    public ImdbSiteDataDefinition getSiteDef(String requiredSiteDef) {
-        return MATCHES_DATA_PER_SITE.get(requiredSiteDef);
-    }
-
-    /**
-     * Get the name of the preferred search engine
-     *
-     * @return
-     */
-    public String getPreferredSearchEngine() {
-        return preferredSearchEngine;
-    }
-
-    /**
-     * Get the imdb site
+     * Get the IMDb site
      *
      * @return
      */
     public String getImdbSite() {
-        return imdbSite;
+        return IMDB_SITE;
+    }
+
+    /**
+     * Get the charset
+     *
+     * @return
+     */
+    public Charset getCharset() {
+        return charset;
     }
 }

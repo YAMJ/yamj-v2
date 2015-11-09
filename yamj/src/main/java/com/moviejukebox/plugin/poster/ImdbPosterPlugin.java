@@ -22,20 +22,15 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import java.io.IOException;
-import java.util.StringTokenizer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbInfo;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.YamjHttpClient;
-import com.moviejukebox.tools.YamjHttpClientBuilder;
+import com.moviejukebox.tools.*;
+import java.io.IOException;
+import java.util.StringTokenizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
 
@@ -83,21 +78,21 @@ public class ImdbPosterPlugin extends AbstractMoviePosterPlugin {
 
         try {
             if (StringTools.isValidString(id)) {
-                imdbXML = httpClient.request(imdbInfo.getSiteDef().getSite() + "title/" + id + "/", imdbInfo.getSiteDef().getCharset());
+                imdbXML = httpClient.request(imdbInfo.getImdbSite() + "title/" + id + "/", imdbInfo.getCharset());
 
                 StringTokenizer st;
 
                 // Use cast token to avoid internalization trouble
                 int castIndex, beginIndex;
-                castIndex = imdbXML.indexOf("<h3>" + imdbInfo.getSiteDef().getCast() + "</h3>");
+                castIndex = imdbXML.indexOf("<h3>Cast</h3>");
 
                 if (castIndex > -1) {
-                    // Use the old format
+                    // combined format 
                     beginIndex = imdbXML.indexOf("src=\"http://ia.media-imdb.com/images");
                     st = new StringTokenizer(imdbXML.substring(beginIndex + 5), "\"");
                 } else {
-                    // Try the new format
-                    castIndex = imdbXML.indexOf("<h2>" + imdbInfo.getSiteDef().getCast() + "</h2>");
+                    // normal format
+                    castIndex = imdbXML.indexOf("<h2>Cast</h2>");
                     beginIndex = imdbXML.indexOf("href='http://ia.media-imdb.com/images");
                     st = new StringTokenizer(imdbXML.substring(beginIndex + 6), "'");
                 }
