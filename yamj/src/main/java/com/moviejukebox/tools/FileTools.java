@@ -627,7 +627,7 @@ public final class FileTools {
         }
 
         if ("file".equals(url.getProtocol())) {
-            LOG.debug("Copy file from url '{}' to '{}'", url, imageFile.getAbsolutePath());
+            LOG.debug("Copy from url: '{}'", url);
             try (InputStream in = url.openStream();
                  OutputStream out = new FileOutputStream(imageFile))
              {
