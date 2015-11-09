@@ -29,11 +29,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.pojava.datetime.DateTime;
 import org.pojava.datetime.DateTimeConfig;
 import org.pojava.datetime.DateTimeConfigBuilder;
+import org.pojava.datetime.IDateTimeConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,18 +46,15 @@ public final class DateTimeTools {
     private static final String DATE_FORMAT_LONG_STRING = DATE_FORMAT_STRING + " HH:mm:ss";
     private static final Pattern DATE_COUNTRY = Pattern.compile("(.*)(\\s*?\\(\\w*\\))");
     private static final Pattern YEAR_PATTERN = Pattern.compile("(?:.*?)(\\d{4})(?:.*?)");
-    private static final DateTimeConfig DATETIME_CONFIG_DEFAULT;
-    private static final DateTimeConfig DATETIME_CONFIG_FALLBACK;
+    private static final IDateTimeConfig DATETIME_CONFIG_DEFAULT;
+    private static final IDateTimeConfig DATETIME_CONFIG_FALLBACK;
     
     static {
-        // create new configuration builder
-        DateTimeConfigBuilder builder = DateTimeConfigBuilder.newInstance();
-        // default configuration (also global)
-        builder.setDmyOrder(Boolean.FALSE);
-        DATETIME_CONFIG_DEFAULT = DateTimeConfig.fromBuilder(builder);
-        DateTimeConfig.setGlobalDefault(DATETIME_CONFIG_DEFAULT);
+        // default configuration
+        DATETIME_CONFIG_DEFAULT = DateTimeConfig.getGlobalDefault();
         // fall-back configuration
-        builder.setDmyOrder(Boolean.TRUE);
+        DateTimeConfigBuilder builder = DateTimeConfigBuilder.newInstance();
+        builder.setDmyOrder(!DATETIME_CONFIG_DEFAULT.isDmyOrder());
         DATETIME_CONFIG_FALLBACK = DateTimeConfig.fromBuilder(builder);
     }
 
@@ -213,7 +212,7 @@ public final class DateTimeTools {
      * @return
      */
     public static String parseDateTo(final String dateToParse, final String targetFormat) {
-        String parsedDateString = "";
+        String parsedDateString = StringUtils.EMPTY;
         Date parsedDate;
         try {
             parsedDate = parseStringToDate(dateToParse);
@@ -279,14 +278,13 @@ public final class DateTimeTools {
      * @param convertDate
      * @return
      */
-    private static Date convertStringDate(String convertDate, DateTimeConfig config) {
-        Date parsedDate;
+    private static Date convertStringDate(String convertDate, IDateTimeConfig config) {
+        Date parsedDate = null;
         try {
             parsedDate = DateTime.parse(convertDate, config).toDate();
             LOG.trace("Converted date '{}' using {} order", convertDate, (config.isDmyOrder() ? "DMY" : "MDY"));
         } catch (IllegalArgumentException ex) {
-            LOG.trace("Failed to convert date '{}' using {} order", convertDate, (config.isDmyOrder() ? "DMY" : "MDY"));
-            parsedDate = null;
+            LOG.debug("Failed to convert date '{}' using {} order", convertDate, (config.isDmyOrder() ? "DMY" : "MDY"));
         }
         return parsedDate;
     }
