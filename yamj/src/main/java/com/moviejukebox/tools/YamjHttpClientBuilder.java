@@ -29,7 +29,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -121,6 +120,7 @@ public class YamjHttpClientBuilder {
         return YAMJ_HTTP_CLIENT;
     }
 
+    @SuppressWarnings("resource")
     private static YamjHttpClient buildHttpClient() {
         LOG.trace("Create new YAMJ http client");
         

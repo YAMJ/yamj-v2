@@ -21,7 +21,6 @@ package net.sf.xmm.moviemanager.fileproperties;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,17 +65,14 @@ public class FilePropertiesMovie {
 
         _fileSize = Math.round((new File(filePath).length()) / 1024F / 1024F);
 
-        /* The input stream... */
-        RandomAccessFile dataStream = new RandomAccessFile(filePath, "r");
+        try (RandomAccessFile dataStream = new RandomAccessFile(filePath, "r")) {
 
-        /* Gets the header for filetype identification... */
-        int[] header = new int[4];
+            /* Gets the header for filetype identification... */
+            int[] header = new int[4];
 
-        for (int i = 0; i < header.length; i++) {
-            header[i] = dataStream.readUnsignedByte();
-        }
-
-        try {
+            for (int i = 0; i < header.length; i++) {
+                header[i] = dataStream.readUnsignedByte();
+            }
 
             /* Starts parsing the file... */
             fileProperties.process(dataStream);

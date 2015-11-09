@@ -24,52 +24,26 @@ package com.moviejukebox.reader;
 
 import static com.moviejukebox.tools.StringTools.isValidString;
 
+import com.moviejukebox.model.*;
+import com.moviejukebox.model.enumerations.CodecSource;
+import com.moviejukebox.model.enumerations.CodecType;
+import com.moviejukebox.model.enumerations.DirtyFlag;
+import com.moviejukebox.plugin.*;
+import com.moviejukebox.scanner.MovieFilenameScanner;
+import com.moviejukebox.tools.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
+import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.pojava.datetime.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-
-import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.EpisodeDetail;
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.enumerations.CodecSource;
-import com.moviejukebox.model.enumerations.CodecType;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.plugin.DatabasePluginController;
-import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.plugin.TheMovieDbPlugin;
-import com.moviejukebox.plugin.TheTvDBPlugin;
-import com.moviejukebox.scanner.MovieFilenameScanner;
-import com.moviejukebox.tools.AspectRatioTools;
-import com.moviejukebox.tools.DOMHelper;
-import com.moviejukebox.tools.DateTimeTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SubtitleTools;
-import com.moviejukebox.tools.SystemTools;
 
 /**
  * Class to read the NFO files
@@ -351,9 +325,9 @@ public final class MovieNFOReader {
             isTv = Boolean.FALSE;
         }
 
-        Node nMovie;
-        for (int loopMovie = 0; loopMovie < nlMovies.getLength(); loopMovie++) {
-            nMovie = nlMovies.item(loopMovie);
+        // Issue 2542: There should only be 1 movie/tvshow node in the NFO
+        if (nlMovies.getLength() > 0) {
+            Node nMovie = nlMovies.item(0);
             if (nMovie.getNodeType() == Node.ELEMENT_NODE) {
                 Element eCommon = (Element) nMovie;
 
@@ -517,9 +491,6 @@ public final class MovieNFOReader {
                 // Parse the video info
                 parseFileInfo(movie, DOMHelper.getElementByName(eCommon, "fileinfo"));
             }
-
-            // Issue 2542: There should only be 1 movie/tvshow node in the NFO
-            break;
         }
 
         // Parse the episode details
@@ -733,27 +704,20 @@ public final class MovieNFOReader {
         }
 
         Date parsedDate = null;
-        boolean failedToParse = false;
-
         try {
             parsedDate = DateTimeTools.parseStringToDate(parseDate);
-        } catch (IllegalArgumentException | ParseException ex) {
-            LOG.warn(SystemTools.getStackTrace(ex));
-            failedToParse = true;
-        }
-
-        if (failedToParse) {
+        } catch (IllegalArgumentException ex) {
             LOG.warn("Failed parsing NFO file for movie: {}. Please fix or remove it.", movie.getBaseFilename());
             LOG.warn("premiered or releasedate does not contain a valid date: {}", parseDate);
+            LOG.warn(SystemTools.getStackTrace(ex));
 
             if (OverrideTools.checkOverwriteReleaseDate(movie, NFO_PLUGIN_ID)) {
                 movie.setReleaseDate(parseDate, NFO_PLUGIN_ID);
             }
-
             return;
         }
 
-        if (StringTools.isValidString(parseDate)) {
+        if (parsedDate != null) {
             try {
                 if (OverrideTools.checkOverwriteReleaseDate(movie, NFO_PLUGIN_ID)) {
                     movie.setReleaseDate(DateTimeTools.convertDateToString(parsedDate, "yyyy-MM-dd"), NFO_PLUGIN_ID);
@@ -763,13 +727,8 @@ public final class MovieNFOReader {
                     movie.setYear(DateTimeTools.convertDateToString(parsedDate, "yyyy"), NFO_PLUGIN_ID);
                 }
             } catch (Exception ex) {
-                LOG.warn("Failed parsing NFO file for movie: {}. Please fix or remove it.", movie.getBaseFilename());
-                LOG.warn("premiered or releasedate does not contain a valid date: {}", parseDate);
+                LOG.warn("Failed formatting parsed date: {}", parsedDate);
                 LOG.warn(SystemTools.getStackTrace(ex));
-
-                if (OverrideTools.checkOverwriteReleaseDate(movie, NFO_PLUGIN_ID)) {
-                    movie.setReleaseDate(parseDate, NFO_PLUGIN_ID);
-                }
             }
         }
     }

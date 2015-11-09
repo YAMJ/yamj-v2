@@ -22,11 +22,8 @@
  */
 package com.moviejukebox.tools;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.GradientPaint;
-import java.awt.Graphics2D;
-import java.awt.Image;
+import com.jhlabs.image.PerspectiveFilter;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -35,18 +32,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
-
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
+import javax.imageio.*;
 import javax.imageio.stream.FileImageOutputStream;
-
-import org.apache.sanselan.ImageReadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.jhlabs.image.PerspectiveFilter;
 
 public final class GraphicTools {
 
@@ -64,9 +53,8 @@ public final class GraphicTools {
      * @param filename
      * @return
      * @throws IOException
-     * @throws org.apache.sanselan.ImageReadException
      */
-    public static BufferedImage loadJPEGImage(String filename) throws IOException, ImageReadException {
+    public static BufferedImage loadJPEGImage(String filename) throws IOException {
         return loadJPEGImage(new File(filename));
     }
 
@@ -75,10 +63,9 @@ public final class GraphicTools {
      *
      * @param fileImage
      * @return
-     * @throws java.io.FileNotFoundException
-     * @throws org.apache.sanselan.ImageReadException
+     * @throws IOException
      */
-    public static BufferedImage loadJPEGImage(File fileImage) throws FileNotFoundException, IOException, ImageReadException {
+    public static BufferedImage loadJPEGImage(File fileImage) throws IOException {
         if (fileImage.exists()) {
             JpegReader jr = new JpegReader();
             return jr.readImage(fileImage);
@@ -227,7 +214,7 @@ public final class GraphicTools {
         return bi;
     }
 
-    public static BufferedImage scaleToSizeBestFit(int nMaxWidth, int nMaxHeight, BufferedImage imgSrc) {
+    public static BufferedImage scaleToSizeBestFit(int nMaxWidth, BufferedImage imgSrc) {
         /* determine thumbnail size from WIDTH and HEIGHT */
         int imageWidth = imgSrc.getWidth(null);
         int imageHeight = imgSrc.getHeight(null);
@@ -316,7 +303,7 @@ public final class GraphicTools {
         BufferedImage gradient = createGradientMask(avatarWidth, avatarHeight, reflectionHeight, graphicType);
         BufferedImage buffer = createReflection(avatar, avatarWidth, avatarHeight, reflectionHeight);
 
-        applyAlphaMask(gradient, buffer, avatarWidth, avatarHeight);
+        applyAlphaMask(gradient, buffer, avatarHeight);
 
         return buffer;
     }
@@ -381,7 +368,7 @@ public final class GraphicTools {
         return buffer;
     }
 
-    public static void applyAlphaMask(BufferedImage gradient, BufferedImage buffer, int avatarWidth, int avatarHeight) {
+    public static void applyAlphaMask(BufferedImage gradient, BufferedImage buffer, int avatarHeight) {
         Graphics2D g2 = buffer.createGraphics();
         g2.setComposite(AlphaComposite.DstOut);
         g2.drawImage(gradient, null, 0, avatarHeight);

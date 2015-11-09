@@ -44,7 +44,7 @@ public class DateTimeToolsTest {
      * @throws java.lang.Exception
      */
     @Test
-    public void testConvertDateToString_Date() throws Exception {
+    public void testConvertDateToString_Date() {
         LOG.info("convertDateToString");
         Date convertDate = new Date(0);
         String result = DateTimeTools.convertDateToString(convertDate);

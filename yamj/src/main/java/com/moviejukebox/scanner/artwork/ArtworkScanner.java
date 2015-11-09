@@ -22,29 +22,6 @@
  */
 package com.moviejukebox.scanner.artwork;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.StringTokenizer;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.sanselan.ImageReadException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
@@ -54,13 +31,20 @@ import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.plugin.DefaultBackgroundPlugin;
 import com.moviejukebox.plugin.DefaultImagePlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.SkinProperties;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.WebBrowser;
+import com.moviejukebox.tools.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.*;
+import java.util.Map.Entry;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Scanner for artwork
@@ -441,10 +425,6 @@ public abstract class ArtworkScanner implements IArtworkScanner {
                 setArtworkUrl(movie, Movie.UNKNOWN);
                 returnValue = Boolean.FALSE;
             }
-        } catch (ImageReadException ex) {
-            LOG.debug("Failed to read: {}, Error: {}", originalFile.getAbsolutePath(), ex.getMessage());
-            LOG.error(SystemTools.getStackTrace(ex));
-            returnValue = Boolean.FALSE;
         } catch (IOException ex) {
             LOG.debug("Failed to process: {}, Error: {}", originalFile.getAbsolutePath(), ex.getMessage());
             LOG.error(SystemTools.getStackTrace(ex));
@@ -762,10 +742,9 @@ public abstract class ArtworkScanner implements IArtworkScanner {
             return Boolean.FALSE;
         }
 
-        try {
-            URL url = new URL(artworkImage.getUrl());
-            InputStream in = url.openStream();
-            ImageInputStream iis = ImageIO.createImageInputStream(in);
+        try (InputStream in = new URL(artworkImage.getUrl()).openStream();
+             ImageInputStream iis = ImageIO.createImageInputStream(in))
+        {
             reader.setInput(iis, Boolean.TRUE);
             urlWidth = reader.getWidth(0);
             urlHeight = reader.getHeight(0);

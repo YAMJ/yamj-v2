@@ -22,29 +22,13 @@
  */
 package com.moviejukebox.plugin;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.StringTokenizer;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.pojava.datetime.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.model.Comparator.FilmographyDateComparator;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.YamjHttpClientBuilder;
+import com.moviejukebox.tools.*;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.themoviedbapi.Compare;
 import com.omertron.themoviedbapi.MovieDbException;
@@ -60,14 +44,18 @@ import com.omertron.themoviedbapi.model.credits.CreditMovieBasic;
 import com.omertron.themoviedbapi.model.credits.MediaCreditCast;
 import com.omertron.themoviedbapi.model.credits.MediaCreditCrew;
 import com.omertron.themoviedbapi.model.media.MediaCreditList;
-import com.omertron.themoviedbapi.model.movie.MovieInfo;
-import com.omertron.themoviedbapi.model.movie.ProductionCompany;
-import com.omertron.themoviedbapi.model.movie.ProductionCountry;
-import com.omertron.themoviedbapi.model.movie.ReleaseInfo;
+import com.omertron.themoviedbapi.model.movie.*;
 import com.omertron.themoviedbapi.model.person.PersonCreditList;
 import com.omertron.themoviedbapi.model.person.PersonFind;
 import com.omertron.themoviedbapi.model.person.PersonInfo;
 import com.omertron.themoviedbapi.results.ResultList;
+import java.net.URL;
+import java.util.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Stuart.Boston
@@ -154,7 +142,6 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         return TMDB_PLUGIN_ID;
     }
 
-    @SuppressWarnings("null")
     @Override
     public boolean scan(Movie movie) {
         String imdbID = movie.getId(IMDB_PLUGIN_ID);

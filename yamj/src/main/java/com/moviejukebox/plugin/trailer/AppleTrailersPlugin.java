@@ -22,28 +22,20 @@
  */
 package com.moviejukebox.plugin.trailer;
 
+import com.moviejukebox.model.ExtraFile;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.net.*;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class AppleTrailersPlugin extends TrailerPlugin {
 
@@ -312,32 +304,31 @@ public class AppleTrailersPlugin extends TrailerPlugin {
         try {
             URL url = new URL(trailerUrl);
             HttpURLConnection connection = (HttpURLConnection) (url.openConnection(YamjHttpClientBuilder.getProxy()));
-            InputStream inputStream = connection.getInputStream();
-
-            byte[] buf = new byte[1024];
-            int len;
-            len = inputStream.read(buf);
-
-            // Check if too much data read, that this is the real url already
-            if (len == 1024) {
-                return trailerUrl;
+            try (InputStream inputStream = connection.getInputStream()) {
+                byte[] buf = new byte[1024];
+                int len;
+                len = inputStream.read(buf);
+    
+                // Check if too much data read, that this is the real url already
+                if (len == 1024) {
+                    return trailerUrl;
+                }
+    
+                String mov = new String(buf);
+    
+                int pos = 44;
+                StringBuilder realUrl = new StringBuilder();
+    
+                while (mov.charAt(pos) != 0) {
+                    realUrl.append(mov.charAt(pos));
+    
+                    pos++;
+                }
+    
+                String absRealURL = getAbsUrl(trailerUrl, realUrl.toString());
+    
+                return absRealURL;
             }
-
-            String mov = new String(buf);
-
-            int pos = 44;
-            StringBuilder realUrl = new StringBuilder();
-
-            while (mov.charAt(pos) != 0) {
-                realUrl.append(mov.charAt(pos));
-
-                pos++;
-            }
-
-            String absRealURL = getAbsUrl(trailerUrl, realUrl.toString());
-
-            return absRealURL;
-
         } catch (IOException ex) {
             LOG.error("Error : {}", ex.getMessage());
             LOG.error(SystemTools.getStackTrace(ex));

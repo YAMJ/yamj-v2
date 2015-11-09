@@ -19,13 +19,9 @@
  */
 package com.moviejukebox.tools;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -109,20 +105,11 @@ public class YamjHttpClient extends PoolingHttpClient {
     /**
      * Download the image for the specified URL into the specified file.
      *
-     * @param imageFile
-     * @param imageURL
+     * @param file
+     * @param url
      * @return
-     * @throws IOException
      */
-    public boolean downloadImage(File imageFile, String imageURL) throws IOException {
-
-        URL url;
-        if (imageURL.contains(" ")) {
-            url = new URL(imageURL.replaceAll(" ", "%20"));
-        } else {
-            url = new URL(imageURL);
-        }
-
+    public boolean downloadImage(File file, URL url) {
         LOG.debug("Attempting to download '{}'", url);
         boolean success = Boolean.FALSE;
         int retryCount = imageRetryCount;
@@ -134,7 +121,7 @@ public class YamjHttpClient extends PoolingHttpClient {
                     LOG.error("Failed to get content: {}", url);
                     success = Boolean.FALSE;
                 } else {
-                    try (OutputStream outputStream = new FileOutputStream(imageFile)) {
+                    try (OutputStream outputStream = new FileOutputStream(file)) {
                         entity.writeTo(outputStream);
                     }
                     success = Boolean.TRUE;
@@ -146,9 +133,9 @@ public class YamjHttpClient extends PoolingHttpClient {
         }
 
         if (success) {
-            LOG.debug("Successfully downloaded '{}' to '{}'", imageURL, imageFile.getAbsolutePath());
+            LOG.debug("Successfully downloaded '{}' to '{}'", url, file.getAbsolutePath());
         } else {
-            LOG.debug("Failed {} times to download image, aborting. URL: {}", imageRetryCount, imageURL);
+            LOG.debug("Failed {} times to download image, aborting. URL: {}", imageRetryCount, url);
         }
         
         return success;

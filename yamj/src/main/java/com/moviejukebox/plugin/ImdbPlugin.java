@@ -240,126 +240,116 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      */
     private boolean updateImdbMediaInfo(Movie movie) {
         String imdbID = movie.getId(IMDB_PLUGIN_ID);
-        boolean returnStatus = Boolean.FALSE;
-
-        try {
-            if (!imdbID.startsWith("tt")) {
-                imdbID = "tt" + imdbID;
-                // Correct the ID if it's wrong
-                movie.setId(IMDB_PLUGIN_ID, imdbID);
-            }
-
-            String xml = ImdbPlugin.this.getImdbUrl(movie);
-
-            // Add the combined tag to the end of the request if required
-            if (fullInfo) {
-                xml += "combined";
-            }
-
-            xml = getImdbData(xml);
-
-            if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW) && (xml.contains("\"tv-extra\"") || xml.contains("\"tv-series-series\""))) {
-                movie.setMovieType(Movie.TYPE_TVSHOW);
-                return Boolean.FALSE;
-            }
-
-            // We can work out if this is the new site by looking for " - IMDb" at the end of the title
-            String title = HTMLTools.extractTag(xml, "<title>");
-            if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW) && title.contains("(TV Series")) {
-                movie.setMovieType(Movie.TYPE_TVSHOW);
-                return Boolean.FALSE;
-            }
-
-            // Correct the title if "imdb" found
-            if (StringUtils.endsWithIgnoreCase(title, " - imdb")) {
-                title = title.substring(0, title.length() - 7);
-            } else if (StringUtils.startsWithIgnoreCase(title, "imdb - ")) {
-                title = title.substring(7);
-            }
-
-            // Remove the (VG) or (V) tags from the title
-            title = title.replaceAll(" \\([VG|V]\\)$", "");
-
-            //String yearPattern = "(?i).\\((?:TV.|VIDEO.)?(\\d{4})(?:/[^\\)]+)?\\)";
-            String yearPattern = "(?i).\\((?:TV.|VIDEO.)?(\\d{4})";
-            Pattern pattern = Pattern.compile(yearPattern, Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(title);
-            if (matcher.find()) {
-                // If we've found a year, set it in the movie
-                if (OverrideTools.checkOverwriteYear(movie, IMDB_PLUGIN_ID)) {
-                    movie.setYear(matcher.group(1), IMDB_PLUGIN_ID);
-                }
-
-                // Remove the year from the title
-                title = title.substring(0, title.indexOf(matcher.group(0)));
-            }
-
-            if (OverrideTools.checkOverwriteTitle(movie, IMDB_PLUGIN_ID)) {
-                movie.setTitle(title, IMDB_PLUGIN_ID);
-            }
-
-            if (OverrideTools.checkOverwriteOriginalTitle(movie, IMDB_PLUGIN_ID)) {
-                String originalTitle = title;
-                if (xml.contains("<span class=\"title-extra\">")) {
-                    originalTitle = HTMLTools.extractTag(xml, "<span class=\"title-extra\">", "</span>");
-                    if (originalTitle.contains("(original title)")) {
-                        originalTitle = originalTitle.replace(" <i>(original title)</i>", "");
-                    } else {
-                        originalTitle = title;
-                    }
-                }
-                movie.setOriginalTitle(originalTitle, IMDB_PLUGIN_ID);
-            }
-
-            ImdbSiteDataDefinition siteDef;
-            // If we are using sitedef=labs, there's no need to change it
-            if (imdbInfo.getImdbSite().equals("labs")) {
-                siteDef = this.siteDefinition;
-            } else {
-                // Overwrite the normal siteDef with a v2 siteDef if it exists
-                siteDef = imdbInfo.getSiteDef(imdbInfo.getImdbSite() + "2");
-                if (siteDef == null) {
-                    // c2 siteDef doesn't exist, so use labs to atleast return something
-                    LOG.error("No new format definition found for language '{}' using default language instead.", imdbInfo.getImdbSite());
-                    siteDef = imdbInfo.getSiteDef(DEFAULT_SITE_DEF);
-                }
-            }
-
-            // Update the movie information
-            updateInfo(movie, xml, siteDef);
-
-            // update common values
-            updateInfoCommon(movie, xml, siteDef);
-
-            if (scrapeAwards) {
-                updateAwards(movie);        // Issue 1901: Awards
-            }
-
-            if (scrapeBusiness) {
-                updateBusiness(movie);      // Issue 2012: Financial information about movie
-            }
-
-            if (scrapeTrivia) {
-                updateTrivia(movie);        // Issue 2013: Add trivia
-            }
-
-            // TODO: Move this check out of here, it doesn't belong.
-            if (downloadFanart && isNotValidString(movie.getFanartURL())) {
-                movie.setFanartURL(getFanartURL(movie));
-                if (isValidString(movie.getFanartURL())) {
-                    movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
-                }
-            }
-
-            // always true
-            returnStatus = Boolean.TRUE;
-
-        } catch (IOException error) {
-            LOG.error("Failed retrieving IMDb data for movie : {}", movie.getId(IMDB_PLUGIN_ID));
-            LOG.error(SystemTools.getStackTrace(error));
+        if (!imdbID.startsWith("tt")) {
+            imdbID = "tt" + imdbID;
+            // Correct the ID if it's wrong
+            movie.setId(IMDB_PLUGIN_ID, imdbID);
         }
 
-        return returnStatus;
+        String xml = ImdbPlugin.this.getImdbUrl(movie);
+
+        // Add the combined tag to the end of the request if required
+        if (fullInfo) {
+            xml += "combined";
+        }
+
+        xml = getImdbData(xml);
+
+        if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW) && (xml.contains("\"tv-extra\"") || xml.contains("\"tv-series-series\""))) {
+            movie.setMovieType(Movie.TYPE_TVSHOW);
+            return Boolean.FALSE;
+        }
+
+        // We can work out if this is the new site by looking for " - IMDb" at the end of the title
+        String title = HTMLTools.extractTag(xml, "<title>");
+        if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW) && title.contains("(TV Series")) {
+            movie.setMovieType(Movie.TYPE_TVSHOW);
+            return Boolean.FALSE;
+        }
+
+        // Correct the title if "imdb" found
+        if (StringUtils.endsWithIgnoreCase(title, " - imdb")) {
+            title = title.substring(0, title.length() - 7);
+        } else if (StringUtils.startsWithIgnoreCase(title, "imdb - ")) {
+            title = title.substring(7);
+        }
+
+        // Remove the (VG) or (V) tags from the title
+        title = title.replaceAll(" \\([VG|V]\\)$", "");
+
+        //String yearPattern = "(?i).\\((?:TV.|VIDEO.)?(\\d{4})(?:/[^\\)]+)?\\)";
+        String yearPattern = "(?i).\\((?:TV.|VIDEO.)?(\\d{4})";
+        Pattern pattern = Pattern.compile(yearPattern, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(title);
+        if (matcher.find()) {
+            // If we've found a year, set it in the movie
+            if (OverrideTools.checkOverwriteYear(movie, IMDB_PLUGIN_ID)) {
+                movie.setYear(matcher.group(1), IMDB_PLUGIN_ID);
+            }
+
+            // Remove the year from the title
+            title = title.substring(0, title.indexOf(matcher.group(0)));
+        }
+
+        if (OverrideTools.checkOverwriteTitle(movie, IMDB_PLUGIN_ID)) {
+            movie.setTitle(title, IMDB_PLUGIN_ID);
+        }
+
+        if (OverrideTools.checkOverwriteOriginalTitle(movie, IMDB_PLUGIN_ID)) {
+            String originalTitle = title;
+            if (xml.contains("<span class=\"title-extra\">")) {
+                originalTitle = HTMLTools.extractTag(xml, "<span class=\"title-extra\">", "</span>");
+                if (originalTitle.contains("(original title)")) {
+                    originalTitle = originalTitle.replace(" <i>(original title)</i>", "");
+                } else {
+                    originalTitle = title;
+                }
+            }
+            movie.setOriginalTitle(originalTitle, IMDB_PLUGIN_ID);
+        }
+
+        ImdbSiteDataDefinition siteDef;
+        // If we are using sitedef=labs, there's no need to change it
+        if (imdbInfo.getImdbSite().equals("labs")) {
+            siteDef = this.siteDefinition;
+        } else {
+            // Overwrite the normal siteDef with a v2 siteDef if it exists
+            siteDef = imdbInfo.getSiteDef(imdbInfo.getImdbSite() + "2");
+            if (siteDef == null) {
+                // c2 siteDef doesn't exist, so use labs to atleast return something
+                LOG.error("No new format definition found for language '{}' using default language instead.", imdbInfo.getImdbSite());
+                siteDef = imdbInfo.getSiteDef(DEFAULT_SITE_DEF);
+            }
+        }
+
+        // Update the movie information
+        updateInfo(movie, xml, siteDef);
+
+        // update common values
+        updateInfoCommon(movie, xml, siteDef);
+
+        if (scrapeAwards) {
+            updateAwards(movie);        // Issue 1901: Awards
+        }
+
+        if (scrapeBusiness) {
+            updateBusiness(movie);      // Issue 2012: Financial information about movie
+        }
+
+        if (scrapeTrivia) {
+            updateTrivia(movie);        // Issue 2013: Add trivia
+        }
+
+        // TODO: Move this check out of here, it doesn't belong.
+        if (downloadFanart && isNotValidString(movie.getFanartURL())) {
+            movie.setFanartURL(getFanartURL(movie));
+            if (isValidString(movie.getFanartURL())) {
+                movie.setFanartFilename(movie.getBaseName() + fanartToken + "." + fanartExtension);
+            }
+        }
+
+        // always true
+        return Boolean.TRUE;
     }
 
     /**
@@ -368,9 +358,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param movie
      * @param xml
      * @param siteDef
-     * @throws IOException
      */
-    private void updateInfo(Movie movie, String xml, ImdbSiteDataDefinition siteDef) throws IOException {
+    private void updateInfo(Movie movie, String xml, ImdbSiteDataDefinition siteDef) {
         // RATING
         if (movie.getRating(IMDB_PLUGIN_ID) == -1) {
             String srtRating = HTMLTools.extractTag(xml, "starbar-meta\">", HTML_DIV_END).replace(",", ".");
@@ -667,9 +656,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param xml
      * @param siteDef
      * @param imdbNewVersion
-     * @throws IOException
      */
-    private void updateInfoCommon(Movie movie, String xml, ImdbSiteDataDefinition siteDef) throws IOException {
+    private void updateInfoCommon(Movie movie, String xml, ImdbSiteDataDefinition siteDef) {
         // Store the release info page for release info & AKAs
         String releaseInfoXML = UNKNOWN;
         // Store the aka list
@@ -1032,9 +1020,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      *
      * @param movie
      * @return
-     * @throws IOException
      */
-    private boolean updateAwards(Movie movie) throws IOException {
+    private boolean updateAwards(Movie movie) {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
 
         String awardXML = getImdbData(siteDefinition, getImdbUrl(siteDefinition, imdbId, IMDB_TITLE, SUFFIX_AWARDS));
@@ -1102,9 +1089,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      *
      * @param movie
      * @return
-     * @throws IOException
      */
-    private boolean updateBusiness(Movie movie) throws IOException {
+    private boolean updateBusiness(Movie movie) {
         String imdbId = movie.getId(IMDB_PLUGIN_ID);
         String xml = getImdbData(getImdbUrl(siteDefinition, imdbId, IMDB_TITLE, SUFFIX_BUSINESS));
 
@@ -1146,7 +1132,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @return
      * @throws IOException
      */
-    private boolean updateTrivia(Movie movie) throws IOException {
+    private boolean updateTrivia(Movie movie) {
         if (triviaMax == 0) {
             return Boolean.FALSE;
         }
@@ -1242,7 +1228,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      *
      * @throws IOException
      */
-    protected void updateTVShowInfo(Movie movie) throws IOException {
+    protected void updateTVShowInfo(Movie movie) {
         scanTVShowTitles(movie);
     }
 
@@ -1392,8 +1378,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      */
     private boolean updateImdbPersonInfo(Person person) {
         String imdbID = person.getId(IMDB_PLUGIN_ID);
-        boolean returnStatus = Boolean.FALSE;
-
         if (!imdbID.startsWith("nm")) {
             imdbID = "nm" + imdbID;
             // Correct the ID if it's wrong
@@ -1401,27 +1385,20 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         LOG.info("Getting information for {} ({})", person.getName(), imdbID);
+        String xml = getImdbData(getImdbUrl(person));
 
-        try {
-            String xml = getImdbData(getImdbUrl(person));
-
-            // We can work out if this is the new site by looking for " - IMDb" at the end of the title
-            String title = HTMLTools.extractTag(xml, "<title>");
-            // Check for the new version and correct the title if found.
-            if (title.toLowerCase().endsWith(" - imdb")) {
-                title = title.substring(0, title.length() - 7);
-            }
-            if (title.toLowerCase().startsWith("imdb - ")) {
-                title = title.substring(7);
-            }
-            person.setName(title);
-
-            returnStatus = updateInfo(person, xml);
-        } catch (IOException error) {
-            LOG.error("Failed retrieving IMDb data for person : {}", imdbID);
-            LOG.error(SystemTools.getStackTrace(error));
+        // We can work out if this is the new site by looking for " - IMDb" at the end of the title
+        String title = HTMLTools.extractTag(xml, "<title>");
+        // Check for the new version and correct the title if found.
+        if (title.toLowerCase().endsWith(" - imdb")) {
+            title = title.substring(0, title.length() - 7);
         }
-        return returnStatus;
+        if (title.toLowerCase().startsWith("imdb - ")) {
+            title = title.substring(7);
+        }
+        person.setName(title);
+
+        return updateInfo(person, xml);
     }
 
     /**
@@ -1430,9 +1407,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * @param person
      * @param xml
      * @return
-     * @throws IOException
      */
-    private boolean updateInfo(Person person, String xml) throws IOException {
+    private boolean updateInfo(Person person, String xml) {
         person.setUrl(ImdbPlugin.this.getImdbUrl(person));
 
         if (xml.contains("Alternate Names:")) {
@@ -1581,9 +1557,8 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      *
      * @param person
      * @param sourceXml
-     * @throws IOException
      */
-    protected void processFilmography(Person person, String sourceXml) throws IOException {
+    protected void processFilmography(Person person, String sourceXml) {
         int beginIndex, endIndex;
 
         if (!sourceXml.contains("<h2>Filmography</h2>")) {
@@ -1876,7 +1851,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             data = httpClient.request(url, siteDef.getCharset());
         } catch (IOException ex) {
             LOG.warn("Failed to get web page ({}) from IMDB: {}", url, ex.getMessage(), ex);
-            data = null;
+            data = StringUtils.EMPTY;
         }
 
         return data;

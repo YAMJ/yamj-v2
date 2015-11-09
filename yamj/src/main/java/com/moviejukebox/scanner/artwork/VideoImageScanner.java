@@ -28,18 +28,13 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.scanner.AttachmentScanner;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.SkinProperties;
-import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.StringTokenizer;
-import org.apache.sanselan.ImageReadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -313,9 +308,6 @@ public final class VideoImageScanner {
                 imageOK = false;
             }
         } catch (IOException ex) {
-            LOG.trace("Failed to read image file: {}", ex.getMessage(), ex);
-            imageOK = false;
-        } catch (ImageReadException ex) {
             LOG.trace("Failed to read/process image: {}", ex.getMessage(), ex);
             imageOK = false;
         }

@@ -25,46 +25,6 @@ package com.moviejukebox.plugin;
 import static com.moviejukebox.tools.StringTools.cleanString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import net.anidb.Anime;
-import net.anidb.Episode;
-import net.anidb.checksum.Ed2kChecksum;
-import net.anidb.udp.AniDbException;
-import net.anidb.udp.UdpConnection;
-import net.anidb.udp.UdpConnectionException;
-import net.anidb.udp.UdpConnectionFactory;
-import net.anidb.udp.UdpReturnCodes;
-import net.anidb.udp.mask.AnimeFileMask;
-import net.anidb.udp.mask.AnimeMask;
-import net.anidb.udp.mask.FileMask;
-
-import org.pojava.datetime.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.helpers.DefaultHandler;
-
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.dao.ForeignCollection;
@@ -72,25 +32,42 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
-import com.j256.ormlite.stmt.DeleteBuilder;
-import com.j256.ormlite.stmt.PreparedDelete;
-import com.j256.ormlite.stmt.PreparedQuery;
-import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.*;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.DatabaseTable;
 import com.j256.ormlite.table.TableUtils;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.*;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.thetvdbapi.TheTVDBApi;
 import com.omertron.thetvdbapi.TvDbException;
 import com.omertron.thetvdbapi.model.Banners;
 import com.omertron.thetvdbapi.model.Series;
+import java.io.*;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import net.anidb.Anime;
+import net.anidb.Episode;
+import net.anidb.checksum.Ed2kChecksum;
+import net.anidb.udp.*;
+import net.anidb.udp.mask.AnimeFileMask;
+import net.anidb.udp.mask.AnimeMask;
+import net.anidb.udp.mask.FileMask;
+import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * AniDB Plugin
@@ -339,17 +316,9 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             if (af == null) {
                 return false;
             }
-            try {
-                final AnidbEpisode ae = getEpisodeByEid(af.getEpisodeId());
+            final AnidbEpisode ae = getEpisodeByEid(af.getEpisodeId());
+            if (ae != null) {
                 episodeNumber = ae.getEpisodeNumber();
-            } catch (UdpConnectionException error) {
-                processUdpError(error);
-            } catch (AniDbException error) {
-                LOG.info("Unknown AniDb Exception error");
-                LOG.error(SystemTools.getStackTrace(error));
-            } catch (SQLException error) {
-                LOG.error("Sql error when performing episode lookup");
-                LOG.error(SystemTools.getStackTrace(error));
             }
         } else {
             if (tvshowRegex != null) {
@@ -516,7 +485,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             // Check if we need a special mapping
             AnidbTvdbMapping mapping = null;
             try {
-                mapping = findMapping(anime, episodeNumber);
+                mapping = findMapping(anime);
             } catch (SQLException error) {
                 LOG.error("SQL error when looking for tvdb mappings");
                 LOG.error(SystemTools.getStackTrace(error));
@@ -621,7 +590,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
     }
 
-    private AnidbTvdbMapping findMapping(AnidbAnime anime, String epno) throws SQLException {
+    private AnidbTvdbMapping findMapping(AnidbAnime anime) throws SQLException {
         QueryBuilder<AnidbTvdbMapping, String> qb = mappingDao.queryBuilder();
         qb.where().eq(AnidbTvdbMapping.ANIDB_ID_COLUMN_NAME, anime.getAnimeId());
         PreparedQuery<AnidbTvdbMapping> pq = qb.prepare();
@@ -687,7 +656,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         return loadAnidbFile(hash, size);
     }
 
-    private AnidbEpisode getEpisodeByEid(long eid) throws UdpConnectionException, AniDbException, SQLException {
+    private AnidbEpisode getEpisodeByEid(long eid) {
         return loadAnidbEpisode(eid);
     }
 

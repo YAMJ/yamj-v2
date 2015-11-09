@@ -24,23 +24,16 @@ package com.moviejukebox.tools;
 
 import static com.moviejukebox.model.Movie.UNKNOWN;
 
+import com.moviejukebox.model.Movie;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.Movie;
 
 public final class HTMLTools {
 
@@ -495,10 +488,10 @@ public final class HTMLTools {
     }
 
     public static String extractTag(String src, String findStr, int skip, String separator, boolean checkDirty) {
-        int beginIndex = src.indexOf(findStr);
-
         String value = Movie.UNKNOWN;
-
+        if (src == null) return value;
+        
+        int beginIndex = src.indexOf(findStr);
         if (beginIndex >= 0) {
             StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), separator);
             for (int i = 0; i < skip; i++) {
@@ -516,18 +509,15 @@ public final class HTMLTools {
     }
 
     public static String extractTag(String src, String startStr, String endStr) {
+        if (src == null) return Movie.UNKNOWN;
+        
         int beginIndex = src.indexOf(startStr);
-
-        if (beginIndex < 0) {
-            return Movie.UNKNOWN;
-        }
+        if (beginIndex < 0) return Movie.UNKNOWN;
 
         try {
             String subString = src.substring(beginIndex + startStr.length());
             int endIndex = subString.indexOf(endStr);
-            if (endIndex < 0) {
-                return UNKNOWN;
-            }
+            if (endIndex < 0) return UNKNOWN;
             subString = subString.substring(0, endIndex);
             return HTMLTools.decodeHtml(subString.trim());
         } catch (Exception error) {
@@ -618,10 +608,11 @@ public final class HTMLTools {
      * @return string from html text which is plain text without html tags
      */
     public static String getTextAfterElem(String src, String findStr, int skip, int fromIndex) {
+        if (src == null) return Movie.UNKNOWN;
+        
         int beginIndex = src.indexOf(findStr, fromIndex);
-        if (beginIndex == -1) {
-            return Movie.UNKNOWN;
-        }
+        if (beginIndex == -1) return Movie.UNKNOWN;
+        
         StringTokenizer st = new StringTokenizer(src.substring(beginIndex + findStr.length()), "<");
         int i = 0;
         while (st.hasMoreElements()) {
@@ -642,6 +633,7 @@ public final class HTMLTools {
     }
 
     public static String replaceHtmlTags(String src, String replacement) {
+        if (src == null) return src;
         return src.replaceAll("\\<.*?>", replacement);
     }
 

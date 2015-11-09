@@ -22,22 +22,16 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.*;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
 
 public class FilmUpITPlugin extends ImdbPlugin {
 
@@ -57,13 +51,13 @@ public class FilmUpITPlugin extends ImdbPlugin {
     public String getMovieId(Movie movie) {
         String filmUpITId = movie.getId(FILMUPIT_PLUGIN_ID);
         if (StringTools.isNotValidString(filmUpITId)) {
-            filmUpITId = getMovieId(movie.getTitle(), movie.getYear());
+            filmUpITId = getMovieId(movie.getTitle());
             movie.setId(FILMUPIT_PLUGIN_ID, filmUpITId);
         }
         return filmUpITId;
     }
 
-    public String getMovieId(String title, String year) {
+    public String getMovieId(String title) {
         try {
             StringBuilder sb = new StringBuilder("http://filmup.leonardo.it/cgi-bin/search.cgi?ps=10&fmt=long&q=");
             sb.append(URLEncoder.encode(title.replace(' ', '+'), "iso-8859-1"));

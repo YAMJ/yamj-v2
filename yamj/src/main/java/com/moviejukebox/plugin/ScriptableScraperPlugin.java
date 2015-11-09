@@ -22,32 +22,20 @@
  */
 package com.moviejukebox.plugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.scriptablescraper.ItemSS;
-import com.moviejukebox.model.scriptablescraper.MathSS;
-import com.moviejukebox.model.scriptablescraper.ParseSS;
-import com.moviejukebox.model.scriptablescraper.RetrieveSS;
-import com.moviejukebox.model.scriptablescraper.ScriptableScraper;
-import com.moviejukebox.model.scriptablescraper.SectionContentSS;
-import com.moviejukebox.model.scriptablescraper.SectionSS;
+import com.moviejukebox.model.scriptablescraper.*;
 import com.moviejukebox.reader.ScriptableScraperXMLReader;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.WebBrowser;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Plugin to retrieve movie data based on ScriptableScraper XML file
@@ -140,7 +128,7 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
         }
 
         if (StringTools.isValidString(movieId)) {
-            retval = updateMediaInfo(mediaFile, movieId);
+            retval = updateMediaInfo(mediaFile);
         }
 
         return retval;
@@ -150,13 +138,13 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
         String movieId = movie.getId(SCRIPTABLESCRAPER_PLUGIN_ID);
 
         if (StringTools.isNotValidString(movieId)) {
-            movieId = getMovieId(movie.getOriginalTitle(), movie.getYear(), movie.getSeason());
+            movieId = getMovieId(movie.getOriginalTitle(), movie.getYear());
         }
 
         return movieId;
     }
 
-    public String getMovieId(String movieName, String year, int season) {
+    public String getMovieId(String movieName, String year) {
         String movieId = Movie.UNKNOWN;
 
         ssData.getSection().setVariable("search.title", movieName);
@@ -178,7 +166,7 @@ public class ScriptableScraperPlugin extends ImdbPlugin {
         return Movie.UNKNOWN;
     }
 
-    private boolean updateMediaInfo(Movie movie, String movieId) {
+    private boolean updateMediaInfo(Movie movie) {
         Collection<SectionContentSS> sections = ssData.getSections("action", "get_details");
         if (!sections.isEmpty()) {
             runSections(sections, "get_details");

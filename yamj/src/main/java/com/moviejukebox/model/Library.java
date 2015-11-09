@@ -28,24 +28,15 @@ import static com.moviejukebox.tools.FileTools.makeSafeFilename;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 
+import com.moviejukebox.model.Comparator.*;
+import com.moviejukebox.model.enumerations.DirtyFlag;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.tools.*;
 import java.io.File;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -53,20 +44,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.Comparator.CertificationComparator;
-import com.moviejukebox.model.Comparator.LastModifiedComparator;
-import com.moviejukebox.model.Comparator.MovieRatingComparator;
-import com.moviejukebox.model.Comparator.MovieReleaseComparator;
-import com.moviejukebox.model.Comparator.MovieSetComparator;
-import com.moviejukebox.model.Comparator.MovieTitleComparator;
-import com.moviejukebox.model.Comparator.MovieTop250Comparator;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.ThreadExecutor;
 
 public class Library implements Map<String, Movie> {
 
@@ -435,7 +412,7 @@ public class Library implements Map<String, Movie> {
         }
     }
 
-    protected static Map<String, Movie> buildIndexMasters(String prefix, Index index, List<Movie> indexMovies) {
+    protected static Map<String, Movie> buildIndexMasters(String prefix, Index index) {
         Map<String, Movie> masters = new HashMap<>();
         boolean dirtyInfo = Boolean.FALSE;
 
@@ -668,7 +645,7 @@ public class Library implements Map<String, Movie> {
 
             Map<String, Map<String, Movie>> dynamicIndexMasters = new HashMap<>();
             for (Map.Entry<String, Index> dynamicEntry : dynamicIndexes.entrySet()) {
-                Map<String, Movie> indexMasters = buildIndexMasters(dynamicEntry.getKey(), dynamicEntry.getValue(), indexMovies);
+                Map<String, Movie> indexMasters = buildIndexMasters(dynamicEntry.getKey(), dynamicEntry.getValue());
                 dynamicIndexMasters.put(dynamicEntry.getKey(), indexMasters);
 
                 for (Map.Entry<String, Index> indexesEntry : indexes.entrySet()) {

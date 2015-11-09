@@ -24,7 +24,7 @@ package com.moviejukebox.tools;
 
 import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
-import java.text.ParseException;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -44,30 +44,23 @@ public final class DateTimeTools {
     private static final String DATE_FORMAT_LONG_STRING = DATE_FORMAT_STRING + " HH:mm:ss";
     private static final Pattern DATE_COUNTRY = Pattern.compile("(.*)(\\s*?\\(\\w*\\))");
     private static final Pattern YEAR_PATTERN = Pattern.compile("(?:.*?)(\\d{4})(?:.*?)");
-    // DateTime Config
-    private static final DateTimeConfigBuilder DTC_BUILDER;
-    private static boolean dtcDmy;
-
+    private static final DateTimeConfig DATETIME_CONFIG_DEFAULT;
+    private static final DateTimeConfig DATETIME_CONFIG_FALLBACK;
+    
     static {
-        // Create the builder and assign a default DMY order
-        DTC_BUILDER = DateTimeConfigBuilder.newInstance();
-        setDmyOrder(Boolean.FALSE);
+        // create new configuration builder
+        DateTimeConfigBuilder builder = DateTimeConfigBuilder.newInstance();
+        // default configuration (also global)
+        builder.setDmyOrder(Boolean.FALSE);
+        DATETIME_CONFIG_DEFAULT = DateTimeConfig.fromBuilder(builder);
+        DateTimeConfig.setGlobalDefault(DATETIME_CONFIG_DEFAULT);
+        // fall-back configuration
+        builder.setDmyOrder(Boolean.TRUE);
+        DATETIME_CONFIG_FALLBACK = DateTimeConfig.fromBuilder(builder);
     }
 
     private DateTimeTools() {
         throw new UnsupportedOperationException("Class cannot be instantiated");
-    }
-
-    /**
-     * Set the DMY parsing to DMY (true) or MDY (false)
-     *
-     * @param order
-     */
-    private static void setDmyOrder(boolean order) {
-        LOG.debug("Setting date order to {}.", order ? "DMY" : "MDY");
-        dtcDmy = order;
-        DTC_BUILDER.setDmyOrder(dtcDmy);
-        DateTimeConfig.setGlobalDefaultFromBuilder(DTC_BUILDER);
     }
 
     public static String getDateFormatString() {
@@ -224,7 +217,7 @@ public final class DateTimeTools {
         Date parsedDate;
         try {
             parsedDate = parseStringToDate(dateToParse);
-        } catch (ParseException ex) {
+        } catch (IllegalArgumentException ex) {
             LOG.debug("Failed to parse date '{}', error: {}", dateToParse, ex.getMessage(), ex);
             return parsedDateString;
         }
@@ -243,9 +236,9 @@ public final class DateTimeTools {
      *
      * @param dateToParse
      * @return the date converted
-     * @throws ParseException
+     * @throws IllegalArgumentException
      */
-    public static Date parseStringToDate(final String dateToParse) throws IllegalArgumentException, ParseException {
+    public static Date parseStringToDate(final String dateToParse) throws IllegalArgumentException {
         String parsedDateString;
 
         if (StringTools.isNotValidString(dateToParse)) {
@@ -270,12 +263,11 @@ public final class DateTimeTools {
     }
 
     private static Date parseDateTime(String convertDate) {
-        Date parsedDate = convertStringDate(convertDate);
+        Date parsedDate = convertStringDate(convertDate, DATETIME_CONFIG_DEFAULT);
 
         if (parsedDate == null) {
-            // Switch the date order and try again
-            setDmyOrder(!dtcDmy);
-            parsedDate = convertStringDate(convertDate);
+            // try with fall-back configuration
+            parsedDate = convertStringDate(convertDate, DATETIME_CONFIG_FALLBACK);
         }
 
         return parsedDate;
@@ -287,13 +279,13 @@ public final class DateTimeTools {
      * @param convertDate
      * @return
      */
-    private static Date convertStringDate(String convertDate) {
+    private static Date convertStringDate(String convertDate, DateTimeConfig config) {
         Date parsedDate;
         try {
-            parsedDate = DateTime.parse(convertDate).toDate();
-            LOG.trace("Converted date '{}' using {} order", convertDate, dtcDmy ? "DMY" : "MDY");
+            parsedDate = DateTime.parse(convertDate, config).toDate();
+            LOG.trace("Converted date '{}' using {} order", convertDate, (config.isDmyOrder() ? "DMY" : "MDY"));
         } catch (IllegalArgumentException ex) {
-            LOG.debug("Failed to convert date '{}' using {} order", convertDate, dtcDmy ? "DMY" : "MDY");
+            LOG.debug("Failed to convert date '{}' using {} order", convertDate, (config.isDmyOrder() ? "DMY" : "MDY"));
             parsedDate = null;
         }
         return parsedDate;

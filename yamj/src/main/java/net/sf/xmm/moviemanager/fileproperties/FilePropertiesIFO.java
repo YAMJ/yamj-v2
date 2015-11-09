@@ -67,11 +67,11 @@ class FilePropertiesIFO extends FileProperties {
         }
     }
 
-    void processIfoFile(byte[] ifoFile) throws Exception {
+    void processIfoFile(byte[] ifoFile) {
         getRuntime(ifoFile);
     }
 
-    void getRuntime(byte[] ifoFile) throws Exception {
+    void getRuntime(byte[] ifoFile) {
 
         int[] runtime;
         int mainRuntime = 0;

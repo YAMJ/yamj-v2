@@ -22,32 +22,18 @@
  */
 package com.moviejukebox.plugin;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.*;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.StringTokenizer;
-
+import java.util.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 /**
  * Plugin to retrieve movie data from Russian animation database www.animator.ru
@@ -82,21 +68,17 @@ public class AnimatorPlugin extends ImdbPlugin {
             // Let's replace dash (-) by space ( ) in Title.
             String name = mediaFile.getTitle();
             name = name.replace('-', ' ');
-            animatorId = getAnimatorId(name, year, mediaFile.getSeason());
+            animatorId = getAnimatorId(name, year);
 
             if (StringTools.isValidString(year) && StringTools.isNotValidString(animatorId)) {
                 // Trying without specifying the year
-                animatorId = getAnimatorId(name, Movie.UNKNOWN, mediaFile.getSeason());
+                animatorId = getAnimatorId(name, Movie.UNKNOWN);
             }
             mediaFile.setId(ANIMATOR_PLUGIN_ID, animatorId);
         }
 
         if (StringTools.isValidString(animatorId)) {
-            try {
-                retval = updateAnimatorMediaInfo(mediaFile, animatorId);
-            } catch (IOException ex) {
-                LOG.warn("Failed to update media info for '{}'", animatorId, ex);
-            }
+            retval = updateAnimatorMediaInfo(mediaFile, animatorId);
         }
         return retval;
     }
@@ -123,7 +105,7 @@ public class AnimatorPlugin extends ImdbPlugin {
      *
      * This routine is base on a Google request.
      */
-    private String getAnimatorId(String movieName, String year, int season) {
+    private String getAnimatorId(String movieName, String year) {
         try {
             String animatorId = Movie.UNKNOWN;
             String allmultsId = Movie.UNKNOWN;
@@ -233,7 +215,7 @@ public class AnimatorPlugin extends ImdbPlugin {
     /**
      * Scan Animator html page for the specified movie
      */
-    private boolean updateAnimatorMediaInfo(Movie movie, String animatorId) throws IOException {
+    private boolean updateAnimatorMediaInfo(Movie movie, String animatorId) {
         try {
             String[] listID = animatorId.split(":");
             String newAnimatorId = listID[0];   // Get the first one
@@ -513,7 +495,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 movie.setPosterURL(posterURL);
                 movie.setPosterFilename(movie.getBaseName() + ".jpg");
             }
-        } catch (IOException error) {
+        } catch (Exception error) {
             LOG.error("Failed retreiving movie data from Animator : {}", animatorId);
             LOG.error(SystemTools.getStackTrace(error));
         }

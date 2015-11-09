@@ -22,16 +22,11 @@
  */
 package com.moviejukebox.scanner;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-
+import com.moviejukebox.tools.SystemTools;
+import java.io.*;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.tools.SystemTools;
 
 /**
  * @author Grael by using GPL Source from Mediterranean :
@@ -240,6 +235,7 @@ public class BDRipScanner {
         System.arraycopy(data, playlistIndex + 4,
                 playlistData, 0, playlistData.length);
 
+        @SuppressWarnings("cast")
         int streamFileCount
                 = (((playlistData[2] & 0xFF) << 8) + ((int) playlistData[3] & 0xFF));
 

@@ -22,108 +22,44 @@
  */
 package com.moviejukebox;
 
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
-import static com.moviejukebox.tools.PropertiesUtil.getBooleanProperty;
-import static com.moviejukebox.tools.PropertiesUtil.getProperty;
-import static com.moviejukebox.tools.PropertiesUtil.setPropertiesStreamName;
-import static com.moviejukebox.tools.PropertiesUtil.setProperty;
-import static com.moviejukebox.tools.StringTools.appendToPath;
-import static com.moviejukebox.tools.StringTools.isNotValidString;
-import static com.moviejukebox.tools.StringTools.isValidString;
-import static com.moviejukebox.tools.StringTools.tokenizeToArray;
+import static com.moviejukebox.tools.PropertiesUtil.*;
+import static com.moviejukebox.tools.StringTools.*;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
-import java.util.concurrent.Callable;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.stream.XMLStreamException;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.sanselan.ImageReadException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.Filmography;
-import com.moviejukebox.model.IndexInfo;
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.JukeboxStatistics;
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.MediaLibraryPath;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Person;
+import com.moviejukebox.model.*;
 import com.moviejukebox.model.Artwork.ArtworkType;
 import com.moviejukebox.model.Comparator.PersonComparator;
 import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.model.enumerations.JukeboxStatistic;
 import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.plugin.AniDbPlugin;
-import com.moviejukebox.plugin.DatabasePluginController;
-import com.moviejukebox.plugin.DefaultBackgroundPlugin;
-import com.moviejukebox.plugin.DefaultImagePlugin;
-import com.moviejukebox.plugin.MovieImagePlugin;
-import com.moviejukebox.plugin.MovieListingPlugin;
-import com.moviejukebox.plugin.MovieListingPluginBase;
-import com.moviejukebox.plugin.OpenSubtitlesPlugin;
-import com.moviejukebox.plugin.RottenTomatoesPlugin;
-import com.moviejukebox.plugin.TheMovieDbPlugin;
+import com.moviejukebox.plugin.*;
 import com.moviejukebox.reader.MovieJukeboxLibraryReader;
 import com.moviejukebox.reader.MovieJukeboxXMLReader;
-import com.moviejukebox.scanner.AttachmentScanner;
-import com.moviejukebox.scanner.MediaInfoScanner;
-import com.moviejukebox.scanner.MovieDirectoryScanner;
-import com.moviejukebox.scanner.MovieFilenameScanner;
-import com.moviejukebox.scanner.MovieNFOScanner;
-import com.moviejukebox.scanner.OutputDirectoryScanner;
-import com.moviejukebox.scanner.RecheckScanner;
-import com.moviejukebox.scanner.TrailerScanner;
-import com.moviejukebox.scanner.WatchedScanner;
-import com.moviejukebox.scanner.artwork.ArtworkScanner;
-import com.moviejukebox.scanner.artwork.BackdropScanner;
-import com.moviejukebox.scanner.artwork.BannerScanner;
-import com.moviejukebox.scanner.artwork.FanartScanner;
-import com.moviejukebox.scanner.artwork.FanartTvScanner;
-import com.moviejukebox.scanner.artwork.PhotoScanner;
-import com.moviejukebox.scanner.artwork.PosterScanner;
-import com.moviejukebox.scanner.artwork.VideoImageScanner;
-import com.moviejukebox.tools.FileLocationChange;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.FilteringLayout;
-import com.moviejukebox.tools.GitRepositoryState;
-import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.JukeboxProperties;
-import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.scanner.*;
+import com.moviejukebox.scanner.artwork.*;
+import com.moviejukebox.tools.*;
 import com.moviejukebox.tools.PropertiesUtil.KeywordMap;
-import com.moviejukebox.tools.ScanningLimit;
-import com.moviejukebox.tools.SkinProperties;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.ThreadExecutor;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.moviejukebox.writer.CompleteMoviesWriter;
 import com.moviejukebox.writer.MovieJukeboxHTMLWriter;
 import com.moviejukebox.writer.MovieJukeboxXMLWriter;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.stream.XMLStreamException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MovieJukebox {
 
@@ -483,7 +419,7 @@ public class MovieJukebox {
         }
     }
 
-    public MovieJukebox(String source, String jukeboxRoot) throws Exception {
+    public MovieJukebox(String source, String jukeboxRoot) {
         this.movieLibraryRoot = source;
         String jukeboxTempLocation = FileTools.getCanonicalPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp"));
 
@@ -1079,7 +1015,7 @@ public class MovieJukebox {
 
                                             if (mf.getArchiveName() == null) {
                                                 LOG.debug("MovieJukebox: Attempting to get archive name for {}", filename);
-                                                String archive = tools.miScanner.archiveScan(movie, filename);
+                                                String archive = tools.miScanner.archiveScan(filename);
                                                 if (archive != null) {
                                                     LOG.debug("MovieJukebox: Setting archive name to {}", archive);
                                                     mf.setArchiveName(archive);
@@ -1194,7 +1130,7 @@ public class MovieJukebox {
                                 ToolSet tools = threadTools.get();
 
                                 // Get person data (name, birthday, etc...), download photo
-                                updatePersonData(xmlReader, tools.miScanner, tools.backgroundPlugin, jukebox, p, tools.imagePlugin);
+                                updatePersonData(xmlReader, jukebox, p, tools.imagePlugin);
                                 library.addPerson(p);
 
                                 LOG.info("Finished: {} ({}/{})", personName, count, peopleCount);
@@ -1238,7 +1174,7 @@ public class MovieJukebox {
                                     ToolSet tools = threadTools.get();
 
                                     // Get person data (name, birthday, etc...), download photo and put to library
-                                    updatePersonData(xmlReader, tools.miScanner, tools.backgroundPlugin, jukebox, p, tools.imagePlugin);
+                                    updatePersonData(xmlReader, jukebox, p, tools.imagePlugin);
                                     library.addPerson(p);
 
                                     LOG.info("Finished: {} ({}/{})", personName, count, peopleCount);
@@ -1623,7 +1559,7 @@ public class MovieJukebox {
                             // ToolSet tools = threadTools.get();
                             // Update person XML files with computed index information
                             LOG.debug("Writing index data to person: {}", person.getName());
-                            xmlWriter.writePersonXML(jukebox, person, library);
+                            xmlWriter.writePersonXML(jukebox, person);
 
                             if (!skipIndexGeneration && !skipHtmlGeneration) {
                                 // write the person details HTML
@@ -1647,13 +1583,13 @@ public class MovieJukebox {
                     LOG.info("  Video indexes...");
                     htmlWriter.generateMoviesIndexHTML(jukebox, library, tasks);
                     LOG.info("  Category indexes...");
-                    htmlWriter.generateMoviesCategoryHTML(jukebox, library, "Categories", "categories.xsl", library.isDirty());
+                    htmlWriter.generateMoviesCategoryHTML(jukebox, "Categories", "categories.xsl", library.isDirty());
 
                     // Issue 1882: Separate index files for each category
                     if (separateCategories) {
                         LOG.info("  Separate category indexes...");
                         for (String categoryName : categoriesList) {
-                            htmlWriter.generateMoviesCategoryHTML(jukebox, library, categoryName, "category.xsl", library.isDirty());
+                            htmlWriter.generateMoviesCategoryHTML(jukebox, categoryName, "category.xsl", library.isDirty());
                         }
                     }
                 }
@@ -1896,7 +1832,7 @@ public class MovieJukebox {
      * @throws java.io.FileNotFoundException
      * @throws javax.xml.stream.XMLStreamException
      */
-    public boolean updateMovieData(MovieJukeboxXMLReader xmlReader, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie, Library library) throws FileNotFoundException, XMLStreamException {
+    public boolean updateMovieData(MovieJukeboxXMLReader xmlReader, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie, Library library) {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", Boolean.FALSE);
         boolean checkNewer = PropertiesUtil.getBooleanProperty("filename.nfo.checknewer", Boolean.TRUE);
 
@@ -2089,7 +2025,7 @@ public class MovieJukebox {
         return movie.isDirty(DirtyFlag.INFO) || movie.isDirty(DirtyFlag.NFO);
     }
 
-    public void updatePersonData(MovieJukeboxXMLReader xmlReader, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Person person, MovieImagePlugin imagePlugin) throws FileNotFoundException, XMLStreamException {
+    public void updatePersonData(MovieJukeboxXMLReader xmlReader, Jukebox jukebox, Person person, MovieImagePlugin imagePlugin) {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", Boolean.FALSE);
         person.setFilename();
         File xmlFile = FileTools.fileCache.getFile(jukebox.getJukeboxRootLocationDetails() + File.separator + peopleFolder + person.getFilename() + EXT_DOT_XML);
@@ -2217,8 +2153,6 @@ public class MovieJukebox {
                     bannerImage = imagePlugin.generate(movie, bannerImage, "banners", null);
                     GraphicTools.saveImageToDisk(bannerImage, tmpDestFilename);
                 }
-            } catch (ImageReadException ex) {
-                LOG.debug("MovieJukebox: Failed read banner: {} - Error: {}", origDestFilename, ex.getMessage());
             } catch (IOException ex) {
                 LOG.debug("MovieJukebox: Failed generate banner: {} - Error: {}", tmpDestFilename, ex.getMessage());
             }
@@ -2351,8 +2285,6 @@ public class MovieJukebox {
                 bi = GraphicTools.loadJPEGImage(destinationFile);
             } catch (IOException ex) {
                 LOG.warn("Error reading the thumbnail file: {} - Error: {}", destinationFile.getAbsolutePath(), ex.getMessage());
-            } catch (ImageReadException ex) {
-                LOG.warn("Error processing the thumbnail file: {} - Error: {}", destinationFile.getAbsolutePath(), ex.getMessage());
             }
 
             if (bi == null) {
@@ -2364,8 +2296,6 @@ public class MovieJukebox {
                     bi = GraphicTools.loadJPEGImage(tmpPosterFile);
                 } catch (IOException ex) {
                     LOG.warn("Error reading the dummy file: {} - Error: {}", tmpPosterFile.getAbsolutePath(), ex.getMessage());
-                } catch (ImageReadException ex) {
-                    LOG.warn("Error reading the dummy image file: {} - Error: {}", tmpPosterFile.getAbsolutePath(), ex.getMessage());
                 }
             }
 
@@ -2448,9 +2378,6 @@ public class MovieJukebox {
             } catch (IOException ex) {
                 LOG.warn("Error processing the poster file: {}", destinationFile.getAbsolutePath());
                 LOG.error(SystemTools.getStackTrace(ex));
-            } catch (ImageReadException ex) {
-                LOG.warn("Error reading the poster file: {}", destinationFile.getAbsolutePath());
-                LOG.error(SystemTools.getStackTrace(ex));
             }
 
             if (bi == null) {
@@ -2462,9 +2389,6 @@ public class MovieJukebox {
                     LOG.info("Using dummy poster image for {}", movie.getOriginalTitle());
                 } catch (IOException ex) {
                     LOG.warn("Error processing the dummy poster file: {}", tmpPosterFile.getAbsolutePath());
-                    LOG.error(SystemTools.getStackTrace(ex));
-                } catch (ImageReadException ex) {
-                    LOG.warn("Error reading the dummy poster file: {}", tmpPosterFile.getAbsolutePath());
                     LOG.error(SystemTools.getStackTrace(ex));
                 }
             }

@@ -28,18 +28,11 @@ import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.plugin.MovieImagePlugin;
 import com.moviejukebox.scanner.AttachmentScanner;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.StringTokenizer;
-import org.apache.sanselan.ImageReadException;
+import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,8 +203,6 @@ public final class BannerScanner {
                         movie.setWideBannerFilename(Movie.UNKNOWN);
                         movie.setBannerURL(Movie.UNKNOWN);
                     }
-                } catch (ImageReadException ex) {
-                    LOG.debug("Failed reading banner '{}', error: {}", fullBannerFilename, ex.getMessage());
                 } catch (IOException ex) {
                     LOG.debug("Failed loading banner '{}', error: {}", fullBannerFilename, ex.getMessage());
                 }
@@ -276,9 +267,6 @@ public final class BannerScanner {
                     }
                 } catch (IOException error) {
                     LOG.debug("Failed to download banner: {}", movie.getBannerURL());
-                    movie.setBannerURL(Movie.UNKNOWN);
-                } catch (ImageReadException ex) {
-                    LOG.debug("Failed to read banner: {}", movie.getBannerURL());
                     movie.setBannerURL(Movie.UNKNOWN);
                 }
             } else {

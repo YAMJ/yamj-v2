@@ -22,51 +22,32 @@
  */
 package com.moviejukebox.scanner.artwork;
 
+import com.moviejukebox.model.IImage;
+import com.moviejukebox.model.Jukebox;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.enumerations.DirtyFlag;
+import com.moviejukebox.plugin.*;
+import com.moviejukebox.scanner.AttachmentScanner;
+import com.moviejukebox.tools.*;
+import com.omertron.themoviedbapi.MovieDbException;
+import com.omertron.themoviedbapi.TheMovieDbApi;
+import com.omertron.themoviedbapi.enumeration.SearchType;
+import com.omertron.themoviedbapi.model.movie.MovieInfo;
+import com.omertron.themoviedbapi.results.ResultList;
+import com.omertron.thetvdbapi.model.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
-
+import java.util.*;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.sanselan.ImageReadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.IImage;
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.plugin.MovieImagePlugin;
-import com.moviejukebox.plugin.TheMovieDbPlugin;
-import com.moviejukebox.plugin.TheTvDBPlugin;
-import com.moviejukebox.scanner.AttachmentScanner;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.omertron.themoviedbapi.MovieDbException;
-import com.omertron.themoviedbapi.TheMovieDbApi;
-import com.omertron.themoviedbapi.enumeration.SearchType;
-import com.omertron.themoviedbapi.model.movie.MovieInfo;
-import com.omertron.themoviedbapi.results.ResultList;
-import com.omertron.thetvdbapi.model.Banner;
-import com.omertron.thetvdbapi.model.BannerType;
-import com.omertron.thetvdbapi.model.Banners;
-import com.omertron.thetvdbapi.model.Series;
 
 /**
  * Scanner for fanart files in local directory
@@ -240,7 +221,7 @@ public final class FanartScanner {
                         movie.setFanartFilename(Movie.UNKNOWN);
                         movie.setFanartURL(Movie.UNKNOWN);
                     }
-                } catch (IOException | ImageReadException ex) {
+                } catch (IOException ex) {
                     LOG.debug("Failed loading fanart: {} - {}", fullFanartFilename, ex.getMessage());
                 }
             } else {
@@ -281,7 +262,7 @@ public final class FanartScanner {
                         movie.setFanartFilename(Movie.UNKNOWN);
                         movie.setFanartURL(Movie.UNKNOWN);
                     }
-                } catch (IOException | ImageReadException error) {
+                } catch (IOException error) {
                     LOG.debug("Failed to download fanart: {} removing from movie details - {}", movie.getFanartURL(), error.getMessage());
                     movie.setFanartFilename(Movie.UNKNOWN);
                     movie.setFanartURL(Movie.UNKNOWN);

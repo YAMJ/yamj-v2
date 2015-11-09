@@ -25,54 +25,27 @@ package com.moviejukebox.plugin;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import com.moviejukebox.model.*;
+import com.moviejukebox.model.Comparator.ValueComparator;
+import com.moviejukebox.model.enumerations.MyColor;
+import com.moviejukebox.model.overlay.*;
+import com.moviejukebox.tools.*;
+import com.omertron.fanarttvapi.enumeration.FTArtworkType;
+import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.sanselan.ImageReadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.Award;
-import com.moviejukebox.model.AwardEvent;
-import com.moviejukebox.model.IMovieBasicInformation;
-import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Comparator.ValueComparator;
-import com.moviejukebox.model.enumerations.MyColor;
-import com.moviejukebox.model.overlay.ConditionOverlay;
-import com.moviejukebox.model.overlay.ImageOverlay;
-import com.moviejukebox.model.overlay.LogoOverlay;
-import com.moviejukebox.model.overlay.LogosBlock;
-import com.moviejukebox.model.overlay.PositionOverlay;
-import com.moviejukebox.model.overlay.StateOverlay;
-import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.SkinProperties;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.omertron.fanarttvapi.enumeration.FTArtworkType;
 
 public class DefaultImagePlugin implements MovieImagePlugin {
 
@@ -262,8 +235,8 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         boolean addOverlay = PropertiesUtil.getBooleanProperty(imageType + ".overlay", Boolean.FALSE);
 
         // Specific Properties (dependent upon the imageType)
-        int imageWidth = PropertiesUtil.getIntProperty(imageType + ".width", 400);
-        int imageHeight = PropertiesUtil.getIntProperty(imageType + ".height", 600);
+        final int imageWidth = PropertiesUtil.getIntProperty(imageType + ".width", 400);
+        final int imageHeight = PropertiesUtil.getIntProperty(imageType + ".height", 600);
         addHDLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoHD", Boolean.FALSE);
         addTVLogo = PropertiesUtil.getBooleanProperty(imageType + ".logoTV", Boolean.FALSE);
 
@@ -436,7 +409,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 // Don't resize if the factor is the same
                 if (rcqFactor > 1.00f) {
                     //roundCorner quality resizing
-                    bi = GraphicTools.scaleToSizeStretch((int) imageWidth, (int) imageHeight, bi);
+                    bi = GraphicTools.scaleToSizeStretch(imageWidth, imageHeight, bi);
                 }
             }
 
@@ -886,9 +859,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                                 state.getWidth().matches(D_PLUS) ? Integer.parseInt(state.getWidth()) : biSet.getWidth(), state.getHeight().matches(D_PLUS) ? Integer.parseInt(state.getHeight()) : biSet.getHeight(), null);
                         g2d.dispose();
                     } catch (FileNotFoundException ex) {
-                        LOG.warn("Failed to load {}{}, please ensure it is valid", overlayResources, filename);
-                    } catch (ImageReadException ex) {
-                        LOG.warn("Failed to read {}{}, please ensure it is valid", overlayResources, filename);
+                        LOG.warn("Failed to load {} {}, please ensure it is valid", overlayResources, filename);
                     } catch (IOException ex) {
                         LOG.warn("Failed drawing overlay to image file: Please check that {} is in the resources directory.", filename);
                     }
@@ -956,8 +927,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             g2d.dispose();
         } catch (FileNotFoundException ex) {
             LOG.warn("Failed to load {}, please ensure it is valid", logoFile);
-        } catch (ImageReadException ex) {
-            LOG.warn("Failed to read {}, please ensure it is valid", FILENAME_SUBTITLE);
         } catch (IOException ex) {
             LOG.warn("Failed drawing SubTitle logo to thumbnail file: Please check that {} is in the resources directory.", FILENAME_SUBTITLE);
         }
@@ -1019,8 +988,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             g2d.dispose();
         } catch (FileNotFoundException ex) {
             LOG.warn("Failed to load {}{}, please ensure it is valid", overlayResources, logoFilename);
-        } catch (ImageReadException ex) {
-            LOG.warn("Failed to read {}, please ensure it is valid", logoFilename);
         } catch (IOException ex) {
             LOG.warn("Failed drawing HD logo to thumbnail file. Please check that {} is in the resources directory.", logoFilename);
         }
@@ -1055,8 +1022,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 g2d.dispose();
             } catch (FileNotFoundException ex) {
                 LOG.warn("Failed to load {}, please ensure it is valid", FILENAME_TV);
-            } catch (ImageReadException ex) {
-                LOG.warn("Failed to read {}, please ensure it is valid", FILENAME_TV);
             } catch (IOException error) {
                 LOG.warn("Failed drawing TV logo to thumbnail file: Please check that {} is in the resources directory.", FILENAME_TV);
                 LOG.error(SystemTools.getStackTrace(error));
@@ -1116,8 +1081,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             return returnBI;
         } catch (FileNotFoundException ex) {
             LOG.warn("Failed to load {}, please ensure it is valid", overlayFilename);
-        } catch (ImageReadException ex) {
-            LOG.warn("Failed to read {}, please ensure it is valid", overlayFilename);
         } catch (IOException ex) {
             LOG.warn("Failed drawing overlay to {}. Please check that {} is in the resources directory.", movie.getBaseName(), overlayFilename);
         }
@@ -1207,8 +1170,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 g2d.dispose();
             } catch (FileNotFoundException ex) {
                 LOG.warn("Failed to load {}, please ensure it is valid", languageFilename);
-            } catch (ImageReadException ex) {
-                LOG.warn("Failed to read {}, please ensure it is valid", languageFilename);
             } catch (IOException ex) {
                 LOG.warn("Exception drawing Language logo to thumbnail file '{}': {}", movie.getBaseName(), ex.getMessage());
                 LOG.warn("Please check that language specific graphic ({}) is in the resources/languages directory.", languageFilename);
@@ -1320,8 +1281,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 g2d.dispose();
             } catch (FileNotFoundException ex) {
                 LOG.warn("Failed to load {}{}, please ensure it is valid", overlayResources, filenames[currentFilenameNumber]);
-            } catch (ImageReadException ex) {
-                LOG.warn("Failed to read {}, please ensure it is valid", filenames[currentFilenameNumber]);
             } catch (IOException ex) {
                 LOG.warn("Failed drawing overlay block logo ({}) to thumbnail file: {}", filenames[currentFilenameNumber], movie.getBaseName());
             }
@@ -1345,8 +1304,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             g2d.dispose();
         } catch (FileNotFoundException ex) {
             LOG.warn("Failed to load {}, please ensure it is valid", FILENAME_SET);
-        } catch (ImageReadException ex) {
-            LOG.warn("Failed to read {}, please ensure it is valid", FILENAME_SET);
         } catch (IOException error) {
             LOG.warn("Failed drawing set logo to thumbnail for {}", movie.getBaseFilename());
             LOG.warn("Please check that set graphic ({}) is in the resources directory. ", FILENAME_SET, error.getMessage());
@@ -1380,10 +1337,6 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      */
     protected String getResourcesPath() {
         return overlayResources;
-    }
-
-    protected BufferedImage drawPerspective(Identifiable movie, BufferedImage bi) {
-        return bi;
     }
 
     private BufferedImage drawText(BufferedImage bi, String outputText, boolean verticalAlign) {

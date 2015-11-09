@@ -22,25 +22,16 @@
  */
 package com.moviejukebox.plugin;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.*;
+import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
-import org.apache.sanselan.ImageReadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.SkinProperties;
-import com.moviejukebox.tools.StringTools;
 
 /**
  * @author altman.matthew
@@ -247,8 +238,6 @@ public class DefaultBackgroundPlugin implements MovieImagePlugin {
             g2BI.dispose();
 
             return returnBI;
-        } catch (ImageReadException ex) {
-            LOG.warn("Failed to read {}, please ensure it is valid", overlayFilename);
         } catch (IOException ex) {
             LOG.warn("Failed drawing overlay to {}. Please check that overlay_fanart_{}.png is in the resources directory.", movie.getBaseName(), source);
         }

@@ -22,51 +22,28 @@
  */
 package com.moviejukebox.scanner;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.moviejukebox.model.Codec;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.enumerations.CodecSource;
 import com.moviejukebox.model.enumerations.CodecType;
 import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.tools.AspectRatioTools;
-import com.moviejukebox.tools.DateTimeTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SubtitleTools;
-import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.*;
 import com.mucommander.file.AbstractFile;
 import com.mucommander.file.ArchiveEntry;
 import com.mucommander.file.FileFactory;
 import com.mucommander.file.impl.iso.IsoArchiveFile;
+import java.io.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import net.sf.xmm.moviemanager.fileproperties.FilePropertiesMovie;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Grael
@@ -381,6 +358,7 @@ public class MediaInfoScanner {
         }
     }
 
+    @SuppressWarnings("resource")
     protected MediaInfoStream createStream(String movieFilePath) throws IOException {
         if (MI_READ_FROM_FILE) {
             // check file
@@ -924,7 +902,7 @@ public class MediaInfoScanner {
         return codec;
     }
 
-    public String archiveScan(Movie currentMovie, String movieFilePath) {
+    public String archiveScan(String movieFilePath) {
         if (!IS_ACTIVATED) {
             return null;
         }
@@ -947,25 +925,23 @@ public class MediaInfoScanner {
             Process p = pb.start();
 
             String mediaArchive;
-            try (BufferedReader input = new BufferedReader(
-                    new InputStreamReader(
-                            p.getInputStream()))) {
-                        String line;
-                        mediaArchive = null;
-                        while ((line = localInputReadLine(input)) != null) {
-                            Pattern patternArchive
-                                    = Pattern.compile("^\\s*\\d+\\s(.*)$");
-                            Matcher m = patternArchive.matcher(line);
-                            if (m.find() && (m.groupCount() == 1)) {
-                                mediaArchive = m.group(1);
-                            }
-                        }
+            try (BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+                String line;
+                mediaArchive = null;
+                while ((line = localInputReadLine(input)) != null) {
+                    Pattern patternArchive
+                            = Pattern.compile("^\\s*\\d+\\s(.*)$");
+                    Matcher m = patternArchive.matcher(line);
+                    if (m.find() && (m.groupCount() == 1)) {
+                        mediaArchive = m.group(1);
                     }
+                }
+            }
 
-                    LOG.debug("Returning with archivename {}", mediaArchive);
+            LOG.debug("Returning with archivename {}", mediaArchive);
 
-                    return mediaArchive;
-
+            return mediaArchive;
+            
         } catch (IOException error) {
             LOG.error(SystemTools.getStackTrace(error));
         }

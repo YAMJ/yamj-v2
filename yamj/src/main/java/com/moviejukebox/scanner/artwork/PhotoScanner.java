@@ -26,19 +26,11 @@ import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.plugin.MovieImagePlugin;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.GraphicTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.SkinProperties;
-import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.StringTokenizer;
-import org.apache.sanselan.ImageReadException;
+import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -160,7 +152,7 @@ public final class PhotoScanner {
                         person.setPhotoFilename(Movie.UNKNOWN);
                         person.setPhotoURL(Movie.UNKNOWN);
                     }
-                } catch (IOException | ImageReadException ex) {
+                } catch (IOException ex) {
                     LOG.debug("Failed to download/process photo: {}, error: {}", person.getPhotoURL(), ex.getMessage());
                     person.setPhotoURL(Movie.UNKNOWN);
                 }

@@ -22,37 +22,18 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.*;
+import com.moviejukebox.tools.*;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.StringTokenizer;
-
+import java.text.*;
+import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.CSVWriter;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-
-
-public class MovieListingPluginCustomCsv extends MovieListingPluginBase implements MovieListingPlugin {
+public class MovieListingPluginCustomCsv extends MovieListingPluginBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieListingPluginCustomCsv.class);
     private List<String> mFields;

@@ -24,25 +24,9 @@ package com.moviejukebox.tools;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -458,10 +442,6 @@ public final class PropertiesUtil {
      * Write the properties out to a file
      */
     public static void writeProperties() {
-        FileOutputStream fos = null;
-        OutputStreamWriter osw = null;
-        Writer out = null;
-
         // Save the properties in order
         List<String> propertiesList = new ArrayList<>();
         for (Object propertyObject : PROPS.keySet()) {
@@ -470,13 +450,12 @@ public final class PropertiesUtil {
         // Sort the properties
         Collections.sort(propertiesList);
 
-        try {
-            LOG.debug("Writing skin preferences file to {}", getPropertiesFilename(Boolean.TRUE));
-
-            fos = new FileOutputStream(getPropertiesFilename(Boolean.TRUE));
-            osw = new OutputStreamWriter(fos, "UTF-8");
-            out = new BufferedWriter(osw);
-
+        LOG.debug("Writing skin preferences file to {}", getPropertiesFilename(Boolean.TRUE));
+        try (FileOutputStream fos = new FileOutputStream(getPropertiesFilename(Boolean.TRUE));
+             OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+             Writer out = new BufferedWriter(osw))
+        {
+        
             out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             out.write("<!-- This file is written automatically by YAMJ -->\n");
             out.write("<!-- Last updated: " + (new Date()) + " -->\n");
@@ -489,40 +468,12 @@ public final class PropertiesUtil {
                     out.write("    <xsl:param name=\"" + property + "\" />\n");
                 }
             }
-
             out.write("</xsl:stylesheet>\n");
             out.flush();
         } catch (IOException error) {
             // Can't write to file
             LOG.error("Can't write to file");
             LOG.error(SystemTools.getStackTrace(error));
-        } finally {
-            if (out != null) {
-                try {
-                    out.flush();
-                    out.close();
-                } catch (IOException error) {
-                    // ignore this error
-                }
-            }
-
-            if (osw != null) {
-                try {
-                    osw.flush();
-                    osw.close();
-                } catch (IOException error) {
-                    // ignore this error
-                }
-            }
-
-            if (fos != null) {
-                try {
-                    fos.flush();
-                    fos.close();
-                } catch (IOException error) {
-                    // ignore this error
-                }
-            }
         }
     }
 

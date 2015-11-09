@@ -22,25 +22,17 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Person;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.tools.*;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.SearchEngineTools;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.YamjHttpClient;
-import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 /**
  * @author Durin
@@ -76,7 +68,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             }
             if (StringTools.isNotValidString(ofdbId)) {
                 // try by title and year
-                ofdbId = getMovieId(movie.getTitle(), movie.getYear(), movie.getSeason());
+                ofdbId = getMovieId(movie.getTitle(), movie.getYear());
             }
             movie.setId(OFDB_PLUGIN_ID, ofdbId);
         }
@@ -84,10 +76,6 @@ public class OfdbPlugin implements MovieDatabasePlugin {
     }
 
     public String getMovieId(String title, String year) {
-        return getMovieId(title, year, -1);
-    }
-
-    public String getMovieId(String title, String year, int season) {
         // try with OFDb search
         String ofdbId = getObdbIdByTitleAndYear(title, year);
         if (StringTools.isNotValidString(ofdbId)) {

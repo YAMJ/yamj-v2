@@ -22,20 +22,14 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.FilmUpITPlugin;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.YamjHttpClient;
-import com.moviejukebox.tools.YamjHttpClientBuilder;
+import com.moviejukebox.tools.*;
+import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
 
@@ -58,7 +52,7 @@ public class FilmUpItPosterPlugin extends AbstractMoviePosterPlugin {
 
     @Override
     public String getIdFromMovieInfo(String title, String year) {
-        return filmupitPlugin.getMovieId(title, year);
+        return filmupitPlugin.getMovieId(title);
     }
 
     @Override

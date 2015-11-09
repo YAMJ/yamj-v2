@@ -24,12 +24,8 @@
  */
 package net.sf.xmm.moviemanager.fileproperties;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.StringTokenizer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +61,7 @@ abstract class FileProperties {
     /**
      * Processes a file from the given DataInputStream.
      */
+    @SuppressWarnings("unused")
     protected void process(RandomAccessFile dataStream) throws Exception {
         // nothing to do
     }
@@ -72,35 +69,35 @@ abstract class FileProperties {
     /**
      * Reads an unsigned 8-bit integer.
      */
-    protected int readUnsignedByte(byte[] b, int offset) throws Exception {
+    protected int readUnsignedByte(byte[] b, int offset)  {
         return b[offset];
     }
 
     /**
      * Reads an unsigned 16-bit integer.
      */
-    protected int readUnsignedInt16(byte[] b, int offset) throws Exception {
+    protected int readUnsignedInt16(byte[] b, int offset) {
         return (b[offset] | (b[offset + 1] << 8));
     }
 
     /**
      * Reads an unsigned 32-bit integer.
      */
-    protected int readUnsignedInt32(byte[] b, int offset) throws Exception {
+    protected int readUnsignedInt32(byte[] b, int offset) {
         return (readUnsignedInt16(b, offset) | (readUnsignedInt16(b, offset + 2) << 16));
     }
 
     /**
      * Returns a 16-bit integer.
      */
-    protected int getUnsignedInt16(int byte1, int byte2) throws Exception {
+    protected int getUnsignedInt16(int byte1, int byte2) {
         return (byte2 | (byte1 << 8));
     }
 
     /**
      * Returns a 16-bit integer.
      */
-    protected int getUnsignedInt16(byte byte1, byte byte2) throws Exception {
+    protected int getUnsignedInt16(byte byte1, byte byte2) {
 //        return (new Byte(byte2).intValue() | new Byte(byte1).intValue() << 8);
         return (Integer.valueOf(byte2) | Integer.valueOf(byte1) << 8);
     }
@@ -108,7 +105,7 @@ abstract class FileProperties {
     /**
      * Returns an unsigned 32-bit integer.
      */
-    protected int getUnsignedInt32(byte byte1, byte byte2) throws Exception {
+    protected int getUnsignedInt32(byte byte1, byte byte2) {
 //        return (new Byte(byte2).intValue() | new Byte(byte1).intValue() << 16);
         return (Integer.valueOf(byte2) | Integer.valueOf(byte1) << 16);
     }
@@ -116,7 +113,7 @@ abstract class FileProperties {
     /**
      * Returns an unsigned 32-bit integer.
      */
-    protected int getUnsignedInt32(int byte1, int byte2) throws Exception {
+    protected int getUnsignedInt32(int byte1, int byte2) {
         return (byte1 | byte2 << 16);
     }
 
@@ -185,7 +182,7 @@ abstract class FileProperties {
     /**
      * Returns the ascii value of id
      */
-    String fromByteToAscii(int id, int numberOfBytes) throws Exception {
+    String fromByteToAscii(int id, int numberOfBytes) {
         /* Transforms the id in a string... */
         StringBuilder buffer = new StringBuilder(4);
         int newId = id;

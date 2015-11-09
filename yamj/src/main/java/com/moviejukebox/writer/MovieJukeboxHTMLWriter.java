@@ -22,54 +22,26 @@
  */
 package com.moviejukebox.writer;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import com.moviejukebox.model.*;
+import com.moviejukebox.model.enumerations.DirtyFlag;
+import com.moviejukebox.tools.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import com.moviejukebox.model.IndexInfo;
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.tools.DOMHelper;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.SkinProperties;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.ThreadExecutor;
 
 /**
  * Generate HTML pages from XML movies and indexes
@@ -117,7 +89,6 @@ public class MovieJukeboxHTMLWriter {
      * @param jukebox
      * @param movie
      */
-    @SuppressWarnings("null")
     public void generateMovieDetailsHTML(Jukebox jukebox, Movie movie) {
         try {
             String baseName = movie.getBaseName();
@@ -177,7 +148,6 @@ public class MovieJukeboxHTMLWriter {
      * @param jukebox
      * @param person
      */
-    @SuppressWarnings("null")
     public void generatePersonDetailsHTML(Jukebox jukebox, Person person) {
         try {
             String baseName = person.getFilename();
@@ -562,7 +532,7 @@ public class MovieJukeboxHTMLWriter {
         }
     }
 
-    public void generateMoviesCategoryHTML(Jukebox jukebox, Library library, String filename, String template, boolean isDirty) {
+    public void generateMoviesCategoryHTML(Jukebox jukebox, String filename, String template, boolean isDirty) {
         try {
             // Issue 1886: Html indexes recreated every time
             String destFolder = jukebox.getJukeboxRootLocationDetails();
@@ -684,7 +654,6 @@ public class MovieJukeboxHTMLWriter {
      * @param styleSheetTargetRootPath
      * @return
      */
-    @SuppressWarnings("null")
     public static Transformer getTransformer(File xslFile, String styleSheetTargetRootPath) {
         /*
          * Removed caching of transformer, as saxon keeps all parsed documents in memory, causing memory leaks.

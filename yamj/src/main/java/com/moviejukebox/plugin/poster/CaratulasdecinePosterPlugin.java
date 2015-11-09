@@ -22,22 +22,15 @@
  */
 package com.moviejukebox.plugin.poster;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.moviejukebox.model.IImage;
 import com.moviejukebox.model.Image;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.YamjHttpClient;
-import com.moviejukebox.tools.YamjHttpClientBuilder;
+import com.moviejukebox.tools.*;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
 
@@ -68,9 +61,8 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
      * @param xml
      * @param title
      * @return
-     * @throws IOException
      */
-    private static String getMovieId(String xml, String title) throws IOException {
+    private static String getMovieId(String xml, String title) {
         String movieId = Movie.UNKNOWN;
 
         List<String> foundTitles = HTMLTools.extractTags(xml, SEARCH_START, SEARCH_END, TITLE_START, TITLE_END, false);

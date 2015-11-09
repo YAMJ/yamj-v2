@@ -27,43 +27,21 @@ import static org.apache.commons.lang3.StringUtils.substringAfter;
 import static org.apache.commons.lang3.StringUtils.substringBefore;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.IArchiveScanner;
+import java.io.*;
+import java.net.URL;
+import java.nio.channels.FileChannel;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class FileTools {
 
@@ -176,30 +154,13 @@ public final class FileTools {
     public static int copy(InputStream is, OutputStream os) throws IOException {
         int bytesCopied = 0;
         byte[] buffer = THREAD_BUFFER.get();
-        try {
-            while (Boolean.TRUE) {
-                int amountRead = is.read(buffer);
-                if (amountRead == -1) {
-                    break;
-                }
-                bytesCopied += amountRead;
-                os.write(buffer, 0, amountRead);
+        while (Boolean.TRUE) {
+            int amountRead = is.read(buffer);
+            if (amountRead == -1) {
+                break;
             }
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (IOException error) {
-                // ignore
-            }
-            try {
-                if (os != null) {
-                    os.close();
-                }
-            } catch (IOException error) {
-                // ignore
-            }
+            bytesCopied += amountRead;
+            os.write(buffer, 0, amountRead);
         }
         return bytesCopied;
     }
@@ -658,7 +619,25 @@ public final class FileTools {
      * @throws IOException
      */
     public static boolean downloadImage(File imageFile, String imageURL) throws IOException {
-        return YamjHttpClientBuilder.getHttpClient().downloadImage(imageFile, imageURL);
+        URL url;
+        if (imageURL.contains(" ")) {
+            url = new URL(imageURL.replaceAll(" ", "%20"));
+        } else {
+            url = new URL(imageURL);
+        }
+
+        if ("file".equals(url.getProtocol())) {
+            LOG.debug("Copy image {}", imageURL); 
+            try (InputStream in = url.openStream();
+                 OutputStream out = new FileOutputStream(imageFile))
+             {
+                FileTools.copy(in, out);
+             }
+             return true;
+        }
+        
+        // download image
+        return YamjHttpClientBuilder.getHttpClient().downloadImage(imageFile, url);
     }
 
     /**

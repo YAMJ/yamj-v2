@@ -23,16 +23,10 @@
 package com.moviejukebox.tools;
 
 import static com.moviejukebox.tools.StringTools.formatFileSize;
+
 import com.moviejukebox.tools.cache.CacheMemory;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +54,7 @@ public final class SystemTools {
         long memoryMaximum = Runtime.getRuntime().maxMemory();
         long memoryAllocated = Runtime.getRuntime().totalMemory();
         long memoryFree = Runtime.getRuntime().freeMemory();
-        float memoryPercentage = (float) (((float) memoryFree / (float) memoryMaximum) * 100F);
+        float memoryPercentage = ((memoryFree / memoryMaximum) * 100F);
 
         if (SHOW_MEMORY) {
             if (showAll) {

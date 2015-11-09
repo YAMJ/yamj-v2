@@ -29,7 +29,6 @@ import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.StringTools;
 import com.moviejukebox.tools.SystemTools;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import javax.xml.bind.JAXBContext;
@@ -83,27 +82,16 @@ public class CompleteMoviesWriter {
         File rootTotalMoviesFile = FileTools.fileCache.getFile(StringTools.appendToPath(jukebox.getJukeboxRootLocationDetails(), COMPLETE_MOVIES_XML));
 
         if (library.isDirty() || !rootTotalMoviesFile.exists()) {
-            OutputStream marStream = null;
-            try {
-                marStream = FileTools.createFileOutputStream(totalMoviesXmlFile);
+            try (OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile)) {
                 context.createMarshaller().marshal(jukeboxXml, marStream);
             } catch (JAXBException ex) {
                 LOG.warn("RSS is not generated (JAXB error): {}", ex.getMessage());
                 LOG.warn(SystemTools.getStackTrace(ex));
                 return Boolean.FALSE;
-            } catch (FileNotFoundException ex) {
+            } catch (IOException ex) {
                 LOG.warn("RSS is not generated (Jukebox error): {}", ex.getMessage());
                 LOG.warn(SystemTools.getStackTrace(ex));
                 return Boolean.FALSE;
-            } finally {
-                if (marStream != null) {
-                    try {
-                        marStream.flush();
-                        marStream.close();
-                    } catch (IOException ex) {
-                        LOG.trace("Failed to close marshal file: {}", ex.getMessage());
-                    }
-                }
             }
 
             try {

@@ -22,28 +22,22 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.*;
+import com.moviejukebox.tools.CSVWriter;
+import com.moviejukebox.tools.SystemTools;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Jukebox;
-import com.moviejukebox.model.Library;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.tools.CSVWriter;
-import com.moviejukebox.tools.SystemTools;
-
 /**
  * User: JDGJr Date: Feb 15, 2009
  */
-public class MovieListingPluginCsv extends MovieListingPluginBase implements MovieListingPlugin {
+public class MovieListingPluginCsv extends MovieListingPluginBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieListingPluginCsv.class);
     private static final String FALSE = "False";

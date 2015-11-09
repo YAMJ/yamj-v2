@@ -22,12 +22,11 @@
  */
 package com.moviejukebox.plugin;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.MovieFile;
+import com.moviejukebox.model.enumerations.DirtyFlag;
+import com.moviejukebox.tools.*;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -39,20 +38,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SubtitleTools;
-import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 /**
  * Based on some code from the opensubtitles.org subtitle upload java applet
@@ -308,16 +297,21 @@ public class OpenSubtitlesPlugin {
             URL url = new URL(subDownloadLink);
             HttpURLConnection connection = (HttpURLConnection) (url.openConnection(YamjHttpClientBuilder.getProxy()));
             connection.setRequestProperty("Connection", "Close");
-            InputStream inputStream = connection.getInputStream();
-
-            int code = connection.getResponseCode();
-            if (code != HttpURLConnection.HTTP_OK) {
-                LOG.error("Download Failed");
-                return Boolean.FALSE;
+            
+            try (InputStream inputStream = connection.getInputStream()) {
+                int code = connection.getResponseCode();
+                if (code != HttpURLConnection.HTTP_OK) {
+                    LOG.error("Download Failed");
+                    return Boolean.FALSE;
+                }
+                try (GZIPInputStream inStream = new GZIPInputStream(inputStream);
+                     FileOutputStream outStream = new FileOutputStream(subtitleFile)) 
+                {
+                    FileTools.copy(new GZIPInputStream(inputStream), new FileOutputStream(subtitleFile));
+                }
+            } finally {
+                connection.disconnect();
             }
-
-            FileTools.copy(new GZIPInputStream(inputStream), new FileOutputStream(subtitleFile));
-            connection.disconnect();
 
             String subLanguageID = getValue("SubLanguageID", ret);
             if (StringUtils.isNotBlank(subLanguageID)) {

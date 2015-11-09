@@ -22,19 +22,15 @@
  */
 package com.moviejukebox.tools;
 
+import static com.moviejukebox.plugin.DatabasePluginController.TYPE_ALTERNATE;
+
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.plugin.DatabasePluginController;
-import static com.moviejukebox.plugin.DatabasePluginController.TYPE_ALTERNATE;
 import com.moviejukebox.plugin.ImdbPlugin;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -328,7 +324,7 @@ public final class OverrideTools {
         return Boolean.FALSE;
     }
 
-    private static boolean skipCheck(MovieFile movieFile, OverrideFlag overrideFlag, String source) {
+    private static boolean skipCheck(@SuppressWarnings("unused") MovieFile movieFile, OverrideFlag overrideFlag, String source) {
         if (SKIP_NOT_IN_LIST) {
 
             int index = -1;

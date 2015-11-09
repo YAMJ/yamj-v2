@@ -25,15 +25,12 @@ package com.moviejukebox.tools;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.IOException;
+import com.moviejukebox.model.Movie;
 import java.util.List;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.moviejukebox.model.Movie;
 
 /**
  * @author Stuart
@@ -43,18 +40,16 @@ public class GitRepositoryStateTest {
     private static GitRepositoryState instance;
 
     @BeforeClass
-    public static void setUpClass() throws IOException {
+    public static void setUpClass() {
         instance = new GitRepositoryState();
         System.out.println(ToStringBuilder.reflectionToString(instance, ToStringStyle.MULTI_LINE_STYLE));
     }
 
     /**
      * Test of getBranch method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetBranch() throws IOException {
+    public void testGetBranch() {
         System.out.println("getBranch");
         String result = instance.getBranch();
         assertNotEquals(Movie.UNKNOWN, result);
@@ -62,11 +57,9 @@ public class GitRepositoryStateTest {
 
     /**
      * Test of getDirty method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetDirty() throws IOException {
+    public void testGetDirty() {
         System.out.println("getDirty");
         Boolean result = instance.getDirty();
         assertNotNull(result);
@@ -74,11 +67,9 @@ public class GitRepositoryStateTest {
 
     /**
      * Test of getTags method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetTags() throws IOException {
+    public void testGetTags() {
         System.out.println("getTags");
         List<String> result = instance.getTags();
         assertNotEquals(Movie.UNKNOWN, result);
@@ -86,11 +77,9 @@ public class GitRepositoryStateTest {
 
     /**
      * Test of getDescribe method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetDescribe() throws IOException {
+    public void testGetDescribe() {
         System.out.println("getDescribe");
         String result = instance.getDescribe();
         assertNotEquals(Movie.UNKNOWN, result);
@@ -98,11 +87,9 @@ public class GitRepositoryStateTest {
 
     /**
      * Test of getDescribeShort method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetDescribeShort() throws IOException {
+    public void testGetDescribeShort() {
         System.out.println("getDescribeShort");
         String result = instance.getDescribeShort();
         assertNotEquals(Movie.UNKNOWN, result);
@@ -110,11 +97,9 @@ public class GitRepositoryStateTest {
 
     /**
      * Test of getCommitId method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetCommitId() throws IOException {
+    public void testGetCommitId() {
         System.out.println("getCommitId");
         String result = instance.getCommitId();
         assertNotEquals(Movie.UNKNOWN, result);
@@ -122,11 +107,9 @@ public class GitRepositoryStateTest {
 
     /**
      * Test of getCommitIdAbbrev method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetCommitIdAbbrev() throws IOException {
+    public void testGetCommitIdAbbrev() {
         System.out.println("getCommitIdAbbrev");
         String result = instance.getCommitIdAbbrev();
         assertNotEquals(Movie.UNKNOWN, result);
@@ -134,11 +117,9 @@ public class GitRepositoryStateTest {
 
     /**
      * Test of getBuildUserName method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetBuildUserName() throws IOException {
+    public void testGetBuildUserName() {
         System.out.println("getBuildUserName");
         String result = instance.getBuildUserName();
         assertNotEquals(Movie.UNKNOWN, result);
@@ -146,11 +127,9 @@ public class GitRepositoryStateTest {
 
     /**
      * Test of getBuildUserEmail method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetBuildUserEmail() throws IOException {
+    public void testGetBuildUserEmail() {
         System.out.println("getBuildUserEmail");
         String result = instance.getBuildUserEmail();
         assertNotEquals(Movie.UNKNOWN, result);
@@ -158,11 +137,9 @@ public class GitRepositoryStateTest {
 
     /**
      * Test of getBuildTime method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetBuildTime() throws IOException {
+    public void testGetBuildTime() {
         System.out.println("getBuildTime");
         String result = instance.getBuildTime();
         assertNotEquals(Movie.UNKNOWN, result);
@@ -170,11 +147,9 @@ public class GitRepositoryStateTest {
 
     /**
      * Test of getCommitUserName method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetCommitUserName() throws IOException {
+    public void testGetCommitUserName() {
         System.out.println("getCommitUserName");
         String result = instance.getCommitUserName();
         assertNotEquals(Movie.UNKNOWN, result);
@@ -182,11 +157,9 @@ public class GitRepositoryStateTest {
 
     /**
      * Test of getCommitUserEmail method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetCommitUserEmail() throws IOException {
+    public void testGetCommitUserEmail() {
         System.out.println("getCommitUserEmail");
         String result = instance.getCommitUserEmail();
         assertNotEquals(Movie.UNKNOWN, result);
@@ -194,11 +167,9 @@ public class GitRepositoryStateTest {
 
     /**
      * Test of getCommitMessageFull method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetCommitMessageFull() throws IOException {
+    public void testGetCommitMessageFull() {
         System.out.println("getCommitMessageFull");
         String result = instance.getCommitMessageFull();
         assertNotEquals(Movie.UNKNOWN, result);
@@ -206,11 +177,9 @@ public class GitRepositoryStateTest {
 
     /**
      * Test of getCommitMessageShort method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetCommitMessageShort() throws IOException {
+    public void testGetCommitMessageShort() {
         System.out.println("getCommitMessageShort");
         String result = instance.getCommitMessageShort();
         assertNotEquals(Movie.UNKNOWN, result);
@@ -218,11 +187,9 @@ public class GitRepositoryStateTest {
 
     /**
      * Test of getCommitTime method, of class GitRepositoryState.
-     *
-     * @throws java.io.IOException
      */
     @Test
-    public void testGetCommitTime() throws IOException {
+    public void testGetCommitTime() {
         System.out.println("getCommitTime");
         String result = instance.getCommitTime();
         assertNotEquals(Movie.UNKNOWN, result);
