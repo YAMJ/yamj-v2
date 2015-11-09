@@ -33,67 +33,87 @@ import org.slf4j.LoggerFactory;
 public class ImdbInfoTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImdbInfoTest.class);
-
+    private static final String[] SITES = new String[]{"www","labs","akas"};
+    
     @Test
     public void testImdbPersonId() {
-        ImdbInfo imdbInfo = new ImdbInfo();
-        
-        String id = imdbInfo.getImdbPersonId("Renée Zellweger");
-        assertEquals("nm0000250", id);
+        LOG.info("testImdbPersonId");
+        for (String site : SITES) {
+            PropertiesUtil.setProperty("imdb.site", site);
+            ImdbInfo imdbInfo = new ImdbInfo();
+            
+            String id = imdbInfo.getImdbPersonId("Renée Zellweger");
+            assertEquals("IMDb site "+site, "nm0000250", id);
+        }
     }
 
     @Test
     public void testImdbMovieId_VariableOff() {
-        PropertiesUtil.setProperty("imdb.id.search.match", "first");
-        PropertiesUtil.setProperty("imdb.id.search.variable", false);
-        ImdbInfo imdbInfo = new ImdbInfo();
-        
-        String id = imdbInfo.getImdbId("Abraham Lincoln Vampire Hunter", null, false);
-        assertNotEquals("tt1611224", id); // correct one
+        LOG.info("testImdbMovieId_VariableOff");
+        for (String site : SITES) {
+            PropertiesUtil.setProperty("imdb.site", site);
+            PropertiesUtil.setProperty("imdb.id.search.match", "first");
+            PropertiesUtil.setProperty("imdb.id.search.variable", false);
+            ImdbInfo imdbInfo = new ImdbInfo();
+            
+            String id = imdbInfo.getImdbId("Abraham Lincoln Vampire Hunter", null, false);
+            assertNotEquals("IMDb site "+site, "tt1611224", id); // correct one
+        }
     }
 
     @Test
     public void testImdbMovieId_VariableOn() {
         LOG.info("testImdbMovieId_VariableOn");
-        PropertiesUtil.setProperty("imdb.id.search.match", "first");
-        PropertiesUtil.setProperty("imdb.id.search.variable", true);
-        ImdbInfo imdbInfo = new ImdbInfo();
-
-        String id = imdbInfo.getImdbId("Abraham Lincoln Vampire Hunter", null, false);
-        assertEquals("tt1611224", id); // correct one
+        for (String site : SITES) {
+            PropertiesUtil.setProperty("imdb.site", site);
+            PropertiesUtil.setProperty("imdb.id.search.match", "first");
+            PropertiesUtil.setProperty("imdb.id.search.variable", true);
+            ImdbInfo imdbInfo = new ImdbInfo();
+    
+            String id = imdbInfo.getImdbId("Abraham Lincoln Vampire Hunter", null, false);
+            assertEquals("IMDb site "+site, "tt1611224", id);
+        }
     }
 
     @Test
     public void testImdbMovieIdFirstMatch() {
         LOG.info("testImdbMovieIdFirstMatch");
-
-        PropertiesUtil.setProperty("imdb.id.search.match", "first");
-        PropertiesUtil.setProperty("imdb.id.search.variable", false);
-        ImdbInfo imdbInfo = new ImdbInfo();
-
-        String id = imdbInfo.getImdbId("Avatar", "2009", false);
-        assertEquals("tt0499549", id);
+        for (String site : SITES) {
+            PropertiesUtil.setProperty("imdb.site", site);
+            PropertiesUtil.setProperty("imdb.id.search.match", "first");
+            PropertiesUtil.setProperty("imdb.id.search.variable", false);
+            ImdbInfo imdbInfo = new ImdbInfo();
+    
+            String id = imdbInfo.getImdbId("Avatar", "2009", false);
+            assertEquals("IMDb site "+site, "tt0499549", id);
+        }
     }
 
     @Test
     public void testImdbMovieIdRegularMatch() {
         LOG.info("testImdbMovieIdRegularMatch");
-        PropertiesUtil.setProperty("imdb.id.search.match", "regular");
-        PropertiesUtil.setProperty("imdb.id.search.variable", false);
-        ImdbInfo imdbInfo = new ImdbInfo();
-
-        String id = imdbInfo.getImdbId("Avatar", "2009", false);
-        assertEquals("tt0499549", id); // correct one
+        for (String site : SITES) {
+            PropertiesUtil.setProperty("imdb.site", site);
+            PropertiesUtil.setProperty("imdb.id.search.match", "regular");
+            PropertiesUtil.setProperty("imdb.id.search.variable", false);
+            ImdbInfo imdbInfo = new ImdbInfo();
+    
+            String id = imdbInfo.getImdbId("Avatar", "2009", false);
+            assertEquals("IMDb site "+site, "tt0499549", id);
+        }
     }
 
     @Test
     public void testImdbMovieIdExactMatch() {
         LOG.info("testImdbMovieIdExactMatch");
-        PropertiesUtil.setProperty("imdb.id.search.match", "exact");
-        PropertiesUtil.setProperty("imdb.id.search.variable", true);
-        ImdbInfo imdbInfo = new ImdbInfo();
-
-        String id = imdbInfo.getImdbId("Avatar", "2009", false);
-        assertEquals("tt0499549", id);
+        for (String site : SITES) {
+            PropertiesUtil.setProperty("imdb.site", site);
+            PropertiesUtil.setProperty("imdb.id.search.match", "exact");
+            PropertiesUtil.setProperty("imdb.id.search.variable", true);
+            ImdbInfo imdbInfo = new ImdbInfo();
+    
+            String id = imdbInfo.getImdbId("Avatar", "2009", false);
+            assertEquals("IMDb site "+site, "tt0499549", id);
+        }
     }
 }
