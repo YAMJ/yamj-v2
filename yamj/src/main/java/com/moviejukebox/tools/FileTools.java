@@ -627,11 +627,11 @@ public final class FileTools {
         }
 
         if ("file".equals(url.getProtocol())) {
-            LOG.debug("Copy image {}", imageURL); 
+            LOG.debug("Copy file from url '{}' to '{}'", url, imageFile.getAbsolutePath());
             try (InputStream in = url.openStream();
                  OutputStream out = new FileOutputStream(imageFile))
              {
-                FileTools.copy(in, out);
+                copy(in, out);
              }
              return true;
         }
