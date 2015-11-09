@@ -50,24 +50,30 @@ public class ImdbInfo {
     private static final String REGEX_START = "<link rel=\"canonical\" href=\"";
     private static final String REGEX_TITLE = "title/(tt\\d+)/\"";
     private static final String REGEX_NAME = "name/(nm\\d+)/\"";
-    private static final String IMDB_SITE = "http://www.imdb.com/";
     
     private final String searchMatch = PropertiesUtil.getProperty("imdb.id.search.match", "regular");
     private final boolean searchVariable = PropertiesUtil.getBooleanProperty("imdb.id.search.variable", Boolean.TRUE);
     private final String preferredSearchEngine = PropertiesUtil.getProperty("imdb.id.search", "imdb");
     private final YamjHttpClient httpClient;
+    private final String imdbSite;
     private final Pattern personRegex;
     private final Pattern titleRegex;
-    private Charset charset;
+    private final Charset charset;
 
-    static {
-        PropertiesUtil.warnDeprecatedProperty("imdb.site");
-    }
-    
     public ImdbInfo() {
         this.httpClient = YamjHttpClientBuilder.getHttpClient();
-        this.personRegex = Pattern.compile(Pattern.quote(REGEX_START + IMDB_SITE + REGEX_NAME));
-        this.titleRegex = Pattern.compile(Pattern.quote(REGEX_START + IMDB_SITE + REGEX_TITLE));
+       
+        final String site = PropertiesUtil.getProperty("imdb.site", "www");
+        if ("labs".equalsIgnoreCase(site)) {
+            this.imdbSite = "http://labs.imdb.com/";
+        } else if ("akas".equalsIgnoreCase(site)) {
+            this.imdbSite = "http://akas.imdb.com/";
+        } else {
+            this.imdbSite = "http://www.imdb.com/";
+        }
+
+        this.personRegex = Pattern.compile(Pattern.quote(REGEX_START + this.imdbSite + REGEX_NAME));
+        this.titleRegex = Pattern.compile(Pattern.quote(REGEX_START + this.imdbSite + REGEX_TITLE));
         this.charset = Charset.forName(UTF_8);
     }
 
@@ -124,7 +130,7 @@ public class ImdbInfo {
     public String getImdbPersonId(String personName, String movieId) {
         try {
             if (StringTools.isValidString(movieId)) {
-                StringBuilder sb = new StringBuilder(IMDB_SITE);
+                StringBuilder sb = new StringBuilder(this.imdbSite);
                 sb.append("search/name?name=");
                 sb.append(URLEncoder.encode(personName, UTF_8)).append("&role=").append(movieId);
 
@@ -273,7 +279,7 @@ public class ImdbInfo {
          * Note: That even with exact matches there can be more than 1 hit, for example "Star Trek"
          */
 
-        StringBuilder sb = new StringBuilder(IMDB_SITE);
+        StringBuilder sb = new StringBuilder(this.imdbSite);
         sb.append("find?q=");
         try {
             sb.append(URLEncoder.encode(movieName, UTF_8));
@@ -423,7 +429,7 @@ public class ImdbInfo {
      * @return
      */
     public String getImdbSite() {
-        return IMDB_SITE;
+        return imdbSite;
     }
 
     /**
