@@ -310,7 +310,6 @@ public class MovieJukeboxHTMLWriter {
                     sb.append(br).append("\n");
                 }
             }
-            reader.close();
 
             try (FileWriter outFile = new FileWriter(filename)) {
                 outFile.write(sb.toString());
@@ -475,16 +474,16 @@ public class MovieJukeboxHTMLWriter {
      * @param library
      */
     private static void generateDefaultIndexHTML(Jukebox jukebox, Library library) {
+        OutputStream fos = null;
         XMLStreamWriter writer = null;
 
         try {
             File htmlFile = new File(jukebox.getJukeboxTempLocation(), PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
             FileTools.makeDirsForFile(htmlFile);
 
-            try (OutputStream fos = FileTools.createFileOutputStream(htmlFile)) { 
-                XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-                writer = outputFactory.createXMLStreamWriter(fos, "UTF-8");
-            }
+            fos = FileTools.createFileOutputStream(htmlFile); 
+            XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+            writer = outputFactory.createXMLStreamWriter(fos, "UTF-8");
             
             String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
             if (homePage.length() == 0) {
@@ -525,8 +524,16 @@ public class MovieJukeboxHTMLWriter {
             if (writer != null) {
                 try {
                     writer.close();
-                } catch (XMLStreamException ex) {
+                } catch (Exception ex) {
                     LOG.trace("Failed to close XMLStreamWriter");
+                }
+            }
+
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (Exception ex) {
+                    LOG.trace("Failed to close FileOutputStream");
                 }
             }
         }
