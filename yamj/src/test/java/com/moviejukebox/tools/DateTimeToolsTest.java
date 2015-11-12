@@ -116,12 +116,11 @@ public class DateTimeToolsTest {
      * Test of parseDateTo method, of class DateTimeTools.
      */
     @Test
-    public void testParseDateTo() {
+    public void testParseDateToString() {
         LOG.info("parseDateTo");
         String dateToParse = "30 September 2010 (China)";
-        String targetFormat = "dd-MM-yyyy";
-        String expResult = "30-09-2010";
-        String result = DateTimeTools.parseDateTo(dateToParse, targetFormat);
+        String expResult = "2010-09-30";
+        String result = DateTimeTools.parseDateToString(dateToParse);
         assertEquals(expResult, result);
     }
 }

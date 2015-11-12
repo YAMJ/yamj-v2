@@ -22,21 +22,18 @@
  */
 package com.moviejukebox.plugin;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.*;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -71,7 +68,7 @@ public class ComingSoonPluginTest {
         assertEquals("Wrong ID", "846", id);
     }
 
-    @Test
+    @Ignore
     public void testGetIdFromYahoo() {
         LOG.info("testGetIdFromYahoo");
         String id = csPlugin.getComingSoonId("Avatar", "2009", "yahoo");
@@ -88,6 +85,7 @@ public class ComingSoonPluginTest {
         assertEquals("Wrong title", "A Proposito Di Davis", movie.getTitle());
         assertEquals("Wrong original title", "Inside Llewyn Davis", movie.getOriginalTitle());
         assertEquals("Wrong year", "2013", movie.getYear());
+        assertNotEquals("Missing plot", Movie.UNKNOWN, movie.getPlot());
         assertTrue("No Directors", movie.getDirectors().size() > 0);
         assertTrue("No Writers", movie.getWriters().size() > 0);
         assertTrue("No Cast", movie.getCast().size() > 0);

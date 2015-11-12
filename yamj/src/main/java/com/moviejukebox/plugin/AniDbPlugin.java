@@ -428,8 +428,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             }
 
             if ((anime.getAirDate() > 0) && OverrideTools.checkOverwriteReleaseDate(movie, ANIDB_PLUGIN_ID)) {
-                DateTime rDate = new DateTime(anime.getAirDate());
-                movie.setReleaseDate(rDate.toString("yyyy-MM-dd"), ANIDB_PLUGIN_ID);
+                String releaseDate = new DateTime(anime.getAirDate()).toString("yyyy-MM-dd");
+                movie.setReleaseDate(releaseDate, ANIDB_PLUGIN_ID);
             }
 
             if (anime.getRating() > 0) {

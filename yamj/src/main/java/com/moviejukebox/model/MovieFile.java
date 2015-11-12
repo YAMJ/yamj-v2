@@ -22,37 +22,21 @@
  */
 package com.moviejukebox.model;
 
+import com.moviejukebox.model.Attachment.Attachment;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.scanner.MovieFilenameScanner;
+import com.moviejukebox.tools.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.pojava.datetime.DateTime;
-
-import com.moviejukebox.model.Attachment.Attachment;
-import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.scanner.MovieFilenameScanner;
-import com.moviejukebox.tools.BooleanYesNoAdapter;
-import com.moviejukebox.tools.DateTimeTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
 
 @XmlType
 public class MovieFile implements Comparable<MovieFile> {
@@ -621,12 +605,11 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     public void setFirstAired(int part, String airDate, String source) {
-        if (StringTools.isNotValidString(airDate)) {
-            // do not overwrite existing title
-            if (StringTools.isNotValidString(firstAired.get(part))) {
-                firstAired.put(part, Movie.UNKNOWN);
-            }
-        } else {
+        if (StringTools.isNotValidString(airDate)) return;
+
+        String parseDate = DateTimeTools.parseDateToString(airDate);
+
+        if (StringTools.isValidString(parseDate)) {
             firstAired.put(part, airDate);
             setOverrideSource(OverrideFlag.EPISODE_FIRST_AIRED, source);
         }

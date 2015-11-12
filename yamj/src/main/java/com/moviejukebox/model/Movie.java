@@ -22,32 +22,14 @@
  */
 package com.moviejukebox.model;
 
+import com.moviejukebox.model.enumerations.*;
+import com.moviejukebox.plugin.MovieDatabasePlugin;
+import com.moviejukebox.tools.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.TreeSet;
-
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -55,21 +37,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.pojava.datetime.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.enumerations.CodecSource;
-import com.moviejukebox.model.enumerations.CodecType;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.model.enumerations.TitleSortType;
-import com.moviejukebox.plugin.MovieDatabasePlugin;
-import com.moviejukebox.tools.BooleanYesNoAdapter;
-import com.moviejukebox.tools.DateTimeTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.GitRepositoryState;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.UrlCodecAdapter;
 
 /**
  * Movie bean
@@ -1678,7 +1645,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
             return;
         }
 
-        String parseDate = DateTimeTools.parseDateTo(releaseDate, "yyyy-MM-dd");
+        String parseDate = DateTimeTools.parseDateToString(releaseDate);
 
         if (StringTools.isValidString(parseDate)) {
             if (!parseDate.equalsIgnoreCase(this.releaseDate)) {

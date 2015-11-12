@@ -29,13 +29,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.pojava.datetime.DateTime;
-import org.pojava.datetime.DateTimeConfig;
-import org.pojava.datetime.DateTimeConfigBuilder;
-import org.pojava.datetime.IDateTimeConfig;
+import org.pojava.datetime.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -208,26 +204,15 @@ public final class DateTimeTools {
      * Convert a date to a specific format
      *
      * @param dateToParse
-     * @param targetFormat
      * @return
      */
-    public static String parseDateTo(final String dateToParse, final String targetFormat) {
-        String parsedDateString = StringUtils.EMPTY;
-        Date parsedDate;
+    public static String parseDateToString(String dateToParse) {
         try {
-            parsedDate = parseStringToDate(dateToParse);
+            return convertDateToString(parseStringToDate(dateToParse), getDateFormatString());
         } catch (IllegalArgumentException ex) {
             LOG.debug("Failed to parse date '{}', error: {}", dateToParse, ex.getMessage(), ex);
-            return parsedDateString;
+            return  StringUtils.EMPTY;
         }
-
-        if (StringTools.isValidString(targetFormat)) {
-            parsedDateString = convertDateToString(parsedDate, targetFormat);
-        } else {
-            LOG.debug("Invalid date '{}' or target format '{}' passed", dateToParse, targetFormat);
-        }
-
-        return parsedDateString;
     }
 
     /**

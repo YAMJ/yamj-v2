@@ -674,12 +674,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             if (mRelease.find()) {
                 String releaseDate = mRelease.group(1) + " " + mRelease.group(2);
-                try {
-                    movie.setReleaseDate(DateTimeTools.parseDateTo(releaseDate,"yyyy-MM-dd"), IMDB_PLUGIN_ID);
-                } catch (IllegalArgumentException ex) {
-                    LOG.trace("Failed to convert release date: {}", releaseDate, ex);
-                    movie.setReleaseDate(UNKNOWN, IMDB_PLUGIN_ID);
-                }
+                movie.setReleaseDate(releaseDate, IMDB_PLUGIN_ID);
             }
         }
 
@@ -1189,7 +1184,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
                 if (OverrideTools.checkOverwriteEpisodeFirstAired(file, episode, IMDB_PLUGIN_ID)) {
                     String firstAired = HTMLTools.extractTag(episodeXml, "<div class=\"airdate\">", "</div>");
-                    firstAired = DateTimeTools.parseDateTo(firstAired, "yyyy-MM-dd");
                     file.setFirstAired(episode, firstAired, IMDB_PLUGIN_ID);
                 }
             }
