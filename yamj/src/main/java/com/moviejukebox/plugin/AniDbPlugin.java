@@ -828,25 +828,6 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
     }
 
-    /**
-     * Hold information about the AniDb video file
-     *
-     * @author stuart.boston
-     *
-     */
-    @SuppressWarnings("unused")
-    private class AniDbVideo {
-
-        String originalFilename;   // The unedited filename
-        String sceneGroup;         // The scene group (probably unused)
-        String title;              // The derived title of the video
-        int episodeNumber;      // An episode number (optional)
-        String episodeName;        // The derived episode name
-        String crc;                // CRC number (optional)
-        String otherTags;          // Any other information from the filename, e.g. resolution
-        int anidbID;            // The AniDb ID (from NFO)
-    }
-
     // TODO: Here be dragons! Everything below should probably be refactored in time
     /**
      * Parses the xml document containing mappings from anidb id to thetvdb id.
