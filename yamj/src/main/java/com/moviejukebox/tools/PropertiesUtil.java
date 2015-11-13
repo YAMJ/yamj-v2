@@ -444,6 +444,7 @@ public final class PropertiesUtil {
     public static void writeProperties() {
         // Save the properties in order
         List<String> propertiesList = new ArrayList<>();
+        propertiesList.add("homePage");
         for (Object propertyObject : PROPS.keySet()) {
             propertiesList.add((String) propertyObject);
         }
@@ -452,7 +453,7 @@ public final class PropertiesUtil {
 
         LOG.debug("Writing skin preferences file to {}", getPropertiesFilename(Boolean.TRUE));
         try (FileOutputStream fos = new FileOutputStream(getPropertiesFilename(Boolean.TRUE));
-             OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+             OutputStreamWriter osw = new OutputStreamWriter(fos, PROPERTIES_CHARSET);
              Writer out = new BufferedWriter(osw))
         {
         

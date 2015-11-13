@@ -388,6 +388,9 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         if (OverrideTools.checkOverwriteCompany(movie, IMDB_PLUGIN_ID)) {
             String startTag = "Company" + HTML_H5_END;
             if (!xml.contains(startTag)) {
+                startTag = "Production Co" + HTML_H4_END;
+            }
+            if (!xml.contains(startTag)) {
                 startTag = "<h3>Company";
             }
 

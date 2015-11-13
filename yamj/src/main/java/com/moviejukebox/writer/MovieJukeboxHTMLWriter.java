@@ -474,6 +474,7 @@ public class MovieJukeboxHTMLWriter {
      * @param library
      */
     private static void generateDefaultIndexHTML(Jukebox jukebox, Library library) {
+        @SuppressWarnings("resource")
         OutputStream fos = null;
         XMLStreamWriter writer = null;
 
@@ -690,6 +691,7 @@ public class MovieJukeboxHTMLWriter {
                 }
             }
         } catch (TransformerConfigurationException ex) {
+            LOG.error("Failed to get transformer for XSL: " + xslFile.getAbsolutePath());
             LOG.warn(SystemTools.getStackTrace(ex));
         }
         return transformer;

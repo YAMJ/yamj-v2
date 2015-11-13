@@ -56,12 +56,7 @@ public class FilePropertiesMovie {
      */
     public FilePropertiesMovie(String filePath) throws Exception {
 
-        FileProperties fileProperties = null;
-
-        /**
-         * The respective objects.
-         */
-        fileProperties = new FilePropertiesIFO();
+        FileProperties fileProperties = new FilePropertiesIFO();
 
         _fileSize = Math.round((new File(filePath).length()) / 1024F / 1024F);
 

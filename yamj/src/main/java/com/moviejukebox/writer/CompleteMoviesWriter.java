@@ -84,6 +84,7 @@ public class CompleteMoviesWriter {
         if (library.isDirty() || !rootTotalMoviesFile.exists()) {
             try (OutputStream marStream = FileTools.createFileOutputStream(totalMoviesXmlFile)) {
                 context.createMarshaller().marshal(jukeboxXml, marStream);
+                marStream.flush();
             } catch (JAXBException ex) {
                 LOG.warn("RSS is not generated (JAXB error): {}", ex.getMessage());
                 LOG.warn(SystemTools.getStackTrace(ex));
