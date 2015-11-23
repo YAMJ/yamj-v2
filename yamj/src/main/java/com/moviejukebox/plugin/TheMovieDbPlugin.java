@@ -22,13 +22,29 @@
  */
 package com.moviejukebox.plugin;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.model.Comparator.FilmographyDateComparator;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
-import com.moviejukebox.tools.*;
+import com.moviejukebox.tools.OverrideTools;
+import com.moviejukebox.tools.PropertiesUtil;
+import com.moviejukebox.tools.StringTools;
+import com.moviejukebox.tools.YamjHttpClientBuilder;
 import com.moviejukebox.tools.cache.CacheMemory;
 import com.omertron.themoviedbapi.Compare;
 import com.omertron.themoviedbapi.MovieDbException;
@@ -44,18 +60,14 @@ import com.omertron.themoviedbapi.model.credits.CreditMovieBasic;
 import com.omertron.themoviedbapi.model.credits.MediaCreditCast;
 import com.omertron.themoviedbapi.model.credits.MediaCreditCrew;
 import com.omertron.themoviedbapi.model.media.MediaCreditList;
-import com.omertron.themoviedbapi.model.movie.*;
+import com.omertron.themoviedbapi.model.movie.MovieInfo;
+import com.omertron.themoviedbapi.model.movie.ProductionCompany;
+import com.omertron.themoviedbapi.model.movie.ProductionCountry;
+import com.omertron.themoviedbapi.model.movie.ReleaseInfo;
 import com.omertron.themoviedbapi.model.person.PersonCreditList;
 import com.omertron.themoviedbapi.model.person.PersonFind;
 import com.omertron.themoviedbapi.model.person.PersonInfo;
 import com.omertron.themoviedbapi.results.ResultList;
-import java.net.URL;
-import java.util.*;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.pojava.datetime.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Stuart.Boston
@@ -246,102 +258,100 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             LOG.debug("Failed to get cast information: {}", ex.getMessage(), ex);
         }
 
-        if (moviedb != null) {
-            retval = true;
-            if (moviedb.getId() > 0) {
-                movie.setMovieType(Movie.TYPE_MOVIE);
+        retval = true;
+        if (moviedb.getId() > 0) {
+            movie.setMovieType(Movie.TYPE_MOVIE);
+        }
+
+        if (StringTools.isValidString(moviedb.getTitle())) {
+            copyMovieInfo(moviedb, movie);
+        }
+
+        // Set the release information
+        if (!movieReleaseInfo.isEmpty() && OverrideTools.checkOverwriteCertification(movie, TMDB_PLUGIN_ID)) {
+            // Default to the first one
+            ReleaseInfo ri = movieReleaseInfo.get(0);
+            for (ReleaseInfo release : movieReleaseInfo) {
+                if (release.isPrimary()) {
+                    ri = release;
+                    break;
+                }
             }
 
-            if (StringTools.isValidString(moviedb.getTitle())) {
-                copyMovieInfo(moviedb, movie);
+            LOG.trace("Using release information: {}", ri.toString());
+            movie.setCertification(ri.getCertification(), TMDB_PLUGIN_ID);
+        }
+
+        // Add the cast information
+        // TODO: Add the people to the cast/crew
+        if (moviePeople != null) {
+            List<String> newActors = new ArrayList<>();
+            List<String> newDirectors = new ArrayList<>();
+            List<String> newWriters = new ArrayList<>();
+
+            LOG.debug("Adding {} people to the cast list", Math.min(moviePeople.getCast().size(), actorMax));
+            for (MediaCreditCast person : moviePeople.getCast()) {
+                LOG.trace("Adding cast member {}", person.toString());
+                newActors.add(person.getName());
             }
 
-            // Set the release information
-            if (!movieReleaseInfo.isEmpty() && OverrideTools.checkOverwriteCertification(movie, TMDB_PLUGIN_ID)) {
-                // Default to the first one
-                ReleaseInfo ri = movieReleaseInfo.get(0);
-                for (ReleaseInfo release : movieReleaseInfo) {
-                    if (release.isPrimary()) {
-                        ri = release;
-                        break;
-                    }
+            LOG.debug("Adding {} people to the crew list", Math.min(moviePeople.getCrew().size(),2));
+            for (MediaCreditCrew person : moviePeople.getCrew()) {
+                LOG.trace("Adding crew member {}", person.toString());
+                if ("Directing".equalsIgnoreCase(person.getDepartment())) {
+                    LOG.trace("{} is a Director", person.getName());
+                    newDirectors.add(person.getName());
+                } else if ("Writing".equalsIgnoreCase(person.getDepartment())) {
+                    LOG.trace("{} is a Writer", person.getName());
+                    newWriters.add(person.getName());
+                } else {
+                    LOG.trace("Unknown job {} for {}", person.getJob(), person.toString());
                 }
-
-                LOG.trace("Using release information: {}", ri.toString());
-                movie.setCertification(ri.getCertification(), TMDB_PLUGIN_ID);
             }
 
-            // Add the cast information
-            // TODO: Add the people to the cast/crew
-            if (moviePeople != null) {
-                List<String> newActors = new ArrayList<>();
-                List<String> newDirectors = new ArrayList<>();
-                List<String> newWriters = new ArrayList<>();
-
-                LOG.debug("Adding {} people to the cast list", Math.min(moviePeople.getCast().size(), actorMax));
-                for (MediaCreditCast person : moviePeople.getCast()) {
-                    LOG.trace("Adding cast member {}", person.toString());
-                    newActors.add(person.getName());
-                }
-
-                LOG.debug("Adding {} people to the crew list", Math.min(moviePeople.getCrew().size(),2));
-                for (MediaCreditCrew person : moviePeople.getCrew()) {
-                    LOG.trace("Adding crew member {}", person.toString());
-                    if ("Directing".equalsIgnoreCase(person.getDepartment())) {
-                        LOG.trace("{} is a Director", person.getName());
-                        newDirectors.add(person.getName());
-                    } else if ("Writing".equalsIgnoreCase(person.getDepartment())) {
-                        LOG.trace("{} is a Writer", person.getName());
-                        newWriters.add(person.getName());
-                    } else {
-                        LOG.trace("Unknown job {} for {}", person.getJob(), person.toString());
-                    }
-                }
-
-                if (OverrideTools.checkOverwriteDirectors(movie, TMDB_PLUGIN_ID)) {
-                    movie.setDirectors(newDirectors, TMDB_PLUGIN_ID);
-                }
-                if (OverrideTools.checkOverwritePeopleDirectors(movie, TMDB_PLUGIN_ID)) {
-                    movie.setPeopleDirectors(newDirectors, TMDB_PLUGIN_ID);
-                }
-                if (OverrideTools.checkOverwriteWriters(movie, TMDB_PLUGIN_ID)) {
-                    movie.setWriters(newWriters, TMDB_PLUGIN_ID);
-                }
-                if (OverrideTools.checkOverwritePeopleWriters(movie, TMDB_PLUGIN_ID)) {
-                    movie.setPeopleWriters(newWriters, TMDB_PLUGIN_ID);
-                }
-                if (OverrideTools.checkOverwriteActors(movie, TMDB_PLUGIN_ID)) {
-                    movie.setCast(newActors, TMDB_PLUGIN_ID);
-                }
-                if (OverrideTools.checkOverwritePeopleActors(movie, TMDB_PLUGIN_ID)) {
-                    movie.setPeopleCast(newActors, TMDB_PLUGIN_ID);
-                }
-            } else {
-                LOG.debug("No cast or crew members found");
+            if (OverrideTools.checkOverwriteDirectors(movie, TMDB_PLUGIN_ID)) {
+                movie.setDirectors(newDirectors, TMDB_PLUGIN_ID);
             }
-
-            // Update TheMovieDb Id if needed
-            if (StringTools.isNotValidString(movie.getId(TMDB_PLUGIN_ID))) {
-                movie.setId(TMDB_PLUGIN_ID, moviedb.getId());
+            if (OverrideTools.checkOverwritePeopleDirectors(movie, TMDB_PLUGIN_ID)) {
+                movie.setPeopleDirectors(newDirectors, TMDB_PLUGIN_ID);
             }
-
-            // Update IMDb Id if needed
-            if (StringTools.isNotValidString(movie.getId(IMDB_PLUGIN_ID))) {
-                movie.setId(IMDB_PLUGIN_ID, moviedb.getImdbID());
+            if (OverrideTools.checkOverwriteWriters(movie, TMDB_PLUGIN_ID)) {
+                movie.setWriters(newWriters, TMDB_PLUGIN_ID);
             }
+            if (OverrideTools.checkOverwritePeopleWriters(movie, TMDB_PLUGIN_ID)) {
+                movie.setPeopleWriters(newWriters, TMDB_PLUGIN_ID);
+            }
+            if (OverrideTools.checkOverwriteActors(movie, TMDB_PLUGIN_ID)) {
+                movie.setCast(newActors, TMDB_PLUGIN_ID);
+            }
+            if (OverrideTools.checkOverwritePeopleActors(movie, TMDB_PLUGIN_ID)) {
+                movie.setPeopleCast(newActors, TMDB_PLUGIN_ID);
+            }
+        } else {
+            LOG.debug("No cast or crew members found");
+        }
 
-            // Create the auto sets for movies and not extras
-            if (AUTO_COLLECTION && !movie.isExtra()) {
-                Collection coll = moviedb.getBelongsToCollection();
-                if (coll != null) {
-                    LOG.debug("{} belongs to a collection: '{}'", movie.getTitle(), coll.getName());
-                    CollectionInfo collInfo = getCollectionInfo(coll.getId(), languageCode);
-                    if (collInfo != null) {
-                        movie.addSet(collInfo.getName());
-                        movie.setId(CACHE_COLLECTION, coll.getId());
-                    } else {
-                        LOG.debug("Failed to get collection information!");
-                    }
+        // Update TheMovieDb Id if needed
+        if (StringTools.isNotValidString(movie.getId(TMDB_PLUGIN_ID))) {
+            movie.setId(TMDB_PLUGIN_ID, moviedb.getId());
+        }
+
+        // Update IMDb Id if needed
+        if (StringTools.isNotValidString(movie.getId(IMDB_PLUGIN_ID))) {
+            movie.setId(IMDB_PLUGIN_ID, moviedb.getImdbID());
+        }
+
+        // Create the auto sets for movies and not extras
+        if (AUTO_COLLECTION && !movie.isExtra()) {
+            Collection coll = moviedb.getBelongsToCollection();
+            if (coll != null) {
+                LOG.debug("{} belongs to a collection: '{}'", movie.getTitle(), coll.getName());
+                CollectionInfo collInfo = getCollectionInfo(coll.getId(), languageCode);
+                if (collInfo != null) {
+                    movie.addSet(collInfo.getName());
+                    movie.setId(CACHE_COLLECTION, coll.getId());
+                } else {
+                    LOG.debug("Failed to get collection information!");
                 }
             }
         }
