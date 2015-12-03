@@ -22,20 +22,18 @@
  */
 package com.moviejukebox.scanner;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import com.moviejukebox.model.Codec;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.CodecType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.apache.commons.io.FileUtils;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -60,13 +58,13 @@ public class MediaInfoScannerTest {
 
     @Test
     public void testStaticFile() {
-        getMediaInfoTestFile("mediainfo-1.txt", true);
+        getMediaInfoTestFile("mediainfo-ts-2d.txt", true);
 
         Movie movie = new Movie();
         MI_TEST.updateMovieInfo(movie, infosGeneral, infosVideo, infosAudio, infosText, infosGeneral);
 
         LOG.info("Runtime: {}", movie.getRuntime());
-        assertEquals("Wrong runtime", "1h 56m", movie.getRuntime());
+        assertEquals("Wrong runtime", "1h 54m", movie.getRuntime());
     }
 
     @Test
@@ -140,6 +138,7 @@ public class MediaInfoScannerTest {
         }
     }
 
+
     /**
      * Output the infos
      *
@@ -172,14 +171,7 @@ public class MediaInfoScannerTest {
         File file = FileUtils.getFile(testDir, filename);
         LOG.info("File: {} Length: {} Exists: {}", file.getAbsolutePath(), file.length(), file.exists());
 
-        MediaInfoStream stream = null;
-        try {
-            if (isText) {
-                stream = new MediaInfoStream(new FileInputStream(file));
-            } else {
-                stream = MI_TEST.createStream(file.getAbsolutePath());
-            }
-
+        try (MediaInfoStream stream = (isText ? new MediaInfoStream(new FileInputStream(file)) : MI_TEST.createStream(file.getAbsolutePath()))) {
             infosGeneral.clear();
             infosVideo.clear();
             infosAudio.clear();
@@ -192,10 +184,6 @@ public class MediaInfoScannerTest {
         } catch (Exception error) {
             LOG.warn("IOException.", error);
             assertFalse("No exception expected : " + error.getMessage(), true);
-        } finally {
-            if (stream != null) {
-                stream.close();
-            }
         }
     }
 }

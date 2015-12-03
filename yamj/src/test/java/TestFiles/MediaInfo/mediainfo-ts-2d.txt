@@ -1,0 +1,237 @@
+General
+Count                                    : 308
+Count of stream of this kind             : 1
+Kind of stream                           : General
+Kind of stream                           : General
+Stream identifier                        : 0
+ID                                       : 0
+ID                                       : 0 (0x0)
+Count of video streams                   : 1
+Count of audio streams                   : 1
+Video_Format_List                        : AVC
+Video_Format_WithHint_List               : AVC
+Codecs Video                             : AVC
+Audio_Format_List                        : TrueHD / AC-3
+Audio_Format_WithHint_List               : TrueHD / AC-3
+Audio codecs                             : TrueHD / AC3
+Complete name                            : Test_2D.ts
+File name                                : Test_2D
+File extension                           : ts
+Format                                   : MPEG-TS
+Format                                   : MPEG-TS
+Format/Extensions usually used           : ts m2t m2s m2ts m4t m4s ts tp trp
+Commercial name                          : MPEG-TS
+Internet media type                      : video/MP2T
+Codec                                    : MPEG-TS
+Codec                                    : MPEG-TS
+Codec/Extensions usually used            : ts m2t m2s m2ts m4t m4s ts tp trp
+File size                                : 26970446912
+File size                                : 25.1 GiB
+File size                                : 25 GiB
+File size                                : 25 GiB
+File size                                : 25.1 GiB
+File size                                : 25.12 GiB
+Duration                                 : 6869159.917333
+Duration                                 : 1h 54mn
+Duration                                 : 1h 54mn 29s 160ms
+Duration                                 : 1h 54mn
+Duration                                 : 01:54:29.160
+Duration                                 : 01:54:30;08
+Duration                                 : 01:54:29.160 (01:54:30;08)
+Overall bit rate mode                    : VBR
+Overall bit rate mode                    : Variable
+Overall bit rate                         : 31410462
+Overall bit rate                         : 31.4 Mbps
+Frame rate                               : 23.976
+Frame rate                               : 23.976 fps
+Frame count                              : 164682
+Stream size                              : 1337805516
+Stream size                              : 1.25 GiB (5%)
+Stream size                              : 1 GiB
+Stream size                              : 1.2 GiB
+Stream size                              : 1.25 GiB
+Stream size                              : 1.246 GiB
+Stream size                              : 1.25 GiB (5%)
+Proportion of this stream                : 0.04960
+File creation date                       : UTC 2015-11-04 00:35:52.140
+File creation date (local)               : 2015-11-03 18:35:52.140
+File last modification date              : UTC 2015-11-04 00:35:52.140
+File last modification date (local)      : 2015-11-03 18:35:52.140
+
+Video
+Count                                    : 316
+Count of stream of this kind             : 1
+Kind of stream                           : Video
+Kind of stream                           : Video
+Stream identifier                        : 0
+StreamOrder                              : 0-0
+ID                                       : 4113
+ID                                       : 4113 (0x1011)
+Menu ID                                  : 1
+Menu ID                                  : 1 (0x1)
+Format                                   : AVC
+Format/Info                              : Advanced Video Codec
+Format/Url                               : http://developers.videolan.org/x264.html
+Commercial name                          : AVC
+Format profile                           : High@L4.1
+Format settings                          : CABAC / 2 Ref Frames
+Format settings, CABAC                   : Yes
+Format settings, CABAC                   : Yes
+Format settings, ReFrames                : 2
+Format settings, ReFrames                : 2 frames
+Format settings, GOP                     : M=1, N=10
+Internet media type                      : video/H264
+Codec ID                                 : 27
+Codec                                    : AVC
+Codec                                    : AVC
+Codec/Family                             : AVC
+Codec/Info                               : Advanced Video Codec
+Codec/Url                                : http://developers.videolan.org/x264.html
+Codec profile                            : High@L4.1
+Codec settings                           : CABAC / 2 Ref Frames
+Codec settings, CABAC                    : Yes
+Codec_Settings_RefFrames                 : 2
+Duration                                 : 6868612
+Duration                                 : 1h 54mn
+Duration                                 : 1h 54mn 28s 612ms
+Duration                                 : 1h 54mn
+Duration                                 : 01:54:28.612
+Duration                                 : 01:54:30;08
+Duration                                 : 01:54:28.612 (01:54:30;08)
+Bit rate mode                            : VBR
+Bit rate mode                            : Variable
+Bit rate                                 : 29470785
+Bit rate                                 : 29.5 Mbps
+Width                                    : 1920
+Width                                    : 1 920 pixels
+Height                                   : 1080
+Height                                   : 1 080 pixels
+Stored_Height                            : 1088
+Sampled_Width                            : 1920
+Sampled_Height                           : 1080
+Pixel aspect ratio                       : 1.000
+Display aspect ratio                     : 1.778
+Display aspect ratio                     : 16:9
+Frame rate                               : 23.976
+Frame rate                               : 23.976 fps
+Frame count                              : 164682
+Resolution                               : 8
+Resolution                               : 8 bits
+Colorimetry                              : 4:2:0
+Color space                              : YUV
+Chroma subsampling                       : 4:2:0
+Bit depth                                : 8
+Bit depth                                : 8 bits
+Scan type                                : Progressive
+Scan type                                : Progressive
+Interlacement                            : PPF
+Interlacement                            : Progressive
+Bits/(Pixel*Frame)                       : 0.593
+Delay                                    : 11650.667
+Delay                                    : 11s 651ms
+Delay                                    : 11s 651ms
+Delay                                    : 11s 651ms
+Delay                                    : 00:00:11.651
+Delay, origin                            : Container
+Delay, origin                            : Container
+Stream size                              : 25302947972
+Stream size                              : 23.6 GiB (94%)
+Stream size                              : 24 GiB
+Stream size                              : 24 GiB
+Stream size                              : 23.6 GiB
+Stream size                              : 23.57 GiB
+Stream size                              : 23.6 GiB (94%)
+Proportion of this stream                : 0.93817
+Buffer size                              : 30000000 / 30000000
+format_identifier                        : HDMV
+
+Audio
+Count                                    : 285
+Count of stream of this kind             : 1
+Kind of stream                           : Audio
+Kind of stream                           : Audio
+Stream identifier                        : 0
+StreamOrder                              : 0-1
+ID                                       : 4352
+ID                                       : 4352 (0x1100)
+Menu ID                                  : 1
+Menu ID                                  : 1 (0x1)
+Format                                   : TrueHD / AC-3
+Commercial name                          : AC-3
+Mode extension                           : CM (complete main)
+Format settings, Endianness              : Big
+Muxing mode                              : Stream extension
+Codec ID                                 : 131
+Codec                                    : TrueHD / AC3
+Codec                                    : TrueHD / AC3
+Duration                                 : 6868613
+Duration                                 : 1h 54mn
+Duration                                 : 1h 54mn 28s 613ms
+Duration                                 : 1h 54mn
+Duration                                 : 01:54:28.613
+Duration                                 : 01:54:28.613
+Bit rate mode                            : VBR / CBR
+Bit rate mode                            : Variable / Constant
+Bit rate                                 : 384000
+Bit rate                                 : 384 Kbps
+Maximum bit rate                         : 8760000
+Maximum bit rate                         : 8 760 Kbps
+Channel(s)                               : 8 / 6
+Channel(s)                               : 8 channels / 6 channels
+Channel positions                        : Front: L C R, Side: L R, Back: L R, LFE / Front: L C R, Side: L R, LFE
+Channel positions                        : 3/2/2.1 / 3/2/0.1
+ChannelLayout                            : L C R LFE Ls Rs
+Sampling rate                            : 48000
+Sampling rate                            : 48.0 KHz
+Samples count                            : 329693424
+Frame count                              : 214644
+Delay                                    : 11650.667
+Delay                                    : 11s 651ms
+Delay                                    : 11s 651ms
+Delay                                    : 11s 651ms
+Delay                                    : 00:00:11.651
+Delay, origin                            : Container
+Delay, origin                            : Container
+Delay relative to video                  : 0
+Delay relative to video                  : 00:00:00.000
+Video0 delay                             : 0
+Video0 delay                             : 00:00:00.000
+Stream size                              : 329693424
+Stream size                              : 314 MiB (1%)
+Stream size                              : 314 MiB
+Stream size                              : 314 MiB
+Stream size                              : 314 MiB
+Stream size                              : 314.4 MiB
+Stream size                              : 314 MiB (1%)
+Proportion of this stream                : 0.01222
+bsid                                     : 6
+dialnorm                                 : -27
+dialnorm/String                          : -27 dB
+compr                                    : 0.53
+compr/String                             : 0.53 dB
+dynrng                                   : 0.27
+dynrng/String                            : 0.27 dB
+acmod                                    : 7
+lfeon                                    : 1
+dialnorm_Average                         : -27
+dialnorm_Average/String                  : -27 dB
+dialnorm_Minimum                         : -27
+dialnorm_Minimum/String                  : -27 dB
+dialnorm_Maximum                         : -27
+dialnorm_Maximum/String                  : -27 dB
+dialnorm_Count                           : 230
+compr_Average                            : 4.21
+compr_Average/String                     : 4.21 dB
+compr_Minimum                            : 0.53
+compr_Minimum/String                     : 0.53 dB
+compr_Maximum                            : 5.74
+compr_Maximum/String                     : 5.74 dB
+compr_Count                              : 230
+dynrng_Average                           : 4.06
+dynrng_Average/String                    : 4.06 dB
+dynrng_Minimum                           : 0.27
+dynrng_Minimum/String                    : 0.27 dB
+dynrng_Maximum                           : 5.88
+dynrng_Maximum/String                    : 5.88 dB
+dynrng_Count                             : 230
+format_identifier                        : AC-3

@@ -24,7 +24,7 @@ package com.moviejukebox.scanner;
 
 import java.io.InputStream;
 
-public class MediaInfoStream {
+public class MediaInfoStream implements AutoCloseable {
 
     private final Process process;
     private final InputStream inputStream;
@@ -43,6 +43,7 @@ public class MediaInfoStream {
         return inputStream;
     }
 
+    @Override
     public void close() {
         if (process != null) {
             try {

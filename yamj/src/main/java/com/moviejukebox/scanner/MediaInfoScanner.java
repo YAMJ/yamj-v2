@@ -292,9 +292,8 @@ public class MediaInfoScanner {
             }
         }
 
-        MediaInfoStream stream = null;
-        try {
-            stream = createStream(movieFilePath);
+        
+        try (MediaInfoStream stream = createStream(movieFilePath)) {
 
             Map<String, String> infosGeneral = new HashMap<>();
             List<Map<String, String>> infosVideo = new ArrayList<>();
@@ -307,10 +306,6 @@ public class MediaInfoScanner {
         } catch (Exception ex) {
             LOG.warn("Failed reading mediainfo output for {}", movieFilePath);
             LOG.error(SystemTools.getStackTrace(ex));
-        } finally {
-            if (stream != null) {
-                stream.close();
-            }
         }
     }
 
@@ -330,9 +325,7 @@ public class MediaInfoScanner {
     }
 
     private void scanMultiParts(String movieFilePath, Map<String, String> infosMultiPart) {
-        MediaInfoStream stream = null;
-        try {
-            stream = createStream(movieFilePath);
+        try (MediaInfoStream stream = createStream(movieFilePath)) {
 
             Map<String, String> infosGeneral = new HashMap<>();
             List<Map<String, String>> infosVideo = new ArrayList<>();
@@ -351,10 +344,6 @@ public class MediaInfoScanner {
         } catch (Exception ex) {
             LOG.warn("Failed reading mediainfo output for {}", movieFilePath);
             LOG.error(SystemTools.getStackTrace(ex));
-        } finally {
-            if (stream != null) {
-                stream.close();
-            }
         }
     }
 
