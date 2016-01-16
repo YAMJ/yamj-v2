@@ -175,7 +175,7 @@
             <dependency>
                 <groupId>com.omertron</groupId>
                 <artifactId>thetvdbapi</artifactId>
-                <version>1.8-SNAPSHOT</version>
+                <version>1.9-SNAPSHOT</version>
                 <type>jar</type>
             </dependency>
             <dependency>
@@ -211,7 +211,7 @@
             <dependency>
                 <groupId>com.omertron</groupId>
                 <artifactId>fanarttvapi</artifactId>
-                <version>3.2-SNAPSHOT</version>
+                <version>3.3-SNAPSHOT</version>
                 <type>jar</type>
             </dependency>
             <dependency>
