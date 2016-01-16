@@ -22,13 +22,14 @@
  */
 package com.moviejukebox.scanner;
 
+import static org.junit.Assert.*;
+
 import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.tools.StringTools;
 import java.io.File;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -276,10 +277,8 @@ public class MovieFilenameScannerTest {
         assertEquals("720p", d.getHdResolution());
         assertEquals("This should be -1 as it is not a TV Show", -1, d.getSeason());
 
-        // This test fails because the "HD" is removed from the title
-//        d = scan("WWII in HD S01E01.avi");
-//        assertEquals("WWII in HD", d.getTitle());
-//        assertEquals(1, d.getSeason());
+        d = scan("Le Seigneur des anneaux le retour du roi [SET Le seigneur des anneaux-3] - 720p.bluray.x264.mkv");
+        System.err.println(d.getSets());
     }
 
     @Test
@@ -307,6 +306,10 @@ public class MovieFilenameScannerTest {
         assertEquals("Predator", d.getSets().get(1).getTitle());
         assertEquals(3, d.getSets().get(1).getIndex());
 
+        d = scan("Le Seigneur des anneaux le retour du roi [SET Le seigneur des anneaux-3] - 720p.bluray.x264.mkv");
+        assertEquals(1, d.getSets().size());
+        assertEquals("Le seigneur des anneaux", d.getSets().get(0).getTitle());
+        assertEquals(3, d.getSets().get(0).getIndex());
     }
 
     @Test
