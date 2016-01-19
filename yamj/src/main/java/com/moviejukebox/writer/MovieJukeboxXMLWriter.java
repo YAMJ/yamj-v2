@@ -1401,8 +1401,19 @@ public class MovieJukeboxXMLWriter {
                 if (includeEpisodePlots) {
                     childAttributes.clear();
                     childAttributes.put(PART, Integer.toString(part));
-                    childAttributes.put(SOURCE, mf.getOverrideSource(OverrideFlag.EPISODE_PLOT));
-                    DOMHelper.appendChild(doc, eFileItem, "filePlot", mf.getPlot(part), childAttributes);
+                    
+                    // use file title if plot is invalid
+                    String filePlot = mf.getPlot(part);
+                    final String filePlotSource;
+                    if (movie.isTVShow() && StringTools.isNotValidString(filePlot)) { 
+                        filePlot = mf.getTitle(part);
+                        filePlotSource = Movie.UNKNOWN;
+                    } else {
+                        filePlotSource = mf.getOverrideSource(OverrideFlag.EPISODE_PLOT);
+                    }
+                    
+                    childAttributes.put(SOURCE, filePlotSource);
+                    DOMHelper.appendChild(doc, eFileItem, "filePlot", filePlot, childAttributes);
                 }
 
                 if (includeEpisodeRating) {
