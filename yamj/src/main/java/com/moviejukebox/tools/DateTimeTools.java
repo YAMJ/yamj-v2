@@ -155,13 +155,7 @@ public final class DateTimeTools {
         }
         
         // See if we can convert this to a number and assume it's correct if we can
-        int returnValue;
-        int pointIdx = runtime.indexOf('.');
-        if (pointIdx > 0) {
-            returnValue = NumberUtils.toInt(runtime.substring(0, pointIdx), -1);
-        } else {
-            returnValue = NumberUtils.toInt(runtime, -1);
-        }
+        int returnValue = (int)NumberUtils.toFloat(runtime, -1f);
         
         if (returnValue < 0) {
             // This is for the format xx(hour/hr/min)yy(min), e.g. 1h30, 90mins, 1h30m
