@@ -827,7 +827,7 @@ public class MediaInfoScanner {
         }
 
         String runtimeValue = infosMultiPart.get("MultiPart_Duration");
-        return DateTimeTools.processRuntime(runtimeValue, 0);
+        return Math.max(0, DateTimeTools.processRuntime(runtimeValue));
     }
 
     /**

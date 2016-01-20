@@ -148,27 +148,21 @@ public final class DateTimeTools {
      * @param runtime
      * @return
      */
-    public static int processRuntime(String runtime) {
-        return processRuntime(runtime, -1);
-    }
-
-    /**
-     * Take a string runtime in various formats and try to output this in minutes
-     *
-     * @param runtime
-     * @param defaultValue
-     * @return
-     */
-    public static int processRuntime(String runtime, int defaultValue) {
+    public static int processRuntime(final String runtime) {
         if (StringUtils.isBlank(runtime)) {
             // No string to parse
-            return defaultValue;
+            return -1;
         }
-
-        int returnValue;
+        
         // See if we can convert this to a number and assume it's correct if we can
-        returnValue = NumberUtils.toInt(runtime, defaultValue);
-
+        int returnValue;
+        int pointIdx = runtime.indexOf('.');
+        if (pointIdx > 0) {
+            returnValue = NumberUtils.toInt(runtime.substring(0, pointIdx), -1);
+        } else {
+            returnValue = NumberUtils.toInt(runtime, -1);
+        }
+        
         if (returnValue < 0) {
             // This is for the format xx(hour/hr/min)yy(min), e.g. 1h30, 90mins, 1h30m
             Pattern hrmnPattern = Pattern.compile("(?i)(\\d+)(\\D*)(\\d*)(.*?)");

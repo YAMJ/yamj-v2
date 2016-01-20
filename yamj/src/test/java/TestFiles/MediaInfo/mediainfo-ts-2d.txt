@@ -91,7 +91,7 @@ Codec profile                            : High@L4.1
 Codec settings                           : CABAC / 2 Ref Frames
 Codec settings, CABAC                    : Yes
 Codec_Settings_RefFrames                 : 2
-Duration                                 : 6868612
+Duration                                 : 6868612.917333
 Duration                                 : 1h 54mn
 Duration                                 : 1h 54mn 28s 612ms
 Duration                                 : 1h 54mn
