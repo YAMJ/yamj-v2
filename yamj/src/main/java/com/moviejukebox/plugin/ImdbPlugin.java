@@ -29,43 +29,18 @@ import static com.moviejukebox.tools.StringTools.isNotValidString;
 import static com.moviejukebox.tools.StringTools.isValidString;
 import static com.moviejukebox.tools.StringTools.trimToLength;
 
+import com.moviejukebox.model.*;
+import com.moviejukebox.scanner.artwork.FanartScanner;
+import com.moviejukebox.tools.*;
 import java.io.IOException;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.Award;
-import com.moviejukebox.model.AwardEvent;
-import com.moviejukebox.model.Filmography;
-import com.moviejukebox.model.Identifiable;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.scanner.artwork.FanartScanner;
-import com.moviejukebox.tools.AspectRatioTools;
-import com.moviejukebox.tools.FileTools;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.YamjHttpClient;
-import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 public class ImdbPlugin implements MovieDatabasePlugin {
 
@@ -458,13 +433,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // OUTLINE
         if (OverrideTools.checkOverwriteOutline(movie, IMDB_PLUGIN_ID)) {
             // The new outline is at the end of the review section with no preceding text
-            String imdbOutline = HTMLTools.extractTag(xml, "<p itemprop=\"description\">", "</p>");
+            String imdbOutline = HTMLTools.extractTag(xml, "<div class=\"summary_text\" itemprop=\"description\">", HTML_DIV_END);
             imdbOutline = cleanStringEnding(HTMLTools.removeHtmlTags(imdbOutline)).trim();
-
+            
             if (isNotValidString(imdbOutline)) {
                 // ensure the outline is set to unknown if it's blank or null
                 imdbOutline = UNKNOWN;
             }
+            
             movie.setOutline(imdbOutline, IMDB_PLUGIN_ID);
         }
 
@@ -605,6 +581,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 xmlPlot = HTMLTools.removeHtmlTags(xmlPlot).trim();
             }
 
+            // This plot didn't work, look for another version
+            if (isNotValidString(xmlPlot)) {
+                xmlPlot = HTMLTools.extractTag(xml, "<div class=\"summary_text\" itemprop=\"description\">", HTML_DIV_END);
+                xmlPlot = HTMLTools.removeHtmlTags(xmlPlot).trim();
+            }
+
+            
             // See if the plot has the "metacritic" text and remove it
             int pos = xmlPlot.indexOf("Metacritic.com)");
             if (pos > 0) {
