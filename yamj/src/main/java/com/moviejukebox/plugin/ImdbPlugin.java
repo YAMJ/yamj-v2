@@ -433,13 +433,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // OUTLINE
         if (OverrideTools.checkOverwriteOutline(movie, IMDB_PLUGIN_ID)) {
             // The new outline is at the end of the review section with no preceding text
-            String imdbOutline = HTMLTools.extractTag(xml, "<p itemprop=\"description\">", "</p>");
+            String imdbOutline = HTMLTools.extractTag(xml, "<div class=\"summary_text\" itemprop=\"description\">", HTML_DIV_END);
             imdbOutline = cleanStringEnding(HTMLTools.removeHtmlTags(imdbOutline)).trim();
-
+            
             if (isNotValidString(imdbOutline)) {
                 // ensure the outline is set to unknown if it's blank or null
                 imdbOutline = UNKNOWN;
             }
+            
             movie.setOutline(imdbOutline, IMDB_PLUGIN_ID);
         }
 
@@ -580,6 +581,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 xmlPlot = HTMLTools.removeHtmlTags(xmlPlot).trim();
             }
 
+            // This plot didn't work, look for another version
+            if (isNotValidString(xmlPlot)) {
+                xmlPlot = HTMLTools.extractTag(xml, "<div class=\"summary_text\" itemprop=\"description\">", HTML_DIV_END);
+                xmlPlot = HTMLTools.removeHtmlTags(xmlPlot).trim();
+            }
+
+            
             // See if the plot has the "metacritic" text and remove it
             int pos = xmlPlot.indexOf("Metacritic.com)");
             if (pos > 0) {
