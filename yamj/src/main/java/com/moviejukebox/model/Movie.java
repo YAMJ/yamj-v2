@@ -2054,9 +2054,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     }
 
     public void setTop250(String top250, String source) {
-        if (StringUtils.isNumeric(top250)) {
-            setTop250(Integer.parseInt(top250), source);
-        }
+        setTop250(NumberUtils.toInt(top250), source);
     }
 
     public void setTop250(int top250, String source) {
