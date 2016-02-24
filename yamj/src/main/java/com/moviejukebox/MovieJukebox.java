@@ -1,5 +1,5 @@
 /*
- *      Copyright (c) 2004-2015 YAMJ Members
+ *      Copyright (c) 2004-2016 YAMJ Members
  *      https://github.com/orgs/YAMJ/people
  *
  *      This file is part of the Yet Another Movie Jukebox (YAMJ) project.
@@ -148,7 +148,7 @@ public class MovieJukebox {
         LOG.info("Yet Another Movie Jukebox {}", GitRepositoryState.getVersion());
         LOG.info("~~~ ~~~~~~~ ~~~~~ ~~~~~~~ {}", StringUtils.repeat("~", GitRepositoryState.getVersion().length()));
         LOG.info("https://github.com/YAMJ/yamj-v2");
-        LOG.info("Copyright (c) 2004-2015 YAMJ Members");
+        LOG.info("Copyright (c) 2004-2016 YAMJ Members");
         LOG.info("");
         LOG.info("This software is licensed under the GNU General Public License v3+");
         LOG.info("See this page: https://github.com/YAMJ/yamj-v2/wiki/License");

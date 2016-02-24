@@ -1,5 +1,5 @@
 /*
- *      Copyright (c) 2004-2015 YAMJ Members
+ *      Copyright (c) 2004-2016 YAMJ Members
  *      https://github.com/orgs/YAMJ/people
  *
  *      This file is part of the Yet Another Movie Jukebox (YAMJ) project.

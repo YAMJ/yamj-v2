@@ -1,4 +1,4 @@
-Copyright (c) 2004-2015 YAMJ Members
+Copyright (c) 2004-2016 YAMJ Members
 https://github.com/orgs/YAMJ/people
 
 Web: https://github.com/YAMJ/yamj-v2
