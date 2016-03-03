@@ -47,6 +47,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     public static final String IMDB_PLUGIN_ID = "imdb";
     private static final Logger LOG = LoggerFactory.getLogger(ImdbPlugin.class);
     protected String preferredCountry;
+    protected Pattern pRelease;
     private final String imdbPlot;
     protected YamjHttpClient httpClient;
     protected boolean downloadFanart;
@@ -105,13 +106,13 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
     // Patterns for filmography
     // 1: Section title (job), 2: Number of credits
-    private static final Pattern pJobSection = Pattern.compile("<a name=\".*?\">(.*?)</a> \\((\\d*?) credit.?\\)");
+    private static final Pattern P_JOB_SELECTION = Pattern.compile("<a name=\".*?\">(.*?)</a> \\((\\d*?) credit.?\\)");
     // 1: Single video
-    private static final Pattern pJobItems = Pattern.compile("(?s)(<div class=\"filmo-row.*?>(.*?)(?:</div>\\s*)+)");
+    private static final Pattern P_JOB_ITEMS = Pattern.compile("(?s)(<div class=\"filmo-row.*?>(.*?)(?:</div>\\s*)+)");
     // 1: Release Year (for acting roles)
-    private static final Pattern pJobYear = Pattern.compile("\\\"year_column\\\">(?:&nbsp;){0,1}(\\d{4})</span>");
+    private static final Pattern P_JOB_YEAR = Pattern.compile("\\\"year_column\\\">(?:&nbsp;){0,1}(\\d{4})</span>");
     // 1: IMDB ID, 2: Title
-    private static final Pattern pJobIdTitle = Pattern.compile("/title/(tt\\d*?)/.*?>(.*?)<br");
+    private static final Pattern P_JOB_ID_TITLE = Pattern.compile("/title/(tt\\d*?)/.*?>(.*?)<br");
 
     // Pattern for DOB
     private static final Pattern PATTERN_DOB = Pattern.compile("(\\d{1,2})-(\\d{1,2})");
@@ -120,7 +121,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     private final boolean akaScrapeTitle;
     private final String[] akaMatchingCountries;
     private final String[] akaIgnoreVersions;
-    
+
     public ImdbPlugin() {
         imdbInfo = new ImdbInfo();
         aspectTools = new AspectRatioTools();
@@ -171,6 +172,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         } else {
             akaMatchingCountries = (preferredCountry + "," + fallbacks).split(",");
         }
+
+        // PATTERN
+        pRelease = Pattern.compile("(?:.*?)\\Q" + preferredCountry + "\\E(?:.*?)\\Qrelease_date\">\\E(.*?)(?:<.*?>)(.*?)(?:</a>.*)");
+
     }
 
     @Override
@@ -217,12 +222,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 if (value.equals(UNKNOWN)) {
                     value = text;
                 }
-            } else {
-                if (country.equals(preferredCountry)) {
-                    value = text;
-                    // No need to continue scanning
-                    break;
-                }
+            } else if (country.equals(preferredCountry)) {
+                value = text;
+                // No need to continue scanning
+                break;
             }
         }
         return HTMLTools.stripTags(value);
@@ -435,12 +438,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             // The new outline is at the end of the review section with no preceding text
             String imdbOutline = HTMLTools.extractTag(xml, "<div class=\"summary_text\" itemprop=\"description\">", HTML_DIV_END);
             imdbOutline = cleanStringEnding(HTMLTools.removeHtmlTags(imdbOutline)).trim();
-            
+
             if (isNotValidString(imdbOutline)) {
                 // ensure the outline is set to unknown if it's blank or null
                 imdbOutline = UNKNOWN;
             }
-            
+
             movie.setOutline(imdbOutline, IMDB_PLUGIN_ID);
         }
 
@@ -587,7 +590,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 xmlPlot = HTMLTools.removeHtmlTags(xmlPlot).trim();
             }
 
-            
             // See if the plot has the "metacritic" text and remove it
             int pos = xmlPlot.indexOf("Metacritic.com)");
             if (pos > 0) {
@@ -649,7 +651,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // Store the aka list
         Map<String, String> akas = null;
 
-        // ASPECT RATIO
         if (OverrideTools.checkOverwriteAspectRatio(movie, IMDB_PLUGIN_ID)) {
             // determine start and end string
             String startString;
@@ -680,10 +681,10 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 releaseInfoXML = getImdbData(getImdbUrl(movie, SUFFIX_RELEASEINFO));
             }
 
-            Pattern pRelease = Pattern.compile("(?:.*?)\\Q" + preferredCountry + "\\E(?:.*?)\\Qrelease_date\">\\E(.*?)(?:<.*?>)(.*?)(?:</a>.*)");
             Matcher mRelease = pRelease.matcher(releaseInfoXML);
 
-            if (mRelease.find()) {
+            // "contains" is a quick match before the slower find() is triggered.
+            if (releaseInfoXML.contains(preferredCountry) && mRelease.find()) {
                 String releaseDate = mRelease.group(1) + " " + mRelease.group(2);
                 movie.setReleaseDate(releaseDate, IMDB_PLUGIN_ID);
             }
@@ -891,7 +892,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // flag to indicate if match has been found
         boolean found = Boolean.FALSE;
 
-        for (String directorMatch : new String[]{"Directed by","Director","Directors"}) {
+        for (String directorMatch : new String[]{"Directed by", "Director", "Directors"}) {
             if (fullcreditsXML.contains(HTML_GT + directorMatch + "&nbsp;</h4>")) {
                 for (String member : HTMLTools.extractTags(fullcreditsXML, HTML_GT + directorMatch + "&nbsp;</h4>", HTML_TABLE_END, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
                     int beginIndex = member.indexOf("href=\"/name/");
@@ -948,7 +949,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // flag to indicate if match has been found
         boolean found = Boolean.FALSE;
 
-        for (String writerMatch : new String[]{"Writing credits","Writer","Writers"}) {
+        for (String writerMatch : new String[]{"Writing credits", "Writer", "Writers"}) {
             if (StringUtils.indexOfIgnoreCase(fullcreditsXML, HTML_GT + writerMatch) >= 0) {
                 for (String member : HTMLTools.extractTags(fullcreditsXML, HTML_GT + writerMatch, HTML_TABLE_END, HTML_A_START, HTML_A_END, Boolean.FALSE)) {
                     int beginIndex = member.indexOf("href=\"/name/");
@@ -1205,8 +1206,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
      * Get the TV show information from IMDb
      *
      * @param movie
-     *
-     * @throws IOException
      */
     protected void updateTVShowInfo(Movie movie) {
         scanTVShowTitles(movie);
@@ -1549,7 +1548,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         // List of films for the person
         Map<String, Filmography> filmography = new TreeMap<>();
 
-        Matcher mJobList = pJobSection.matcher(sourceXml);
+        Matcher mJobList = P_JOB_SELECTION.matcher(sourceXml);
 
         // Loop around the jobs
         while (mJobList.find()) {
@@ -1577,7 +1576,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             }
 
             String videoList = sourceXml.substring(beginIndex, endIndex);
-            Matcher mJobs = pJobItems.matcher(videoList);
+            Matcher mJobs = P_JOB_ITEMS.matcher(videoList);
 
             Matcher mJob;
             int count = 1;
@@ -1595,7 +1594,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 /*
                  * Generic stuff to all jobs
                  */
-                mJob = pJobIdTitle.matcher(jobItem);
+                mJob = P_JOB_ID_TITLE.matcher(jobItem);
                 if (mJob.find()) {
                     id = mJob.group(1);
                     title = mJob.group(2);
@@ -1627,7 +1626,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 }
 
                 // YEAR
-                mJob = pJobYear.matcher(jobItem);
+                mJob = P_JOB_YEAR.matcher(jobItem);
                 if (mJob.find()) {
                     film.setYear(mJob.group(1));
                 } else {
@@ -1861,7 +1860,6 @@ public class ImdbPlugin implements MovieDatabasePlugin {
     /**
      * Get the IMDB URL for the ID
      *
-     * @param siteDefinition The current site definition
      * @param id The ID, either person or movie
      * @param type The URL Type to get - Must not start or end with "/"
      * @param typeSuffix The suffix, optional

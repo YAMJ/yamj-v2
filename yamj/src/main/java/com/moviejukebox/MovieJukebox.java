@@ -557,10 +557,8 @@ public class MovieJukebox {
                 if (!oldLogFile.renameTo(newLogFile)) {
                     System.err.println("Error renaming ERROR log file.");
                 }
-            } else {
-                if (!oldLogFile.delete()) {
-                    System.err.println("Error deleting ERROR log file.");
-                }
+            } else if (!oldLogFile.delete()) {
+                System.err.println("Error deleting ERROR log file.");
             }
         }
     }
@@ -1813,14 +1811,12 @@ public class MovieJukebox {
     }
 
     /**
-     * Generates a movie XML file which contains data in the <tt>Movie</tt>
-     * bean.
+     * Generates a movie XML file which contains data in the <tt>Movie</tt> bean.
      *
      * When an XML file exists for the specified movie file, it is loaded into the specified <tt>Movie</tt> object.
      *
      * When no XML file exist, scanners are called in turn, in order to add information to the specified <tt>movie</tt> object. Once
-     * scanned, the
-     * <tt>movie</tt> object is persisted.
+     * scanned, the <tt>movie</tt> object is persisted.
      *
      * @param xmlReader
      * @param miScanner
@@ -1829,8 +1825,6 @@ public class MovieJukebox {
      * @param jukebox
      * @param library
      * @return
-     * @throws java.io.FileNotFoundException
-     * @throws javax.xml.stream.XMLStreamException
      */
     public boolean updateMovieData(MovieJukeboxXMLReader xmlReader, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie, Library library) {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", Boolean.FALSE);
