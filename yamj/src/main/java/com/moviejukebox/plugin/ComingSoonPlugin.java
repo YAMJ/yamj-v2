@@ -260,7 +260,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
      */
     private static List<String[]> parseComingSoonSearchResults(String xml) {
         final List<String[]> result = new ArrayList<>();
-        
+
         int beginIndex = StringUtils.indexOfIgnoreCase(xml, "Trovate");
         int moviesFound = -1;
         if (beginIndex > 0) {
@@ -275,12 +275,12 @@ public class ComingSoonPlugin extends ImdbPlugin {
             LOG.error("Couldn't find 'Trovate NNN film in archivio' string. Search page layout probably changed");
             return result;
         }
- 
+
         List<String> films = HTMLTools.extractTags(xml, "box-lista-cinema", "BOX FILM RICERCA", "<a h", "</a>", false);
         if (CollectionUtils.isEmpty(films)) {
             return result;
         }
-        
+
         LOG.debug("Search found {} movies", films.size());
 
         for (String film : films) {
@@ -289,15 +289,23 @@ public class ComingSoonPlugin extends ImdbPlugin {
             if (beginIndex >= 0) {
                 comingSoonId = getComingSoonIdFromURL(film);
             }
-            if (StringTools.isNotValidString(comingSoonId)) continue;
+            if (StringTools.isNotValidString(comingSoonId)) {
+                continue;
+            }
 
             String title = HTMLTools.extractTag(film, "<div class=\"h5 titolo cat-hover-color anim25\">", "</div>");
-            if (StringTools.isNotValidString(title)) continue;
-            
+            if (StringTools.isNotValidString(title)) {
+                continue;
+            }
+
             String originalTitle = HTMLTools.extractTag(film, "<div class=\"h6 sottotitolo\">", "</div>");
-            if (StringTools.isNotValidString(originalTitle)) originalTitle = Movie.UNKNOWN;
-            if (originalTitle.startsWith("(")) originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
-            
+            if (StringTools.isNotValidString(originalTitle)) {
+                originalTitle = Movie.UNKNOWN;
+            }
+            if (originalTitle.startsWith("(")) {
+                originalTitle = originalTitle.substring(1, originalTitle.length() - 1).trim();
+            }
+
             String year = Movie.UNKNOWN;
             beginIndex = film.indexOf("ANNO</span>:");
             if (beginIndex > 0) {
@@ -306,7 +314,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
                     year = film.substring(beginIndex + 12, endIndex).trim();
                 }
             }
-            
+
             result.add(new String[]{comingSoonId, title, originalTitle, year});
         }
 
@@ -328,9 +336,8 @@ public class ComingSoonPlugin extends ImdbPlugin {
     /**
      * Returns difference between two titles.
      *
-     * Since ComingSoon returns strange results on some researches, difference
-     * is defined as follows: abs(word count difference) - (searchedTitle word
-     * count - matched words);
+     * Since ComingSoon returns strange results on some researches, difference is defined as follows: abs(word count difference) -
+     * (searchedTitle word count - matched words);
      *
      * @param searchedTitle
      * @param returnedTitle
@@ -345,9 +352,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         String title1 = searchedTitle.toLowerCase().replaceAll("[,.\\!\\?\"']", "");
         String title2 = returnedTitle.toLowerCase().replaceAll("[,.\\!\\?\"']", "");
-        int difference = StringUtils.getLevenshteinDistance(title1, title2);
-
-        return difference;
+        return StringUtils.getLevenshteinDistance(title1, title2);
     }
 
     protected boolean updateComingSoonMediaInfo(Movie movie) {
@@ -369,17 +374,17 @@ public class ComingSoonPlugin extends ImdbPlugin {
         // TITLE
         if (OverrideTools.checkOverwriteTitle(movie, COMINGSOON_PLUGIN_ID)) {
             int beginIndex = xml.indexOf("<h1 itemprop=\"name\"");
-            if (beginIndex < 0 ) {
+            if (beginIndex < 0) {
                 LOG.error("No title found at ComingSoon page. HTML layout has changed?");
                 return false;
             }
-            
-            String tag = xml.substring(beginIndex, xml.indexOf(">", beginIndex)+1);
+
+            String tag = xml.substring(beginIndex, xml.indexOf(">", beginIndex) + 1);
             String title = HTMLTools.extractTag(xml, tag, "</h1>").trim();
             if (StringTools.isNotValidString(title)) {
                 return false;
             }
-            
+
             movie.setTitle(WordUtils.capitalizeFully(title), COMINGSOON_PLUGIN_ID);
         }
 
@@ -436,7 +441,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         // COMPANY
         if (OverrideTools.checkOverwriteCompany(movie, COMINGSOON_PLUGIN_ID)) {
             // TODO: Add more than one company when available in Movie model
-            String companies = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PRODUZIONE</span>: ","</li>"));
+            String companies = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PRODUZIONE</span>: ", "</li>"));
             StringTokenizer st = new StringTokenizer(companies, ",");
             if (st.hasMoreTokens()) {
                 movie.setCompany(st.nextToken().trim(), COMINGSOON_PLUGIN_ID);

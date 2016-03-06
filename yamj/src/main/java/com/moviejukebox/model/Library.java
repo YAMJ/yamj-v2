@@ -146,6 +146,7 @@ public class Library implements Map<String, Movie> {
     public static final String INDEX_YEAR = "Year";
     // Literal Strings
     private static final String ADDING_TO_LIST = "Adding {} to {} list for {}";
+    private static final String LIT_NAME = "[@name]";
 
     static {
         categoryMinCountMaster = PropertiesUtil.getIntProperty("mjb.categories.minCount", 3);
@@ -711,21 +712,17 @@ public class Library implements Map<String, Movie> {
                 if (trimNewMovieOK && (CATEGORIES_MAP.get(INDEX_NEW_MOVIE) != null) && (otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_MOVIE)) != null)) {
                     newList.addAll(otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_MOVIE)));
                     newMovies = otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_MOVIE)).size();
-                } else {
-                    // Remove the empty "New Movie" category
-                    if (CATEGORIES_MAP.get(INDEX_NEW_MOVIE) != null) {
-                        otherIndexes.remove(CATEGORIES_MAP.get(INDEX_NEW_MOVIE));
-                    }
+                } else // Remove the empty "New Movie" category
+                if (CATEGORIES_MAP.get(INDEX_NEW_MOVIE) != null) {
+                    otherIndexes.remove(CATEGORIES_MAP.get(INDEX_NEW_MOVIE));
                 }
 
                 if (trimNewTvOK && (CATEGORIES_MAP.get(INDEX_NEW_TV) != null) && (otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_TV)) != null)) {
                     newList.addAll(otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_TV)));
                     newTVShows = otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_TV)).size();
-                } else {
-                    // Remove the empty "New TV" category
-                    if (CATEGORIES_MAP.get(INDEX_NEW_TV) != null) {
-                        otherIndexes.remove(CATEGORIES_MAP.get(INDEX_NEW_TV));
-                    }
+                } else // Remove the empty "New TV" category
+                if (CATEGORIES_MAP.get(INDEX_NEW_TV) != null) {
+                    otherIndexes.remove(CATEGORIES_MAP.get(INDEX_NEW_TV));
                 }
 
                 // If we have new videos, then create the super "New" category
@@ -773,7 +770,7 @@ public class Library implements Map<String, Movie> {
                         LOG.info("  Indexing {} (person)...", indexStr);
                         indexByJob(indexPersons, indexStr.equals(INDEX_CAST) ? Filmography.DEPT_ACTORS
                                 : indexStr.equals(INDEX_DIRECTOR) ? Filmography.DEPT_DIRECTING
-                                        : indexStr.equals(INDEX_WRITER) ? Filmography.DEPT_WRITING : Movie.UNKNOWN, indexStr);
+                                : indexStr.equals(INDEX_WRITER) ? Filmography.DEPT_WRITING : Movie.UNKNOWN, indexStr);
                         return null;
                     }
                 });
@@ -1003,17 +1000,13 @@ public class Library implements Map<String, Movie> {
                                 index.addMovie(CATEGORIES_MAP.get(INDEX_HD1080), movie);
                                 movie.addIndex(INDEX_HD, CATEGORIES_MAP.get(INDEX_HD1080));
                             }
-                        } else {
-                            if (CATEGORIES_MAP.get(INDEX_HD720) != null) {
-                                index.addMovie(CATEGORIES_MAP.get(INDEX_HD720), movie);
-                                movie.addIndex(INDEX_HD, CATEGORIES_MAP.get(INDEX_HD720));
-                            }
+                        } else if (CATEGORIES_MAP.get(INDEX_HD720) != null) {
+                            index.addMovie(CATEGORIES_MAP.get(INDEX_HD720), movie);
+                            movie.addIndex(INDEX_HD, CATEGORIES_MAP.get(INDEX_HD720));
                         }
-                    } else {
-                        if (CATEGORIES_MAP.get(INDEX_HD) != null) {
-                            index.addMovie(CATEGORIES_MAP.get(INDEX_HD), movie);
-                            movie.addIndex(INDEX_HD, CATEGORIES_MAP.get(INDEX_HD));
-                        }
+                    } else if (CATEGORIES_MAP.get(INDEX_HD) != null) {
+                        index.addMovie(CATEGORIES_MAP.get(INDEX_HD), movie);
+                        movie.addIndex(INDEX_HD, CATEGORIES_MAP.get(INDEX_HD));
                     }
                 }
 
@@ -1071,11 +1064,9 @@ public class Library implements Map<String, Movie> {
                         index.addMovie(CATEGORIES_MAP.get(INDEX_TVSHOWS), movie);
                         movie.addIndex(INDEX_TVSHOWS, CATEGORIES_MAP.get(INDEX_TVSHOWS));
                     }
-                } else {
-                    if (CATEGORIES_MAP.get(INDEX_MOVIES) != null) {
-                        index.addMovie(CATEGORIES_MAP.get(INDEX_MOVIES), movie);
-                        movie.addIndex(INDEX_MOVIES, CATEGORIES_MAP.get(INDEX_MOVIES));
-                    }
+                } else if (CATEGORIES_MAP.get(INDEX_MOVIES) != null) {
+                    index.addMovie(CATEGORIES_MAP.get(INDEX_MOVIES), movie);
+                    movie.addIndex(INDEX_MOVIES, CATEGORIES_MAP.get(INDEX_MOVIES));
                 }
 
                 if (!movie.isTVShow() && (!movie.getSetsKeys().isEmpty()) && CATEGORIES_MAP.get(INDEX_SETS) != null) {
@@ -1355,7 +1346,7 @@ public class Library implements Map<String, Movie> {
         if (index == null) {
             return -1;
         }
-    
+
         List<Movie> categoryList = index.get(category);
         if (categoryList != null) {
             return categoryList.size();
@@ -1509,11 +1500,11 @@ public class Library implements Map<String, Movie> {
 
                 List<HierarchicalConfiguration> genres = c.configurationsAt("genre");
                 for (HierarchicalConfiguration genre : genres) {
-                    String masterGenre = genre.getString("[@name]");
-//                     logger.debug("New masterGenre parsed : (" + masterGenre+ ")");
+                    String masterGenre = genre.getString(LIT_NAME);
+                    LOG.trace("New masterGenre parsed : (" + masterGenre + ")");
                     List<Object> subgenres = genre.getList("subgenre");
                     for (Object subgenre : subgenres) {
-//                         logger.debug("New genre added to map : (" + subgenre+ "," + masterGenre+ ")");
+                        LOG.trace("New genre added to map : (" + subgenre + "," + masterGenre + ")");
                         GENRES_MAP.put((String) subgenre, masterGenre);
                     }
 
@@ -1535,7 +1526,7 @@ public class Library implements Map<String, Movie> {
 
                 List<HierarchicalConfiguration> certifications = conf.configurationsAt("certification");
                 for (HierarchicalConfiguration certification : certifications) {
-                    String masterCertification = certification.getString("[@name]");
+                    String masterCertification = certification.getString(LIT_NAME);
                     List<Object> subcertifications = certification.getList("subcertification");
                     for (Object subcertification : subcertifications) {
                         CERTIFICATIONS_MAP.put((String) subcertification, masterCertification);
@@ -1567,7 +1558,7 @@ public class Library implements Map<String, Movie> {
                     boolean enabled = Boolean.parseBoolean(category.getString("enable", TRUE));
 
                     if (enabled) {
-                        String origName = category.getString("[@name]");
+                        String origName = category.getString(LIT_NAME);
                         String newName = category.getString("rename", origName);
                         CATEGORIES_MAP.put(origName, newName);
                         //logger.debug("Added category '" + origName + "' with name '" + newName + "'");

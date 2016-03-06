@@ -137,6 +137,81 @@ public class MovieJukebox {
     private static final int EXIT_SCAN_LIMIT = 1;
     // Directories to exclude from dump command
     private static final String[] EXCLUDED = {"dumpDir", ".svn", "src", "test", "bin", "skins"};
+    private static final String SKIN_DEFAULT = "./skins/default";
+    private static final String LOG_FINISHED = "Finished: {} ({}/{})";
+
+    public MovieJukebox(String source, String jukeboxRoot) {
+        this.movieLibraryRoot = source;
+        String jukeboxTempLocation = FileTools.getCanonicalPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp"));
+
+        String detailsDirName = getProperty("mjb.detailsDirName", "Jukebox");
+
+        jukebox = new Jukebox(jukeboxRoot, jukeboxTempLocation, detailsDirName);
+
+        MovieJukebox.skipPlaylistGeneration = PropertiesUtil.getBooleanProperty("mjb.skipPlaylistGeneration", Boolean.FALSE);
+
+        MovieJukebox.fanartMovieDownload = PropertiesUtil.getBooleanProperty("fanart.movie.download", Boolean.FALSE);
+        MovieJukebox.fanartTvDownload = PropertiesUtil.getBooleanProperty("fanart.tv.download", Boolean.FALSE);
+
+        setIndexFanart = PropertiesUtil.getBooleanProperty("mjb.sets.indexFanart", Boolean.FALSE);
+
+        fanartToken = getProperty("mjb.scanner.fanartToken", ".fanart");
+        bannerToken = getProperty("mjb.scanner.bannerToken", ".banner");
+        wideBannerToken = getProperty("mjb.scanner.wideBannerToken", ".wide");
+        posterToken = getProperty("mjb.scanner.posterToken", "_large");
+        thumbnailToken = getProperty("mjb.scanner.thumbnailToken", "_small");
+        footerToken = getProperty("mjb.scanner.footerToken", ".footer");
+
+        posterExtension = getProperty("posters.format", EXT_PNG);
+        thumbnailExtension = getProperty("thumbnails.format", EXT_PNG);
+        bannerExtension = getProperty("banners.format", EXT_PNG);
+        fanartExtension = getProperty("fanart.format", "jpg");
+
+        footerCount = PropertiesUtil.getIntProperty("mjb.footer.count", 0);
+        for (int i = 0; i < MovieJukebox.footerCount; i++) {
+            FOOTER_ENABLE.add(PropertiesUtil.getBooleanProperty("mjb.footer." + i + ".enable", Boolean.FALSE));
+            String fName = getProperty("mjb.footer." + i + ".name", "footer." + i);
+            FOOTER_NAME.add(fName);
+            FOOTER_WIDTH.add(PropertiesUtil.getIntProperty(fName + ".width", 400));
+            FOOTER_HEIGHT.add(PropertiesUtil.getIntProperty(fName + ".height", 80));
+            FOOTER_EXTENSION.add(getProperty(fName + ".format", EXT_PNG));
+        }
+
+        trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", Boolean.TRUE);
+
+        defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
+
+        File libraryFile = new File(source);
+        if (libraryFile.exists() && libraryFile.isFile() && source.toUpperCase().endsWith("XML")) {
+            LOG.debug("Parsing library file : {}", source);
+            mediaLibraryPaths = MovieJukeboxLibraryReader.parse(libraryFile);
+        } else if (libraryFile.exists() && libraryFile.isDirectory()) {
+            LOG.debug("Library path is : {}", source);
+            mediaLibraryPaths = new ArrayList<>();
+            MediaLibraryPath mlp = new MediaLibraryPath();
+            mlp.setPath(source);
+            // We'll get the new playerpath value first, then the nmt path so it overrides the default player path
+            String playerRootPath = getProperty("mjb.playerRootPath", "");
+            if (StringUtils.isBlank(playerRootPath)) {
+                playerRootPath = getProperty("mjb.nmtRootPath", "file:///opt/sybhttpd/localhost.drives/SATA_DISK/Video/");
+            }
+            mlp.setPlayerRootPath(playerRootPath);
+            mlp.setScrapeLibrary(Boolean.TRUE);
+            mlp.setExcludes(null);
+            mediaLibraryPaths.add(mlp);
+        }
+
+        // Check to see if we need to read the jukebox_details.xml file and process, otherwise, just create the file.
+        JukeboxProperties.readDetailsFile(jukebox, mediaLibraryPaths);
+
+        // Read these properties after the JukeboxProperties have been read to ensure that changes are picked up
+        this.forcePosterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePostersOverwrite", Boolean.FALSE);
+        this.forceThumbnailOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceThumbnailsOverwrite", Boolean.FALSE);
+        this.forceBannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", Boolean.FALSE);
+        this.forceSkinOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceSkinOverwrite", Boolean.FALSE);
+        this.forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", Boolean.FALSE);
+        this.forceFooterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFooterOverwrite", Boolean.FALSE);
+    }
 
     public static void main(String[] args) throws Throwable {
         JukeboxStatistics.setTimeStart(System.currentTimeMillis());
@@ -237,16 +312,16 @@ public class MovieJukebox {
         }
 
         // Load the skin.properties file
-        if (!setPropertiesStreamName(getProperty(SKIN_DIR, "./skins/default") + "/skin.properties", Boolean.TRUE)) {
+        if (!setPropertiesStreamName(getProperty(SKIN_DIR, SKIN_DEFAULT) + "/skin.properties", Boolean.TRUE)) {
             return;
         }
 
         // Load the skin-user.properties file (ignore the error)
-        setPropertiesStreamName(getProperty(SKIN_DIR, "./skins/default") + "/skin-user.properties", Boolean.FALSE);
+        setPropertiesStreamName(getProperty(SKIN_DIR, SKIN_DEFAULT) + "/skin-user.properties", Boolean.FALSE);
 
         // Load the overlay.properties file (ignore the error)
         String overlayRoot = getProperty("mjb.overlay.dir", Movie.UNKNOWN);
-        overlayRoot = (PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", Boolean.TRUE) ? (getProperty(SKIN_DIR, "./skins/default") + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
+        overlayRoot = (PropertiesUtil.getBooleanProperty("mjb.overlay.skinroot", Boolean.TRUE) ? (getProperty(SKIN_DIR, SKIN_DEFAULT) + File.separator) : "") + (StringTools.isValidString(overlayRoot) ? (overlayRoot + File.separator) : "");
         setPropertiesStreamName(overlayRoot + "overlay.properties", Boolean.FALSE);
 
         // Load the apikeys.properties file
@@ -417,79 +492,6 @@ public class MovieJukebox {
         } else {
             System.exit(EXIT_NORMAL);
         }
-    }
-
-    public MovieJukebox(String source, String jukeboxRoot) {
-        this.movieLibraryRoot = source;
-        String jukeboxTempLocation = FileTools.getCanonicalPath(PropertiesUtil.getProperty("mjb.jukeboxTempDir", "./temp"));
-
-        String detailsDirName = getProperty("mjb.detailsDirName", "Jukebox");
-
-        jukebox = new Jukebox(jukeboxRoot, jukeboxTempLocation, detailsDirName);
-
-        MovieJukebox.skipPlaylistGeneration = PropertiesUtil.getBooleanProperty("mjb.skipPlaylistGeneration", Boolean.FALSE);
-
-        MovieJukebox.fanartMovieDownload = PropertiesUtil.getBooleanProperty("fanart.movie.download", Boolean.FALSE);
-        MovieJukebox.fanartTvDownload = PropertiesUtil.getBooleanProperty("fanart.tv.download", Boolean.FALSE);
-
-        setIndexFanart = PropertiesUtil.getBooleanProperty("mjb.sets.indexFanart", Boolean.FALSE);
-
-        fanartToken = getProperty("mjb.scanner.fanartToken", ".fanart");
-        bannerToken = getProperty("mjb.scanner.bannerToken", ".banner");
-        wideBannerToken = getProperty("mjb.scanner.wideBannerToken", ".wide");
-        posterToken = getProperty("mjb.scanner.posterToken", "_large");
-        thumbnailToken = getProperty("mjb.scanner.thumbnailToken", "_small");
-        footerToken = getProperty("mjb.scanner.footerToken", ".footer");
-
-        posterExtension = getProperty("posters.format", EXT_PNG);
-        thumbnailExtension = getProperty("thumbnails.format", EXT_PNG);
-        bannerExtension = getProperty("banners.format", EXT_PNG);
-        fanartExtension = getProperty("fanart.format", "jpg");
-
-        footerCount = PropertiesUtil.getIntProperty("mjb.footer.count", 0);
-        for (int i = 0; i < MovieJukebox.footerCount; i++) {
-            FOOTER_ENABLE.add(PropertiesUtil.getBooleanProperty("mjb.footer." + i + ".enable", Boolean.FALSE));
-            String fName = getProperty("mjb.footer." + i + ".name", "footer." + i);
-            FOOTER_NAME.add(fName);
-            FOOTER_WIDTH.add(PropertiesUtil.getIntProperty(fName + ".width", 400));
-            FOOTER_HEIGHT.add(PropertiesUtil.getIntProperty(fName + ".height", 80));
-            FOOTER_EXTENSION.add(getProperty(fName + ".format", EXT_PNG));
-        }
-
-        trailersScannerEnable = PropertiesUtil.getBooleanProperty("trailers.scanner.enable", Boolean.TRUE);
-
-        defaultSource = PropertiesUtil.getProperty("filename.scanner.source.default", Movie.UNKNOWN);
-
-        File libraryFile = new File(source);
-        if (libraryFile.exists() && libraryFile.isFile() && source.toUpperCase().endsWith("XML")) {
-            LOG.debug("Parsing library file : {}", source);
-            mediaLibraryPaths = MovieJukeboxLibraryReader.parse(libraryFile);
-        } else if (libraryFile.exists() && libraryFile.isDirectory()) {
-            LOG.debug("Library path is : {}", source);
-            mediaLibraryPaths = new ArrayList<>();
-            MediaLibraryPath mlp = new MediaLibraryPath();
-            mlp.setPath(source);
-            // We'll get the new playerpath value first, then the nmt path so it overrides the default player path
-            String playerRootPath = getProperty("mjb.playerRootPath", "");
-            if (StringUtils.isBlank(playerRootPath)) {
-                playerRootPath = getProperty("mjb.nmtRootPath", "file:///opt/sybhttpd/localhost.drives/SATA_DISK/Video/");
-            }
-            mlp.setPlayerRootPath(playerRootPath);
-            mlp.setScrapeLibrary(Boolean.TRUE);
-            mlp.setExcludes(null);
-            mediaLibraryPaths.add(mlp);
-        }
-
-        // Check to see if we need to read the jukebox_details.xml file and process, otherwise, just create the file.
-        JukeboxProperties.readDetailsFile(jukebox, mediaLibraryPaths);
-
-        // Read these properties after the JukeboxProperties have been read to ensure that changes are picked up
-        this.forcePosterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forcePostersOverwrite", Boolean.FALSE);
-        this.forceThumbnailOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceThumbnailsOverwrite", Boolean.FALSE);
-        this.forceBannerOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceBannersOverwrite", Boolean.FALSE);
-        this.forceSkinOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceSkinOverwrite", Boolean.FALSE);
-        this.forceIndexOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceIndexOverwrite", Boolean.FALSE);
-        this.forceFooterOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceFooterOverwrite", Boolean.FALSE);
     }
 
     /**
@@ -1029,7 +1031,7 @@ public class MovieJukebox {
                                 ScanningLimit.releaseToken();
                                 library.remove(movie);
                             }
-                            LOG.info("Finished: {} ({}/{})", movieTitleExt, count, library.size());
+                            LOG.info(LOG_FINISHED, movieTitleExt, count, library.size());
                         } else {
                             movie.setSkipped(true);
                             JukeboxProperties.setScanningLimitReached(Boolean.TRUE);
@@ -1131,7 +1133,7 @@ public class MovieJukebox {
                                 updatePersonData(xmlReader, jukebox, p, tools.imagePlugin);
                                 library.addPerson(p);
 
-                                LOG.info("Finished: {} ({}/{})", personName, count, peopleCount);
+                                LOG.info(LOG_FINISHED, personName, count, peopleCount);
 
                                 // Show memory every (processing count) movies
                                 if (showMemory && (count % maxThreadsProcess) == 0) {
@@ -1175,7 +1177,7 @@ public class MovieJukebox {
                                     updatePersonData(xmlReader, jukebox, p, tools.imagePlugin);
                                     library.addPerson(p);
 
-                                    LOG.info("Finished: {} ({}/{})", personName, count, peopleCount);
+                                    LOG.info(LOG_FINISHED, personName, count, peopleCount);
 
                                     // Show memory every (processing count) movies
                                     if (showMemory && (count % maxThreadsProcess) == 0) {

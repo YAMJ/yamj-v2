@@ -325,9 +325,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
                     pos++;
                 }
     
-                String absRealURL = getAbsUrl(trailerUrl, realUrl.toString());
-    
-                return absRealURL;
+                return getAbsUrl(trailerUrl, realUrl.toString());
             }
         } catch (IOException ex) {
             LOG.error("Error : {}", ex.getMessage());

@@ -58,8 +58,7 @@ import org.xml.sax.SAXParseException;
 import com.moviejukebox.reader.MovieNFOReader;
 
 /**
- * Generic set of routines to process the DOM model data Used for read XML
- * files.
+ * Generic set of routines to process the DOM model data Used for read XML files.
  *
  * @author Stuart.Boston
  *
@@ -111,8 +110,7 @@ public final class DOMHelper {
     }
 
     /**
-     * Append a child element to a parent element with a single attribute/value
-     * pair
+     * Append a child element to a parent element with a single attribute/value pair
      *
      * @param doc
      * @param parentElement
@@ -178,8 +176,7 @@ public final class DOMHelper {
         DocumentBuilder db;
 
         db = dbf.newDocumentBuilder();
-        Document doc = db.parse(is);
-        return doc;
+        return db.parse(is);
     }
 
     /**
@@ -212,8 +209,8 @@ public final class DOMHelper {
 
         if (doc == null) {
             try (
-                // try wrapping the file in a root
-                StringReader sr = new StringReader(wrapInXml(FileTools.readFileToString(xmlFile)))) {
+                    // try wrapping the file in a root
+                    StringReader sr = new StringReader(wrapInXml(FileTools.readFileToString(xmlFile)))) {
                 doc = db.parse(new InputSource(sr));
             }
         }
@@ -221,7 +218,7 @@ public final class DOMHelper {
         if (doc != null) {
             doc.getDocumentElement().normalize();
         }
-        
+
         return doc;
     }
 
@@ -317,8 +314,7 @@ public final class DOMHelper {
     }
 
     /**
-     * Override the standard Sax ErrorHandler with this one, to minimise noise
-     * about failed parsing errors
+     * Override the standard Sax ErrorHandler with this one, to minimise noise about failed parsing errors
      */
     public static class SaxErrorHandler implements ErrorHandler {
 
