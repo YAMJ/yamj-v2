@@ -1,158 +1,141 @@
 ==============================
 
-Saxon-HE 9.7 is the latest major release of the open-source edition of Saxon. 
+Saxon-HE 9.6 is the latest major release of the open-source edition of Saxon.
 It is available for the Java platform (.NET platform coming shortly).
 
-The current maintenance release is Saxon-HE 9.7.0.3.
+The current maintenance release is Saxon-HE 9.6.0.4.
 
 The documentation for Saxon is at http://www.saxonica.com/documentation/
 and includes a detailed list of changes for each release.
 
-For the Java platform, download file SaxonHE9-7-0-3J.zip. Installation instructions are at:
+For the Java platform, download file SaxonHE9-9-0-4J.zip. Installation instructions are at:
 
 http://www.saxonica.com/documentation/index.html#!about/installationjava
 
-The file saxon-resources9-7.zip contains documentation, sample files, test drivers and other miscellaneous resources. 
+The file saxon-resources9-6.zip contains documentation, sample files, test drivers and other miscellaneous resources.
 It is common to both platforms, and is not normally updated when new maintenance releases appear.
 
-The file saxon9-7-0-3source.zip contains source code for both platforms; a new version is produced with each
+The file saxon9-6-0-4source.zip contains source code for both platforms; a new version is produced with each
 maintenance release. Source code with the latest patches can also be obtained from a Subversion repository
 maintained at https://dev.saxonica.com/repos/archive/opensource. The Subversion repository on the SourceForge site is no longer maintained.
 
-The following bugs are cleared in 9.7.0.3, issued 2016-02-18 (this includes bugs that appear only in the commercial
+The following bugs are cleared in 9.6.0.4, issued 2015-01-14 (this includes bugs that appear only in the commercial
 versions of the product). Bugs are listed under the number used on the new Saxonica Community site at
 https://saxonica.plan.io/projects/saxon/issues. :
 
-Bug #2420: EXPath File update to version 1.0
-Bug #2529: Validation report missing meta-data fragment missing name of XML file
-Bug #2532: Query Initializer hook invoked too late to set ModuleURIResolver
-Bug #2536: Failure to check that node returned by extension function has wrong NamePool
-Bug #2539: -t option should report when streamed processing is happening
-Bug #2540: Unwanted warning with JAXBSource
-Bug #2545: Invalid slot number: local variables in match pattern with mode="#all"
-Bug #2548: Property name typo in class StandardLogger
-Bug #2552: AssertionError during byte code generation
-Bug #2559: Dynamic value of xsl:result-document/@format is ignored
-Bug #2560: xsl:fallback is not allowed as a child of xsl:merge
-Bug #2561: java.lang.NullPointerException with nested xsl:iterate
-Bug #2567: java.lang.NullPointerException with external variable in xsl:iterate/on-completion
-Bug #2570: Wrong exit code on error (XQuery command line)
-Bug #2571: XQuery group-by leads to "Local variable $x has not been allocated a stack frame slot"
-Bug #2578: lang() only considers first hyphen
-Bug #2588: xsl:next-match can raise XTDE0565
-Bug #2590: NPE when saxon:assign refers to an undeclared variable
-Bug #2592: XSD validation regular error events treated as fatal error events
-Bug #2593: Space is missed after file name
-Bug #2594: NullPointerException when compiling an XPath expression
-Bug #2596: On exporting fn:outermost(), knowledge of pre-sorting is lost
-Bug #2597: NPE when enabling tracing in XQuery or XPath execution
-Bug #2598: IllegalStateException thrown in DITA-OT 1.8
-Bug #2599: Schema validation errors are not reported through ErrorHandler
-Bug #2601: Prefix allocated when a no-namespace literal result element is exported
-Bug #2602: Incorrect TimingTraceListener class in -T: command line documentation
-Bug #2604: Incorrect location for XQuery error
-Bug #2605: Variable names in export files
-Bug #2606: Failure to allow debugging of global variables in the applyTemplate path
-Bug #2607: <array> instruction in export output
-Bug #2608: Incorrect namespaces in retained static context
-Bug #2609: NPE when TemplatesHandler is created with a ProfessionalConfiguration
-Bug #2611: Export fails for "X castable as U" where U is a union type
-Bug #2613: net.sf.saxon.Transform crashes with IllegalArgumentException: The root node of a tree must be parentless
-Bug #2614: Download link for saxon-resources9-7.zip is missing
-Bug #2615: Poor diagnostics for FOTY0012
-Bug #2616: Streamability of pattern with call to accumulator-before()
-Bug #2617: Streamability of a pattern that calls current()
-Bug #2618: XTDE0047: Initial mode and template cannot both be defined
-Bug #2619: xsl:on-empty treats whitespace as insignificant
-Bug #2620: java.lang.NullPointerException: Internal error: expression mergeAdj(()) has no retained static context
-Bug #2622: Combining use-character-maps and normalization-form="NFC" attributes produce unwanted output
-Bug #2623: xsl:number level="multiple" with count and from patterns matching the same node
-Bug #2627: Bytecode generation failing for fn:key#2
+
+	2246	The doc file should be named saxon9he-api.xml, otherwise Visual Studio ignores it.
+	2210	Concurrent Schema Import
+	2219	xsl:next-match; patterns using match="$var" syntax
+	2247	Whitespace normalization in union types
+	2248	Can no longer pass null value to declareGlobalVariable
+	2249	StylesheetPackager missing in SaxonEE9-6-0-3N-setup.exe?
+	2250	The output file cannot be deleted after executing an XSLT transformation
+	2251	NullReferenceException when transforming to TextWriterDestination [Saxon-HE 9.6.0.3]
+	2253	Saxon HE 9.6.0.2 with -xmlversion:1.1 reports Unrecognized version 1.1: treated as 1.0
+	2255	xsl:assert no longer producing message in Saxon-PE 9.6.0.3J
+	2257	XSLT3.0 support on xsl:* elements
+	2258	QName.ToString() returns incorrect lexical form
+	2260	Saxon.Api documentation: missing class descriptions
+	2261	With bytecode on, apply-imports fails to set current component
+	2271	AIOOBE with large xml file
+	2272	XdmNode.BaseUri throws exception when NodeInfo.getBaseURI() returns null
+	2273	collection() does not use built-in copies of W3C DTDs
+	2274	Links to command line documentation
+	2275	Controller.inUse is never set to true
+	2277	match="x/descendant::y[1]" gives spurious matches
+	2278	Pattern descendant::text()[1] gives a spurious warning, and no matches
+	2279	Redistributing Saxon-HE .NET with 3rd party notice files
+	2282	IdentityTransformer with empty DOMSource
+	2283	s9api s9api transformation pipeline not working under .NET
+	2286    saxon9-icu jar missing from Saxon-EE 9.6.0.3 release
 
 
-
-
-The following bugs are cleared in 9.7.0.2, issued 2016-01-19 (this includes bugs that appear only in the commercial
+The following bugs are cleared in 9.6.0.3, issued 2014-12-02 (this includes bugs that appear only in the commercial
 versions of the product). Bugs are listed under the number used on the new Saxonica Community site at
 https://saxonica.plan.io/projects/saxon/issues. :
 
-Bug #1921: Interface classes in Javadoc does not contain implementations
-Bug #1889: getBaseURI() - performance
-Bug #1906: Javadoc for Enumerations
-Bug #2285: Saxon.Api documentation: Links to Java classes don't resolve
-Bug #2398: Incorrect QName field reported in XMLStreamException in StreamWriterToReciever
-Bug #2402: Saxon resources does not contain annotatedConfig.xsd
-Bug #2420: EXPath File update to version 1.0
-Bug #2498: format-date does not support comma as grouping separator
-Bug #2499: format-date large width modifier causes StringIndexOutOfBoundsException
-Bug #2500: format-date does not allow # as part of presentation modifier
-Bug #2503: AIOOBE using positional variable with Saxon 9.7.0.1
-Bug #2504: format-dateTime not acting on supplied Olson time zone
-Bug #2505: Saxon 9.7: .php file considered as binary by fn:collection
-Bug #2506: Saxon 9.7: NPE from fn:translate on empty sequence
-Bug #2509: NPE on executing com.saxonica.StatsTransform from saxon9-stats.jar
-Bug #2511: Running Saxon-EE with no license file raises NPE
-Bug #2512: Adaptive and JSON output methods from the XSLT command line
-Bug #2514: validation-reports.xsd file missing from saxon-resources zip
-Bug #2515: -1 value for both line and position values in schema errors
-Bug #2516: Schema validation: Fatal errors handled differently
-Bug #2519: Third parties jars outdated
-Bug #2520: Error codes for array:subarray()
-Bug #2521: NPE in resolve-uri() with jar: protocol URIs
-Bug #2523: NPE during parseInlineFunction()
-Bug #2525: NPE in Serializer.getContentHandler()
-Bug #2528: Generated Schema Validation report not valid against validation-report.xsd
-Bug #2529: Validation report missing meta-data fragment missing name of XML file
-Bug #2530: Ant XSLT task - top-level variables always refer to first input document
-Bug #2531: Reflexive extension functions: synthetic methods
-Bug #2532: Query Initializer hook invoked too late to set ModuleURIResolver
-Bug #2535: Unrecognized version 11
-Bug #2536: Failure to check that node returned by extension function has wrong NamePool
-Bug #2539: -t option should report when streamed processing is happening
-Bug #2540: Unwanted warning with JAXBSource
-Bug #2541: Passing list of packages on Transform command line does not work
-Bug #2542: EXPath Archive module: ZIP file must have at least one entry
-Bug #2543: Javadoc for parameterized types
-Bug #2544: saxon:stream() not working under EEQ license
-Bug #2545: Invalid slot number: local variables in match pattern with mode="#all"
-Bug #2546: XQuery using saxon:stream not streaming in 9.7
-Bug #2547: Cannot execute xsl:stream when optimization has been disabled
-Bug #2549: XQuery using saxon:stream leaves open thread in 9.7
-Bug #2550: No watch found for xsl:element
-Bug #2551: Reused source parser may be configured incorrectly
-Bug #2552: AssertionError during byte code generation
-Bug #2553: java.util.concurrent.ExecutionException for muli-threaded collection processing
-Bug #2554: ArrayIndexOutOfBoundsException while evaluating JAXP XPath expression with a variable reference
-Bug #2555: Bad parent pointer
-Bug #2556: Incorrect copying of subexpressions during FLWOR optimization
-Bug #2557: <xsl:evaluate with-params="$map"/> does not seem to work
-Bug #2558: Specifying license file location in configuration file
-Bug #2559: Dynamic value of xsl:result-document/@format is ignored
-Bug #2560: xsl:fallback is not allowed as a child of xsl:merge
-Bug #2561: java.lang.NullPointerException with nested xsl:iterate
-Bug #2562: Missing end tag in result after using xsl:break
-Bug #2563: NPE in export when inferred type involves an aliased namespace
-Bug #2564: Vendor function calls not re-imported after stylesheet export
-Bug #2565: Inefficient evaluation of exists()
-Bug #2567: java.lang.NullPointerException with external variable in xsl:iterate/on-completion
-Bug #2569: When the new -nogo option is specified, a source file is still required
-Bug #2570: Wrong exit code on error (XQuery command line)
-Bug #2571: XQuery group-by leads to "Local variable $x has not been allocated a stack frame slot"
-Bug #2573: IncompatibleClassChangeError from bytecode implementing for-each-group()
-Bug #2575: Wrong line number on error (XQuery)
-Bug #2578: lang() only considers first hyphen
-Bug #2580: XQuery: global variables depending on context item
-Bug #2582: Internal error: expression element() has no retained static context
-Bug #2583: Incorrect export for xsl:number
-Bug #2586: NPE in collection()/uri-collection() if there are no query parameters
-Bug #2587: NullPointerException loading a packaged stylesheet that refers to unavailable extension functions
-Bug #2590: NPE when saxon:assign refers to an undeclared variable
-Bug #2591: NullPointerException in Verifiy class thrown from the ActivateSaxon.java class
+
+	2238	Configuration.unravel() tests for "same Configuration" not "compatible Configuration"
+	2232	Invalid XQuery variable reference throws NPE, or evaluates without error message
+	2230	Large number of class loaders created in byte code
+	2187	Entity Re-Declarations Bug
+	2152	Support	Saxon-EE NullPointerException in ValidatorImpl
+	1935	.NET API documentation file
+	2225 	Optimization of filter expressions in 1.0 mode
+	2226 	NullPointerException in UserFunction.isInlineable()
+	2227 	NullPointerException when reporting type error in accumulator
+	2228 	Invalid slot number when xsl:accumulator/@initial-value uses local variables
+	2229 	Accumulators failing to recover from out-of-memory conditions
+	2233 	Poor diagnostics on type error with higher-order function
+	2234 	9.6 optimizations break relative XPath with predicates
+	2235 	@expand-text ignored because XSLT 3.0 not enabled
+	2236 	Parameters set using Transformer.setParameter() not accessible using getParameter()
+	2240 	JAXP-XPath page in the documentation need updating
+	2242 	JAXP SchemaFactory API: ErrorHandler is not notified of schema errors
+	2243 	NullPointerException in MessageEmitter.endDocument()
+	2244 	No location information available when xsl:import fails
+	2245 	Base URI not preserved after deleting xml:base attribute
 
 
 
 
-The first release in this series, 9.7.0.1, was issued on 27 November 2015. 
+The following bugs are cleared in 9.6.0.2, issued 2014-11-13 (this includes bugs that appear only in the commercial
+versions of the product). Bugs are listed under the number used on the new Saxonica Community site at
+https://saxonica.plan.io/projects/saxon/issues. :
+
+
+
+	2218	ByteCode generation failure during compilation in 9.6
+	2217	JAXP: SchemaFactory.newSchema() supplying an Element rather than a Document
+	2216	SystemId information not available to TraceListener
+	2215	ErrorListener registered with the JAXP TransformerFactory is ignored
+	2214	With JAXP transform() method, result.getSystemId() should act as base output URI
+	2213    Comparing QName to untypedAtomic crashes
+	2212	function-available('exslt:node-set') returns false
+	2211	strip-type-annotations not working with XSLT30 applyTemplate
+	2209	Namespace Fixup doesn't work for default namespace when input is TinyTree…
+	2208	xsl:character-map failure in s9api interface when source is a Xdm node
+	2206	User documentation incorrectly states default XQuery version is 1.0
+	2204	Nested multithreaded xsl:for-each
+	2202	ExternalObjectType for Java and .NET
+	2201	Setting ErrorListener on XQueryCompiler has no effect
+	2200	Incorrect type inference for floor() function
+	2195	NullPointerException in com.saxonica.pull.TreeWalker
+	2194	No location information in output pipeline for SAXResult
+	2191	Debugger access to global variables
+	2190	NPE using xsl:use-package
+	2189	Failure to stream output
+	2188	Streaming xsl:merge logs "building tree" messages (with -t option)
+	2186	Documentation: XQuery Update conformance section
+	2184	With a DOM with unknown baseURI, unparsed-entity-uri() throws a NullPointerException
+	2183	Bytecode generation: xs:string returns "" instead of ()
+	2182	java.lang.RuntimeException: Method code too large thrown in query
+	2181	Try/catch within a loop gives wrong output
+	2179	err: variables undeclared within an AVT
+	2178	NullPointerException in TransformerImpl.setParameter()
+	2177	NullPointerException with literal FilterExpression
+	2173	NullPointerException after inlining variables
+	2172	xsl:apply-templates streaming: fails when processing grounded node
+	2171	xsl:call-template is (unnecessarily) non-streamable
+	2170	Passing down object reference to extension function not available
+	2169	map{} is parsed as ExprSingle, not as a Primary
+	2168	Setting parser features from the command line
+	2167	NPE in PackageLibrary.getPackage()
+	2166	Wrong result from fn:replace
+	2165	Commandline -repeat:N not working properly
+	2164	Empty DOMResult provided to transform method produces null result
+	2163	saxon:next-in-chain is not working in Saxon 9.6
+	2161	Attempt to use text value templates under Saxon-HE gives poor diagnostics
+	2160	Attempting to set more local variables (3) than the stackframe can accommodate (1)
+	2159	Current date and time can only be set once
+	2158	Rejecting version="1.1" in xsl:stylesheet
+	2199	NullPointerException thrown in DotNetDomBuilder
+	2151	Dynamic type of the result of min()/max()
+
+
+
+The first release in this series, 9.6.0.1, was issued on 2 October 2014.
 
 Bugs can be reported, and known bugs inspected, on the Saxon community site at https://saxonica.plan.io/projects/saxon
 The sourceforge bug tracker is no longer maintained.
