@@ -49,8 +49,7 @@ import com.moviejukebox.tools.SystemTools;
 /**
  * Film Katalogus Plugin for Hungarian language
  *
- * Contains code for an alternate plugin for fetching information on movies in
- * Hungarian
+ * Contains code for an alternate plugin for fetching information on movies in Hungarian
  *
  * @author pbando12@gmail.com
  *
@@ -60,6 +59,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(FilmKatalogusPlugin.class);
     public static final String FILMKAT_PLUGIN_ID = "filmkatalogus";
     private final TheTvDBPlugin tvdb;
+    private static final String LOG_FK_URL = "FilmkatalogusURL = {}";
 
     public FilmKatalogusPlugin() {
         super(); // use IMDB as basis
@@ -97,11 +97,11 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             if (StringTools.isNotValidString(movie.getId(FILMKAT_PLUGIN_ID))) {
 
                 LOG.debug("Movie title for filmkatalogus search = {}", movie.getTitle());
-                
+
                 HttpPost httpPost = new HttpPost("http://www.filmkatalogus.hu/kereses");
                 httpPost.setHeader("Content-type", "application/x-www-form-urlencoded");
                 httpPost.setHeader("Accept", "text/plain");
-                
+
                 List<NameValuePair> nameValuePairs = new ArrayList<>();
                 nameValuePairs.add(new BasicNameValuePair("gyorskeres", "0"));
                 nameValuePairs.add(new BasicNameValuePair("keres0", "1"));
@@ -122,7 +122,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                     switch (response.getStatusLine().getStatusCode()) {
                         case 302:
                             filmKatURL = filmKatURL.concat(response.getHeaders("location")[0].getValue());
-                            LOG.debug("FilmkatalogusURL = {}", filmKatURL);
+                            LOG.debug(LOG_FK_URL, filmKatURL);
                             break;
 
                         case 200:
@@ -139,7 +139,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
                                 int endIndex = xml.indexOf("TITLE", beginIndex);
                                 filmKatURL = "http://filmkatalogus.hu";
                                 filmKatURL = filmKatURL.concat(xml.substring((beginIndex + 6), endIndex - 2));
-                                LOG.debug("FilmkatalogusURL = {}", filmKatURL);
+                                LOG.debug(LOG_FK_URL, filmKatURL);
                             } else {
                                 return;
                             }
@@ -162,7 +162,7 @@ public class FilmKatalogusPlugin extends ImdbPlugin {
             } else {
                 filmKatURL = "http://filmkatalogus.hu/f";
                 filmKatURL = filmKatURL.concat(movie.getId(FilmKatalogusPlugin.FILMKAT_PLUGIN_ID));
-                LOG.debug("FilmkatalogusURL = {}", filmKatURL);
+                LOG.debug(LOG_FK_URL, filmKatURL);
             }
 
             String xml = httpClient.request(filmKatURL);

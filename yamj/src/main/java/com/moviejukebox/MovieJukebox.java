@@ -139,6 +139,7 @@ public class MovieJukebox {
     private static final String[] EXCLUDED = {"dumpDir", ".svn", "src", "test", "bin", "skins"};
     private static final String SKIN_DEFAULT = "./skins/default";
     private static final String LOG_FINISHED = "Finished: {} ({}/{})";
+    private static final String LIT_RESOURCES = "resources";
 
     public MovieJukebox(String source, String jukeboxRoot) {
         this.movieLibraryRoot = source;
@@ -2068,7 +2069,7 @@ public class MovieJukebox {
     public void updateMoviePoster(Jukebox jukebox, Movie movie) {
         String posterFilename = movie.getPosterFilename();
         String skinHome = SkinProperties.getSkinHome();
-        File dummyFile = FileUtils.getFile(skinHome, "resources", DUMMY_JPG);
+        File dummyFile = FileUtils.getFile(skinHome, LIT_RESOURCES, DUMMY_JPG);
         File posterFile = new File(FilenameUtils.concat(jukebox.getJukeboxRootLocationDetails(), posterFilename));
         File tmpDestFile = new File(FilenameUtils.concat(jukebox.getJukeboxTempLocationDetails(), posterFilename));
 
@@ -2131,14 +2132,14 @@ public class MovieJukebox {
 
             if (isNotValidString(movie.getBannerURL())) {
                 LOG.debug("Dummy banner used for {}", movie.getBaseName());
-                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), origDestFile);
+                FileTools.copyFile(new File(skinHome + File.separator + LIT_RESOURCES + File.separator + "dummy_banner.jpg"), origDestFile);
             } else {
                 try {
                     LOG.debug("Downloading banner for '{}' to '{}'", movie.getBaseName(), origDestFile.getName());
                     FileTools.downloadImage(origDestFile, movie.getBannerURL());
                 } catch (IOException error) {
                     LOG.debug("Failed downloading banner: {} - Error: {}", movie.getBannerURL(), error.getMessage());
-                    FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + "dummy_banner.jpg"), origDestFile);
+                    FileTools.copyFile(new File(skinHome + File.separator + LIT_RESOURCES + File.separator + "dummy_banner.jpg"), origDestFile);
                 }
             }
 
@@ -2286,7 +2287,7 @@ public class MovieJukebox {
                 LOG.info("Using dummy thumbnail image for {}", movie.getBaseName());
                 // There was an error with the URL, assume it's a bad URL and clear it so we try again
                 movie.setPosterURL(Movie.UNKNOWN);
-                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + DUMMY_JPG), tmpPosterFile);
+                FileTools.copyFile(new File(skinHome + File.separator + LIT_RESOURCES + File.separator + DUMMY_JPG), tmpPosterFile);
                 try {
                     bi = GraphicTools.loadJPEGImage(tmpPosterFile);
                 } catch (IOException ex) {
@@ -2378,7 +2379,7 @@ public class MovieJukebox {
             if (bi == null) {
                 // There was an error with the URL, assume it's a bad URL and clear it so we try again
                 movie.setPosterURL(Movie.UNKNOWN);
-                FileTools.copyFile(new File(skinHome + File.separator + "resources" + File.separator + DUMMY_JPG), jkbPosterFile);
+                FileTools.copyFile(new File(skinHome + File.separator + LIT_RESOURCES + File.separator + DUMMY_JPG), jkbPosterFile);
                 try {
                     bi = GraphicTools.loadJPEGImage(tmpPosterFile);
                     LOG.info("Using dummy poster image for {}", movie.getOriginalTitle());

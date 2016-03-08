@@ -37,6 +37,7 @@ public class FilmUpITPlugin extends ImdbPlugin {
 
     public static final String FILMUPIT_PLUGIN_ID = "filmupit";
     private static final Logger LOG = LoggerFactory.getLogger(FilmUpITPlugin.class);
+    private static final String HTML_END_TAGS = "</font></td></tr>";
 
     public FilmUpITPlugin() {
         super();
@@ -116,46 +117,42 @@ public class FilmUpITPlugin extends ImdbPlugin {
 
         if (OverrideTools.checkOverwriteDirectors(movie, FILMUPIT_PLUGIN_ID)) {
             String director = HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml,
-                    "Regia:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>"));
+                    "Regia:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", HTML_END_TAGS));
             movie.setDirector(director, FILMUPIT_PLUGIN_ID);
         }
 
         if (OverrideTools.checkOverwriteReleaseDate(movie, FILMUPIT_PLUGIN_ID)) {
             movie.setReleaseDate(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml,
-                    "Data di uscita:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")), FILMUPIT_PLUGIN_ID);
+                    "Data di uscita:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", HTML_END_TAGS)), FILMUPIT_PLUGIN_ID);
         }
 
         if (OverrideTools.checkOverwriteRuntime(movie, FILMUPIT_PLUGIN_ID)) {
-            movie.setRuntime(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "Durata:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                    "</font></td></tr>")), FILMUPIT_PLUGIN_ID);
+            movie.setRuntime(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "Durata:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", HTML_END_TAGS)), FILMUPIT_PLUGIN_ID);
         }
 
         if (OverrideTools.checkOverwriteCountry(movie, FILMUPIT_PLUGIN_ID)) {
-            movie.setCountries(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "Nazione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                    "</font></td></tr>")), FILMUPIT_PLUGIN_ID);
+            movie.setCountries(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "Nazione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", HTML_END_TAGS)), FILMUPIT_PLUGIN_ID);
         }
 
         if (OverrideTools.checkOverwriteCompany(movie, FILMUPIT_PLUGIN_ID)) {
             movie.setCompany(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml,
-                    "Distribuzione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")), FILMUPIT_PLUGIN_ID);
+                    "Distribuzione:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", HTML_END_TAGS)), FILMUPIT_PLUGIN_ID);
         }
 
         if (OverrideTools.checkOverwriteGenres(movie, FILMUPIT_PLUGIN_ID)) {
             List<String> newGenres = new ArrayList<>();
-            for (String tmpGenre : HTMLTools.extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>").split(",")) {
+            for (String tmpGenre : HTMLTools.extractTag(xml, "Genere:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", HTML_END_TAGS).split(",")) {
                 newGenres.addAll(Arrays.asList(tmpGenre.split("/")));
             }
             movie.setGenres(newGenres, FILMUPIT_PLUGIN_ID);
         }
 
         if (OverrideTools.checkOverwriteYear(movie, FILMUPIT_PLUGIN_ID)) {
-            movie.setYear(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "Anno:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">",
-                    "</font></td></tr>")), FILMUPIT_PLUGIN_ID);
+            movie.setYear(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "Anno:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", HTML_END_TAGS)), FILMUPIT_PLUGIN_ID);
         }
 
         if (OverrideTools.checkOverwriteActors(movie, FILMUPIT_PLUGIN_ID)) {
-            List<String> newActors = Arrays.asList(HTMLTools.removeHtmlTags(
-                    HTMLTools.extractTag(xml, "Cast:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", "</font></td></tr>")).split(","));
+            List<String> newActors = Arrays.asList(HTMLTools.removeHtmlTags(HTMLTools.extractTag(xml, "Cast:&nbsp;</font></td><td valign=\"top\"><font face=\"arial, helvetica\" size=\"2\">", HTML_END_TAGS)).split(","));
             movie.setCast(newActors, FILMUPIT_PLUGIN_ID);
         }
 

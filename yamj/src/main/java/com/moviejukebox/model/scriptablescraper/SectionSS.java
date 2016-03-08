@@ -44,6 +44,8 @@ public class SectionSS extends SectionContentSS {
 
     private final Collection<SectionContentSS> content = new ArrayList<>();
     private final SectionContentSS parent;
+    // Literals
+    private static final String DOLLAR_SIGN = "__DOLLAR_SIGN__";
 
     public SectionSS(String name, SectionContentSS parent) {
         super(name);
@@ -91,7 +93,7 @@ public class SectionSS extends SectionContentSS {
         if (StringUtils.isNotBlank(name)) {
             if (super.hasVariable(name)) {
                 return super.getVariable(name);
-            } 
+            }
             return getVariable(name, parent);
         }
 
@@ -169,7 +171,7 @@ public class SectionSS extends SectionContentSS {
             StringBuilder sb = new StringBuilder();
             for (char c : text.toCharArray()) {
                 if (c == '$') {
-                    sb.append("__DOLLAR_SIGN__");
+                    sb.append(DOLLAR_SIGN);
                 } else {
                     sb.append(c);
                 }
@@ -192,7 +194,7 @@ public class SectionSS extends SectionContentSS {
         int start, end;
         String variable;
         Pattern pattern = Pattern.compile("__DOLLAR_SIGN__\\{([^{}]+)\\}");
-        while (value.contains("__DOLLAR_SIGN__")) {
+        while (value.contains(DOLLAR_SIGN)) {
             Matcher matcher = pattern.matcher(value);
             start = -1;
             while (matcher.find()) {
@@ -216,7 +218,7 @@ public class SectionSS extends SectionContentSS {
                 }
             }
             if (start == -1) {
-                result = result.replaceAll("__DOLLAR_SIGN__", "\\$");
+                result = result.replaceAll(DOLLAR_SIGN, "\\$");
             }
             value = result;
         }

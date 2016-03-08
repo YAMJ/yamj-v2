@@ -54,6 +54,13 @@ public class AnimatorPlugin extends ImdbPlugin {
     private final boolean animatorDiscovery = ("all".equals(preferredSites) || ArrayUtils.indexOf(listSites, "animator") != -1);
     private final boolean multsDiscovery = ("all".equals(preferredSites) || ArrayUtils.indexOf(listSites, "allmults") != -1);
 
+    // Literals
+    private static final String HTML_HREF = "<a href=";
+    private static final String HTML_TD = "</td>";
+    private static final String HTML_MIDDLE_LINKS = "<span class=\"MiddleLinks\"";
+    private static final String HTML_TR = "</tr>";
+    private static final String HTML_SPAN = "</span>";
+
     @Override
     public String getPluginID() {
         return ANIMATOR_PLUGIN_ID;
@@ -133,7 +140,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                     // It's search results page, searching a link to the movie page
                     int beginIndex;
                     if (-1 != xml.indexOf("Найдено ")) {
-                        for (String tmp : HTMLTools.extractTags(xml, "Найдено ", "</td>", "<a href=", "<br><br>")) {
+                        for (String tmp : HTMLTools.extractTags(xml, "Найдено ", HTML_TD, HTML_HREF, "<br><br>")) {
                             if (0 < tmp.indexOf("[соответствие фразы]")) {
                                 beginIndex = tmp.indexOf(" г.)");
                                 if (beginIndex >= 0) {
@@ -263,7 +270,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 StringBuilder plot = new StringBuilder();
                 // Plot (animator.ru)
                 if (!newAnimatorId.equals(Movie.UNKNOWN)) {
-                    for (String subPlot : HTMLTools.extractTags(xml, "<td align=\"left\" class=\"FilmComments\"", "</td>")) {
+                    for (String subPlot : HTMLTools.extractTags(xml, "<td align=\"left\" class=\"FilmComments\"", HTML_TD)) {
                         if (!subPlot.isEmpty()) {
                             if (plot.length() > 0) {
                                 plot.append(" ");
@@ -272,7 +279,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                         }
                     }
 
-                    for (String subPlot : HTMLTools.extractTags(xml, "<td class=\"FilmComments\">", "</td>")) {
+                    for (String subPlot : HTMLTools.extractTags(xml, "<td class=\"FilmComments\">", HTML_TD)) {
                         if (!subPlot.isEmpty()) {
                             if (plot.length() > 0) {
                                 plot.append(" ");
@@ -296,7 +303,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                 if (plot.length() > 0) {
                     newPlot = plot.toString();
                     newPlot = newPlot.replace("<br>", " ");
-                    newPlot = newPlot.replace("</span>", "");
+                    newPlot = newPlot.replace(HTML_SPAN, "");
                 }
 
                 movie.setPlot(newPlot, ANIMATOR_PLUGIN_ID);
@@ -307,7 +314,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             String time = Movie.UNKNOWN;
             List<String> newGenres = new LinkedList<>();
             newGenres.add(0, "мультфильм");
-            for (String tmpTagList : HTMLTools.extractTags(xml, "class=\"FilmType\"><i", "</td>", "", "</i>")) {
+            for (String tmpTagList : HTMLTools.extractTags(xml, "class=\"FilmType\"><i", HTML_TD, "", "</i>")) {
                 for (String tmpTag : tmpTagList.split(",")) {
                     if (StringUtils.isNotBlank(tmpTag)) {
                         if (tmpTag.contains(" мин.")) {
@@ -348,26 +355,26 @@ public class AnimatorPlugin extends ImdbPlugin {
             Collection<String> newWriters = new ArrayList<>();
             Collection<String> newCast = new ArrayList<>();
             // Director, Writers, Cast (animator.ru)
-            for (String item : HTMLTools.extractTags(xml, "<table cellpadding=0 cellspacing=0 width=380", "</table>", "<tr>", "</tr>")) {
-                item = "<td>" + item + "</tr>";
+            for (String item : HTMLTools.extractTags(xml, "<table cellpadding=0 cellspacing=0 width=380", "</table>", "<tr>", HTML_TR)) {
+                item = "<td>" + item + HTML_TR;
                 // Director
-                for (String tmp : HTMLTools.extractTags(item, ">режиссер", "</tr>", "<td class=\"PersonsList\"", "</td>")) {
-                    for (String writer : HTMLTools.extractTags(tmp, "<span class=\"MiddleLinks\"", "</span>")) {
+                for (String tmp : HTMLTools.extractTags(item, ">режиссер", HTML_TR, "<td class=\"PersonsList\"", HTML_TD)) {
+                    for (String writer : HTMLTools.extractTags(tmp, HTML_MIDDLE_LINKS, HTML_SPAN)) {
                         newDirectors.add(writer);
                     }
                 }
 
                 // Writers
-                for (String tmpWriter : HTMLTools.extractTags(item, ">сценарист", "</tr>", "<td class=\"PersonsList\"", "</td>")) {
-                    for (String writer : HTMLTools.extractTags(tmpWriter, "<span class=\"MiddleLinks\"", "</span>")) {
+                for (String tmpWriter : HTMLTools.extractTags(item, ">сценарист", HTML_TR, "<td class=\"PersonsList\"", HTML_TD)) {
+                    for (String writer : HTMLTools.extractTags(tmpWriter, HTML_MIDDLE_LINKS, HTML_SPAN)) {
                         newWriters.add(writer);
                     }
                 }
 
                 // Cast
-                for (String actor : HTMLTools.extractTags(item, ">роли озвучивали", "</tr>", "<nobr", "</nobr>")) {
+                for (String actor : HTMLTools.extractTags(item, ">роли озвучивали", HTML_TR, "<nobr", "</nobr>")) {
                     String act = "";
-                    for (String tmpAct : HTMLTools.extractTags(actor, "<span class=\"MiddleLinks\"", "</span>")) {
+                    for (String tmpAct : HTMLTools.extractTags(actor, HTML_MIDDLE_LINKS, HTML_SPAN)) {
                         act = tmpAct;
                         break;
                     }
@@ -379,7 +386,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                         newCast.add(act);
                     }
                 }
-                for (String actor : HTMLTools.extractTags(item, ">роли озвучивали", "</tr>", "<span class=\"MiddleLinks\"", "</span>")) {
+                for (String actor : HTMLTools.extractTags(item, ">роли озвучивали", HTML_TR, HTML_MIDDLE_LINKS, HTML_SPAN)) {
                     boolean flag = true;
                     for (String tmp : newCast) {
                         if (tmp.contains(actor)) {
@@ -433,7 +440,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             if (OverrideTools.checkOverwriteYear(movie, ANIMATOR_PLUGIN_ID)) {
                 // Year (allmults.org)
                 if (year2.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
-                    for (String tmpYear : HTMLTools.extractTags(xml2, "<b>Год:", "<br>", "<a href=", "</a>")) {
+                    for (String tmpYear : HTMLTools.extractTags(xml2, "<b>Год:", "<br>", HTML_HREF, "</a>")) {
                         if (StringUtils.isNotBlank(tmpYear)) {
                             year2 = tmpYear;
                         }
@@ -445,7 +452,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             if (OverrideTools.checkOverwriteCountry(movie, ANIMATOR_PLUGIN_ID)) {
                 // Country (allmults.org)
                 if (country.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
-                    for (String tmpCountry : HTMLTools.extractTags(xml2, "<b>Страна:", "<br>", "<a href=", "</a>")) {
+                    for (String tmpCountry : HTMLTools.extractTags(xml2, "<b>Страна:", "<br>", HTML_HREF, "</a>")) {
                         if (StringUtils.isNotBlank(tmpCountry)) {
                             country = tmpCountry;
                         }
@@ -458,7 +465,7 @@ public class AnimatorPlugin extends ImdbPlugin {
             // Company
             if (OverrideTools.checkOverwriteCompany(movie, ANIMATOR_PLUGIN_ID)) {
                 String company = Movie.UNKNOWN;
-                for (String comp : HTMLTools.extractTags(xml, "onclick=\"showStudia", "</span>")) {
+                for (String comp : HTMLTools.extractTags(xml, "onclick=\"showStudia", HTML_SPAN)) {
                     company = comp;
                 }
                 movie.setCompany(company, ANIMATOR_PLUGIN_ID);

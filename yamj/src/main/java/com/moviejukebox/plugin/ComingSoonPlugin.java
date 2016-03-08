@@ -56,13 +56,16 @@ public class ComingSoonPlugin extends ImdbPlugin {
     private final String scanImdb;
     private final String searchId;
     private final SearchEngineTools searchEngineTools;
+    // Literals
+    private static final String ALWAYS = "always";
+    private static final String HTML_LI = "</li>";
 
     public ComingSoonPlugin() {
         super();
         searchEngineTools = new SearchEngineTools("it");
         preferredCountry = PropertiesUtil.getProperty("imdb.preferredCountry", "Italy");
         searchId = PropertiesUtil.getProperty("comingsoon.id.search", "comingsoon,yahoo");
-        scanImdb = PropertiesUtil.getProperty("comingsoon.imdb.scan", "always");
+        scanImdb = PropertiesUtil.getProperty("comingsoon.imdb.scan", ALWAYS);
     }
 
     @Override
@@ -87,7 +90,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         boolean firstScanImdb = false;
 
-        if ("always".equalsIgnoreCase(scanImdb) || ("fallback".equalsIgnoreCase(scanImdb) && (StringTools.isNotValidString(comingSoonId) || comingSoonId.equals(COMINGSOON_NOT_PRESENT)))) {
+        if (ALWAYS.equalsIgnoreCase(scanImdb) || ("fallback".equalsIgnoreCase(scanImdb) && (StringTools.isNotValidString(comingSoonId) || comingSoonId.equals(COMINGSOON_NOT_PRESENT)))) {
             LOG.debug("Checking IMDB");
             firstScanImdb = super.scan(movie);
             if (StringTools.isNotValidString(comingSoonId) && firstScanImdb) {
@@ -109,7 +112,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             scanComingSoon = updateComingSoonMediaInfo(movie);
         }
 
-        if (!firstScanImdb && scanComingSoon && "always".equalsIgnoreCase(scanImdb)) {
+        if (!firstScanImdb && scanComingSoon && ALWAYS.equalsIgnoreCase(scanImdb)) {
             // Scan was successful on ComingSoon but not on IMDB, let's try again with more info
 
             LOG.debug("First scan on IMDB KO, retrying after succesful scan on ComingSoon");
@@ -309,7 +312,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
             String year = Movie.UNKNOWN;
             beginIndex = film.indexOf("ANNO</span>:");
             if (beginIndex > 0) {
-                int endIndex = film.indexOf("</li>", beginIndex);
+                int endIndex = film.indexOf(HTML_LI, beginIndex);
                 if (endIndex > 0) {
                     year = film.substring(beginIndex + 12, endIndex).trim();
                 }
@@ -417,7 +420,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         // RUNTIME
         if (OverrideTools.checkOverwriteRuntime(movie, COMINGSOON_PLUGIN_ID)) {
-            String runTime = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">DURATA</span>:", "</li>"));
+            String runTime = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">DURATA</span>:", HTML_LI));
             if (StringTools.isValidString(runTime)) {
                 StringTokenizer st = new StringTokenizer(runTime);
                 movie.setRuntime(st.nextToken(), COMINGSOON_PLUGIN_ID);
@@ -426,13 +429,13 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         // COUNTRY
         if (OverrideTools.checkOverwriteCountry(movie, COMINGSOON_PLUGIN_ID)) {
-            String country = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PAESE</span>:", "</li>")).trim();
+            String country = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PAESE</span>:", HTML_LI)).trim();
             movie.setCountries(country, COMINGSOON_PLUGIN_ID);
         }
 
         // YEAR
         if (OverrideTools.checkOverwriteYear(movie, COMINGSOON_PLUGIN_ID)) {
-            String year = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ANNO</span>:", "</li>")).trim();
+            String year = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ANNO</span>:", HTML_LI)).trim();
             if (NumberUtils.toInt(year, 0) > 1900) {
                 movie.setYear(year, COMINGSOON_PLUGIN_ID);
             }
@@ -441,7 +444,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         // COMPANY
         if (OverrideTools.checkOverwriteCompany(movie, COMINGSOON_PLUGIN_ID)) {
             // TODO: Add more than one company when available in Movie model
-            String companies = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PRODUZIONE</span>: ", "</li>"));
+            String companies = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">PRODUZIONE</span>: ", HTML_LI));
             StringTokenizer st = new StringTokenizer(companies, ",");
             if (st.hasMoreTokens()) {
                 movie.setCompany(st.nextToken().trim(), COMINGSOON_PLUGIN_ID);
@@ -452,7 +455,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         // GENRES
         if (OverrideTools.checkOverwriteGenres(movie, COMINGSOON_PLUGIN_ID)) {
-            String genreList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">GENERE</span>: ", "</li>"));
+            String genreList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">GENERE</span>: ", HTML_LI));
             if (StringTools.isValidString(genreList)) {
                 Collection<String> genres = new ArrayList<>();
 
@@ -491,7 +494,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         boolean overrideDirectors = OverrideTools.checkOverwriteDirectors(movie, COMINGSOON_PLUGIN_ID);
         boolean overridePeopleDirectors = OverrideTools.checkOverwritePeopleDirectors(movie, COMINGSOON_PLUGIN_ID);
         if (overrideDirectors || overridePeopleDirectors) {
-            String directorList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">REGIA</span>:", "</li>"));
+            String directorList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">REGIA</span>:", HTML_LI));
 
             List<String> newDirectors = new ArrayList<>();
             if (directorList.contains(",")) {
@@ -516,7 +519,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         boolean overridePeopleWriters = OverrideTools.checkOverwritePeopleWriters(movie, COMINGSOON_PLUGIN_ID);
 
         if (overrideWriters || overridePeopleWriters) {
-            String writerList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">SCENEGGIATURA</span>:", "</li>"));
+            String writerList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">SCENEGGIATURA</span>:", HTML_LI));
 
             List<String> newWriters = new ArrayList<>();
             if (writerList.contains(",")) {
@@ -540,7 +543,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
         boolean overrideActors = OverrideTools.checkOverwriteActors(movie, COMINGSOON_PLUGIN_ID);
         boolean overridePeopleActors = OverrideTools.checkOverwritePeopleActors(movie, COMINGSOON_PLUGIN_ID);
         if (overrideActors || overridePeopleActors) {
-            String castList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ATTORI</span>: ", "</li>"));
+            String castList = HTMLTools.stripTags(HTMLTools.extractTag(xml, ">ATTORI</span>: ", HTML_LI));
 
             List<String> newActors = new ArrayList<>();
             if (castList.contains(",")) {
