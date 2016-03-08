@@ -170,7 +170,7 @@ public class Library implements Map<String, Movie> {
         AWARD_NOMINATED = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
         awardTmp = PropertiesUtil.getProperty("mjb.categories.award.won", "");
         AWARD_WON = StringTools.isValidString(awardTmp) ? Arrays.asList(awardTmp.split(Movie.SPACE_SLASH_SPACE)) : new ArrayList<String>();
-        scrapeWonAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", FALSE).equalsIgnoreCase("won");
+        scrapeWonAwards = "won".equalsIgnoreCase(PropertiesUtil.getProperty("mjb.scrapeAwards", FALSE));
         splitHD = PropertiesUtil.getBooleanProperty("highdef.differentiate", Boolean.FALSE);
         processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", Boolean.TRUE);
         hideWatched = PropertiesUtil.getBooleanProperty("mjb.Library.hideWatched", Boolean.TRUE);
@@ -511,9 +511,9 @@ public class Library implements Map<String, Movie> {
             indexMaster.setWatchedFile(watched);
             indexMaster.setTop250(top250, top250source);
 
-            if (setsRating.equalsIgnoreCase("max") || (setsRating.equalsIgnoreCase("average") && (!indexMovieList.isEmpty()))) {
+            if ("max".equalsIgnoreCase(setsRating) || ("average".equalsIgnoreCase(setsRating) && (!indexMovieList.isEmpty()))) {
                 Map<String, Integer> ratings = new HashMap<>();
-                ratings.put("setrating", setsRating.equalsIgnoreCase("max") ? maxRating : (sumRating / indexMovieList.size()));
+                ratings.put("setrating", "max".equalsIgnoreCase(setsRating) ? maxRating : (sumRating / indexMovieList.size()));
                 indexMaster.setRatings(ratings);
             }
 
@@ -713,16 +713,20 @@ public class Library implements Map<String, Movie> {
                     newList.addAll(otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_MOVIE)));
                     newMovies = otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_MOVIE)).size();
                 } else // Remove the empty "New Movie" category
-                if (CATEGORIES_MAP.get(INDEX_NEW_MOVIE) != null) {
-                    otherIndexes.remove(CATEGORIES_MAP.get(INDEX_NEW_MOVIE));
+                {
+                    if (CATEGORIES_MAP.get(INDEX_NEW_MOVIE) != null) {
+                        otherIndexes.remove(CATEGORIES_MAP.get(INDEX_NEW_MOVIE));
+                    }
                 }
 
                 if (trimNewTvOK && (CATEGORIES_MAP.get(INDEX_NEW_TV) != null) && (otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_TV)) != null)) {
                     newList.addAll(otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_TV)));
                     newTVShows = otherIndexes.get(CATEGORIES_MAP.get(INDEX_NEW_TV)).size();
                 } else // Remove the empty "New TV" category
-                if (CATEGORIES_MAP.get(INDEX_NEW_TV) != null) {
-                    otherIndexes.remove(CATEGORIES_MAP.get(INDEX_NEW_TV));
+                {
+                    if (CATEGORIES_MAP.get(INDEX_NEW_TV) != null) {
+                        otherIndexes.remove(CATEGORIES_MAP.get(INDEX_NEW_TV));
+                    }
                 }
 
                 // If we have new videos, then create the super "New" category

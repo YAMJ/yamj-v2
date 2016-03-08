@@ -87,7 +87,7 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
         boolean firstScanImdb = false;
 
-        if (scanImdb.equalsIgnoreCase("always") || (scanImdb.equalsIgnoreCase("fallback") && (StringTools.isNotValidString(comingSoonId) || comingSoonId.equals(COMINGSOON_NOT_PRESENT)))) {
+        if ("always".equalsIgnoreCase(scanImdb) || ("fallback".equalsIgnoreCase(scanImdb) && (StringTools.isNotValidString(comingSoonId) || comingSoonId.equals(COMINGSOON_NOT_PRESENT)))) {
             LOG.debug("Checking IMDB");
             firstScanImdb = super.scan(movie);
             if (StringTools.isNotValidString(comingSoonId) && firstScanImdb) {
@@ -144,12 +144,12 @@ public class ComingSoonPlugin extends ImdbPlugin {
 
     protected String getComingSoonId(String movieName, String year, String searchIdPreference) {
 
-        if (searchIdPreference.equalsIgnoreCase("comingsoon")) {
+        if ("comingsoon".equalsIgnoreCase(searchIdPreference)) {
             return getComingSoonIdFromComingSoon(movieName, year);
-        } else if (searchIdPreference.equalsIgnoreCase("yahoo")) {
+        } else if ("yahoo".equalsIgnoreCase(searchIdPreference)) {
             String url = searchEngineTools.searchUrlOnYahoo(movieName, year, "www.comingsoon.it/film", null);
             return getComingSoonIdFromURL(url);
-        } else if (searchIdPreference.equalsIgnoreCase("google")) {
+        } else if ("google".equalsIgnoreCase(searchIdPreference)) {
             String url = searchEngineTools.searchUrlOnGoogle(movieName, year, "www.comingsoon.it/film", null);
             return getComingSoonIdFromURL(url);
         } else if (searchIdPreference.contains(",")) {

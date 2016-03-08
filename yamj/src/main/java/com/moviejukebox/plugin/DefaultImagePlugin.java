@@ -572,7 +572,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                             value = (StringTools.isNotValidString(movie.getSubtitles()) || "NO".equalsIgnoreCase(movie.getSubtitles())) ? FALSE : (blockSubTitle ? movie.getSubtitles() : TRUE);
                         } else if (LANGUAGE.equalsIgnoreCase(name)) {
                             value = movie.getLanguage();
-                        } else if (name.equalsIgnoreCase("rating")) {
+                        } else if ("rating".equalsIgnoreCase(name)) {
                             value = ((!movie.isTVShow() && !movie.isSetMaster()) || (movie.isTVShow() && movie.isSetMaster())) ? Integer.toString(realRating ? movie.getRating() : (int) (Math.floor(movie.getRating() / 10) * 10)) : Movie.UNKNOWN;
                         } else if (VIDEOSOURCE.equalsIgnoreCase(name) || "source".equalsIgnoreCase(name) || "VS".equalsIgnoreCase(name)) {
                             value = movie.getVideoSource();
@@ -909,7 +909,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
      */
     private BufferedImage drawSubTitle(Movie movie, BufferedImage bi) {
         // If the doesn't have subtitles, then quit
-        if (StringTools.isNotValidString(movie.getSubtitles()) || movie.getSubtitles().equalsIgnoreCase("NO")) {
+        if (StringTools.isNotValidString(movie.getSubtitles()) || "NO".equalsIgnoreCase(movie.getSubtitles())) {
             return bi;
         }
 
@@ -978,11 +978,11 @@ public class DefaultImagePlugin implements MovieImagePlugin {
             if (addOtherLogo && (movie.isTVShow())) {
                 // Both logos are required, so put the HD logo on the LEFT
                 g2d.drawImage(biHd, 5, bi.getHeight() - biHd.getHeight() - 5, null);
-                LOG.debug("Drew HD logo ({}) on the left",logoFilename);
+                LOG.debug("Drew HD logo ({}) on the left", logoFilename);
             } else {
                 // Only the HD logo is required so set it in the centre
                 g2d.drawImage(biHd, bi.getWidth() / 2 - biHd.getWidth() / 2, bi.getHeight() - biHd.getHeight() - 5, null);
-                LOG.debug("Drew HD logo ({}) in the middle",logoFilename);
+                LOG.debug("Drew HD logo ({}) in the middle", logoFilename);
             }
 
             g2d.dispose();
@@ -1125,45 +1125,43 @@ public class DefaultImagePlugin implements MovieImagePlugin {
                 if (imageFile.exists()) {
                     BufferedImage biLang = GraphicTools.loadJPEGImage(imageFile);
                     g2d.drawImage(biLang, 1, 1, null);
+                } else if (languages.length == 1) {
+                    LOG.warn("Failed drawing Language logo to thumbnail file: {}", movie.getBaseName());
+                    LOG.warn("Please check that language specific graphic ({}.png) is in the resources/languages directory.", fullLanguage);
                 } else {
-                    if (languages.length == 1) {
-                        LOG.warn("Failed drawing Language logo to thumbnail file: {}", movie.getBaseName());
-                        LOG.warn("Please check that language specific graphic ({}.png) is in the resources/languages directory.", fullLanguage);
-                    } else {
-                        LOG.debug("Unable to find multiple language image ({}.png) in the resources/languages directory, generating it from single one.", fullLanguage);
-                        int width = -1;
-                        int height = -1;
-                        int nbCols = (int) Math.sqrt(languages.length);
-                        int nbRows = languages.length / nbCols;
+                    LOG.debug("Unable to find multiple language image ({}.png) in the resources/languages directory, generating it from single one.", fullLanguage);
+                    int width = -1;
+                    int height = -1;
+                    int nbCols = (int) Math.sqrt(languages.length);
+                    int nbRows = languages.length / nbCols;
 
-                        BufferedImage[] imageFiles = new BufferedImage[languages.length];
-                        // Looking for image file
-                        for (int i = 0; i < languages.length; i++) {
-                            String language = languages[i].trim();
-                            languageFilename = "languages" + File.separator + language + ".png";
-                            imageFile = new File(getResourcesPath() + languageFilename);
-                            if (imageFile.exists()) {
+                    BufferedImage[] imageFiles = new BufferedImage[languages.length];
+                    // Looking for image file
+                    for (int i = 0; i < languages.length; i++) {
+                        String language = languages[i].trim();
+                        languageFilename = "languages" + File.separator + language + ".png";
+                        imageFile = new File(getResourcesPath() + languageFilename);
+                        if (imageFile.exists()) {
 
-                                BufferedImage biLang = GraphicTools.loadJPEGImage(imageFile);
-                                imageFiles[i] = biLang;
+                            BufferedImage biLang = GraphicTools.loadJPEGImage(imageFile);
+                            imageFiles[i] = biLang;
 
-                                // Determine image size.
-                                if (width == -1) {
+                            // Determine image size.
+                            if (width == -1) {
 
-                                    width = biLang.getWidth() / nbCols;
-                                    height = biLang.getHeight() / nbRows;
-                                }
-                            } else {
-                                LOG.warn("Failed drawing Language logo to thumbnail file: {}", movie.getBaseName());
-                                LOG.warn("Please check that language specific graphic ({}) is in the resources/languages directory.", languageFilename);
+                                width = biLang.getWidth() / nbCols;
+                                height = biLang.getHeight() / nbRows;
                             }
+                        } else {
+                            LOG.warn("Failed drawing Language logo to thumbnail file: {}", movie.getBaseName());
+                            LOG.warn("Please check that language specific graphic ({}) is in the resources/languages directory.", languageFilename);
                         }
+                    }
 
-                        for (int i = 0; i < imageFiles.length; i++) {
-                            int indexCol = (i) % nbCols;
-                            int indexRow = (i / nbCols);
-                            g2d.drawImage(imageFiles[i], left + (width * indexCol), top + (height * indexRow), width, height, null);
-                        }
+                    for (int i = 0; i < imageFiles.length; i++) {
+                        int indexCol = (i) % nbCols;
+                        int indexRow = (i / nbCols);
+                        g2d.drawImage(imageFiles[i], left + (width * indexCol), top + (height * indexRow), width, height, null);
                     }
                 }
 
@@ -1366,7 +1364,7 @@ public class DefaultImagePlugin implements MovieImagePlugin {
         }
 
         // Create the drop shadow
-        if (!textFontShadow.equalsIgnoreCase("")) {
+        if (StringUtils.isNotBlank(textFontShadow)) {
             g2d.setColor(getColor(textFontShadow, Color.DARK_GRAY));
             g2d.drawString(outputText, leftAlignment + 2, topAlignment + 2);
         }

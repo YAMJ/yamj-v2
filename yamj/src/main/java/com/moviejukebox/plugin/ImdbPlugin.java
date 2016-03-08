@@ -153,7 +153,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         // Award properties
         String tmpAwards = PropertiesUtil.getProperty("mjb.scrapeAwards", FALSE);
-        scrapeWonAwards = tmpAwards.equalsIgnoreCase("won");
+        scrapeWonAwards = "won".equalsIgnoreCase(tmpAwards);
         scrapeAwards = tmpAwards.equalsIgnoreCase(TRUE) || scrapeWonAwards;
 
         // Business properties
@@ -251,14 +251,14 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
         xml = getImdbData(xml);
 
-        if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW) && (xml.contains("\"tv-extra\"") || xml.contains("\"tv-series-series\""))) {
+        if (!Movie.TYPE_TVSHOW.equals(movie.getMovieType()) && (xml.contains("\"tv-extra\"") || xml.contains("\"tv-series-series\""))) {
             movie.setMovieType(Movie.TYPE_TVSHOW);
             return Boolean.FALSE;
         }
 
         // We can work out if this is the new site by looking for " - IMDb" at the end of the title
         String title = HTMLTools.extractTag(xml, "<title>");
-        if (!movie.getMovieType().equals(Movie.TYPE_TVSHOW) && title.contains("(TV Series")) {
+        if (!Movie.TYPE_TVSHOW.equals(movie.getMovieType()) && title.contains("(TV Series")) {
             movie.setMovieType(Movie.TYPE_TVSHOW);
             return Boolean.FALSE;
         }
@@ -563,7 +563,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         String xmlPlot = UNKNOWN;
 
         // Get the long plot from the summary page
-        if (imdbPlot.equalsIgnoreCase("long")) {
+        if ("long".equalsIgnoreCase(imdbPlot)) {
             xmlPlot = getPlotSummary(movie);
         }
 
@@ -1086,7 +1086,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         String currency = oWeek.replaceAll("\\d+.*", "");
                         long value = NumberUtils.toLong(oWeek.replaceAll("^\\D*\\s*", "").replaceAll("\\s.*", "").replaceAll(",", ""), -1L);
                         String country = HTMLTools.extractTag(oWeek, "(", ")");
-                        if (country.equals("Worldwide") && !currency.equals("$")) {
+                        if ("Worldwide".equals(country) && !currency.equals("$")) {
                             continue;
                         }
                         String money = i == 0 ? movie.getOpenWeek(country) : movie.getGross(country);

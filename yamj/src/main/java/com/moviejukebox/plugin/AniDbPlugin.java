@@ -121,8 +121,8 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private static TheTVDBApi tvdb;
     private static Boolean loadedTvdbMappings = false;
     // Lock objects
-    private static final Object lock = new Object();
-    private static final Object tvlock = new Object();
+    private static final Object LOCK = new Object();
+    private static final Object TVLOCK = new Object();
 
     static {
         MAIN_SERIES_MOVIES = new HashMap<>();
@@ -180,7 +180,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
         setupDatabase();
         try {
-            synchronized (lock) {
+            synchronized (LOCK) {
                 if (!loadedTvdbMappings) {
                     loadAnidbTvdbMappings();
                     loadedTvdbMappings = true;
@@ -320,22 +320,20 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             if (ae != null) {
                 episodeNumber = ae.getEpisodeNumber();
             }
-        } else {
-            if (tvshowRegex != null) {
-                Matcher m = tvshowRegex.matcher(movie.getBaseFilename());
-                if (m.find()) { // TV-show
-                    episodeNumber = m.group(tvshowRegexEpisodeNumberIndex);
-                    movie.setMovieType(Movie.TYPE_TVSHOW);
+        } else if (tvshowRegex != null) {
+            Matcher m = tvshowRegex.matcher(movie.getBaseFilename());
+            if (m.find()) { // TV-show
+                episodeNumber = m.group(tvshowRegexEpisodeNumberIndex);
+                movie.setMovieType(Movie.TYPE_TVSHOW);
+                if (OverrideTools.checkOverwriteTitle(movie, ANIDB_PLUGIN_ID)) {
+                    movie.setTitle(cleanString(m.group(tvshowRegexTitleIndex)), ANIDB_PLUGIN_ID);
+                }
+            } else if (movieRegex != null) {
+                m = movieRegex.matcher(movie.getBaseFilename());
+                if (m.find()) {
+                    movie.setMovieType(Movie.TYPE_MOVIE);
                     if (OverrideTools.checkOverwriteTitle(movie, ANIDB_PLUGIN_ID)) {
-                        movie.setTitle(cleanString(m.group(tvshowRegexTitleIndex)), ANIDB_PLUGIN_ID);
-                    }
-                } else if (movieRegex != null) {
-                    m = movieRegex.matcher(movie.getBaseFilename());
-                    if (m.find()) {
-                        movie.setMovieType(Movie.TYPE_MOVIE);
-                        if (OverrideTools.checkOverwriteTitle(movie, ANIDB_PLUGIN_ID)) {
-                            movie.setTitle(cleanString(m.group(movieRegexTitleIndex)), ANIDB_PLUGIN_ID);
-                        }
+                        movie.setTitle(cleanString(m.group(movieRegexTitleIndex)), ANIDB_PLUGIN_ID);
                     }
                 }
             }
@@ -372,7 +370,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
         }
 
         if (anime != null) {
-            if (anime.getType().equals("Movie")) { // Assume anything not a movie is a TV show
+            if ("Movie".equals(anime.getType())) { // Assume anything not a movie is a TV show
                 movie.setMovieType(Movie.TYPE_MOVIE);
             } else {
                 movie.setMovieType(Movie.TYPE_TVSHOW);
@@ -555,7 +553,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 
     protected Series getSeriesFromTvdb(final long tvdbId) {
-        synchronized (tvlock) {
+        synchronized (TVLOCK) {
             try {
                 return tvdb.getSeries(Long.toString(tvdbId), "en");
             } catch (TvDbException ex) {
@@ -566,7 +564,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 
     protected Series getSeriesFromTvdb(final String title) {
-        synchronized (tvlock) {
+        synchronized (TVLOCK) {
             try {
                 final List<Series> series = tvdb.searchSeries(title, "en");
                 if (!series.isEmpty()) {
@@ -580,7 +578,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     }
 
     protected com.omertron.thetvdbapi.model.Episode getEpisodeFromTvdb(final String seriesId, final int season, final int episodeNumber) {
-        synchronized (tvlock) {
+        synchronized (TVLOCK) {
             try {
                 return tvdb.getEpisode(seriesId, season, episodeNumber, "en");
             } catch (TvDbException ex) {
@@ -606,7 +604,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
             AnidbFile file;
             if (localFile == null) {
                 ed2kHash = getEd2kChecksum(movie.getFile());
-                if (ed2kHash.equals("")) {
+                if ("".equals(ed2kHash)) {
                     return null;
                 }
                 localFile = loadLocalFile(movie.getFile(), ed2kHash);
@@ -849,25 +847,25 @@ public class AniDbPlugin implements MovieDatabasePlugin {
 
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) {
-            if (qName.equalsIgnoreCase("anime")) {
+            if ("anime".equalsIgnoreCase(qName)) {
                 current = new AnidbTvdbMapping();
                 String s = attributes.getValue(attributes.getIndex("tvdbid"));
-                if (!s.equalsIgnoreCase("unknown")) {
+                if (!"unknown".equalsIgnoreCase(s)) {
                     current.setAnidbId(Long.parseLong(attributes.getValue(attributes.getIndex("anidbid"))));
                     current.setTvdbId(Long.parseLong(attributes.getValue(attributes.getIndex("tvdbid"))));
                     current.setDefaultTvdbSeason(Integer.parseInt(attributes.getValue(attributes.getIndex("defaulttvdbseason"))));
                     mappings.add(current);
                 }
-            } else if (qName.equalsIgnoreCase("name")) {
+            } else if ("name".equalsIgnoreCase(qName)) {
                 name = true;
-            } else if (qName.equalsIgnoreCase("mapping")) {
+            } else if ("mapping".equalsIgnoreCase(qName)) {
                 mapping = true;
             }
         }
 
         @Override
         public void endElement(String uri, String localName, String qName) {
-            if (qName.equalsIgnoreCase("mapping")) {
+            if ("mapping".equalsIgnoreCase(qName)) {
                 mapping = false;
                 String[] split = lastMapping.split(";");
                 for (String s : split) {
@@ -881,7 +879,7 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                     }
                 }
                 lastMapping = "";
-            } else if (qName.equalsIgnoreCase("name")) {
+            } else if ("name".equalsIgnoreCase(qName)) {
                 current.setName(nameString.toString());
                 nameString.setLength(0);
                 name = false;

@@ -31,13 +31,13 @@ import java.net.URLEncoder;
 import java.text.Normalizer;
 import java.util.*;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Plugin to retrieve movie data from Russian animation database www.animator.ru
- * and www.allmults.org
+ * Plugin to retrieve movie data from Russian animation database www.animator.ru and www.allmults.org
  *
  * Written by Ilgizar Mubassarov (based on KinopoiskPlugin.java)
  *
@@ -51,8 +51,8 @@ public class AnimatorPlugin extends ImdbPlugin {
     public static final String ANIMATOR_PLUGIN_ID = "animator";
     private final String preferredSites = PropertiesUtil.getProperty("animator.sites", "all");
     private final String[] listSites = preferredSites.split(",");
-    private final boolean animatorDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "animator") != -1);
-    private final boolean multsDiscovery = (preferredSites.equals("all") || ArrayUtils.indexOf(listSites, "allmults") != -1);
+    private final boolean animatorDiscovery = ("all".equals(preferredSites) || ArrayUtils.indexOf(listSites, "animator") != -1);
+    private final boolean multsDiscovery = ("all".equals(preferredSites) || ArrayUtils.indexOf(listSites, "allmults") != -1);
 
     @Override
     public String getPluginID() {
@@ -168,8 +168,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                     osWriter.flush();
 
                     try (InputStreamReader inReader = new InputStreamReader(conn.getInputStream(), "cp1251");
-                         BufferedReader bReader = new BufferedReader(inReader))
-                    {
+                            BufferedReader bReader = new BufferedReader(inReader)) {
                         String line;
                         while ((line = bReader.readLine()) != null) {
                             xmlLines.append(line);
@@ -308,14 +307,14 @@ public class AnimatorPlugin extends ImdbPlugin {
             String time = Movie.UNKNOWN;
             List<String> newGenres = new LinkedList<>();
             newGenres.add(0, "мультфильм");
-            for (String tmp : HTMLTools.extractTags(xml, "class=\"FilmType\"><i", "</td>", "", "</i>")) {
-                for (String temp : tmp.split(",")) {
-                    if (!temp.equals("")) {
-                        if (temp.contains(" мин.")) {
-                            time = temp.substring(0, temp.indexOf(" мин.") + 4);
+            for (String tmpTagList : HTMLTools.extractTags(xml, "class=\"FilmType\"><i", "</td>", "", "</i>")) {
+                for (String tmpTag : tmpTagList.split(",")) {
+                    if (StringUtils.isNotBlank(tmpTag)) {
+                        if (tmpTag.contains(" мин.")) {
+                            time = tmpTag.substring(0, tmpTag.indexOf(" мин.") + 4);
                             break;
                         }
-                        newGenres.add(temp.replaceAll("^\\s+", "").replaceAll("\\s+$", ""));
+                        newGenres.add(tmpTag.replaceAll("^\\s+", "").replaceAll("\\s+$", ""));
                     }
                 }
             }
@@ -323,10 +322,10 @@ public class AnimatorPlugin extends ImdbPlugin {
             if (OverrideTools.checkOverwriteGenres(movie, ANIMATOR_PLUGIN_ID)) {
                 // Genre (allmults.org)
                 if (newGenres.isEmpty() && !allmultsId.equals(Movie.UNKNOWN)) {
-                    for (String tmp : HTMLTools.extractTags(xml2, "<b>Жанр:", "<b>", "", "<br>")) {
-                        for (String temp : tmp.split(",")) {
-                            if (!temp.equals("")) {
-                                newGenres.add(temp);
+                    for (String tmpGenreList : HTMLTools.extractTags(xml2, "<b>Жанр:", "<b>", "", "<br>")) {
+                        for (String genre : tmpGenreList.split(",")) {
+                            if (StringUtils.isNotBlank(genre)) {
+                                newGenres.add(genre);
                             }
                         }
                     }
@@ -376,7 +375,7 @@ public class AnimatorPlugin extends ImdbPlugin {
                         act = act + " (" + tmpPers + ")";
                         break;
                     }
-                    if (!act.equals("")) {
+                    if (StringUtils.isNotBlank(act)) {
                         newCast.add(act);
                     }
                 }
@@ -396,9 +395,9 @@ public class AnimatorPlugin extends ImdbPlugin {
 
             // Director (allmults.org)
             if (newDirectors.isEmpty() && !allmultsId.equals(Movie.UNKNOWN)) {
-                for (String tmp : HTMLTools.extractTags(xml2, "<b>Режиссер:", "<p ", "", "</p>")) {
-                    if (!tmp.equals("")) {
-                        newDirectors.add(tmp);
+                for (String tmpDirector : HTMLTools.extractTags(xml2, "<b>Режиссер:", "<p ", "", "</p>")) {
+                    if (StringUtils.isNotBlank(tmpDirector)) {
+                        newDirectors.add(tmpDirector);
                     }
                 }
             }
@@ -434,9 +433,9 @@ public class AnimatorPlugin extends ImdbPlugin {
             if (OverrideTools.checkOverwriteYear(movie, ANIMATOR_PLUGIN_ID)) {
                 // Year (allmults.org)
                 if (year2.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
-                    for (String tmp : HTMLTools.extractTags(xml2, "<b>Год:", "<br>", "<a href=", "</a>")) {
-                        if (!tmp.equals("")) {
-                            year2 = tmp;
+                    for (String tmpYear : HTMLTools.extractTags(xml2, "<b>Год:", "<br>", "<a href=", "</a>")) {
+                        if (StringUtils.isNotBlank(tmpYear)) {
+                            year2 = tmpYear;
                         }
                     }
                 }
@@ -446,19 +445,13 @@ public class AnimatorPlugin extends ImdbPlugin {
             if (OverrideTools.checkOverwriteCountry(movie, ANIMATOR_PLUGIN_ID)) {
                 // Country (allmults.org)
                 if (country.equals(Movie.UNKNOWN) && !allmultsId.equals(Movie.UNKNOWN)) {
-                    for (String tmp : HTMLTools.extractTags(xml2, "<b>Страна:", "<br>", "<a href=", "</a>")) {
-                        if (!tmp.equals("")) {
-                            country = tmp;
+                    for (String tmpCountry : HTMLTools.extractTags(xml2, "<b>Страна:", "<br>", "<a href=", "</a>")) {
+                        if (StringUtils.isNotBlank(tmpCountry)) {
+                            country = tmpCountry;
                         }
                     }
                 }
 
-//              Translate russian to english for correctly show flag
-//              if (country.equals("Россия")) {
-//                  country = "Russia";
-//              } else if (Country.equals("СССР")) {
-//                  country = "USSR";
-//              }
                 movie.setCountries(country, ANIMATOR_PLUGIN_ID);
             }
 
