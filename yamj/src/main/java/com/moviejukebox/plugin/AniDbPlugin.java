@@ -89,12 +89,10 @@ public class AniDbPlugin implements MovieDatabasePlugin {
     private static final int ANIDB_CLIENT_VERSION = 1;
     private static int anidbPort = PropertiesUtil.getIntProperty("anidb.port", 1025);
     private static final int ED2K_CHUNK_SIZE = 9728000;
-//    private static final String WEBHOST = "anidb.net";
     private AnimeMask anidbMask;
     private AnimeMask categoryMask;
     private AnimeFileMask animeFileMask;
     private FileMask fileMask;
-//    private static final String PICTURE_URL_BASE = "http://1.2.3.12/bmi/img7.anidb.net/pics/anime/";
     private static final String THETVDB_ANIDB_MAPPING_URL = "e:\\downloads\\anime-list.xml";//"http://sites.google.com/site/anidblist/anime-list.xml";
     private static UdpConnection anidbConn = null;
     private static boolean anidbConnectionProtection = false;   // Set this to true to stop further calls
@@ -243,24 +241,20 @@ public class AniDbPlugin implements MovieDatabasePlugin {
                     }
                 }
             }
-            if (dbUpdate) {
-                switch (version) {
-                    case -1: // DB Doesn't exist, create from scratch
-                        TableUtils.createTable(connectionSource, AnidbLocalFile.class);
-                        TableUtils.createTable(connectionSource, AnidbEpisode.class);
-                        TableUtils.createTable(connectionSource, AnidbAnime.class);
-                        TableUtils.createTable(connectionSource, AnidbTableInfo.class);
-                        TableUtils.createTable(connectionSource, AnidbFile.class);
-                        TableUtils.createTable(connectionSource, AnidbCategory.class);
-                        TableUtils.createTable(connectionSource, AnidbTvdbMapping.class);
-                        TableUtils.createTable(connectionSource, AnidbTvdbEpisodeMapping.class);
-                        info = new AnidbTableInfo();
-                        info.setVersion(AniDbPlugin.TABLE_VERSION);
-                        tableDao.create(info);
-                        break;
-                    default:
-                        break;
-                }
+
+            if (dbUpdate && version == -1) {
+                // DB Doesn't exist, create from scratch
+                TableUtils.createTable(connectionSource, AnidbLocalFile.class);
+                TableUtils.createTable(connectionSource, AnidbEpisode.class);
+                TableUtils.createTable(connectionSource, AnidbAnime.class);
+                TableUtils.createTable(connectionSource, AnidbTableInfo.class);
+                TableUtils.createTable(connectionSource, AnidbFile.class);
+                TableUtils.createTable(connectionSource, AnidbCategory.class);
+                TableUtils.createTable(connectionSource, AnidbTvdbMapping.class);
+                TableUtils.createTable(connectionSource, AnidbTvdbEpisodeMapping.class);
+                info = new AnidbTableInfo();
+                info.setVersion(AniDbPlugin.TABLE_VERSION);
+                tableDao.create(info);
             }
 
         } catch (SQLException error) {
