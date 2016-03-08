@@ -78,7 +78,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private static final Logger LOG = LoggerFactory.getLogger(TheMovieDbPlugin.class);
     public static final String TMDB_PLUGIN_ID = "themoviedb";
     public static final String IMDB_PLUGIN_ID = "imdb";
-    private TheMovieDbApi TMDb = null;
+    private TheMovieDbApi tmdb = null;
     private String languageCode;
     private String countryCode;
     private final boolean downloadFanart = PropertiesUtil.getBooleanProperty("fanart.movie.download", Boolean.FALSE);
@@ -103,10 +103,15 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
     private final int writerMax = PropertiesUtil.getReplacedIntProperty("movie.writer.maxCount", "plugin.people.maxCount.writer", 3);
     private final List<String> jobsInclude = Arrays.asList(PropertiesUtil.getProperty("plugin.filmography.jobsInclude", "Director,Writer,Actor,Actress").split(","));
 
+    // Literals
+    private static final String LOG_LOCATE_MOVIE_INFORMATION = "{}: Using '{}' & '{}' to locate movie information";
+    private static final String TOKEN_SPLIT = "/ \n,:!&é\"'(--è_çà)=$";
+    private static final String ORIGINAL = "original";
+
     public TheMovieDbPlugin() {
         try {
             String apiKey = PropertiesUtil.getProperty("API_KEY_TheMovieDB");
-            TMDb = new TheMovieDbApi(apiKey, YamjHttpClientBuilder.getHttpClient());
+            tmdb = new TheMovieDbApi(apiKey, YamjHttpClientBuilder.getHttpClient());
         } catch (MovieDbException ex) {
             LOG.warn("Failed to initialise TheMovieDB API: {}", ex.getMessage());
             return;
@@ -161,14 +166,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         List<ReleaseInfo> movieReleaseInfo = new ArrayList<>();
         MediaCreditList moviePeople = null;
         MovieInfo moviedb = null;
-        boolean retval = false;
+        boolean retval;
 
         // First look to see if we have a TMDb ID as this will make looking the film up easier
         if (StringTools.isValidString(tmdbID)) {
             // Search based on TMdb ID
             LOG.debug("{}: Using TMDb ID ({}) for {}", movie.getBaseName(), tmdbID, movie.getBaseName());
             try {
-                moviedb = TMDb.getMovieInfo(NumberUtils.toInt(tmdbID), languageCode);
+                moviedb = tmdb.getMovieInfo(NumberUtils.toInt(tmdbID), languageCode);
             } catch (MovieDbException ex) {
                 LOG.debug("{}: Failed to get movie info using TMDB ID: {} - {}", movie.getBaseName(), tmdbID, ex.getMessage());
             }
@@ -178,7 +183,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             // Search based on IMDb ID
             LOG.debug("{}: Using IMDb ID ({}) for {}", movie.getBaseName(), imdbID, movie.getBaseName());
             try {
-                moviedb = TMDb.getMovieInfoImdb(imdbID, languageCode);
+                moviedb = tmdb.getMovieInfoImdb(imdbID, languageCode);
                 tmdbID = String.valueOf(moviedb.getId());
                 if (StringTools.isNotValidString(tmdbID)) {
                     LOG.debug("{}: No TMDb ID found for movie!", movie.getBaseName());
@@ -195,12 +200,12 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             int movieYear = NumberUtils.toInt(movie.getYear(), 0);
 
             // Check with the title
-            LOG.debug("{}: Using '{}' & '{}' to locate movie information", movie.getBaseName(), movie.getTitle(), movieYear);
+            LOG.debug(LOG_LOCATE_MOVIE_INFORMATION, movie.getBaseName(), movie.getTitle(), movieYear);
             moviedb = searchMovieTitle(movie, movieYear, movie.getTitle());
 
             if (moviedb == null) {
                 // Check with the original title
-                LOG.debug("{}: Using '{}' & '{}' to locate movie information", movie.getBaseName(), movie.getOriginalTitle(), movieYear);
+                LOG.debug(LOG_LOCATE_MOVIE_INFORMATION, movie.getBaseName(), movie.getOriginalTitle(), movieYear);
                 moviedb = searchMovieTitle(movie, movieYear, movie.getOriginalTitle());
             }
 
@@ -235,10 +240,10 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             LOG.debug("Try using a NFO file to specify the movie");
             return false;
         }
-        
+
         try {
             // Get the full information on the film
-            moviedb = TMDb.getMovieInfo(moviedb.getId(), languageCode);
+            moviedb = tmdb.getMovieInfo(moviedb.getId(), languageCode);
         } catch (MovieDbException ex) {
             LOG.debug("Failed to download remaining information for {}", movie.getBaseName());
         }
@@ -246,14 +251,14 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
         try {
             // Get the release information
-            movieReleaseInfo = TMDb.getMovieReleaseInfo(moviedb.getId(), countryCode).getResults();
+            movieReleaseInfo = tmdb.getMovieReleaseInfo(moviedb.getId(), countryCode).getResults();
         } catch (MovieDbException ex) {
             LOG.debug("Failed to get release information: {}", ex.getMessage(), ex);
         }
 
         try {
             // Get the cast information
-            moviePeople = TMDb.getMovieCredits(moviedb.getId());
+            moviePeople = tmdb.getMovieCredits(moviedb.getId());
         } catch (MovieDbException ex) {
             LOG.debug("Failed to get cast information: {}", ex.getMessage(), ex);
         }
@@ -295,7 +300,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 newActors.add(person.getName());
             }
 
-            LOG.debug("Adding {} people to the crew list", Math.min(moviePeople.getCrew().size(),2));
+            LOG.debug("Adding {} people to the crew list", Math.min(moviePeople.getCrew().size(), 2));
             for (MediaCreditCrew person : moviePeople.getCrew()) {
                 LOG.trace("Adding crew member {}", person.toString());
                 if ("Directing".equalsIgnoreCase(person.getDepartment())) {
@@ -375,11 +380,11 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
      * @param searchTitle
      */
     private MovieInfo searchMovieTitle(Movie movie, int movieYear, final String searchTitle) {
-        LOG.debug("{}: Using '{}' & '{}' to locate movie information", movie.getBaseName(), searchTitle, movieYear);
+        LOG.debug(LOG_LOCATE_MOVIE_INFORMATION, movie.getBaseName(), searchTitle, movieYear);
         MovieInfo movieDb = null;
         ResultList<MovieInfo> result;
         try {
-            result = TMDb.searchMovie(searchTitle, 0, languageCode, INCLUDE_ADULT, movieYear, null, SearchType.PHRASE);
+            result = tmdb.searchMovie(searchTitle, 0, languageCode, INCLUDE_ADULT, movieYear, null, SearchType.PHRASE);
         } catch (MovieDbException ex) {
             LOG.warn("Error scanning movie '{}': {}", movie.getTitle(), ex.getMessage(), ex);
             return movieDb;
@@ -399,10 +404,8 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 LOG.debug("Matched to '{}'", movie.getTitle());
                 movieDb = movieInfo;
                 break;
-            }
-
-            // See if the original title is different and then compare it too
-            if (!sameTitle && Compare.movies(movieInfo, movie.getOriginalTitle(), String.valueOf(movieYear), SEARCH_MATCH, false)) {
+            } else if (!sameTitle && Compare.movies(movieInfo, movie.getOriginalTitle(), String.valueOf(movieYear), SEARCH_MATCH, false)) {
+                // See if the original title is different and then compare it too
                 LOG.debug("Matched to '{}'", movie.getOriginalTitle());
                 movieDb = movieInfo;
                 break;
@@ -554,7 +557,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
             LOG.debug("Scanning NFO for TheMovieDb ID");
             beginIndex = nfo.indexOf("/movie/");
             if (beginIndex != -1) {
-                StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$");
+                StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), TOKEN_SPLIT);
                 movie.setId(TMDB_PLUGIN_ID, st.nextToken());
                 LOG.debug("TheMovieDb ID found in NFO = {}", movie.getId(TMDB_PLUGIN_ID));
                 result = Boolean.TRUE;
@@ -570,13 +573,13 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         } else {
             beginIndex = nfo.indexOf("/tt");
             if (beginIndex != -1) {
-                StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1), "/ \n,:!&é\"'(--è_çà)=$");
+                StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 1), TOKEN_SPLIT);
                 movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, StringUtils.trim(st.nextToken()));
                 LOG.debug("IMDB ID found in nfo = {}", movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
             } else {
                 beginIndex = nfo.indexOf("/Title?");
                 if (beginIndex != -1 && beginIndex + 7 < nfo.length()) {
-                    StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), "/ \n,:!&é\"'(--è_çà)=$");
+                    StringTokenizer st = new StringTokenizer(nfo.substring(beginIndex + 7), TOKEN_SPLIT);
                     movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt" + StringUtils.trim(st.nextToken()));
                     LOG.debug("IMDB ID found in NFO = {}", movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
                 }
@@ -613,7 +616,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         if (StringTools.isValidString(id)) {
             int tmdbId = Integer.parseInt(id);
             try {
-                PersonInfo tmdbPerson = TMDb.getPersonInfo(tmdbId);
+                PersonInfo tmdbPerson = tmdb.getPersonInfo(tmdbId);
 
                 LOG.info(tmdbPerson.toString());
                 if (skipFaceless && StringUtils.isBlank(tmdbPerson.getProfilePath())) {
@@ -649,12 +652,12 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
 
                 person.setBirthPlace(tmdbPerson.getPlaceOfBirth());
 
-                URL url = TMDb.createImageUrl(tmdbPerson.getProfilePath(), "original");
+                URL url = tmdb.createImageUrl(tmdbPerson.getProfilePath(), ORIGINAL);
                 person.setPhotoURL(url.toString());
                 person.setPhotoFilename();
 
                 // Filmography
-                PersonCreditList<CreditMovieBasic> results = TMDb.getPersonMovieCredits(tmdbId, languageCode);
+                PersonCreditList<CreditMovieBasic> results = tmdb.getPersonMovieCredits(tmdbId, languageCode);
                 person.setKnownMovies(results.getCast().size() + results.getCrew().size());
 
                 int actorCount = 0;
@@ -682,9 +685,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                         // Skip this record as no more are needed
                         LOG.debug("Skipping DIRECTOR '{}' (max reached)", person.getName());
                         continue;
-                    }
-
-                    if (jobsInclude.contains("Writer") && (++writerCount > writerMax)) {
+                    } else if (jobsInclude.contains("Writer") && (++writerCount > writerMax)) {
                         // Skip this record as no more are needed
                         LOG.debug("Skipping WRITER '{}' (max reached)", person.getName());
                         continue;
@@ -769,7 +770,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         boolean includeAdult = PropertiesUtil.getBooleanProperty("themoviedb.includeAdult", Boolean.FALSE);
 
         try {
-            ResultList<PersonFind> results = TMDb.searchPeople(name, 0, includeAdult, SearchType.PHRASE);
+            ResultList<PersonFind> results = tmdb.searchPeople(name, 0, includeAdult, SearchType.PHRASE);
             LOG.info("Found {} person results for {}", results.getResults().size(), name);
             for (PersonFind person : results.getResults()) {
                 if (name.equalsIgnoreCase(person.getName())) {
@@ -777,7 +778,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     foundPerson = Boolean.TRUE;
                     break;
                 }
-                
+
                 LOG.trace("Checking {} against {}", name, person.getName());
                 int lhDistance = StringUtils.getLevenshteinDistance(name, person.getName());
                 LOG.trace("{}: Current closest match is {}, this match is {}", name, closestMatch, lhDistance);
@@ -826,19 +827,19 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         if (collInfo == null) {
             // Not found in cache, so look online
             try {
-                collInfo = TMDb.getCollectionInfo(collectionId, languageCode);
+                collInfo = tmdb.getCollectionInfo(collectionId, languageCode);
                 if (collInfo != null) {
                     URL newUrl;
 
                     // Update the URL to be the full URL
                     if (collInfo.getPosterPath() != null) {
-                        newUrl = TMDb.createImageUrl(collInfo.getPosterPath(), "original");
+                        newUrl = tmdb.createImageUrl(collInfo.getPosterPath(), ORIGINAL);
                         collInfo.setPosterPath(newUrl.toString());
                     }
 
                     // Update the URL to be the full URL
                     if (collInfo.getBackdropPath() != null) {
-                        newUrl = TMDb.createImageUrl(collInfo.getBackdropPath(), "original");
+                        newUrl = tmdb.createImageUrl(collInfo.getBackdropPath(), ORIGINAL);
                         collInfo.setBackdropPath(newUrl.toString());
                     }
 
@@ -915,7 +916,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         if (results == null) {
             try {
                 // Pass the language as null so that we get all images returned, even those without a language.
-                ResultList<Artwork> collResults = TMDb.getCollectionImages(collectionId, null);
+                ResultList<Artwork> collResults = tmdb.getCollectionImages(collectionId, null);
 
                 if (collResults != null && collResults.getResults() != null && !collResults.getResults().isEmpty()) {
                     results = new ArrayList<>(collResults.getResults());
@@ -936,7 +937,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                 if (artwork.getArtworkType() == artworkType && (StringUtils.isBlank(artwork.getLanguage()) || artwork.getLanguage().equalsIgnoreCase(languageCode))) {
                     try {
                         // We have a match, update the URL with the full path
-                        URL url = TMDb.createImageUrl(artwork.getFilePath(), "original");
+                        URL url = tmdb.createImageUrl(artwork.getFilePath(), ORIGINAL);
                         returnUrl = url.toString();
 
                         // Stop processing now.

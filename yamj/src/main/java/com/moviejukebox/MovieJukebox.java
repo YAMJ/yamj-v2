@@ -938,7 +938,7 @@ public class MovieJukebox {
                         if (ScanningLimit.getToken()) {
 
                             // First get movie data (title, year, director, genre, etc...)
-                            library.toggleDirty(updateMovieData(xmlReader, tools.miScanner, tools.backgroundPlugin, jukebox, movie, library));
+                            library.toggleDirty(updateMovieData(xmlReader, tools.miScanner, jukebox, movie, library));
 
                             if (!movie.getMovieType().equals(Movie.REMOVE)) {
                                 // Check for watched and unwatched files
@@ -1822,13 +1822,12 @@ public class MovieJukebox {
      *
      * @param xmlReader
      * @param miScanner
-     * @param backgroundPlugin
      * @param movie
      * @param jukebox
      * @param library
      * @return
      */
-    public boolean updateMovieData(MovieJukeboxXMLReader xmlReader, MediaInfoScanner miScanner, MovieImagePlugin backgroundPlugin, Jukebox jukebox, Movie movie, Library library) {
+    public boolean updateMovieData(MovieJukeboxXMLReader xmlReader, MediaInfoScanner miScanner, Jukebox jukebox, Movie movie, Library library) {
         boolean forceXMLOverwrite = PropertiesUtil.getBooleanProperty("mjb.forceXMLOverwrite", Boolean.FALSE);
         boolean checkNewer = PropertiesUtil.getBooleanProperty("filename.nfo.checknewer", Boolean.TRUE);
 
