@@ -20,23 +20,38 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.comparator2;
+package com.moviejukebox.model.comparator;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.Map;
+import java.util.List;
 
-public class ValueComparator implements Comparator<Object>, Serializable {
+/**
+ * @author altman.matthew
+ */
+public class CertificationComparator implements Comparator<String>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private final transient Map<String, Integer> base;
+    private transient List<String> ordering = null;
 
-    public ValueComparator(Map<String, Integer> base) {
-        this.base = base;
+    public CertificationComparator(List<String> ordering) {
+        this.ordering = ordering;
     }
 
     @Override
-    public int compare(Object a, Object b) {
-        return (base.get(String.valueOf(a)) < base.get(String.valueOf(b))) ? 1 : -1;
+    public int compare(String obj1, String obj2) {
+        int obj1Pos = ordering.indexOf(obj1);
+        int obj2Pos = ordering.indexOf(obj2);
+
+        if (obj1Pos < 0) {
+            ordering.add(obj1);
+            obj1Pos = ordering.indexOf(obj1);
+        }
+        if (obj2Pos < 0) {
+            ordering.add(obj2);
+            obj2Pos = ordering.indexOf(obj2);
+        }
+
+        return obj1Pos - obj2Pos;
     }
 }

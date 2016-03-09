@@ -20,42 +20,42 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.comparator2;
+package com.moviejukebox.model.attachment;
 
-import com.moviejukebox.model.Movie;
-import java.io.Serializable;
-import java.util.Comparator;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * @author altman.matthew
+ * The type of attachment content
+ *
+ * @author modmax
  */
-public class MovieRatingComparator implements Comparator<Movie>, Serializable {
+public enum ContentType {
 
-    private static final long serialVersionUID = 1L;
-    private final boolean ascending;
-
-    public MovieRatingComparator() {
-        this.ascending = Boolean.FALSE;
-    }
-
-    public MovieRatingComparator(boolean ascending) {
-        this.ascending = ascending;
-    }
-
-    @Override
-    public int compare(Movie movie1, Movie movie2) {
-        return compare(movie1, movie2, ascending);
-    }
+    NFO,
+    POSTER,
+    FANART,
+    BANNER,
+    SET_POSTER, // poster for a set
+    SET_FANART, // fanart for a set
+    SET_BANNER, // banner for a set
+    VIDEOIMAGE;
 
     /**
-     * Compare the rating of two movies.
+     * Convert a string into an Enum type
      *
-     * @param movie1
-     * @param movie2
-     * @param ascending
+     * @param type
      * @return
+     * @throws IllegalArgumentException If type is not recognised
+     *
      */
-    public int compare(Movie movie1, Movie movie2, boolean ascending) {
-        return ascending ? (movie1.getRating() - movie2.getRating()) : (movie2.getRating() - movie1.getRating());
+    public static ContentType fromString(String type) {
+        if (StringUtils.isNotBlank(type)) {
+            try {
+                return ContentType.valueOf(type.trim().toUpperCase());
+            } catch (IllegalArgumentException ex) {
+                throw new IllegalArgumentException("ContentType " + type + " does not exist.", ex);
+            }
+        }
+        throw new IllegalArgumentException("ContentType must not be null");
     }
 }

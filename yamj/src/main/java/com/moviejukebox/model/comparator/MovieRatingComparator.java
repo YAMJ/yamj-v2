@@ -20,7 +20,7 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.comparator2;
+package com.moviejukebox.model.comparator;
 
 import com.moviejukebox.model.Movie;
 import java.io.Serializable;
@@ -29,29 +29,33 @@ import java.util.Comparator;
 /**
  * @author altman.matthew
  */
-public class LastModifiedComparator implements Comparator<Movie>, Serializable {
+public class MovieRatingComparator implements Comparator<Movie>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private final boolean ascending;//Sort the videos in ascending date order (oldest first)
+    private final boolean ascending;
 
-    public LastModifiedComparator() {
-        // Use default sort of descending
+    public MovieRatingComparator() {
         this.ascending = Boolean.FALSE;
     }
 
-    public LastModifiedComparator(boolean ascending) {
+    public MovieRatingComparator(boolean ascending) {
         this.ascending = ascending;
     }
 
     @Override
     public int compare(Movie movie1, Movie movie2) {
-        int retVal = 0;
+        return compare(movie1, movie2, ascending);
+    }
 
-        if (movie1.getLastModifiedTimestamp() > movie2.getLastModifiedTimestamp()) {
-            retVal = (ascending ? 1 : -1);
-        } else if (movie1.getLastModifiedTimestamp() < movie2.getLastModifiedTimestamp()) {
-            retVal = (ascending ? -1 : 1);
-        }
-        return retVal;
+    /**
+     * Compare the rating of two movies.
+     *
+     * @param movie1
+     * @param movie2
+     * @param ascending
+     * @return
+     */
+    public int compare(Movie movie1, Movie movie2, boolean ascending) {
+        return ascending ? (movie1.getRating() - movie2.getRating()) : (movie2.getRating() - movie1.getRating());
     }
 }

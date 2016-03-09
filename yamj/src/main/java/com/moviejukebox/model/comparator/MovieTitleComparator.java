@@ -20,38 +20,31 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.comparator2;
+package com.moviejukebox.model.comparator;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.List;
 
-/**
- * @author altman.matthew
- */
-public class CertificationComparator implements Comparator<String>, Serializable {
+import com.moviejukebox.model.Movie;
+
+public class MovieTitleComparator implements Comparator<Movie>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private transient List<String> ordering = null;
+    private final boolean ascending;
 
-    public CertificationComparator(List<String> ordering) {
-        this.ordering = ordering;
+    public MovieTitleComparator() {
+        this.ascending = Boolean.TRUE;
+    }
+
+    public MovieTitleComparator(Boolean ascending) {
+        this.ascending = ascending;
     }
 
     @Override
-    public int compare(String obj1, String obj2) {
-        int obj1Pos = ordering.indexOf(obj1);
-        int obj2Pos = ordering.indexOf(obj2);
-
-        if (obj1Pos < 0) {
-            ordering.add(obj1);
-            obj1Pos = ordering.indexOf(obj1);
+    public int compare(Movie movie1, Movie movie2) {
+        if (ascending) {
+            return movie1.getStrippedTitleSort().compareTo(movie2.getStrippedTitleSort());
         }
-        if (obj2Pos < 0) {
-            ordering.add(obj2);
-            obj2Pos = ordering.indexOf(obj2);
-        }
-
-        return obj1Pos - obj2Pos;
+        return movie2.getStrippedTitleSort().compareTo(movie1.getStrippedTitleSort());
     }
 }

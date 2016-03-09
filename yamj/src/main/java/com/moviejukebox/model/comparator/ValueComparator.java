@@ -20,31 +20,23 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.comparator2;
+package com.moviejukebox.model.comparator;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.Map;
 
-import com.moviejukebox.model.Movie;
-
-public class MovieTitleComparator implements Comparator<Movie>, Serializable {
+public class ValueComparator implements Comparator<Object>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private final boolean ascending;
+    private final transient Map<String, Integer> base;
 
-    public MovieTitleComparator() {
-        this.ascending = Boolean.TRUE;
-    }
-
-    public MovieTitleComparator(Boolean ascending) {
-        this.ascending = ascending;
+    public ValueComparator(Map<String, Integer> base) {
+        this.base = base;
     }
 
     @Override
-    public int compare(Movie movie1, Movie movie2) {
-        if (ascending) {
-            return movie1.getStrippedTitleSort().compareTo(movie2.getStrippedTitleSort());
-        }
-        return movie2.getStrippedTitleSort().compareTo(movie1.getStrippedTitleSort());
+    public int compare(Object a, Object b) {
+        return (base.get(String.valueOf(a)) < base.get(String.valueOf(b))) ? 1 : -1;
     }
 }

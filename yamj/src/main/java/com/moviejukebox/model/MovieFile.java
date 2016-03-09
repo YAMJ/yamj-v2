@@ -22,7 +22,7 @@
  */
 package com.moviejukebox.model;
 
-import com.moviejukebox.model.attachment2.Attachment;
+import com.moviejukebox.model.attachment.Attachment;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.tools.*;

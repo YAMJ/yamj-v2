@@ -20,43 +20,32 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.artwork2;
+package com.moviejukebox.model.artwork;
 
 import org.apache.commons.lang3.StringUtils;
 
-public enum ArtworkType {
-    // Define the lowercase equivalents of the Enum names
+public enum ArtworkSize {
 
-    POSTER, // Thumbnail is a sub-type of poster
-    FANART,
-    BANNER,
-    CLEARART,
-    CLEARLOGO,
-    TVTHUMB,
-    SEASONTHUMB,
-    CHARACTERART,
-    MOVIEART,
-    MOVIELOGO,
-    MOVIEDISC,
-    VIDEOIMAGE;    // We don't store VideoImages in this artwork type as it's specific to a video file
+    SMALL,
+    MEDIUM,
+    LARGE;
 
     /**
      * Convert a string into an Enum type
      *
-     * @param artworkTypeString
+     * @param artworkSize
      * @return
      * @throws IllegalArgumentException If type is not recognised
      *
      */
-    public static ArtworkType fromString(String artworkTypeString) {
-        if (StringUtils.isNotBlank(artworkTypeString)) {
+    public static ArtworkSize fromString(String artworkSize) {
+        if (StringUtils.isNotBlank(artworkSize)) {
             try {
-                return ArtworkType.valueOf(artworkTypeString.trim().toUpperCase());
+                return ArtworkSize.valueOf(artworkSize.trim().toUpperCase());
             } catch (IllegalArgumentException ex) {
-                throw new IllegalArgumentException("ArtworkType " + artworkTypeString + " does not exist.", ex);
+                throw new IllegalArgumentException("ArtworkSize " + artworkSize + " does not exist.", ex);
             }
         }
-        // We've not found the type, so raise an exception
-        throw new IllegalArgumentException("ArtworkType " + artworkTypeString + " does not exist.");
+        throw new IllegalArgumentException("ArtworkSize must not be null");
     }
 }

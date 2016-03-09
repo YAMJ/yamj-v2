@@ -20,18 +20,35 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.comparator2;
+package com.moviejukebox.model.comparator;
 
-import com.moviejukebox.model.Person;
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.FileTools;
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
-public class PersonComparator implements Comparator<Person>, Serializable {
+/**
+ * @author ilgizar
+ */
+public class IndexComparator implements Comparator<Map.Entry<String, List<Movie>>>, Serializable {
 
     private static final long serialVersionUID = 1L;
+    private transient Library library = null;
+    private transient String categoryName = null;
+
+    public IndexComparator(Library library, String categoryName) {
+        this.library = library;
+        this.categoryName = categoryName;
+    }
 
     @Override
-    public int compare(Person first, Person second) {
-        return second.getPopularity().compareTo(first.getPopularity());
+    public int compare(Map.Entry<String, List<Movie>> first, Map.Entry<String, List<Movie>> second) {
+        if (library == null || categoryName == null) {
+            return 0;
+        }
+        return library.getMovieCountForIndex(categoryName, FileTools.createCategoryKey(second.getKey())) - library.getMovieCountForIndex(categoryName, FileTools.createCategoryKey(first.getKey()));
     }
 }

@@ -20,32 +20,18 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.attachment2;
+package com.moviejukebox.model.comparator;
 
-/**
- * A volatile container for content information of an attachment.
- *
- * @author modmax
- */
-public class AttachmentContent {
+import com.moviejukebox.model.Person;
+import java.io.Serializable;
+import java.util.Comparator;
 
-    private final ContentType contentType;
-    private final int part;
+public class PersonComparator implements Comparator<Person>, Serializable {
 
-    public AttachmentContent(ContentType contentType) {
-        this(contentType, -1);
-    }
+    private static final long serialVersionUID = 1L;
 
-    public AttachmentContent(ContentType contentType, int part) {
-        this.contentType = contentType;
-        this.part = part;
-    }
-
-    public ContentType getContentType() {
-        return contentType;
-    }
-
-    public int getPart() {
-        return part;
+    @Override
+    public int compare(Person first, Person second) {
+        return second.getPopularity().compareTo(first.getPopularity());
     }
 }

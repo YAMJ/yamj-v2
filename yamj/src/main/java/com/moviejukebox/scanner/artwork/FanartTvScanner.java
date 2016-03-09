@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.artwork2.ArtworkType;
+import com.moviejukebox.model.artwork.ArtworkType;
 import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.plugin.FanartTvPlugin;
 import com.moviejukebox.tools.PropertiesUtil;

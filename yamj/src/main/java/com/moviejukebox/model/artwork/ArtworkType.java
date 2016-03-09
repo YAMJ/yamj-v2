@@ -20,35 +20,43 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.attachment2;
+package com.moviejukebox.model.artwork;
 
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * The type of attachment
- *
- * @author modmax
- */
-public enum AttachmentType {
+public enum ArtworkType {
+    // Define the lowercase equivalents of the Enum names
 
-    MATROSKA;
+    POSTER, // Thumbnail is a sub-type of poster
+    FANART,
+    BANNER,
+    CLEARART,
+    CLEARLOGO,
+    TVTHUMB,
+    SEASONTHUMB,
+    CHARACTERART,
+    MOVIEART,
+    MOVIELOGO,
+    MOVIEDISC,
+    VIDEOIMAGE;    // We don't store VideoImages in this artwork type as it's specific to a video file
 
     /**
      * Convert a string into an Enum type
      *
-     * @param type
+     * @param artworkTypeString
      * @return
      * @throws IllegalArgumentException If type is not recognised
      *
      */
-    public static AttachmentType fromString(String type) {
-        if (StringUtils.isNotBlank(type)) {
+    public static ArtworkType fromString(String artworkTypeString) {
+        if (StringUtils.isNotBlank(artworkTypeString)) {
             try {
-                return AttachmentType.valueOf(type.trim().toUpperCase());
+                return ArtworkType.valueOf(artworkTypeString.trim().toUpperCase());
             } catch (IllegalArgumentException ex) {
-                throw new IllegalArgumentException("AttachmentType " + type + " does not exist.", ex);
+                throw new IllegalArgumentException("ArtworkType " + artworkTypeString + " does not exist.", ex);
             }
         }
-        throw new IllegalArgumentException("AttachmentType must not be null");
+        // We've not found the type, so raise an exception
+        throw new IllegalArgumentException("ArtworkType " + artworkTypeString + " does not exist.");
     }
 }
