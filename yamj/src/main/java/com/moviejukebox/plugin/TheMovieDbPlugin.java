@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import com.moviejukebox.model.Filmography;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.Person;
-import com.moviejukebox.model.comparator.FilmographyDateComparator;
+import com.moviejukebox.model.comparator2.FilmographyDateComparator;
 import com.moviejukebox.scanner.MovieFilenameScanner;
 import com.moviejukebox.scanner.artwork.FanartScanner;
 import com.moviejukebox.tools.OverrideTools;

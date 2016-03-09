@@ -20,7 +20,7 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.comparator;
+package com.moviejukebox.model.comparator2;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.DateTimeTools;

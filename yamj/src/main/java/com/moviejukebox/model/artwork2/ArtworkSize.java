@@ -20,54 +20,32 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.artwork;
+package com.moviejukebox.model.artwork2;
 
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * List of priorities to use for scanning local artwork
- *
- * @author stuart.boston
- */
-public enum ArtworkPriority {
+public enum ArtworkSize {
 
-    /*
-     * Artwork located with the video file
-     */
-    VIDEO,
-    /*
-     * Artwork that is named the same as the folder that it is in
-     */
-    FOLDER,
-    /*
-     * Artwork that has a fixed name, e.g. Backdrop.jpg
-     */
-    FIXED,
-    /*
-     * Artwork for a TV Series, often stored in the parent directory
-     */
-    SERIES,
-    /*
-     * Look in an alternative directory
-     */
-    DIRECTORY;
+    SMALL,
+    MEDIUM,
+    LARGE;
 
     /**
      * Convert a string into an Enum type
      *
-     * @param artworkPriority
+     * @param artworkSize
      * @return
-     * @throws IllegalArgumentException If not recognised
+     * @throws IllegalArgumentException If type is not recognised
      *
      */
-    public static ArtworkPriority fromString(final String artworkPriority) throws IllegalArgumentException {
-        if (StringUtils.isNotBlank(artworkPriority)) {
+    public static ArtworkSize fromString(String artworkSize) {
+        if (StringUtils.isNotBlank(artworkSize)) {
             try {
-                return ArtworkPriority.valueOf(artworkPriority.trim().toUpperCase());
+                return ArtworkSize.valueOf(artworkSize.trim().toUpperCase());
             } catch (IllegalArgumentException ex) {
-                throw new IllegalArgumentException("ArtworkPriority '" + artworkPriority + "' does not exist.", ex);
+                throw new IllegalArgumentException("ArtworkSize " + artworkSize + " does not exist.", ex);
             }
         }
-        throw new IllegalArgumentException("ArtworkPriority must not be null");
+        throw new IllegalArgumentException("ArtworkSize must not be null");
     }
 }

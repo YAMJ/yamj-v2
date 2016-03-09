@@ -20,7 +20,7 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.comparator;
+package com.moviejukebox.model.comparator2;
 
 import static com.moviejukebox.tools.StringTools.isValidString;
 

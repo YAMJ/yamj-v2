@@ -22,7 +22,7 @@
  */
 package com.moviejukebox.scanner;
 
-import com.moviejukebox.model.artwork.ArtworkType;
+import com.moviejukebox.model.artwork2.ArtworkType;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.scanner.artwork.ArtworkScanner;

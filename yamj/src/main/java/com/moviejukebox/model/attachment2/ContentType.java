@@ -20,18 +20,25 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.attachment;
+package com.moviejukebox.model.attachment2;
 
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * The type of attachment
+ * The type of attachment content
  *
  * @author modmax
  */
-public enum AttachmentType {
+public enum ContentType {
 
-    MATROSKA;
+    NFO,
+    POSTER,
+    FANART,
+    BANNER,
+    SET_POSTER, // poster for a set
+    SET_FANART, // fanart for a set
+    SET_BANNER, // banner for a set
+    VIDEOIMAGE;
 
     /**
      * Convert a string into an Enum type
@@ -41,14 +48,14 @@ public enum AttachmentType {
      * @throws IllegalArgumentException If type is not recognised
      *
      */
-    public static AttachmentType fromString(String type) {
+    public static ContentType fromString(String type) {
         if (StringUtils.isNotBlank(type)) {
             try {
-                return AttachmentType.valueOf(type.trim().toUpperCase());
+                return ContentType.valueOf(type.trim().toUpperCase());
             } catch (IllegalArgumentException ex) {
-                throw new IllegalArgumentException("AttachmentType " + type + " does not exist.", ex);
+                throw new IllegalArgumentException("ContentType " + type + " does not exist.", ex);
             }
         }
-        throw new IllegalArgumentException("AttachmentType must not be null");
+        throw new IllegalArgumentException("ContentType must not be null");
     }
 }

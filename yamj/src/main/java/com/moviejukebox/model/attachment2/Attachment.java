@@ -20,7 +20,7 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.attachment;
+package com.moviejukebox.model.attachment2;
 
 import java.io.File;
 import javax.xml.bind.annotation.XmlElement;

@@ -20,34 +20,35 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.comparator;
+package com.moviejukebox.model.comparator2;
 
+import com.moviejukebox.model.Library;
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.tools.FileTools;
 import java.io.Serializable;
 import java.util.Comparator;
-
-import com.moviejukebox.model.Movie;
+import java.util.List;
+import java.util.Map;
 
 /**
- * @author altman.matthew
+ * @author ilgizar
  */
-public class MovieTop250Comparator implements Comparator<Movie>, Serializable {
+public class IndexComparator implements Comparator<Map.Entry<String, List<Movie>>>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private final boolean ascending;
+    private transient Library library = null;
+    private transient String categoryName = null;
 
-    public MovieTop250Comparator() {
-        this.ascending = Boolean.TRUE;
-    }
-
-    public MovieTop250Comparator(boolean ascending) {
-        this.ascending = ascending;
+    public IndexComparator(Library library, String categoryName) {
+        this.library = library;
+        this.categoryName = categoryName;
     }
 
     @Override
-    public int compare(Movie movie1, Movie movie2) {
-        if (ascending) {
-            return movie1.getTop250() - movie2.getTop250();
+    public int compare(Map.Entry<String, List<Movie>> first, Map.Entry<String, List<Movie>> second) {
+        if (library == null || categoryName == null) {
+            return 0;
         }
-        return movie2.getTop250() - movie1.getTop250();
+        return library.getMovieCountForIndex(categoryName, FileTools.createCategoryKey(second.getKey())) - library.getMovieCountForIndex(categoryName, FileTools.createCategoryKey(first.getKey()));
     }
 }

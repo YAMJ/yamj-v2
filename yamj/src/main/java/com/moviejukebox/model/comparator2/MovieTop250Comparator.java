@@ -20,38 +20,34 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.comparator;
+package com.moviejukebox.model.comparator2;
 
-import com.moviejukebox.model.Movie;
 import java.io.Serializable;
 import java.util.Comparator;
+
+import com.moviejukebox.model.Movie;
 
 /**
  * @author altman.matthew
  */
-public class LastModifiedComparator implements Comparator<Movie>, Serializable {
+public class MovieTop250Comparator implements Comparator<Movie>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private final boolean ascending;//Sort the videos in ascending date order (oldest first)
+    private final boolean ascending;
 
-    public LastModifiedComparator() {
-        // Use default sort of descending
-        this.ascending = Boolean.FALSE;
+    public MovieTop250Comparator() {
+        this.ascending = Boolean.TRUE;
     }
 
-    public LastModifiedComparator(boolean ascending) {
+    public MovieTop250Comparator(boolean ascending) {
         this.ascending = ascending;
     }
 
     @Override
     public int compare(Movie movie1, Movie movie2) {
-        int retVal = 0;
-
-        if (movie1.getLastModifiedTimestamp() > movie2.getLastModifiedTimestamp()) {
-            retVal = (ascending ? 1 : -1);
-        } else if (movie1.getLastModifiedTimestamp() < movie2.getLastModifiedTimestamp()) {
-            retVal = (ascending ? -1 : 1);
+        if (ascending) {
+            return movie1.getTop250() - movie2.getTop250();
         }
-        return retVal;
+        return movie2.getTop250() - movie1.getTop250();
     }
 }

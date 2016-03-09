@@ -26,8 +26,8 @@ import static com.moviejukebox.tools.PropertiesUtil.*;
 import static com.moviejukebox.tools.StringTools.*;
 
 import com.moviejukebox.model.*;
-import com.moviejukebox.model.artwork.ArtworkType;
-import com.moviejukebox.model.comparator.PersonComparator;
+import com.moviejukebox.model.artwork2.ArtworkType;
+import com.moviejukebox.model.comparator2.PersonComparator;
 import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.model.enumerations.JukeboxStatistic;
 import com.moviejukebox.model.enumerations.OverrideFlag;

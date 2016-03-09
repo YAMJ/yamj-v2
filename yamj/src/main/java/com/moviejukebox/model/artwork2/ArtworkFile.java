@@ -20,7 +20,7 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.artwork;
+package com.moviejukebox.model.artwork2;
 
 import com.moviejukebox.model.Movie;
 import java.awt.Dimension;
