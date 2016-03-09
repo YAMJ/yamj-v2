@@ -20,7 +20,7 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.Comparator;
+package com.moviejukebox.model.comparator;
 
 import java.io.Serializable;
 import java.util.Comparator;

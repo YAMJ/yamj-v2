@@ -20,7 +20,7 @@
  *      Web: https://github.com/YAMJ/yamj-v2
  *
  */
-package com.moviejukebox.model.Attachment;
+package com.moviejukebox.model.attachment;
 
 import org.apache.commons.lang3.StringUtils;
 
