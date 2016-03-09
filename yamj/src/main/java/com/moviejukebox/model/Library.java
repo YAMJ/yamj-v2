@@ -22,13 +22,19 @@
  */
 package com.moviejukebox.model;
 
+import com.moviejukebox.model.comparator.MovieRatingComparator;
+import com.moviejukebox.model.comparator.MovieTitleComparator;
+import com.moviejukebox.model.comparator.MovieSetComparator;
+import com.moviejukebox.model.comparator.MovieReleaseComparator;
+import com.moviejukebox.model.comparator.LastModifiedComparator;
+import com.moviejukebox.model.comparator.MovieTop250Comparator;
+import com.moviejukebox.model.comparator.CertificationComparator;
 import static com.moviejukebox.tools.FileTools.createCategoryKey;
 import static com.moviejukebox.tools.FileTools.createPrefix;
 import static com.moviejukebox.tools.FileTools.makeSafeFilename;
 import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 
-import com.moviejukebox.model.Comparator.*;
 import com.moviejukebox.model.enumerations.DirtyFlag;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.*;

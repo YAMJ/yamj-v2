@@ -22,7 +22,7 @@
  */
 package com.moviejukebox.model;
 
-import com.moviejukebox.model.Comparator.FilmographyDateComparator;
+import com.moviejukebox.model.comparator.FilmographyDateComparator;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import static com.moviejukebox.tools.StringTools.isNotValidString;

@@ -26,7 +26,7 @@ import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 
 import com.moviejukebox.model.*;
-import com.moviejukebox.model.Comparator.ValueComparator;
+import com.moviejukebox.model.comparator.ValueComparator;
 import com.moviejukebox.model.enumerations.MyColor;
 import com.moviejukebox.model.overlay.*;
 import com.moviejukebox.tools.*;

@@ -26,10 +26,10 @@ import static com.moviejukebox.tools.PropertiesUtil.FALSE;
 import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 
 import com.moviejukebox.model.*;
-import com.moviejukebox.model.Attachment.Attachment;
-import com.moviejukebox.model.Comparator.CertificationComparator;
-import com.moviejukebox.model.Comparator.IndexComparator;
-import com.moviejukebox.model.Comparator.SortIgnorePrefixesComparator;
+import com.moviejukebox.model.attachment.Attachment;
+import com.moviejukebox.model.comparator.CertificationComparator;
+import com.moviejukebox.model.comparator.IndexComparator;
+import com.moviejukebox.model.comparator.SortIgnorePrefixesComparator;
 import com.moviejukebox.model.enumerations.*;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.tools.*;
