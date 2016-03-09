@@ -36,7 +36,7 @@ import com.moviejukebox.model.Person;
  */
 public class MovieJukeboxXMLReaderTest {
 
-    private static final String testDir = "src/test/java/TestFiles/";
+    private static final String TEST_DIR = "src/test/java/TestFiles/";
 
     /**
      * Test of parseMovieXML method, of class MovieJukeboxXMLReader.
@@ -60,7 +60,7 @@ public class MovieJukeboxXMLReaderTest {
     @Test
     public void testParsePersonXML() {
         System.out.println("parsePersonXML");
-        File xmlFile = new File(testDir + "ParsePersonTest.xml");
+        File xmlFile = new File(TEST_DIR + "ParsePersonTest.xml");
         System.out.println("Test file exists: " + xmlFile.exists());
 
         Person person = new Person();

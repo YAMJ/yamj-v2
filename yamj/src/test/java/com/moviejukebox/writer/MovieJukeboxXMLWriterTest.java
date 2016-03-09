@@ -45,7 +45,7 @@ import com.moviejukebox.reader.MovieJukeboxXMLReader;
  */
 public class MovieJukeboxXMLWriterTest {
 
-    private static final String testDir = "src/test/java/TestFiles/";
+    private static final String TEST_DIR = "src/test/java/TestFiles/";
 
     public MovieJukeboxXMLWriterTest() {
     }
@@ -128,7 +128,7 @@ public class MovieJukeboxXMLWriterTest {
     }
 
     private static File getTestFile(String filename) {
-        File file = new File(testDir + filename);
+        File file = new File(TEST_DIR + filename);
         System.out.print("File:" + file.getAbsolutePath());
         System.out.print(" Length:" + file.length());
         System.out.println(" Exists: " + file.exists());

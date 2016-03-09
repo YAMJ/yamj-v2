@@ -43,7 +43,7 @@ public class MediaInfoScannerTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaInfoScannerTest.class);
     private static final MediaInfoScanner MI_TEST = new MediaInfoScanner();
-    private static final String testDir = "src/test/java/TestFiles/MediaInfo/";
+    private static final String TEST_DIR = "src/test/java/TestFiles/MediaInfo/";
     Map<String, String> infosGeneral = new HashMap<>();
     List<Map<String, String>> infosVideo = new ArrayList<>();
     List<Map<String, String>> infosAudio = new ArrayList<>();
@@ -168,7 +168,7 @@ public class MediaInfoScannerTest {
      * @param filename
      */
     private void getMediaInfoTestFile(String filename, boolean isText) {
-        File file = FileUtils.getFile(testDir, filename);
+        File file = FileUtils.getFile(TEST_DIR, filename);
         LOG.info("File: {} Length: {} Exists: {}", file.getAbsolutePath(), file.length(), file.exists());
 
         try (MediaInfoStream stream = (isText ? new MediaInfoStream(new FileInputStream(file)) : MI_TEST.createStream(file.getAbsolutePath()))) {

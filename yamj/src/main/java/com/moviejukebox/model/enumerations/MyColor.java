@@ -26,23 +26,24 @@ import java.awt.Color;
 
 /**
  * YAMJ Colors
+ *
  * @author Stuart
  */
 public enum MyColor {
 
-    white(Color.white), WHITE(Color.WHITE),
-    lightGray(Color.lightGray), LIGHT_GRAY(Color.LIGHT_GRAY),
-    gray(Color.gray), GRAY(Color.GRAY),
-    darkGray(Color.darkGray), DARK_GRAY(Color.DARK_GRAY),
-    black(Color.black), BLACK(Color.BLACK),
-    red(Color.red), RED(Color.RED),
-    pink(Color.pink), PINK(Color.PINK),
-    orange(Color.orange), ORANGE(Color.ORANGE),
-    yellow(Color.yellow), YELLOW(Color.YELLOW),
-    green(Color.green), GREEN(Color.GREEN),
-    magenta(Color.magenta), MAGENTA(Color.MAGENTA),
-    cyan(Color.cyan), CYAN(Color.CYAN),
-    blue(Color.blue), BLUE(Color.BLUE);
+    WHITE(Color.WHITE),
+    LIGHT_GRAY(Color.LIGHT_GRAY),
+    GRAY(Color.GRAY),
+    DARK_GRAY(Color.DARK_GRAY),
+    BLACK(Color.BLACK),
+    RED(Color.RED),
+    PINK(Color.PINK),
+    ORANGE(Color.ORANGE),
+    YELLOW(Color.YELLOW),
+    GREEN(Color.GREEN),
+    MAGENTA(Color.MAGENTA),
+    CYAN(Color.CYAN),
+    BLUE(Color.BLUE);
     private final Color color;
 
     // Constructor

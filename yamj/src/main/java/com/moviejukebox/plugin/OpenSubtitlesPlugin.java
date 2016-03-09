@@ -61,8 +61,8 @@ public class OpenSubtitlesPlugin {
     // Properties
     private static final boolean IS_ENABLED = PropertiesUtil.getBooleanProperty("opensubtitles.enable", Boolean.TRUE);
     private static final String SUB_LANGUAGE_ID = PropertiesUtil.getProperty("opensubtitles.language", "");
-    private static final String osUsername = PropertiesUtil.getProperty("opensubtitles.username", "");
-    private static final String osPassword = PropertiesUtil.getProperty("opensubtitles.password", "");
+    private static final String OS_USERNAME = PropertiesUtil.getProperty("opensubtitles.username", "");
+    private static final String OS_PASSWORD = PropertiesUtil.getProperty("opensubtitles.password", "");
 
     static {
         if (IS_ENABLED) {
@@ -90,7 +90,7 @@ public class OpenSubtitlesPlugin {
     private static void logIn() {
         try {
             if (StringUtils.isBlank(loginToken)) {
-                String[] parm = {osUsername, osPassword, "", OS_USER_AGENT};
+                String[] parm = {OS_USERNAME, OS_PASSWORD, "", OS_USER_AGENT};
                 String xml = generateXMLRPC("LogIn", parm);
                 String ret = sendRPC(xml);
                 getValue("status", ret);

@@ -64,9 +64,9 @@ import com.moviejukebox.tools.StringTools;
 public final class MovieFilenameScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieFilenameScanner.class);
-    private static final boolean skipEpisodeTitle;
+    private static final boolean SKIP_EP_TITLE;
     private static boolean useParentRegex;
-    private static final boolean archiveScanRar;
+    private static final boolean ARCHIVE_SCAN_RAR;
     private static String[] skipKeywords;
     private static String[] skipRegexKeywords;
     private static final List<Pattern> SKIP_PATTERNS = new ArrayList<>();
@@ -79,7 +79,7 @@ public final class MovieFilenameScanner {
 
     static {
         setExtrasKeywords(new String[]{"trailer"});
-        skipEpisodeTitle = PropertiesUtil.getBooleanProperty("filename.scanner.skip.episodeTitle", Boolean.FALSE);
+        SKIP_EP_TITLE = PropertiesUtil.getBooleanProperty("filename.scanner.skip.episodeTitle", Boolean.FALSE);
         useParentRegex = PropertiesUtil.getBooleanProperty("filename.scanner.useParentRegex", Boolean.FALSE);
         String patternString = PropertiesUtil.getProperty("filename.scanner.parentRegex", "");
         LOG.debug("useParentPattern >>{}<<", patternString);
@@ -90,7 +90,7 @@ public final class MovieFilenameScanner {
             USE_PARENT_PATTERN = null;
             useParentRegex = Boolean.FALSE;
         }
-        archiveScanRar = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", Boolean.FALSE);
+        ARCHIVE_SCAN_RAR = PropertiesUtil.getBooleanProperty("mjb.scanner.archivescan.rar", Boolean.FALSE);
     }
     private static String[] movieVersionKeywords;
     private static final List<Pattern> MOVIE_VERSION_PATTERNS = new ArrayList<>();
@@ -327,7 +327,7 @@ public final class MovieFilenameScanner {
                 rarExtensionCheck = Movie.UNKNOWN;
             }
 
-            if (archiveScanRar && RAR_EXT_PATTERN.matcher(rarExtensionCheck).find()) {
+            if (ARCHIVE_SCAN_RAR && RAR_EXT_PATTERN.matcher(rarExtensionCheck).find()) {
                 // We need to go up two parent directories
                 this.file = file.getParentFile().getParentFile();
             } else {
@@ -575,7 +575,7 @@ public final class MovieFilenameScanner {
                 while (matcher.find()) {
                     String title = cleanUpTitle(matcher.group(1));
                     if (title.length() > 0) {
-                        if (skipEpisodeTitle) {
+                        if (SKIP_EP_TITLE) {
                             dto.setEpisodeTitle(Movie.UNKNOWN);
                         } else {
                             dto.setEpisodeTitle(title);
