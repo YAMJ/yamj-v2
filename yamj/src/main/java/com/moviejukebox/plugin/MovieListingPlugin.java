@@ -31,11 +31,6 @@ import com.moviejukebox.model.Movie;
  */
 public interface MovieListingPlugin {
 
-    String TYPE_MOVIE = "Movie";
-    String TYPE_TV_SHOW = "TV Show";
-    String TYPE_TVSHOW = "TVShow";
-    String TYPE_EXTRA = "Extra";
-    String TYPE_ALL = "All";
     String UNKNOWN = Movie.UNKNOWN;
 
     void generate(Jukebox jukebox, Library library);

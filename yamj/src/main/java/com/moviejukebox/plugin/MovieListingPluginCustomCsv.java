@@ -23,6 +23,7 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.*;
+import com.moviejukebox.model.enumerations.VideoType;
 import com.moviejukebox.tools.*;
 import java.io.File;
 import java.io.IOException;
@@ -130,7 +131,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase {
                 sb.append(prep(movie.getTitle()));
             } else if (checkHeaderField(header, "TitleSort")) {
                 sb.append(prep(movie.getTitleSort()));
-            }else if (checkHeaderField(header, "OriginalTitle")){
+            } else if (checkHeaderField(header, "OriginalTitle")) {
                 sb.append(prep(movie.getOriginalTitle()));
             } else if (checkHeaderField(header, "IMDB ID")) {
                 sb.append(prep(movie.getId(ImdbPlugin.IMDB_PLUGIN_ID)));
@@ -266,7 +267,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase {
             } else if (checkHeaderField(header, "Watched")) {
                 sb.append(prep(String.valueOf(movie.isWatched())));
             } else {
-                LOG.debug("Unknown field: '{}'",header);
+                LOG.debug("Unknown field: '{}'", header);
 
             }
         }
@@ -342,7 +343,7 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase {
         List<String> alTypes = getSelectedTypes();
         try {
             CSVWriter writer = new CSVWriter(csvFile);
-            LOG.debug("  Writing CSV to: {}" , csvFile.getAbsolutePath());
+            LOG.debug("  Writing CSV to: {}", csvFile.getAbsolutePath());
 
             // write header line
             writer.line(headerLine());
@@ -353,11 +354,11 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase {
 
                     String sType;
                     if (movie.isExtra()) {
-                        sType = TYPE_EXTRA;
+                        sType = VideoType.EXTRA.getType();
                     } else if (movie.isTVShow()) {
-                        sType = TYPE_TV_SHOW;
+                        sType = VideoType.TV_SHOW.getType();
                     } else {
-                        sType = TYPE_MOVIE;
+                        sType = VideoType.MOVIE.getType();
                     }
 
                     if (null != sType && alTypes.contains(sType)) {
@@ -369,11 +370,11 @@ public class MovieListingPluginCustomCsv extends MovieListingPluginBase {
                     for (Movie movie : library.values()) {
                         String sType;
                         if (movie.isExtra()) {
-                            sType = TYPE_EXTRA;
+                            sType = VideoType.EXTRA.getType();
                         } else if (movie.isTVShow()) {
-                            sType = TYPE_TV_SHOW;
+                            sType = VideoType.TV_SHOW.getType();
                         } else {
-                            sType = TYPE_MOVIE;
+                            sType = VideoType.MOVIE.getType();
                         }
 
                         if (null != sType && thisType.equalsIgnoreCase(sType)) {

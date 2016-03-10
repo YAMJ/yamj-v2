@@ -24,6 +24,7 @@ package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Library;
+import com.moviejukebox.model.enumerations.VideoType;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
 import java.io.File;
@@ -81,9 +82,9 @@ public class MovieListingPluginBase implements MovieListingPlugin {
     protected List<String> getSelectedTypes() {
         List<String> alResult = new ArrayList<>();
 
-        String types = PropertiesUtil.getProperty("mjb.listing.types", TYPE_ALL).trim();
-        if (TYPE_ALL.equalsIgnoreCase(types)) {
-            types = TYPE_MOVIE + "," + TYPE_EXTRA + "," + TYPE_TV_SHOW;
+        String types = PropertiesUtil.getProperty("mjb.listing.types", VideoType.ALL.getType()).trim();
+        if (VideoType.ALL.compare(types)) {
+            types = VideoType.MOVIE.getType() + "," + VideoType.EXTRA.getType() + "," + VideoType.TV_SHOW.getType();
         }
 
         //break into a list
@@ -92,8 +93,8 @@ public class MovieListingPluginBase implements MovieListingPlugin {
             String token = tokenizer.nextToken().trim();
 
             //easy to skip space
-            if (TYPE_TVSHOW.equalsIgnoreCase(token)) {
-                token = TYPE_TV_SHOW;
+            if (VideoType.TVSHOW.compare(types)) {
+                token = VideoType.TV_SHOW.getType();
             }
             alResult.add(token);
         }

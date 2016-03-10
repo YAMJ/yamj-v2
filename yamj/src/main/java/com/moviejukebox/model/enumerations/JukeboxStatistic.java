@@ -33,83 +33,83 @@ import org.apache.commons.lang3.StringUtils;
  */
 public enum JukeboxStatistic {
 
-    /*
+    /**
      * Number of videos scanned
      */
     VIDEOS,
-    /*
+    /**
      * Number of movies in the jukebox
      */
     MOVIES,
-    /*
+    /**
      * Number of TV Shows in the jukebox
      */
     TVSHOWS,
-    /*
+    /**
      * Number of Sets in the jukebox
      */
     SETS,
-    /*
+    /**
      * How many new videos were scanned
      */
     NEW_VIDEOS,
-    /*
+    /**
      * How many existing videos were scanned
      */
     EXISTING_VIDEOS,
-    /*
+    /**
      * How many videos are in the "Other" index
      */
     INDEX_OTHER,
-    /*
+    /**
      * How many videos are in the "Genres" index
      */
     INDEX_GENRES,
-    /*
+    /**
      * How many videos are in the "Title" index
      */
     INDEX_TITLE,
-    /*
+    /**
      * How many videos are in the "Certification" index
      */
     INDEX_CERTIFICATION,
-    /*
+    /**
      * How many videos are in the "Year" index
      */
     INDEX_YEAR,
-    /*
+    /**
      * How many videos are in the "Library" index
      */
     INDEX_LIBRARY,
-    /*
+    /**
      * How many videos are in the "Set" index
      */
     INDEX_SET,
-    /*
+    /**
      * How many videos are in the "Country" index
      */
     INDEX_COUNTRY,
-    /*
+    /**
      * How many videos are in the "Cast" index
      */
     INDEX_CAST,
-    /*
+    /**
      * How many videos are in the "Director" index
      */
     INDEX_DIRECTOR,
-    /*
+    /**
      * How many videos are in the "Writer" index
      */
     INDEX_WRITER,
-    /*
+    /**
      * How many videos are in the "Award" index
      */
     INDEX_AWARD,
-    /*
+    /**
      * How many videos are in the "Person" index
      */
     INDEX_PERSON,
-    /*
+    /**
      * How many videos are in the "Ratings" index
      */
     INDEX_RATINGS;

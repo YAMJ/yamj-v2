@@ -23,6 +23,7 @@
 package com.moviejukebox.plugin;
 
 import com.moviejukebox.model.*;
+import com.moviejukebox.model.enumerations.VideoType;
 import com.moviejukebox.tools.CSVWriter;
 import com.moviejukebox.tools.SystemTools;
 import java.io.File;
@@ -234,11 +235,11 @@ public class MovieListingPluginCsv extends MovieListingPluginBase {
 
                     String sType;
                     if (movie.isExtra()) {
-                        sType = TYPE_EXTRA;
+                        sType = VideoType.EXTRA.getType();
                     } else if (movie.isTVShow()) {
-                        sType = TYPE_TV_SHOW;
+                        sType = VideoType.TV_SHOW.getType();
                     } else {
-                        sType = TYPE_MOVIE;
+                        sType = VideoType.MOVIE.getType();
                     }
 
                     if (null != sType && alTypes.contains(sType)) {
@@ -250,11 +251,11 @@ public class MovieListingPluginCsv extends MovieListingPluginBase {
                     for (Movie movie : library.values()) {
                         String sType;
                         if (movie.isExtra()) {
-                            sType = TYPE_EXTRA;
+                            sType = VideoType.EXTRA.getType();
                         } else if (movie.isTVShow()) {
-                            sType = TYPE_TV_SHOW;
+                            sType = VideoType.TV_SHOW.getType();
                         } else {
-                            sType = TYPE_MOVIE;
+                            sType = VideoType.MOVIE.getType();
                         }
 
                         if (null != sType && thisType.equalsIgnoreCase(sType)) {
