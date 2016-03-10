@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.scanner;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -33,21 +34,26 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.*;
-import org.apache.commons.io.FileUtils;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MediaInfoScannerTest {
+public class MediaInfoScannerTest extends AbstractTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaInfoScannerTest.class);
     private static final MediaInfoScanner MI_TEST = new MediaInfoScanner();
-    private static final String TEST_DIR = "src/test/java/TestFiles/MediaInfo/";
+    private static final String TEST_DIR = "mediainfo/";
     Map<String, String> infosGeneral = new HashMap<>();
     List<Map<String, String>> infosVideo = new ArrayList<>();
     List<Map<String, String>> infosAudio = new ArrayList<>();
     List<Map<String, String>> infosText = new ArrayList<>();
+
+    @BeforeClass
+    public static void setUpClass() {
+        doConfiguration();
+    }
 
     @Ignore
     public void testMediaInfoScan() {
@@ -138,7 +144,6 @@ public class MediaInfoScannerTest {
         }
     }
 
-
     /**
      * Output the infos
      *
@@ -166,10 +171,10 @@ public class MediaInfoScannerTest {
      * Load a test file
      *
      * @param filename
+     * @param isText
      */
     private void getMediaInfoTestFile(String filename, boolean isText) {
-        File file = FileUtils.getFile(TEST_DIR, filename);
-        LOG.info("File: {} Length: {} Exists: {}", file.getAbsolutePath(), file.length(), file.exists());
+        File file = getTestFile(filename, TEST_DIR);
 
         try (MediaInfoStream stream = (isText ? new MediaInfoStream(new FileInputStream(file)) : MI_TEST.createStream(file.getAbsolutePath()))) {
             infosGeneral.clear();

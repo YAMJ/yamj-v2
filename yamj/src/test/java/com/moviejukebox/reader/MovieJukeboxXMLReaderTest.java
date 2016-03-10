@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.reader;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
@@ -29,21 +30,29 @@ import java.io.File;
 import org.junit.Test;
 
 import com.moviejukebox.model.Person;
+import org.junit.BeforeClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author stuart.boston
  */
-public class MovieJukeboxXMLReaderTest {
+public class MovieJukeboxXMLReaderTest extends AbstractTests {
 
-    private static final String TEST_DIR = "src/test/java/TestFiles/";
+    private static final Logger LOG = LoggerFactory.getLogger(MovieJukeboxXMLReaderTest.class);
+
+    @BeforeClass
+    public static void setUpClass() {
+        doConfiguration();
+    }
 
     /**
      * Test of parseMovieXML method, of class MovieJukeboxXMLReader.
      */
     @Test
     public void testParseMovieXML() {
-        System.out.println("parseMovieXML - no test written");
+        LOG.info("parseMovieXML - no test written");
     }
 
     /**
@@ -51,7 +60,7 @@ public class MovieJukeboxXMLReaderTest {
      */
     @Test
     public void testParseSetXML() {
-        System.out.println("parseSetXML - no test written");
+        LOG.info("parseSetXML - no test written");
     }
 
     /**
@@ -59,15 +68,14 @@ public class MovieJukeboxXMLReaderTest {
      */
     @Test
     public void testParsePersonXML() {
-        System.out.println("parsePersonXML");
-        File xmlFile = new File(TEST_DIR + "ParsePersonTest.xml");
-        System.out.println("Test file exists: " + xmlFile.exists());
+        LOG.info("parsePersonXML");
+        File xmlFile = getTestFile("ParsePersonTest.xml");
 
         Person person = new Person();
         MovieJukeboxXMLReader instance = new MovieJukeboxXMLReader();
         boolean expResult = true;
         boolean result = instance.parsePersonXML(xmlFile, person);
-        System.out.println("Person: " + person.toString());
+        LOG.info("Person: " + person.toString());
         assertEquals(expResult, result);
     }
 }

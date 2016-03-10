@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.writer;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -38,14 +39,22 @@ import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.plugin.ImdbPlugin;
 import com.moviejukebox.reader.MovieJukeboxXMLReader;
+import org.junit.BeforeClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Stuart
  */
-public class MovieJukeboxXMLWriterTest {
+public class MovieJukeboxXMLWriterTest extends AbstractTests {
 
-    private static final String TEST_DIR = "src/test/java/TestFiles/";
+    private static final Logger LOG = LoggerFactory.getLogger(MovieJukeboxXMLWriterTest.class);
+
+    @BeforeClass
+    public static void setUpClass() {
+        doConfiguration();
+    }
 
     public MovieJukeboxXMLWriterTest() {
     }
@@ -127,11 +136,4 @@ public class MovieJukeboxXMLWriterTest {
         }
     }
 
-    private static File getTestFile(String filename) {
-        File file = new File(TEST_DIR + filename);
-        System.out.print("File:" + file.getAbsolutePath());
-        System.out.print(" Length:" + file.length());
-        System.out.println(" Exists: " + file.exists());
-        return file;
-    }
 }
