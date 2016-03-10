@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -31,13 +32,16 @@ import com.moviejukebox.tools.OverrideTools;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Stuart
  */
-public class FilmaffinityPluginTest {
+public class FilmaffinityPluginTest extends AbstractTests {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FilmaffinityPluginTest.class);
     private FilmaffinityPlugin faPlugin = new FilmaffinityPlugin();
 
     @BeforeClass
@@ -57,6 +61,7 @@ public class FilmaffinityPluginTest {
      */
     @Test
     public void testScan() {
+        LOG.info("testScan");
         Movie movie = new Movie();
         movie.setTitle("Blade Runner", Movie.UNKNOWN);
         movie.setYear("1982", Movie.UNKNOWN);
@@ -73,6 +78,7 @@ public class FilmaffinityPluginTest {
 
     @Test
     public void testScanNoYear() {
+        LOG.info("testScanNoYear");
         Movie movie = new Movie();
         movie.setTitle("Cloverfield", Movie.UNKNOWN);
 
@@ -82,6 +88,7 @@ public class FilmaffinityPluginTest {
 
     @Test
     public void testScanYear() {
+        LOG.info("testScanYear");
         Movie movie = new Movie();
         movie.setTitle("Avatar", Movie.UNKNOWN);
         movie.setYear("2009", Movie.UNKNOWN);
@@ -92,6 +99,7 @@ public class FilmaffinityPluginTest {
 
     @Test
     public void testScanCountry1() {
+        LOG.info("testScanCountry1");
         Movie movie = new Movie();
         movie.setTitle("25 grados en invierno", Movie.UNKNOWN);
         movie.setId(FilmAffinityInfo.FILMAFFINITY_PLUGIN_ID, "730391");
@@ -102,6 +110,7 @@ public class FilmaffinityPluginTest {
 
     @Test
     public void testScanCountry2() {
+        LOG.info("testScanCountry2");
         Movie movie = new Movie();
         movie.setTitle("Matrix Revolutions", Movie.UNKNOWN);
         assertEquals(true, faPlugin.scan(movie));

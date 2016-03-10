@@ -22,23 +22,31 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class OverrideToolsTest {
+public class OverrideToolsTest extends AbstractTests {
+
+    private static final Logger LOG = LoggerFactory.getLogger(OverrideToolsTest.class);
 
     @BeforeClass
     public static void configure() {
-        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
+        doConfiguration();
+        loadApiProperties();
+
         PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
     }
 
     @Test
     public void testPriority1() {
+        LOG.info("Priority1");
         Movie movie = new Movie();
         if (OverrideTools.checkOverwriteRuntime(movie, Movie.UNKNOWN)) {
             movie.setRuntime("123", Movie.UNKNOWN);
@@ -56,6 +64,7 @@ public class OverrideToolsTest {
 
     @Test
     public void testPriority2() {
+        LOG.info("Priority2");
         Movie movie = new Movie();
         if (OverrideTools.checkOverwriteRuntime(movie, "nfo")) {
             movie.setRuntime("123", "nfo");
@@ -69,6 +78,7 @@ public class OverrideToolsTest {
 
     @Test
     public void testPriority3() {
+        LOG.info("Priority3");
         Movie movie = new Movie();
         if (OverrideTools.checkOverwriteRuntime(movie, "nfo")) {
             movie.setRuntime("123", "nfo");
@@ -82,6 +92,7 @@ public class OverrideToolsTest {
 
     @Test
     public void testPriority4() {
+        LOG.info("Priority4");
         Movie movie = new Movie();
         if (OverrideTools.checkOverwriteRuntime(movie, "imdb")) {
             movie.setRuntime("456", "imdb");
@@ -95,6 +106,7 @@ public class OverrideToolsTest {
 
     @Test
     public void testFilePriority1() {
+        LOG.info("FilePriority1");
         MovieFile file = new MovieFile();
         if (OverrideTools.checkOverwriteEpisodePlot(file, 1, "imdb")) {
             file.setPlot(1, "123", "imdb");
@@ -108,6 +120,7 @@ public class OverrideToolsTest {
 
     @Test
     public void testFilePriority2() {
+        LOG.info("FilePriority2");
         MovieFile file = new MovieFile();
         if (OverrideTools.checkOverwriteEpisodePlot(file, 1, "nfo")) {
             file.setPlot(1, "123", "nfo");

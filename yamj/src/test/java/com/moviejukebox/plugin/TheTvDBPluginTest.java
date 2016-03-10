@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -43,7 +44,7 @@ import com.omertron.thetvdbapi.model.Series;
  *
  * @author Stuart
  */
-public class TheTvDBPluginTest {
+public class TheTvDBPluginTest extends AbstractTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(TheTvDBPluginTest.class);
     private static TheTvDBPlugin TVDB;
@@ -52,8 +53,10 @@ public class TheTvDBPluginTest {
 
     @BeforeClass
     public static void configure() {
-        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
-        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
+        doConfiguration();
+        loadMainProperties();
+        loadApiProperties();
+
         PropertiesUtil.setProperty("mjb.includeVideoImages", true);
         PropertiesUtil.setProperty("mjb.includeEpisodePlots", true);
         TVDB = new TheTvDBPlugin();

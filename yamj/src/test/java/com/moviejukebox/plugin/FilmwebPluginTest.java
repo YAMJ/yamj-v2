@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
@@ -36,15 +37,21 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class FilmwebPluginTest {
+public class FilmwebPluginTest extends AbstractTests {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FilmwebPluginTest.class);
 
     private FilmwebPlugin filmwebPlugin;
 
     @BeforeClass
     public static void configure() {
-        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
-        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
+        doConfiguration();
+        loadMainProperties();
+        loadApiProperties();
+
         PropertiesUtil.setProperty("priority.movie.directors", "imdb,filmweb");
         PropertiesUtil.setProperty("priority.movie.plot", "imdb,filmweb");
         PropertiesUtil.setProperty("priority.movie.runtime", "filmweb,imdb");
@@ -57,36 +64,43 @@ public class FilmwebPluginTest {
 
     @Test
     public void testGetFilmwebUrl01() {
+        LOG.info("testGetFilmwebUrl01");
         assertEquals("http://www.filmweb.pl/Seksmisja", filmwebPlugin.getMovieId("Seksmisja", null));
     }
 
     @Test
     public void testGetFilmwebUrl02() {
+        LOG.info("testGetFilmwebUrl02");
         assertEquals("http://www.filmweb.pl/serial/4400-2004-122684", filmwebPlugin.getMovieId("The 4400", null));
     }
 
     @Test
     public void testGetFilmwebUrl03() {
+        LOG.info("testGetFilmwebUrl03");
         assertEquals("http://www.filmweb.pl/Seksmisja", filmwebPlugin.getMovieId("Seksmisja", null));
     }
 
     @Test
     public void testGetFilmwebUrl04() {
+        LOG.info("testGetFilmwebUrl04");
         assertEquals("http://www.filmweb.pl/serial/4400-2004-122684", filmwebPlugin.getMovieId("The 4400", null));
     }
 
     @Test
     public void testGetFilmwebUrl05() {
+        LOG.info("testGetFilmwebUrl05");
         assertEquals("http://www.filmweb.pl/John.Rambo", filmwebPlugin.getMovieId("john rambo", null));
     }
 
     @Test
     public void testGetFilmwebUrl06() {
+        LOG.info("testGetFilmwebUrl06");
         assertEquals("http://www.filmweb.pl/serial/4400-2004-122684", filmwebPlugin.getMovieId("The 4400", null));
     }
 
     @Test
     public void testScanNFONoUrl() {
+        LOG.info("testScanNFONoUrl");
         Movie movie = new Movie();
         filmwebPlugin.scanNFO("", movie);
         assertEquals(Movie.UNKNOWN, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -94,6 +108,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testScanNFO() {
+        LOG.info("testScanNFO");
         Movie movie = new Movie();
         filmwebPlugin.scanNFO("txt\ntxt\nfilmweb url: http://john.rambo.filmweb.pl - txt\ntxt", movie);
         assertEquals("http://john.rambo.filmweb.pl", movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -126,6 +141,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testScanNFOWithId() {
+        LOG.info("testScanNFOWithId");
         Movie movie = new Movie();
         filmwebPlugin.scanNFO("txt\ntxt\nfilmweb url: http://www.filmweb.pl/f122684/4400,2004 - txt\ntxt", movie);
         assertEquals("http://www.filmweb.pl/f122684/4400,2004", movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -133,6 +149,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testScanNFOWithPoster() {
+        LOG.info("testScanNFOWithPoster");
         Movie movie = new Movie();
         filmwebPlugin.scanNFO("txt\ntxt\nimg: http://gfx.filmweb.pl/po/18/54/381854/7131155.3.jpg - txt\ntxt", movie);
         assertEquals(Movie.UNKNOWN, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -143,6 +160,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoTitle01() {
+        LOG.info("testUpdateMediaInfoTitle01");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Seksmisja");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -152,6 +170,7 @@ public class FilmwebPluginTest {
 
     //@Test
     public void testUpdateMediaInfoTitle02() {
+        LOG.info("testUpdateMediaInfoTitle02");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -161,6 +180,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoTitleWithOriginalTitle() {
+        LOG.info("testUpdateMediaInfoTitleWithOriginalTitle");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Ojciec.Chrzestny");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -170,6 +190,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoRating() {
+        LOG.info("testUpdateMediaInfoRating");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Ojciec.Chrzestny");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -179,6 +200,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoTop250() {
+        LOG.info("testUpdateMediaInfoTop250");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Ojciec.Chrzestny");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -187,6 +209,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoReleaseDate() {
+        LOG.info("testUpdateMediaInfoReleaseDate");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -195,6 +218,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoRuntime() {
+        LOG.info("testUpdateMediaInfoRuntime");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -203,6 +227,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoCountry() {
+        LOG.info("testUpdateMediaInfoCountry");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -211,6 +236,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoGenre() {
+        LOG.info("testUpdateMediaInfoGenre");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/John.Rambo");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -219,6 +245,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoOutline() {
+        LOG.info("testUpdateMediaInfoOutline");
         Movie movie = new Movie();
         int outlineLength = PropertiesUtil.getIntProperty("movie.outline.maxLength", 500);
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Seksmisja");
@@ -232,6 +259,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoPlot01() {
+        LOG.info("testUpdateMediaInfoPlot01");
         Movie movie = new Movie();
         int plotLength = PropertiesUtil.getIntProperty("movie.plot.maxLength", 500);
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Waleczne.Serce");
@@ -245,6 +273,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoPlot02() {
+        LOG.info("testUpdateMediaInfoPlot02");
         Movie movie = new Movie();
         int plotLength = PropertiesUtil.getIntProperty("movie.plot.maxLength", 500);
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/film/Agenci-2013-612342");
@@ -258,6 +287,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoYear() {
+        LOG.info("testUpdateMediaInfoYear");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Seksmisja");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -266,6 +296,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoDirector() {
+        LOG.info("testUpdateMediaInfoDirector");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Avatar");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -279,6 +310,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoCast01() {
+        LOG.info("testUpdateMediaInfoCast01");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Avatar");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -293,6 +325,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoCast02() {
+        LOG.info("testUpdateMediaInfoCast02");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/film/Agenci-2013-612342");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -307,6 +340,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoWriters() {
+        LOG.info("testUpdateMediaInfoWriters");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/film/Stra%C5%BCnicy+Galaktyki-2014-594357");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
@@ -320,6 +354,7 @@ public class FilmwebPluginTest {
 
     @Test
     public void testUpdateMediaInfoUpdateTVShowInfo() {
+        LOG.info("testUpdateMediaInfoUpdateTVShowInfo");
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Prison.Break");
         movie.setMovieType(Movie.TYPE_TVSHOW);

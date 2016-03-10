@@ -22,16 +22,23 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.AbstractTests;
 import org.apache.commons.lang3.StringUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SearchEngineToolsTest {
+public class SearchEngineToolsTest extends AbstractTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchEngineToolsTest.class);
+
+    @BeforeClass
+    public static void configure() {
+        doConfiguration();
+    }
 
     @Test
     public void roundTripIMDB() {

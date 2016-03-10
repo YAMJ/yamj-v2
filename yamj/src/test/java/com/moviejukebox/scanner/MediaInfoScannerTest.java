@@ -23,9 +23,6 @@
 package com.moviejukebox.scanner;
 
 import com.moviejukebox.AbstractTests;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import com.moviejukebox.model.Codec;
 import com.moviejukebox.model.Movie;
@@ -39,6 +36,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class MediaInfoScannerTest extends AbstractTests {
 
@@ -57,6 +57,7 @@ public class MediaInfoScannerTest extends AbstractTests {
 
     @Ignore
     public void testMediaInfoScan() {
+        LOG.info("MediaInfoScan");
         getMediaInfoTestFile("test.mkv", false);
         printTextInfos("Video", this.infosVideo);
         printTextInfos("Audio", this.infosAudio);
@@ -64,6 +65,7 @@ public class MediaInfoScannerTest extends AbstractTests {
 
     @Test
     public void testStaticFile() {
+        LOG.info("StaticFile");
         getMediaInfoTestFile("mediainfo-ts-2d.txt", true);
 
         Movie movie = new Movie();
@@ -75,6 +77,7 @@ public class MediaInfoScannerTest extends AbstractTests {
 
     @Test
     public void testAudioStreamFile() {
+        LOG.info("AudioStreamFile");
         getMediaInfoTestFile("mediainfo-2.txt", true);
         assertEquals(7, infosAudio.size());
         assertEquals(1, infosVideo.size());
@@ -82,6 +85,7 @@ public class MediaInfoScannerTest extends AbstractTests {
 
     @Test
     public void testAvi() {
+        LOG.info("Avi");
         getMediaInfoTestFile("AVI_DTS_ES_6.1.AVI.txt", true);
 
         Codec codec;
@@ -114,6 +118,7 @@ public class MediaInfoScannerTest extends AbstractTests {
 
     @Test
     public void testChannels() {
+        LOG.info("Channels");
         getMediaInfoTestFile("mediainfo-channels.txt", true);
 
         Codec codec;
@@ -127,6 +132,7 @@ public class MediaInfoScannerTest extends AbstractTests {
 
     @Test
     public void testMultipleAudioCodes() {
+        LOG.info("MultipleAudioCodes");
         getMediaInfoTestFile("DTS_AC3_DTS_AC3.txt", true);
         Movie movie = new Movie();
         Codec codec;

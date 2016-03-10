@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.*;
 
 import com.moviejukebox.model.Movie;
@@ -35,14 +36,15 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ImdbPluginTest {
+public class ImdbPluginTest extends AbstractTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImdbPluginTest.class);
 
     @BeforeClass
     public static void configure() {
-        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
-        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
+        doConfiguration();
+        loadMainProperties();
+        loadApiProperties();
     }
 
     @Test

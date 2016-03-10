@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 
 import com.moviejukebox.model.Movie;
@@ -31,11 +32,16 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class SubtitleToolsTest {
+public class SubtitleToolsTest extends AbstractTests {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SubtitleToolsTest.class);
 
     @BeforeClass
     public static void configure() {
+        doConfiguration();
         PropertiesUtil.setProperty("mjb.subtitle.skip", "nor,it");
     }
 
@@ -52,6 +58,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testAddMovieSubtitles1() {
+        LOG.info("AddMovieSubtitles1");
         String actualSubtitles = Movie.UNKNOWN;
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "eng");
         assertEquals("English", newSubtitles);
@@ -59,6 +66,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testAddMovieSubtitles2() {
+        LOG.info("AddMovieSubtitles2");
         String actualSubtitles = "NO";
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "eng");
         assertEquals("English", newSubtitles);
@@ -66,6 +74,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testAddMovieSubtitles3() {
+        LOG.info("AddMovieSubtitles3");
         String newSubtitles = SubtitleTools.addMovieSubtitle("YES", "eng");
         newSubtitles = SubtitleTools.addMovieSubtitle(newSubtitles, "de");
         assertEquals("English / German", newSubtitles);
@@ -73,6 +82,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testAddMovieSubtitles4() {
+        LOG.info("AddMovieSubtitles4");
         String actualSubtitles = "YES";
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "NO");
         assertEquals("NO", newSubtitles);
@@ -80,6 +90,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testAddMovieSubtitles5() {
+        LOG.info("AddMovieSubtitles5");
         String actualSubtitles = "NO";
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "YES");
         assertEquals("YES", newSubtitles);
@@ -87,6 +98,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testAddMovieSubtitles6() {
+        LOG.info("AddMovieSubtitles6");
         String actualSubtitles = "English / German";
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "YES");
         assertEquals("English / German", newSubtitles);
@@ -94,6 +106,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testAddMovieSubtitles7() {
+        LOG.info("AddMovieSubtitles7");
         String actualSubtitles = "English / German";
         String newSubtitles = SubtitleTools.addMovieSubtitle(actualSubtitles, "German");
         assertEquals("English / German", newSubtitles);
@@ -101,6 +114,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testAddMovieSubtitles8() {
+        LOG.info("AddMovieSubtitles8");
         String subs = SubtitleTools.addMovieSubtitle("", "en");
         subs = SubtitleTools.addMovieSubtitle(subs, "german");
         subs = SubtitleTools.addMovieSubtitle(subs, "de");
@@ -109,6 +123,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testSetMovieSubtitles1() {
+        LOG.info("SetMovieSubtitles1");
         List<String> subtitles = new ArrayList<>();
         subtitles.add("");
         subtitles.add("en");
@@ -123,6 +138,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testSetMovieSubtitles2() {
+        LOG.info("SetMovieSubtitles2");
         List<String> subtitles = new ArrayList<>();
         subtitles.add("");
         subtitles.add("en");
@@ -138,6 +154,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testSetMovieSubtitles3() {
+        LOG.info("SetMovieSubtitles3");
         List<String> subtitles = new ArrayList<>();
         subtitles.add("en");
         subtitles.add("de");
@@ -150,6 +167,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testSetMovieSubtitles4() {
+        LOG.info("SetMovieSubtitles4");
         List<String> subtitles = new ArrayList<>();
         subtitles.add("en");
         subtitles.add("de");
@@ -162,6 +180,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testSetMovieSubtitlesOverride1() {
+        LOG.info("SetMovieSubtitlesOverride1");
         List<String> subtitles = new ArrayList<>();
         subtitles.add("en");
 
@@ -173,6 +192,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testSetMovieSubtitlesOverride2() {
+        LOG.info("SetMovieSubtitlesOverride2");
         List<String> subtitles = new ArrayList<>();
         subtitles.add(Movie.UNKNOWN);
         subtitles.add("");
@@ -186,6 +206,7 @@ public class SubtitleToolsTest {
 
     @Test
     public void testSkippedMovieSubtitles() {
+        LOG.info("SkippedMovieSubtitles");
         List<String> subtitles = new ArrayList<>();
         subtitles.add("en");
         subtitles.add("it");

@@ -22,20 +22,25 @@
  */
 package com.moviejukebox.reader;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 
 import com.moviejukebox.model.Movie;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Stuart
  */
-public class MovieNFOReaderTest {
+public class MovieNFOReaderTest extends AbstractTests {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MovieNFOReaderTest.class);
 
     @Test
     public void testMovieDate() {
-        System.out.println("testMovieDate");
+        LOG.info("MovieDate");
         String dateTest = "20/10/2005";
 
         Movie m = new Movie();
@@ -53,7 +58,8 @@ public class MovieNFOReaderTest {
     }
 
     @Test
-    public void testParsCrew() {
+    public void testParseCrew() {
+        LOG.info("ParseCrew");
         StringBuilder nfo = new StringBuilder();
         nfo.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
         nfo.append("<movie>");

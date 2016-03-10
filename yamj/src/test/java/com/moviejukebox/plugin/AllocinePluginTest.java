@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -40,14 +41,15 @@ import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.OverrideTools;
 import com.moviejukebox.tools.PropertiesUtil;
 
-public class AllocinePluginTest {
+public class AllocinePluginTest extends AbstractTests {
 
     private AllocinePlugin allocinePlugin;
     private static final Logger LOG = LoggerFactory.getLogger(AllocinePluginTest.class);
 
     @BeforeClass
     public static void configure() {
-        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
+        doConfiguration();
+        loadApiProperties();
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.AllocinePlugin");
         PropertiesUtil.setProperty("mjb.internet.tv.plugin", "com.moviejukebox.plugin.AllocinePlugin");
         PropertiesUtil.setProperty("mjb.includeEpisodePlots", Boolean.TRUE);

@@ -23,10 +23,6 @@
 package com.moviejukebox.writer;
 
 import com.moviejukebox.AbstractTests;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 
@@ -42,6 +38,10 @@ import com.moviejukebox.reader.MovieJukeboxXMLReader;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  *
@@ -64,6 +64,7 @@ public class MovieJukeboxXMLWriterTest extends AbstractTests {
      */
     @Test
     public void testParseMovieXML() {
+        LOG.info("ParseMovieXML");
         File xmlFile = getTestFile("ExampleMovieXML.xml");
         Movie movie = new Movie();
 
@@ -105,6 +106,7 @@ public class MovieJukeboxXMLWriterTest extends AbstractTests {
      */
     @Ignore("Need to write test")
     public void testParsePersonXML() {
+        LOG.info("ParsePersonXML");
         System.out.println("parsePersonXML");
         File xmlFile = null;
         Person person = null;
@@ -118,6 +120,7 @@ public class MovieJukeboxXMLWriterTest extends AbstractTests {
 
     @Test
     public void testMultiPartFileXML() {
+        LOG.info("MultiPartFileXML");
 
         File xmlFile = getTestFile("ExampleMultiPartFile.xml");
         Movie movie = new Movie();

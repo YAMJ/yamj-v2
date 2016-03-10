@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -37,14 +38,15 @@ import com.moviejukebox.tools.StringTools;
 import com.omertron.fanarttvapi.model.FTMovie;
 import com.omertron.fanarttvapi.model.FTSeries;
 
-public class FanartTvPluginTest {
+public class FanartTvPluginTest extends AbstractTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(FanartTvPluginTest.class);
     private static FanartTvPlugin ft;
 
     @BeforeClass
     public static void setUpClass() {
-        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
+        doConfiguration();
+        loadApiProperties();
 
         PropertiesUtil.setProperty("clearart.tv.download", true);
         PropertiesUtil.setProperty("clearlogo.tv.download", true);
@@ -61,7 +63,7 @@ public class FanartTvPluginTest {
      * Test of scan method with movie
      */
     @Test
-    public void testScan_Movie() {
+    public void testScanMovie() {
         LOG.info("scan (movie)");
         Movie movie = new Movie();
         movie.setId(ImdbPlugin.IMDB_PLUGIN_ID, "tt0499549");
@@ -80,7 +82,7 @@ public class FanartTvPluginTest {
      * Test of scan method with TV show
      */
     @Test
-    public void testScan_TV() {
+    public void testScanTV() {
         LOG.info("scan (TV)");
         Movie movie = new Movie();
         movie.setBaseName("TEST - Walking Dead");
@@ -125,11 +127,11 @@ public class FanartTvPluginTest {
 
         // Search using tmdb
         FTMovie result = ft.getMovieArtwork(tmdbId, null);
-        assertEquals("Wrong result found","Blade Runner", result.getName());
+        assertEquals("Wrong result found", "Blade Runner", result.getName());
         assertEquals("Incorrect IMDB ID", imdbId, result.getImdbId());
 
         result = ft.getMovieArtwork(0, imdbId);
-        assertEquals("Wrong result found","Blade Runner", result.getName());
+        assertEquals("Wrong result found", "Blade Runner", result.getName());
         assertEquals("Incorrect TMDB ID", Integer.toString(tmdbId), result.getTmdbId());
     }
 }

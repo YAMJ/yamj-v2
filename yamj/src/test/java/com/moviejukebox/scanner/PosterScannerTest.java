@@ -22,19 +22,30 @@
  */
 package com.moviejukebox.scanner;
 
+import com.moviejukebox.AbstractTests;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.plugin.ImdbInfo;
+import com.moviejukebox.plugin.ImdbPluginTest;
 import com.moviejukebox.scanner.artwork.PosterScanner;
 import java.awt.Dimension;
 import java.io.UnsupportedEncodingException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unused")
-public class PosterScannerTest {
+public class PosterScannerTest extends AbstractTests {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ImdbPluginTest.class);
     private Movie movieTest;
+
+    @BeforeClass
+    public static void configure() {
+        doConfiguration();
+    }
 
     @Before
     public void setUp() {
@@ -43,6 +54,7 @@ public class PosterScannerTest {
 
     @Test
     public void testGetPosterURLFromMovieDbAPI() throws UnsupportedEncodingException {
+        LOG.info("GetPosterURLFromMovieDbAPI");
         String baseURL = "http://www.moviecovers.com/getjpg.html/";
         String expectedURL = Movie.UNKNOWN;
         String returnURL = Movie.UNKNOWN;
@@ -52,6 +64,7 @@ public class PosterScannerTest {
 
     @Test
     public void testGetPosterURLFromMovieCovers() throws UnsupportedEncodingException {
+        LOG.info("GetPosterURLFromMovieCovers");
         String baseURL = "http://www.moviecovers.com/getjpg.html/";
         String expectedURL = Movie.UNKNOWN;
         String returnURL = Movie.UNKNOWN;
@@ -87,9 +100,10 @@ public class PosterScannerTest {
          * PosterScanner.getPosterURLFromMovieCovers(movieTest); assertEquals(expectedURL, returnURL);
          */
     }
-    
+
     @Test
     public void testGetUrlDimensions() {
+        LOG.info("GetUrlDimensions");
         Dimension dimension = PosterScanner.getUrlDimensions("http://image.tmdb.org/t/p/original/ax2uAmXFw9Myj1hiakJ4n2s4Tbg.jpg");
         Assert.assertEquals(1400, dimension.getWidth(), 10);
         Assert.assertEquals(2100, dimension.getHeight(), 10);

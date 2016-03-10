@@ -22,9 +22,11 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Date;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.pojava.datetime.DateTime;
 import org.slf4j.Logger;
@@ -34,9 +36,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author Stuart
  */
-public class DateTimeToolsTest {
+public class DateTimeToolsTest extends AbstractTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(DateTimeToolsTest.class);
+
+    @BeforeClass
+    public static void configure() {
+        doConfiguration();
+    }
 
     /**
      * Test of convertDateToString method, of class DateTimeTools.

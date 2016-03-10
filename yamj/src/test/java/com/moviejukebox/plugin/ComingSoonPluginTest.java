@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.*;
 
 import com.moviejukebox.model.Movie;
@@ -39,15 +40,17 @@ import org.slf4j.LoggerFactory;
  *
  * @author iuk
  */
-public class ComingSoonPluginTest {
+public class ComingSoonPluginTest extends AbstractTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(ComingSoonPluginTest.class);
     private static ComingSoonPlugin csPlugin;
 
     @BeforeClass
     public static void configure() {
-        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
-        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
+        doConfiguration();
+        loadMainProperties();
+        loadApiProperties();
+
         PropertiesUtil.setProperty("comingsoon.imdb.scan", "never");
         PropertiesUtil.setProperty("priority.title", "comingsoon,imdb");
         PropertiesUtil.setProperty("priority.originaltitle", "comingsoon,imdb");

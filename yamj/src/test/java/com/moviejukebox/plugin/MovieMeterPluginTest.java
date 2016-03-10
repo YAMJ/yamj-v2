@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -37,21 +38,22 @@ import org.slf4j.LoggerFactory;
 
 import com.moviejukebox.TestData;
 import com.moviejukebox.model.Movie;
-import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 
-public class MovieMeterPluginTest {
+public class MovieMeterPluginTest extends AbstractTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovieMeterPluginTest.class);
     private static MovieMeterPlugin plugin;
-    private static final List<TestData> testData = new ArrayList<>();
+    private static final List<TestData> TEST_DATA = new ArrayList<>();
 
     @BeforeClass
     public static void configure() {
-        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
-        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
+        doConfiguration();
+        loadMainProperties();
+        loadApiProperties();
+
         plugin = new MovieMeterPlugin();
-        testData.add(new TestData("Avatar", "2009", "17552"));
+        TEST_DATA.add(new TestData("Avatar", "2009", "17552"));
     }
 
     /**
@@ -62,7 +64,7 @@ public class MovieMeterPluginTest {
         LOG.info("scan");
         Movie movie;
 
-        for (TestData td : testData) {
+        for (TestData td : TEST_DATA) {
             movie = new Movie();
             movie.setId(MovieMeterPlugin.MOVIEMETER_PLUGIN_ID, td.id);
             assertTrue("Failed to scan " + td.title, plugin.scan(movie));
@@ -92,7 +94,7 @@ public class MovieMeterPluginTest {
         Movie movie;
         String result;
 
-        for (TestData td : testData) {
+        for (TestData td : TEST_DATA) {
             movie = new Movie();
             movie.setTitle(td.title, "TEST");
             movie.setYear(td.year, "TEST");
@@ -109,7 +111,7 @@ public class MovieMeterPluginTest {
     public void testGetMovieId_String_String() {
         LOG.info("getMovieId - Title & Year");
 
-        for (TestData td : testData) {
+        for (TestData td : TEST_DATA) {
             LOG.info("Testing {} ({}), expecting {}", td.title, td.year, td.id);
             String result = plugin.getMovieId(td.title, td.year);
             assertEquals("Failed to get the correct ID for " + td.title, td.id, result);

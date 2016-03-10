@@ -22,11 +22,11 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.AbstractTests;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFileNameDTO;
 import com.moviejukebox.model.Person;
 import com.moviejukebox.scanner.MovieFilenameScanner;
-import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
 import com.omertron.themoviedbapi.model.collection.CollectionInfo;
 import java.io.File;
@@ -47,15 +47,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author stuart.boston
  */
-public class TheMovieDbPluginTest {
+public class TheMovieDbPluginTest extends AbstractTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(TheMovieDbPluginTest.class);
     private static TheMovieDbPlugin TMDb;
 
     @BeforeClass
     public static void configure() {
-        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
-        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
+        doConfiguration();
+        loadMainProperties();
+        loadApiProperties();
     }
 
     @Before

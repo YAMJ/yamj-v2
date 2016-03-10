@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.model;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -31,15 +32,27 @@ import java.util.List;
 import org.junit.Test;
 
 import com.moviejukebox.plugin.ImdbPlugin;
+import org.junit.BeforeClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertEquals;
 
-public class MovieTest {
+public class MovieTest extends AbstractTests {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MovieTest.class);
 
     private static final int ACTOR_MAX = 10;
     private static final int DIRECTOR_MAX = 2;
     private static final int WRITER_MAX = 3;
 
+    @BeforeClass
+    public static void setUpClass() {
+        doConfiguration();
+    }
+
     @Test
     public void testSetPeopleCast() {
+        LOG.info("testSetPeopleCast");
         List<String> actors = createList("Actor", ACTOR_MAX);
 
         Movie movie = new Movie();
@@ -50,6 +63,7 @@ public class MovieTest {
 
     @Test
     public void testSetPeopleDirectors() {
+        LOG.info("testSetPeopleDirectors");
         List<String> directors = createList("Director", DIRECTOR_MAX);
 
         Movie movie = new Movie();
@@ -60,6 +74,7 @@ public class MovieTest {
 
     @Test
     public void testSetPeopleWriters() {
+        LOG.info("testSetPeopleWriters");
         List<String> writers = createList("Writer", WRITER_MAX);
 
         Movie movie = new Movie();

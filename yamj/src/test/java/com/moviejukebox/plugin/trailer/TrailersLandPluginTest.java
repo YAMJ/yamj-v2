@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.plugin.trailer;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.BeforeClass;
@@ -36,18 +37,19 @@ import com.moviejukebox.tools.PropertiesUtil;
  *
  * @author iuk
  */
-public class TrailersLandPluginTest {
+public class TrailersLandPluginTest extends AbstractTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(TrailersLandPluginTest.class);
     private static TrailersLandPlugin tlPlugin;
 
     @BeforeClass
     public static void configure() {
+        doConfiguration();
         PropertiesUtil.setProperty("trailers.download", false);
         tlPlugin = new TrailersLandPlugin();
     }
 
-//    @Test
+    @Test
     public void testGenerateTitleOriginalTitle() {
         LOG.info("testGenerateTitleOriginalTitle");
         Movie movie = new Movie();

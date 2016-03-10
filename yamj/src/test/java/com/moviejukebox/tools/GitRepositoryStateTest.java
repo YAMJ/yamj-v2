@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -31,18 +32,22 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Stuart
  */
-public class GitRepositoryStateTest {
+public class GitRepositoryStateTest extends AbstractTests {
 
+    private static final Logger LOG = LoggerFactory.getLogger(GitRepositoryStateTest.class);
     private static GitRepositoryState instance;
 
     @BeforeClass
     public static void setUpClass() {
+        doConfiguration();
         instance = new GitRepositoryState();
-        System.out.println(ToStringBuilder.reflectionToString(instance, ToStringStyle.MULTI_LINE_STYLE));
+        LOG.info(ToStringBuilder.reflectionToString(instance, ToStringStyle.MULTI_LINE_STYLE));
     }
 
     /**
@@ -50,7 +55,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetBranch() {
-        System.out.println("getBranch");
+        LOG.info("getBranch");
         String result = instance.getBranch();
         assertNotEquals(Movie.UNKNOWN, result);
     }
@@ -60,7 +65,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetDirty() {
-        System.out.println("getDirty");
+        LOG.info("getDirty");
         Boolean result = instance.getDirty();
         assertNotNull(result);
     }
@@ -70,7 +75,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetTags() {
-        System.out.println("getTags");
+        LOG.info("getTags");
         List<String> result = instance.getTags();
         assertNotEquals(Movie.UNKNOWN, result);
     }
@@ -80,7 +85,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetDescribe() {
-        System.out.println("getDescribe");
+        LOG.info("getDescribe");
         String result = instance.getDescribe();
         assertNotEquals(Movie.UNKNOWN, result);
     }
@@ -90,7 +95,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetDescribeShort() {
-        System.out.println("getDescribeShort");
+        LOG.info("getDescribeShort");
         String result = instance.getDescribeShort();
         assertNotEquals(Movie.UNKNOWN, result);
     }
@@ -100,7 +105,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetCommitId() {
-        System.out.println("getCommitId");
+        LOG.info("getCommitId");
         String result = instance.getCommitId();
         assertNotEquals(Movie.UNKNOWN, result);
     }
@@ -110,7 +115,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetCommitIdAbbrev() {
-        System.out.println("getCommitIdAbbrev");
+        LOG.info("getCommitIdAbbrev");
         String result = instance.getCommitIdAbbrev();
         assertNotEquals(Movie.UNKNOWN, result);
     }
@@ -120,7 +125,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetBuildUserName() {
-        System.out.println("getBuildUserName");
+        LOG.info("getBuildUserName");
         String result = instance.getBuildUserName();
         assertNotEquals(Movie.UNKNOWN, result);
     }
@@ -130,7 +135,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetBuildUserEmail() {
-        System.out.println("getBuildUserEmail");
+        LOG.info("getBuildUserEmail");
         String result = instance.getBuildUserEmail();
         assertNotEquals(Movie.UNKNOWN, result);
     }
@@ -140,7 +145,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetBuildTime() {
-        System.out.println("getBuildTime");
+        LOG.info("getBuildTime");
         String result = instance.getBuildTime();
         assertNotEquals(Movie.UNKNOWN, result);
     }
@@ -150,7 +155,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetCommitUserName() {
-        System.out.println("getCommitUserName");
+        LOG.info("getCommitUserName");
         String result = instance.getCommitUserName();
         assertNotEquals(Movie.UNKNOWN, result);
     }
@@ -160,7 +165,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetCommitUserEmail() {
-        System.out.println("getCommitUserEmail");
+        LOG.info("getCommitUserEmail");
         String result = instance.getCommitUserEmail();
         assertNotEquals(Movie.UNKNOWN, result);
     }
@@ -170,7 +175,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetCommitMessageFull() {
-        System.out.println("getCommitMessageFull");
+        LOG.info("getCommitMessageFull");
         String result = instance.getCommitMessageFull();
         assertNotEquals(Movie.UNKNOWN, result);
     }
@@ -180,7 +185,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetCommitMessageShort() {
-        System.out.println("getCommitMessageShort");
+        LOG.info("getCommitMessageShort");
         String result = instance.getCommitMessageShort();
         assertNotEquals(Movie.UNKNOWN, result);
     }
@@ -190,7 +195,7 @@ public class GitRepositoryStateTest {
      */
     @Test
     public void testGetCommitTime() {
-        System.out.println("getCommitTime");
+        LOG.info("getCommitTime");
         String result = instance.getCommitTime();
         assertNotEquals(Movie.UNKNOWN, result);
     }

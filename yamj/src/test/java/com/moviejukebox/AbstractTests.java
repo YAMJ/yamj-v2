@@ -22,6 +22,7 @@
  */
 package com.moviejukebox;
 
+import com.moviejukebox.tools.PropertiesUtil;
 import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -38,6 +39,18 @@ public class AbstractTests {
      */
     protected static final void doConfiguration() {
         TestLogger.configure();
+    }
+
+    protected static final void loadMainProperties() {
+        loadProperties("./properties/moviejukebox-default.properties");
+    }
+    
+    protected static final void loadApiProperties() {
+        loadProperties("./properties/apikeys.properties");
+    }
+
+    protected static final void loadProperties(String filename) {
+        PropertiesUtil.setPropertiesStreamName(filename);
     }
 
     /**

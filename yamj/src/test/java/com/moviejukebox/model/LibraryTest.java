@@ -22,53 +22,52 @@
  */
 package com.moviejukebox.model;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import com.moviejukebox.tools.PropertiesUtil;
+public class LibraryTest extends AbstractTests {
 
-public class LibraryTest {
-
-    Library lib;
-    final List<Movie> movies = new ArrayList<>();
+    private static final Logger LOG = LoggerFactory.getLogger(LibraryTest.class);
+    private static final Library LIBRARY = new Library();
+    private static final List<Movie> MOVIES = new ArrayList<>();
 
     @BeforeClass
     public static void setUpClass() {
-        PropertiesUtil.setPropertiesStreamName("./properties/moviejukebox-default.properties");
-    }
+        doConfiguration();
+        loadMainProperties();
 
-    @Before
-    public void setUp() {
-        lib = new Library();
-        lib.clear();
+        MOVIES.add(tv("The Sopranos", 1));
+        MOVIES.add(tv("The Sopranos", 2));
+        MOVIES.add(tv("The Sopranos", 3));
+        MOVIES.add(tv("The Sopranos", 4));
+        MOVIES.add(tv("M*A*S*H", 1));
+        MOVIES.add(tv("M*A*S*H", 2));
+        MOVIES.add(movie("Shrek"));
+        MOVIES.add(tv("Star Trek", 3));
+        MOVIES.add(tv("Star Trek", 7));
+        MOVIES.add(tv("Star Trek", 55));
+        MOVIES.add(movie("Shrek 2"));
+        MOVIES.add(tv("Doctor Who", 345));
 
-        movies.add(tv("The Sopranos", 1));
-        movies.add(tv("The Sopranos", 2));
-        movies.add(tv("The Sopranos", 3));
-        movies.add(tv("The Sopranos", 4));
-        movies.add(tv("M*A*S*H", 1));
-        movies.add(tv("M*A*S*H", 2));
-        movies.add(movie("Shrek"));
-        movies.add(tv("Star Trek", 3));
-        movies.add(tv("Star Trek", 7));
-        movies.add(tv("Star Trek", 55));
-        movies.add(movie("Shrek 2"));
-        movies.add(tv("Doctor Who", 345));
-
-        for (Movie movie : movies) {
-            lib.addMovie(movie);
+        for (Movie movie : MOVIES) {
+            LIBRARY.addMovie(movie);
         }
     }
 
     @Test
     public void testIndex() {
+        LOG.info("testIndex");
         Index index = new Index();
         assertEquals(0, index.size());
         addMovies(index, 10);
@@ -82,8 +81,9 @@ public class LibraryTest {
 
     @Test
     public void testIndexByTVShowSeasons() {
+        LOG.info("testIndexByTVShowSeasons");
         Library.setSingleSeriesPage(true);
-        Index index = Library.indexBySets(movies);
+        Index index = Library.indexBySets(MOVIES);
         assertEquals(4, index.size());
         assertTrue(index.containsKey("The Sopranos"));
         assertTrue(index.containsKey("Star Trek"));

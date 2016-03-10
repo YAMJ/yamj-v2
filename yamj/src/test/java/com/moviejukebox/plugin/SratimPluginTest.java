@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.AbstractTests;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.model.enumerations.OverrideFlag;
@@ -31,14 +32,20 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class SratimPluginTest {
+public class SratimPluginTest extends AbstractTests {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SratimPluginTest.class);
 
     private SratimPlugin sratimPlugin;
 
     @BeforeClass
     public static void configure() {
-        PropertiesUtil.setPropertiesStreamName("./properties/apikeys.properties");
+        doConfiguration();
+        loadApiProperties();
+
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.SratimPlugin");
     }
 
@@ -49,6 +56,7 @@ public class SratimPluginTest {
 
     @Test
     public void testMovie() {
+        LOG.info("Movie");
         Movie movie = new Movie();
         movie.addMovieFile(new MovieFile());
         movie.setMovieType(Movie.TYPE_MOVIE);

@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.AbstractTests;
 import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.enumerations.OverrideFlag;
 import com.moviejukebox.tools.OverrideTools;
@@ -34,13 +35,18 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class OfdbPluginTest {
+public class OfdbPluginTest extends AbstractTests {
+
+    private static final Logger LOG = LoggerFactory.getLogger(OfdbPluginTest.class);
 
     private OfdbPlugin ofdbPlugin;
 
     @BeforeClass
     public static void configure() {
+        doConfiguration();
         PropertiesUtil.setProperty("mjb.internet.plugin", "com.moviejukebox.plugin.OfdbPlugin");
     }
 
@@ -51,12 +57,14 @@ public class OfdbPluginTest {
 
     @Test
     public void testGetMovieId() {
+        LOG.info("GetMovieId");
         String id = ofdbPlugin.getMovieId("Avatar", "2009");
         assertEquals("http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora", id);
     }
 
     @Test
     public void testScan() {
+        LOG.info("Scan");
         Movie movie = new Movie();
         movie.setId(OfdbPlugin.OFDB_PLUGIN_ID, "http://www.ofdb.de/film/188514,Avatar---Aufbruch-nach-Pandora");
 

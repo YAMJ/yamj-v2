@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.AbstractTests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.BeforeClass;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -41,9 +43,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author Stuart
  */
-public class StringToolsTest {
+public class StringToolsTest extends AbstractTests {
 
     private static final Logger LOG = LoggerFactory.getLogger(StringToolsTest.class);
+
+    @BeforeClass
+    public static void configure() {
+        doConfiguration();
+    }
 
     /**
      * Test of characterMapReplacement method, of class StringTools.
