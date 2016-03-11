@@ -60,7 +60,7 @@ public enum ArtworkPriority {
      * @throws IllegalArgumentException If not recognised
      *
      */
-    public static ArtworkPriority fromString(final String artworkPriority) throws IllegalArgumentException {
+    public static ArtworkPriority fromString(final String artworkPriority) {
         if (StringUtils.isNotBlank(artworkPriority)) {
             try {
                 return ArtworkPriority.valueOf(artworkPriority.trim().toUpperCase());

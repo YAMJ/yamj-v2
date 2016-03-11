@@ -44,7 +44,7 @@ public final class DateTimeTools {
     private static final Pattern YEAR_PATTERN = Pattern.compile("(?:.*?)(\\d{4})(?:.*?)");
     private static final IDateTimeConfig DATETIME_CONFIG_DEFAULT;
     private static final IDateTimeConfig DATETIME_CONFIG_FALLBACK;
-    
+
     static {
         // default configuration
         DATETIME_CONFIG_DEFAULT = DateTimeConfig.getGlobalDefault();
@@ -153,10 +153,10 @@ public final class DateTimeTools {
             // No string to parse
             return -1;
         }
-        
+
         // See if we can convert this to a number and assume it's correct if we can
-        int returnValue = (int)NumberUtils.toFloat(runtime, -1f);
-        
+        int returnValue = (int) NumberUtils.toFloat(runtime, -1f);
+
         if (returnValue < 0) {
             // This is for the format xx(hour/hr/min)yy(min), e.g. 1h30, 90mins, 1h30m
             Pattern hrmnPattern = Pattern.compile("(?i)(\\d+)(\\D*)(\\d*)(.*?)");
@@ -199,7 +199,7 @@ public final class DateTimeTools {
             return convertDateToString(parseStringToDate(dateToParse), getDateFormatString());
         } catch (IllegalArgumentException ex) {
             LOG.debug("Failed to parse date '{}', error: {}", dateToParse, ex.getMessage(), ex);
-            return  StringUtils.EMPTY;
+            return StringUtils.EMPTY;
         }
     }
 
@@ -210,7 +210,7 @@ public final class DateTimeTools {
      * @return the date converted
      * @throws IllegalArgumentException
      */
-    public static Date parseStringToDate(final String dateToParse) throws IllegalArgumentException {
+    public static Date parseStringToDate(final String dateToParse) {
         String parsedDateString;
 
         if (StringTools.isNotValidString(dateToParse)) {

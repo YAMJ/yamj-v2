@@ -289,11 +289,9 @@ public class MovieJukeboxHTMLWriter {
     /**
      * Remove blank lines from the file
      *
-     * The PCH does not like blank lines in the playlist.jsp files, so this
-     * routine will remove them <br>
-     * This routine is only called for the base playlist as this is transformed
-     * with the playlist.xsl file and therefore could end up with blank lines in
-     * it
+     * The PCH does not like blank lines in the playlist.jsp files, so this routine will remove them <br>
+     * This routine is only called for the base playlist as this is transformed with the playlist.xsl file and therefore could end
+     * up with blank lines in it
      *
      * @param filename
      */
@@ -301,8 +299,7 @@ public class MovieJukeboxHTMLWriter {
         StringBuilder sb = new StringBuilder();
 
         try (FileReader inFile = new FileReader(filename);
-             BufferedReader reader = new BufferedReader(inFile))
-        {
+                BufferedReader reader = new BufferedReader(inFile)) {
             String br;
 
             while ((br = reader.readLine()) != null) {
@@ -323,8 +320,8 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Generate playlist with old simple method. The playlist is to be used for
-     * playing episodes starting from each episode separately.
+     * Generate playlist with old simple method. The playlist is to be used for playing episodes starting from each episode
+     * separately.
      *
      * @param rootPath
      * @param tempRootPath
@@ -482,10 +479,10 @@ public class MovieJukeboxHTMLWriter {
             File htmlFile = new File(jukebox.getJukeboxTempLocation(), PropertiesUtil.getProperty("mjb.indexFile", "index.htm"));
             FileTools.makeDirsForFile(htmlFile);
 
-            fos = FileTools.createFileOutputStream(htmlFile); 
+            fos = FileTools.createFileOutputStream(htmlFile);
             XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
             writer = outputFactory.createXMLStreamWriter(fos, "UTF-8");
-            
+
             String homePage = PropertiesUtil.getProperty("mjb.homePage", "");
             if (homePage.length() == 0) {
                 String defCat = library.getDefaultCategory();
@@ -698,8 +695,7 @@ public class MovieJukeboxHTMLWriter {
     }
 
     /**
-     * Try to safely perform the transformation. Will retry up to maxRetryCount
-     * times before throwing the error
+     * Try to safely perform the transformation. Will retry up to maxRetryCount times before throwing the error
      *
      * @param transformer
      * @param xmlSource
@@ -707,7 +703,7 @@ public class MovieJukeboxHTMLWriter {
      * @param message Message to print if there is an error
      * @throws Exception
      */
-    private static void doTransform(Transformer transformer, Source xmlSource, Result xmlResult, String message) throws RuntimeException {
+    private static void doTransform(Transformer transformer, Source xmlSource, Result xmlResult, String message) {
         int retryCount = 0;
 
         do {
@@ -721,7 +717,7 @@ public class MovieJukeboxHTMLWriter {
                     // We've exceeded the maximum number of retries, so throw the exception and quit
                     throw new RuntimeException("Failed generating HTML, retries exceeded: " + ex.getMessage(), ex);
                 }
-                
+
                 LOG.debug("Failed generating HTML, will retry {} more time{}. {}", retryTimes, (retryTimes == 1 ? "" : "s"), message);
                 try {
                     Thread.sleep(500);  // Sleep for 1/2 second to hopefully let the issue go away

@@ -190,7 +190,7 @@ public class BDRipScanner {
         }
     }
 
-    public BDPlaylistInfo getBDPlaylistInfo(String filePath) throws FileNotFoundException, IOException {
+    public BDPlaylistInfo getBDPlaylistInfo(String filePath) throws IOException {
 
         BDPlaylistInfo ret = new BDPlaylistInfo();
         ret.duration = 0;

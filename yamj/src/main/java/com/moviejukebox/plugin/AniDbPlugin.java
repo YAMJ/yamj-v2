@@ -1900,7 +1900,7 @@ class AnidbTvdbEpisodeMapping {
     private AnidbTvdbMapping mapping;
 
     public AnidbTvdbEpisodeMapping() {
-                // Create blank mapping
+        // Create blank mapping
     }
 
     public AnidbTvdbEpisodeMapping(int anidbSeason, int anidbEpisodeNumber, int tvdbSeason, int tvdbEpisodeNumber, AnidbTvdbMapping mapping) {
