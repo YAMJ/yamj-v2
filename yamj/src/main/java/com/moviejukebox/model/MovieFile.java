@@ -76,39 +76,34 @@ public class MovieFile implements Comparable<MovieFile> {
     // checks
     private static final int MAX_LENGTH_EPISODE_PLOT = PropertiesUtil.getReplacedIntProperty("movie.episodeplot.maxLength", "plugin.plot.maxlength", 500);
 
-    private static final Map<String, Pattern> TYPE_SUFFIX_MAP = new HashMap<String, Pattern>() {
-        private static final long serialVersionUID = 1247815606593469672L;
+    private static final Map<String, Pattern> TYPE_SUFFIX_MAP = initTypeSuffixMap();
 
-        {
-            String scannerTypes = PropertiesUtil.getProperty("filename.scanner.types", "ZCD,VOD");
+    private static Map<String, Pattern> initTypeSuffixMap() {
+        Map<String, Pattern> typeSuffixMap = new HashMap<>();
+        String scannerTypes = PropertiesUtil.getProperty("filename.scanner.types", "ZCD,VOD");
 
-            Map<String, String> scannerTypeDefaults = new HashMap<String, String>() {
-                private static final long serialVersionUID = -6480597100092105116L;
+        Map<String, String> scannerTypeDefaults = new HashMap<>();
+        scannerTypeDefaults.put("ZCD", "ISO,IMG,VOB,MDF,NRG,BIN");
+        scannerTypeDefaults.put("VOD", "");
+        scannerTypeDefaults.put("RAR", "RAR");
 
-                {
-                    put("ZCD", "ISO,IMG,VOB,MDF,NRG,BIN");
-                    put("VOD", "");
-                    put("RAR", "RAR");
-                }
-            };
-
-            for (String s : scannerTypes.split(",")) {
-                // Set the default the long way to allow 'keyword.???=' to blank the value instead of using default
-                String mappedScannerTypes = PropertiesUtil.getProperty("filename.scanner.types." + s, null);
-                if (null == mappedScannerTypes) {
-                    mappedScannerTypes = scannerTypeDefaults.get(s);
-                }
-
-                StringBuilder patt = new StringBuilder(s);
-                if (null != mappedScannerTypes && mappedScannerTypes.length() > 0) {
-                    for (String t : mappedScannerTypes.split(",")) {
-                        patt.append("|").append(t);
-                    }
-                }
-                put(s, MovieFilenameScanner.iwpatt(patt.toString()));
+        for (String s : scannerTypes.split(",")) {
+            // Set the default the long way to allow 'keyword.???=' to blank the value instead of using default
+            String mappedScannerTypes = PropertiesUtil.getProperty("filename.scanner.types." + s, null);
+            if (null == mappedScannerTypes) {
+                mappedScannerTypes = scannerTypeDefaults.get(s);
             }
+
+            StringBuilder patt = new StringBuilder(s);
+            if (null != mappedScannerTypes && mappedScannerTypes.length() > 0) {
+                for (String t : mappedScannerTypes.split(",")) {
+                    patt.append("|").append(t);
+                }
+            }
+            typeSuffixMap.put(s, MovieFilenameScanner.iwpatt(patt.toString()));
         }
-    };
+        return typeSuffixMap;
+    }
 
     @XmlElement(name = "fileURL")
     public String getFilename() {
@@ -246,14 +241,12 @@ public class MovieFile implements Comparable<MovieFile> {
     public void setVideoImageFilename(int part, String videoImageFilename) {
         if (StringUtils.isBlank(videoImageFilename)) {
             this.videoImageFilename.put(part, Movie.UNKNOWN);
-        } else {
-            // create the directory hash if needed
-            if (DIR_HASH) {
+        } else // create the directory hash if needed
+         if (DIR_HASH) {
                 this.videoImageFilename.put(part, FileTools.createDirHash(videoImageFilename));
             } else {
                 this.videoImageFilename.put(part, videoImageFilename);
             }
-        }
     }
 
     public String getOverrideSource(OverrideFlag overrideFlag) {
@@ -605,7 +598,9 @@ public class MovieFile implements Comparable<MovieFile> {
     }
 
     public void setFirstAired(int part, String airDate, String source) {
-        if (StringTools.isNotValidString(airDate)) return;
+        if (StringTools.isNotValidString(airDate)) {
+            return;
+        }
 
         String parseDate = DateTimeTools.parseDateToString(airDate);
 
