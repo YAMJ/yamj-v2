@@ -31,6 +31,11 @@ import java.util.Map;
 public class ExtraFile extends MovieFile {
 
     public ExtraFile() {
+        /*
+        Create empty extra file.
+        Must be populated by calling method
+         */
+
     }
 
     public ExtraFile(MovieFile mf) {

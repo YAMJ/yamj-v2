@@ -1159,9 +1159,6 @@ class AnidbLocalFile {
     @DatabaseField(index = true, columnName = LAST_SEEN_COLUMN_NAME)
     private Date lastSeen; // Date this file was last seen, to allow periodic cleanup of stale records
 
-    public AnidbLocalFile() {
-    }
-
     public int getId() {
         return id;
     }
@@ -1235,6 +1232,7 @@ class AnidbFile {
     private Date retrieved; // We should be able to periodically recheck the anidb information
 
     public AnidbFile() {
+        // Create empty file.
     }
 
     public AnidbFile(net.anidb.File file) {
@@ -1366,6 +1364,7 @@ class AnidbEpisode {
     private Date retrieved; // We should be able to periodically recheck the anidb information
 
     public AnidbEpisode() {
+        // Create blank episode
     }
 
     public AnidbEpisode(Episode ep) {
@@ -1786,9 +1785,6 @@ class AnidbTableInfo {
     @DatabaseField()
     private Date lastAnidbDataDumpDownload;
 
-    public AnidbTableInfo() {
-    }
-
     public int getVersion() {
         return version;
     }
@@ -1836,6 +1832,7 @@ class AnidbTvdbMapping {
     private ForeignCollection<AnidbTvdbEpisodeMapping> mappings;
 
     public AnidbTvdbMapping() {
+        // Create blank mapping
     }
 
     public AnidbTvdbMapping(long anidbId, long tvdbId) {
@@ -1903,6 +1900,7 @@ class AnidbTvdbEpisodeMapping {
     private AnidbTvdbMapping mapping;
 
     public AnidbTvdbEpisodeMapping() {
+                // Create blank mapping
     }
 
     public AnidbTvdbEpisodeMapping(int anidbSeason, int anidbEpisodeNumber, int tvdbSeason, int tvdbEpisodeNumber, AnidbTvdbMapping mapping) {

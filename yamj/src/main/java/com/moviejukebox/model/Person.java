@@ -68,6 +68,10 @@ public class Person extends Filmography {
     private final FilmographyDateComparator filmographyCmp = new FilmographyDateComparator(sortFilmographyAsc);
 
     public Person() {
+        /*
+        Create blank person.
+        Must be populated by calling method
+         */
     }
 
     public Person(Filmography person) {

@@ -28,14 +28,15 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 public class Image implements IImage {
 
     public static final IImage UNKNOWN = new Image();
-    private String url = Movie.UNKNOWN;
-    private String subimage = Movie.UNKNOWN;
+    private String url;
+    private String subimage;
 
     public Image() {
+        this(Movie.UNKNOWN, Movie.UNKNOWN);
     }
 
     public Image(String url) {
-        this.url = url;
+        this(url, Movie.UNKNOWN);
     }
 
     public Image(String url, String subimage) {

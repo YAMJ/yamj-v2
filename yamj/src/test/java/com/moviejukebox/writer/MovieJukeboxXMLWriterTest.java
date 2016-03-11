@@ -52,6 +52,7 @@ public class MovieJukeboxXMLWriterTest extends AbstractTests {
     private static final Logger LOG = LoggerFactory.getLogger(MovieJukeboxXMLWriterTest.class);
 
     public MovieJukeboxXMLWriterTest() {
+        // Nothing to do here
     }
 
     @BeforeClass

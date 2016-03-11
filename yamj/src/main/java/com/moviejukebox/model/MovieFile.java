@@ -119,7 +119,7 @@ public class MovieFile implements Comparable<MovieFile> {
         return archiveName;
     }
 
-    public void setFilename(String filename) {
+    public final void setFilename(String filename) {
         this.filename = filename;
     }
 
@@ -144,7 +144,7 @@ public class MovieFile implements Comparable<MovieFile> {
         }
     }
 
-    public void setTitle(String title) {
+    public final void setTitle(String title) {
         setTitle(firstPart, title, Movie.UNKNOWN);
     }
 
@@ -279,7 +279,7 @@ public class MovieFile implements Comparable<MovieFile> {
         return lastPart;
     }
 
-    public void setPart(int part) {
+    public final void setPart(int part) {
         firstPart = lastPart = part;
     }
 
@@ -331,7 +331,7 @@ public class MovieFile implements Comparable<MovieFile> {
         return newFile;
     }
 
-    public void setNewFile(boolean newFile) {
+    public final void setNewFile(boolean newFile) {
         this.newFile = newFile;
     }
 
@@ -402,7 +402,7 @@ public class MovieFile implements Comparable<MovieFile> {
         return file;
     }
 
-    public void setFile(File file) {
+    public final void setFile(File file) {
         this.file = file;
     }
 

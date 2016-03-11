@@ -41,8 +41,7 @@ import com.moviejukebox.tools.FileTools;
 /**
  * This is the new bean for the Person
  *
- * @author ilgizar Initial code copied from
- * com.moviejukebox.themoviedb.model.Filmography
+ * @author ilgizar Initial code copied from com.moviejukebox.themoviedb.model.Filmography
  *
  */
 public class Filmography implements Identifiable {
@@ -154,14 +153,14 @@ public class Filmography implements Identifiable {
         return isDirty;
     }
 
-    public void setUrl(String url) {
+    public final void setUrl(String url) {
         if (isValidString(url) && !this.url.equalsIgnoreCase(url)) {
             this.url = url;
             setDirty();
         }
     }
 
-    public void setName(String name) {
+    public final void setName(String name) {
         if (isValidString(name) && !this.name.equalsIgnoreCase(name.trim())) {
             this.name = name.trim();
 
@@ -177,7 +176,7 @@ public class Filmography implements Identifiable {
         }
     }
 
-    public void setTitle(String title) {
+    public final void setTitle(String title) {
         if (isValidString(title) && !this.title.equalsIgnoreCase(title.trim())) {
             this.title = title.trim();
             setDirty();
@@ -194,7 +193,7 @@ public class Filmography implements Identifiable {
         }
     }
 
-    public void setFilename(String filename) {
+    public final void setFilename(String filename) {
         if (isValidString(filename) && !this.filename.equals(FileTools.makeSafeFilename(filename))) {
             this.filename = FileTools.makeSafeFilename(filename);
             setDirty();
@@ -214,14 +213,14 @@ public class Filmography implements Identifiable {
         }
     }
 
-    public void setDepartment(String department) {
+    public final void setDepartment(String department) {
         if (isValidString(department) && !this.department.equalsIgnoreCase(department)) {
             this.department = department;
             setDirty();
         }
     }
 
-    public void setCharacter(final String character) {
+    public final void setCharacter(final String character) {
         // Remove duplicate spaces and trim
         String newCharacter = StringUtils.normalizeSpace(character);
 
@@ -231,14 +230,14 @@ public class Filmography implements Identifiable {
         }
     }
 
-    public void setJob(String job) {
+    public final void setJob(String job) {
         if (isValidString(job) && !this.job.equalsIgnoreCase(job)) {
             this.job = job;
             setDirty();
         }
     }
 
-    public void setRating(String rating) {
+    public final void setRating(String rating) {
         if (isValidString(rating) && !this.rating.equalsIgnoreCase(rating)) {
             this.rating = rating;
             setDirty();
@@ -253,7 +252,7 @@ public class Filmography implements Identifiable {
         this.isDirty = isDirty;
     }
 
-    public void setIdMap(Map<String, String> idMap) {
+    public final void setIdMap(Map<String, String> idMap) {
         this.idMap = idMap;
         setDirty();
     }
@@ -279,7 +278,7 @@ public class Filmography implements Identifiable {
         return order;
     }
 
-    public void setCastId(int castId) {
+    public final void setCastId(int castId) {
         if (this.castId != castId) {
             this.castId = castId;
             setDirty();
@@ -295,7 +294,7 @@ public class Filmography implements Identifiable {
         }
     }
 
-    public void setOrder(int order) {
+    public final void setOrder(int order) {
         if (this.order != order) {
             this.order = order;
             setDirty();
@@ -315,7 +314,7 @@ public class Filmography implements Identifiable {
         return doublage;
     }
 
-    public void setDoublage(String name) {
+    public final void setDoublage(String name) {
         if (isValidString(name) && !doublage.equalsIgnoreCase(name)) {
             doublage = name;
             setDirty();
@@ -327,7 +326,7 @@ public class Filmography implements Identifiable {
         return isScrapeLibrary;
     }
 
-    public void setScrapeLibrary(boolean isScrapeLibrary) {
+    public final void setScrapeLibrary(boolean isScrapeLibrary) {
         this.isScrapeLibrary = isScrapeLibrary;
     }
 
@@ -335,7 +334,7 @@ public class Filmography implements Identifiable {
         setScrapeLibrary(true);
     }
 
-    public void setYear(String year) {
+    public final void setYear(String year) {
         if (isValidString(year) && !this.year.equalsIgnoreCase(year)) {
             this.year = year;
             setDirty();
@@ -370,14 +369,14 @@ public class Filmography implements Identifiable {
         return photoFilename;
     }
 
-    public void setPhotoURL(String url) {
+    public final void setPhotoURL(String url) {
         if (isValidString(url) && !photoURL.equalsIgnoreCase(url)) {
             photoURL = url;
             setDirty();
         }
     }
 
-    public void setPhotoFilename(String filename) {
+    public final void setPhotoFilename(String filename) {
         if (isValidString(filename) && !this.photoFilename.equalsIgnoreCase(FileTools.makeSafeFilename(filename))) {
             this.photoFilename = FileTools.makeSafeFilename(filename);
             setDirty();
@@ -402,7 +401,7 @@ public class Filmography implements Identifiable {
         return isDirtyPhoto;
     }
 
-    public void setDirtyPhoto(boolean isDirty) {
+    public final void setDirtyPhoto(boolean isDirty) {
         if (isDirtyPhoto != isDirty) {
             isDirtyPhoto = isDirty;
             setDirty();

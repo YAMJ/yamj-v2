@@ -27,6 +27,8 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class AspectRatioTools {
 
@@ -155,8 +157,7 @@ public class AspectRatioTools {
     }
 
     /**
-     * Populate the aspect list with the values These are static values because
-     * calculated values give slight wrong figures
+     * Populate the aspect list with the values These are static values because calculated values give slight wrong figures
      *
      * @param aspectList
      */
@@ -241,6 +242,7 @@ public class AspectRatioTools {
          * Default constructor
          */
         public AspectRatio() {
+            this("", 0F, 0F, 0F, 0F, 0F);
         }
 
         /**
@@ -303,20 +305,7 @@ public class AspectRatioTools {
 
         @Override
         public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("ratioName=");
-            builder.append(ratioName);
-            builder.append(", minFloat=");
-            builder.append(minFloat);
-            builder.append(", maxFloat=");
-            builder.append(maxFloat);
-            builder.append(", ratio3digit=");
-            builder.append(ratio3digit);
-            builder.append(", ratio2digit=");
-            builder.append(ratio2digit);
-            builder.append(", ratio1digit=");
-            builder.append(ratio1digit);
-            return builder.toString();
+            return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
         }
     }
 }

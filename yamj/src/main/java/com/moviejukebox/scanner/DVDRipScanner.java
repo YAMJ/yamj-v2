@@ -58,9 +58,6 @@ public class DVDRipScanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(DVDRipScanner.class);
 
-    public DVDRipScanner() {
-    }
-
     public FilePropertiesMovie executeGetDVDInfo(File mediaRep) {
         try {
 

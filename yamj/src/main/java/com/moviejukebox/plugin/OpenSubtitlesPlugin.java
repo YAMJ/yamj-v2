@@ -81,9 +81,6 @@ public class OpenSubtitlesPlugin {
         }
     }
 
-    public OpenSubtitlesPlugin() {
-    }
-
     /**
      * Login to OpenSubtitles
      */
@@ -205,18 +202,16 @@ public class OpenSubtitlesPlugin {
                             movie.setDirty(DirtyFlag.INFO, Boolean.TRUE);
                             mf.setSubtitlesExchange(Boolean.TRUE);
                         }
-                    } else {
-                        if (!mf.isSubtitlesExchange()) {
-                            File[] movieFileArray = new File[1];
-                            File[] subtitleFileArray = new File[1];
+                    } else if (!mf.isSubtitlesExchange()) {
+                        File[] movieFileArray = new File[1];
+                        File[] subtitleFileArray = new File[1];
 
-                            movieFileArray[0] = mf.getFile();
-                            subtitleFileArray[0] = subtitleFile;
+                        movieFileArray[0] = mf.getFile();
+                        subtitleFileArray[0] = subtitleFile;
 
-                            if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == Boolean.TRUE) {
-                                movie.setDirty(DirtyFlag.INFO, Boolean.TRUE);
-                                mf.setSubtitlesExchange(Boolean.TRUE);
-                            }
+                        if (subtitleUpload(movie, movieFileArray, subtitleFileArray) == Boolean.TRUE) {
+                            movie.setDirty(DirtyFlag.INFO, Boolean.TRUE);
+                            mf.setSubtitlesExchange(Boolean.TRUE);
                         }
                     }
                 }
@@ -297,7 +292,7 @@ public class OpenSubtitlesPlugin {
             URL url = new URL(subDownloadLink);
             HttpURLConnection connection = (HttpURLConnection) (url.openConnection(YamjHttpClientBuilder.getProxy()));
             connection.setRequestProperty("Connection", "Close");
-            
+
             try (InputStream inputStream = connection.getInputStream()) {
                 int code = connection.getResponseCode();
                 if (code != HttpURLConnection.HTTP_OK) {
@@ -305,8 +300,7 @@ public class OpenSubtitlesPlugin {
                     return Boolean.FALSE;
                 }
                 try (GZIPInputStream inStream = new GZIPInputStream(inputStream);
-                     FileOutputStream outStream = new FileOutputStream(subtitleFile)) 
-                {
+                        FileOutputStream outStream = new FileOutputStream(subtitleFile)) {
                     FileTools.copy(new GZIPInputStream(inputStream), new FileOutputStream(subtitleFile));
                 }
             } finally {
@@ -371,10 +365,9 @@ public class OpenSubtitlesPlugin {
                 MessageDigest md = MessageDigest.getInstance("MD5");
                 md.update(s);
                 subhash[i] = hashstring(md.digest());
-                
+
                 try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                     DeflaterOutputStream deflaterOS = new DeflaterOutputStream(baos))
-                {
+                        DeflaterOutputStream deflaterOS = new DeflaterOutputStream(baos)) {
                     deflaterOS.write(s);
                     deflaterOS.finish();
                     subcontent[i] = tuBase64(baos.toByteArray());
@@ -533,7 +526,7 @@ public class OpenSubtitlesPlugin {
                 str.append(in.nextLine());
             }
         }
-        
+
         ((HttpURLConnection) connection).disconnect();
 
         return str.toString();
