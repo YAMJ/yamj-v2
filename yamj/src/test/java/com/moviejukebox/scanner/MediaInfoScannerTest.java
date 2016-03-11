@@ -92,13 +92,13 @@ public class MediaInfoScannerTest extends AbstractTests {
         int counter = 1;
         for (Map<String, String> codecInfo : infosVideo) {
             codec = MI_TEST.getCodecInfo(CodecType.VIDEO, codecInfo);
-            System.out.println(counter++ + " = " + codec.toString());
+            LOG.info(counter++ + " = " + codec.toString());
         }
 
         counter = 1;
         for (Map<String, String> codecInfo : infosAudio) {
             codec = MI_TEST.getCodecInfo(CodecType.AUDIO, codecInfo);
-            System.out.println(counter++ + " = " + codec.toString());
+            LOG.info(counter++ + " = " + codec.toString());
         }
 
         getMediaInfoTestFile("AVI_DTS_MA_7.1.AVI.txt", true);
@@ -106,13 +106,13 @@ public class MediaInfoScannerTest extends AbstractTests {
         counter = 1;
         for (Map<String, String> codecInfo : infosVideo) {
             codec = MI_TEST.getCodecInfo(CodecType.VIDEO, codecInfo);
-            System.out.println(counter++ + " = " + codec.toString());
+            LOG.info(counter++ + " = " + codec.toString());
         }
 
         counter = 1;
         for (Map<String, String> codecInfo : infosAudio) {
             codec = MI_TEST.getCodecInfo(CodecType.AUDIO, codecInfo);
-            System.out.println(counter++ + " = " + codec.toString());
+            LOG.info(counter++ + " = " + codec.toString());
         }
     }
 

@@ -292,7 +292,7 @@ public class MovieFilenameScannerTest extends AbstractTests {
         assertEquals("This should be -1 as it is not a TV Show", -1, d.getSeason());
 
         d = scan("Le Seigneur des anneaux le retour du roi [SET Le seigneur des anneaux-3] - 720p.bluray.x264.mkv");
-        System.err.println(d.getSets());
+        LOG.info("Sets: {}", d.getSets());
     }
 
     @Test

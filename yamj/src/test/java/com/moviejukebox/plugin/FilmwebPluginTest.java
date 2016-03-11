@@ -194,7 +194,7 @@ public class FilmwebPluginTest extends AbstractTests {
         Movie movie = new Movie();
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/Ojciec.Chrzestny");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
-        System.err.println(movie.getRating(FilmwebPlugin.FILMWEB_PLUGIN_ID));
+        LOG.info("Movie Rating: {}", movie.getRating(FilmwebPlugin.FILMWEB_PLUGIN_ID));
         assertEquals(87, movie.getRating(FilmwebPlugin.FILMWEB_PLUGIN_ID));
     }
 

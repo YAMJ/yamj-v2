@@ -107,7 +107,6 @@ public class MovieJukeboxXMLWriterTest extends AbstractTests {
     @Ignore("Need to write test")
     public void testParsePersonXML() {
         LOG.info("ParsePersonXML");
-        System.out.println("parsePersonXML");
         File xmlFile = null;
         Person person = null;
         MovieJukeboxXMLReader instance = new MovieJukeboxXMLReader();

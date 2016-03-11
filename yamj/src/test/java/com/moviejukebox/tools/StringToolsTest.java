@@ -265,7 +265,7 @@ public class StringToolsTest extends AbstractTests {
      */
     @Test
     public void testGetWords() {
-        System.out.println("getWords");
+        LOG.info("getWords");
         String result = StringTools.getWords("This is a test sentance", 2);
         assertEquals("This is", result);
 
