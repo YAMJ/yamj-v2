@@ -124,7 +124,7 @@ public class AppleTrailersPlugin extends TrailerPlugin {
             } else {
                 // Just link to the trailer
                 int underscore = trailerRealUrl.lastIndexOf('_');
-                if (underscore > 0 && trailerRealUrl.substring(underscore + 1, underscore + 2).equals("h")) {
+                if (underscore > 0 && "h".equals(trailerRealUrl.substring(underscore + 1, underscore + 2))) {
                     // remove the "h" from the trailer URL for streaming
                     trailerRealUrl = trailerRealUrl.substring(0, underscore + 1) + trailerRealUrl.substring(underscore + 2);
                 }

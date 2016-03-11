@@ -99,8 +99,7 @@ public final class MovieNFOReader {
     /**
      * Try and read a NFO file for information
      *
-     * First try as XML format file, then check to see if it contains XML and
-     * text and split it to read each part
+     * First try as XML format file, then check to see if it contains XML and text and split it to read each part
      *
      * @param nfoFile
      * @param movie
@@ -191,8 +190,7 @@ public final class MovieNFOReader {
     /**
      * Used to parse out the XML NFO data from a file.
      *
-     * This is generic for movie and TV show files as they are both nearly
-     * identical.
+     * This is generic for movie and TV show files as they are both nearly identical.
      *
      * @param nfoFile
      * @param movie
@@ -703,7 +701,7 @@ public final class MovieNFOReader {
             return;
         }
 
-        Date parsedDate = null;
+        Date parsedDate;
         try {
             parsedDate = DateTimeTools.parseStringToDate(parseDate);
         } catch (IllegalArgumentException ex) {
@@ -799,7 +797,7 @@ public final class MovieNFOReader {
                     nElement = nlCast.item(looper);
                     if (nElement.getNodeType() == Node.ELEMENT_NODE) {
                         Element eCast = (Element) nElement;
-                        if (eCast.getNodeName().equalsIgnoreCase("name")) {
+                        if ("name".equalsIgnoreCase(eCast.getNodeName())) {
                             if (firstActor) {
                                 firstActor = Boolean.FALSE;
                             } else {
@@ -829,9 +827,9 @@ public final class MovieNFOReader {
                             aName = eCast.getTextContent();
                             aRole = Movie.UNKNOWN;
                             aThumb = Movie.UNKNOWN;
-                        } else if (eCast.getNodeName().equalsIgnoreCase("role") && StringUtils.isNotBlank(eCast.getTextContent())) {
+                        } else if ("role".equalsIgnoreCase(eCast.getNodeName()) && StringUtils.isNotBlank(eCast.getTextContent())) {
                             aRole = eCast.getTextContent();
-                        } else if (eCast.getNodeName().equalsIgnoreCase("thumb") && StringUtils.isNotBlank(eCast.getTextContent())) {
+                        } else if ("thumb".equalsIgnoreCase(eCast.getNodeName()) && StringUtils.isNotBlank(eCast.getTextContent())) {
                             // thumb will be skipped if there's nothing in there
                             aThumb = eCast.getTextContent();
                         }

@@ -1126,22 +1126,22 @@ public class SratimPlugin extends ImdbPlugin {
         String bestID;
 
         // Check for exact file name match
-        if (!bestFileID.equals("")) {
+        if(StringUtils.isNotBlank(bestFileID)){
             LOG.debug("Best Filename");
             bestID = bestFileID;
         } else if (maxMatch >= matchThreshold) {
             // Check for text similarity match, similarity threshold takes precedence over FPS check
             LOG.debug("Best Text Similarity threshold");
             bestID = bestSimilar;
-        } else if (!bestBlurayFPSID.equals("")) {
+        } else if (StringUtils.isNotBlank(bestBlurayFPSID)) {
             // Check for bluray match
             LOG.debug("Best Bluray FPS");
             bestID = bestBlurayFPSID;
-        } else if (!bestBlurayID.equals("")) {
+        } else if (StringUtils.isNotBlank(bestBlurayID)) {
             // Check for bluray match
             LOG.debug("Best Bluray");
             bestID = bestBlurayID;
-        } else if (!bestFPSID.equals("")) {
+        } else if (StringUtils.isNotBlank(bestFPSID)) {
             // Check for fps match
             LOG.debug("Best FPS");
             bestID = bestFPSID;
@@ -1182,7 +1182,7 @@ public class SratimPlugin extends ImdbPlugin {
             LOG.debug("contentType: {}", contentType);
 
             // Check that the content is zip and that the site did not blocked the download
-            if (!contentType.equals("application/octet-stream")) {
+            if (!"application/octet-stream".equals(contentType)) {
                 LOG.error("********** Error - Sratim subtitle download limit may have been reached. Suspending subtitle download.");
 
                 subtitleDownload = false;

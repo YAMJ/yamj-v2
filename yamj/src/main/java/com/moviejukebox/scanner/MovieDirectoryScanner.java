@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,7 +140,7 @@ public class MovieDirectoryScanner {
         } else {
 
             // skip this directory if it is the nmj_database
-            if (nmjCompliant && directory.getName().equalsIgnoreCase("nmj_database")) {
+            if (nmjCompliant && "nmj_database".equalsIgnoreCase(directory.getName())) {
                 LOG.debug("Scanning of directory {} skipped due nmj database", directory.getAbsolutePath());
                 return;
             }
@@ -159,18 +160,18 @@ public class MovieDirectoryScanner {
                 // Prescan files list. Ignore directory if file with predefined name is found.
                 // TODO May be read the file and exclude files by mask (similar to .cvsignore)
                 for (File file : files) {
-                    if (file.getName().equalsIgnoreCase(".mjbignore")) {
+                    if (".mjbignore".equalsIgnoreCase(file.getName())) {
                         LOG.debug("Scanning of directory {} skipped due to override file", directory.getAbsolutePath());
                         return;
                     }
 
                     if (nmjCompliant) {
                         // also check for .no_all.nmj and .no_video.nmj and the
-                        if (file.getName().equalsIgnoreCase(".no_all.nmj")) {
+                        if (".no_all.nmj".equalsIgnoreCase(file.getName())) {
                             LOG.debug("Scanning of directory {} skipped due to nmj all override file", directory.getAbsolutePath());
                             return;
                         }
-                        if (file.getName().equalsIgnoreCase(".no_video.nmj")) {
+                        if (".no_video.nmj".equalsIgnoreCase(file.getName())) {
                             LOG.debug("Scanning of directory {} skipped due to nmj video override file", directory.getAbsolutePath());
                             return;
                         }
@@ -182,9 +183,9 @@ public class MovieDirectoryScanner {
 
                 for (File file : fileList) {
                     if (!isFiltered(srcPath, file)) {
-                        if (file.isDirectory() && file.getName().equalsIgnoreCase("VIDEO_TS")) {
+                        if (file.isDirectory() && "VIDEO_TS".equalsIgnoreCase(file.getName())) {
                             scanFile(srcPath, file.getParentFile(), collection);
-                        } else if (file.isDirectory() && file.getName().equalsIgnoreCase("BDMV")) {
+                        } else if (file.isDirectory() && "BDMV".equalsIgnoreCase(file.getName())) {
                             scanFile(srcPath, file.getParentFile(), collection);
                         } else if (file.isDirectory()) {
                             scanDirectory(srcPath, file, collection);
@@ -223,7 +224,8 @@ public class MovieDirectoryScanner {
             }
 
             // Exclude files without external subtitles
-            if (opensubtitles.equals("")) { // We are not downloading subtitles, so exclude those that don't have any.
+            if (StringUtils.isBlank(opensubtitles)) { 
+                // We are not downloading subtitles, so exclude those that don't have any.
                 if (excludeFilesWithoutExternalSubtitles && !hasSubtitles(file)) {
                     LOG.info("File {} excluded. (no external subtitles)", filename);
                     return true;
@@ -421,7 +423,7 @@ public class MovieDirectoryScanner {
                 }
 
                 // Pretend that HDDVD is also BluRay
-                if (!movie.getVideoSource().equalsIgnoreCase("HDDVD")) {
+                if (!"HDDVD".equalsIgnoreCase(movie.getVideoSource())) {
                     movie.setFormatType(Movie.TYPE_BLURAY);
                     if (OverrideTools.checkOverwriteContainer(movie, SOURCE_FILENAME)) {
                         movie.setContainer("BluRay", SOURCE_FILENAME);

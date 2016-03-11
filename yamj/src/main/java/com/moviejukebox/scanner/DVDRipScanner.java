@@ -64,7 +64,7 @@ public class DVDRipScanner {
             // Gets the path...
             File selectedFile = mediaRep;
 
-            if (selectedFile.getName().equalsIgnoreCase("AUDIO_TS") || selectedFile.getName().equalsIgnoreCase("VIDEO_TS")) { //$NON-NLS-1$
+            if ("AUDIO_TS".equalsIgnoreCase(selectedFile.getName()) || "VIDEO_TS".equalsIgnoreCase(selectedFile.getName())) { //$NON-NLS-1$
                 selectedFile = selectedFile.getParentFile();
             }
 
@@ -72,11 +72,11 @@ public class DVDRipScanner {
 
             String videoTS = "";
 
-            for (int i = 0; i < list.length && !videoTS.equalsIgnoreCase("VIDEO_TS"); i++) {
+            for (int i = 0; i < list.length && !"VIDEO_TS".equalsIgnoreCase(videoTS); i++) {
                 videoTS = list[i].getName();
             }
 
-            if (!videoTS.equalsIgnoreCase("VIDEO_TS")) {
+            if (!"VIDEO_TS".equalsIgnoreCase(videoTS)) {
                 return null;
             }
 

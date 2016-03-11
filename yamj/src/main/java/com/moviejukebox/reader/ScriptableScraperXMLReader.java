@@ -52,7 +52,7 @@ import com.moviejukebox.tools.SystemTools;
 public class ScriptableScraperXMLReader {
 
     private static final Logger LOG = LoggerFactory.getLogger(ScriptableScraperXMLReader.class);
-    private static final List<String> subsections = Arrays.asList("if", "loop");
+    private static final List<String> SUBSECTIONS = Arrays.asList("if", "loop");
 
     public Element getElementByName(Element inData, String name) {
         NodeList nlData = inData.getElementsByTagName(name);
@@ -181,12 +181,12 @@ public class ScriptableScraperXMLReader {
         for (looper = 0; looper < nlElements.getLength(); looper++) {
             nElement = nlElements.item(looper);
             eName = nElement.getNodeName();
-            if (eName.equals("set")) {
+            if ("set".equals(eName)) {
                 resSection.setSet(
                         getAttribute(nElement, "name"),
                         hasAttribute(nElement, "value") ? getAttribute(nElement, "value") : nElement.getTextContent().trim().replaceAll("^\\s+", "")
                 );
-            } else if (eName.equals("retrieve")) {
+            } else if ("retrieve".equals(eName)) {
                 resSection.setRetrieve(
                         getAttribute(nElement, "name"),
                         getAttribute(nElement, "url"),
@@ -195,20 +195,20 @@ public class ScriptableScraperXMLReader {
                         hasAttribute(nElement, "timeout_increment") ? Integer.parseInt(getAttribute(nElement, "timeout_increment")) : -1,
                         hasAttribute(nElement, "cookies") ? getAttribute(nElement, "cookies") : ""
                 );
-            } else if (eName.equals("parse")) {
+            } else if ("parse".equals(eName)) {
                 resSection.setParse(
                         getAttribute(nElement, "name"),
                         getAttribute(nElement, "input"),
                         hasAttribute(nElement, "regex") ? escapeRegex(getAttribute(nElement, "regex")) : ""
                 );
-            } else if (eName.equals("replace")) {
+            } else if ("replace".equals(eName)) {
                 resSection.setReplace(
                         getAttribute(nElement, "name"),
                         getAttribute(nElement, "input"),
                         getAttribute(nElement, "pattern"),
                         getAttribute(nElement, "with")
                 );
-            } else if (eName.equals("add") || eName.equals("subtract") || eName.equals("multiply") || eName.equals("divide")) {
+            } else if ("add".equals(eName) || "subtract".equals(eName) || "multiply".equals(eName) || "divide".equals(eName)) {
                 resSection.setMath(
                         getAttribute(nElement, "name"),
                         eName,
@@ -216,9 +216,9 @@ public class ScriptableScraperXMLReader {
                         getAttribute(nElement, "value2"),
                         getAttribute(nElement, "result_type")
                 );
-            } else if (subsections.contains(eName)) {
+            } else if (SUBSECTIONS.contains(eName)) {
                 fillSection(ssData, resSection, nElement, eName);
-            } else if (eName.equals("#text") || eName.equals("#comment")) {
+            } else if ("#text".equals(eName) || "#comment".equals(eName)) {
                 // nothing to do
             } else {
                 LOG.error("Unknown section: {}", eName);

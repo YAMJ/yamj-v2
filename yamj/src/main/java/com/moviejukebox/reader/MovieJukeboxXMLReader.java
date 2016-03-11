@@ -534,9 +534,9 @@ public class MovieJukeboxXMLReader {
                             nCountry = eBusiness.getChildNodes().item(loopBus);
                             if (nCountry.getNodeType() == Node.ELEMENT_NODE) {
                                 Element eCountry = (Element) nCountry;
-                                if (eCountry.getNodeName().equalsIgnoreCase("gross")) {
+                                if ("gross".equalsIgnoreCase(eCountry.getNodeName())) {
                                     movie.setGross(eCountry.getAttribute(COUNTRY), eCountry.getTextContent());
-                                } else if (eCountry.getNodeName().equalsIgnoreCase("openweek")) {
+                                } else if ("openweek".equalsIgnoreCase(eCountry.getNodeName())) {
                                     movie.setOpenWeek(eCountry.getAttribute(COUNTRY), eCountry.getTextContent());
                                 }
                             }
@@ -973,7 +973,7 @@ public class MovieJukeboxXMLReader {
                             Node nAttr = nnmAttr.item(i);
                             String ns = nAttr.getNodeName();
 
-                            if (ns.equalsIgnoreCase("id")) {
+                            if ("id".equalsIgnoreCase(ns)) {
                                 film.setId(nAttr.getTextContent());
                                 continue;
                             }

@@ -134,7 +134,7 @@ public class ComingSoonPluginTest extends AbstractTests {
             assertTrue("Wrong number of writers", movie.getWriters().size() > 0);
 
             assertNotNull("No movie object for " + title, movie);
-            if (!title.equalsIgnoreCase("Gli Aristogatti")) {
+            if (!"Gli Aristogatti".equalsIgnoreCase(title)) {
                 assertTrue("No cast found for " + title, movie.getCast().size() > 0);
             }
             assertTrue("Invalid release date for " + title, StringTools.isValidString(movie.getReleaseDate()));

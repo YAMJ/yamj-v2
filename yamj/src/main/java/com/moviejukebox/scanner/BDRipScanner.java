@@ -34,18 +34,14 @@ import org.slf4j.LoggerFactory;
  *
  * Copyright (2003) Mediterranean
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2, or any later version.
+ * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2, or any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place, Boston, MA 02111.
+ * You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Boston, MA 02111.
  *
  * Contact: mediterranean@users.sourceforge.net
  */
@@ -83,7 +79,7 @@ public class BDRipScanner {
             /* Gets the BDMV path... */
             File selectedFile = mediaRep;
 
-            if (selectedFile.getName().equalsIgnoreCase("BDMV")) {
+            if ("BDMV".equalsIgnoreCase(selectedFile.getName())) {
                 selectedFile = selectedFile.getParentFile();
             }
 
@@ -91,11 +87,11 @@ public class BDRipScanner {
 
             String bdmv = "";
 
-            for (int i = 0; i < list.length && !bdmv.equalsIgnoreCase("BDMV"); i++) {
+            for (int i = 0; i < list.length && !"BDMV".equalsIgnoreCase(bdmv); i++) {
                 bdmv = list[i].getName();
             }
 
-            if (!bdmv.equalsIgnoreCase("BDMV")) {
+            if (!"BDMV".equalsIgnoreCase(bdmv)) {
                 return null;
             }
 
@@ -107,11 +103,11 @@ public class BDRipScanner {
 
             String playlist = "";
 
-            for (int i = 0; i < list.length && !playlist.equalsIgnoreCase("PLAYLIST"); i++) {
+            for (int i = 0; i < list.length && !"PLAYLIST".equalsIgnoreCase(playlist); i++) {
                 playlist = list[i].getName();
             }
 
-            if (!playlist.equalsIgnoreCase("PLAYLIST")) {
+            if (!"PLAYLIST".equalsIgnoreCase(playlist)) {
                 return null;
             }
 
@@ -145,11 +141,11 @@ public class BDRipScanner {
 
             String stream = "";
 
-            for (int i = 0; i < list.length && !stream.equalsIgnoreCase("STREAM"); i++) {
+            for (int i = 0; i < list.length && !"STREAM".equalsIgnoreCase(stream); i++) {
                 stream = list[i].getName();
             }
 
-            if (!stream.equalsIgnoreCase("STREAM")) {
+            if (!"STREAM".equalsIgnoreCase(stream)) {
                 return null;
             }
 
@@ -212,7 +208,7 @@ public class BDRipScanner {
         System.arraycopy(data, 0, fileType, 0, fileType.length);
 
         String fileTypeString = new String(fileType);
-        if ((fileTypeString.equals("MPLS0100") && fileTypeString.equals("MPLS0200")) /*|| data[45] != 1*/) {
+        if (("MPLS0100".equals(fileTypeString) && "MPLS0200".equals(fileTypeString)) /*|| data[45] != 1*/) {
             LOG.info("Invalid playlist file {}", fileTypeString);
             return ret;
         }

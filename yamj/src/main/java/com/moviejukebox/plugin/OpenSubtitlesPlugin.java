@@ -92,7 +92,7 @@ public class OpenSubtitlesPlugin {
                 String ret = sendRPC(xml);
                 getValue("status", ret);
                 loginToken = getValue("token", ret);
-                if (loginToken.equals("")) {
+                if (StringUtils.isBlank(loginToken)) {
                     LOG.error("Login error.\n", ret);
                 } else {
                     LOG.debug("Login successful.");
@@ -130,7 +130,7 @@ public class OpenSubtitlesPlugin {
             return;
         }
 
-        if (StringTools.isNotValidString(movie.getSubtitles()) || movie.getSubtitles().equalsIgnoreCase("NO") || movie.isTVShow()) {
+        if (StringTools.isNotValidString(movie.getSubtitles()) || "NO".equalsIgnoreCase(movie.getSubtitles()) || movie.isTVShow()) {
             // Check if subtitle language was selected
             if (StringUtils.isBlank(SUB_LANGUAGE_ID)) {
                 return;
@@ -263,7 +263,7 @@ public class OpenSubtitlesPlugin {
 
             String subDownloadLink = getValue("SubDownloadLink", ret);
 
-            if (subDownloadLink.equals("")) {
+            if (StringUtils.isBlank(subDownloadLink)) {
                 String moviefilename = movieFile.getName();
 
                 // Do not search by file name for BD rip files in the format 0xxxx.m2ts
@@ -282,7 +282,7 @@ public class OpenSubtitlesPlugin {
                 }
             }
 
-            if (subDownloadLink.equals("")) {
+            if (StringUtils.isBlank(subDownloadLink)) {
                 LOG.debug("Subtitle not found for {}", movieFile.getName());
                 return Boolean.FALSE;
             }
@@ -381,7 +381,7 @@ public class OpenSubtitlesPlugin {
 
             String alreadyindb = getIntValue("alreadyindb", ret);
 
-            if (!alreadyindb.equals("0")) {
+            if (!"0".equals(alreadyindb)) {
                 LOG.debug("Subtitle already in db for {}", movie.getBaseName());
                 return Boolean.TRUE;
             }

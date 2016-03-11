@@ -134,13 +134,13 @@ public final class FileTools {
         while (st.hasMoreElements()) {
             final String token = st.nextToken();
             String beforeStr = substringBefore(token, "-");
-            final String character = beforeStr.length() == 1 && (beforeStr.equals("\t") || beforeStr.equals(" ")) ? beforeStr : trimToNull(beforeStr);
+            final String character = beforeStr.length() == 1 && ("\t".equals(beforeStr) || " ".equals(beforeStr)) ? beforeStr : trimToNull(beforeStr);
             if (character == null) {
                 // TODO Error message?
                 continue;
             }
             String afterStr = substringAfter(token, "-");
-            final String translation = afterStr.length() == 1 && (afterStr.equals("\t") || afterStr.equals(" ")) ? afterStr : trimToNull(afterStr);
+            final String translation = afterStr.length() == 1 && ("\t".equals(afterStr) || " ".equals(afterStr)) ? afterStr : trimToNull(afterStr);
             if (translation == null) {
                 // TODO Error message?
                 // TODO Allow empty transliteration?
@@ -291,7 +291,7 @@ public final class FileTools {
 
                     for (File file : files) {
                         currentFile++;
-                        if (!file.getName().equals(".svn")) {
+                        if (!".svn".equals(file.getName())) {
                             if (file.isDirectory()) {
                                 copyDir(file.getAbsolutePath(), dstPathName + File.separator + file.getName(), updateDisplay, pathRoot);
                             } else {

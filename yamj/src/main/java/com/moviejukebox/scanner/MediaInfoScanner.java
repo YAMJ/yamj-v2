@@ -379,7 +379,7 @@ public class MediaInfoScanner {
      */
     private static String localInputReadLine(BufferedReader input) throws IOException {
         String line = input.readLine();
-        while ((line != null) && (line.equals(""))) {
+        while ((line != null) && (StringUtils.isBlank(line))) {
             line = input.readLine();
         }
         return line;
@@ -575,7 +575,7 @@ public class MediaInfoScanner {
 
                     infoValue = infosMainVideo.get("Scan type");
                     if (infoValue != null) {
-                        if (infoValue.equals("Progressive")) {
+                        if ("Progressive".equals(infoValue)) {
                             normeHD.append("p");
                         } else {
                             normeHD.append("i");
@@ -607,7 +607,7 @@ public class MediaInfoScanner {
                     }
                     infoValue = infosMainVideo.get("Scan type");
                     if (infoValue != null) {
-                        if (infoValue.equals("Progressive")) {
+                        if ("Progressive".equals(infoValue)) {
                             videoOutput.append("p");
                         } else {
                             videoOutput.append("i");
@@ -698,12 +698,12 @@ public class MediaInfoScanner {
 
             // Make sure we have a codec & language before continuing
             if (StringTools.isValidString(infoFormat) && StringTools.isValidString(infoLanguage)) {
-                if (infoFormat.equalsIgnoreCase("SRT")
-                        || infoFormat.equalsIgnoreCase("UTF-8")
-                        || infoFormat.equalsIgnoreCase("RLE")
-                        || infoFormat.equalsIgnoreCase("PGS")
-                        || infoFormat.equalsIgnoreCase("ASS")
-                        || infoFormat.equalsIgnoreCase("VobSub")) {
+                if ("SRT".equalsIgnoreCase(infoFormat)
+                        || "UTF-8".equalsIgnoreCase(infoFormat)
+                        || "RLE".equalsIgnoreCase(infoFormat)
+                        || "PGS".equalsIgnoreCase(infoFormat)
+                        || "ASS".equalsIgnoreCase(infoFormat)
+                        || "VobSub".equalsIgnoreCase(infoFormat)) {
                     SubtitleTools.addMovieSubtitle(movie, infoLanguage);
                 } else {
                     LOG.debug("Subtitle format skipped: {}", infoFormat);

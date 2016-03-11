@@ -68,7 +68,7 @@ public class MovieMeterPluginTest extends AbstractTests {
             movie = new Movie();
             movie.setId(MovieMeterPlugin.MOVIEMETER_PLUGIN_ID, td.id);
             assertTrue("Failed to scan " + td.title, plugin.scan(movie));
-            if (td.id.equals("17552")) {
+            if ("17552".equals(td.id)) {
                 // Do the checks on Avatar
                 LOG.info("Testing: {}", td.toString());
 

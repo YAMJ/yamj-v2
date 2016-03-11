@@ -1031,7 +1031,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 for (String outcomeBlock : HTMLTools.extractHtmlTags(awardBlock, "<table class=", null, "<tr>", "</tr>")) {
                     String outcome = HTMLTools.extractTag(outcomeBlock, "<b>", "</b>");
                     if (StringTools.isValidString(outcome)) {
-                        awardOutcomeWon = outcome.equalsIgnoreCase("won");
+                        awardOutcomeWon = "won".equalsIgnoreCase(outcome);
                     }
 
                     String awardDescription = StringUtils.trimToEmpty(HTMLTools.extractTag(outcomeBlock, "<td class=\"award_description\">", "<br />"));
@@ -1086,7 +1086,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                         String currency = oWeek.replaceAll("\\d+.*", "");
                         long value = NumberUtils.toLong(oWeek.replaceAll("^\\D*\\s*", "").replaceAll("\\s.*", "").replaceAll(",", ""), -1L);
                         String country = HTMLTools.extractTag(oWeek, "(", ")");
-                        if ("Worldwide".equals(country) && !currency.equals("$")) {
+                        if ("Worldwide".equals(country) && !"$".equals(currency)) {
                             continue;
                         }
                         String money = i == 0 ? movie.getOpenWeek(country) : movie.getGross(country);
