@@ -28,7 +28,8 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.tools.*;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
     private static final String TITLE_START = "Carátula de la película: ";
     private static final String TITLE_END = "</a>";
     private static final String SEARCH_ID_START = "caratula.php?pel=";
+    private static final Pattern P_ID = Pattern.compile("caratula\\.php\\?pel=(\\d*?)<");
 
     private YamjHttpClient httpClient;
 
@@ -55,8 +57,7 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
     }
 
     /**
-     * Look for the movie URL in the XML. If there is no title, or the title is
-     * not found, return the first movie URL
+     * Look for the movie URL in the XML. If there is no title, or the title is not found, return the first movie URL
      *
      * @param xml
      * @param title
@@ -65,24 +66,12 @@ public class CaratulasdecinePosterPlugin extends AbstractMoviePosterPlugin {
     private static String getMovieId(String xml, String title) {
         String movieId = Movie.UNKNOWN;
 
-        List<String> foundTitles = HTMLTools.extractTags(xml, SEARCH_START, SEARCH_END, TITLE_START, TITLE_END, false);
+        Matcher mId = P_ID.matcher(xml);
 
-        for (String searchTitle : foundTitles) {
-            String cleanTitle = HTMLTools.stripTags(searchTitle);
-            if (title != null && title.equalsIgnoreCase(cleanTitle)) {
-                movieId = findIdInXml(xml, searchTitle);
-                if (StringTools.isValidString(movieId)) {
-                    // Found the movie ID, so quit
-                    break;
-                }
-            }
+        if (mId.find()) {
+            LOG.debug("Found ID: {}", mId.group(1));
+            movieId = mId.group(1);
         }
-
-        // If we didn't find the title, try just getting the first returned one
-        if (StringTools.isNotValidString(movieId) && !foundTitles.isEmpty()) {
-            movieId = findIdInXml(xml, foundTitles.get(0));
-        }
-
         return movieId;
     }
 
