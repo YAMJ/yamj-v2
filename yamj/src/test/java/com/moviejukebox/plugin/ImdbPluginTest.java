@@ -173,9 +173,9 @@ public class ImdbPluginTest extends AbstractTests {
         assertEquals("Incorrect Tagline", "Free your mind", movie.getTagline());
         assertEquals("Incorrect number of cast", 10, movie.getCast().size());
 
-        assertTrue("Andy W not found in Directors", movie.getDirectors().contains("Andy Wachowski"));
+        assertTrue("Lilly W not found in Directors", movie.getDirectors().contains("Lilly Wachowski"));
         assertTrue("Lana W not found in Directors", movie.getDirectors().contains("Lana Wachowski"));
-        assertTrue("Andy W not found in Writers", movie.getWriters().contains("Andy Wachowski"));
+        assertTrue("Lilly W not found in Writers", movie.getWriters().contains("Lilly Wachowski"));
         assertTrue("Lana W not found in Writers", movie.getWriters().contains("Lana Wachowski"));
 
     }
