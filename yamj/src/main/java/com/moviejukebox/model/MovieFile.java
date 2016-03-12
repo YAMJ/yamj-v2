@@ -34,6 +34,7 @@ import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.pojava.datetime.DateTime;
@@ -78,6 +79,11 @@ public class MovieFile implements Comparable<MovieFile> {
 
     private static final Map<String, Pattern> TYPE_SUFFIX_MAP = initTypeSuffixMap();
 
+    /**
+     * Initialise the type suffix map
+     *
+     * @return
+     */
     private static Map<String, Pattern> initTypeSuffixMap() {
         Map<String, Pattern> typeSuffixMap = new HashMap<>();
         String scannerTypes = PropertiesUtil.getProperty("filename.scanner.types", "ZCD,VOD");
@@ -375,19 +381,13 @@ public class MovieFile implements Comparable<MovieFile> {
             return false;
         }
         final MovieFile other = (MovieFile) obj;
-        if ((this.filename == null) ? (other.filename != null) : !this.filename.equals(other.filename)) {
-            return false;
-        }
-        if (this.season != other.season) {
-            return false;
-        }
-        if (this.firstPart != other.firstPart) {
-            return false;
-        }
-        if (this.lastPart != other.lastPart) {
-            return false;
-        }
-        return true;
+
+        return new EqualsBuilder()
+                .append(this.filename, other.filename)
+                .append(this.season, other.season)
+                .append(this.firstPart, other.firstPart)
+                .append(this.lastPart, other.lastPart)
+                .isEquals();
     }
 
     @XmlTransient
