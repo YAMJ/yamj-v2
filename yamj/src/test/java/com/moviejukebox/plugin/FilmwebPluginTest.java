@@ -37,6 +37,7 @@ import com.moviejukebox.model.Movie;
 import com.moviejukebox.model.MovieFile;
 import com.moviejukebox.tools.PropertiesUtil;
 import com.moviejukebox.tools.StringTools;
+import static org.junit.Assert.assertTrue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,7 +169,7 @@ public class FilmwebPluginTest extends AbstractTests {
         assertEquals("Seksmisja", movie.getOriginalTitle());
     }
 
-    //@Test
+    @Test
     public void testUpdateMediaInfoTitle02() {
         LOG.info("testUpdateMediaInfoTitle02");
         Movie movie = new Movie();
@@ -330,12 +331,8 @@ public class FilmwebPluginTest extends AbstractTests {
         movie.setId(FilmwebPlugin.FILMWEB_PLUGIN_ID, "http://www.filmweb.pl/film/Agenci-2013-612342");
         filmwebPlugin.updateMediaInfo(movie, movie.getId(FilmwebPlugin.FILMWEB_PLUGIN_ID));
 
-        LinkedHashSet<String> testCast = new LinkedHashSet<>();
-        // These need to be in the same order as the web page
-        testCast.add("Denzel Washington");
-        testCast.add("Mark Wahlberg");
-
-        assertEquals(Arrays.asList(testCast.toArray()).toString(), Arrays.asList(Arrays.copyOf(movie.getCast().toArray(), 2)).toString());
+        assertTrue("Missing Denzel Washington", movie.getCast().contains("Denzel Washington"));
+        assertTrue("Missing Mark Wahlberg", movie.getCast().contains("Mark Wahlberg"));
     }
 
     @Test

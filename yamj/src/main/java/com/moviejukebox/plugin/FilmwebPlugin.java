@@ -22,6 +22,7 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Filmography;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -48,12 +49,15 @@ public class FilmwebPlugin extends ImdbPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(FilmwebPlugin.class);
     private static final String LOG_ERROR = "Error: {}";
     public static final String FILMWEB_PLUGIN_ID = "filmweb";
+    private static final String FILMWEB_URL = "http://www.filmweb.pl";
+
     private static final Pattern NFO_PATTERN = Pattern.compile("http://[^\"/?&]*filmweb.pl[^\\s<>`\"\\[\\]]*");
     private SearchEngineTools searchEngineTools;
     // TOP 250 pattern  match
     private static final Pattern P_TOP250 = Pattern.compile(".*?#(\\d*).*?");
     private static final Pattern P_RUNTIME = Pattern.compile("duration:.(\\d*)");
     private static final Pattern P_YEAR = Pattern.compile("year:.*?(\\d*)");
+    private static final Pattern P_ACTORS = Pattern.compile("pn:\\\"(.*?)\\\",pl:\\\"/person/(.*?)\\\",rt:\\\"(.*?)\\\"");
 
     public FilmwebPlugin() {
         // use IMDB if filmweb doesn't know movie
@@ -66,12 +70,12 @@ public class FilmwebPlugin extends ImdbPlugin {
         return FILMWEB_PLUGIN_ID;
     }
 
-    public void init() {
+    public final void init() {
         searchEngineTools = new SearchEngineTools("pl");
 
         try {
             // first request to filmweb site to skip welcome screen with ad banner
-            httpClient.request("http://www.filmweb.pl");
+            httpClient.request(FILMWEB_URL);
         } catch (IOException error) {
             LOG.error(LOG_ERROR, error.getMessage(), error);
         }
@@ -160,14 +164,13 @@ public class FilmwebPlugin extends ImdbPlugin {
      * @return
      */
     protected boolean updateMediaInfo(Movie movie, String filmwebUrl) {
-
         boolean returnValue = Boolean.TRUE;
 
         String xml = getPage(filmwebUrl);
         if (StringUtils.isBlank(xml)) {
             return Boolean.FALSE;
         }
-
+        
         if (HTMLTools.extractTag(xml, "<title>").contains("Serial") && !movie.isTVShow()) {
             movie.setMovieType(Movie.TYPE_TVSHOW);
             return Boolean.FALSE;
@@ -194,7 +197,7 @@ public class FilmwebPlugin extends ImdbPlugin {
 
         // TOP250
         if (OverrideTools.checkOverwriteTop250(movie, FILMWEB_PLUGIN_ID)) {
-            String top250 = HTMLTools.getTextAfterElem(xml, "<a class=worldRanking");
+            String top250 = HTMLTools.getTextAfterElem(xml, "<a class=\"worldRanking\"");
             Matcher m = P_TOP250.matcher(top250);
             if (m.find()) {
                 movie.setTop250(m.group(1), FILMWEB_PLUGIN_ID);
@@ -290,23 +293,26 @@ public class FilmwebPlugin extends ImdbPlugin {
         boolean overrideNormal = OverrideTools.checkOverwriteActors(movie, FILMWEB_PLUGIN_ID);
         boolean overridePeople = OverrideTools.checkOverwritePeopleActors(movie, FILMWEB_PLUGIN_ID);
 
-        if (overrideNormal || overridePeople) {
-            List<String> actors = new ArrayList<>();
+        String jobActor = StringUtils.capitalize(Filmography.JOB_ACTOR);
 
-            List<String> tags = HTMLTools.extractHtmlTags(xmlCast, "<table class=filmCast>", "</table>", "<tr id=", "</tr>");
-            for (String tag : tags) {
-                String actor = HTMLTools.getTextAfterElem(tag, "<a href=\"/person/");
-                if (StringTools.isValidString(actor)) {
-                    actors.add(actor);
+        if (overrideNormal || overridePeople) {
+            Matcher mActors = P_ACTORS.matcher(xmlCast);
+
+            while (mActors.find()) {
+                String name = mActors.group(1);
+                String id = mActors.group(2);
+                String role = mActors.group(3);
+                String url = FILMWEB_URL + "/person/" + id;
+
+                if (overrideNormal) {
+                    movie.addActor(name, FILMWEB_PLUGIN_ID);
+                    movie.addActor(id, name, role, url, Movie.UNKNOWN, FILMWEB_PLUGIN_ID);
+                }
+                if (overridePeople) {
+                    movie.addPerson(id, name, url, jobActor, role, Movie.UNKNOWN, FILMWEB_PLUGIN_ID);
                 }
             }
 
-            if (overrideNormal) {
-                movie.setCast(actors, FILMWEB_PLUGIN_ID);
-            }
-            if (overridePeople) {
-                movie.setPeopleCast(actors, FILMWEB_PLUGIN_ID);
-            }
         }
 
         return Boolean.TRUE;
