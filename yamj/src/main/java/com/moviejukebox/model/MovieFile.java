@@ -247,12 +247,12 @@ public class MovieFile implements Comparable<MovieFile> {
     public void setVideoImageFilename(int part, String videoImageFilename) {
         if (StringUtils.isBlank(videoImageFilename)) {
             this.videoImageFilename.put(part, Movie.UNKNOWN);
-        } else // create the directory hash if needed
-         if (DIR_HASH) {
-                this.videoImageFilename.put(part, FileTools.createDirHash(videoImageFilename));
-            } else {
-                this.videoImageFilename.put(part, videoImageFilename);
-            }
+        } else if (DIR_HASH) {
+            // create the directory hash if needed
+            this.videoImageFilename.put(part, FileTools.createDirHash(videoImageFilename));
+        } else {
+            this.videoImageFilename.put(part, videoImageFilename);
+        }
     }
 
     public String getOverrideSource(OverrideFlag overrideFlag) {

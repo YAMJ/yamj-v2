@@ -85,13 +85,13 @@ public class ImdbPluginTest extends AbstractTests {
         mf2.setLastPart(16);
         movie.addMovieFile(mf2);
 
-        assertTrue(imdbPlugin.scan(movie));
-        assertEquals("Chocolate Diddlers or My Puppy's Dead", mf1.getTitle(12));
-        assertTrue(StringUtils.startsWith(mf1.getPlot(12), "When Charlie and Courtney break up"));
-        assertEquals("2011-11-15", mf1.getFirstAired(12));
-        assertEquals("That Darn Priest", mf2.getTitle(16));
-        assertTrue(StringUtils.startsWith(mf2.getPlot(16), "Rose becomes wise to Alan's Ponzi scheme"));
-        assertEquals("2011-12-13", mf2.getFirstAired(16));
+        assertTrue("Failed scan", imdbPlugin.scan(movie));
+        assertEquals("(1st) Incorrect title", "Chocolate Diddlers or My Puppy's Dead", mf1.getTitle(12));
+        assertTrue("(1st) Incorrect plot", StringUtils.startsWith(mf1.getPlot(12), "When Charlie and Courtney break up"));
+        assertEquals("(1st) Incorrect aired date", "13 Dec. 2010", mf1.getFirstAired(12));
+        assertEquals("(last) Incorrect title", "That Darn Priest", mf2.getTitle(16));
+        assertTrue("(last) Incorrect plot", StringUtils.startsWith(mf2.getPlot(16), "Rose becomes wise to Alan's Ponzi scheme"));
+        assertEquals("(last) Incorrect aired", "28 Mar. 2011", mf2.getFirstAired(16));
     }
 
     @Test
