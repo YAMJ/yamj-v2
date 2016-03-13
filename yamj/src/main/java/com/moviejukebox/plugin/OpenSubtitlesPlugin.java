@@ -37,7 +37,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 import java.util.zip.DeflaterOutputStream;
-import java.util.zip.GZIPInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -299,10 +298,8 @@ public class OpenSubtitlesPlugin {
                     LOG.error("Download Failed");
                     return Boolean.FALSE;
                 }
-                try (GZIPInputStream inStream = new GZIPInputStream(inputStream);
-                        FileOutputStream outStream = new FileOutputStream(subtitleFile)) {
-                    FileTools.copy(new GZIPInputStream(inputStream), new FileOutputStream(subtitleFile));
-                }
+                FileTools.copy(inputStream, new FileOutputStream(subtitleFile));
+
             } finally {
                 connection.disconnect();
             }
@@ -316,8 +313,8 @@ public class OpenSubtitlesPlugin {
 
             return Boolean.TRUE;
 
-        } catch (Exception error) {
-            LOG.error("Download Exception (Movie Not Found)");
+        } catch (Exception ex) {
+            LOG.error("Download Exception (Movie Not Found)", ex);
             return Boolean.FALSE;
         }
 
