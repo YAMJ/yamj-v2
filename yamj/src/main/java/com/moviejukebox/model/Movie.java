@@ -31,8 +31,6 @@ import java.util.Map.Entry;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -487,32 +485,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     @Override
     public int compareTo(Movie anotherMovie) {
         return this.getStrippedTitleSort().compareToIgnoreCase(anotherMovie.getStrippedTitleSort());
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Movie other = (Movie) obj;
-
-        return new EqualsBuilder()
-                .appendSuper(super.equals(other))
-                .append(getStrippedTitleSort(), other.getStrippedTitleSort())
-                .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder()
-                .append(getStrippedTitleSort())
-                .toHashCode();
     }
 
     @Deprecated
