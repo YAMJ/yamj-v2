@@ -1125,16 +1125,19 @@ public final class MovieNFOReader {
                         movieDb = ImdbPlugin.IMDB_PLUGIN_ID;
                     }
                 }
-                movie.setId(movieDb, eId.getTextContent());
-                LOG.debug("Found {} ID: {}", movieDb, eId.getTextContent());
+
+                setMovieId(movie, movieDb, eId.getTextContent());
 
                 // Process the TMDB id
-                movieDb = eId.getAttribute("TMDB");
-                if (StringTools.isValidString(movieDb)) {
-                    LOG.debug("Found TheMovieDb ID: {}", movieDb);
-                    movie.setId(TheMovieDbPlugin.TMDB_PLUGIN_ID, movieDb);
-                }
+                setMovieId(movie, TheMovieDbPlugin.TMDB_PLUGIN_ID, eId.getAttribute("TMDB"));
             }
+        }
+    }
+
+    private static void setMovieId(Movie movie, final String movieDb, final String value) {
+        if (StringTools.isValidString(movieDb) && StringTools.isValidString(value)) {
+            LOG.debug("Found {} ID: {}", movieDb, value);
+            movie.setId(movieDb, value);
         }
     }
 
