@@ -2414,13 +2414,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         if (StringUtils.isBlank(footerFilename)) {
             ff = UNKNOWN;
         } else // create the directory hash if needed
-        {
-            if (DIR_HASH) {
+         if (DIR_HASH) {
                 ff = FileTools.createDirHash(FileTools.makeSafeFilename(footerFilename));
             } else {
                 ff = FileTools.makeSafeFilename(footerFilename);
             }
-        }
 
         if (this.footerFilename.size() <= inx) {
             while (this.footerFilename.size() < inx) {
@@ -2941,5 +2939,31 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
 
     public static List<String> getSortIgnorePrefixes() {
         return SORT_IGNORE_PREFIXES;
+    }
+
+    /**
+     * Check to see if any of the movie's ID was set to 0 or -1, in which case the user has disabled online scanning for this movie.
+     *
+     * @return
+     */
+    public boolean skipOnlineScan() {
+        boolean ignore = false;
+        for (String id : getIdMap().values()) {
+            if (skipOnlineScan(id)) {
+                ignore = true;
+                break;
+            }
+        }
+        return ignore;
+    }
+
+    /**
+     * Check to see if an ID was set to 0 or -1, in which case the user has disabled online scanning for this movie.
+     *
+     * @param id
+     * @return
+     */
+    public boolean skipOnlineScan(String id) {
+        return StringTools.isNotValidString(id) || "0".equals(id) || "-1".equals(id);
     }
 }
