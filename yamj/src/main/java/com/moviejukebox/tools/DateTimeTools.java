@@ -251,13 +251,13 @@ public final class DateTimeTools {
      * @param convertDate
      * @return
      */
-    private static Date convertStringDate(String convertDate, IDateTimeConfig config) {
+    private static Date convertStringDate(final String convertDate, IDateTimeConfig config) {
         Date parsedDate = null;
         try {
-            parsedDate = DateTime.parse(convertDate, config).toDate();
-            LOG.trace("Converted date '{}' using {} order", convertDate, (config.isDmyOrder() ? "DMY" : "MDY"));
+            parsedDate = DateTime.parse(convertDate.trim(), config).toDate();
+            LOG.trace("Converted date '{}' using {} order", convertDate.trim(), (config.isDmyOrder() ? "DMY" : "MDY"));
         } catch (IllegalArgumentException ex) {
-            LOG.debug("Failed to convert date '{}' using {} order", convertDate, (config.isDmyOrder() ? "DMY" : "MDY"));
+            LOG.debug("Failed to convert date '{}' using {} order", convertDate.trim(), (config.isDmyOrder() ? "DMY" : "MDY"));
         }
         return parsedDate;
     }
