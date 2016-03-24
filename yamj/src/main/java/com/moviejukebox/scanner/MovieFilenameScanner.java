@@ -282,7 +282,7 @@ public final class MovieFilenameScanner {
         private static final long serialVersionUID = 3476960701738952741L;
 
         {
-            for (String s : new String[]{"720p", "1080i", "1080p", "HD", "1280x720", "1920x1080"}) {
+            for (String s : new String[]{"720p", "1080i", "1080p", "HD", "1280x720", "1920x1080", "2160p"}) {
                 put(s, iwpatt(s));
             }
         }
@@ -409,7 +409,7 @@ public final class MovieFilenameScanner {
         {
             final Matcher matcher = TV_PATTERN.matcher(rest);
             if (matcher.find()) {
-                if ("720".equals(matcher.group(1)) || "1080".equals(matcher.group(1))) {
+                if ("720".equals(matcher.group(1)) || "1080".equals(matcher.group(1)) || "2160".equals(matcher.group(1))) {
                     LOG.trace("Skipping pattern detection of '{}' because it looks like a resolution", matcher.group(0));
                 } else {
                     // logger.finest("It's a TV Show: " + group0);
