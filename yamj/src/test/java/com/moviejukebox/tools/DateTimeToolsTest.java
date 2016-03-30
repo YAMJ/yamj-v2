@@ -48,7 +48,6 @@ public class DateTimeToolsTest extends AbstractTests {
     /**
      * Test of convertDateToString method, of class DateTimeTools.
      *
-     * @throws java.lang.Exception
      */
     @Test
     public void testConvertDateToString_Date() {
@@ -128,6 +127,13 @@ public class DateTimeToolsTest extends AbstractTests {
         String dateToParse = "30 September 2010 (China)";
         String expResult = "2010-09-30";
         String result = DateTimeTools.parseDateToString(dateToParse);
+        assertEquals(expResult, result);
+
+        LOG.info("parseDateTo short");
+        dateToParse = "2010";
+        expResult = "2010-01-01";
+
+        result = DateTimeTools.parseDateToString(dateToParse);
         assertEquals(expResult, result);
     }
 }

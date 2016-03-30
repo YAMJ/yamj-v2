@@ -253,11 +253,20 @@ public final class DateTimeTools {
      */
     private static Date convertStringDate(final String convertDate, IDateTimeConfig config) {
         Date parsedDate = null;
+        String newDate = convertDate.trim();
+
+        /*
+        Check to see if the date is only 4 digits and append "01-01" as needed
+         */
+        if (NumberUtils.isDigits(newDate) && newDate.length() == 4) {
+            newDate = config.isDmyOrder() ? "01-01-" + newDate : newDate + "-01-01";
+        }
+
         try {
-            parsedDate = DateTime.parse(convertDate.trim(), config).toDate();
-            LOG.trace("Converted date '{}' using {} order", convertDate.trim(), (config.isDmyOrder() ? "DMY" : "MDY"));
+            parsedDate = DateTime.parse(newDate, config).toDate();
+            LOG.trace("Converted date '{}' using {} order", newDate, (config.isDmyOrder() ? "DMY" : "MDY"));
         } catch (IllegalArgumentException ex) {
-            LOG.debug("Failed to convert date '{}' using {} order", convertDate.trim(), (config.isDmyOrder() ? "DMY" : "MDY"));
+            LOG.debug("Failed to convert date '{}' using {} order", newDate, (config.isDmyOrder() ? "DMY" : "MDY"));
         }
         return parsedDate;
     }

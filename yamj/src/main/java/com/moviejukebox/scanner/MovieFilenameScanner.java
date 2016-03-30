@@ -534,7 +534,8 @@ public final class MovieFilenameScanner {
                                 if (year >= 1800 && year <= 3000) {
                                     dto.setYear(year);
                                 }
-                            } catch (NumberFormatException error) { /* ignore */ }
+                            } catch (NumberFormatException error) {
+                                /* ignore */ }
                         }
                         first = Boolean.FALSE;
                     }
