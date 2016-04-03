@@ -357,6 +357,14 @@ public final class MovieNFOReader {
                     // Don't change the watched status
                 }
 
+                // Get the show status
+                if (movie.isTVShow()) {
+                    String status = DOMHelper.getValueFromElement(eCommon, "status");
+                    if (isValidString(status)) {
+                        movie.setShowStatus(XML_START);
+                    }
+                }
+
                 // Get the sets
                 parseSets(eCommon.getElementsByTagName("set"), movie);
 
