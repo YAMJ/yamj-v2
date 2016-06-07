@@ -590,10 +590,21 @@ public class ImdbPlugin implements MovieDatabasePlugin {
                 xmlPlot = HTMLTools.removeHtmlTags(xmlPlot).trim();
             }
 
+            // This plot didn't work, look for another version
+            if (isNotValidString(xmlPlot)) {
+                xmlPlot = HTMLTools.extractTag(xml, "<div class=\"inline canwrap\" itemprop=\"description\">", HTML_DIV_END);
+                xmlPlot = HTMLTools.removeHtmlTags(xmlPlot).trim();
+            }
+            
             // See if the plot has the "metacritic" text and remove it
             int pos = xmlPlot.indexOf("Metacritic.com)");
             if (pos > 0) {
                 xmlPlot = xmlPlot.substring(pos + "Metacritic.com)".length());
+            }
+            // remove the "Written by" annotation
+            pos = xmlPlot.indexOf("Written by");
+            if (pos > 0) {
+                xmlPlot = xmlPlot.substring(0, pos);
             }
 
             // Check the length of the plot is OK
