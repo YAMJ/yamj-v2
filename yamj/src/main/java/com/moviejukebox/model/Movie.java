@@ -264,11 +264,13 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         addSet(set, null);
     }
 
-    public void addSet(String set, Integer order) {
-        if (StringTools.isValidString(set)) {
+    public void addSet(final String set, final Integer order) {
+        String newSet = StringUtils.trimToNull(set);
+        
+        if (StringTools.isValidString(newSet)) {
             setDirty(DirtyFlag.INFO);
-            LOG.debug("Set added: {}, {}", set, order == null ? ", unordered" : ", order: " + order);
-            sets.put(set, order);
+            LOG.debug("Set added: {}, {}", newSet, order == null ? ", unordered" : ", order: " + order);
+            sets.put(newSet, order);
         }
     }
 
