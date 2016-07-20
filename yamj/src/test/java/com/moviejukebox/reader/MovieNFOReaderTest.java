@@ -80,4 +80,27 @@ public class MovieNFOReaderTest extends AbstractTests {
         assertEquals(1, movie.getDirectors().size());
         assertEquals(3, movie.getWriters().size());
     }
+
+    @Test
+    public void testParseSets() {
+        LOG.info("ParseSets");
+        StringBuilder nfo = new StringBuilder();
+        nfo.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+        nfo.append("<movie>");
+        nfo.append("<id>-1</id>");
+        nfo.append("    <set>\n\r");
+        nfo.append("        <name>Mission: Impossible Collection</name>\n\r");
+        nfo.append("    </set>\n\r");
+        nfo.append("</movie>");
+
+        Movie movie = new Movie();
+        MovieNFOReader.readXmlNfo(nfo.toString(), movie, "test.nfo");
+
+        assertEquals("Wrong set amount", 1, movie.getSets().size());
+
+        for (String set : movie.getSetsKeys()) {
+            assertEquals("Incorrect set name", "Mission: Impossible Collection", set);
+        }
+    }
+
 }
