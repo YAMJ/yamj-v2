@@ -73,6 +73,7 @@ public class YamjHttpClient extends PoolingHttpClient {
     }
   
     public String request(String url) throws IOException {
+        LOG.trace("Request URL: {}", url);
         return this.request(url, getDefaultCharset());
     }
     

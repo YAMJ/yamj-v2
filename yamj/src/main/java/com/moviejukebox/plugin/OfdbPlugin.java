@@ -22,25 +22,17 @@
  */
 package com.moviejukebox.plugin;
 
+import com.moviejukebox.model.Movie;
+import com.moviejukebox.model.Person;
+import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.tools.*;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.Person;
-import com.moviejukebox.model.enumerations.OverrideFlag;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.OverrideTools;
-import com.moviejukebox.tools.SearchEngineTools;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
-import com.moviejukebox.tools.YamjHttpClient;
-import com.moviejukebox.tools.YamjHttpClientBuilder;
 
 /**
  * @author Durin
@@ -97,18 +89,18 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
     private String getOfdbIdByImdbId(String imdbId) {
         try {
-            String xml = httpClient.request("http://www.ofdb.de/view.php?page=suchergebnis&SText=" + imdbId + "&Kat=IMDb");
+            String xml = httpClient.request("http://www.ofdb.de/view.php?page=suchergebnis&SText="+imdbId+"&Kat=IMDb");
 
             int beginIndex = xml.indexOf("Ergebnis der Suchanfrage");
             if (beginIndex < 0) {
                 return Movie.UNKNOWN;
             }
-
-            beginIndex = xml.indexOf("film/", beginIndex);
+            
+            beginIndex = xml.indexOf("href=\"film/", beginIndex);
             if (beginIndex != -1) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("http://www.ofdb.de/");
-                sb.append(xml.substring(beginIndex, xml.indexOf('\"', beginIndex)));
+                sb.append(xml.substring(beginIndex+6, xml.indexOf('\"', beginIndex+7)));
                 return sb.toString();
             }
 
