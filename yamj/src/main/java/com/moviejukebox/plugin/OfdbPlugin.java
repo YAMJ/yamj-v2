@@ -89,7 +89,9 @@ public class OfdbPlugin implements MovieDatabasePlugin {
 
     private String getOfdbIdByImdbId(String imdbId) {
         try {
-            String xml = httpClient.request("http://www.ofdb.de/view.php?page=suchergebnis&SText="+imdbId+"&Kat=IMDb");
+            final String url = "http://www.ofdb.de/view.php?page=suchergebnis&SText="+imdbId+"&Kat=IMDb";
+            LOG.debug("Requesting OFDb: {}", url);
+            String xml = httpClient.request(url);
 
             int beginIndex = xml.indexOf("Ergebnis der Suchanfrage");
             if (beginIndex < 0) {
@@ -124,6 +126,7 @@ public class OfdbPlugin implements MovieDatabasePlugin {
             sb.append("&Genre=-&HLand=-&Jahr=");
             sb.append(year);
             sb.append("&Wo=-&Land=-&Freigabe=-&Cut=A&Indiziert=A&Submit2=Suche+ausf%C3%BChren");
+            LOG.debug("Requesting OFDb: {}", sb);
 
             String xml = httpClient.request(sb.toString());
 

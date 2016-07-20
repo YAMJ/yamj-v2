@@ -22,20 +22,17 @@
  */
 package com.moviejukebox.tools;
 
+import com.moviejukebox.model.Movie;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.LinkedList;
-
 import javax.xml.ws.WebServiceException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.protocol.HTTP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.moviejukebox.model.Movie;
 
 public class SearchEngineTools {
 
@@ -126,7 +123,7 @@ public class SearchEngineTools {
 
         String engine = getNextSearchEngine();
 
-        LOG.trace("Searching on {} for Title: '{}', Year: '{}'", engine, title, year);
+        LOG.debug("Searching on {} for Title: '{}', Year: '{}'", engine, title, year);
 
         if ("yahoo".equalsIgnoreCase(engine)) {
             url = searchUrlOnYahoo(title, year, site, additional);
