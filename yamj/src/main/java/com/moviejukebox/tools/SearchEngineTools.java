@@ -123,7 +123,7 @@ public class SearchEngineTools {
 
         String engine = getNextSearchEngine();
 
-        LOG.debug("Searching on {} for Title: '{}', Year: '{}'", engine, title, year);
+        LOG.trace("Searching on {} for Title: '{}', Year: '{}'", engine, title, year);
 
         if ("yahoo".equalsIgnoreCase(engine)) {
             url = searchUrlOnYahoo(title, year, site, additional);
