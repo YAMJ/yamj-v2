@@ -24,6 +24,7 @@ package com.moviejukebox.tools;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.trakttv.TraktTvApi;
@@ -36,6 +37,7 @@ public class TraktTvScanner {
     public static final String SCANNER_ID = "trakttv";
     private static final Logger LOG = LoggerFactory.getLogger(TraktTvScanner.class);
     private static TraktTvScanner INSTANCE;
+    private static final ReentrantLock LOCK = new ReentrantLock(true);
     
     private TraktTvApi traktTvApi;
     private List<TrackedMovie> watchedMovies;
@@ -65,17 +67,23 @@ public class TraktTvScanner {
     }
 
     public List<TrackedMovie> getWatchedMovies() {
-        if (watchedMovies == null) {
+        if (this.watchedMovies == null) {
             if (traktTvApi == null) {
                 this.watchedMovies = Collections.emptyList();
             } else {
-                try {
-                    // get watched movies from Trakt.TV
-                    this.watchedMovies = traktTvApi.syncService().getWatchedMovies(Extended.MINIMAL);
-                } catch (Exception ex) {
-                    LOG.error("Failed to get watched movies", ex);
-                    this.watchedMovies = Collections.emptyList();
+                // get watched movies within double lock to avoid more than one call 
+                LOCK.lock();
+                if (this.watchedMovies == null) {
+                    try {
+                        // get watched movies from Trakt.TV
+                        this.watchedMovies = traktTvApi.syncService().getWatchedMovies(Extended.MINIMAL);
+                        LOG.info("Found {} watched movies on TraktTV", this.watchedMovies.size());
+                    } catch (Exception ex) {
+                        LOG.error("Failed to get watched movies", ex);
+                        this.watchedMovies = Collections.emptyList();
+                    }
                 }
+                LOCK.unlock();
             }
         }
         return this.watchedMovies;
@@ -86,13 +94,19 @@ public class TraktTvScanner {
             if (traktTvApi == null) {
                 this.watchedShows = Collections.emptyList();
             } else {
-                try {
-                    // get watched movies from Trakt.TV
-                    this.watchedShows = traktTvApi.syncService().getWatchedShows(Extended.MINIMAL);
-                } catch (Exception ex) {
-                    LOG.error("Failed to get watched shows", ex);
-                    this.watchedShows = Collections.emptyList();
+                // get watched shows within double lock to avoid more than one call
+                LOCK.lock();
+                if (this.watchedShows == null) {
+                    try {
+                        // get watched movies from Trakt.TV
+                        this.watchedShows = traktTvApi.syncService().getWatchedShows(Extended.MINIMAL);
+                        LOG.info("Found {} watched shows on TraktTV", this.watchedShows.size());
+                    } catch (Exception ex) {
+                        LOG.error("Failed to get watched shows", ex);
+                        this.watchedShows = Collections.emptyList();
+                    }
                 }
+                LOCK.unlock();
             }
         }
         return watchedShows;
