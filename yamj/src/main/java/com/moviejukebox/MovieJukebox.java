@@ -131,6 +131,7 @@ public class MovieJukebox {
     private static int maxThreadsProcess = 1;
     private static int maxThreadsDownload = 1;
     private static boolean enableWatchScanner;
+    private static boolean enableWatchTraktTv;
     private static boolean enableCompleteMovies;
     // Exit codes
     private static final int EXIT_NORMAL = 0;
@@ -426,6 +427,7 @@ public class MovieJukebox {
         }
 
         enableWatchScanner = PropertiesUtil.getBooleanProperty("watched.scanner.enable", Boolean.TRUE);
+        enableWatchTraktTv = PropertiesUtil.getBooleanProperty("watched.trakttv.enable", Boolean.FALSE);
         enableCompleteMovies = PropertiesUtil.getBooleanProperty("complete.movies.enable", Boolean.TRUE);
 
         // Check to see if don't have a root, check the property file
@@ -943,7 +945,7 @@ public class MovieJukebox {
 
                             if (!movie.getMovieType().equals(Movie.REMOVE)) {
                                 // Check for watched and unwatched files
-                                if (enableWatchScanner) { // Issue 1938
+                                if (enableWatchScanner || enableWatchTraktTv) { // Issue 1938
                                     library.toggleDirty(WatchedScanner.checkWatched(jukebox, movie));
                                 }
 

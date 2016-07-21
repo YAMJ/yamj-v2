@@ -171,7 +171,6 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     // Watched informations
     private boolean watchedNFO = Boolean.FALSE;
     private boolean watchedFile = Boolean.FALSE;
-    private boolean watchedTraktTv = Boolean.FALSE;
     
     // Navigation data
     private String first = UNKNOWN;
@@ -2719,7 +2718,7 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     @XmlElement(name = "isWatched")
     public boolean isWatched() {
         // set to watched if one watched category is true 
-        return (watchedNFO || watchedFile || watchedTraktTv);
+        return (watchedNFO || watchedFile);
     }
 
     @XmlTransient
@@ -2732,21 +2731,12 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return watchedFile;
     }
 
-    @XmlTransient
-    public boolean isWatchedTraktTv() {
-        return watchedFile;
-    }
-
     public void setWatchedNFO(boolean watched) {
         this.watchedNFO = watched;
     }
 
     public void setWatchedFile(boolean watched) {
         this.watchedFile = watched;
-    }
-
-    public void setWatchedTraktTv(boolean watched) { 
-        this.watchedTraktTv = watched;
     }
 
     /**

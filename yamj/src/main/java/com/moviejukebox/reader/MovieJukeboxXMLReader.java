@@ -160,7 +160,6 @@ public class MovieJukeboxXMLReader {
                 // Get the watched flags
                 movie.setWatchedNFO(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watchedNFO")));
                 movie.setWatchedFile(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watchedFile")));
-                movie.setWatchedTraktTv(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watchedTraktTv")));
 
                 // Get artwork URLS
                 movie.setPosterURL(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "posterURL")));
@@ -698,43 +697,20 @@ public class MovieJukeboxXMLReader {
                                 }
                             }
 
-                            // Parse watched: FILE
-                            String watchedDateFileString = DOMHelper.getValueFromElement(eFile, "watchedDateFile");
-                            String watchedFileString = eFile.getAttribute("watchedFile");
-                            if (StringUtils.isBlank(watchedDateFileString) && StringUtils.isBlank(watchedFileString)) {
-                                // backwards compatibility to older versions
-                                watchedDateFileString = DOMHelper.getValueFromElement(eFile, "watchedDate");
-                            }
-                            if (StringUtils.isBlank(watchedFileString)) {
-                                // backwards compatibility to older versions
-                                watchedFileString = eFile.getAttribute("watched");
-                            }
-                            final long watchedDateFile;
-                            if (StringTools.isNotValidString(watchedDateFileString)) {
-                                watchedDateFile = 0;
+                            // Parse watched 
+                            String watchedDateString = DOMHelper.getValueFromElement(eFile, "watchedDate");
+                            final long watchedDate;
+                            if (StringTools.isNotValidString(watchedDateString)) {
+                                watchedDate = 0;
                             } else {
                                 // strip milliseconds
                                 Calendar cal = Calendar.getInstance();
-                                cal.setTimeInMillis(DateTime.parse(watchedDateFileString).toMillis());
+                                cal.setTimeInMillis(DateTime.parse(watchedDateString).toMillis());
                                 cal.set(Calendar.MILLISECOND, 0);
-                                watchedDateFile = cal.getTimeInMillis();
+                                watchedDate = cal.getTimeInMillis();
                             }
-                            movieFile.setWatchedFile(Boolean.parseBoolean(watchedFileString), watchedDateFile);
-                            
-                            // Parse watched: TraktTV
-                            String watchedDateTraktTvString = DOMHelper.getValueFromElement(eFile, "watchedDateTraktTv");
-                            final long watchedDateTraktTv;
-                            if (StringTools.isNotValidString(watchedDateTraktTvString)) {
-                                watchedDateTraktTv = 0;
-                            } else {
-                                // strip milliseconds
-                                Calendar cal = Calendar.getInstance();
-                                cal.setTimeInMillis(DateTime.parse(watchedDateTraktTvString).toMillis());
-                                cal.set(Calendar.MILLISECOND, 0);
-                                watchedDateTraktTv = cal.getTimeInMillis();
-                            }
-                            final boolean watchedTraktTv = Boolean.parseBoolean(eFile.getAttribute("watchedTraktTv"));
-                            movieFile.setWatchedTraktTv(watchedTraktTv, watchedDateTraktTv);
+                            final boolean watched = Boolean.parseBoolean(eFile.getAttribute("watched"));
+                            movieFile.setWatched(watched, watchedDate);
                             
                             // This is not a new file
                             movieFile.setNewFile(Boolean.FALSE);

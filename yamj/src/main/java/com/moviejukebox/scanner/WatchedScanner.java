@@ -48,6 +48,8 @@ public class WatchedScanner {
     private static final Collection<String> EXTENSIONS = Arrays.asList(PropertiesUtil.getProperty("mjb.watchedExtensions", "watched").toLowerCase().split(",;\\|"));
     private static final WatchedWithLocation LOCATION = WatchedWithLocation.fromString(PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo"));
     private static final WatchedWithExtension WITH_EXTENSION = WatchedWithExtension.fromString(PropertiesUtil.getProperty("mjb.watched.withExtension", TRUE));
+    private static final boolean WATCH_FILES = PropertiesUtil.getBooleanProperty("watched.scanner.enable", Boolean.TRUE);
+    private static final boolean WATCH_TRAKTTV = PropertiesUtil.getBooleanProperty("watched.trakttv.enable", Boolean.TRUE);
     private static boolean warned = Boolean.FALSE;
 
     protected WatchedScanner() {
@@ -66,7 +68,7 @@ public class WatchedScanner {
      */
     public static boolean checkWatched(Jukebox jukebox, Movie movie) {
 
-        if (!warned && (LOCATION == WatchedWithLocation.CUSTOM)) {
+        if (WATCH_FILES && !warned && (LOCATION == WatchedWithLocation.CUSTOM)) {
             LOG.warn("Custom file location not supported for watched scanner");
             warned = Boolean.TRUE;
         }
@@ -90,54 +92,61 @@ public class WatchedScanner {
             }
 
             // get last watched file date
-            fileWatchedDate = mf.getWatchedDateFile();
+            fileWatchedDate = mf.getWatchedDate();
             
             if (MovieJukebox.isJukeboxPreserve() && !mf.getFile().exists()) {
                 fileWatchedCount++;
-                fileWatched = mf.isWatchedFile();
+                fileWatched = mf.isWatched();
             } else {
                 fileWatched = Boolean.FALSE;
                 
-                String filename;
-                // BluRay stores the file differently to DVD and single files, so we need to process the path a little
-                if (movie.isBluray()) {
-                    filename = new File(FileTools.getParentFolder(mf.getFile())).getName();
-                } else {
-                    filename = mf.getFile().getName();
-                }
-
-                if (WITH_EXTENSION == WatchedWithExtension.EXTENSION || WITH_EXTENSION == WatchedWithExtension.BOTH || movie.isBluray()) {
-                    if (LOCATION == WatchedWithLocation.WITHJUKEBOX) {
-                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, Boolean.TRUE);
+                // watching files
+                if (WATCH_FILES) {
+                    String filename;
+                    // BluRay stores the file differently to DVD and single files, so we need to process the path a little
+                    if (movie.isBluray()) {
+                        filename = new File(FileTools.getParentFolder(mf.getFile())).getName();
                     } else {
-                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, Boolean.FALSE);
+                        filename = mf.getFile().getName();
+                    }
+    
+                    if (WITH_EXTENSION == WatchedWithExtension.EXTENSION || WITH_EXTENSION == WatchedWithExtension.BOTH || movie.isBluray()) {
+                        if (LOCATION == WatchedWithLocation.WITHJUKEBOX) {
+                            foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, Boolean.TRUE);
+                        } else {
+                            foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, Boolean.FALSE);
+                        }
+                    }
+    
+                    if (foundFile == null && (WITH_EXTENSION == WatchedWithExtension.NOEXTENSION || WITH_EXTENSION == WatchedWithExtension.BOTH) && !movie.isBluray()) {
+                        // Remove the extension from the filename
+                        filename = FilenameUtils.removeExtension(filename);
+                        // Check again without the extension
+                        if (LOCATION == WatchedWithLocation.WITHJUKEBOX) {
+                            foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, Boolean.TRUE);
+                        } else {
+                            foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, Boolean.FALSE);
+                        }
+                    }
+    
+                    if (foundFile != null) {
+                        fileWatchedCount++;
+                        fileWatchedDate = new DateTime(foundFile.lastModified()).withMillisOfSecond(0).getMillis();
+                        fileWatched = StringUtils.endsWithAny(foundFile.getName().toLowerCase(), EXTENSIONS.toArray(new String[0]));
+                    }
+    
+                    if (mf.setWatched(fileWatched, fileWatchedDate)) {
+                        movieFileWatchChanged = Boolean.TRUE;
                     }
                 }
-
-                if (foundFile == null && (WITH_EXTENSION == WatchedWithExtension.NOEXTENSION || WITH_EXTENSION == WatchedWithExtension.BOTH) && !movie.isBluray()) {
-                    // Remove the extension from the filename
-                    filename = FilenameUtils.removeExtension(filename);
-                    // Check again without the extension
-                    if (LOCATION == WatchedWithLocation.WITHJUKEBOX) {
-                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, Boolean.TRUE);
-                    } else {
-                        foundFile = FileTools.findFilenameInCache(filename, EXTENSIONS, jukebox, Boolean.FALSE);
-                    }
-                }
-
-                if (foundFile != null) {
-                    fileWatchedCount++;
-                    fileWatchedDate = new DateTime(foundFile.lastModified()).withMillisOfSecond(0).getMillis();
-                    fileWatched = StringUtils.endsWithAny(foundFile.getName().toLowerCase(), EXTENSIONS.toArray(new String[0]));
-                }
-
-                if (mf.setWatchedFile(fileWatched, fileWatchedDate)) {
-                    movieFileWatchChanged = Boolean.TRUE;
+                
+                if (!movie.isExtra() && WATCH_TRAKTTV) {
+                    // TODO check Trakt.TV watched status
                 }
             }
 
             // as soon as there is an unwatched file, the whole movie becomes unwatched
-            movieWatchedFile = movieWatchedFile && mf.isWatchedFile();
+            movieWatchedFile = movieWatchedFile && mf.isWatched();
         }
 
         if (movieFileWatchChanged) {
