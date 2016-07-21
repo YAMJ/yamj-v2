@@ -52,7 +52,7 @@ public class WatchedScanner {
     private static final WatchedWithLocation LOCATION = WatchedWithLocation.fromString(PropertiesUtil.getProperty("mjb.watchedLocation", "withVideo"));
     private static final WatchedWithExtension WITH_EXTENSION = WatchedWithExtension.fromString(PropertiesUtil.getProperty("mjb.watched.withExtension", TRUE));
     private static final boolean WATCH_FILES = PropertiesUtil.getBooleanProperty("watched.scanner.enable", Boolean.TRUE);
-    private static final boolean WATCH_TRAKTTV = PropertiesUtil.getBooleanProperty("watched.trakttv.enable", Boolean.TRUE);
+    private static final boolean WATCH_TRAKTTV = PropertiesUtil.getBooleanProperty("watched.trakttv.enable", Boolean.FALSE);
     private static final TraktTvScanner TRAKT_TV_SCANNER = TraktTvScanner.getInstance();
     private static boolean warned = Boolean.FALSE;
     
@@ -81,7 +81,7 @@ public class WatchedScanner {
 
         TrackedShow trackedShow = null;
         TrackedMovie trackedMovie = null;
-        if (WATCH_TRAKTTV ) {
+        if (WATCH_TRAKTTV) {
             // PreLoad data from TraktTV
             if (movie.isTVShow()) {
                 trackedShow = getMatchingShow(movie); 
@@ -158,10 +158,10 @@ public class WatchedScanner {
                     long traktWatchedDate = 0;
                     if (movie.isTVShow()) {
                         // get watched date for episode
-                        traktWatchedDate = watchedDate(trackedShow, mf);
+                        traktWatchedDate = watchedDate(trackedShow, movie, mf);
                     } else if (!movie.isExtra()) {
                         // get watched date for movie
-                        traktWatchedDate = watchedDate(trackedMovie);
+                        traktWatchedDate = watchedDate(trackedMovie, movie);
                     }
 
                     // watched date only set if movie/episode has been watched
@@ -292,15 +292,16 @@ public class WatchedScanner {
         return null;
     }
 
-    private static long watchedDate(TrackedMovie movie) {
-        if (movie == null) {
+    private static long watchedDate(TrackedMovie tracked, Movie movie) {
+        if (tracked == null) {
             // not watched if not found
             return 0;
         }
-        return movie.getLastWatchedAt().withMillisOfSecond(0).getMillis();
+        LOG.debug("TraktTV watched movie: {} ({})", movie.getTitle(), movie.getYear());
+        return tracked.getLastWatchedAt().withMillisOfSecond(0).getMillis();
     }
 
-    private static long watchedDate(TrackedShow show, MovieFile movieFile) {
+    private static long watchedDate(TrackedShow show, Movie movie, MovieFile movieFile) {
         TrackedSeason season = getMatchingSeason(show, movieFile);
         if (season == null) {
             // not watched if not found
@@ -315,10 +316,9 @@ public class WatchedScanner {
                 // not all episodes in file are watched
                 return 0;
             }
+            LOG.debug("TraktTV watched episode {} ({}) - S{} - E{}", movie.getTitle(), movie.getYear(), movieFile.getSeason(), epNr);
         }
-        
-        // not watched
-        return 0;
+        return watchedDate;
     }
 
     private static long watchedDate(TrackedSeason season, int epNr) {
