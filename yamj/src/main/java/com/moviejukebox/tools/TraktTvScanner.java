@@ -22,12 +22,16 @@
  */
 package com.moviejukebox.tools;
 
+import java.io.*;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yamj.api.trakttv.TraktTvApi;
+import org.yamj.api.trakttv.auth.TokenResponse;
 import org.yamj.api.trakttv.model.TrackedMovie;
 import org.yamj.api.trakttv.model.TrackedShow;
 import org.yamj.api.trakttv.model.enumeration.Extended;
@@ -38,11 +42,17 @@ public class TraktTvScanner {
     private static final Logger LOG = LoggerFactory.getLogger(TraktTvScanner.class);
     private static TraktTvScanner INSTANCE;
     private static final ReentrantLock LOCK = new ReentrantLock(true);
+    private static final String PROPS_FILE = "properties/trakttv.properties";
+    private static final String PROP_ACCESS_TOKEN = "accessToken";
+    private static final String PROP_REFRESH_TOKEN = "refreshToken";
+    private static final String PROP_EXPIRATION_DATE = "expirationDate";
     
     private TraktTvApi traktTvApi;
     private List<TrackedMovie> watchedMovies;
     private List<TrackedShow> watchedShows;
-   
+    private String refreshToken = null;
+    private long expirationDate = 0;
+    
     public static TraktTvScanner getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new TraktTvScanner();
@@ -57,13 +67,55 @@ public class TraktTvScanner {
         try {
             LOG.trace("Initialize TraktTvApi");
             traktTvApi = new TraktTvApi(clientId, secret, YamjHttpClientBuilder.getHttpClient());
-            
-            // TODO set correct access token
-            traktTvApi.setAccessToken("");
+
+            // set access token from properties
+            Properties props = new Properties();
+            File propsFile = new File(PROPS_FILE);
+            if (propsFile.exists()) {
+                try (InputStream is = new FileInputStream(propsFile)) {
+                    props.load(is);
+                    traktTvApi.setAccessToken(props.getProperty(PROP_ACCESS_TOKEN));
+                    refreshToken = props.getProperty(PROP_REFRESH_TOKEN);
+                    expirationDate = NumberUtils.toLong(props.getProperty(PROP_EXPIRATION_DATE), 0);
+                } catch (Exception e) {
+                    LOG.error("Failed to load TraktTV properties");
+                }
+            }
         }  catch (Exception ex) {
             LOG.error("Failed to initialize TraktTvApi", ex);
             traktTvApi = null;
         }
+    }
+
+    public void authorizeWithPin(String pin) {
+        try {
+            TokenResponse response = this.traktTvApi.requestAccessTokenByPin(pin);
+
+            // set access token for API
+            traktTvApi.setAccessToken(response.getAccessToken());
+            LOG.info("Successfully authorized access to Trakt.TV");
+            
+            // set properties
+            Properties props = new Properties();
+            props.setProperty(PROP_ACCESS_TOKEN, response.getAccessToken());
+            props.setProperty(PROP_REFRESH_TOKEN, response.getRefreshToken());
+            props.setProperty(PROP_EXPIRATION_DATE, String.valueOf(buildExpirationDate(response)));
+            
+            // store properties file
+            File propsFile = new File(PROPS_FILE);
+            try (OutputStream out = new FileOutputStream(propsFile)) {
+                props.store(out, "Trakt.TV settings");
+            } catch (Exception e ) {
+                LOG.error("Failed to store Trakt.TV properties");
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to authorize to Trakt.TV", e);
+        }
+    }
+    
+    private static long buildExpirationDate(TokenResponse response) {
+        // expiration date: creation date + expiration period * 1000 (cause given in seconds)
+        return (response.getCreatedAt() + response.getExpiresIn()) * 1000L;
     }
 
     public List<TrackedMovie> getWatchedMovies() {

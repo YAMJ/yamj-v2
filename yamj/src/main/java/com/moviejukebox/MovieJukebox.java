@@ -245,12 +245,25 @@ public class MovieJukebox {
         String movieLibraryRoot = null;
         String jukeboxRoot = null;
         Map<String, String> cmdLineProps = new LinkedHashMap<>();
-
+        
         try {
             for (int i = 0; i < args.length; i++) {
                 String arg = args[i];
                 if ("-v".equalsIgnoreCase(arg)) {
                     // We've printed the version, so quit now
+                    return;
+                } else if ("-t".equalsIgnoreCase(arg)) {
+                    String pin = args[++i];
+        
+                    // load the apikeys.properties file
+                    if (!setPropertiesStreamName("./properties/apikeys.properties", Boolean.TRUE)) {
+                        return;
+                    }
+
+                    // authorize to Trakt.TV
+                    TraktTvScanner.getInstance().authorizeWithPin(pin);
+                    
+                    // We've authorized access to Trakt.TV, so quit now
                     return;
                 } else if ("-o".equalsIgnoreCase(arg)) {
                     jukeboxRoot = args[++i];
@@ -330,6 +343,7 @@ public class MovieJukebox {
         if (!setPropertiesStreamName("./properties/apikeys.properties", Boolean.TRUE)) {
             return;
         }
+        
         // This is needed to update the static reference for the API Keys in the pattern formatter
         // because the formatter is initialised before the properties files are read
         FilteringLayout.addApiKeys();
@@ -686,6 +700,10 @@ public class MovieJukebox {
         LOG.info("");
         LOG.info("  -memory           : OPTIONAL");
         LOG.info("                      Display and log the memory used by moviejukebox");
+        LOG.info("");
+        LOG.info("  -t pin            : OPTIONAL");
+        LOG.info("                      Set authentication pin from Trakt.TV to authorize this installation.");
+        LOG.info("                      Please visit 'http://trakt.tv/pin/8032' and use the given pin for authorization");
     }
 
     private void generateLibrary() throws Throwable {
