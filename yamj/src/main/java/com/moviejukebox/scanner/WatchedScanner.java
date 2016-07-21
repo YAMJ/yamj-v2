@@ -65,6 +65,8 @@ public class WatchedScanner {
      * {filename}.watched & {filename}.unwatched
      *
      * Always assumes that the file is unwatched if nothing is found.
+     * 
+     * Also TraktTV watched check can be done.
      *
      * @param jukebox
      * @param movie
@@ -77,6 +79,17 @@ public class WatchedScanner {
             warned = Boolean.TRUE;
         }
 
+        TrackedShow trackedShow = null;
+        TrackedMovie trackedMovie = null;
+        if (WATCH_TRAKTTV ) {
+            // PreLoad data from TraktTV
+            if (movie.isTVShow()) {
+                trackedShow = getMatchingShow(movie); 
+            } else if (!movie.isExtra()) {
+                trackedMovie = getMatchingMovie(movie);
+            }
+        }
+        
         // assume no changes
         boolean returnStatus = Boolean.FALSE;
         // check if media file watched has changed
@@ -99,7 +112,7 @@ public class WatchedScanner {
                 boolean fileWatched = Boolean.FALSE;
                 long fileWatchedDate = mf.getWatchedDate();
                 
-                // check for watched/unwatched files
+                // check for watched/unwatched files on file system
                 if (WATCH_FILES) {
 
                     String filename;
@@ -137,17 +150,18 @@ public class WatchedScanner {
                 }
 
                 // check for watched status from Trakt.TV
-                if (!movie.isExtra() && WATCH_TRAKTTV) {
+                if (WATCH_TRAKTTV) {
+                    
                     // always increase file counter
                     fileWatchedCount++;
                     
                     long traktWatchedDate = 0;
                     if (movie.isTVShow()) {
                         // get watched date for episode
-                        traktWatchedDate = getEpisodeWatchedDate(movie, mf);
-                    } else {
+                        traktWatchedDate = watchedDate(trackedShow, mf);
+                    } else if (!movie.isExtra()) {
                         // get watched date for movie
-                        traktWatchedDate = getMovieWatchedDate(movie);
+                        traktWatchedDate = watchedDate(trackedMovie);
                     }
 
                     // watched date only set if movie/episode has been watched
@@ -193,17 +207,6 @@ public class WatchedScanner {
         return returnStatus;
     }
 
-    private static long getMovieWatchedDate(Movie movie) {
-        for (TrackedMovie watchedMovie : TRAKT_TV_SCANNER.getWatchedMovies()) {
-            if (isMatchingMovie(watchedMovie, movie)) {
-                return watchedMovie.getLastWatchedAt().withMillisOfSecond(0).getMillis();
-            }
-        }
-        
-        // not watched
-        return 0;
-    }
-
     private static boolean isMatchingMovie(TrackedMovie tracked, Movie movie) {
         final Ids ids = tracked.getMovie().getIds();
         final String traktId = StringUtils.trimToNull(movie.getId(TraktTvScanner.SCANNER_ID));
@@ -224,29 +227,6 @@ public class WatchedScanner {
         return false;
     }
 
-    private static long getEpisodeWatchedDate(Movie movie, MovieFile movieFile) {
-        for (TrackedShow watchedShow : TRAKT_TV_SCANNER.getWatchedShows()) {
-            TrackedSeason season = getMatchingSeason(watchedShow, movie);
-            if (season == null) {
-                continue;
-            }
-            
-            // NOTE: all parts must be watched, so that the movie file can be set to watched
-            long watchedDate = 0;
-            for (int epNr = movieFile.getFirstPart(); epNr <= movieFile.getLastPart(); epNr++) {
-                watchedDate = Math.max(watchedDate, watchedDate(season, epNr));
-                if (watchedDate == 0) {
-                    // not all episodes in file are watched
-                    return 0;
-                }
-            }
-            return watchedDate;
-        }
-
-        // not watched
-        return 0;
-    }
-    
     private static boolean isMatchingShow(TrackedShow tracked, Movie movie) {
         final Ids ids = tracked.getShow().getIds();
         final String traktId = StringUtils.trimToNull(movie.getId(TraktTvScanner.SCANNER_ID));
@@ -282,24 +262,73 @@ public class WatchedScanner {
             movie.setId(TraktTvScanner.SCANNER_ID, traktId.toString());
         }
     }
-    
-    private static TrackedSeason getMatchingSeason(TrackedShow show, Movie movie) {
-        if (isMatchingShow(show, movie)) {
+
+    private static TrackedMovie getMatchingMovie(Movie movie) {
+        for (TrackedMovie tracked : TRAKT_TV_SCANNER.getWatchedMovies()) {
+            if (isMatchingMovie(tracked, movie)) {
+                return tracked;
+            }
+        }
+        return null;
+    }
+
+    private static TrackedShow getMatchingShow(Movie movie) {
+        for (TrackedShow tracked : TRAKT_TV_SCANNER.getWatchedShows()) {
+            if (isMatchingShow(tracked, movie)) {
+                return tracked;
+            }
+        }
+        return null;
+    }
+
+    private static TrackedSeason getMatchingSeason(TrackedShow show, MovieFile movieFile) {
+        if (show != null) {
             for (TrackedSeason season : show.getSeasons()) {
-                if (season.getNumber() != null && season.getNumber().intValue() == movie.getSeason()) {
+                if (season.getNumber() != null && season.getNumber().intValue() == movieFile.getSeason()) {
                     return season;
                 }
             }
         }
         return null;
     }
-    
+
+    private static long watchedDate(TrackedMovie movie) {
+        if (movie == null) {
+            // not watched if not found
+            return 0;
+        }
+        return movie.getLastWatchedAt().withMillisOfSecond(0).getMillis();
+    }
+
+    private static long watchedDate(TrackedShow show, MovieFile movieFile) {
+        TrackedSeason season = getMatchingSeason(show, movieFile);
+        if (season == null) {
+            // not watched if not found
+            return 0;
+        }
+
+        // NOTE: all parts must be watched, so that the movie file can be set to watched
+        long watchedDate = 0;
+        for (int epNr = movieFile.getFirstPart(); epNr <= movieFile.getLastPart(); epNr++) {
+            watchedDate = Math.max(watchedDate, watchedDate(season, epNr));
+            if (watchedDate == 0) {
+                // not all episodes in file are watched
+                return 0;
+            }
+        }
+        
+        // not watched
+        return 0;
+    }
+
     private static long watchedDate(TrackedSeason season, int epNr) {
         for (TrackedEpisode episode : season.getEpisodes()) {
             if (episode.getNumber() != null && episode.getNumber().intValue() == epNr) {
                 return episode.getLastWatchedAt().withMillisOfSecond(0).getMillis();
             }
         }
+        
+        // not watched
         return 0;
     }
 }
