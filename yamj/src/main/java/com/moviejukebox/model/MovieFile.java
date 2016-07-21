@@ -521,7 +521,7 @@ public class MovieFile implements Comparable<MovieFile> {
 
     public boolean setWatched(boolean watched, long watchedDate) {
         boolean changed = false;
-        if (watchedDate >= this.watchedDate) {
+        if (watchedDate != this.watchedDate || watched != this.watched) {
             changed = true;
             this.watched = watched;
             this.watchedDate = watchedDate;
