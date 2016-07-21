@@ -22,6 +22,8 @@
  */
 package com.moviejukebox.scanner;
 
+import static com.moviejukebox.tools.PropertiesUtil.TRUE;
+
 import com.moviejukebox.MovieJukebox;
 import com.moviejukebox.model.Jukebox;
 import com.moviejukebox.model.Movie;
@@ -31,13 +33,12 @@ import com.moviejukebox.model.enumerations.WatchedWithExtension;
 import com.moviejukebox.model.enumerations.WatchedWithLocation;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import static com.moviejukebox.tools.PropertiesUtil.TRUE;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.pojava.datetime.DateTime;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,18 +65,23 @@ public class WatchedScanner {
      * @return
      */
     public static boolean checkWatched(Jukebox jukebox, Movie movie) {
-        int fileWatchedCount = 0;                       // The number of watched files found
-        boolean movieWatched = Boolean.TRUE;            // Status of all of the movie files, to be saved in the movie bean
-        boolean movieFileWatchChanged = Boolean.FALSE;  // Have the movie files changed status?
-        boolean fileWatched;
-        boolean returnStatus = Boolean.FALSE;           // Assume no changes
 
         if (!warned && (LOCATION == WatchedWithLocation.CUSTOM)) {
             LOG.warn("Custom file location not supported for watched scanner");
             warned = Boolean.TRUE;
         }
 
+        // assume no changes
+        boolean returnStatus = Boolean.FALSE;
+        // check if media file watched has changed
+        boolean movieFileWatchChanged = Boolean.FALSE;
+        // the number of watched files found        
+        int fileWatchedCount = 0;
+
         File foundFile = null;
+        boolean fileWatched;
+        long fileWatchedDate;
+        boolean movieWatchedFile = Boolean.TRUE;
 
         for (MovieFile mf : movie.getFiles()) {
             // Check that the file pointer is valid
@@ -83,11 +89,15 @@ public class WatchedScanner {
                 continue;
             }
 
+            // get last watched file date
+            fileWatchedDate = mf.getWatchedDateFile();
+            
             if (MovieJukebox.isJukeboxPreserve() && !mf.getFile().exists()) {
                 fileWatchedCount++;
-                fileWatched = mf.isWatched();
+                fileWatched = mf.isWatchedFile();
             } else {
                 fileWatched = Boolean.FALSE;
+                
                 String filename;
                 // BluRay stores the file differently to DVD and single files, so we need to process the path a little
                 if (movie.isBluray()) {
@@ -117,47 +127,29 @@ public class WatchedScanner {
 
                 if (foundFile != null) {
                     fileWatchedCount++;
-
-                    if (StringUtils.endsWithAny(foundFile.getName().toLowerCase(), EXTENSIONS.toArray(new String[0]))) {
-                        fileWatched = Boolean.TRUE;
-                        mf.setWatchedDate(new DateTime().toMillis());
-                    } else {
-                        // We've found a specific file <filename>.unwatched, so we clear the settings
-                        fileWatched = Boolean.FALSE;
-                        mf.setWatchedDate(0); // remove the date if it exists
-                    }
+                    fileWatchedDate = new DateTime(foundFile.lastModified()).withMillisOfSecond(0).getMillis();
+                    fileWatched = StringUtils.endsWithAny(foundFile.getName().toLowerCase(), EXTENSIONS.toArray(new String[0]));
                 }
 
-                if (fileWatched != mf.isWatched()) {
+                if (mf.setWatchedFile(fileWatched, fileWatchedDate)) {
                     movieFileWatchChanged = Boolean.TRUE;
                 }
-
-                mf.setWatched(fileWatched); // Set the watched status
             }
 
-            // As soon as there is an unwatched file, the whole movie becomes unwatched
-            movieWatched = movieWatched && fileWatched;
+            // as soon as there is an unwatched file, the whole movie becomes unwatched
+            movieWatchedFile = movieWatchedFile && mf.isWatchedFile();
         }
 
         if (movieFileWatchChanged) {
+            // set dirty flag if movie file watched status has changed
             movie.setDirty(DirtyFlag.WATCHED, Boolean.TRUE);
         }
 
-        // Only change the watched status if we found at least 1 file
-        if ((fileWatchedCount > 0) && (movie.isWatchedFile() != movieWatched)) {
-            movie.setWatchedFile(movieWatched);
-            movie.setDirty(DirtyFlag.WATCHED, Boolean.TRUE);
-
-            // Issue 1949 - Force the artwork to be overwritten (those that can have icons on them)
-            movie.setDirty(DirtyFlag.POSTER, Boolean.TRUE);
-            movie.setDirty(DirtyFlag.BANNER, Boolean.TRUE);
-
-            returnStatus = Boolean.TRUE;
-        }
-
-        // If there are no files found and the movie is watched(file), reset the status
-        if ((fileWatchedCount == 0) && movie.isWatchedFile()) {
-            movie.setWatchedFile(movieWatched);
+        // change the watched status if:
+        //  - we found at least 1 file and watched file has change
+        //  - no files are found and the movie is watched
+        if ((fileWatchedCount > 0 && movie.isWatchedFile() != movieWatchedFile) || (fileWatchedCount == 0 && movie.isWatchedFile())) {
+            movie.setWatchedFile(movieWatchedFile);
             movie.setDirty(DirtyFlag.WATCHED, Boolean.TRUE);
 
             // Issue 1949 - Force the artwork to be overwritten (those that can have icons on them)
@@ -167,11 +159,11 @@ public class WatchedScanner {
             returnStatus = Boolean.TRUE;
         }
 
+        // build the final return status
         returnStatus |= movieFileWatchChanged;
         if (returnStatus) {
             LOG.debug("The video has one or more files that have changed status.");
         }
-
         return returnStatus;
     }
 }

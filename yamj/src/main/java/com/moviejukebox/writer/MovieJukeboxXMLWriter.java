@@ -1006,8 +1006,9 @@ public class MovieJukeboxXMLWriter {
         DOMHelper.appendChild(doc, eMovie, "watched", Boolean.toString(movie.isWatched()));
         DOMHelper.appendChild(doc, eMovie, "watchedNFO", Boolean.toString(movie.isWatchedNFO()));
         DOMHelper.appendChild(doc, eMovie, "watchedFile", Boolean.toString(movie.isWatchedFile()));
+        DOMHelper.appendChild(doc, eMovie, "watchedTraktTv", Boolean.toString(movie.isWatchedTraktTv()));
         if (movie.isWatched()) {
-            DOMHelper.appendChild(doc, eMovie, "watchedDate", movie.getWatchedDateString());
+            DOMHelper.appendChild(doc, eMovie, "watchedDate", getWatchedDateString(movie.getWatchedDate()));
         }
         DOMHelper.appendChild(doc, eMovie, "top250", Integer.toString(movie.getTop250()), SOURCE, movie.getOverrideSource(OverrideFlag.TOP250));
         DOMHelper.appendChild(doc, eMovie, DETAILS, HTMLTools.encodeUrl(movie.getBaseName()) + EXT_HTML);
@@ -1343,6 +1344,8 @@ public class MovieJukeboxXMLWriter {
             }
 
             eFileItem.setAttribute("watched", mf.isWatched() ? TRUE : FALSE);
+            eFileItem.setAttribute("watchedFile", mf.isWatchedFile() ? TRUE : FALSE);
+            eFileItem.setAttribute("watchedTraktTv", mf.isWatchedTraktTv() ? TRUE : FALSE);
 
             if (mf.getFile() != null) {
                 DOMHelper.appendChild(doc, eFileItem, "fileLocation", mf.getFile().getAbsolutePath());
@@ -1394,8 +1397,14 @@ public class MovieJukeboxXMLWriter {
                     DOMHelper.appendChild(doc, eFileItem, "firstAired", mf.getFirstAired(part), childAttributes);
                 }
 
-                if (StringTools.isValidString(mf.getWatchedDateString())) {
-                    DOMHelper.appendChild(doc, eFileItem, "watchedDate", mf.getWatchedDateString());
+                if (mf.getWatchedDate() > 0) {
+                    DOMHelper.appendChild(doc, eFileItem, "watchedDate", getWatchedDateString(mf.getWatchedDate()));
+                }
+                if (mf.getWatchedDateFile() > 0) {
+                    DOMHelper.appendChild(doc, eFileItem, "watchedDateFile", getWatchedDateString(mf.getWatchedDateFile()));
+                }
+                if (mf.getWatchedDateTraktTv() > 0) {
+                    DOMHelper.appendChild(doc, eFileItem, "watchedDateTraktTv", getWatchedDateString(mf.getWatchedDateTraktTv()));
                 }
 
                 if (includeEpisodePlots) {
@@ -1683,5 +1692,12 @@ public class MovieJukeboxXMLWriter {
                 LOG.error(SystemTools.getStackTrace(error));
             }
         }
+    }
+    
+    private static String getWatchedDateString(long watchedDate) {
+        if (watchedDate == 0) {
+            return Movie.UNKNOWN;
+        }
+        return new DateTime(watchedDate).toString(DateTimeTools.getDateFormatLongString());
     }
 }

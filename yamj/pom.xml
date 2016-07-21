@@ -71,6 +71,11 @@
             <artifactId>api-moviemeter</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.yamj</groupId>
+            <artifactId>api-trakttv</artifactId>
+        </dependency>
+
         <!-- Removed for the time being until I can fix the search
         <dependency>
             <groupId>com.omertron</groupId>

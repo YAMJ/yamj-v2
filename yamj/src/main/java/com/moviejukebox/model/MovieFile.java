@@ -37,7 +37,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.pojava.datetime.DateTime;
 
 @XmlType
 public class MovieFile implements Comparable<MovieFile> {
@@ -65,14 +64,19 @@ public class MovieFile implements Comparable<MovieFile> {
     private MovieFileNameDTO info;
     private final List<Attachment> attachments = new ArrayList<>();
     private boolean attachmentsScanned = false;
-    private boolean watched = false;
-    private long watchedDate = 0;
     private final boolean playFullBluRayDisk = PropertiesUtil.getBooleanProperty("mjb.playFullBluRayDisk", Boolean.TRUE);
     private final boolean includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", Boolean.FALSE);
     private final boolean includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", Boolean.FALSE);
     private static final Boolean DIR_HASH = PropertiesUtil.getBooleanProperty("mjb.dirHash", Boolean.FALSE);
     private final String playLinkVOD = PropertiesUtil.getProperty("filename.scanner.types.suffix.VOD", "");
     private final String playLinkZCD = PropertiesUtil.getProperty("filename.scanner.types.suffix.ZCD", "2");
+
+    private boolean watched = false;
+    private boolean watchedFile = false;
+    private boolean watchedTraktTv = false;
+    private long watchedDate = 0;
+    private long watchedDateFile = 0;
+    private long watchedDateTraktTv = 0;
 
     // checks
     private static final int MAX_LENGTH_EPISODE_PLOT = PropertiesUtil.getReplacedIntProperty("movie.episodeplot.maxLength", "plugin.plot.maxlength", 500);
@@ -512,37 +516,58 @@ public class MovieFile implements Comparable<MovieFile> {
         return playLinkMap;
     }
 
-    // Read the watched flag
     public boolean isWatched() {
         return watched;
     }
 
-    // Set the watched flag
-    public void setWatched(boolean watched) {
-        this.watched = watched;
+    public boolean isWatchedFile() {
+        return watchedFile;
     }
 
-    public void setWatchedDateString(String watchedDate) {
-        if (StringTools.isNotValidString(watchedDate)) {
-            this.watchedDate = 0;
-        } else {
-            this.watchedDate = DateTime.parse(watchedDate).toMillis();
-        }
-    }
-
-    public void setWatchedDate(long watchedDate) {
-        this.watchedDate = watchedDate;
-    }
-
-    public String getWatchedDateString() {
-        if (watchedDate == 0) {
-            return Movie.UNKNOWN;
-        }
-        return new DateTime(watchedDate).toString(DateTimeTools.getDateFormatLongString());
+    public boolean isWatchedTraktTv() {
+        return watchedTraktTv;
     }
 
     public long getWatchedDate() {
         return this.watchedDate;
+    }
+
+    public long getWatchedDateFile() {
+        return this.watchedDateFile;
+    }
+
+    public long getWatchedDateTraktTv() {
+        return this.watchedDateTraktTv;
+    }
+
+    public boolean setWatchedFile(boolean watchedFile, long watchedDateFile) {
+        boolean changed = false;
+        if (watchedDateFile >= this.watchedDateFile) {
+            changed = true;
+            this.watchedFile = watchedFile;
+            this.watchedDateFile = watchedDateFile;
+            
+            if (this.watchedDateFile >= this.watchedDate) {
+                this.watched = this.watchedFile;
+                this.watchedDate = this.watchedDateFile;
+            }
+        }
+        return changed;
+    }
+
+    public boolean setWatchedTraktTv(boolean watchedTraktTv, long watchedDateTraktTv) {
+        boolean changed = false;
+        if (watchedDateTraktTv >= this.watchedDateTraktTv) {
+            changed = true;
+            this.watchedTraktTv = watchedTraktTv;
+            this.watchedDateTraktTv = watchedDateTraktTv;
+            
+            if (this.watchedDateTraktTv >= this.watchedDate) {
+                this.watched = this.watchedTraktTv;
+                this.watchedDate = this.watchedDateTraktTv;
+            }
+        }
+        return changed;
     }
 
     public int getSeason() {

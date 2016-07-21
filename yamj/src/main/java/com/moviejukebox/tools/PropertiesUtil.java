@@ -43,16 +43,9 @@ public final class PropertiesUtil {
     private static final Logger LOG = LoggerFactory.getLogger(PropertiesUtil.class);
     private static final String PROPERTIES_CHARSET = "UTF-8";
     private static final String PREFERENCES_FILENAME = "preferences.xsl";
-
-    /**
-     * String representing TRUE
-     */
     public static final String TRUE = "true";
-
-    /**
-     * String representing FALSE
-     */
     public static final String FALSE = "false";
+    
     private static final Properties PROPS = new Properties();
 
     private PropertiesUtil() {

@@ -168,8 +168,11 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
     // File information
     private Date fileDate = null;
     private long fileSize = 0;
-    private boolean watchedFile = Boolean.FALSE;    // Watched / Unwatched - Set from the .watched files
-    private boolean watchedNFO = Boolean.FALSE;     // Watched / Unwatched - Set from the NFO file
+    // Watched informations
+    private boolean watchedNFO = Boolean.FALSE;
+    private boolean watchedFile = Boolean.FALSE;
+    private boolean watchedTraktTv = Boolean.FALSE;
+    
     // Navigation data
     private String first = UNKNOWN;
     private String previous = UNKNOWN;
@@ -2713,11 +2716,10 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         }
     }
 
-    // Read the watched flag
     @XmlElement(name = "isWatched")
     public boolean isWatched() {
-        // The watched NFO should override the watched file status
-        return (watchedFile || watchedNFO);
+        // set to watched if one watched category is true 
+        return (watchedNFO || watchedFile || watchedTraktTv);
     }
 
     @XmlTransient
@@ -2730,24 +2732,21 @@ public class Movie implements Comparable<Movie>, Identifiable, IMovieBasicInform
         return watchedFile;
     }
 
-    // Set the watched flag for files
-    public void setWatchedFile(boolean watched) {
-        this.watchedFile = watched;
+    @XmlTransient
+    public boolean isWatchedTraktTv() {
+        return watchedFile;
     }
 
-    // Set the watched flag for NFO
     public void setWatchedNFO(boolean watched) {
         this.watchedNFO = watched;
     }
 
-    @XmlElement
-    public String getWatchedDateString() {
-        long returnDate = getWatchedDate();
+    public void setWatchedFile(boolean watched) {
+        this.watchedFile = watched;
+    }
 
-        if (returnDate == 0) {
-            return Movie.UNKNOWN;
-        }
-        return new DateTime(returnDate).toString(DateTimeTools.getDateFormatLongString());
+    public void setWatchedTraktTv(boolean watched) { 
+        this.watchedTraktTv = watched;
     }
 
     /**

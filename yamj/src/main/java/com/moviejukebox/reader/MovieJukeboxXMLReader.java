@@ -22,75 +22,28 @@
  */
 package com.moviejukebox.reader;
 
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.BASE_FILENAME;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.CHARACTER;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.COUNTRY;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.DEPARTMENT;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.ID;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.JOB;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.LANGUAGE;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.MOVIE;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.MOVIEDB;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.NAME;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.ORDER;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.ORIGINAL_TITLE;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.PART;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.RATING;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.SEASON;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.SORT_TITLE;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.SOURCE;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.TITLE;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.TRAILER_LAST_SCAN;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.URL;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.WON;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.YEAR;
-import static com.moviejukebox.writer.MovieJukeboxXMLWriter.YES;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+import static com.moviejukebox.writer.MovieJukeboxXMLWriter.*;
 
 import com.moviejukebox.MovieJukebox;
-import com.moviejukebox.model.Award;
-import com.moviejukebox.model.AwardEvent;
-import com.moviejukebox.model.Codec;
-import com.moviejukebox.model.ExtraFile;
-import com.moviejukebox.model.Filmography;
-import com.moviejukebox.model.Movie;
-import com.moviejukebox.model.MovieFile;
-import com.moviejukebox.model.Person;
+import com.moviejukebox.model.*;
 import com.moviejukebox.model.attachment.Attachment;
 import com.moviejukebox.model.attachment.AttachmentType;
 import com.moviejukebox.model.attachment.ContentType;
-import com.moviejukebox.model.enumerations.CodecSource;
-import com.moviejukebox.model.enumerations.CodecType;
-import com.moviejukebox.model.enumerations.DirtyFlag;
-import com.moviejukebox.model.enumerations.OverrideFlag;
+import com.moviejukebox.model.enumerations.*;
 import com.moviejukebox.plugin.ImdbPlugin;
-import com.moviejukebox.tools.AspectRatioTools;
-import com.moviejukebox.tools.DOMHelper;
-import com.moviejukebox.tools.HTMLTools;
-import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.StringTools;
-import com.moviejukebox.tools.SystemTools;
+import com.moviejukebox.tools.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.*;
+import javax.xml.parsers.ParserConfigurationException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.pojava.datetime.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 public class MovieJukeboxXMLReader {
 
@@ -205,10 +158,9 @@ public class MovieJukeboxXMLReader {
                 }   // End of Ratings
 
                 // Get the watched flags
-                // The "watched" attribute is transient, based on the status of the watched movie files
-//                movie.setWatchedFile(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watched")));
                 movie.setWatchedNFO(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watchedNFO")));
                 movie.setWatchedFile(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watchedFile")));
+                movie.setWatchedTraktTv(Boolean.parseBoolean(DOMHelper.getValueFromElement(eMovie, "watchedTraktTv")));
 
                 // Get artwork URLS
                 movie.setPosterURL(HTMLTools.decodeUrl(DOMHelper.getValueFromElement(eMovie, "posterURL")));
@@ -563,6 +515,23 @@ public class MovieJukeboxXMLReader {
                             Element eFile = (Element) nElements;
                             MovieFile movieFile = new MovieFile();
 
+                            try {
+                                File mfFile = new File(DOMHelper.getValueFromElement(eFile, "fileLocation"));
+                                // Check to see if the file exists, or we are preserving the jukebox
+                                if (mfFile.exists() || MovieJukebox.isJukeboxPreserve()) {
+                                    // Save the file to the MovieFile
+                                    movieFile.setFile(mfFile);
+                                } else {
+                                    // We can't find this file anymore, so skip it.
+                                    LOG.debug("Missing video file in the XML file ({}), it may have been moved or no longer exist.", mfFile.getName());
+                                    continue;
+                                }
+                            } catch (Exception ignore) {
+                                // If there is an error creating the file then don't save anything
+                                LOG.debug("Failed parsing file {}", xmlFile.getName());
+                                continue;
+                            }
+
                             String attr = eFile.getAttribute(TITLE);
                             if (StringTools.isValidString(attr)) {
                                 movieFile.setTitle(attr);
@@ -586,28 +555,6 @@ public class MovieJukeboxXMLReader {
                             attr = eFile.getAttribute("subtitlesExchange");
                             if (StringTools.isValidString(attr)) {
                                 movieFile.setSubtitlesExchange(attr.equalsIgnoreCase(YES));
-                            }
-
-                            attr = eFile.getAttribute("watched");
-                            if (StringTools.isValidString(attr)) {
-                                movieFile.setWatched(Boolean.parseBoolean(attr));
-                            }
-
-                            try {
-                                File mfFile = new File(DOMHelper.getValueFromElement(eFile, "fileLocation"));
-                                // Check to see if the file exists, or we are preserving the jukebox
-                                if (mfFile.exists() || MovieJukebox.isJukeboxPreserve()) {
-                                    // Save the file to the MovieFile
-                                    movieFile.setFile(mfFile);
-                                } else {
-                                    // We can't find this file anymore, so skip it.
-                                    LOG.debug("Missing video file in the XML file ({}), it may have been moved or no longer exist.", mfFile.getName());
-                                    continue;
-                                }
-                            } catch (Exception ignore) {
-                                // If there is an error creating the file then don't save anything
-                                LOG.debug("Failed parsing file {}", xmlFile.getName());
-                                continue;
                             }
 
                             movieFile.setFilename(DOMHelper.getValueFromElement(eFile, "fileURL"));
@@ -751,8 +698,44 @@ public class MovieJukeboxXMLReader {
                                 }
                             }
 
-                            movieFile.setWatchedDateString(DOMHelper.getValueFromElement(eFile, "watchedDate"));
-
+                            // Parse watched: FILE
+                            String watchedDateFileString = DOMHelper.getValueFromElement(eFile, "watchedDateFile");
+                            String watchedFileString = eFile.getAttribute("watchedFile");
+                            if (StringUtils.isBlank(watchedDateFileString) && StringUtils.isBlank(watchedFileString)) {
+                                // backwards compatibility to older versions
+                                watchedDateFileString = DOMHelper.getValueFromElement(eFile, "watchedDate");
+                            }
+                            if (StringUtils.isBlank(watchedFileString)) {
+                                // backwards compatibility to older versions
+                                watchedFileString = eFile.getAttribute("watched");
+                            }
+                            final long watchedDateFile;
+                            if (StringTools.isNotValidString(watchedDateFileString)) {
+                                watchedDateFile = 0;
+                            } else {
+                                // strip milliseconds
+                                Calendar cal = Calendar.getInstance();
+                                cal.setTimeInMillis(DateTime.parse(watchedDateFileString).toMillis());
+                                cal.set(Calendar.MILLISECOND, 0);
+                                watchedDateFile = cal.getTimeInMillis();
+                            }
+                            movieFile.setWatchedFile(Boolean.parseBoolean(watchedFileString), watchedDateFile);
+                            
+                            // Parse watched: TraktTV
+                            String watchedDateTraktTvString = DOMHelper.getValueFromElement(eFile, "watchedDateTraktTv");
+                            final long watchedDateTraktTv;
+                            if (StringTools.isNotValidString(watchedDateTraktTvString)) {
+                                watchedDateTraktTv = 0;
+                            } else {
+                                // strip milliseconds
+                                Calendar cal = Calendar.getInstance();
+                                cal.setTimeInMillis(DateTime.parse(watchedDateTraktTvString).toMillis());
+                                cal.set(Calendar.MILLISECOND, 0);
+                                watchedDateTraktTv = cal.getTimeInMillis();
+                            }
+                            final boolean watchedTraktTv = Boolean.parseBoolean(eFile.getAttribute("watchedTraktTv"));
+                            movieFile.setWatchedTraktTv(watchedTraktTv, watchedDateTraktTv);
+                            
                             // This is not a new file
                             movieFile.setNewFile(Boolean.FALSE);
 
