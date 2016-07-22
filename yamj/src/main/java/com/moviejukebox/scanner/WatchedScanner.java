@@ -236,15 +236,15 @@ public class WatchedScanner {
             return true;
         }
         if (ids.slug() != null && StringUtils.equalsIgnoreCase(traktId, ids.slug())) {
-            setTraktId(ids.trakt(), traktId, movie);
+            setTraktId(ids, traktId, movie);
             return true;
         }
         if (ids.tmdb() != null && StringUtils.equals(tmdbId, ids.tmdb().toString())) {
-            setTraktId(ids.trakt(), traktId, movie);
+            setTraktId(ids, traktId, movie);
             return true;
         }
         if (ids.imdb() != null && StringUtils.equalsIgnoreCase(imdbId, ids.imdb())) {
-            setTraktId(ids.trakt(), traktId, movie);
+            setTraktId(ids, traktId, movie);
             return true;
         }
         return false;
@@ -262,31 +262,31 @@ public class WatchedScanner {
             return true;
         }
         if (ids.slug() != null && StringUtils.equalsIgnoreCase(traktId, ids.slug())) {
-            setTraktId(ids.trakt(), traktId, movie);
+            setTraktId(ids, traktId, movie);
             return true;
         }
         if (ids.tvdb() != null && StringUtils.equals(tvdbId, ids.tvdb().toString())) {
-            setTraktId(ids.trakt(), traktId, movie);
+            setTraktId(ids, traktId, movie);
             return true;
         }
         if (ids.tvRage() != null && StringUtils.equalsIgnoreCase(tvRageId, ids.tvRage())) {
-            setTraktId(ids.trakt(), traktId, movie);
+            setTraktId(ids, traktId, movie);
             return true;
         }
         if (ids.tmdb() != null && StringUtils.equals(tmdbId, ids.tmdb().toString())) {
-            setTraktId(ids.trakt(), traktId, movie);
+            setTraktId(ids, traktId, movie);
             return true;
         }
         if (ids.imdb() != null && StringUtils.equalsIgnoreCase(imdbId, ids.imdb())) {
-            setTraktId(ids.trakt(), traktId, movie);
+            setTraktId(ids, traktId, movie);
             return true;
         }
         return false;
     }
 
-    private static void setTraktId(Integer traktId, String presentTraktId, Movie movie) {
-        if (presentTraktId == null && traktId != null && traktId.intValue() > 0) {
-            movie.setId(TraktTV.SCANNER_ID, traktId.toString());
+    private static void setTraktId(Ids ids, String presentTraktId, Movie movie) {
+        if (presentTraktId == null && ids.trakt() != null && ids.trakt().intValue() > 0) {
+            movie.setId(TraktTV.SCANNER_ID, ids.trakt().toString());
         }
     }
 
