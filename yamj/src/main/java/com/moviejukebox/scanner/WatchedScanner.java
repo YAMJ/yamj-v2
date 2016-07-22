@@ -285,7 +285,7 @@ public class WatchedScanner {
     }
 
     private static void setTraktId(Ids ids, String presentTraktId, Movie movie) {
-        if (presentTraktId == null && ids.trakt() != null && ids.trakt().intValue() > 0) {
+        if (presentTraktId == null && ids.trakt() != null) {
             movie.setId(TraktTV.SCANNER_ID, ids.trakt().toString());
         }
     }
