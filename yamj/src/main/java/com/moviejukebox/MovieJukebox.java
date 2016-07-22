@@ -703,7 +703,7 @@ public class MovieJukebox {
         LOG.info("");
         LOG.info("  -t pin            : OPTIONAL");
         LOG.info("                      Set authentication pin from Trakt.TV to authorize this installation.");
-        LOG.info("                      Please visit 'http://trakt.tv/pin/8032' and use the given pin for authorization");
+        LOG.info("                      Please visit 'http://trakt.tv/pin/9882' and use the given pin for authorization");
     }
 
     private void generateLibrary() throws Throwable {
