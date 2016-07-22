@@ -25,7 +25,6 @@ package com.moviejukebox.tools;
 import java.io.*;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -41,7 +40,6 @@ public class TraktTV {
     public static final String SCANNER_ID = "trakttv";
     private static final Logger LOG = LoggerFactory.getLogger(TraktTV.class);
     private static TraktTV INSTANCE;
-    private static final ReentrantLock LOCK = new ReentrantLock(true);
     private static final String PROPS_FILE = "properties/trakttv.properties";
     private static final String PROP_ACCESS_TOKEN = "accessToken";
     private static final String PROP_REFRESH_TOKEN = "refreshToken";
