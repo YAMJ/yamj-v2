@@ -235,11 +235,15 @@ public class WatchedScanner {
         if (ids.trakt() != null && StringUtils.equals(traktId, ids.trakt().toString())) {
             return true;
         }
+        if (ids.slug() != null && StringUtils.equalsIgnoreCase(traktId, ids.slug())) {
+            setTraktId(ids.trakt(), traktId, movie);
+            return true;
+        }
         if (ids.tmdb() != null && StringUtils.equals(tmdbId, ids.tmdb().toString())) {
             setTraktId(ids.trakt(), traktId, movie);
             return true;
         }
-        if (ids.imdb() != null && StringUtils.equals(imdbId, ids.imdb())) {
+        if (ids.imdb() != null && StringUtils.equalsIgnoreCase(imdbId, ids.imdb())) {
             setTraktId(ids.trakt(), traktId, movie);
             return true;
         }
@@ -257,11 +261,15 @@ public class WatchedScanner {
         if (ids.trakt() != null && StringUtils.equals(traktId, ids.trakt().toString())) {
             return true;
         }
+        if (ids.slug() != null && StringUtils.equalsIgnoreCase(traktId, ids.slug())) {
+            setTraktId(ids.trakt(), traktId, movie);
+            return true;
+        }
         if (ids.tvdb() != null && StringUtils.equals(tvdbId, ids.tvdb().toString())) {
             setTraktId(ids.trakt(), traktId, movie);
             return true;
         }
-        if (ids.tvRage() != null && StringUtils.equals(tvRageId, ids.tvRage())) {
+        if (ids.tvRage() != null && StringUtils.equalsIgnoreCase(tvRageId, ids.tvRage())) {
             setTraktId(ids.trakt(), traktId, movie);
             return true;
         }
@@ -269,7 +277,7 @@ public class WatchedScanner {
             setTraktId(ids.trakt(), traktId, movie);
             return true;
         }
-        if (ids.imdb() != null && StringUtils.equals(imdbId, ids.imdb())) {
+        if (ids.imdb() != null && StringUtils.equalsIgnoreCase(imdbId, ids.imdb())) {
             setTraktId(ids.trakt(), traktId, movie);
             return true;
         }
