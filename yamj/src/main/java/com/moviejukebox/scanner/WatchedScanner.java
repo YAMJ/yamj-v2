@@ -34,7 +34,7 @@ import com.moviejukebox.model.enumerations.WatchedWithLocation;
 import com.moviejukebox.plugin.*;
 import com.moviejukebox.tools.FileTools;
 import com.moviejukebox.tools.PropertiesUtil;
-import com.moviejukebox.tools.TraktTvScanner;
+import com.moviejukebox.tools.TraktTV;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,7 +53,7 @@ public class WatchedScanner {
     private static final WatchedWithExtension WITH_EXTENSION = WatchedWithExtension.fromString(PropertiesUtil.getProperty("mjb.watched.withExtension", TRUE));
     private static final boolean WATCH_FILES = PropertiesUtil.getBooleanProperty("watched.scanner.enable", Boolean.TRUE);
     private static final boolean WATCH_TRAKTTV = PropertiesUtil.getBooleanProperty("watched.trakttv.enable", Boolean.FALSE);
-    private static final TraktTvScanner TRAKT_TV_SCANNER = TraktTvScanner.getInstance();
+    private static final TraktTV TRAKT_TV_SCANNER = TraktTV.getInstance();
     private static boolean warned = Boolean.FALSE;
     
     protected WatchedScanner() {
@@ -81,12 +81,27 @@ public class WatchedScanner {
 
         TrackedShow trackedShow = null;
         TrackedMovie trackedMovie = null;
-        if (WATCH_TRAKTTV) {
-            // PreLoad data from TraktTV
+        boolean watchTraktTV = WATCH_TRAKTTV; 
+        if (watchTraktTV) {
             if (movie.isTVShow()) {
-                trackedShow = getMatchingShow(movie); 
+                if (TraktTV.getInstance().isPreloadWatchedShows()) {
+                    // get matching show
+                    trackedShow = getMatchingShow(movie);
+                } else {
+                    // disable watching if preLoading failed
+                    watchTraktTV = false;
+                }
             } else if (!movie.isExtra()) {
-                trackedMovie = getMatchingMovie(movie);
+                if (TraktTV.getInstance().isPreloadWatchedMovies()) {
+                    // get matching movie
+                    trackedMovie = getMatchingMovie(movie);
+                } else {
+                    // disable watching if preLoading failed
+                    watchTraktTV = false;
+                }
+            } else {
+                // disable watching for extras
+                watchTraktTV = false;
             }
         }
         
@@ -150,7 +165,7 @@ public class WatchedScanner {
                 }
 
                 // check for watched status from Trakt.TV
-                if (WATCH_TRAKTTV) {
+                if (watchTraktTV) {
                     
                     // always increase file counter
                     fileWatchedCount++;
@@ -159,7 +174,7 @@ public class WatchedScanner {
                     if (movie.isTVShow()) {
                         // get watched date for episode
                         traktWatchedDate = watchedDate(trackedShow, movie, mf);
-                    } else if (!movie.isExtra()) {
+                    } else {
                         // get watched date for movie
                         traktWatchedDate = watchedDate(trackedMovie, movie);
                     }
@@ -169,6 +184,10 @@ public class WatchedScanner {
                         fileWatched = Boolean.TRUE;
                         fileWatchedDate = Math.max(traktWatchedDate, fileWatchedDate);
                     }
+                } else if (WATCH_TRAKTTV || movie.isExtra()) {
+                    // the file watch status has not changed if watching is disabled
+                    // due to preLoad error or if movie is an extra
+                    fileWatched = mf.isWatched();
                 }
                 
                 if (mf.setWatched(fileWatched, fileWatchedDate)) {
@@ -209,7 +228,7 @@ public class WatchedScanner {
 
     private static boolean isMatchingMovie(TrackedMovie tracked, Movie movie) {
         final Ids ids = tracked.getMovie().getIds();
-        final String traktId = StringUtils.trimToNull(movie.getId(TraktTvScanner.SCANNER_ID));
+        final String traktId = StringUtils.trimToNull(movie.getId(TraktTV.SCANNER_ID));
         final String tmdbId = StringUtils.trimToNull(movie.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID));
         final String imdbId = StringUtils.trimToNull(movie.getId(ImdbPlugin.IMDB_PLUGIN_ID));
 
@@ -229,7 +248,7 @@ public class WatchedScanner {
 
     private static boolean isMatchingShow(TrackedShow tracked, Movie movie) {
         final Ids ids = tracked.getShow().getIds();
-        final String traktId = StringUtils.trimToNull(movie.getId(TraktTvScanner.SCANNER_ID));
+        final String traktId = StringUtils.trimToNull(movie.getId(TraktTV.SCANNER_ID));
         final String tvdbId = StringUtils.trimToNull(movie.getId(TheTvDBPlugin.THETVDB_PLUGIN_ID));
         final String tvRageId = StringUtils.trimToNull(movie.getId(TVRagePlugin.TVRAGE_PLUGIN_ID));
         final String tmdbId = StringUtils.trimToNull(movie.getId(TheMovieDbPlugin.TMDB_PLUGIN_ID));
@@ -259,7 +278,7 @@ public class WatchedScanner {
 
     private static void setTraktId(Integer traktId, String presentTraktId, Movie movie) {
         if (presentTraktId == null && traktId != null && traktId.intValue() > 0) {
-            movie.setId(TraktTvScanner.SCANNER_ID, traktId.toString());
+            movie.setId(TraktTV.SCANNER_ID, traktId.toString());
         }
     }
 

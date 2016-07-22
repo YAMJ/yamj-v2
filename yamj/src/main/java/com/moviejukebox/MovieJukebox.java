@@ -261,7 +261,7 @@ public class MovieJukebox {
                     }
 
                     // authorize to Trakt.TV
-                    TraktTvScanner.getInstance().authorizeWithPin(pin);
+                    TraktTV.getInstance().initialize().authorizeWithPin(pin);
                     
                     // We've authorized access to Trakt.TV, so quit now
                     return;
@@ -703,7 +703,7 @@ public class MovieJukebox {
         LOG.info("");
         LOG.info("  -t pin            : OPTIONAL");
         LOG.info("                      Set authentication pin from Trakt.TV to authorize this installation.");
-        LOG.info("                      Please visit 'http://trakt.tv/pin/9882' and use the given pin for authorization");
+        LOG.info("                      Please visit 'https://trakt.tv/pin/9882' and use the given pin for authorization");
     }
 
     private void generateLibrary() throws Throwable {
@@ -912,6 +912,11 @@ public class MovieJukebox {
         LOG.info("Found {} videos in your media library", library.size());
         LOG.info("Stored {} files in the info cache", FileTools.fileCache.size());
 
+        if (enableWatchTraktTv) {
+            // if Trakt.TV watched is enabled then refresh if necessary and preLoad watched data
+            TraktTV.getInstance().initialize().refreshIfNecessary().preloadWatched();
+        }
+        
         JukeboxStatistics.setJukeboxTime(JukeboxStatistics.JukeboxTimes.SCAN_END, System.currentTimeMillis());
         JukeboxStatistics.setStatistic(JukeboxStatistic.VIDEOS, library.size());
 
