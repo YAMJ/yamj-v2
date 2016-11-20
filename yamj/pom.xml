@@ -58,11 +58,6 @@
 
         <dependency>
             <groupId>com.omertron</groupId>
-            <artifactId>rottentomatoesapi</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.omertron</groupId>
             <artifactId>traileraddictapi</artifactId>
         </dependency>
 

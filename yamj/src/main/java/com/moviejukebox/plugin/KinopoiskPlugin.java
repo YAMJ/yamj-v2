@@ -587,28 +587,6 @@ public class KinopoiskPlugin extends ImdbPlugin {
                         LOG.error(SITE_DESIGN, "IMDB rating");
                     }
                 }
-
-                valueFounded = false;
-                for (String critics : HTMLTools.extractTags(xml, ">Рейтинг кинокритиков<", ">о рейтинге критиков<", "class=\"star\"><s></s", "</div")) {
-                    int plus = 0;
-                    int minus = 0;
-                    int kinopoiskCritics = StringTools.parseRating(critics);
-
-                    for (String tmp : HTMLTools.extractTags(xml, ">Рейтинг кинокритиков<", ">о рейтинге критиков<", "class=\"el1\"", "</span")) {
-                        plus = NumberUtils.toInt(tmp, 0);
-                        break;
-                    }
-                    for (String tmp : HTMLTools.extractTags(xml, ">Рейтинг кинокритиков<", ">о рейтинге критиков<", "class=\"el2\"", "</span")) {
-                        minus = NumberUtils.toInt(tmp, 0);
-                        break;
-                    }
-                    movie.addRating("rottentomatoes:" + plus + ":" + minus, kinopoiskCritics);
-                    valueFounded = true;
-                    break;
-                }
-                if (!valueFounded && etalonFlag) {
-                    LOG.error(SITE_DESIGN, "Critics rating");
-                }
             }
 
             // Top250

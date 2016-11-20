@@ -186,12 +186,6 @@
             </dependency>
             <dependency>
                 <groupId>com.omertron</groupId>
-                <artifactId>rottentomatoesapi</artifactId>
-                <version>1.6-SNAPSHOT</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>com.omertron</groupId>
                 <artifactId>traileraddictapi</artifactId>
                 <version>1.6-SNAPSHOT</version>
                 <type>jar</type>

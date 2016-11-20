@@ -112,7 +112,6 @@ public class MovieJukebox {
     private static boolean bannerDownload;
     private static boolean photoDownload;
     private static boolean backdropDownload;
-    private static boolean enableRottenTomatoes;
     private final boolean setIndexFanart;
     private static boolean skipIndexGeneration = Boolean.FALSE;
     private static boolean skipHtmlGeneration = Boolean.FALSE;
@@ -734,7 +733,6 @@ public class MovieJukebox {
             private final MovieImagePlugin backgroundPlugin = MovieJukebox.getBackgroundPlugin(getProperty("mjb.background.plugin", "com.moviejukebox.plugin.DefaultBackgroundPlugin"));
             private final MediaInfoScanner miScanner = new MediaInfoScanner();
             private final OpenSubtitlesPlugin subtitlePlugin = new OpenSubtitlesPlugin();
-            private final RottenTomatoesPlugin rtPlugin = new RottenTomatoesPlugin();
             private final TrailerScanner trailerScanner = new TrailerScanner();
             // FANART.TV TV Artwork Scanners
             private final ArtworkScanner clearArtScanner = new FanartTvScanner(ArtworkType.CLEARART);
@@ -765,7 +763,6 @@ public class MovieJukebox {
 
         videoimageDownload = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
         bannerDownload = PropertiesUtil.getBooleanProperty("mjb.includeWideBanners", Boolean.FALSE);
-        enableRottenTomatoes = PropertiesUtil.getBooleanProperty("mjb.enableRottenTomatoes", Boolean.FALSE);
         photoDownload = PropertiesUtil.getBooleanProperty("mjb.includePhoto", Boolean.FALSE);
         backdropDownload = PropertiesUtil.getBooleanProperty("mjb.includeBackdrop", Boolean.FALSE);
         boolean processExtras = PropertiesUtil.getBooleanProperty("filename.extras.process", Boolean.TRUE);
@@ -974,11 +971,6 @@ public class MovieJukebox {
 
                                 // Get subtitle
                                 tools.subtitlePlugin.generate(movie);
-
-                                // RottenTomatoes Ratings
-                                if (!movie.isTVShow() && enableRottenTomatoes) {
-                                    tools.rtPlugin.scan(movie);
-                                }
 
                                 // Get Trailers
                                 if (trailersScannerEnable) {

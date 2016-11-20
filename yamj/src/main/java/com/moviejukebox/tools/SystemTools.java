@@ -150,7 +150,6 @@ public final class SystemTools {
         jarsToCheck.put("allocine-api", new ArrayList<String>());
         jarsToCheck.put("fanarttvapi", new ArrayList<String>());
         jarsToCheck.put("mjbsqldb", new ArrayList<String>());
-        jarsToCheck.put("rottentomatoesapi", new ArrayList<String>());
         jarsToCheck.put("subbabaapi", new ArrayList<String>());
         jarsToCheck.put("themoviedbapi", new ArrayList<String>());
         jarsToCheck.put("thetvdbapi", new ArrayList<String>());
