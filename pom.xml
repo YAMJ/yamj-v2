@@ -54,7 +54,7 @@
         <distribution.format>zip</distribution.format>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <version.slf4j>1.7.16</version.slf4j>
+        <version.slf4j>1.7.21</version.slf4j>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
@@ -136,7 +136,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.4</version>
+                <version>3.5</version>
             </dependency>
             <dependency>
                 <groupId>commons-configuration</groupId>
@@ -169,13 +169,13 @@
             <dependency>
                 <groupId>com.omertron</groupId>
                 <artifactId>themoviedbapi</artifactId>
-                <version>4.2</version>
+                <version>4.3</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>com.omertron</groupId>
                 <artifactId>thetvdbapi</artifactId>
-                <version>1.9-SNAPSHOT</version>
+                <version>1.9</version>
                 <type>jar</type>
             </dependency>
             <dependency>
