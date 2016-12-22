@@ -506,9 +506,9 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
         if (!moviedb.getSpokenLanguages().isEmpty() && OverrideTools.checkOverwriteLanguage(movie, TMDB_PLUGIN_ID)) {
             StringBuilder movieLanguage = new StringBuilder();
 
-            String isoCode = moviedb.getSpokenLanguages().get(0).getIsoCode();
-            if (StringTools.isValidString(isoCode)) {
-                movieLanguage.append(MovieFilenameScanner.determineLanguage(isoCode));
+            String langCode = moviedb.getSpokenLanguages().get(0).getCode();
+            if (StringTools.isValidString(langCode)) {
+                movieLanguage.append(MovieFilenameScanner.determineLanguage(langCode));
             }
 
             if (moviedb.getSpokenLanguages().size() > 1) {
@@ -516,7 +516,7 @@ public class TheMovieDbPlugin implements MovieDatabasePlugin {
                     if (movieLanguage.length() > 0) {
                         movieLanguage.append(LANGUAGE_DELIMITER);
                     }
-                    movieLanguage.append(MovieFilenameScanner.determineLanguage(lang.getIsoCode()));
+                    movieLanguage.append(MovieFilenameScanner.determineLanguage(lang.getCode()));
                 }
             }
 
