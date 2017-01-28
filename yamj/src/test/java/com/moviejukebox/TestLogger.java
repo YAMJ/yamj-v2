@@ -87,20 +87,10 @@ public class TestLogger {
      * @param propertyFile
      */
     public static void loadProperties(Properties props, File propertyFile) {
-        InputStream is = null;
-        try {
-            is = new FileInputStream(propertyFile);
+        try (InputStream is = new FileInputStream(propertyFile)) {
             props.load(is);
         } catch (Exception ex) {
             LOG.warn("Failed to load properties file", ex);
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException ex) {
-                    LOG.warn("Failed to close properties file", ex);
-                }
-            }
         }
     }
 
@@ -112,10 +102,7 @@ public class TestLogger {
      * @param headerText
      */
     public static void saveProperties(Properties props, File propertyFile, String headerText) {
-        OutputStream out = null;
-
-        try {
-            out = new FileOutputStream(propertyFile);
+        try (OutputStream out = new FileOutputStream(propertyFile)) {
             if (StringUtils.isNotBlank(headerText)) {
                 props.store(out, headerText);
             }
@@ -123,15 +110,6 @@ public class TestLogger {
             LOG.warn("Failed to find properties file", ex);
         } catch (IOException ex) {
             LOG.warn("Failed to read properties file", ex);
-        } finally {
-            if (out != null) {
-                try {
-                    out.flush();
-                    out.close();
-                } catch (IOException ex) {
-                    LOG.warn("Failed to close properties file", ex);
-                }
-            }
         }
     }
 }
