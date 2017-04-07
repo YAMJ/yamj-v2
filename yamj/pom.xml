@@ -88,11 +88,11 @@
             <groupId>org.apache.xmlrpc</groupId>
             <artifactId>xmlrpc-client</artifactId>
             <exclusions>
-				<exclusion>
-	            	<groupId>xml-apis</groupId>
-    	        	<artifactId>xml-apis</artifactId>
-				</exclusion>
-			</exclusions>             
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>             
         </dependency>
 
         <dependency>
@@ -185,7 +185,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient-cache</artifactId>
-            <version>4.5.1</version>
+            <version>4.5.3</version>
         </dependency>
 
     </dependencies>
@@ -304,7 +304,7 @@
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
-	    </dependencies>
+        </dependencies>
     </dependencyManagement>
 
     <url>http://code.google.com/p/moviejukebox/</url>
