@@ -104,6 +104,7 @@ public class MovieJukeboxXMLWriter {
     private final boolean fullCategoriesInIndexes;
     private final boolean includeMoviesInCategories;
     private final boolean includeEpisodePlots;
+    private final int episodePlotSize;
     private final boolean includeVideoImages;
     private final boolean includeEpisodeRating;
     private static final boolean IS_PLAYON_HD = PropertiesUtil.getBooleanProperty("mjb.PlayOnHD", Boolean.FALSE);
@@ -151,6 +152,7 @@ public class MovieJukeboxXMLWriter {
         fullCategoriesInIndexes = PropertiesUtil.getBooleanProperty("mjb.fullCategoriesInIndexes", Boolean.TRUE);
         includeMoviesInCategories = PropertiesUtil.getBooleanProperty("mjb.includeMoviesInCategories", Boolean.FALSE);
         includeEpisodePlots = PropertiesUtil.getBooleanProperty("mjb.includeEpisodePlots", Boolean.FALSE);
+        episodePlotSize = PropertiesUtil.getIntProperty("mjb.episodePlotSize", 0);
         includeVideoImages = PropertiesUtil.getBooleanProperty("mjb.includeVideoImages", Boolean.FALSE);
         includeEpisodeRating = PropertiesUtil.getBooleanProperty("mjb.includeEpisodeRating", Boolean.FALSE);
         setsExcludeTV = PropertiesUtil.getBooleanProperty("mjb.sets.excludeTV", Boolean.FALSE);
@@ -903,8 +905,7 @@ public class MovieJukeboxXMLWriter {
     /**
      * Write the element with the indexed attribute.
      *
-     * If there is a non-null value in the indexValue, this will be appended to
-     * the element.
+     * If there is a non-null value in the indexValue, this will be appended to the element.
      *
      * @param doc
      * @param parentElement
@@ -1401,17 +1402,21 @@ public class MovieJukeboxXMLWriter {
                 if (includeEpisodePlots) {
                     childAttributes.clear();
                     childAttributes.put(PART, Integer.toString(part));
-                    
+
                     // use file title if plot is invalid
                     String filePlot = mf.getPlot(part);
                     final String filePlotSource;
-                    if (movie.isTVShow() && StringTools.isNotValidString(filePlot)) { 
+                    if (movie.isTVShow() && StringTools.isNotValidString(filePlot)) {
                         filePlot = mf.getTitle(part);
                         filePlotSource = Movie.UNKNOWN;
                     } else {
                         filePlotSource = mf.getOverrideSource(OverrideFlag.EPISODE_PLOT);
                     }
-                    
+
+                    if (episodePlotSize > 0) {
+                        filePlot = StringTools.trimToLength(filePlot, episodePlotSize);
+                    }
+
                     childAttributes.put(SOURCE, filePlotSource);
                     DOMHelper.appendChild(doc, eFileItem, "filePlot", filePlot, childAttributes);
                 }
@@ -1526,9 +1531,8 @@ public class MovieJukeboxXMLWriter {
     /**
      * Persist a movie into an XML file.
      *
-     * Doesn't overwrite an already existing XML file for the specified movie
-     * unless, movie's data has changed (INFO, RECHECK, WATCHED) or
-     * forceXMLOverwrite is true.
+     * Doesn't overwrite an already existing XML file for the specified movie unless, movie's data has changed (INFO, RECHECK,
+     * WATCHED) or forceXMLOverwrite is true.
      *
      * @param jukebox
      * @param movie
@@ -1684,7 +1688,7 @@ public class MovieJukeboxXMLWriter {
             }
         }
     }
-    
+
     private static String getWatchedDateString(long watchedDate) {
         if (watchedDate == 0) {
             return Movie.UNKNOWN;
