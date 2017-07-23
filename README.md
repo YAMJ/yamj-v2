@@ -17,3 +17,5 @@ Java and .NET applications.
 Take a look at !YourKit's leading software products: [YourKit Java Profiler](http://www.yourkit.com/java/profiler/index.jsp) and [YourKit .NET Profiler](http://www.yourkit.com/.net/profiler/index.jsp)
 
 You can download the installation package from the [MediaPlayerSite](http://www.mediaplayersite.com/YAMJ_Latest).
+
+You can find the wiki https://github.com/YAMJ/yamj-v2/wiki
