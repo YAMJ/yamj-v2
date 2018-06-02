@@ -174,7 +174,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         }
 
         // PATTERN
-        pRelease = Pattern.compile("(?:.*?)\\Q" + preferredCountry + "\\E(?:.*?)\\Qrelease_date\">\\E(.*?)(?:<.*?>)(.*?)(?:</a>.*)");
+        pRelease = Pattern.compile(">\\Q" + preferredCountry + "\\E<.*?\"release_date\">([^<]+)<.*");
 
     }
 
@@ -592,6 +592,12 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             // This plot didn't work, look for another version
             if (isNotValidString(xmlPlot)) {
+                xmlPlot = HTMLTools.extractTag(xml, "<div class=\"summary_text\">", HTML_DIV_END);
+                xmlPlot = HTMLTools.removeHtmlTags(xmlPlot).trim();
+            }
+
+            // This plot didn't work, look for another version
+            if (isNotValidString(xmlPlot)) {
                 xmlPlot = HTMLTools.extractTag(xml, "<div class=\"inline canwrap\" itemprop=\"description\">", HTML_DIV_END);
                 xmlPlot = HTMLTools.removeHtmlTags(xmlPlot).trim();
             }
@@ -696,7 +702,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
 
             // "contains" is a quick match before the slower find() is triggered.
             if (releaseInfoXML.contains(preferredCountry) && mRelease.find()) {
-                String releaseDate = mRelease.group(1) + " " + mRelease.group(2);
+                String releaseDate = mRelease.group(1);
                 movie.setReleaseDate(releaseDate, IMDB_PLUGIN_ID);
             }
         }
