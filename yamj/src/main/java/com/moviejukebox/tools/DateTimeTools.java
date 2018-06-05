@@ -231,7 +231,12 @@ public final class DateTimeTools {
             }
         }
 
-        return parseDateTime(parsedDateString);
+        Date parsedDate = parseDateTime(parsedDateString);
+        if (parsedDate == null) {
+            throw new IllegalArgumentException("Date string '" + parsedDateString + "' cannot be parsed to a date");
+        }
+
+        return parsedDate;
     }
 
     private static Date parseDateTime(String convertDate) {
