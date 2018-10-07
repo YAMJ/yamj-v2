@@ -859,6 +859,7 @@ public class ImdbPlugin implements MovieDatabasePlugin {
         boolean found = Boolean.FALSE;
 
         for (String actorBlock : HTMLTools.extractTags(fullcreditsXML, "<table class=\"cast_list\">", HTML_TABLE_END, "<td class=\"primary_photo\"", "</tr>")) {
+
             // skip faceless persons ("loadlate hidden" is present for actors with photos)
             if (skipFaceless && !actorBlock.contains("loadlate hidden")) {
                 continue;
@@ -868,6 +869,11 @@ public class ImdbPlugin implements MovieDatabasePlugin {
             String personID = actorBlock.substring(nmPosition + 1, actorBlock.indexOf("/", nmPosition + 1));
 
             String name = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "itemprop=\"name\">", HTML_SPAN_END));
+            if (name.equals(UNKNOWN)) {
+                // Try with alternate format
+		        name = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "<td>", HTML_A_END));
+            }
+
             String character = HTMLTools.stripTags(HTMLTools.extractTag(actorBlock, "<td class=\"character\">", HTML_TD_END));
 
             if (overrideNormal) {
