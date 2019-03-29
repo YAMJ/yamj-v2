@@ -290,9 +290,17 @@ public final class PosterScanner {
                 FileTools.copyFile(localPosterFile, tempJukeboxFile);
                 LOG.debug("'{}' has been copied to '{}'", fullPosterFilename, tempJukeboxPosterFileName);
             }
-            // Update poster URL with local poster
-            String posterURI = localPosterFile.toURI().toString();
-            movie.setPosterURL(posterURI);
+
+            String posterURI;
+            // only update poster URL if not found in local jukebox
+            if (localPosterFile.getAbsolutePath().contains(jukebox.getJukeboxRootLocationDetails())) {
+                //return currently set posterURL, don't use local jukebox copy for the URL
+                posterURI = movie.getPosterURL();
+            } else {
+                // Update poster URL with local poster
+                posterURI = localPosterFile.toURI().toString();
+                movie.setPosterURL(posterURI);
+            }
 
             return posterURI;
         }
