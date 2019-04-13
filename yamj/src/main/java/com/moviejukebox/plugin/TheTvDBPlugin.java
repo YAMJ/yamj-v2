@@ -595,8 +595,21 @@ public class TheTvDBPlugin extends ImdbPlugin {
                             break;
                         }
                     } else {
-                        series = s;
-                        break;
+                        //no year for the series
+                        //if title matches exactly, match it
+                        if (movie.getTitle().equals(s.getSeriesName())) {
+                            series = s;
+                            break;
+                        }
+                    } 
+                } else {
+                    //no first aired date, it's missing on some new? series
+                    if (StringTools.isValidString(movie.getYear())) {
+                        //does title + year == tvdb title?
+                        if (s.getSeriesName().equals(movie.getTitle() + " (" + movie.getYear() +")")) {
+                            series = s;
+                            break;
+                        }
                     }
                 }
             }
