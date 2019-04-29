@@ -71,7 +71,7 @@ public class KinopoiskPlugin extends ImdbPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(KinopoiskPlugin.class);
     public static final String KINOPOISK_PLUGIN_ID = "kinopoisk";
     private static final String SITE_DESIGN = "Site design changed - failed get KinoPoisk '{}'!";
-    private static final Charset CHARSET = Charset.forName("windows-1251");
+    private static final Charset CHARSET = Charset.forName("UTF-8");
     private static final String ENGLISH = "english";
     private static final String FILM_URL = "https://www.kinopoisk.ru/film/";
     private static final String NAME_URL = "https://www.kinopoisk.ru/name/";

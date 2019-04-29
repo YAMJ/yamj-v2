@@ -4,6 +4,7 @@
 
 MovieJukebox 2.10-SNAPSHOT
 --------------------------
+ - Fixed defect #2807 Use UTF-8 encoding for www.kinopoisk.ru instead windows-1251
  - Enhancement   #731 Get cast information and images from TheMovieDB.org
  - Enhancement  #1162 CSFD support with ScriptableScraper Plugin
  - Fixed defect #2664 Ratings categories are incorrectly named
