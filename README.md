@@ -6,6 +6,8 @@ Primarily this jukebox is aimed at the [Cloud Media](http://cloudmedia.com) play
 
 YAMJ supports many different sources of data, such as TheMovieDB, TheTVDB, Allocine, etc. and therefore many different languages.
 
+# Note: This application is no longer supported, and fixes are unlikely to be created for any issues new or existing.
+
 There is a massive community supporting user created skins that allow for the complete customization of the jukebox.
 
 [![Project Stats](https://www.openhub.net/p/21573/widgets/project_partner_badge.gif)](https://www.openhub.net/p/21573)     
